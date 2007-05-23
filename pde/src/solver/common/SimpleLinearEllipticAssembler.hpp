@@ -12,7 +12,6 @@
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractLinearSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
-#include "AbstractBasisFunction.hpp"
 
 
 /**
@@ -82,24 +81,6 @@ public:
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2) :
             AbstractLinearStaticProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
-    {
-        // note - we don't check any of these are NULL here (that is done in Solve() instead),
-        // to allow the user or a subclass to set any of these later
-        mpEllipticPde = pPde;
-        this->mpMesh = pMesh;
-        this->mpBoundaryConditions = pBoundaryConditions;
-    }
-    
-    /**
-     * Constructor which also takes in basis functions
-     */
-    SimpleLinearEllipticAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                                  AbstractLinearEllipticPde<SPACE_DIM>* pPde,
-                                  BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
-                                  AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-                                  AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                  unsigned numQuadPoints = 2) :
-            AbstractLinearStaticProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later

@@ -1,18 +1,14 @@
 #ifndef _ABSTRACTASSEMBLER_HPP_
 #define _ABSTRACTASSEMBLER_HPP_
 
-#include "AbstractBasisFunction.hpp"
 #include "LinearBasisFunction.cpp"
 #include "GaussianQuadratureRule.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "LinearSystem.hpp"
 #include "GaussianQuadratureRule.hpp"
-#include "AbstractBasisFunction.hpp"
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
-
-
 
 /**
  *  AbstractAssembler
@@ -62,9 +58,9 @@ protected:
     BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditions;
     
     /*< Basis function for use with normal elements */
-    AbstractBasisFunction<ELEMENT_DIM> *mpBasisFunction;
+    LinearBasisFunction<ELEMENT_DIM> *mpBasisFunction;
     /*< Basis function for use with boundary elements */
-    AbstractBasisFunction<ELEMENT_DIM-1> *mpSurfaceBasisFunction;
+    LinearBasisFunction<ELEMENT_DIM-1> *mpSurfaceBasisFunction;
 
     /*< Quadrature rule for use on normal elements */
     GaussianQuadratureRule<ELEMENT_DIM> *mpQuadRule;
@@ -202,7 +198,7 @@ protected:
     {
         GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpQuadRule);
-        AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
+        LinearBasisFunction<ELEMENT_DIM> &rBasisFunction =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpBasisFunction);
             
             
@@ -327,7 +323,7 @@ protected:
     {
         GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpSurfaceQuadRule);
-        AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction =
+        LinearBasisFunction<ELEMENT_DIM-1> &rBasisFunction =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpSurfaceBasisFunction);
             
         double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
@@ -783,9 +779,9 @@ public:
         mpBoundaryConditions = NULL;
         
         mWeAllocatedBasisFunctionMemory = false; // sic
-        LinearBasisFunction<ELEMENT_DIM> *pBasisFunction = new LinearBasisFunction<ELEMENT_DIM>();
-        LinearBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction = new LinearBasisFunction<ELEMENT_DIM-1>();
-        SetBasisFunctions(pBasisFunction, pSurfaceBasisFunction);
+        mpBasisFunction = new LinearBasisFunction<ELEMENT_DIM>();
+        mpSurfaceBasisFunction = new LinearBasisFunction<ELEMENT_DIM-1>();
+        //SetBasisFunctions(pBasisFunction, pSurfaceBasisFunction);
         mWeAllocatedBasisFunctionMemory = true;
         
         mpQuadRule = NULL;
@@ -794,54 +790,6 @@ public:
         
         mMatrixIsAssembled = false;
     }
-    
-    
-    /**
-     * Constructor allowing specification of the type of basis function to use.
-     * 
-     * @param pBasisFunction Basis function to use for normal elements.
-     * @param pSurfaceBasisFunction Basis function to use for boundary elements.
-     * @param numQuadPoints Number of quadrature points to use per dimension.
-     */
-    AbstractAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-                      AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                      unsigned numQuadPoints = 2)
-    {
-        // Initialise mesh and bcs to null, so we can check they
-        // have been set before attempting to solve
-        mpMesh = NULL;
-        mpBoundaryConditions = NULL;
-        
-        mWeAllocatedBasisFunctionMemory = false;
-        SetBasisFunctions(pBasisFunction, pSurfaceBasisFunction);
-        
-        mpQuadRule = NULL;
-        mpSurfaceQuadRule = NULL;
-        SetNumberOfQuadraturePointsPerDimension(numQuadPoints);
-        
-        mMatrixIsAssembled = false;
-    }
-    
-    
-    /**
-     * Specify what type of basis functions to use.
-     * 
-     * @param pBasisFunction Basis function to use for normal elements.
-     * @param pSurfaceBasisFunction Basis function to use for boundary elements.
-     */
-    void SetBasisFunctions(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-                           AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction)
-    {
-        if (mWeAllocatedBasisFunctionMemory)
-        {
-            delete mpBasisFunction;
-            delete mpSurfaceBasisFunction;
-            mWeAllocatedBasisFunctionMemory = false;
-        }
-        mpBasisFunction = pBasisFunction;
-        mpSurfaceBasisFunction = pSurfaceBasisFunction;
-    }
-    
     
     /**
      * Set the number of quadrature points to use, per dimension.

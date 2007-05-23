@@ -46,12 +46,6 @@ public :
                                           double linearSolverRelativeTolerance = 1e-6) :
             AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints, linearSolverRelativeTolerance)
     {}
-    AbstractLinearDynamicProblemAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-                                          AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                          unsigned numQuadPoints = 2,
-                                          double linearSolverRelativeTolerance = 1e-6) :
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints, linearSolverRelativeTolerance)
-    {}
     
     /**
      *  Set the times to solve between, and the time step to use

@@ -223,19 +223,6 @@ public:
         mUseAnalyticalJacobian = true;
     }
     
-    AbstractNonlinearStaticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-                                     AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                     unsigned numQuadPoints = 2) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
-    {
-        mpSolver = new SimplePetscNonlinearSolver;
-        mWeAllocatedSolverMemory = true;
-        
-        this->mpProblemIsLinear = false;
-        
-        mUseAnalyticalJacobian = true;
-    }
-    
     ~AbstractNonlinearStaticAssembler()
     {
         if (mWeAllocatedSolverMemory)

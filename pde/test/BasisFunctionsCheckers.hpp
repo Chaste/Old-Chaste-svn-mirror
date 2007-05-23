@@ -1,14 +1,14 @@
 #ifndef _BASISFUNCTIONSCHECKERS_HPP_
 #define _BASISFUNCTIONSCHECKERS_HPP_
 #include <cxxtest/TestSuite.h>
-#include "AbstractBasisFunction.hpp"
+#include "LinearBasisFunction.hpp"
 #include <vector>
 
 template <int SPACE_DIM>
 class BasisFunctionsCheckers
 {
 public:
-    void checkBasisFunctions(AbstractBasisFunction<SPACE_DIM>* pBasisFunc,
+    void checkBasisFunctions(LinearBasisFunction<SPACE_DIM>* pBasisFunc,
                              std::vector<Point<SPACE_DIM>*> evaluationPoints)
     {
         int size = evaluationPoints.size();		// number of evalutation points and basis functions too

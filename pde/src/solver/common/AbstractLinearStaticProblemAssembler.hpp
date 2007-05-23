@@ -19,7 +19,6 @@
 #include <petscvec.h>
 
 #include "AbstractLinearAssembler.hpp"
-#include "AbstractBasisFunction.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 
 
@@ -34,11 +33,6 @@ public:
      */
     AbstractLinearStaticProblemAssembler(unsigned numQuadPoints = 2) :
             AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
-    {}
-    AbstractLinearStaticProblemAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-                                         AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                         unsigned numQuadPoints = 2) :
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {}
     
     /**

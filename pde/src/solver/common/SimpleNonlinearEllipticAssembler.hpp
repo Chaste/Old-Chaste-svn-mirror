@@ -10,7 +10,6 @@
 #include "AbstractNonlinearStaticAssembler.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include "AbstractBasisFunction.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
 
 
@@ -146,29 +145,6 @@ public :
                                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
                                       unsigned numQuadPoints = 2) :
             AbstractNonlinearStaticAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
-    {
-        // Store data structures
-        assert(pMesh!=NULL);
-        assert(pPde!=NULL);
-        assert(pBoundaryConditions!=NULL);
-        
-        this->mpMesh = pMesh;
-        mpNonlinearEllipticPde = pPde;
-        this->mpBoundaryConditions = pBoundaryConditions;
-    }
-    
-    /**
-     * Alternative constructor - takes in the mesh, pde and boundary conditions container to be solved, and 
-     * basis functions to use. Can also define the number of quad points (in each dimension), the default 
-     * value of which is 2
-     */
-    SimpleNonlinearEllipticAssembler( ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
-                                      AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
-                                      BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
-                                      AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-                                      AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                      unsigned numQuadPoints = 2) :
-            AbstractNonlinearStaticAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         // Store data structures
         assert(pMesh!=NULL);

@@ -10,7 +10,6 @@
 #include "AbstractAssembler.hpp"
 #include "AbstractLinearAssembler.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
-#include "AbstractBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "MonodomainPde.hpp"
 
@@ -93,27 +92,6 @@ public:
         
         // set up boundary conditions
         this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>;
-        this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh);
-        
-        this->SetMatrixIsConstant();
-    }
-    
-    /**
-     *  Alternative constructor which stores the mesh and pde, sets up 
-     *  boundary conditions, and also takes in basis functions.
-     */
-    MonodomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                           MonodomainPde<SPACE_DIM>* pPde,
-                           AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-                           AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                           unsigned numQuadPoints = 2) :
-            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, NULL /*bcs - set below*/, pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
-    {
-        this->mpMesh = pMesh;
-        mpMonodomainPde = pPde;
-        
-        // set up boundary conditions
-        this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>;
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh);
         
         this->SetMatrixIsConstant();

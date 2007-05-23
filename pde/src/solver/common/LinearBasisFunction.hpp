@@ -1,11 +1,10 @@
 #ifndef _LINEARBASISFUNCTION_HPP_
 #define _LINEARBASISFUNCTION_HPP_
 
-#include "AbstractBasisFunction.hpp"
 #include "Point.hpp"
 
 template <unsigned ELEM_DIM>
-class LinearBasisFunction : public AbstractBasisFunction<ELEM_DIM>
+class LinearBasisFunction
 {
 public:
     double ComputeBasisFunction(const Point<ELEM_DIM> &rPoint, unsigned basisIndex) const;
@@ -22,7 +21,7 @@ public:
  * We need to specialise for the 0d case, because 0x0 matrices don't work.
  */
 template <>
-class LinearBasisFunction<0> : public AbstractBasisFunction<0>
+class LinearBasisFunction<0>
 {
 public:
     double ComputeBasisFunction(const Point<0> &rPoint, unsigned basisIndex) const;

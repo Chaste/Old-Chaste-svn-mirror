@@ -96,27 +96,6 @@ public:
     }
     
     /**
-     * Constructor which also takes in basis functions
-     */
-    SimpleDg0ParabolicAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                                AbstractLinearParabolicPde<SPACE_DIM>* pPde,
-                                BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
-                                AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-                                AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                unsigned numQuadPoints = 2) :
-            AbstractLinearDynamicProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
-    {
-        // note - we don't check any of these are NULL here (that is done in Solve() instead),
-        // to allow the user or a subclass to set any of these later
-        mpParabolicPde = pPde;
-        this->mpMesh = pMesh;
-        this->mpBoundaryConditions = pBoundaryConditions;
-        
-        this->mTimesSet = false;
-        this->mInitialConditionSet = false;
-    }
-    
-    /**
      * Called by AbstractLinearDynamicProblemSolver at the beginning of Solve() 
      */
     void PrepareForSolve()

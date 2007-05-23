@@ -40,23 +40,6 @@ public:
         this->mProblemIsLinear = true;
     }
     
-    
-    AbstractLinearAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-                            AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                            unsigned numQuadPoints = 2,
-                            double linearSolverRelativeTolerance = 1e-6) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
-    {
-        mpLinearSolver = new SimpleLinearSolver(linearSolverRelativeTolerance);
-        mWeAllocatedSolverMemory = true;
-        
-        this->mpLinearSystem = NULL;
-        this->mMatrixIsConstant = false;
-        this->mMatrixIsAssembled = false;
-        
-        this->mProblemIsLinear = true;
-    }
-    
     /**
      *  Destructor: ensures that the LinearSystem is thrown away.
      */
