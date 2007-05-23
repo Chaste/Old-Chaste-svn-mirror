@@ -9,11 +9,9 @@ class Element : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 {
 
 public:
-    Element(unsigned index,
-            std::vector<Node<SPACE_DIM>*> nodes,
-            unsigned orderOfBasisFunctions=1): AbstractElement<ELEMENT_DIM, SPACE_DIM>(index,nodes,orderOfBasisFunctions)
+    Element(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
+        : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
     {
-        this->mIsDeleted=false;
         RegisterWithNodes();
     }
     

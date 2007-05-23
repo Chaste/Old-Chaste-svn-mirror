@@ -185,11 +185,11 @@ public:
     {
         TrianglesMeshReader<2,2> fine_mesh_reader("mesh/test/data/disk_984_elements");
         ConformingTetrahedralMesh<2,2> fine_mesh;
-        fine_mesh.ConstructFromMeshReader(fine_mesh_reader,1);
+        fine_mesh.ConstructFromMeshReader(fine_mesh_reader);
         
         TrianglesMeshReader<2,2> coarse_mesh_reader("mesh/test/data/DecimatedDisk");
         RefinedTetrahedralMesh<2,2> coarse_mesh;
-        coarse_mesh.ConstructFromMeshReader(coarse_mesh_reader,1);
+        coarse_mesh.ConstructFromMeshReader(coarse_mesh_reader);
         
         TS_ASSERT_THROWS_ANYTHING(coarse_mesh.TransferFlags());
         

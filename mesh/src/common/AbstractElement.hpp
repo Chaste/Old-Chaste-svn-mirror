@@ -25,7 +25,6 @@ class AbstractElement
 protected:
     unsigned mIndex;
     std::vector<Node<SPACE_DIM>*> mNodes;
-    unsigned mOrderOfBasisFunctions;
     c_matrix<double, SPACE_DIM, SPACE_DIM> mJacobian;
     c_matrix<double, SPACE_DIM, SPACE_DIM> mInverseJacobian;
     c_vector<double, SPACE_DIM> mWeightedDirection; //Holds an area-weighted normal or direction.  Only used when ELEMENT_DIM < SPACE_DIM
@@ -66,7 +65,7 @@ public:
     virtual void RegisterWithNodes()=0;
     
     ///Main constructor
-    AbstractElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes, unsigned orderOfBasisFunctions=1);
+    AbstractElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
     
     /**
      * Copy constructor. This is needed so that copies of an element don't
@@ -102,14 +101,6 @@ public:
     void RefreshJacobianDeterminant(bool concreteMove=true);
     void ZeroJacobianDeterminant(void);
     void ZeroWeightedDirection(void);
-    
-    void AddInternalNode(const Node<SPACE_DIM>* internalNodeToAdd)
-    {
-        assert(mOrderOfBasisFunctions > 1);
-        assert(mNodes.size() - NUM_CORNER_NODES < 0.5*SPACE_DIM*(SPACE_DIM+1));
-        
-        mNodes.push_back(internalNodeToAdd);
-    }
     
     double GetNodeLocation(unsigned localIndex, unsigned dimension) const
     {

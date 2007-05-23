@@ -8,9 +8,8 @@ class BoundaryElement : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 {
 
 public:
-    BoundaryElement(unsigned index,
-                    std::vector<Node<SPACE_DIM>*> nodes,
-                    unsigned orderOfBasisFunctions=1): AbstractElement<ELEMENT_DIM, SPACE_DIM>(index,nodes,orderOfBasisFunctions)
+    BoundaryElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
+        : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
     {
         RegisterWithNodes();
     }

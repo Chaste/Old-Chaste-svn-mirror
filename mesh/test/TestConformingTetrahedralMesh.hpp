@@ -20,7 +20,7 @@ public:
         
         ConformingTetrahedralMesh<2,2> mesh;
         
-        mesh.ConstructFromMeshReader(mesh_reader,1);
+        mesh.ConstructFromMeshReader(mesh_reader);
         
         // Check we have the right number of nodes & elements
         TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 543U);
@@ -38,110 +38,6 @@ public:
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144U);
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310U);
         TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
-        
-    }
-    
-    void TestSimpleQuadraticMeshConstructionFromMeshReader(void)
-    {
-    
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-        
-        ConformingTetrahedralMesh<2,2> mesh;
-        
-        try
-        {
-            mesh.ConstructFromMeshReader(mesh_reader,2);
-        }
-        catch (Exception &e)
-        {
-            std::cout << e.GetMessage() << std::endl;
-            TS_ASSERT(0);
-        }
-        
-        // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 4U);
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 9U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2U);
-        
-        // Check some node co-ordinates
-        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[0], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[1], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(2)->GetPoint()[0], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(2)->GetPoint()[1], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(3)->GetPoint()[0], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(3)->GetPoint()[1], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(4)->GetPoint()[0], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(4)->GetPoint()[1], 0.5, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(5)->GetPoint()[0], 0.5, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(5)->GetPoint()[1], 0.5, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(6)->GetPoint()[0], 0.5, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(6)->GetPoint()[1], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(7)->GetPoint()[0], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(7)->GetPoint()[1], 0.5, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(8)->GetPoint()[0], 0.5, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(8)->GetPoint()[1], 1.0, 1e-6);
-        
-        // Check all elements have the right nodes
-        ConformingTetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 3U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 0U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 1U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 4U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 5U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 6U);
-//		TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144U));
-        it++;
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 1U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 2U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 3U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 7U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 5U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 8U);
-        
-    }
-    
-    void TestQuadraticMeshConstructionFromMeshReader(void)
-    {
-    
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        
-        ConformingTetrahedralMesh<2,2> mesh;
-        
-        try
-        {
-            mesh.ConstructFromMeshReader(mesh_reader,2);
-        }
-        catch (Exception &e)
-        {
-            std::cout << e.GetMessage() << std::endl;
-            TS_ASSERT(0);
-        }
-        
-        // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 543U);
-        //TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 543);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 984U);
-        
-        // Check some node co-ordinates
-        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], -0.0627905195, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[0], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[1], 0.0, 1e-6);
-        
-        // Check first element has the right nodes
-        ConformingTetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 309U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 543U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 544U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 545U);
-        TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
-        it++;
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 546U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 547U);
         
     }
     
@@ -155,7 +51,7 @@ public:
         
         try
         {
-            mesh.ConstructFromMeshReader(mesh_reader,1);
+            mesh.ConstructFromMeshReader(mesh_reader);
         }
         catch (Exception &e)
         {
@@ -174,55 +70,6 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[0], 0.75, 1e-6);
         TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[1], 0.25, 1e-6);
         TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[2], 0.0, 1e-6);
-        
-    }
-    
-    void Test3dQuadraticMeshConstructionFromMeshReader(void)
-    {
-    
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        
-        //const int DIM = pMeshReader->GetDimension();
-        ConformingTetrahedralMesh<3,3> mesh;
-        
-        try
-        {
-            mesh.ConstructFromMeshReader(mesh_reader,2);
-        }
-        catch (Exception &e)
-        {
-            std::cout << e.GetMessage() << std::endl;
-        }
-        
-        // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 51U);
-        //TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 543);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 136U);
-        
-        // Check some node co-ordinates
-        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[2], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[0], 0.75, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[1], 0.25, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[2], 0.0, 1e-6);
-        
-        // Check first element has the right nodes
-        ConformingTetrahedralMesh<3,3>::ElementIterator it = mesh.GetElementIteratorBegin();
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 17U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 10U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 16U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 18U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 51U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 52U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(6), 53U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(7), 54U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(8), 55U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(9), 56U);
-        TS_ASSERT_EQUALS((*it)->GetNode(5), mesh.GetNode(52));
-        it++;
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 58U);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(6), 59U);
         
     }
     
@@ -1145,7 +992,7 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader,1);
+        mesh.ConstructFromMeshReader(mesh_reader);
         
         
         TS_ASSERT_EQUALS(mesh.CheckVoronoi(),true);
@@ -1158,7 +1005,7 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader,1);
+        mesh.ConstructFromMeshReader(mesh_reader);
         
         
         TS_ASSERT_EQUALS(mesh.CheckVoronoi(),true);
@@ -1169,7 +1016,7 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/circular_fan");
         ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader,1);
+        mesh.ConstructFromMeshReader(mesh_reader);
         
         
         TS_ASSERT_EQUALS(mesh.CheckVoronoi(5e-3),true);
@@ -1599,7 +1446,7 @@ public:
         
         ConformingTetrahedralMesh<2,2> mesh;
         
-        mesh.ConstructFromMeshReader(mesh_reader,1);
+        mesh.ConstructFromMeshReader(mesh_reader);
         
         double width = mesh.GetWidth(0u);
         double height = mesh.GetWidth(1u);

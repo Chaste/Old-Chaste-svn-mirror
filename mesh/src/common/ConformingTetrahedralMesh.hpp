@@ -70,7 +70,7 @@ public:
     
     virtual ~ConformingTetrahedralMesh();
     
-    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader, unsigned orderOfBasisFunctions=1);
+    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader);
     
     void RescaleMeshFromBoundaryNode(Point<1> updatedPoint, unsigned boundaryNodeIndex);
     

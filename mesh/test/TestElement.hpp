@@ -30,33 +30,6 @@ class TestElement : public CxxTest::TestSuite
     
     
 public:
-    void TestConstructionForQuadraticBasisFunctions()
-    {
-        std::vector<Node<3>*> nodes;
-        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
-        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
-        nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
-        nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
-        nodes.push_back(new Node<3>(4, false, 0.5, 0.0, 0.0));
-        nodes.push_back(new Node<3>(5, false, 0.5, 0.5, 0.0));
-        nodes.push_back(new Node<3>(6, false, 0.0, 0.5, 0.0));
-        nodes.push_back(new Node<3>(7, false, 0.0, 0.0, 0.5));
-        nodes.push_back(new Node<3>(8, false, 0.5, 0.0, 0.5));
-        nodes.push_back(new Node<3>(9, false, 0.0, 0.5, 0.5));
-        Element<3,3> element(INDEX_IS_NOT_USED, nodes, 2);
-        
-        // Check nodes on the new element have the right indices
-        for (unsigned i=0; i<10; i++)
-        {
-            TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(i), i);
-        }
-        
-        for (unsigned i=0; i<nodes.size(); i++)
-        {
-            delete nodes[i];
-        }
-    }
-    
     void TestConstructionForLinearBasisFunctions()
     {
         std::vector<Node<3>*> corner_nodes;
@@ -64,7 +37,7 @@ public:
         corner_nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
         corner_nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
         corner_nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
-        Element<3,3> element(INDEX_IS_NOT_USED, corner_nodes, 1);
+        Element<3,3> element(INDEX_IS_NOT_USED, corner_nodes);
         
         // Check nodes on the new element have the right indices
         for (unsigned i=0; i<4; i++)
@@ -86,14 +59,14 @@ public:
         corner_nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
         corner_nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
         corner_nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
-        Element<3,3> element(INDEX_IS_NOT_USED, corner_nodes, 1);
+        Element<3,3> element(INDEX_IS_NOT_USED, corner_nodes);
         
         std::vector<Node<3>*> more_nodes;
         more_nodes.push_back(new Node<3>(0, false, 10.0, 10.0, 10.0));
         more_nodes.push_back(new Node<3>(1, false, 11.0, 10.0, 10.0));
         more_nodes.push_back(new Node<3>(2, false, 10.0, 11.0, 10.0));
         more_nodes.push_back(new Node<3>(3, false, 10.0, 10.0, 11.0));
-        Element<3,3> another_element(INDEX_IS_NOT_USED, more_nodes, 1);
+        Element<3,3> another_element(INDEX_IS_NOT_USED, more_nodes);
         
         // test (and cover) equals operator
         another_element = element;
@@ -121,7 +94,7 @@ public:
         corner_nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
         corner_nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
         corner_nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
-        Element<3,3> element(INDEX_IS_NOT_USED, corner_nodes, 1);
+        Element<3,3> element(INDEX_IS_NOT_USED, corner_nodes);
         
         element.SetOwnership(true);
         
@@ -388,7 +361,7 @@ public:
         corner_nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 3.0));
         corner_nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
         corner_nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
-        Element<3,3> element(31415, corner_nodes, 1);
+        Element<3,3> element(31415, corner_nodes);
         
         // Create a copy of the element and test that it's the same as the original one
         
@@ -452,28 +425,6 @@ public:
             delete nodes[i];
         }
     }
-    void TestBoundaryElementSecondOrder()
-    {
-        std::vector<Node<3>*> nodes;
-        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
-        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
-        nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
-        nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
-        nodes.push_back(new Node<3>(4, false, 0.5, 0.0, 0.0));
-        nodes.push_back(new Node<3>(5, false, 0.5, 0.5, 0.0));
-        nodes.push_back(new Node<3>(6, false, 0.0, 0.5, 0.0));
-        nodes.push_back(new Node<3>(7, false, 0.0, 0.0, 0.5));
-        nodes.push_back(new Node<3>(8, false, 0.5, 0.0, 0.5));
-        nodes.push_back(new Node<3>(9, false, 0.0, 0.5, 0.5));
-        BoundaryElement<3,3> element(INDEX_IS_NOT_USED, nodes, 2);
-        
-        
-        for (unsigned i=0; i<nodes.size(); i++)
-        {
-            delete nodes[i];
-        }
-    }
-    
     
     void TestCircum1d(void)
     {
@@ -481,7 +432,7 @@ public:
         nodes.push_back(new Node<1>(0, false, 10.0));
         nodes.push_back(new Node<1>(1, false, 15.0));
         
-        Element<1,1> element(0, nodes, 1);
+        Element<1,1> element(0, nodes);
         
         c_vector <double, 2> circum=element.CalculateCircumsphere();
         TS_ASSERT_DELTA(circum[0], 12.5, 1e-7);
@@ -503,7 +454,7 @@ public:
         equilateral_nodes.push_back(new Node<2>(1, false, -1.0,sqrt(3)));
         equilateral_nodes.push_back(new Node<2>(2, false, -1.0,-sqrt(3)));
         
-        Element<2,2> equilateral_element(0, equilateral_nodes, 1);
+        Element<2,2> equilateral_element(0, equilateral_nodes);
         
         c_vector <double, 3> circum=equilateral_element.CalculateCircumsphere();
         TS_ASSERT_DELTA(circum[0], 0.0, 1e-7);
@@ -517,7 +468,7 @@ public:
         right_angle_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
         right_angle_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
         right_angle_nodes.push_back(new Node<2>(2, false, 0.0, 1.0));
-        Element<2,2> right_angle_element(0, right_angle_nodes, 1);
+        Element<2,2> right_angle_element(0, right_angle_nodes);
         
         c_vector <double, 3> circum2=right_angle_element.CalculateCircumsphere();
         TS_ASSERT_DELTA(circum2[0], 0.5, 1e-7);
@@ -546,7 +497,7 @@ public:
         nodes.push_back(new Node<3>(3, false,  1.0, -1.0, -1.0));
         
         
-        Element<3,3> element(0,nodes, 1);
+        Element<3,3> element(0, nodes);
         
         c_vector <double, 4> circum=element.CalculateCircumsphere();
         TS_ASSERT_DELTA(circum[0], 0.0, 1e-7);
@@ -564,7 +515,7 @@ public:
         right_angle_nodes.push_back(new Node<3>(3, false, 0.0, 1.0, 0.0));
         right_angle_nodes.push_back(new Node<3>(2, false, 0.0, 0.0, 1.0));
         
-        Element<3,3> right_angle_element(0, right_angle_nodes, 1);
+        Element<3,3> right_angle_element(0, right_angle_nodes);
         
         c_vector <double, 4> circum2=right_angle_element.CalculateCircumsphere();
         TS_ASSERT_DELTA(circum2[0], 0.5, 1e-7);
@@ -593,7 +544,7 @@ public:
         std::vector<Node<3>*> nodes;
         nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
         nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
-        BoundaryElement<1,3> element_1d(0, nodes, 1);
+        BoundaryElement<1,3> element_1d(0, nodes);
         
         direction = *(element_1d.pGetWeightedDirection());
         //1D element in higher space is orientated by vector between endpoints
@@ -608,7 +559,7 @@ public:
         
         
         nodes.push_back(new Node<3>(3, false, 0.0, 1.0, 0.0));
-        BoundaryElement<2,3> element_2d(0, nodes, 1);
+        BoundaryElement<2,3> element_2d(0, nodes);
         
         direction = *(element_2d.pGetWeightedDirection());
         //2D element in higher space is orientated by a normal
@@ -623,7 +574,7 @@ public:
         TS_ASSERT_EQUALS(centroid[2], 0.0);
         
         nodes.push_back(new Node<3>(2, false, 0.0, 0.0, 1.0));
-        Element<3,3> element_3d(0, nodes, 1);
+        Element<3,3> element_3d(0, nodes);
         
         TS_ASSERT_THROWS_ANYTHING(direction = *(element_3d.pGetWeightedDirection()));
         //3D element in 3D space has no orientation (other than JacobianDeterminant)
@@ -646,7 +597,7 @@ public:
         nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
         nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
         nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
-        Element<3,3> element(INDEX_IS_NOT_USED, nodes, 1);
+        Element<3,3> element(INDEX_IS_NOT_USED, nodes);
         
         TS_ASSERT_EQUALS(element.IsFlagged(), false);
         

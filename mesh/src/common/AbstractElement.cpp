@@ -5,19 +5,13 @@
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
-                                                         const std::vector<Node<SPACE_DIM>*>& rNodes,
-                                                         unsigned orderOfBasisFunctions)
+                                                         const std::vector<Node<SPACE_DIM>*>& rNodes)
         : mIndex(index), mNodes(rNodes)
 {
     // Sanity checking
     assert(ELEMENT_DIM <= SPACE_DIM);
-    //added extra 0.5 to ensure in correct interval for floor() function
-    unsigned total_nodes = (unsigned)floor((ELEMENT_DIM+1)*(1 + 0.5*ELEMENT_DIM*(orderOfBasisFunctions - 1)) + 0.5);
-    
+    unsigned total_nodes = ELEMENT_DIM+1;
     assert(mNodes.size() == total_nodes);
-    
-    // Specify order of basis functions
-    mOrderOfBasisFunctions = orderOfBasisFunctions;
     
     // Initialise flags.
     // This must be done before the Jacobian calculations, or assertions trip.    
