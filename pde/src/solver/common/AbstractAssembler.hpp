@@ -49,8 +49,6 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractAssembler
 {
 protected:
-    bool mWeAllocatedBasisFunctionMemory;
-    
     /*< Mesh to be solved on */
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
     
@@ -58,9 +56,9 @@ protected:
     BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditions;
     
     /*< Basis function for use with normal elements */
-    LinearBasisFunction<ELEMENT_DIM> *mpBasisFunction;
+    typedef LinearBasisFunction<ELEMENT_DIM> BasisFunction;
     /*< Basis function for use with boundary elements */
-    LinearBasisFunction<ELEMENT_DIM-1> *mpSurfaceBasisFunction;
+    typedef LinearBasisFunction<ELEMENT_DIM-1> SurfaceBasisFunction;
 
     /*< Quadrature rule for use on normal elements */
     GaussianQuadratureRule<ELEMENT_DIM> *mpQuadRule;
@@ -198,8 +196,6 @@ protected:
     {
         GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpQuadRule);
-        LinearBasisFunction<ELEMENT_DIM> &rBasisFunction =
-            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpBasisFunction);
             
             
         /**
@@ -227,12 +223,12 @@ protected:
         {
             const Point<ELEMENT_DIM>& quad_point = quad_rule.rGetQuadPoint(quad_index);
             
-            c_vector<double, ELEMENT_DIM+1> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+            c_vector<double, ELEMENT_DIM+1> phi = BasisFunction::ComputeBasisFunctions(quad_point);
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
             
             if (! (mProblemIsLinear && mMatrixIsAssembled) ) // don't need to construct grad_phi or grad_u in that case
             {
-                grad_phi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
+                grad_phi = BasisFunction::ComputeTransformedBasisFunctionDerivatives
                            (quad_point, *p_inverse_jacobian);
             }
             
@@ -323,8 +319,6 @@ protected:
     {
         GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpSurfaceQuadRule);
-        LinearBasisFunction<ELEMENT_DIM-1> &rBasisFunction =
-            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpSurfaceBasisFunction);
             
         double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
         
@@ -335,7 +329,7 @@ protected:
         {
             const Point<ELEMENT_DIM-1>& quad_point = quad_rule.rGetQuadPoint(quad_index);
             
-            c_vector<double, ELEMENT_DIM>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+            c_vector<double, ELEMENT_DIM>  phi = SurfaceBasisFunction::ComputeBasisFunctions(quad_point);
             
             
             /////////////////////////////////////////////////////////////
@@ -778,12 +772,6 @@ public:
         mpMesh = NULL;
         mpBoundaryConditions = NULL;
         
-        mWeAllocatedBasisFunctionMemory = false; // sic
-        mpBasisFunction = new LinearBasisFunction<ELEMENT_DIM>();
-        mpSurfaceBasisFunction = new LinearBasisFunction<ELEMENT_DIM-1>();
-        //SetBasisFunctions(pBasisFunction, pSurfaceBasisFunction);
-        mWeAllocatedBasisFunctionMemory = true;
-        
         mpQuadRule = NULL;
         mpSurfaceQuadRule = NULL;
         SetNumberOfQuadraturePointsPerDimension(numQuadPoints);
@@ -832,14 +820,6 @@ public:
      */
     virtual ~AbstractAssembler()
     {
-        // Basis functions, if we used the default.
-        if (mWeAllocatedBasisFunctionMemory)
-        {
-            delete mpBasisFunction;
-            delete mpSurfaceBasisFunction;
-            mWeAllocatedBasisFunctionMemory = false;
-        }
-        
         // Quadrature rules
         if (mpQuadRule) delete mpQuadRule;
         if (mpSurfaceQuadRule) delete mpSurfaceQuadRule;

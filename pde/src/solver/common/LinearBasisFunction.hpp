@@ -7,14 +7,15 @@ template <unsigned ELEM_DIM>
 class LinearBasisFunction
 {
 public:
-    double ComputeBasisFunction(const Point<ELEM_DIM> &rPoint, unsigned basisIndex) const;
-    c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const Point<ELEM_DIM> &rPoint, unsigned basisIndex) const;
+    static double ComputeBasisFunction(const Point<ELEM_DIM> &rPoint, unsigned basisIndex);
+    static c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const Point<ELEM_DIM> &rPoint, unsigned basisIndex);
     
-    c_vector<double, ELEM_DIM+1> ComputeBasisFunctions(const Point<ELEM_DIM> &rPoint) const;
-    c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint) const;
+    static c_vector<double, ELEM_DIM+1> ComputeBasisFunctions(const Point<ELEM_DIM> &rPoint);
+    static c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint);
     
-    c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint,
-            const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const;
+    static c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeTransformedBasisFunctionDerivatives(
+            const Point<ELEM_DIM> &rPoint,
+            const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian);
 };
 
 /**
@@ -24,8 +25,8 @@ template <>
 class LinearBasisFunction<0>
 {
 public:
-    double ComputeBasisFunction(const Point<0> &rPoint, unsigned basisIndex) const;
-    c_vector<double, 1>       ComputeBasisFunctions(const Point<0> &rPoint) const;
+    static double ComputeBasisFunction(const Point<0> &rPoint, unsigned basisIndex);
+    static c_vector<double, 1>       ComputeBasisFunctions(const Point<0> &rPoint);
 };
 
 #endif //_LINEARBASISFUNCTION_HPP_

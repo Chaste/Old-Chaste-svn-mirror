@@ -141,9 +141,6 @@ public:
         }
             
         TimeStepper stepper(mStartTime, mEndTime, mPrintingTimeStep);
-        std::cout << " MonodomainProblem creating a stepper with start = " << mStartTime
-                  << " end = " << mEndTime
-                  << " printing time step = " << mPrintingTimeStep << std::endl;
 
         if (write_files)
         {
