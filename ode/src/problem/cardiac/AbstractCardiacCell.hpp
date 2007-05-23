@@ -41,7 +41,6 @@ public:
      */
     virtual void Init();
     
-    
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * with timestep dt.
@@ -52,8 +51,7 @@ public:
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * with timestep dt, but does not update the voltage.
      */
-    virtual OdeSolution ComputeExceptVoltage(double tStart, double tEnd);
-    
+    virtual void ComputeExceptVoltage(double tStart, double tEnd);
     
     /**
      * Computes the total current flowing through the cell membrane, using the current

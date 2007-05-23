@@ -84,16 +84,8 @@ public:
      * with timestep mDt.  The transmembrane potential is kept fixed throughout.
      * 
      * The length of the time interval must be a multiple of the timestep.
-     * 
-     * \todo I don't think anyone actually needs this method to return anything,
-     * since in a multi-cellular context (where this is used) we're only interested
-     * in the final value, which we read at each PDE timestep.  So we could remove
-     * all the code pertaining to OdeSolution objects, which would give a bit of a
-     * speedup.
-     * 
-     * @return  the values of each state variable, at mDt intervals.
      */
-    virtual OdeSolution ComputeExceptVoltage(double tStart, double tEnd);
+    virtual void ComputeExceptVoltage(double tStart, double tEnd);
     
     /**
      *  Check that none of the gating variables have gone out of range. Throws an
@@ -190,7 +182,7 @@ OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::Compute(double tStart, doubl
 }
 
 template <unsigned SIZE>
-OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double tStart, double tEnd)
+void AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double tStart, double tEnd)
 {
     // This method iterates over timesteps, calling ComputeExceptVoltage(t) at
     // each one, to update all state variables except for V, using backward Euler.
@@ -198,12 +190,6 @@ OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double 
     double _n_steps = (tEnd - tStart) / mDt;
     unsigned n_steps = (unsigned) round(_n_steps);
     assert(fabs(tStart+n_steps*mDt - tEnd) < 1e-12);
-    
-    // Initialise solution store
-    OdeSolution solutions;
-    solutions.SetNumberOfTimeSteps(n_steps);
-    solutions.rGetSolutions().push_back(rGetStateVariables());
-    solutions.rGetTimes().push_back(tStart);
     
     // Loop over time
     double curr_time;
@@ -214,15 +200,9 @@ OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double 
         // Compute other state variables
         ComputeExceptVoltage(curr_time);
         
-        // Update solutions
-        solutions.rGetSolutions().push_back(rGetStateVariables());
-        solutions.rGetTimes().push_back(curr_time+mDt);
-        
         // check gating variables are still in range
         VerifyGatingVariables();
     }
-    
-    return solutions;
 }
 
 

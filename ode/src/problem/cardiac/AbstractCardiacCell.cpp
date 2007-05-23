@@ -52,16 +52,15 @@ OdeSolution AbstractCardiacCell::Compute(double tStart, double tEnd)
  * Simulates this cell's behaviour between the time interval [tStart, tEnd],
  * with timestep mDt, but does not update the voltage.
  */
-OdeSolution AbstractCardiacCell::ComputeExceptVoltage(double tStart, double tEnd)
+void AbstractCardiacCell::ComputeExceptVoltage(double tStart, double tEnd)
 {
     double saved_voltage = GetVoltage();
     
     mSetVoltageDerivativeToZero = true;
-    OdeSolution ode_solution=mpOdeSolver->Solve(this, rGetStateVariables(), tStart, tEnd, mDt, mDt);
+    mpOdeSolver->SolveAndUpdateStateVariable(this, tStart, tEnd, mDt);
     mSetVoltageDerivativeToZero = false;
     
     SetVoltage(saved_voltage);
-    return ode_solution;
 }
 
 void AbstractCardiacCell::SetVoltage(double voltage)

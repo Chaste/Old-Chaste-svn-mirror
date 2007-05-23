@@ -54,13 +54,9 @@ public:
             
             // Test ComputeExceptVoltage
             double v_init = pOdeSystem->GetVoltage();
-            OdeSolution solution = pOdeSystem->ComputeExceptVoltage(start_time, endTime);
+            pOdeSystem->ComputeExceptVoltage(start_time, endTime);
             double v_end = pOdeSystem->GetVoltage();
             TS_ASSERT_DELTA(v_init, v_end, 1e-6);
-            
-            // Save results for comparison
-            // This appears to be the only use of the return value of ComputeExceptVoltage
-            SaveSolution(filename + "_ExceptVoltage", pOdeSystem, solution, stepPerRow);
             
             // Test SetVoltage
             pOdeSystem->SetVoltage(1e6);
@@ -428,7 +424,7 @@ public:
         << std::endl;
     }
 
-   void TestOdeSolverForFox2002WithRegularStimulus(void) throw (Exception)
+    void TestOdeSolverForFox2002WithRegularStimulus(void) throw (Exception)
     {
         clock_t ck_start, ck_end;
         // Set stimulus
@@ -473,12 +469,12 @@ public:
                         1e-6);
         
         std::cout << "Run times:\n\tForward: " << forward
-                << "\n\tBackward: " << backward
-                << std::endl;
+                  << "\n\tBackward: " << backward
+                  << std::endl;
         
     }
     
-   void TestOdeSolverForFox2002ModifiedWithRegularStimulus(void) throw (Exception)
+    void TestOdeSolverForFox2002ModifiedWithRegularStimulus(void) throw (Exception)
     {
         clock_t ck_start, ck_end;
         // Set stimulus
@@ -502,24 +498,21 @@ public:
         ck_end = clock();
         double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         
-        //CompareCellModelResults("FoxRegularStim", "BackwardFoxRegularStim", 0.15);
-        // Mainly for coverage
-        
-        std::cout << "\n\tBackward: " << backward
-                << std::endl;
+        std::cout << "\n\tBackward: " << backward << std::endl;
         
     }    
     
- void TestLr91WithVoltageDropVariousTimeStepRatios()
+    void TestLr91WithVoltageDropVariousTimeStepRatios()
     {
-        TS_ASSERT_THROWS_ANYTHING(mTryTestLr91WithVoltageDrop(1));
-        TS_ASSERT_THROWS_ANYTHING(mTryTestLr91WithVoltageDrop(2));
-        TS_ASSERT_THROWS_ANYTHING(mTryTestLr91WithVoltageDrop(3));
-        TS_ASSERT_THROWS_NOTHING(mTryTestLr91WithVoltageDrop(4));
+        TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(1));
+        TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(2));
+        TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(3));
+        TS_ASSERT_THROWS_NOTHING(TryTestLr91WithVoltageDrop(4));
            
     }
+    
 private:
-    void mTryTestLr91WithVoltageDrop(unsigned ratio) throw (Exception)
+    void TryTestLr91WithVoltageDrop(unsigned ratio) throw (Exception)
     {
         double pde_time_step = 0.01;  // ms (not used, but here to replicate TestMonodomainHeart)
         double ode_time_step = pde_time_step/ratio; // ms
@@ -533,13 +526,11 @@ private:
         while (time<end_time)
         {   
             double next_time=time+pde_time_step;
-            lr91_ode_system.SetVoltage(start_voltage +  
-                (end_voltage-start_voltage)*time/end_time);
-            OdeSolution solution = lr91_ode_system.ComputeExceptVoltage(time, next_time);
+            lr91_ode_system.SetVoltage( start_voltage + (end_voltage-start_voltage)*time/end_time );
+            lr91_ode_system.ComputeExceptVoltage(time, next_time);
             time=next_time;
         }
     }
-public:
 };
 
 

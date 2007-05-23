@@ -52,6 +52,11 @@ public:
     {
         return 2;
     }
+    
+    InitialStimulus* GetStimulus()
+    {
+        return mpStimulus;
+    }
 };
 
 
@@ -60,7 +65,6 @@ class TestMonodomainPde : public CxxTest::TestSuite
 public:
     void TestMonodomainPdeBasic( void )
     {
-    
         unsigned num_nodes=2;
         
         Node<1> node0(0,true,0);
@@ -70,20 +74,14 @@ public:
         double big_time_step = 0.5;
         double small_time_step = 0.01;
         
-        AbstractIvpOdeSolver*   solver = new EulerIvpOdeSolver;
-        InitialStimulus*     zero_stim = new InitialStimulus(0,0,0);
-        
-        // Stimulus function to use at node 0. Node 1 is not stimulated.
-        double magnitudeOfStimulus = -80.0;
-        double durationOfStimulus  = 0.5 ;  // ms
-        
-        AbstractStimulusFunction* stimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
-        
-        
+        AbstractIvpOdeSolver* solver = new EulerIvpOdeSolver;
         MyCardiacCellFactory cell_factory;
         
-        MonodomainPde<1> monodomain_pde( &cell_factory );
+        // Stimulus function to use at node 0. Node 1 is not stimulated.
+        InitialStimulus* stimulus = cell_factory.GetStimulus();
+        InitialStimulus* zero_stim = new InitialStimulus(0,0,0);
         
+        MonodomainPde<1> monodomain_pde( &cell_factory );
         
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
@@ -93,76 +91,64 @@ public:
         VecCreate(PETSC_COMM_WORLD, &voltage);
         VecSetSizes(voltage, PETSC_DECIDE, num_nodes);
         VecSetFromOptions(voltage);
+        VecSet(voltage, initial_voltage);
+        
+        // Solve 1 (PDE) timestep using MonodomainPde
+        monodomain_pde.SolveCellSystems(voltage, start_time, start_time+big_time_step);
+        
+        // Check results by solving ODE systems directly
+        // Check node 0
+        double value_pde = monodomain_pde.GetIionicCacheReplicated()[0];
+        LuoRudyIModel1991OdeSystem ode_system_stimulated(solver, small_time_step, stimulus);
+        ode_system_stimulated.ComputeExceptVoltage(start_time, start_time + big_time_step);
+        double value_ode = ode_system_stimulated.GetIIonic();
+        TS_ASSERT_DELTA(value_pde, value_ode, 0.000001);
+        
+        // shouldn't be different when called again as reset not yet been called
+        value_pde = monodomain_pde.GetIionicCacheReplicated()[0];
+        TS_ASSERT_DELTA(value_pde, value_ode, 0.000001);
 
+        // Check node 1
+        LuoRudyIModel1991OdeSystem ode_system_not_stim(solver, small_time_step, zero_stim);
+        value_pde = monodomain_pde.GetIionicCacheReplicated()[1];
+        ode_system_not_stim.ComputeExceptVoltage(start_time, start_time + big_time_step);
+        value_ode = ode_system_not_stim.GetIIonic();
+        TS_ASSERT_DELTA(value_pde, value_ode, 0.000001);
+        
+        // Reset the voltage vector from ODE systems
         DistributedVector dist_voltage(voltage);
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();
              ++index)
         {
-            dist_voltage[index] = initial_voltage;
-        }
-        monodomain_pde.SolveCellSystems(voltage, start_time, start_time+big_time_step);
-        
-        double value1 = monodomain_pde.GetIionicCacheReplicated()[0];
-        LuoRudyIModel1991OdeSystem ode_system_stimulated(solver, small_time_step, stimulus);
-        OdeSolution SolutionNewStimulated = ode_system_stimulated.ComputeExceptVoltage(
-                                                start_time,
-                                                start_time + big_time_step);
-        std::vector<double> solutionSetStimT_05 = SolutionNewStimulated.rGetSolutions()[ SolutionNewStimulated.rGetSolutions().size()-1 ];
-        
-        double value2 = ode_system_stimulated.GetIIonic();
-        TS_ASSERT_DELTA(value1, value2, 0.000001);
-        
-        // shouldn't be different when called again as reset not yet been called
-        value1 = monodomain_pde.GetIionicCacheReplicated()[0];
-        TS_ASSERT_DELTA(value1, value2, 0.000001);
-
-        LuoRudyIModel1991OdeSystem ode_system_not_stim(solver, small_time_step, zero_stim);
-        value1 = monodomain_pde.GetIionicCacheReplicated()[1];
-        OdeSolution SolutionNewNotStim = ode_system_not_stim.ComputeExceptVoltage(
-                                             start_time,
-                                             start_time + big_time_step);
-        std::vector<double> solutionSetNoStimT_05 = SolutionNewNotStim.rGetSolutions()[ SolutionNewNotStim.rGetSolutions().size()-1 ];
-        value2 = ode_system_not_stim.GetIIonic();
-        TS_ASSERT_DELTA(value1, value2, 0.000001);
-        
-        // Reset
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-         index != DistributedVector::End();
-         ++index)
-        {
             if (index.Global==0)
             {
-                dist_voltage[index] = solutionSetStimT_05[4];
+                dist_voltage[index] = ode_system_stimulated.rGetStateVariables()[4];
             }
             if (index.Global==1)
             {
-                dist_voltage[index] = solutionSetNoStimT_05[4];
+                dist_voltage[index] = ode_system_not_stim.rGetStateVariables()[4];
             }            
         }
         dist_voltage.Restore();
         
+        // Use MonodomainPde to solve a second (PDE) time step
         monodomain_pde.SolveCellSystems(voltage, start_time, start_time+big_time_step);
-        value1 = monodomain_pde.GetIionicCacheReplicated()[0];
-        std::vector<double> state_variables = solutionSetStimT_05;
-        ode_system_stimulated.SetStateVariables(state_variables);
-        OdeSolution SolutionNewStimulatedT_1 = ode_system_stimulated.ComputeExceptVoltage( start_time + big_time_step, start_time + 2*big_time_step );
-        std::vector<double> solutionSetStimT_1 = SolutionNewStimulatedT_1.rGetSolutions()[ SolutionNewStimulatedT_1.rGetSolutions().size()-1 ];
-        value2 = ode_system_stimulated.GetIIonic();
-        TS_ASSERT_DELTA(value1, value2, 1e-10);
+        value_pde = monodomain_pde.GetIionicCacheReplicated()[0];
+
+        // Check node 0 by solving ODE system directly
+        ode_system_stimulated.ComputeExceptVoltage( start_time + big_time_step, start_time + 2*big_time_step );
+        value_ode = ode_system_stimulated.GetIIonic();
+        TS_ASSERT_DELTA(value_pde, value_ode, 1e-10);
         
-        state_variables = solutionSetNoStimT_05;
-        ode_system_not_stim.SetStateVariables(state_variables);
-        OdeSolution SolutionNewNotStimT_1 = ode_system_not_stim.ComputeExceptVoltage( start_time + big_time_step, start_time + 2*big_time_step );
-        std::vector<double> solutionSetNoStimT_1 = SolutionNewNotStimT_1.rGetSolutions()[ SolutionNewNotStimT_1.rGetSolutions().size()-1 ];
-        value1 = monodomain_pde.GetIionicCacheReplicated()[1];
-        value2 = ode_system_not_stim.GetIIonic();
-        
-        TS_ASSERT_DELTA(value1, value2, 1e-10);
+        // Check node 1 by solving ODE system directly
+        ode_system_not_stim.ComputeExceptVoltage( start_time + big_time_step, start_time + 2*big_time_step );
+        value_pde = monodomain_pde.GetIionicCacheReplicated()[1];
+        value_ode = ode_system_not_stim.GetIIonic();
+        TS_ASSERT_DELTA(value_pde, value_ode, 1e-10);
         
         VecDestroy(voltage);
         delete zero_stim;
-        delete stimulus;
         delete solver;
     }
     
