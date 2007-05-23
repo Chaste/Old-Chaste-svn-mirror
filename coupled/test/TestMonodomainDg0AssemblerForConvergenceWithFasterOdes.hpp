@@ -138,6 +138,7 @@ public:
                 monodomain_problem.SetEndTime(200);   // 200 ms
                 
                 monodomain_problem.SetPdeTimeStep(time_step);
+                monodomain_problem.SetPrintingTimeStep(time_step);
                 monodomain_problem.Initialise();
                 
                 std::cout<<"   Solving with a time step of "<<time_step<<" ms"<<std::endl;
@@ -202,8 +203,8 @@ public:
         
         std::cout << "Converged both in space ("<< space_step <<" cm) and time ("<< time_step << " ms)" << std::endl;
         
-        TS_ASSERT_EQUALS(space_step, 0.01);
-        TS_ASSERT_EQUALS(time_step, 0.02);
+        TS_ASSERT_DELTA(space_step, 0.01, 0.001);
+        TS_ASSERT_DELTA(time_step, 0.02, 0.001);
         TS_ASSERT_DELTA(probe_voltage, -10.3901, 1.0);
         // Note: the delta is because of floating point issues (!!)
     }

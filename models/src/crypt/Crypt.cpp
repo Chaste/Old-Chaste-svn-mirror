@@ -144,17 +144,16 @@ Crypt<DIM>::Iterator::Iterator(Crypt& rCrypt, unsigned cellIndex)
     : mrCrypt(rCrypt),
       mCellIndex(cellIndex)
 {
-    mNodeIndex=0;//\todo
     // Make sure the crypt isn't empty
     assert(mrCrypt.rGetCells().size() > 0);
+    if (mCellIndex != mrCrypt.rGetCells().size())
+    {
+        mNodeIndex = mrCrypt.rGetCells()[mCellIndex].GetNodeIndex();
+    }
     // Make sure we start at a real cell
     if (mCellIndex == 0 && !IsRealCell())
     {
         ++(*this);
-    }
-    if (mCellIndex != mrCrypt.rGetCells().size())
-    {
-        mNodeIndex = mrCrypt.rGetCells()[mCellIndex].GetNodeIndex();
     }
 }
 

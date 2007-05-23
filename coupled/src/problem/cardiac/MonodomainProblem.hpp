@@ -147,10 +147,11 @@ public:
             p_test_writer->PutVariable(time_var_id, stepper.GetTime());
             p_test_writer->PutVector(voltage_var_id, initial_condition);
                               
-            // check the printing time step is a multiple of the pde timestep.
-            assert(  fabs( (mPrintingTimeStep/mPdeTimeStep)
-                           -round(mPrintingTimeStep/mPdeTimeStep) ) < 1e-10 );
         }
+        // check the printing time step is a multiple of the pde timestep.
+        assert (mPrintingTimeStep >= mPdeTimeStep);
+        assert(  fabs( (mPrintingTimeStep/mPdeTimeStep)
+                           -round(mPrintingTimeStep/mPdeTimeStep) ) < 1e-10 );
                        
                  
         while ( !stepper.IsTimeAtEnd() )
@@ -242,7 +243,9 @@ public:
     
     /**
      * Set the PDE time step.
-     * Note that the printing time step is also set with this call.
+     * \todo SetPdeAndPrintingTimeStep
+     * Note that the printing time step should also set with this call.
+     * Move assertion
      */
     
     void SetPdeTimeStep(double pdeTimeStep)
@@ -252,7 +255,6 @@ public:
             EXCEPTION("Pde time step should be positive");
         }
         mPdeTimeStep = pdeTimeStep;
-        mPrintingTimeStep = mPdeTimeStep;
     }
     
     /** Set the times to print output. The printing time step must be

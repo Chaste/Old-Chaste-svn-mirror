@@ -131,13 +131,15 @@ public:
             
             do
             {
-                PointStimulusCellFactory cell_factory(time_step);
+                //\todo - the ODE time step should be altered in another nested loop
+                PointStimulusCellFactory cell_factory(time_step/4.0);
                 MonodomainProblem<1> monodomain_problem(&cell_factory);
                 
                 monodomain_problem.SetMeshFilename(mesh_pathname);
                 monodomain_problem.SetEndTime(200);   // 200 ms
                 
                 monodomain_problem.SetPdeTimeStep(time_step);
+                monodomain_problem.SetPrintingTimeStep(time_step);
                 monodomain_problem.Initialise();
                 
                 std::cout<<"   Solving with a time step of "<<time_step<<" ms"<<std::endl;
@@ -202,8 +204,8 @@ public:
         
         std::cout << "Converged both in space ("<< space_step <<" cm) and time ("<< time_step << " ms)" << std::endl;
         
-        TS_ASSERT_DELTA(space_step, 0.01, 0.0);
-        TS_ASSERT_DELTA(time_step, 0.02, 0.0);
+        TS_ASSERT_DELTA(space_step, 0.01, 0.001);
+        TS_ASSERT_DELTA(time_step, 0.02, 0.001);
         TS_ASSERT_DELTA(probe_voltage, -10.3, 1.0);
         // Note: the delta is because of floating point issues (!!)
     }

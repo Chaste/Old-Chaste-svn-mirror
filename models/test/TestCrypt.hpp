@@ -152,8 +152,7 @@ public:
             TS_ASSERT_EQUALS(is_ghost_node[node_index], false);
             counter++;
         }
-        std::cout << "counter = " << counter << "\n";
-                // check counter = num_nodes - num_ghost_nodes
+        // check counter = num_nodes - num_ghost_nodes
         TS_ASSERT_EQUALS(counter + ghost_node_indices.size(), p_mesh->GetNumNodes());
         
         SimulationTime::Destroy();
