@@ -470,7 +470,7 @@ class MemoryTesting(GccDebug):
     invalid = re.compile('==\d+== Invalid ')
     glibc = re.compile('__libc_freeres')
     leaks = re.compile('==\d+== LEAK SUMMARY:')
-    lost = re.compile('==\d+==\s+(definitely|indirectly|possibly) lost: (\d+) bytes in (\d+) blocks.')
+    lost = re.compile('==\d+==\s+(definitely|indirectly|possibly) lost: ([\d,]+) bytes in ([\d,]+) blocks.')
     petsc = re.compile('\[0]Total space allocated (\d+) bytes')
     uninit = re.compile('==\d+== (Conditional jump or move depends on uninitialised value\(s\)|Use of uninitialised value)')
     open_files = re.compile('==(\d+)== Open (?:file descriptor|AF_UNIX socket) (?![012])(\d+): (?!(?:/home/bob/eclipse/lockfile|/dev/urandom))(.*)')
