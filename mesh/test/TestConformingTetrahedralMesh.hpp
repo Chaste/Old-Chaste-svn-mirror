@@ -1257,7 +1257,7 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh2);
     }
     
-    void TestDeleteNodes()
+    void TestDeleteNodes() throw (Exception)
     {
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(2,3);
@@ -1283,6 +1283,16 @@ public:
         
         // deleting a deleted node should throw an exception
         TS_ASSERT_THROWS_ANYTHING(mesh.DeleteNode(2));
+        // moving a deleted node should throw an exception
+        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(2,1));
+    }
+    
+    void TestDeleteNodeFails() throw (Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/HalfSquareWithExtraNode");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        TS_ASSERT_THROWS_ANYTHING(mesh.DeleteNode(0));
     }
     
     void TestClear()

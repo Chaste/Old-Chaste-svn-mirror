@@ -88,21 +88,22 @@ public:
         
         try
         {
-// Commented out for now, to speed up the Coverage build
-//            bidomain_problem.Solve();
-        }
-        catch (Exception e)
-        {
-            std::cout << e.GetMessage() << "\n";
-        }
-        
-        /*
+            TS_FAIL("Doesn't yet agree with Memfem");
+         /*
          * We don't test anything, since we haven't managed to get memfem to agree
          * with chaste - probably because we couldn't find any identical cell models
          * to those we have, and issues setting identical stimuli.  (But we suspect
          * memfem and chaste won't agree anyway, and given all our other tests we
          * should probably assume that it's memfem that incorrect? dunno).
          */
+            bidomain_problem.Solve();
+        }
+        catch (Exception e)
+        {
+            std::cout << e.GetMessage() << "\n";
+        }
+        
+ 
     }
 };
 

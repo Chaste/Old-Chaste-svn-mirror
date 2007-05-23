@@ -553,17 +553,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
         // Second, update the node in the element with the new one
         p_new_element->UpdateNode(ELEMENT_DIM-1-i, mNodes[new_node_index]);
         
-        try
-        {
-            p_new_element->RefreshJacobianDeterminant();
-        }
-        catch (Exception e)
-        {
-            assert(0); //This code should now be redundant and fail the coverage test
-            //Clean up this element, because it's not going to be added to the mesh
-            delete p_new_element;
-            EXCEPTION("RefineElement could not be completed (point was not in element)");
-        }
+        p_new_element->RefreshJacobianDeterminant();
         
         // Third, add the new element to the set
         if ((unsigned) new_elt_index == mElements.size())
@@ -580,17 +570,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     
     // Lastly, update the last node in the element to be refined
     pElement->UpdateNode(ELEMENT_DIM, mNodes[new_node_index]);
-    try
-    {
-        pElement->RefreshJacobianDeterminant();
-    }
-    catch (Exception e)
-    {
-        //There's no memory management to do here, because this original element is
-        //already referenced by the mesh
-        EXCEPTION("RefineElement could not be completed (point was not in element)");
-    }
-    
+    pElement->RefreshJacobianDeterminant();
     
     return new_node_index;
 }
@@ -897,112 +877,47 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(uns
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex()
 {
-    unsigned to_go=0;
-    while (to_go<mElements.size())
-    {
-        while (to_go<mElements.size() && mElements[to_go]->IsDeleted() == false)
-        {
-            to_go++;
-        }
-        if (to_go < mElements.size())
-        {
-            unsigned to_stay=to_go;
-            while (to_stay<mElements.size() && mElements[to_stay]->IsDeleted())
-            {
-                to_stay++;
-            }
-            if (to_stay<mElements.size())
-            {
-                //Swap the elements
-                Element<ELEMENT_DIM,SPACE_DIM> *p_element=mElements[to_go];
-                mElements[to_go]=mElements[to_stay];
-                mElements[to_stay]=p_element;
-                to_go++;
-            }
-            else
-            {
-                break;//Nothing left to swap with
-            }
-        }
-    }
-    while (mDeletedElementIndices.size() != 0)
-    {
-        mDeletedElementIndices.pop_back();
-        assert(mElements.back()->IsDeleted());
-        mElements.pop_back();
-    }
-    assert(mElements.back()->IsDeleted() == false );
+ 
     
-    to_go=0;
-    while (to_go<mNodes.size())
+    std::vector<Element<ELEMENT_DIM, SPACE_DIM> *> live_elements;
+    for (unsigned i=0; i<mElements.size(); i++)
     {
-        while (to_go<mNodes.size() && mNodes[to_go]->IsDeleted() == false)
+        if (!mElements[i]->IsDeleted())
         {
-            to_go++;
-        }
-        if (to_go < mNodes.size())
-        {
-            unsigned to_stay=to_go;
-            while (to_stay<mNodes.size() && mNodes[to_stay]->IsDeleted())
-            {
-                to_stay++;
-            }
-            if (to_stay<mNodes.size())
-            {
-                //Swap the elements
-                Node<SPACE_DIM> *p_node=mNodes[to_go];
-                mNodes[to_go]=mNodes[to_stay];
-                mNodes[to_stay]=p_node;
-                to_go++;
-            }
-            else
-            {
-                break;//Nothing left to swap with
-            }
+            live_elements.push_back(mElements[i]);
         }
     }
-    while (mDeletedNodeIndices.size() != 0)
+    assert (mDeletedElementIndices.size() == mElements.size()-live_elements.size());    
+    mDeletedElementIndices.clear();
+    mElements = live_elements;
+    
+    std::vector<Node<SPACE_DIM> *> live_nodes;
+    for (unsigned i=0; i<mNodes.size(); i++)
     {
-        mDeletedNodeIndices.pop_back();
-        assert(mNodes.back()->IsDeleted());
-        mNodes.pop_back();
-    }
-    assert(mNodes.back()->IsDeleted() == false );
-    to_go=0;
-    while (to_go<mBoundaryElements.size())
-    {
-        while (to_go<mBoundaryElements.size() && mBoundaryElements[to_go]->IsDeleted() == false)
+        if (!mNodes[i]->IsDeleted())
         {
-            to_go++;
-        }
-        if (to_go < mBoundaryElements.size())
-        {
-            unsigned to_stay=to_go;
-            while (to_stay<mBoundaryElements.size() && mBoundaryElements[to_stay]->IsDeleted())
-            {
-                to_stay++;
-            }
-            if (to_stay<mBoundaryElements.size())
-            {
-                //Swap the elements
-                BoundaryElement <ELEMENT_DIM-1,SPACE_DIM> *p_el=mBoundaryElements[to_go];
-                mBoundaryElements[to_go]=mBoundaryElements[to_stay];
-                mBoundaryElements[to_stay]=p_el;
-                to_go++;
-            }
-            else
-            {
-                break;//Nothing left to swap with
-            }
+            live_nodes.push_back(mNodes[i]);
         }
     }
-    while (mDeletedBoundaryElementIndices.size() != 0)
+    assert (mDeletedNodeIndices.size() == mNodes.size()-live_nodes.size());
+    mNodes = live_nodes;
+    mDeletedNodeIndices.clear();
+    
+    std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> live_boundary_elements;
+    for (unsigned i=0; i<mBoundaryElements.size(); i++)
     {
-        mDeletedBoundaryElementIndices.pop_back();
-        assert(mBoundaryElements.back()->IsDeleted());
-        mBoundaryElements.pop_back();
+        if (!mBoundaryElements[i]->IsDeleted())
+        {
+            live_boundary_elements.push_back(mBoundaryElements[i]);
+        }
     }
-    assert(mBoundaryElements.back()->IsDeleted() == false );
+    assert (mDeletedBoundaryElementIndices.size() == mBoundaryElements.size()-live_boundary_elements.size());
+    mBoundaryElements = live_boundary_elements;
+    mDeletedBoundaryElementIndices.clear();
+ 
+ 
+ 
+ 
     for (unsigned i=0; i<mNodes.size();i++)
     {
         mNodes[i]->SetIndex(i);
