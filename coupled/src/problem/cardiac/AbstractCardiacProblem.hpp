@@ -1,6 +1,7 @@
 #ifndef ABSTRACTCARDIACPROBLEM_HPP_
 #define ABSTRACTCARDIACPROBLEM_HPP_
 
+#include "DistributedVector.hpp"
 
 
 template<unsigned SPACE_DIM>
@@ -52,6 +53,68 @@ public:
         mWriteInfo = false;
        
     }
+    
+    void Initialise(AbstractCardiacPde<SPACE_DIM>* pCardiacPde)
+    {
+        if ( this->mMeshFilename=="" )
+        {
+            EXCEPTION("Mesh filename was not set");
+        }
+        
+        this->mpCellFactory->SetMesh( &this->mMesh );
+        
+        if (pCardiacPde)
+        {
+            delete pCardiacPde;
+        }
+    }
+    
+    void PreSolveChecks(AbstractCardiacPde<SPACE_DIM>* pCardiacPde)
+    {
+        if ( pCardiacPde == NULL ) // if pde is NULL, Initialise() probably hasn't been called
+        {
+            EXCEPTION("Pde is null, Initialise() probably hasn't been called");
+        }
+        
+        if ( this->mStartTime >= this->mEndTime )
+        {
+            EXCEPTION("Start time should be less than end time");
+        }
+    }
+    
+    // Perhaps this should be a method of AbstractCardiacPde??)
+    
+    Vec CreateInitialCondition(AbstractCardiacPde<SPACE_DIM>* pCardiacPde, unsigned num_domains)
+    {
+        assert(num_domains<=2);
+        DistributedVector::SetProblemSize(this->mMesh.GetNumNodes());
+        Vec initial_condition=DistributedVector::CreateVec(num_domains);
+        DistributedVector ic(initial_condition);
+        
+        std::vector< DistributedVector::Stripe > stripe;
+        
+        for (unsigned i=0; i<num_domains; i++)
+        {
+            stripe.push_back(DistributedVector::Stripe(ic, i));
+        }
+        
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index!= DistributedVector::End();
+             ++index)
+        {
+            stripe[0][index]= pCardiacPde->GetCardiacCell(index.Global)->GetVoltage();
+            
+            if (num_domains==2)
+            {
+                stripe[1][index] =0;
+            }
+        }
+        
+        ic.Restore();
+        
+        return initial_condition;
+    }
+    
 };
 
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

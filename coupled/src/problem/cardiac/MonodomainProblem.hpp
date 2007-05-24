@@ -45,16 +45,7 @@ public:
     /** Initialise the system. Must be called before Solve() */
     void Initialise()
     {
-        if ( this->mMeshFilename=="" )
-        {
-            EXCEPTION("Mesh filename was passed in empty");
-        }
-        
-        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(this->mMeshFilename);
-        this->mMesh.ConstructFromMeshReader(mesh_reader);
-        
-        this->mpCellFactory->SetMesh( &this->mMesh );
-        
+        AbstractCardiacProblem<SPACE_DIM>::Initialise(mpMonodomainPde);
         mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
     }
     
@@ -63,31 +54,13 @@ public:
      */
     void Solve()
     {
-        if ( mpMonodomainPde == NULL ) // if pde is NULL, Initialise() probably hasn't been called
-        {
-            EXCEPTION("Monodomain pde is null, Initialise() probably hasn't been called");
-        }
-        
-        if ( this->mStartTime >= this->mEndTime )
-        {
-            EXCEPTION("Start time should be less than end time");
-        }
-        
+
+        AbstractCardiacProblem<SPACE_DIM>::PreSolveChecks(mpMonodomainPde);
         // Assembler
         MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&this->mMesh, mpMonodomainPde);
         
-        // initial condition;
-        Vec initial_condition= DistributedVector::CreateVec();
-        DistributedVector ic(initial_condition);
-        // Set a constant initial voltage throughout the this->mMesh
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
-             ++index)
-        {
-            ic[index] = mpMonodomainPde->GetCardiacCell(index.Global)->GetVoltage();
-        }
-        ic.Restore();        
-
+        // initial condition;     
+        Vec initial_condition = AbstractCardiacProblem<SPACE_DIM>::CreateInitialCondition(mpMonodomainPde, 1);
 
         
         //  Write data to a file <this->mOutputFilenamePrefix>_xx.dat, 'xx' refers to
@@ -256,7 +229,18 @@ public:
     
     void SetMeshFilename(const std::string &rMeshFilename)
     {
+        if ( this->mMeshFilename!="" )
+        {
+            EXCEPTION("Mesh filename was already set");
+        }
+        if ( rMeshFilename=="" )
+        {
+            EXCEPTION("Mesh filename was passed in empty");
+        }
         this->mMeshFilename = rMeshFilename;
+        
+        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(this->mMeshFilename);
+        this->mMesh.ConstructFromMeshReader(mesh_reader);
     }
     
     void SetOutputDirectory(const std::string &rOutputDirectory)

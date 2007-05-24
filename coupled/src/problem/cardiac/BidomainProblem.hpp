@@ -63,17 +63,7 @@ public:
     /** Initialise the system. Must be called before Solve() */
     void Initialise()
     {
-        if ( this->mMeshFilename=="" )
-        {
-            EXCEPTION("Mesh filename was not set");
-        }
-        
-        this->mpCellFactory->SetMesh( &this->mMesh );
-        
-        if (mpBidomainPde)
-        {
-            delete mpBidomainPde;
-        }
+        AbstractCardiacProblem<SPACE_DIM>::Initialise(mpBidomainPde);
         mpBidomainPde = new BidomainPde<SPACE_DIM>( this->mpCellFactory );
     }
     
@@ -83,15 +73,7 @@ public:
      */
     void Solve()
     {
-        if ( mpBidomainPde == NULL ) // if pde is NULL, Initialise() probably hasn't been called
-        {
-            EXCEPTION("Bidomain pde is null, Initialise() probably hasn't been called");
-        }
-        
-        if ( this->mStartTime >= this->mEndTime )
-        {
-            EXCEPTION("Start time should be less than end time");
-        }
+        AbstractCardiacProblem<SPACE_DIM>::PreSolveChecks(mpBidomainPde);
         
         // Assembler
         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(
@@ -102,26 +84,8 @@ public:
         {
             bidomain_assembler.SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
         }
-        
-        
-        DistributedVector::SetProblemSize(this->mMesh.GetNumNodes());
-                
-        
-        Vec initial_condition=DistributedVector::CreateVec(2);
-        
-        DistributedVector striped_vec(initial_condition);
-        DistributedVector::Stripe intra(striped_vec,0);
-        DistributedVector::Stripe extra(striped_vec,1);
-        
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index!= DistributedVector::End();
-             ++index)
-        {
-            intra[index]= mpBidomainPde->GetCardiacCell(index.Global)->GetVoltage();
-            extra[index] =0;
-        }        
-        
-        striped_vec.Restore();
+
+        Vec initial_condition = AbstractCardiacProblem<SPACE_DIM>::CreateInitialCondition(mpBidomainPde, 2);
 
         ParallelColumnDataWriter *p_test_writer = NULL;
         unsigned time_var_id = 0;
