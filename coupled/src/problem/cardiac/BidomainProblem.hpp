@@ -10,6 +10,7 @@
 #include "AbstractCardiacCellFactory.hpp"
 #include "DistributedVector.hpp"
 #include "TimeStepper.hpp"
+#include "AbstractCardiacProblem.hpp"
 
 
 /**
@@ -21,34 +22,13 @@
  * extracellular potential at node j.
  */
 template<unsigned SPACE_DIM>
-class BidomainProblem
+class BidomainProblem : public AbstractCardiacProblem<SPACE_DIM>
 {
-private:
-    std::string mMeshFilename;
-    
-    /**
-     *  Start time defaults to 0, pde timestep defaults to 0.01 (ms), the
-     *  end time is not defaulted and must be set
-     */
-    double mStartTime;
-    double mEndTime;
-    double mPdeTimeStep;
-    double mPrintingTimeStep;
-    
-    bool mWriteInfo;
-    bool mPrintOutput;
-    
-    /** data is not written if output directory or output file prefix are not set*/
-    std::string  mOutputDirectory, mOutputFilenamePrefix;
-    
+private:    
     BidomainPde<SPACE_DIM>* mpBidomainPde;
     
-    AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
-    
-    Vec mVoltage; // Current solution
-    
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
-    
+    bool mPrintOutput;
+            
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
     
     double mLinearSolverRelativeTolerance;
@@ -60,25 +40,12 @@ public:
      * create cells.
      */
     BidomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
-            : mMeshFilename(""),     // i.e. undefined
-            mOutputDirectory(""),  // i.e. undefined
-            mOutputFilenamePrefix(""),   // i.e. undefined
-            mpBidomainPde(NULL),
-            mpCellFactory(pCellFactory)
-    {
-        mStartTime        = 0.0;  // ms
-        mPdeTimeStep      = 0.01; // ms
-        mEndTime          = -1;   // negative so can check has been set
-        mPrintingTimeStep = mPdeTimeStep;  // default behaviour: print out every pde time step
-        
-        
-        mWriteInfo = false;
-        
-        mPrintOutput = true;   // We want some output by default
-        
+            : AbstractCardiacProblem<SPACE_DIM>(pCellFactory),
+            mpBidomainPde(NULL)
+    {        
         mFixedExtracellularPotentialNodes.resize(0);
-        
         mLinearSolverRelativeTolerance=1e-6;
+        mPrintOutput = true;   // We want some output by default
     }
     
     /**
@@ -96,18 +63,18 @@ public:
     /** Initialise the system. Must be called before Solve() */
     void Initialise()
     {
-        if ( mMeshFilename=="" )
+        if ( this->mMeshFilename=="" )
         {
             EXCEPTION("Mesh filename was not set");
         }
         
-        mpCellFactory->SetMesh( &mMesh );
+        this->mpCellFactory->SetMesh( &this->mMesh );
         
         if (mpBidomainPde)
         {
             delete mpBidomainPde;
         }
-        mpBidomainPde = new BidomainPde<SPACE_DIM>( mpCellFactory );
+        mpBidomainPde = new BidomainPde<SPACE_DIM>( this->mpCellFactory );
     }
     
     
@@ -121,14 +88,14 @@ public:
             EXCEPTION("Bidomain pde is null, Initialise() probably hasn't been called");
         }
         
-        if ( mStartTime >= mEndTime )
+        if ( this->mStartTime >= this->mEndTime )
         {
             EXCEPTION("Start time should be less than end time");
         }
         
         // Assembler
         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(
-            &mMesh, mpBidomainPde,
+            &this->mMesh, mpBidomainPde,
             2, mLinearSolverRelativeTolerance);
             
         if (mFixedExtracellularPotentialNodes.size()>0)
@@ -137,7 +104,7 @@ public:
         }
         
         
-        DistributedVector::SetProblemSize(mMesh.GetNumNodes());
+        DistributedVector::SetProblemSize(this->mMesh.GetNumNodes());
                 
         
         Vec initial_condition=DistributedVector::CreateVec(2);
@@ -161,17 +128,17 @@ public:
         unsigned voltage_var_id = 0;
         bool write_files = false;
 
-        TimeStepper stepper(mStartTime, mEndTime, mPrintingTimeStep);
+        TimeStepper stepper(this->mStartTime, this->mEndTime, this->mPrintingTimeStep);
 
         if (mPrintOutput)
         {
-            if (mOutputFilenamePrefix.length() > 0)
+            if (this->mOutputFilenamePrefix.length() > 0)
             {
                 write_files = true;
                 
-                p_test_writer = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
+                p_test_writer = new ParallelColumnDataWriter(this->mOutputDirectory,this->mOutputFilenamePrefix);
                 
-                p_test_writer->DefineFixedDimension("Node", "dimensionless", 2*mMesh.GetNumNodes() );
+                p_test_writer->DefineFixedDimension("Node", "dimensionless", 2*this->mMesh.GetNumNodes() );
                 time_var_id = p_test_writer->DefineUnlimitedDimension("Time","msecs");
                 
                 voltage_var_id = p_test_writer->DefineVariable("Vm_And_Phi_e","mV");
@@ -188,12 +155,12 @@ public:
         while ( !stepper.IsTimeAtEnd() )
         {
             // solve from now up to the next printing time
-            bidomain_assembler.SetTimes(stepper.GetTime(), stepper.GetNextTime(), mPdeTimeStep);
+            bidomain_assembler.SetTimes(stepper.GetTime(), stepper.GetNextTime(), this->mPdeTimeStep);
             bidomain_assembler.SetInitialCondition( initial_condition );
 
             try
             {
-                mVoltage = bidomain_assembler.Solve();
+                this->mVoltage = bidomain_assembler.Solve();
             }
             //Ill-conditioned solutions are covered in Monodomain problem
             //(and possibly in Nightly/Weekly) so we don't insist on it
@@ -218,7 +185,7 @@ public:
             VecDestroy(initial_condition);
             
             // Initial condition for next loop is current solution
-            initial_condition = mVoltage;
+            initial_condition = this->mVoltage;
             
             // update the current time
             stepper.AdvanceOneTimeStep();
@@ -226,17 +193,17 @@ public:
             if (mPrintOutput)
             {
                 // print out details at current time if asked for
-                if (mWriteInfo)
+                if (this->mWriteInfo)
                 {
                     WriteInfo(stepper.GetTime());
                 }
                 
-                // Writing data out to the file <mOutputFilenamePrefix>.dat
+                // Writing data out to the file <this->mOutputFilenamePrefix>.dat
                 if (write_files)
                 {
                     p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
                     p_test_writer->PutVariable(time_var_id, stepper.GetTime());
-                    p_test_writer->PutVector(voltage_var_id, mVoltage);
+                    p_test_writer->PutVector(voltage_var_id, this->mVoltage);
                 }
             }
         }
@@ -260,10 +227,10 @@ public:
                 space_dim << SPACE_DIM;
                 chaste_2_meshalyzer = "anim/chaste2meshalyzer "         // the executable.
                                       + space_dim.str() + " "       // argument 1 is the dimension.
-                                      + mMeshFilename + " "         // arg 2 is mesh prefix, path relative to
+                                      + this->mMeshFilename + " "         // arg 2 is mesh prefix, path relative to
                                       // the main chaste directory.
-                                      + mOutputDirectory + "/"
-                                      + mOutputFilenamePrefix + " " // arg 3 is the results folder and prefix,
+                                      + this->mOutputDirectory + "/"
+                                      + this->mOutputFilenamePrefix + " " // arg 3 is the results folder and prefix,
                                       // relative to the testoutput folder.
                                       + "last_simulation";          // arg 4 is the output prefix, relative to
                 // anim folder.                
@@ -305,7 +272,7 @@ public:
     
     void SetStartTime(const double &rStartTime)
     {
-        mStartTime = rStartTime;
+        this->mStartTime = rStartTime;
     }
     
     void SetLinearSolverRelativeTolerance(const double &rRelTol)
@@ -315,7 +282,7 @@ public:
     
     void SetEndTime(const double &rEndTime)
     {
-        mEndTime = rEndTime;
+        this->mEndTime = rEndTime;
     }
     
     void SetPdeTimeStep(double pdeTimeStep)
@@ -324,7 +291,7 @@ public:
         {
             EXCEPTION("Pde time step should be positive");
         }
-        mPdeTimeStep = pdeTimeStep;
+        this->mPdeTimeStep = pdeTimeStep;
     }
     
     /**
@@ -337,7 +304,7 @@ public:
         {
             EXCEPTION("Printing time step should be positive");
         }
-        mPrintingTimeStep = printingTimeStep;
+        this->mPrintingTimeStep = printingTimeStep;
     }
     
     /**
@@ -346,7 +313,7 @@ public:
      */
     void PrintEveryNthTimeStep(unsigned n)
     {
-        mPrintingTimeStep = n*mPdeTimeStep;
+        this->mPrintingTimeStep = n*this->mPdeTimeStep;
     }
     
     
@@ -362,12 +329,12 @@ public:
     
     double GetPdeTimeStep()
     {
-        return mPdeTimeStep;
+        return this->mPdeTimeStep;
     }
     
     void SetMeshFilename(const std::string &rMeshFilename)
     {
-        if ( mMeshFilename!="" )
+        if ( this->mMeshFilename!="" )
         {
             EXCEPTION("Mesh filename was already set");
         }
@@ -377,21 +344,21 @@ public:
         }
         
         
-        mMeshFilename = rMeshFilename;
+        this->mMeshFilename = rMeshFilename;
         
-        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(mMeshFilename);
-        mMesh.ConstructFromMeshReader(mesh_reader);
+        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(this->mMeshFilename);
+        this->mMesh.ConstructFromMeshReader(mesh_reader);
         
     }
     
     void SetOutputDirectory(const std::string &rOutputDirectory)
     {
-        mOutputDirectory = rOutputDirectory;
+        this->mOutputDirectory = rOutputDirectory;
     }
     
     void SetOutputFilenamePrefix(const std::string &rOutputFilenamePrefix)
     {
-        mOutputFilenamePrefix = rOutputFilenamePrefix;
+        this->mOutputFilenamePrefix = rOutputFilenamePrefix;
     }
     
     
@@ -407,12 +374,12 @@ public:
     
     Vec GetVoltage()
     {
-        return mVoltage;
+        return this->mVoltage;
     }
     
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> & rGetMesh()
     {
-        return mMesh;
+        return this->mMesh;
     }
     
     /**
@@ -429,7 +396,7 @@ public:
      */
     void SetWriteInfo(bool writeInfo = true)
     {
-        mWriteInfo = writeInfo;
+        this->mWriteInfo = writeInfo;
     }
     
     
@@ -441,10 +408,10 @@ public:
         std::cout << "Solved to time " << time << "\n" << std::flush;
         
         ReplicatableVector voltage_replicated;
-        voltage_replicated.ReplicatePetscVector(mVoltage);
+        voltage_replicated.ReplicatePetscVector(this->mVoltage);
         
         double v_max = -1e5, v_min = 1e5, phi_max = -1e5, phi_min = 1e5;
-        for (unsigned i=0; i<mMesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<this->mMesh.GetNumNodes(); i++)
         {
             if ( voltage_replicated[2*i] > v_max)
             {

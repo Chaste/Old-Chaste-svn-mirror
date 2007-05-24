@@ -9,39 +9,18 @@
 #include "AbstractCardiacCellFactory.hpp"
 #include "DistributedVector.hpp"
 #include "TimeStepper.hpp"
+#include "AbstractCardiacProblem.hpp"
 
 
 /**
  * Class which specifies and solves a monodomain problem.
  */
 template<unsigned SPACE_DIM>
-class MonodomainProblem
+class MonodomainProblem : public AbstractCardiacProblem<SPACE_DIM>
 {
 private:
-    std::string mMeshFilename;
-    
-    /**
-     *  Start time defaults to 0, pde timestep defaults to 0.01 (ms), the
-     *  end time is not defaulted and must be set
-     */
-    double mStartTime;
-    double mEndTime;
-    double mPdeTimeStep;
-    double mPrintingTimeStep;
-    
-    bool mWriteInfo;
-    
-    /** data is not written if output directory or output file prefix are not set*/
-    std::string  mOutputDirectory, mOutputFilenamePrefix;
-    
-    MonodomainPde<SPACE_DIM> *mpMonodomainPde;
-    
-    AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
-    
-    Vec mVoltage; // Current solution
-    
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
-    
+    MonodomainPde<SPACE_DIM> *mpMonodomainPde;    
+
 public:
 
     /**
@@ -50,18 +29,9 @@ public:
      * create cells.
      */
     MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
-            : mMeshFilename(""),      // i.e. undefined
-            mOutputDirectory(""),   // i.e. undefined
-            mOutputFilenamePrefix(""),   // i.e. undefined
-            mpMonodomainPde(NULL),
-            mpCellFactory(pCellFactory)
+            : AbstractCardiacProblem<SPACE_DIM>(pCellFactory),
+            mpMonodomainPde(NULL)
     {
-        mStartTime        = 0.0;  // ms
-        mPdeTimeStep      = 0.01; // ms
-        mEndTime          = -1;   // negative so can check has been set
-        mPrintingTimeStep = mPdeTimeStep;   // default behaviour: print out every pde time step
-        
-        mWriteInfo = false;
     }
     
     /**
@@ -75,17 +45,17 @@ public:
     /** Initialise the system. Must be called before Solve() */
     void Initialise()
     {
-        if ( mMeshFilename=="" )
+        if ( this->mMeshFilename=="" )
         {
             EXCEPTION("Mesh filename was passed in empty");
         }
         
-        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(mMeshFilename);
-        mMesh.ConstructFromMeshReader(mesh_reader);
+        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(this->mMeshFilename);
+        this->mMesh.ConstructFromMeshReader(mesh_reader);
         
-        mpCellFactory->SetMesh( &mMesh );
+        this->mpCellFactory->SetMesh( &this->mMesh );
         
-        mpMonodomainPde = new MonodomainPde<SPACE_DIM>(mpCellFactory);
+        mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
     }
     
     /**
@@ -98,18 +68,18 @@ public:
             EXCEPTION("Monodomain pde is null, Initialise() probably hasn't been called");
         }
         
-        if ( mStartTime >= mEndTime )
+        if ( this->mStartTime >= this->mEndTime )
         {
             EXCEPTION("Start time should be less than end time");
         }
         
         // Assembler
-        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&mMesh, mpMonodomainPde);
+        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&this->mMesh, mpMonodomainPde);
         
         // initial condition;
         Vec initial_condition= DistributedVector::CreateVec();
         DistributedVector ic(initial_condition);
-        // Set a constant initial voltage throughout the mMesh
+        // Set a constant initial voltage throughout the this->mMesh
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();
              ++index)
@@ -120,27 +90,27 @@ public:
 
 
         
-        //  Write data to a file <mOutputFilenamePrefix>_xx.dat, 'xx' refers to
+        //  Write data to a file <this->mOutputFilenamePrefix>_xx.dat, 'xx' refers to
         //  'xx'th time step using ColumnDataWriter
         ParallelColumnDataWriter *p_test_writer = NULL;
         
         unsigned time_var_id = 0;
         unsigned voltage_var_id = 0;
         bool write_files = false;
-        if (mOutputFilenamePrefix.length() > 0)
+        if (this->mOutputFilenamePrefix.length() > 0)
         {
             write_files = true;
             
-            p_test_writer = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
+            p_test_writer = new ParallelColumnDataWriter(this->mOutputDirectory,this->mOutputFilenamePrefix);
             
-            p_test_writer->DefineFixedDimension("Node", "dimensionless", mMesh.GetNumNodes() );
+            p_test_writer->DefineFixedDimension("Node", "dimensionless", this->mMesh.GetNumNodes() );
             time_var_id = p_test_writer->DefineUnlimitedDimension("Time","msecs");
             
             voltage_var_id = p_test_writer->DefineVariable("V","mV");
             p_test_writer->EndDefineMode();
         }
             
-        TimeStepper stepper(mStartTime, mEndTime, mPrintingTimeStep);
+        TimeStepper stepper(this->mStartTime, this->mEndTime, this->mPrintingTimeStep);
 
         if (write_files)
         {
@@ -149,20 +119,20 @@ public:
                               
         }
         // check the printing time step is a multiple of the pde timestep.
-        assert (mPrintingTimeStep >= mPdeTimeStep);
-        assert(  fabs( (mPrintingTimeStep/mPdeTimeStep)
-                           -round(mPrintingTimeStep/mPdeTimeStep) ) < 1e-10 );
+        assert (this->mPrintingTimeStep >= this->mPdeTimeStep);
+        assert(  fabs( (this->mPrintingTimeStep/this->mPdeTimeStep)
+                           -round(this->mPrintingTimeStep/this->mPdeTimeStep) ) < 1e-10 );
                        
                  
         while ( !stepper.IsTimeAtEnd() )
         {
             // solve from now up to the next printing time
-            monodomain_assembler.SetTimes(stepper.GetTime(), stepper.GetNextTime(), mPdeTimeStep);
+            monodomain_assembler.SetTimes(stepper.GetTime(), stepper.GetNextTime(), this->mPdeTimeStep);
             monodomain_assembler.SetInitialCondition( initial_condition );
             
             try
             {
-                mVoltage = monodomain_assembler.Solve();
+                this->mVoltage = monodomain_assembler.Solve();
             }
             catch (Exception &e)
             {
@@ -178,23 +148,23 @@ public:
             VecDestroy(initial_condition);
             
             // Initial condition for next loop is current solution
-            initial_condition = mVoltage;
+            initial_condition = this->mVoltage;
             
             // advance to next time
             stepper.AdvanceOneTimeStep();
             
             // print out details at current time if asked for
-            if (mWriteInfo)
+            if (this->mWriteInfo)
             {
                 WriteInfo(stepper.GetTime());
             }
             
-            // Writing data out to the file <mOutputFilenamePrefix>.dat
+            // Writing data out to the file <this->mOutputFilenamePrefix>.dat
             if (write_files)
             {
                 p_test_writer->AdvanceAlongUnlimitedDimension(); // creates a new file
                 p_test_writer->PutVariable(time_var_id, stepper.GetTime());
-                p_test_writer->PutVector(voltage_var_id, mVoltage);
+                p_test_writer->PutVector(voltage_var_id, this->mVoltage);
             }
         }
         
@@ -215,10 +185,10 @@ public:
             space_dim << SPACE_DIM;
             chaste_2_meshalyzer = "anim/chaste2meshalyzer "         // the executable.
                                   + space_dim.str() + " "       // argument 1 is the dimension.
-                                  + mMeshFilename + " "         // arg 2 is mesh prefix, path relative to
+                                  + this->mMeshFilename + " "         // arg 2 is mesh prefix, path relative to
                                   // the main chaste directory.
-                                  + mOutputDirectory + "/"
-                                  + mOutputFilenamePrefix + " " // arg 3 is the results folder and prefix,
+                                  + this->mOutputDirectory + "/"
+                                  + this->mOutputFilenamePrefix + " " // arg 3 is the results folder and prefix,
                                   // relative to the testoutput folder.
                                   + "last_simulation";          // arg 4 is the output prefix, relative to
             // anim folder.
@@ -233,12 +203,12 @@ public:
     
     void SetStartTime(const double &rStartTime)
     {
-        mStartTime = rStartTime;
+        this->mStartTime = rStartTime;
     }
     
     void SetEndTime(const double &rEndTime)
     {
-        mEndTime = rEndTime;
+        this->mEndTime = rEndTime;
     }
     
     /**
@@ -254,7 +224,7 @@ public:
         {
             EXCEPTION("Pde time step should be positive");
         }
-        mPdeTimeStep = pdeTimeStep;
+        this->mPdeTimeStep = pdeTimeStep;
     }
     
     /** Set the times to print output. The printing time step must be
@@ -267,7 +237,7 @@ public:
         {
             EXCEPTION("Printing time step should be positive");
         }
-        mPrintingTimeStep = printingTimeStep;
+        this->mPrintingTimeStep = printingTimeStep;
     }
     
     /** Set the simulation to print every n timesteps. Only set this
@@ -275,28 +245,28 @@ public:
      */
     void PrintEveryNthTimeStep(unsigned n)
     {
-        mPrintingTimeStep = n*mPdeTimeStep;
+        this->mPrintingTimeStep = n*this->mPdeTimeStep;
     }
     
     
     double GetPdeTimeStep()
     {
-        return mPdeTimeStep;
+        return this->mPdeTimeStep;
     }
     
     void SetMeshFilename(const std::string &rMeshFilename)
     {
-        mMeshFilename = rMeshFilename;
+        this->mMeshFilename = rMeshFilename;
     }
     
     void SetOutputDirectory(const std::string &rOutputDirectory)
     {
-        mOutputDirectory = rOutputDirectory;
+        this->mOutputDirectory = rOutputDirectory;
     }
     
     void SetOutputFilenamePrefix(const std::string &rOutputFilenamePrefix)
     {
-        mOutputFilenamePrefix = rOutputFilenamePrefix;
+        this->mOutputFilenamePrefix = rOutputFilenamePrefix;
     }
     
     /**
@@ -306,12 +276,12 @@ public:
     Vec GetVoltage()
     {
         //Use with caution since we don't want to alter the state of the PETSc vector
-        return mVoltage;
+        return this->mVoltage;
     }
     
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> & rGetMesh()
     {
-        return mMesh;
+        return this->mMesh;
     }
     
     MonodomainPde<SPACE_DIM> * GetMonodomainPde()
@@ -324,7 +294,7 @@ public:
      */
     void SetWriteInfo(bool writeInfo = true)
     {
-        mWriteInfo = writeInfo;
+        this->mWriteInfo = writeInfo;
     }
     
     
@@ -337,10 +307,10 @@ public:
         std::cout << "Solved to time " << time << "\n" << std::flush;
         
         ReplicatableVector voltage_replicated;
-        voltage_replicated.ReplicatePetscVector(mVoltage);
+        voltage_replicated.ReplicatePetscVector(this->mVoltage);
         
         double v_max = -1e5, v_min = 1e5;
-        for (unsigned i=0; i<mMesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<this->mMesh.GetNumNodes(); i++)
         {
             if ( voltage_replicated[i] > v_max)
             {
