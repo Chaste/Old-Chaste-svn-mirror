@@ -42,6 +42,7 @@ public:
             : AbstractCardiacProblem<SPACE_DIM>(pCellFactory),
             mpBidomainPde(NULL)
     {        
+        this -> mNumDomains=2;
         mFixedExtracellularPotentialNodes.resize(0);
         mLinearSolverRelativeTolerance=1e-6;
     }
@@ -83,8 +84,8 @@ public:
             bidomain_assembler.SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
         }
 
-        Vec initial_condition = AbstractCardiacProblem<SPACE_DIM>::CreateInitialCondition(mpBidomainPde, 2);
-
+        Vec initial_condition = AbstractCardiacProblem<SPACE_DIM>::CreateInitialCondition(mpBidomainPde);
+        
         ParallelColumnDataWriter *p_test_writer = NULL;
         unsigned time_var_id = 0;
         unsigned voltage_var_id = 0;

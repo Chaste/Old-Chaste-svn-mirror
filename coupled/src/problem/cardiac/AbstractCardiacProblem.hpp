@@ -21,7 +21,9 @@ protected:
     
     bool mWriteInfo;
     bool mPrintOutput;
-
+    
+    // perhaps should be stored in the cardiac pde
+    unsigned mNumDomains;
     
     /** data is not written if output directory or output file prefix are not set*/
     std::string  mOutputDirectory, mOutputFilenamePrefix;
@@ -85,16 +87,15 @@ public:
     
     // Perhaps this should be a method of AbstractCardiacPde??)
     
-    Vec CreateInitialCondition(AbstractCardiacPde<SPACE_DIM>* pCardiacPde, unsigned num_domains)
+    Vec CreateInitialCondition(AbstractCardiacPde<SPACE_DIM>* pCardiacPde)
     {
-        assert(num_domains<=2);
         DistributedVector::SetProblemSize(this->mMesh.GetNumNodes());
-        Vec initial_condition=DistributedVector::CreateVec(num_domains);
+        Vec initial_condition=DistributedVector::CreateVec(mNumDomains);
         DistributedVector ic(initial_condition);
         
         std::vector< DistributedVector::Stripe > stripe;
         
-        for (unsigned i=0; i<num_domains; i++)
+        for (unsigned i=0; i<mNumDomains; i++)
         {
             stripe.push_back(DistributedVector::Stripe(ic, i));
         }
@@ -105,7 +106,7 @@ public:
         {
             stripe[0][index]= pCardiacPde->GetCardiacCell(index.Global)->GetVoltage();
             
-            if (num_domains==2)
+            if (mNumDomains==2)
             {
                 stripe[1][index] =0;
             }

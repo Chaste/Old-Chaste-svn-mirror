@@ -32,6 +32,7 @@ public:
             : AbstractCardiacProblem<SPACE_DIM>(pCellFactory),
             mpMonodomainPde(NULL)
     {
+        this->mNumDomains = 1;
     }
     
     /**
@@ -60,7 +61,7 @@ public:
         MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&this->mMesh, mpMonodomainPde);
         
         // initial condition;     
-        Vec initial_condition = AbstractCardiacProblem<SPACE_DIM>::CreateInitialCondition(mpMonodomainPde, 1);
+        Vec initial_condition = AbstractCardiacProblem<SPACE_DIM>::CreateInitialCondition(mpMonodomainPde);
 
         
         //  Write data to a file <this->mOutputFilenamePrefix>_xx.dat, 'xx' refers to
