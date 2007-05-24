@@ -147,6 +147,8 @@ public:
     
     void AddCell(MeinekeCryptCell cell, c_vector<double,DIM> newLocation);
 
+    void ReMesh();
+
     /**
      * @return iterator pointing to the first cell in the crypt
      */

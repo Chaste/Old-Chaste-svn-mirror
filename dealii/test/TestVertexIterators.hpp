@@ -37,7 +37,7 @@ public :
         
         std::vector<bool> vertex_touched(mesh.n_vertices(),false);
         
-        while (!vertex_iter.ReachedEnd())
+        while (!vertex_iter.End())
         {
             Triangulation<2>::active_cell_iterator cell = vertex_iter.GetCell();
             
@@ -97,10 +97,10 @@ public :
             TS_ASSERT(vertex_touched[i]==true);
         }
         
-        vertex_iter.Reset();
+        vertex_iter.Begin();
         counter=0;
         TS_ASSERT_EQUALS(vertex_iter.GetVertexGlobalIndex(), initial_index);
-        while (!vertex_iter.ReachedEnd())
+        while (!vertex_iter.End())
         {
             counter++;
             vertex_iter.Next();
@@ -109,10 +109,10 @@ public :
         
         // do it again after refining the mesh, check no errors
         mesh.refine_global(1);
-        vertex_iter.Reset();
+        vertex_iter.Begin();
         counter=0;
         TS_ASSERT_EQUALS(vertex_iter.GetVertexGlobalIndex(), initial_index);
-        while (!vertex_iter.ReachedEnd())
+        while (!vertex_iter.End())
         {
             counter++;
             vertex_iter.Next();
@@ -157,7 +157,7 @@ public :
         std::vector<bool> vertex_touched(mesh.n_vertices(),false);
         std::vector<bool> dof_touched(dof_handler.n_dofs(),false);
         
-        while (!vertex_iter.ReachedEnd())
+        while (!vertex_iter.End())
         {
             Triangulation<2>::active_cell_iterator cell = vertex_iter.GetCell();
             
@@ -222,10 +222,10 @@ public :
             TS_ASSERT(vertex_touched[i]==true);
         }
         
-        vertex_iter.Reset();
+        vertex_iter.Begin();
         counter=0;
         TS_ASSERT_EQUALS(vertex_iter.GetVertexGlobalIndex(), initial_index);
-        while (!vertex_iter.ReachedEnd())
+        while (!vertex_iter.End())
         {
             counter++;
             vertex_iter.Next();
@@ -234,10 +234,10 @@ public :
                 
         // do it again after refining the mesh, check no errors
         mesh.refine_global(1);
-        vertex_iter.Reset();
+        vertex_iter.Begin();
         counter=0;
         TS_ASSERT_EQUALS(vertex_iter.GetVertexGlobalIndex(), initial_index);
-        while (!vertex_iter.ReachedEnd())
+        while (!vertex_iter.End())
         {
             counter++;
             vertex_iter.Next();

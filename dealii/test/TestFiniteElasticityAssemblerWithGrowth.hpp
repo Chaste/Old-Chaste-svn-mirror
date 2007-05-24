@@ -129,7 +129,7 @@ public :
     }
     
     
-    void TestGrowingDyingTumourModel()
+    void NO__TestGrowingDyingTumourModel()
     {
         return;
         
@@ -231,6 +231,51 @@ public :
     }
     
     
+    
+    
+    void NO_Test2dPolypFormation() throw(Exception)
+    {
+        Vector<double> body_force(2); // zero
+        double density = 1.0;
+
+        double length = 50;
+        double height = 2;
+
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
+
+        Triangulation<2> mesh;
+        Point<2> zero;
+        Point<2> opposite_corner;
+        opposite_corner[0] = length;
+        opposite_corner[1] = height;
+        
+        unsigned num_elem_x = 50;
+        unsigned num_elem_y = 2;
+        
+        std::vector<unsigned> repetitions;
+        repetitions.push_back(num_elem_x);
+        repetitions.push_back(num_elem_y);
+        
+        GridGenerator::subdivided_hyper_rectangle(mesh, repetitions, zero, opposite_corner);
+
+        // set all elements as growing region (using a circle with a big radius)
+        FiniteElasticityTools<2>::SetCircularRegionAsGrowingRegion(mesh, zero, 10*length);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh,0, 0.0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh,0, length);
+
+
+        ConcentrationBasedTumourSourceModel<2> source_model(mesh);
+        
+        FiniteElasticityAssemblerWithGrowth<2> finiteelas_with_growth(&mesh,
+                                                                      &mooney_rivlin_law,
+                                                                      body_force,
+                                                                      density,
+                                                                      "finite_elas_growth/polyp2d",
+                                                                      &source_model);
+                
+        finiteelas_with_growth.SetTimes(0.0, 10.0, 0.1);
+        finiteelas_with_growth.Run();
+    }
     
     
     

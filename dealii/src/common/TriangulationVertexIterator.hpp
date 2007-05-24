@@ -23,7 +23,7 @@
  *  Usage:
  *
  *  TriangulationVertexIterator<2> iter(&mesh)
- *  while(!iter.ReachedEnd())
+ *  while(!iter.End())
  *  {
  *      Point<2> vertex = iter.GetVertex(); //etc
  *
@@ -49,7 +49,7 @@ private :
     typename Triangulation<DIM>::active_cell_iterator mpCurrentCell;
     
     unsigned mCurrentVertexIndex;
-    bool mReachedEnd;
+    bool mEnd;
     
     void NextNode()
     {
@@ -74,10 +74,10 @@ public :
         
         mCurrentVertexIndex = 0;
         
-        mReachedEnd = (mpCurrentCell==mpMesh->end());
+        mEnd = (mpCurrentCell==mpMesh->end());
 
         // set the current node as having been touched
-        if(!mReachedEnd)
+        if(!mEnd)
         {
             mVertexTouched[GetVertexGlobalIndex()] = true;
         }
@@ -89,13 +89,13 @@ public :
     void Next()
     {
         bool found=false;
-        while ( (found==false) && (!mReachedEnd) )
+        while ( (found==false) && (!mEnd) )
         {
             NextNode();
             
-            mReachedEnd = (mpCurrentCell==mpMesh->end());
+            mEnd = (mpCurrentCell==mpMesh->end());
             
-            if ( !mReachedEnd && !mVertexTouched[mpCurrentCell->vertex_index(mCurrentVertexIndex)] )
+            if ( !mEnd && !mVertexTouched[mpCurrentCell->vertex_index(mCurrentVertexIndex)] )
             {
                 found = true;
                 mVertexTouched[GetVertexGlobalIndex()] = true;
@@ -107,9 +107,9 @@ public :
     /**
      *  The method returns true if the last vertex has been passed
      */
-    bool ReachedEnd()
+    bool End()
     {
-        return mReachedEnd;
+        return mEnd;
     }
     
     /**
@@ -117,7 +117,7 @@ public :
      */
     Point<DIM>& GetVertex()
     {
-        assert(!mReachedEnd);
+        assert(!mEnd);
         return mpCurrentCell->vertex(mCurrentVertexIndex);
     }
     
@@ -126,7 +126,7 @@ public :
      */
     unsigned GetVertexGlobalIndex()
     {
-        assert(!mReachedEnd);
+        assert(!mEnd);
         return mpCurrentCell->vertex_index(mCurrentVertexIndex);
     }
     
@@ -136,7 +136,7 @@ public :
      */
     unsigned GetLocalVertexIndexForCell()
     {
-        assert(!mReachedEnd);
+        assert(!mEnd);
         return mCurrentVertexIndex;
     }
     
@@ -146,14 +146,14 @@ public :
      */
     typename Triangulation<DIM>::active_cell_iterator GetCell()
     {
-        assert(!mReachedEnd);
+        assert(!mEnd);
         return mpCurrentCell;
     }
     
     /**
      *  Reset to the first vertex so the iterator can be used again
      */
-    void Reset()
+    void Begin()
     {
         // resize mVertexTouched in case the mesh has been refined..
         if(mVertexTouched.size()!=mpMesh->n_vertices())
@@ -167,10 +167,10 @@ public :
         }
         mpCurrentCell = mpMesh->begin_active();
         mCurrentVertexIndex = 0;
-        mReachedEnd = (mpCurrentCell==mpMesh->end());
+        mEnd = (mpCurrentCell==mpMesh->end());
         
         // set the current node as having been touched
-        if(!mReachedEnd)
+        if(!mEnd)
         {
             mVertexTouched[GetVertexGlobalIndex()] = true;
         }

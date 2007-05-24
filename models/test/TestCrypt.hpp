@@ -250,8 +250,18 @@ public:
         }
         
         cells[27].StartApoptosis();
-        // create a crypt, with no ghost nodes at the moment
+        
+        // create a crypt, with some random ghost nodes
         Crypt<2> crypt(mesh,cells);
+
+        std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
+        for(unsigned i=0; i<10; i++)
+        {
+            is_ghost_node[i] = true;
+        }
+        is_ghost_node[80]=true;
+        
+        crypt.SetGhostNodes(is_ghost_node);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(crypt.rGetCells().size(), 81u);
 
@@ -263,7 +273,8 @@ public:
         {
             counter++;
         }
-        TS_ASSERT_EQUALS(counter, 81u);
+        // num real cells should be num_nodes (81) - num_ghosts (11) = 70
+        TS_ASSERT_EQUALS(counter, 70u);
 
         
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
@@ -274,8 +285,8 @@ public:
         TS_ASSERT_EQUALS(crypt.rGetCells().size(), 80u);
         TS_ASSERT_EQUALS(crypt.rGetCells().size(), cells.size());
         
-     //   crypt.Remesh();
-        // check the iterator still works 
+        // check the iterator still works and loops over the correct number of 
+        // cells
         counter = 0;
         for (Crypt<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
@@ -283,15 +294,40 @@ public:
         {
             counter++;
         }
-        TS_ASSERT_EQUALS(counter, 80u);
+        // num real cells should be num_nodes (81) - num_ghosts (11) - One deleted node = 69
+        TS_ASSERT_EQUALS(counter, 69u);
         
-        // test size of ghost nodes vector is correct - mesh.GetNumAllNodes() ?
+        TS_ASSERT_EQUALS(crypt.rGetGhostNodes().size(), mesh.GetNumAllNodes()); 
+
+        crypt.ReMesh();
+
+        // check the iterator again
+        counter = 0;
+        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+             cell_iter != crypt.End();
+             ++cell_iter)
+        {
+            counter++;
+        }
         
-        // crypt.Remesh();
-        
+        // num real cells should be num_new_nodes (80) - num_ghosts (11)
+        TS_ASSERT_EQUALS(counter, 69u);
+
         // test size of ghost nodes vector is correct - mesh.GetNumNodes() ?
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh.GetNumAllNodes()); 
+        TS_ASSERT_EQUALS(crypt.rGetGhostNodes().size(), mesh.GetNumNodes()); 
         
-        SimulationTime::Destroy();       
+        // nodes 0-9 should not been renumbered so are still ghost nodes.
+        // the ghost node at node 80 is now at 79 as node 27 was deleted..
+        for(unsigned i=0; i<crypt.rGetGhostNodes().size(); i++)
+        {
+            // true (ie should be a ghost) if i<10 or i==79, else false
+            TS_ASSERT_EQUALS(crypt.rGetGhostNodes()[i], ((i<10)||(i==79))); 
+        }
+        
+        // finally, check the cells node indices have updated..
+        
+        SimulationTime::Destroy(); 
     }
     // test add and remove, remove and add
     

@@ -145,7 +145,7 @@ public :
         
         
         DofVertexIterator<DIM> vertex_iter(this->mpMesh, &this->mDofHandler);
-        while (!vertex_iter.ReachedEnd())
+        while (!vertex_iter.End())
         {
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
             
@@ -194,7 +194,7 @@ private :
         assert(deformed_position[0].size()==mDeformedMesh.n_vertices());
 
         TriangulationVertexIterator<DIM> vertex_iter(&mDeformedMesh);
-        while (!vertex_iter.ReachedEnd())
+        while (!vertex_iter.End())
         {
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
             for (unsigned i=0; i<DIM; i++)

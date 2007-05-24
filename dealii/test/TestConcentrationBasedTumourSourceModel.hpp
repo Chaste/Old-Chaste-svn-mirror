@@ -79,7 +79,7 @@ public:
         TriangulationVertexIterator<2> source_mesh_iter(&source_model.mDeformedMesh);
         
         TS_ASSERT_EQUALS(finite_elasticity.GetMesh()->n_vertices(), source_model.mDeformedMesh.n_vertices());
-        while (!fe_mesh_iter.ReachedEnd())
+        while (!fe_mesh_iter.End())
         {
             TS_ASSERT_EQUALS(fe_mesh_iter.GetVertexGlobalIndex(), source_mesh_iter.GetVertexGlobalIndex());
             
@@ -100,11 +100,11 @@ public:
         source_model.Run(0,1,&finite_elasticity);
         
         // check (fe_mesh+deformed_posn) = source_mesh
-        fe_mesh_iter.Reset();
-        source_mesh_iter.Reset();
+        fe_mesh_iter.Begin();
+        source_mesh_iter.Begin();
         TS_ASSERT_EQUALS(finite_elasticity.GetMesh()->n_vertices(), source_model.mDeformedMesh.n_vertices());
         std::vector<Vector<double> > deformed_position = finite_elasticity.rGetDeformedPosition();
-        while (!fe_mesh_iter.ReachedEnd())
+        while (!fe_mesh_iter.End())
         {
             TS_ASSERT_EQUALS(fe_mesh_iter.GetVertexGlobalIndex(), source_mesh_iter.GetVertexGlobalIndex());
             

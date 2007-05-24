@@ -411,7 +411,7 @@ void DynamicFiniteElasticityAssembler<DIM>::Solve()
         mSolutionAtLastTimestep = this->mCurrentSolution;
         
         DofVertexIterator<DIM> vertex_iter(this->mpMesh, &this->mDofHandler);
-        while (!vertex_iter.ReachedEnd())
+        while (!vertex_iter.End())
         {
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
             Point<DIM> old_posn = vertex_iter.GetVertex();

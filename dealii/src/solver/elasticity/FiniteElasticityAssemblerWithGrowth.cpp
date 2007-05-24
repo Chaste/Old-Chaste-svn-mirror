@@ -587,7 +587,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteBasicOutput(unsigned counter
     // mDeformedPosition[i](index) because for some values of index, 
     // it will correspond to a non-active node.
     TriangulationVertexIterator<2> vertex_iter(this->mpMesh);
-    while (!vertex_iter.ReachedEnd())
+    while (!vertex_iter.End())
     {
         unsigned index = vertex_iter.GetVertexGlobalIndex();
         
@@ -817,14 +817,23 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         // update the growth values
         //////////////////////////////////////////////////////
         TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
-        while (!vertex_iter.ReachedEnd())
+        while (!vertex_iter.End())
         {
             Point<2> centre;
             Point<2>& position = vertex_iter.GetVertex();
             Point<2> diff = position - centre;
     
-            double distance_to_centre = std::sqrt(diff.square());
-            double source_value = 5*(distance_to_centre - 0.7);
+//            double distance_to_centre = std::sqrt(diff.square());
+//            double source_value = 5*(distance_to_centre - 0.7);
+            
+//            double source_value = 0;
+//            if((position[0]>20) && (position[0]<30))
+//            {
+//                source_value = 3;
+//            }
+ 
+            double source_value = 3*exp(-2*(position[0]-25)*(position[0]-25));
+ 
             
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
             mGrowthValuesAtVertices(vertex_index) += this->mOdeDt*(1.0/2.0)*source_value*mGrowthValuesAtVertices(vertex_index);
@@ -944,7 +953,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteGrowthValuesAtVertices(unsig
     std::ofstream growth_vals_output(growth_vals_filename.c_str());
 
     TriangulationVertexIterator<2> vertex_iter(this->mpMesh);
-    while (!vertex_iter.ReachedEnd())
+    while (!vertex_iter.End())
     {
         Point<DIM> posn = vertex_iter.GetVertex();
         unsigned index = vertex_iter.GetVertexGlobalIndex();

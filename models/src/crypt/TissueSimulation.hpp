@@ -176,6 +176,11 @@ public:
     
     void Save();
     void Load(const std::string& rArchiveDirectory, const double& rTimeStamp);
+    
+    Crypt<DIM>* GetCrypt()
+    {
+        return &mCrypt;
+    }
 };
 
 #endif /*TISSUESIMULATION_HPP_*/

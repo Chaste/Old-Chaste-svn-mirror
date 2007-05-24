@@ -62,7 +62,9 @@ void Crypt<DIM>::SetGhostNodes(std::vector<bool>& rGhostNodes)
 template<unsigned DIM>
 void Crypt<DIM>::RemoveDeadCells()
 {
+    std::cout << "\nRemoving dead cells..\n";
     std::vector< MeinekeCryptCell > living_cells;
+
     for (unsigned i=0; i<mrCells.size(); i++)
     {
         MeinekeCryptCell* p_cell=&(mrCells[i]);
@@ -75,7 +77,8 @@ void Crypt<DIM>::RemoveDeadCells()
             living_cells.push_back(*p_cell);
         }
     }
-    
+
+    std::cout << "\nNum cells before = " << mrCells.size() << ", num cell after = " << living_cells.size() << "\n";    
     mrCells=living_cells;
     //Remesh and re-index (is moved to caller)     
 }
@@ -135,6 +138,10 @@ typename Crypt<DIM>::Iterator& Crypt<DIM>::Iterator::operator++()
 template<unsigned DIM>
 bool Crypt<DIM>::Iterator::IsRealCell()
 {
+    if (mrCrypt.rGetGhostNodes().size() != mrCrypt.rGetMesh().GetNumAllNodes() )
+    {
+        std::cout << mrCrypt.rGetGhostNodes().size() << " .. " << mrCrypt.rGetMesh().GetNumAllNodes() << "\n";
+    }
     assert(mrCrypt.rGetGhostNodes().size() == mrCrypt.rGetMesh().GetNumAllNodes() );
     return !(mrCrypt.rGetGhostNodes()[mNodeIndex] || GetNode()->IsDeleted());
 }
@@ -218,7 +225,46 @@ void Crypt<DIM>::AddCell(MeinekeCryptCell newCell, c_vector<double,DIM> newLocat
 }
 
 
+template<unsigned DIM>
+void Crypt<DIM>::ReMesh()
+{
+    std::cout << " - Crypt::Remesh()\n";
+    NodeMap map(mrMesh.GetNumAllNodes());
+    mrMesh.ReMesh(map);
+        
+    if(!map.IsIdentityMap())
+    {
+        std::cout << "\nNon identity map in Crypt::ReMesh()\n";
+        
+        // copy ghost nodes bool
+        std::vector<bool> ghost_nodes_before_remesh = *mpGhostNodes;    
+        mpGhostNodes->clear();
+        mpGhostNodes->resize(mrMesh.GetNumNodes());
+        
+        for(unsigned old_index=0; old_index<map.Size(); old_index++)
+        {
+            if(!map.IsDeleted(old_index))
+            {
+                unsigned new_index = map.GetNewIndex(old_index);
+                (*mpGhostNodes)[new_index] = ghost_nodes_before_remesh[old_index];
+            }
+        }
 
+        // loop over cells. NOTE: we CANT use the iterator here, as the 
+        // cells are currently not in sync with the ghost nodes vector
+        for(unsigned cell_index = 0; cell_index<mrCells.size(); cell_index++)
+        {
+            unsigned old_node_index = mrCells[cell_index].GetNodeIndex();
+
+            // this shouldn't ever happen, as the cell vectors is only ever living 
+            // cells
+            assert(!map.IsDeleted(old_node_index));
+           
+            unsigned new_node_index = map.GetNewIndex(old_node_index);
+            mrCells[cell_index].SetNodeIndex(new_node_index);
+        }
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////

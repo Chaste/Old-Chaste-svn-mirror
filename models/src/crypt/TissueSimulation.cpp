@@ -612,10 +612,10 @@ void TissueSimulation<DIM>::ReMesh()
 {
     if(mReMesh)
     {
-        NodeMap map(mrMesh.GetNumNodes());
         std::cout << "Remeshing \n"<< std::flush;
-        mrMesh.ReMesh(map);
-    
+//        NodeMap map(mrMesh.GetNumNodes());
+  //      mrMesh.ReMesh(map);
+        mCrypt.ReMesh();
             
         // TODO: These commented out because they caused a segmentation
         // fault after the Load function has been called.
@@ -918,7 +918,13 @@ void TissueSimulation<DIM>::Solve()
         mRemeshesThisTimeStep = 0; // To avoid infinite loops
         std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **" << std::endl;
         
+        // remove deal cells before doing birth
+        mNumDeaths += DoCellRemoval();
+
+        // 
         mNumBirths += DoCellBirth();
+
+        ReMesh();
 
         //  calculate node velocities
         std::vector<c_vector<double, DIM> > drdt = CalculateVelocitiesOfEachNode();
@@ -926,17 +932,11 @@ void TissueSimulation<DIM>::Solve()
         // update node positions
         UpdateNodePositions(drdt);
         
-        //////////////////////////////////////////////
-        // Cell death should be included in this method
-        /////////////////////////////////////////////
-        mNumDeaths += DoCellRemoval();
-        
         // Change the state of some cells
         // Only active for WntCellCycleModel at the moment
         // but mutations etc. could occur in this function
         UpdateCellTypes();
                 
-        ReMesh();
         
         // Increment simulation time here, so results files look sensible
         p_simulation_time->IncrementTimeOneStep();
@@ -991,8 +991,9 @@ void TissueSimulation<DIM>::Save()
     std::string archive_filename = handler.GetTestOutputDirectory() + "2dCrypt_at_time_"+time_stamp.str()+".arch";
     std::string mesh_filename = std::string("mesh_") + time_stamp.str();
     
-    NodeMap map(mrMesh.GetNumAllNodes());
-    mrMesh.ReMesh(map);
+    //NodeMap map(mrMesh.GetNumAllNodes());
+    //mrMesh.ReMesh(map);
+    ReMesh();
     
     // the false is so the directory isn't cleaned
     TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);

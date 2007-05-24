@@ -98,7 +98,7 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
     }
 
     TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
-    while(!vertex_iter.ReachedEnd())
+    while(!vertex_iter.End())
     {
         unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
         Point<DIM> old_posn = vertex_iter.GetVertex();
@@ -256,7 +256,7 @@ void FiniteElasticityAssembler<DIM>::FormInitialGuess()
 //
 //    DofVertexIterator<DIM> vertex_iter(this->mpMesh, &this->mDofHandler);
 //
-//    while(!vertex_iter.ReachedEnd())
+//    while(!vertex_iter.End())
 //    {
 //        unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
 //
@@ -280,7 +280,7 @@ void FiniteElasticityAssembler<DIM>::FormInitialGuess()
 //
 //    DofVertexIterator<DIM> vertex_iter(this->mpMesh, &this->mDofHandler);
 //
-//    while(!vertex_iter.ReachedEnd())
+//    while(!vertex_iter.End())
 //    {
 //        unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
 //
@@ -1059,7 +1059,7 @@ std::vector<Vector<double> >& FiniteElasticityAssembler<DIM>::rGetDeformedPositi
     }
     
     DofVertexIterator<DIM> vertex_iter(this->mpMesh, &this->mDofHandler);
-    while (!vertex_iter.ReachedEnd())
+    while (!vertex_iter.End())
     {
         unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
         Point<DIM> old_posn = vertex_iter.GetVertex();
@@ -1095,7 +1095,7 @@ std::vector<Vector<double> >& FiniteElasticityAssembler<DIM>::rGetUndeformedPosi
     
     // populate
     TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
-    while (!vertex_iter.ReachedEnd())
+    while (!vertex_iter.End())
     {
         unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
         Point<DIM> old_posn = vertex_iter.GetVertex();

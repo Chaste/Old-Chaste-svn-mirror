@@ -134,7 +134,7 @@ public:
         
         TriangulationVertexIterator<2> vertex_iter(&mesh);
 
-        while(!vertex_iter.ReachedEnd())
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
@@ -179,7 +179,7 @@ public:
         
         TriangulationVertexIterator<2> vertex_iter(&mesh);
 
-        while(!vertex_iter.ReachedEnd())
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
@@ -210,7 +210,7 @@ public:
         
         TriangulationVertexIterator<3> vertex_iter(&mesh);
 
-        while(!vertex_iter.ReachedEnd())
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<3> posn = vertex_iter.GetVertex();
@@ -265,7 +265,7 @@ public:
         
         // the solution will have been interpolated onto the new nodes, should
         // be approx correct
-        while(!vertex_iter.ReachedEnd())
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
@@ -280,8 +280,8 @@ public:
         laplaces.Solve();
         laplaces.GetSolutionAtVertices(solution);
 
-        vertex_iter.Reset();
-        while(!vertex_iter.ReachedEnd())
+        vertex_iter.Begin();
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
@@ -316,8 +316,8 @@ public:
         // the size of the new interpolated solution should be the size of the mesh        
         TS_ASSERT_EQUALS(mesh.n_vertices(),solution.size());
 
-        vertex_iter.Reset();
-        while(!vertex_iter.ReachedEnd())
+        vertex_iter.Begin();
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
@@ -331,8 +331,8 @@ public:
         laplaces.Solve();
         laplaces.GetSolutionAtVertices(solution);
 
-        vertex_iter.Reset();
-        while(!vertex_iter.ReachedEnd())
+        vertex_iter.Begin();
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
@@ -360,7 +360,7 @@ public:
         Vector<double> another_vector(mesh.n_vertices());
 
         TriangulationVertexIterator<2> vertex_iter(&mesh);
-        while(!vertex_iter.ReachedEnd())
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
@@ -398,8 +398,8 @@ public:
         TS_ASSERT_EQUALS(another_vector.size(), mesh.n_vertices());
 
         // check its been interpolated properly
-        vertex_iter.Reset();
-        while(!vertex_iter.ReachedEnd())
+        vertex_iter.Begin();
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
@@ -427,7 +427,7 @@ public:
         Vector<double> some_vector(mesh.n_vertices());
 
         TriangulationVertexIterator<2> vertex_iter(&mesh);
-        while(!vertex_iter.ReachedEnd())
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
@@ -457,8 +457,8 @@ public:
         TS_ASSERT_EQUALS(some_vector.size(), mesh.n_vertices());
 
         // check its been interpolated properly
-        vertex_iter.Reset();
-        while(!vertex_iter.ReachedEnd())
+        vertex_iter.Begin();
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
@@ -499,7 +499,7 @@ public:
 
         TriangulationVertexIterator<2> vertex_iter(&mesh);
 
-        while(!vertex_iter.ReachedEnd())
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
@@ -530,7 +530,7 @@ public:
         Vector<double> some_vector(mesh.n_vertices());
         
         TriangulationVertexIterator<2> vertex_iter(&mesh);
-        while(!vertex_iter.ReachedEnd())
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
   
@@ -573,8 +573,8 @@ public:
 
         // the solution will have been interpolated onto the new nodes, should
         // be approx correct
-        vertex_iter.Reset();
-        while(!vertex_iter.ReachedEnd())
+        vertex_iter.Begin();
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
 
@@ -595,8 +595,8 @@ public:
 
         // check its size and values
         TS_ASSERT_EQUALS(solution.size(), mesh.n_vertices());
-        vertex_iter.Reset();
-        while(!vertex_iter.ReachedEnd())
+        vertex_iter.Begin();
+        while(!vertex_iter.End())
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();

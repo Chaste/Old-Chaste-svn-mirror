@@ -19,7 +19,7 @@ public:
     void TestAndLabelSingleCellForApoptosis(MeinekeCryptCell& cell)
     {
         if (!cell.HasApoptosisBegun() &&
-            RandomNumberGenerator::Instance()->ranf() > 0.95)
+            RandomNumberGenerator::Instance()->ranf() > 0.99)
         {
             cell.StartApoptosis();
         }        
@@ -40,7 +40,6 @@ public:
     void RemoveDeadCells()
     {
         this->mpCrypt->RemoveDeadCells();
-           
     }
 };
 
