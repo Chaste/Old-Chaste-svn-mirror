@@ -22,7 +22,7 @@
  * extracellular potential at node j.
  */
 template<unsigned SPACE_DIM>
-class BidomainProblem : public AbstractCardiacProblem<SPACE_DIM>
+class BidomainProblem : public AbstractCardiacProblem<SPACE_DIM, 2>
 {
 private:    
     BidomainPde<SPACE_DIM>* mpBidomainPde;
@@ -39,10 +39,9 @@ public:
      * create cells.
      */
     BidomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
-            : AbstractCardiacProblem<SPACE_DIM>(pCellFactory),
+            : AbstractCardiacProblem<SPACE_DIM, 2>(pCellFactory),
             mpBidomainPde(NULL)
-    {        
-        this -> mNumDomains=2;
+    {
         mFixedExtracellularPotentialNodes.resize(0);
         mLinearSolverRelativeTolerance=1e-6;
     }
@@ -62,7 +61,7 @@ public:
     /** Initialise the system. Must be called before Solve() */
     void Initialise()
     {
-        AbstractCardiacProblem<SPACE_DIM>::Initialise(mpBidomainPde);
+        AbstractCardiacProblem<SPACE_DIM, 2>::Initialise(mpBidomainPde);
         mpBidomainPde = new BidomainPde<SPACE_DIM>( this->mpCellFactory );
     }
     
@@ -72,7 +71,7 @@ public:
      */
     void Solve()
     {
-        AbstractCardiacProblem<SPACE_DIM>::PreSolveChecks(mpBidomainPde);
+        AbstractCardiacProblem<SPACE_DIM, 2>::PreSolveChecks(mpBidomainPde);
         
         // Assembler
         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(
@@ -84,7 +83,7 @@ public:
             bidomain_assembler.SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
         }
 
-        Vec initial_condition = AbstractCardiacProblem<SPACE_DIM>::CreateInitialCondition(mpBidomainPde);
+        Vec initial_condition = AbstractCardiacProblem<SPACE_DIM, 2>::CreateInitialCondition(mpBidomainPde);
         
         ParallelColumnDataWriter *p_test_writer = NULL;
         unsigned time_var_id = 0;
@@ -202,6 +201,10 @@ public:
         }
     }
     
+    void SetLinearSolverRelativeTolerance(const double &rRelTol)
+    {
+        mLinearSolverRelativeTolerance = rRelTol;
+    }
     
     /**
      *  Set the nodes at which phi_e (the extracellular potential) is fixed to 

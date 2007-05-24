@@ -4,7 +4,7 @@
 #include "DistributedVector.hpp"
 
 
-template<unsigned SPACE_DIM>
+template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
 {
 protected:
@@ -22,8 +22,6 @@ protected:
     bool mWriteInfo;
     bool mPrintOutput;
     
-    // perhaps should be stored in the cardiac pde
-    unsigned mNumDomains;
     
     /** data is not written if output directory or output file prefix are not set*/
     std::string  mOutputDirectory, mOutputFilenamePrefix;
@@ -90,12 +88,12 @@ public:
     Vec CreateInitialCondition(AbstractCardiacPde<SPACE_DIM>* pCardiacPde)
     {
         DistributedVector::SetProblemSize(this->mMesh.GetNumNodes());
-        Vec initial_condition=DistributedVector::CreateVec(mNumDomains);
+        Vec initial_condition=DistributedVector::CreateVec(PROBLEM_DIM);
         DistributedVector ic(initial_condition);
         
         std::vector< DistributedVector::Stripe > stripe;
         
-        for (unsigned i=0; i<mNumDomains; i++)
+        for (unsigned i=0; i<PROBLEM_DIM; i++)
         {
             stripe.push_back(DistributedVector::Stripe(ic, i));
         }
@@ -106,7 +104,7 @@ public:
         {
             stripe[0][index]= pCardiacPde->GetCardiacCell(index.Global)->GetVoltage();
             
-            if (mNumDomains==2)
+            if (PROBLEM_DIM==2)
             {
                 stripe[1][index] =0;
             }

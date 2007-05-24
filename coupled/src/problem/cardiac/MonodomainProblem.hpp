@@ -16,7 +16,7 @@
  * Class which specifies and solves a monodomain problem.
  */
 template<unsigned SPACE_DIM>
-class MonodomainProblem : public AbstractCardiacProblem<SPACE_DIM>
+class MonodomainProblem : public AbstractCardiacProblem<SPACE_DIM, 1>
 {
 private:
     MonodomainPde<SPACE_DIM> *mpMonodomainPde;    
@@ -29,10 +29,9 @@ public:
      * create cells.
      */
     MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
-            : AbstractCardiacProblem<SPACE_DIM>(pCellFactory),
+            : AbstractCardiacProblem<SPACE_DIM, 1>(pCellFactory),
             mpMonodomainPde(NULL)
     {
-        this->mNumDomains = 1;
     }
     
     /**
@@ -46,7 +45,7 @@ public:
     /** Initialise the system. Must be called before Solve() */
     void Initialise()
     {
-        AbstractCardiacProblem<SPACE_DIM>::Initialise(mpMonodomainPde);
+        AbstractCardiacProblem<SPACE_DIM, 1>::Initialise(mpMonodomainPde);
         mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
     }
     
@@ -56,12 +55,12 @@ public:
     void Solve()
     {
 
-        AbstractCardiacProblem<SPACE_DIM>::PreSolveChecks(mpMonodomainPde);
+        AbstractCardiacProblem<SPACE_DIM, 1>::PreSolveChecks(mpMonodomainPde);
         // Assembler
         MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&this->mMesh, mpMonodomainPde);
         
         // initial condition;     
-        Vec initial_condition = AbstractCardiacProblem<SPACE_DIM>::CreateInitialCondition(mpMonodomainPde);
+        Vec initial_condition = AbstractCardiacProblem<SPACE_DIM, 1>::CreateInitialCondition(mpMonodomainPde);
 
         
         //  Write data to a file <this->mOutputFilenamePrefix>_xx.dat, 'xx' refers to
