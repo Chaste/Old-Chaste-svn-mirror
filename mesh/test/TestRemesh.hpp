@@ -33,6 +33,7 @@ private:
     }
 	
 public:
+
     void TestOperationOfTriangle() throw (Exception)
     {
         OutputFileHandler handler("");
@@ -171,6 +172,8 @@ public:
         NodeMap map(mesh.GetNumNodes());
         mesh.ReMesh(map);
 
+        TS_ASSERT_EQUALS(map.Size(),mesh.GetNumNodes());
+
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), old_mesh.GetNumNodes());
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), old_mesh.GetNumBoundaryElements());
         
@@ -297,6 +300,7 @@ public:
         
         unsigned new_index = 0;
         NodeMap map(mesh.GetNumAllNodes());
+        
         for (unsigned i=0; i<mesh.GetNumAllNodes(); i++)
         {
             if (mesh.GetNode(i)->IsDeleted())
@@ -374,6 +378,8 @@ public:
         NodeMap map(1);
         mesh.ReMesh(map);
         
+        TS_ASSERT_EQUALS(map.Size(),mesh.GetNumNodes()+1);//one node removed during remesh
+        
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements());
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes());
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
@@ -410,6 +416,30 @@ public:
 //
     }
     
+    
+    void TestNodeMap()
+    {
+        NodeMap map(10);
+        TS_ASSERT_EQUALS(map.Size(), 10u);
+
+        map.ResetToIdentity();
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), true);
+                
+        map.SetNewIndex(0,1);
+        map.SetNewIndex(1,0);
+        
+        TS_ASSERT_EQUALS(map.GetNewIndex(0), 1u);
+        TS_ASSERT_EQUALS(map.GetNewIndex(1), 0u);
+        TS_ASSERT_EQUALS(map.GetNewIndex(2), 2u);
+
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
+
+        map.ResetToIdentity();
+        map.SetDeleted(4);
+        TS_ASSERT_EQUALS(map.IsDeleted(4), true);
+        TS_ASSERT_EQUALS(map.IsDeleted(5), false);
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
+    }        
 
 
 };
