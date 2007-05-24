@@ -450,12 +450,12 @@ public:
         double original_mesh_height = p_mesh->GetWidth(1);
         unsigned original_num_nodes = p_mesh->GetNumNodes();
         
-//        TrianglesMeshWriter<2,2> writer("","HaloNodesBefore");
+//        TrianglesMeshWriter<2,2> writer("","HaloNodes");
 //        writer.WriteFilesUsingMesh(*p_mesh);
         
         p_mesh->CreateHaloNodes();
         
-//        TrianglesMeshWriter<2,2> writer2("","HaloNodesAfter");
+//        TrianglesMeshWriter<2,2> writer2("","HaloNodes.1");
 //        writer2.WriteFilesUsingMesh(*p_mesh);
         
         double new_mesh_height = p_mesh->GetWidth(1);
@@ -503,7 +503,7 @@ public:
         c_vector<double, 2>& rLocation3 = p_mesh->GetNode(12)->rGetModifiableLocation();
         rLocation3[1] += 0.8;
         
-//        TrianglesMeshWriter<2,2> writer("","HaloNodesBefore");
+//        TrianglesMeshWriter<2,2> writer("","HaloNodes");
 //        writer.WriteFilesUsingMesh(*p_mesh);
         
         unsigned total_elements = p_mesh->GetNumElements();
@@ -514,7 +514,7 @@ public:
         NodeMap map(p_mesh->GetNumNodes());
         p_mesh->ReMesh(map);
         
-//        TrianglesMeshWriter<2,2> writer2("","HaloNodesAfter");
+//        TrianglesMeshWriter<2,2> writer2("","HaloNodes.1");
 //        writer2.WriteFilesUsingMesh(*p_mesh);
         
         // Check that we haven't added any nodes or elements by doing this Halo Node ReMesh.

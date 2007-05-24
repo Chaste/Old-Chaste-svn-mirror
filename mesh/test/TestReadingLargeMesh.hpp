@@ -7,7 +7,7 @@
 
 #include <vector>
 
-class TestConformingTetrahedralMesh : public CxxTest::TestSuite
+class TestReadingLargeConformingTetrahedralMesh : public CxxTest::TestSuite
 {
 public:
     // This test is mainly here for performance testing, to check that loading a

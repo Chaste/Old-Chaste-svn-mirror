@@ -274,7 +274,6 @@ public:
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
         simulator.SetGhostNodes(ghost_node_indices);
-        simulator.SetWntGradient(OFFSET_LINEAR);
         
         // These are for coverage and use the defaults
         simulator.SetDt(1.0/120.0);
