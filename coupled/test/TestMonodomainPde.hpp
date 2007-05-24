@@ -91,7 +91,11 @@ public:
         VecCreate(PETSC_COMM_WORLD, &voltage);
         VecSetSizes(voltage, PETSC_DECIDE, num_nodes);
         VecSetFromOptions(voltage);
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        VecSet(&initial_voltage, voltage);
+#else
         VecSet(voltage, initial_voltage);
+#endif
         
         // Solve 1 (PDE) timestep using MonodomainPde
         monodomain_pde.SolveCellSystems(voltage, start_time, start_time+big_time_step);
