@@ -37,13 +37,8 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // Any old rubbish here just so the simulation time is set up for cell cycle models
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
@@ -97,7 +92,11 @@ public:
         
         Crypt<2> crypt(mesh, cells);
         
-        RandomCellKiller<2> random_cell_killer(&crypt);
+        // bad probabilities passed in
+        TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&crypt, -0.1));
+        TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&crypt,  1.1));
+        
+        RandomCellKiller<2> random_cell_killer(&crypt, 0.05);
        
         // check that a single cell reaches apoptosis
         unsigned max_tries=0;
@@ -128,12 +127,10 @@ public:
         
         TS_ASSERT(apoptosis_cell_found);
         
-        
+        // increment time to a time after death 
         double death_time = p_simulation_time->GetDimensionalisedTime() + p_params->GetApoptosisTime();
-        while (p_simulation_time->GetDimensionalisedTime() < death_time)
-        {
-            p_simulation_time->IncrementTimeOneStep();
-        }
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(death_time+1.0, 1);
+        p_simulation_time->IncrementTimeOneStep();
         
         // store 'locations' of cells which are not dead
         for (count=0; count<cells.size(); count++)
@@ -145,7 +142,6 @@ public:
                 old_locations.insert(location[0]+location[1]*1000);
             }
         }
-        
         
         // remove dead cells...
         random_cell_killer.RemoveDeadCells();
@@ -161,11 +157,8 @@ public:
         }
         
         TS_ASSERT(new_locations == old_locations);
-        RandomNumberGenerator::Destroy();
-        
-    }
-    
-    
+        RandomNumberGenerator::Destroy();  
+    }   
 };
 
 #endif /*TESTCELLKILLERS_HPP_*/

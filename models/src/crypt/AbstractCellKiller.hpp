@@ -5,11 +5,10 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "Crypt.cpp"
 
-///Note ELEMENT_DIM matches SPACE_DIM
+
 template <unsigned SPACE_DIM>
 class AbstractCellKiller
 {
-
 public:
     virtual ~AbstractCellKiller()
     {}
@@ -19,11 +18,12 @@ public:
     {
     }
 
+
+    virtual void TestAndLabelCellsForApoptosis()=0;
     
-    void SetCrypt(Crypt<SPACE_DIM>* pCrypt)
+    void RemoveDeadCells()
     {
-        assert(pCrypt!=NULL);
-        mpCrypt = pCrypt;
+        this->mpCrypt->RemoveDeadCells();
     }
     
 protected:

@@ -607,7 +607,6 @@ public:
     }
    
     
-    
     void TestPrivateFunctionsOf2DCryptSimulation() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -636,21 +635,12 @@ public:
         
         simulator.SetFixedBoundaries();
         
-        return;
         unsigned num_deaths = simulator.DoCellRemoval();
         unsigned num_births = simulator.DoCellBirth();
                                                                 
         TS_ASSERT_EQUALS(num_births, 1u);
         TS_ASSERT_EQUALS(num_deaths,11u);
-        
-        p_params->SetCryptLength(10.1);
-        TissueSimulation<2> simulator2(mesh,cells);
-        
-        simulator2.SetFixedBoundaries();
-        
-        num_deaths = simulator2.DoCellRemoval();
-        TS_ASSERT_EQUALS(num_deaths,0u);
-        
+               
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -732,8 +722,6 @@ public:
             
             WntGradient wnt_gradient(LINEAR);
             double wnt = wnt_gradient.GetWntLevel(y);
-            
-            
             
             MeinekeCryptCell cell(cell_type, mutation_state, generation, new WntCellCycleModel(wnt,0));
             cell.SetNodeIndex(i);

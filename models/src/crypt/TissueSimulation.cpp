@@ -5,28 +5,23 @@
 
 #include <fstream>
 
-#include "Cylindrical2dMesh.cpp"
-#include "MeinekeCryptCell.hpp"
+#include "TissueSimulation.hpp"
+#include "Exception.hpp"
 #include "CancerParameters.hpp"
 #include <cmath>
 #include <ctime>
 #include <iostream>
 #include <set>
 #include "TrianglesMeshWriter.cpp"
-#include "Exception.hpp"
+#include "TrianglesMeshReader.hpp"
 #include "SimulationTime.hpp"
-#include "StochasticCellCycleModel.hpp"
 #include "ColumnDataWriter.hpp"
-#include "MeinekeCryptCellTypes.hpp"
 #include "WntCellCycleModel.hpp"
 #include "WntGradient.hpp"
-//\todo: This should become abstract
-#include "RandomCellKiller.hpp"
 #include "OutputFileHandler.hpp"
-#include "TissueSimulation.hpp"
-#include "TrianglesMeshReader.hpp"
 
-/** Constructor
+/** 
+ *  Constructor
  *  @param cells is defaulted to the empty vector, in which case SetIncludeRandomBirth()
  *  should be called for any birth to happen.
  */
@@ -60,7 +55,6 @@ TissueSimulation<DIM>::TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMes
     mMaxCells = 10*mrMesh.GetNumNodes();
     mMaxElements = 10*mrMesh.GetNumElements();
     mWntIncluded = false;
-    mpCellKiller = NULL;
     mNumBirths = 0;
     mNumDeaths = 0;
     mIncludeSloughing = true;
@@ -93,8 +87,6 @@ void TissueSimulation<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
     rSetupFile << "MeshWidth\t" << mrMesh.GetWidth(0u);// get furthest distance between nodes in the x-direction
     rSetupFile.close();
 }
-
-
 
 
 
@@ -235,21 +227,6 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
     return daughter_coords;
 }
 
-/**
- *  Checks that the indices are in sync in the cells vector, ie that
- *  mCells[i].GetNodeIndex() is equal to i
- */
-template<unsigned DIM> 
-void TissueSimulation<DIM>::CheckIndicesAreInSync()
-{
-    if (!mCells.empty())
-    {
-        for (unsigned cell_index=0; cell_index<mCells.size(); cell_index++)
-        {
-            assert(mCells[cell_index].GetNodeIndex()==cell_index);
-        }
-    }
-}
 
 /**
  * During a simulation time step, process any cell sloughing or death
@@ -289,11 +266,11 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
         }
     }
     
-    if (mpCellKiller)
+
+    for(unsigned killer_index = 0; killer_index<mCellKillers.size(); killer_index++)
     {
-        mpCellKiller->TestAndLabelCellsForApoptosis();
-        mpCellKiller->RemoveDeadCells();
-        ReMesh();
+        mCellKillers[killer_index]->TestAndLabelCellsForApoptosis();
+        mCellKillers[killer_index]->RemoveDeadCells();
     }
     
     return num_deaths;
@@ -585,12 +562,8 @@ void TissueSimulation<DIM>::UpdateCellTypes()
 {
     if (!mCells.empty())
     {
-        /*
-         * 
-         * Designate cells as proliferating (transit) or
-         * quiescent (differentiated) according to protein concentrations
-         * 
-         */
+        // Designate cells as proliferating (transit) or
+        // quiescent (differentiated) according to protein concentrations
         for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
              cell_iter != mCrypt.End();
              ++cell_iter)
@@ -600,36 +573,6 @@ void TissueSimulation<DIM>::UpdateCellTypes()
     }
 }
 
-
-
-/**
- * This method actually calls the remesh command on the mesh.
- * It should only be called by the method above (ReMesh) which ensures
- * that periodic boundaries are handled properly.
- */
-template<unsigned DIM> 
-void TissueSimulation<DIM>::ReMesh()
-{
-    if(mReMesh)
-    {
-        std::cout << "Remeshing \n"<< std::flush;
-//        NodeMap map(mrMesh.GetNumNodes());
-  //      mrMesh.ReMesh(map);
-        mCrypt.ReMesh();
-            
-        // TODO: These commented out because they caused a segmentation
-        // fault after the Load function has been called.
-        // Possibly necessary for cell death - but missing a method to actually
-        // make the cells vector smaller.
-    //        for (unsigned i=0; i<mCells.size(); i++)
-    //        {
-    //
-    //            unsigned old_index = mCells[i].GetNodeIndex();
-    //            unsigned new_index = map.GetNewIndex(old_index);
-    //            mCells[i].SetNodeIndex(new_index);
-    //        }
-    }
-}
 
 /**
  * Set the timestep of the simulation
@@ -693,13 +636,20 @@ void TissueSimulation<DIM>::SetMaxElements(unsigned maxElements)
 
 /**
  * Call this before Solve() to fix the boundary of the mesh.
- * \todo figure out what this does!
  */
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetFixedBoundaries()
 {
     mFixedBoundaries = true;    // This is called by a nightly test.
 }
+
+
+template<unsigned DIM> 
+Crypt<DIM>& TissueSimulation<DIM>::rGetCrypt()
+{
+    return mCrypt;
+}
+
 
 /**
  * The mesh should be surrounded by at least one layer of ghost nodes.  These are nodes which
@@ -725,6 +675,7 @@ void TissueSimulation<DIM>::SetGhostNodes(std::set<unsigned> ghostNodeIndices)
     }
 }
 
+
 /**
  * Set whether the mesh should be remeshed at every time step.
  */
@@ -734,6 +685,7 @@ void TissueSimulation<DIM>::SetReMeshRule(bool remesh)
     mReMesh = remesh;
 }
 
+
 /**
  * Set the simulation to run with no birth.
  */
@@ -742,6 +694,7 @@ void TissueSimulation<DIM>::SetNoBirth(bool nobirth)
 {
     mNoBirth = nobirth;
 }
+
 
 /**
  * This automatically sets this to be a wnt dependent simulation.
@@ -754,13 +707,14 @@ void TissueSimulation<DIM>::SetWntGradient(WntGradientType wntGradientType)
     mWntGradient = WntGradient(wntGradientType);
 }
 
+
 /**
- * Set this simulation to use a cell killer
+ * Add a cell killer to be used in this simulation
  */
 template<unsigned DIM> 
-void TissueSimulation<DIM>::SetCellKiller(RandomCellKiller<DIM>* pCellKiller)
+void TissueSimulation<DIM>::AddCellKiller(RandomCellKiller<DIM>& rCellKiller)
 {
-    mpCellKiller = pCellKiller;
+    mCellKillers.push_back(&rCellKiller);
 }
 
 /**
@@ -821,10 +775,9 @@ void TissueSimulation<DIM>::Solve()
     // Set up the simulation time
     SimulationTime* p_simulation_time = SimulationTime::Instance();
     double current_time = p_simulation_time->GetDimensionalisedTime();
-    std::cout << "Time at start of Solve Method = " << current_time << std::endl;
     
     unsigned num_time_steps = (unsigned) ((mEndTime-current_time)/mDt+0.5);
-    std::cout << "num timesteps = " << num_time_steps << std::endl;
+
     if (current_time>0)//use the reset function if necessary
     {
         p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
@@ -834,6 +787,7 @@ void TissueSimulation<DIM>::Solve()
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
     }
     
+
     if (mOutputDirectory=="")
     {
         #define COVERAGE_IGNORE
@@ -841,6 +795,7 @@ void TissueSimulation<DIM>::Solve()
         #undef COVERAGE_IGNORE
     }
     
+
     double time_now = p_simulation_time->GetDimensionalisedTime();
     std::ostringstream time_string;
     time_string << time_now;
@@ -908,23 +863,29 @@ void TissueSimulation<DIM>::Solve()
                                *p_node_file, *p_element_file,
                                false,
                                true);
+                               
+                               
     /////////////////////////////////////////////////////////////////////
     // Main time loop
     /////////////////////////////////////////////////////////////////////
     while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
-    {
-        CheckIndicesAreInSync();
-        
-        mRemeshesThisTimeStep = 0; // To avoid infinite loops
+    {        
         std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **" << std::endl;
         
         // remove deal cells before doing birth
         mNumDeaths += DoCellRemoval();
 
-        // 
+        if(mReMesh)
+        {
+            mCrypt.ReMesh();
+        }
+
         mNumBirths += DoCellBirth();
 
-        ReMesh();
+        if(mReMesh)
+        {
+            mCrypt.ReMesh();
+        }
 
         //  calculate node velocities
         std::vector<c_vector<double, DIM> > drdt = CalculateVelocitiesOfEachNode();
@@ -949,7 +910,7 @@ void TissueSimulation<DIM>::Solve()
                                    true);
                             
         tabulated_output_counter++;
-    } // End main time loop
+    }
     
     // Write end state to tabulated files (not visualizer - this
     // is taken care of in the main loop).
@@ -991,9 +952,11 @@ void TissueSimulation<DIM>::Save()
     std::string archive_filename = handler.GetTestOutputDirectory() + "2dCrypt_at_time_"+time_stamp.str()+".arch";
     std::string mesh_filename = std::string("mesh_") + time_stamp.str();
     
-    //NodeMap map(mrMesh.GetNumAllNodes());
-    //mrMesh.ReMesh(map);
-    ReMesh();
+    if(mReMesh)
+    {
+        mCrypt.ReMesh();
+    }
+
     
     // the false is so the directory isn't cleaned
     TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);

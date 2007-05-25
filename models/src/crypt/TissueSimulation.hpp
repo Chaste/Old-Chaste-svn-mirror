@@ -63,7 +63,7 @@ private:
     /** Whether to remesh at each timestep or not (defaults to true).*/
     bool mReMesh;
     
-    bool mIncludeSloughing ;
+    bool mIncludeSloughing;
     
     /** Whether each node is ghosted-ified or not.*/
     std::vector <bool> mIsGhostNode;
@@ -74,6 +74,7 @@ private:
     unsigned mMaxElements;
     
     std::string mOutputDirectory;
+    
     /** Every cell in the simulation*/
     std::vector<MeinekeCryptCell> mCells;
         
@@ -86,10 +87,7 @@ private:
     bool mWntIncluded;
     /** The Wnt gradient, if any */
     WntGradient mWntGradient;
-    
-    /** Number of remeshes performed in the current time step */
-    unsigned mRemeshesThisTimeStep;
-    
+        
     /** Counts the number of births during the simulation */
     unsigned mNumBirths;
     
@@ -123,10 +121,8 @@ private:
     }
     
     
-    
-    /** Cell killer */
-    //TODO: Should become an abstract cell killer
-    RandomCellKiller<DIM> *mpCellKiller;
+    /** List of cell killers */
+    std::vector<AbstractCellKiller<DIM>*> mCellKillers;
     
     void WriteVisualizerSetupFile(std::ofstream& rSetupFile);
 
@@ -144,8 +140,6 @@ private:
     
     void UpdateCellTypes();
  
-    void ReMesh();
-
     void CheckIndicesAreInSync();
 
 
@@ -167,7 +161,7 @@ public:
     void SetNoBirth(bool nobirth);
     void SetNoSloughing();
     void SetWntGradient(WntGradientType wntGradientType);
-    void SetCellKiller(RandomCellKiller<DIM>* pCellKiller);
+    void AddCellKiller(RandomCellKiller<DIM>& rCellKiller);
     std::vector<MeinekeCryptCell> GetCells();
     std::vector <bool> GetGhostNodes();
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
@@ -177,10 +171,7 @@ public:
     void Save();
     void Load(const std::string& rArchiveDirectory, const double& rTimeStamp);
     
-    Crypt<DIM>* GetCrypt()
-    {
-        return &mCrypt;
-    }
+    Crypt<DIM>& rGetCrypt();
 };
 
 #endif /*TISSUESIMULATION_HPP_*/
