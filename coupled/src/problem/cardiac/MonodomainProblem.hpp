@@ -1,6 +1,7 @@
 #ifndef MONODOMAINPROBLEM_HPP_
 #define MONODOMAINPROBLEM_HPP_
 
+#include <boost/numeric/ublas/matrix.hpp>
 
 #include "MonodomainDg0Assembler.hpp"
 #include "MonodomainPde.hpp"

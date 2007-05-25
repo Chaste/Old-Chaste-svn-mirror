@@ -84,6 +84,14 @@ public:
         bidomain_problem.SetPdeTimeStep(pde_time_step);
         bidomain_problem.SetPrintingTimeStep(printing_time_step);
         
+        bidomain_problem.SetLinearSolverRelativeTolerance(5e-7);
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
+        PetscOptionsSetValue("-log_summary", "");
+        PetscOptionsSetValue("-ksp_monitor", "");
+        PetscOptionsSetValue("-ksp_view", "");
+        PetscOptionsSetValue("-options_table", "");
+        
         bidomain_problem.SetWriteInfo();
         
         bidomain_problem.Initialise();
