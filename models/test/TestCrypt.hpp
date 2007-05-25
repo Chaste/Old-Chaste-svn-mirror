@@ -306,7 +306,9 @@ public:
 
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
         p_simulation_time->IncrementTimeOneStep();
-        crypt.RemoveDeadCells();
+        unsigned num_removed = crypt.RemoveDeadCells();
+        
+        TS_ASSERT_EQUALS(num_removed, 1u);
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 80u);
         TS_ASSERT_EQUALS(crypt.rGetCells().size(), 80u);
@@ -390,7 +392,10 @@ public:
 
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
         p_simulation_time->IncrementTimeOneStep();
-        crypt.RemoveDeadCells();
+
+        unsigned num_removed = crypt.RemoveDeadCells();
+        TS_ASSERT_EQUALS(num_removed, 1u);
+
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(crypt.rGetCells().size(), 81u);

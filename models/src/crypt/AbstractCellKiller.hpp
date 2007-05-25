@@ -18,12 +18,21 @@ public:
     {
     }
 
-
+    /**
+     *  Pure method which should call StartApoptosis() on any cell
+     *  which should be about to die
+     */
     virtual void TestAndLabelCellsForApoptosis()=0;
     
-    void RemoveDeadCells()
+    /**
+     *  Remove cells labelled as dead
+     *  Calls RemoveDeadCells on the crypt
+     * 
+     *  @return The number of cells removed
+     */
+    unsigned RemoveDeadCells()
     {
-        this->mpCrypt->RemoveDeadCells();
+        return this->mpCrypt->RemoveDeadCells();
     }
     
 protected:

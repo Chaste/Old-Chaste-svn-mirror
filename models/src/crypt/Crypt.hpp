@@ -85,8 +85,9 @@ public:
 	    
 	/** 
 	 *  Remove all cells labelled as dead
+     *  @return number of cells removed
 	 */
-    void RemoveDeadCells();
+    unsigned RemoveDeadCells();
     
     /**
      * Iterator class allows one to iterate over cells in the crypt.

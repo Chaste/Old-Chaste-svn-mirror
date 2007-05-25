@@ -136,7 +136,6 @@ private:
     c_vector<double, DIM> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
     
     void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt);
-    Point<DIM> GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< c_vector<double, DIM> >& rDrDt);
     
     void UpdateCellTypes();
  

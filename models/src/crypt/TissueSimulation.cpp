@@ -100,52 +100,103 @@ void TissueSimulation<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
 template<unsigned DIM>  
 unsigned TissueSimulation<DIM>::DoCellBirth()
 {
-    unsigned num_births_this_step = 0;
-    if (!mNoBirth && !mCells.empty())
+    if (mNoBirth || mCells.empty())
     {
+        return 0;
+    }
 
-        // Iterate over all cells, seeing if each one can be divided
+    unsigned num_births_this_step = 0;
+
+    // Iterate over all cells, seeing if each one can be divided
+    for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
+         cell_iter != mCrypt.End();
+         ++cell_iter)
+    {
+        MeinekeCryptCell& cell = *cell_iter;
+        Node<DIM>* p_our_node = cell_iter.GetNode();
+
+        assert(cell.GetNodeIndex() == p_our_node->GetIndex());
+        
+        // Check for this cell dividing
+        // Construct any influences for the cell cycle...
+
+        std::vector<double> cell_cycle_influences;
+        if (mWntIncluded)
+        {
+            assert(DIM==2);
+            double y = p_our_node->rGetLocation()[1];
+            double wnt_stimulus = mWntGradient.GetWntLevel(y);
+            cell_cycle_influences.push_back(wnt_stimulus);
+        }
+        
+        // CHECK if this cell is ready to divide - if so create a new cell etc.
+        if (cell.ReadyToDivide(cell_cycle_influences))
+        {
+            // Create new cell
+            MeinekeCryptCell new_cell = cell.Divide();
+            std::cout << "Cell division at node " << cell.GetNodeIndex() << "\n";
+        
+            // Add a new node to the mesh
+            c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
+            
+            mCrypt.AddCell(new_cell, new_location);
+            
+            
+            num_births_this_step++;
+        } // if (ready to divide)
+    } // cell iteration loop
+   
+    return num_births_this_step;
+}
+
+
+/**
+ * During a simulation time step, process any cell sloughing or death
+ *
+ * At the moment we just slough cells by turning them into ghost nodes
+ * 
+ * @return the number of deaths that occurred.
+ */ 
+template<unsigned DIM> 
+unsigned TissueSimulation<DIM>::DoCellRemoval()
+{
+    if(mCells.empty())
+    {
+        return 0;
+    }
+    
+    unsigned num_deaths_this_step=0;
+    // Sloughing by turning boundary nodes into ghost nodes.
+    if (DIM==2 && mIncludeSloughing) // sloughing only happens in 2d
+    {
+        double crypt_length=mpParams->GetCryptLength();
+        double crypt_width=mpParams->GetCryptWidth();
+
         for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
              cell_iter != mCrypt.End();
              ++cell_iter)
         {
-            MeinekeCryptCell& cell = *cell_iter;
-            Node<DIM>* p_our_node = cell_iter.GetNode();
+            double x = cell_iter.rGetLocation()[0];
+            double y = cell_iter.rGetLocation()[1];
 
-            assert(cell.GetNodeIndex() == p_our_node->GetIndex());
-            
-            // Check for this cell dividing
-            // Construct any influences for the cell cycle...
-
-            std::vector<double> cell_cycle_influences;
-            if (mWntIncluded)
-            {
-                assert(DIM==2);
-                double y = p_our_node->rGetLocation()[1];
-                double wnt_stimulus = mWntGradient.GetWntLevel(y);
-                cell_cycle_influences.push_back(wnt_stimulus);
+            if ((x>crypt_width) || (x<0.0) || (y>crypt_length))
+            { 
+                mIsGhostNode[cell_iter.GetNode()->GetIndex()] = true;
+                num_deaths_this_step++;
             }
-            
-            // CHECK if this cell is ready to divide - if so create a new cell etc.
-            if (cell.ReadyToDivide(cell_cycle_influences))
-            {
-                // Create new cell
-                MeinekeCryptCell new_cell = cell.Divide();
-                std::cout << "Cell division at node " << cell.GetNodeIndex() << "\n";
-            
-                // Add a new node to the mesh
-                c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
-                
-                mCrypt.AddCell(new_cell, new_location);
-                
-                
-                num_births_this_step++;
-            } // if (ready to divide)
-        } // cell iteration loop
-    } // if (simulation has cell birth)
+        }
+    }
     
-    return num_births_this_step;
+    for(unsigned killer_index = 0; killer_index<mCellKillers.size(); killer_index++)
+    {
+        mCellKillers[killer_index]->TestAndLabelCellsForApoptosis();
+        num_deaths_this_step += mCellKillers[killer_index]->RemoveDeadCells();
+    }
+    
+    return num_deaths_this_step;
 }
+
+
 
 /**
  * Calculates the new locations of a dividing cell's cell centres.
@@ -228,53 +279,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 }
 
 
-/**
- * During a simulation time step, process any cell sloughing or death
- *
- * At the moment we just slough cells by turning them into ghost nodes
- *
- * \todo CELL DEATH TO BE ADDED INTO THIS METHOD
- * \todo Make cell killer return number of killed cells
- *
- * @return the number of deaths that occurred.
- */ 
-template<unsigned DIM> 
-unsigned TissueSimulation<DIM>::DoCellRemoval()
-{
-    unsigned num_deaths=0;
-    
-    /////////////////////////////////////////////////////////////////////////
-    // Alternate method of sloughing.  Turns boundary nodes into ghost nodes.
-    /////////////////////////////////////////////////////////////////////////
-    if (DIM==2 && mIncludeSloughing) // sloughing only happens in 2d
-    {
-        double crypt_length=mpParams->GetCryptLength();
-        double crypt_width=mpParams->GetCryptWidth();
 
-        for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
-             cell_iter != mCrypt.End();
-             ++cell_iter)
-        {
-            double x = cell_iter.rGetLocation()[0];
-            double y = cell_iter.rGetLocation()[1];
-
-            if ((x>crypt_width) || (x<0.0) || (y>crypt_length))
-            { 
-                mIsGhostNode[cell_iter.GetNode()->GetIndex()] = true;
-                num_deaths++;
-            }
-        }
-    }
-    
-
-    for(unsigned killer_index = 0; killer_index<mCellKillers.size(); killer_index++)
-    {
-        mCellKillers[killer_index]->TestAndLabelCellsForApoptosis();
-        mCellKillers[killer_index]->RemoveDeadCells();
-    }
-    
-    return num_deaths;
-}
 
 
 /**
@@ -475,10 +480,9 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
          ++cell_iter)
     {
         MeinekeCryptCell& cell = *cell_iter;
-        // Node<DIM>* p_our_node = cell_iter.GetNode();
         unsigned index = cell.GetNodeIndex();
         
-        Point<DIM> new_point = GetNewNodeLocation(index, rDrDt);
+        Point<DIM> new_point(mrMesh.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
         
         if(DIM==2)
         {
@@ -499,7 +503,8 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
             else if (mCells.size()>0)
             {
                 if (mWntIncluded)
-                {   // A new Wnt feature - even stem cells can move as long as they don't go below zero.
+                {   
+                    // A new Wnt feature - even stem cells can move as long as they don't go below zero.
                     if ( (new_point.rGetLocation()[1] < 0.0) && !mIsGhostNode[index])
                     {
                         new_point.rGetLocation()[1] = 0.0;
@@ -543,13 +548,6 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
     mCrypt.UpdateGhostPositions(rDrDt,mDt);
 }
 
-template<unsigned DIM> 
-Point<DIM> TissueSimulation<DIM>::GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< c_vector<double, DIM> >& rDrDt)
-{
-    Point<DIM> new_point(   mrMesh.GetNode(rOldNodeIndex)->rGetLocation()
-                          + mDt*rDrDt[rOldNodeIndex]);
-    return new_point;
-}
 
 /**
  * Change the state of cells
@@ -743,7 +741,7 @@ std::vector <bool> TissueSimulation<DIM>::GetGhostNodes()
 template<unsigned DIM>
 void TissueSimulation<DIM>::SetNoSloughing()
 {
-    mIncludeSloughing = false ;
+    mIncludeSloughing = false;
 }
 
 

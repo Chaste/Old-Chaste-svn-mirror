@@ -6,18 +6,25 @@
 #include "RandomNumberGenerator.hpp"
 
 
-
+/**
+ *  Randomly kills cells based on the user set probability
+ *  The probability passed into the constructor will be the probability
+ *  of any cell dying whenever this TestAndLabelCellsForApoptosis is called.
+ *  Note this does take into account current times or timesteps, so if
+ *  more timesteps are used, and TestAndLabelCellsForApoptosis() is callled 
+ *  at each timestep, more cells will die.  
+ */
 template <unsigned SPACE_DIM>
 class RandomCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
 private:
-    double mProbability;
+    double mProbabilityOfDeath;
 public:
-    RandomCellKiller(Crypt<SPACE_DIM>* pCrypt, double probability)
+    RandomCellKiller(Crypt<SPACE_DIM>* pCrypt, double probabilityOfDeath)
         : AbstractCellKiller<SPACE_DIM>(pCrypt),
-          mProbability(probability)
+          mProbabilityOfDeath(probabilityOfDeath)
     {
-        if((mProbability<0) || (mProbability>1))
+        if((mProbabilityOfDeath<0) || (mProbabilityOfDeath>1))
         {
             EXCEPTION("Probabilitu of death must be between zero and one");
         }
@@ -26,12 +33,16 @@ public:
     void TestAndLabelSingleCellForApoptosis(MeinekeCryptCell& cell)
     {
         if (!cell.HasApoptosisBegun() &&
-            RandomNumberGenerator::Instance()->ranf() < mProbability)
+            RandomNumberGenerator::Instance()->ranf() < mProbabilityOfDeath)
         {
             cell.StartApoptosis();
         }        
     }
 
+    /**
+     *  Loops over cells and starts apoptosis randomly, based on the user-set 
+     *  probability
+     */
     virtual void TestAndLabelCellsForApoptosis()
     {
         for (typename Crypt<SPACE_DIM>::Iterator cell_iter = this->mpCrypt->Begin();

@@ -91,7 +91,7 @@ void Crypt<DIM>::SetGhostNodes(std::vector<bool>& rGhostNodes)
 }
 
 template<unsigned DIM>
-void Crypt<DIM>::RemoveDeadCells()
+unsigned Crypt<DIM>::RemoveDeadCells()
 {
     std::vector<MeinekeCryptCell> living_cells;
 
@@ -108,7 +108,9 @@ void Crypt<DIM>::RemoveDeadCells()
         }
     }
 
+    unsigned num_dead = (unsigned)(mrCells.size()-living_cells.size());
     mrCells = living_cells;
+    return num_dead;
 }
 
 
