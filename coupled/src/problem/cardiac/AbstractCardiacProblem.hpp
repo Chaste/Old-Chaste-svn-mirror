@@ -3,7 +3,6 @@
 
 #include "DistributedVector.hpp"
 
-
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
 {
@@ -54,6 +53,8 @@ public:
         mWriteInfo = false;
         mPrintOutput = true;
     }
+    
+    virtual ~AbstractCardiacProblem() {};
     
     void Initialise(AbstractCardiacPde<SPACE_DIM>* pCardiacPde)
     {
@@ -233,6 +234,131 @@ public:
         this->mWriteInfo = writeInfo;
     }
     
+    void Solve(AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>& assembler,
+               AbstractCardiacPde<SPACE_DIM>* pCardiacPde)
+    {
+    
+        Vec initial_condition = AbstractCardiacProblem<SPACE_DIM, PROBLEM_DIM>::CreateInitialCondition(pCardiacPde);
+        
+        ParallelColumnDataWriter *p_test_writer = NULL;
+        unsigned time_var_id = 0;
+        unsigned voltage_var_id = 0;
+        bool write_files = false;
+
+        TimeStepper stepper(this->mStartTime, this->mEndTime, this->mPrintingTimeStep);
+
+        if (this->mPrintOutput)
+        {
+            if (this->mOutputFilenamePrefix.length() > 0)
+            {
+                write_files = true;
+                
+                p_test_writer = new ParallelColumnDataWriter(this->mOutputDirectory,this->mOutputFilenamePrefix);
+                
+                p_test_writer->DefineFixedDimension("Node", "dimensionless", PROBLEM_DIM*this->mMesh.GetNumNodes() );
+                time_var_id = p_test_writer->DefineUnlimitedDimension("Time","msecs");
+                
+                voltage_var_id = p_test_writer->DefineVariable(ColumnName(),"mV");
+                p_test_writer->EndDefineMode();
+            }
+            
+            if (write_files)
+            {
+                p_test_writer->PutVariable(time_var_id, stepper.GetTime());
+                p_test_writer->PutVector(voltage_var_id, initial_condition);
+            }
+        }
+        
+        while ( !stepper.IsTimeAtEnd() )
+        {
+            // solve from now up to the next printing time
+            assembler.SetTimes(stepper.GetTime(), stepper.GetNextTime(), this->mPdeTimeStep);
+            assembler.SetInitialCondition( initial_condition );
+
+            try
+            {
+                this->mVoltage = assembler.Solve();
+            }
+            //Ill-conditioned solutions are covered in Monodomain problem
+            //(and possibly in Nightly/Weekly) so we don't insist on it
+            //in the coverage test.
+            #define COVERAGE_IGNORE
+            catch (Exception &e)
+            {
+                if (this->mPrintOutput)
+                {
+                    if (write_files)
+                    {
+                        p_test_writer->Close();
+                        delete p_test_writer;
+                    }
+                }
+                
+                throw e;
+            }
+            #undef COVERAGE_IGNORE2
+            
+            // Free old initial condition
+            VecDestroy(initial_condition);
+            
+            // Initial condition for next loop is current solution
+            initial_condition = this->mVoltage;
+            
+            // update the current time
+            stepper.AdvanceOneTimeStep();
+            
+            if (this->mPrintOutput)
+            {
+                // print out details at current time if asked for
+                if (this->mWriteInfo)
+                {
+                    WriteInfo(stepper.GetTime());
+                }
+                
+                // Writing data out to the file <this->mOutputFilenamePrefix>.dat
+                if (write_files)
+                {
+                    p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
+                    p_test_writer->PutVariable(time_var_id, stepper.GetTime());
+                    p_test_writer->PutVector(voltage_var_id, this->mVoltage);
+                }
+            }
+        }
+
+        // close the file that stores voltage values
+        if (this->mPrintOutput)
+        {
+            if (write_files)
+            {
+                p_test_writer->Close();
+                delete p_test_writer;
+            }
+            
+            PetscInt my_rank;
+            MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+            if ((my_rank==0) && (write_files)) // ie only if master process and results files were written
+            {
+                // call shell script which converts the data to meshalyzer format
+                std::string chaste_2_meshalyzer;
+                std::stringstream space_dim;
+                space_dim << SPACE_DIM;
+                chaste_2_meshalyzer = "anim/chaste2meshalyzer "         // the executable.
+                                      + space_dim.str() + " "       // argument 1 is the dimension.
+                                      + this->mMeshFilename + " "         // arg 2 is mesh prefix, path relative to
+                                      // the main chaste directory.
+                                      + this->mOutputDirectory + "/"
+                                      + this->mOutputFilenamePrefix + " " // arg 3 is the results folder and prefix,
+                                      // relative to the testoutput folder.
+                                      + "last_simulation";          // arg 4 is the output prefix, relative to
+                // anim folder.                
+                system(chaste_2_meshalyzer.c_str());
+            }
+        }
+    }
+    
+    virtual void WriteInfo(double time) =0;
+    
+    virtual std::string ColumnName() =0;
     
 };
 
