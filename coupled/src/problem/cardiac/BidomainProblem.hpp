@@ -2,14 +2,9 @@
 #define BIDOMAINPROBLEM_HPP_
 
 
-#include "ConformingTetrahedralMesh.cpp"
+
 #include "BidomainDg0Assembler.hpp"
-#include "TrianglesMeshReader.cpp"
-#include "ParallelColumnDataWriter.hpp"
 #include "BidomainPde.hpp"
-#include "AbstractCardiacCellFactory.hpp"
-#include "DistributedVector.hpp"
-#include "TimeStepper.hpp"
 #include "AbstractCardiacProblem.hpp"
 
 
@@ -26,13 +21,10 @@ class BidomainProblem : public AbstractCardiacProblem<SPACE_DIM, 2>
 {
 private:    
     BidomainPde<SPACE_DIM>* mpBidomainPde;
-
-            
-    std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
-    
+    std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */    
     double mLinearSolverRelativeTolerance;
+    
 public:
-
     /**
      * Constructor
      * @param pCellFactory User defined cell factory which shows how the pde should 
@@ -57,14 +49,12 @@ public:
         }
     }
     
-    
     /** Initialise the system. Must be called before Solve() */
     void Initialise()
     {
         AbstractCardiacProblem<SPACE_DIM, 2>::Initialise(mpBidomainPde);
         mpBidomainPde = new BidomainPde<SPACE_DIM>( this->mpCellFactory );
     }
-    
     
     /**
      * Solve the problem
@@ -77,10 +67,8 @@ public:
         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(
             &this->mMesh, mpBidomainPde,
             2, mLinearSolverRelativeTolerance);   
-        if (mFixedExtracellularPotentialNodes.size()>0)
-        {
-            bidomain_assembler.SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
-        }
+
+        bidomain_assembler.SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
         AbstractCardiacProblem<SPACE_DIM, 2>::Solve(bidomain_assembler, mpBidomainPde);
     }
     
@@ -100,12 +88,7 @@ public:
      *  anything other than zero.
      */
     void SetFixedExtracellularPotentialNodes(std::vector<unsigned> nodes)
-    {
-        if (nodes.size() == 0)
-        {
-            EXCEPTION("Number of fixed nodes should be greater than zero");
-        }
-        
+    {        
         mFixedExtracellularPotentialNodes.resize(nodes.size());
         for (unsigned i=0; i<nodes.size(); i++)
         {
@@ -132,18 +115,16 @@ public:
         this->mWriteInfo = writeInfo;
     }
     
-    
     /**
      *  Print out time and max/min voltage/phi_e values at current time.
      */
     void WriteInfo(double time)
     {
         std::cout << "Solved to time " << time << "\n" << std::flush;
-        
         ReplicatableVector voltage_replicated;
         voltage_replicated.ReplicatePetscVector(this->mVoltage);
-        
         double v_max = -1e5, v_min = 1e5, phi_max = -1e5, phi_min = 1e5;
+
         for (unsigned i=0; i<this->mMesh.GetNumNodes(); i++)
         {
             if ( voltage_replicated[2*i] > v_max)
@@ -162,9 +143,7 @@ public:
             {
                 phi_min = voltage_replicated[2*i+1];
             }
-            
         }
-        
         std::cout << " max/min V, phi_e = "
         << v_max << " "
         << v_min << " "

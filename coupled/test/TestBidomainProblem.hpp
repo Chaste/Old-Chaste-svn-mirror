@@ -319,10 +319,6 @@ public:
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetMeshFilename("AnyOldRandomStringWillDo"));
         TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());
         
-        //Throws because the input is empty
-        std::vector<unsigned> empty;
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetFixedExtracellularPotentialNodes(empty));
-        
         //Throws because EndTime has not been set
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
         bidomain_problem.SetEndTime(1);  // ms

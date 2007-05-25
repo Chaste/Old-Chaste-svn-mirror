@@ -1,14 +1,9 @@
 #ifndef MONODOMAINPROBLEM_HPP_
 #define MONODOMAINPROBLEM_HPP_
 
-#include "ConformingTetrahedralMesh.cpp"
+
 #include "MonodomainDg0Assembler.hpp"
-#include "TrianglesMeshReader.cpp"
-#include "ParallelColumnDataWriter.hpp"
 #include "MonodomainPde.hpp"
-#include "AbstractCardiacCellFactory.hpp"
-#include "DistributedVector.hpp"
-#include "TimeStepper.hpp"
 #include "AbstractCardiacProblem.hpp"
 
 
@@ -54,35 +49,24 @@ public:
      */
     void Solve()
     {
-
         AbstractCardiacProblem<SPACE_DIM, 1>::PreSolveChecks(mpMonodomainPde);
-        // Assembler
         MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&this->mMesh, mpMonodomainPde);
-        
         AbstractCardiacProblem<SPACE_DIM, 1>::Solve(monodomain_assembler, mpMonodomainPde);
-        
     }
-    
-    
-    
     
     MonodomainPde<SPACE_DIM> * GetMonodomainPde()
     {
         return mpMonodomainPde;
     }
     
-    
     /**
      *  Print out time and max/min voltage values at current time.
-     
      */
     void WriteInfo(double time)
     {
         std::cout << "Solved to time " << time << "\n" << std::flush;
-        
         ReplicatableVector voltage_replicated;
         voltage_replicated.ReplicatePetscVector(this->mVoltage);
-        
         double v_max = -1e5, v_min = 1e5;
         for (unsigned i=0; i<this->mMesh.GetNumNodes(); i++)
         {
@@ -95,7 +79,6 @@ public:
                 v_min = voltage_replicated[i];
             }
         }
-        
         std::cout << " max/min V = "
         <<   v_max << " "
         <<   v_min << "\n" << std::flush;

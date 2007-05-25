@@ -288,7 +288,6 @@ public:
      */
     void SetFixedExtracellularPotentialNodes(std::vector<unsigned> fixedExtracellularPotentialNodes)
     {
-        assert(fixedExtracellularPotentialNodes.size() > 0);
         for (unsigned i=0; i<fixedExtracellularPotentialNodes.size(); i++)
         {
             if (fixedExtracellularPotentialNodes[i] >= this->mpMesh->GetNumNodes() )
