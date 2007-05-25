@@ -1517,7 +1517,39 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(5u)->rGetLocation()[1], 1.0 ,1e-7);
         
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
+    }
+    
+    
+    void TestReindex()
+    {
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructRectangularMesh(10, 10);
         
+        unsigned num_old_nodes = mesh.GetNumNodes();
+        
+        mesh.DeleteNode(50);
+        
+        NodeMap map(num_old_nodes);
+        
+        mesh.ReIndex(map);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), (unsigned)(num_old_nodes-1));
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), (unsigned)(num_old_nodes-1));
+        
+        TS_ASSERT_EQUALS(map.Size(), num_old_nodes);
+        TS_ASSERT_EQUALS(map.IsDeleted(50), true);
+        
+        for(unsigned i=0; i<num_old_nodes; i++)
+        {
+            if(i<50)
+            {
+                TS_ASSERT_EQUALS(map.GetNewIndex(i), i);
+            }
+            if(i>50)
+            {
+                TS_ASSERT_EQUALS(map.GetNewIndex(i), (unsigned)(i-1));
+            }
+        }
     }
         
 };

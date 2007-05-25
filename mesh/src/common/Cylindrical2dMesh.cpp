@@ -11,7 +11,7 @@
  */
 void Cylindrical2dMesh::ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement, std::vector<unsigned> &rImageNodes, std::vector<unsigned> &rOriginalNodes, unsigned nodeIndex ) 
 { 
-    for (unsigned j=0 ; j<rImageNodes.size() ; j++)
+    for (unsigned j=0; j<rImageNodes.size(); j++)
     {
         if(nodeIndex==rImageNodes[j])
         {
@@ -63,6 +63,7 @@ void Cylindrical2dMesh::CreateMirrorNodes()
     mLeftImages.clear();
     mRightOriginals.clear();
     mRightImages.clear();
+
     for (unsigned i=0; i<num_nodes; i++)
     {
         if (!mNodes[i]->IsDeleted())
@@ -85,9 +86,10 @@ void Cylindrical2dMesh::CreateMirrorNodes()
             }
         }
     }
+
     // Go through the left original nodes and create an image node
     // recording its new index.
-    for (unsigned i=0 ; i<mLeftOriginals.size() ; i++)
+    for (unsigned i=0; i<mLeftOriginals.size(); i++)
     {
         c_vector<double, 2> location = mNodes[mLeftOriginals[i]]->rGetLocation();
         location[0] = location[0] + mWidth;
@@ -95,9 +97,10 @@ void Cylindrical2dMesh::CreateMirrorNodes()
         unsigned new_node_index = ConformingTetrahedralMesh<2,2>::AddNode(new Node<2>(0u, location));
         mLeftImages.push_back(new_node_index);
     }
+    
     // Go through the right original nodes and create an image node
     // recording its new index.
-    for (unsigned i=0 ; i<mRightOriginals.size() ; i++)
+    for (unsigned i=0; i<mRightOriginals.size(); i++)
     {
         // Create new image nodes
         c_vector<double, 2> location = mNodes[mRightOriginals[i]]->rGetLocation();
@@ -116,16 +119,16 @@ void Cylindrical2dMesh::CreateHaloNodes()
     mBottomHaloNodes.clear();
     
     double compression_factor = 1.5;
-    double halo_node_separation = 0.5 ;
+    double halo_node_separation = 0.5;
     unsigned num_halo_nodes = (unsigned)ceil(mWidth*compression_factor) +1;
-    double y_top_coordinate = mTop + halo_node_separation ;
-    double y_bottom_coordinate = mBottom - halo_node_separation ;
+    double y_top_coordinate = mTop + halo_node_separation;
+    double y_bottom_coordinate = mBottom - halo_node_separation;
     
-    c_vector<double, 2> location ;
+    c_vector<double, 2> location;
     
-    for (unsigned i=0 ; i< num_halo_nodes; i++)
+    for (unsigned i=0; i< num_halo_nodes; i++)
     {
-        double x_coordinate = (double)i/(num_halo_nodes-1)*mWidth; 
+       double x_coordinate = (double)i/(num_halo_nodes-1)*mWidth; 
        // Inserting top halo node in mesh
        location[0] = x_coordinate;
        location[1] = y_top_coordinate;
@@ -136,9 +139,6 @@ void Cylindrical2dMesh::CreateHaloNodes()
        new_node_index = ConformingTetrahedralMesh<2,2>::AddNode(new Node<2>(0u, location));
        mBottomHaloNodes.push_back(new_node_index);
     }
-    
-   
-
 }
 
 /**
@@ -153,36 +153,59 @@ void Cylindrical2dMesh::CreateHaloNodes()
  */
 void Cylindrical2dMesh::ReMesh(NodeMap &map)
 {
+	unsigned old_num_all_nodes = GetNumAllNodes();
+	
+	map.Resize(old_num_all_nodes);
+	map.ResetToIdentity();
+    
+    // flag the deleted nodes as deleted in the map
+	for(unsigned i=0; i<old_num_all_nodes; i++)
+	{
+		if(mNodes[i]->IsDeleted())
+		{
+			map.SetDeleted(i);
+		}
+	}
+	
     // Create a mirrored load of nodes for the normal remesher to work with.
     CreateMirrorNodes();
-    
+
     CreateHaloNodes();
 
     // The mesh now has messed up boundary elements 
     // but this doesn't matter as the ReMesh below
     // doesn't read them in and reconstructs the
     // boundary elements.
-    
+
     // Call the normal re-mesh
-    ConformingTetrahedralMesh<2,2>::ReMesh(map);
-    
-    
-    // Re-Index the vectors according to the node_map.
-    //
-    for (unsigned i = 0 ; i<mLeftOriginals.size() ; i++)
+    // note that the mesh now has lots of extra nodes which will be deleted, hence the name 'big_map'    
+    NodeMap big_map(GetNumAllNodes()); 
+
+    ConformingTetrahedralMesh<2,2>::ReMesh(big_map);
+
+    // if the big_map isn't the identity map, the little map ('map') needs to be
+    // altered accordingly before being passed to the user. not sure how this all works,
+    // so deal with this bridge when we get to it 
+    assert(big_map.IsIdentityMap());
+
+    // Re-Index the vectors according to the big nodemap.
+
+    for (unsigned i=0; i<mLeftOriginals.size(); i++)
     {
-            mLeftOriginals[i]=map.GetNewIndex(mLeftOriginals[i]);
-            mLeftImages[i]=map.GetNewIndex(mLeftImages[i]);
+        mLeftOriginals[i] = big_map.GetNewIndex(mLeftOriginals[i]);
+        mLeftImages[i] = big_map.GetNewIndex(mLeftImages[i]);
     }
-    for (unsigned i = 0 ; i<mRightOriginals.size() ; i++)
+    
+    for (unsigned i=0; i<mRightOriginals.size(); i++)
     {
-            mRightOriginals[i]=map.GetNewIndex(mRightOriginals[i]);
-            mRightImages[i]=map.GetNewIndex(mRightImages[i]);
+        mRightOriginals[i] = big_map.GetNewIndex(mRightOriginals[i]);
+        mRightImages[i] = big_map.GetNewIndex(mRightImages[i]);
     }
-    for (unsigned i = 0 ; i<mTopHaloNodes.size() ; i++)
+    
+    for (unsigned i=0; i<mTopHaloNodes.size(); i++)
     {
-        mTopHaloNodes[i]=map.GetNewIndex(mTopHaloNodes[i]);
-        mBottomHaloNodes[i]=map.GetNewIndex(mBottomHaloNodes[i]);
+        mTopHaloNodes[i] = big_map.GetNewIndex(mTopHaloNodes[i]);
+        mBottomHaloNodes[i] = big_map.GetNewIndex(mBottomHaloNodes[i]);
     }
     
     // This method takes in the double sized mesh, 
@@ -193,9 +216,30 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
     
     DeleteHaloNodes();
 
-    ReIndex();
+    // now call ReIndex to remove the temporary nodes which are marked as deleted. 
+	NodeMap reindex_map(GetNumAllNodes());
+    ReIndex(reindex_map);
+
+    assert(!reindex_map.IsIdentityMap());  // maybe don't need this
     
+    // go through the reindex map and use it to populate the original NodeMap
+    // (the one that is returned to the user)
+    for(unsigned i=0; i<map.Size(); i++) // only going up to be size of map, not size of reindex_map
+    {
+        if(reindex_map.IsDeleted(i))
+        {
+            // i < num_original_nodes and node is deleted, this should correspond to
+            // a node that was labelled as before the remeshing, so should have already
+            // been set as deleted in the map above 
+            assert(map.IsDeleted(i));
+        }
+        else
+        {
+            map.SetNewIndex(i, reindex_map.GetNewIndex(i) );
+        }
+    }
 }
+
 
 /**
  * Deletes the mirror image nodes, elements and boundary elements
@@ -207,7 +251,7 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
  */
 void Cylindrical2dMesh::ReconstructCylindricalMesh()
 {
-    
+
     // Figure out which elements have real nodes and image nodes in them
     // and replace image nodes with corresponding real ones.
     for (unsigned elem_index = 0; elem_index<GetNumAllElements(); elem_index++)
@@ -216,7 +260,7 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
         if (!p_element->IsDeleted())
         {
             unsigned number_of_image_nodes = 0;
-            for (unsigned i=0 ; i<3 ; i++)
+            for (unsigned i=0; i<3; i++)
             {
                 unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
                 //std::cout << "Node " << this_node_index << "\t";
@@ -255,7 +299,7 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
             {
                 
                 //std::cout << "Periodic element found \n" << std::flush;   
-                for (unsigned i=0 ; i<3 ; i++)
+                for (unsigned i=0; i<3; i++)
                 {
                     unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
                     ReplaceImageWithRealNodeOnElement(p_element,mLeftImages,mLeftOriginals,this_node_index);
@@ -273,7 +317,7 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
         if (!p_boundary_element->IsDeleted())
         {
             unsigned number_of_image_nodes = 0;
-            for (unsigned i=0 ; i<2 ; i++)
+            for (unsigned i=0; i<2; i++)
             {
                 unsigned this_node_index = p_boundary_element->GetNodeGlobalIndex(i);
                 //std::cout << this_node_index << "\t";
@@ -307,10 +351,10 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
             if (number_of_image_nodes==1 )
             {
                  
-                for (unsigned i=0 ; i<2 ; i++)
+                for (unsigned i=0; i<2; i++)
                 {
                     unsigned this_node_index = p_boundary_element->GetNodeGlobalIndex(i);
-                    for (unsigned j=0 ; j<mLeftImages.size() ; j++)
+                    for (unsigned j=0; j<mLeftImages.size(); j++)
                     {
                         if(this_node_index==mLeftImages[j])
                         {
@@ -319,7 +363,7 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
                             //std::cout << "Node " << mLeftImages[j] << " swapped for node " << mLeftOriginals[j] << "\n" << std::flush;
                         }
                     }
-                    for (unsigned j=0 ; j<mRightImages.size() ; j++)
+                    for (unsigned j=0; j<mRightImages.size(); j++)
                     {
                         if(this_node_index==mRightImages[j])
                         {
@@ -335,24 +379,24 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
     }
     
     // Delete all image nodes
-    for (unsigned i=0 ; i<mLeftImages.size() ; i++)
+    for (unsigned i=0; i<mLeftImages.size(); i++)
     {
         mNodes[mLeftImages[i]]->MarkAsDeleted();
         mDeletedNodeIndices.push_back(mLeftImages[i]);
     }
-    for (unsigned i=0 ; i<mRightImages.size() ; i++)
+    
+    for (unsigned i=0; i<mRightImages.size(); i++)
     {
         mNodes[mRightImages[i]]->MarkAsDeleted();
         mDeletedNodeIndices.push_back(mRightImages[i]);
     }
-    
-
 }
+
 
 void Cylindrical2dMesh::DeleteHaloNodes()
 {
 
-    for (unsigned i=0 ; i<mTopHaloNodes.size() ; i++)
+    for (unsigned i=0; i<mTopHaloNodes.size(); i++)
     {
         
 //        std::stringstream namestream;
@@ -373,14 +417,14 @@ void Cylindrical2dMesh::DeleteHaloNodes()
     
     // Create a random (!) boundary element between two nodes of the first element if it is not deleted.
     // This is a temporary measure to get around reindex crashing when there are no boundary elements ( J. Coopers idea )
-    bool boundary_element_made = false ;
+    bool boundary_element_made = false;
     unsigned elem_index = 0;
     while (elem_index<GetNumAllElements() && !boundary_element_made)
     {
         Element<2,2>* p_element = GetElement(elem_index);
         if (!p_element->IsDeleted())
         {
-            boundary_element_made = true ;
+            boundary_element_made = true;
             std::vector<Node<2>*> nodes;
             nodes.push_back(p_element->GetNode(0));
             nodes.push_back(p_element->GetNode(1));
@@ -389,12 +433,8 @@ void Cylindrical2dMesh::DeleteHaloNodes()
             mBoundaryElements.push_back(p_boundary_element);
             
         }
-        elem_index++ ;   
+        elem_index++;   
     }
-    
-        
-    
-
 }
 
 
@@ -475,7 +515,7 @@ void Cylindrical2dMesh::SetNode(unsigned index, Point<2> point, bool concreteMov
 bool Cylindrical2dMesh::IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes)
 {
     bool is_in_vector = false;
-    for (unsigned i=0 ; i<rListOfNodes.size() ; i++)
+    for (unsigned i=0; i<rListOfNodes.size(); i++)
     {
         if(rNodeIndex==rListOfNodes[i])
         {

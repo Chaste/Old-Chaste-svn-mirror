@@ -19,16 +19,47 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
     
     mMaxCells = 10*mrMesh.GetNumNodes();
     mMaxElements = 10*mrMesh.GetNumElements();
+    
+    if(mrCells.size()>0) // remove this line when facade is finished
+    {
+	    Validate();
+    }
 }
 
 template<unsigned DIM>
 Crypt<DIM>::~Crypt()
 {
-    if (mSelfSetGhostNodes)
+    if(mSelfSetGhostNodes)
     {
         delete mpGhostNodes;
     }
 }
+
+
+// check every node either has a cell associated with it or is a ghost node
+// (for the time being, we are allowing ghost nodes to also have cells o
+// associated with it, although this isn't very clean)
+template<unsigned DIM>
+void Crypt<DIM>::Validate()
+{
+	std::vector<bool> validated_node = (*mpGhostNodes); 
+	for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
+	{
+		unsigned node_index = cell_iter->GetNodeIndex();
+		validated_node[node_index] = true;
+	}
+	
+	for(unsigned i=0; i<validated_node.size(); i++)
+	{
+		if(!validated_node[i])
+		{
+			std::stringstream ss;
+			ss << "Node " << i << " does not appear to be a ghost node or have a cell associated with it";
+			EXCEPTION(ss.str()); 
+		}
+	}
+}
+
 
 template<unsigned DIM>
 ConformingTetrahedralMesh<DIM, DIM>& Crypt<DIM>::rGetMesh()
@@ -55,15 +86,14 @@ void Crypt<DIM>::SetGhostNodes(std::vector<bool>& rGhostNodes)
     {
         delete mpGhostNodes;
     }
-    mSelfSetGhostNodes=false;
+    mSelfSetGhostNodes = false;
     mpGhostNodes = &rGhostNodes;
 }
 
 template<unsigned DIM>
 void Crypt<DIM>::RemoveDeadCells()
 {
-    std::cout << "\nRemoving dead cells..\n";
-    std::vector< MeinekeCryptCell > living_cells;
+    std::vector<MeinekeCryptCell> living_cells;
 
     for (unsigned i=0; i<mrCells.size(); i++)
     {
@@ -78,11 +108,109 @@ void Crypt<DIM>::RemoveDeadCells()
         }
     }
 
-    std::cout << "\nNum cells before = " << mrCells.size() << ", num cell after = " << living_cells.size() << "\n";    
-    mrCells=living_cells;
-    //Remesh and re-index (is moved to caller)     
+    mrCells = living_cells;
 }
 
+
+template<unsigned DIM>
+void Crypt<DIM>::UpdateGhostPositions(const std::vector< c_vector<double, DIM> >& rDrDt, double dt)
+{
+    for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
+    {
+        if ((!mrMesh.GetNode(index)->IsDeleted()) && (*mpGhostNodes)[index])
+        {
+            Point<DIM> new_point(mrMesh.GetNode(index)->rGetLocation() + dt*rDrDt[index]);
+            mrMesh.SetNode(index, new_point, false);
+        }
+    }
+}
+
+template<unsigned DIM>
+void Crypt<DIM>::MoveCell(Iterator iter, Point<DIM>& rNewLocation)
+{
+    unsigned index = iter.GetNode()->GetIndex();
+    mrMesh.SetNode(index, rNewLocation, false);
+}
+
+template<unsigned DIM>  
+void Crypt<DIM>::AddCell(MeinekeCryptCell newCell, c_vector<double,DIM> newLocation)
+{
+    Node<DIM>* p_new_node = new Node<DIM>(mrMesh.GetNumNodes(), newLocation, false);   // never on boundary
+                
+    unsigned new_node_index = mrMesh.AddNode(p_new_node);
+
+    newCell.SetNodeIndex(new_node_index);
+    mrCells.push_back(newCell);
+
+    // Update size of IsGhostNode if necessary
+    if (mrMesh.GetNumNodes() > mpGhostNodes->size())
+    {
+        mpGhostNodes->resize(mrMesh.GetNumNodes());
+        (*mpGhostNodes)[new_node_index] = false;
+    }   
+}
+
+
+template<unsigned DIM>
+void Crypt<DIM>::ReMesh()
+{
+    unsigned old_all_nodes = mrMesh.GetNumAllNodes();
+
+    NodeMap map(mrMesh.GetNumAllNodes());
+    mrMesh.ReMesh(map);
+
+    // if this is not true the mesh is not returning a good map        
+	assert(map.Size()==old_all_nodes);
+
+    if(!map.IsIdentityMap())
+    {
+        // copy ghost nodes bool
+        std::vector<bool> ghost_nodes_before_remesh = *mpGhostNodes;    
+        mpGhostNodes->clear();
+        mpGhostNodes->resize(mrMesh.GetNumNodes());
+        
+        for(unsigned old_index=0; old_index<map.Size(); old_index++)
+        {
+            if(!map.IsDeleted(old_index))
+            {
+                unsigned new_index = map.GetNewIndex(old_index);
+                (*mpGhostNodes)[new_index] = ghost_nodes_before_remesh[old_index];
+            }
+        }
+
+        // loop over cells. NOTE: we CANT use the iterator here, as the 
+        // cells are currently not in sync with the ghost nodes vector
+        for(unsigned cell_index = 0; cell_index<mrCells.size(); cell_index++)
+        {
+            unsigned old_node_index = mrCells[cell_index].GetNodeIndex();
+
+            // this shouldn't ever happen, as the cell vectors is only ever living 
+            // cells
+            assert(!map.IsDeleted(old_node_index));
+           
+            unsigned new_node_index = map.GetNewIndex(old_node_index);
+            mrCells[cell_index].SetNodeIndex(new_node_index);
+        }
+    }
+    
+    Validate();
+}
+
+template<unsigned DIM>
+unsigned Crypt<DIM>::GetNumRealCells()
+{
+	unsigned counter = 0;
+	for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
+	{
+		counter++;
+	}
+	return counter;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//                             iterator class                               // 
+//////////////////////////////////////////////////////////////////////////////
 template<unsigned DIM>
 MeinekeCryptCell& Crypt<DIM>::Iterator::operator*()
 {
@@ -130,18 +258,13 @@ typename Crypt<DIM>::Iterator& Crypt<DIM>::Iterator::operator++()
         }
     }
     while ((*this) != mrCrypt.End() && !IsRealCell());
-    
-      
+  
     return (*this);
 }
 
 template<unsigned DIM>
 bool Crypt<DIM>::Iterator::IsRealCell()
 {
-    if (mrCrypt.rGetGhostNodes().size() != mrCrypt.rGetMesh().GetNumAllNodes() )
-    {
-        std::cout << mrCrypt.rGetGhostNodes().size() << " .. " << mrCrypt.rGetMesh().GetNumAllNodes() << "\n";
-    }
     assert(mrCrypt.rGetGhostNodes().size() == mrCrypt.rGetMesh().GetNumAllNodes() );
     return !(mrCrypt.rGetGhostNodes()[mNodeIndex] || GetNode()->IsDeleted());
 }
@@ -176,100 +299,9 @@ typename Crypt<DIM>::Iterator Crypt<DIM>::End()
     return Iterator(*this, mrCells.size());
 }
 
-template<unsigned DIM>
-void Crypt<DIM>::UpdateGhostPositions(const std::vector< c_vector<double, DIM> >& rDrDt, double dt)
-{
-    for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
-    {
-        if ((!mrMesh.GetNode(index)->IsDeleted()) && (*mpGhostNodes)[index])
-        {
-            Point<DIM> new_point(mrMesh.GetNode(index)->rGetLocation() + dt*rDrDt[index]);
-            mrMesh.SetNode(index, new_point, false);
-        }
-    }
-}
 
-template<unsigned DIM>
-void Crypt<DIM>::MoveCell(Iterator iter, Point<DIM>& rNewLocation)
-{
-    unsigned index = iter.GetNode()->GetIndex();
-    mrMesh.SetNode(index, rNewLocation, false);
-}
-
-template<unsigned DIM>  
-void Crypt<DIM>::AddCell(MeinekeCryptCell newCell, c_vector<double,DIM> newLocation)
-{
-    Node<DIM>* p_new_node = new Node<DIM>(mrMesh.GetNumNodes(), newLocation, false);   // never on boundary
-                
-    NodeMap map(mrMesh.GetNumNodes());
-    unsigned new_node_index = mrMesh.AddNodeAndReMesh(p_new_node,map);
-
-    newCell.SetNodeIndex(new_node_index);
-    if (new_node_index == mrCells.size())
-    {
-        mrCells.push_back(newCell);
-    }
-    else
-    {
-        #define COVERAGE_IGNORE
-        mrCells[new_node_index] = newCell;
-        #undef COVERAGE_IGNORE
-    }
-
-    // Update size of IsGhostNode if necessary
-    if (mrMesh.GetNumNodes() > mpGhostNodes->size())
-    {
-        mpGhostNodes->resize(mrMesh.GetNumNodes());
-        (*mpGhostNodes)[new_node_index] = false;
-    }   
-}
-
-
-template<unsigned DIM>
-void Crypt<DIM>::ReMesh()
-{
-    std::cout << " - Crypt::Remesh()\n";
-    NodeMap map(mrMesh.GetNumAllNodes());
-    mrMesh.ReMesh(map);
-        
-    if(!map.IsIdentityMap())
-    {
-        std::cout << "\nNon identity map in Crypt::ReMesh()\n";
-        
-        // copy ghost nodes bool
-        std::vector<bool> ghost_nodes_before_remesh = *mpGhostNodes;    
-        mpGhostNodes->clear();
-        mpGhostNodes->resize(mrMesh.GetNumNodes());
-        
-        for(unsigned old_index=0; old_index<map.Size(); old_index++)
-        {
-            if(!map.IsDeleted(old_index))
-            {
-                unsigned new_index = map.GetNewIndex(old_index);
-                (*mpGhostNodes)[new_index] = ghost_nodes_before_remesh[old_index];
-            }
-        }
-
-        // loop over cells. NOTE: we CANT use the iterator here, as the 
-        // cells are currently not in sync with the ghost nodes vector
-        for(unsigned cell_index = 0; cell_index<mrCells.size(); cell_index++)
-        {
-            unsigned old_node_index = mrCells[cell_index].GetNodeIndex();
-
-            // this shouldn't ever happen, as the cell vectors is only ever living 
-            // cells
-            assert(!map.IsDeleted(old_node_index));
-           
-            unsigned new_node_index = map.GetNewIndex(old_node_index);
-            mrCells[cell_index].SetNodeIndex(new_node_index);
-        }
-    }
-}
-
-//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //                             output methods                               // 
-//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 template<unsigned DIM>  
 void Crypt<DIM>::SetMaxCells(unsigned maxCells)
@@ -302,9 +334,7 @@ void Crypt<DIM>::SetMaxElements(unsigned maxElements)
 template<unsigned DIM>  
 void Crypt<DIM>::SetupTabulatedWriters(ColumnDataWriter& rNodeWriter, ColumnDataWriter& rElementWriter)
 {   
-    ////////////////////////
     // set up node writer
-    ////////////////////////
     mNodeVarIds.time = rNodeWriter.DefineUnlimitedDimension("Time","hours");
     
     mNodeVarIds.types.resize(mMaxCells);
@@ -334,9 +364,7 @@ void Crypt<DIM>::SetupTabulatedWriters(ColumnDataWriter& rNodeWriter, ColumnData
     
     rNodeWriter.EndDefineMode();
 
-    //////////////////////////
     // set up element writer
-    //////////////////////////
     mElemVarIds.time = rElementWriter.DefineUnlimitedDimension("Time","hours");
     
     // Set up columns for element writer
@@ -392,9 +420,7 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
     }
     
         
-    /////////////////////////////////
     // write node files
-    /////////////////////////////////
     for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
     {
         if (index>mMaxCells)
@@ -466,9 +492,7 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
         }
     }
     
-    /////////////////////////////////
     // write element data files
-    /////////////////////////////////
     for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
     {
         if (elem_index>mMaxElements)

@@ -260,7 +260,7 @@ public:
     // to 24.0 and it will look like a parallelogram.
     // However we keep the simulation time at 1.0 to make
     // the test short.
-    void dontTest2DSpringSystemWithSloughing() throw (Exception)
+    void Test2DSpringSystemWithSloughing() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         
@@ -328,7 +328,7 @@ public:
     }
     
     
-    void dontTest2DSpringsFixedBoundaries() throw (Exception)
+    void Test2DSpringsFixedBoundaries() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         
@@ -363,7 +363,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void dontTest2DHoneycombMeshNotPeriodic() throw (Exception)
+    void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
        
@@ -402,7 +402,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void dontTestMonolayer() throw (Exception)
+    void TestMonolayer() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
        
@@ -447,7 +447,7 @@ public:
     // differentiated, check the number of cells at the end of the
     // simulation is as expected.
     //////////////////////////////////////////////////////////////////
-    void dontTest2DCorrectCellNumbers() throw (Exception)
+    void Test2DCorrectCellNumbers() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator::Instance();
@@ -561,7 +561,7 @@ public:
 // 
 ////////////////////////////////////////////////////////////////////////////
     
-    void dontTest2DPeriodicNightly() throw (Exception)
+    void Test2DPeriodicNightly() throw (Exception)
     {        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -616,7 +616,7 @@ public:
     }
     
     
-    void dontTestCrypt2DPeriodicWntNightly() throw (Exception)
+    void TestCrypt2DPeriodicWntNightly() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
@@ -678,7 +678,7 @@ public:
     }
     
    
-    void dontTestWithMutantCellsUsingDifferentViscosities() throw (Exception)
+    void TestWithMutantCellsUsingDifferentViscosities() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
@@ -762,19 +762,18 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    //\todo
-    //Update the mapping between cells/node under remesh
-    //Update the `mrCrypt::mGhostNodes` boolean vector under remesh
-    //See ticket #345
-    void Test2DPeriodicWithDeath() throw (Exception)
+
+    // Death on a non-periodic mesh
+    // Massive amount of random death eventually leading to every cell being killed off..
+    // Note that birth does occur too.
+    void TestDeathOnNonPeriodicCrypt() throw (Exception)
     {
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer,false);
-//        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -786,7 +785,50 @@ public:
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
               
         TissueSimulation<2> simulator(*p_mesh, cells);
-        simulator.SetOutputDirectory("Crypt2DPeriodicNightlyDeath");
+        simulator.SetOutputDirectory("Crypt2DDeathNonPeriodic");
+        
+        // Set length of simulation here
+        simulator.SetEndTime(4.0);
+        
+        simulator.SetMaxCells(500);
+        simulator.SetMaxElements(1000);
+                
+        simulator.SetGhostNodes(ghost_node_indices);
+
+        RandomCellKiller<2> random_cell_killer(simulator.GetCrypt());
+        simulator.SetCellKiller(&random_cell_killer);
+        
+        simulator.Solve();
+        
+        // there should be no cells left after this amount of time
+        TS_ASSERT_EQUALS(simulator.GetCrypt()->GetNumRealCells(), 0u);
+
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+    
+    
+    // not yet working
+    void xTestDeathWithPeriodicMesh() throw (Exception)
+    {
+        unsigned cells_across = 6;
+        unsigned cells_up = 12;
+        double crypt_width = 6.0;
+        unsigned thickness_of_ghost_layer = 4;
+        
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cells;
+        CreateVectorOfCells(cells, *p_mesh, FIXED, true);
+              
+        TissueSimulation<2> simulator(*p_mesh, cells);
+        simulator.SetOutputDirectory("Crypt2DDeathPeriodic");
         
         // Set length of simulation here
         simulator.SetEndTime(12.0);
@@ -795,15 +837,12 @@ public:
         simulator.SetMaxElements(1000);
                 
         simulator.SetGhostNodes(ghost_node_indices);
-        
-//        Crypt<2> crypt(*p_mesh,cells);
-        
+
         RandomCellKiller<2> random_cell_killer(simulator.GetCrypt());
         simulator.SetCellKiller(&random_cell_killer);
         
         simulator.Solve();
         
-        //CheckAgainstPreviousRun("Crypt2DPeriodicNightly","results_from_time_0", 500u, 1000u);
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

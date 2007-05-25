@@ -18,7 +18,7 @@ public:
         mMap.resize(size); 
     }
     
-    void Reserve(unsigned size)
+    void Resize(unsigned size)
     {
         mMap.resize(size);
     }

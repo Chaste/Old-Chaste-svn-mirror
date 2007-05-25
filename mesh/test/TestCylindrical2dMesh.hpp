@@ -13,8 +13,7 @@ class TestCylindrical2dMesh : public CxxTest::TestSuite
 public:
 
     void TestBasicFunctions()
-    {
-        
+    {   
         // Test IsThisIndexInList
         Cylindrical2dMesh mesh(1.0);
         
@@ -34,11 +33,12 @@ public:
         TS_ASSERT_EQUALS(mesh.IsThisIndexInList(4u,list_of_nodes),false);
         TS_ASSERT_EQUALS(mesh.IsThisIndexInList(6u,list_of_nodes),false);
         TS_ASSERT_EQUALS(mesh.IsThisIndexInList(8u,list_of_nodes),false);
-        
     }
 
+
     void TestCreateMirrorCellsANDAlignmentTester() throw (Exception)
-    {   // note that elements are not created (and boundary elements are not changed)
+    {   
+    	// note that elements are not created (and boundary elements are not changed)
         // this just creates a set of new nodes.
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -110,7 +110,8 @@ public:
     }
     
     void TestReconstructCylindricalMesh() throw (Exception)
-    {   // this takes in a new mesh created using the mirror function above
+    {   
+    	// this takes in a new mesh created using the mirror function above
         // and a ReMesh call, then removes nodes, elements and boundary elements.
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -246,6 +247,9 @@ public:
         
         NodeMap map(p_mesh->GetNumNodes());
         p_mesh->ReMesh(map);
+        
+        TS_ASSERT_EQUALS(map.Size(), p_mesh->GetNumNodes());
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), true);
 
         // Check that there are the correct number of everything
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),cells_across*cells_up);
@@ -254,6 +258,45 @@ public:
         
         //Output2DMeshToFile(p_mesh, "node_positions.dat");
     }
+
+
+    void TestCylindricalReMeshAfterDelete() throw (Exception)
+    {
+        unsigned cells_across = 6;
+        unsigned cells_up = 12;
+        unsigned thickness_of_ghost_layer = 0;
+        
+        // Set up a mesh which can be mirrored (no ghosts in this case)
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        
+        unsigned num_old_nodes = p_mesh->GetNumNodes();
+
+        p_mesh->DeleteNode(15);
+        
+        NodeMap map(p_mesh->GetNumNodes());
+        p_mesh->ReMesh(map);
+
+        // Check that there are the correct number of everything
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),cells_across*cells_up - 1);
+        TS_ASSERT_EQUALS(p_mesh->GetNumBoundaryElements(),1u);  // No boundary elements now the halo nodes are removed
+
+        TS_ASSERT_EQUALS(map.Size(), num_old_nodes);
+        TS_ASSERT_EQUALS(map.IsDeleted(15), true);
+        
+        for(unsigned i=0; i<num_old_nodes; i++)
+        {
+            if(i<15)
+            {
+                TS_ASSERT_EQUALS(map.GetNewIndex(i), i);
+            }
+            if(i>15)
+            {
+                TS_ASSERT_EQUALS(map.GetNewIndex(i), (unsigned)(i-1));
+            }
+        } 
+
+   }
     
     void TestCylindricalReMeshOnSmallMesh() throw (Exception)
     {
@@ -414,6 +457,9 @@ public:
         NodeMap map(p_mesh->GetNumNodes());
         
         p_mesh->ReMesh(map);
+        
+        TS_ASSERT_EQUALS(map.Size(), p_mesh->GetNumNodes());
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), true);
         
         // Check that there are the correct number of everything
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),cells_across*cells_up+1);

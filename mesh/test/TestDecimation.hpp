@@ -326,7 +326,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 241U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
         
-        mesh.ReIndex();
+        NodeMap map(mesh.GetNumAllNodes());
+        mesh.ReIndex(map);
         TrianglesMeshWriter<2,2> mesh_writer1("", "SquareSeqDecimation");
         mesh_writer1.WriteFilesUsingMesh(mesh);
         

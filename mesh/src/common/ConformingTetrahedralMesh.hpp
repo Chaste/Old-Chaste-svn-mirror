@@ -197,14 +197,14 @@ public:
     /**
      * Re-index a mesh so that it has no deleted elements or nodes
      */
-    void ReIndex(void);
+    void ReIndex(NodeMap& map);
     
     /**
      * Re-mesh a mesh using triangle or tetgen
      * @param map is a NodeMap which associates the indices of nodes in the old mesh
      * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
      */
-    virtual void ReMesh(NodeMap &map);
+    virtual void ReMesh(NodeMap& map);
     
     /**
      * Permute the nodes so that they appear in a different order in mNodes
@@ -330,16 +330,6 @@ public:
     c_vector<double,2> GetWidthExtremes(const unsigned& rDimension);
     
     void UnflagAllElements();
-    
-    /**
-     * Add a new node to the mesh and re-mesh to take care of the changes to elements
-     * 
-     * @param pNewNode pointer to a new node
-     * @param map A node map of original mesh size
-     * 
-     * @return the new node index
-     */
-    unsigned AddNodeAndReMesh(Node<SPACE_DIM> *pNewNode, NodeMap &map);
 };
 
 

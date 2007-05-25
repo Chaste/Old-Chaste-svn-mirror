@@ -636,6 +636,7 @@ public:
         
         simulator.SetFixedBoundaries();
         
+        return;
         unsigned num_deaths = simulator.DoCellRemoval();
         unsigned num_births = simulator.DoCellBirth();
                                                                 
@@ -886,12 +887,13 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> conf_cells;
-        CreateVectorOfCells(conf_cells, conf_mesh, TYSONNOVAK, true);        
+        CreateVectorOfCells(conf_cells, conf_mesh, TYSONNOVAK, true);
+
         Crypt<2> conf_crypt(conf_mesh, conf_cells);
 
         Crypt<2>::Iterator conf_iter = conf_crypt.Begin();
 
-        TissueSimulation<2> simulator(conf_mesh);                
+        TissueSimulation<2> simulator(conf_mesh, conf_cells);                
         c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(conf_iter);
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);

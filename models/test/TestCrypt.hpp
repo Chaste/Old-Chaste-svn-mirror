@@ -76,6 +76,8 @@ private:
             counter++;
         }
         
+        TS_ASSERT_EQUALS(counter, crypt.GetNumRealCells());
+        
         SimulationTime::Destroy();
     }
 
@@ -89,6 +91,37 @@ public:
         TestSimpleCrypt<2>("mesh/test/data/square_4_elements");
         TestSimpleCrypt<3>("mesh/test/data/cube_136_elements");
     }
+    
+    void TestValidate()
+    {
+    	// set up the simulation time object so the cells can be created
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // so the age = node_index
+        std::vector<MeinekeCryptCell> cells;
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+            double birth_time = 0.0-i;
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+        cells[0].SetNodeIndex(1);
+
+		// fails as no cell or ghost correponding to node 0        
+        TS_ASSERT_THROWS_ANYTHING(Crypt<2> crypt2(mesh, cells));
+
+        SimulationTime::Destroy();
+    }
+    
     
     // test with ghost nodes, incl the Iterator doesn't loop over ghost nodes
     void TestCryptWithGhostNodes() throw(Exception)
@@ -152,6 +185,9 @@ public:
             TS_ASSERT_EQUALS(is_ghost_node[node_index], false);
             counter++;
         }
+        
+        TS_ASSERT_EQUALS(counter, crypt.GetNumRealCells());
+        
         // check counter = num_nodes - num_ghost_nodes
         TS_ASSERT_EQUALS(counter + ghost_node_indices.size(), p_mesh->GetNumNodes());
         
@@ -213,6 +249,7 @@ public:
         // crypt should have updated mesh and cells
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), old_num_nodes+1);
         TS_ASSERT_EQUALS(cells.size(), old_num_cells+1);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), old_num_nodes+1);
 
         // same test via crypt class
         TS_ASSERT_EQUALS(crypt.rGetMesh().GetNumNodes(), old_num_nodes+1);
@@ -228,8 +265,7 @@ public:
         SimulationTime::Destroy();
     }
     
-    // test remove dead cells
-    void TestRemoveDeadCells()
+    void TestRemoveDeadCellsAndReMesh()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);        
@@ -265,18 +301,9 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(crypt.rGetCells().size(), 81u);
 
-        // check the iterator still works 
-        unsigned counter = 0;
-        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
-             cell_iter != crypt.End();
-             ++cell_iter)
-        {
-            counter++;
-        }
         // num real cells should be num_nodes (81) - num_ghosts (11) = 70
-        TS_ASSERT_EQUALS(counter, 70u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 70u);
 
-        
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
         p_simulation_time->IncrementTimeOneStep();
         crypt.RemoveDeadCells();
@@ -285,33 +312,15 @@ public:
         TS_ASSERT_EQUALS(crypt.rGetCells().size(), 80u);
         TS_ASSERT_EQUALS(crypt.rGetCells().size(), cells.size());
         
-        // check the iterator still works and loops over the correct number of 
-        // cells
-        counter = 0;
-        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
-             cell_iter != crypt.End();
-             ++cell_iter)
-        {
-            counter++;
-        }
         // num real cells should be num_nodes (81) - num_ghosts (11) - One deleted node = 69
-        TS_ASSERT_EQUALS(counter, 69u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 69u);
         
         TS_ASSERT_EQUALS(crypt.rGetGhostNodes().size(), mesh.GetNumAllNodes()); 
 
         crypt.ReMesh();
 
-        // check the iterator again
-        counter = 0;
-        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
-             cell_iter != crypt.End();
-             ++cell_iter)
-        {
-            counter++;
-        }
-        
         // num real cells should be num_new_nodes (80) - num_ghosts (11)
-        TS_ASSERT_EQUALS(counter, 69u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 69u);
 
         // test size of ghost nodes vector is correct - mesh.GetNumNodes() ?
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh.GetNumAllNodes()); 
@@ -329,9 +338,79 @@ public:
         
         SimulationTime::Destroy(); 
     }
-    // test add and remove, remove and add
     
     
+    void TestAddAndRemoveAndAddWithOutRemesh()
+    {
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);        
+        
+        // create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cells;
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(0);
+            cells.push_back(cell);
+        }
+        
+        cells[27].StartApoptosis();
+        
+        // create a crypt, with some random ghost nodes
+        Crypt<2> crypt(mesh,cells);
+
+        std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
+        for(unsigned i=0; i<10; i++)
+        {
+            is_ghost_node[i] = true;
+        }
+        is_ghost_node[80]=true;
+        
+        crypt.SetGhostNodes(is_ghost_node);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
+        TS_ASSERT_EQUALS(crypt.rGetCells().size(), 81u);
+        
+        MeinekeCryptCell new_cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+        new_cell.SetBirthTime(0);
+        
+        c_vector<double,2> new_location;
+        new_location[0] = 0.3433453454443;
+        new_location[0] = 0.3435346344234;
+        crypt.AddCell(new_cell, new_location);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 82u);
+        TS_ASSERT_EQUALS(crypt.rGetCells().size(), 82u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 71u);
+
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
+        p_simulation_time->IncrementTimeOneStep();
+        crypt.RemoveDeadCells();
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
+        TS_ASSERT_EQUALS(crypt.rGetCells().size(), 81u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 70u);
+
+        MeinekeCryptCell new_cell2(STEM, HEALTHY, 0, new FixedCellCycleModel());
+        new_cell2.SetBirthTime(0);
+        
+        c_vector<double,2> new_location2;
+        new_location2[0] = 0.6433453454443;
+        new_location2[0] = 0.6435346344234;
+        crypt.AddCell(new_cell2, new_location2);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 82u);
+        TS_ASSERT_EQUALS(crypt.rGetCells().size(), 82u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 71u);
+        
+        SimulationTime::Destroy();
+    }
+
     // test update ghost node positions
     
     void TestOutputWriters()

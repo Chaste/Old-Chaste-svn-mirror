@@ -77,17 +77,16 @@ public:
     void SetMaxCells(unsigned maxCells);
     void SetMaxElements(unsigned maxElements);
 
-
     /**
      * Update the GhostNode positions using the rDrDt vector from the simulation.
      * Later on we will make this method private and rDrDt can be calculated within this class.
      */
     void UpdateGhostPositions(const std::vector< c_vector<double, DIM> >& rDrDt, double dt);
-    
-    //void MoveCell(Crypt<DIM>::Iterator iter, c_vector<double, DIM>& rNewLocation);
-    
+	    
+	/** 
+	 *  Remove all cells labelled as dead
+	 */
     void RemoveDeadCells();
-    
     
     /**
      * Iterator class allows one to iterate over cells in the crypt.
@@ -148,6 +147,11 @@ public:
     void AddCell(MeinekeCryptCell cell, c_vector<double,DIM> newLocation);
 
     void ReMesh();
+
+	/** Get the number of real cells, (ie non-ghost nodes) */
+	unsigned GetNumRealCells();
+
+	void Validate();
 
     /**
      * @return iterator pointing to the first cell in the crypt
