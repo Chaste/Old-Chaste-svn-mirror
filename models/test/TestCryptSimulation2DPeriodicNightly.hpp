@@ -22,6 +22,7 @@
 #include "SimulationTime.hpp"
 #include "Crypt.cpp"
 #include "RandomCellKiller.hpp"
+#include "SloughingCellKiller.hpp"
 
 // Possible types of Cell Cycle Model (just for CreateVectorOfCells method)
 typedef enum CellCycleType_
@@ -767,7 +768,7 @@ public:
     // Death on a non-periodic mesh
     // Massive amount of random death eventually leading to every cell being killed off..
     // Note that birth does occur too.
-    void TestDeathOnNonPeriodicCrypt() throw (Exception)
+    void dontTestRandonlyDeathOnNonPeriodicCrypt() throw (Exception)
     {
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -796,29 +797,30 @@ public:
                 
         simulator.SetGhostNodes(ghost_node_indices);
 
-        RandomCellKiller<2> random_cell_killer(&simulator.rGetCrypt(), 0.01);
-        simulator.AddCellKiller(random_cell_killer);
-        
+        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&simulator.rGetCrypt(), 0.01);
+        simulator.AddCellKiller(p_random_cell_killer);
+
         simulator.Solve();
         
         // there should be no cells left after this amount of time
         TS_ASSERT_EQUALS(simulator.rGetCrypt().GetNumRealCells(), 0u);
-
+    
+        delete p_random_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
     
-    
-    // not yet working
-    void xTestDeathWithPeriodicMesh() throw (Exception)
+    // Sloughing with a sloughing cell killer and not turning into ghost nodes
+    // on a non-periodic mesh
+    void TestSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
     {
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -829,24 +831,69 @@ public:
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
               
         TissueSimulation<2> simulator(*p_mesh, cells);
-        simulator.SetOutputDirectory("Crypt2DDeathPeriodic");
+        simulator.SetOutputDirectory("Crypt2DDeathNonPeriodic");
         
         // Set length of simulation here
-        simulator.SetEndTime(12.0);
+        simulator.SetEndTime(4.0);
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
                 
         simulator.SetGhostNodes(ghost_node_indices);
 
-        RandomCellKiller<2> random_cell_killer(&simulator.rGetCrypt(), 0.01);
-        simulator.AddCellKiller(random_cell_killer);
+        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&simulator.rGetCrypt(), true);
+        simulator.AddCellKiller(p_sloughing_cell_killer);
+
+        // switch off normal sloughing
+        simulator.SetNoSloughing();
         
         simulator.Solve();
-        
+    
+        delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
+
+
+    
+//    // not yet working
+//    void xTestDeathWithPeriodicMesh() throw (Exception)
+//    {
+//        unsigned cells_across = 6;
+//        unsigned cells_up = 12;
+//        double crypt_width = 6.0;
+//        unsigned thickness_of_ghost_layer = 4;
+//        
+//        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+//        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+//        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+//        
+//        SimulationTime* p_simulation_time = SimulationTime::Instance();
+//        p_simulation_time->SetStartTime(0.0);
+//        
+//        // Set up cells
+//        std::vector<MeinekeCryptCell> cells;
+//        CreateVectorOfCells(cells, *p_mesh, FIXED, true);
+//              
+//        TissueSimulation<2> simulator(*p_mesh, cells);
+//        simulator.SetOutputDirectory("Crypt2DDeathPeriodic");
+//        
+//        // Set length of simulation here
+//        simulator.SetEndTime(12.0);
+//        
+//        simulator.SetMaxCells(500);
+//        simulator.SetMaxElements(1000);
+//                
+//        simulator.SetGhostNodes(ghost_node_indices);
+//
+//        RandomCellKiller<2> random_cell_killer(&simulator.rGetCrypt(), 0.01);
+//        simulator.AddCellKiller(random_cell_killer);
+//        
+//        simulator.Solve();
+//        
+//        SimulationTime::Destroy();
+//        RandomNumberGenerator::Destroy();
+//    }
 };
 
 

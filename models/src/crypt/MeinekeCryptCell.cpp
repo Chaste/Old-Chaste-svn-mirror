@@ -22,6 +22,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
     mpCellCycleModel->SetCellType(cellType);
     mCanDivide = false;
     mUndergoingApoptosis = false;
+    mIsDead = false;
     mDeathTime = DBL_MAX; // this has to be initialised for archiving...
 }
 
@@ -33,6 +34,8 @@ void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
     mMutationState = other_cell.mMutationState;
     mCanDivide = other_cell.mCanDivide;
     mUndergoingApoptosis = other_cell.mUndergoingApoptosis;
+    mIsDead = other_cell.mIsDead;
+
     mDeathTime = other_cell.mDeathTime;
     mNodeIndex = other_cell.mNodeIndex;
     // Copy cell cycle model
@@ -170,9 +173,9 @@ bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
     }
     if (fabs(mutation_state+1)<1e-6)
     {
-#define COVERAGE_IGNORE
+        #define COVERAGE_IGNORE
         EXCEPTION("This cell has an invalid mutation state");
-#undef COVERAGE_IGNORE
+        #undef COVERAGE_IGNORE
     }
     cellCycleInfluences.push_back(mutation_state);
     mCanDivide = mpCellCycleModel->ReadyToDivide(cellCycleInfluences);
@@ -220,9 +223,14 @@ double MeinekeCryptCell::TimeUntilDeath() const
 bool MeinekeCryptCell::IsDead() const
 {
     SimulationTime *p_simulation_time = SimulationTime::Instance();
-    return ( (mUndergoingApoptosis) && (p_simulation_time->GetDimensionalisedTime() >= mDeathTime));
+
+    return ( mIsDead || ( (mUndergoingApoptosis) && (p_simulation_time->GetDimensionalisedTime() >= mDeathTime)) );
 }
 
+void MeinekeCryptCell::Kill()
+{
+    mIsDead = true;
+}
 
 
 MeinekeCryptCell MeinekeCryptCell::Divide()
@@ -261,8 +269,9 @@ MeinekeCryptCell MeinekeCryptCell::Divide()
     mCanDivide = false;
 }
 
+
 void MeinekeCryptCell::UpdateCellType()
 {
-       mCellType = mpCellCycleModel->UpdateCellType();
+    mCellType = mpCellCycleModel->UpdateCellType();
 }
 

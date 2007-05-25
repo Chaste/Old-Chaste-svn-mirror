@@ -710,9 +710,9 @@ void TissueSimulation<DIM>::SetWntGradient(WntGradientType wntGradientType)
  * Add a cell killer to be used in this simulation
  */
 template<unsigned DIM> 
-void TissueSimulation<DIM>::AddCellKiller(RandomCellKiller<DIM>& rCellKiller)
+void TissueSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
 {
-    mCellKillers.push_back(&rCellKiller);
+    mCellKillers.push_back(pCellKiller);
 }
 
 /**

@@ -62,6 +62,10 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT_EQUALS(stem_cell.GetAge(), 1.0);
         
+        TS_ASSERT_EQUALS(stem_cell.IsDead(), false);
+        stem_cell.Kill();
+        TS_ASSERT_EQUALS(stem_cell.IsDead(), true);
+        
         SimulationTime::Destroy();
     }
     

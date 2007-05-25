@@ -44,6 +44,7 @@ protected:
     unsigned mNodeIndex;
     bool mUndergoingApoptosis;
     double mDeathTime;
+    bool mIsDead;
     
     /**
      * Contains code common to both the copy constructor and operator=.
@@ -110,6 +111,7 @@ public:
     bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
     
     void StartApoptosis();
+    void Kill();
     bool HasApoptosisBegun() const;
     double TimeUntilDeath() const;
     bool IsDead() const;

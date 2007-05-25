@@ -138,9 +138,6 @@ private:
     void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt);
     
     void UpdateCellTypes();
- 
-    void CheckIndicesAreInSync();
-
 
 public:
 
@@ -160,7 +157,7 @@ public:
     void SetNoBirth(bool nobirth);
     void SetNoSloughing();
     void SetWntGradient(WntGradientType wntGradientType);
-    void AddCellKiller(RandomCellKiller<DIM>& rCellKiller);
+    void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<MeinekeCryptCell> GetCells();
     std::vector <bool> GetGhostNodes();
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
