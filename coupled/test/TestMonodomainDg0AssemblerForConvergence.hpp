@@ -11,49 +11,10 @@
 
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
-#include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
-
+#include "PlaneStimulusCellFactory.hpp"
 // For chmod()
 #include <sys/types.h>
 #include <sys/stat.h>
-
-
-class PointStimulusCellFactory : public AbstractCardiacCellFactory<1>
-{
-private:
-    // define a new stimulus
-    InitialStimulus* mpStimulus;
-    
-public:
-    PointStimulusCellFactory(double timeStep) : AbstractCardiacCellFactory<1>(timeStep)
-    {
-        // set the new stimulus
-        //mpStimulus = new InitialStimulus(-600, 0.5);
-// Note: the above stimulus used to be the original one and the one used in
-//       other test series. It, however, doesn't allow for small space steps,
-//       hence we have increased its amplitude (but not too much, as otherwise
-//       the cell model will blow up).
-        mpStimulus = new InitialStimulus(-1500*1000, 0.5);
-    }
-    
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
-    {
-        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
-        }
-        else
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
-        }
-    }
-    
-    ~PointStimulusCellFactory(void)
-    {
-        delete mpStimulus;
-    }
-};
 
 
 class TestMonodomainDg0AssemblerForConvergence : public CxxTest::TestSuite
@@ -132,7 +93,7 @@ public:
             do
             {
                 //\todo - the ODE time step should be altered in another nested loop
-                PointStimulusCellFactory cell_factory(time_step/4.0);
+                PlaneStimulusCellFactory<1> cell_factory(time_step/4.0, -1500*1000);
                 MonodomainProblem<1> monodomain_problem(&cell_factory);
                 
                 monodomain_problem.SetMeshFilename(mesh_pathname);
@@ -235,7 +196,7 @@ public:
             ode_time_step *= 0.5;
             std::cout << "Ode timestep is " << ode_time_step << "\n\n";
             
-            PointStimulusCellFactory cell_factory(ode_time_step);
+            PlaneStimulusCellFactory<1> cell_factory(ode_time_step, -1500*1000);
             MonodomainProblem<1> monodomain_problem(&cell_factory);
             
             monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");

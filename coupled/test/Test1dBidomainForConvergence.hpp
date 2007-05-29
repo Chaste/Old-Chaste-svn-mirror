@@ -4,48 +4,14 @@
 
 #include <cxxtest/TestSuite.h>
 #include "BidomainProblem.hpp"
+#include "OutputFileHandler.hpp"
+#include "PlaneStimulusCellFactory.hpp"
 #include <petscvec.h>
 #include <vector>
 #include <iostream>
 #include <fstream>
 
 #include "PetscSetupAndFinalize.hpp"
-#include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
-#include "OutputFileHandler.hpp"
-
-
-class PointStimulusCellFactory : public AbstractCardiacCellFactory<1>
-{
-private:
-    // define a new stimulus
-    InitialStimulus* mpStimulus;
-    
-public:
-    PointStimulusCellFactory(double timeStep, double spaceStep) : AbstractCardiacCellFactory<1>(timeStep)
-    {
-        // since we are refinig the mesh, the stimulus should be inversely proportional
-        // to element volume (length)
-        mpStimulus = new InitialStimulus(-1500000/spaceStep*0.01, 0.5);
-    }
-    
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
-    {
-        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
-        }
-        else
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
-        }
-    }
-    
-    ~PointStimulusCellFactory(void)
-    {
-        delete mpStimulus;
-    }
-};
 
 
 class Test1dBidomainForConvergence1d : public CxxTest::TestSuite
@@ -125,7 +91,9 @@ public:
             
             do
             {
-                PointStimulusCellFactory cell_factory(time_step,space_step);
+                // since we are refinig the mesh, the stimulus should be inversely proportional
+                // to element volume (length)
+                PlaneStimulusCellFactory<1> cell_factory(time_step,-1500000/space_step*0.01);
                 BidomainProblem<1> bidomain_problem(&cell_factory);
                 
                 bidomain_problem.SetMeshFilename(mesh_pathname);

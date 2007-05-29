@@ -6,40 +6,9 @@
 #include "petscvec.h"
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
-#include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
 #include "CheckMonoLr91Vars.hpp"
 #include "ReplicatableVector.hpp"
-
-class FaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
-{
-private:
-    InitialStimulus *mpStimulus;
-public:
-    FaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.01)
-    {
-        mpStimulus = new InitialStimulus(-600.0*1000, 0.5);
-    }
-    
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
-    {
-        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
-        }
-        else
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
-        }
-    }
-    
-    ~FaceStimulusCellFactory(void)
-    {
-        delete mpStimulus;
-    }
-};
-
-
+#include "PlaneStimulusCellFactory.hpp"
 
 class TestMonodomainSlab : public CxxTest::TestSuite
 {
@@ -52,7 +21,7 @@ public:
     // See also TestMonodomainSlab.hpp
     void TestMonodomainDg03DWithFaceStimulus( void )
     {
-        FaceStimulusCellFactory cell_factory;
+        PlaneStimulusCellFactory<3> cell_factory(0.01, -600.0*1000);
         
         MonodomainProblem<3> monodomain_problem(&cell_factory);
         

@@ -5,44 +5,11 @@
 #include <cxxtest/TestSuite.h>
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
+#include "ColumnDataReader.hpp"
+#include "PlaneStimulusCellFactory.hpp"
 #include <petscvec.h>
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
-#include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
-#include "ColumnDataReader.hpp"
-
-
-class PointStimulusCellFactory : public AbstractCardiacCellFactory<1>
-{
-private:
-    // define a new stimulus
-    InitialStimulus* mpStimulus;
-    
-public:
-    PointStimulusCellFactory() : AbstractCardiacCellFactory<1>(0.01)//Ode timestep
-    {
-        // set the new stimulus
-        mpStimulus = new InitialStimulus(-600, 0.5);
-    }
-    
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
-    {
-        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
-        }
-        else
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
-        }
-    }
-    
-    ~PointStimulusCellFactory(void)
-    {
-        delete mpStimulus;
-    }
-};
 
 
 class TestBidomainProblem : public CxxTest::TestSuite
@@ -50,7 +17,7 @@ class TestBidomainProblem : public CxxTest::TestSuite
 public:
     void TestBidomainDg01D()
     {
-        PointStimulusCellFactory bidomain_cell_factory;
+        PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
         
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
@@ -144,7 +111,7 @@ public:
         ///////////////////////////////////////////////////////////////////
         // monodomain
         ///////////////////////////////////////////////////////////////////
-        PointStimulusCellFactory cell_factory;
+        PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
         
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
@@ -220,7 +187,7 @@ public:
     void TestBidomainProblemPrintsOnlyAtRequestedTimes()
     {
         // run testing PrintingTimeSteps
-        PointStimulusCellFactory cell_factory;
+        PlaneStimulusCellFactory<1> cell_factory;
         BidomainProblem<1>* p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
         
         p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
@@ -300,7 +267,7 @@ public:
     
     void TestBidomainProblemExceptions() throw (Exception)
     {
-        PointStimulusCellFactory cell_factory;
+        PlaneStimulusCellFactory<1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
         
         //Throws because we've not called initialise

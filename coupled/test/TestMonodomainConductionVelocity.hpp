@@ -13,37 +13,8 @@
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "CheckMonoLr91Vars.hpp"
+#include "PlaneStimulusCellFactory.hpp"
 
-class PointStimulusCellFactory : public AbstractCardiacCellFactory<1>
-{
-private:
-    // define a new stimulus
-    InitialStimulus* mpStimulus;
-    
-public:
-    PointStimulusCellFactory(double timeStep) : AbstractCardiacCellFactory<1>(timeStep)
-    {
-        // set the new stimulus
-        mpStimulus = new InitialStimulus(-600, 0.5);
-    }
-    
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
-    {
-        if (node == 0)
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
-        }
-        else
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
-        }
-    }
-    
-    ~PointStimulusCellFactory(void)
-    {
-        delete mpStimulus;
-    }
-};
 
 class TestMonodomainConductionVelocity : public CxxTest::TestSuite
 {
@@ -51,7 +22,7 @@ public:
     // Solve on a 1D string of cells, 1cm long with a space step of 0.1mm.
     void TestMonodomainDg01DWith100elements()
     {
-        PointStimulusCellFactory cell_factory(0.01); // ODE time step (ms)
+        PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
         
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
@@ -102,7 +73,7 @@ public:
          * production builds.  They are guarded with  "#ifndef NDEBUG"
          */ 
         
-        PointStimulusCellFactory cell_factory(0.01); // ODE time step (ms)
+        PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem(&cell_factory);
         
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_20_elements");

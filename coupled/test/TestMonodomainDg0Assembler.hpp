@@ -12,40 +12,7 @@
 #include "ColumnDataReader.hpp"
 #include "ReplicatableVector.hpp"
 #include "CheckMonoLr91Vars.hpp"
-
-#include <time.h>
-
-class PointStimulusCellFactory : public AbstractCardiacCellFactory<1>
-{
-private:
-    // define a new stimulus
-    InitialStimulus* mpStimulus;
-    
-public:
-    PointStimulusCellFactory() : AbstractCardiacCellFactory<1>(0.01)
-    {
-        // set the new stimulus
-        mpStimulus = new InitialStimulus(-600, 0.5);
-    }
-    
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
-    {
-        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
-        }
-        else
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
-        }
-    }
-    
-    ~PointStimulusCellFactory(void)
-    {
-        delete mpStimulus;
-    }
-};
-
+#include "PlaneStimulusCellFactory.hpp"
 
 class EdgeStimulusCellFactory : public AbstractCardiacCellFactory<2>
 {
@@ -114,7 +81,7 @@ public:
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
     void TestMonodomainDg01D()
     {
-        PointStimulusCellFactory cell_factory;
+        PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
         
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
@@ -297,7 +264,7 @@ public:
     void TestMonodomainProblemPrintsOnlyAtRequestedTimes()
     {
         // run testing PrintingTimeSteps
-        PointStimulusCellFactory cell_factory;
+        PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1>* p_monodomain_problem = new MonodomainProblem<1>( &cell_factory );
         
         p_monodomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
@@ -356,7 +323,7 @@ public:
     
     void TestMonodomainProblemExceptions() throw (Exception)
     {
-        PointStimulusCellFactory cell_factory;
+        PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         // bad params

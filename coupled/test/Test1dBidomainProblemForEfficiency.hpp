@@ -4,50 +4,18 @@
 
 #include <cxxtest/TestSuite.h>
 #include "BidomainProblem.hpp"
+#include "PlaneStimulusCellFactory.hpp"
 #include <petscvec.h>
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
-#include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
 
-
-class PointStimulusCellFactory : public AbstractCardiacCellFactory<1>
-{
-private:
-    // define a new stimulus
-    InitialStimulus* mpStimulus;
-    
-public:
-    PointStimulusCellFactory() : AbstractCardiacCellFactory<1>(0.01)//Ode timestep
-    {
-        // set the new stimulus
-        mpStimulus = new InitialStimulus(-600, 0.5);
-    }
-    
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
-    {
-        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
-        }
-        else
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
-        }
-    }
-    
-    ~PointStimulusCellFactory(void)
-    {
-        delete mpStimulus;
-    }
-};
 
 class Test1dBidomainProblemForEfficiency : public CxxTest::TestSuite
 {
 public:
     void TestBidomainDg01WithNoOutput()
     {
-        PointStimulusCellFactory bidomain_cell_factory;
+        PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
         
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_1000_elements");
