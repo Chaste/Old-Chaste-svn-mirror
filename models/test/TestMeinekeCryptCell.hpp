@@ -1130,6 +1130,53 @@ public:
             SimulationTime::Destroy();
         }
     }
+    
+    /*
+     * We are checking that the MeinekeCryptCells work with the Wnt 
+     * cell cycle models here. This just tests the set-up and checks that
+     * the functions can all be called (not what they return). 
+     * 
+     * For more in depth tests see TestNightlyMeinekeCryptCell.hpp
+     * (these test that the cell cycle times are correct for the 
+     * various mutant cells)
+     */
+    void TestWntMutantVariants() throw(Exception)
+    {
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        
+        //CancerParameters *p_parameters = CancerParameters::Instance();
+        
+        unsigned num_steps=10;
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
+        
+        double wnt_stimulus = 1.0;
+        MeinekeCryptCell wnt_cell(TRANSIT, // type
+                                  APC_ONE_HIT,//Mutation State
+                                  1,    // generation
+                                  new WntCellCycleModel(wnt_stimulus,1));
+                                  
+        MeinekeCryptCell wnt_cell2(TRANSIT, // type
+                                  BETA_CATENIN_ONE_HIT,//Mutation State
+                                  1,    // generation
+                                  new WntCellCycleModel(wnt_stimulus,1));                          
+                                  
+        MeinekeCryptCell wnt_cell3(TRANSIT, // type
+                                  APC_TWO_HIT,//Mutation State
+                                  1,    // generation
+                                  new WntCellCycleModel(wnt_stimulus,1));     
+
+        std::vector<double> wnt;
+        wnt.push_back(wnt_stimulus);
+
+        TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
+
+        TS_ASSERT(wnt_cell2.ReadyToDivide(wnt)==false);
+        
+        TS_ASSERT(wnt_cell3.ReadyToDivide(wnt)==false);
+        
+        SimulationTime::Destroy();
+    }
 };
 
 

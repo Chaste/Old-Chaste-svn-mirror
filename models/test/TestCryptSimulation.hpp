@@ -542,6 +542,8 @@ public:
         }
         RandomNumberGenerator::Destroy();
     }
+    
+
 };
 
 #endif /*TESTCRYPTSIMULATION_HPP_*/

@@ -986,6 +986,7 @@ public:
         TS_ASSERT_DELTA(norm_2(parent_to_daughter), 0.5*separation, 1e-7);
     }
 
+
    
 };
 

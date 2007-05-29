@@ -27,10 +27,6 @@ typedef struct ElementWriterIdsT
 }
 ElementWriterIdsT;
 
-
-
-
-
 /**
  * A facade class encapsulating a 'tissue'
  * 
