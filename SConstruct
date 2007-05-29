@@ -291,16 +291,16 @@ elif system_name == 'chaste':
   mpirun = 'mpirun'
   cxx = '/usr/bin/g++'
   ar = '/usr/bin/ar'
-elif system_name == 'intel_chaste':
-  mpicxx = 'mpicxx -CC=icpc'
-  mpirun = 'mpirun'
-  cxx = '/opt/intel/cc/9.1.039/bin/icpc'
-  ar = ' /opt/intel/cc/9.1.039/bin/xiar'
 elif system_name == 'new_chaste':
-  mpicxx = 'mpicxx'
-  mpirun = 'mpirun'
-  cxx = '/usr/bin/g++'
-  ar = '/usr/bin/ar'
+    mpirun = 'mpirun'
+    if build.CompilerType() == 'intel':
+        mpicxx = 'mpicxx -CC=icpc'
+        cxx = '/opt/intel/cc/9.1.039/bin/icpc'
+        ar = ' /opt/intel/cc/9.1.039/bin/xiar'
+    else:    
+        mpicxx = 'mpicxx'
+        cxx = '/usr/bin/g++'
+        ar = '/usr/bin/ar'
 elif system_name == 'Nottingham':
   mpicxx = '/opt/mpi/bin/mpicxx'
   mpirun = '/opt/mpi/bin/mpirun'
