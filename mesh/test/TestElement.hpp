@@ -661,7 +661,7 @@ public:
         TS_ASSERT_DELTA(p_last_element->GetJacobianDeterminant(), 0.09,1e-6);
         
         // test mesh length
-        TS_ASSERT_EQUALS(mesh.CalculateMeshVolume(), 1);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 1.0, 1e-6);
     }
     
     void Test1DRefineElementWithPointTooFarRightFails() throw (Exception)
