@@ -2,6 +2,9 @@
 #define _TESTCONFORMINGTETRAHEDRALMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <fstream>
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include "TrianglesMeshWriter.cpp"
@@ -1551,6 +1554,8 @@ public:
             }
         }
     }
+    
+
     void TestPointWeightsInElement1D()
     {
         std::vector<Node<1>*> nodes1d;
@@ -1828,5 +1833,39 @@ public:
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge6),142U);
     }
            
+    /*
+     * This tests that a 'dummy' archive function does not throw any errors
+     * (a mesh writer stores the mesh in a nice format anyway, we only
+     * need this so that subclasses can archive their own member variables
+     */
+    void TestArchiveConformingTetrahedralMesh()
+    {
+        OutputFileHandler handler("archive", false);    // do not clean folder
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "conf_mesh.arch";
+        
+        // Create an ouput archive
+        {
+            ConformingTetrahedralMesh<2,2> mesh;
+                             
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            output_arch << static_cast<const ConformingTetrahedralMesh<2,2>&>(mesh);
+        }
+        
+        {
+            ConformingTetrahedralMesh<2,2> mesh2;
+            
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            // restore from the archive
+            input_arch >> mesh2;
+            
+        }
+    }
+
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

@@ -1,8 +1,13 @@
 #ifndef _CYLINDRICAL2DMESH_HPP_
 #define _CYLINDRICAL2DMESH_HPP_
 
+//#include <boost/serialization/access.hpp>
+//#include <boost/serialization/base_object.hpp>
+
 #include "ConformingTetrahedralMesh.cpp"
 #include "NodeMap.hpp"
+
+//#include <boost/serialization/export.hpp>// at end of includes
 
 class Cylindrical2dMesh : public ConformingTetrahedralMesh<2, 2>
 {
@@ -33,6 +38,16 @@ private:
     
     void ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement, std::vector<unsigned> &rImageNodes, std::vector<unsigned> &rOriginalNodes, unsigned nodeIndex ) ;
     
+//    friend class boost::serialization::access;
+//    template<class Archive>
+//    void serialize(Archive & archive, const unsigned int version)
+//    {
+//        archive & boost::serialization::base_object<ConformingTetrahedralMesh>(*this);
+//        archive & mWidth;
+//        archive & mTop;
+//        archive & mBottom;
+//    }
+    
 public:
     
    Cylindrical2dMesh(double width);
@@ -55,5 +70,6 @@ public:
     
 };
 
+//BOOST_CLASS_EXPORT(Cylindrical2dMesh);
 
 #endif //_CYLINDRICAL2DMESH_HPP_

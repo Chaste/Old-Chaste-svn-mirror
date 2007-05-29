@@ -2,10 +2,13 @@
 #define TESTCYLINDRICAL2DMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 #include "Cylindrical2dMesh.cpp"
 #include "CryptHoneycombMeshGenerator.hpp"
 #include "TrianglesMeshWriter.cpp"
+
 
 
 class TestCylindrical2dMesh : public CxxTest::TestSuite
@@ -571,6 +574,60 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetNumAllNodes(), p_mesh->GetNumNodes());
         
     }
+    
+    void TestArchiving() throw (Exception)
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "cylindrical_mesh.arch";
+        
+        double width = 0.0;
+        double height = 0.0;
+        
+        {   // Set up a mesh
+            unsigned cells_across = 5;
+            unsigned cells_up = 3;
+            double crypt_width = 5.0;
+            unsigned thickness_of_ghost_layer = 0;
+        
+            CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+            Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+            
+            width = p_mesh->GetWidth(0);
+            height = p_mesh->GetWidth(1);
+            
+            // Archive the mesh
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            output_arch << static_cast<const Cylindrical2dMesh&>(*p_mesh);
+            
+        }
+        
+        {   
+            unsigned cells_across = 10;
+            unsigned cells_up = 10;
+            double crypt_width = 10.0;
+            unsigned thickness_of_ghost_layer = 0;
+        
+            CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+            Cylindrical2dMesh* p_mesh2=generator.GetCylindricalMesh();
+            
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            // restore from the archive
+            input_arch >> *p_mesh2;
+            
+            // these are commented out for now until the cylindrical2dMesh class
+            // is archived properly.
+            
+//            TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width, 1e-7);
+//            TS_ASSERT_DELTA(p_mesh2->GetWidth(1), height, 1e-7);
+        }
+    }
+    
 };
 
 

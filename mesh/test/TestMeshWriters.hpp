@@ -4,8 +4,6 @@
  * Test suite for the MeshWriter class(es).
  *
  */
-
-
 #include <cxxtest/TestSuite.h>
 #include "MemfemMeshReader.cpp"
 #include "FemlabMeshReader.cpp"

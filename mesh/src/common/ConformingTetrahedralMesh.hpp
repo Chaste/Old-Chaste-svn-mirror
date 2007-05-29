@@ -1,6 +1,8 @@
 #ifndef _CONFORMINGTETRAHEDRALMESH_HPP_
 #define _CONFORMINGTETRAHEDRALMESH_HPP_
 
+#include <boost/serialization/access.hpp>
+
 #include <iostream>
 #include <vector>
 #include <map>
@@ -21,6 +23,8 @@
  * Work still needs to be done with boundary nodes & elements?
  */
 
+//#include <boost/serialization/export.hpp>
+ 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ConformingTetrahedralMesh
 {
@@ -51,10 +55,6 @@ private:
     //BoundaryElementIterator mpBoundaryElementIter;
     //BoundaryNodeIterator mpBoundaryNodeIter;
     
-    
-    
-
-    
     /**
      * Check whether any neighbouring node is inside the circumsphere of this element.
      * @param pointer to an element
@@ -62,6 +62,13 @@ private:
      * circumsphere of the element, as a proportion of the circumsphere radius.
      */
     bool CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM>  *pElement, double maxPenetration);
+    
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // Don't do anything - this is just so subclasses can archive member variables.
+    }
     
 public:
 
@@ -331,6 +338,5 @@ public:
     
     void UnflagAllElements();
 };
-
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_
