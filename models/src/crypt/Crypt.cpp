@@ -55,7 +55,12 @@ void Crypt<DIM>::Validate()
 		{
 			std::stringstream ss;
 			ss << "Node " << i << " does not appear to be a ghost node or have a cell associated with it";
-			EXCEPTION(ss.str()); 
+			if(mSelfSetGhostNodes)
+            {
+                delete mpGhostNodes;
+            }
+            mSelfSetGhostNodes=false;
+            EXCEPTION(ss.str()); 
 		}
 	}
 }

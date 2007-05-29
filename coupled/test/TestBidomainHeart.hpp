@@ -88,8 +88,7 @@ public:
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-log_summary", "");
-        PetscOptionsSetValue("-ksp_monitor", "");
-        PetscOptionsSetValue("-ksp_view", "");
+        //PetscOptionsSetValue("-ksp_monitor", "");
         PetscOptionsSetValue("-options_table", "");
         
         bidomain_problem.SetWriteInfo();

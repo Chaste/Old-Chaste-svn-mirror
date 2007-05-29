@@ -404,6 +404,8 @@ public:
         }
     }
     
+#define COVERAGE_IGNORE
+//Only used in debugging
     void Interrogate()
     {
         std::cout<<"Number of nodes in queue is now "<<mQueue.size()<<"\t";
@@ -416,35 +418,9 @@ public:
         else
         {
             std::cout<<" to "<<  mQueue[0]->mpBestNeighbourNode->GetIndex() <<"\n";
-        }
-        /*
-        std::vector<NodeInfo<SPACE_DIM> *> queue=mQueue;
-        while ( !queue.empty() )
-        {
-            NodeInfo<SPACE_DIM> *p_node_info=queue[0];
-            std::cout << "Score:"<<p_node_info->GetScore()<<"\t";
-            std::cout << "Index:"<<p_node_info->GetIndex()<<"\t";
-            std::cout << "Best:";
-            if (p_node_info->mpBestNeighbourNode != 0)
-            {
-                std::cout<<p_node_info->mpBestNeighbourNode->GetIndex()<<"\n";
-            }
-            else
-            {
-                std::cout<<"(not set)\n";
-            }
-            for (unsigned i=0;i<p_node_info->GetNumNeighbourNodes();i++)
-            {
-                std::cout<<" "<<p_node_info->GetNextNeighbourNode()->GetIndex();
-            }
-            std::cout<<"\n";
-            std::pop_heap(queue.begin(), queue.end(), CompNodeInfo<SPACE_DIM>());
-            queue.pop_back();
-        }
-        */
-        
+        }        
     }
-    
+#undef COVERAGE_IGNORE
 };
 
 

@@ -92,7 +92,7 @@ public:
         //mesh_writer2.WriteFilesUsingMesh(mesh);
         
     }
-    void TestBase2DOnDisk()
+    void xTestBase2DOnDisk()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -155,7 +155,7 @@ public:
         
     }
     
-    void TestBase2DOnSquare()
+    void xTestBase2DOnSquare()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_800_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -206,7 +206,7 @@ public:
       
     }
     
-       void TestPositionOnSquare()
+    void TestPositionOnSquare()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_800_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -246,7 +246,8 @@ public:
         //decimator.Interrogate();
         
         decimator.SetThreshold(0.2);
-        decimator.DecimateAnimate("RandomSquare");
+        decimator.Decimate();
+        //decimator.DecimateAnimate("RandomSquare");
         //TS_ASSERT_EQUALS(mesh.GetNumNodes(), 254U);
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 263U);
         TS_ASSERT_LESS_THAN_EQUALS(254U, mesh.GetNumNodes());
@@ -307,7 +308,7 @@ public:
         //TrianglesMeshWriter<3,3> mesh_writer2("", "CubeFullDecimation");
         //mesh_writer2.WriteFilesUsingMesh(mesh);
     }
-    void TestSequence2DWithReIndex()
+    void xTestSequence2DWithReIndex()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_800_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -350,7 +351,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
     }
-    void TestSequence2DAnimate()
+    void xTestSequence2DAnimate()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_800_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -412,7 +413,7 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
     }
     
-    void Test1DLinearFunction()
+    void xTest1DLinearFunction()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
         ConformingTetrahedralMesh<1,1> mesh;
@@ -465,7 +466,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 20U);
     }
     
-    void Test2DLinearFunctionAnimate()
+    void xTest2DLinearFunctionAnimate()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -545,7 +546,9 @@ public:
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
         decimator.SetThreshold(1e-6);
-        decimator.DecimateAnimate("SquareVectorAnimation",10);
+        //decimator.DecimateAnimate("SquareVectorAnimation",10);
+        decimator.Decimate();
+        
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 16U);
         
     }
