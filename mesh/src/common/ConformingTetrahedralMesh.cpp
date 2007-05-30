@@ -998,76 +998,13 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
                             + " > /dev/null";
     system(command.c_str());
     
+    // clear all current data
+    
+    Clear();
+    
     //Read the new mesh back from file
-    TrianglesMeshReader<SPACE_DIM,SPACE_DIM> mesh_reader(full_name+"1");
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> temporary_mesh;
-    temporary_mesh.ConstructFromMeshReader(mesh_reader);
-    
-    //Delete current data
-    
-    // Iterate over nodes and free the memory
-    
-    
-    for (unsigned i=0; i<mNodes.size(); i++)
-    {
-        delete mNodes[i];
-    }
-    mNodes.clear();
-    // Iterate over elements and free the memory
-    for (unsigned i=0; i<mElements.size(); i++)
-    {
-        delete mElements[i];
-    }
-    mElements.clear();
-    // Iterate over boundary elements and free the memory
-    for (unsigned i=0; i<mBoundaryElements.size(); i++)
-    {
-        delete mBoundaryElements[i];
-    }
-    mBoundaryElements.clear();
-    
-    mDeletedElementIndices.clear();
-    mDeletedBoundaryElementIndices.clear();
-    mDeletedNodeIndices.clear();
-    mBoundaryNodes.clear();
-    
-    for (unsigned i=0; i<temporary_mesh.GetNumNodes(); i++)
-    {
-        c_vector<double, SPACE_DIM> node_loc = temporary_mesh.GetNode(i)->rGetLocation();
-        bool is_boundary=temporary_mesh.GetNode(i)->IsBoundaryNode();
-        Node<SPACE_DIM>* p_node=new Node<SPACE_DIM>(i,node_loc,is_boundary);
-        mNodes.push_back(p_node);
-        if (is_boundary)
-        {
-            mBoundaryNodes.push_back(p_node);
-        }
-    }
-    
-    for (unsigned i=0; i<temporary_mesh.GetNumElements(); i++)
-    {
-        std::vector<Node<SPACE_DIM>* > nodes;
-        for (unsigned j=0; j<SPACE_DIM+1; j++)
-        {
-            unsigned index=(temporary_mesh.GetElement(i))->GetNodeGlobalIndex(j);
-            nodes.push_back(mNodes[index]);
-        }
-        Element<ELEMENT_DIM,SPACE_DIM> *p_element=
-            new Element<ELEMENT_DIM,SPACE_DIM>(i, nodes);
-        mElements.push_back(p_element);
-    }
-    
-    for (unsigned i=0; i<temporary_mesh.GetNumBoundaryElements(); i++)
-    {
-        std::vector<Node<SPACE_DIM>* > nodes;
-        for (unsigned j=0; j<SPACE_DIM; j++)
-        {
-            unsigned index=(temporary_mesh.GetBoundaryElement(i))->GetNodeGlobalIndex(j);
-            nodes.push_back(mNodes[index]);
-        }
-        BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> *p_b_element=
-            new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(i, nodes);
-        mBoundaryElements.push_back(p_b_element);
-    }
+    TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(full_name+"1");    
+    ConstructFromMeshReader(mesh_reader);
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
