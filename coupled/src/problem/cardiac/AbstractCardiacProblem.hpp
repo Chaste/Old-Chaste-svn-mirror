@@ -231,7 +231,6 @@ public:
     void Solve(AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>& assembler,
                AbstractCardiacPde<SPACE_DIM>* pCardiacPde)
     {
-    
         Vec initial_condition = AbstractCardiacProblem<SPACE_DIM, PROBLEM_DIM>::CreateInitialCondition(pCardiacPde);
         ParallelColumnDataWriter *p_test_writer = NULL;
         unsigned time_var_id = 0;
@@ -242,20 +241,14 @@ public:
 
         if (mPrintOutput)
         {
-            if (mOutputFilenamePrefix.length() > 0)
-            {
-                write_files = true;
-                p_test_writer = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
-                p_test_writer->DefineFixedDimension("Node", "dimensionless", PROBLEM_DIM*mMesh.GetNumNodes() );
-                time_var_id = p_test_writer->DefineUnlimitedDimension("Time","msecs");
-                voltage_var_id = p_test_writer->DefineVariable(ColumnName(),"mV");
-                p_test_writer->EndDefineMode();
-            }
-            if (write_files)
-            {
-                p_test_writer->PutVariable(time_var_id, stepper.GetTime());
-                p_test_writer->PutVector(voltage_var_id, initial_condition);
-            }
+            write_files = true;
+            p_test_writer = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
+            p_test_writer->DefineFixedDimension("Node", "dimensionless", PROBLEM_DIM*mMesh.GetNumNodes() );
+            time_var_id = p_test_writer->DefineUnlimitedDimension("Time","msecs");
+            voltage_var_id = p_test_writer->DefineVariable(ColumnName(),"mV");
+            p_test_writer->EndDefineMode();
+            p_test_writer->PutVariable(time_var_id, stepper.GetTime());
+            p_test_writer->PutVector(voltage_var_id, initial_condition);
         }
         
         while ( !stepper.IsTimeAtEnd() )
@@ -276,11 +269,8 @@ public:
             {
                 if (mPrintOutput)
                 {
-                    if (write_files)
-                    {
-                        p_test_writer->Close();
-                        delete p_test_writer;
-                    }
+                    p_test_writer->Close();
+                    delete p_test_writer;
                 }
                 throw e;
             }
@@ -304,27 +294,23 @@ public:
                 }
                 
                 // Writing data out to the file <mOutputFilenamePrefix>.dat
-                if (write_files)
-                {
-                    p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
-                    p_test_writer->PutVariable(time_var_id, stepper.GetTime());
-                    p_test_writer->PutVector(voltage_var_id, mVoltage);
-                }
+                p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
+                p_test_writer->PutVariable(time_var_id, stepper.GetTime());
+                p_test_writer->PutVector(voltage_var_id, mVoltage);
             }
         }
 
         // close the file that stores voltage values
         if (mPrintOutput)
         {
-            if (write_files)
-            {
-                p_test_writer->Close();
-                delete p_test_writer;
-            }
+
+            p_test_writer->Close();
+            delete p_test_writer;
+
             
             PetscInt my_rank;
             MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-            if ((my_rank==0) && (write_files)) // ie only if master process and results files were written
+            if (my_rank==0) // ie only if master process and results files were written
             {
                 // call shell script which converts the data to meshalyzer format
                 std::string chaste_2_meshalyzer;
