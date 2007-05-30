@@ -49,30 +49,30 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractAssembler
 {
 protected:
-    /*< Mesh to be solved on */
+    /** Mesh to be solved on */
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
     
-    /*< Boundary conditions to be applied */
+    /** Boundary conditions to be applied */
     BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditions;
     
-    /*< Basis function for use with normal elements */
+    /** Basis function for use with normal elements */
     typedef LinearBasisFunction<ELEMENT_DIM> BasisFunction;
-    /*< Basis function for use with boundary elements */
+    /** Basis function for use with boundary elements */
     typedef LinearBasisFunction<ELEMENT_DIM-1> SurfaceBasisFunction;
 
-    /*< Quadrature rule for use on normal elements */
+    /** Quadrature rule for use on normal elements */
     GaussianQuadratureRule<ELEMENT_DIM> *mpQuadRule;
-    /*< Quadrature rule for use on boundary elements */
+    /** Quadrature rule for use on boundary elements */
     GaussianQuadratureRule<ELEMENT_DIM-1> *mpSurfaceQuadRule;
     
     /**
      *  The CURRENT SOLUTION as a replicated vector for linear dynamic problems. 
-     *  (Empty for a static problem). The CURRENT GUESS for nonlinear problems
+     *  (Empty for a static problem).  The CURRENT GUESS for nonlinear problems.
      */
     ReplicatableVector mCurrentSolutionOrGuessReplicated;
     
     
-    /*< bool stating whether the problem is a linear or nonlinear one */
+    /** Whether the problem is a linear or nonlinear one */
     bool mProblemIsLinear;
     
     /**
@@ -82,14 +82,14 @@ protected:
     LinearSystem *mpLinearSystem;
     
     /**
-     * mMatrixIsConstant is a flag to say whether the matrix of the system
-     * needs to be assembled at each time step. (Linear problems only).
+     * Whether the matrix of the system needs to be assembled at each time step.
+     * (Linear problems only).
      */
     bool mMatrixIsConstant;
     
     /**
-     * mMatrixIsAssembled is a flag to say whether the matrix has been assembled 
-     * for the current time step. (Linear problems only).
+     * Whether the matrix has been assembled for the current time step.
+     * (Linear problems only).
      */
     bool mMatrixIsAssembled;
     
