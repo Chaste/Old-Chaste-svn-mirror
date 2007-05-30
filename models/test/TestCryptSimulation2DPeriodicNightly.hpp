@@ -810,10 +810,9 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    // not yet working
-    void xTestRandomDeathWithPeriodicMesh() throw (Exception)
+    void TestRandomDeathWithPeriodicMesh() throw (Exception)
     {
-        unsigned cells_across = 6;
+        unsigned cells_across = 7;
         unsigned cells_up = 12;
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
@@ -833,14 +832,14 @@ public:
         simulator.SetOutputDirectory("Crypt2DRandomDeathPeriodic");
                 
         // Set length of simulation here
-        simulator.SetEndTime(4.0);
+        simulator.SetEndTime(4.6);
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
                 
         simulator.SetGhostNodes(ghost_node_indices);
 
-        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&simulator.rGetCrypt(), 0.1);
+        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&simulator.rGetCrypt(), 0.01);
         simulator.AddCellKiller(p_random_cell_killer);
 
         simulator.Solve();
@@ -898,10 +897,9 @@ public:
         RandomNumberGenerator::Destroy();
     }
 
-    // not yet working
-    void xTestSloughingDeathWithPeriodicMesh() throw (Exception)
+    void TestSloughingDeathWithPeriodicMesh() throw (Exception)
     {
-        unsigned cells_across = 6;
+        unsigned cells_across = 7;
         unsigned cells_up = 12;
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
@@ -930,11 +928,25 @@ public:
 
         AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetCrypt());
         simulator.AddCellKiller(p_cell_killer);
-
+        
+        simulator.SetNoSloughing();
+        
         simulator.Solve();
         
-        // there should be no cells left after this amount of time
-        TS_ASSERT_EQUALS(simulator.rGetCrypt().GetNumRealCells(), 0u);
+        std::vector<bool> ghost_node_indices_after = simulator.GetGhostNodes();
+        unsigned num_ghosts=0;
+        for (unsigned i=0; i < ghost_node_indices_after.size() ; i++)
+        {
+            if (ghost_node_indices_after[i])
+            {
+                num_ghosts++;
+            }
+        }
+        // Check no new ghost nodes have been created.
+        TS_ASSERT_EQUALS(num_ghosts, ghost_node_indices.size());
+        // there should be this number of cells left after this amount of time
+        // (we have lost two rows of 7 but had a bit of birth too)
+        TS_ASSERT_EQUALS(simulator.rGetCrypt().GetNumRealCells(), 85u);
     
         delete p_cell_killer;
         SimulationTime::Destroy();

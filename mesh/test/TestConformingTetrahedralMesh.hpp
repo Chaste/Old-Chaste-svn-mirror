@@ -673,6 +673,31 @@ public:
         
     }
     
+    void TestDeleteNodePriorToReMesh() throw (Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/circular_fan");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+//        TrianglesMeshWriter<2,2> mesh_writer("","DeleteNodePriorToReMesh");
+//        mesh_writer.WriteFilesUsingMesh(mesh);
+        
+        // test it can also delete a boundary node
+        mesh.DeleteNodePriorToReMesh(0);
+        mesh.DeleteNodePriorToReMesh(11);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),100u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),98u);
+
+        NodeMap map(mesh.GetNumNodes());
+        mesh.ReMesh(map);
+        
+//        TrianglesMeshWriter<2,2> mesh_writer2("","DeleteNodePriorToReMesh.1");
+//        mesh_writer2.WriteFilesUsingMesh(mesh);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 98u);
+    }
+    
     
     void TestAddingAndDeletingNodes() throw (Exception)
     {

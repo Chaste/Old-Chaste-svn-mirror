@@ -105,7 +105,7 @@ unsigned Crypt<DIM>::RemoveDeadCells()
         MeinekeCryptCell* p_cell=&(mrCells[i]);
         if (p_cell->IsDead())
         {
-            mrMesh.DeleteNode(p_cell->GetNodeIndex());
+            mrMesh.DeleteNodePriorToReMesh(p_cell->GetNodeIndex());
         }
         else
         {

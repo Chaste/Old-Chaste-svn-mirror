@@ -671,6 +671,9 @@ void TissueSimulation<DIM>::SetGhostNodes(std::set<unsigned> ghostNodeIndices)
         mIsGhostNode[*iter]=true;
         iter++;
     }
+    
+    mCrypt.SetGhostNodes(mIsGhostNode); // I think there should be one of these here 
+    // (otherwise Crypt is only ever told about ghost nodes when no nodes are ghosts in the constructor).
 }
 
 

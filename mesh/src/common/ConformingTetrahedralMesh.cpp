@@ -334,6 +334,24 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned inde
     
     MoveMergeNode(index, target_index);
 }
+
+/**
+ * This marks a node as deleted. Note that it DOES NOT deal with the 
+ * associated elements and therefore should only be called immediately prior
+ * to a ReMesh() being called. (Thus saves work compared to DeleteNode() 
+ * function and does not MoveMerge the node and elements).
+ * 
+ * @param index The index of the node to delete
+ */
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNodePriorToReMesh(unsigned index)
+{
+    // A ReMesh can only happen in 2D or 3D so
+    assert(SPACE_DIM==2 || SPACE_DIM==3);
+    mNodes[index]->MarkAsDeleted();
+    mDeletedNodeIndices.push_back(index);
+}
+
 /**
  * MoveMergeNode moves one node to another (i.e. merges the nodes), refreshing/deleting elements as
  * appropriate.

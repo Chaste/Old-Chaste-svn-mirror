@@ -28,6 +28,9 @@ public:
      *  Remove cells labelled as dead
      *  Calls RemoveDeadCells on the crypt
      * 
+     *  N.B. This now calls DeleteNodePriorToReMesh() and therefore a 
+     *  ReMesh MUST be done before any element information is used.
+     * 
      *  @return The number of cells removed
      */
     unsigned RemoveDeadCells()

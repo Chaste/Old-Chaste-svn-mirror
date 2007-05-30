@@ -80,7 +80,13 @@ public:
     void UpdateGhostPositions(const std::vector< c_vector<double, DIM> >& rDrDt, double dt);
 	    
 	/** 
-	 *  Remove all cells labelled as dead
+	 * Remove all cells labelled as dead. 
+     * 
+     * Note that this now calls 
+     * ConformingTetrahedralMesh::DeleteNodePriorToReMesh() 
+     * and therefore a ReMesh(map) must be called before
+     * any element information is used. 
+     * 
      *  @return number of cells removed
 	 */
     unsigned RemoveDeadCells();
