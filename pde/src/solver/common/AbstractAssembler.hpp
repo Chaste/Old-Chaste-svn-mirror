@@ -468,15 +468,8 @@ protected:
             }
             else
             {
-                if (mMatrixIsConstant && mMatrixIsAssembled)
-                {
-                    mpLinearSystem->ZeroRhsVector();
-                }
-                else
-                {
-                    mpLinearSystem->ZeroLinearSystem();
-                    mMatrixIsAssembled = false;
-                }
+                assert(mMatrixIsConstant && mMatrixIsAssembled);
+                mpLinearSystem->ZeroRhsVector();
             }
         }
         else

@@ -884,7 +884,11 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
     std::vector<Element<ELEMENT_DIM, SPACE_DIM> *> live_elements;
     for (unsigned i=0; i<mElements.size(); i++)
     {
-        if (!mElements[i]->IsDeleted())
+        if (mElements[i]->IsDeleted())
+        {
+            delete mElements[i];
+        }
+        else
         {
             live_elements.push_back(mElements[i]);
         }
@@ -897,16 +901,17 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
     std::vector<Node<SPACE_DIM> *> live_nodes;
     for (unsigned i=0; i<mNodes.size(); i++)
     {
-        if (!mNodes[i]->IsDeleted())
+        if (mNodes[i]->IsDeleted())
+        {
+            delete mNodes[i];
+            map.SetDeleted(i);
+        }
+        else
         {
             live_nodes.push_back(mNodes[i]);
             // the nodes will have their index set to be the index into the live_nodes
             // vector further down
             map.SetNewIndex(i, (unsigned)(live_nodes.size()-1));
-        }
-        else
-        {
-        	map.SetDeleted(i);
         }
     }
     
@@ -917,7 +922,11 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
     std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> live_boundary_elements;
     for (unsigned i=0; i<mBoundaryElements.size(); i++)
     {
-        if (!mBoundaryElements[i]->IsDeleted())
+        if (mBoundaryElements[i]->IsDeleted())
+        {
+            delete mBoundaryElements[i];
+        }
+        else
         {
             live_boundary_elements.push_back(mBoundaryElements[i]);
         }
@@ -945,12 +954,16 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
 {
+    //Make sure that we are in the correct dimension -- this code will be eliminated at compile time
+    #define COVERAGE_IGNORE
+    assert( SPACE_DIM==2 || SPACE_DIM==3 );
+    assert( ELEMENT_DIM == SPACE_DIM );
+    #undef COVERAGE_IGNORE
+    
     //Make sure the map is big enough
     map.Resize(GetNumAllNodes());
     
-    //Make sure that we are in the correct dimension
-    assert( SPACE_DIM==2 || SPACE_DIM==3 );
-    assert( ELEMENT_DIM == SPACE_DIM );
+
     OutputFileHandler handler("");
     out_stream node_file=handler.OpenOutputFile("temp.node");
     

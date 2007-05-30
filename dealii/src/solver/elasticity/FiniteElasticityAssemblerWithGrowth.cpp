@@ -6,6 +6,7 @@
 
 #include <dofs/dof_tools.h>
 
+#define COVERAGE_IGNORE
 
 template<unsigned DIM>
 FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Triangulation<DIM>* pMesh,
@@ -970,6 +971,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteGrowthValuesAtVertices(unsig
     growth_vals_output.close();
 }
 
+#undef COVERAGE_IGNORE
 
 #endif // FINITEELASTICITYASSEMBLERWITHGROWTH_CPP_
 

@@ -152,7 +152,9 @@ for src_file in src_files:
                     src_line_stripped = src_line.strip()
                     if not (ignore or src_line_stripped == '}' or
                             (src_line_stripped.startswith('return') and
-                             src_line_stripped[6] in [';', ' '])):
+                             src_line_stripped[6] in [';', ' ']) or
+                            (src_line_stripped.startswith('catch ') and
+                             src_line_stripped[-1] == ')')):
                         warn = False
                     aggregated_count = '#####'
                     missed_line_count += 1

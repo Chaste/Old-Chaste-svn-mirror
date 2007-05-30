@@ -8,6 +8,7 @@
 // todo: lots. move laplaces eqn class to somewhere sensible (refactor assemblers
 // this, test update mesh, test copy mesh, test source terms.
 
+#define COVERAGE_IGNORE
 
 template<unsigned DIM>
 class LaplacesEquation : public AbstractDealiiAssembler<DIM>
@@ -290,6 +291,8 @@ public :
         }
     }
 };
+
+#undef COVERAGE_IGNORE
 
 
 #endif /*CONCENTRATIONBASEDTUMOURSOURCEMODEL_HPP_*/

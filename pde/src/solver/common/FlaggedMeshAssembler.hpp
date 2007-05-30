@@ -80,23 +80,12 @@ protected :
         //}
         
         // linear problem - set up the Linear System if necessary, otherwise zero
-        // it.
-        if (this->mpLinearSystem == NULL)
+        // it.  Could optimise the case where smasrm_size is unchanged.
+        if (this->mpLinearSystem != NULL)
         {
-            this->mpLinearSystem = new LinearSystem(smasrm_size);
+            delete this->mpLinearSystem;
         }
-        else
-        {
-            if (this->mpLinearSystem->GetSize() == smasrm_size)
-            {
-                this->mpLinearSystem->ZeroLinearSystem();
-            }
-            else
-            {
-                delete this->mpLinearSystem;
-                this->mpLinearSystem = new LinearSystem(smasrm_size);
-            }
-        }
+        this->mpLinearSystem = new LinearSystem(smasrm_size);
         this->mMatrixIsAssembled = false;
         
 //        //If this is the first time through then it's appropriate to set the
@@ -158,29 +147,14 @@ protected :
             iter++;
         }
         
-        if (this->mMatrixIsAssembled)
-        {
-            this->mpLinearSystem->AssembleRhsVector();
-        }
-        else
-        {
-            this->mpLinearSystem->AssembleIntermediateLinearSystem();
-        }
-        
+        this->mpLinearSystem->AssembleIntermediateLinearSystem();
         
         // Apply dirichlet boundary conditions.
         // This may well need to change to make use of the mSmasrmIndexMap;
         // might be better to put the code in here rather than the container.
         mpFlaggedMeshBcc->ApplyDirichletToLinearProblem(*this->mpLinearSystem, mSmasrmIndexMap, this->mMatrixIsAssembled);
         
-        if (this->mMatrixIsAssembled)
-        {
-            this->mpLinearSystem->AssembleRhsVector();
-        }
-        else
-        {
-            this->mpLinearSystem->AssembleFinalLinearSystem();
-        }
+        this->mpLinearSystem->AssembleFinalLinearSystem();
         this->mMatrixIsAssembled = true;
         
         // overload this method if the assembler has to do anything else

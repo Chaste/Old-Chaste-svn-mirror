@@ -6,6 +6,8 @@
 
 #include <dofs/dof_tools.h>
 
+#define COVERAGE_IGNORE
+
 template<unsigned DIM>
 FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pMesh,
                                                           AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
@@ -1116,6 +1118,8 @@ unsigned FiniteElasticityAssembler<DIM>::GetNumNewtonIterations()
 {
     return mNumNewtonIterations;
 }
+
+#undef COVERAGE_IGNORE
 
 #endif // FINITEELASTICITYASSEMBLER_CPP_
 
