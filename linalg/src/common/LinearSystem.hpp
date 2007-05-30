@@ -5,9 +5,7 @@
 #include <petscmat.h>
 #include <petscksp.h>
 
-
 class AbstractLinearSolver;
-
 
 #include <string>
 
@@ -15,14 +13,9 @@ class AbstractLinearSolver;
  * Linear System class. Stores and solves a linear equation of the form Ax=b,
  * where A is a square matrix and x and b are column vectors.
  * The class uses PETSc.
- *
- *
  */
-
 class LinearSystem
 {
-
-
 private:
     Mat mLhsMatrix;
     Vec mRhsVector;
@@ -37,17 +30,26 @@ private:
     
     MatNullSpace mMatNullSpace;
     
+    /** Whether we need to destroy the PETSc objects in our destructor */
+    bool mDestroyPetscObjects;
+    
 public:
     LinearSystem(PetscInt lhsVectorSize);
     LinearSystem(Vec templateVector);
+    LinearSystem(Vec residualVector, Mat jacobianMatrix);
     ~LinearSystem();
+    
 //    bool IsMatrixEqualTo(Mat testMatrix);
 //    bool IsRhsVectorEqualTo(Vec testVector);
     void SetMatrixElement(PetscInt row, PetscInt col, double value);
     void AddToMatrixElement(PetscInt row, PetscInt col, double value);
+    
     void AssembleFinalLinearSystem();         // Call before solve
     void AssembleIntermediateLinearSystem();  // Should be called before AddToMatrixElement
+    void AssembleFinalLhsMatrix();
+    void AssembleIntermediateLhsMatrix();
     void AssembleRhsVector();
+    
     void DisplayMatrix();
     void DisplayRhs() ;
     void SetMatrixRow(PetscInt row, double value);

@@ -18,18 +18,19 @@ public:
     {
         // WRITE VECTOR
         // create a 10 element petsc vector
+        unsigned vec_size = 10u;
         Vec vec;
         VecCreate(PETSC_COMM_WORLD, &vec);
-        VecSetSizes(vec, PETSC_DECIDE, 10);
+        VecSetSizes(vec, PETSC_DECIDE, vec_size);
         VecSetFromOptions(vec);
         // calculate the range
         PetscInt petsc_lo, petsc_hi;
-        VecGetOwnershipRange(vec,&petsc_lo,&petsc_hi);
+        VecGetOwnershipRange(vec, &petsc_lo, &petsc_hi);
         unsigned lo=(unsigned)petsc_lo;
         unsigned hi=(unsigned)petsc_hi;   
         // create 20 element petsc vector
         Vec striped;
-        VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo) , 2*10, &striped);
+        VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo) , 2*vec_size, &striped);
         // write some values
         double* p_vec;
         VecGetArray(vec, &p_vec);
@@ -56,6 +57,7 @@ public:
         DistributedVector::Stripe linear(distributed_vector2,0);
         DistributedVector::Stripe quadratic(distributed_vector2,1);
         // check the range
+        TS_ASSERT_EQUALS(DistributedVector::GetProblemSize(), vec_size);
         TS_ASSERT_EQUALS(DistributedVector::Begin().Global,lo);
         TS_ASSERT_EQUALS(DistributedVector::End().Global,hi);
         // read some values

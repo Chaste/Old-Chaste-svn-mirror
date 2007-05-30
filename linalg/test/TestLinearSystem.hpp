@@ -5,6 +5,7 @@
 #include <cxxtest/TestSuite.h>
 #include "LinearSystem.hpp"
 #include "SimpleLinearSolver.hpp"
+#include "DistributedVector.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
@@ -165,6 +166,58 @@ public:
         VecSetFromOptions(test_vec);
         LinearSystem ls(test_vec);
         ls.SetNullBasis(&test_vec, 1);
+    }
+    
+    // Test the 3rd constructor
+    void TestCreateWithPetscObjects()
+    {
+        // First try giving it just a vector
+        unsigned size = 5u;
+        DistributedVector::SetProblemSize(size);
+        Vec test_vec = DistributedVector::CreateVec();
+        
+        DistributedVector dist_vec(test_vec);
+        double test_val = -1.0;
+        if (dist_vec.Begin() != dist_vec.End())
+        {
+            dist_vec[dist_vec.Begin()] = test_val;
+        }
+        dist_vec.Restore();
+        
+        LinearSystem lsv(test_vec, NULL);
+        TS_ASSERT_EQUALS(lsv.GetSize(), size);
+        
+        if (dist_vec.Begin() != dist_vec.End())
+        {
+            TS_ASSERT_EQUALS(lsv.GetRhsVectorElement(dist_vec.Begin().Global),
+                             test_val);
+        }
+        
+        // Now try with just a matrix
+        Mat m;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,size,size,&m);
+#else //New API
+        MatCreate(PETSC_COMM_WORLD,&m);
+        MatSetSizes(m,PETSC_DECIDE,PETSC_DECIDE,size,size);
+#endif
+        MatSetType(m, MATMPIAIJ);
+        MatSetFromOptions(m);
+        
+        if (dist_vec.Begin() != dist_vec.End())
+        {
+            MatSetValue(m, dist_vec.Begin().Global, 0, test_val, INSERT_VALUES);
+        }
+        
+        LinearSystem lsm(NULL, m);
+        TS_ASSERT_EQUALS(lsm.GetSize(), size);
+        lsm.AssembleFinalLhsMatrix();
+        
+        if (dist_vec.Begin() != dist_vec.End())
+        {
+            TS_ASSERT_EQUALS(lsm.GetMatrixElement(dist_vec.Begin().Global, 0),
+                             test_val);
+        }
     }
 };
 #endif //_TESTLINEARSYSTEM_HPP_

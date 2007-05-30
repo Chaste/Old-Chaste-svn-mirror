@@ -7,6 +7,7 @@
 #include "PetscException.hpp"
 //#include <iostream>
 #include "OutputFileHandler.hpp"
+#include "DistributedVector.hpp"
 
 #include <cassert>
 
@@ -39,6 +40,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize)
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
     
     mMatNullSpace = NULL;
+    mDestroyPetscObjects = true;
 }
 
 /**
@@ -65,13 +67,35 @@ LinearSystem::LinearSystem(Vec templateVector)
     MatSetFromOptions(mLhsMatrix);
     
     mMatNullSpace = NULL;
+    mDestroyPetscObjects = true;
 }
 
+/**
+ * Create a linear system which wraps the provided PETSc objects so we can
+ * access them using our API.
+ * 
+ * Useful for storing residuals and jacobians when solving nonlinear PDEs.
+ * 
+ * \todo Check that the sizes match as appropriate (ie matrix is square, if both given they are same size)
+ */
+LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
+{
+    mRhsVector = residualVector;
+    mLhsMatrix = jacobianMatrix;
+    mSize = DistributedVector::GetProblemSize();
+    mOwnershipRangeLo = DistributedVector::Begin().Global;
+    mOwnershipRangeHi = DistributedVector::End().Global;
+    mMatNullSpace = NULL;
+    mDestroyPetscObjects = false;
+}
 
 LinearSystem::~LinearSystem()
 {
-    VecDestroy(mRhsVector);
-    MatDestroy(mLhsMatrix);
+    if (mDestroyPetscObjects)
+    {
+        VecDestroy(mRhsVector);
+        MatDestroy(mLhsMatrix);
+    }
 }
 
 //bool LinearSystem::IsMatrixEqualTo(Mat testMatrix)
@@ -107,19 +131,29 @@ void LinearSystem::AddToMatrixElement(PetscInt row, PetscInt col, double value)
 
 void LinearSystem::AssembleFinalLinearSystem()
 {
-    MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
-    MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+    AssembleFinalLhsMatrix();
     AssembleRhsVector();
 }
 
 
 void LinearSystem::AssembleIntermediateLinearSystem()
 {
-    MatAssemblyBegin(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
-    MatAssemblyEnd(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
+    AssembleIntermediateLhsMatrix();
     AssembleRhsVector();
 }
 
+void LinearSystem::AssembleFinalLhsMatrix()
+{
+    MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+}
+
+
+void LinearSystem::AssembleIntermediateLhsMatrix()
+{
+    MatAssemblyBegin(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
+    MatAssemblyEnd(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
+}
 
 void LinearSystem::AssembleRhsVector()
 {

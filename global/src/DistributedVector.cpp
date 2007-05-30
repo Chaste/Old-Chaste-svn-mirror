@@ -31,6 +31,11 @@ void DistributedVector::SetProblemSize(Vec vec)
         mGlobalHi = (unsigned) size;
 }
 
+unsigned DistributedVector::GetProblemSize()
+{
+    return mGlobalHi;
+}
+
 bool DistributedVector::IsGlobalIndexLocal(unsigned globalIndex)
 {
     return (mLo <= globalIndex && globalIndex < mHi);

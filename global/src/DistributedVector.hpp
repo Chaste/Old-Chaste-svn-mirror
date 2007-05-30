@@ -32,6 +32,11 @@ public:
     static void SetProblemSize(Vec vec);
     
     /**
+     * Get the global problem size.
+     */
+    static unsigned GetProblemSize();
+    
+    /**
      * Test if the given global index is owned by the current process, i.e. is local to it.
      */
     static bool IsGlobalIndexLocal(unsigned globalIndex);
