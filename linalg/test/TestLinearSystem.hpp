@@ -193,6 +193,19 @@ public:
                              test_val);
         }
         
+        // Change the Vec and see if the linear system reflects the change
+        double test_val2 = 2.0;
+        if (dist_vec.Begin() != dist_vec.End())
+        {
+            dist_vec[dist_vec.Begin()] = test_val2;
+        }
+        dist_vec.Restore();
+        if (dist_vec.Begin() != dist_vec.End())
+        {
+            TS_ASSERT_EQUALS(lsv.GetRhsVectorElement(dist_vec.Begin().Global),
+                             test_val2);
+        }
+        
         // Now try with just a matrix
         Mat m;
 #if (PETSC_VERSION_MINOR == 2) //Old API
@@ -218,6 +231,22 @@ public:
             TS_ASSERT_EQUALS(lsm.GetMatrixElement(dist_vec.Begin().Global, 0),
                              test_val);
         }
+        
+        // Change the Mat and see if the linear system reflects the change
+        if (dist_vec.Begin() != dist_vec.End())
+        {
+            MatSetValue(m, dist_vec.Begin().Global, 0, test_val2, INSERT_VALUES);
+        }
+        MatAssemblyBegin(m, MAT_FINAL_ASSEMBLY);
+        MatAssemblyEnd(m, MAT_FINAL_ASSEMBLY);
+        if (dist_vec.Begin() != dist_vec.End())
+        {
+            TS_ASSERT_EQUALS(lsm.GetMatrixElement(dist_vec.Begin().Global, 0),
+                             test_val2);
+        }
+        
+        VecDestroy(test_vec);
+        MatDestroy(m);
     }
 };
 #endif //_TESTLINEARSYSTEM_HPP_

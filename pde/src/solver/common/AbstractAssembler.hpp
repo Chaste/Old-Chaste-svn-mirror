@@ -438,6 +438,10 @@ protected:
         // the concrete class can override this following method if there is
         // work to be done before assembly
         PrepareForAssembleSystem(currentSolutionOrGuess, currentTime);
+
+        // decide what we want to assemble.
+        bool assemble_vector = ((mProblemIsLinear) || ((!mProblemIsLinear) && (residualVector!=NULL)));
+        bool assemble_matrix = ( (mProblemIsLinear && !mMatrixIsAssembled) || ((!mProblemIsLinear) && (pJacobian!=NULL)) );
         
         if (mProblemIsLinear)
         {
@@ -474,33 +478,28 @@ protected:
         }
         else
         {
-            // nonlinear problem - zero residual or jacobian depending on which has
-            // been asked for
-            if (residualVector)
+            if (mpLinearSystem)
             {
-                PetscInt isize;
-                VecGetSize(residualVector,&isize);
-                assert((unsigned)isize == PROBLEM_DIM * this->mpMesh->GetNumNodes());
-                
-                // Set residual vector to zero
-                PetscScalar zero = 0.0;
-#if (PETSC_VERSION_MINOR == 2) //Old API
-                PETSCEXCEPT( VecSet(&zero, residualVector) );
-#else
-                PETSCEXCEPT( VecSet(residualVector, zero) );
-#endif
+                delete mpLinearSystem;
+            }
+            if (pJacobian)
+            {
+                mpLinearSystem = new LinearSystem(residualVector, *pJacobian);
             }
             else
             {
-                PetscInt size1, size2;
-                MatGetSize(*pJacobian,&size1,&size2);
-                PetscInt problem_size=PROBLEM_DIM * this->mpMesh->GetNumNodes();
-                UNUSED_OPT(problem_size);
-                assert(size1==problem_size);
-                assert(size2==problem_size);
-                
-                // Set all entries of jacobian to 0
-                MatZeroEntries(*pJacobian);
+                mpLinearSystem = new LinearSystem(residualVector, NULL);
+            }
+            assert(mpLinearSystem->GetSize() == PROBLEM_DIM * this->mpMesh->GetNumNodes());
+            // nonlinear problem - zero residual or jacobian depending on which has
+            // been asked for
+            if (assemble_vector)
+            {
+                mpLinearSystem->ZeroRhsVector();
+            }
+            if (assemble_matrix)
+            {
+                mpLinearSystem->ZeroLhsMatrix();
             }
             
             //Set the elements' ownerships according to the node ownership
@@ -520,10 +519,6 @@ protected:
         c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1)> a_elem;
         c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> b_elem;
         
-        
-        // decide what we want to assemble.
-        bool assemble_vector = ((mProblemIsLinear) || ((!mProblemIsLinear) && (residualVector!=NULL)));
-        bool assemble_matrix = ( (mProblemIsLinear && !mMatrixIsAssembled) || ((!mProblemIsLinear) && (pJacobian!=NULL)) );
         
         ////////////////////////////////////////////////////////
         // loop over elements
@@ -551,29 +546,14 @@ protected:
                             {
                                 for (unsigned m=0; m<PROBLEM_DIM; m++)
                                 {
-                                    if (mProblemIsLinear)
-                                    {
-                                        // the following expands to, for (eg) the case of two unknowns:
-                                        // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2,   a_elem(2*i,   2*j));
-                                        // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2,   a_elem(2*i+1, 2*j));
-                                        // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2+1, a_elem(2*i,   2*j+1));
-                                        // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2+1, a_elem(2*i+1, 2*j+1));
-                                        mpLinearSystem->AddToMatrixElement( PROBLEM_DIM*node1+k,
-                                                                            PROBLEM_DIM*node2+m,
-                                                                            a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m) );
-                                    }
-                                    else
-                                    {
-                                        assert(pJacobian!=NULL); // extra check
-                                        
-                                        unsigned matrix_index_1 = PROBLEM_DIM*node1+k;
-                                        if (DistributedVector::IsGlobalIndexLocal(node1)) //(lo<=matrix_index_1 && matrix_index_1<hi)
-                                        {
-                                            unsigned matrix_index_2 = PROBLEM_DIM*node2+m;
-                                            PetscScalar value = a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m);
-                                            MatSetValue(*pJacobian, matrix_index_1, matrix_index_2, value, ADD_VALUES);
-                                        }
-                                    }
+                                    // the following expands to, for (eg) the case of two unknowns:
+                                    // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2,   a_elem(2*i,   2*j));
+                                    // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2,   a_elem(2*i+1, 2*j));
+                                    // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2+1, a_elem(2*i,   2*j+1));
+                                    // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2+1, a_elem(2*i+1, 2*j+1));
+                                    mpLinearSystem->AddToMatrixElement( PROBLEM_DIM*node1+k,
+                                                                        PROBLEM_DIM*node2+m,
+                                                                        a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m) );
                                 }
                             }
                         }
@@ -583,22 +563,7 @@ protected:
                     {
                         for (unsigned k=0; k<PROBLEM_DIM; k++)
                         {
-                            if (mProblemIsLinear)
-                            {
-                                mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
-                            }
-                            else
-                            {
-                                assert(residualVector!=NULL); // extra check
-                                
-                                unsigned matrix_index = PROBLEM_DIM*node1+k;
-                                //Make sure it's only done once
-                                if (DistributedVector::IsGlobalIndexLocal(node1))
-                                {
-                                    PetscScalar value = b_elem(PROBLEM_DIM*i+k);
-                                    PETSCEXCEPT( VecSetValue(residualVector,matrix_index,value,ADD_VALUES) );
-                                }
-                            }
+                            mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
                         }
                     }
                 }
@@ -616,7 +581,7 @@ protected:
         ////////////////////////////////////////////////////////
         
         // note, the following condition is not true of Bidomain or Monodomain
-        if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true)
+        if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true && assemble_vector)
         {
             if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
             {
@@ -639,20 +604,7 @@ protected:
                             
                             for (unsigned k=0; k<PROBLEM_DIM; k++)
                             {
-                                if (mProblemIsLinear)
-                                {
-                                    mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node_index + k, b_surf_elem(PROBLEM_DIM*i+k));
-                                }
-                                else if (residualVector!=NULL)
-                                {
-                                    unsigned matrix_index = PROBLEM_DIM*node_index + k;
-                                    
-                                    PetscScalar value = b_surf_elem(PROBLEM_DIM*i+k);
-                                    if (DistributedVector::IsGlobalIndexLocal(node_index))
-                                    {
-                                        PETSCEXCEPT( VecSetValue(residualVector, matrix_index, value, ADD_VALUES) );
-                                    }
-                                }
+                                mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node_index + k, b_surf_elem(PROBLEM_DIM*i+k));
                             }
                         }
                     }
@@ -661,24 +613,14 @@ protected:
             }
         }
         
-        
-        if (mProblemIsLinear)
+        if (assemble_vector)
         {
-            if (mMatrixIsAssembled)
-            {
-                mpLinearSystem->AssembleRhsVector();
-            }
-            else
-            {
-                mpLinearSystem->AssembleIntermediateLinearSystem();
-            }
+            mpLinearSystem->AssembleRhsVector();
         }
-        else if (pJacobian)
+        if (assemble_matrix)
         {
-            MatAssemblyBegin(*pJacobian, MAT_FLUSH_ASSEMBLY);
-            MatAssemblyEnd(*pJacobian, MAT_FLUSH_ASSEMBLY);
+            mpLinearSystem->AssembleIntermediateLhsMatrix();
         }
-        
         
         // Apply dirichlet boundary conditions
         if (mProblemIsLinear)
@@ -694,29 +636,14 @@ protected:
             this->mpBoundaryConditions->ApplyDirichletToNonlinearJacobian(*pJacobian);
         }
         
-        
-        
-        if (mProblemIsLinear)
+        if (assemble_vector)
         {
-            if (mMatrixIsAssembled)
-            {
-                mpLinearSystem->AssembleRhsVector();
-            }
-            else
-            {
-                mpLinearSystem->AssembleFinalLinearSystem();
-            }
+            mpLinearSystem->AssembleRhsVector();
+        }
+        if (assemble_matrix)
+        {
+            mpLinearSystem->AssembleFinalLhsMatrix();
             mMatrixIsAssembled = true;
-        }
-        else if (residualVector)
-        {
-            VecAssemblyBegin(residualVector);
-            VecAssemblyEnd(residualVector);
-        }
-        else if (pJacobian)
-        {
-            MatAssemblyBegin(*pJacobian, MAT_FINAL_ASSEMBLY);
-            MatAssemblyEnd(*pJacobian, MAT_FINAL_ASSEMBLY);
         }
         
         // overload this method if the assembler has to do anything else
@@ -770,6 +697,7 @@ public:
         SetNumberOfQuadraturePointsPerDimension(numQuadPoints);
         
         mMatrixIsAssembled = false;
+        mpLinearSystem = NULL;
     }
     
     /**

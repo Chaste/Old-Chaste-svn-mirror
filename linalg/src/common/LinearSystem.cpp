@@ -7,7 +7,6 @@
 #include "PetscException.hpp"
 //#include <iostream>
 #include "OutputFileHandler.hpp"
-#include "DistributedVector.hpp"
 
 #include <cassert>
 
@@ -72,19 +71,37 @@ LinearSystem::LinearSystem(Vec templateVector)
 
 /**
  * Create a linear system which wraps the provided PETSc objects so we can
- * access them using our API.
+ * access them using our API.  Either of the objects may be NULL, but at
+ * least one of them must not be.
  * 
  * Useful for storing residuals and jacobians when solving nonlinear PDEs.
- * 
- * \todo Check that the sizes match as appropriate (ie matrix is square, if both given they are same size)
  */
 LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
 {
+    assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
     mLhsMatrix = jacobianMatrix;
-    mSize = DistributedVector::GetProblemSize();
-    mOwnershipRangeLo = DistributedVector::Begin().Global;
-    mOwnershipRangeHi = DistributedVector::End().Global;
+    
+    PetscInt mat_size=0, vec_size=0;
+    if (mRhsVector)
+    {
+        VecGetSize(mRhsVector, &vec_size);
+        mSize = (unsigned)vec_size;
+        VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
+    }
+    if (mLhsMatrix)
+    {
+        PetscInt mat_cols;
+        MatGetSize(mLhsMatrix, &mat_size, &mat_cols);
+        assert(mat_size == mat_cols);
+        mSize = (unsigned)mat_size; 
+        MatGetOwnershipRange(mLhsMatrix, &mOwnershipRangeLo, &mOwnershipRangeHi);
+    }
+    if (mRhsVector && mLhsMatrix)
+    {
+        assert(vec_size == mat_size);
+    }
+    
     mMatNullSpace = NULL;
     mDestroyPetscObjects = false;
 }
