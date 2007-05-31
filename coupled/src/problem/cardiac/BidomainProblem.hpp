@@ -43,33 +43,20 @@ public:
      */
     ~BidomainProblem()
     {
-        if (mpBidomainPde)
-        {
-            delete mpBidomainPde;
-        }
     }
     
-    /** Initialise the system. Must be called before Solve() */
-    void Initialise()
+    AbstractCardiacPde<SPACE_DIM>* CreatePde()
     {
-        AbstractCardiacProblem<SPACE_DIM, 2>::Initialise(mpBidomainPde);
         mpBidomainPde = new BidomainPde<SPACE_DIM>( this->mpCellFactory );
+        return mpBidomainPde;
     }
     
-    /**
-     * Solve the problem
-     */
-    void Solve()
+    AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, 2>* CreateAssembler()
     {
-        AbstractCardiacProblem<SPACE_DIM, 2>::PreSolveChecks(mpBidomainPde);
-        
-        // Assembler
-        BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(
-            &this->mMesh, mpBidomainPde,
-            2, mLinearSolverRelativeTolerance);   
-
-        bidomain_assembler.SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
-        AbstractCardiacProblem<SPACE_DIM, 2>::Solve(bidomain_assembler, mpBidomainPde);
+         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_bidomain_assembler = 
+                 new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(&this->mMesh, mpBidomainPde);
+         p_bidomain_assembler->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
+         return p_bidomain_assembler;
     }
     
     void SetLinearSolverRelativeTolerance(const double &rRelTol)
@@ -105,14 +92,6 @@ public:
     {
         assert(mpBidomainPde!=NULL);
         return mpBidomainPde;
-    }
-    
-    /**
-     *  Set info to be printed during computation. 
-     */
-    void SetWriteInfo(bool writeInfo = true)
-    {
-        this->mWriteInfo = writeInfo;
     }
     
     /**
