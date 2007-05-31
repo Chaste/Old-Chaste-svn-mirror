@@ -1,6 +1,7 @@
 #include "AbstractCardiacCell.hpp"
 
 #include <cassert>
+#include <iostream>
 
 AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
                                          unsigned numberOfStateVariables,
@@ -14,6 +15,11 @@ AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
     mpOdeSolver = pOdeSolver;
     
     assert(voltageIndex < mNumberOfStateVariables);
+    
+    if (dt <= 0)
+    {
+        std::cout << dt;
+    }
     
     assert(dt>0);
     mDt=dt;

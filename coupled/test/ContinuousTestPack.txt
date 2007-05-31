@@ -6,4 +6,5 @@ TestMonodomainDg0Assembler.hpp
 TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 TestMonodomainPde.hpp
 TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
+TestPlaneStimulusCellFactory.hpp
 TestPropagationPropertiesCalculator.hpp
