@@ -14,34 +14,6 @@
 #include "CheckMonoLr91Vars.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 
-class EdgeStimulusCellFactory : public AbstractCardiacCellFactory<2>
-{
-private:
-    InitialStimulus *mpStimulus;
-public:
-    EdgeStimulusCellFactory() : AbstractCardiacCellFactory<2>(0.01)
-    {
-        mpStimulus = new InitialStimulus(-600.0, 0.5);
-    }
-    
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
-    {
-        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
-        }
-        else
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
-        }
-    }
-    
-    ~EdgeStimulusCellFactory(void)
-    {
-        delete mpStimulus;
-    }
-};
-
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
@@ -118,7 +90,7 @@ public:
     void TestMonodomainDg02DWithEdgeStimulus( void )
     {
         static double test_tolerance=1e-10;
-        EdgeStimulusCellFactory cell_factory;
+        PlaneStimulusCellFactory<2> cell_factory;
         
         // using the criss-cross mesh so wave propagates properly
         MonodomainProblem<2> monodomain_problem( &cell_factory );

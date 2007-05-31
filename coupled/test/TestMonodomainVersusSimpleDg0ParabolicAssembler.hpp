@@ -27,11 +27,6 @@ public:
     {
         return new LuoRudyIModel1991OdeSystem(this->mpSolver, this->mTimeStep, this->mpZeroStimulus);
     }
-    
-//    virtual unsigned GetNumberOfCells()
-//    {
-//        return 1;
-//    }
 };
 
 

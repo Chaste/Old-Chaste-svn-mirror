@@ -24,7 +24,6 @@ public:
     {
         if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
-            //std::cout << node+1 << "\n";
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpRegStimulus, mpZeroStimulus);
         }
         else

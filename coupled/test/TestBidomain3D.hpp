@@ -10,39 +10,8 @@
 #include <petscvec.h>
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
-#include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
 #include "DistributedVector.hpp"
-
-
-class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
-{
-private:
-    InitialStimulus *mpStimulus;
-public:
-    BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.01)
-    {
-        mpStimulus = new InitialStimulus(-600.0*1000, 0.5);
-    }
-    
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
-    {
-        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
-        {
-            //std::cout << node+1 << "\n";
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
-        }
-        else
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
-        }
-    }
-    
-    ~BidomainFaceStimulusCellFactory(void)
-    {
-        delete mpStimulus;
-    }
-};
+#include "PlaneStimulusCellFactory.hpp"
 
 class TestBidomain3D :  public CxxTest::TestSuite
 {
@@ -50,7 +19,7 @@ public:
 
     void TestBidomain3d() throw (Exception)
     {
-        BidomainFaceStimulusCellFactory bidomain_cell_factory;
+        PlaneStimulusCellFactory<3> bidomain_cell_factory(0.01, -600.0*1000);
         
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
         
@@ -118,7 +87,7 @@ public:
         ///////////////////////////////////////////////////////////////////
         // monodomain
         ///////////////////////////////////////////////////////////////////
-        BidomainFaceStimulusCellFactory cell_factory;
+        PlaneStimulusCellFactory<3> cell_factory(0.01, -600.0*1000);
         MonodomainProblem<3> monodomain_problem( &cell_factory );
         
         monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
