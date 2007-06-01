@@ -23,7 +23,7 @@
  * Work still needs to be done with boundary nodes & elements?
  */
 
-//#include <boost/serialization/export.hpp>
+#include <boost/serialization/export.hpp>
  
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ConformingTetrahedralMesh
@@ -86,7 +86,7 @@ public:
     unsigned GetNumNodes();
     unsigned GetNumElements();
     unsigned GetNumBoundaryElements();
-    unsigned GetNumAllNodes();
+    unsigned GetNumAllNodes() const;
     unsigned GetNumAllElements();
     unsigned GetNumAllBoundaryElements();
     unsigned GetNumBoundaryNodes();
@@ -328,7 +328,7 @@ public:
      * 
      * N.B. Overwritten in Cylindrical2dMesh
      */    
-    virtual double GetWidth(const unsigned& rDimension);
+    virtual double GetWidth(const unsigned& rDimension) const;
     
     /**
      * Calculates the `width extremes' of any dimension of the mesh.
@@ -337,9 +337,27 @@ public:
      * @return The minimum and maximum co-ordinates of any node in this dimension.
      * 
      */    
-    c_vector<double,2> GetWidthExtremes(const unsigned& rDimension);
+    c_vector<double,2> GetWidthExtremes(const unsigned& rDimension) const;
     
     void UnflagAllElements();
 };
+
+template<class> struct pack;
+template<class T> struct pack<void (T)> {
+    typedef T type;
+};
+
+#define EXPORT_MESH(CLASS, E, S) \
+    BOOST_CLASS_EXPORT( pack<void (CLASS< E,S >)>::type );
+
+#define EXPORT_MESH_ALL_DIMS(CLASS) \
+    EXPORT_MESH(CLASS, 1, 1) \
+    EXPORT_MESH(CLASS, 1, 2) \
+    EXPORT_MESH(CLASS, 1, 3) \
+    EXPORT_MESH(CLASS, 2, 2) \
+    EXPORT_MESH(CLASS, 2, 3) \
+    EXPORT_MESH(CLASS, 3, 3)
+
+EXPORT_MESH_ALL_DIMS(ConformingTetrahedralMesh)
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_

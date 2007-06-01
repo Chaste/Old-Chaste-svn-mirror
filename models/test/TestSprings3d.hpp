@@ -1,21 +1,18 @@
 #ifndef TESTSPRINGS3D_HPP_
 #define TESTSPRINGS3D_HPP_
 
-
 #include <cxxtest/TestSuite.h>
+#include "TissueSimulation.cpp"
+
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include "TrianglesMeshWriter.cpp"
 #include <cmath>
-
-#include <time.h>
+#include <ctime>
 #include <vector>
 #include "OutputFileHandler.hpp"
-
 #include "CancerParameters.hpp"
-#include "TissueSimulation.cpp"
 #include "NodeMap.hpp"
-
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "ColumnDataReader.hpp"

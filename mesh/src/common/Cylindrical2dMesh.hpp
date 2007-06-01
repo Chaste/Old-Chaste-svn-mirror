@@ -1,13 +1,13 @@
 #ifndef _CYLINDRICAL2DMESH_HPP_
 #define _CYLINDRICAL2DMESH_HPP_
 
-//#include <boost/serialization/access.hpp>
-//#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "NodeMap.hpp"
 
-//#include <boost/serialization/export.hpp>// at end of includes
+#include <boost/serialization/export.hpp>// at end of includes
 
 class Cylindrical2dMesh : public ConformingTetrahedralMesh<2, 2>
 {
@@ -38,19 +38,19 @@ private:
     
     void ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement, std::vector<unsigned> &rImageNodes, std::vector<unsigned> &rOriginalNodes, unsigned nodeIndex ) ;
     
-//    friend class boost::serialization::access;
-//    template<class Archive>
-//    void serialize(Archive & archive, const unsigned int version)
-//    {
-//        archive & boost::serialization::base_object<ConformingTetrahedralMesh>(*this);
-//        archive & mWidth;
-//        archive & mTop;
-//        archive & mBottom;
-//    }
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<ConformingTetrahedralMesh<2,2> >(*this);
+        archive & mWidth;
+        archive & mTop;
+        archive & mBottom;
+    }
     
 public:
     
-   Cylindrical2dMesh(double width);
+    Cylindrical2dMesh(double width);
          
     ~Cylindrical2dMesh()
     {
@@ -65,11 +65,44 @@ public:
     c_vector<double, 2> GetVectorFromAtoB(const c_vector<double, 2>& rLocation1, const c_vector<double, 2>& rLocation2);
     void SetNode(unsigned index, Point<2> point, bool concreteMove);
     bool IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes);
-    double GetWidth(const unsigned& rDimension);
+    double GetWidth(const unsigned& rDimension) const;
     unsigned AddNode(Node<2> *pNewNode);
     
 };
 
-//BOOST_CLASS_EXPORT(Cylindrical2dMesh);
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a Meineke cell.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const Cylindrical2dMesh * t, const BOOST_PFTO unsigned int file_version)
+{
+    // save data required to construct instance
+    const double width = t->GetWidth(0);
+    ar << width;
+}
+
+/**
+ * De-serialize constructor parameters and initialise Meineke cell.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, Cylindrical2dMesh * t, const unsigned int file_version)
+{
+    // retrieve data from archive required to construct new instance
+    double width;
+    ar >> width;
+    // invoke inplace constructor to initialize instance
+    ::new(t)Cylindrical2dMesh(width);
+}
+}
+} // namespace ...
+
+BOOST_CLASS_EXPORT(Cylindrical2dMesh)
 
 #endif //_CYLINDRICAL2DMESH_HPP_

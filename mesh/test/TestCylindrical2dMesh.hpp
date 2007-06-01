@@ -623,7 +623,8 @@ public:
             // these are commented out for now until the cylindrical2dMesh class
             // is archived properly.
             
-//            TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width, 1e-7);
+            TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width, 1e-7);
+            // this one fails
 //            TS_ASSERT_DELTA(p_mesh2->GetWidth(1), height, 1e-7);
         }
     }

@@ -530,7 +530,7 @@ bool Cylindrical2dMesh::IsThisIndexInList(const unsigned& rNodeIndex, const std:
  * @param rDimension must be 0 (x) or 1 (y)
  * @return width the CryptWidth or current height 
  */
-double Cylindrical2dMesh::GetWidth(const unsigned& rDimension)
+double Cylindrical2dMesh::GetWidth(const unsigned& rDimension) const
 {
     double width=0.0;
     assert(rDimension==0 || rDimension==1);

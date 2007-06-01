@@ -2,13 +2,13 @@
 #define TESTCRYPTSIMULATION2DPERIODICNIGHTLY_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include "TissueSimulation.cpp"
+
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
-
 #include <vector>
 #include "OutputFileHandler.hpp"
-#include "TissueSimulation.cpp"
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"

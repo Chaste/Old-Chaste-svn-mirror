@@ -1,9 +1,7 @@
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/vector.hpp> // for archiving vectors
-#include <boost/serialization/string.hpp>
 
-#include <fstream>
 
 #include "TissueSimulation.hpp"
 #include "Exception.hpp"
@@ -11,6 +9,7 @@
 #include <cmath>
 #include <ctime>
 #include <iostream>
+#include <fstream>
 #include <set>
 #include "TrianglesMeshWriter.cpp"
 #include "TrianglesMeshReader.hpp"
@@ -805,7 +804,7 @@ void TissueSimulation<DIM>::Solve()
     
     
     ///////////////////////////////////////////////////////////
-    // Set up Simulation
+    // Set up Simulation
     ///////////////////////////////////////////////////////////
     
     // Data writers for tabulated results data, used in tests

@@ -185,7 +185,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes()
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes() const
 {
     return mNodes.size();
 }
@@ -1765,7 +1765,7 @@ c_vector<double, SPACE_DIM> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::G
 }
     
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension)
+double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension) const
 {
     assert(rDimension < SPACE_DIM);
     assert(rDimension >= 0u);
@@ -1774,7 +1774,7 @@ double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigne
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double,2> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const unsigned& rDimension)
+c_vector<double,2> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const unsigned& rDimension) const
 {
     assert(rDimension < SPACE_DIM);
     assert(rDimension >= 0u);
