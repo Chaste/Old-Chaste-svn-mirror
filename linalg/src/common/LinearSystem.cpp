@@ -113,6 +113,10 @@ LinearSystem::~LinearSystem()
         VecDestroy(mRhsVector);
         MatDestroy(mLhsMatrix);
     }
+    if (mMatNullSpace)
+    {
+        MatNullSpaceDestroy(mMatNullSpace);
+    }
 }
 
 //bool LinearSystem::IsMatrixEqualTo(Mat testMatrix)

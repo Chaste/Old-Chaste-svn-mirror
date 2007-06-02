@@ -23,7 +23,7 @@ private:
     PetscInt mSize;
     /** \todo
      * Verify claim that ownership range for Vec and Mat is same.
-        * This should only matter for efficiency if the claim is false.
+     * This should only matter for efficiency if the claim is false.
      */
     PetscInt mOwnershipRangeLo; /*< For parallel code.  Stores lowest index of vectors and lowest row of matrix*/
     PetscInt mOwnershipRangeHi; /*< Stores <b>one more than</b> the highest index stored locally*/

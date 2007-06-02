@@ -319,6 +319,11 @@ public:
             int local_index = global_index-lo;
             TS_ASSERT_DELTA(p_lhs_elements_array[local_index], answers[global_index], 0.1);
         }
+        
+        VecDestroy(lhs_vector);
+        VecDestroy(rhs_vector);
+        MatDestroy(lhs_matrix);
+        MatNullSpaceDestroy(mat_null_space);
     }
     
 };
