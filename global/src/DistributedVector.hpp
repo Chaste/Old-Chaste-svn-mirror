@@ -52,8 +52,11 @@ public:
     static Vec CreateVec(unsigned stride);
 
     /***
-     * Constructor
+     * Constructor.
      * This class represents the portion of a distributed PETSc vector on this process.
+     * 
+     * Note that this class does NOT take over responsibility for destroying the Vec.
+     * 
      * @param vec PETSc vector of which this class shall be a portion.
      */
     DistributedVector(Vec vec);
@@ -65,7 +68,7 @@ public:
     * For use in tests.
     * Will throw a DistributedVectorException if the specified element is not on this process.
     */   
-    double& operator[](unsigned globalIndex);
+    double& operator[](unsigned globalIndex) throw (DistributedVectorException);
     
     /**
      * Store elements that have been written to
@@ -116,7 +119,7 @@ public:
         * For use in tests.
         * Will throw a DistributedVectorException if the specified element is not on this process.
         */  
-        double& operator[](unsigned globalIndex)
+        double& operator[](unsigned globalIndex) throw (DistributedVectorException)
         {
             if (mLo<=globalIndex && globalIndex <mHi)
             {
@@ -129,7 +132,7 @@ public:
         * @param index
         * @return value of striped distributed vector pointed to by index.
         */           
-        double& operator[](Iterator index)
+        double& operator[](Iterator index) throw (DistributedVectorException)
         {
             return mpVec[index.Local*mStride+mStripe];
         }
@@ -153,7 +156,7 @@ public:
     * @return value of distributed vector pointed to by index.
     * Do not use if stride>1.
     */   
-    double& operator[](Iterator index);
+    double& operator[](Iterator index) throw (DistributedVectorException);
 
 
 

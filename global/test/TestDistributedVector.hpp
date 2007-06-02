@@ -95,6 +95,9 @@ public:
             TS_ASSERT_THROWS_ANYTHING(linear[3]);
             TS_ASSERT_THROWS_ANYTHING(quadratic[3]);
         }
+        
+        VecDestroy(vec);
+        VecDestroy(striped);
     }
     
     void TestWrite()
@@ -140,6 +143,9 @@ public:
             TS_ASSERT_EQUALS(p_striped[2*local_index], (double)1);
             TS_ASSERT_EQUALS(p_striped[2*local_index+1], local_index+1);
         }
+        
+        VecDestroy(petsc_vec);
+        VecDestroy(striped);
     }
     
     void TestException()

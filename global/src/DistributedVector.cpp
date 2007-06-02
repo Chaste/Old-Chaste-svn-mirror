@@ -66,7 +66,7 @@ DistributedVector::DistributedVector(Vec vec) : mVec(vec)
     assert ((mStride * mGlobalHi) == (unsigned)size);
 }
 
-double& DistributedVector::operator[](unsigned globalIndex)
+double& DistributedVector::operator[](unsigned globalIndex) throw (DistributedVectorException)
 {
     assert(mStride==1);
     if (mLo<=globalIndex && globalIndex <mHi)
@@ -111,7 +111,7 @@ DistributedVector::Iterator DistributedVector::End()
     return index;
 }
 
-double& DistributedVector::operator[](Iterator index)
+double& DistributedVector::operator[](Iterator index) throw (DistributedVectorException)
 {
     assert(mStride==1);
     return mpVec[index.Local];
