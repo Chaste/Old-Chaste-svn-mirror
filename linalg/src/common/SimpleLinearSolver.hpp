@@ -14,14 +14,14 @@ private:
 public:
 
     Vec Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNullSpace matNullSpace=NULL);
-    SimpleLinearSolver(double relTolerance): mRelativeTolerance(relTolerance)
+    SimpleLinearSolver(double relTolerance) : mRelativeTolerance(relTolerance)
     {
-        mLinearSystemKnown=false;
-        mMatrixIsConstant=false;
+        mLinearSystemKnown = false;
+        mMatrixIsConstant = false;
     }
     virtual ~SimpleLinearSolver()
     {
-        if (mLinearSystemKnown==true)
+        if (mLinearSystemKnown)
         {
             KSPDestroy(mSimpleSolver);
         }
@@ -29,7 +29,7 @@ public:
     
     void SetMatrixIsConstant()
     {
-        mMatrixIsConstant=true;
+        mMatrixIsConstant = true;
     }
     
 private:

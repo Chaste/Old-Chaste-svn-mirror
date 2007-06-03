@@ -238,6 +238,9 @@ public:
             TS_ASSERT_DELTA(result_2unknowns_repl[2*i+1], 2*result_1unknown_repl[i], 1e-10);
             //std::cout << result_1unknown_repl[i] << " ";
         }
+        
+        VecDestroy(result_2unknowns);
+        VecDestroy(result_1unknown);
     }
     
     
@@ -323,6 +326,9 @@ public:
             TS_ASSERT_DELTA(result_2unknowns_repl[2*i+1], result_1unknown_repl[i], 1e-6);
             //std::cout << result_1unknown_repl[i] << " ";
         }
+        
+        VecDestroy(result_2unknowns);
+        VecDestroy(result_1unknown);
     }
     
     
@@ -366,6 +372,8 @@ public:
             TS_ASSERT_DELTA( result_repl[2*i]  , u, 0.02);
             TS_ASSERT_DELTA( result_repl[2*i+1], v, 0.1);
         }
+        
+        VecDestroy(result);
     }
 };
 #endif /*TESTSOLVINGCOUPLEDPDES_HPP_*/

@@ -322,6 +322,7 @@ public:
         
         VecDestroy(lhs_vector);
         VecDestroy(rhs_vector);
+        VecDestroy(null_basis_vector);
         MatDestroy(lhs_matrix);
         MatNullSpaceDestroy(mat_null_space);
     }

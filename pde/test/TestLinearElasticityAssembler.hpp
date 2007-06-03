@@ -65,6 +65,8 @@ public:
             TS_ASSERT_DELTA(result_repl[i], exact_solution, 1e-6);
             //std::cout << x << " " << result_repl[i] << " " << exact_solution << "\n";
         }
+        
+        VecDestroy(result);
     }
     
     
@@ -188,6 +190,8 @@ public:
             TS_ASSERT_DELTA(u, exact_u, 1e-3);
             TS_ASSERT_DELTA(v, exact_v, 1e-3);
         }
+        
+        VecDestroy(result);
     }
     
     
@@ -276,6 +280,8 @@ public:
                 TS_ASSERT_DELTA( ? )
             */
         }
+        
+        VecDestroy(result);
     }
     
     
@@ -383,6 +389,8 @@ public:
                 TS_ASSERT_DELTA( ? )
             */
         }
+        
+        VecDestroy(result);
     }
     
     

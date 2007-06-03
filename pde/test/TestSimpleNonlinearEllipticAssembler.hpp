@@ -618,6 +618,7 @@ public:
             TS_ASSERT_DELTA(p_answer[local_index], u, 0.001);
         }
         VecRestoreArray(answer, &p_answer);
+        VecDestroy(badly_sized_init_guess);
         VecDestroy(initial_guess);
         VecDestroy(answer);
     }

@@ -15,11 +15,9 @@ public:
 
     void TestLinearSystem1( void )
     {
-    
         LinearSystem ls(3);
         
-        TS_ASSERT_EQUALS(ls.GetSize(),3U);
-        
+        TS_ASSERT_EQUALS(ls.GetSize(), 3U);
         
         for (int row=0; row<3; row++)
         {
@@ -38,7 +36,6 @@ public:
         ls.DisplayMatrix();
         ls.DisplayRhs();
         
-        
         SimpleLinearSolver solver(1e-6);
         Vec solution_vector;
         TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
@@ -56,7 +53,6 @@ public:
                 TS_ASSERT_DELTA(p_solution_elements_array[local_index], global_index+1.0, 0.000001);
             }
         }
-        
         VecRestoreArray(solution_vector, &p_solution_elements_array);
         
         VecDestroy(solution_vector);
@@ -111,6 +107,8 @@ public:
         ls.GetOwnershipRange(lo2, hi2);
         TS_ASSERT_EQUALS(lo1, lo2);
         TS_ASSERT_EQUALS(hi1, hi2);
+        
+        VecDestroy(test_vec);
     }
     
     void TestLinearSystem2( void )
@@ -132,12 +130,10 @@ public:
         TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
         
         
-        
         int lo,hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         PetscScalar *p_solution_elements_array;
         VecGetArray(solution_vector, &p_solution_elements_array);
-        
         
         for (int global_index=0; global_index<2; global_index++)
         {
@@ -147,11 +143,9 @@ public:
                 TS_ASSERT_DELTA(p_solution_elements_array[local_index], 1.0, 0.000001);
             }
         }
-        
         VecRestoreArray(solution_vector, &p_solution_elements_array);
         
         VecDestroy(solution_vector);
-        
     }
     
     /**
@@ -166,6 +160,8 @@ public:
         VecSetFromOptions(test_vec);
         LinearSystem ls(test_vec);
         ls.SetNullBasis(&test_vec, 1);
+        
+        VecDestroy(test_vec);
     }
     
     // Test the 3rd constructor

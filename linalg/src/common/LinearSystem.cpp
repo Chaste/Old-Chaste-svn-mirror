@@ -97,10 +97,7 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
         mSize = (unsigned)mat_size; 
         MatGetOwnershipRange(mLhsMatrix, &mOwnershipRangeLo, &mOwnershipRangeHi);
     }
-    if (mRhsVector && mLhsMatrix)
-    {
-        assert(vec_size == mat_size);
-    }
+    assert(!mRhsVector || !mLhsMatrix || vec_size == mat_size);
     
     mMatNullSpace = NULL;
     mDestroyPetscObjects = false;
