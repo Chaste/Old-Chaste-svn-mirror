@@ -318,6 +318,14 @@ build.tools['mpirun'] = mpirun
 build.tools['cxx'] = cxx
 build.tools['ar'] = ar
 
+# Find full path to valgrind, as parallel memory testing needs it to be
+# given explicitly.
+# We search on os.environ['PATH'] for now.  When #258 is done use the environment.
+vg_path = WhereIs(build.tools['valgrind'])
+if vg_path:
+    build.tools['valgrind'] = vg_path
+del vg_path
+
 
 ## Any extra CCFLAGS and LINKFLAGS
 extra_flags = build.CcFlags()
