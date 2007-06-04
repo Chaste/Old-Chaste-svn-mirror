@@ -45,13 +45,6 @@ public:
      */
     ~AbstractLinearAssembler()
     {
-        if (this->mpLinearSystem != NULL)
-        {
-            delete this->mpLinearSystem;
-        }
-        
-        this->mpLinearSystem=NULL;
-        
         if (mWeAllocatedSolverMemory)
         {
             delete mpLinearSolver;

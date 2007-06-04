@@ -135,6 +135,8 @@ public :
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), p_boundary_condition);
         // and then assemble the system
         TS_ASSERT_THROWS_ANYTHING(assembler.AssembleSystem(initial_condition, 0.0));
+        
+        VecDestroy(initial_condition);
     }
     
     
@@ -215,6 +217,8 @@ public :
             TS_ASSERT_DELTA(value, true_value, 1e-12); 
             it++;
         }
+        
+        VecDestroy(solution_vector);
     }
     
     
@@ -227,7 +231,6 @@ public :
         TrianglesMeshReader<2,2> coarse_mesh_reader("mesh/test/data/DecimatedDisk");
         RefinedTetrahedralMesh<2,2> coarse_mesh;
         coarse_mesh.ConstructFromMeshReader(coarse_mesh_reader);
-        
         
         coarse_mesh.SetFineMesh(&fine_mesh);
         
@@ -248,7 +251,6 @@ public :
                 element.Unflag();
             }
         }
-        
         
         // set up petsc vector of the solution on the coarse mesh 
         unsigned num_coarse_nodes = coarse_mesh.GetNumNodes();
@@ -281,8 +283,6 @@ public :
         // Flag the corresponding region of the fine mesh
         coarse_mesh.TransferFlags();
         
-        
-        
         // interpolate boundary conditions        
         FlaggedMeshBoundaryConditionsContainer<2,1> bcc(coarse_mesh, solution_vector);
         
@@ -304,6 +304,8 @@ public :
             TS_ASSERT_DELTA(value, true_value, 1e-12); 
             it++;
         }
+        
+        VecDestroy(solution_vector);
     }
     
     void TestCoarseAndFineDiffusion() throw (Exception)
@@ -360,7 +362,6 @@ public :
         
         ReplicatableVector ic_coarse_replicated(initial_condition_coarse);
         
-                
         // Create initial_condition_fine from initial_condition_coarse by interpolation        
         Vec initial_condition_fine = CreateInitialConditionVec(fine_mesh.GetNumNodes());
         DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
@@ -402,8 +403,6 @@ public :
         FlaggedMeshAssembler<2> flagged_assembler(&fine_mesh,&pde,&flagged_bcc);
         flagged_assembler.SetTimes(0.0, 0.01, 0.01);
         flagged_assembler.SetInitialCondition(initial_condition_fine);
-
-        flagged_assembler.Solve();
         
         Vec result_fine_restricted = flagged_assembler.Solve();  
         ReplicatableVector result_fine_restricted_repl(result_fine_restricted);
@@ -493,6 +492,12 @@ public :
             
             delete p_flag_writer;
         }
+        
+        // Free memory
+        VecDestroy(initial_condition_coarse);
+        VecDestroy(initial_condition_fine);
+        VecDestroy(result_fine_restricted);
+        VecDestroy(result);
     }
 
     void TestCoarseAndFineDiffusionWithTimeLoop() throw (Exception)
@@ -637,8 +642,6 @@ public :
                 FlaggedMeshAssembler<2> flagged_assembler(&fine_mesh, &pde, &flagged_bcc);
                 flagged_assembler.SetTimes(current_time, current_time+dt, dt);
                 flagged_assembler.SetInitialCondition(initial_condition_fine);
-        
-                flagged_assembler.Solve();
                 
                 Vec result_fine_restricted = flagged_assembler.Solve();
     
@@ -663,6 +666,7 @@ public :
                     iter++;
                 }
                 result_fine.Restore();
+                VecDestroy(result_fine_restricted);
                 
                 // Update the coarse solution in the flagged region from the fine mesh
                 coarse_mesh.UpdateCoarseSolutionOnFlaggedRegion(result, initial_condition_fine);
@@ -673,7 +677,7 @@ public :
             
             coarse_mesh.InterpolateOnUnflaggedRegion(result, initial_condition_fine);
             // Update the coarse initial condition to be the current result
-            // TODO: memory leak?
+            VecDestroy(initial_condition_coarse);
             initial_condition_coarse = result;
             
             // write results 
@@ -705,6 +709,9 @@ public :
 
         delete p_test_writer;
         delete p_flag_writer;
+        
+        VecDestroy(initial_condition_coarse);
+        VecDestroy(initial_condition_fine);
     }
 };
 #endif /*TESTFLAGGEDMESHASSEMBLER_HPP_*/

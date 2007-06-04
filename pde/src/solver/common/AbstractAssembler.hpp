@@ -744,6 +744,7 @@ public:
         // Quadrature rules
         if (mpQuadRule) delete mpQuadRule;
         if (mpSurfaceQuadRule) delete mpSurfaceQuadRule;
+        if (mpLinearSystem) delete mpLinearSystem;
     }
 };
 
