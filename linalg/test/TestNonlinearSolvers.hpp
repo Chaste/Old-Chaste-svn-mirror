@@ -132,7 +132,7 @@ public:
         VecNorm(residual, NORM_2, &norm);
         TS_ASSERT_LESS_THAN(norm/length, 1e-10);
         
-        
+        VecDestroy(residual);
         VecDestroy(initial_guess);
         VecDestroy(answer_petsc);
         VecDestroy(answer_newton);

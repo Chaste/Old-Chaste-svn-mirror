@@ -30,6 +30,7 @@ public:
         
         Vec v;
         err = VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, -1, &v);
+        VecDestroy(v);
         //#define PETSC_ERR_ARG_WRONGSTATE   73   /* object in argument is in wrong */
         TS_ASSERT_THROWS_ANYTHING(PETSCEXCEPT(err));
         
@@ -40,6 +41,7 @@ public:
         //See if we can do it without a temporary
         TS_ASSERT_THROWS_ANYTHING(
             PETSCEXCEPT(VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, -1, &v)));
+        VecDestroy(v);
             
         //This test give back an "unknown error" message
         TS_ASSERT_THROWS_ANYTHING( PETSCEXCEPT(-3));

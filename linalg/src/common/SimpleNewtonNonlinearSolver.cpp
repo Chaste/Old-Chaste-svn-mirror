@@ -97,11 +97,16 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
                 best_damping_factor = mTestDampingValues[i];
             }
         }
+        VecDestroy(test_vec);
         
         // check the smallest residual was actually smaller than the
         // previous. If not, quit.
         if (best_scaled_residual > old_scaled_residual_norm)
         {
+            // Free memory
+            VecDestroy(current_solution);
+            VecDestroy(negative_update);
+            // Raise error
             std::stringstream error_message;
             error_message << "Iteration " << counter << ", unable to find damping factor such that residual decreases in update direction";
             EXCEPTION(error_message.str());
@@ -122,6 +127,7 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
         VecAXPY(current_solution, -best_damping_factor, negative_update);
 #endif
         scaled_residual_norm = best_scaled_residual;
+        VecDestroy(negative_update);
         
         // compute best residual vector again and store in linear_system for next Solve()
         linear_system.ZeroLinearSystem();
