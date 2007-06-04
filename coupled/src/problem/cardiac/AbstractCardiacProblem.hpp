@@ -91,11 +91,16 @@ public:
         mPrintingTimeStep = mPdeTimeStep;  // default behaviour: print out every pde time step
         mWriteInfo = false;
         mPrintOutput = true;
+        mVoltage = NULL;
     }
     
     virtual ~AbstractCardiacProblem()
     {
             delete mpCardiacPde;
+            if (mVoltage)
+            {
+                VecDestroy(mVoltage);
+            }
     };
     
     void SetStartTime(const double &rStartTime)
@@ -249,6 +254,12 @@ public:
             p_test_writer->PutVector(voltage_var_id, initial_condition);
         }
         
+        // If we have already run a simulation, free the old solution vec
+        if (mVoltage)
+        {
+            VecDestroy(mVoltage);
+        }
+        
         while ( !stepper.IsTimeAtEnd() )
         {
             // solve from now up to the next printing time
@@ -259,20 +270,19 @@ public:
             {
                 mVoltage = p_assembler->Solve();
             }
-            //Ill-conditioned solutions are covered in Monodomain problem
-            //(and possibly in Nightly/Weekly) so we don't insist on it
-            //in the coverage test.
-            #define COVERAGE_IGNORE
             catch (Exception &e)
             {
+                // Free memory
+                VecDestroy(initial_condition);
+                // Close files
                 if (mPrintOutput)
                 {
                     p_test_writer->Close();
                     delete p_test_writer;
                 }
+                // Re-throw
                 throw e;
             }
-            #undef COVERAGE_IGNORE
             
             // Free old initial condition
             VecDestroy(initial_condition);
