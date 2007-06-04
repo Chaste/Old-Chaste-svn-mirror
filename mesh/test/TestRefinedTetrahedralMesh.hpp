@@ -360,6 +360,9 @@ public:
         }
         // Check the test really did something useful!
         TS_ASSERT(found_unflagged_elt);
+        
+        VecDestroy(coarse_ic_petsc);
+        VecDestroy(fine_ic_petsc);
     }
 
 
@@ -468,6 +471,9 @@ public:
         
         // Check the test really did something useful!
         TS_ASSERT(found_flagged_elt);
+        
+        VecDestroy(coarse_soln_petsc);
+        VecDestroy(fine_soln_petsc);
     }
 };
 
