@@ -57,6 +57,8 @@ PetscErrorCode AbstractNonlinearStaticAssembler_AssembleJacobian(SNES snes,
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractNonlinearStaticAssembler : public AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
 {
+private:
+    Vec mInitialGuess;
 protected:
     AbstractNonlinearSolver* mpSolver;
     bool mWeAllocatedSolverMemory;
@@ -220,7 +222,7 @@ public:
         
         this->mProblemIsLinear = false;
         
-        mUseAnalyticalJacobian = true;
+        mUseAnalyticalJacobian = false;
     }
     
     ~AbstractNonlinearStaticAssembler()
@@ -232,21 +234,22 @@ public:
     }
     
     
-    
+    /**
+     * Call this method, before the solve method to set whether to use an analytical jacobian.
+     * If this method is not called the default is false i.e. numerical jacobian.
+     */
+    void SetUseAnalyticalJacobian(bool useAnalyticalJacobian)
+    {
+        mUseAnalyticalJacobian = useAnalyticalJacobian;
+    }
     
     /**
-      * Assemble and solve the system for a nonlinear elliptic PDE.
-      *
-      * @param initialGuess An initial guess for the iterative solver
-      * @param UseAnalyticalJacobian Set to true to use an analytically calculated
-      *     jacobian matrix rather than a numerically approximated one.
-      * @return A PETSc vector giving the solution at each mesh node.
-      */
-    virtual Vec Solve(Vec initialGuess, bool useAnalyticalJacobian = false)
+     * This method should be called before the solve method to set the intial guess.
+     */
+    
+    void SetInitialGuess(Vec initialGuess)
     {
-        assert(this->mpMesh!=NULL);
-        assert(this->mpBoundaryConditions!=NULL);
-        
+        mInitialGuess=initialGuess;
         // check size of initial guess is correct
         PetscInt size_of_init_guess;
         VecGetSize(initialGuess, &size_of_init_guess);
@@ -260,16 +263,43 @@ public:
             
             EXCEPTION(error_message.str());
         }
-        
-        
-        mUseAnalyticalJacobian = useAnalyticalJacobian;
+    }
+    
+    
+    /**
+      * Assemble and solve the system for a nonlinear elliptic PDE.
+      *
+      * @param initialGuess An initial guess for the iterative solver
+      * @param UseAnalyticalJacobian Set to true to use an analytically calculated
+      *     jacobian matrix rather than a numerically approximated one.
+      * @return A PETSc vector giving the solution at each mesh node.
+      */
+    virtual Vec Solve(Vec initialGuess, bool useAnalyticalJacobian = false)
+    {
+        SetUseAnalyticalJacobian(useAnalyticalJacobian);
+        SetInitialGuess(initialGuess);
+        return Solve();
+    }  
+    
+     /**
+      * Assemble and solve the system for a nonlinear elliptic PDE.
+      * The initial guess and whether to use an analytical jacobian
+      * are set with setter methods.
+      *
+      * @return A PETSc vector giving the solution at each mesh node.
+      */  
+    virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
+    {
+        assert(this->mpMesh!=NULL);
+        assert(this->mpBoundaryConditions!=NULL);
         
         // run the solver, telling it which global functions to call in order to assemble
         // the residual or jacobian
         Vec answer = this->mpSolver->Solve( &AbstractNonlinearStaticAssembler_AssembleResidual<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
                                             &AbstractNonlinearStaticAssembler_AssembleJacobian<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
-                                            initialGuess,
+                                            mInitialGuess,
                                             this);
+        mInitialGuess=answer; // in case solve is being called repeatedly because of dynamic problem                                          
         return answer;
     }
     
@@ -419,8 +449,12 @@ public:
         return all_less_than_tol;
     }
     
-}
-; //end of class AbstractNonlinearStaticAssembler
+    bool ConstructGradPhiAndU()
+    {
+        return true;
+    }
+    
+}; //end of class AbstractNonlinearStaticAssembler
 
 
 
@@ -500,6 +534,7 @@ PetscErrorCode AbstractNonlinearStaticAssembler_AssembleJacobian(SNES snes, Vec 
     
     return ierr;
 }
+
 
 
 #endif //_ABSTRACTNONLINEARSTATICASSEMBLER_HPP_

@@ -41,7 +41,7 @@ public:
      *  The mesh, pde and boundary conditions container must be set before Solve() 
      *  is called
      */
-    virtual Vec Solve()
+    virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
         assert(this->mpMesh!=NULL);
         assert(this->mpBoundaryConditions!=NULL);

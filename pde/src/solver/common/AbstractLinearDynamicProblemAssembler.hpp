@@ -86,7 +86,7 @@ public :
      *  SetTimes() and SetInitialCondition() must be called before Solve(), and 
      *  the mesh and pde must have been set.
      */
-    Vec Solve()
+    Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
         assert(mTimesSet);
         assert(mInitialConditionSet);

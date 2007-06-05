@@ -70,7 +70,7 @@ public:
         }
     }
     
-    virtual Vec Solve()=0;
+    virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)=0;
     
     
     /**
@@ -102,6 +102,11 @@ public:
         mpLinearSystem->DisplayRhs();
     }
     */
+    
+    bool ConstructGradPhiAndU()
+    {
+        return !this->mMatrixIsAssembled;
+    }
 };
 
 #endif //_ABSTRACTLINEARASSEMBLER_HPP_

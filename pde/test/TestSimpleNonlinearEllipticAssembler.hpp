@@ -811,7 +811,7 @@ public:
         
         
         // Numerical Jacobian
-        Vec answer = assembler.Solve(initial_guess);
+        Vec answer = assembler.Solve(initial_guess, false);
         
         // Check result
         double *p_answer;
@@ -914,7 +914,7 @@ public:
         Vec initial_guess = assembler.CreateConstantInitialGuess(4.0);
         
         // Numerical Jacobian
-        Vec answer = assembler.Solve(initial_guess);
+        Vec answer = assembler.Solve(initial_guess, false);
         
         // Check result
         double *p_answer;
