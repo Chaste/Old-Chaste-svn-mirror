@@ -34,7 +34,6 @@ public:
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
         monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         
-        
         monodomain_problem.Solve();
         
         // test whether voltages and gating variables are in correct ranges
@@ -57,8 +56,6 @@ public:
     // Solve on a 1D string of cells, 1cm long with a space step of 0.5mm.
     //
     // Note that this space step ought to be too big!
-
-
     void TestMonodomainDg01DWith20elements()
     {
 #ifdef NDEBUG
@@ -90,7 +87,6 @@ public:
 
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
 #endif
-        
     }
 
 };

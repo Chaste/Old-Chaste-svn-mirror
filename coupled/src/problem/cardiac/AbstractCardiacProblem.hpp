@@ -272,8 +272,9 @@ public:
             }
             catch (Exception &e)
             {
-                // Free memory
+                // Free memory.
                 VecDestroy(initial_condition);
+                delete p_assembler;
                 // Close files
                 if (mPrintOutput)
                 {
