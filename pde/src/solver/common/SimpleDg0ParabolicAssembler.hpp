@@ -98,8 +98,9 @@ public:
     /**
      * Called by AbstractLinearDynamicProblemSolver at the beginning of Solve() 
      */
-    void PrepareForSolve()
+    virtual void PrepareForSolve()
     {
+        AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>::PrepareForSolve();
         assert(mpParabolicPde != NULL);
         assert(this->mpMesh != NULL);
 // commented out because FlaggedMeshAssembler has it's own FlaggedMeshBcc.. - design issue

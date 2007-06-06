@@ -94,6 +94,7 @@ public:
      */
     void PrepareForSolve()
     {
+        AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>::PrepareForSolve();
         assert(mpEllipticPde != NULL);
         assert(this->mpMesh != NULL);
         assert(this->mpBoundaryConditions != NULL);

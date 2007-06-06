@@ -293,6 +293,8 @@ public:
         assert(this->mpMesh!=NULL);
         assert(this->mpBoundaryConditions!=NULL);
         
+        this->PrepareForSolve();
+        
         // run the solver, telling it which global functions to call in order to assemble
         // the residual or jacobian
         Vec answer = this->mpSolver->Solve( &AbstractNonlinearStaticAssembler_AssembleResidual<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,

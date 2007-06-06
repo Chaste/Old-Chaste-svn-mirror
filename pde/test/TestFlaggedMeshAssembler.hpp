@@ -610,6 +610,9 @@ public :
             Vec result = assembler.Solve();
             ReplicatableVector result_replicated(result);
             
+            // Reset problem size to fine mesh - will have been changed by assembler to match coarse mesh
+            DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
+            
             coarse_mesh.UnflagAllElements();
             
             // Flag the same elements of the coarse mesh each time step, for now
@@ -648,7 +651,6 @@ public :
                 // Copy the results for the flagged region of the fine mesh
                 // into a large vector for the whole of the fine mesh. 
                 std::map<unsigned, unsigned> map = flagged_assembler.GetSmasrmIndexMap();
-                DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
                 DistributedVector result_fine(initial_condition_fine);
                 ReplicatableVector result_fine_restricted_repl(result_fine_restricted);
                 
@@ -670,11 +672,11 @@ public :
                 
                 // Update the coarse solution in the flagged region from the fine mesh
                 coarse_mesh.UpdateCoarseSolutionOnFlaggedRegion(result, initial_condition_fine);
-                // Interpolate the unflagged region of the fine mesh from the coarse solution
-                DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
             }
             
             
+            // Interpolate the unflagged region of the fine mesh from the coarse solution
+            DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
             coarse_mesh.InterpolateOnUnflaggedRegion(result, initial_condition_fine);
             // Update the coarse initial condition to be the current result
             VecDestroy(initial_condition_coarse);

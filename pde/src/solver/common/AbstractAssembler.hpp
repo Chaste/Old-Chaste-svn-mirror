@@ -463,12 +463,6 @@ protected:
                     // VecScatter.
                     mpLinearSystem = new LinearSystem(currentSolutionOrGuess);
                 }
-                
-                //If this is the first time through then it's appropriate to set the
-                //element ownerships
-                DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
-                this->mpMesh->SetElementOwnerships(DistributedVector::Begin().Global,
-                                                   DistributedVector::End().Global);
             }
             else
             {
@@ -478,18 +472,11 @@ protected:
         }
         else
         {
-            if (mpLinearSystem)
-            {
-                delete mpLinearSystem;
-            }
-            if (pJacobian)
-            {
-                mpLinearSystem = new LinearSystem(residualVector, *pJacobian);
-            }
-            else
-            {
-                mpLinearSystem = new LinearSystem(residualVector, NULL);
-            }
+
+            delete mpLinearSystem;
+            // if pJacobian is set pass its contents, otherwise pass NULL 
+            mpLinearSystem = new LinearSystem(residualVector, pJacobian ? *pJacobian : NULL);
+
             assert(mpLinearSystem->GetSize() == PROBLEM_DIM * this->mpMesh->GetNumNodes());
             // nonlinear problem - zero residual or jacobian depending on which has
             // been asked for
@@ -501,11 +488,6 @@ protected:
             {
                 mpLinearSystem->ZeroLhsMatrix();
             }
-            
-            //Set the elements' ownerships according to the node ownership
-            DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
-            this->mpMesh->SetElementOwnerships(DistributedVector::Begin().Global,
-                                                   DistributedVector::End().Global);
             
         }
         
@@ -658,7 +640,12 @@ protected:
      *  use it to check everything has been set up correctly
      */
     virtual void PrepareForSolve()
-    {}
+    {           
+        //Set the elements' ownerships according to the node ownership
+        DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
+        this->mpMesh->SetElementOwnerships(DistributedVector::Begin().Global,
+                                           DistributedVector::End().Global);
+    }
     
     
     /**

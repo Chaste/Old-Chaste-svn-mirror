@@ -132,6 +132,7 @@ public:
         Vec residual;
         VecDuplicate(solution, &residual);
         
+        assembler.PrepareForSolve();
         assembler.AssembleResidual(solution, residual);
         
         PetscScalar *p_residual;
@@ -202,6 +203,7 @@ public:
         
         // assembler
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
+        assembler.PrepareForSolve();
         
         // cover VerifyJacobian
         TS_ASSERT( assembler.VerifyJacobian(1e-3,true) );

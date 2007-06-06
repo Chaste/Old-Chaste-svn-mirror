@@ -162,7 +162,9 @@ protected :
         this->FinaliseAssembleSystem(currentSolutionOrGuess, currentTime);
     }
     
-    
+    void PrepareForSolve()
+    {
+    }    
     
 public :
     FlaggedMeshAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
