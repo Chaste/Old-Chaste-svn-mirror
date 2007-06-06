@@ -31,6 +31,24 @@ protected:
         return mpBidomainPde;
     }
     
+    AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, 2>* CreateAssembler()
+    {
+        BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_bidomain_assembler
+            = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(&this->mMesh, mpBidomainPde,
+                                                            2, mLinearSolverRelativeTolerance);
+        try
+        {
+            p_bidomain_assembler->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
+        }
+        catch (const Exception& e)
+        {
+            delete p_bidomain_assembler;
+            throw e;
+        }
+        
+        return p_bidomain_assembler;
+    }
+    
 public:
     /**
      * Constructor
@@ -50,28 +68,6 @@ public:
      */
     ~BidomainProblem()
     {
-    }
-    
-    /** Initialise the system. Must be called before Solve() */
-    void Initialise()
-    {
-        AbstractCardiacProblem<SPACE_DIM, 2>::Initialise();
-    }
-    
-    /**
-     * Solve the problem
-     */
-    void Solve()
-    {
-        AbstractCardiacProblem<SPACE_DIM, 2>::PreSolveChecks();
-        
-        // Assembler
-        BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(
-            &this->mMesh, mpBidomainPde,
-            2, mLinearSolverRelativeTolerance);   
-
-        bidomain_assembler.SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
-        AbstractCardiacProblem<SPACE_DIM, 2>::Solve(bidomain_assembler);
     }
     
     void SetLinearSolverRelativeTolerance(const double &rRelTol)

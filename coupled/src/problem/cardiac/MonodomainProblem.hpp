@@ -23,6 +23,11 @@ protected:
         mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
         return mpMonodomainPde;
     }
+    
+    AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, 1>* CreateAssembler()
+    {
+        return new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(&this->mMesh, mpMonodomainPde);
+    }
 
 public:
 
@@ -42,22 +47,6 @@ public:
      */
     ~MonodomainProblem()
     {
-    }
-    
-    /** Initialise the system. Must be called before Solve() */
-    void Initialise()
-    {
-        AbstractCardiacProblem<SPACE_DIM, 1>::Initialise();
-    }
-    
-    /**
-     * Solve the problem
-     */
-    void Solve()
-    {
-        AbstractCardiacProblem<SPACE_DIM, 1>::PreSolveChecks();
-        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&this->mMesh, mpMonodomainPde);
-        AbstractCardiacProblem<SPACE_DIM, 1>::Solve(monodomain_assembler);
     }
     
     MonodomainPde<SPACE_DIM> * GetMonodomainPde()

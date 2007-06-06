@@ -12,7 +12,7 @@
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
 {
-protected:
+private:
     std::string mMeshFilename;
     
     /**
@@ -30,18 +30,26 @@ protected:
     
     /** data is not written if output directory or output file prefix are not set*/
     std::string  mOutputDirectory, mOutputFilenamePrefix;
-        
+
+protected:
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
     Vec mVoltage; // Current solution
 
     /**
-     * Subclasses should override this method to create a PDE object of the appropriate type.
+     * Subclasses must override this method to create a PDE object of the appropriate type.
      * 
      * This class will take responsibility for freeing the object when it is finished with.
      */
-    virtual AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde() =0;
+    virtual AbstractCardiacPde<SPACE_DIM>* CreateCardiacPde() =0;
+    
+    /**
+     * Subclasses must override this method to create a suitable assembler object.
+     * 
+     * This class will take responsibility for freeing the object when it is finished with.
+     */
+    virtual AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
 
 public:    
     /**
@@ -67,10 +75,7 @@ public:
     
     virtual ~AbstractCardiacProblem()
     {
-        if (mpCardiacPde)
-        {
-            delete mpCardiacPde;
-        }
+        delete mpCardiacPde;
         if (mVoltage)
         {
             VecDestroy(mVoltage);
@@ -88,10 +93,7 @@ public:
         }
         mpCellFactory->SetMesh( &mMesh );
         
-        if (mpCardiacPde)
-        {
-            delete mpCardiacPde;
-        }
+        delete mpCardiacPde; // In case we're called twice
         mpCardiacPde = CreateCardiacPde();
     }
     
@@ -250,15 +252,17 @@ public:
         return mMesh;
     }
     
-    void Solve(AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>& assembler)
+    void Solve()
     {
+        PreSolveChecks();
+        AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* p_assembler = CreateAssembler();
         Vec initial_condition = CreateInitialCondition();
-        ParallelColumnDataWriter *p_test_writer = NULL;
-        unsigned time_var_id = 0;
-        unsigned voltage_var_id = 0;
 
         TimeStepper stepper(mStartTime, mEndTime, mPrintingTimeStep);
 
+        ParallelColumnDataWriter *p_test_writer = NULL;
+        unsigned time_var_id = 0;
+        unsigned voltage_var_id = 0;
         if (mPrintOutput)
         {
             p_test_writer = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
@@ -279,18 +283,18 @@ public:
         while ( !stepper.IsTimeAtEnd() )
         {
             // solve from now up to the next printing time
-            assembler.SetTimes(stepper.GetTime(), stepper.GetNextTime(), mPdeTimeStep);
-            assembler.SetInitialCondition( initial_condition );
+            p_assembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), mPdeTimeStep);
+            p_assembler->SetInitialCondition( initial_condition );
 
             try
             {
-                mVoltage = assembler.Solve();
+                mVoltage = p_assembler->Solve();
             }
             catch (Exception &e)
             {
                 // Free memory.
+                delete p_assembler;
                 VecDestroy(initial_condition);
-                //delete p_assembler;
                 // Close files
                 if (mPrintOutput)
                 {
@@ -324,14 +328,15 @@ public:
                 p_test_writer->PutVector(voltage_var_id, mVoltage);
             }
         }
+        
+        // Free assembler
+        delete p_assembler;
 
         // close the file that stores voltage values
         if (mPrintOutput)
         {
-
             p_test_writer->Close();
             delete p_test_writer;
-
             
             PetscInt my_rank;
             MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
