@@ -92,7 +92,7 @@ public:
         
         this->mTimesSet = false;
         this->mInitialConditionSet = false;
-        this->mMatrixIsConstant = true;
+        this->mMatrixIsConstant = true; ///\todo use SetMatrixIsConstant()?
     }
     
     /**

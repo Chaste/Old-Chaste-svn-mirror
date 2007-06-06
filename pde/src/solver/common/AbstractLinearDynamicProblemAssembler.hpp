@@ -101,7 +101,8 @@ public :
         {
             mDt=stepper.GetNextTimeStep();
             mDtInverse = 1/mDt;
-            this->AssembleSystem(current_solution, stepper.GetTime());
+            this->InitialiseLinearSystem(current_solution);
+            this->AssembleSystem(true, !this->mMatrixIsAssembled, current_solution, stepper.GetTime());
             
             next_solution = this->mpLinearSystem->Solve(this->mpLinearSolver);
 

@@ -16,14 +16,10 @@ private:
     
 protected :
 
-    virtual void AssembleSystem(Vec currentSolutionOrGuess=NULL, double currentTime=0.0, Vec residualVector=NULL, Mat* pJacobian=NULL)
+    virtual void AssembleSystem(bool, bool, Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
         // This assembler only works with linear problems.
         assert(this->mProblemIsLinear);
-        
-        // if a linear problem there mustn't be a residual or jacobian specified
-        // otherwise one of them MUST be specifed
-        assert( this->mProblemIsLinear && !residualVector && !pJacobian );
         
         // Replicate the current solution and store so can be used in
         // AssembleOnElement
@@ -108,8 +104,8 @@ protected :
         
         
         // decide what we want to assemble.
-        bool assemble_vector = ((this->mProblemIsLinear) || ((!this->mProblemIsLinear) && (residualVector!=NULL)));
-        bool assemble_matrix = ( (this->mProblemIsLinear && !this->mMatrixIsAssembled) || ((!this->mProblemIsLinear) && (pJacobian!=NULL)) );
+        bool assemble_vector = true;
+        bool assemble_matrix = true;
         
         ////////////////////////////////////////////////////////
         // loop over elements

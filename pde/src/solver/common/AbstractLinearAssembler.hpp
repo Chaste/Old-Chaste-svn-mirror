@@ -33,6 +33,35 @@ protected:
         this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*(this->mpLinearSystem), this->mMatrixIsAssembled);
     }
     
+    /**
+     * Create the linear system object if it hasn't been already.
+     * 
+     * Can use a current/initial solution as PETSc template, or base it on the mesh size.
+     */
+    void InitialiseLinearSystem(Vec currentSolution)
+    {
+        if (this->mpLinearSystem == NULL)
+        {
+            if (currentSolution == NULL)
+            {
+                // Static problem, create linear system using the size
+                unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
+                this->mpLinearSystem = new LinearSystem(size);
+            }
+            else
+            {
+                // Use the currrent solution (ie the initial solution)
+                // as the template in the alternative constructor of
+                // LinearSystem. This appears to avoid problems with
+                // VecScatter.
+                this->mpLinearSystem = new LinearSystem(currentSolution);
+            }
+        }
+        else
+        {
+            assert(this->mMatrixIsConstant && this->mMatrixIsAssembled);
+        }
+    }
     
 public:
     AbstractLinearAssembler(unsigned numQuadPoints = 2,

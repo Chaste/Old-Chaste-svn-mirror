@@ -387,7 +387,7 @@ protected:
      * 
      *  Assemble the linear system for a linear PDE, or the residual or Jacobian for
      *  nonlinear PDEs. Loops over each element (and each each surface element if 
-     *  there are non-zero Neumann boundary conditions and calls AssembleOnElement() 
+     *  there are non-zero Neumann boundary conditions), calls AssembleOnElement() 
      *  and adds the contribution to the linear system.
      * 
      *  Takes in current solution and time if necessary but only used if the problem 
@@ -397,104 +397,64 @@ protected:
      *  Called by Solve()
      *  Calls AssembleOnElement()
      * 
+     *  @param assembleVector  Whether to assemble the RHS vector of the linear system
+     *     (i.e. the residual vector for nonlinear problems).
+     *  @param assembleMatrix  Whether to assemble the LHS matrix of the linear system
+     *     (i.e. the jacobian matrix for nonlinear problems).
+     * 
      *  @param currentSolutionOrGuess The current solution in a linear dynamic problem, 
      *     or the current guess in a nonlinear problem. Should be NULL for linear static 
      *     problems.
      * 
      *  @param currentTime The current time for dynamic problems. Not used in static 
      *     problems.
-     * 
-     *  @param residualVector The residual vector to be assembled in nonlinear problems
-     *     (eg created by the Petsc nonlinear solver). Should be NULL for linear problems.
-     * 
-     *  @param pJacobianMatrix (A pointer to) the Jacobian matrix to be assembled in 
-     *     nonlinear problems (eg created by the Petsc nonlinear solver). Should be 
-     *     NULL for linear problems.
      */
-    virtual void AssembleSystem(Vec currentSolutionOrGuess=NULL, double currentTime=0.0, Vec residualVector=NULL, Mat* pJacobian=NULL)
+    virtual void AssembleSystem(bool assembleVector, bool assembleMatrix,
+                                Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
-        // if a linear problem there mustn't be a residual or jacobian specified
-        // otherwise one of them MUST be specifed
-        assert(    (mProblemIsLinear && !residualVector && !pJacobian)
-                || (!mProblemIsLinear && (residualVector || pJacobian) ) );
-                   
+        // Check we've actually been asked to do something!
+        assert(assembleVector || assembleMatrix);
+        
         // if the problem is nonlinear the currentSolutionOrGuess MUST be specifed
         assert( mProblemIsLinear || (!mProblemIsLinear && currentSolutionOrGuess ) );
         
+        // Check the linear system object has been set up correctly
+        assert(mpLinearSystem != NULL);
+        assert(mpLinearSystem->GetSize() == PROBLEM_DIM * this->mpMesh->GetNumNodes());
+        assert(!assembleVector || mpLinearSystem->rGetRhsVector() != NULL);
+        assert(!assembleMatrix || mpLinearSystem->rGetLhsMatrix() != NULL);
+                   
+
         // Replicate the current solution and store so can be used in
         // AssembleOnElement
         if (currentSolutionOrGuess != NULL)
         {
             this->mCurrentSolutionOrGuessReplicated.ReplicatePetscVector(currentSolutionOrGuess);
         }
-        
         // the AssembleOnElement type methods will determine if a current solution or
         // current guess exists by looking at the size of the replicated vector, so
         // check the size is zero if there isn't a current solution
         assert(    ( currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.size()>0)
                 || ( !currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.size()==0));
-                   
-                   
+
+
         // the concrete class can override this following method if there is
         // work to be done before assembly
         PrepareForAssembleSystem(currentSolutionOrGuess, currentTime);
 
-        // decide what we want to assemble.
-        bool assemble_vector = ((mProblemIsLinear) || ((!mProblemIsLinear) && (residualVector!=NULL)));
-        bool assemble_matrix = ( (mProblemIsLinear && !mMatrixIsAssembled) || ((!mProblemIsLinear) && (pJacobian!=NULL)) );
-        
-        if (mProblemIsLinear)
+        // Zero the matrix/vector if it is to be assembled
+        if (assembleVector)
         {
-            // linear problem - set up the Linear System if necessary, otherwise zero
-            // it.
-            if (mpLinearSystem == NULL)
-            {
-                if (currentSolutionOrGuess == NULL)
-                {
-                    // static problem, create linear system using the size
-                    unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
-                    mpLinearSystem = new LinearSystem(size);
-                }
-                else
-                {
-                    // use the currrent solution (ie the initial solution)
-                    // as the template in the alternative constructor of
-                    // LinearSystem. This appears to avoid problems with
-                    // VecScatter.
-                    mpLinearSystem = new LinearSystem(currentSolutionOrGuess);
-                }
-            }
-            else
-            {
-                assert(mMatrixIsConstant && mMatrixIsAssembled);
-                mpLinearSystem->ZeroRhsVector();
-            }
+            mpLinearSystem->ZeroRhsVector();
         }
-        else
+        if (assembleMatrix)
         {
-
-            delete mpLinearSystem;
-            // if pJacobian is set pass its contents, otherwise pass NULL 
-            mpLinearSystem = new LinearSystem(residualVector, pJacobian ? *pJacobian : NULL);
-
-            assert(mpLinearSystem->GetSize() == PROBLEM_DIM * this->mpMesh->GetNumNodes());
-            // nonlinear problem - zero residual or jacobian depending on which has
-            // been asked for
-            if (assemble_vector)
-            {
-                mpLinearSystem->ZeroRhsVector();
-            }
-            if (assemble_matrix)
-            {
-                mpLinearSystem->ZeroLhsMatrix();
-            }
-            
+            mpLinearSystem->ZeroLhsMatrix();
         }
-        
         
         // Get an iterator over the elements of the mesh
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
-        iter = this->mpMesh->GetElementIteratorBegin();
+            iter = this->mpMesh->GetElementIteratorBegin();
         
         // Assume all elements have the same number of nodes...
         const unsigned num_elem_nodes = (*iter)->GetNumNodes();
@@ -511,14 +471,13 @@ protected:
             
             if (element.GetOwnership() == true)
             {
-            
-                AssembleOnElement(element, a_elem, b_elem, assemble_vector, assemble_matrix);
+                AssembleOnElement(element, a_elem, b_elem, assembleVector, assembleMatrix);
                 
                 for (unsigned i=0; i<num_elem_nodes; i++)
                 {
                     unsigned node1 = element.GetNodeGlobalIndex(i);
                     
-                    if (assemble_matrix)
+                    if (assembleMatrix)
                     {
                         for (unsigned j=0; j<num_elem_nodes; j++)
                         {
@@ -541,7 +500,7 @@ protected:
                         }
                     }
                     
-                    if (assemble_vector)
+                    if (assembleVector)
                     {
                         for (unsigned k=0; k<PROBLEM_DIM; k++)
                         {
@@ -555,7 +514,7 @@ protected:
         
         // add the integrals associated with Neumann boundary conditions to the linear system
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator
-        surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
+            surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
         
         
         ////////////////////////////////////////////////////////
@@ -563,7 +522,7 @@ protected:
         ////////////////////////////////////////////////////////
         
         // note, the following condition is not true of Bidomain or Monodomain
-        if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true && assemble_vector)
+        if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true && assembleVector)
         {
             if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
             {
@@ -595,11 +554,11 @@ protected:
             }
         }
         
-        if (assemble_vector)
+        if (assembleVector)
         {
             mpLinearSystem->AssembleRhsVector();
         }
-        if (assemble_matrix)
+        if (assembleMatrix)
         {
             mpLinearSystem->AssembleIntermediateLhsMatrix();
         }
@@ -607,11 +566,11 @@ protected:
         // Apply dirichlet boundary conditions
         ApplyDirichletConditions(currentSolutionOrGuess);
         
-        if (assemble_vector)
+        if (assembleVector)
         {
             mpLinearSystem->AssembleRhsVector();
         }
-        if (assemble_matrix)
+        if (assembleMatrix)
         {
             mpLinearSystem->AssembleFinalLhsMatrix();
             mMatrixIsAssembled = true;
@@ -732,8 +691,6 @@ public:
         if (mpSurfaceQuadRule) delete mpSurfaceQuadRule;
         if (mpLinearSystem) delete mpLinearSystem;
     }
-    
-
 };
 
 #endif //_ABSTRACTASSEMBLER_HPP_

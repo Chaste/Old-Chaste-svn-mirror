@@ -90,7 +90,7 @@ public :
         const size_t smasrm_size = 5u;
         Vec initial_condition = CreateConstantConditionVec(full_size, 0.0);
         
-        assembler.AssembleSystem(initial_condition, 0.0);
+        assembler.AssembleSystem(true, true, initial_condition, 0.0);
         
         const unsigned size_of_linear_system = assembler.mpLinearSystem->GetSize();
         TS_ASSERT_EQUALS(size_of_linear_system, smasrm_size);
@@ -134,7 +134,7 @@ public :
         // Check that if we add a boundary condition to an unflagged node
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), p_boundary_condition);
         // and then assemble the system
-        TS_ASSERT_THROWS_ANYTHING(assembler.AssembleSystem(initial_condition, 0.0));
+        TS_ASSERT_THROWS_ANYTHING(assembler.AssembleSystem(true, true, initial_condition, 0.0));
         
         VecDestroy(initial_condition);
     }

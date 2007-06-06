@@ -98,7 +98,9 @@ public :
     {
         // call assemble system with the current guess and the residual vector
         // to be assembled
-        this->AssembleSystem(currentGuess, 0.0, residualVector, NULL);
+        delete this->mpLinearSystem;
+        this->mpLinearSystem = new LinearSystem(residualVector, NULL);
+        this->AssembleSystem(true, false, currentGuess, 0.0);
         return 0;
     }
     
@@ -121,7 +123,9 @@ public :
         {
             // call assemble system with the current guess and the jacobian to
             // be assembled
-            this->AssembleSystem(currentGuess,0.0,NULL,pGlobalJacobian);
+            delete this->mpLinearSystem;
+            this->mpLinearSystem = new LinearSystem(NULL, *pGlobalJacobian);
+            this->AssembleSystem(false, true, currentGuess, 0.0);
             return 0; // no error
         }
         else
