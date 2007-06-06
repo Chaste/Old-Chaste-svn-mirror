@@ -300,8 +300,8 @@ public:
             catch (Exception &e)
             {
                 // Free memory.
-                delete p_assembler;
-                VecDestroy(initial_condition);
+                delete p_assembler;                 
+                //VecDestroy(initial_condition);
                 // Close files
                 if (mPrintOutput)
                 {

@@ -15,10 +15,11 @@ extern void KspException(PetscInt kspError, unsigned line,
 //Positive codes mean that there's an error
 //Zero means success
 //Negative codes should never happen, but we'll throw anyway
-#define PETSCEXCEPT(n) if (n) PetscException(n, __LINE__, __FUNCT__,__FILE__)
+
+#define PETSCEXCEPT(n) PetscException(n, __LINE__, __FUNCT__,__FILE__)
 
 //Positive codes mean that the KSP converged
 //Negative codes mean that the KSP diverged i.e. there's a problem
-#define KSPEXCEPT(n) if (n<0) KspException(n, __LINE__, __FUNCT__,__FILE__)
+#define KSPEXCEPT(n)  KspException(n, __LINE__, __FUNCT__,__FILE__)
 
 #endif /*PETSCEXCEPTION_HPP_*/
