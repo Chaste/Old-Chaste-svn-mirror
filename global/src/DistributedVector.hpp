@@ -157,9 +157,6 @@ public:
     * Do not use if stride>1.
     */   
     double& operator[](Iterator index) throw (DistributedVectorException);
-
-
-
 };
 
 
