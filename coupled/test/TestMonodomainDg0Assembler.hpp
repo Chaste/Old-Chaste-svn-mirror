@@ -319,8 +319,10 @@ public:
         // Throws because EndTime has not been set
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
         monodomain_problem.SetEndTime(1);  // ms
-    }
-    
+        
+        // Throws because output directory has not been set
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
+    }    
 };
 
 #endif //_TESTMONODOMAINDG0ASSEMBLER_HPP_

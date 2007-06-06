@@ -134,13 +134,8 @@ public:
                 bidomain_problem.SetEndTime(3.52);   // ms
                 
                 bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
-                
-                /*              bidomain_problem.SetOutputDirectory("bitemp");
-                                bidomain_problem.SetOutputFilenamePrefix("bitemp");
-                                bidomain_problem.SetPrintingTimeStep(0.1);
-                                bidomain_problem.SetWriteInfo();
-                */
-                
+
+                bidomain_problem.PrintOutput(false);
                 bidomain_problem.SetPdeTimeStep(time_step);
                 bidomain_problem.Initialise();
                 

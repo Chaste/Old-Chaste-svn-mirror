@@ -20,8 +20,6 @@ public:
         
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_1000_elements");
         bidomain_problem.SetEndTime(1);   // ms
-        bidomain_problem.SetOutputDirectory("");
-        bidomain_problem.SetOutputFilenamePrefix("");
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-7);
         
         bidomain_problem.Initialise();
@@ -42,7 +40,7 @@ public:
             TS_FAIL(e.GetMessage());
         }
         
-	DistributedVector striped_voltage(bidomain_problem.GetVoltage());
+	    DistributedVector striped_voltage(bidomain_problem.GetVoltage());
         DistributedVector::Stripe voltage(striped_voltage, 0);
         
         for (DistributedVector::Iterator index = DistributedVector::Begin();
@@ -67,8 +65,7 @@ public:
                 }
             }
             
-            
-            
+    
             // final voltages for six nodes at the beginning of the mesh with a stride of 10
             double test_values[6]={11.5550, -78.3303, -83.7585, -83.8568,  -83.8570, -83.8568};
             
@@ -82,9 +79,7 @@ public:
                 }
             }
         }
-    }
-    
-    
+    }  
 };
 
 #endif /*TEST1DBIDOMAINPROBLEMFOREFFICIENCY_HPP_*/

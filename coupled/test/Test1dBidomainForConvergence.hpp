@@ -103,8 +103,10 @@ public:
                 bidomain_problem.Initialise();
                 
                 // temporarily write output
-                bidomain_problem.SetOutputDirectory("bidomainDg01dConvergence");
-                bidomain_problem.SetOutputFilenamePrefix("Bidomain01d");
+                //bidomain_problem.SetOutputDirectory("bidomainDg01dConvergence");
+                //bidomain_problem.SetOutputFilenamePrefix("Bidomain01d");
+                
+                bidomain_problem.PrintOutput(false);
                 
                 std::cout<<"   Solving with a time step of "<<time_step<<" ms"<<std::endl  << std::flush;
                 

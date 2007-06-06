@@ -107,6 +107,13 @@ public:
         {
             EXCEPTION("Start time should be less than end time");
         }
+        if (mPrintOutput==true) 
+        {
+            if( (mOutputDirectory=="") || (mOutputFilenamePrefix==""))
+            {
+                EXCEPTION("Either explicitly specify not to print output (call SetPrintOutput(false)) or specify the output directory and filename prefix");
+            }
+        }
     }
     
     // Perhaps this should be a method of AbstractCardiacPde??)

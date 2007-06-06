@@ -140,6 +140,7 @@ public:
                 monodomain_problem.SetPdeTimeStep(time_step);
                 monodomain_problem.SetPrintingTimeStep(time_step);
                 monodomain_problem.Initialise();
+                monodomain_problem.PrintOutput(false);
                 
                 std::cout<<"   Solving with a time step of "<<time_step<<" ms"<<std::endl;
                 
@@ -243,6 +244,7 @@ public:
             monodomain_problem.SetEndTime(16);   // ms - just long enough for AP to reach end node
             monodomain_problem.SetPdeTimeStep(pde_time_step);
             monodomain_problem.Initialise();
+            monodomain_problem.PrintOutput(false);
             
             TS_ASSERT_THROWS_NOTHING(monodomain_problem.Solve());
             

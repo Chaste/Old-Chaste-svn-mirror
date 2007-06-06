@@ -62,8 +62,6 @@ public:
         
         bidomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
         bidomain_problem.SetEndTime(150);   // ms
-        bidomain_problem.SetOutputDirectory("");
-        bidomain_problem.SetOutputFilenamePrefix("");
         bidomain_problem.PrintOutput(false);
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
         
