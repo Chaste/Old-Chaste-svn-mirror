@@ -297,13 +297,8 @@ public:
     {
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
-
-        // bad params
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(-1));
         
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetMonodomainPde()->SetCapacitance(-1));
-        
-        //Throws because we've not called initialise
+        // Throws because we've not called initialise
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
         
         // throws because argument is negative
@@ -312,12 +307,16 @@ public:
         // throws because argument is negative
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetPrintingTimeStep(-1));
         
-        //Throws because mesh filename is unset
+        // Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Initialise());
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         TS_ASSERT_THROWS_NOTHING(monodomain_problem.Initialise());
+
+        // bad params
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(-1));
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetMonodomainPde()->SetCapacitance(-1));
         
-        //Throws because EndTime has not been set
+        // Throws because EndTime has not been set
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
         monodomain_problem.SetEndTime(1);  // ms
     }

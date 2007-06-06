@@ -12,18 +12,89 @@
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
 {
-private:
+protected:
     std::string mMeshFilename;
+    
+    /**
+     *  Start time defaults to 0, pde timestep defaults to 0.01 (ms), the
+     *  end time is not defaulted and must be set
+     */
     double mStartTime;
     double mEndTime;
     double mPdeTimeStep;
     double mPrintingTimeStep; 
     bool mWriteInfo;
     bool mPrintOutput;
-    std::string  mOutputDirectory, mOutputFilenamePrefix;    
-    AbstractCardiacPde<SPACE_DIM>* mpCardiacPde;
+    
+    AbstractCardiacPde<SPACE_DIM> *mpCardiacPde;
+    
+    /** data is not written if output directory or output file prefix are not set*/
+    std::string  mOutputDirectory, mOutputFilenamePrefix;
+        
+    AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
+    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
+    
+    Vec mVoltage; // Current solution
 
-private:    
+    /**
+     * Subclasses should override this method to create a PDE object of the appropriate type.
+     * 
+     * This class will take responsibility for freeing the object when it is finished with.
+     */
+    virtual AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde() =0;
+
+public:    
+    /**
+     * Constructor
+     * @param pCellFactory User defined cell factory which shows how the pde should 
+     * create cells.
+     */
+    AbstractCardiacProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
+            : mMeshFilename(""),     // i.e. undefined
+            mOutputDirectory(""),  // i.e. undefined
+            mOutputFilenamePrefix(""),   // i.e. undefined
+            mpCellFactory(pCellFactory)
+    {
+        mStartTime        = 0.0;  // ms
+        mPdeTimeStep      = 0.01; // ms
+        mEndTime          = -1;   // negative so can check has been set
+        mPrintingTimeStep = mPdeTimeStep;  // default behaviour: print out every pde time step
+        mWriteInfo = false;
+        mPrintOutput = true;
+        mpCardiacPde = NULL;
+        mVoltage = NULL;
+    }
+    
+    virtual ~AbstractCardiacProblem()
+    {
+        if (mpCardiacPde)
+        {
+            delete mpCardiacPde;
+        }
+        if (mVoltage)
+        {
+            VecDestroy(mVoltage);
+        }
+    };
+    
+    /*
+     *  Initialise the system. Must be called before Solve()
+     */
+    void Initialise()
+    {
+        if ( mMeshFilename=="" )
+        {
+            EXCEPTION("Mesh filename was not set");
+        }
+        mpCellFactory->SetMesh( &mMesh );
+        
+        if (mpCardiacPde)
+        {
+            delete mpCardiacPde;
+        }
+        mpCardiacPde = CreateCardiacPde();
+    }
+    
     void PreSolveChecks()
     {
         if ( mpCardiacPde == NULL ) // if pde is NULL, Initialise() probably hasn't been called
@@ -35,6 +106,8 @@ private:
             EXCEPTION("Start time should be less than end time");
         }
     }
+    
+    // Perhaps this should be a method of AbstractCardiacPde??)
     
     Vec CreateInitialCondition()
     {
@@ -52,10 +125,10 @@ private:
              index!= DistributedVector::End();
              ++index)
         {
-            stripe[0][index]= mpCardiacPde->GetCardiacCell(index.Global)->GetVoltage();
+            stripe[0][index] = mpCardiacPde->GetCardiacCell(index.Global)->GetVoltage();
             if (PROBLEM_DIM==2)
             {
-                stripe[1][index] =0;
+                stripe[1][index] = 0;
             }
         }
         
@@ -63,45 +136,6 @@ private:
         
         return initial_condition;
     }
-    
-protected:
-    AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
-    Vec mVoltage; // Current solution
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
-
-public:    
-    /**
-     * Constructor
-     * @param pCellFactory User defined cell factory which shows how the pde should 
-     * create cells.
-     * 
-     * Start time defaults to 0, pde timestep defaults to 0.01 (ms), the
-     * end time is not defaulted and must be set
-     */
-    AbstractCardiacProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
-            : mMeshFilename(""),     // i.e. undefined
-            mOutputDirectory(""),  // i.e. undefined
-            mOutputFilenamePrefix(""),   // i.e. undefined
-            mpCardiacPde(NULL),
-            mpCellFactory(pCellFactory)
-    {
-        mStartTime        = 0.0;  // ms
-        mPdeTimeStep      = 0.01; // ms
-        mEndTime          = -1;   // negative so can check has been set
-        mPrintingTimeStep = mPdeTimeStep;  // default behaviour: print out every pde time step
-        mWriteInfo = false;
-        mPrintOutput = true;
-        mVoltage = NULL;
-    }
-    
-    virtual ~AbstractCardiacProblem()
-    {
-            delete mpCardiacPde;
-            if (mVoltage)
-            {
-                VecDestroy(mVoltage);
-            }
-    };
     
     void SetStartTime(const double &rStartTime)
     {
@@ -111,8 +145,8 @@ public:
     void SetEndTime(const double &rEndTime)
     {
         mEndTime = rEndTime;
-    }    
-
+    }
+    
     /**
      * Set the PDE time step.
      * \todo SetPdeAndPrintingTimeStep
@@ -125,12 +159,6 @@ public:
             EXCEPTION("Pde time step should be positive");
         }
         mPdeTimeStep = pdeTimeStep;
-    }
-    
-        
-    double GetPdeTimeStep()
-    {
-        return mPdeTimeStep;
     }
     
     /** 
@@ -148,16 +176,16 @@ public:
     }
     
     /** Set the simulation to print every n timesteps. Only set this
-     *  AFTER setting the pde timestep
+     *  AFTER setting the pde timestep!
      */
     void PrintEveryNthTimeStep(unsigned n)
     {
         mPrintingTimeStep = n*mPdeTimeStep;
     }
-
-    void PrintOutput(const bool& rPrintOutput)
+    
+    double GetPdeTimeStep()
     {
-        mPrintOutput = rPrintOutput;
+        return mPdeTimeStep;
     }
     
     void SetMeshFilename(const std::string &rMeshFilename)
@@ -176,11 +204,6 @@ public:
         mMesh.ConstructFromMeshReader(mesh_reader);
     }
     
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> & rGetMesh()    
-    {
-        return mMesh;
-    }
-    
     void SetOutputDirectory(const std::string &rOutputDirectory)
     {
         mOutputDirectory = rOutputDirectory;
@@ -192,19 +215,11 @@ public:
     }
     
     /**
-     * Get the final solution vector. This vector is distributed over all processes.
-     *
-     * In case of Bidomain, this is of length 2*numNodes, and of the form
-     *  (V_1, phi_1, V_2, phi_2, ......, V_N, phi_N). 
-     *  where V_j is the voltage at node j and phi_j is the
-     *  extracellular potential at node j.
-     * 
-     *  This vector is distributed over all processes.
+     *  Set whether the simulation will generate results files.
      */
-    Vec GetVoltage()
+    void PrintOutput(bool rPrintOutput)
     {
-        //Use with caution since we don't want to alter the state of the PETSc vector
-        return mVoltage;
+        mPrintOutput = rPrintOutput;
     }
 
     /**
@@ -214,28 +229,29 @@ public:
     {
         mWriteInfo = writeInfo;
     }
-        
-    /*
-     *  Initialise the system. Must be called before Solve()
+    
+    /**
+     * Get the final solution vector. This vector is distributed over all processes.
+     *
+     * In case of Bidomain, this is of length 2*numNodes, and of the form
+     *  (V_1, phi_1, V_2, phi_2, ......, V_N, phi_N). 
+     *  where V_j is the voltage at node j and phi_j is the
+     *  extracellular potential at node j.
+     * 
+     *  Use with caution since we don't want to alter the state of the PETSc vector.
      */
-    void Initialise()
+    Vec GetVoltage()
     {
-        if ( mMeshFilename=="" )
-        {
-            EXCEPTION("Mesh filename was not set");
-        }
-        mpCellFactory->SetMesh( &mMesh );
-        if (mpCardiacPde)
-        {
-            delete mpCardiacPde;
-        }
-        mpCardiacPde = CreatePde();
+        return mVoltage;
     }
     
-    void Solve()
+    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> & rGetMesh()    
     {
-        PreSolveChecks();
-        AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* p_assembler=CreateAssembler();
+        return mMesh;
+    }
+    
+    void Solve(AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>& assembler)
+    {
         Vec initial_condition = CreateInitialCondition();
         ParallelColumnDataWriter *p_test_writer = NULL;
         unsigned time_var_id = 0;
@@ -263,18 +279,18 @@ public:
         while ( !stepper.IsTimeAtEnd() )
         {
             // solve from now up to the next printing time
-            p_assembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), mPdeTimeStep);
-            p_assembler->SetInitialCondition( initial_condition );
+            assembler.SetTimes(stepper.GetTime(), stepper.GetNextTime(), mPdeTimeStep);
+            assembler.SetInitialCondition( initial_condition );
 
             try
             {
-                mVoltage = p_assembler->Solve();
+                mVoltage = assembler.Solve();
             }
             catch (Exception &e)
             {
                 // Free memory.
                 VecDestroy(initial_condition);
-                delete p_assembler;
+                //delete p_assembler;
                 // Close files
                 if (mPrintOutput)
                 {
@@ -308,13 +324,14 @@ public:
                 p_test_writer->PutVector(voltage_var_id, mVoltage);
             }
         }
-        delete p_assembler;
-        
+
         // close the file that stores voltage values
         if (mPrintOutput)
         {
+
             p_test_writer->Close();
             delete p_test_writer;
+
             
             PetscInt my_rank;
             MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
@@ -341,10 +358,6 @@ public:
     virtual void WriteInfo(double time) =0;
     
     virtual std::string ColumnName() =0;
-    
-    virtual AbstractCardiacPde<SPACE_DIM>* CreatePde() =0;
-    
-    virtual AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
 };
 
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

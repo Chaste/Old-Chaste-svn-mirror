@@ -24,6 +24,13 @@ private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */    
     double mLinearSolverRelativeTolerance;
     
+protected:
+    AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde()
+    {
+        mpBidomainPde = new BidomainPde<SPACE_DIM>(this->mpCellFactory);
+        return mpBidomainPde;
+    }
+    
 public:
     /**
      * Constructor
@@ -45,18 +52,26 @@ public:
     {
     }
     
-    AbstractCardiacPde<SPACE_DIM>* CreatePde()
+    /** Initialise the system. Must be called before Solve() */
+    void Initialise()
     {
-        mpBidomainPde = new BidomainPde<SPACE_DIM>( this->mpCellFactory );
-        return mpBidomainPde;
+        AbstractCardiacProblem<SPACE_DIM, 2>::Initialise();
     }
     
-    AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, 2>* CreateAssembler()
+    /**
+     * Solve the problem
+     */
+    void Solve()
     {
-         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_bidomain_assembler = 
-                 new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(&this->mMesh, mpBidomainPde);
-         p_bidomain_assembler->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
-         return p_bidomain_assembler;
+        AbstractCardiacProblem<SPACE_DIM, 2>::PreSolveChecks();
+        
+        // Assembler
+        BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(
+            &this->mMesh, mpBidomainPde,
+            2, mLinearSolverRelativeTolerance);   
+
+        bidomain_assembler.SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
+        AbstractCardiacProblem<SPACE_DIM, 2>::Solve(bidomain_assembler);
     }
     
     void SetLinearSolverRelativeTolerance(const double &rRelTol)

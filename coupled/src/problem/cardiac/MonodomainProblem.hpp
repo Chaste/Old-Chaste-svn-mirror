@@ -17,6 +17,13 @@ class MonodomainProblem : public AbstractCardiacProblem<SPACE_DIM, 1>
 private:
     MonodomainPde<SPACE_DIM> *mpMonodomainPde;    
 
+protected:
+    AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde()
+    {
+        mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
+        return mpMonodomainPde;
+    }
+
 public:
 
     /**
@@ -37,21 +44,25 @@ public:
     {
     }
     
-    AbstractCardiacPde<SPACE_DIM>* CreatePde()
+    /** Initialise the system. Must be called before Solve() */
+    void Initialise()
     {
-        mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
-        return mpMonodomainPde;
+        AbstractCardiacProblem<SPACE_DIM, 1>::Initialise();
     }
     
-    AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, 1>* CreateAssembler()
+    /**
+     * Solve the problem
+     */
+    void Solve()
     {
-         MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_monodomain_assembler = 
-                 new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(&this->mMesh, mpMonodomainPde);
-         return p_monodomain_assembler;
+        AbstractCardiacProblem<SPACE_DIM, 1>::PreSolveChecks();
+        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&this->mMesh, mpMonodomainPde);
+        AbstractCardiacProblem<SPACE_DIM, 1>::Solve(monodomain_assembler);
     }
     
     MonodomainPde<SPACE_DIM> * GetMonodomainPde()
     {
+        assert(mpMonodomainPde != NULL);
         return mpMonodomainPde;
     }
     
