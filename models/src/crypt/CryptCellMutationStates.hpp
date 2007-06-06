@@ -9,7 +9,7 @@ typedef enum CryptCellMutationState_
     HEALTHY,				// Wild-type cell
     APC_ONE_HIT,			// APC +/-
     APC_TWO_HIT,			// APC -/-
-    BETA_CATENIN_ONE_HIT	// Beta-catenin Delta45
+    BETA_CATENIN_ONE_HIT	// Beta-catenin with a change at residue 45
 } CryptCellMutationState;
 
 

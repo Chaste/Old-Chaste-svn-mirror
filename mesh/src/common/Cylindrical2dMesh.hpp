@@ -38,6 +38,14 @@ private:
     
     void ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement, std::vector<unsigned> &rImageNodes, std::vector<unsigned> &rOriginalNodes, unsigned nodeIndex ) ;
     
+    // This bunch of functions should only ever be called by the public ReMesh
+    void UpdateTopAndBottom();
+    void CreateHaloNodes();
+    void CreateMirrorNodes();
+    void ReconstructCylindricalMesh();
+    void DeleteHaloNodes();
+    
+    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -46,6 +54,7 @@ private:
         archive & mWidth;
         archive & mTop;
         archive & mBottom;
+        std::cout << "Serialize function on Cylindrical 2d Mesh called \n" << std::flush;
     }
     
 public:
@@ -55,13 +64,8 @@ public:
     ~Cylindrical2dMesh()
     {
     }
-    
-    void UpdateTopAndBottom();
-    void CreateHaloNodes();
-    void CreateMirrorNodes();
+        
     void ReMesh(NodeMap &map);
-    void ReconstructCylindricalMesh();
-    void DeleteHaloNodes();
     c_vector<double, 2> GetVectorFromAtoB(const c_vector<double, 2>& rLocation1, const c_vector<double, 2>& rLocation2);
     void SetNode(unsigned index, Point<2> point, bool concreteMove);
     bool IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes);
@@ -76,7 +80,7 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct a Meineke cell.
+ * Serialize information required to construct a Cylindrical2dMesh
  */
 template<class Archive>
 inline void save_construct_data(
@@ -85,10 +89,11 @@ inline void save_construct_data(
     // save data required to construct instance
     const double width = t->GetWidth(0);
     ar << width;
+    std::cout << "SAVE constructor function on Cylindrical 2d Mesh called \n" << std::flush;
 }
 
 /**
- * De-serialize constructor parameters and initialise Meineke cell.
+ * De-serialize constructor parameters and initialise Cylindrical2dMesh.
  */
 template<class Archive>
 inline void load_construct_data(
@@ -97,6 +102,7 @@ inline void load_construct_data(
     // retrieve data from archive required to construct new instance
     double width;
     ar >> width;
+    std::cout << "LOAD constructor function on Cylindrical 2d Mesh called \n" << std::flush;
     // invoke inplace constructor to initialize instance
     ::new(t)Cylindrical2dMesh(width);
 }

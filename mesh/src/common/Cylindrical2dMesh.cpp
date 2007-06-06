@@ -25,10 +25,6 @@ void Cylindrical2dMesh::ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement
  * Constructor
  * 
  * @param width the width of the crypt (circumference) 
- * @param xTop the y-co-ord of the top row of ghost nodes (important to keep them together)
- * @param xBottom the y-coord of the bottom row of ghost nodes
- * @param topBoundary the inidces of the top ghost nodes
- * @param bottomBoundary the inidces of the bottom ghost nodes
  */
 Cylindrical2dMesh::Cylindrical2dMesh(double width)
   : ConformingTetrahedralMesh<2, 2>(),
@@ -39,6 +35,10 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width)
     
 }
 
+/**
+ * Calls GetWidthExtremes on the Conforming mesh class
+ * to calculate mTop and mBottom for the cylindrical mesh.
+ */
 void Cylindrical2dMesh::UpdateTopAndBottom()
 {
     c_vector<double,2> extremes = GetWidthExtremes(1);
@@ -514,15 +514,14 @@ void Cylindrical2dMesh::SetNode(unsigned index, Point<2> point, bool concreteMov
  */
 bool Cylindrical2dMesh::IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes)
 {
-    bool is_in_vector = false;
     for (unsigned i=0; i<rListOfNodes.size(); i++)
     {
         if(rNodeIndex==rListOfNodes[i])
         {
-            is_in_vector = true;
+            return true;
         }
     }
-    return is_in_vector;
+    return false;
 }
 
 /**

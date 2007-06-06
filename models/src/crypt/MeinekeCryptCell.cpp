@@ -149,6 +149,10 @@ void MeinekeCryptCell::SetMutationState(CryptCellMutationState mutationState)
 bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
     assert(!IsDead());
+    if (mUndergoingApoptosis)
+    {
+        return false;
+    }    
     
     double mutation_state = -1;
     if (mMutationState==HEALTHY)
@@ -178,11 +182,9 @@ bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
         #undef COVERAGE_IGNORE
     }
     cellCycleInfluences.push_back(mutation_state);
+    
     mCanDivide = mpCellCycleModel->ReadyToDivide(cellCycleInfluences);
-    if (mUndergoingApoptosis)
-    {
-        mCanDivide = false;
-    }
+
     return mCanDivide;
 }
 
@@ -239,6 +241,8 @@ MeinekeCryptCell MeinekeCryptCell::Divide()
     
     //Copy this cell and give new one relevant attributes...
     assert(mCanDivide);
+    mCanDivide = false;
+    
     CancerParameters *p_params = CancerParameters::Instance();
     //std::cout<< "Divide time" << mpSimulationTime->GetDimensionalisedTime() << "\n" ;
     if (mCellType != STEM)
@@ -266,7 +270,7 @@ MeinekeCryptCell MeinekeCryptCell::Divide()
         return MeinekeCryptCell(TRANSIT, mMutationState, 1,
                                 mpCellCycleModel->CreateCellCycleModel());
     }
-    mCanDivide = false;
+    
 }
 
 

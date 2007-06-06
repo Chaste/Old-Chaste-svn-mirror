@@ -670,9 +670,6 @@ void TissueSimulation<DIM>::SetGhostNodes(std::set<unsigned> ghostNodeIndices)
         mIsGhostNode[*iter]=true;
         iter++;
     }
-    
-    mCrypt.SetGhostNodes(mIsGhostNode); // I think there should be one of these here 
-    // (otherwise Crypt is only ever told about ghost nodes when no nodes are ghosts in the constructor).
 }
 
 
@@ -872,15 +869,23 @@ void TissueSimulation<DIM>::Solve()
     {        
         std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **" << std::endl;
         
-        // remove deal cells before doing birth
+        // remove dead cells before doing birth
+        // neither of these functions use any element information so they 
+        // just delete and create nodes
         mNumDeaths += DoCellRemoval();
-
-        if(mReMesh)
-        {
+        
+        
+        if(mReMesh) // This should be removed and the commented out lines 
+        {    // below should be added in. At the moment this causes an error.
             mCrypt.ReMesh();
         }
-
+        
         mNumBirths += DoCellBirth();
+
+//        if(mNumDeaths>0 || mNumBirths>0)
+//        {   // If any nodes have been deleted or added we MUST call a ReMesh
+//            assert(mReMesh);
+//        }
 
         if(mReMesh)
         {

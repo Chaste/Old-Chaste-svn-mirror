@@ -115,6 +115,10 @@ private:
         archive & mWntGradient;
         archive & mNumBirths;
         archive & mNumDeaths;
+        archive & mIncludeSloughing;
+
+        archive & mrMesh;
+        // We need to archive cell killers here see ticket:389.
     }
     
     

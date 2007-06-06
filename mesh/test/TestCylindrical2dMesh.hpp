@@ -582,7 +582,6 @@ public:
         archive_filename = handler.GetTestOutputDirectory() + "cylindrical_mesh.arch";
         
         double width = 0.0;
-        double height = 0.0;
         
         {   // Set up a mesh
             unsigned cells_across = 5;
@@ -594,7 +593,6 @@ public:
             Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
             
             width = p_mesh->GetWidth(0);
-            height = p_mesh->GetWidth(1);
             
             // Archive the mesh
             std::ofstream ofs(archive_filename.c_str());
@@ -621,11 +619,10 @@ public:
             input_arch >> *p_mesh2;
             
             // these are commented out for now until the cylindrical2dMesh class
-            // is archived properly.
-            
+            // is archived properly.            
             TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width, 1e-7);
-            // this one fails
-//            TS_ASSERT_DELTA(p_mesh2->GetWidth(1), height, 1e-7);
+            // height is no longer stored - but worked out by looking at nodes
+            // (not stored by archiver)
         }
     }
     

@@ -67,6 +67,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
+                std::cout << "Serialize function on Conforming Mesh called \n" << std::flush;
         // Don't do anything - this is just so subclasses can archive member variables.
     }
     
