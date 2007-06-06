@@ -48,7 +48,7 @@ public:
         
         this->PrepareForSolve();
         
-        this->AssembleSystem();
+        this->AssembleSystem(currentSolutionOrGuess, currentTime);
         return this->mpLinearSystem->Solve(this->mpLinearSolver);
     }
 };
