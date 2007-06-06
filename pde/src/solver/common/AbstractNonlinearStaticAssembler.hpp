@@ -65,6 +65,24 @@ protected:
     
     bool mUseAnalyticalJacobian;
     
+    /**
+     * Apply Dirichlet boundary conditions to either the residual or jacobian.
+     */
+    void ApplyDirichletConditions(Vec currentGuess)
+    {
+        Vec& residual = this->mpLinearSystem->rGetRhsVector();
+        Mat& jacobian = this->mpLinearSystem->rGetLhsMatrix();
+        
+        if (residual)
+        {
+            this->mpBoundaryConditions->ApplyDirichletToNonlinearResidual(currentGuess, residual);
+        }
+        if (jacobian)
+        {
+            this->mpBoundaryConditions->ApplyDirichletToNonlinearJacobian(jacobian);
+        }
+    }
+    
 public :
     /**
      * Compute the residual vector given the current solution guess.

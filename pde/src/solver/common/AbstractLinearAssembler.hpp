@@ -25,6 +25,15 @@ protected:
     bool mWeAllocatedSolverMemory;
     
     
+    /**
+     * Apply Dirichlet boundary conditions to the linear system.
+     */
+    void ApplyDirichletConditions(Vec /* unused */)
+    {
+        this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*(this->mpLinearSystem), this->mMatrixIsAssembled);
+    }
+    
+    
 public:
     AbstractLinearAssembler(unsigned numQuadPoints = 2,
                             double linearSolverRelativeTolerance = 1e-6) :

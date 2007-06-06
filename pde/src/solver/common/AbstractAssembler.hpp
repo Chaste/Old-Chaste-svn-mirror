@@ -416,7 +416,7 @@ protected:
         // if a linear problem there mustn't be a residual or jacobian specified
         // otherwise one of them MUST be specifed
         assert(    (mProblemIsLinear && !residualVector && !pJacobian)
-                   || (!mProblemIsLinear && (residualVector || pJacobian) ) );
+                || (!mProblemIsLinear && (residualVector || pJacobian) ) );
                    
         // if the problem is nonlinear the currentSolutionOrGuess MUST be specifed
         assert( mProblemIsLinear || (!mProblemIsLinear && currentSolutionOrGuess ) );
@@ -432,7 +432,7 @@ protected:
         // current guess exists by looking at the size of the replicated vector, so
         // check the size is zero if there isn't a current solution
         assert(    ( currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.size()>0)
-                   || ( !currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.size()==0));
+                || ( !currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.size()==0));
                    
                    
         // the concrete class can override this following method if there is
@@ -605,18 +605,7 @@ protected:
         }
         
         // Apply dirichlet boundary conditions
-        if (mProblemIsLinear)
-        {
-            this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*mpLinearSystem, mMatrixIsAssembled);
-        }
-        else if (residualVector)
-        {
-            this->mpBoundaryConditions->ApplyDirichletToNonlinearResidual(currentSolutionOrGuess, residualVector);
-        }
-        else if (pJacobian)
-        {
-            this->mpBoundaryConditions->ApplyDirichletToNonlinearJacobian(*pJacobian);
-        }
+        ApplyDirichletConditions(currentSolutionOrGuess);
         
         if (assemble_vector)
         {
@@ -664,7 +653,10 @@ protected:
     virtual void FinaliseAssembleSystem(Vec currentSolutionOrGuess, double currentTime)
     {}
     
-    
+    /**
+     * This method is called by AssembleSystem to apply dirichlet conditions to the system.
+     */
+    virtual void ApplyDirichletConditions(Vec currentSolutionOrGuess)=0;
     
     /**
      * Whether grad_phi and grad_u should be calculated
