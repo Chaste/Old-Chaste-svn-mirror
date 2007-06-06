@@ -33,7 +33,6 @@ protected :
     double mDt, mDtInverse;
     
     bool   mTimesSet;
-    bool   mInitialConditionSet;
     
     Vec    mInitialCondition;
     
@@ -41,6 +40,11 @@ protected :
      * Whether the matrix has been assembled for the current time step.
      */
     bool mMatrixIsAssembled;
+    
+    /**
+     * Whether the matrix of the system needs to be assembled at each time step.
+     */
+    bool mMatrixIsConstant;
     
 public :
     /**
@@ -52,8 +56,9 @@ public :
             AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints, linearSolverRelativeTolerance)
     {
         mTimesSet = false;
-        mInitialConditionSet = false;
+        mInitialCondition = NULL;
         mMatrixIsAssembled = false;
+        mMatrixIsConstant = false;
     }
     
     /**
@@ -84,9 +89,32 @@ public :
     void SetInitialCondition(Vec initCondition)
     {
         mInitialCondition = initCondition;
-        mInitialConditionSet = true;
     }
     
+    /**
+     * Set the boolean mMatrixIsConstant to true to build the matrix only once. 
+     */
+    void SetMatrixIsConstant()
+    {
+        mMatrixIsConstant = true;
+        this->mpLinearSolver->SetMatrixIsConstant();
+    }
+    
+    /**
+     * If the linear solver is changed, we may need to call SetMatrixIsConstant on the new one.
+     * 
+     * \todo Cover this method!
+     */
+    virtual void SetLinearSolver(AbstractLinearSolver *pLinearSolver)
+    {
+        AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetLinearSolver(pLinearSolver);
+        
+        // make sure new solver knows matrix is constant
+        if (mMatrixIsConstant)
+        {
+            this->mpLinearSolver->SetMatrixIsConstant();
+        }
+    }
     
     /**
      *  Solve a dynamic PDE over the time period specified through SetTimes()
@@ -102,7 +130,7 @@ public :
     Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
         assert(mTimesSet);
-        assert(mInitialConditionSet);
+        assert(mInitialCondition != NULL);
         
         this->PrepareForSolve();
         this->InitialiseLinearSystem(mInitialCondition);

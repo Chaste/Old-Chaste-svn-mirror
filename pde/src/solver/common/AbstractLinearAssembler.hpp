@@ -25,12 +25,6 @@ protected:
     bool mWeAllocatedSolverMemory;
     
     /**
-     * Whether the matrix of the system needs to be assembled at each time step.
-     */
-    bool mMatrixIsConstant;
-    
-    
-    /**
      * Apply Dirichlet boundary conditions to the linear system.
      */
     void ApplyDirichletConditions(Vec /* unused */, bool applyToMatrix)
@@ -62,10 +56,6 @@ protected:
                 this->mpLinearSystem = new LinearSystem(currentSolution);
             }
         }
-        else
-        {
-            assert(this->mMatrixIsConstant);
-        }
     }
     
 public:
@@ -75,9 +65,6 @@ public:
     {
         mpLinearSolver = new SimpleLinearSolver(linearSolverRelativeTolerance);
         mWeAllocatedSolverMemory = true;
-        
-        this->mpLinearSystem = NULL;
-        this->mMatrixIsConstant = false;
     }
     
     /**
@@ -92,35 +79,22 @@ public:
     }
     
     /**
-     *  Manually re-set the linear system solver (which by default 
-     *  is a SimpleLinearSolver)
+     * Manually re-set the linear system solver (which by default is a SimpleLinearSolver).
+     * 
+     * \todo Cover this method!
      */
-    void SetLinearSolver(AbstractLinearSolver *pLinearSolver)
+    virtual void SetLinearSolver(AbstractLinearSolver *pLinearSolver)
     {
         if (mWeAllocatedSolverMemory)
         {
             delete mpLinearSolver;
         }
         mpLinearSolver = pLinearSolver;
-        
-        // make sure new solver knows matrix is constant
-        if (this->mMatrixIsConstant)
-        {
-            SetMatrixIsConstant();
-        }
+        mWeAllocatedSolverMemory = false;
     }
     
     virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)=0;
     
-    
-    /**
-     * Set the boolean mMatrixIsConstant to true to build the matrix only once. 
-     */
-    void SetMatrixIsConstant()
-    {
-        this->mMatrixIsConstant = true;
-        this->mpLinearSolver->SetMatrixIsConstant();
-    }
     
     
     /*

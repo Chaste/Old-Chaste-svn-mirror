@@ -569,7 +569,11 @@ protected:
      *  use it to check everything has been set up correctly
      */
     virtual void PrepareForSolve()
-    {           
+    {
+        assert(mpMesh != NULL);
+// commented out because FlaggedMeshAssembler has it's own FlaggedMeshBcc.. - design issue
+//        assert(this->mpBoundaryConditions != NULL);
+        
         //Set the elements' ownerships according to the node ownership
         DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
         this->mpMesh->SetElementOwnerships(DistributedVector::Begin().Global,
@@ -634,9 +638,9 @@ public:
      */
     void SetNumberOfQuadraturePointsPerDimension(unsigned numQuadPoints)
     {
-        if (mpQuadRule) delete mpQuadRule;
+        delete mpQuadRule;
         mpQuadRule = new GaussianQuadratureRule<ELEMENT_DIM>(numQuadPoints);
-        if (mpSurfaceQuadRule) delete mpSurfaceQuadRule;
+        delete mpSurfaceQuadRule;
         mpSurfaceQuadRule = new GaussianQuadratureRule<ELEMENT_DIM-1>(numQuadPoints);
     }
     
@@ -666,10 +670,9 @@ public:
      */
     virtual ~AbstractAssembler()
     {
-        // Quadrature rules
-        if (mpQuadRule) delete mpQuadRule;
-        if (mpSurfaceQuadRule) delete mpSurfaceQuadRule;
-        if (mpLinearSystem) delete mpLinearSystem;
+        delete mpQuadRule;
+        delete mpSurfaceQuadRule;
+        delete mpLinearSystem;
     }
 };
 

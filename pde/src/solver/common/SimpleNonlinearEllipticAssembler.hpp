@@ -151,9 +151,9 @@ public :
         assert(pPde!=NULL);
         assert(pBoundaryConditions!=NULL);
         
-        this->mpMesh = pMesh;
+        this->SetMesh(pMesh);
         mpNonlinearEllipticPde = pPde;
-        this->mpBoundaryConditions = pBoundaryConditions;
+        this->SetBoundaryConditionsContainer(pBoundaryConditions);
     }
 };
 

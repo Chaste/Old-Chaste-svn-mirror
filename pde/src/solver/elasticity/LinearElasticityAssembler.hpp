@@ -132,8 +132,8 @@ public :
         assert(pMesh != NULL);
         assert(pBoundaryConditions != NULL);
         
-        this->mpMesh = pMesh;
-        this->mpBoundaryConditions = pBoundaryConditions;
+        this->SetMesh(pMesh);
+        this->SetBoundaryConditionsContainer(pBoundaryConditions);
         
         mGravity = zero_vector<double>(DIM);
         mDensity = 0;

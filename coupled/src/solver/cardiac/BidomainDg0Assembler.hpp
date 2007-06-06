@@ -253,10 +253,10 @@ public:
         assert(pMesh != NULL);
         
         mpBidomainPde = pPde;
-        this->mpMesh = pMesh;
+        this->SetMesh(pMesh);
         
         // set up boundary conditions
-        this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>;
+        this->SetBoundaryConditionsContainer(new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>);
         
         // define zero neumann boundary conditions everywhere
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,0); // first unknown, ie voltage
@@ -269,9 +269,12 @@ public:
         mFixedExtracellularPotentialNodes.resize(0);
     }
     
-    
+    /**
+     * Free boundary conditions container, allocated by our constructor.
+     */
     ~BidomainDg0Assembler()
     {
+        // This was allocated by our constructor.  Let's hope no user called SetBCC!
         delete this->mpBoundaryConditions;
     }
     

@@ -252,6 +252,8 @@ public:
         mWeAllocatedSolverMemory = true;
         
         mUseAnalyticalJacobian = false;
+        
+        mInitialGuess = NULL;
     }
     
     ~AbstractNonlinearStaticAssembler()
@@ -321,6 +323,7 @@ public:
     {
         assert(this->mpMesh!=NULL);
         assert(this->mpBoundaryConditions!=NULL);
+        assert(mInitialGuess != NULL);
         
         this->PrepareForSolve();
         
