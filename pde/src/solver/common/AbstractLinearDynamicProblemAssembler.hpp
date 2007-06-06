@@ -37,6 +37,11 @@ protected :
     
     Vec    mInitialCondition;
     
+    /**
+     * Whether the matrix has been assembled for the current time step.
+     */
+    bool mMatrixIsAssembled;
+    
 public :
     /**
      * AbstractLinearDynamicProblemAssembler
@@ -45,7 +50,11 @@ public :
     AbstractLinearDynamicProblemAssembler(unsigned numQuadPoints = 2,
                                           double linearSolverRelativeTolerance = 1e-6) :
             AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints, linearSolverRelativeTolerance)
-    {}
+    {
+        mTimesSet = false;
+        mInitialConditionSet = false;
+        mMatrixIsAssembled = false;
+    }
     
     /**
      *  Set the times to solve between, and the time step to use
@@ -85,6 +94,10 @@ public :
      * 
      *  SetTimes() and SetInitialCondition() must be called before Solve(), and 
      *  the mesh and pde must have been set.
+     * 
+     *  Currently, it is assumed by this code that the matrix is constant for the lifetime of the assembler.
+     *  In other words, the matrix will *only* be assembled when this method is first called.
+     *  This is probably not safe in general, but all of our tests use a constant matrix at present.
      */
     Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
@@ -92,6 +105,7 @@ public :
         assert(mInitialConditionSet);
         
         this->PrepareForSolve();
+        this->InitialiseLinearSystem(mInitialCondition);
         
         TimeStepper stepper(mTstart, mTend, mDt);
 
@@ -101,8 +115,9 @@ public :
         {
             mDt=stepper.GetNextTimeStep();
             mDtInverse = 1/mDt;
-            this->InitialiseLinearSystem(current_solution);
-            this->AssembleSystem(true, !this->mMatrixIsAssembled, current_solution, stepper.GetTime());
+            
+            this->AssembleSystem(true, !mMatrixIsAssembled, current_solution, stepper.GetTime());
+            mMatrixIsAssembled = true;
             
             next_solution = this->mpLinearSystem->Solve(this->mpLinearSolver);
 
@@ -116,6 +131,12 @@ public :
             
         }
         return current_solution;
+    }
+    
+    
+    bool ConstructGradPhiAndU()
+    {
+        return !this->mMatrixIsAssembled;
     }
 };
 

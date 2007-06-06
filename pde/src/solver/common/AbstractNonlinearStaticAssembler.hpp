@@ -68,10 +68,11 @@ protected:
     /**
      * Apply Dirichlet boundary conditions to either the residual or jacobian.
      */
-    void ApplyDirichletConditions(Vec currentGuess)
+    void ApplyDirichletConditions(Vec currentGuess, bool applyToMatrix)
     {
         Vec& residual = this->mpLinearSystem->rGetRhsVector();
         Mat& jacobian = this->mpLinearSystem->rGetLhsMatrix();
+        assert((jacobian && applyToMatrix) || (!jacobian && !applyToMatrix));
         
         if (residual)
         {
@@ -229,6 +230,14 @@ protected:
         return 0; // No error
     }
     
+    virtual void AssembleSystem(bool assembleVector, bool assembleMatrix,
+                                Vec currentGuess=NULL, double currentTime=0.0)
+    {
+        // If the problem is nonlinear the currentGuess MUST be specifed
+        assert( currentGuess );
+        AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AssembleSystem(
+            assembleVector, assembleMatrix, currentGuess, currentTime);
+    }
     
 public:
 
@@ -241,8 +250,6 @@ public:
     {
         mpSolver = new SimplePetscNonlinearSolver;
         mWeAllocatedSolverMemory = true;
-        
-        this->mProblemIsLinear = false;
         
         mUseAnalyticalJacobian = false;
     }

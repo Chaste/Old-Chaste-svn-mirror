@@ -262,7 +262,6 @@ public:
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,0); // first unknown, ie voltage
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,1); // second unknown, ie phi_e
         
-        this->mMatrixIsAssembled = false;
         mNullSpaceCreated = false;
         
         this->SetMatrixIsConstant();

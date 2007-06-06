@@ -52,6 +52,12 @@ public:
         this->AssembleSystem(true, true, currentSolutionOrGuess, currentTime);
         return this->mpLinearSystem->Solve(this->mpLinearSolver);
     }
+    
+    
+    bool ConstructGradPhiAndU()
+    {
+        return true;
+    }
 };
 
 

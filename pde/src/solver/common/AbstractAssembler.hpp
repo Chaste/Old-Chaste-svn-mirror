@@ -71,27 +71,12 @@ protected:
      */
     ReplicatableVector mCurrentSolutionOrGuessReplicated;
     
-    
-    /** Whether the problem is a linear or nonlinear one */
-    bool mProblemIsLinear;
-    
     /**
      *  The linear system that is assembled in linear pde problems. Not used in
      *  nonlinear problems
      */
     LinearSystem *mpLinearSystem;
     
-    /**
-     * Whether the matrix of the system needs to be assembled at each time step.
-     * (Linear problems only).
-     */
-    bool mMatrixIsConstant;
-    
-    /**
-     * Whether the matrix has been assembled for the current time step.
-     * (Linear problems only).
-     */
-    bool mMatrixIsAssembled;
     
     
     /**
@@ -226,7 +211,7 @@ protected:
             c_vector<double, ELEMENT_DIM+1> phi = BasisFunction::ComputeBasisFunctions(quad_point);
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
             
-            if (ConstructGradPhiAndU() ) // don't need to construct grad_phi or grad_u in that case
+            if (ConstructGradPhiAndU() )
             {
                 grad_phi = BasisFunction::ComputeTransformedBasisFunctionDerivatives
                            (quad_point, *p_inverse_jacobian);
@@ -415,9 +400,6 @@ protected:
         // Check we've actually been asked to do something!
         assert(assembleVector || assembleMatrix);
         
-        // if the problem is nonlinear the currentSolutionOrGuess MUST be specifed
-        assert( mProblemIsLinear || (!mProblemIsLinear && currentSolutionOrGuess ) );
-        
         // Check the linear system object has been set up correctly
         assert(mpLinearSystem != NULL);
         assert(mpLinearSystem->GetSize() == PROBLEM_DIM * this->mpMesh->GetNumNodes());
@@ -564,7 +546,7 @@ protected:
         }
         
         // Apply dirichlet boundary conditions
-        ApplyDirichletConditions(currentSolutionOrGuess);
+        ApplyDirichletConditions(currentSolutionOrGuess, assembleMatrix);
         
         if (assembleVector)
         {
@@ -573,7 +555,6 @@ protected:
         if (assembleMatrix)
         {
             mpLinearSystem->AssembleFinalLhsMatrix();
-            mMatrixIsAssembled = true;
         }
         
         // overload this method if the assembler has to do anything else
@@ -615,7 +596,7 @@ protected:
     /**
      * This method is called by AssembleSystem to apply dirichlet conditions to the system.
      */
-    virtual void ApplyDirichletConditions(Vec currentSolutionOrGuess)=0;
+    virtual void ApplyDirichletConditions(Vec currentSolutionOrGuess, bool applyToMatrix)=0;
     
     /**
      * Whether grad_phi and grad_u should be calculated
@@ -639,7 +620,6 @@ public:
         mpSurfaceQuadRule = NULL;
         SetNumberOfQuadraturePointsPerDimension(numQuadPoints);
         
-        mMatrixIsAssembled = false;
         mpLinearSystem = NULL;
     }
     

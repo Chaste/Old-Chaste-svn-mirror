@@ -116,6 +116,8 @@ private :
      */
     void PrepareForSolve()
     {
+        AbstractLinearStaticProblemAssembler<DIM,DIM,DIM>::PrepareForSolve();
+        
         if (mLameCoefficientsSet == false)
         {
             EXCEPTION("Lame coefficients have not been set yet");

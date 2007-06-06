@@ -18,9 +18,6 @@ protected :
 
     virtual void AssembleSystem(bool, bool, Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
-        // This assembler only works with linear problems.
-        assert(this->mProblemIsLinear);
-        
         // Replicate the current solution and store so can be used in
         // AssembleOnElement
         if (currentSolutionOrGuess != NULL)
@@ -82,7 +79,6 @@ protected :
             delete this->mpLinearSystem;
         }
         this->mpLinearSystem = new LinearSystem(smasrm_size);
-        this->mMatrixIsAssembled = false;
         
 //        //If this is the first time through then it's appropriate to set the
 //        //element ownerships
@@ -148,10 +144,9 @@ protected :
         // Apply dirichlet boundary conditions.
         // This may well need to change to make use of the mSmasrmIndexMap;
         // might be better to put the code in here rather than the container.
-        mpFlaggedMeshBcc->ApplyDirichletToLinearProblem(*this->mpLinearSystem, mSmasrmIndexMap, this->mMatrixIsAssembled);
+        mpFlaggedMeshBcc->ApplyDirichletToLinearProblem(*this->mpLinearSystem, mSmasrmIndexMap, true);
         
         this->mpLinearSystem->AssembleFinalLinearSystem();
-        this->mMatrixIsAssembled = true;
         
         // overload this method if the assembler has to do anything else
         // required (like setting up a null basis (see BidomainDg0Assembler))

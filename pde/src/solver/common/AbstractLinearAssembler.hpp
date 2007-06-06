@@ -24,13 +24,18 @@ protected:
     AbstractLinearSolver *mpLinearSolver;
     bool mWeAllocatedSolverMemory;
     
+    /**
+     * Whether the matrix of the system needs to be assembled at each time step.
+     */
+    bool mMatrixIsConstant;
+    
     
     /**
      * Apply Dirichlet boundary conditions to the linear system.
      */
-    void ApplyDirichletConditions(Vec /* unused */)
+    void ApplyDirichletConditions(Vec /* unused */, bool applyToMatrix)
     {
-        this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*(this->mpLinearSystem), this->mMatrixIsAssembled);
+        this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*(this->mpLinearSystem), applyToMatrix);
     }
     
     /**
@@ -59,7 +64,7 @@ protected:
         }
         else
         {
-            assert(this->mMatrixIsConstant && this->mMatrixIsAssembled);
+            assert(this->mMatrixIsConstant);
         }
     }
     
@@ -73,9 +78,6 @@ public:
         
         this->mpLinearSystem = NULL;
         this->mMatrixIsConstant = false;
-        this->mMatrixIsAssembled = false;
-        
-        this->mProblemIsLinear = true;
     }
     
     /**
@@ -140,11 +142,6 @@ public:
         mpLinearSystem->DisplayRhs();
     }
     */
-    
-    bool ConstructGradPhiAndU()
-    {
-        return !this->mMatrixIsAssembled;
-    }
 };
 
 #endif //_ABSTRACTLINEARASSEMBLER_HPP_

@@ -108,13 +108,13 @@ public:
      * 
      *  @param rLinearSystem Linear system on which to apply boundary conditions
      * 
-     *  @param MatrixIsAssembled This optional parameter can be set to
+     *  @param applyToMatrix This optional parameter can be set as false to
      *  ensure that the matrix of the linear system is not updated. To
      *  be used when the matrix does not change between time steps.
      */
     void ApplyDirichletToLinearProblem(LinearSystem& rLinearSystem,
                                        std::map<unsigned, unsigned>& rSmasrmIndexMap,
-                                       bool MatrixIsAssembled = false )
+                                       bool applyToMatrix = true )
     {
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
@@ -138,7 +138,7 @@ public:
                 //old version equivalent to:
                 //unsigned row = node_index+index_of_unknown*mNumNodes;
                 
-                if (!MatrixIsAssembled)
+                if (applyToMatrix)
                 {
                     rLinearSystem.ZeroMatrixRow(row);
                     rLinearSystem.SetMatrixElement(row, row, 1);
