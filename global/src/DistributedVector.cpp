@@ -8,27 +8,28 @@
 unsigned DistributedVector::mLo=0;
 unsigned DistributedVector::mHi=0;
 unsigned DistributedVector::mGlobalHi=0;
+
 void DistributedVector::SetProblemSize(unsigned size)
 {
-        Vec vec;
-        VecCreate(PETSC_COMM_WORLD, &vec);
-        VecSetSizes(vec, PETSC_DECIDE, size);
-        VecSetFromOptions(vec);
-        SetProblemSize(vec);
-        VecDestroy(vec);
+    Vec vec;
+    VecCreate(PETSC_COMM_WORLD, &vec);
+    VecSetSizes(vec, PETSC_DECIDE, size);
+    VecSetFromOptions(vec);
+    SetProblemSize(vec);
+    VecDestroy(vec);
 }
 
 void DistributedVector::SetProblemSize(Vec vec)
 {
-        // calculate my range
-        PetscInt petsc_lo, petsc_hi;
-        VecGetOwnershipRange(vec,&petsc_lo,&petsc_hi);
-        mLo=(unsigned)petsc_lo;
-        mHi=(unsigned)petsc_hi;
-        // vector size
-        PetscInt size;
-        VecGetSize(vec, &size);
-        mGlobalHi = (unsigned) size;
+    // calculate my range
+    PetscInt petsc_lo, petsc_hi;
+    VecGetOwnershipRange(vec,&petsc_lo,&petsc_hi);
+    mLo=(unsigned)petsc_lo;
+    mHi=(unsigned)petsc_hi;
+    // vector size
+    PetscInt size;
+    VecGetSize(vec, &size);
+    mGlobalHi = (unsigned) size;
 }
 
 unsigned DistributedVector::GetProblemSize()
@@ -78,9 +79,9 @@ double& DistributedVector::operator[](unsigned globalIndex) throw (DistributedVe
 
 void DistributedVector::Restore()
 {
-        VecRestoreArray(mVec, &mpVec);
-        VecAssemblyBegin(mVec);
-        VecAssemblyEnd(mVec);
+    VecRestoreArray(mVec, &mpVec);
+    VecAssemblyBegin(mVec);
+    VecAssemblyEnd(mVec);
 }
 
 bool DistributedVector::Iterator::operator!=(const Iterator& other)
