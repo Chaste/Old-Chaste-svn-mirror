@@ -466,7 +466,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 20U);
     }
     
-    void xTest2DLinearFunctionAnimate()
+    void Test2DLinearFunctionAnimate()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -497,7 +497,7 @@ public:
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
         decimator.SetThreshold(0.001);
-        decimator.DecimateAnimate("DiskLinearAnimation");
+        decimator.DecimateAnimate("DiskLinearAnimation",17);
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 197U);
         TS_ASSERT_LESS_THAN_EQUALS(195U, mesh.GetNumNodes());
     }
