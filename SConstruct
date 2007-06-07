@@ -132,7 +132,7 @@ elif system_name == 'maths':
   other_libs = ['lapack', 'blas-3']
   other_libpaths = [petsc_libpath]
   other_includepaths = petsc_incs
-elif system_name == 'joe' or system_name == 'intel_joe':
+elif system_name == 'joe':
   # Joe Pitt-Francis userpc30 (Suse 9.3) and userpc33 (Ubuntu 6.06 Dapper Drake)
   petsc_base = '/home/jmpf/petsc-2.3.1-p16/'
   petsc_inc = petsc_base+'include'
@@ -190,7 +190,7 @@ elif system_name == 'chaste':
   petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
   other_libpaths = [petsc_libpath, blas_libpath]
   other_libs = ['f2clapack', 'f2cblas', 'boost_serialization']
-elif (system_name == 'new_chaste' or system_name == 'intel_chaste'):
+elif (system_name == 'new_chaste'):
   # New Chaste machines in comlab
   other_includepaths = []
   if build.using_dealii:
@@ -277,15 +277,15 @@ elif system_name == 'zuse_opt':
    cxx = '/usr/bin/g++'
    ar = '/usr/bin/ar'
 elif system_name == 'joe':
-  mpicxx = '/home/jmpf/mpi/bin/mpicxx'
   mpirun = '/home/jmpf/mpi/bin/mpirun'
-  cxx = '/usr/bin/g++'
-  ar = '/usr/bin/ar'
-elif system_name == 'intel_joe':
-  mpicxx = 'mpicxx -CC=icpc'
-  mpirun = 'mpirun'
-  cxx = '/opt/intel/cc/9.1.039/bin/icpc'
-  ar = ' /opt/intel/cc/9.1.039/bin/xiar'
+  if build.CompilerType() == 'intel':
+  	mpicxx = 'mpicxx -CC=icpc'
+  	cxx = '/opt/intel/cc/9.1.039/bin/icpc'
+  	ar = ' /opt/intel/cc/9.1.039/bin/xiar'
+  else:
+  	mpicxx = '/home/jmpf/mpi/bin/mpicxx'
+  	cxx = '/usr/bin/g++'
+  	ar = '/usr/bin/ar'
 elif system_name == 'chaste':
   mpicxx = 'mpicxx'
   mpirun = 'mpirun'
