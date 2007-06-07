@@ -99,6 +99,7 @@ public :
     {
         // call assemble system with the current guess and the residual vector
         // to be assembled
+        this->PrepareForSolve();
         delete this->mpLinearSystem;
         this->mpLinearSystem = new LinearSystem(residualVector, NULL);
         this->AssembleSystem(true, false, currentGuess, 0.0);
