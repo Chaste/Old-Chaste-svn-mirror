@@ -152,14 +152,18 @@ elif system_name == 'zuse':
   petsc_bmake = petsc_base+'bmake/linux-mpich-gnu-mkl'
   #petsc_mpi = petsc_base+'include/mpiuni'
   petsc_mpi = ''
-  boost = '/home/zuse/system/joe'
-  other_includepaths = [petsc_inc, petsc_bmake, boost]
+  #boost = '/home/zuse/system/joe'
+  boost = '/home/zuse/system/joe/boost_v1_34/include/boost-1_34'
+  xsd_inc = '/home/zuse/system/joe/xsd-2.3.1-i686-linux-gnu/libxsd'
+  xerces_inc = '/home/zuse/system/joe/xerces-c-suse_80_AMD_64-gcc_32/include'
+  other_includepaths = [petsc_inc, petsc_bmake, boost, xerces_inc, xsd_inc]
   
   petsc_libpath = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
   blas_libpath = '/opt/intel/mkl/8.0/lib/em64t/'
-
-  other_libpaths = [petsc_libpath, blas_libpath]
-  other_libs = []
+  xerces_libpath = '/home/zuse/system/joe/xerces-c-suse_80_AMD_64-gcc_32/lib'
+  boost_libpath = '/home/zuse/system/joe/boost_v1_34/lib'
+  other_libpaths = [petsc_libpath, blas_libpath, xerces_libpath, boost_libpath]
+  other_libs = ['boost_serialization-gcc32', 'xerces-c']
 elif system_name == 'zuse_opt':
   petsc_base = '/home/zuse/system/software/petsc-2.2.1/'
   petsc_inc = petsc_base+'include'
@@ -167,7 +171,8 @@ elif system_name == 'zuse_opt':
   #petsc_mpi = petsc_base+'include/mpiuni'
   petsc_mpi = ' '
   boost = '/home/zuse/system/joe'
-  other_includepaths = [petsc_inc, petsc_bmake, boost]
+  xsd_inc = '/home/zuse/system/joe/xsd-2.3.1-i686-linux-gnu/libxsd'
+  other_includepaths = [petsc_inc, petsc_bmake, boost, xsd_inc]
   
   petsc_libpath = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
   blas_libpath = '/opt/intel/mkl/8.0/lib/em64t/'

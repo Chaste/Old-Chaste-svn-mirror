@@ -27,8 +27,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     
     rMeshReader.Reset();
     
-    typename std::map<std::pair<unsigned,unsigned>,unsigned>::const_iterator iterator;
-    std::map<std::pair<unsigned,unsigned>,unsigned> internal_nodes_map;
+    //typename std::map<std::pair<unsigned,unsigned>,unsigned>::const_iterator iterator;
+    //std::map<std::pair<unsigned,unsigned>,unsigned> internal_nodes_map;
     
     // Add corner nodes
     std::vector<double> coords;
