@@ -22,6 +22,7 @@ protected:
      * The linear solver used to solve the linear system at each time step.
      */
     AbstractLinearSolver *mpLinearSolver;
+    bool mWeAllocatedSolverMemory;
     
     /**
      * Apply Dirichlet boundary conditions to the linear system.
@@ -56,6 +57,11 @@ protected:
             }
         }
     }
+        
+    bool ProblemIsNonlinear()
+    {
+        return false;
+    }
     
 public:
     AbstractLinearAssembler(unsigned numQuadPoints = 2,
@@ -63,6 +69,7 @@ public:
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
     {
         mpLinearSolver = new SimpleLinearSolver(linearSolverRelativeTolerance);
+        mWeAllocatedSolverMemory = true;
     }
     
     /**
@@ -70,10 +77,30 @@ public:
      */
     ~AbstractLinearAssembler()
     {
-        delete mpLinearSolver;
+        if (mWeAllocatedSolverMemory)
+        {
+            delete mpLinearSolver;
+        }
+    }
+    
+    /**
+     * Manually re-set the linear system solver (which by default is a SimpleLinearSolver).
+     * 
+     * \todo Cover this method!
+     */
+    virtual void SetLinearSolver(AbstractLinearSolver *pLinearSolver)
+    {
+        if (mWeAllocatedSolverMemory)
+        {
+            delete mpLinearSolver;
+        }
+        mpLinearSolver = pLinearSolver;
+        mWeAllocatedSolverMemory = false;
     }
     
     virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)=0;
+    
+    
     
     /*
     void DebugWithSolution(Vec sol)

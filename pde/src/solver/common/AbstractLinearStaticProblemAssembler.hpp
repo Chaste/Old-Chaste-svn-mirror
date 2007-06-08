@@ -25,7 +25,6 @@
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractLinearStaticProblemAssembler : public AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
 {
-
 public:
 
     /**
@@ -52,12 +51,7 @@ public:
         this->AssembleSystem(true, true, currentSolutionOrGuess, currentTime);
         return this->mpLinearSystem->Solve(this->mpLinearSolver);
     }
-    
-    
-    bool ConstructGradPhiAndU()
-    {
-        return true;
-    }
+
 };
 
 

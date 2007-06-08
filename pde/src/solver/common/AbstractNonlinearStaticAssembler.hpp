@@ -240,6 +240,11 @@ protected:
             assembleVector, assembleMatrix, currentGuess, currentTime);
     }
     
+    bool ProblemIsNonlinear()
+    {
+        return true;
+    }
+        
 public:
 
 
@@ -483,12 +488,7 @@ public:
         
         return all_less_than_tol;
     }
-    
-    bool ConstructGradPhiAndU()
-    {
-        return true;
-    }
-    
+
 }; //end of class AbstractNonlinearStaticAssembler
 
 

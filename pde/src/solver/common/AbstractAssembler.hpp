@@ -192,14 +192,20 @@ protected:
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
         // Initialise element contributions to zero
-        if ( ConstructGradPhiAndU() ) // don't need to construct grad_phi or grad_u in that case
+        if ( assembleMatrix || ProblemIsNonlinear() ) // don't need to construct grad_phi or grad_u in that case
         {
             p_inverse_jacobian = rElement.GetInverseJacobian();
+        }
+        
+        if (assembleMatrix)
+        {
             rAElem.clear();
         }
         
-        rBElem.clear();
-        
+        if (assembleVector)
+        {
+            rBElem.clear();
+        }
         
         const unsigned num_nodes = rElement.GetNumNodes();
         
@@ -211,7 +217,7 @@ protected:
             c_vector<double, ELEMENT_DIM+1> phi = BasisFunction::ComputeBasisFunctions(quad_point);
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
             
-            if (ConstructGradPhiAndU() )
+            if ( assembleMatrix || ProblemIsNonlinear() )
             {
                 grad_phi = BasisFunction::ComputeTransformedBasisFunctionDerivatives
                            (quad_point, *p_inverse_jacobian);
@@ -256,7 +262,7 @@ protected:
                         // [U1 V1 U2 V2 ... U_n V_n]
                         u(index_of_unknown) += phi(i)*this->mCurrentSolutionOrGuessReplicated[ PROBLEM_DIM*node_global_index + index_of_unknown];
                         
-                        if (ConstructGradPhiAndU() ) // don't need to construct grad_phi or grad_u in that case
+                        if ( ProblemIsNonlinear() ) // don't need to construct grad_phi or grad_u in that case
                         {
                             for (unsigned j=0; j<SPACE_DIM; j++)
                             {
@@ -603,9 +609,9 @@ protected:
     virtual void ApplyDirichletConditions(Vec currentSolutionOrGuess, bool applyToMatrix)=0;
     
     /**
-     * Whether grad_phi and grad_u should be calculated
+     * Whether  grad_u should be calculated
      */
-    virtual bool ConstructGradPhiAndU() =0;
+    virtual bool ProblemIsNonlinear() =0;
     
 public:
     /**
