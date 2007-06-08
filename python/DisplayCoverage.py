@@ -150,7 +150,7 @@ for src_file in src_files:
                     aggregated_count = '-'
                 else:
                     src_line_stripped = src_line.strip()
-                    if not (ignore or src_line_stripped == '}' or
+                    if not (ignore or src_line_stripped in ['{', '}']
                             (src_line_stripped.startswith('return') and
                              src_line_stripped[6] in [';', ' ']) or
                             (src_line_stripped.startswith('catch ') and
