@@ -887,6 +887,8 @@ public:
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter), separation, 1e-7);
+
+        SimulationTime::Destroy();
     }
     
 
@@ -922,6 +924,8 @@ public:
         TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
         TS_ASSERT(daughter_location[1]>=location[1]);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter), 0.5*separation, 1e-7);
+
+        SimulationTime::Destroy();
     }
 
     void TestCalculateDividingCellCentreLocationsCylindricalMesh() throw (Exception)
@@ -951,6 +955,8 @@ public:
         c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter), separation, 1e-7);
+
+        SimulationTime::Destroy();
     }
 
     void TestCalculateDividingCellCentreLocationsCylindricalMeshStemCell() throw (Exception)
@@ -985,10 +991,9 @@ public:
         TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
         TS_ASSERT(daughter_location[1]>=location[1]);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter), 0.5*separation, 1e-7);
+
+        SimulationTime::Destroy();
     }
-
-
-   
 };
 
 #endif /*TESTCRYPTSIMULATION2DPERIODIC_HPP_*/

@@ -46,7 +46,7 @@ class TissueSimulation
     friend class TestCryptSimulation2DPeriodic;
     friend class TestSprings3d;
     
-private:
+protected:
     double mDt;
     double mEndTime;
     ConformingTetrahedralMesh<DIM,DIM> &mrMesh;
@@ -134,9 +134,9 @@ private:
    
     std::vector<c_vector<double, DIM> > CalculateVelocitiesOfEachNode();
     c_vector<double, DIM> CalculateForceInThisSpring(Element<DIM,DIM>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB);
-    c_vector<double, DIM> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
+    virtual c_vector<double, DIM> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
     
-    void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt);
+    virtual void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt);
     
     void UpdateCellTypes();
 
@@ -145,7 +145,7 @@ public:
     TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMesh,
                               std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>());
                               
-    ~TissueSimulation();
+    virtual ~TissueSimulation();
     
     void SetDt(double dt);
     void SetEndTime(double endTime);

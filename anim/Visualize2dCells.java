@@ -96,7 +96,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
 		
 	public Visualize2dCells() {
-		frame.setSize(800, 800);
+		frame.setSize(700, 700);
 		frame.setTitle("Gavaghan's goons' visualization tools (TM)");
 
 		frame.setLayout(new BorderLayout());
@@ -1073,12 +1073,12 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
 		if(vis.cell_type[vis.timeStep][index]==0)
 		{
 			// stem cell
-			g2.setColor(Color.green);
+			g2.setColor(Color.darker(Color.green));
 		}
 		else if (vis.cell_type[vis.timeStep][index]==1)
 		{
 			// transit cell
-			g2.setColor(Color.orange);
+			g2.setColor(Color.darker(Color.orange));
 		}
 		else if (vis.cell_type[vis.timeStep][index]==2)
 		{

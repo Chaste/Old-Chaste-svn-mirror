@@ -1,7 +1,5 @@
-
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-
 
 #include "TissueSimulation.hpp"
 #include "Exception.hpp"
@@ -37,8 +35,6 @@ TissueSimulation<DIM>::TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMes
     mEndTime = 0.0; // hours - this is set later on.
     
     srandom(0);
-    mFixedBoundaries = false;
-    mOutputDirectory = "";
     
     // Set up the ghost nodes bool list
     mIsGhostNode.resize(mrMesh.GetNumAllNodes());
@@ -49,6 +45,8 @@ TissueSimulation<DIM>::TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMes
     mCrypt.SetGhostNodes(mIsGhostNode);
     
     // defaults
+    mFixedBoundaries = false;
+    mOutputDirectory = "";
     mReMesh = true;
     mNoBirth = false;
     mMaxCells = 10*mrMesh.GetNumNodes();
@@ -58,16 +56,12 @@ TissueSimulation<DIM>::TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMes
     mNumDeaths = 0;
     mIncludeSloughing = true;
     
-    SimulationTime* p_simulation_time = SimulationTime::Instance();
-    if (!p_simulation_time->IsStartTimeSetUp())
+    if (!SimulationTime::Instance()->IsStartTimeSetUp())
     {
-        #define COVERAGE_IGNORE
         EXCEPTION("Start time not set in simulation time singleton object");
-        #undef COVERAGE_IGNORE
     }
     mCrypt.SetMaxCells(mMaxCells);
     mCrypt.SetMaxElements(mMaxElements);
-    
 }
 
 /**
@@ -76,7 +70,6 @@ TissueSimulation<DIM>::TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMes
 template<unsigned DIM> 
 TissueSimulation<DIM>::~TissueSimulation()
 {
-    SimulationTime::Destroy();
 }
 
 template<unsigned DIM> 
@@ -298,7 +291,7 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
     std::set<std::set<unsigned> > node_pairs_checked;
 
     ////////////////////////////////////////////////////////////////////
-    // loop over element and for each one loop over its three edges
+    // loop over element and for each one loop over its edges
     ////////////////////////////////////////////////////////////////////
     for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
     {
@@ -403,6 +396,8 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
   
     return drdt;
 }
+
+
 
 
 
@@ -833,7 +828,6 @@ void TissueSimulation<DIM>::Solve()
              cell_iter != mCrypt.End();
              ++cell_iter)
         {
-            //std::cout << "Preparing Cell "<< i << std::endl;
             double y = cell_iter.rGetLocation()[1];
             std::vector<double> cell_cycle_influences;
             if (mWntIncluded)
@@ -894,7 +888,7 @@ void TissueSimulation<DIM>::Solve()
 
         //  calculate node velocities
         std::vector<c_vector<double, DIM> > drdt = CalculateVelocitiesOfEachNode();
-        
+
         // update node positions
         UpdateNodePositions(drdt);
         
