@@ -1073,12 +1073,12 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
 		if(vis.cell_type[vis.timeStep][index]==0)
 		{
 			// stem cell
-			g2.setColor(Color.darker(Color.green));
+			g2.setColor(Color.green);
 		}
 		else if (vis.cell_type[vis.timeStep][index]==1)
 		{
 			// transit cell
-			g2.setColor(Color.darker(Color.orange));
+			g2.setColor(Color.orange);
 		}
 		else if (vis.cell_type[vis.timeStep][index]==2)
 		{
