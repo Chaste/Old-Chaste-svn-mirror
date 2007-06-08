@@ -290,6 +290,10 @@ public:
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
         bidomain_problem.SetEndTime(1);  // ms
         
+        // set output data to avoid their exceptions (which is covered in TestMonoDg0Assembler
+        bidomain_problem.SetOutputDirectory("temp");
+        bidomain_problem.SetOutputFilenamePrefix("temp");
+        
         //Throws because the node number is slightly bigger than the number of nodes in the mesh
         std::vector<unsigned> too_large;
         too_large.push_back(4358743);

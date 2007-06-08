@@ -30,7 +30,8 @@ class AbstractLinearDynamicProblemAssembler : public AbstractLinearAssembler<ELE
 protected :
     double mTstart;
     double mTend;
-    double mDt, mDtInverse;
+    double mDt;
+    double mDtInverse;
     
     bool   mTimesSet;
     
@@ -99,23 +100,8 @@ public :
         mMatrixIsConstant = true;
         this->mpLinearSolver->SetMatrixIsConstant();
     }
-    
-    /**
-     * If the linear solver is changed, we may need to call SetMatrixIsConstant on the new one.
-     * 
-     * \todo Cover this method!
-     */
-    virtual void SetLinearSolver(AbstractLinearSolver *pLinearSolver)
-    {
-        AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetLinearSolver(pLinearSolver);
-        
-        // make sure new solver knows matrix is constant
-        if (mMatrixIsConstant)
-        {
-            this->mpLinearSolver->SetMatrixIsConstant();
-        }
-    }
-    
+
+
     /**
      *  Solve a dynamic PDE over the time period specified through SetTimes()
      *  and the initial conditions specified through SetInitialCondition().
@@ -142,7 +128,7 @@ public :
         while ( !stepper.IsTimeAtEnd() )
         {
             mDt=stepper.GetNextTimeStep();
-            mDtInverse = 1/mDt;
+            mDtInverse = 1.0/mDt;
             
             this->AssembleSystem(true, !mMatrixIsAssembled, current_solution, stepper.GetTime());
             mMatrixIsAssembled = true;

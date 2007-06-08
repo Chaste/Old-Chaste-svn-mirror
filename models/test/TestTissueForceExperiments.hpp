@@ -340,11 +340,11 @@ public:
     	        p_mesh->Scale(1.0, stretch/old_stretch);
             }
 
-	        std::stringstream string_stream;
+            std::stringstream string_stream;
             
             if(fix_X_not_Y)
             {
-    	        string_stream << "TissueForceExperimentMeinekeIncrementalX_" << stretch;
+       	        string_stream << "TissueForceExperimentMeinekeIncrementalX_" << stretch;
             }
             else
             {
@@ -353,31 +353,31 @@ public:
     
             std::string output_directory = string_stream.str();
 	        
-	        SimulationTime* p_simulation_time = SimulationTime::Instance();
-	        p_simulation_time->SetStartTime(0.0);
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
 		
-	        std::vector<MeinekeCryptCell> cells;
+            std::vector<MeinekeCryptCell> cells;
 	
-	        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-	        {
-	            MeinekeCryptCell cell(DIFFERENTIATED, HEALTHY, 0, new FixedCellCycleModel());
-	            double birth_time = -10;
-	            cell.SetNodeIndex(i);
+            for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+            {
+                MeinekeCryptCell cell(DIFFERENTIATED, HEALTHY, 0, new FixedCellCycleModel());
+                double birth_time = -10;
+                cell.SetNodeIndex(i);
 	            cell.SetBirthTime(birth_time);
-	            cells.push_back(cell);
-	        }
+                cells.push_back(cell);
+            }
 
 	        TissueSimulationForForceExperiments simulator(*p_mesh, cells, ghost_node_indices, fix_X_not_Y);
 
-	        simulator.SetOutputDirectory(output_directory);
-	        simulator.SetEndTime(run_time);
+            simulator.SetOutputDirectory(output_directory);
+            simulator.SetEndTime(run_time);
             simulator.SetNoSloughing();     
-			simulator.rGetCrypt().ReMesh();
+            simulator.rGetCrypt().ReMesh();
 
-	        simulator.Solve();
+            simulator.Solve();
 	
-	        double width = p_mesh->GetNode(327)->rGetLocation()[0] - p_mesh->GetNode(317)->rGetLocation()[0];	
-	        c_vector<double,2> force = simulator.CalculateTotalForce();
+            double width = p_mesh->GetNode(327)->rGetLocation()[0] - p_mesh->GetNode(317)->rGetLocation()[0];	
+            c_vector<double,2> force = simulator.CalculateTotalForce();
         
             if(fix_X_not_Y)
             {
@@ -403,16 +403,15 @@ public:
             }
             old_stretch = stretch;
 
-	        SimulationTime::Destroy();
+            SimulationTime::Destroy();
 	        RandomNumberGenerator::Destroy();
         }
 
-
- 		std::cout << "\n\nResults - incremental:\n";
-    	for(unsigned i=0; i<stretches.size(); i++)
-    	{
-			std::cout << stretches[i] << " " << forces[i] << " " << areas[i] << "\n";
-    	}
+        std::cout << "\n\nResults - incremental:\n";
+        for(unsigned i=0; i<stretches.size(); i++)
+        {
+            std::cout << stretches[i] << " " << forces[i] << " " << areas[i] << "\n";
+        }
         
         // just check nothing has changed. To get this test to pass use
         // a stretch of 1.1, fixXNotY = true and end time of 0.3

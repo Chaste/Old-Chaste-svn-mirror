@@ -867,9 +867,9 @@ void FiniteElasticityAssembler<DIM>::CompareJacobians()
             }
             else
             {
-                #define COVERAGE_IGNORE
+                //#define COVERAGE_IGNORE // commented to avoid nested COV_IGNORES
                 no_difference = false;
-                #undef COVERAGE_IGNORE
+                //#undef COVERAGE_IGNORE
             }
             std::cout << value << " ";
         }
@@ -937,7 +937,7 @@ void FiniteElasticityAssembler<DIM>::TakeNewtonStep()
     SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);
     
     gmres.solve(this->mSystemMatrix, update, this->mRhsVector, PreconditionIdentity());
-    
+
     // deal with hanging nodes - form a continuous solutions
     this->mHangingNodeConstraints.distribute(update);
     
@@ -1023,7 +1023,6 @@ void FiniteElasticityAssembler<DIM>::Solve()
                   << ":\n-------------------\n";
         
         TakeNewtonStep();
-        
         this->AssembleSystem(true, false);
         norm_resid = CalculateResidualNorm();
         
@@ -1035,17 +1034,17 @@ void FiniteElasticityAssembler<DIM>::Solve()
         counter++;
         if (counter==20)
         {
-            #define COVERAGE_IGNORE
+            //#define COVERAGE_IGNORE  // commented to avoid nested COV_IGNORES
             EXCEPTION("Not converged after 20 newton iterations, quitting");
-            #undef COVERAGE_IGNORE
+            //#undef COVERAGE_IGNORE
         }
     }
     
     if (norm_resid > tol)
     {
-        #define COVERAGE_IGNORE
+        //#define COVERAGE_IGNORE  // commented to avoid nested COV_IGNORES
         EXCEPTION("Failed to converge");
-        #undef COVERAGE_IGNORE
+        //#undef COVERAGE_IGNORE
     }
     
     // set up mDeformedPosition
