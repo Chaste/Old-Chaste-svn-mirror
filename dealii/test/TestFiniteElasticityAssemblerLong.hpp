@@ -91,7 +91,7 @@ public :
     void Test3dProblemOnCube() throw(Exception)
     {
         Vector<double> body_force(3);
-        body_force(1) = 0.02;
+        body_force(1) = 0.2;
         
         MooneyRivlinMaterialLaw<3> mooney_rivlin_law(0.01,0.02);
         
