@@ -128,7 +128,7 @@ public :
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(1);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         // create a FiniteElasticity object, just in order to get its DoFHandler
         Vector<double> body_force(2);

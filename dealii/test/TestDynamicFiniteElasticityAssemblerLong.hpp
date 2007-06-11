@@ -27,7 +27,7 @@ public :
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(3);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         
         DynamicFiniteElasticityAssembler<2> dynamic_finite_elasticity(&mesh,
@@ -65,14 +65,14 @@ public :
     void Test3dProblemOnCube() throw(Exception)
     {
         Vector<double> body_force(3);
-        body_force(1) = 2.0;
+        body_force(1) = 0.02;
         
-        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(1.0, 2.0);
+        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(0.01, 0.02);
         
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(3);
-        FiniteElasticityTools<3>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<3>::SetFixedBoundary(mesh, 0, 0.0);
         
         
         DynamicFiniteElasticityAssembler<3> dynamic_finite_elasticity(&mesh,
@@ -122,7 +122,7 @@ public :
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(3);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         DynamicFiniteElasticityAssembler<2> dynamic_finite_elasticity(&mesh,
                                                                       &mooney_rivlin_law,

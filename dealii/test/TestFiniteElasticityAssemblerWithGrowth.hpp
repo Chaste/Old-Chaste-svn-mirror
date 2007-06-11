@@ -2,6 +2,7 @@
 #define TESTFINITEELASTICITYASSEMBLERWITHGROWTH_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <cmath>
 #include "FiniteElasticityAssemblerWithGrowth.cpp"
 
 #include "TriangulationVertexIterator.hpp"
@@ -16,6 +17,8 @@
 #include "ConstantTumourSourceModel.hpp"
 
 #include "grid/tria_boundary_lib.h"
+
+
 
 // todos: proper test of answers, compare numerical jacobian
 // sensible test once s set up. change constructor
@@ -98,7 +101,7 @@ public :
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(1);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         // elements haven't been set as GROWING_REGION or NON_GROWING_REGION
         TS_ASSERT_THROWS_ANYTHING(FiniteElasticityAssemblerWithGrowth<2> bad_fe_with_growth(&mesh,&mooney_rivlin_law,body_force,1.0,"",&source_model));
@@ -226,8 +229,7 @@ public :
         
         finiteelas_with_growth.SetTimes(0.0, 10.0, 0.1);
         
-        finiteelas_with_growth.Run();
-        
+        finiteelas_with_growth.Run();  
     }
     
     
@@ -250,7 +252,7 @@ public :
         opposite_corner[1] = height;
         
         unsigned num_elem_x = 50;
-        unsigned num_elem_y = 2;
+        unsigned num_elem_y = 1;
         
         std::vector<unsigned> repetitions;
         repetitions.push_back(num_elem_x);
@@ -258,11 +260,24 @@ public :
         
         GridGenerator::subdivided_hyper_rectangle(mesh, repetitions, zero, opposite_corner);
 
+
+//
+//        double alpha = 1;
+//        double pi = 3.14159265;
+//		TriangulationVertexIterator<2> vertex_iter(&mesh);
+//		while(!vertex_iter.End())
+//		{
+//			Point<2>& position = vertex_iter.GetVertex();
+//			position[1] += alpha*sin(3*pi*position[0]/length); 
+//			vertex_iter.Next();
+//		}
+    
+
+
         // set all elements as growing region (using a circle with a big radius)
         FiniteElasticityTools<2>::SetCircularRegionAsGrowingRegion(mesh, zero, 10*length);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh,0, 0.0);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh,0, length);
-
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, length, false);
 
         ConcentrationBasedTumourSourceModel<2> source_model(mesh);
         
@@ -273,7 +288,7 @@ public :
                                                                       "finite_elas_growth/polyp2d",
                                                                       &source_model);
                 
-        finiteelas_with_growth.SetTimes(0.0, 10.0, 0.1);
+        finiteelas_with_growth.SetTimes(0.0, 10, 0.1);
         finiteelas_with_growth.Run();
     }
     
@@ -295,10 +310,10 @@ public :
         ConcentrationBasedTumourSourceModel<2> source_model(mesh);
         
         FiniteElasticityAssemblerWithGrowth<2> finiteelas_with_growth(&mesh,
-                                                                     NULL,
-                                                                     body_force,
-                                                                     density,
-                                                                     "finite_elas_growth/rectanle2d_2circles",
+                                                                      NULL,
+                                                                      body_force,
+                                                                      density,
+                                                                      "finite_elas_growth/rectanle2d_2circles",
                                                                       &source_model);
                 
                 

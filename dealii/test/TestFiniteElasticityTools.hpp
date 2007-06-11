@@ -17,7 +17,7 @@ public :
         ////////////////////////////
         // fix x=0 surface
         ////////////////////////////
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         Triangulation<2>::cell_iterator element_iter = mesh.begin_active();
         while (element_iter!=mesh.end())
@@ -69,6 +69,33 @@ public :
             element_iter++;
         }
         
+        ////////////////////////////////////////////////////
+        // fix y=0 surface, whilst keeping the y=1 surface 
+        ////////////////////////////////////////////////////
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 1, 0.0, false);
+        
+        element_iter = mesh.begin_active();
+        while (element_iter!=mesh.end())
+        {
+            for (unsigned face_index=0; face_index<GeometryInfo<2>::faces_per_cell; face_index++)
+            {
+                if (element_iter->face(face_index)->at_boundary())
+                {
+                    double y = element_iter->face(face_index)->center()(1);
+                    unsigned boundary_val = element_iter->face(face_index)->boundary_indicator();
+                    if ( (fabs(y)<1e-4) || (fabs(y-1.0)<1e-4) )
+                    {
+                        TS_ASSERT_EQUALS(boundary_val, FIXED_BOUNDARY);
+                    }
+                    else
+                    {
+                        TS_ASSERT_EQUALS(boundary_val, NEUMANN_BOUNDARY);
+                    }
+                }
+            }
+            element_iter++;
+        }
+        
         ///////////////////////
         // cover exception
         ///////////////////////
@@ -81,7 +108,7 @@ public :
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(1);
-        FiniteElasticityTools<3>::SetFixedBoundary(mesh, 2);
+        FiniteElasticityTools<3>::SetFixedBoundary(mesh, 2, 0.0);
         
         Triangulation<3>::cell_iterator element_iter = mesh.begin_active();
         

@@ -1,2 +1,3 @@
 TestFiniteElasticityAssemblerLong.hpp
+TestFiniteElasticityAssemblerWithGrowth.hpp
 TestDynamicFiniteElasticityAssemblerLong.hpp

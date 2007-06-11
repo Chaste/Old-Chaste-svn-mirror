@@ -26,7 +26,7 @@ public :
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(1);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         DynamicFiniteElasticityAssembler<2> dynamic_fe(&mesh,&mooney_rivlin_law,body_force,1.0,"");
         
@@ -51,7 +51,7 @@ public :
         
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         DynamicFiniteElasticityAssembler<2> dynamic_fe(&mesh,&mooney_rivlin_law,body_force,1.0,"");
         
@@ -98,7 +98,7 @@ public :
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(3);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         
         DynamicFiniteElasticityAssembler<2> dynamic_finite_elasticity(&mesh,
@@ -153,7 +153,7 @@ public :
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(3);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         DynamicFiniteElasticityAssembler<2> dynamic_fe_small_dt(&mesh,
                                                                 &mooney_rivlin_law,

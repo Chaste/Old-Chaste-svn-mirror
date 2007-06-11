@@ -833,7 +833,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
 //                source_value = 3;
 //            }
  
-            double source_value = 3*exp(-2*(position[0]-25)*(position[0]-25));
+            double source_value = 3*exp(-0.5*(position[0]-25)*(position[0]-25));
  
             
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();

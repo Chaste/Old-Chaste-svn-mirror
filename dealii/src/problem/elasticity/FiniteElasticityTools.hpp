@@ -11,9 +11,12 @@ public:
     /**
      *  Takes in a mesh and sets all surface elements for which x_i = value (where i is 'component', 
      *  the second parameter, value the third parameter, which defaults to 0) as the fixed surface 
-     *  and all other surface elements as the neumann surface
+     *  and all other surface elements as the neumann surface. The fourth parameter determines whether
+     *  other surface elements should be set as the NEUMANN BOUNDARY or left alone. It defaults to 
+     *  true but should be used as false if SetFixedBoundary is called multiple times on the same 
+     *  mesh
      */
-    static void SetFixedBoundary(Triangulation<DIM>& mesh, unsigned component, double value=0.0)
+    static void SetFixedBoundary(Triangulation<DIM>& mesh, unsigned component, double value, bool restNeumann=true)
     {
         assert(component<DIM);
         
@@ -36,15 +39,18 @@ public:
                     }
                     else
                     {
-                        // else label as neumann boundary
-                        element_iter->face(face_index)->set_boundary_indicator(NEUMANN_BOUNDARY);
+                        if(restNeumann)
+                        {
+                            // else label as neumann boundary
+                            element_iter->face(face_index)->set_boundary_indicator(NEUMANN_BOUNDARY);
+                        }
                     }
                 }
             }
             element_iter++;
         }
         
-        if (!found_element_on_requested_surface)
+        if (!found_element_on_requested_surface && restNeumann)
         {
             EXCEPTION("No elements were found on the requested surface");
         }

@@ -33,7 +33,7 @@ public :
         // should throw because the mesh has no surface elements set as the fixed boundary
         TS_ASSERT_THROWS_ANYTHING(FiniteElasticityAssembler<2> bad_fe1(&mesh,&mooney_rivlin_law,body_force,1.0,""));
         
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         // should throw because of the negative density
         TS_ASSERT_THROWS_ANYTHING(FiniteElasticityAssembler<2> bad_fe2(&mesh,&mooney_rivlin_law,body_force,-1.0,""));
@@ -73,7 +73,7 @@ public :
         
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         
         FiniteElasticityAssembler<2> finite_elasticity(&mesh,
@@ -94,7 +94,7 @@ public :
         
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         FiniteElasticityAssembler<2> finite_elasticity(&mesh,
                                                        &mooney_rivlin_law,
@@ -135,7 +135,7 @@ public :
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(3);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         FiniteElasticityAssembler<2> finite_elasticity(&mesh,
                                                        &mooney_rivlin_law,
@@ -186,7 +186,7 @@ public :
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(3);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         
         FiniteElasticityAssembler<2> finite_elasticity(&mesh,

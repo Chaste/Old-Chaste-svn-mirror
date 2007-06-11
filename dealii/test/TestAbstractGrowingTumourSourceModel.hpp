@@ -70,7 +70,7 @@ public:
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(1);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
         FiniteElasticityAssembler<2> finite_elasticity(&mesh,
                                                        &mooney_rivlin_law,
