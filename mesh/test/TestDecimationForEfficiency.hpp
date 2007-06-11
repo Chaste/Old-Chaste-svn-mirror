@@ -12,8 +12,6 @@
 #include <iostream>
 #include <fstream>
 
-
-
 class TestDecimationForEfficiency : public CxxTest::TestSuite
 {
 public:
