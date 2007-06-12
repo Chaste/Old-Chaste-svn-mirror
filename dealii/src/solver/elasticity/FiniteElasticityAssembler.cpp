@@ -867,9 +867,7 @@ void FiniteElasticityAssembler<DIM>::CompareJacobians()
             }
             else
             {
-                //#define COVERAGE_IGNORE // commented to avoid nested COV_IGNORES
                 no_difference = false;
-                //#undef COVERAGE_IGNORE
             }
             std::cout << value << " ";
         }
@@ -1032,19 +1030,15 @@ void FiniteElasticityAssembler<DIM>::Solve()
         mNumNewtonIterations = counter;
         
         counter++;
-        if (counter==20)
+        if (counter==200)
         {
-            //#define COVERAGE_IGNORE  // commented to avoid nested COV_IGNORES
             EXCEPTION("Not converged after 20 newton iterations, quitting");
-            //#undef COVERAGE_IGNORE
         }
     }
     
     if (norm_resid > tol)
     {
-        //#define COVERAGE_IGNORE  // commented to avoid nested COV_IGNORES
         EXCEPTION("Failed to converge");
-        //#undef COVERAGE_IGNORE
     }
     
     // set up mDeformedPosition

@@ -18,7 +18,7 @@ public :
 
     // Run same simulation on two meshes (one more refined than the other)
     // and test they agree on shared gridpoints
-    void Test2dProblemOnSquareForConvergence() throw(Exception)
+    void zzTest2dProblemOnSquareForConvergence() throw(Exception)
     {
         ////////////////////////////////////////////////
         // run 1: on a mesh which is refined 3 times..
@@ -91,9 +91,9 @@ public :
     void Test3dProblemOnCube() throw(Exception)
     {
         Vector<double> body_force(3);
-        body_force(1) = 0.2;
+        body_force(1) = 20;
         
-        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(0.01,0.02);
+        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(1,2);
         
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 0.1);
@@ -179,7 +179,7 @@ public :
     
     
     
-    void Test3dProblemOnCubeFixedDisplacement() throw(Exception)
+    void zzTest3dProblemOnCubeFixedDisplacement() throw(Exception)
     {
         Vector<double> body_force(3); // zero vector
         body_force(2)=0.05;
