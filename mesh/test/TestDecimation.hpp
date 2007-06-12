@@ -351,7 +351,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
     }
-    void xTestSequence2DAnimate()
+    void TestSequence2D()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_800_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -361,7 +361,7 @@ public:
         SequenceDecimator<2> decimator;
         decimator.Initialise(&mesh);
         
-        decimator.DecimateAnimate("SequentialAnimation");
+        decimator.Decimate();
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
@@ -546,8 +546,8 @@ public:
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
         decimator.SetThreshold(1e-6);
-        //decimator.DecimateAnimate("SquareVectorAnimation",10);
-        decimator.Decimate();
+        decimator.DecimateAnimate("SquareVectorAnimation",27);
+        //decimator.Decimate();
         
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 16U);
         
