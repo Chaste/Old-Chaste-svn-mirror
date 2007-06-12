@@ -15,8 +15,6 @@
  * @param basisIndex Which basis function to compute. This is a local index
  *     within a canonical element.
  * @return The value of the basis function.
- *
- * \todo basisIndex should be unsigned (ticket:114)
  */
 template <>
 double LinearBasisFunction<3>::ComputeBasisFunction(
@@ -54,8 +52,6 @@ double LinearBasisFunction<3>::ComputeBasisFunction(
  * @param basisIndex Which basis function to compute. This is a local index
  *     within a canonical element.
  * @return The value of the basis function.
- *
- * \todo basisIndex should be unsigned (ticket:114)
  */
 template <>
 double LinearBasisFunction<2>::ComputeBasisFunction(
@@ -90,8 +86,6 @@ double LinearBasisFunction<2>::ComputeBasisFunction(
  * @param basisIndex Which basis function to compute. This is a local index
  *     within a canonical element.
  * @return The value of the basis function.
- *
- * \todo basisIndex should be unsigned (ticket:114)
  */
 template <>
 double LinearBasisFunction<1>::ComputeBasisFunction(
@@ -141,8 +135,6 @@ double LinearBasisFunction<0>::ComputeBasisFunction(const Point<0> &rPoint, unsi
  * @return The derivative of the basis function. This is a vector
  *     (c_vector<double, ELEM_DIM> instance) giving the derivative
  *     along each axis.
- *
- * \todo basisIndex should be unsigned (ticket:114)
  */
 template <>
 c_vector<double, 3> LinearBasisFunction<3>::ComputeBasisFunctionDerivative(
@@ -192,8 +184,6 @@ c_vector<double, 3> LinearBasisFunction<3>::ComputeBasisFunctionDerivative(
  * @return The derivative of the basis function. This is a vector
  *     (c_vector<double, ELEM_DIM> instance) giving the derivative
  *     along each axis.
- *
- * \todo basisIndex should be unsigned (ticket:114)
  */
 template <>
 c_vector<double, 2> LinearBasisFunction<2>::ComputeBasisFunctionDerivative(
@@ -235,8 +225,6 @@ c_vector<double, 2> LinearBasisFunction<2>::ComputeBasisFunctionDerivative(
  * @return The derivative of the basis function. This is a vector
  *     (c_vector<double, ELEM_DIM> instance) giving the derivative
  *     along each axis.
- *
- * \todo basisIndex should be unsigned (ticket:114)
  */
 template <>
 c_vector<double, 1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(

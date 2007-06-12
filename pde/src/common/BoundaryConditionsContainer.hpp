@@ -135,12 +135,13 @@ public:
     {
         assert(indexOfUnknown < PROBLEM_DIM);
         
+        ConstBoundaryCondition<SPACE_DIM>* p_zero_boundary_condition =
+            new ConstBoundaryCondition<SPACE_DIM>( 0.0 );
+        
         typename ConformingTetrahedralMesh<ELEM_DIM, SPACE_DIM>::BoundaryNodeIterator iter;
         iter = pMesh->GetBoundaryNodeIteratorBegin();
         while (iter != pMesh->GetBoundaryNodeIteratorEnd())
         {
-            ConstBoundaryCondition<SPACE_DIM>* p_zero_boundary_condition =
-                new ConstBoundaryCondition<SPACE_DIM>( 0.0 );
             AddDirichletBoundaryCondition(*iter, p_zero_boundary_condition, indexOfUnknown);
             iter++;
         }
@@ -159,13 +160,13 @@ public:
     {
         assert(indexOfUnknown < PROBLEM_DIM);
         
+        ConstBoundaryCondition<SPACE_DIM>* p_zero_boundary_condition =
+            new ConstBoundaryCondition<SPACE_DIM>( 0.0 );
+                
         typename ConformingTetrahedralMesh<ELEM_DIM, SPACE_DIM>::BoundaryElementIterator iter;
         iter = pMesh->GetBoundaryElementIteratorBegin();
         while (iter != pMesh->GetBoundaryElementIteratorEnd())
         {
-            ConstBoundaryCondition<SPACE_DIM>* p_zero_boundary_condition =
-                new ConstBoundaryCondition<SPACE_DIM>( 0.0 );
-                
             AddNeumannBoundaryCondition(*iter, p_zero_boundary_condition, indexOfUnknown);
             iter++;
         }
