@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 
+#define COVERAGE_IGNORE
 /**
  * Constructor.
  *
@@ -159,4 +160,6 @@ void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std:
     rDY[6] = dX12*factor; 
     rDY[7] = 0.0; // Do not change the Wnt level.
 }
+
+#undef COVERAGE_IGNORE
 
