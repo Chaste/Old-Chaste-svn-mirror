@@ -18,7 +18,7 @@ public :
 
     // Run same simulation on two meshes (one more refined than the other)
     // and test they agree on shared gridpoints
-    void zzTest2dProblemOnSquareForConvergence() throw(Exception)
+    void Test2dProblemOnSquareForConvergence() throw(Exception)
     {
         ////////////////////////////////////////////////
         // run 1: on a mesh which is refined 3 times..
@@ -179,7 +179,7 @@ public :
     
     
     
-    void zzTest3dProblemOnCubeFixedDisplacement() throw(Exception)
+    void Test3dProblemOnCubeFixedDisplacement() throw(Exception)
     {
         Vector<double> body_force(3); // zero vector
         body_force(2)=0.05;

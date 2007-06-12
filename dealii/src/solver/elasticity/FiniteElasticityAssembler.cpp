@@ -1030,7 +1030,7 @@ void FiniteElasticityAssembler<DIM>::Solve()
         mNumNewtonIterations = counter;
         
         counter++;
-        if (counter==200)
+        if (counter==20)
         {
             EXCEPTION("Not converged after 20 newton iterations, quitting");
         }
