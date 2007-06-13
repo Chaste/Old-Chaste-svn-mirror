@@ -250,8 +250,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
         
         double detF = determinant(F);
         
-        
-        static SymmetricTensor<2,DIM> T2;
+       
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,this->dTdE,assembleJacobian);
         
         for (unsigned i=0; i<dofs_per_element; i++)
@@ -833,7 +832,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
 //                source_value = 3;
 //            }
  
-            double source_value = 3*exp(-0.5*(position[0]-25)*(position[0]-25));
+            double source_value = 10*exp(-0.5*(position[0]-25)*(position[0]-25));
  
             
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
