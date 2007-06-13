@@ -1,10 +1,10 @@
 #ifndef TESTCRYPTHONECOMBMESHGENERATOR_HPP_
 #define TESTCRYPTHONECOMBMESHGENERATOR_HPP_
 #include <cxxtest/TestSuite.h>
-#include "CryptHoneycombMeshGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "OutputFileHandler.hpp"
 
-class TestCryptHoneycombMeshGenerator : public CxxTest::TestSuite
+class TestHoneycombMeshGenerator : public CxxTest::TestSuite
 {
 private:
     void Output2DNodesToFile(ConformingTetrahedralMesh<2,2>* p_mesh, std::string fileName)
@@ -41,13 +41,13 @@ private:
     
 public:
 
-    void TestCryptHoneycombMeshGeneratorCylindricalRelaxed() throw(Exception)
+    void TestHoneycombMeshGeneratorCylindricalRelaxed() throw(Exception)
     {
         unsigned num_cells_width = 8;
         unsigned num_cells_depth = 22;
         unsigned ghosts = 2;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts);
       
         
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();             
@@ -101,7 +101,7 @@ public:
         TS_ASSERT_DELTA(p_params->GetCryptLength(), sqrt(3)*num_cells_depth/2.0, 1e-7);
     }
     
-    void TestCryptHoneycombMeshGeneratorCylindricalCompressed() throw(Exception)
+    void TestHoneycombMeshGeneratorCylindricalCompressed() throw(Exception)
     {
         unsigned num_cells_width = 8;
         unsigned num_cells_depth = 22;
@@ -110,7 +110,7 @@ public:
         
         double x_factor = width/(double)num_cells_width;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, true, width/num_cells_width);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, true, width/num_cells_width);
         
                 
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();             
@@ -172,7 +172,7 @@ public:
         double width = 8.0;
         unsigned ghosts = 4;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width,num_cells_depth,ghosts,false);
+        HoneycombMeshGenerator generator(num_cells_width,num_cells_depth,ghosts,false);
         
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
         
@@ -234,7 +234,7 @@ public:
         double width = 6.0;
         unsigned ghosts = 4;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width,num_cells_depth,ghosts,false,width/num_cells_width);
+        HoneycombMeshGenerator generator(num_cells_width,num_cells_depth,ghosts,false,width/num_cells_width);
         
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
         

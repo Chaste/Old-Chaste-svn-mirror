@@ -1,6 +1,6 @@
 TestDecimation.hpp
 TestConformingTetrahedralMesh.hpp
-TestCryptHoneycombMeshGenerator.hpp
+TestHoneycombMeshGenerator.hpp
 TestFemlabMeshReader.hpp
 TestMemfemMeshReader.hpp
 TestMeshWriters.hpp

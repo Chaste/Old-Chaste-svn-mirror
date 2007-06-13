@@ -18,7 +18,7 @@
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "ColumnDataReader.hpp"
-#include "CryptHoneycombMeshGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -322,7 +322,7 @@ public:
         int num_cells_depth = 20; // the TissueSimulationForForceExperiments class expects these values!
         int num_cells_width = 10; // the TissueSimulationForForceExperiments class expects these values!
         
-        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();        
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 

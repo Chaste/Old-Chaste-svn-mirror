@@ -18,7 +18,7 @@
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "ColumnDataReader.hpp"
-#include "CryptHoneycombMeshGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "RandomCellKiller.hpp"

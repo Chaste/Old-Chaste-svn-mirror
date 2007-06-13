@@ -9,7 +9,7 @@
 #include "OutputFileHandler.hpp"
 #include "MeinekeCryptCell.hpp"
 #include "CancerParameters.hpp"
-#include "CryptHoneycombMeshGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
 #include "Crypt.cpp"
 
@@ -131,7 +131,7 @@ public:
         unsigned num_cells_depth = 11;
         unsigned num_cells_width = 6;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
 
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();

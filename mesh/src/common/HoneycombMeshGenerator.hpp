@@ -18,7 +18,7 @@
  *  and generates a mesh and ghost node info. NOTE: the user should delete the
  *  mesh after use
  */
-class CryptHoneycombMeshGenerator
+class HoneycombMeshGenerator
 {
 private:
     ConformingTetrahedralMesh<2,2>* mpMesh;
@@ -202,7 +202,7 @@ private:
     
 public:
 
-    ~CryptHoneycombMeshGenerator()
+    ~HoneycombMeshGenerator()
     {
         delete mpMesh;
         delete mpCylindricalMesh;
@@ -223,7 +223,7 @@ public:
      * Note: this class creates a cancer params instance and sets the crypt width and length
      * accordingly in the parameters class.
      */
-    CryptHoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=3, bool cylindrical = true, double widthScaleFactor = 1.0)
+    HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=3, bool cylindrical = true, double widthScaleFactor = 1.0)
     {
         mCylindrical = cylindrical;
         mNumCellWidth = numNodesAlongWidth;
