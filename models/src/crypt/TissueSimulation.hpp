@@ -118,7 +118,8 @@ protected:
         archive & mNumDeaths;
         archive & mIncludeSloughing;
 
-        archive & mrMesh;
+        ConformingTetrahedralMesh<DIM,DIM> *p_mesh = &mrMesh;
+        archive & p_mesh;
         // We need to archive cell killers here see ticket:389.
     }
     

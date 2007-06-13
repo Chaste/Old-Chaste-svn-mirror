@@ -628,6 +628,62 @@ public:
             TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width, 1e-7);
         }
     }
+    void TestArchivingReferences() throw (Exception)
+    {
+        //
+        //This test shows how references may be archived.  If it's a reference
+        //to a base class (but the instance is that of a derived class) then we
+        //have to cast to a pointer so that the serialization library can correctly
+        //infer its true type.
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "cylindrical_mesh_base.arch";
+        
+        double width = 0.0;
+        
+        {   
+            // Set up a mesh
+            unsigned cells_across = 5;
+            unsigned cells_up = 3;
+            double crypt_width = 5.0;
+            unsigned thickness_of_ghost_layer = 0;
+        
+            CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+            Cylindrical2dMesh * p_mesh=generator.GetCylindricalMesh();
+            
+            width = p_mesh->GetWidth(0);
+            TS_ASSERT_DELTA(width,crypt_width,1e-7);
+            // Archive the mesh
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            // Get a reference to the mesh
+            ConformingTetrahedralMesh<2,2>& r_mesh = *p_mesh;
+            TS_ASSERT_DELTA(width,r_mesh.GetWidth(0),1e-7);
+            
+            // Serialize via pointer to the reference
+            ConformingTetrahedralMesh<2,2> * const pr_mesh = &r_mesh;
+            output_arch << pr_mesh;
+        }
+        
+        {   
+            unsigned cells_across = 10;
+            unsigned cells_up = 10;
+            double crypt_width = 10.0;
+            unsigned thickness_of_ghost_layer = 0;
+        
+            CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+            ConformingTetrahedralMesh<2,2>* p_mesh2 = generator.GetCylindricalMesh();
+            
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            // restore from the archive
+            //ConformingTetrahedralMesh<2,2>& r_mesh2 = *p_mesh2;
+            input_arch >> p_mesh2;
+            
+            TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width, 1e-7);
+        }
+    }
     
 };
 
