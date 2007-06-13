@@ -131,19 +131,6 @@ unsigned Crypt<DIM>::RemoveDeadCells()
         }
         mCells = living_cells;
     
-        //// the following should be more efficient but doesn't work for some reason..    
-//        for(std::vector<MeinekeCryptCell>::iterator iter = mCells.begin();
-//            iter != mCells.end();
-//            iter++)
-//        {
-//            if (iter->IsDead())
-//            {
-//                // delete node BEFORE calling erase as erase will prob mess with the iter
-//                mrMesh.DeleteNodePriorToReMesh(iter->GetNodeIndex());
-//                mCells.erase(iter);
-//            }
-//        }
-    
         return num_to_be_removed;
     }
 }
