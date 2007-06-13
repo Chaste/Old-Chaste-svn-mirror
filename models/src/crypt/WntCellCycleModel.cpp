@@ -101,33 +101,24 @@ void WntCellCycleModel::ResetModel()
  */
 bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
-    //std::cout << "Looking up a cell cycle model" << std::endl;
     assert(cellCycleInfluences.size()==2);
     
-// Use the WntStimulus provided as an input
+    // Use the WntStimulus provided as an input
     mProteinConcentrations[8] = cellCycleInfluences[0];
-// Use the cell's current mutation status as another input
+    // Use the cell's current mutation status as another input
     mProteinConcentrations[9] = cellCycleInfluences[1];
     
     double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
-    //std::cout << "Last time = " << mLastTime << ", Current Time = " << current_time << "\n" << std::endl;
+    
     if (current_time>mLastTime)
     {
         if (!mInSG2MPhase)
         {	// WE ARE IN G0 or G1 PHASE - running cell cycle ODEs
             // feed this time step's Wnt stimulus into the solver as a constant over this timestep.
-            
-            
+
             double meshSize = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
             
-//            for (unsigned i=0 ; i<8 ; i++)
-//
-//                std::cout << "Before Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
-//            }
-//            std::cout.flush();
             OdeSolution solution = mSolver.Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, meshSize, meshSize);
-//            std::cout << "After Solve\n";
-//            std::cout.flush();
 
             unsigned timeRows = solution.GetNumberOfTimeSteps();
             if ( mSolver.StoppingEventOccured() == false )
@@ -136,59 +127,39 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
                 assert (solution.rGetTimes()[timeRows] == current_time);
             }
             
-            //std::cout<<"Stopping event = "<<mSolver.StoppingEventOccured()<<"\n";
-            //std::cout<<"\n"<<last_time<<" == "<<current_time<<"\n";
-            //
-//            std::cout << "last time = "<<mLastTime<<"current time = "<<current_time<<"Number time steps = "<<timeRows<<"\n";
-//            std::cout.flush();
 
             for (unsigned i=0 ; i<10 ; i++)
             {
                 mProteinConcentrations[i] = solution.rGetSolutions()[timeRows][i];
-//		 		std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
-//		 		std::cout.flush();
                 if (mProteinConcentrations[i]<0)
                 {
-#define COVERAGE_IGNORE
+                    #define COVERAGE_IGNORE
                     std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
                     EXCEPTION("A protein concentration has gone negative\nCHASTE predicts that the WntCellCycleModel numerical method is probably unstable.");
-#undef COVERAGE_IGNORE
+                    #undef COVERAGE_IGNORE
                 }
             }
-//            for (unsigned i=0 ; i<8 ; i++)
-//            {
-//                std::cout << "After Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
-//            }
-//            std::cout.flush();
 
-            //std::cout << "Beta-Catenin = " << mProteinConcentrations[6] << "\n";
             if (mSolver.StoppingEventOccured())
             {
                 unsigned end = solution.rGetSolutions().size() - 1;
                 // Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
                 double time_entering_S_phase = solution.rGetTimes()[end];
                 mDivideTime = time_entering_S_phase + CancerParameters::Instance()->GetSG2MDuration();
-                //std::cout << " Divide time = " << mDivideTime << "\n" << std::endl;
+
                 mInSG2MPhase = true;
             }
-//            std::cout << "After Stop check\n";
-//            std::cout.flush();
         }
         else
-        {	// WE ARE IN S-G2-M Phases, ODE model finished, just increasing time until division...
-//	        std::cout << "In branch\n";
-//            std::cout.flush();
+        {	
+            // WE ARE IN S-G2-M Phases, ODE model finished, just increasing time until division...
             if (current_time >= mDivideTime)
             {
                 mReadyToDivide = true;
             }
         }
         mLastTime = current_time;
-//    std::cout << "mLastTime updated to "<< mLastTime<<"\n";
-//    std::cout.flush();
     }
-//    std::cout << "Returning\n";
-//    std::cout.flush();
     return mReadyToDivide;
 }
 

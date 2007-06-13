@@ -98,24 +98,54 @@ void Crypt<DIM>::SetGhostNodes(std::vector<bool>& rGhostNodes)
 template<unsigned DIM>
 unsigned Crypt<DIM>::RemoveDeadCells()
 {
-    std::vector<MeinekeCryptCell> living_cells;
-
+    unsigned num_to_be_removed = 0;
     for (unsigned i=0; i<mCells.size(); i++)
     {
-        MeinekeCryptCell* p_cell=&(mCells[i]);
-        if (p_cell->IsDead())
+        if (mCells[i].IsDead())
         {
-            mrMesh.DeleteNodePriorToReMesh(p_cell->GetNodeIndex());
-        }
-        else
-        {
-            living_cells.push_back(*p_cell);
+            num_to_be_removed++;
         }
     }
-
-    unsigned num_dead = (unsigned)(mCells.size()-living_cells.size());
-    mCells = living_cells;
-    return num_dead;
+    
+    if(num_to_be_removed==0)
+    {
+        return 0;
+    }
+    else
+    { 
+        unsigned num_cells = (unsigned)(mCells.size() - num_to_be_removed); 
+        std::vector<MeinekeCryptCell> living_cells;
+        living_cells.reserve(num_cells);
+    
+        for (unsigned i=0; i<mCells.size(); i++)
+        {
+            MeinekeCryptCell* p_cell=&(mCells[i]);
+            if (p_cell->IsDead())
+            {
+                mrMesh.DeleteNodePriorToReMesh(p_cell->GetNodeIndex());
+            }
+            else
+            {
+                living_cells.push_back(*p_cell);
+            }
+        }
+        mCells = living_cells;
+    
+        //// the following should be more efficient but doesn't work for some reason..    
+//        for(std::vector<MeinekeCryptCell>::iterator iter = mCells.begin();
+//            iter != mCells.end();
+//            iter++)
+//        {
+//            if (iter->IsDead())
+//            {
+//                // delete node BEFORE calling erase as erase will prob mess with the iter
+//                mrMesh.DeleteNodePriorToReMesh(iter->GetNodeIndex());
+//                mCells.erase(iter);
+//            }
+//        }
+    
+        return num_to_be_removed;
+    }
 }
 
 
