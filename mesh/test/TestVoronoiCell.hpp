@@ -78,11 +78,17 @@ public:
         unsigned colour = 1u;
         
         VoronoiCell cell(cell_centre, vertices, faces, colour);
+
+        std::vector< c_vector<double, 3> >& return_vertices = cell.GetVertices();
+        for (unsigned i=0; i<vertices.size(); i++)
+        {
+            TS_ASSERT_DELTA(norm_2(vertices[i]-return_vertices[i]), 0.0, 1e-6);
+        }
+        TS_ASSERT_EQUALS(vertices.size(), return_vertices.size());
         
-//        c_vector<double, 3> return_cell_centre = cell.GetCellCentre();
-//        std::vector< c_vector<double, 3> > return_vertices = cell.GetVertices();
 //        std::vector< std::vector < unsigned > > return_faces = cell.GetFaces();
 //        unsigned return_colour = cell.GetColour();
+//        c_vector<double, 3> return_cell_centre = cell.GetCellCentre();
     }
     
 

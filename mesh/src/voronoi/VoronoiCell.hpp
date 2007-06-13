@@ -21,7 +21,7 @@ public:
                 std::vector< std::vector < unsigned > > faces, 
                 unsigned colour = 1);
                 
-    
+    std::vector< c_vector<double, 3> >& GetVertices();
     
 };
 

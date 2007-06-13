@@ -10,3 +10,8 @@ VoronoiCell::VoronoiCell(c_vector<double, 3> cell_centre,
       mColour(colour)
 {   
 }
+
+std::vector< c_vector<double, 3> >& VoronoiCell::GetVertices()
+{
+    return mVertices;
+}

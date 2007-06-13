@@ -74,6 +74,7 @@ public:
 
     ConformingTetrahedralMesh();
     ConformingTetrahedralMesh(unsigned numElements);
+    ConformingTetrahedralMesh(std::vector<Node<SPACE_DIM> *> nodes);
     
     virtual ~ConformingTetrahedralMesh();
     

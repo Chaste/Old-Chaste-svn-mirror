@@ -15,6 +15,21 @@ ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh(uns
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh(std::vector<Node<SPACE_DIM> *> nodes)
+  //: mNodes(nodes)
+{
+    for (unsigned index=0; index<nodes.size(); index++)
+    {
+        Node<SPACE_DIM>* temp_node = nodes[index];
+        mNodes.push_back(temp_node);
+    }
+    
+    NodeMap node_map(nodes.size());
+    ReMesh(node_map);
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader)
 {
