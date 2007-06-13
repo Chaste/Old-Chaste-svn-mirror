@@ -29,8 +29,6 @@ private:
     double mCryptDepth;
     double mBottom;
     double mTop;
-//    std::vector<unsigned> mTopNodes;
-//    std::vector<unsigned> mBottomNodes;
     unsigned mNumCellWidth;
     bool mCylindrical;
        
@@ -49,15 +47,12 @@ private:
         
         double horizontal_spacing = width / (double)numNodesAlongWidth;
         double vertical_spacing = (sqrt(3)/2)*horizontal_spacing;
-//		double vertical_spacing = (sqrt(3)/2)*length / (double)numNodesAlongLength;
 
         // This line needed to define ghost nodes later...
         mCryptDepth = (double)numNodesAlongLength * (sqrt(3)/2)* width /(double)numNodesAlongWidth;
         
         if(!mCylindrical)
         {
-            // Add an extra node to the width (this is the repeated periodic node)
-            numNodesAlongWidth++;
             numNodesAlongWidth = numNodesAlongWidth + 2*ghosts;
         }
         numNodesAlongLength = numNodesAlongLength + 2*ghosts;
@@ -100,14 +95,6 @@ private:
                 double y = y0 + vertical_spacing*(double)i;
                 
                 (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << boundary << std::endl;
-//                if(i==0)
-//                {
-//                    mBottomNodes.push_back(node-1);   
-//                }
-//                if(i==numNodesAlongLength-1)
-//                {
-//                    mTopNodes.push_back(node-1);   
-//                }
             }
         }
         p_node_file->close();
@@ -182,7 +169,7 @@ private:
     }
     
     
-    void ComputeGhostNodes1()
+    void ComputeGhostNodesMonolayer()
     {
         assert(mpMesh!=NULL);
         
@@ -197,7 +184,7 @@ private:
         }
     }
     
-    void ComputeGhostNodes2()
+    void ComputeGhostNodesCylindrical()
     {
         assert(mpCylindricalMesh!=NULL);
         
@@ -221,57 +208,6 @@ public:
         delete mpCylindricalMesh;
     }
 
-    /**
-     * Crypt Honeycomb Mesh Generator
-     * 
-     * Creates a honeycomb mesh surrounded by ghost nodes
-     * 
-     * @param numCellWidth  The number of stem cells you want
-     * @param numCellDepth  The number of cells you want along crypt axis
-     * @param ghostThickness the thickness of ghost nodes surrounding the mesh (defaults to 2)
-     * @param cylindrical whether to generate a cylindrically periodic mesh or not (defaults to true)
-     * 
-     * Note: this class creates a cancer params instance and sets the crypt width and length
-     * accordingly in the parameters class.
-     */
-    CryptHoneycombMeshGenerator(unsigned numCellWidth, unsigned numCellDepth, unsigned ghostThickness = 3, bool cylindrical=true)
-    {
-        mCylindrical = cylindrical;
-        mNumCellWidth = numCellWidth;
-        mCryptWidth = numCellWidth*1.0; //*1 because cells are considered to be size one
-        mCryptDepth = sqrt(3)*numCellDepth/2;
-        mTop = 0.0; // these set in above function
-        mBottom = 0.0;  // these set in above function
-        
-        mMeshFilename = "2D_temporary_crypt_mesh";
-        Make2dPeriodicCryptMesh(numCellWidth,numCellDepth,mCryptWidth, ghostThickness);
-        std::string testoutput_dir;
-        OutputFileHandler output_file_handler("");
-        testoutput_dir = output_file_handler.GetTestOutputDirectory();
-        
-        TrianglesMeshReader<2,2> mesh_reader(testoutput_dir+ mMeshFilename);
-        
-        if (!mCylindrical)
-        {
-            mpCylindricalMesh = new Cylindrical2dMesh(mCryptWidth);// to avoid seg fault when closing
-            mpMesh = new ConformingTetrahedralMesh<2,2>;
-            mpMesh->ConstructFromMeshReader(mesh_reader);
-            ComputeGhostNodes1();
-        }
-        else
-        {   
-            mpMesh = new ConformingTetrahedralMesh<2,2>;// to avoid seg fault when closing
-            mpCylindricalMesh = new Cylindrical2dMesh(mCryptWidth);
-            mpCylindricalMesh->ConstructFromMeshReader(mesh_reader);
-            NodeMap map(mpCylindricalMesh->GetNumNodes());
-            mpCylindricalMesh->ReMesh(map); // This makes the mesh cylindrical
-            ComputeGhostNodes2();
-        }
-                
-        CancerParameters* p_params = CancerParameters::Instance();
-        p_params->SetCryptLength(mCryptDepth);
-        p_params->SetCryptWidth(mCryptWidth);
-    }
     
     /**
      * Crypt Periodic Honeycomb Mesh Generator
@@ -280,21 +216,21 @@ public:
      *
      * @param numNodesAlongWidth  The number of stem cells you want
      * @param numNodesAlongLength  The number of cells you want along crypt axis
-     * @param width  The width (circumference) of a crypt in adult cell
      * @param ghosts The thickness of ghost nodes to put around the edge (defaults to 3)
      * @param cylindrical whether the mesh should be cylindrically periodic (defaults to true)
+     * @param widthScaleFactor  The scale factor for the width (circumference) of the cells
      * 
      * Note: this class creates a cancer params instance and sets the crypt width and length
      * accordingly in the parameters class.
      */
-    CryptHoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, unsigned ghosts=3, bool cylindrical = true)
+    CryptHoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=3, bool cylindrical = true, double widthScaleFactor = 1.0)
     {
         mCylindrical = cylindrical;
         mNumCellWidth = numNodesAlongWidth;
-        mCryptWidth = width; //*1 because cells are considered to be size one
+        mCryptWidth = numNodesAlongWidth*widthScaleFactor; //*1 because cells are considered to be size one
         
         mMeshFilename = "2D_temporary_periodic_crypt_mesh";
-        Make2dPeriodicCryptMesh(numNodesAlongWidth,numNodesAlongLength,width,ghosts);
+        Make2dPeriodicCryptMesh(numNodesAlongWidth,numNodesAlongLength,mCryptWidth,ghosts);
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
         testoutput_dir = output_file_handler.GetTestOutputDirectory();
@@ -306,7 +242,7 @@ public:
             mpCylindricalMesh = new Cylindrical2dMesh(mCryptWidth);// to avoid seg fault when closing
             mpMesh = new ConformingTetrahedralMesh<2,2>;
             mpMesh->ConstructFromMeshReader(mesh_reader);
-            ComputeGhostNodes1();
+            ComputeGhostNodesMonolayer();
         }
         else
         {   
@@ -315,7 +251,7 @@ public:
             mpCylindricalMesh->ConstructFromMeshReader(mesh_reader);
             NodeMap map(mpCylindricalMesh->GetNumNodes());
             mpCylindricalMesh->ReMesh(map); // This makes the mesh cylindrical
-            ComputeGhostNodes2();
+            ComputeGhostNodesCylindrical();
         }
                 
         CancerParameters* p_params = CancerParameters::Instance();
@@ -346,10 +282,5 @@ public:
     {
         return mGhostNodeIndices;
     }
-    
-
-    
-    
-    
 };
 #endif /*CRYPTHONEYCOMBMESHGENERATOR_HPP_*/

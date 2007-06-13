@@ -48,7 +48,7 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 0u;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
         
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
@@ -374,7 +374,7 @@ public:
         double crypt_width = 3.0;
         unsigned thickness_of_ghost_layer = 2;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+        CryptHoneycombMeshGenerator generator(cells_across,cells_up,thickness_of_ghost_layer,true,crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         
         /*
@@ -484,7 +484,7 @@ public:
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 0;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         
         c_vector<double, 2>& rLocation1 = p_mesh->GetNode(1)->rGetModifiableLocation();
@@ -540,7 +540,7 @@ public:
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 0;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         
         c_vector<double, 2>& rLocation1 = p_mesh->GetNode(1)->rGetModifiableLocation();
@@ -591,7 +591,7 @@ public:
             double crypt_width = 5.0;
             unsigned thickness_of_ghost_layer = 0;
         
-            CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+            CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
             ConformingTetrahedralMesh<2,2> * const p_mesh=generator.GetCylindricalMesh();
             // You need the const above to stop a BOOST_STATIC_ASSERTION failure.
             // This is because the serialization library only allows you to save tracked
@@ -613,10 +613,9 @@ public:
         {   
             unsigned cells_across = 10;
             unsigned cells_up = 10;
-            double crypt_width = 10.0;
             unsigned thickness_of_ghost_layer = 0;
         
-            CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+            CryptHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
             ConformingTetrahedralMesh<2,2>* p_mesh2=generator.GetCylindricalMesh();
             
             // Create an input archive

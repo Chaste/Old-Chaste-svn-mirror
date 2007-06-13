@@ -374,7 +374,7 @@ public:
         double crypt_length = num_cells_depth-1.0;
         double crypt_width = num_cells_width-1.0;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 6.0, 2u, false);
+        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -413,7 +413,7 @@ public:
         double crypt_length = num_cells_depth-1.0;
         double crypt_width = num_cells_width-1.0;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 6.0, 2u, false);
+        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -567,10 +567,9 @@ public:
     {        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
-        double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -626,10 +625,9 @@ public:
         
         unsigned cells_across = 6;
         unsigned cells_up = 12;
-        double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -688,10 +686,9 @@ public:
         
         unsigned cells_across = 6;
         unsigned cells_up = 12;
-        double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -772,10 +769,9 @@ public:
     {
         unsigned cells_across = 6;
         unsigned cells_up = 12;
-        double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, false);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -817,7 +813,7 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -859,10 +855,9 @@ public:
     {
         unsigned cells_across = 6;
         unsigned cells_up = 12;
-        double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, false);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -904,7 +899,7 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer,true,crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         

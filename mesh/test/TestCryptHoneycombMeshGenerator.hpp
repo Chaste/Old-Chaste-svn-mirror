@@ -110,8 +110,9 @@ public:
         
         double x_factor = width/(double)num_cells_width;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, width, ghosts);
-         
+        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, true, width/num_cells_width);
+        
+                
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();             
         // check the mesh
         
@@ -164,7 +165,7 @@ public:
         
     }
     
-    void TestCryptOldPeriodicHoneycombMeshGeneratorRelaxed() throw(Exception)
+    void TestMonolayerHoneycombMeshGeneratorRelaxed() throw(Exception)
     {
         int num_cells_width = 8;
         int num_cells_depth = 12;
@@ -180,31 +181,30 @@ public:
         
         TS_ASSERT_THROWS_ANYTHING(p_mesh=generator.GetCylindricalMesh());
         
-        TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(),(num_cells_width+1+2*ghosts)*(num_cells_depth+2*ghosts));
+        TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(),(num_cells_width+2*ghosts)*(num_cells_depth+2*ghosts));
         
         // Scaling Factor
-        double F = (width/(double)num_cells_width);
         double spooky = (double)ghosts;
         
         // zeroth node
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],-spooky*F, 1e-6);
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-spooky*F*sqrt(3)/2,1e-6);
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],-spooky, 1e-6);
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-spooky*sqrt(3)/2,1e-6);
         
-        unsigned this_many_ghosts_at_start = ((2*ghosts+num_cells_width+1)*ghosts+ghosts);
+        unsigned this_many_ghosts_at_start = ((2*ghosts+num_cells_width)*ghosts+ghosts);
         
         // first real node
         TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[0], 0.0,1e-6);
         TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[1], 0.0,1e-6);
         
         // last real node
-        int index = (2*ghosts+num_cells_width+1)*(ghosts+num_cells_depth)+ghosts+num_cells_width;
+        int index = (2*ghosts+num_cells_width)*(ghosts+num_cells_depth)+ghosts+num_cells_width;
         TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], width,  1e-6);
         TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], length, 1e-4);
         
         // last node
         int last_node = p_mesh->GetNumNodes()-1;
-        double last_node_y = length+(spooky-1)*F*(sqrt(3)/2);
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], width+(spooky+0.5)*F,1e-6);
+        double last_node_y = length+(spooky-1)*(sqrt(3)/2);
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], width+(spooky-0.5),1e-6);
         TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], last_node_y,1e-5);
         
         // check the ghost nodes
@@ -221,22 +221,20 @@ public:
                                      correct_ghost_node_indices.begin(),correct_ghost_node_indices.end());
         
         TS_ASSERT_EQUALS(all_included, true);
-
-
                 
         CancerParameters* p_params = CancerParameters::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), length, 1e-7);
     }
     
-    void TestCryptOldPeriodicHoneycombMeshGeneratorCompressed() throw(Exception)
+    void TestMonolayerHoneycombMeshGeneratorCompressed() throw(Exception)
     {
         int num_cells_width = 8;
         int num_cells_depth = 12;
         double width = 6.0;
         unsigned ghosts = 4;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width,num_cells_depth,width,ghosts,false);
+        CryptHoneycombMeshGenerator generator(num_cells_width,num_cells_depth,ghosts,false,width/num_cells_width);
         
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
         
@@ -245,7 +243,7 @@ public:
         
         TS_ASSERT_THROWS_ANYTHING(p_mesh=generator.GetCylindricalMesh());
         
-        TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(),(num_cells_width+1+2*ghosts)*(num_cells_depth+2*ghosts));
+        TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(),(num_cells_width+2*ghosts)*(num_cells_depth+2*ghosts));
         
         // Scaling Factor
         double F = (width/(double)num_cells_width);
@@ -255,21 +253,21 @@ public:
         TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],-spooky*F, 1e-6);
         TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-spooky*F*sqrt(3)/2,1e-6);
         
-        unsigned this_many_ghosts_at_start = ((2*ghosts+num_cells_width+1)*ghosts+ghosts);
+        unsigned this_many_ghosts_at_start = ((2*ghosts+num_cells_width)*ghosts+ghosts);
         
         // first real node
         TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[0], 0.0,1e-6);
         TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[1], 0.0,1e-6);
         
         // last real node
-        int index = (2*ghosts+num_cells_width+1)*(ghosts+num_cells_depth)+ghosts+num_cells_width;
+        int index = (2*ghosts+num_cells_width)*(ghosts+num_cells_depth)+ghosts+num_cells_width;
         TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], width,  1e-6);
         TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], length, 1e-4);
         
         // last node
         int last_node = p_mesh->GetNumNodes()-1;
         double last_node_y = length+(spooky-1)*F*(sqrt(3)/2);
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], width+(spooky+0.5)*F,1e-6);
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], width+(spooky-0.5)*F,1e-6);
         TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], last_node_y,1e-6);
         
         // check the ghost nodes
@@ -292,8 +290,6 @@ public:
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), length, 1e-7);
     }
-    
-
 };
 
 
