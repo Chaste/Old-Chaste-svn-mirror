@@ -67,8 +67,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-                std::cout << "Serialize function on Conforming Mesh called \n" << std::flush;
-        // Don't do anything - this is just so subclasses can archive member variables.
+       // Don't do anything - this is just so subclasses can archive member variables.
     }
     
 public:
@@ -343,22 +342,5 @@ public:
     void UnflagAllElements();
 };
 
-template<class> struct pack;
-template<class T> struct pack<void (T)> {
-    typedef T type;
-};
-
-#define EXPORT_MESH(CLASS, E, S) \
-    BOOST_CLASS_EXPORT( pack<void (CLASS< E,S >)>::type );
-
-#define EXPORT_MESH_ALL_DIMS(CLASS) \
-    EXPORT_MESH(CLASS, 1, 1) \
-    EXPORT_MESH(CLASS, 1, 2) \
-    EXPORT_MESH(CLASS, 1, 3) \
-    EXPORT_MESH(CLASS, 2, 2) \
-    EXPORT_MESH(CLASS, 2, 3) \
-    EXPORT_MESH(CLASS, 3, 3)
-
-EXPORT_MESH_ALL_DIMS(ConformingTetrahedralMesh)
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_

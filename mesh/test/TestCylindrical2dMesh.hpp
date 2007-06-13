@@ -5,7 +5,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "Cylindrical2dMesh.cpp"
+#include "Cylindrical2dMesh.hpp"
 #include "CryptHoneycombMeshGenerator.hpp"
 #include "TrianglesMeshWriter.cpp"
 
@@ -575,63 +575,9 @@ public:
         
     }
     
+    
     void TestArchiving() throw (Exception)
     {
-        OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "cylindrical_mesh.arch";
-        
-        double width = 0.0;
-        
-        {   
-            std::cout<<"Begin serialize save\n";
-            // Set up a mesh
-            unsigned cells_across = 5;
-            unsigned cells_up = 3;
-            double crypt_width = 5.0;
-            unsigned thickness_of_ghost_layer = 0;
-        
-            CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
-            const Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-            
-            width = p_mesh->GetWidth(0);
-            TS_ASSERT_DELTA(width,crypt_width,1e-7);
-            // Archive the mesh
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
-            
-            output_arch << *p_mesh;
-            
-        }
-        
-        {   
-            std::cout<<"Begin serialize load\n";
-            unsigned cells_across = 10;
-            unsigned cells_up = 10;
-            double crypt_width = 10.0;
-            unsigned thickness_of_ghost_layer = 0;
-        
-            CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
-            Cylindrical2dMesh* p_mesh2=generator.GetCylindricalMesh();
-            
-            // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
-            // restore from the archive
-            input_arch >> *p_mesh2;
-            
-            // these are commented out for now until the cylindrical2dMesh class
-            // is archived properly.            
-            TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width, 1e-7);
-            // height is no longer stored - but worked out by looking at nodes
-            // (not stored by archiver)
-        }
-    }
-    void TestArchivingBaseFails() throw (Exception)
-    {
-        //Shows that if the pointer handle is to the base class, then
-        //the serialization fails to archive or restore correctly (#377) 
-        
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "cylindrical_mesh_base.arch";
@@ -639,7 +585,6 @@ public:
         double width = 0.0;
         
         {   
-            std::cout<<"Begin serialize save (base)\n";
             // Set up a mesh
             unsigned cells_across = 5;
             unsigned cells_up = 3;
@@ -647,20 +592,25 @@ public:
             unsigned thickness_of_ghost_layer = 0;
         
             CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
-            const ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetCylindricalMesh();
+            ConformingTetrahedralMesh<2,2> * const p_mesh=generator.GetCylindricalMesh();
+            // You need the const above to stop a BOOST_STATIC_ASSERTION failure.
+            // This is because the serialization library only allows you to save tracked
+            // objects while the compiler considers them const, to prevent the objects changing
+            // during the save, and so object tracking leading to wrong results.
+            // (e.g. A is saved once via pointer, then changed, then saved again.  The second
+            //  save notes that A was saved before, so doesn't write its data again, and the
+            //  change is lost.)
             
             width = p_mesh->GetWidth(0);
             TS_ASSERT_DELTA(width,crypt_width,1e-7);
             // Archive the mesh
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            
-            output_arch << *p_mesh;
-            
+            // We have to serialize via a pointer here, or the derived class information is lost.
+            output_arch << p_mesh;
         }
         
         {   
-            std::cout<<"Begin serialize load (base)\n";
             unsigned cells_across = 10;
             unsigned cells_up = 10;
             double crypt_width = 10.0;
@@ -673,19 +623,11 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             // restore from the archive
-            input_arch >> *p_mesh2;
+            input_arch >> p_mesh2;
             
-            //////////////////////////         
-            //TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width, 1e-7);
-            //////////////////////////         
-            
+            TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width, 1e-7);
         }
     }
-     
-     
-     
-     
-  
     
 };
 

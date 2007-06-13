@@ -54,7 +54,6 @@ private:
         archive & mWidth;
         archive & mTop;
         archive & mBottom;
-        std::cout << "Serialize function on Cylindrical 2d Mesh called \n" << std::flush;
     }
     
 public:
@@ -89,7 +88,6 @@ inline void save_construct_data(
     // save data required to construct instance
     const double width = t->GetWidth(0);
     ar << width;
-    std::cout << "SAVE constructor function on Cylindrical 2d Mesh called \n" << std::flush;
 }
 
 /**
@@ -102,7 +100,6 @@ inline void load_construct_data(
     // retrieve data from archive required to construct new instance
     double width;
     ar >> width;
-    std::cout << "LOAD constructor function on Cylindrical 2d Mesh called \n" << std::flush;
     // invoke inplace constructor to initialize instance
     ::new(t)Cylindrical2dMesh(width);
 }
