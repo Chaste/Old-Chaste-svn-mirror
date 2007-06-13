@@ -21,12 +21,13 @@ private:
     {
         archive & mCellType;
         archive & mBirthTime;
-        archive & mpSimulationTime;
+        // Make sure the simulation time gets saved too
+        SimulationTime* p_time = SimulationTime::Instance();
+        archive & *p_time;
     }
 protected:
     CryptCellType mCellType;
     double mBirthTime; // Time to start model from
-    SimulationTime* mpSimulationTime;
     
 public:
     /**
@@ -90,6 +91,15 @@ public:
      * Builder method to create new instances of the cell cycle model.
      * Each concrete subclass must implement this method to create an
      * instance of that subclass.
+     * 
+     * This method is called in 2 circumstances:
+     *  - By the copy constructor and operator= of MeinekeCryptCell to create a copy of the cell cycle model
+     *    when copying a cell. The CreateCellCycleModel just needs to create any instance of the right class,
+     *    as operator= on the cell cycle model is then called to ensure the model is copied properly.
+     *  - By MeinekeCryptCell.Divide to create a cell cycle model for the daughter cell. CreateCellCycleModel
+     *    must thus produce a cell cycle model in a suitable state for a newly-born cell spawned from the
+     *    'current' cell. Note that the parent cell cycle model is reset just before CreateCellCycleModel is
+     *    called. 
      */
     virtual AbstractCellCycleModel *CreateCellCycleModel()=0;
     

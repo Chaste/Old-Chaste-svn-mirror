@@ -17,20 +17,20 @@
  * \todo consider using an enum for the mutation state.
  */
 WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutationStatus)
-        : mOdeSystem(InitialWntStimulus, mutationStatus),
-        mProteinConcentrations(mOdeSystem.GetInitialConditions())
+        : AbstractCellCycleModel(),
+          mOdeSystem(InitialWntStimulus, mutationStatus),
+          mProteinConcentrations(mOdeSystem.GetInitialConditions())
 {
-    mpSimulationTime = SimulationTime::Instance();
-    if (mpSimulationTime->IsStartTimeSetUp()==false)
+    SimulationTime* p_sim_time = SimulationTime::Instance();
+    if (p_sim_time->IsStartTimeSetUp()==false)
     {
         EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
     }
-    mBirthTime = mpSimulationTime->GetDimensionalisedTime();
+    mBirthTime = p_sim_time->GetDimensionalisedTime();
     mLastTime = mBirthTime;
     mInSG2MPhase = false;
     mReadyToDivide = false;
     mDivideTime = DBL_MAX;
-    mpCancerParams = CancerParameters::Instance();
 }
 
 /**
@@ -40,11 +40,12 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutatio
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
  */
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, double birthTime)
-        : mOdeSystem(rParentProteinConcentrations[8], (unsigned)rParentProteinConcentrations[9]),
-        mProteinConcentrations(mOdeSystem.GetInitialConditions())
+        : AbstractCellCycleModel(),
+          mOdeSystem(rParentProteinConcentrations[8], (unsigned)rParentProteinConcentrations[9]),
+          mProteinConcentrations(mOdeSystem.GetInitialConditions())
 {
     // Protein concentrations are initialised such that the cell cycle part of
-    // the model is at the start of G1 phase.
+    // the model (first 5 ODEs) is at the start of G1 phase.
     // Set the mutation state of the daughter to be the same as the parent cell.
     mProteinConcentrations[9] = rParentProteinConcentrations[9];
     // Set the Wnt pathway parts of the model to be the same as the parent cell.
@@ -53,8 +54,8 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
     mProteinConcentrations[6] = rParentProteinConcentrations[6];
     mProteinConcentrations[5] = rParentProteinConcentrations[5];
     
-    mpSimulationTime = SimulationTime::Instance();
-    if (mpSimulationTime->IsStartTimeSetUp()==false)
+    SimulationTime* p_sim_time = SimulationTime::Instance();
+    if (p_sim_time->IsStartTimeSetUp()==false)
     {
         EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
     }
@@ -64,8 +65,6 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
     mInSG2MPhase = false;
     mReadyToDivide = false;
     mDivideTime = DBL_MAX;
-    
-    mpCancerParams = CancerParameters::Instance();
 }
 
 WntCellCycleModel::~WntCellCycleModel()
@@ -103,7 +102,6 @@ void WntCellCycleModel::ResetModel()
 bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
     //std::cout << "Looking up a cell cycle model" << std::endl;
-    mpSimulationTime = SimulationTime::Instance();
     assert(cellCycleInfluences.size()==2);
     
 // Use the WntStimulus provided as an input
@@ -111,7 +109,7 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 // Use the cell's current mutation status as another input
     mProteinConcentrations[9] = cellCycleInfluences[1];
     
-    double current_time = mpSimulationTime->GetDimensionalisedTime();
+    double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
     //std::cout << "Last time = " << mLastTime << ", Current Time = " << current_time << "\n" << std::endl;
     if (current_time>mLastTime)
     {
@@ -169,7 +167,7 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
                 unsigned end = solution.rGetSolutions().size() - 1;
                 // Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
                 double time_entering_S_phase = solution.rGetTimes()[end];
-                mDivideTime = time_entering_S_phase + mpCancerParams->GetSG2MDuration();
+                mDivideTime = time_entering_S_phase + CancerParameters::Instance()->GetSG2MDuration();
                 //std::cout << " Divide time = " << mDivideTime << "\n" << std::endl;
                 mInSG2MPhase = true;
             }
@@ -198,6 +196,7 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 /**
  * Returns the protein concentrations at the current time (useful for tests)
  *
+ * NB: Will copy the vector - you can't use this to modify the concentrations.
  */
 std::vector<double> WntCellCycleModel::GetProteinConcentrations()
 {
@@ -214,7 +213,7 @@ AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
 {
     // calls a cheeky version of the constructor which makes the new cell cycle model
     // the same age as the old one - not a copy at this time.
-    return new WntCellCycleModel(mProteinConcentrations,mBirthTime);
+    return new WntCellCycleModel(mProteinConcentrations, mBirthTime);
 }
 
 /**
@@ -239,8 +238,8 @@ void WntCellCycleModel::SetBirthTime(double birthTime)
  */
 void WntCellCycleModel::SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations)
 {
+    assert(proteinConcentrations.size()==mProteinConcentrations.size());
     mLastTime = lastTime;
-    assert(proteinConcentrations.size()==10);
     mProteinConcentrations = proteinConcentrations;
 }
 

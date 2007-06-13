@@ -14,12 +14,15 @@
  *
  *  Time taken to progress through the cycle is actually deterministic as ODE system
  *  independent of external factors.
+ * 
+ * Note that this class uses C++'s default copying semantics, and so doesn't implement a copy constructor
+ * or operator=.
  */
 class TysonNovakCellCycleModel : public AbstractCellCycleModel
 {
 private:
     TysonNovak2001OdeSystem mOdeSystem;
-    BackwardEulerIvpOdeSolver* mpSolver;
+    BackwardEulerIvpOdeSolver mSolver;
     double mLastTime;
     double mDivideTime;
     std::vector <double> mProteinConcentrations;
@@ -32,6 +35,8 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
+        // Don't need to archive the ODE system, as it's state is never used - when we want to
+        // solve the system we use mProteinConcentrations as the current state.
         //archive & mOdeSystem;
         archive & mLastTime;
         archive & mDivideTime;

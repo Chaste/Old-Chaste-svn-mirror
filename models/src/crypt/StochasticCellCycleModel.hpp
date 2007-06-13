@@ -14,21 +14,17 @@
 class StochasticCellCycleModel : public AbstractCellCycleModel
 {
 private:
-    CancerParameters* mpCancerParams;
-    RandomNumberGenerator* mpGen;
     
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        mpCancerParams = CancerParameters::Instance();
-        archive & *mpCancerParams;        
-        archive & mpCancerParams;
-        
-        mpGen = RandomNumberGenerator::Instance();
-        archive & *mpGen;
-        archive & mpGen;
+        // Make sure the singletons we use are archived
+        CancerParameters* p_params = CancerParameters::Instance();
+        archive & *p_params;
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        archive & *p_gen;
     }
     
 public:

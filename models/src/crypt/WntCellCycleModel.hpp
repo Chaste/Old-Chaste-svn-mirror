@@ -11,16 +11,18 @@
 #include "SimulationTime.hpp"
 
 /**
- *  Wnt-dependent cell cycle model
+ *  Wnt-dependent cell cycle model.
+ * 
+ * Note that this class uses C++'s default copying semantics, and so doesn't implement a copy constructor
+ * or operator=.
  */
 class WntCellCycleModel : public AbstractCellCycleModel
 {
 private:
     WntCellCycleOdeSystem mOdeSystem;
     RungeKutta4IvpOdeSolver mSolver;
-    double mLastTime;
     std::vector <double> mProteinConcentrations;
-    CancerParameters* mpCancerParams;
+    double mLastTime;
     double mDivideTime;
     bool mInSG2MPhase;
     bool mReadyToDivide;
@@ -36,11 +38,11 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
+        // Don't need to archive the ODE system, as it's state is never used - when we want to
+        // solve the system we use mProteinConcentrations as the current state.
         //archive & mOdeSystem;
-        archive & mLastTime;
-        
         archive & mProteinConcentrations;
-        archive & mpCancerParams;
+        archive & mLastTime;
         archive & mDivideTime;
         archive & mInSG2MPhase;
         archive & mReadyToDivide;

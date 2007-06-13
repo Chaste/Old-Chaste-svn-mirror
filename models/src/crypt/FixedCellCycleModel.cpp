@@ -11,12 +11,12 @@ AbstractCellCycleModel *FixedCellCycleModel::CreateCellCycleModel()
 
 FixedCellCycleModel::FixedCellCycleModel()
 {
-    mpSimulationTime = SimulationTime::Instance();
-    if (mpSimulationTime->IsStartTimeSetUp()==false)
+    SimulationTime* p_sim_time = SimulationTime::Instance();
+    if (p_sim_time->IsStartTimeSetUp()==false)
     {
         EXCEPTION("FixedCellCycleModel is being created but SimulationTime has not been set up");
     }
-    mBirthTime = mpSimulationTime->GetDimensionalisedTime();
+    mBirthTime = p_sim_time->GetDimensionalisedTime();
 }
 
 void FixedCellCycleModel::SetBirthTime(double birthTime)
@@ -26,13 +26,11 @@ void FixedCellCycleModel::SetBirthTime(double birthTime)
 
 void FixedCellCycleModel::ResetModel()
 {
-    mpSimulationTime = SimulationTime::Instance();
-    mBirthTime = mpSimulationTime->GetDimensionalisedTime();
+    mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
 }
 
 bool FixedCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
-    mpSimulationTime = SimulationTime::Instance();
     //assert(cellCycleInfluences.size()==0); NOT Needed - we just ignore them
     bool ready;
     

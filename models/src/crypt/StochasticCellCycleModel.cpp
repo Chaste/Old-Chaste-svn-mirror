@@ -12,15 +12,12 @@ AbstractCellCycleModel *StochasticCellCycleModel::CreateCellCycleModel()
 
 StochasticCellCycleModel::StochasticCellCycleModel()
 {
-    mpSimulationTime = SimulationTime::Instance();
-    if (mpSimulationTime->IsStartTimeSetUp()==false)
+    SimulationTime* p_sim_time = SimulationTime::Instance();
+    if (p_sim_time->IsStartTimeSetUp()==false)
     {
         EXCEPTION("StochasticCellCycleModel is being created but SimulationTime has not been set up");
-    }
-    mpCancerParams = CancerParameters::Instance();
-    
-	mpGen = RandomNumberGenerator::Instance();    
-    mBirthTime = mpSimulationTime->GetDimensionalisedTime();
+    }  
+    mBirthTime = p_sim_time->GetDimensionalisedTime();
 }
 
 void StochasticCellCycleModel::SetBirthTime(double birthTime)
@@ -30,14 +27,13 @@ void StochasticCellCycleModel::SetBirthTime(double birthTime)
 
 void StochasticCellCycleModel::ResetModel()
 {
-    mpSimulationTime = SimulationTime::Instance();
-    mBirthTime = mpSimulationTime->GetDimensionalisedTime();
+    mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
 }
 
 bool StochasticCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
-    mpSimulationTime = SimulationTime::Instance();
-    mpGen = RandomNumberGenerator::Instance();
+    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+    CancerParameters* p_params = CancerParameters::Instance(); 
     //assert(cellCycleInfluences.size()==0);
     bool ready;
     
@@ -46,10 +42,10 @@ bool StochasticCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
     switch (mCellType)
     {
         case STEM:
-            ready = (timeSinceBirth >= mpCancerParams->GetStemCellCycleTime());
+            ready = (timeSinceBirth >= p_params->GetStemCellCycleTime());
             break;
         case TRANSIT:
-            ready = (timeSinceBirth >= mpGen->NormalRandomDeviate(mpCancerParams->GetTransitCellCycleTime(), 1.0));
+            ready = (timeSinceBirth >= p_gen->NormalRandomDeviate(p_params->GetTransitCellCycleTime(), 1.0));
             break;
         default:
             ready = false;
