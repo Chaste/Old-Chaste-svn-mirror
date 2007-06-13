@@ -41,7 +41,7 @@ class Crypt
 {
 private:
     ConformingTetrahedralMesh<DIM, DIM>& mrMesh;
-    std::vector<MeinekeCryptCell>& mrCells;
+    std::vector<MeinekeCryptCell> mCells;
     /** Records which nodes are ghosts */
     std::vector<bool>* mpGhostNodes;
     bool mSelfSetGhostNodes;
@@ -63,7 +63,7 @@ public:
      * At present there must be precisely 1 cell for each node of the mesh.
      * (This will change in future so that you don't need cells for ghost nodes.)
      */
-    Crypt(ConformingTetrahedralMesh<DIM, DIM>&, std::vector<MeinekeCryptCell>&);
+    Crypt(ConformingTetrahedralMesh<DIM, DIM>&, std::vector<MeinekeCryptCell>);
     ~Crypt();
     
     ConformingTetrahedralMesh<DIM, DIM>& rGetMesh();
@@ -144,9 +144,18 @@ public:
         unsigned mNodeIndex;
     };
     
-    
+    /**
+     * Move a cell to a new location.
+     * @param iter  pointer to the cell to move
+     * @param rNewLocation  where to move it to
+     */
     void MoveCell(Iterator iter, Point<DIM>& rNewLocation);
     
+    /**
+     * Add a new cell to the crypt.
+     * @param cell  the cell to add
+     * @param newLocation  the position in space at which to put it
+     */
     void AddCell(MeinekeCryptCell cell, c_vector<double,DIM> newLocation);
 
     void ReMesh();

@@ -72,10 +72,11 @@ protected:
     
     std::string mOutputDirectory;
     
-    /** Every cell in the simulation*/
-    std::vector<MeinekeCryptCell> mCells;
-        
+    /** Facade encapsulating cells in the tissue being simulated */
     Crypt<DIM> mCrypt;
+    
+    /** Every cell in the simulation*/
+    std::vector<MeinekeCryptCell>& mrCells;    
     
     /** The Meineke and cancer parameters */
     CancerParameters *mpParams;
@@ -110,7 +111,7 @@ protected:
         archive & mMaxCells;
         archive & mMaxElements;
 //        archive & mOutputDirectory;
-        archive & mCells;
+        archive & mrCells;
         archive & mWntIncluded;
         archive & mWntGradient;
         archive & mNumBirths;

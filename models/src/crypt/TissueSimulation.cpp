@@ -26,8 +26,8 @@ template<unsigned DIM>
 TissueSimulation<DIM>::TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMesh,
                                         std::vector<MeinekeCryptCell> cells)
         : mrMesh(rMesh),
-          mCells(cells),
-          mCrypt(rMesh, mCells)
+          mCrypt(rMesh, cells),
+          mrCells(mCrypt.rGetCells())
 { 
     mpParams = CancerParameters::Instance();
     
@@ -92,7 +92,7 @@ void TissueSimulation<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
 template<unsigned DIM>  
 unsigned TissueSimulation<DIM>::DoCellBirth()
 {
-    if (mNoBirth || mCells.empty())
+    if (mNoBirth || mrCells.empty())
     {
         return 0;
     }
@@ -152,7 +152,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
 template<unsigned DIM> 
 unsigned TissueSimulation<DIM>::DoCellRemoval()
 {
-    if(mCells.empty())
+    if(mrCells.empty())
     {
         return 0;
     }
@@ -340,17 +340,17 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
                         double damping_constantA = mpParams->GetDampingConstantNormal();
                         double damping_constantB = mpParams->GetDampingConstantNormal();
                         
-                        if(!mCells.empty())
+                        if(!mrCells.empty())
                         {
-                            //note: at the moment the index into the mCells vector is the same
+                            //note: at the moment the index into the mrCells vector is the same
                             //as the node index. later this may not be the case, in which case
                             //the following assertion will trip. to deal with this, a map from 
                             //node index to cell will be needed
-                            assert( mCells[nodeA_global_index].GetNodeIndex()==nodeA_global_index);
-                            assert( mCells[nodeB_global_index].GetNodeIndex()==nodeB_global_index);
+                            assert( mrCells[nodeA_global_index].GetNodeIndex()==nodeA_global_index);
+                            assert( mrCells[nodeB_global_index].GetNodeIndex()==nodeB_global_index);
                             
-                            if(   (mCells[nodeA_global_index].GetMutationState()==HEALTHY)
-                               || (mCells[nodeA_global_index].GetMutationState()==APC_ONE_HIT))
+                            if(   (mrCells[nodeA_global_index].GetMutationState()==HEALTHY)
+                               || (mrCells[nodeA_global_index].GetMutationState()==APC_ONE_HIT))
                             {
                                 damping_constantA = mpParams->GetDampingConstantNormal();
                             }
@@ -359,8 +359,8 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
                                 damping_constantA = mpParams->GetDampingConstantMutant();
                             }
                             
-                            if(   (mCells[nodeB_global_index].GetMutationState()==HEALTHY)
-                               || (mCells[nodeB_global_index].GetMutationState()==APC_ONE_HIT))
+                            if(   (mrCells[nodeB_global_index].GetMutationState()==HEALTHY)
+                               || (mrCells[nodeB_global_index].GetMutationState()==APC_ONE_HIT))
                             {
                                 damping_constantB = mpParams->GetDampingConstantNormal();
                             }
@@ -441,11 +441,11 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(const un
     
     double rest_length = 1.0;
     
-    if ( (mCells.size()>0) &&  (!mIsGhostNode[rNodeAGlobalIndex])
+    if ( (mrCells.size()>0) &&  (!mIsGhostNode[rNodeAGlobalIndex])
                            &&  (!mIsGhostNode[rNodeBGlobalIndex]) )
     {
-        double ageA = mCells[rNodeAGlobalIndex].GetAge();
-        double ageB = mCells[rNodeBGlobalIndex].GetAge();
+        double ageA = mrCells[rNodeAGlobalIndex].GetAge();
+        double ageB = mrCells[rNodeBGlobalIndex].GetAge();
         if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
         {
             // Spring Rest Length Increases to normal rest length from 0.1 to normal rest length, 1.0, over 1 hour
@@ -494,7 +494,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
                     mCrypt.MoveCell(cell_iter, new_point);
                 }
             }
-            else if (mCells.size()>0)
+            else if (mrCells.size()>0)
             {
                 if (mWntIncluded)
                 {   
@@ -508,7 +508,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
                 else
                 {
                     // THE 'USUAL' SCENARIO move any node as long as it is not a real stem cell.
-                    if (mCells[index].GetCellType()!=STEM || mIsGhostNode[index])
+                    if (mrCells[index].GetCellType()!=STEM || mIsGhostNode[index])
                     {   
                         // if a cell wants to move below y<0 (most likely because it was
                         // just born from a stem cell), stop it doing so
@@ -552,7 +552,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
 template<unsigned DIM> 
 void TissueSimulation<DIM>::UpdateCellTypes()
 {
-    if (!mCells.empty())
+    if (!mrCells.empty())
     {
         // Designate cells as proliferating (transit) or
         // quiescent (differentiated) according to protein concentrations
@@ -718,8 +718,8 @@ void TissueSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
 template<unsigned DIM> 
 std::vector<MeinekeCryptCell> TissueSimulation<DIM>::GetCells()
 {
-    assert(mCells.size()>0);
-    return mCells;
+    assert(mrCells.size()>0);
+    return mrCells;
 }
 
 /**
@@ -822,7 +822,7 @@ void TissueSimulation<DIM>::Solve()
      * TODO:For some strange reason this seems to take about 3 minutes for a realistic Wnt-Crypt.
      * Not sure why - when the same code was evaluated in a test it seemed almost instant.
      */
-    if (!mCells.empty())
+    if (!mrCells.empty())
     {
         for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
              cell_iter != mCrypt.End();
@@ -1011,7 +1011,7 @@ void TissueSimulation<DIM>::Load(const std::string& rArchiveDirectory, const dou
     
     mOutputDirectory = rArchiveDirectory;
     
-    if (mrMesh.GetNumNodes()!=mCells.size())
+    if (mrMesh.GetNumNodes()!=mrCells.size())
     {
         EXCEPTION(" Error in Load: number of nodes is not equal to number of cells.");
     }

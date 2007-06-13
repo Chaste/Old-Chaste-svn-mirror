@@ -214,7 +214,7 @@ public:
             cells.push_back(cell);
         }
         // create a crypt, with no ghost nodes at the moment
-        Crypt<2> crypt(mesh,cells);
+        Crypt<2> crypt(mesh, cells);
 
         //////////////////
         // test move cell
@@ -235,7 +235,7 @@ public:
         // test add cell
         //////////////////
         unsigned old_num_nodes = mesh.GetNumNodes();
-        unsigned old_num_cells = cells.size();
+        unsigned old_num_cells = crypt.rGetCells().size();
 
         // create a new cell, DON'T set the node index, set birth time=-1
         MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
@@ -248,7 +248,7 @@ public:
 
         // crypt should have updated mesh and cells
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), old_num_nodes+1);
-        TS_ASSERT_EQUALS(cells.size(), old_num_cells+1);
+        TS_ASSERT_EQUALS(crypt.rGetCells().size(), old_num_cells+1);
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), old_num_nodes+1);
 
         // same test via crypt class
@@ -260,7 +260,8 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(old_num_nodes)->rGetLocation()[1], 2.0, 1e-12);
 
         // check the index of the new cell
-        TS_ASSERT_EQUALS(cells[cells.size()-1].GetNodeIndex(), old_num_nodes);
+        std::vector<MeinekeCryptCell>& r_cells = crypt.rGetCells();
+        TS_ASSERT_EQUALS(r_cells[r_cells.size()-1].GetNodeIndex(), old_num_nodes);
         
         SimulationTime::Destroy();
     }
@@ -312,7 +313,7 @@ public:
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 80u);
         TS_ASSERT_EQUALS(crypt.rGetCells().size(), 80u);
-        TS_ASSERT_EQUALS(crypt.rGetCells().size(), cells.size());
+        TS_ASSERT_DIFFERS(crypt.rGetCells().size(), cells.size()); // Crypt now copies cells
         
         // num real cells should be num_nodes (81) - num_ghosts (11) - One deleted node = 69
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 69u);

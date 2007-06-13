@@ -50,6 +50,8 @@ public:
         }
         
         Crypt<2> crypt(mesh, cells);
+        // Get a reference to the cells held in crypt
+        std::vector<MeinekeCryptCell>& r_cells = crypt.rGetCells();
         
         // bad probabilities passed in
         TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&crypt, -0.1));
@@ -59,9 +61,9 @@ public:
        
         // check that a single cell reaches apoptosis
         unsigned max_tries=0;
-        while (!cells[0].HasApoptosisBegun() && max_tries<99)
+        while (!r_cells[0].HasApoptosisBegun() && max_tries<99)
         {
-            random_cell_killer.TestAndLabelSingleCellForApoptosis(cells[0]);
+            random_cell_killer.TestAndLabelSingleCellForApoptosis(r_cells[0]);
             max_tries++;
         }
         TS_ASSERT_DIFFERS(max_tries, 99u);
@@ -77,7 +79,7 @@ public:
         unsigned count=1;
         while (count<cells.size() && apoptosis_cell_found ==  false)
         {
-            if (cells[count].HasApoptosisBegun())
+            if (r_cells[count].HasApoptosisBegun())
             {
                 apoptosis_cell_found = true;
             }
@@ -92,9 +94,9 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         
         // store 'locations' of cells which are not dead
-        for (count=0; count<cells.size(); count++)
+        for (count=0; count<r_cells.size(); count++)
         {
-            if (!cells[count].IsDead())
+            if (!r_cells[count].IsDead())
             {
                 Node<2>* p_node = mesh.GetNode(cells[count].GetNodeIndex());
                 c_vector< double, 2 > location = p_node->rGetLocation();
@@ -107,10 +109,10 @@ public:
         
         // check that dead cells are removed from the mesh
         std::set< double > new_locations;
-        for ( count=0; count<cells.size(); count++)
+        for ( count=0; count<r_cells.size(); count++)
         {
-            TS_ASSERT(!cells[count].IsDead());
-            Node<2>* p_node = mesh.GetNode(cells[count].GetNodeIndex());
+            TS_ASSERT(!r_cells[count].IsDead());
+            Node<2>* p_node = mesh.GetNode(r_cells[count].GetNodeIndex());
             c_vector< double, 2 > location = p_node->rGetLocation();
             new_locations.insert(location[0]+location[1]*1000);
         }

@@ -10,17 +10,17 @@
 // also check cell.GetNodeIndices() is in the mesh, and covers the mesh, etc.
 template<unsigned DIM>
 Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
-                  std::vector<MeinekeCryptCell>& rCells)
+                  std::vector<MeinekeCryptCell> cells)
              : mrMesh(rMesh),
-               mrCells(rCells)
+               mCells(cells)
 {
-    mSelfSetGhostNodes=true;
-    mpGhostNodes=new std::vector<bool>(mrMesh.GetNumNodes(), false);
+    mSelfSetGhostNodes = true;
+    mpGhostNodes = new std::vector<bool>(mrMesh.GetNumNodes(), false);
     
     mMaxCells = 10*mrMesh.GetNumNodes();
     mMaxElements = 10*mrMesh.GetNumElements();
     
-    if(mrCells.size()>0) // remove this line when facade is finished
+    if (mCells.size()>0) // remove this line when facade is finished
     {
 	    Validate();
     }
@@ -29,7 +29,7 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
 template<unsigned DIM>
 Crypt<DIM>::~Crypt()
 {
-    if(mSelfSetGhostNodes)
+    if (mSelfSetGhostNodes)
     {
         delete mpGhostNodes;
     }
@@ -75,7 +75,7 @@ ConformingTetrahedralMesh<DIM, DIM>& Crypt<DIM>::rGetMesh()
 template<unsigned DIM>
 std::vector<MeinekeCryptCell>& Crypt<DIM>::rGetCells()
 {
-    return mrCells;
+    return mCells;
 }
 
 template<unsigned DIM>
@@ -100,9 +100,9 @@ unsigned Crypt<DIM>::RemoveDeadCells()
 {
     std::vector<MeinekeCryptCell> living_cells;
 
-    for (unsigned i=0; i<mrCells.size(); i++)
+    for (unsigned i=0; i<mCells.size(); i++)
     {
-        MeinekeCryptCell* p_cell=&(mrCells[i]);
+        MeinekeCryptCell* p_cell=&(mCells[i]);
         if (p_cell->IsDead())
         {
             mrMesh.DeleteNodePriorToReMesh(p_cell->GetNodeIndex());
@@ -113,8 +113,8 @@ unsigned Crypt<DIM>::RemoveDeadCells()
         }
     }
 
-    unsigned num_dead = (unsigned)(mrCells.size()-living_cells.size());
-    mrCells = living_cells;
+    unsigned num_dead = (unsigned)(mCells.size()-living_cells.size());
+    mCells = living_cells;
     return num_dead;
 }
 
@@ -147,7 +147,7 @@ void Crypt<DIM>::AddCell(MeinekeCryptCell newCell, c_vector<double,DIM> newLocat
     unsigned new_node_index = mrMesh.AddNode(p_new_node);
 
     newCell.SetNodeIndex(new_node_index);
-    mrCells.push_back(newCell);
+    mCells.push_back(newCell);
 
     // Update size of IsGhostNode if necessary
     if (mrMesh.GetNumNodes() > mpGhostNodes->size())
@@ -187,16 +187,16 @@ void Crypt<DIM>::ReMesh()
 
         // loop over cells. NOTE: we CANT use the iterator here, as the 
         // cells are currently not in sync with the ghost nodes vector
-        for(unsigned cell_index = 0; cell_index<mrCells.size(); cell_index++)
+        for(unsigned cell_index = 0; cell_index<mCells.size(); cell_index++)
         {
-            unsigned old_node_index = mrCells[cell_index].GetNodeIndex();
+            unsigned old_node_index = mCells[cell_index].GetNodeIndex();
 
             // this shouldn't ever happen, as the cell vectors is only ever living 
             // cells
             assert(!map.IsDeleted(old_node_index));
            
             unsigned new_node_index = map.GetNewIndex(old_node_index);
-            mrCells[cell_index].SetNodeIndex(new_node_index);
+            mCells[cell_index].SetNodeIndex(new_node_index);
         }
     }
     
@@ -303,7 +303,7 @@ typename Crypt<DIM>::Iterator Crypt<DIM>::Begin()
 template<unsigned DIM>
 typename Crypt<DIM>::Iterator Crypt<DIM>::End()
 {
-    return Iterator(*this, mrCells.size());
+    return Iterator(*this, mCells.size());
 }
 
 
@@ -443,12 +443,12 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
             colour = 4; // visualizer treats '4' these as invisible
         }
 // remove this else - facade eventually shouldn't be able to have empty cells vector
-        else if (mrCells.size()>0)
+        else if (mCells.size()>0)
         {
-            if (index < mrCells.size())
+            if (index < mCells.size())
             {
-                CryptCellType type = mrCells[index].GetCellType();
-                CryptCellMutationState mutation = mrCells[index].GetMutationState();
+                CryptCellType type = mCells[index].GetCellType();
+                CryptCellMutationState mutation = mCells[index].GetMutationState();
                 
                 if (type == STEM)
                 {
