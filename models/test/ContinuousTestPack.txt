@@ -7,4 +7,3 @@ TestMeinekeCryptCell.hpp
 TestWntGradient.hpp
 TestCellKillers.hpp
 TestSprings3d.hpp
-TestProfilingWntAndDeath.hpp
