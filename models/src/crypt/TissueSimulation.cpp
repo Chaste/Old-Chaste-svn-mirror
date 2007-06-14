@@ -295,8 +295,6 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
     ////////////////////////////////////////////////////////////////////
     
     typename Crypt<DIM>::SpringIterator spring_iterator=mCrypt.SpringsBegin();
-
-    
     std::set<std::set< unsigned > > nodes_checked_new;
                         
     for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)

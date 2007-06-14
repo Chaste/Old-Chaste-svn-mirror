@@ -623,7 +623,6 @@ typename Crypt<DIM>::SpringIterator& Crypt<DIM>::SpringIterator::operator++()
     
     while(mrCrypt.rGetMesh().GetElement(mElemIndex)->IsDeleted())
     {
-        assert(0); // for debugging
         mElemIndex++;
     }
     
@@ -678,12 +677,10 @@ Crypt<DIM>::SpringIterator::SpringIterator(Crypt& rCrypt, unsigned elemIndex)
     
     mSpringsVisited.clear();
     
+    // add the current node pair to the store
     std::set<unsigned> current_node_pair;
-    
     unsigned node_a_global_index = mrCrypt.rGetMesh().GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeALocalIndex);
     unsigned node_b_global_index = mrCrypt.rGetMesh().GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeBLocalIndex);
-    
-    // Check we haven't seen it before            
     current_node_pair.insert(node_a_global_index);
     current_node_pair.insert(node_b_global_index);
     

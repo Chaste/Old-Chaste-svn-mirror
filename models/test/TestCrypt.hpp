@@ -467,6 +467,124 @@ public:
 
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_node_results.dat models/test/data/TestCryptWriters/tab_node_results.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_elem_results.dat models/test/data/TestCryptWriters/tab_elem_results.dat").c_str()), 0);
+        SimulationTime::Destroy();        
+    }
+    
+    void TestSpringIterator() throw(Exception)
+    {
+        // set up expected results for the honeycombmesh created below
+        std::set < std::set < unsigned > > expected_node_pairs;        
+        unsigned expected_node_pairs_array[] = {0,1,
+                                                0,3,
+                                                1,3,
+                                                1,2,
+                                                1,4,
+                                                2,4,
+                                                2,5,
+                                                3,4,
+                                                4,5,
+                                                3,6,
+                                                3,7,
+                                                6,7,
+                                                4,7,
+                                                4,8,
+                                                7,8,
+                                                5,8,
+                                                6,9,
+                                                7,9,
+                                                7,10,
+                                                8,10,
+                                                8,11,
+                                                9,10,
+                                                10,11 };
+        for (unsigned i=0; i<46; i=i+2)
+        {
+            std::set < unsigned > node_pair;
+            node_pair.insert(expected_node_pairs_array[i]);
+            node_pair.insert(expected_node_pairs_array[i+1]);
+            expected_node_pairs.insert(node_pair);
+        }
+        
+        // set up simple crypt with honeycomb mesh
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);        
+        
+        unsigned num_cells_depth = 2;
+        unsigned num_cells_width = 1;
+        
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 1u, false);
+
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cells;
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(0);
+            cells.push_back(cell);
+        }
+        
+        // create a crypt, with no ghost nodes at the moment
+        Crypt<2> crypt(*p_mesh,cells);
+        
+        // get ghost node indices from the generator and set up the ghost nodes
+        // vector of bools
+        std::vector<bool> is_ghost_node(p_mesh->GetNumNodes(),false);
+        for(std::set<unsigned>::iterator iter = ghost_node_indices.begin();
+            iter!=ghost_node_indices.end();
+            iter++)
+        {
+            is_ghost_node[*iter] = true;
+        }
+        
+        // set ghost nodes
+        crypt.SetGhostNodes(is_ghost_node);
+                
+        // check that we can iterate over the set of springs
+        std::set< std::set< unsigned > > springs_visited;
+        
+        for (Crypt<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
+             spring_iterator!=crypt.SpringsEnd();
+             ++spring_iterator)
+        {
+            std::set<unsigned> node_pair;
+            node_pair.insert(spring_iterator.GetNodeA()->GetIndex());
+            node_pair.insert(spring_iterator.GetNodeB()->GetIndex());
+            
+            TS_ASSERT_EQUALS(springs_visited.find(node_pair), springs_visited.end());
+            springs_visited.insert(node_pair);
+            
+            TS_ASSERT_EQUALS(spring_iterator.rGetCellA().GetNodeIndex(), spring_iterator.GetNodeA()->GetIndex());
+            TS_ASSERT_EQUALS(spring_iterator.rGetCellB().GetNodeIndex(), spring_iterator.GetNodeB()->GetIndex());
+        }
+        
+// see ticket:406        
+//        std::string results_directory = "HoneyComb";
+//        // Data writers for tabulated results data, used in tests
+//        // first construction clears out the folder
+//        ColumnDataWriter tabulated_node_writer(results_directory+"/tab_results", "tabulated_node_results",true);
+//        ColumnDataWriter tabulated_element_writer(results_directory+"/tab_results", "tabulated_element_results",false);
+//        
+//        crypt.SetupTabulatedWriters(tabulated_node_writer, tabulated_element_writer);//, element_writer_ids);
+//            
+//        // Create output files for the visualizer
+//        OutputFileHandler output_file_handler(results_directory+"/vis_results/",false);
+//        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
+//        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
+//        out_stream p_setup_file = output_file_handler.OpenOutputFile("results.vizsetup");
+//        
+//        crypt.WriteResultsToFiles(tabulated_node_writer, 
+//                           tabulated_element_writer,
+//                           *p_node_file, *p_element_file,
+//                           false,
+//                           true);
+                               
+        TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
+
+        SimulationTime::Destroy();        
     }
 };
 
