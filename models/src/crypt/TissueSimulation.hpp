@@ -135,7 +135,6 @@ protected:
     unsigned DoCellRemoval();
    
     std::vector<c_vector<double, DIM> > CalculateVelocitiesOfEachNode();
-    c_vector<double, DIM> CalculateForceInThisSpring(Element<DIM,DIM>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB);
     virtual c_vector<double, DIM> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
     
     virtual void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt);

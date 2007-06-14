@@ -789,7 +789,7 @@ public:
         unsigned elem_index = p_mesh2->GetContainingElementIndex(new_point2,false);
         Element<2,2>* p_element = p_mesh2->GetElement(elem_index);
         
-        force_on_spring = simulator3.CalculateForceInThisSpring(p_element,1,0);
+        force_on_spring = simulator3.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
         
         TS_ASSERT_DELTA(force_on_spring[0], 0.5*p_params->GetSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);

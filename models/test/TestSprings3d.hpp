@@ -219,7 +219,7 @@ public:
         // Test forces on springs
         unsigned nodeA = 0, nodeB = 1 ;
         Element<3,3>* p_element = mesh.GetElement(0);
-        c_vector<double, 3> force = simulator.CalculateForceInThisSpring(p_element,nodeA,nodeB);
+        c_vector<double, 3> force = simulator.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),p_element->GetNodeGlobalIndex(nodeB));
         for(unsigned i=0; i < 3;i++)
         {
             TS_ASSERT_DELTA(force[i],0.0,1e-6);
@@ -302,7 +302,7 @@ public:
          */
         unsigned nodeA2 = 0, nodeB2 = 1 ;
         Element<3,3>* p_element2 = mesh2.GetElement(0);
-        c_vector<double,3> force2 = simulator2.CalculateForceInThisSpring(p_element2,nodeA2,nodeB2);
+        c_vector<double,3> force2 = simulator2.CalculateForceBetweenNodes(p_element2->GetNodeGlobalIndex(nodeA2),p_element2->GetNodeGlobalIndex(nodeB2));
         
         for(unsigned i=0; i < 3;i++)
         {

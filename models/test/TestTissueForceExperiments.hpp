@@ -263,8 +263,7 @@ public :
                             
                             if(!is_force_already_calculated)
                             {
-                                c_vector<double,2> force = CalculateForceInThisSpring(p_element,nodeA,nodeB);
-                                
+                                c_vector<double,2> force = CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),p_element->GetNodeGlobalIndex(nodeB));
                                 if ((!mIsGhostNode[nodeA_global_index]) && (!mIsGhostNode[nodeB_global_index]))
                                 {
                                     for(unsigned i=0; i<2; i++)

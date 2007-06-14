@@ -288,174 +288,69 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
         drdt[i]=zero_vector<double>(DIM);
     }
 
-    std::set<std::set<unsigned> > node_pairs_checked;
-
-    ////////////////////////////////////////////////////////////////////
-    // loop over element and for each one loop over its edges
-    ////////////////////////////////////////////////////////////////////
-    
-    typename Crypt<DIM>::SpringIterator spring_iterator=mCrypt.SpringsBegin();
-    std::set<std::set< unsigned > > nodes_checked_new;
-                        
-    for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+    for(typename Crypt<DIM>::SpringIterator spring_iterator=mCrypt.SpringsBegin();
+        spring_iterator!=mCrypt.SpringsEnd();
+        ++spring_iterator)
     {
-        Element<DIM,DIM>* p_element = mrMesh.GetElement(elem_index);
-        if (!p_element->IsDeleted())
+        unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
+        unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
+
+        c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
+         
+        double damping_constantA = mpParams->GetDampingConstantNormal();
+        double damping_constantB = mpParams->GetDampingConstantNormal();
+        
+        if(!mrCells.empty())
         {
-            for (unsigned k=0; k<DIM+1; k++)
+            if(   (spring_iterator.rGetCellA().GetMutationState()==HEALTHY)
+               || (spring_iterator.rGetCellA().GetMutationState()==APC_ONE_HIT))
             {
-                unsigned nodeA = k;
+                damping_constantA = mpParams->GetDampingConstantNormal();
+            }
+            else
+            {
+                damping_constantA = mpParams->GetDampingConstantMutant();
+            }
+            
+            if(   (spring_iterator.rGetCellB().GetMutationState()==HEALTHY)
+               || (spring_iterator.rGetCellB().GetMutationState()==APC_ONE_HIT))
+            {
+                damping_constantB = mpParams->GetDampingConstantNormal();
+            }
+            else
+            {
+                damping_constantB = mpParams->GetDampingConstantMutant();
+            }
+        }
+        
+        if (!mIsGhostNode[nodeA_global_index])
+        {
+            drdt[nodeB_global_index] -= force / damping_constantB;
+            
+            if (!mIsGhostNode[nodeB_global_index])
+            {
+                drdt[nodeA_global_index] += force / damping_constantA;
+            }
+        }
+        else
+        {
+            drdt[nodeA_global_index] += force / damping_constantA;
                 
-                for(unsigned l=k+1; l<k+DIM+1; l++)
-                {
-                    unsigned nodeB = l%(DIM+1);
-    
-                    assert(!p_element->GetNode(nodeA)->IsDeleted());
-                    assert(!p_element->GetNode(nodeB)->IsDeleted());
-                                    
-                    unsigned nodeA_global_index = p_element->GetNode(nodeA)->GetIndex();
-                    unsigned nodeB_global_index = p_element->GetNode(nodeB)->GetIndex();
-                    
-                    std::set<unsigned> current_node_pair;
-                    
-                    current_node_pair.insert(nodeA_global_index);
-                    current_node_pair.insert(nodeB_global_index);
-                    
-                    // check whether we have already worked out the force between these two...
-                    // see if the node pair is in the set of node pairs done
-                    std::set<std::set<unsigned> >::iterator set_iter = node_pairs_checked.find(current_node_pair);                    
-
-                    if(set_iter==node_pairs_checked.end()) // ie if force not already calculated
-                    {
-                        // add the node pair to the list of node pairs
-                        node_pairs_checked.insert(current_node_pair);
-                        
-                        // check that the spring iterator works
-                        
-                        std::set<unsigned> spring_node_pair;
-                        spring_node_pair.insert(spring_iterator.GetNodeA()->GetIndex());
-                        spring_node_pair.insert(spring_iterator.GetNodeB()->GetIndex());
-                        nodes_checked_new.insert(spring_node_pair);
-
-                        unsigned new_a = spring_iterator.GetNodeA()->GetIndex();
-                        unsigned new_b = spring_iterator.GetNodeB()->GetIndex();
-
-                        unsigned a,b,c,d;
-                        if (new_a < new_b)
-                        {
-                            a = new_a; b=new_b;
-                            //std::cout << "New " << new_a << " " << new_b << "\n"<< std::flush;
-                        }
-                        else
-                        {
-                            a = new_b; b=new_a;
-                            //std::cout << "New " << new_b << " " << new_a << "\n"<< std::flush;
-                        }
-                        
-                        if (nodeA_global_index < nodeB_global_index)
-                        {
-                            c = nodeA_global_index; d = nodeB_global_index;
-                            //std::cout << "Old " << nodeA_global_index << " " << nodeB_global_index << "\n";
-                        }
-                        else
-                        {
-                            c = nodeB_global_index; d = nodeA_global_index;
-                            //std::cout << "Old " << nodeB_global_index << " " << nodeA_global_index << "\n";
-                        }            
-                        assert(a==c); assert(b==d);
-                                                                       
-                    
-                        ++spring_iterator;
-
-
-                        c_vector<double, DIM> force = CalculateForceInThisSpring(p_element,nodeA,nodeB);
-                         
-                        double damping_constantA = mpParams->GetDampingConstantNormal();
-                        double damping_constantB = mpParams->GetDampingConstantNormal();
-                        
-                        if(!mrCells.empty())
-                        {
-                            //note: at the moment the index into the mrCells vector is the same
-                            //as the node index. later this may not be the case, in which case
-                            //the following assertion will trip. to deal with this, a map from 
-                            //node index to cell will be needed
-                            assert( mrCells[nodeA_global_index].GetNodeIndex()==nodeA_global_index);
-                            assert( mrCells[nodeB_global_index].GetNodeIndex()==nodeB_global_index);
-                            
-                            if(   (mrCells[nodeA_global_index].GetMutationState()==HEALTHY)
-                               || (mrCells[nodeA_global_index].GetMutationState()==APC_ONE_HIT))
-                            {
-                                damping_constantA = mpParams->GetDampingConstantNormal();
-                            }
-                            else
-                            {
-                                damping_constantA = mpParams->GetDampingConstantMutant();
-                            }
-                            
-                            if(   (mrCells[nodeB_global_index].GetMutationState()==HEALTHY)
-                               || (mrCells[nodeB_global_index].GetMutationState()==APC_ONE_HIT))
-                            {
-                                damping_constantB = mpParams->GetDampingConstantNormal();
-                            }
-                            else
-                            {
-                                damping_constantB = mpParams->GetDampingConstantMutant();
-                            }
-                        }
-                        
-                        if (!mIsGhostNode[nodeA_global_index])
-                        {
-                            drdt[ p_element->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
-                            
-                            if (!mIsGhostNode[nodeB_global_index])
-                            {
-                                drdt[ p_element->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
-                            }
-                        }
-                        else
-                        {
-                            drdt[ p_element->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
-                                
-                            if (mIsGhostNode[nodeB_global_index])
-                            {
-                                drdt[ p_element->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
-                            }
-                        }
-                    }
-                }
+            if (mIsGhostNode[nodeB_global_index])
+            {
+                drdt[nodeB_global_index] -= force / damping_constantB;
             }
         }
     }
-    
-    assert(!(spring_iterator != mCrypt.SpringsEnd()));
-    //std::cout<< "\n new way" << nodes_checked_new.size()<< " old way " << node_pairs_checked.size() << std::flush;
-    assert(nodes_checked_new.size() == node_pairs_checked.size());
-    assert(nodes_checked_new == node_pairs_checked);
     
     return drdt;
 }
 
 
-
-
-
-/**
- * @return the x and y forces in this spring
- */
-template<unsigned DIM> 
-c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceInThisSpring(Element<DIM,DIM>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB)
-{
-    assert(rNodeA!=rNodeB);
-    unsigned node_a_global_index = rPElement->GetNodeGlobalIndex(rNodeA);
-    unsigned node_b_global_index = rPElement->GetNodeGlobalIndex(rNodeB);
-    return CalculateForceBetweenNodes(node_a_global_index, node_b_global_index);
-}
-
 /**
  * Calculates the force between two nodes.
  * 
- * Note that this assumes they are connected by a spring and should therefore
- * only be called by CalculateForceInThisSpring or CalculateForceInThisBoundarySpring
+ * Note that this assumes they are connected
  * 
  * @param NodeAGlobalIndex
  * @param NodeBGlobalIndex
