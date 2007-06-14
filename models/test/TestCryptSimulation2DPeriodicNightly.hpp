@@ -459,7 +459,7 @@ public:
         TS_ASSERT_DELTA(p_params->GetStemCellCycleTime(), 24, 1e-12);
         TS_ASSERT_DELTA(p_params->GetTransitCellCycleTime(), 12, 1e-12);
         
-        int num_cells_width = 6;
+        int num_cells_width = 7;
         int num_cells_depth = 5;
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
@@ -767,7 +767,7 @@ public:
     // Note that birth does occur too.
     void TestRandomDeathOnNonPeriodicCrypt() throw (Exception)
     {
-        unsigned cells_across = 6;
+        unsigned cells_across = 7;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
         
