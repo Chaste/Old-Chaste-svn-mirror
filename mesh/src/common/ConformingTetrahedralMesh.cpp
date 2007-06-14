@@ -1832,6 +1832,115 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::UnflagAllElements()
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//                          edge iterator class                           // 
+//////////////////////////////////////////////////////////////////////////////
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Node<SPACE_DIM>* ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::GetNodeA()
+{
+    assert((*this) != mrMesh.EdgesEnd());
+    Element<ELEMENT_DIM,SPACE_DIM>* p_element = mrMesh.GetElement(mElemIndex);
+    return p_element->GetNode(mNodeALocalIndex);
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Node<SPACE_DIM>* ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::GetNodeB()
+{
+    assert((*this) != mrMesh.EdgesEnd());
+    Element<ELEMENT_DIM,SPACE_DIM>* p_element = mrMesh.GetElement(mElemIndex);
+    return p_element->GetNode(mNodeBLocalIndex);
+}
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::operator!=(const ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& other)
+{
+    return (mElemIndex != other.mElemIndex ||
+            mNodeALocalIndex != other.mNodeALocalIndex ||
+            mNodeBLocalIndex != other.mNodeBLocalIndex);
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::operator++()
+{
+    std::set<unsigned> current_node_pair;
+    std::set<std::set<unsigned> >::iterator set_iter;
+    
+    while(mrMesh.GetElement(mElemIndex)->IsDeleted())
+    {
+        mElemIndex++;
+    }
+    
+    do
+    {
+        // Advance to the next edge in the mesh.
+        // Node indices are incremented modulo #nodes_per_elem
+        mNodeBLocalIndex = (mNodeBLocalIndex + 1) % (ELEMENT_DIM+1);
+        if (mNodeBLocalIndex == mNodeALocalIndex)
+        {
+            mNodeALocalIndex = (mNodeALocalIndex + 1) % (ELEMENT_DIM+1);
+            mNodeBLocalIndex = (mNodeALocalIndex + 1) % (ELEMENT_DIM+1);
+        }
+        if (mNodeALocalIndex == 0 && mNodeBLocalIndex == 1)
+        {
+            mElemIndex++;
+        }
+
+        if(mElemIndex != mrMesh.GetNumAllElements())
+        {
+            unsigned node_a_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeALocalIndex);
+            unsigned node_b_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeBLocalIndex);
+        
+            // Check we haven't seen it before
+            current_node_pair.clear();
+            current_node_pair.insert(node_a_global_index);
+            current_node_pair.insert(node_b_global_index);
+            set_iter = mEdgesVisited.find(current_node_pair);
+        } 
+    }
+    while (*this != mrMesh.EdgesEnd() && set_iter != mEdgesVisited.end());
+    mEdgesVisited.insert(current_node_pair);
+    
+    return (*this);
+}
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::EdgeIterator(ConformingTetrahedralMesh& rMesh, unsigned elemIndex)
+    : mrMesh(rMesh),
+      mElemIndex(elemIndex),
+      mNodeALocalIndex(0),
+      mNodeBLocalIndex(1)
+{
+    if(elemIndex==mrMesh.GetNumAllElements())
+    {
+        return;
+    }
+    
+    mEdgesVisited.clear();
+    
+    // add the current node pair to the store
+    std::set<unsigned> current_node_pair;
+    unsigned node_a_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeALocalIndex);
+    unsigned node_b_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeBLocalIndex);
+    current_node_pair.insert(node_a_global_index);
+    current_node_pair.insert(node_b_global_index);
+    
+    mEdgesVisited.insert(current_node_pair);
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgesBegin()
+{
+    return EdgeIterator(*this, 0);
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgesEnd()
+{
+    return EdgeIterator(*this, GetNumAllElements());
+}
+
 
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_
 

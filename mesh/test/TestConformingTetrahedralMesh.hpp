@@ -15,6 +15,59 @@
 
 class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 {
+private:
+    template<unsigned DIM>
+    void EdgeIteratorTest(std::string meshFilename) throw(Exception)
+    {
+        
+        // create a simple mesh
+        TrianglesMeshReader<DIM,DIM> mesh_reader(meshFilename);
+        ConformingTetrahedralMesh<DIM,DIM> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+                      
+        // check that we can iterate over the set of edges
+        std::set< std::set< unsigned > > edges_visited;
+        
+        for (typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edge_iterator=mesh.EdgesBegin();
+             edge_iterator!=mesh.EdgesEnd();
+             ++edge_iterator)
+        {
+            std::set<unsigned> node_pair;
+            node_pair.insert(edge_iterator.GetNodeA()->GetIndex());
+            node_pair.insert(edge_iterator.GetNodeB()->GetIndex());
+            
+            TS_ASSERT_EQUALS(edges_visited.find(node_pair), edges_visited.end());
+            edges_visited.insert(node_pair);
+        }
+        
+        // set up expected node pairs
+        std::set< std::set<unsigned> > expected_node_pairs;
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            Element<DIM,DIM>* p_element = mesh.GetElement(i);
+            for(unsigned j=0; j<DIM+1; j++)
+            {
+                for(unsigned k=0; k<DIM+1; k++)
+                {
+                    unsigned node_A = p_element->GetNodeGlobalIndex(j);
+                    unsigned node_B = p_element->GetNodeGlobalIndex(k);
+                    
+                    if(node_A != node_B)
+                    {
+                        std::set<unsigned> node_pair;
+                        node_pair.insert(node_A);
+                        node_pair.insert(node_B);
+                        
+                        expected_node_pairs.insert(node_pair);
+                    }
+                }
+            }
+        }
+        
+        
+        TS_ASSERT_EQUALS(edges_visited, expected_node_pairs);       
+    }
 public:
 
     void TestMeshConstructionFromMeshReader(void)
@@ -1892,6 +1945,13 @@ public:
             input_arch >> mesh2;
             
         }
+    }
+    
+    void TestEdgeIterator() throw(Exception)
+    {
+        EdgeIteratorTest<3>("mesh/test/data/cube_2mm_12_elements");
+        EdgeIteratorTest<2>("mesh/test/data/square_4_elements");
+        EdgeIteratorTest<1>("mesh/test/data/1D_0_to_1_10_elements");
     }
 
 };

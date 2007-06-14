@@ -341,6 +341,60 @@ public:
     c_vector<double,2> GetWidthExtremes(const unsigned& rDimension) const;
     
     void UnflagAllElements();
+
+
+    /**
+     * Iterator over edges in the mesh, which correspond to springs between cells.
+     * 
+     * This class takes care of the logic to make sure that you consider each edge exactly once.
+     */
+    class EdgeIterator
+    {
+    public:
+        /**
+         * Get a pointer to the node in the mesh at end A of the spring.
+         */
+        Node<SPACE_DIM>* GetNodeA();
+        /**
+         * Get a pointer to the node in the mesh at end B of the spring.
+         */
+        Node<SPACE_DIM>* GetNodeB();
+                
+        bool operator!=(const EdgeIterator& other);
+        
+        /**
+         * Prefix increment operator.
+         */
+        EdgeIterator& operator++();
+        
+        /**
+         * Constructor for a new iterator.
+         */
+        EdgeIterator(ConformingTetrahedralMesh& rMesh, unsigned elemIndex);
+        
+    private:
+        /** Keep track of what edges have been visited */
+        std::set<std::set<unsigned> > mEdgesVisited;
+    
+        ConformingTetrahedralMesh& mrMesh;
+        
+        unsigned mElemIndex;
+        unsigned mNodeALocalIndex;
+        unsigned mNodeBLocalIndex;
+        unsigned mCellIndex;
+        unsigned mNodeIndex;
+    };
+
+    /**
+     * @return iterator pointing to the first spring in the crypt
+     */
+    EdgeIterator EdgesBegin();
+    
+    /**
+     * @return iterator pointing to one past the last spring in the crypt
+     */
+    EdgeIterator EdgesEnd();
+
 };
 
 
