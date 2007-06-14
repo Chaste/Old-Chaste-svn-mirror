@@ -56,11 +56,7 @@ private:
     /** used by tabulated writers */
     ElementWriterIdsT mElemVarIds;
     
-    /** Get the cell corresponding to a given node
-     *
-     * Currently assumes there is one cell for each node, and they are ordered identically in their vectors. 
-     */
-    MeinekeCryptCell& rGetCellAtNodeIndex(unsigned);
+
     
 public:
     /**
@@ -99,6 +95,12 @@ public:
 	 */
     unsigned RemoveDeadCells();
     
+    /** Get the cell corresponding to a given node
+     *
+     *  Currently assumes there is one cell for each node, and they are ordered identically in their vectors. 
+     *  An assertion fails if not.
+     */
+    MeinekeCryptCell& rGetCellAtNodeIndex(unsigned);
     /**
      * Iterator class allows one to iterate over cells in the crypt.
      * Dereferencing the iterator will give you the current cell.

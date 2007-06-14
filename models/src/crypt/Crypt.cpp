@@ -73,6 +73,7 @@ MeinekeCryptCell& Crypt<DIM>::rGetCellAtNodeIndex(unsigned nodeGlobalIndex)
     //as the node index. later this may not be the case, in which case
     //the following assertion will trip. to deal with this, a map from 
     //node index to cell will be needed
+    assert(!(*mpGhostNodes)[nodeGlobalIndex]);
     assert(cell.GetNodeIndex() == nodeGlobalIndex);
     return cell;
 }
@@ -651,8 +652,6 @@ template<unsigned DIM>
 MeinekeCryptCell& Crypt<DIM>::SpringIterator::rGetCellA()
 {
     assert((*this) != mrCrypt.SpringsEnd());
-//    Element<DIM,DIM>* p_element = mrCrypt.mrMesh.GetElement(mElemIndex);
-//    unsigned node_global_index = p_element->GetNode(mNodeALocalIndex)->GetIndex();
     return mrCrypt.rGetCellAtNodeIndex(mEdgeIter.GetNodeA()->GetIndex());
 }
 
@@ -661,8 +660,6 @@ template<unsigned DIM>
 MeinekeCryptCell& Crypt<DIM>::SpringIterator::rGetCellB()
 {
     assert((*this) != mrCrypt.SpringsEnd());
-//    Element<DIM,DIM>* p_element = mrCrypt.mrMesh.GetElement(mElemIndex);
-//    unsigned node_global_index = p_element->GetNode(mNodeBLocalIndex)->GetIndex();
     return mrCrypt.rGetCellAtNodeIndex(mEdgeIter.GetNodeB()->GetIndex());
 }
 
@@ -676,7 +673,21 @@ bool Crypt<DIM>::SpringIterator::operator!=(const Crypt<DIM>::SpringIterator& ot
 template<unsigned DIM>
 typename Crypt<DIM>::SpringIterator& Crypt<DIM>::SpringIterator::operator++()
 {
-    ++mEdgeIter;
+    bool edge_is_ghost = false;
+    
+    do
+    {
+        ++mEdgeIter;
+        if(*this !=mrCrypt.SpringsEnd())
+        {
+            bool a_is_ghost = (*mrCrypt.mpGhostNodes)[mEdgeIter.GetNodeA()->GetIndex()];
+            bool b_is_ghost = (*mrCrypt.mpGhostNodes)[mEdgeIter.GetNodeB()->GetIndex()];
+
+            edge_is_ghost = (a_is_ghost || b_is_ghost);
+        }
+    }
+    while( *this!=mrCrypt.SpringsEnd() && edge_is_ghost ); 
+
     return (*this);
 }
 
@@ -687,6 +698,16 @@ Crypt<DIM>::SpringIterator::SpringIterator(Crypt& rCrypt,
     : mrCrypt(rCrypt),
       mEdgeIter(edgeIter)
 {
+    if(mEdgeIter!=mrCrypt.mrMesh.EdgesEnd())
+    {
+        bool a_is_ghost = (*mrCrypt.mpGhostNodes)[mEdgeIter.GetNodeA()->GetIndex()];
+        bool b_is_ghost = (*mrCrypt.mpGhostNodes)[mEdgeIter.GetNodeB()->GetIndex()];
+
+        if(a_is_ghost || b_is_ghost)
+        {
+            ++(*this);
+        }
+    }
 }
 
 template<unsigned DIM>

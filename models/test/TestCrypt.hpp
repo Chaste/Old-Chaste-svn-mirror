@@ -473,31 +473,39 @@ public:
     void TestSpringIterator2d() throw(Exception)
     {
         // set up expected results for the honeycombmesh created below
+        // the following are the edges which do not contain a ghost node
         std::set < std::set < unsigned > > expected_node_pairs;        
-        unsigned expected_node_pairs_array[] = {0,1,
-                                                0,3,
-                                                1,3,
-                                                1,2,
-                                                1,4,
-                                                2,4,
-                                                2,5,
-                                                3,4,
-                                                4,5,
-                                                3,6,
-                                                3,7,
-                                                6,7,
+        unsigned expected_node_pairs_array[] = {4,5,
                                                 4,7,
                                                 4,8,
                                                 7,8,
-                                                5,8,
-                                                6,9,
-                                                7,9,
-                                                7,10,
-                                                8,10,
-                                                8,11,
-                                                9,10,
-                                                10,11 };
-        for (unsigned i=0; i<46; i=i+2)
+                                                5,8 };
+
+/// the old test used ALL the edges of this mesh..
+//        unsigned expected_node_pairs_array[] = {0,1,
+//                                                0,3,
+//                                                1,3,
+//                                                1,2,
+//                                                1,4,
+//                                                2,4,
+//                                                2,5,
+//                                                3,4,
+//                                                4,5,
+//                                                3,6,
+//                                                3,7,
+//                                                6,7,
+//                                                4,7,
+//                                                4,8,
+//                                                7,8,
+//                                                5,8,
+//                                                6,9,
+//                                                7,9,
+//                                                7,10,
+//                                                8,10,
+//                                                8,11,
+//                                                9,10,
+//                                                10,11 };
+        for (unsigned i=0; i<10; i=i+2)
         {
             std::set < unsigned > node_pair;
             node_pair.insert(expected_node_pairs_array[i]);
@@ -587,6 +595,7 @@ public:
         SimulationTime::Destroy();        
     }
 
+    // 3d test with some ghost nodes
     void TestSpringIterator3d() throw(Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -609,6 +618,15 @@ public:
         
         // create a crypt, with no ghost nodes at the moment
         Crypt<3> crypt(mesh,cells);
+        
+        // make nodes 0-10 ghost nodes
+        std::vector<bool> is_ghost_node(mesh.GetNumNodes(),false);
+        for(unsigned i=0; i<10; i++)
+        {
+            is_ghost_node[i] = true;
+        }
+        // set ghost nodes
+        crypt.SetGhostNodes(is_ghost_node);
 
                 
         // check that we can iterate over the set of springs
@@ -641,7 +659,9 @@ public:
                     unsigned node_A = p_element->GetNodeGlobalIndex(j);
                     unsigned node_B = p_element->GetNodeGlobalIndex(k);
                     
-                    if(node_A != node_B)
+                    // if nodeA or node_B are <10 they will have been labelled a ghost node
+                    // above
+                    if(node_A != node_B && node_A>=10 && node_B>=10)
                     {
                         std::set<unsigned> node_pair;
                         node_pair.insert(node_A);
@@ -652,7 +672,6 @@ public:
                 }
             }
         }
-        
         
         TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
 

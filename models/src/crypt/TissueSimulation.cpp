@@ -323,24 +323,10 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
             }
         }
         
-        if (!mIsGhostNode[nodeA_global_index])
-        {
-            drdt[nodeB_global_index] -= force / damping_constantB;
-            
-            if (!mIsGhostNode[nodeB_global_index])
-            {
-                drdt[nodeA_global_index] += force / damping_constantA;
-            }
-        }
-        else
-        {
-            drdt[nodeA_global_index] += force / damping_constantA;
-                
-            if (mIsGhostNode[nodeB_global_index])
-            {
-                drdt[nodeB_global_index] -= force / damping_constantB;
-            }
-        }
+        // these cannot be ghost nodes anymore..
+        // the both apply forces on each other
+        drdt[nodeB_global_index] -= force / damping_constantB;
+        drdt[nodeA_global_index] += force / damping_constantA;
     }
     
     return drdt;
@@ -358,12 +344,12 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
  * @return The force exerted on Node A by Node B.
  */
 template<unsigned DIM> 
-c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
+c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex)
 {
-    assert(rNodeAGlobalIndex!=rNodeBGlobalIndex);
+    assert(nodeAGlobalIndex!=nodeBGlobalIndex);
     c_vector<double, DIM> unit_difference;
-    c_vector<double, DIM> node_a_location = mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
-    c_vector<double, DIM> node_b_location = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_a_location = mrMesh.GetNode(nodeAGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_b_location = mrMesh.GetNode(nodeBGlobalIndex)->rGetLocation();
     
     // there is reason not to substract one position from the other (cyclidrical meshes). clever gary
     unit_difference = mrMesh.GetVectorFromAtoB(node_a_location, node_b_location);   
@@ -374,18 +360,15 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(const un
     
     double rest_length = 1.0;
     
-    if ( (mrCells.size()>0) &&  (!mIsGhostNode[rNodeAGlobalIndex])
-                           &&  (!mIsGhostNode[rNodeBGlobalIndex]) )
+    if (mrCells.size()>0)
     {
-        double ageA = mrCells[rNodeAGlobalIndex].GetAge();
-        double ageB = mrCells[rNodeBGlobalIndex].GetAge();
+        double ageA = mCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
+        double ageB = mCrypt.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
         if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
         {
             // Spring Rest Length Increases to normal rest length from 0.1 to normal rest length, 1.0, over 1 hour
-            #define COVERAGE_IGNORE
             rest_length=(0.1+0.9*ageA);
             assert(rest_length<=1.0);
-            #undef COVERAGE_IGNORE
         }
     }
     return mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
@@ -434,7 +417,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
                 if (mWntIncluded)
                 {   
                     // A new Wnt feature - even stem cells can move as long as they don't go below zero.
-                    if ( (new_point.rGetLocation()[1] < 0.0) && !mIsGhostNode[index])
+                    if (new_point.rGetLocation()[1] < 0.0)
                     {
                         new_point.rGetLocation()[1] = 0.0;
                     }
@@ -442,12 +425,12 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
                 }
                 else
                 {
-                    // THE 'USUAL' SCENARIO move any node as long as it is not a real stem cell.
-                    if (mrCells[index].GetCellType()!=STEM || mIsGhostNode[index])
+                    // THE 'USUAL' SCENARIO move any node as long as it is not a stem cell.
+                    if (cell.GetCellType()!=STEM)
                     {   
                         // if a cell wants to move below y<0 (most likely because it was
                         // just born from a stem cell), stop it doing so
-                        if ( (new_point.rGetLocation()[1] < 0.0) && (!mIsGhostNode[index]))
+                        if (new_point.rGetLocation()[1] < 0.0)
                         {
                             // Here we give the cell a push upwards so that it doesn't get stuck on y=0 for ever.
                             // it is a bit of a hack to make it work nicely!
@@ -536,9 +519,7 @@ void TissueSimulation<DIM>::SetMaxCells(unsigned maxCells)
     mMaxCells = maxCells;
     if (maxCells<mrMesh.GetNumAllNodes())
     {
-        #define COVERAGE_IGNORE
         EXCEPTION("mMaxCells is less than the number of cells in the mesh.");
-        #undef COVERAGE_IGNORE
     }
     mCrypt.SetMaxCells(maxCells);
 }
@@ -553,9 +534,7 @@ void TissueSimulation<DIM>::SetMaxElements(unsigned maxElements)
     mMaxElements = maxElements;
     if (maxElements<mrMesh.GetNumAllElements())
     {
-        #define COVERAGE_IGNORE
         EXCEPTION("mMaxElements is less than the number of elements in the mesh.");
-        #undef COVERAGE_IGNORE
     }
     mCrypt.SetMaxElements(maxElements);
 }
