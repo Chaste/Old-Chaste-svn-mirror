@@ -470,7 +470,7 @@ public:
         SimulationTime::Destroy();        
     }
     
-    void TestSpringIterator() throw(Exception)
+    void TestSpringIterator2d() throw(Exception)
     {
         // set up expected results for the honeycombmesh created below
         std::set < std::set < unsigned > > expected_node_pairs;        
@@ -582,6 +582,78 @@ public:
 //                           false,
 //                           true);
                                
+        TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
+
+        SimulationTime::Destroy();        
+    }
+
+    void TestSpringIterator3d() throw(Exception)
+    {
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);        
+        
+        // create a simple mesh
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Set up cells
+        std::vector<MeinekeCryptCell> cells;
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(0);
+            cells.push_back(cell);
+        }
+        
+        // create a crypt, with no ghost nodes at the moment
+        Crypt<3> crypt(mesh,cells);
+
+                
+        // check that we can iterate over the set of springs
+        std::set< std::set< unsigned > > springs_visited;
+        
+        for (Crypt<3>::SpringIterator spring_iterator=crypt.SpringsBegin();
+             spring_iterator!=crypt.SpringsEnd();
+             ++spring_iterator)
+        {
+            std::set<unsigned> node_pair;
+            node_pair.insert(spring_iterator.GetNodeA()->GetIndex());
+            node_pair.insert(spring_iterator.GetNodeB()->GetIndex());
+            
+            TS_ASSERT_EQUALS(springs_visited.find(node_pair), springs_visited.end());
+            springs_visited.insert(node_pair);
+            
+            TS_ASSERT_EQUALS(spring_iterator.rGetCellA().GetNodeIndex(), spring_iterator.GetNodeA()->GetIndex());
+            TS_ASSERT_EQUALS(spring_iterator.rGetCellB().GetNodeIndex(), spring_iterator.GetNodeB()->GetIndex());
+        }
+        
+        // set up expected node pairs
+        std::set< std::set<unsigned> > expected_node_pairs;
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            Element<3,3>* p_element = mesh.GetElement(i);
+            for(unsigned j=0; j<4; j++)
+            {
+                for(unsigned k=0; k<4; k++)
+                {
+                    unsigned node_A = p_element->GetNodeGlobalIndex(j);
+                    unsigned node_B = p_element->GetNodeGlobalIndex(k);
+                    
+                    if(node_A != node_B)
+                    {
+                        std::set<unsigned> node_pair;
+                        node_pair.insert(node_A);
+                        node_pair.insert(node_B);
+                        
+                        expected_node_pairs.insert(node_pair);
+                    }
+                }
+            }
+        }
+        
+        
         TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
 
         SimulationTime::Destroy();        
