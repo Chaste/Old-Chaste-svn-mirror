@@ -146,20 +146,6 @@ unsigned Crypt<DIM>::RemoveDeadCells()
     }
 }
 
-
-template<unsigned DIM>
-void Crypt<DIM>::UpdateGhostPositions(const std::vector< c_vector<double, DIM> >& rDrDt, double dt)
-{
-    for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
-    {
-        if ((!mrMesh.GetNode(index)->IsDeleted()) && (*mpGhostNodes)[index])
-        {
-            Point<DIM> new_point(mrMesh.GetNode(index)->rGetLocation() + dt*rDrDt[index]);
-            mrMesh.SetNode(index, new_point, false);
-        }
-    }
-}
-
 template<unsigned DIM>
 void Crypt<DIM>::UpdateGhostPositions(double dt)
 {
@@ -184,10 +170,6 @@ void Crypt<DIM>::UpdateGhostPositions(double dt)
         if (!(*mpGhostNodes)[nodeA_global_index])
         {
             drdt[nodeB_global_index] -= force / damping_constant;
-            
-            if (!(*mpGhostNodes)[nodeB_global_index])
-            {
-            }
         }
         else
         {
@@ -656,26 +638,22 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
 template<unsigned DIM>
 Node<DIM>* Crypt<DIM>::SpringIterator::GetNodeA()
 {
-    assert((*this) != mrCrypt.SpringsEnd());
-    Element<DIM,DIM>* p_element = mrCrypt.mrMesh.GetElement(mElemIndex);
-    return p_element->GetNode(mNodeALocalIndex);
+    return mEdgeIter.GetNodeA();
 }
 
 template<unsigned DIM>
 Node<DIM>* Crypt<DIM>::SpringIterator::GetNodeB()
 {
-    assert((*this) != mrCrypt.SpringsEnd());
-    Element<DIM,DIM>* p_element = mrCrypt.mrMesh.GetElement(mElemIndex);
-    return p_element->GetNode(mNodeBLocalIndex);
+    return mEdgeIter.GetNodeB();
 }
 
 template<unsigned DIM>
 MeinekeCryptCell& Crypt<DIM>::SpringIterator::rGetCellA()
 {
     assert((*this) != mrCrypt.SpringsEnd());
-    Element<DIM,DIM>* p_element = mrCrypt.mrMesh.GetElement(mElemIndex);
-    unsigned node_global_index = p_element->GetNode(mNodeALocalIndex)->GetIndex();
-    return mrCrypt.rGetCellAtNodeIndex(node_global_index);
+//    Element<DIM,DIM>* p_element = mrCrypt.mrMesh.GetElement(mElemIndex);
+//    unsigned node_global_index = p_element->GetNode(mNodeALocalIndex)->GetIndex();
+    return mrCrypt.rGetCellAtNodeIndex(mEdgeIter.GetNodeA()->GetIndex());
 }
 
 
@@ -683,102 +661,44 @@ template<unsigned DIM>
 MeinekeCryptCell& Crypt<DIM>::SpringIterator::rGetCellB()
 {
     assert((*this) != mrCrypt.SpringsEnd());
-    Element<DIM,DIM>* p_element = mrCrypt.mrMesh.GetElement(mElemIndex);
-    unsigned node_global_index = p_element->GetNode(mNodeBLocalIndex)->GetIndex();
-    return mrCrypt.rGetCellAtNodeIndex(node_global_index);
+//    Element<DIM,DIM>* p_element = mrCrypt.mrMesh.GetElement(mElemIndex);
+//    unsigned node_global_index = p_element->GetNode(mNodeBLocalIndex)->GetIndex();
+    return mrCrypt.rGetCellAtNodeIndex(mEdgeIter.GetNodeB()->GetIndex());
 }
 
 
 template<unsigned DIM>
 bool Crypt<DIM>::SpringIterator::operator!=(const Crypt<DIM>::SpringIterator& other)
 {
-    return (mElemIndex != other.mElemIndex ||
-            mNodeALocalIndex != other.mNodeALocalIndex ||
-            mNodeBLocalIndex != other.mNodeBLocalIndex);
+    return (mEdgeIter != other.mEdgeIter);
 }
 
 template<unsigned DIM>
 typename Crypt<DIM>::SpringIterator& Crypt<DIM>::SpringIterator::operator++()
 {
-    std::set<unsigned> current_node_pair;
-    std::set<std::set<unsigned> >::iterator set_iter;
-    
-    while(mrCrypt.rGetMesh().GetElement(mElemIndex)->IsDeleted())
-    {
-        mElemIndex++;
-    }
-    
-    do
-    {
-        // Advance to the next spring in the mesh.
-        // Node indices are incremented modulo #nodes_per_elem
-        mNodeBLocalIndex = (mNodeBLocalIndex + 1) % (DIM+1);
-        if (mNodeBLocalIndex == mNodeALocalIndex)
-        {
-            mNodeALocalIndex = (mNodeALocalIndex + 1) % (DIM+1);
-            mNodeBLocalIndex = (mNodeALocalIndex + 1) % (DIM+1);
-        }
-        if (mNodeALocalIndex == 0 && mNodeBLocalIndex == 1)
-        {
-            mElemIndex++;
-        }
-
-        if(mElemIndex!=mrCrypt.mrMesh.GetNumAllElements())
-        {
-            unsigned node_a_global_index = mrCrypt.rGetMesh().GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeALocalIndex);
-            unsigned node_b_global_index = mrCrypt.rGetMesh().GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeBLocalIndex);
-        
-            // Check we haven't seen it before
-            current_node_pair.clear();
-            current_node_pair.insert(node_a_global_index);
-            current_node_pair.insert(node_b_global_index);
-            set_iter = mSpringsVisited.find(current_node_pair);
-        } 
-    }
-    while (*this != mrCrypt.SpringsEnd() && set_iter != mSpringsVisited.end());
-    mSpringsVisited.insert(current_node_pair);
-    
+    ++mEdgeIter;
     return (*this);
 }
 
 
 template<unsigned DIM>
-Crypt<DIM>::SpringIterator::SpringIterator(Crypt& rCrypt, unsigned elemIndex)
+Crypt<DIM>::SpringIterator::SpringIterator(Crypt& rCrypt,
+                                           typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edgeIter)
     : mrCrypt(rCrypt),
-      mElemIndex(elemIndex),
-      mNodeALocalIndex(0),
-      mNodeBLocalIndex(1)
+      mEdgeIter(edgeIter)
 {
-    if(elemIndex==mrCrypt.mrMesh.GetNumAllElements())
-    {
-        return;
-    }
-    
-    // Make sure the crypt isn't empty
-    assert(mrCrypt.rGetCells().size() > 0);
-    
-    mSpringsVisited.clear();
-    
-    // add the current node pair to the store
-    std::set<unsigned> current_node_pair;
-    unsigned node_a_global_index = mrCrypt.rGetMesh().GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeALocalIndex);
-    unsigned node_b_global_index = mrCrypt.rGetMesh().GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeBLocalIndex);
-    current_node_pair.insert(node_a_global_index);
-    current_node_pair.insert(node_b_global_index);
-    
-    mSpringsVisited.insert(current_node_pair);
 }
 
 template<unsigned DIM>
 typename Crypt<DIM>::SpringIterator Crypt<DIM>::SpringsBegin()
 {
-    return SpringIterator(*this, 0);
+    return SpringIterator(*this, mrMesh.EdgesBegin());
 }
 
 template<unsigned DIM>
 typename Crypt<DIM>::SpringIterator Crypt<DIM>::SpringsEnd()
 {
-    return SpringIterator(*this, mrMesh.GetNumAllElements());
+    return SpringIterator(*this, mrMesh.EdgesEnd());
 }
 
 

@@ -80,11 +80,9 @@ public:
     void SetMaxElements(unsigned maxElements);
 
     /**
-     * Update the GhostNode positions using the rDrDt vector from the simulation.
-     * Later on we will make this method private and rDrDt can be calculated within this class.
+     * Update the GhostNode positions using the spring force model with rest length=1.
+     * Forces are applied to ghost nodes from connected ghost and normal nodes.
      */
-    void UpdateGhostPositions(const std::vector< c_vector<double, DIM> >& rDrDt, double dt);
-    
     void UpdateGhostPositions(double dt);
     
     c_vector<double, DIM> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
@@ -241,7 +239,7 @@ public:
         /**
          * Constructor for a new iterator.
          */
-        SpringIterator(Crypt& rCrypt, unsigned elemIndex);
+        SpringIterator(Crypt& rCrypt, typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edgeIter);
         
     private:
         /** Keep track of what edges have been visited */
@@ -254,6 +252,8 @@ public:
         unsigned mNodeBLocalIndex;
         unsigned mCellIndex;
         unsigned mNodeIndex;
+        
+        typename ConformingTetrahedralMesh<DIM, DIM>::EdgeIterator mEdgeIter;
     };
 
     /**

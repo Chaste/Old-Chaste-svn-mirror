@@ -474,7 +474,6 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
             mCrypt.MoveCell(cell_iter, new_point);
         }
     }
-    //mCrypt.UpdateGhostPositions(rDrDt,mDt);
 }
 
 
