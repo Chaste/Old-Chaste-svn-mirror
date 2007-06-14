@@ -84,6 +84,10 @@ public:
      * Later on we will make this method private and rDrDt can be calculated within this class.
      */
     void UpdateGhostPositions(const std::vector< c_vector<double, DIM> >& rDrDt, double dt);
+    
+    void UpdateGhostPositions(double dt);
+    
+    c_vector<double, DIM> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
 	    
 	/** 
 	 * Remove all cells labelled as dead. 

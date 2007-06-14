@@ -400,6 +400,8 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(const un
 template<unsigned DIM> 
 void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt)
 {
+    // update ghost positions first because they do not affect the real cells
+    mCrypt.UpdateGhostPositions(mDt);
 
     // Iterate over all cells, seeing if each one can be divided
     for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
@@ -472,7 +474,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
             mCrypt.MoveCell(cell_iter, new_point);
         }
     }
-    mCrypt.UpdateGhostPositions(rDrDt,mDt);
+    //mCrypt.UpdateGhostPositions(rDrDt,mDt);
 }
 
 

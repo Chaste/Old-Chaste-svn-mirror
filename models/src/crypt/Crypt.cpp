@@ -2,7 +2,7 @@
 #define CRYPT_CPP
 
 #include "Crypt.hpp"
-
+#include "CancerParameters.hpp"
 
 ///\todo: make this constructor take in ghost nodes, and validate the three objects
 // are in sync ie num cells + num ghost nodes = num_nodes ? this would mean all ghosts
@@ -158,6 +158,88 @@ void Crypt<DIM>::UpdateGhostPositions(const std::vector< c_vector<double, DIM> >
             mrMesh.SetNode(index, new_point, false);
         }
     }
+}
+
+template<unsigned DIM>
+void Crypt<DIM>::UpdateGhostPositions(double dt)
+{
+    std::vector<c_vector<double, DIM> > drdt(mrMesh.GetNumAllNodes());
+    for (unsigned i=0; i<drdt.size(); i++)
+    {
+        drdt[i]=zero_vector<double>(DIM);
+    }
+
+    for(typename ConformingTetrahedralMesh<DIM, DIM>::EdgeIterator edge_iterator=mrMesh.EdgesBegin();
+        edge_iterator!=mrMesh.EdgesEnd();
+        ++edge_iterator)
+    {
+        unsigned nodeA_global_index = edge_iterator.GetNodeA()->GetIndex();
+        unsigned nodeB_global_index = edge_iterator.GetNodeB()->GetIndex();
+
+        c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
+         
+        double damping_constant = CancerParameters::Instance()->GetDampingConstantNormal();
+        
+        
+        if (!(*mpGhostNodes)[nodeA_global_index])
+        {
+            drdt[nodeB_global_index] -= force / damping_constant;
+            
+            if (!(*mpGhostNodes)[nodeB_global_index])
+            {
+            }
+        }
+        else
+        {
+            drdt[nodeA_global_index] += force / damping_constant;
+                
+            if ((*mpGhostNodes)[nodeB_global_index])
+            {
+                drdt[nodeB_global_index] -= force / damping_constant;
+            }
+        }
+    }
+    
+    for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
+    {
+        if ((!mrMesh.GetNode(index)->IsDeleted()) && (*mpGhostNodes)[index])
+        {
+            Point<DIM> new_point(mrMesh.GetNode(index)->rGetLocation() + dt*drdt[index]);
+            mrMesh.SetNode(index, new_point, false);
+        }
+    }
+        
+}
+
+
+/**
+ * Calculates the force between two nodes.
+ * 
+ * Note that this assumes they are connected
+ * 
+ * @param NodeAGlobalIndex
+ * @param NodeBGlobalIndex
+ * 
+ * @return The force exerted on Node A by Node B.
+ */
+template<unsigned DIM> 
+c_vector<double, DIM> Crypt<DIM>::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
+{
+    assert(rNodeAGlobalIndex!=rNodeBGlobalIndex);
+    c_vector<double, DIM> unit_difference;
+    c_vector<double, DIM> node_a_location = mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_b_location = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation();
+    
+    // there is reason not to substract one position from the other (cyclidrical meshes). clever gary
+    unit_difference = mrMesh.GetVectorFromAtoB(node_a_location, node_b_location);   
+    
+    double distance_between_nodes = norm_2(unit_difference);
+    
+    unit_difference /= distance_between_nodes;
+    
+    double rest_length = 1.0;
+    
+    return CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 
 template<unsigned DIM>
