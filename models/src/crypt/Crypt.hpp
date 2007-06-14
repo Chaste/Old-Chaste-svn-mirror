@@ -56,6 +56,12 @@ private:
     /** used by tabulated writers */
     ElementWriterIdsT mElemVarIds;
     
+    /** Get the cell corresponding to a given node
+     *
+     * Currently assumes there is one cell for each node, and they are ordered identically in their vectors. 
+     */
+    MeinekeCryptCell& rGetCellAtNodeIndex(unsigned);
+    
 public:
     /**
      * Create a new crypt facade from a mesh and collection of cells.
@@ -143,6 +149,16 @@ public:
         unsigned mCellIndex;
         unsigned mNodeIndex;
     };
+
+    /**
+     * @return iterator pointing to the first cell in the crypt
+     */
+    Iterator Begin();
+    
+    /**
+     * @return iterator pointing to one past the last cell in the crypt
+     */
+    Iterator End();
     
     /**
      * Move a cell to a new location.
@@ -163,17 +179,10 @@ public:
 	/** Get the number of real cells, (ie non-ghost nodes) */
 	unsigned GetNumRealCells();
 
+    /**
+     * Check consistency of our internal data structures.
+     */
 	void Validate();
-
-    /**
-     * @return iterator pointing to the first cell in the crypt
-     */
-    Iterator Begin();
-    
-    /**
-     * @return iterator pointing to one past the last cell in the crypt
-     */
-    Iterator End();
 
         
     /**
@@ -191,6 +200,67 @@ public:
                              bool writeTabulatedResults,
                              bool writeVisualizerResults);
 
+
+    /**
+     * Iterator over edges in the mesh, which correspond to springs between cells.
+     * 
+     * This class takes care of the logic to make sure that you consider each edge exactly once.
+     */
+    class SpringIterator
+    {
+    public:
+        /**
+         * Get a pointer to the node in the mesh at end A of the spring.
+         */
+        Node<DIM>* GetNodeA();
+        /**
+         * Get a pointer to the node in the mesh at end B of the spring.
+         */
+        Node<DIM>* GetNodeB();
+        
+        /**
+         * Get a *reference* to the cell at end A of the spring.
+         */
+        MeinekeCryptCell& rGetCellA();
+        /**
+         * Get a *reference* to the cell at end B of the spring.
+         */
+        MeinekeCryptCell& rGetCellB();
+        
+        bool operator!=(const SpringIterator& other);
+        
+        /**
+         * Prefix increment operator.
+         */
+        SpringIterator& operator++();
+        
+        /**
+         * Constructor for a new iterator.
+         */
+        SpringIterator(Crypt& rCrypt, unsigned elemIndex);
+        
+    private:
+        /** Keep track of what edges have been visited */
+        std::set<std::set<unsigned> > mSpringsVisited;
+    
+        Crypt& mrCrypt;
+        
+        unsigned mElemIndex;
+        unsigned mNodeALocalIndex;
+        unsigned mNodeBLocalIndex;
+        unsigned mCellIndex;
+        unsigned mNodeIndex;
+    };
+
+    /**
+     * @return iterator pointing to the first spring in the crypt
+     */
+    SpringIterator SpringsBegin();
+    
+    /**
+     * @return iterator pointing to one past the last spring in the crypt
+     */
+    SpringIterator SpringsEnd();
 };
 
 
