@@ -526,6 +526,7 @@ public:
         TS_ASSERT_DELTA(right_angle_element.CalculateCircumsphereVolume(), sqrt(3)*M_PI_2, 1e-7);
         TS_ASSERT_DELTA(right_angle_element.GetJacobianDeterminant(), 1.0, 1e-7);
         TS_ASSERT_DELTA(right_angle_element.CalculateQuality(), 0.5, 1e-7);
+        
         for (unsigned i=0; i<right_angle_nodes.size(); i++)
         {
             delete right_angle_nodes[i];

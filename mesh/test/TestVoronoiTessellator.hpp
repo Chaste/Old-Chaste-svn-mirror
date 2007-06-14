@@ -22,15 +22,14 @@ public:
         
         // Create conforming tetrahedral mesh which is Delauny
         std::vector<Node<3> *> nodes;
-        nodes.push_back(new Node<3>(0, true, 0.0,0.0,0.0));
-        nodes.push_back(new Node<3>(1, true, 1.0,1.0,0.0));
-        nodes.push_back(new Node<3>(2, true, 1.0,0.0,1.0));
-        nodes.push_back(new Node<3>(3, true, 0.0,1.0,1.0));
-        nodes.push_back(new Node<3>(4, false,0.5, 0.5, 0.5));
+        nodes.push_back(new Node<3>(0, true,  1.0,  1.0,  1.0));
+        nodes.push_back(new Node<3>(1, true, -1.0, -1.0,  1.0));
+        nodes.push_back(new Node<3>(2, true, -1.0,  1.0, -1.0));
+        nodes.push_back(new Node<3>(3, true,  1.0, -1.0, -1.0));
+        nodes.push_back(new Node<3>(4, false, 0.0,0.0,0.0));
         // These are deleted in the ReMesh in Constructer so don't need 
         // to be deleted here - or do they?
-        
-        
+                
         ConformingTetrahedralMesh<3,3> mesh(nodes);
         TrianglesMeshWriter<3,3> mesh_writer("","Simple_Delaunay_Tet");
         mesh_writer.WriteFilesUsingMesh(mesh);
@@ -41,8 +40,7 @@ public:
         VoronoiTessellator tessellator(mesh);
         
         tessellator.Generate();
-        
-        
+                
         const std::vector<VoronoiCell>& r_voronoi_cells = tessellator.rGetVoronoiCells();
         
         // Check Tesselation
@@ -90,6 +88,81 @@ public:
 //        TS_ASSERT_EQUALS(index_map.size(), 4);
 //        
 //        // check faces : TODO
+    }
+    
+    void TestReturnPolarAngle() throw (Exception)
+    {
+          // Create conforming tetrahedral mesh which is Delaunay
+        std::vector<Node<3> *> nodes;
+        nodes.push_back(new Node<3>(0, true, 0.0,0.0,0.0));
+                
+        ConformingTetrahedralMesh<3,3> mesh(nodes);
+        
+        // Create Voronoi Tesselation
+        VoronoiTessellator tessellator(mesh); 
+        
+        // Four cases to test:
+        // x> 0, y>0
+        double angle = tessellator.ReturnPolarAngle(1.0,sqrt(3.0));
+        TS_ASSERT_DELTA(angle, M_PI/3.0, 1e-7);
+        
+        angle = tessellator.ReturnPolarAngle(1.0,-sqrt(3.0));
+        TS_ASSERT_DELTA(angle, -M_PI/3.0, 1e-7);
+        
+        angle = tessellator.ReturnPolarAngle(-1.0,sqrt(3.0));
+        TS_ASSERT_DELTA(angle, 2.0*M_PI/3.0, 1e-7);
+        
+        angle = tessellator.ReturnPolarAngle(-1.0,-sqrt(3.0));
+        TS_ASSERT_DELTA(angle, -2.0*M_PI/3.0, 1e-7);
+    }
+    
+    void TestGenerateVerticesFromElementCircumcentres() throw (Exception)
+    {
+        // Create conforming tetrahedral mesh which is Delauny
+        std::vector<Node<3> *> nodes;
+        nodes.push_back(new Node<3>(0, true,  1.0,  1.0,  1.0));
+        nodes.push_back(new Node<3>(1, true, -1.0, -1.0,  1.0));
+        nodes.push_back(new Node<3>(2, true, -1.0,  1.0, -1.0));
+        nodes.push_back(new Node<3>(3, true,  1.0, -1.0, -1.0));
+        nodes.push_back(new Node<3>(4, false, 0.0,0.0,0.0));
+        
+        // These are deleted in the ReMesh in Constructer so don't need 
+        // to be deleted here - or do they?
+                
+        ConformingTetrahedralMesh<3,3> mesh(nodes);
+        
+        // Create Voronoi Tesselation
+        VoronoiTessellator tessellator(mesh);
+        
+        tessellator.GenerateVerticesFromElementCircumcentres();
+        
+        std::vector< c_vector<double, 3> > vertices = tessellator.rGetVoronoiVertices();
+        
+        c_vector<double,3> this_vertex = vertices[0];
+        
+//        TS_ASSERT_DELTA(this_vertex[0], 0, 1e-7);
+//        TS_ASSERT_DELTA(this_vertex[1], 0, 1e-7);
+//        TS_ASSERT_DELTA(this_vertex[2], 0, 1e-7);
+//        
+//        this_vertex = vertices[1];
+//        
+//        TS_ASSERT_DELTA(this_vertex[0], 0, 1e-7);
+//        TS_ASSERT_DELTA(this_vertex[1], 0, 1e-7);
+//        TS_ASSERT_DELTA(this_vertex[2], 0, 1e-7);
+//        
+//        this_vertex = vertices[2];
+//        
+//        TS_ASSERT_DELTA(this_vertex[0], 0, 1e-7);
+//        TS_ASSERT_DELTA(this_vertex[1], 0, 1e-7);
+//        TS_ASSERT_DELTA(this_vertex[2], 0, 1e-7);
+//        
+//        this_vertex = vertices[3];
+//        
+//        TS_ASSERT_DELTA(this_vertex[0], 0, 1e-7);
+//        TS_ASSERT_DELTA(this_vertex[1], 0, 1e-7);
+//        TS_ASSERT_DELTA(this_vertex[2], 0, 1e-7);
+        
+        std::cout << vertices[0][1] << "\n" << std::flush;
     }
 
 };
