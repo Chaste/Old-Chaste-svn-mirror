@@ -1,10 +1,11 @@
-#ifndef TESTVORONOITESSELLATER_HPP_
-#define TESTVORONOITESSELLATER_HPP_
+#ifndef TESTVORONOITESSELLATOR_HPP_
+#define TESTVORONOITESSELLATOR_HPP_
 
 
 #include "UblasCustomFunctions.hpp"
 #include <cxxtest/TestSuite.h>
 #include "VoronoiCell.hpp"
+#include "VoronoiTessellator.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include "TrianglesMeshWriter.cpp"
@@ -13,7 +14,7 @@
 #include <cmath>
 #include <vector>
 
-class TestVoronoiTessellater : public CxxTest::TestSuite
+class TestVoronoiTessellator : public CxxTest::TestSuite
 {
 public:
     void TestSimpleTessellation() throw (Exception)
@@ -34,24 +35,19 @@ public:
         TrianglesMeshWriter<3,3> mesh_writer("","Simple_Delaunay_Tet");
         mesh_writer.WriteFilesUsingMesh(mesh);
         
+        TS_ASSERT(mesh.CheckVoronoi());
+        
+        // Create Voronoi Tesselation
+        VoronoiTessellator tessellator(mesh);
+        
+        tessellator.Generate();
         
         
+        const std::vector<VoronoiCell>& r_voronoi_cells = tessellator.rGetVoronoiCells();
         
+        // Check Tesselation
+        TS_ASSERT_EQUALS(r_voronoi_cells.size(),0u);
         
-
-//        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_simple_delaunay");       
-//        mesh.ConstructFromMeshReader(mesh_reader);
-//        // ....
-//        
-//        TS_ASSERT(mesh.CheckVoronoi());
-        
-//        // Create Voronoi Tesselation
-//        VoronoiTessellator(mesh) tesselator;
-//        std::vector<VoronoiCell>& voronoi_cells=tesselator.Generate();
-//        
-//        // Check Tesselation
-//        TS_ASSERT(voronoi_cells.size()==1);
-//        
 //        std::vector< c_vector<double, 3> >& vertices = voronoi_cell(1).GetVertices();
 //        
 //        std::vector< c_vector<double, 3> > expected_vertices;
@@ -99,4 +95,4 @@ public:
 };
 
 
-#endif /*TESTVORONOITESSELLATER_HPP_*/
+#endif /*TESTVORONOITESSELLATOR_HPP_*/

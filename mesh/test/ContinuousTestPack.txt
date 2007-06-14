@@ -14,4 +14,4 @@ TestTransformations.hpp
 TestRemesh.hpp
 TestCylindrical2dMesh.hpp
 TestVoronoiCell.hpp
-TestVoronoiTessellater.hpp
+TestVoronoiTessellator.hpp
