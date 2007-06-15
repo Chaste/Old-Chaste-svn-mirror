@@ -475,11 +475,11 @@ public:
         // set up expected results for the honeycombmesh created below
         // the following are the edges which do not contain a ghost node
         std::set < std::set < unsigned > > expected_node_pairs;        
-        unsigned expected_node_pairs_array[] = {4,5,
-                                                4,7,
-                                                4,8,
-                                                7,8,
-                                                5,8 };
+        unsigned expected_node_pairs_array[] = {5,6,
+                                                5,9,
+                                                5,10,
+                                                6,10,
+                                                9,10 };
 
 /// the old test used ALL the edges of this mesh..
 //        unsigned expected_node_pairs_array[] = {0,1,
@@ -518,9 +518,10 @@ public:
         p_simulation_time->SetStartTime(0.0);        
         
         unsigned num_cells_depth = 2;
-        unsigned num_cells_width = 1;
+        unsigned num_cells_width = 2;
+        unsigned thickness_of_ghosts = 1;
         
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 1u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghosts, false);
 
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
@@ -569,26 +570,26 @@ public:
             TS_ASSERT_EQUALS(spring_iterator.rGetCellB().GetNodeIndex(), spring_iterator.GetNodeB()->GetIndex());
         }
         
-// see ticket:406        
-//        std::string results_directory = "HoneyComb";
-//        // Data writers for tabulated results data, used in tests
-//        // first construction clears out the folder
-//        ColumnDataWriter tabulated_node_writer(results_directory+"/tab_results", "tabulated_node_results",true);
-//        ColumnDataWriter tabulated_element_writer(results_directory+"/tab_results", "tabulated_element_results",false);
-//        
-//        crypt.SetupTabulatedWriters(tabulated_node_writer, tabulated_element_writer);//, element_writer_ids);
-//            
-//        // Create output files for the visualizer
-//        OutputFileHandler output_file_handler(results_directory+"/vis_results/",false);
-//        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
-//        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
-//        out_stream p_setup_file = output_file_handler.OpenOutputFile("results.vizsetup");
-//        
-//        crypt.WriteResultsToFiles(tabulated_node_writer, 
-//                           tabulated_element_writer,
-//                           *p_node_file, *p_element_file,
-//                           false,
-//                           true);
+ //see ticket:406        
+        std::string results_directory = "HoneyComb";
+        // Data writers for tabulated results data, used in tests
+        // first construction clears out the folder
+        ColumnDataWriter tabulated_node_writer(results_directory+"/tab_results", "tabulated_node_results",true);
+        ColumnDataWriter tabulated_element_writer(results_directory+"/tab_results", "tabulated_element_results",false);
+        
+        crypt.SetupTabulatedWriters(tabulated_node_writer, tabulated_element_writer);//, element_writer_ids);
+            
+        // Create output files for the visualizer
+        OutputFileHandler output_file_handler(results_directory+"/vis_results/",false);
+        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
+        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
+        out_stream p_setup_file = output_file_handler.OpenOutputFile("results.vizsetup");
+        
+        crypt.WriteResultsToFiles(tabulated_node_writer, 
+                           tabulated_element_writer,
+                           *p_node_file, *p_element_file,
+                           false,
+                           true);
                                
         TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
 

@@ -177,7 +177,11 @@ private:
         {
             double x = mpMesh->GetNode(i)->GetPoint().rGetLocation()[0];
             double y = mpMesh->GetNode(i)->GetPoint().rGetLocation()[1];
-            if ((x<0)||(x>mCryptWidth*(1.0+0.5/(double)mNumCellWidth))||(y>mCryptDepth)||(y<-1e-6))
+            
+            if (  (x<0)         // Over to the left
+                ||(x>=mCryptWidth) // Over to the right
+                ||(y>mCryptDepth) // Up above
+                ||(y<-1e-6)) // down below
             {
                 mGhostNodeIndices.insert(i);
             }
