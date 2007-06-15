@@ -140,11 +140,7 @@ protected:
 
 public:
 
-//    TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMesh,
-//                     std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>());
-
     TissueSimulation(Crypt<DIM>& rCrypt);
-
                               
     virtual ~TissueSimulation();
     
@@ -160,7 +156,6 @@ public:
     void SetNoSloughing();
     void SetWntGradient(WntGradientType wntGradientType);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
-    std::vector<MeinekeCryptCell> GetCells();
     std::vector <bool> GetGhostNodes();
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
     

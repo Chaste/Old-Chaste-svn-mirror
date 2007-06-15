@@ -86,7 +86,7 @@ void TissueSimulation<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
 template<unsigned DIM>  
 unsigned TissueSimulation<DIM>::DoCellBirth()
 {
-    if (mNoBirth || mrCrypt.rGetCells().empty())
+    if (mNoBirth)
     {
         return 0;
     }
@@ -146,11 +146,6 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
 template<unsigned DIM> 
 unsigned TissueSimulation<DIM>::DoCellRemoval()
 {
-    if(mrCrypt.rGetCells().empty())
-    {
-        return 0;
-    }
-    
     unsigned num_deaths_this_step=0;
     // Sloughing by turning boundary nodes into ghost nodes.
     if (DIM==2 && mIncludeSloughing) // sloughing only happens in 2d
@@ -294,29 +289,27 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
         double damping_constantA = mpParams->GetDampingConstantNormal();
         double damping_constantB = mpParams->GetDampingConstantNormal();
         
-        if(!mrCrypt.rGetCells().empty())
+        
+        if(   (spring_iterator.rGetCellA().GetMutationState()==HEALTHY)
+           || (spring_iterator.rGetCellA().GetMutationState()==APC_ONE_HIT))
         {
-            if(   (spring_iterator.rGetCellA().GetMutationState()==HEALTHY)
-               || (spring_iterator.rGetCellA().GetMutationState()==APC_ONE_HIT))
-            {
-                damping_constantA = mpParams->GetDampingConstantNormal();
-            }
-            else
-            {
-                damping_constantA = mpParams->GetDampingConstantMutant();
-            }
-            
-            if(   (spring_iterator.rGetCellB().GetMutationState()==HEALTHY)
-               || (spring_iterator.rGetCellB().GetMutationState()==APC_ONE_HIT))
-            {
-                damping_constantB = mpParams->GetDampingConstantNormal();
-            }
-            else
-            {
-                damping_constantB = mpParams->GetDampingConstantMutant();
-            }
+            damping_constantA = mpParams->GetDampingConstantNormal();
+        }
+        else
+        {
+            damping_constantA = mpParams->GetDampingConstantMutant();
         }
         
+        if(   (spring_iterator.rGetCellB().GetMutationState()==HEALTHY)
+           || (spring_iterator.rGetCellB().GetMutationState()==APC_ONE_HIT))
+        {
+            damping_constantB = mpParams->GetDampingConstantNormal();
+        }
+        else
+        {
+            damping_constantB = mpParams->GetDampingConstantMutant();
+        }    
+       
         // these cannot be ghost nodes anymore..
         // the both apply forces on each other
         drdt[nodeB_global_index] -= force / damping_constantB;
@@ -353,18 +346,17 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     unit_difference /= distance_between_nodes;
     
     double rest_length = 1.0;
+        
+    double ageA = mrCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
+    double ageB = mrCrypt.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
     
-    if (mrCrypt.rGetCells().size()>0)
+    if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
     {
-        double ageA = mrCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
-        double ageB = mrCrypt.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
-        if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
-        {
-            // Spring Rest Length Increases to normal rest length from 0.1 to normal rest length, 1.0, over 1 hour
-            rest_length=(0.1+0.9*ageA);
-            assert(rest_length<=1.0);
-        }
+        // Spring Rest Length Increases to normal rest length from 0.1 to normal rest length, 1.0, over 1 hour
+        rest_length=(0.1+0.9*ageA);
+        assert(rest_length<=1.0);
     }
+    
     return mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 
@@ -406,7 +398,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
                     mrCrypt.MoveCell(cell_iter, new_point);
                 }
             }
-            else if (mrCrypt.rGetCells().size()>0)
+            else 
             {
                 if (mWntIncluded)
                 {   
@@ -434,16 +426,6 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
                     }
                 }
             }
-            else
-            {
-                // NOTE: once springs in their own tested class all crypt simulations should have cells, 
-                // so delete this:
-                // no cells, just fix any node on line y=0
-                if (mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[1]>0)
-                {
-                    mrCrypt.MoveCell(cell_iter, new_point);
-                }
-            }
         }
         else
         {
@@ -463,17 +445,15 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
 template<unsigned DIM> 
 void TissueSimulation<DIM>::UpdateCellTypes()
 {
-    if (!mrCrypt.rGetCells().empty())
+    // Designate cells as proliferating (transit) or
+    // quiescent (differentiated) according to protein concentrations
+    for (typename Crypt<DIM>::Iterator cell_iter = mrCrypt.Begin();
+         cell_iter != mrCrypt.End();
+         ++cell_iter)
     {
-        // Designate cells as proliferating (transit) or
-        // quiescent (differentiated) according to protein concentrations
-        for (typename Crypt<DIM>::Iterator cell_iter = mrCrypt.Begin();
-             cell_iter != mrCrypt.End();
-             ++cell_iter)
-        {
-            cell_iter->UpdateCellType();
-        }
+        cell_iter->UpdateCellType();
     }
+    
 }
 
 
@@ -617,19 +597,6 @@ void TissueSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
 }
 
 /**
- * Get the cells vector
- * N.B. Returns a copy of the cells - any operations on them will not go back into the
- * simulation.
- * \todo change this to return a const reference
- */
-template<unsigned DIM> 
-std::vector<MeinekeCryptCell> TissueSimulation<DIM>::GetCells()
-{
-    assert(mrCrypt.rGetCells().size()>0);
-    return mrCrypt.rGetCells();
-}
-
-/**
  * Whether each node is a ghost or not.
  * \todo change this to return a const reference
  */
@@ -689,9 +656,7 @@ void TissueSimulation<DIM>::Solve()
 
     if (mOutputDirectory=="")
     {
-        #define COVERAGE_IGNORE
         EXCEPTION("OutputDirectory not set");
-        #undef COVERAGE_IGNORE
     }
     
 
@@ -729,25 +694,23 @@ void TissueSimulation<DIM>::Solve()
      * TODO:For some strange reason this seems to take about 3 minutes for a realistic Wnt-Crypt.
      * Not sure why - when the same code was evaluated in a test it seemed almost instant.
      */
-    if (!mrCrypt.rGetCells().empty())
+    
+    for (typename Crypt<DIM>::Iterator cell_iter = mrCrypt.Begin();
+         cell_iter != mrCrypt.End();
+         ++cell_iter)
     {
-        for (typename Crypt<DIM>::Iterator cell_iter = mrCrypt.Begin();
-             cell_iter != mrCrypt.End();
-             ++cell_iter)
+        double y = cell_iter.rGetLocation()[1];
+        std::vector<double> cell_cycle_influences;
+        if (mWntIncluded)
         {
-            double y = cell_iter.rGetLocation()[1];
-            std::vector<double> cell_cycle_influences;
-            if (mWntIncluded)
-            {
-                double wnt_stimulus = mWntGradient.GetWntLevel(y);
-                cell_cycle_influences.push_back(wnt_stimulus);
-            }
-            // We don't use the result; this call is just to force the cells to age to time 0,
-            // running their cell cycle models to get there.
-            cell_iter->ReadyToDivide(cell_cycle_influences);
+            double wnt_stimulus = mWntGradient.GetWntLevel(y);
+            cell_cycle_influences.push_back(wnt_stimulus);
         }
+        // We don't use the result; this call is just to force the cells to age to time 0,
+        // running their cell cycle models to get there.
+        cell_iter->ReadyToDivide(cell_cycle_influences);
     }
-
+    
     UpdateCellTypes();
     
     // Write initial conditions to file for the visualizer.

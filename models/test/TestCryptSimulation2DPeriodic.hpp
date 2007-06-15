@@ -285,7 +285,7 @@ public:
 
         // test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
-        std::vector<MeinekeCryptCell> result_cells = simulator.GetCells();
+        std::vector<MeinekeCryptCell>& result_cells = crypt.rGetCells();
         std::vector<bool> ghost_cells = simulator.GetGhostNodes();
         unsigned number_of_cells = 0;
         unsigned number_of_nodes = result_cells.size();
@@ -574,7 +574,7 @@ public:
         
         // test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
-        std::vector<MeinekeCryptCell> result_cells = simulator.GetCells();
+        std::vector<MeinekeCryptCell>& result_cells = crypt.rGetCells();
         std::vector<bool> ghost_cells = simulator.GetGhostNodes();
         unsigned number_of_cells = 0;
         unsigned number_of_nodes = result_cells.size();
@@ -833,7 +833,7 @@ public:
         std::vector<MeinekeCryptCell> cells3;
         simulator3.SetWntGradient(LINEAR);
         simulator3.UpdateCellTypes();
-        cells3 = simulator3.GetCells();
+        cells3 = crypt.rGetCells();
         
         std::vector<bool> is_node_a_ghost = simulator3.GetGhostNodes();
         

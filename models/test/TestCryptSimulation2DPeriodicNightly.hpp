@@ -252,7 +252,7 @@ public:
 
     // Test the spring system. The cells in this test are given an intial
     // age of 2.0 so that their springs are at their natural length
-    // i.e. we set birth time=-2.0. (There used to be no cells in this test)
+    // i.e. we set birth time=-2.0. 
     // The mesh is initially a set of 10 by 10 squares, each square made
     // up of two triangles. The horizontal and vertical edges (springs) are at rest length, the
     // diagonals are two long, so this means the mesh skews to a (sloughed) parallelogram, each
@@ -302,7 +302,6 @@ public:
         simulator.SetOutputDirectory("Crypt2DSprings");
 
         simulator.SetEndTime(1.0);
-        simulator.SetNoBirth(true);
         TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(90));
         simulator.SetMaxCells(400);
         TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(90));
@@ -516,7 +515,7 @@ public:
         simulator.Solve();
         
         // now count the number of each type of cell
-        std::vector<MeinekeCryptCell> cells_after_simulation = simulator.GetCells();
+        std::vector<MeinekeCryptCell> cells_after_simulation = crypt.rGetCells();
         std::vector<bool> is_ghost_node = simulator.GetGhostNodes();
         
         int num_stem = 0;
@@ -600,7 +599,7 @@ public:
         
         // test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
-        std::vector<MeinekeCryptCell> result_cells = simulator.GetCells();
+        std::vector<MeinekeCryptCell> result_cells = crypt.rGetCells();
         std::vector<bool> ghost_cells = simulator.GetGhostNodes();
         unsigned number_of_cells = 0;
         unsigned number_of_nodes = result_cells.size();
@@ -662,7 +661,7 @@ public:
         
         // test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
-        std::vector<MeinekeCryptCell> result_cells = simulator.GetCells();
+        std::vector<MeinekeCryptCell> result_cells = crypt.rGetCells();
         std::vector<bool> ghost_cells = simulator.GetGhostNodes();
         unsigned number_of_cells = 0;
         unsigned number_of_nodes = result_cells.size();
@@ -744,7 +743,7 @@ public:
         
         // test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
-        std::vector<MeinekeCryptCell> result_cells = simulator.GetCells();
+        std::vector<MeinekeCryptCell> result_cells = crypt.rGetCells();
         std::vector<bool> ghost_cells = simulator.GetGhostNodes();
         unsigned number_of_cells = 0;
         unsigned number_of_nodes = result_cells.size();
