@@ -154,30 +154,7 @@ void CryptSimulation::Solve()
     {
         //std::cout << "Simulation time = " << mpSimulationTime->GetDimensionalisedTime() << "\n" << std::endl;
         // Cell birth
-        if (mIncludeRandomBirth && time_since_last_birth > 5.0)// Ie Birth every 5 hours
-        {
-            unsigned new_node_index = AddRandomNode(mpSimulationTime->GetDimensionalisedTime());
-            time_since_last_birth = 0 ;
-            // Create new cell note all are Stem Cells and have generation 0 for random birth
-            //RandomNumberGenerator *pGen=new RandomNumberGenerator;
-            CryptCellType cell_type=STEM ;
-            unsigned generation=0;
-            
-            MeinekeCryptCell new_cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel);
-            
-            // Update cells vector
-            new_cell.SetNodeIndex(new_node_index);
-            if (new_node_index == mCells.size())
-            {
-                mCells.push_back(new_cell);
-            }
-            else
-            {
-                mCells[new_node_index] = new_cell;
-            }
-            num_births++;
-        }
-        else if (!mCells.empty())
+        if (!mCells.empty())
         {
             for (unsigned i=0; i<mCells.size(); i++)
             {
@@ -418,9 +395,10 @@ unsigned CryptSimulation::AddNodeToElement(Element<1,1>* pElement, double time)
         }
         else
         {
-#define COVERAGE_IGNORE
-            EXCEPTION("No cell has divided in this element");
-#undef COVERAGE_IGNORE
+            // This called by Tyson Novak cells which might not be age 0 when the simulation divides them.
+            double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
+            // pick a random position in the central 60% of the element
+            displacement = 0.2 + (mpGen->ranf())*(element_length-0.4);
         }
     }
     else

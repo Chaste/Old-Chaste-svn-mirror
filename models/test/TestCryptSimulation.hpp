@@ -13,6 +13,7 @@
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
+#include "TysonNovakCellCycleModel.hpp"
 
 #include "CancerParameters.hpp"
 #include "ColumnDataReader.hpp"
@@ -208,99 +209,7 @@ public:
         CheckAgainstPreviousRun("CryptWithDeathButNoBirth", 23);
     }
     
-    // Includes random birth (random position in a random element), death and constant
-    // rest length by default
-    void Test1DChainWithBirthConstantRestLength() throw (Exception)
-    {
-        // Note that random numbers are reseeded with srandom(0) by the following constructor.
-        RandomNumberGenerator::Instance();
-        CancerParameters *p_params = CancerParameters::Instance();
         
-        Make1dCryptMesh("1D_crypt_mesh", 23, 22);
-        std::string testoutput_dir;
-        OutputFileHandler output_file_handler("");
-        testoutput_dir = output_file_handler.GetTestOutputDirectory();
-        
-        TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
-        ConformingTetrahedralMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = mesh.GetNumNodes();
-        std::vector<MeinekeCryptCell> cells;
-        for (unsigned i=0; i<num_cells; i++)
-        {
-            CryptCellType cell_type=STEM;
-            unsigned generation=0;
-            double birth_time=-p_params->GetStemCellCycleTime()+1.0*i; //hours
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel);
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-        
-        CryptSimulation simulator(mesh, cells);
-        
-        simulator.SetOutputDirectory("CryptWithBirthConstantRestLength");
-        simulator.SetMaxCells(33);
-        simulator.SetIncludeRandomBirth();
-        simulator.SetEndTime(10.0);
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-        
-        CheckAgainstPreviousRun("CryptWithBirthConstantRestLength",33);
-        RandomNumberGenerator::Destroy();
-    }
-    
-    // Includes variable rest length but not fully working in the class (see
-    // CryptSimulation.hpp and look for the
-    // "(age1<1.0/time_scale && age2<1.0/time_scale && fabs(age1-age2)<1e-6)" if.
-    void Test1DChainWithBirthVariableRestLength() throw (Exception)
-    {
-        RandomNumberGenerator::Instance();
-        Make1dCryptMesh("1D_crypt_mesh", 23, 22);
-        
-        std::string testoutput_dir;
-        OutputFileHandler output_file_handler("");
-        testoutput_dir = output_file_handler.GetTestOutputDirectory();
-        
-        TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
-        ConformingTetrahedralMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = mesh.GetNumNodes();
-        std::vector<MeinekeCryptCell> cells;
-        for (unsigned i=0; i<num_cells; i++)
-        {
-            CryptCellType cell_type=STEM;
-            unsigned generation=0;
-            double birth_time= -1.0; //hours
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel);
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-        
-        
-        CryptSimulation simulator(mesh, cells);
-        
-        simulator.SetOutputDirectory("CryptWithBirthVariableRestLength");
-        simulator.SetMaxCells(25);
-        simulator.SetIncludeRandomBirth();
-        simulator.SetIncludeVariableRestLength();
-        simulator.SetEndTime(10.0);
-        TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
-        
-        CheckAgainstPreviousRun("CryptWithBirthVariableRestLength",25);
-        RandomNumberGenerator::Destroy();
-    }
-    
     
     // Create a chain of meineke cells (1 stem, 14 transit cells and 8 differentiated)
     // and pass into the simulation class
@@ -438,6 +347,88 @@ public:
         
         CheckAgainstPreviousRun("CryptWithCellsAndGrowth",50);
         RandomNumberGenerator::Destroy();
+    }
+    
+    
+      
+    void Test1DChainWithTysonNovakCells() throw (Exception)
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();
+        
+        double crypt_length = 22.0;
+        p_params->SetCryptLength(crypt_length);
+        
+        Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
+        std::string testoutput_dir;
+        OutputFileHandler output_file_handler("");
+        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
+        ConformingTetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // For Tyson-Novak Cells
+        double temp_stem = p_params->GetStemCellCycleTime();
+        double temp_transit = p_params->GetTransitCellCycleTime();
+        p_params->SetStemCellCycleTime(0.15);
+        p_params->SetTransitCellCycleTime(0.15);
+        
+        // Set up cells by iterating through the mesh nodes
+        unsigned num_cells = mesh.GetNumAllNodes();
+        std::vector<MeinekeCryptCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            CryptCellType cell_type;
+            unsigned generation;
+            double birth_time;
+            if (i == 0)
+            {
+                cell_type = STEM;
+                generation = 0;
+                birth_time = -p_rand_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+            }
+            else if (i < 15)
+            {
+                cell_type = TRANSIT;
+                generation = 1 + (i - 1) / 5;
+                birth_time = -p_rand_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
+            }
+            else
+            {
+                cell_type = DIFFERENTIATED;
+                generation = 4;
+                birth_time = 0; //hours
+            }
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new TysonNovakCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+        
+        
+        
+        CryptSimulation simulator(mesh, cells);
+        
+        simulator.SetOutputDirectory("CryptWithTysonNovakCells");
+        simulator.SetMaxCells(500);
+        simulator.SetEndTime(1.35);
+        
+        simulator.SetIncludeVariableRestLength();
+        
+        simulator.Solve();
+        
+        cells = simulator.GetCells();
+        // check we have had loads of birth
+        // N.B. that if this test is run for longer it will fail 
+        // because they get too squashed in (T&N is too quick).
+        TS_ASSERT_EQUALS(cells.size() , num_cells+65u);
+        
+        p_params->SetStemCellCycleTime(temp_stem);
+        p_params->SetTransitCellCycleTime(temp_transit);
+        
     }
     
     
