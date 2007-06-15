@@ -22,7 +22,7 @@ class HoneycombMeshGenerator
 {
 private:
     ConformingTetrahedralMesh<2,2>* mpMesh;
-    Cylindrical2dMesh* mpCylindricalMesh;
+    //Cylindrical2dMesh* mpCylindricalMesh;
     std::set<unsigned> mGhostNodeIndices;
     std::string mMeshFilename;
     double mCryptWidth;
@@ -169,7 +169,7 @@ private:
     }
     
     
-    void ComputeGhostNodesMonolayer()
+    void ComputeGhostNodes()
     {
         assert(mpMesh!=NULL);
         
@@ -188,28 +188,13 @@ private:
         }
     }
     
-    void ComputeGhostNodesCylindrical()
-    {
-        assert(mpCylindricalMesh!=NULL);
-        
-        for (unsigned i=0; i<mpCylindricalMesh->GetNumNodes(); i++)
-        {
-            double x = mpCylindricalMesh->GetNode(i)->GetPoint().rGetLocation()[0];
-            double y = mpCylindricalMesh->GetNode(i)->GetPoint().rGetLocation()[1];
-            if ((x<0)||(x>=mCryptWidth)||(y>mCryptDepth)||(y<-1e-6))
-            {
-               mGhostNodeIndices.insert(i);
-            }
-        }
-    }
-    
+ 
     
 public:
 
     ~HoneycombMeshGenerator()
     {
         delete mpMesh;
-        delete mpCylindricalMesh;
     }
 
     
@@ -243,19 +228,19 @@ public:
         
         if (!mCylindrical)
         {
-            mpCylindricalMesh = new Cylindrical2dMesh(mCryptWidth);// to avoid seg fault when closing
+            //mpCylindricalMesh = new Cylindrical2dMesh(mCryptWidth);// to avoid seg fault when closing
             mpMesh = new ConformingTetrahedralMesh<2,2>;
             mpMesh->ConstructFromMeshReader(mesh_reader);
-            ComputeGhostNodesMonolayer();
+            ComputeGhostNodes();
         }
         else
         {   
-            mpMesh = new ConformingTetrahedralMesh<2,2>;// to avoid seg fault when closing
-            mpCylindricalMesh = new Cylindrical2dMesh(mCryptWidth);
-            mpCylindricalMesh->ConstructFromMeshReader(mesh_reader);
-            NodeMap map(mpCylindricalMesh->GetNumNodes());
-            mpCylindricalMesh->ReMesh(map); // This makes the mesh cylindrical
-            ComputeGhostNodesCylindrical();
+            //mpMesh = new ConformingTetrahedralMesh<2,2>;// to avoid seg fault when closing
+            mpMesh = new Cylindrical2dMesh(mCryptWidth);
+            mpMesh->ConstructFromMeshReader(mesh_reader);
+            NodeMap map(mpMesh->GetNumNodes());
+            mpMesh->ReMesh(map); // This makes the mesh cylindrical
+            ComputeGhostNodes();
         }
                 
         CancerParameters* p_params = CancerParameters::Instance();
@@ -279,7 +264,7 @@ public:
         {
             EXCEPTION("A normal mesh was created but a cylindrical mesh is being requested.");
         }
-        return mpCylindricalMesh;
+        return (Cylindrical2dMesh*) mpMesh;
     }
     
     std::set<unsigned> GetGhostNodeIndices()
