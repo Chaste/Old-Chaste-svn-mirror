@@ -22,11 +22,18 @@ public:
         
         // Create conforming tetrahedral mesh which is Delauny
         std::vector<Node<3> *> nodes;
-        nodes.push_back(new Node<3>(0, true,  1.0,  1.0,  1.0));
-        nodes.push_back(new Node<3>(1, true, -1.0, -1.0,  1.0));
-        nodes.push_back(new Node<3>(2, true, -1.0,  1.0, -1.0));
-        nodes.push_back(new Node<3>(3, true,  1.0, -1.0, -1.0));
-        nodes.push_back(new Node<3>(4, false, 0.0,0.0,0.0));
+//        nodes.push_back(new Node<3>(0, true,  1.0,  1.0,  1.0));
+//        nodes.push_back(new Node<3>(1, true, -1.0, -1.0,  1.0));
+//        nodes.push_back(new Node<3>(2, true, -1.0,  1.0, -1.0));
+//        nodes.push_back(new Node<3>(3, true,  1.0, -1.0, -1.0));
+//        nodes.push_back(new Node<3>(4, false, 0.0,0.0,0.0));
+        
+        
+        nodes.push_back(new Node<3>(0, true,  0.0,  0.0,  0.0));
+        nodes.push_back(new Node<3>(1, true,  1.0,  1.0,  0.0));
+        nodes.push_back(new Node<3>(2, true,  1.0,  0.0,  1.0));
+        nodes.push_back(new Node<3>(3, true,  0.0,  1.0,  1.0));
+        nodes.push_back(new Node<3>(4, false, 0.5,0.5,0.5));
         // These are deleted in the ReMesh in Constructer so don't need 
         // to be deleted here - or do they?
                 
@@ -44,33 +51,52 @@ public:
         const std::vector<VoronoiCell>& r_voronoi_cells = tessellator.rGetVoronoiCells();
         
         // Check Tesselation
-        TS_ASSERT_EQUALS(r_voronoi_cells.size(),0u);
+        TS_ASSERT_EQUALS(r_voronoi_cells.size(),1u);
         
-//        std::vector< c_vector<double, 3> >& vertices = voronoi_cell(1).GetVertices();
-//        
-//        std::vector< c_vector<double, 3> > expected_vertices;
-//        c_vector<double, 3> vertex;
-//        vertex(0)=1.2500;
-//        vertex(1)=-0.2500;
-//        vertex(2)=0.2500;
-//        expected_vertices.push_back(vertex);
-//
-//        vertex(0)= -0.2500;      
-//        vertex(1)=1.2500;
-//        vertex(2)=-0.2500;
-//        expected_vertices.push_back(vertex);
-//        
-//        vertex(0)= -0.2500;      
-//        vertex(1)=-0.2500;
-//        vertex(2)=1.2500;
-//        expected_vertices.push_back(vertex);        
-//        
-//        vertex(0)= 1.2500;      
-//        vertex(1)=1.2500;
-//        vertex(2)=1.2500;
-//        expected_vertices.push_back(vertex);        
-//        
-//        // create map from expected vertex index to actual vertex index
+        VoronoiCell our_voronoi_cell = r_voronoi_cells[0];
+        std::set< Node<3>* >& vertices = our_voronoi_cell.GetVertices();
+        
+        std::vector< c_vector<double, 3> > expected_vertices;
+        c_vector<double, 3> vertex;
+        vertex(0)= -0.2500;      
+        vertex(1)=-0.2500;
+        vertex(2)=1.2500;
+        expected_vertices.push_back(vertex); 
+        
+        vertex(0)=1.2500;
+        vertex(1)=-0.2500;
+        vertex(2)=-0.2500;
+        expected_vertices.push_back(vertex);
+
+        vertex(0)= -0.2500;      
+        vertex(1)=1.2500;
+        vertex(2)=-0.2500;
+        expected_vertices.push_back(vertex);
+        
+               
+        
+        vertex(0)= 1.2500;      
+        vertex(1)=1.2500;
+        vertex(2)=1.2500;
+        expected_vertices.push_back(vertex);        
+        
+        
+        int j=0;
+        for (std::set<Node<3>*>::iterator vertex_iterator = vertices.begin();
+                    vertex_iterator!=vertices.end() ; vertex_iterator++)
+        {
+            
+            Node<3>* our_node = *vertex_iterator;
+//            std::cout<< our_node->rGetLocation()[0] << "\t " << our_node->rGetLocation()[1] << "\t" << our_node->rGetLocation()[2] << "\n";
+            for (int i=0; i<3; i++)
+            {
+                TS_ASSERT_DELTA(our_node->rGetLocation()[i],expected_vertices[j](i),1e-5);
+            }
+            
+            j++;
+        }
+            
+          // create map from expected vertex index to actual vertex index
 //        
 //        std::map<unsigned, unsigned> index_map;
 //        for (unsigned index_e=0; index_e<3; index_e++)
@@ -136,33 +162,33 @@ public:
         
         tessellator.GenerateVerticesFromElementCircumcentres();
         
-        std::vector< c_vector<double, 3> > vertices = tessellator.rGetVoronoiVertices();
+        std::vector< Node<3>* > vertices = tessellator.rGetVoronoiVertices();
         
-        c_vector<double,3> this_vertex = vertices[0];
+        c_vector<double,3> this_vertex = vertices[0]->rGetLocation();
         
-//        TS_ASSERT_DELTA(this_vertex[0], 0, 1e-7);
-//        TS_ASSERT_DELTA(this_vertex[1], 0, 1e-7);
-//        TS_ASSERT_DELTA(this_vertex[2], 0, 1e-7);
-//        
-//        this_vertex = vertices[1];
-//        
-//        TS_ASSERT_DELTA(this_vertex[0], 0, 1e-7);
-//        TS_ASSERT_DELTA(this_vertex[1], 0, 1e-7);
-//        TS_ASSERT_DELTA(this_vertex[2], 0, 1e-7);
-//        
-//        this_vertex = vertices[2];
-//        
-//        TS_ASSERT_DELTA(this_vertex[0], 0, 1e-7);
-//        TS_ASSERT_DELTA(this_vertex[1], 0, 1e-7);
-//        TS_ASSERT_DELTA(this_vertex[2], 0, 1e-7);
-//        
-//        this_vertex = vertices[3];
-//        
-//        TS_ASSERT_DELTA(this_vertex[0], 0, 1e-7);
-//        TS_ASSERT_DELTA(this_vertex[1], 0, 1e-7);
-//        TS_ASSERT_DELTA(this_vertex[2], 0, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2], -1.5, 1e-7);
         
-        std::cout << vertices[0][1] << "\n" << std::flush;
+        this_vertex = vertices[1]->rGetLocation();
+        
+        TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1], -1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2], 1.5, 1e-7);
+        
+        this_vertex = vertices[2]->rGetLocation();
+        
+        TS_ASSERT_DELTA(this_vertex[0], -1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2], 1.5, 1e-7);
+        
+        this_vertex = vertices[3]->rGetLocation();
+        
+        TS_ASSERT_DELTA(this_vertex[0], -1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1], -1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2], -1.5, 1e-7);
+        
+        std::cout << vertices[0]->rGetLocation()[1] << "\n" << std::flush;
     }
 
 };

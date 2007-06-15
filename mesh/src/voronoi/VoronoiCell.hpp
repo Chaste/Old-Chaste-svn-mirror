@@ -2,6 +2,7 @@
 #define VORONOICELL_HPP_
 
 #include "UblasCustomFunctions.hpp"
+#include "Node.hpp"
 #include <cxxtest/TestSuite.h>
 
 #include <cmath>
@@ -11,17 +12,17 @@ class VoronoiCell
 {
 private:
     c_vector<double, 3> mCellCentre;
-    std::vector< c_vector<double, 3> > mVertices;
+    std::set< Node<3>* > mpVertices;
     std::vector< std::vector < unsigned > > mFaces;
     unsigned mColour;
     
 public:
     VoronoiCell(c_vector<double, 3> cell_centre, 
-                std::vector< c_vector<double, 3> > vertices, 
+                std::set< Node<3>* > vertices, 
                 std::vector< std::vector < unsigned > > faces, 
                 unsigned colour = 1);
                 
-    std::vector< c_vector<double, 3> >& GetVertices();
+    std::set< Node<3>* >& GetVertices();
     
 };
 

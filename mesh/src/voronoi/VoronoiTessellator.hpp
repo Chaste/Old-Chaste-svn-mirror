@@ -15,7 +15,7 @@ class VoronoiTessellator
     
     std::vector<VoronoiCell> mVoronoiCells;
     
-    std::vector<c_vector<double, 3> > mVertices;
+    std::vector<Node<3>* > mpVertices;
   
   public:
   
@@ -30,15 +30,11 @@ class VoronoiTessellator
         for(unsigned i=0; i<mrMesh.GetNumElements() ; i++)
         {
             c_vector<double,4> circumsphere = mrMesh.GetElement(i)->CalculateCircumsphere();
-            c_vector<double,3> vertex ;
-            assert(i==mrMesh.GetElement(i)->GetIndex());            
-            for (unsigned j=0 ; j<3 ; j++)
-            {   // This will have to be templated to 2D at some stage.
-                //std::cout << "Node x = " << mrMesh.GetElement(i)->GetNode(j)->rGetLocation()[0] << "\n";
-                std::cout << "Circumcentre = " << circumsphere(j) << "\t" ;
-                vertex(j) = circumsphere(j);
-            }
-            mVertices.push_back(vertex);
+            
+            assert(i==mrMesh.GetElement(i)->GetIndex());
+            
+            mpVertices.push_back(new Node<3>(i, false,  circumsphere(0), circumsphere(1),  circumsphere(2)));
+
         }
     }
     
@@ -52,10 +48,10 @@ class VoronoiTessellator
             Node<3>*  p_node =  mrMesh.GetNode(node_index);
             if (! (p_node->IsDeleted() || p_node->IsBoundaryNode()))
             { 
+                std::set<Node<3>* > vertices_of_cell;
                 // Start a list of Faces
                 // Start a list of Vertices
                 std::vector< std::vector < unsigned > > faces;    
-                std::vector< c_vector<double, 3> > global_vertices;
                 std::vector< double> angle_in_plane;
                 
                 std::set < unsigned > attached_nodes;
@@ -79,25 +75,19 @@ class VoronoiTessellator
                     }
                     attached_nodes_each_element.push_back(attached_nodes_this_element);
                     attached_element_global_index.push_back(element_index);
+                    Node<3>* p_voronoi_vertex = mpVertices[element_index];
+                    vertices_of_cell.insert(p_voronoi_vertex);
                 }
-                
-                std::cout<< "Size of attached nodes = " << attached_nodes.size() << "\n" << std::flush;
-                std::cout<< "Size of attached nodes element 0 = " << attached_nodes_each_element[0].size() << "\n" << std::flush;
-                std::cout<< "Size of attached nodes element 1 = " << attached_nodes_each_element[1].size() << "\n" << std::flush;
-                std::cout<< "Size of attached nodes element 2 = " << attached_nodes_each_element[2].size() << "\n" << std::flush;
-                std::cout<< "Size of attached nodes element 3 = " << attached_nodes_each_element[3].size() << "\n" << std::flush;
                 
                 
                 // loop over each spring
                 for (std::set<unsigned>::iterator spring_iterator = attached_nodes.begin();
                     spring_iterator!=attached_nodes.end() ; spring_iterator++)
                 {
-                    std::vector< c_vector<double, 3> > local_vertices ;
+                    std::vector< unsigned > face_vertex_indices ;
                     
                     unsigned this_node = *spring_iterator;
                     c_vector<double,3> spring_vector = mrMesh.GetVectorFromAtoB(p_node->rGetLocation(),mrMesh.GetNode(this_node)->rGetLocation());
-                    
-                    std::cout << "Other end of spring = " << this_node << "\n" << std::flush;
                                         
                     c_vector<double,3> new_origin = spring_vector*0.5 + p_node->rGetLocation();  
                                    
@@ -106,27 +96,13 @@ class VoronoiTessellator
                     {
                         if (attached_nodes_each_element[i].find(this_node) != attached_nodes_each_element[i].end())
                         {
-                            std::cout << "Element " << attached_element_global_index[i] << "contains node " << this_node << "\n" << std::flush;
-                            
-                            ////////////////////
-                            ///////////// SORT THIS BIT OUT
-                            /////////////// we just need to record the global element indices used
-                            /////////////// by this 'face'
-                            //////////////// then sort them later.
-                            ///////////////////
-                                                        
-                            local_vertices.push_back(mVertices[attached_element_global_index[i]]-new_origin);
-                            
-                            
-                            //std::cout<< "local vertices " <<  vertex[0] << " "<< vertex[1] << " " << vertex[2] << std::flush;
-                            std::cout<< " \n new origin " << new_origin[0] << " "<< new_origin[1]<< " " << new_origin[2] << std::flush;
-                        
+                            face_vertex_indices.push_back(attached_element_global_index[i]);
                         }   
                     
                     }// next element        
                     
                     // work out a pair of basis vectors for the plane spanned by the circumcentres
-                    c_vector<double,3> basis_vector1 = local_vertices[0];
+                    c_vector<double,3> basis_vector1 = mpVertices[face_vertex_indices[0]]->rGetLocation() - new_origin;
                              
                     c_vector<double,3> basis_vector2;
                     basis_vector2[0] = spring_vector[1]*basis_vector1[2] - spring_vector[2]*basis_vector1[1];
@@ -135,32 +111,25 @@ class VoronoiTessellator
                     
                     // calculate the angle between the local vertex vector and basis vector 1 in the plane
                     std::vector< double > local_vertex_angles;
-             std::cout << "\n Unsorted \n" ;
-                    for (unsigned j=0 ; j<local_vertices.size() ; j++)
+                    for (unsigned j=0 ; j<face_vertex_indices.size() ; j++)
                     {
-                        double local_vertex_dot_basis_vector1 = inner_prod(local_vertices[j], basis_vector1);
-                        double local_vertex_dot_basis_vector2 = inner_prod(local_vertices[j], basis_vector2);
+                        double local_vertex_dot_basis_vector1 = inner_prod(mpVertices[face_vertex_indices[j]]->rGetLocation() - new_origin, basis_vector1);
+                        double local_vertex_dot_basis_vector2 = inner_prod(mpVertices[face_vertex_indices[j]]->rGetLocation() - new_origin, basis_vector2);
                         
                         double local_vertex_angle = ReturnPolarAngle(local_vertex_dot_basis_vector1, local_vertex_dot_basis_vector2);
          
                         local_vertex_angles.push_back(local_vertex_angle);
                         
-             std::cout << "\n" << local_vertex_angle << "\n" ;
                     }
                     
                     // sort list of VoronoiVertices by angle 
                     std::vector< double > unsorted_angles = local_vertex_angles;
                     std::sort(local_vertex_angles.begin(), local_vertex_angles.end()); 
-             std::cout << "\n Sorted \n" ;
-                    for (unsigned j=0 ; j<local_vertices.size() ; j++)
-                    {
-             std::cout << "\n" << local_vertex_angles[j] << "\n" ;
-                    }
-                                        
+                    
                     std::vector< unsigned > local_vertex_map;
-                    for (unsigned j=0 ; j<local_vertices.size() ; j++)
+                    for (unsigned j=0 ; j<face_vertex_indices.size() ; j++)
                     {    
-                       for (unsigned k=0 ; k<local_vertices.size() ; k++)
+                       for (unsigned k=0 ; k<face_vertex_indices.size() ; k++)
                        {
                             if ( fabs(unsorted_angles[k] - local_vertex_angles[j]) < 1e-6)
                             {
@@ -169,22 +138,26 @@ class VoronoiTessellator
                             }
                        } 
                        
-                    std::cout << "\n" << local_vertex_map[j] << "\n" ;
                     }
                     
                     // add VoronoiVertex to a list with its angle
                     // Make a Face from the list.
-                    std::vector<c_vector<double,3> > temp_vertices = local_vertices;
+                    std::vector<unsigned > temp_vertices = face_vertex_indices;
                     for (unsigned j=0; j<local_vertex_map.size() ; j++)
                     {
-                        local_vertices[j] = temp_vertices[local_vertex_map[j]];                        
+                        face_vertex_indices[j] = temp_vertices[local_vertex_map[j]]; 
+                        
                     }
-                  
+                    
+                    faces.push_back(face_vertex_indices);
+                    
+                    
+                    
                 }// next spring
               
-           // c_vector<double, 3> cell_centre = p_node->rGetLocation();
-           // VoronoiCell new_cell(cell_centre, vertices, faces, colour);
-           // mVoronoiCells.push_back(new_cell);
+            c_vector<double, 3> cell_centre = p_node->rGetLocation();
+            VoronoiCell new_cell(cell_centre, vertices_of_cell, faces, 0u);
+            mVoronoiCells.push_back(new_cell);
             
            } 
         }// next node
@@ -195,9 +168,9 @@ class VoronoiTessellator
         return mVoronoiCells;
     }
     
-    const std::vector<c_vector<double, 3> >& rGetVoronoiVertices()
+    const std::vector<Node<3>* >& rGetVoronoiVertices()
     {
-        return mVertices;
+        return mpVertices;
     }
     
     double ReturnPolarAngle(double x, double y)

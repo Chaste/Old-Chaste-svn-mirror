@@ -20,18 +20,16 @@ public:
         cell_centre(1)=0.5;
         cell_centre(2)=0.5;
         
-        std::vector< c_vector<double, 3> > vertices;
+        std::set< Node<3>* > p_vertices;
+        unsigned counter = 0;
         for (unsigned i=0; i<=1; i++)
         {
             for (unsigned j=0; i<=1; i++)
             {
                 for (unsigned k=0; i<=1; i++)
                 {
-                    c_vector<double, 3> vertex;
-                    vertex(0)=(double) i;
-                    vertex(1)=(double) j;
-                    vertex(2)=(double) k;
-                    vertices.push_back(vertex);
+                    p_vertices.insert(new Node<3>(counter, false, (double) i, (double) j, (double) k) );
+                    counter++;
                 }
             }
         }
@@ -77,14 +75,20 @@ public:
         
         unsigned colour = 1u;
         
-        VoronoiCell cell(cell_centre, vertices, faces, colour);
+        VoronoiCell cell(cell_centre, p_vertices, faces, colour);
 
-        std::vector< c_vector<double, 3> >& return_vertices = cell.GetVertices();
-        for (unsigned i=0; i<vertices.size(); i++)
-        {
-            TS_ASSERT_DELTA(norm_2(vertices[i]-return_vertices[i]), 0.0, 1e-6);
-        }
-        TS_ASSERT_EQUALS(vertices.size(), return_vertices.size());
+        std::set< Node<3>* > return_vertices = cell.GetVertices();
+        
+        
+   
+                    
+        TS_ASSERT(p_vertices==return_vertices);
+        
+//        for (unsigned i=0; i<return_vertices.size(); i++)
+//        {
+//            TS_ASSERT_DELTA(norm_2(p_vertices[i]->rGetLocation()-return_vertices[i]->rGetLocation()), 0.0, 1e-6);
+//        }
+//        TS_ASSERT_EQUALS(p_vertices.size(), return_vertices.size());
         
 //        std::vector< std::vector < unsigned > > return_faces = cell.GetFaces();
 //        unsigned return_colour = cell.GetColour();
