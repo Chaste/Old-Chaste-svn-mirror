@@ -38,16 +38,15 @@ private :
     double mMaxHeight;
     
 public :
-    TissueSimulationForForceExperiments(ConformingTetrahedralMesh<2,2> &rMesh,
-                                        std::vector<MeinekeCryptCell> cells,
+    TissueSimulationForForceExperiments(Crypt<2> rCrypt,
                                         std::set<unsigned> ghostNodeIndices,
                                         bool fixXNotY)
-        : TissueSimulation<2>(rMesh, cells),
+        : TissueSimulation<2>(rCrypt),
           mFixXNotY(fixXNotY)
     {   
         // this class is hardcoded for a particular honeycomb mesh! check num nodes is 
         // as expected  
-        assert(rMesh.GetNumNodes()==360);
+        assert(mrCrypt.rGetMesh().GetNumNodes()==360);
         
         SetGhostNodes(ghostNodeIndices);
         
@@ -87,11 +86,11 @@ public :
     {
         assert(nodeAGlobalIndex!=nodeBGlobalIndex);
         c_vector<double,2> unit_difference;
-        c_vector<double,2> node_a_location = mrMesh.GetNode(nodeAGlobalIndex)->rGetLocation();
-        c_vector<double,2> node_b_location = mrMesh.GetNode(nodeAGlobalIndex)->rGetLocation();
+        c_vector<double,2> node_a_location = mrCrypt.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
+        c_vector<double,2> node_b_location = mrCrypt.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
         
         // there is reason not to substract one position from the other (cyclidrical meshes). clever gary
-        unit_difference = mrMesh.GetVectorFromAtoB(node_a_location, node_b_location);   
+        unit_difference = mrCrypt.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
         double distance_between_nodes = norm_2(unit_difference);
         unit_difference /= distance_between_nodes;
         
@@ -121,17 +120,17 @@ public :
      */
     void UpdateNodePositions(const std::vector<c_vector<double,2> >& rDrDt)
     {
-        mCrypt.UpdateGhostPositions(mDt);
+        mrCrypt.UpdateGhostPositions(mDt);
 
 
-        for (Crypt<2>::Iterator cell_iter = mCrypt.Begin();
-             cell_iter != mCrypt.End();
+        for (Crypt<2>::Iterator cell_iter = mrCrypt.Begin();
+             cell_iter != mrCrypt.End();
              ++cell_iter)
         {
             MeinekeCryptCell& cell = *cell_iter;
             unsigned index = cell.GetNodeIndex();
             
-            Point<2> new_point(mrMesh.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+            Point<2> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
             
             if(mFixXNotY)
             { 
@@ -151,14 +150,14 @@ public :
                 if(index>=57 && index<=327 && ((index-27)%30==0) )
                 {
                     new_point.rGetLocation()[0] = mMaxHeight;
-                    new_point.rGetLocation()[1] = mrMesh.GetNode(index)->rGetLocation()[1];
+                    new_point.rGetLocation()[1] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[1];
                 }
               
                 // left hand side
                 if(index>=32 && index<=302 && ((index-2)%30==0) )
                 {
                     new_point.rGetLocation()[0] = 0;
-                    new_point.rGetLocation()[1] = mrMesh.GetNode(index)->rGetLocation()[1];
+                    new_point.rGetLocation()[1] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[1];
                 }
             }
             else
@@ -178,7 +177,7 @@ public :
                 if(index>=317 && index<=327)
                 {
                     // comment this first line out to allow slip on top surface
-                    new_point.rGetLocation()[0] = mrMesh.GetNode(index)->rGetLocation()[0];
+                    new_point.rGetLocation()[0] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[0];
                     new_point.rGetLocation()[1] = mMaxHeight;
                 }
                 
@@ -186,12 +185,12 @@ public :
                 if(index>=32 && index<=42)
                 {
                     // comment this first line out to allow slip on bottom surface
-                    new_point.rGetLocation()[0] = mrMesh.GetNode(index)->rGetLocation()[0];
+                    new_point.rGetLocation()[0] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[0];
                     new_point.rGetLocation()[1] = 0;
                 }
             }
             
-            mCrypt.MoveCell(cell_iter, new_point);
+            mrCrypt.MoveCell(cell_iter, new_point);
         }
     }
 
@@ -207,9 +206,9 @@ public :
         c_vector<double,2> total_force = zero_vector<double>(2);
 
         std::set<std::set<unsigned> > node_pairs_checked;
-        for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+        for (unsigned elem_index = 0; elem_index<mrCrypt.rGetMesh().GetNumAllElements(); elem_index++)
         {
-            Element<2,2>* p_element = mrMesh.GetElement(elem_index);
+            Element<2,2>* p_element = mrCrypt.rGetMesh().GetElement(elem_index);
             if (!p_element->IsDeleted())
             {
                 for (unsigned k=0; k<2+1; k++)
@@ -370,7 +369,8 @@ public:
                 cells.push_back(cell);
             }
 
-	        TissueSimulationForForceExperiments simulator(*p_mesh, cells, ghost_node_indices, fix_X_not_Y);
+            Crypt<2> crypt(*p_mesh,cells);
+	        TissueSimulationForForceExperiments simulator(crypt, ghost_node_indices, fix_X_not_Y);
 
             simulator.SetOutputDirectory(output_directory);
             simulator.SetEndTime(run_time);
