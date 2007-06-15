@@ -49,7 +49,9 @@ class TissueSimulation
 protected:
     double mDt;
     double mEndTime;
-    ConformingTetrahedralMesh<DIM,DIM> &mrMesh;
+
+    /** Facade encapsulating cells in the tissue being simulated */
+    Crypt<DIM>& mrCrypt;
 
     /** Whether to fix all four boundaries (defaults to false).*/
     bool mFixedBoundaries;
@@ -71,12 +73,6 @@ protected:
     unsigned mMaxElements;
     
     std::string mOutputDirectory;
-    
-    /** Facade encapsulating cells in the tissue being simulated */
-    Crypt<DIM> mCrypt;
-    
-    /** Every cell in the simulation*/
-    std::vector<MeinekeCryptCell>& mrCells;    
     
     /** The Meineke and cancer parameters */
     CancerParameters *mpParams;
@@ -111,15 +107,16 @@ protected:
         archive & mMaxCells;
         archive & mMaxElements;
 //        archive & mOutputDirectory;
-        archive & mrCells;
+//        archive & mrCells;
         archive & mWntIncluded;
         archive & mWntGradient;
         archive & mNumBirths;
         archive & mNumDeaths;
         archive & mIncludeSloughing;
 
-        ConformingTetrahedralMesh<DIM,DIM> *p_mesh = &mrMesh;
-        archive & p_mesh;
+////TODO: get the crypt class (which now contains the mesh and cells) to archive
+//        ConformingTetrahedralMesh<DIM,DIM> *p_mesh = &mrMesh;
+//        archive & p_mesh;
         // We need to archive cell killers here see ticket:389.
     }
     
@@ -143,8 +140,11 @@ protected:
 
 public:
 
-    TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMesh,
-                              std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>());
+//    TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMesh,
+//                     std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>());
+
+    TissueSimulation(Crypt<DIM>& rCrypt);
+
                               
     virtual ~TissueSimulation();
     

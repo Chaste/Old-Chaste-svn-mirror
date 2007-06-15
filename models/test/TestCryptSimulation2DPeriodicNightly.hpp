@@ -277,9 +277,6 @@ public:
         
         RandomNumberGenerator::Instance();
 
-        // throws because start time not set on simulation time
-        TS_ASSERT_THROWS_ANYTHING(TissueSimulation<2> simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/));
-
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
 
@@ -287,8 +284,9 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, mesh, FIXED, false, 0.0, 3.0, 6.5, 8.0);
         
-        TissueSimulation<2> simulator(mesh, cells);
-        
+        Crypt<2> crypt(mesh, cells);
+        TissueSimulation<2> simulator(crypt);    
+                
         // destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
         p_simulation_time = SimulationTime::Instance();
@@ -350,8 +348,9 @@ public:
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, mesh, FIXED, true, 0.0, 3.0, 6.5, 8.0);
-        
-        TissueSimulation<2> simulator(mesh,cells);
+        Crypt<2> crypt(mesh, cells);
+        TissueSimulation<2> simulator(crypt);
+            
         simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
         simulator.SetEndTime(0.2); //hours
         simulator.SetMaxCells(800);
@@ -388,8 +387,9 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
                 
-        TissueSimulation<2> simulator(*p_mesh, cells);
-        
+        Crypt<2> crypt(*p_mesh, cells);
+        TissueSimulation<2> simulator(crypt);
+                
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(12.0);
         simulator.SetMaxCells(400);
@@ -427,7 +427,8 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, FIXED, true,-1.0);
                 
-        TissueSimulation<2> simulator(*p_mesh, cells);
+        Crypt<2> crypt(*p_mesh, cells);
+        TissueSimulation<2> simulator(crypt);
         
         simulator.SetNoSloughing();
         simulator.SetOutputDirectory("Monolayer");
@@ -474,6 +475,7 @@ public:
         
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
+        
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();
         std::vector<MeinekeCryptCell> cells;
@@ -501,8 +503,9 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
+        Crypt<2> crypt(*p_mesh, cells);
+        TissueSimulation<2> simulator(crypt);
         
-        TissueSimulation<2> simulator(*p_mesh,cells);
         simulator.SetOutputDirectory("Crypt2DSpringsCorrectCellNumbers");
         simulator.SetEndTime(40); //hours
         simulator.SetMaxCells(800);
@@ -580,7 +583,9 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
                
-        TissueSimulation<2> simulator(*p_mesh, cells);
+        Crypt<2> crypt(*p_mesh, cells);
+        TissueSimulation<2> simulator(crypt);
+        
         simulator.SetOutputDirectory("Crypt2DPeriodicNightly");
         
         // Set length of simulation here
@@ -639,7 +644,9 @@ public:
         
         CreateVectorOfCells(cells, *p_mesh, WNT, true);
         
-        TissueSimulation<2> simulator(*p_mesh, cells);
+        Crypt<2> crypt(*p_mesh, cells);
+        TissueSimulation<2> simulator(crypt);
+        
         simulator.SetOutputDirectory("Crypt2DPeriodicWntNightly");
         
         // Set length of simulation here
@@ -719,7 +726,9 @@ public:
             cells[i].SetMutationState(mutation_state);
         }
         
-        TissueSimulation<2> simulator(*p_mesh, cells);
+        Crypt<2> crypt(*p_mesh, cells);
+        TissueSimulation<2> simulator(crypt);
+        
         simulator.SetOutputDirectory("Crypt2DPeriodicMutant");
         
         // Set length of simulation here
@@ -782,7 +791,9 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
               
-        TissueSimulation<2> simulator(*p_mesh, cells);
+        Crypt<2> crypt(*p_mesh, cells);
+        TissueSimulation<2> simulator(crypt);
+        
         simulator.SetOutputDirectory("Crypt2DRandomDeathNonPeriodic");
         
         // Set length of simulation here
@@ -793,13 +804,13 @@ public:
                 
         simulator.SetGhostNodes(ghost_node_indices);
 
-        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&simulator.rGetCrypt(), 0.01);
+        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&crypt, 0.01);
         simulator.AddCellKiller(p_random_cell_killer);
 
         simulator.Solve();
         
         // there should be no cells left after this amount of time
-        TS_ASSERT_EQUALS(simulator.rGetCrypt().GetNumRealCells(), 0u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
     
         delete p_random_cell_killer;
         SimulationTime::Destroy();
@@ -824,7 +835,9 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
               
-        TissueSimulation<2> simulator(*p_mesh, cells);
+        Crypt<2> crypt(*p_mesh, cells);
+        TissueSimulation<2> simulator(crypt);
+        
         simulator.SetOutputDirectory("Crypt2DRandomDeathPeriodic");
                 
         // Set length of simulation here
@@ -835,13 +848,13 @@ public:
                 
         simulator.SetGhostNodes(ghost_node_indices);
 
-        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&simulator.rGetCrypt(), 0.01);
+        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&crypt, 0.01);
         simulator.AddCellKiller(p_random_cell_killer);
 
         simulator.Solve();
         
         // there should be no cells left after this amount of time
-        TS_ASSERT_EQUALS(simulator.rGetCrypt().GetNumRealCells(), 0u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
     
         delete p_random_cell_killer;
         SimulationTime::Destroy();
@@ -868,7 +881,9 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
               
-        TissueSimulation<2> simulator(*p_mesh, cells);
+        Crypt<2> crypt(*p_mesh, cells);
+        TissueSimulation<2> simulator(crypt);
+        
         simulator.SetOutputDirectory("Crypt2DSloughingDeathNonPeriodic");
         
         // Set length of simulation here
@@ -879,7 +894,7 @@ public:
                 
         simulator.SetGhostNodes(ghost_node_indices);
 
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&simulator.rGetCrypt(), true);
+        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
 
         // switch off normal sloughing
@@ -910,7 +925,9 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
               
-        TissueSimulation<2> simulator(*p_mesh, cells);
+        Crypt<2> crypt(*p_mesh, cells);
+        TissueSimulation<2> simulator(crypt);
+        
         simulator.SetOutputDirectory("Crypt2DSloughingDeathPeriodic");
                 
         // Set length of simulation here
@@ -921,7 +938,7 @@ public:
                 
         simulator.SetGhostNodes(ghost_node_indices);
 
-        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetCrypt());
+        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&crypt);
         simulator.AddCellKiller(p_cell_killer);
         
         simulator.SetNoSloughing();
@@ -941,7 +958,7 @@ public:
         TS_ASSERT_EQUALS(num_ghosts, ghost_node_indices.size());
         // there should be this number of cells left after this amount of time
         // (we have lost two rows of 7 but had a bit of birth too)
-        TS_ASSERT_EQUALS(simulator.rGetCrypt().GetNumRealCells(), 85u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 85u);
     
         delete p_cell_killer;
         SimulationTime::Destroy();

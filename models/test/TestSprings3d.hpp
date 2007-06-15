@@ -211,8 +211,8 @@ public:
             cells.push_back(cell);
         }
         
-                
-        TissueSimulation<3> simulator(mesh,cells);
+        Crypt<3> crypt(mesh,cells);
+        TissueSimulation<3> simulator(crypt);
         simulator.SetMaxCells(40);
         simulator.SetMaxElements(40);
 
@@ -282,7 +282,9 @@ public:
          */
         ConformingTetrahedralMesh<3,3> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
-        TissueSimulation<3> simulator2(mesh2,cells);
+        Crypt<3> crypt2(mesh2,cells);
+        TissueSimulation<3> simulator2(crypt2);
+        
         simulator2.SetMaxCells(40);
         simulator2.SetMaxElements(40);
         
@@ -343,7 +345,8 @@ public:
         cell.SetBirthTime(-50.0);
         cells2.push_back(cell);
         
-        TissueSimulation<3> simulator3(mesh3,cells2);
+        Crypt<3> crypt3(mesh3,cells2);
+        TissueSimulation<3> simulator3(crypt3);
        
         TrianglesMeshWriter<3,3> mesh_writer3("Test3DCellBirth","StartMesh");
         mesh_writer3.WriteFilesUsingMesh(mesh3);
@@ -398,8 +401,9 @@ public:
             cells.push_back(cell);
         }
         
+        Crypt<3> crypt(mesh,cells);
+        TissueSimulation<3> simulator(crypt);
         
-        TissueSimulation<3> simulator(mesh,cells);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(2400);
         
@@ -442,7 +446,9 @@ public:
             cells.push_back(cell);
         } 
         
-        TissueSimulation<3> simulator(mesh,cells);
+        Crypt<3> crypt(mesh,cells);
+        TissueSimulation<3> simulator(crypt);
+        
         simulator.SetMaxCells(1000);
         simulator.SetMaxElements(2500);
         simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
@@ -528,7 +534,9 @@ public:
         TS_ASSERT(ghost_node_indices.size() < num_cells);
         TS_ASSERT(ghost_node_indices.size() > 0)
         
-        TissueSimulation<3> simulator(mesh,cells);
+        Crypt<3> crypt(mesh,cells);
+        TissueSimulation<3> simulator(crypt);
+
         simulator.SetGhostNodes(ghost_node_indices);        
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
