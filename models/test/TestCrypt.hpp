@@ -481,30 +481,6 @@ public:
                                                 6,10,
                                                 9,10 };
 
-/// the old test used ALL the edges of this mesh..
-//        unsigned expected_node_pairs_array[] = {0,1,
-//                                                0,3,
-//                                                1,3,
-//                                                1,2,
-//                                                1,4,
-//                                                2,4,
-//                                                2,5,
-//                                                3,4,
-//                                                4,5,
-//                                                3,6,
-//                                                3,7,
-//                                                6,7,
-//                                                4,7,
-//                                                4,8,
-//                                                7,8,
-//                                                5,8,
-//                                                6,9,
-//                                                7,9,
-//                                                7,10,
-//                                                8,10,
-//                                                8,11,
-//                                                9,10,
-//                                                10,11 };
         for (unsigned i=0; i<10; i=i+2)
         {
             std::set < unsigned > node_pair;
@@ -570,28 +546,7 @@ public:
             TS_ASSERT_EQUALS(spring_iterator.rGetCellB().GetNodeIndex(), spring_iterator.GetNodeB()->GetIndex());
         }
         
- //see ticket:406        
-        std::string results_directory = "HoneyComb";
-        // Data writers for tabulated results data, used in tests
-        // first construction clears out the folder
-        ColumnDataWriter tabulated_node_writer(results_directory+"/tab_results", "tabulated_node_results",true);
-        ColumnDataWriter tabulated_element_writer(results_directory+"/tab_results", "tabulated_element_results",false);
-        
-        crypt.SetupTabulatedWriters(tabulated_node_writer, tabulated_element_writer);//, element_writer_ids);
-            
-        // Create output files for the visualizer
-        OutputFileHandler output_file_handler(results_directory+"/vis_results/",false);
-        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
-        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
-        out_stream p_setup_file = output_file_handler.OpenOutputFile("results.vizsetup");
-        
-        crypt.WriteResultsToFiles(tabulated_node_writer, 
-                           tabulated_element_writer,
-                           *p_node_file, *p_element_file,
-                           false,
-                           true);
-                               
-        TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
+         TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
 
         SimulationTime::Destroy();        
     }

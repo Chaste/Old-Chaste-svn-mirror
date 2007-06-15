@@ -115,7 +115,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
             cell_cycle_influences.push_back(wnt_stimulus);
         }
         
-        // CHECK if this cell is ready to divide - if so create a new cell etc.
+        // check if this cell is ready to divide - if so create a new cell etc.
         if (cell.ReadyToDivide(cell_cycle_influences))
         {
             // Create new cell
@@ -126,7 +126,6 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
             c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
             
             mrCrypt.AddCell(new_cell, new_location);
-            
             
             num_births_this_step++;
         } // if (ready to divide)
@@ -147,6 +146,7 @@ template<unsigned DIM>
 unsigned TissueSimulation<DIM>::DoCellRemoval()
 {
     unsigned num_deaths_this_step=0;
+    
     // Sloughing by turning boundary nodes into ghost nodes.
     if (DIM==2 && mIncludeSloughing) // sloughing only happens in 2d
     {

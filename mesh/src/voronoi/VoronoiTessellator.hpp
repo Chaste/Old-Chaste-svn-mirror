@@ -68,7 +68,8 @@ class VoronoiTessellator
                     {
                         unsigned attached_node_index=p_element->GetNodeGlobalIndex(j);
                         if (attached_node_index != node_index)
-                        {   // Only remember this node if it isn't the one at the centre of the Voronoi Cell
+                        {   
+                            // Only remember this node if it isn't the one at the centre of the Voronoi Cell
                             attached_nodes.insert(attached_node_index);
                             attached_nodes_this_element.insert(attached_node_index);
                         }
@@ -150,16 +151,12 @@ class VoronoiTessellator
                     }
                     
                     faces.push_back(face_vertex_indices);
-                    
-                    
-                    
                 }// next spring
               
-            c_vector<double, 3> cell_centre = p_node->rGetLocation();
-            VoronoiCell new_cell(cell_centre, vertices_of_cell, faces, 0u);
-            mVoronoiCells.push_back(new_cell);
-            
-           } 
+                c_vector<double, 3> cell_centre = p_node->rGetLocation();
+                VoronoiCell new_cell(cell_centre, vertices_of_cell, faces, 0u);
+                mVoronoiCells.push_back(new_cell);
+            } 
         }// next node
     }
     
@@ -187,7 +184,6 @@ class VoronoiTessellator
         }
         return angle;  
     }
-    
 };
 
 #endif /*VORONOITESSELLATOR_HPP_*/

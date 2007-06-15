@@ -15,14 +15,13 @@
  *  Generator of honeycomb mesh
  *
  *  This class takes in options such as width, height, number of ghost nodes
- *  and generates a mesh and ghost node info. NOTE: the user should delete the
- *  mesh after use
+ *  and generates a honeycomb (with distance between nodes=1) mesh, and ghost 
+ *  node info. NOTE: the user should delete the mesh after use. 
  */
 class HoneycombMeshGenerator
 {
 private:
     ConformingTetrahedralMesh<2,2>* mpMesh;
-    //Cylindrical2dMesh* mpCylindricalMesh;
     std::set<unsigned> mGhostNodeIndices;
     std::string mMeshFilename;
     double mCryptWidth;
@@ -228,14 +227,12 @@ public:
         
         if (!mCylindrical)
         {
-            //mpCylindricalMesh = new Cylindrical2dMesh(mCryptWidth);// to avoid seg fault when closing
             mpMesh = new ConformingTetrahedralMesh<2,2>;
             mpMesh->ConstructFromMeshReader(mesh_reader);
             ComputeGhostNodes();
         }
         else
         {   
-            //mpMesh = new ConformingTetrahedralMesh<2,2>;// to avoid seg fault when closing
             mpMesh = new Cylindrical2dMesh(mCryptWidth);
             mpMesh->ConstructFromMeshReader(mesh_reader);
             NodeMap map(mpMesh->GetNumNodes());

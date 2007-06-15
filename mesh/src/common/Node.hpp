@@ -14,7 +14,6 @@ class Node
 private:
     unsigned mIndex;
     
-//    Point<SPACE_DIM> mPoint;
     c_vector<double, SPACE_DIM> mLocation;
     
     bool mIsBoundaryNode;
@@ -25,25 +24,18 @@ private:
     std::set<unsigned>::const_iterator mElementIterator;
     std::set<unsigned> mBoundaryElementIndices;
     std::set<unsigned>::const_iterator mBoundaryElementIterator;
-    //TODO:
-    //bool mIsDirichletNode;
+
     Node()
     {}
 
 public:
     ~Node()
     {
-//        std::cout<<"Node destructor\n";
-//        delete mElementIndices;
-//        delete mElementIterator;
-//        delete mBoundaryElementIndices;
-//        delete mBoundaryElementIterator;
-
     }
+
     Node(unsigned index, Point<SPACE_DIM> point, bool isBoundaryNode=false)
     {
         mLocation = point.rGetLocation();
-//        mPoint = point;
         mIndex = index;
         mIsBoundaryNode = isBoundaryNode;
         mIsDeleted = false;
@@ -63,7 +55,6 @@ public:
     Node(unsigned index, c_vector<double, SPACE_DIM> location, bool isBoundaryNode=false)
     {
         mLocation = location;
-//        mPoint = Point<SPACE_DIM>(location);
         mIndex = index;
         mIsBoundaryNode = isBoundaryNode;
         mIsDeleted = false;
@@ -80,8 +71,6 @@ public:
                 mLocation[2] = v3;
             }
         }
-//        mPoint.rGetLocation() = mLocation;
-
         mIndex = index;
         mIsBoundaryNode = isBoundaryNode;
         mIsDeleted = false;
@@ -94,19 +83,8 @@ public:
     void SetPoint(Point<SPACE_DIM> point)
     {
         mLocation = point.rGetLocation();
-//        mPoint = point;
     }
     
-//    /**
-//     * Note setting the location in space is dangerous
-//     * Jacobian and JacobianDeterminant of element need to be updated
-//     */
-//    void SetLocation(c_vector<double,SPACE_DIM> location)
-//    {
-//        mLocation = location;
-//    }
-
-
     /**
      * This method should only be called during mesh generation.
      */
@@ -129,7 +107,7 @@ public:
      * The returned location may not be modified; if you want that functionality use
      * rGetModifiableLocation instead.
      */
-    const c_vector<double, SPACE_DIM> &rGetLocation() const
+    const c_vector<double, SPACE_DIM>& rGetLocation() const
     {
         assert(!mIsDeleted);
         return mLocation;
@@ -162,11 +140,10 @@ public:
      * 
      * @param index of the element to add.
      */
-    
     void AddElement(unsigned index)
     {
         mElementIndices.insert(index);
-        mElementIterator=mElementIndices.begin();
+        mElementIterator = mElementIndices.begin();
     }
     
     /**
@@ -190,7 +167,6 @@ public:
      * 
      * @param index of the boundary element to be removed.
      */
-    
     void RemoveBoundaryElement(unsigned index)
     {
         unsigned count = mBoundaryElementIndices.erase(index);
@@ -206,7 +182,6 @@ public:
      * 
      * @param index of the element to add.
      */
-    
     void AddBoundaryElement(unsigned index)
     {
         mBoundaryElementIndices.insert(index);
@@ -238,7 +213,6 @@ public:
     {
         return mBoundaryElementIndices.size();
     }
-    
     
     unsigned GetNextBoundaryElementIndex()
     {

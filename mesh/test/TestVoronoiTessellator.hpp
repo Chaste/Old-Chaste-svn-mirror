@@ -22,18 +22,13 @@ public:
         
         // Create conforming tetrahedral mesh which is Delauny
         std::vector<Node<3> *> nodes;
-//        nodes.push_back(new Node<3>(0, true,  1.0,  1.0,  1.0));
-//        nodes.push_back(new Node<3>(1, true, -1.0, -1.0,  1.0));
-//        nodes.push_back(new Node<3>(2, true, -1.0,  1.0, -1.0));
-//        nodes.push_back(new Node<3>(3, true,  1.0, -1.0, -1.0));
-//        nodes.push_back(new Node<3>(4, false, 0.0,0.0,0.0));
-        
         
         nodes.push_back(new Node<3>(0, true,  0.0,  0.0,  0.0));
         nodes.push_back(new Node<3>(1, true,  1.0,  1.0,  0.0));
         nodes.push_back(new Node<3>(2, true,  1.0,  0.0,  1.0));
         nodes.push_back(new Node<3>(3, true,  0.0,  1.0,  1.0));
         nodes.push_back(new Node<3>(4, false, 0.5,0.5,0.5));
+        
         // These are deleted in the ReMesh in Constructer so don't need 
         // to be deleted here - or do they?
                 
@@ -55,6 +50,7 @@ public:
         
         VoronoiCell our_voronoi_cell = r_voronoi_cells[0];
         std::set< Node<3>* >& vertices = our_voronoi_cell.GetVertices();
+
         
         std::vector< c_vector<double, 3> > expected_vertices;
         c_vector<double, 3> vertex;
@@ -73,27 +69,40 @@ public:
         vertex(2)=-0.2500;
         expected_vertices.push_back(vertex);
         
-               
-        
         vertex(0)= 1.2500;      
         vertex(1)=1.2500;
         vertex(2)=1.2500;
-        expected_vertices.push_back(vertex);        
+        expected_vertices.push_back(vertex);
         
+        TS_ASSERT_EQUALS(vertices.size(), expected_vertices.size());
         
-        int j=0;
-        for (std::set<Node<3>*>::iterator vertex_iterator = vertices.begin();
-                    vertex_iterator!=vertices.end() ; vertex_iterator++)
+        // bit of a messy way of testing that expected_vertices == vertices,
+        // ignoring ordering..
+        for(unsigned i=0; i<expected_vertices.size(); i++)
         {
-            
-            Node<3>* our_node = *vertex_iterator;
-//            std::cout<< our_node->rGetLocation()[0] << "\t " << our_node->rGetLocation()[1] << "\t" << our_node->rGetLocation()[2] << "\n";
-            for (int i=0; i<3; i++)
+            bool found = true;
+            for (std::set<Node<3>*>::iterator vertex_iterator = vertices.begin();
+                 vertex_iterator!=vertices.end();
+                 vertex_iterator++)
             {
-                TS_ASSERT_DELTA(our_node->rGetLocation()[i],expected_vertices[j](i),1e-5);
+                Node<3>* our_node = *vertex_iterator;
+    
+                // assume the our matches the expected vertex
+                found = true;
+                
+                // check component-wise
+                for(unsigned j=0; j<3; j++)
+                {
+                    if( fabs( our_node->rGetLocation()[j] - expected_vertices[i](j)) > 1e-8)
+                    {
+                        found = false;
+                    }
+                }
+                
+                // if the node does match the vertex, break
+                if(found) break;
             }
-            
-            j++;
+            TS_ASSERT(found);
         }
             
           // create map from expected vertex index to actual vertex index
@@ -141,6 +150,7 @@ public:
         angle = tessellator.ReturnPolarAngle(-1.0,-sqrt(3.0));
         TS_ASSERT_DELTA(angle, -2.0*M_PI/3.0, 1e-7);
     }
+
     
     void TestGenerateVerticesFromElementCircumcentres() throw (Exception)
     {
@@ -187,10 +197,7 @@ public:
         TS_ASSERT_DELTA(this_vertex[0], -1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[1], -1.5, 1e-7);
         TS_ASSERT_DELTA(this_vertex[2], -1.5, 1e-7);
-        
-        std::cout << vertices[0]->rGetLocation()[1] << "\n" << std::flush;
     }
-
 };
 
 
