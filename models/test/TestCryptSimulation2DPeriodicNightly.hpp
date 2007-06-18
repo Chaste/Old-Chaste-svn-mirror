@@ -796,7 +796,7 @@ public:
         simulator.SetOutputDirectory("Crypt2DRandomDeathNonPeriodic");
         
         // Set length of simulation here
-        simulator.SetEndTime(4.0);
+        simulator.SetEndTime(5.0);
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);

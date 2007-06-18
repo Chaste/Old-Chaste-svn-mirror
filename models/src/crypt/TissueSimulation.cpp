@@ -17,6 +17,7 @@
 #include "WntGradient.hpp"
 #include "OutputFileHandler.hpp"
 
+
 /** 
  *  Constructor
  */
@@ -731,25 +732,18 @@ void TissueSimulation<DIM>::Solve()
     /////////////////////////////////////////////////////////////////////
     while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
     {        
-        std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **" << std::endl;
+        std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << "\t**\n" << std::flush;
         
         // remove dead cells before doing birth
         // neither of these functions use any element information so they 
         // just delete and create nodes
         mNumDeaths += DoCellRemoval();
-        
-        
-        if(mReMesh) // This should be removed and the commented out lines 
-        {    // below should be added in. At the moment this causes an error.
-            mrCrypt.ReMesh();
-        }
-        
         mNumBirths += DoCellBirth();
-
-//        if(mNumDeaths>0 || mNumBirths>0)
-//        {   // If any nodes have been deleted or added we MUST call a ReMesh
-//            assert(mReMesh);
-//        }
+        
+        if( (mNumBirths>0) || (mNumDeaths>0 && !mIncludeSloughing))
+        {   // If any nodes have been deleted or added we MUST call a ReMesh
+            assert(mReMesh);
+        }
 
         if(mReMesh)
         {

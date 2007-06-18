@@ -11,7 +11,7 @@
  *  The probability passed into the constructor will be the probability
  *  of any cell dying whenever this TestAndLabelCellsForApoptosis is called.
  *  Note this does take into account current times or timesteps, so if
- *  more timesteps are used, and TestAndLabelCellsForApoptosis() is callled 
+ *  more timesteps are used, and TestAndLabelCellsForApoptosis() is called 
  *  at each timestep, more cells will die.  
  */
 template <unsigned SPACE_DIM>
@@ -26,7 +26,7 @@ public:
     {
         if((mProbabilityOfDeath<0) || (mProbabilityOfDeath>1))
         {
-            EXCEPTION("Probabilitu of death must be between zero and one");
+            EXCEPTION("Probability of death must be between zero and one");
         }
     }
     
