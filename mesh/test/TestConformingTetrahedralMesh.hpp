@@ -24,6 +24,11 @@ private:
         TrianglesMeshReader<DIM,DIM> mesh_reader(meshFilename);
         ConformingTetrahedralMesh<DIM,DIM> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // delete one of the nodes and hence an element
+        // to check that iterator skips deleted elements
+        // this causes element 0 to be deleted which is a good choice for coverage of the begin method
+        mesh.DeleteBoundaryNodeAt(0);
 
                       
         // check that we can iterate over the set of edges
@@ -43,23 +48,26 @@ private:
         
         // set up expected node pairs
         std::set< std::set<unsigned> > expected_node_pairs;
-        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        for(unsigned i=0; i<mesh.GetNumAllElements(); i++)
         {
             Element<DIM,DIM>* p_element = mesh.GetElement(i);
-            for(unsigned j=0; j<DIM+1; j++)
+            if (!p_element->IsDeleted())
             {
-                for(unsigned k=0; k<DIM+1; k++)
+                for(unsigned j=0; j<DIM+1; j++)
                 {
-                    unsigned node_A = p_element->GetNodeGlobalIndex(j);
-                    unsigned node_B = p_element->GetNodeGlobalIndex(k);
-                    
-                    if(node_A != node_B)
+                    for(unsigned k=0; k<DIM+1; k++)
                     {
-                        std::set<unsigned> node_pair;
-                        node_pair.insert(node_A);
-                        node_pair.insert(node_B);
+                        unsigned node_A = p_element->GetNodeGlobalIndex(j);
+                        unsigned node_B = p_element->GetNodeGlobalIndex(k);
                         
-                        expected_node_pairs.insert(node_pair);
+                        if(node_A != node_B)
+                        {
+                            std::set<unsigned> node_pair;
+                            node_pair.insert(node_A);
+                            node_pair.insert(node_B);
+                            
+                            expected_node_pairs.insert(node_pair);
+                        }
                     }
                 }
             }

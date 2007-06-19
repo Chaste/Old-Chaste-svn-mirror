@@ -1866,11 +1866,6 @@ typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& Confor
     std::set<unsigned> current_node_pair;
     std::set<std::set<unsigned> >::iterator set_iter;
     
-    while(mrMesh.GetElement(mElemIndex)->IsDeleted())
-    {
-        mElemIndex++;
-    }
-    
     do
     {
         // Advance to the next edge in the mesh.
@@ -1881,9 +1876,15 @@ typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& Confor
             mNodeALocalIndex = (mNodeALocalIndex + 1) % (ELEMENT_DIM+1);
             mNodeBLocalIndex = (mNodeALocalIndex + 1) % (ELEMENT_DIM+1);
         }
-        if (mNodeALocalIndex == 0 && mNodeBLocalIndex == 1)
+        
+        if (mNodeALocalIndex == 0 && mNodeBLocalIndex == 1) // advance to next element...
         {
             mElemIndex++;
+            // ...skipping deleted ones
+            while(mElemIndex!=mrMesh.GetNumAllElements() && mrMesh.GetElement(mElemIndex)->IsDeleted())
+            {
+                mElemIndex++;
+            }
         }
 
         if(mElemIndex != mrMesh.GetNumAllElements())
@@ -1932,7 +1933,12 @@ ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::EdgeIterator(Co
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgesBegin()
 {
-    return EdgeIterator(*this, 0);
+    unsigned first_element_index=0;
+    while(first_element_index!=GetNumAllElements() && GetElement(first_element_index)->IsDeleted())
+    {
+        first_element_index++;
+    }
+    return EdgeIterator(*this, first_element_index);
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
