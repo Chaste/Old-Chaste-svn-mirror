@@ -25,6 +25,16 @@ class VoronoiTessellator
         
     }
     
+    ~VoronoiTessellator()
+    {
+        for (std::vector< Node<3>* >::iterator node_iterator=mpVertices.begin();
+             node_iterator != mpVertices.end();
+             node_iterator++)
+        {
+            delete *node_iterator;
+        }
+    }
+    
     void GenerateVerticesFromElementCircumcentres()
     {
         for(unsigned i=0; i<mrMesh.GetNumElements() ; i++)

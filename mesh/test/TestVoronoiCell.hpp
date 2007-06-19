@@ -93,6 +93,15 @@ public:
 //        std::vector< std::vector < unsigned > > return_faces = cell.GetFaces();
 //        unsigned return_colour = cell.GetColour();
 //        c_vector<double, 3> return_cell_centre = cell.GetCellCentre();
+
+        // delete nodes to avoid memory leak
+        for (std::set< Node<3>* >::iterator node_iterator=p_vertices.begin();
+             node_iterator!=p_vertices.end();
+             node_iterator++)
+        {
+            delete *node_iterator;
+        }
+
     }
     
 
