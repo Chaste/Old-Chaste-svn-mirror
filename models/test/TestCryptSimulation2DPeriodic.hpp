@@ -1002,6 +1002,69 @@ public:
 
         SimulationTime::Destroy();
     }
+    
+    // short test which sets mNoBirth for coverage
+    void TestNoBirth() throw (Exception)
+    {
+        std::string output_directory = "Crypt2DCylindricalNoBirth";        
+        unsigned cells_across = 2;
+        unsigned cells_up = 3;
+        double crypt_width = 2.0;
+        unsigned thickness_of_ghost_layer = 0;
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cells;
+        CreateVectorOfCells(cells, *p_mesh, FIXED, true);// true = mature cells
+
+        Crypt<2> crypt(*p_mesh, cells);               
+        TissueSimulation<2> simulator(crypt);
+        simulator.SetOutputDirectory(output_directory);
+        
+        /* 
+         * Set length of simulation
+         * and other options here.
+         */
+        simulator.SetEndTime(2.0); // long enough for a cell to be born were SetNoBirth not called
+        simulator.SetMaxCells(500);
+        simulator.SetMaxElements(1000);
+        simulator.SetGhostNodes(ghost_node_indices);
+        
+        // These are for coverage and use the defaults
+        simulator.SetDt(1.0/120.0);
+        simulator.SetReMeshRule(true);
+        simulator.SetNoBirth(true);
+        
+        simulator.Solve();
+
+        // test we have the same number of cells and nodes at the end of each time
+        // (if we do then the boundaries are probably working!)
+        std::vector<MeinekeCryptCell>& result_cells = crypt.rGetCells();
+        std::vector<bool> ghost_cells = simulator.GetGhostNodes();
+        unsigned number_of_cells = 0;
+        unsigned number_of_nodes = result_cells.size();
+        
+        TS_ASSERT_EQUALS(result_cells.size(),ghost_cells.size());
+        
+        for (unsigned i=0 ; i<number_of_nodes ; i++)
+        {
+            if (!ghost_cells[i])
+            {
+                number_of_cells++;
+            }
+        }
+        TS_ASSERT_EQUALS(number_of_cells, cells_across*cells_up); 
+        TS_ASSERT_EQUALS(number_of_nodes, number_of_cells+thickness_of_ghost_layer*2*cells_across); 
+
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
 };
 
 #endif /*TESTCRYPTSIMULATION2DPERIODIC_HPP_*/

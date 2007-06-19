@@ -52,10 +52,9 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt)
     mNumDeaths = 0;
     mIncludeSloughing = true;
     
-    if (!SimulationTime::Instance()->IsStartTimeSetUp())
-    {
-        EXCEPTION("Start time not set in simulation time singleton object");
-    }
+    assert(SimulationTime::Instance()->IsStartTimeSetUp());
+    // start time must have been set to create crypt which includes cell cycle models
+    
     mrCrypt.SetMaxCells(mMaxCells);
     mrCrypt.SetMaxElements(mMaxElements);
 }
@@ -87,6 +86,7 @@ void TissueSimulation<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
 template<unsigned DIM>  
 unsigned TissueSimulation<DIM>::DoCellBirth()
 {
+    //assert (!mNoBirth);
     if (mNoBirth)
     {
         return 0;
