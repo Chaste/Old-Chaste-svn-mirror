@@ -770,51 +770,6 @@ public:
     }
     
 
-    // Death on a non-periodic mesh
-    // Massive amount of random death eventually leading to every cell being killed off..
-    // Note that birth does occur too.
-    void TestRandomDeathOnNonPeriodicCrypt() throw (Exception)
-    {
-        unsigned cells_across = 7;
-        unsigned cells_up = 12;
-        unsigned thickness_of_ghost_layer = 4;
-        
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        // Set up cells
-        std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, FIXED, true);
-              
-        Crypt<2> crypt(*p_mesh, cells);
-        TissueSimulation<2> simulator(crypt);
-        
-        simulator.SetOutputDirectory("Crypt2DRandomDeathNonPeriodic");
-        
-        // Set length of simulation here
-        simulator.SetEndTime(5.0);
-        
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
-                
-        simulator.SetGhostNodes(ghost_node_indices);
-
-        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&crypt, 0.01);
-        simulator.AddCellKiller(p_random_cell_killer);
-
-        simulator.Solve();
-        
-        // there should be no cells left after this amount of time
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
-    
-        delete p_random_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-    }
     
     void TestRandomDeathWithPeriodicMesh() throw (Exception)
     {

@@ -110,7 +110,9 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
         std::vector<double> cell_cycle_influences;
         if (mWntIncluded)
         {
+#define COVERAGE_IGNORE
             assert(DIM==2);
+#undef COVERAGE_IGNORE
             double y = p_our_node->rGetLocation()[1];
             double wnt_stimulus = mWntGradient.GetWntLevel(y);
             cell_cycle_influences.push_back(wnt_stimulus);
@@ -121,7 +123,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
         {
             // Create new cell
             MeinekeCryptCell new_cell = cell.Divide();
-            std::cout << "Cell division at node " << cell.GetNodeIndex() << "\n";
+            // std::cout << "Cell division at node " << cell.GetNodeIndex() << "\n";
         
             // Add a new node to the mesh
             c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
@@ -732,7 +734,7 @@ void TissueSimulation<DIM>::Solve()
     /////////////////////////////////////////////////////////////////////
     while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
     {        
-        std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << "\t**\n" << std::flush;
+        // std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << "\t**\n" << std::flush;
         
         // remove dead cells before doing birth
         // neither of these functions use any element information so they 

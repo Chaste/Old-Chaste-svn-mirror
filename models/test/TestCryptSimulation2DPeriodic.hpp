@@ -922,16 +922,23 @@ public:
 
         Crypt<2>::Iterator conf_iter = conf_crypt.Begin();
 
-        TissueSimulation<2> simulator(conf_crypt);                
-        c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(conf_iter);
-        c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
-        c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
-
-        // The parent stem cell should stay where it is and the daughter be introduced at positive y.
-        TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
-        TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
-        TS_ASSERT(daughter_location[1]>=location[1]);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter), 0.5*separation, 1e-7);
+        TissueSimulation<2> simulator(conf_crypt);
+        
+        // repeat two times for coverage
+        // need vector from parent to daughter to have both +ve and -ve y component
+        // different branches will execute to make sure daughter stays in crypt ie. +ve y component
+        for (unsigned repetitions=0; repetitions<=1; repetitions++)
+        {                
+            c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(conf_iter);
+            c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
+            c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
+    
+            // The parent stem cell should stay where it is and the daughter be introduced at positive y.
+            TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
+            TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
+            TS_ASSERT(daughter_location[1]>=location[1]);
+            TS_ASSERT_DELTA(norm_2(parent_to_daughter), 0.5*separation, 1e-7);
+        }
 
         SimulationTime::Destroy();
     }
@@ -1062,6 +1069,53 @@ public:
         TS_ASSERT_EQUALS(number_of_cells, cells_across*cells_up); 
         TS_ASSERT_EQUALS(number_of_nodes, number_of_cells+thickness_of_ghost_layer*2*cells_across); 
 
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+    
+
+    // Death on a non-periodic mesh
+    // Massive amount of random death eventually leading to every cell being killed off..
+    // Note that birth does occur too.
+    void TestRandomDeathOnNonPeriodicCrypt() throw (Exception)
+    {
+        unsigned cells_across = 2;
+        unsigned cells_up = 1;
+        unsigned thickness_of_ghost_layer = 1;
+        
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cells;
+        CreateVectorOfCells(cells, *p_mesh, FIXED, true);
+              
+        Crypt<2> crypt(*p_mesh, cells);
+        TissueSimulation<2> simulator(crypt);
+        
+        simulator.SetOutputDirectory("Crypt2DRandomDeathNonPeriodic");
+        
+        // Set length of simulation here
+        simulator.SetEndTime(0.5);
+        
+        simulator.SetMaxCells(500);
+        simulator.SetMaxElements(1000);
+                
+        simulator.SetGhostNodes(ghost_node_indices);
+
+        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&crypt, 0.1);
+        simulator.AddCellKiller(p_random_cell_killer);
+
+        simulator.Solve();
+        
+        // there should be no cells left after this amount of time
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
+    
+        delete p_random_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
