@@ -52,9 +52,6 @@ protected:
 
     /** Facade encapsulating cells in the tissue being simulated */
     Crypt<DIM>& mrCrypt;
-
-    /** Whether to fix all four boundaries (defaults to false).*/
-    bool mFixedBoundaries;
     
     /** Whether to run the simulation with no birth (defaults to false). */
     bool mNoBirth;
@@ -100,7 +97,6 @@ protected:
         // If Archive is an input archive, then & resolves to >>
         archive & mDt;
         archive & mEndTime;
-        archive & mFixedBoundaries;
         archive & mNoBirth;
         archive & mReMesh;
         archive & mIsGhostNode;
@@ -149,7 +145,6 @@ public:
     void SetOutputDirectory(std::string outputDirectory);
     void SetMaxCells(unsigned maxCells);
     void SetMaxElements(unsigned maxElements);
-    void SetFixedBoundaries();
     void SetGhostNodes(std::set<unsigned> ghostNodeIndices);
     void SetReMeshRule(bool remesh);
     void SetNoBirth(bool nobirth);

@@ -629,12 +629,17 @@ public:
     }
 
 
-    void TestArchivingReferences() throw (Exception)
+    void brokenTestArchivingReferences() throw (Exception)
     {
         //This test shows how references may be archived.  If it's a reference
         //to a base class (but the instance is that of a derived class) then we
         //have to cast to a pointer so that the serialization library can correctly
         //infer its true type.
+        //Unfortunately, this doesn't really work, and introduces memory leaks.  This
+        //is because when loading a pointer (that hasn't previously had the object it
+        //points to loaded directly) the serialization framework creates a new instance
+        //for the pointer to point to.  So in the load below a NEW cylindrical mesh is
+        //created, rather than the data being loaded into the existing mesh object.
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "cylindrical_mesh_base.arch";

@@ -638,8 +638,6 @@ public:
         Crypt<2> crypt(mesh, cells);
         TissueSimulation<2> simulator(crypt);
         
-        simulator.SetFixedBoundaries();
-        
         unsigned num_deaths = simulator.DoCellRemoval();
         unsigned num_births = simulator.DoCellBirth();
                                                                 

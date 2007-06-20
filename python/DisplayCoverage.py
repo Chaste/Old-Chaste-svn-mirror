@@ -156,7 +156,9 @@ for src_file in src_files:
                             (src_line_stripped.startswith('catch ') and
                              src_line_stripped[-1] == ')')):
                         warn = False
-                    aggregated_count = '#####'
+                        aggregated_count = '#####'
+                    else:
+                        aggregated_count = 'ignored'
                     missed_line_count += 1
             else:
                 covered_line_count += 1

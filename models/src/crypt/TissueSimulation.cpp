@@ -41,7 +41,6 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt)
     mrCrypt.SetGhostNodes(mIsGhostNode);
     
     // defaults
-    mFixedBoundaries = false;
     mOutputDirectory = "";
     mReMesh = true;
     mNoBirth = false;
@@ -388,45 +387,29 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
         if(DIM==2)
         {
             // TODO: simplify/remove these 2d cases
-            if (mFixedBoundaries)
-            {
-                assert(DIM==2);
-                c_vector<double, 2> node_position = mrCrypt.rGetMesh().GetNode(index)->rGetLocation();
-                // All Boundaries x=0, x=crypt_width, y=0, y=crypt_length.
-                if (   node_position[1]>0
-                    && node_position[1]<mpParams->GetCryptLength()
-                    && node_position[0]>0
-                    && node_position[0]<mpParams->GetCryptWidth() )
+            if (mWntIncluded)
+            {   
+                // A new Wnt feature - even stem cells can move as long as they don't go below zero.
+                if (new_point.rGetLocation()[1] < 0.0)
                 {
-                    mrCrypt.MoveCell(cell_iter, new_point);
+                    new_point.rGetLocation()[1] = 0.0;
                 }
+                mrCrypt.MoveCell(cell_iter, new_point);
             }
-            else 
+            else
             {
-                if (mWntIncluded)
+                // THE 'USUAL' SCENARIO move any node as long as it is not a stem cell.
+                if (cell.GetCellType()!=STEM)
                 {   
-                    // A new Wnt feature - even stem cells can move as long as they don't go below zero.
+                    // if a cell wants to move below y<0 (most likely because it was
+                    // just born from a stem cell), stop it doing so
                     if (new_point.rGetLocation()[1] < 0.0)
                     {
-                        new_point.rGetLocation()[1] = 0.0;
+                        // Here we give the cell a push upwards so that it doesn't get stuck on y=0 for ever.
+                        // it is a bit of a hack to make it work nicely!
+                        new_point.rGetLocation()[1] = 0.01;
                     }
                     mrCrypt.MoveCell(cell_iter, new_point);
-                }
-                else
-                {
-                    // THE 'USUAL' SCENARIO move any node as long as it is not a stem cell.
-                    if (cell.GetCellType()!=STEM)
-                    {   
-                        // if a cell wants to move below y<0 (most likely because it was
-                        // just born from a stem cell), stop it doing so
-                        if (new_point.rGetLocation()[1] < 0.0)
-                        {
-                            // Here we give the cell a push upwards so that it doesn't get stuck on y=0 for ever.
-                            // it is a bit of a hack to make it work nicely!
-                            new_point.rGetLocation()[1] = 0.01;
-                        }
-                        mrCrypt.MoveCell(cell_iter, new_point);
-                    }
                 }
             }
         }
@@ -514,15 +497,6 @@ void TissueSimulation<DIM>::SetMaxElements(unsigned maxElements)
         EXCEPTION("mMaxElements is less than the number of elements in the mesh.");
     }
     mrCrypt.SetMaxElements(maxElements);
-}
-
-/**
- * Call this before Solve() to fix the boundary of the mesh.
- */
-template<unsigned DIM> 
-void TissueSimulation<DIM>::SetFixedBoundaries()
-{
-    mFixedBoundaries = true;    // This is called by a nightly test.
 }
 
 

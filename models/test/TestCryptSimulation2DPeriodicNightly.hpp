@@ -326,43 +326,6 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    
-    void Test2DSpringsFixedBoundaries() throw (Exception)
-    {
-        CancerParameters *p_params = CancerParameters::Instance();
-        
-        double crypt_length = 10;
-        double crypt_width = 10;
-        
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
-        
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        // Set up cells
-        std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, mesh, FIXED, true, 0.0, 3.0, 6.5, 8.0);
-        Crypt<2> crypt(mesh, cells);
-        TissueSimulation<2> simulator(crypt);
-            
-        simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
-        simulator.SetEndTime(0.2); //hours
-        simulator.SetMaxCells(800);
-        simulator.SetMaxElements(800);
-        simulator.SetFixedBoundaries();
-
-        simulator.Solve();
-        CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries","results_from_time_0", 400u, 800u);
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-    }
-    
     void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
