@@ -4,6 +4,8 @@
 #include "AbstractCellKiller.hpp"
 #include "CancerParameters.cpp"
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
 
 /**
  *  Kills cells if they are outside the crypt.
@@ -20,6 +22,16 @@ private:
     double mCryptLength;
     double mCryptWidth;
     
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCellKiller<2> >(*this);
+        //archive & mSloughSides; // done in load_construct_data
+        archive & mCryptLength;
+        archive & mCryptWidth;
+    }
+    
 public:
     SloughingCellKiller(Crypt<2>* pCrypt, bool sloughSides=false)
         : AbstractCellKiller<2>(pCrypt),
@@ -31,6 +43,10 @@ public:
         mCryptWidth = p_params->GetCryptWidth();
     }
     
+    bool GetSloughSides() const
+    {
+        return mSloughSides;
+    }
 
     /**
      *  Loops over cells and kills cells outside boundary.
@@ -52,7 +68,44 @@ public:
     }
 };
 
+#include <boost/serialization/export.hpp>
 
+BOOST_CLASS_EXPORT(SloughingCellKiller)
 
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a TissueSimulation.
+ */
+template<class Archive, unsigned DIM>
+inline void save_construct_data(
+    Archive & ar, const SloughingCellKiller * t, const BOOST_PFTO unsigned int file_version)
+{
+    // save data required to construct instance
+    const Crypt<2>* const p_crypt = t->GetCrypt();
+    ar << p_crypt;
+    bool slough_sides = t->GetSloughSides();
+    ar << slough_sides;
+}
+
+/**
+ * De-serialize constructor parameters and initialise Crypt.
+ */
+template<class Archive, unsigned DIM>
+inline void load_construct_data(
+    Archive & ar, SloughingCellKiller * t, const unsigned int file_version)
+{
+    // retrieve data from archive required to construct new instance
+    Crypt<2>* p_crypt;
+    ar >> p_crypt;
+    bool slough_sides;
+    ar >> slough_sides;
+    // invoke inplace constructor to initialize instance
+    ::new(t)SloughingCellKiller(p_crypt, slough_sides);
+}
+}
+} // namespace ...
 
 #endif /*SLOUGHINGCELLKILLER_HPP_*/

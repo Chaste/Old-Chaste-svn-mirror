@@ -6,6 +6,9 @@
 #include "RandomNumberGenerator.hpp"
 
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 /**
  *  Randomly kills cells based on the user set probability
  *  The probability passed into the constructor will be the probability
@@ -19,6 +22,15 @@ class RandomCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
 private:
     double mProbabilityOfDeath;
+    
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCellKiller<SPACE_DIM> >(*this);
+        //archive & mProbabilityOfDeath; // done in load_construct_data
+    }
+    
 public:
     RandomCellKiller(Crypt<SPACE_DIM>* pCrypt, double probabilityOfDeath)
         : AbstractCellKiller<SPACE_DIM>(pCrypt),
@@ -28,6 +40,11 @@ public:
         {
             EXCEPTION("Probability of death must be between zero and one");
         }
+    }
+    
+    double GetDeathProbability() const
+    {
+        return mProbabilityOfDeath;
     }
     
     void TestAndLabelSingleCellForApoptosis(MeinekeCryptCell& cell)
@@ -54,7 +71,44 @@ public:
     }
 };
 
+#include "TemplatedExport.hpp"
 
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(RandomCellKiller)
 
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a TissueSimulation.
+ */
+template<class Archive, unsigned DIM>
+inline void save_construct_data(
+    Archive & ar, const RandomCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
+{
+    // save data required to construct instance
+    const Crypt<DIM>* const p_crypt = t->GetCrypt();
+    ar << p_crypt;
+    double prob = t->GetDeathProbability();
+    ar << prob;
+}
+
+/**
+ * De-serialize constructor parameters and initialise Crypt.
+ */
+template<class Archive, unsigned DIM>
+inline void load_construct_data(
+    Archive & ar, RandomCellKiller<DIM> * t, const unsigned int file_version)
+{
+    // retrieve data from archive required to construct new instance
+    Crypt<DIM>* p_crypt;
+    ar >> p_crypt;
+    double prob;
+    ar >> prob;
+    // invoke inplace constructor to initialize instance
+    ::new(t)RandomCellKiller<DIM>(p_crypt, prob);
+}
+}
+} // namespace ...
 
 #endif /*RANDOMCELLKILLER_HPP_*/

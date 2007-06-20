@@ -5,6 +5,8 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "Crypt.cpp"
 
+#include <boost/serialization/access.hpp>
+
 
 template <unsigned SPACE_DIM>
 class AbstractCellKiller
@@ -38,8 +40,22 @@ public:
         return this->mpCrypt->RemoveDeadCells();
     }
     
+    const Crypt<SPACE_DIM>* GetCrypt() const
+    {
+        return mpCrypt;
+    }
+    
 protected:
     Crypt<SPACE_DIM>* mpCrypt;
+    
+private:
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        //archive & mpCrypt; // done in load_construct_data of subclasses
+    }
+    
 };
 
 #endif /*ABSTRACTCELLKILLER_HPP_*/

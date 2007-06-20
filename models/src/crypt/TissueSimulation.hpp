@@ -115,6 +115,7 @@ protected:
         archive & mIncludeSloughing;
         
         // \todo We need to archive cell killers here see ticket:389.
+        archive & mCellKillers;
     }
     
     
