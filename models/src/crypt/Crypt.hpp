@@ -44,6 +44,12 @@ class Crypt
 {
 private:
     ConformingTetrahedralMesh<DIM, DIM>& mrMesh;
+    /**
+     * Whether to delete the mesh when we are destroyed.
+     * Needed if this crypt has been de-serialized.
+     */
+    bool mDeleteMesh;
+    
     std::vector<MeinekeCryptCell> mCells;
     /** Records which nodes are ghosts */
     std::vector<bool>* mpGhostNodes;
@@ -84,8 +90,11 @@ public:
      * 
      * At present there must be precisely 1 cell for each node of the mesh.
      * (This will change in future so that you don't need cells for ghost nodes.)
+     * 
+     * @param deleteMesh set to true if you want the crypt to free the mesh memory on destruction
      */
-    Crypt(ConformingTetrahedralMesh<DIM, DIM>&, std::vector<MeinekeCryptCell>);
+    Crypt(ConformingTetrahedralMesh<DIM, DIM>&, std::vector<MeinekeCryptCell>,
+          bool deleteMesh=false);
     ~Crypt();
     
     ConformingTetrahedralMesh<DIM, DIM>& rGetMesh();
@@ -96,7 +105,7 @@ public:
     void SetGhostNodes(std::vector<bool>&);
     void SetMaxCells(unsigned maxCells);
     void SetMaxElements(unsigned maxElements);
-
+    
     /**
      * Update the GhostNode positions using the spring force model with rest length=1.
      * Forces are applied to ghost nodes from connected ghost and normal nodes.
@@ -333,7 +342,7 @@ inline void load_construct_data(
     TrianglesMeshReader<DIM,DIM> mesh_reader(Crypt<DIM>::meshPathname);
     p_mesh->ConstructFromMeshReader(mesh_reader);
     // invoke inplace constructor to initialize instance
-    ::new(t)Crypt<DIM>(*p_mesh, cells);
+    ::new(t)Crypt<DIM>(*p_mesh, cells, true);
 }
 }
 } // namespace ...

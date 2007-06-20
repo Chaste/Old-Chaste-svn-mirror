@@ -52,6 +52,8 @@ protected:
 
     /** Facade encapsulating cells in the tissue being simulated */
     Crypt<DIM>& mrCrypt;
+    /** Whether to delete the facade in our destructor */
+    bool mDeleteCrypt;
     
     /** Whether to run the simulation with no birth (defaults to false). */
     bool mNoBirth;
@@ -132,7 +134,7 @@ protected:
 
 public:
 
-    TissueSimulation(Crypt<DIM>& rCrypt);
+    TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt=false);
                               
     virtual ~TissueSimulation();
     
@@ -187,7 +189,7 @@ inline void load_construct_data(
     Crypt<DIM>* p_crypt;
     ar >> p_crypt;
     // invoke inplace constructor to initialize instance
-    ::new(t)TissueSimulation<DIM>(*p_crypt);
+    ::new(t)TissueSimulation<DIM>(*p_crypt, true);
 }
 }
 } // namespace ...

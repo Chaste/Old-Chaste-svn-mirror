@@ -22,9 +22,10 @@
  *  Constructor
  */
 template<unsigned DIM> 
-TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt)
+TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
   :  mrCrypt(rCrypt)
 {
+    mDeleteCrypt = deleteCrypt;
     mpParams = CancerParameters::Instance();
     
     mDt = 1.0/120.0;
@@ -64,6 +65,10 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt)
 template<unsigned DIM> 
 TissueSimulation<DIM>::~TissueSimulation()
 {
+    if (mDeleteCrypt)
+    {
+        delete &mrCrypt;
+    }
 }
 
 template<unsigned DIM> 

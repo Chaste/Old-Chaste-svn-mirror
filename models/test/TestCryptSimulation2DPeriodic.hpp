@@ -473,6 +473,7 @@ public:
 //        TS_ASSERT_DELTA(node_100_location[0], 4.0000 , 1e-4);
 //        TS_ASSERT_DELTA(node_100_location[1], 8.0945 , 1e-4);
         
+        delete p_simulator;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
         

@@ -10,10 +10,12 @@
 // also check cell.GetNodeIndices() is in the mesh, and covers the mesh, etc.
 template<unsigned DIM>
 Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
-                  std::vector<MeinekeCryptCell> cells)
+                  std::vector<MeinekeCryptCell> cells,
+                  bool deleteMesh)
              : mrMesh(rMesh),
                mCells(cells)
 {
+    mDeleteMesh = deleteMesh;
     mSelfSetGhostNodes = true;
     mpGhostNodes = new std::vector<bool>(mrMesh.GetNumNodes(), false);
     
@@ -32,6 +34,10 @@ Crypt<DIM>::~Crypt()
     if (mSelfSetGhostNodes)
     {
         delete mpGhostNodes;
+    }
+    if (mDeleteMesh)
+    {
+        delete &mrMesh;
     }
 }
 
