@@ -89,7 +89,12 @@ public:
      * Note that this now calls 
      * ConformingTetrahedralMesh::DeleteNodePriorToReMesh() 
      * and therefore a ReMesh(map) must be called before
-     * any element information is used. 
+     * any element information is used.
+     * 
+     * Note also that after calling this method the crypt will be in an inconsistent state until a
+     * ReMesh is performed!  So don't try iterating over cells or anything like that.
+     * \todo weaken the data invariant in this class so it doesn't require an exact correspondance
+     *  between nodes and cells.
      * 
      *  @return number of cells removed
 	 */

@@ -366,7 +366,7 @@ template<unsigned DIM>
 bool Crypt<DIM>::Iterator::IsRealCell()
 {
     assert(mrCrypt.rGetGhostNodes().size() == mrCrypt.rGetMesh().GetNumAllNodes() );
-    return !(mrCrypt.rGetGhostNodes()[mNodeIndex] || GetNode()->IsDeleted());
+    return !(mrCrypt.rGetGhostNodes()[mNodeIndex] || GetNode()->IsDeleted() || (*this)->IsDead());
 }
 
 template<unsigned DIM>

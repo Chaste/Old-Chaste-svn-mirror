@@ -101,8 +101,6 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
     {
         MeinekeCryptCell& cell = *cell_iter;
         Node<DIM>* p_our_node = cell_iter.GetNode();
-
-        assert(cell.GetNodeIndex() == p_our_node->GetIndex());
         
         // Check for this cell dividing
         // Construct any influences for the cell cycle...
@@ -174,7 +172,9 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
     for(unsigned killer_index = 0; killer_index<mCellKillers.size(); killer_index++)
     {
         mCellKillers[killer_index]->TestAndLabelCellsForApoptosis();
-        num_deaths_this_step += mCellKillers[killer_index]->RemoveDeadCells();
+        // Temporary hack until crypt data invariant is weakened.  mrCrypt.RemoveDeadCells() is currently
+        // being called from Solve() after birth has taken place.
+        //num_deaths_this_step += mCellKillers[killer_index]->RemoveDeadCells();
     }
     
     return num_deaths_this_step;
@@ -741,6 +741,7 @@ void TissueSimulation<DIM>::Solve()
         // just delete and create nodes
         mNumDeaths += DoCellRemoval();
         mNumBirths += DoCellBirth();
+        mNumDeaths += mrCrypt.RemoveDeadCells(); // Temporary hack until crypt data invariant is weakened
         
         if( (mNumBirths>0) || (mNumDeaths>0 && !mIncludeSloughing))
         {   // If any nodes have been deleted or added we MUST call a ReMesh
