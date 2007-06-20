@@ -5,6 +5,9 @@
 #include "MeinekeCryptCell.hpp"
 #include "ColumnDataWriter.hpp"
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/vector.hpp>
+
 /**
  * Structure encapsulating variable identifiers for the node datawriter
  */
@@ -56,9 +59,26 @@ private:
     /** used by tabulated writers */
     ElementWriterIdsT mElemVarIds;
     
-
+    friend class boost::serialization::access;
+    /**
+     * Serialize the facade.
+     * 
+     * Note that serialization of the mesh and cells is handled by load/save_construct_data.
+     * 
+     * Note also that member data related to writers is not saved - output must
+     * be set up again by the caller after a restart.
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & *mpGhostNodes;
+        archive & mMaxCells;
+        archive & mMaxElements;
+    }
     
 public:
+    /** Hack until meshes are fully archived using boost::serialization */
+    static std::string meshPathname;
     /**
      * Create a new crypt facade from a mesh and collection of cells.
      * 
@@ -70,6 +90,8 @@ public:
     
     ConformingTetrahedralMesh<DIM, DIM>& rGetMesh();
     std::vector<MeinekeCryptCell>& rGetCells();
+    const ConformingTetrahedralMesh<DIM, DIM>& rGetMesh() const;
+    const std::vector<MeinekeCryptCell>& rGetCells() const;
     std::vector<bool>& rGetGhostNodes();
     void SetGhostNodes(std::vector<bool>&);
     void SetMaxCells(unsigned maxCells);
@@ -274,5 +296,46 @@ public:
     SpringIterator SpringsEnd();
 };
 
+template<unsigned DIM>
+std::string Crypt<DIM>::meshPathname = "";
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a Crypt facade.
+ */
+template<class Archive, unsigned DIM>
+inline void save_construct_data(
+    Archive & ar, const Crypt<DIM> * t, const BOOST_PFTO unsigned int file_version)
+{
+    // save data required to construct instance
+    ar & t->rGetCells();
+    const ConformingTetrahedralMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
+    ar & p_mesh;
+}
+
+/**
+ * De-serialize constructor parameters and initialise Crypt.
+ */
+template<class Archive, unsigned DIM>
+inline void load_construct_data(
+    Archive & ar, Crypt<DIM> * t, const unsigned int file_version)
+{
+    // retrieve data from archive required to construct new instance
+    std::vector<MeinekeCryptCell> cells;
+    ar >> cells;
+    ConformingTetrahedralMesh<DIM,DIM>* p_mesh;
+    ar >> p_mesh;
+    // Re-initialise the mesh
+    p_mesh->Clear();
+    TrianglesMeshReader<DIM,DIM> mesh_reader(Crypt<DIM>::meshPathname);
+    p_mesh->ConstructFromMeshReader(mesh_reader);
+    // invoke inplace constructor to initialize instance
+    ::new(t)Crypt<DIM>(*p_mesh, cells);
+}
+}
+} // namespace ...
 
 #endif /*CRYPT_HPP_*/

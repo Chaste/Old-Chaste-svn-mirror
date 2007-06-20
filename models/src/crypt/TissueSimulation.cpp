@@ -506,6 +506,11 @@ Crypt<DIM>& TissueSimulation<DIM>::rGetCrypt()
     return mrCrypt;
 }
 
+template<unsigned DIM> 
+const Crypt<DIM>& TissueSimulation<DIM>::rGetCrypt() const
+{
+    return mrCrypt;
+}
 
 /**
  * The mesh should be surrounded by at least one layer of ghost nodes.  These are nodes which
@@ -808,7 +813,7 @@ void TissueSimulation<DIM>::Save()
     // cast to const.
     const SimulationTime* p_simulation_time = SimulationTime::Instance();
     output_arch << *p_simulation_time;
-    output_arch << static_cast<const TissueSimulation<DIM>&>(*this);
+    output_arch & this;
 }
 
 /**
@@ -820,8 +825,9 @@ void TissueSimulation<DIM>::Save()
  * be one of the times at which the simulation.Save() was called)
  */
 template<unsigned DIM> 
-void TissueSimulation<DIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
+TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
 {
+    // Find the right archive and mesh to load
     std::ostringstream time_stamp;
     time_stamp << rTimeStamp;
     
@@ -832,28 +838,30 @@ void TissueSimulation<DIM>::Load(const std::string& rArchiveDirectory, const dou
     
     std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/2dCrypt_at_time_"+time_stamp.str() +".arch";
     std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str();
-    
-    mrCrypt.rGetMesh().Clear();
-    TrianglesMeshReader<DIM,DIM> mesh_reader(mesh_filename);
-    mrCrypt.rGetMesh().ConstructFromMeshReader(mesh_reader);
+    Crypt<DIM>::meshPathname = mesh_filename;
     
     // Create an input archive
     std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
     boost::archive::text_iarchive input_arch(ifs);
-    
-    // read the archive
+
+    // Read the archive
     assert(p_simulation_time->IsStartTimeSetUp());
     input_arch >> *p_simulation_time;
-    input_arch >> *this;
+    TissueSimulation<DIM>* p_sim;
+    input_arch >> p_sim;
+
+//    // Re-initialise the mesh
+//    p_sim->rGetCrypt().rGetMesh().Clear();
+//    TrianglesMeshReader<DIM,DIM> mesh_reader(mesh_filename);
+//    p_sim->rGetCrypt().rGetMesh().ConstructFromMeshReader(mesh_reader);
     
-    double time_now = p_simulation_time->GetDimensionalisedTime();
-    std::ostringstream time_string;
-    time_string << time_now;
     
-    mOutputDirectory = rArchiveDirectory;
-    
-    if (mrCrypt.rGetMesh().GetNumNodes()!=mrCrypt.rGetCells().size())
+    if (p_sim->rGetCrypt().rGetMesh().GetNumNodes()!=p_sim->rGetCrypt().rGetCells().size())
     {
+        std::cerr << "N.Nodes: " << p_sim->rGetCrypt().rGetMesh().GetNumNodes()
+                  << " N.Cells: " << p_sim->rGetCrypt().rGetCells().size() << std::endl;
         EXCEPTION(" Error in Load: number of nodes is not equal to number of cells.");
     }
+    
+    return p_sim;
 }

@@ -85,6 +85,9 @@ protected:
     /** Counts the number of deaths during the simulation */
     unsigned mNumDeaths;
     
+    /** List of cell killers */
+    std::vector<AbstractCellKiller<DIM>*> mCellKillers;
+    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -102,23 +105,16 @@ protected:
         archive & mIsGhostNode;
         archive & mMaxCells;
         archive & mMaxElements;
-//        archive & mOutputDirectory;
-//        archive & mrCells;
+        archive & mOutputDirectory;
         archive & mWntIncluded;
         archive & mWntGradient;
         archive & mNumBirths;
         archive & mNumDeaths;
         archive & mIncludeSloughing;
-
-////TODO: get the crypt class (which now contains the mesh and cells) to archive
-//        ConformingTetrahedralMesh<DIM,DIM> *p_mesh = &mrMesh;
-//        archive & p_mesh;
+        
         // \todo We need to archive cell killers here see ticket:389.
     }
     
-    
-    /** List of cell killers */
-    std::vector<AbstractCellKiller<DIM>*> mCellKillers;
     
     void WriteVisualizerSetupFile(std::ofstream& rSetupFile);
 
@@ -157,9 +153,44 @@ public:
     void Solve();
     
     void Save();
-    void Load(const std::string& rArchiveDirectory, const double& rTimeStamp);
+    static TissueSimulation<DIM>* Load(const std::string& rArchiveDirectory, const double& rTimeStamp);
     
     Crypt<DIM>& rGetCrypt();
+    const Crypt<DIM>& rGetCrypt() const;
 };
+
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a TissueSimulation.
+ */
+template<class Archive, unsigned DIM>
+inline void save_construct_data(
+    Archive & ar, const TissueSimulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
+{
+    // save data required to construct instance
+    const Crypt<DIM> * p_crypt = &(t->rGetCrypt());
+    ar & p_crypt;
+}
+
+/**
+ * De-serialize constructor parameters and initialise Crypt.
+ */
+template<class Archive, unsigned DIM>
+inline void load_construct_data(
+    Archive & ar, TissueSimulation<DIM> * t, const unsigned int file_version)
+{
+    // retrieve data from archive required to construct new instance
+    Crypt<DIM>* p_crypt;
+    ar >> p_crypt;
+    // invoke inplace constructor to initialize instance
+    ::new(t)TissueSimulation<DIM>(*p_crypt);
+}
+}
+} // namespace ...
+
 
 #endif /*TISSUESIMULATION_HPP_*/

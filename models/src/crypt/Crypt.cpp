@@ -91,6 +91,18 @@ std::vector<MeinekeCryptCell>& Crypt<DIM>::rGetCells()
 }
 
 template<unsigned DIM>
+const ConformingTetrahedralMesh<DIM, DIM>& Crypt<DIM>::rGetMesh() const
+{
+    return mrMesh;
+}
+
+template<unsigned DIM>
+const std::vector<MeinekeCryptCell>& Crypt<DIM>::rGetCells() const
+{
+    return mCells;
+}
+
+template<unsigned DIM>
 std::vector<bool>& Crypt<DIM>::rGetGhostNodes()
 {
     return *mpGhostNodes;
