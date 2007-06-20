@@ -611,12 +611,7 @@ public:
         }
         
         {   
-            unsigned cells_across = 10;
-            unsigned cells_up = 10;
-            unsigned thickness_of_ghost_layer = 0;
-        
-            HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
-            ConformingTetrahedralMesh<2,2>* p_mesh2=generator.GetCylindricalMesh();
+            ConformingTetrahedralMesh<2,2>* p_mesh2;
             
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -625,6 +620,9 @@ public:
             input_arch >> p_mesh2;
             
             TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width, 1e-7);
+            
+            // We now need to free the mesh, since there is no honeycomb generator to do so.
+            delete p_mesh2;
         }
     }
 
