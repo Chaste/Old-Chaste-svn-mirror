@@ -79,7 +79,7 @@ namespace serialization
 /**
  * Serialize information required to construct a TissueSimulation.
  */
-template<class Archive, unsigned DIM>
+template<class Archive>
 inline void save_construct_data(
     Archive & ar, const SloughingCellKiller * t, const BOOST_PFTO unsigned int file_version)
 {
@@ -93,7 +93,7 @@ inline void save_construct_data(
 /**
  * De-serialize constructor parameters and initialise Crypt.
  */
-template<class Archive, unsigned DIM>
+template<class Archive>
 inline void load_construct_data(
     Archive & ar, SloughingCellKiller * t, const unsigned int file_version)
 {
