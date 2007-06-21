@@ -30,7 +30,6 @@ private:
     double mEndTime;
     ConformingTetrahedralMesh<1,1> &mrMesh;
     
-    bool mIncludeRandomBirth;
     bool mIncludeVariableRestLength;
     
     unsigned mMaxCells;
@@ -44,7 +43,6 @@ private:
     RandomNumberGenerator *mpGen;
     bool mCreatedRng;
     
-    unsigned AddRandomNode(double time);
     unsigned AddNodeToElement(Element<1,1>* pElement, double time);
     
 public:
@@ -56,7 +54,6 @@ public:
     
     void SetDt(double dt);
     void SetEndTime(double endTime);
-    void SetIncludeRandomBirth();
     void SetOutputDirectory(std::string outputDirectory);
     void SetIncludeVariableRestLength();
     void SetMaxCells(unsigned maxCells);

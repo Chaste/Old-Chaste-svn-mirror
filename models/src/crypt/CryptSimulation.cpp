@@ -31,7 +31,6 @@ CryptSimulation::CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
     mDt = 1.0/(120.0); // ie 30 sec NOTE: hardcoded 120?
     mEndTime = 120.0; //hours
     
-    mIncludeRandomBirth = false;
     mIncludeVariableRestLength = false;
     mOutputDirectory = "";
     
@@ -62,15 +61,6 @@ void CryptSimulation::SetEndTime(double endTime)
     mEndTime=endTime;
 }
 
-
-/**
- *  Call this before Solve() if no cells have been specified. Randomly adds a new
- *  node every 1 time unit, starting 0.1
- */
-void CryptSimulation::SetIncludeRandomBirth()
-{
-    mIncludeRandomBirth = true;
-}
 
 void CryptSimulation::SetOutputDirectory(std::string outputDirectory)
 {
@@ -341,36 +331,6 @@ void CryptSimulation::Solve()
         time_since_last_birth += mDt;
     }
 }
-
-
-
-unsigned CryptSimulation::AddRandomNode(double time)
-{
-
-    //Pick an element
-    unsigned random_element_number = mpGen->randMod(mrMesh.GetNumAllElements());
-    Element<1,1>* p_random_element = mrMesh.GetElement(random_element_number);
-    double element_length = fabs(p_random_element->GetNodeLocation(1,0) - p_random_element->GetNodeLocation(0,0));
-    //std::cout << "length " <<element_length << "\n";
-    
-    // keep picking until find an element which is big enough and not deleted
-    while (element_length <0.4 || p_random_element->IsDeleted())
-    {
-        // the following is ignored in coverage as there is a random
-        // chance of it not happening
-#define COVERAGE_IGNORE
-        random_element_number = mpGen->randMod(mrMesh.GetNumAllElements());
-        p_random_element = mrMesh.GetElement(random_element_number);
-        element_length = fabs(p_random_element->GetNodeLocation(1,0) - p_random_element->GetNodeLocation(0,0));
-#undef COVERAGE_IGNORE
-        //std::cout << "..too small, trying: length " <<element_length << "\n";
-        //double random_displacement = 0.2+mpGen->randf()*0.6;
-    }
-    // Reset age of left node to zero
-    mCells[p_random_element->GetNode(0)->GetIndex()].SetBirthTime(time);
-    return AddNodeToElement(p_random_element,time);
-}
-
 
 unsigned CryptSimulation::AddNodeToElement(Element<1,1>* pElement, double time)
 {

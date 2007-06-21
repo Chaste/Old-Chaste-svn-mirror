@@ -265,14 +265,15 @@ public:
 
         Crypt<2> crypt(*p_mesh, cells);               
         TissueSimulation<2> simulator(crypt);
-        simulator.SetOutputDirectory(output_directory);
         
         /* 
          * Set length of simulation
          * and other options here.
          */
         simulator.SetEndTime(0.1);
+        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(10));
         simulator.SetMaxCells(500);
+        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(10));
         simulator.SetMaxElements(1000);
         simulator.SetGhostNodes(ghost_node_indices);
         
@@ -280,6 +281,7 @@ public:
         simulator.SetDt(1.0/120.0);
         simulator.SetReMeshRule(true);
         simulator.SetNoBirth(false);
+        simulator.SetOutputDirectory(output_directory);
         
         simulator.Solve();
 
@@ -301,6 +303,11 @@ public:
         }
         TS_ASSERT_EQUALS(number_of_cells, cells_across*cells_up+1u);  // 6 cells in a row*12 rows + 1 birth
         TS_ASSERT_EQUALS(number_of_nodes, number_of_cells+thickness_of_ghost_layer*2*cells_across); 
+
+        // Coverage of exceptions (after main test to avoid problems with SimulationTime).
+        simulator.SetEndTime(10.0);
+        simulator.SetOutputDirectory("");
+        TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
