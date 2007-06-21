@@ -17,8 +17,12 @@
 
 
 /**
- * Solve a 2D crypt simulation based on the Meineke paper.
- *
+ * Run a 2D or 3D tissue simulation, currently based on the Meineke Paper 
+ * (doi:10.1046/j.0960-7722.2001.00216.x)
+ * 
+ * Cells are represented by their centres in space, they are connected by
+ * springs defined by the cells' Delaunay/Voronoi tesselation.
+ * 
  * The spring lengths are governed by the equations
  * dr/dt = stem_cycle_time*(mu/eta) sum_j r_hat_i,j*(|r_i,j|-s0)
  *       = alpha sum_j r_hat_i,j*(|r_i,j|-s0)
@@ -27,16 +31,24 @@
  *       s0    = natural length of the spring.
 
  * Length is scaled by natural length.
- * Time is scaled by a stem cell cycle time.
+ * Time is in hours.
  *
  * meineke_lambda = mu (spring constant) / eta (damping) = 0.01 (from Meineke - note
  * that the value we use for Meineke lambda is completely different because we have
  * nondimensionalised)
  *
- * The mesh should be surrounded by at least one layer of ghost nodes.  These are nodes which
- * do not correspond to a cell, but are necessary for remeshing (because the remesher tries to
- * create a convex hull of the set of nodes) and visualising purposes.  The mesh is passed into
- * the constructor and the class is told about the ghost nodes by using the method SetGhostNodes.
+ * The TissueSimulation currently only accepts a crypt (facade class) which is 
+ * formed from a mesh, whose nodes are associated with MeinekeCryptCells 
+ * or are ghost nodes. The TissueSimulation then accesses only the 
+ * MeinekeCryptCells via an iterator in the crypt facade class.
+ * 
+ * Cells can divide (at a time governed by their cell cycle models)
+ * 
+ * Cells can die - at a time/position specified by cell killers which can be 
+ * added to the simulation.
+ * 
+ * \todo Move the Wnt Gradient code into a MicroEnvironment class?
+ * \todo Move the spring calculations into a separate class?
  */
 template<unsigned DIM>  
 class TissueSimulation
@@ -118,25 +130,90 @@ protected:
         archive & mCellKillers;
     }
     
-    
+    /**
+     * Writes out special information about the mesh to the visualizer.
+     */
     void WriteVisualizerSetupFile(std::ofstream& rSetupFile);
 
+    /**
+     * During a simulation time step, process any cell divisions that need to occur.
+     * If the simulation includes cell birth, causes (almost) all cells that are ready to divide
+     * to produce daughter cells.
+     *
+     * @return the number of births that occurred.
+     */
     unsigned DoCellBirth();
+    
+    /**
+     * Calculates the new locations of a dividing cell's cell centres.
+     * Moves the dividing node a bit and returns co-ordinates for the new node.
+     * It does this by picking a random direction (0->2PI) and placing the parent 
+     * and daughter in opposing directions on this axis.
+     * 
+     * @param node_index The parent node index
+     * 
+     * @return daughter_coords The coordinates for the daughter cell.
+     * 
+     */
     c_vector<double, DIM> CalculateDividingCellCentreLocations(typename Crypt<DIM>::Iterator parentCell);
     
+    /**
+     * During a simulation time step, process any cell sloughing or death
+     *
+     * This uses the cell killers to remove cells and associated nodes from the
+     * facade class.
+     * 
+     * @return the number of deaths that occurred.
+     */ 
     unsigned DoCellRemoval();
    
+   /**
+     * Calculates the forces on each node
+     *
+     * @return drdt the force components on each node
+     */
     std::vector<c_vector<double, DIM> > CalculateVelocitiesOfEachNode();
+    
+    /**
+     * Calculates the force between two nodes.
+     * 
+     * Note that this assumes they are connected and is called by CalculateVelocitiesOfEachNode()
+     * 
+     * @param NodeAGlobalIndex
+     * @param NodeBGlobalIndex
+     * 
+     * @return The force exerted on Node A by Node B.
+     */
     virtual c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex,unsigned nodeBGlobalIndex);
     
+    /**
+     * Moves each node to a new position for this timestep
+     *
+     * @param rDrDt the x and y force components on each node.
+     */
     virtual void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt);
     
+    /**
+     * Change the state of cells
+     *
+     * At the moment this turns cells to be differentiated
+     * dependent on a protein concentration when using the Wnt model.
+     */
     void UpdateCellTypes();
 
 public:
 
+    /** 
+     *  Constructor
+     * 
+     *  @param rCrypt A crypt facade class (contains a mesh and cells)
+     *  @param deleteCrypt whether to delete the crypt on destruction to free up memory.
+     */
     TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt=false);
-                              
+    
+    /**
+     * Free any memory allocated by the constructor
+     */                         
     virtual ~TissueSimulation();
     
     void SetDt(double dt);

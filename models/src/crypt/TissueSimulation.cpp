@@ -18,9 +18,7 @@
 #include "OutputFileHandler.hpp"
 
 
-/** 
- *  Constructor
- */
+
 template<unsigned DIM> 
 TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
   :  mrCrypt(rCrypt)
@@ -80,13 +78,7 @@ void TissueSimulation<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
 }
 
 
-/**
- * During a simulation time step, process any cell divisions that need to occur.
- * If the simulation includes cell birth, causes (almost) all cells that are ready to divide
- * to produce daughter cells.
- *
- * @return the number of births that occurred.
- */
+
 template<unsigned DIM>  
 unsigned TissueSimulation<DIM>::DoCellBirth()
 {
@@ -140,13 +132,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
 }
 
 
-/**
- * During a simulation time step, process any cell sloughing or death
- *
- * At the moment we just slough cells by turning them into ghost nodes
- * 
- * @return the number of deaths that occurred.
- */ 
+
 template<unsigned DIM> 
 unsigned TissueSimulation<DIM>::DoCellRemoval()
 {
@@ -186,17 +172,6 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
 
 
 
-/**
- * Calculates the new locations of a dividing cell's cell centres.
- * Moves the dividing node a bit and returns co-ordinates for the new node.
- * It does this by picking a random direction (0->2PI) and placing the parent 
- * and daughter in opposing directions on this axis.
- * 
- * @param node_index The parent node index
- * 
- * @return daughter_coords The coordinates for the daughter cell.
- * 
- */
 template<unsigned DIM> 
 c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename Crypt<DIM>::Iterator parentCell)
 {
@@ -268,13 +243,6 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 
 
 
-
-
-/**
- * Calculates the forces on each node
- *
- * @return drdt the x and y force components on each node
- */
 template<unsigned DIM>  
 std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOfEachNode()
 {
@@ -327,16 +295,7 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
 }
 
 
-/**
- * Calculates the force between two nodes.
- * 
- * Note that this assumes they are connected
- * 
- * @param NodeAGlobalIndex
- * @param NodeBGlobalIndex
- * 
- * @return The force exerted on Node A by Node B.
- */
+
 template<unsigned DIM> 
 c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex)
 {
@@ -368,11 +327,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
 }
 
 
-/**
- * Moves each node to a new position for this timestep
- *
- * @param rDrDt the x and y force components on each node.
- */
+
 template<unsigned DIM> 
 void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt)
 {
@@ -468,6 +423,12 @@ void TissueSimulation<DIM>::SetEndTime(double endTime)
     mEndTime=endTime;
 }
 
+/**
+ * Set the output directory of the simulation.
+ * 
+ * Note that tabulated results (for test comparison) go into a /tab_results subfolder
+ * And visualizer results go into a /vis_results subfolder.
+ */
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)
 {
@@ -588,11 +549,14 @@ void TissueSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
  * \todo change this to return a const reference
  */
 template<unsigned DIM> 
-std::vector <bool> TissueSimulation<DIM>::GetGhostNodes()
+std::vector<bool> TissueSimulation<DIM>::GetGhostNodes()
 {
     return mIsGhostNode;
 }
 
+/**
+ * Set the TissueSimulation to stop using the old method of sloughing cells into ghost nodes
+ */
 template<unsigned DIM>
 void TissueSimulation<DIM>::SetNoSloughing()
 {

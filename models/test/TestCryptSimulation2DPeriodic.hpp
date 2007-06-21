@@ -417,39 +417,8 @@ public:
     // Testing Load (based on previous two tests)
     void TestLoad() throw (Exception)
     {
-//        CancerParameters *p_params = CancerParameters::Instance();
-//        // There is no limit on transit cells in Wnt simulation
-//        p_params->SetMaxTransitGenerations(1000);
-//        RandomNumberGenerator::Instance();
-//        
-//        // Nonsense mesh - see if it is restored properly.
-//        unsigned cells_across = 10;
-//        unsigned cells_up = 3;
-//        unsigned thickness_of_ghost_layer = 0;
-//        
-//        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-//        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-//        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-//        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-//        
-//        // Set up cells by iterating through the mesh nodes
-//        unsigned num_cells = p_mesh->GetNumAllNodes();
-//        std::cout << "Num Cells = " << num_cells << std::endl;
-//        std::vector<MeinekeCryptCell> cells;
-//        for (unsigned i=0; i<num_cells; i++)
-//        {
-//            unsigned generation = 0;
-//            double wnt_level = 0;
-//            unsigned mutation_state = 0;
-//            MeinekeCryptCell cell(STEM, HEALTHY, generation, new WntCellCycleModel(wnt_level,mutation_state));
-//            cell.SetNodeIndex(i);
-//            cells.push_back(cell);
-//        }
-//
-//        Crypt<2> crypt(*p_mesh, cells);
-//        TissueSimulation<2> simulator(crypt);
 
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 0.2
@@ -476,17 +445,14 @@ public:
         std::vector<double> node_35_location = p_simulator->GetNodeLocation(35);
         TS_ASSERT_DELTA(node_35_location[0], 5.5000 , 1e-4);
         TS_ASSERT_DELTA(node_35_location[1], 2.5104 , 1e-4);
-//        std::vector<double> node_100_location = p_simulator->GetNodeLocation(100);
-//        TS_ASSERT_DELTA(node_100_location[0], 4.0000 , 1e-4);
-//        TS_ASSERT_DELTA(node_100_location[1], 8.0945 , 1e-4);
+        std::vector<double> node_100_location = p_simulator->GetNodeLocation(100);
+        TS_ASSERT_DELTA(node_100_location[0], 4.0000 , 1e-4);
+        TS_ASSERT_DELTA(node_100_location[1], 8.0945 , 1e-4);
         
         delete p_simulator;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
         
-        // When the mesh is archived we need a good test here
-        // to ensure these results are the same as the ones
-        // from TestWithWntDependentCells().
     }
     
     

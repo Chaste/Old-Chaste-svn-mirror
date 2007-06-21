@@ -47,6 +47,16 @@ public:
     {
         return mSloughSides;
     }
+    
+    double GetCryptLength()
+    {
+        return mCryptLength;
+    }
+
+    double GetCryptWidth()
+    {
+        return mCryptWidth;
+    }
 
     /**
      *  Loops over cells and kills cells outside boundary.

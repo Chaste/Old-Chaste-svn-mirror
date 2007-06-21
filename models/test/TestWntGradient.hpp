@@ -91,7 +91,7 @@ public:
     
     void TestArchiveWntGradient()
     {
-        OutputFileHandler handler("archive");
+        OutputFileHandler handler("archive",false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "wnt_grad.arch";
         

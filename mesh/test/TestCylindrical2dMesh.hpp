@@ -616,6 +616,7 @@ public:
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
+            
             // restore from the archive
             input_arch >> p_mesh2;
             
@@ -678,8 +679,10 @@ public:
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
+            
+            TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width + 5.0, 1e-7);
+
             // restore from the archive
-            //ConformingTetrahedralMesh<2,2>& r_mesh2 = *p_mesh2;
             input_arch >> p_mesh2;
             
             TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width, 1e-7);

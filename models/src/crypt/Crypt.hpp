@@ -43,7 +43,9 @@ template<unsigned DIM>
 class Crypt
 {
 private:
+    
     ConformingTetrahedralMesh<DIM, DIM>& mrMesh;
+    
     /**
      * Whether to delete the mesh when we are destroyed.
      * Needed if this crypt has been de-serialized.
@@ -85,12 +87,15 @@ private:
 public:
     /** Hack until meshes are fully archived using boost::serialization */
     static std::string meshPathname;
+    
     /**
      * Create a new crypt facade from a mesh and collection of cells.
      * 
      * At present there must be precisely 1 cell for each node of the mesh.
      * (This will change in future so that you don't need cells for ghost nodes.)
      * 
+     * @param rMesh a conforming tetrahedral mesh.
+     * @param cells MeinekeCryptCells corresponding to the nodes of the mesh.
      * @param deleteMesh set to true if you want the crypt to free the mesh memory on destruction
      */
     Crypt(ConformingTetrahedralMesh<DIM, DIM>&, std::vector<MeinekeCryptCell>,
