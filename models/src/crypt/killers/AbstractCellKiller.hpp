@@ -6,7 +6,7 @@
 #include "Crypt.cpp"
 
 #include <boost/serialization/access.hpp>
-
+#include <boost/serialization/is_abstract.hpp>
 
 template <unsigned SPACE_DIM>
 class AbstractCellKiller
@@ -57,5 +57,16 @@ private:
     }
     
 };
+
+
+namespace boost {
+namespace serialization {
+template<unsigned DIM>
+struct is_abstract<AbstractCellKiller<DIM> > {
+    typedef mpl::bool_<true> type;
+        BOOST_STATIC_CONSTANT(bool, value = true);
+};
+}}
+
 
 #endif /*ABSTRACTCELLKILLER_HPP_*/
