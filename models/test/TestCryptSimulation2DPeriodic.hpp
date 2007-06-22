@@ -287,20 +287,11 @@ public:
 
         // test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
-        std::vector<MeinekeCryptCell>& result_cells = crypt.rGetCells();
-        std::vector<bool> ghost_cells = simulator.GetGhostNodes();
-        unsigned number_of_cells = 0;
-        unsigned number_of_nodes = result_cells.size();
+        std::vector<bool> ghost_cells = crypt.rGetGhostNodes();
+        unsigned number_of_cells = crypt.GetNumRealCells();
+        unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
         
-        TS_ASSERT_EQUALS(result_cells.size(),ghost_cells.size());
-        
-        for (unsigned i=0 ; i<number_of_nodes ; i++)
-        {
-            if (!ghost_cells[i])
-            {
-                number_of_cells++;
-            }
-        }
+        TS_ASSERT_EQUALS(number_of_nodes, ghost_cells.size());
         TS_ASSERT_EQUALS(number_of_cells, cells_across*cells_up+1u);  // 6 cells in a row*12 rows + 1 birth
         TS_ASSERT_EQUALS(number_of_nodes, number_of_cells+thickness_of_ghost_layer*2*cells_across); 
 
@@ -546,21 +537,11 @@ public:
         
         // test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
-        std::vector<MeinekeCryptCell>& result_cells = crypt.rGetCells();
-        std::vector<bool> ghost_cells = simulator.GetGhostNodes();
-        unsigned number_of_cells = 0;
-        unsigned number_of_nodes = result_cells.size();
+        std::vector<bool> ghost_cells = crypt.rGetGhostNodes();
+        unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
         
-        TS_ASSERT_EQUALS(result_cells.size(),ghost_cells.size());
-        
-        for (unsigned i=0 ; i<number_of_nodes ; i++)
-        {
-            if (!ghost_cells[i])
-            {
-                number_of_cells++;
-            }
-        }
-        TS_ASSERT_EQUALS(number_of_cells, 113u);
+        TS_ASSERT_EQUALS(number_of_nodes,ghost_cells.size());
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 113u);
         TS_ASSERT_EQUALS(number_of_nodes, 164u);
 
         SimulationTime::Destroy();
@@ -803,32 +784,31 @@ public:
         std::vector<MeinekeCryptCell> cells3;
         simulator3.SetWntGradient(LINEAR);
         simulator3.UpdateCellTypes();
-        cells3 = crypt.rGetCells();
         
-        std::vector<bool> is_node_a_ghost = simulator3.GetGhostNodes();
+        std::vector<bool> is_node_a_ghost = crypt.rGetGhostNodes();
         
-        for (unsigned i=0; i<num_cells2; i++)
+        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+             cell_iter != crypt.End();
+             ++cell_iter)
         {
-            if (!is_node_a_ghost[i])
+            CryptCellType cell_type;
+            cell_type = cell_iter->GetCellType();
+            if (!cell_type==STEM)
             {
-                CryptCellType cell_type;
-                cell_type = cells3[i].GetCellType();
-                if (!cell_type==STEM)
+                //std::cout << "Cell type = " << cell_type << std::endl;
+                WntCellCycleModel *p_this_model = static_cast<WntCellCycleModel*>(cell_iter->GetCellCycleModel());
+                double beta_cat_level = p_this_model->GetProteinConcentrations()[6]+ p_this_model->GetProteinConcentrations()[7];
+                //std::cout << "Cell " << i << ", beta-cat = " << beta_cat_level << std::endl;
+                if (beta_cat_level > 0.4127)
                 {
-                    //std::cout << "Cell type = " << cell_type << std::endl;
-                    WntCellCycleModel *p_this_model = static_cast<WntCellCycleModel*>(cells3[i].GetCellCycleModel());
-                    double beta_cat_level = p_this_model->GetProteinConcentrations()[6]+ p_this_model->GetProteinConcentrations()[7];
-                    //std::cout << "Cell " << i << ", beta-cat = " << beta_cat_level << std::endl;
-                    if (beta_cat_level > 0.4127)
-                    {
-                        TS_ASSERT_EQUALS(cell_type,TRANSIT);
-                    }
-                    else
-                    {
-                        TS_ASSERT_EQUALS(cell_type,DIFFERENTIATED);
-                    }
+                    TS_ASSERT_EQUALS(cell_type,TRANSIT);
+                }
+                else
+                {
+                    TS_ASSERT_EQUALS(cell_type,DIFFERENTIATED);
                 }
             }
+        
         }
         
         SimulationTime::Destroy();
@@ -1022,20 +1002,9 @@ public:
 
         // test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
-        std::vector<MeinekeCryptCell>& result_cells = crypt.rGetCells();
-        std::vector<bool> ghost_cells = simulator.GetGhostNodes();
-        unsigned number_of_cells = 0;
-        unsigned number_of_nodes = result_cells.size();
-        
-        TS_ASSERT_EQUALS(result_cells.size(),ghost_cells.size());
-        
-        for (unsigned i=0 ; i<number_of_nodes ; i++)
-        {
-            if (!ghost_cells[i])
-            {
-                number_of_cells++;
-            }
-        }
+        unsigned number_of_cells = crypt.GetNumRealCells();
+        unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
+                
         TS_ASSERT_EQUALS(number_of_cells, cells_across*cells_up); 
         TS_ASSERT_EQUALS(number_of_nodes, number_of_cells+thickness_of_ghost_layer*2*cells_across); 
 
