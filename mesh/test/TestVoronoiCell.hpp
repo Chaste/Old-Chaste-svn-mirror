@@ -13,99 +13,136 @@ class TestVoronoiCell : public CxxTest::TestSuite
 public:
     void TestCreateCell()
     {
-        //Test for a 1x1x1 cube centered at (0.5,0.5,0.5)  
+        c_vector<double, 3> vertex1;
+        vertex1(0)= -0.2500;      
+        vertex1(1)=-0.2500;
+        vertex1(2)=1.2500;
+        c_vector<double, 3> vertex2;        
+        vertex2(0)=1.2500;
+        vertex2(1)=-0.2500;
+        vertex2(2)=-0.2500;
+        c_vector<double, 3> vertex3; 
+        vertex3(0)= -0.2500;      
+        vertex3(1)=1.2500;
+        vertex3(2)=-0.2500;
+        c_vector<double, 3> vertex4;
+        vertex4(0)= 1.2500;      
+        vertex4(1)=1.2500;
+        vertex4(2)=1.2500;
+        c_vector<double, 3> vertex5;
+        vertex4(0)= 1.0;      
+        vertex4(1)=1.0;
+        vertex4(2)=1.0;
         
-        c_vector<double, 3> cell_centre;
-        cell_centre(0)=0.5;
-        cell_centre(1)=0.5;
-        cell_centre(2)=0.5;
+        Face face1;
+        face1.mVertices.push_back(&vertex2);
+        face1.mVertices.push_back(&vertex3);
+        face1.mVertices.push_back(&vertex4);
+        Face face2;
+        face2.mVertices.push_back(&vertex1);
+        face2.mVertices.push_back(&vertex4);
+        face2.mVertices.push_back(&vertex3);
+        Face face3;
+        face3.mVertices.push_back(&vertex1);
+        face3.mVertices.push_back(&vertex2);
+        face3.mVertices.push_back(&vertex4);
+        Face face4;
+        face4.mVertices.push_back(&vertex1);
+        face4.mVertices.push_back(&vertex3);
+        face4.mVertices.push_back(&vertex2);
+                
+        Face face1b;
+        face1b.mVertices.push_back(&vertex2);
+        face1b.mVertices.push_back(&vertex3);
+        face1b.mVertices.push_back(&vertex5);
+        Face face2b;
+        face2b.mVertices.push_back(&vertex1);
+        face2b.mVertices.push_back(&vertex4);
+        face2b.mVertices.push_back(&vertex5);
+        Face face3b;
+        face3b.mVertices.push_back(&vertex1);
+        face3b.mVertices.push_back(&vertex2);
+        face3b.mVertices.push_back(&vertex5);
+        // face 1 permuted
+        Face face1p;
+        face1p.mVertices.push_back(&vertex4);
+        face1p.mVertices.push_back(&vertex3);
+        face1p.mVertices.push_back(&vertex2);
+        // face 1 rotated
+        Face face1r;
+        face1r.mVertices.push_back(&vertex4);
+        face1r.mVertices.push_back(&vertex2);
+        face1r.mVertices.push_back(&vertex3);
         
-        std::set< Node<3>* > p_vertices;
-        unsigned counter = 0;
-        for (unsigned i=0; i<=1; i++)
-        {
-            for (unsigned j=0; i<=1; i++)
-            {
-                for (unsigned k=0; i<=1; i++)
-                {
-                    p_vertices.insert(new Node<3>(counter, false, (double) i, (double) j, (double) k) );
-                    counter++;
-                }
-            }
-        }
+        VoronoiCell cell1;
+        cell1.mFaces.push_back(&face1);
+        cell1.mOrientations.push_back(true);
+        cell1.mFaces.push_back(&face2);
+        cell1.mOrientations.push_back(true);
+        cell1.mFaces.push_back(&face3);
+        cell1.mOrientations.push_back(true);
+        cell1.mFaces.push_back(&face4);
+        cell1.mOrientations.push_back(true);
+        TS_ASSERT_EQUALS(cell1, cell1);
         
-        std::vector< std::vector < unsigned > > faces;
+       // a different cell
+        VoronoiCell cell1b;
+        cell1b.mFaces.push_back(&face1b);
+        cell1b.mOrientations.push_back(true);
+        cell1b.mFaces.push_back(&face2b);
+        cell1b.mOrientations.push_back(true);
+        cell1b.mFaces.push_back(&face3b);
+        cell1b.mOrientations.push_back(true);
+        cell1b.mFaces.push_back(&face4);
+        cell1b.mOrientations.push_back(true);
+        TS_ASSERT_DIFFERS(cell1, cell1b);
         
-        std::vector<unsigned> empty;
-        faces.push_back(empty);
-        faces[0].push_back(0);
-        faces[0].push_back(1);
-        faces[0].push_back(5);
-        faces[0].push_back(4);
+        // like first cell but face 1 permuted
+        VoronoiCell cell1p;
+        cell1p.mFaces.push_back(&face1p);
+        cell1p.mOrientations.push_back(true);
+        cell1p.mFaces.push_back(&face2);
+        cell1p.mOrientations.push_back(true);
+        cell1p.mFaces.push_back(&face3);
+        cell1p.mOrientations.push_back(true);
+        cell1p.mFaces.push_back(&face4);
+        cell1p.mOrientations.push_back(true);
         
-        faces.push_back(empty);
-        faces[1].push_back(4);
-        faces[1].push_back(5);
-        faces[1].push_back(7);
-        faces[1].push_back(6);
+        TS_ASSERT_DIFFERS(cell1, cell1p);
         
-        faces.push_back(empty);
-        faces[2].push_back(6);
-        faces[2].push_back(7);
-        faces[2].push_back(3);
-        faces[2].push_back(2);
+        // like first cell but face 1 rotated, and faces in different order
+        VoronoiCell cell1r;
+        cell1r.mFaces.push_back(&face3);
+        cell1r.mOrientations.push_back(true);
+        cell1r.mFaces.push_back(&face1r);
+        cell1r.mOrientations.push_back(true);
+        cell1r.mFaces.push_back(&face2);
+        cell1r.mOrientations.push_back(true);
+        cell1r.mFaces.push_back(&face4);
+        cell1r.mOrientations.push_back(true);
         
-        faces.push_back(empty);
-        faces[3].push_back(2);
-        faces[3].push_back(3);
-        faces[3].push_back(1);
-        faces[3].push_back(0);
+        TS_ASSERT_EQUALS(cell1, cell1r);
         
-        faces.push_back(empty);
-        faces[4].push_back(1);
-        faces[4].push_back(5);
-        faces[4].push_back(7);
-        faces[4].push_back(3);
+        // null cell
+        VoronoiCell cell0;
+        TS_ASSERT_DIFFERS(cell1, cell0);
+        TS_ASSERT_DIFFERS(cell0, cell1);
+        TS_ASSERT_EQUALS(cell0, cell0);
         
-        faces.push_back(empty);
-        faces[5].push_back(0);
-        faces[5].push_back(4);
-        faces[5].push_back(6);
-        faces[5].push_back(2);
+        // like first cell but face 1 premuted and opposite orientation
+        VoronoiCell cell1o;
+        cell1o.mFaces.push_back(&face3);
+        cell1o.mOrientations.push_back(true);
+        cell1o.mFaces.push_back(&face1p);
+        cell1o.mOrientations.push_back(false);
+        cell1o.mFaces.push_back(&face2);
+        cell1o.mOrientations.push_back(true);
+        cell1o.mFaces.push_back(&face4);
+        cell1o.mOrientations.push_back(true);
+        TS_ASSERT_EQUALS(cell1, cell1o);
         
-        unsigned colour = 1u;
-        
-        VoronoiCell cell(cell_centre, p_vertices, faces, colour);
-
-        std::set< Node<3>* > return_vertices = cell.GetVertices();
-        
-        
-   
-                    
-        TS_ASSERT(p_vertices==return_vertices);
-        
-//        for (unsigned i=0; i<return_vertices.size(); i++)
-//        {
-//            TS_ASSERT_DELTA(norm_2(p_vertices[i]->rGetLocation()-return_vertices[i]->rGetLocation()), 0.0, 1e-6);
-//        }
-//        TS_ASSERT_EQUALS(p_vertices.size(), return_vertices.size());
-        
-//        std::vector< std::vector < unsigned > > return_faces = cell.GetFaces();
-//        unsigned return_colour = cell.GetColour();
-//        c_vector<double, 3> return_cell_centre = cell.GetCellCentre();
-
-        // delete nodes to avoid memory leak
-        for (std::set< Node<3>* >::iterator node_iterator=p_vertices.begin();
-             node_iterator!=p_vertices.end();
-             node_iterator++)
-        {
-            delete *node_iterator;
-        }
-
     }
     
-
-
 };
 
 

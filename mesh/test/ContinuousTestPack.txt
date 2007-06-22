@@ -2,6 +2,7 @@ TestDecimation.hpp
 TestConformingTetrahedralMesh.hpp
 TestHoneycombMeshGenerator.hpp
 TestFemlabMeshReader.hpp
+TestFace.hpp
 TestMemfemMeshReader.hpp
 TestMeshWriters.hpp
 TestTrianglesMeshReader.hpp
@@ -14,4 +15,4 @@ TestTransformations.hpp
 TestRemesh.hpp
 TestCylindrical2dMesh.hpp
 TestVoronoiCell.hpp
-TestVoronoiTessellator.hpp
+TestVoronoiTessellation.hpp
