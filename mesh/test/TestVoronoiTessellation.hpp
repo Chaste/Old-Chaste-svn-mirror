@@ -7,8 +7,6 @@
 #include "VoronoiCell.hpp"
 #include "VoronoiTessellation.hpp"
 #include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
-#include "TrianglesMeshWriter.cpp"
 #include "Exception.hpp"
 
 #include <cmath>
@@ -19,9 +17,13 @@ class TestVoronoiTessellation : public CxxTest::TestSuite
 public:
     void TestReturnPolarAngle() throw (Exception)
     {
-          // Create conforming tetrahedral mesh which is Delaunay
+        // Create conforming tetrahedral mesh which is Delauny
         std::vector<Node<3> *> nodes;
-        nodes.push_back(new Node<3>(0, true, 0.0,0.0,0.0));
+        nodes.push_back(new Node<3>(0, true,  1.0,  1.0,  1.0));
+        nodes.push_back(new Node<3>(1, true, -1.0, -1.0,  1.0));
+        nodes.push_back(new Node<3>(2, true, -1.0,  1.0, -1.0));
+        nodes.push_back(new Node<3>(3, true,  1.0, -1.0, -1.0));
+        nodes.push_back(new Node<3>(4, false, 0.0,0.0,0.0));
                 
         ConformingTetrahedralMesh<3,3> mesh(nodes);
         

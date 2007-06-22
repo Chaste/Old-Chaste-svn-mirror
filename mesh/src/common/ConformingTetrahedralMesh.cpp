@@ -993,10 +993,13 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     assert( ELEMENT_DIM == SPACE_DIM );
     #undef COVERAGE_IGNORE
     
+    // avoid some triangle/tetgen errors:
+    // need at least four nodes for tetgen, and at least three for triangle 
+    assert( GetNumNodes() > SPACE_DIM );
+        
     //Make sure the map is big enough
     map.Resize(GetNumAllNodes());
     
-
     OutputFileHandler handler("");
     out_stream node_file=handler.OpenOutputFile("temp.node");
     
