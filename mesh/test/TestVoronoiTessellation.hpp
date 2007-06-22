@@ -17,6 +17,74 @@
 class TestVoronoiTessellation : public CxxTest::TestSuite
 {
 public:
+    void TestReturnPolarAngle() throw (Exception)
+    {
+          // Create conforming tetrahedral mesh which is Delaunay
+        std::vector<Node<3> *> nodes;
+        nodes.push_back(new Node<3>(0, true, 0.0,0.0,0.0));
+                
+        ConformingTetrahedralMesh<3,3> mesh(nodes);
+        
+        // Create Voronoi Tesselation
+        VoronoiTessellation tessellation(mesh); 
+        
+        // Four cases to test:
+        // x> 0, y>0
+        double angle = tessellation.ReturnPolarAngle(1.0,sqrt(3.0));
+        TS_ASSERT_DELTA(angle, M_PI/3.0, 1e-7);
+        
+        angle = tessellation.ReturnPolarAngle(1.0,-sqrt(3.0));
+        TS_ASSERT_DELTA(angle, -M_PI/3.0, 1e-7);
+        
+        angle = tessellation.ReturnPolarAngle(-1.0,sqrt(3.0));
+        TS_ASSERT_DELTA(angle, 2.0*M_PI/3.0, 1e-7);
+        
+        angle = tessellation.ReturnPolarAngle(-1.0,-sqrt(3.0));
+        TS_ASSERT_DELTA(angle, -2.0*M_PI/3.0, 1e-7);
+    }
+    
+    void TestGenerateVerticesFromElementCircumcentres() throw (Exception)
+    {
+        // Create conforming tetrahedral mesh which is Delauny
+        std::vector<Node<3> *> nodes;
+        nodes.push_back(new Node<3>(0, true,  1.0,  1.0,  1.0));
+        nodes.push_back(new Node<3>(1, true, -1.0, -1.0,  1.0));
+        nodes.push_back(new Node<3>(2, true, -1.0,  1.0, -1.0));
+        nodes.push_back(new Node<3>(3, true,  1.0, -1.0, -1.0));
+        nodes.push_back(new Node<3>(4, false, 0.0,0.0,0.0));
+                
+        ConformingTetrahedralMesh<3,3> mesh(nodes);
+        
+        // Create Voronoi Tesselation
+        VoronoiTessellation tessellation(mesh);
+        
+        tessellation.GenerateVerticesFromElementCircumcentres();
+        
+        c_vector<double,3> this_vertex = *(tessellation.mVertices[0]);
+        
+        TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2], -1.5, 1e-7);
+        
+        this_vertex = *(tessellation.mVertices[1]);
+        
+        TS_ASSERT_DELTA(this_vertex[0], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1], -1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2], 1.5, 1e-7);
+        
+        this_vertex = *(tessellation.mVertices[2]);
+        
+        TS_ASSERT_DELTA(this_vertex[0], -1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1], 1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2], 1.5, 1e-7);
+        
+        this_vertex = *(tessellation.mVertices[3]);
+        
+        TS_ASSERT_DELTA(this_vertex[0], -1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1], -1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2], -1.5, 1e-7);
+    }
+    
     void TestSimpleTessellation() throw (Exception)
     {
         
@@ -30,8 +98,8 @@ public:
         nodes.push_back(new Node<3>(4, false, 0.5,0.5,0.5));
         
         ConformingTetrahedralMesh<3,3> mesh(nodes);
-        TrianglesMeshWriter<3,3> mesh_writer("","Simple_Delaunay_Tet");
-        mesh_writer.WriteFilesUsingMesh(mesh);
+        //TrianglesMeshWriter<3,3> mesh_writer("","Simple_Delaunay_Tet");
+        //mesh_writer.WriteFilesUsingMesh(mesh);
         TS_ASSERT(mesh.CheckVoronoi());
 
         // create expected cell
@@ -81,17 +149,21 @@ public:
         
         // Create Voronoi Tesselation
         VoronoiTessellation tessellation(mesh);
-       
+        
+        // check tesellation is correct
         for (unsigned cell_index=0; cell_index<mesh.GetNumNodes(); cell_index++)
         {
             if ( mesh.GetNode(cell_index)->IsBoundaryNode() )
             {
-                TS_ASSERT(tessellation.GetCell(cell_index).mFaces.size()==0);
+                // for a boundary node we get a null cell
+                TS_ASSERT(tessellation.rGetCell(cell_index).mFaces.size()==0);
             }
             else
             {
+                // only node 4 is a non-boundary node
                 TS_ASSERT_EQUALS(cell_index, 4u);
-                TS_ASSERT_EQUALS(tessellation.GetCell(cell_index), cell);
+                // this gives the expected cell
+                TS_ASSERT_EQUALS(tessellation.rGetCell(cell_index), cell);
             }
         }
     }

@@ -7,75 +7,31 @@
 class Face
 {
 public:
+    /**
+     * The vertices of the face, in clockwise order. Each vertex must be distinct.
+     */
     std::vector< c_vector<double, 3>* > mVertices;
 
 private:    
     const void Increment(std::vector< c_vector<double, 3>* >::iterator& rIterator,
-                   Face& rFace)
-    {
-        rIterator++;
-        if (rIterator==rFace.mVertices.end() )
-        {
-            rIterator=rFace.mVertices.begin();
-        }
-    }
+                         Face& rFace);
 
-public:    
-    bool operator==(Face& otherFace)
-    {
-        std::vector< c_vector<double, 3>* >::iterator this_iterator=mVertices.begin();
-        std::vector< c_vector<double, 3>* >::iterator other_iterator=otherFace.mVertices.begin();
-        // find first vertex
-        while ( this_iterator!=mVertices.end() && 
-                other_iterator!=otherFace.mVertices.end() && 
-                norm_2(**this_iterator - **other_iterator) >1e-10 )
-        {
-            this_iterator++;
-        }
-        if (this_iterator==mVertices.end() || other_iterator==otherFace.mVertices.end())
-        {
-            // could not find first vertex
-            // faces are distinct unless they are empty
-            return this_iterator==mVertices.end() && other_iterator==otherFace.mVertices.end();
-        }
-        
-        std::vector< c_vector<double, 3>* >::iterator this_start=this_iterator;
-        Increment(this_iterator, *this);
-        Increment(other_iterator, otherFace);
-        
-        // check remanining vertices are equal
-        while (this_iterator!=this_start)
-        {
-            if (norm_2(**this_iterator - **other_iterator) >1e-10)
-            {
-                return false;
-            }
-            else
-            {
-                Increment(this_iterator, *this);
-                Increment(other_iterator, otherFace);
-            }
-        }
-        return other_iterator==otherFace.mVertices.begin();
-    }
+public:
+    /**
+     * Compare two faces for equality.
+     * Two faces are the same if their vertices differ only by cyclic permutation.
+     */
+    bool operator==(Face& otherFace);
     
-     bool operator!=(Face& otherFace)
-     {
-        return !(*this==otherFace);
-     }
-     
-     Face operator-()
-     {
-        Face reversed_face;
-        std::vector< c_vector<double, 3>* >::iterator this_iterator=mVertices.end();
-        while (this_iterator !=mVertices.begin())
-        {
-            this_iterator--;
-            reversed_face.mVertices.push_back(*this_iterator);
-        }
-        return reversed_face;
-     }
+    /**
+     * Compare two faces for inequality
+     */
+    bool operator!=(Face& otherFace);
     
+    /**
+     * Return a new face in which the order of the vertices is reversed.
+     */
+    Face operator-();
 };
 
 

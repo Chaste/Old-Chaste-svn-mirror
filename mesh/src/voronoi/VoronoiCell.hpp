@@ -11,56 +11,33 @@
 class VoronoiCell
 {
 public:
-    std::vector< Face* > mFaces; // all faces should be distinct
-    std::vector< bool > mOrientations;
-    
-public:
-    bool EqualFaces(Face& face1, bool orientation1, Face& face2, bool orientation2)
-    {
-        if ( orientation1 == orientation2)
-        {
-            return face1==face2;
-        }
-        else
-        {
-            Face face3=-face2;
-            return face1==face3;
-        }
-    }
 
-    bool operator==(VoronoiCell& otherCell)
-    {
-        if ( mFaces.size() != otherCell.mFaces.size() )
-        {
-            return false;
-        }
-        
-        std::vector< bool > other_faces_matched;
-        
-        std::vector< Face* >::iterator this_face_iterator=mFaces.begin();
-        std::vector< bool >::iterator this_orientation_iterator=mOrientations.begin();
-        
-        while (this_face_iterator!=mFaces.end())
-        {
-            std::vector< Face* >::iterator other_face_iterator=otherCell.mFaces.begin();
-            std::vector< bool >::iterator other_orientation_iterator=otherCell.mOrientations.begin();
-            while ( other_face_iterator != otherCell.mFaces.end()
-                    && !EqualFaces(**this_face_iterator, *this_orientation_iterator,
-                                     **other_face_iterator, *other_orientation_iterator) )
-            {
-                other_face_iterator++;
-                other_orientation_iterator++;
-            }
-            if (other_face_iterator == otherCell.mFaces.end())
-            {
-                return false;
-            }
-            this_face_iterator++;
-            this_orientation_iterator++;
-        }
-        return true;
-    }
+    /***
+     * Faces of the cell, which should be distinct.
+     */
+    std::vector< Face* > mFaces;
     
+    /***
+     * How each face is oriented.
+     * From the perspective of the centre of the cell, the vertices of each face should be ordered clockwise.
+     * If and only if this is false, the order of vertices in the corresponding face should be reversed.
+     * 
+     * N.B. Most faces belong to two cells, but with opposite orientations. This allows us to reuse the face data
+     * across the two cells.
+     */
+    std::vector< bool > mOrientations;
+
+private:
+    bool EqualFaces(Face& face1, bool orientation1, Face& face2, bool orientation2);
+
+public:
+
+    /***
+     * Test whether two cells are equal.
+     * 
+     * Two cells are equal if their set of faces are equal (including whether the faces have the same orientations).
+     */
+    bool operator==(VoronoiCell& otherCell);
 };
 
 #endif /*VORONOICELL_HPP_*/
