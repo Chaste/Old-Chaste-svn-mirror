@@ -1,5 +1,6 @@
 #ifndef TEMPLATEDEXPORT_HPP_
 #define TEMPLATEDEXPORT_HPP_
+#define COVERAGE_IGNORE
 
 /**
  * Defines some macros to register versions of templated classes with the
@@ -32,4 +33,5 @@ template<class T> struct pack<void (T)> {
     EXPORT_TEMPLATE_CLASS1(CLASS, 2) \
     EXPORT_TEMPLATE_CLASS1(CLASS, 3)
 
+#undef COVERAGE_IGNORE
 #endif /*TEMPLATEDEXPORT_HPP_*/

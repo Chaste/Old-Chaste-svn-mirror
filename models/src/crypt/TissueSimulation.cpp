@@ -827,9 +827,13 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
     
     if (p_sim->rGetCrypt().rGetMesh().GetNumNodes()!=p_sim->rGetCrypt().rGetCells().size())
     {
-        std::cerr << "N.Nodes: " << p_sim->rGetCrypt().rGetMesh().GetNumNodes()
-                  << " N.Cells: " << p_sim->rGetCrypt().rGetCells().size() << std::endl;
-        EXCEPTION(" Error in Load: number of nodes is not equal to number of cells.");
+        #define COVERAGE_IGNORE
+        std::stringstream string_stream;
+        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetCrypt().rGetMesh().GetNumNodes()
+                      << ") is not equal to the number of cells (" << p_sim->rGetCrypt().rGetCells().size() 
+                      << ")";
+        EXCEPTION(string_stream.str());
+        #undef COVERAGE_IGNORE
     }
     
     return p_sim;
