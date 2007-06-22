@@ -305,7 +305,30 @@ public:
         TS_ASSERT_EQUALS(map.IsDeleted(5), false);
         TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
     }        
+    
+    void TestReMeshFailsAfterEnoughDeletions() throw (Exception)
+    {
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructRectangularMesh(1,1);
+        NodeMap map(1);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),4u);
+        mesh.ReMesh(map);
+        
+        mesh.DeleteNodePriorToReMesh(3);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),4u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),3u);
 
+        mesh.ReMesh(map);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),3u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),3u);
+
+        mesh.DeleteNodePriorToReMesh(2);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),3u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),2u);
+        
+        TS_ASSERT_THROWS_ANYTHING(mesh.ReMesh(map));        
+    }
 
 };
 

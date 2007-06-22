@@ -995,7 +995,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     
     // avoid some triangle/tetgen errors:
     // need at least four nodes for tetgen, and at least three for triangle 
-    assert( GetNumNodes() > SPACE_DIM );
+    // assert( GetNumNodes() > SPACE_DIM );
         
     //Make sure the map is big enough
     map.Resize(GetNumAllNodes());
@@ -1045,7 +1045,12 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     std::string command   = "./bin/"+ binary_name +" -e "
                             + full_name + "node"
                             + " > /dev/null";
-    system(command.c_str());
+    int return_value = system(command.c_str());
+    
+    if (return_value != 0)
+    {
+        EXCEPTION("The triangle/tetgen mesher did not suceed in remeshing.");
+    } 
     
     // clear all current data
     
