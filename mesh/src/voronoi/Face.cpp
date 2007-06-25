@@ -1,4 +1,5 @@
 #include "Face.hpp"
+#include "Exception.hpp"
 
 const void Face::Increment(std::vector< c_vector<double, 3>* >::iterator& rIterator,
                            Face& rFace)
@@ -7,6 +8,12 @@ const void Face::Increment(std::vector< c_vector<double, 3>* >::iterator& rItera
     if (rIterator==rFace.mVertices.end() )
     {
         rIterator=rFace.mVertices.begin();
+    }
+    
+    //Temporary code to highlight bug
+    if (norm_2(**rIterator)<2e-38)
+    {
+        EXCEPTION("Suspect point near origin - was it initialised?");
     }
 };
 

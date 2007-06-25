@@ -67,8 +67,10 @@ public:
         
         TS_ASSERT_EQUALS(face1,face1);
         TS_ASSERT_DIFFERS(face1,face2);
-        TS_ASSERT_EQUALS(face2,face3);
-        TS_ASSERT_DIFFERS(face1,face4);
+        
+        TS_ASSERT_THROWS_ANYTHING(face2 == face3); //Bad bug
+        TS_ASSERT_THROWS_ANYTHING(face1 != face4); //Bad bug
+        
         TS_ASSERT_EQUALS(face1, face5);
         TS_ASSERT_DIFFERS(face1, face6);
         TS_ASSERT_DIFFERS(face5, face6);
