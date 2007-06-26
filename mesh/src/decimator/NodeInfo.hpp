@@ -22,6 +22,7 @@ protected:
     double mNeighbourhoodVolume;
     double mMeasureBefore;
     unsigned mPossibleTargetIndex;
+    unsigned mPositionInVector;
     NodeInfo<SPACE_DIM> *mpBestNeighbourNode;
     Node<SPACE_DIM> *mpNode;
     std::set<NodeInfo<SPACE_DIM> *> mNeighbourNodes;
@@ -31,9 +32,28 @@ protected:
     std::set<unsigned>::const_iterator mNeighbourElementIterator;
     
 public:
-    NodeInfo(Node<SPACE_DIM> *pNode) : mScore(INFINITY), mpBestNeighbourNode(0),mpNode(pNode)
-{}
+    NodeInfo(Node<SPACE_DIM> *pNode, unsigned position) 
+        : mScore(INFINITY), 
+        mPositionInVector(position),
+        mpBestNeighbourNode(0),
+        mpNode(pNode)
+    {}
 
+    friend bool 
+    operator>(const NodeInfo<SPACE_DIM>& r1, const NodeInfo<SPACE_DIM>& r2)
+    {
+        if (r1.mScore > r2.mScore)
+        {
+             return true;
+        }
+        if (r1.mScore < r2.mScore)
+        {
+            return false;
+        }
+       //Tie-breaker (for repeatability)
+        return (r1.GetIndex() > r2.GetIndex());
+    }    
+    
     unsigned GetPossibleTargetIndex()
     {
         return mPossibleTargetIndex;
@@ -80,37 +100,7 @@ public:
         }
         return current_neighbour;
     }
-    
-    /*
-    void AddToNeighbourElements(unsigned neighbour)
-    {
-        mNeighbourElements.insert(neighbour);
-        mNeighbourElementIterator = mNeighbourElements.begin();
-    }
-    void RemoveFromNeighbourElements(unsigned neighbour)
-    {
-        mNeighbourElements.erase(neighbour);
-        mNeighbourElementIterator = mNeighbourElements.begin();//Perhaps?
-    }
-    
-    const unsigned GetNumNeighbourElements()
-    {
-        return mNeighbourElements.size();
-    }
-    
-    unsigned GetNextNeighbourElement()
-    {
-        unsigned current_neighbour = *mNeighbourElementIterator;
-        mNeighbourElementIterator++;
         
-        if (mNeighbourElementIterator == mNeighbourElements.end())
-        {
-            mNeighbourElementIterator = mNeighbourElements.begin();
-        }
-        return current_neighbour;
-    }
-    */
-    
     unsigned GetIndex() const
     {
         return mpNode->GetIndex();

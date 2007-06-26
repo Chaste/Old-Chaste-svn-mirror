@@ -6,7 +6,7 @@
 #include "NodeInfo.hpp"
 #include "Exception.hpp"
 #include <vector>
-#include <algorithm>
+#include <ext/algorithm>
 
 /*** \todo
 * makeheap efficiency
@@ -222,7 +222,6 @@ protected:
         
         //This is potentially inefficient since we've only changed the odd node here and there
         std::make_heap(mQueue.begin(),mQueue.end(),CompNodeInfo<SPACE_DIM>());
-        
     }
     
     
@@ -312,6 +311,49 @@ protected:
     {
      	return false;
     }
+    
+    void MakeHeap()
+    {
+        for (unsigned i=(mQueue.size())/2; i>0; i--)
+        {
+            Heapify(i);
+        }
+        Heapify(0);
+    }
+    
+    void Heapify(unsigned i)
+    {
+        //Set child to be the left child
+        unsigned size=mQueue.size();
+        unsigned child=(2*i+1)<size?(2*i+1):0;
+        if (child == 0)
+        {
+            return;//There are no children
+        }
+        unsigned right_child=(2*i+2)<size?(2*i+2):0;
+        
+        //Set child to be the minimum of the two children
+        if (right_child != 0)
+        {
+            if (!(*mQueue[right_child] > *mQueue[child]))
+            {
+                child=right_child;
+            }
+        }
+        
+        //Check the heap invariant and fix as necessary
+        if (*mQueue[i] > *mQueue[child])
+        {
+            //swap
+            NodeInfo<SPACE_DIM> *temp=mQueue[i];
+            mQueue[i]=mQueue[child];
+            mQueue[i]->mPositionInVector=i;
+            mQueue[child]=temp;
+            mQueue[child]->mPositionInVector=child;
+            //recurse
+            Heapify(child);
+        }
+    }
 public:
     
     void SetThreshold(double threshold)
@@ -379,7 +421,7 @@ public:
         mQueue.reserve(mpMesh->GetNumAllNodes());
         for (unsigned i=0; i<(unsigned)mpMesh->GetNumAllNodes();i++)
         {
-            NodeInfo<SPACE_DIM> *p_node_info=new NodeInfo<SPACE_DIM>(mpMesh->GetNode(i));
+            NodeInfo<SPACE_DIM> *p_node_info=new NodeInfo<SPACE_DIM>(mpMesh->GetNode(i), i);
             mQueue.push_back(p_node_info);
         }
         for (unsigned i=0; i<(unsigned)mpMesh->GetNumAllNodes();i++)
@@ -394,7 +436,31 @@ public:
         {
             Rescore(mQueue[i]);
         }
-        std::make_heap(mQueue.begin(),mQueue.end(),CompNodeInfo<SPACE_DIM>());
+           
+        //My make heap
+        MakeHeap();
+        //Check things are in the right places
+        for (unsigned i=0; i<mQueue.size();i++)
+        {
+            assert(mQueue[i]->mPositionInVector == i);
+        }
+        /*
+        for (unsigned i=0; i<mQueue.size();i++)
+        {
+            std::cout<<"i "<<i<<"("<<mQueue[i]->mScore<<")\t";
+            if (2*(i+1)-1 < mQueue.size())
+            {
+                std::cout<<"l "<<2*(i+1)-1<<"("<<mQueue[2*(i+1)-1]->mScore<<")\t";
+                assert(mQueue[i]->mScore <= mQueue[2*(i+1)-1]->mScore); //Left child
+            }
+            if (2*(i+1) < mQueue.size())
+            {
+                std::cout<<"r "<<2*(i+1)<<"("<<mQueue[2*(i+1)]->mScore<<")\t";
+                assert(mQueue[i]->mScore <= mQueue[2*(i+1)]->mScore); //Right child
+            }
+            std::cout<<"\n";
+        }*/
+        
     }
     virtual ~Decimator()
     {
