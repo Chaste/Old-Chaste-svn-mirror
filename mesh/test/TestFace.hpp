@@ -12,13 +12,15 @@ public:
     void TestEquality()
     {
         c_vector<double, 3> vertex0;
-        vertex0(0)= -0.25000000000000001;      
+        vertex0(0)= -0.25*(1+DBL_EPSILON);      
         vertex0(1)=-0.2500;
         vertex0(2)=1.2500;
         c_vector<double, 3> vertex1;
         vertex1(0)= -0.2500;      
         vertex1(1)=-0.2500;
         vertex1(2)=1.2500;
+        //Check that there really is a difference 
+        TS_ASSERT_DIFFERS(norm_2(vertex0-vertex1),0.0);
         c_vector<double, 3> vertex2;        
         vertex2(0)=1.2500;
         vertex2(1)=-0.2500;
@@ -32,13 +34,13 @@ public:
         vertex4(1)=1.2500;
         vertex4(2)=1.2500;
         c_vector<double, 3> vertex5;
-        vertex4(0)= 1.0;      
-        vertex4(1)=1.0;
-        vertex4(2)=1.0;
+        vertex5(0)= 1.0;      
+        vertex5(1)=1.0;
+        vertex5(2)=1.0;
         c_vector<double, 3> vertex6;
-        vertex4(0)= 2.0;      
-        vertex4(1)=2.0;
-        vertex4(2)=2.0;
+        vertex6(0)= 2.0;      
+        vertex6(1)=2.0;
+        vertex6(2)=2.0;
         Face face0;
         Face face1;
         face1.mVertices.push_back(&vertex2);
@@ -68,8 +70,8 @@ public:
         TS_ASSERT_EQUALS(face1,face1);
         TS_ASSERT_DIFFERS(face1,face2);
         
-        TS_ASSERT_THROWS_ANYTHING(face2 == face3); //Bad bug
-        TS_ASSERT_THROWS_ANYTHING(face1 != face4); //Bad bug
+        TS_ASSERT_EQUALS(face2, face3);
+        TS_ASSERT_DIFFERS(face1, face4);
         
         TS_ASSERT_EQUALS(face1, face5);
         TS_ASSERT_DIFFERS(face1, face6);
