@@ -30,9 +30,9 @@ public:
         vertex4(1)=1.2500;
         vertex4(2)=1.2500;
         c_vector<double, 3> vertex5;
-        vertex4(0)= 1.0;      
-        vertex4(1)=1.0;
-        vertex4(2)=1.0;
+        vertex5(0)= 1.0;      
+        vertex5(1)=1.0;
+        vertex5(2)=1.0;
         
         Face face1;
         face1.mVertices.push_back(&vertex2);
@@ -95,9 +95,7 @@ public:
         cell1b.mOrientations.push_back(true);
         cell1b.mFaces.push_back(&face4);
         cell1b.mOrientations.push_back(true);
-        TS_ASSERT_THROWS_NOTHING(
-            !(cell1 == cell1b)
-        ); //Bad bug
+        TS_ASSERT_DIFFERS(cell1, cell1b);
         
         // like first cell but face 1 permuted
         VoronoiCell cell1p;
