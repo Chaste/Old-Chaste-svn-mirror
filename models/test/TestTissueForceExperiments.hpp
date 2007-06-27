@@ -48,7 +48,7 @@ public :
         // as expected  
         assert(mrCrypt.rGetMesh().GetNumNodes()==360);
         
-        SetGhostNodes(ghostNodeIndices);
+        mrCrypt.SetGhostNodes(ghostNodeIndices);
         
         // calc max value in the fixed direction.
         unsigned x_or_y = mFixXNotY ? 0 : 1;
@@ -96,11 +96,11 @@ public :
         
         double rest_length = 1.0;
 
-        if(!mIsGhostNode[nodeAGlobalIndex] && mIsGhostNode[nodeBGlobalIndex])
+        if(!mrCrypt.rGetGhostNodes()[nodeAGlobalIndex] && mrCrypt.rGetGhostNodes()[nodeBGlobalIndex])
         {
             rest_length = 2;
         }
-        if(mIsGhostNode[nodeAGlobalIndex] && !mIsGhostNode[nodeBGlobalIndex])
+        if(mrCrypt.rGetGhostNodes()[nodeAGlobalIndex] && !mrCrypt.rGetGhostNodes()[nodeBGlobalIndex])
         {
             rest_length = 2;
         }
@@ -225,8 +225,8 @@ public :
                         unsigned nodeA_global_index = p_element->GetNode(nodeA)->GetIndex();
                         unsigned nodeB_global_index = p_element->GetNode(nodeB)->GetIndex();
                         
-                        if(    mIsGhostNode[nodeA_global_index] 
-                            || mIsGhostNode[nodeB_global_index] )
+                        if(    mrCrypt.rGetGhostNodes()[nodeA_global_index] 
+                            || mrCrypt.rGetGhostNodes()[nodeB_global_index] )
                         {
                             break;
                         }
@@ -265,7 +265,7 @@ public :
                             if(!is_force_already_calculated)
                             {
                                 c_vector<double,2> force = CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),p_element->GetNodeGlobalIndex(nodeB));
-                                if ((!mIsGhostNode[nodeA_global_index]) && (!mIsGhostNode[nodeB_global_index]))
+                                if ((!mrCrypt.rGetGhostNodes()[nodeA_global_index]) && (!mrCrypt.rGetGhostNodes()[nodeB_global_index]))
                                 {
                                     for(unsigned i=0; i<2; i++)
                                     {
@@ -395,7 +395,7 @@ public:
 
             simulator.rGetCrypt().ReMesh();
 
-            std::vector<bool> is_ghost_node = simulator.GetGhostNodes();
+            std::vector<bool> is_ghost_node = crypt.rGetGhostNodes();
             ghost_node_indices.clear();
             for(unsigned j=0; j<is_ghost_node.size(); j++)
             {

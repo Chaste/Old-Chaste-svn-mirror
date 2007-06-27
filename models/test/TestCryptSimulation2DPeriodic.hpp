@@ -20,6 +20,7 @@
 #include "ColumnDataReader.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
+#include "SloughingCellKiller.hpp"
 
 // Possible types of Cell Cycle Model (just for CreateVectorOfCells method)
 typedef enum CellCycleType_
@@ -33,93 +34,6 @@ typedef enum CellCycleType_
 
 class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
 {
-    void CheckAgainstPreviousRun(std::string resultDirectory,std::string resultSet, unsigned maxCells, unsigned maxElements)
-    {
-        std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
-        
-        ColumnDataReader computed_node_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",
-                                                                  "tabulated_node_results",
-                                                                  true);
-                                                                  
-        ColumnDataReader expected_node_results = ColumnDataReader("models/test/data/" + resultDirectory+"Results",
-                                                                  "tabulated_node_results",
-                                                                  false);
-        ColumnDataReader computed_element_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",
-                                                    "tabulated_element_results",
-                                                    true);
-                                                    
-        ColumnDataReader expected_element_results = ColumnDataReader("models/test/data/" + resultDirectory+"Results",
-                                                    "tabulated_element_results",
-                                                    false);
-                                                    
-        for (unsigned cell=0; cell<maxCells; cell++)
-        {
-            std::stringstream cell_type_var_name;
-            std::stringstream cell_x_position_var_name;
-            std::stringstream cell_y_position_var_name;
-            cell_type_var_name << "cell_type_" << cell;
-            cell_x_position_var_name << "cell_x_position_" << cell;
-            cell_y_position_var_name << "cell_y_position_" << cell;
-            
-            // Vector of Cell Types
-            std::vector<double> expected_cell_types = expected_node_results.GetValues(cell_type_var_name.str());
-            std::vector<double> computed_cell_types = computed_node_results.GetValues(cell_type_var_name.str());
-            
-            //Vector of Cell Positions
-            std::vector<double> expected_cell_x_positions = expected_node_results.GetValues(cell_x_position_var_name.str());
-            std::vector<double> computed_cell_x_positions = computed_node_results.GetValues(cell_x_position_var_name.str());
-            
-            std::vector<double> expected_cell_y_positions = expected_node_results.GetValues(cell_y_position_var_name.str());
-            std::vector<double> computed_cell_y_positions = computed_node_results.GetValues(cell_y_position_var_name.str());
-            
-            //Comparing expected and computed vector length
-            TS_ASSERT_EQUALS(expected_cell_types.size(), computed_cell_types.size());
-            TS_ASSERT_EQUALS(expected_cell_x_positions.size(), computed_cell_x_positions.size());
-            TS_ASSERT_EQUALS(expected_cell_y_positions.size(), computed_cell_y_positions.size());
-            
-            //Walkthrough of the expected and computed vectors
-            for (unsigned time_step = 0; time_step < expected_cell_types.size(); time_step++)
-            {
-                TS_ASSERT_EQUALS(expected_cell_types[time_step], computed_cell_types[time_step]);
-                TS_ASSERT_DELTA(expected_cell_x_positions[time_step], computed_cell_x_positions[time_step],1e-6);
-                TS_ASSERT_DELTA(expected_cell_y_positions[time_step], computed_cell_y_positions[time_step],1e-6);
-            }
-        }
-        
-        for (unsigned element=0; element<maxElements; element++)
-        {
-            std::stringstream nodeA_var_name;
-            std::stringstream nodeB_var_name;
-            std::stringstream nodeC_var_name;
-            nodeA_var_name << "nodeA_" << element;
-            nodeB_var_name << "nodeB_" << element;
-            nodeC_var_name << "nodeC_" << element;
-            
-            // Vector of Node A indexes
-            std::vector<double> expected_NodeA_numbers = expected_element_results.GetValues(nodeA_var_name.str());
-            std::vector<double> computed_NodeA_numbers = computed_element_results.GetValues(nodeA_var_name.str());
-            
-            // Vector of Node B indexes
-            std::vector<double> expected_NodeB_numbers = expected_element_results.GetValues(nodeB_var_name.str());
-            std::vector<double> computed_NodeB_numbers = computed_element_results.GetValues(nodeB_var_name.str());
-            
-            // Vector of Node C indexes
-            std::vector<double> expected_NodeC_numbers = expected_element_results.GetValues(nodeC_var_name.str());
-            std::vector<double> computed_NodeC_numbers = computed_element_results.GetValues(nodeC_var_name.str());
-            
-            TS_ASSERT_EQUALS(expected_NodeA_numbers.size(), computed_NodeA_numbers.size());
-            TS_ASSERT_EQUALS(expected_NodeB_numbers.size(), computed_NodeB_numbers.size());
-            TS_ASSERT_EQUALS(expected_NodeC_numbers.size(), computed_NodeC_numbers.size());
-            
-            for (unsigned time_step = 0; time_step < expected_NodeA_numbers.size(); time_step++)
-            {
-                TS_ASSERT_EQUALS(expected_NodeA_numbers[time_step], computed_NodeA_numbers[time_step]);
-                TS_ASSERT_EQUALS(expected_NodeB_numbers[time_step], computed_NodeB_numbers[time_step]);
-                TS_ASSERT_EQUALS(expected_NodeC_numbers[time_step], computed_NodeC_numbers[time_step]);
-            }
-        }
-    }
-    
     void CreateVectorOfCells(std::vector<MeinekeCryptCell>& rCells, 
                              ConformingTetrahedralMesh<2,2>& rMesh, 
                              CellCycleType cycleType, 
@@ -246,8 +160,6 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
 public:
     void Test2DCylindrical() throw (Exception)
     {        
-        std::string output_directory = "Crypt2DCylindrical";
-        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 5.0;
@@ -269,7 +181,6 @@ public:
 
         TissueSimulation<2> simulator(crypt);
         
-        // Set length of simulation and other options here.
         simulator.SetEndTime(0.1);
         TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(10));
         simulator.SetMaxCells(500);
@@ -280,7 +191,7 @@ public:
         simulator.SetDt(1.0/120.0);
         simulator.SetReMeshRule(true);
         simulator.SetNoBirth(false);
-        simulator.SetOutputDirectory(output_directory);
+        simulator.SetOutputDirectory("Crypt2DCylindrical");
         
         simulator.Solve();
 
@@ -405,7 +316,7 @@ public:
     
 
     // Testing Load (based on previous two tests)
-    void TestLoad() throw (Exception) // crypt::archive needs fixed
+    void TestLoad() throw (Exception) 
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -442,7 +353,6 @@ public:
         delete p_simulator;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
-        
     }
     
     
@@ -495,7 +405,7 @@ public:
 
     
     // This is strange test -- all cells divide within a quick time, it gives
-    // good testing of the periodic boundaries though...
+    // good testing of the periodic boundaries though... [comment no longer valid?]
     void TestWithTysonNovakCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -520,7 +430,11 @@ public:
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
-        TissueSimulation<2> simulator(crypt);
+        TissueSimulation<2> simulator(crypt);        
+        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&crypt);
+        simulator.AddCellKiller(p_cell_killer);
+        
+        simulator.SetNoSloughing();
         
         simulator.SetOutputDirectory("Crypt2DPeriodicTysonNovak");
         simulator.SetEndTime(0.05);
@@ -607,17 +521,17 @@ public:
          ************************************************************************
          ************************************************************************ 
          */
-        unsigned cells_across2 = 7;
-        unsigned cells_up2 = 5;
-        unsigned thickness_of_ghost_layer2 = 3;
+        unsigned cells_across = 7;
+        unsigned cells_up = 5;
+        unsigned thickness_of_ghost_layer = 3;
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        HoneycombMeshGenerator generator(cells_across2, cells_up2, thickness_of_ghost_layer2,false);
-        ConformingTetrahedralMesh<2,2>* p_mesh2=generator.GetMesh();
-        std::set<unsigned> ghost_node_indices2 = generator.GetGhostNodeIndices();
-        unsigned num_cells2 = p_mesh2->GetNumAllNodes();
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer,false);
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        unsigned num_cells = p_mesh->GetNumAllNodes();
         
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator::Instance();
@@ -625,13 +539,13 @@ public:
 
         
         // Set up cells by iterating through the mesh nodes
-        std::vector<MeinekeCryptCell> cells2;
-        for (unsigned i=0; i<num_cells2; i++)
+        std::vector<MeinekeCryptCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
         {
             double birth_time;
             CryptCellType cell_type;
             unsigned generation;
-            double y = p_mesh2->GetNode(i)->GetPoint().rGetLocation()[1];
+            double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
             if (y == 0.0)
             {
                 cell_type = STEM;
@@ -679,33 +593,33 @@ public:
             MeinekeCryptCell cell(cell_type, mutation_state, generation, new WntCellCycleModel(wnt,0));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
-            cells2.push_back(cell);
+            cells.push_back(cell);
         }
         
-        Crypt<2> crypt(*p_mesh2, cells2);
-        crypt.SetGhostNodes(ghost_node_indices2);
+        Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator3(crypt);
+        TissueSimulation<2> simulator(crypt);
         
-        simulator3.SetMaxCells(400);
-        simulator3.SetMaxElements(400);
+        simulator.SetMaxCells(400);
+        simulator.SetMaxElements(400);
 
-        /*
-         ************************************************************************
-         ************************************************************************ 
-         *  Test Calculate Velocities on each node
-         ************************************************************************
-         ************************************************************************ 
-         */
+       /*
+        ************************************************************************
+        ************************************************************************ 
+        *  Test Calculate Velocities on each node
+        ************************************************************************
+        ************************************************************************ 
+        */
                 
-        std::vector<c_vector<double, 2> > velocities_on_each_node(p_mesh2->GetNumAllNodes());
+        std::vector<c_vector<double, 2> > velocities_on_each_node(p_mesh->GetNumAllNodes());
         
-        velocities_on_each_node = simulator3.CalculateVelocitiesOfEachNode();
+        velocities_on_each_node = simulator.CalculateVelocitiesOfEachNode();
  
-        for (unsigned i=0; i<p_mesh2->GetNumAllNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
-            std::set<unsigned>::iterator iter = ghost_node_indices2.find(i);
-            bool is_a_ghost_node = (iter!=ghost_node_indices2.end());
+            std::set<unsigned>::iterator iter = ghost_node_indices.find(i);
+            bool is_a_ghost_node = (iter!=ghost_node_indices.end());
 
             if (!is_a_ghost_node)
             {
@@ -715,12 +629,14 @@ public:
         }
         
         // Move a node along the x-axis and calculate the force exerted on a neighbour
-        c_vector<double,2> old_point = p_mesh2->GetNode(59)->rGetLocation();
+        c_vector<double,2> old_point = p_mesh->GetNode(59)->rGetLocation();
         Point<2> new_point;
         new_point.rGetLocation()[0] = old_point[0]+0.5;
         new_point.rGetLocation()[1] = old_point[1];
-        p_mesh2->SetNode(59, new_point, false);
-        velocities_on_each_node = simulator3.CalculateVelocitiesOfEachNode();
+  
+        p_mesh->SetNode(59, new_point, false);
+        velocities_on_each_node = simulator.CalculateVelocitiesOfEachNode();
+        
         TS_ASSERT_DELTA(velocities_on_each_node[60][0], 0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantMutant(), 1e-4);
         TS_ASSERT_DELTA(velocities_on_each_node[60][1], 0.0, 1e-4);
 
@@ -729,13 +645,15 @@ public:
 
         TS_ASSERT_DELTA(velocities_on_each_node[58][0], 0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal(), 1e-4);
         TS_ASSERT_DELTA(velocities_on_each_node[58][1], 0.0, 1e-4);
-        /*
-         ************************************************************************
-         ************************************************************************ 
-         *  Test Calculate force on a spring
-         ************************************************************************
-         ************************************************************************ 
-         */
+        
+        
+       /*
+        ************************************************************************
+        ************************************************************************ 
+        *  Test Calculate force on a spring
+        ************************************************************************
+        ************************************************************************ 
+        */
         
         c_vector<double,2> force_on_spring ; // between nodes 59 and 60
         
@@ -744,44 +662,41 @@ public:
         new_point2.rGetLocation()[0] = new_point[0] + 0.01;
         new_point2.rGetLocation()[1] = new_point[1] + 0.01 ;
         
-        unsigned elem_index = p_mesh2->GetContainingElementIndex(new_point2,false);
-        Element<2,2>* p_element = p_mesh2->GetElement(elem_index);
+        unsigned elem_index = p_mesh->GetContainingElementIndex(new_point2,false);
+        Element<2,2>* p_element = p_mesh->GetElement(elem_index);
         
-        force_on_spring = simulator3.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
+        force_on_spring = simulator.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
         
         TS_ASSERT_DELTA(force_on_spring[0], 0.5*p_params->GetSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
         
         
-        /*
-         ************************************************************************
-         ************************************************************************ 
-         *  Test UpdateNodePositions
-         ************************************************************************
-         ************************************************************************ 
-         */
+       /*
+        ************************************************************************
+        ************************************************************************ 
+        *  Test UpdateNodePositions
+        ************************************************************************
+        ************************************************************************ 
+        */
         
-        Point<2> point_of_node60 = p_mesh2->GetNode(60)->rGetLocation();
+        Point<2> point_of_node60 = p_mesh->GetNode(60)->rGetLocation();
         
-        simulator3.SetDt(0.01);
-        simulator3.UpdateNodePositions(velocities_on_each_node);
+        simulator.SetDt(0.01);
+        simulator.UpdateNodePositions(velocities_on_each_node);
         
-        TS_ASSERT_DELTA(p_mesh2->GetNode(60)->rGetLocation()[0],point_of_node60.rGetLocation()[0]+force_on_spring[0]/p_params->GetDampingConstantMutant() *0.01, 1e-4);
-        TS_ASSERT_DELTA(p_mesh2->GetNode(60)->rGetLocation()[1],point_of_node60.rGetLocation()[1], 1e-4);
+        TS_ASSERT_DELTA(p_mesh->GetNode(60)->rGetLocation()[0],point_of_node60.rGetLocation()[0]+force_on_spring[0]/p_params->GetDampingConstantMutant() *0.01, 1e-4);
+        TS_ASSERT_DELTA(p_mesh->GetNode(60)->rGetLocation()[1],point_of_node60.rGetLocation()[1], 1e-4);
         
-        /*
-         ************************************************************************
-         ************************************************************************ 
-         * Test UpdateCellTypes 
-         ************************************************************************
-         ************************************************************************ 
-         */
+       /*
+        ************************************************************************
+        ************************************************************************ 
+        * Test UpdateCellTypes 
+        ************************************************************************
+        ************************************************************************ 
+        */
+        simulator.SetWntGradient(LINEAR);
+        simulator.UpdateCellTypes();
         
-        std::vector<MeinekeCryptCell> cells3;
-        simulator3.SetWntGradient(LINEAR);
-        simulator3.UpdateCellTypes();
-        
-        std::vector<bool> is_node_a_ghost = crypt.rGetGhostNodes();
         
         for (Crypt<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
