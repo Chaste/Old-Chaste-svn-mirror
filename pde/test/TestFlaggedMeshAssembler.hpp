@@ -475,11 +475,11 @@ public :
                 {
                     bool is_flagged = false;
                     Node<2>* p_node = fine_mesh.GetNode(fine_node_index);
-                    unsigned num_containing_elts = p_node->GetNumContainingElements();
-                    for (unsigned i=0; i<num_containing_elts; i++)
+                    for (Node<2>::ContainingElementIterator it = p_node->ContainingElementsBegin();
+                         it != p_node->ContainingElementsEnd();
+                         ++it)
                     {
-                        unsigned ele_index = p_node->GetNextContainingElementIndex();
-                        if (fine_mesh.GetElement(ele_index)->IsFlagged())
+                        if (fine_mesh.GetElement(*it)->IsFlagged())
                         {
                             is_flagged = true;
                             break;

@@ -10,12 +10,12 @@
 #include "TrianglesMeshWriter.cpp"
 #include "RandomNumberGenerator.hpp"
 #include <cmath>
-
 #include <vector>
 
 class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 {
 private:
+
     template<unsigned DIM>
     void EdgeIteratorTest(std::string meshFilename) throw(Exception)
     {
@@ -73,17 +73,15 @@ private:
             }
         }
         
-        
         TS_ASSERT_EQUALS(edges_visited, expected_node_pairs);       
     }
+    
 public:
 
     void TestMeshConstructionFromMeshReader(void)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        
         ConformingTetrahedralMesh<2,2> mesh;
-        
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Check we have the right number of nodes & elements
@@ -102,15 +100,11 @@ public:
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144U);
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310U);
         TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
-        
     }
     
     void Test3dLinearMeshConstructionFromMeshReader(void)
     {
-    
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        
-        //const int DIM = pMeshReader->GetDimension();
         ConformingTetrahedralMesh<3,3> mesh;
         
         try
@@ -134,7 +128,6 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[0], 0.75, 1e-6);
         TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[1], 0.25, 1e-6);
         TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[2], 0.0, 1e-6);
-        
     }
     
     void TestMeshWithBoundaryElements(void)
@@ -161,7 +154,6 @@ public:
     
     void TestRescaleMeshFromBoundaryNode(void)
     {
-        // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -177,7 +169,6 @@ public:
     void Test1DClosedMeshIn2DSpace()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/circle_outline");
-        ;
         ConformingTetrahedralMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -192,7 +183,6 @@ public:
     void Test1DMeshIn2DSpace()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
-        ;
         ConformingTetrahedralMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -225,100 +215,98 @@ public:
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 312U);
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 522U);
         
-        
-        ///Check that the mesh_reader has the unculled "faces" (which are edges)
+        // Check that the mesh_reader has the unculled "faces" (which are edges)
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 833U);
-        //These are the 100 edges around the perimeter of the circle
+        // These are the 100 edges around the perimeter of the circle
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 100U);
     }
-    
     
     void Test1DMeshCrossReference()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
-        
         ConformingTetrahedralMesh<1,1> mesh;
-        
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Node<1> *p_node=mesh.GetNode(0);
+        Node<1>* p_node = mesh.GetNode(0);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 1u);
         TS_ASSERT_EQUALS(p_node->GetNumBoundaryElements(), 1u);
-        unsigned boundary_element_index= p_node->GetNextBoundaryElementIndex();
-        TS_ASSERT_EQUALS(boundary_element_index, 0u);
-        unsigned element_index= p_node->GetNextContainingElementIndex();
-        TS_ASSERT_EQUALS(element_index, 0u);
+        Node<1>::ContainingElementIterator elt_iter = p_node->ContainingElementsBegin();
+        Node<1>::ContainingBoundaryElementIterator b_elt_iter = p_node->ContainingBoundaryElementsBegin();
+        TS_ASSERT_EQUALS(*elt_iter, 0u);
+        TS_ASSERT_EQUALS(*b_elt_iter, 0u);
         
-        Element<1,1> * p_element = mesh.GetElement(element_index);
+        Element<1,1>* p_element = mesh.GetElement(*elt_iter);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1U);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-6);
         
-        Node<1> *p_node2=mesh.GetNode(1);
+        Node<1>* p_node2 = mesh.GetNode(1);
         TS_ASSERT_EQUALS(p_node2->GetNumContainingElements(), 2u);
         TS_ASSERT_EQUALS(p_node2->GetNumBoundaryElements(), 0u);
         
-        p_element = mesh.GetElement(p_node2->GetNextContainingElementIndex());
+        elt_iter = p_node2->ContainingElementsBegin();
+        p_element = mesh.GetElement(*elt_iter);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1U);
         
-        p_element =mesh.GetElement(p_node2->GetNextContainingElementIndex());
+        p_element = mesh.GetElement(*(++elt_iter));
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),1U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),2U);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-6);
         
-        // This should wrap back to 1st element
-        p_element = mesh.GetElement(p_node2->GetNextContainingElementIndex());
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0U);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1U);
+        // There should be no more containing elements
+        TS_ASSERT_EQUALS(++elt_iter, p_node2->ContainingElementsEnd());
     }
+    
     void Test2DMeshCrossReference()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        
         ConformingTetrahedralMesh<2,2> mesh;
-        
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Node<2> *p_node=mesh.GetNode(234);
+        Node<2> *p_node = mesh.GetNode(234);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 5u);
         TS_ASSERT_EQUALS(p_node->GetNumBoundaryElements(), 0u);
+        
+        Node<2>::ContainingElementIterator elt_iter = p_node->ContainingElementsBegin();
         Element<2,2> *p_element;
         
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        p_element = mesh.GetElement(*elt_iter);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),474U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),290U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234U);
         
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        p_element = mesh.GetElement(*(++elt_iter));
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),234U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),461U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),460U);
         
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        p_element = mesh.GetElement(*(++elt_iter));
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),290U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),459U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234U);
         
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        p_element = mesh.GetElement(*(++elt_iter));
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),459U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),461U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234U);
         
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        p_element = mesh.GetElement(*(++elt_iter));
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),460U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),474U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234U);
         
-        //Now look at a boundary node
-        p_node=mesh.GetNode(99);
+        // Now look at a boundary node
+        p_node = mesh.GetNode(99);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 3u);
         TS_ASSERT_EQUALS(p_node->GetNumBoundaryElements(), 2u);
-        const BoundaryElement<1,2> *p_boundary_element;
-        p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
+        const BoundaryElement<1,2>* p_boundary_element;
+        Node<2>::ContainingBoundaryElementIterator b_elt_iter = p_node->ContainingBoundaryElementsBegin();
+        
+        p_boundary_element = mesh.GetBoundaryElement(*b_elt_iter);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),98U);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),99U);
-        p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
+        p_boundary_element = mesh.GetBoundaryElement(*(++b_elt_iter));
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),99U);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),0U);
     }
@@ -326,71 +314,54 @@ public:
     void Test3DMeshCrossReference()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        
         ConformingTetrahedralMesh<3,3> mesh;
-        
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        
-        Node<3> *p_node=mesh.GetNode(34);
-        
+        Node<3>* p_node = mesh.GetNode(34);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 10u);
-        Element<3,3> *p_element;
         
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        Element<3,3>* p_element;
+        Node<3>::ContainingElementIterator elt_iter = p_node->ContainingElementsBegin();
+        
+        p_element = mesh.GetElement(*elt_iter);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),22U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),34U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),33U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3),10U);
         
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        p_element = mesh.GetElement(*(++elt_iter));
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),22U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),35U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),33U);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3),34U);
         
-        for (int i=0; i<9; i++)
-        {
-            p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
-        }
-        
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),22U);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),34U);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),33U);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3),10U);
-        
         //Now look at a boundary node
         TS_ASSERT_EQUALS(p_node->GetNumBoundaryElements(), 4u);
         const BoundaryElement<2,3> *p_boundary_element;
-        p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
+        Node<3>::ContainingBoundaryElementIterator b_elt_iter = p_node->ContainingBoundaryElementsBegin();
+        p_boundary_element = mesh.GetBoundaryElement(*b_elt_iter);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),6U);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),34U);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2),24U);
-        p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
+        p_boundary_element = mesh.GetBoundaryElement(*(++b_elt_iter));
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),6U);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),30U);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2),34U);
-        p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
+        p_boundary_element = mesh.GetBoundaryElement(*(++b_elt_iter));
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),24U);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),34U);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2),10U);
-        p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
+        p_boundary_element = mesh.GetBoundaryElement(*(++b_elt_iter));
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),34U);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),30U);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2),10U);
-        
-        
-        
     }
     
     void Test1DSetPoint()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
-        
         ConformingTetrahedralMesh<1,1> mesh;
-        
         mesh.ConstructFromMeshReader(mesh_reader);
-        
         
         const int node_index=3;
         Node<1> *p_node=mesh.GetNode(node_index);
@@ -399,28 +370,29 @@ public:
         TS_ASSERT_DELTA(point[0],0.3,1e-6);
         
         Element<1,1> *p_element;
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        Node<1>::ContainingElementIterator elt_iter = p_node->ContainingElementsBegin();
+        p_element = mesh.GetElement(*elt_iter);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-6);
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        p_element = mesh.GetElement(*++elt_iter);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-6);
-        
         
         // Move node 3 from 0.3 (between node 2 at 0.2 and node 4 at 0.4
         point.SetCoordinate(0,0.25);
         mesh.SetNode(node_index, point);
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        elt_iter = p_node->ContainingElementsBegin();
+        p_element = mesh.GetElement(*elt_iter);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.05, 1e-6);
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        p_element = mesh.GetElement(*++elt_iter);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.15, 1e-6);
         
         // Move node 3 from 0.3 (between node 2 at 0.2 and node 4 at 0.4
         point.SetCoordinate(0,0.201);
         mesh.SetNode(node_index, point);
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        elt_iter = p_node->ContainingElementsBegin();
+        p_element = mesh.GetElement(*elt_iter);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.001, 1e-6);
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        p_element = mesh.GetElement(*++elt_iter);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.199, 1e-6);
-        
         
         // Move node 3 so that one element is empty
         point.SetCoordinate(0,0.200);
@@ -433,29 +405,26 @@ public:
         //Move node 3 back (and recover)
         point.SetCoordinate(0,0.3);
         mesh.SetNode(node_index, point);
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        elt_iter = p_node->ContainingElementsBegin();
+        p_element = mesh.GetElement(*elt_iter);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-6);
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        p_element = mesh.GetElement(*++elt_iter);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-6);
-        
     }
-    
     
     void Test2DSetPoint()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        
         ConformingTetrahedralMesh<2,2> mesh;
-        
         mesh.ConstructFromMeshReader(mesh_reader);
-        
         
         const int node_index=234;
         const int boundary_node_index=99;
         Node<2> *p_node=mesh.GetNode(node_index);
         //Just focus on one element
         Element<2,2> *p_element;
-        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        Node<2>::ContainingElementIterator elt_iter = p_node->ContainingElementsBegin();
+        p_element = mesh.GetElement(*elt_iter);
         
         Point<2> point=p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], 0.063497248392600097, 1e-6);
@@ -472,7 +441,6 @@ public:
         mesh.SetNode(node_index, point);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.00340215, 1e-6);
         
-        
         //Nudge
         point.SetCoordinate(0,-0.006);
         mesh.SetNode(node_index, point);
@@ -481,7 +449,6 @@ public:
         //Nudge too far
         point.SetCoordinate(0,-0.0065);
         TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, point));
-        
         
         //Put it back
         point.SetCoordinate(0,0.063497248392600097);
@@ -494,8 +461,8 @@ public:
         TS_ASSERT_DELTA(boundary_point[0], 0.99211470130000001, 1e-6);
         TS_ASSERT_DELTA(boundary_point[1], -0.12533323360000001, 1e-6);
         
-        const BoundaryElement<1,2> *p_boundary_element;
-        p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
+        Node<2>::ContainingBoundaryElementIterator b_elt_iter = p_node->ContainingBoundaryElementsBegin();
+        const BoundaryElement<1,2>* p_boundary_element = mesh.GetBoundaryElement(*b_elt_iter);
         TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 0.0628215, 1e-6);
         boundary_point.SetCoordinate(0, 1.0);
         mesh.SetNode(boundary_node_index, boundary_point);
@@ -513,8 +480,8 @@ public:
         const int interior_node_index=34;
         Node<3> *p_node=mesh.GetNode(interior_node_index);
         //Just focus on one element
-        Element<3,3> *p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
-        BoundaryElement<2,3> *p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
+        Element<3,3> *p_element = mesh.GetElement(*p_node->ContainingElementsBegin());
+        BoundaryElement<2,3> *p_boundary_element = mesh.GetBoundaryElement(*p_node->ContainingBoundaryElementsBegin());
         
         Point<3> point=p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], 1, 1e-6);
@@ -573,17 +540,14 @@ public:
     void Test1DMeshIn2DSetPoint()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
-        
         ConformingTetrahedralMesh<1,2> mesh;
-        
         mesh.ConstructFromMeshReader(mesh_reader);
-        
         
         const int boundary_node_index=50;
         Node<2> *p_node=mesh.GetNode(boundary_node_index);
         //Just focus on one element
-        Element<1,2> *p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
-        BoundaryElement<0,2> *p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
+        Element<1,2> *p_element = mesh.GetElement(*p_node->ContainingElementsBegin());
+        BoundaryElement<0,2> *p_boundary_element = mesh.GetBoundaryElement(*p_node->ContainingBoundaryElementsBegin());
         
         Point<2> point=p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], -1.0, 1e-6);
@@ -614,17 +578,14 @@ public:
     void Test2DMeshIn3DSetPoint()
     {
         TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
-        
         ConformingTetrahedralMesh<2,3> mesh;
-        
         mesh.ConstructFromMeshReader(mesh_reader);
-        
         
         const int boundary_node_index=99;
         Node<3> *p_node=mesh.GetNode(boundary_node_index);
         //Just focus on one element
-        Element<2,3> *p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
-        BoundaryElement<1,3> *p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
+        Element<2,3> *p_element = mesh.GetElement(*p_node->ContainingElementsBegin());
+        BoundaryElement<1,3> *p_boundary_element = mesh.GetBoundaryElement(*p_node->ContainingBoundaryElementsBegin());
         
         Point<3> point=p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], 0.99211470130000001, 1e-6);
@@ -651,7 +612,6 @@ public:
         mesh.SetNode(boundary_node_index, point);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.0164274, 1e-6);
         TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 0.0636124, 1e-6);
-        
         
         //Put it back
         point.SetCoordinate(2,0.0);
@@ -703,8 +663,6 @@ public:
         Node<1> *p_new_rhs_node = mesh.GetNode(9);
         TS_ASSERT(p_new_rhs_node->IsBoundaryNode());
         TS_ASSERT_EQUALS(p_new_rhs_node->GetNumContainingElements(), 1u);
-        
-        
         
         // Only allowed to remove boundary nodes
         TS_ASSERT_THROWS_ANYTHING(mesh.DeleteBoundaryNodeAt(5));

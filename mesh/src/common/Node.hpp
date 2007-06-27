@@ -214,37 +214,6 @@ public:
     }
     
     /**
-     * Deprecated iteration method; use the ContainingBoundaryElementIterator instead.
-     */
-    unsigned GetNextBoundaryElementIndex()
-    {
-        unsigned current_boundary_element = *mBoundaryElementIterator;
-        ++mBoundaryElementIterator;
-        
-        if (!(mBoundaryElementIterator != ContainingBoundaryElementsEnd()))
-        {
-            mBoundaryElementIterator = ContainingBoundaryElementsBegin();
-        }
-        return current_boundary_element;
-    }
-    
-    /**
-     * Deprecated iteration method; use the ContainingElementIterator instead.
-     */
-    unsigned GetNextContainingElementIndex()
-    {
-        unsigned current_containing_element = *mElementIterator;
-        ++mElementIterator;
-        
-        if (!(mElementIterator != ContainingElementsEnd()))
-        {
-            mElementIterator = ContainingElementsBegin();
-        }
-        return current_containing_element;
-    }
-    
-    
-    /**
      * Mark a node as having been removed from the mesh
      */
     void MarkAsDeleted()
@@ -302,6 +271,10 @@ public:
         {
             return mIndexIterator != other.mIndexIterator;
         }
+        bool operator==(const ContainingElementIterator& other) const
+        {
+            return !operator!=(other);
+        }
         
         ContainingElementIterator& operator++()
         {
@@ -346,6 +319,10 @@ public:
         bool operator!=(const ContainingBoundaryElementIterator& other) const
         {
             return mIndexIterator != other.mIndexIterator;
+        }
+        bool operator==(const ContainingBoundaryElementIterator& other) const
+        {
+            return !operator!=(other);
         }
         
         ContainingBoundaryElementIterator& operator++()
