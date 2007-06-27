@@ -21,12 +21,19 @@ private:
     
     // Set of indices of elements containing this node as a vertex
     std::set<unsigned> mElementIndices;
-    std::set<unsigned>::const_iterator mElementIterator;
     std::set<unsigned> mBoundaryElementIndices;
-    std::set<unsigned>::const_iterator mBoundaryElementIterator;
 
-    Node()
-    {}
+    /**
+     * Extraction of commonality between the constructors
+     */
+    void CommonConstructor(unsigned index, bool isBoundaryNode)
+    {
+        mIndex = index;
+        mIsBoundaryNode = isBoundaryNode;
+        mIsDeleted = false;
+        mElementIterator = ContainingElementsBegin();
+        mBoundaryElementIterator = ContainingBoundaryElementsBegin();
+    }
 
 public:
     ~Node()
@@ -36,28 +43,22 @@ public:
     Node(unsigned index, Point<SPACE_DIM> point, bool isBoundaryNode=false)
     {
         mLocation = point.rGetLocation();
-        mIndex = index;
-        mIsBoundaryNode = isBoundaryNode;
-        mIsDeleted = false;
+        CommonConstructor(index, isBoundaryNode);
     }
     
     Node(unsigned index, std::vector<double> coords, bool isBoundaryNode=false)
     {
-        mIndex = index;
         for (unsigned i=0; i<SPACE_DIM; i++)
         {
             mLocation(i) = coords.at(i);
         }
-        mIsBoundaryNode = isBoundaryNode;
-        mIsDeleted = false;
+        CommonConstructor(index, isBoundaryNode);
     }
     
     Node(unsigned index, c_vector<double, SPACE_DIM> location, bool isBoundaryNode=false)
     {
         mLocation = location;
-        mIndex = index;
-        mIsBoundaryNode = isBoundaryNode;
-        mIsDeleted = false;
+        CommonConstructor(index, isBoundaryNode);
     }
     
     Node(unsigned index, bool isBoundaryNode=false, double v1=0, double v2=0, double v3=0)
@@ -71,9 +72,7 @@ public:
                 mLocation[2] = v3;
             }
         }
-        mIndex = index;
-        mIsBoundaryNode = isBoundaryNode;
-        mIsDeleted = false;
+        CommonConstructor(index, isBoundaryNode);
     }
     
     /**
@@ -214,26 +213,32 @@ public:
         return mBoundaryElementIndices.size();
     }
     
+    /**
+     * Deprecated iteration method; use the ContainingBoundaryElementIterator instead.
+     */
     unsigned GetNextBoundaryElementIndex()
     {
         unsigned current_boundary_element = *mBoundaryElementIterator;
-        mBoundaryElementIterator++;
+        ++mBoundaryElementIterator;
         
-        if (mBoundaryElementIterator == mBoundaryElementIndices.end())
+        if (!(mBoundaryElementIterator != ContainingBoundaryElementsEnd()))
         {
-            mBoundaryElementIterator = mBoundaryElementIndices.begin();
+            mBoundaryElementIterator = ContainingBoundaryElementsBegin();
         }
         return current_boundary_element;
     }
     
+    /**
+     * Deprecated iteration method; use the ContainingElementIterator instead.
+     */
     unsigned GetNextContainingElementIndex()
     {
         unsigned current_containing_element = *mElementIterator;
-        mElementIterator++;
+        ++mElementIterator;
         
-        if (mElementIterator == mElementIndices.end())
+        if (!(mElementIterator != ContainingElementsEnd()))
         {
-            mElementIterator = mElementIndices.begin();
+            mElementIterator = ContainingElementsBegin();
         }
         return current_containing_element;
     }
@@ -270,6 +275,101 @@ public:
         }
         return in_flagged_element;
     }
+    
+    /**
+     * An iterator over the indices of elements which contain this node.
+     */
+    class ContainingElementIterator
+    {
+    public:
+        ContainingElementIterator(std::set<unsigned>::const_iterator indexIterator)
+            : mIndexIterator(indexIterator)
+        {}
+        
+        /**
+         * A default constructor allows users to declare an iterator without assigning to it
+         */
+        ContainingElementIterator()
+        {}
+        
+        const unsigned& operator*() const
+        {
+            return *mIndexIterator;
+        }
+        
+        bool operator!=(const ContainingElementIterator& other) const
+        {
+            return mIndexIterator != other.mIndexIterator;
+        }
+        
+        ContainingElementIterator& operator++()
+        {
+            ++mIndexIterator;
+            return *this;
+        }
+    private:
+        std::set<unsigned>::const_iterator mIndexIterator;
+    };
+    
+    ContainingElementIterator ContainingElementsBegin() const
+    {
+        return ContainingElementIterator(mElementIndices.begin());
+    }
+    
+    ContainingElementIterator ContainingElementsEnd() const
+    {
+        return ContainingElementIterator(mElementIndices.end());
+    }
+    
+    /**
+     * An iterator over the indices of boundary elements which contain this node.
+     */
+    class ContainingBoundaryElementIterator
+    {
+    public:
+        ContainingBoundaryElementIterator(std::set<unsigned>::const_iterator indexIterator)
+            : mIndexIterator(indexIterator)
+        {}
+        
+        /**
+         * A default constructor allows users to declare an iterator without assigning to it
+         */
+        ContainingBoundaryElementIterator()
+        {}
+        
+        const unsigned& operator*() const
+        {
+            return *mIndexIterator;
+        }
+        
+        bool operator!=(const ContainingBoundaryElementIterator& other) const
+        {
+            return mIndexIterator != other.mIndexIterator;
+        }
+        
+        ContainingBoundaryElementIterator& operator++()
+        {
+            ++mIndexIterator;
+            return *this;
+        }
+    private:
+        std::set<unsigned>::const_iterator mIndexIterator;
+    };
+    
+    ContainingBoundaryElementIterator ContainingBoundaryElementsBegin() const
+    {
+        return ContainingBoundaryElementIterator(mBoundaryElementIndices.begin());
+    }
+    
+    ContainingBoundaryElementIterator ContainingBoundaryElementsEnd() const
+    {
+        return ContainingBoundaryElementIterator(mBoundaryElementIndices.end());
+    }
+
+private:
+    typename Node<SPACE_DIM>::ContainingElementIterator mElementIterator;
+    typename Node<SPACE_DIM>::ContainingBoundaryElementIterator mBoundaryElementIterator;
+
 };
 
 
