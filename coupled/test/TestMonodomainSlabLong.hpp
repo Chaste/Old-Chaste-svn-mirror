@@ -26,11 +26,11 @@ public:
         return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
     }
     
-    void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, int lo, int hi)
+    void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, unsigned lo, unsigned hi)
     {
-        int stimulated_cells[] = { 0, 1, 11, 121 };
+        unsigned stimulated_cells[] = { 0, 1, 11, 121 };
         
-        for (int i=0; i<4; i++)
+        for (unsigned i=0; i<4; i++)
         {
             if ((stimulated_cells[i]>=lo) && (stimulated_cells[i]<hi))
             {

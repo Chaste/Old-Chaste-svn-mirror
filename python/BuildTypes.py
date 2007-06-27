@@ -598,9 +598,9 @@ class Intel(BuildType):
   def __init__(self, *args, **kwargs):
     BuildType.__init__(self, *args, **kwargs)
     self._compiler_type = 'intel'
-    # Turn off some warnings
+    # Turn off some warnings, and report warnings as errors
     #self._cc_flags = '-wr470 -wr186 -pc64' #Emulates a 64-bit (not 80-bit) FPU
-    self._cc_flags = '-wr470 -wr186'
+    self._cc_flags = '-wr470 -wr186 -Werror'
     self._link_flags = '-static-libcxa'
     self.build_dir = 'intel'
     # Intel compiler uses optimisation by default
