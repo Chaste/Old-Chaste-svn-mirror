@@ -263,9 +263,9 @@ void LinearSystem::ZeroLinearSystem()
     ZeroLhsMatrix();
 }
 
-Vec LinearSystem::Solve(AbstractLinearSolver *solver)
+Vec LinearSystem::Solve(AbstractLinearSolver *solver, Vec lhsGuess)
 {
-    return solver->Solve(mLhsMatrix, mRhsVector, mSize, mMatNullSpace);
+    return solver->Solve(mLhsMatrix, mRhsVector, mSize, mMatNullSpace, lhsGuess);
 }
 
 unsigned LinearSystem::GetSize()

@@ -14,7 +14,7 @@
  * @return The solution vector x.
  */
 
-Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNullSpace matNullSpace)
+Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNullSpace matNullSpace, Vec lhsGuess)
 {
     /* The following lines are very useful for debugging
      *    MatView(lhsMatrix,    PETSC_VIEWER_STDOUT_WORLD);
@@ -57,6 +57,13 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNu
             PETSCEXCEPT( KSPSetNullSpace(mSimpleSolver, matNullSpace) );
         }
         
+        if (lhsGuess)
+        {
+            //Assume that the user of this method will always be kind enough 
+            //to give us a reasonable guess.
+            KSPSetInitialGuessNonzero(mSimpleSolver,PETSC_TRUE);
+        }
+         
         KSPSetFromOptions(mSimpleSolver) ;
         KSPSetUp(mSimpleSolver);
         
@@ -64,8 +71,14 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNu
     }
     
     // Create solution vector
+    //\todo Should it be compulsory for the caller to supply this and manage the memory?
+    //\todo We should probably merge the LinearSystem with the SimpleLinearSolver
     Vec lhs_vector;
-    VecDuplicate(rhsVector, &lhs_vector);
+    VecDuplicate(rhsVector, &lhs_vector);//Sets the same size (doesn't copy)
+    if (lhsGuess)
+    {           
+        VecCopy(lhsGuess, lhs_vector);  
+    }
     
     try {
         PETSCEXCEPT(KSPSolve(mSimpleSolver, rhsVector, lhs_vector));

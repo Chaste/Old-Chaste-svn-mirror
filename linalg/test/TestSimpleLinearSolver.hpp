@@ -49,7 +49,7 @@ public:
         
         // Call solver
         Vec lhs_vector;
-        TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2));
+        TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2, NULL));
         
         // Check result
         PetscScalar *p_lhs_elements_array;
@@ -110,7 +110,7 @@ public:
         // Call solver
         Vec lhs_vector;
         
-        TS_ASSERT_THROWS_ANYTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2));
+        TS_ASSERT_THROWS_ANYTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2, NULL));
         
         // Free memory
         VecDestroy(rhs_vector);
@@ -155,7 +155,7 @@ public:
         
         // Call solver
         Vec lhs_vector;
-        TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2));
+        TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2, NULL));
         
         // Check result
         PetscScalar *p_lhs_elements_array;
@@ -221,7 +221,7 @@ public:
         
         // Call solver
         Vec lhs_vector;
-        TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2));
+        TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2, NULL));
         
         // Check result
         PetscScalar *p_lhs_elements_array;
@@ -241,7 +241,7 @@ public:
         // Now change the rhs vector to from (3,0) to (3,3). There are no solutions
         // so check a petsc error occurs
         VecSetValue(rhs_vector, 1, (PetscReal) 3, INSERT_VALUES);
-        TS_ASSERT_THROWS_ANYTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2));
+        TS_ASSERT_THROWS_ANYTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2, NULL));
         
         // Free memory
         VecDestroy(rhs_vector);
@@ -313,11 +313,13 @@ public:
         int lo, hi;
         VecGetOwnershipRange(lhs_vector, &lo, &hi);
         
-        double answers[] = {-3.33, -6.66, -9.0, -9.33, -6.66};
+        double answers[] = {-10.0/3.0, -20.0/3.0, -9.0, -28.0/3.0, -20.0/3.0};
+        //double answers[] = {-3.33, -6.66, -9.0, -9.33, -6.66};
         for (int global_index = lo; global_index<hi; global_index++)
         {
             int local_index = global_index-lo;
-            TS_ASSERT_DELTA(p_lhs_elements_array[local_index], answers[global_index], 0.1);
+            TS_ASSERT_DELTA(p_lhs_elements_array[local_index], answers[global_index], 5e-15);
+            //-ksp_monitor shows  KSP Residual norm 1.670239950489e-15
         }
         
         VecDestroy(lhs_vector);
@@ -327,6 +329,102 @@ public:
         MatNullSpaceDestroy(mat_null_space);
     }
     
+    void TestLinearSolverWithMatrixIsConstantAndNullSpaceAndInitialGuess()
+    {
+        // Solve Ax=b. 5x5 matrix
+        SimpleLinearSolver solver(1e-6);
+        
+        // Set rhs vector
+        Vec rhs_vector;
+        VecCreate(PETSC_COMM_WORLD, &rhs_vector);
+        VecSetSizes(rhs_vector,PETSC_DECIDE,5);
+        //VecSetType(rhs_vector, VECSEQ);
+        VecSetFromOptions(rhs_vector);
+        
+        //Set Matrix
+        Mat lhs_matrix;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 5, 5, &lhs_matrix);
+#else
+        MatCreate(PETSC_COMM_WORLD,&lhs_matrix);
+        MatSetSizes(lhs_matrix, PETSC_DECIDE, PETSC_DECIDE,5,5);
+#endif
+        MatSetType(lhs_matrix, MATMPIDENSE);
+        
+        Vec null_basis_vector;
+        VecDuplicate(rhs_vector, &null_basis_vector);
+        
+        for (int i=0; i<5; i++)
+        {
+            VecSetValue(rhs_vector, i, (PetscReal) i, INSERT_VALUES);
+            VecSetValue(null_basis_vector, i, 1.0, INSERT_VALUES);
+            for (int j=0; j<5; j++)
+            {
+                double val=0;
+                if (i==j)
+                {
+                    val = -2;
+                }
+                else if ( (i==j+1) || (i==j-1) )
+                {
+                    val = 1;
+                }
+                MatSetValue(lhs_matrix, i, j, val, INSERT_VALUES);
+            }
+        }
+        
+        // Assemble matrix
+        MatAssemblyBegin(lhs_matrix, MAT_FINAL_ASSEMBLY);
+        MatAssemblyEnd(lhs_matrix, MAT_FINAL_ASSEMBLY);
+        
+        // set matrix is constant
+        solver.SetMatrixIsConstant();
+        
+        MatNullSpace mat_null_space;
+        MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_FALSE, 1, &null_basis_vector, &mat_null_space);
+        
+        //Set the correct guess
+        Vec good_guess;
+        VecDuplicate(rhs_vector, &good_guess);
+        VecSetValue(good_guess, 0, -10.0/3.0, INSERT_VALUES);
+        VecSetValue(good_guess, 1, -20.0/3.0, INSERT_VALUES);
+        VecSetValue(good_guess, 2, -9.0, INSERT_VALUES);
+        VecSetValue(good_guess, 3, -28.0/3.0, INSERT_VALUES);
+        VecSetValue(good_guess, 4, -20.0/3.0, INSERT_VALUES);
+        // Call solver
+        Vec lhs_vector;
+        
+        //Run with -ksp_monitor to see something happening here!
+        TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 5, mat_null_space, good_guess));
+        
+        // Check result
+        PetscScalar *p_lhs_elements_array;
+        VecGetArray(lhs_vector, &p_lhs_elements_array);
+        int lo, hi;
+        VecGetOwnershipRange(lhs_vector, &lo, &hi);
+        
+        double answers[] = {-10.0/3.0, -20.0/3.0, -9.0, -28.0/3.0, -20.0/3.0};
+        for (int global_index = lo; global_index<hi; global_index++)
+        {
+            int local_index = global_index-lo;
+            TS_ASSERT_EQUALS(p_lhs_elements_array[local_index], answers[global_index]);
+            //There is zero tolerance here since the vectors are initialised to exactly the same values and neither has changed
+        }
+        
+        //Set the bad guess
+        Vec bad_guess;
+        VecDuplicate(rhs_vector, &bad_guess);
+        VecSet(bad_guess, 5e4);
+        TS_ASSERT_THROWS_ANYTHING(solver.Solve(lhs_matrix, rhs_vector, 5, mat_null_space, bad_guess));
+        
+        VecDestroy(lhs_vector);
+        VecDestroy(rhs_vector);
+        VecDestroy(null_basis_vector);
+        VecDestroy(good_guess);
+        VecDestroy(bad_guess);
+        MatDestroy(lhs_matrix);
+        MatNullSpaceDestroy(mat_null_space);
+    }
 };
 
 #endif //_TESTSIMPLELINEARSOLVER_HPP_

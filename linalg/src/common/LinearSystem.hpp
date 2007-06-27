@@ -57,7 +57,7 @@ public:
     void ZeroLhsMatrix();
     void ZeroRhsVector();
     void ZeroLinearSystem();
-    Vec Solve(AbstractLinearSolver *pSolver);
+    Vec Solve(AbstractLinearSolver *pSolver, Vec lhsGuess=NULL);
     void SetRhsVectorElement(PetscInt row, double value);
     void AddToRhsVectorElement(PetscInt row, double value);
     unsigned GetSize();

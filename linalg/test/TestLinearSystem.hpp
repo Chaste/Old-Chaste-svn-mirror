@@ -244,5 +244,66 @@ public:
         VecDestroy(test_vec);
         MatDestroy(m);
     }
+    
+    void TestLinearSystem1WithIntialGuess( void )
+    {
+        LinearSystem ls(3);
+        
+        
+        for (int row=0; row<3; row++)
+        {
+            for (int col=0; col<3; col++)
+            {
+                ls.SetMatrixElement(row, col, (double) row*3+col+1);
+            }
+        }
+        ls.AssembleFinalLinearSystem();
+        
+        ls.SetRhsVectorElement(0, 14.0);
+        ls.SetRhsVectorElement(1, 32.0);
+        ls.SetRhsVectorElement(2, 50.0);
+        
+        //Set the correct answer for the intial guess
+        Vec good_guess;
+        VecCreate(PETSC_COMM_WORLD, &good_guess);
+        VecSetSizes(good_guess,PETSC_DECIDE,3);
+        VecSetFromOptions(good_guess);
+        VecSetValue(good_guess, 0, 1.0, INSERT_VALUES);
+        VecSetValue(good_guess, 1, 2.0, INSERT_VALUES);
+        VecSetValue(good_guess, 2, 3.0, INSERT_VALUES);
+        
+        
+        SimpleLinearSolver solver(1e-6);
+        
+        Vec solution_vector;
+        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver, good_guess));
+        int lo,hi;
+        VecGetOwnershipRange(solution_vector,&lo,&hi);
+        PetscScalar *p_solution_elements_array;
+        VecGetArray(solution_vector, &p_solution_elements_array);
+        
+        for (int global_index=0; global_index<3; global_index++)
+        {
+            int local_index = global_index-lo;
+            if (lo<=global_index && global_index<hi)
+            {
+                TS_ASSERT_EQUALS(p_solution_elements_array[local_index], global_index+1.0);
+                //Zero tolerance
+            }
+        }
+        VecRestoreArray(solution_vector, &p_solution_elements_array);
+        
+        //Set the a bad intial guess
+        Vec bad_guess;
+        VecDuplicate(good_guess, &bad_guess);
+        VecSet(bad_guess, 1e5);
+        TS_ASSERT_THROWS_ANYTHING(solution_vector = ls.Solve(&solver, bad_guess));
+        
+        VecDestroy(solution_vector);
+        VecDestroy(good_guess);
+        VecDestroy(bad_guess);
+        
+    }
+    
 };
 #endif //_TESTLINEARSYSTEM_HPP_
