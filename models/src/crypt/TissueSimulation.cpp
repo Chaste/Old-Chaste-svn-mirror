@@ -151,13 +151,14 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
         }
     }
     
+    // this labels cells as dead or apoptosing. It does not actually remove the cells, 
+    // crypt.RemoveDeadCells() needs to be called for this.
     for(unsigned killer_index = 0; killer_index<mCellKillers.size(); killer_index++)
     {
-        mCellKillers[killer_index]->TestAndLabelCellsForApoptosis();
-        // Temporary hack until crypt data invariant is weakened.  mrCrypt.RemoveDeadCells() is currently
-        // being called from Solve() after birth has taken place.
-        //num_deaths_this_step += mCellKillers[killer_index]->RemoveDeadCells();
+        mCellKillers[killer_index]->TestAndLabelCellsForApoptosisOrDeath();
     }
+    
+    num_deaths_this_step += mrCrypt.RemoveDeadCells(); 
     
     return num_deaths_this_step;
 }
@@ -514,15 +515,6 @@ void TissueSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
     mCellKillers.push_back(pCellKiller);
 }
 
-/**
- * Whether each node is a ghost or not.
- * \todo change this to return a const reference
- */
-//template<unsigned DIM> 
-//std::vector<bool>& TissueSimulation<DIM>::GetGhostNodes()
-//{
-//    return mrCrypt.rGetGhostNodes();
-//}
 
 /**
  * Set the TissueSimulation to stop using the old method of sloughing cells into ghost nodes
@@ -659,10 +651,11 @@ void TissueSimulation<DIM>::Solve()
         // just delete and create nodes
         mNumDeaths += DoCellRemoval();
         mNumBirths += DoCellBirth();
-        mNumDeaths += mrCrypt.RemoveDeadCells(); // Temporary hack until crypt data invariant is weakened
+        
         
         if( (mNumBirths>0) || (mNumDeaths>0 && !mIncludeSloughing))
-        {   // If any nodes have been deleted or added we MUST call a ReMesh
+        {   
+            // If any nodes have been deleted or added we MUST call a ReMesh
             assert(mReMesh);
         }
 

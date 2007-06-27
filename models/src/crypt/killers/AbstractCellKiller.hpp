@@ -22,24 +22,11 @@ public:
 
     /**
      *  Pure method which should call StartApoptosis() on any cell
-     *  which should be about to die
+     *  which should be about to undergo programmed death, or Kill()
+     *  on any cell which should die immediately
      */
-    virtual void TestAndLabelCellsForApoptosis()=0;
-    
-    /**
-     *  Remove cells labelled as dead
-     *  Calls RemoveDeadCells on the crypt
-     * 
-     *  N.B. This now calls DeleteNodePriorToReMesh() and therefore a 
-     *  ReMesh MUST be done before any element information is used.
-     * 
-     *  @return The number of cells removed
-     */
-    unsigned RemoveDeadCells()
-    {
-        return this->mpCrypt->RemoveDeadCells();
-    }
-    
+    virtual void TestAndLabelCellsForApoptosisOrDeath()=0;
+        
     const Crypt<SPACE_DIM>* GetCrypt() const
     {
         return mpCrypt;

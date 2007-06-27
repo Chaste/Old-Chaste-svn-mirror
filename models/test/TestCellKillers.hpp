@@ -74,7 +74,7 @@ public:
         
         
         // check that some of the vector of cells reach apotosis
-        random_cell_killer.TestAndLabelCellsForApoptosis();
+        random_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
         
         std::set< double > old_locations;
         
@@ -110,7 +110,7 @@ public:
         }
         
         // remove dead cells...
-        random_cell_killer.RemoveDeadCells();
+        crypt.RemoveDeadCells();
         
         // check that dead cells are removed from the mesh
         std::set< double > new_locations;
@@ -158,7 +158,7 @@ public:
         p_params->SetCryptLength(0.5);
 
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
-        sloughing_cell_killer.TestAndLabelCellsForApoptosis();
+        sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         for(Crypt<2>::Iterator iter = crypt.Begin();
             iter!=crypt.End();
@@ -177,21 +177,18 @@ public:
             }
         }
   
-///\todo: fix this. get 'failure to delete node' error, prob because 
-// trying to delete too many at once?
-        
-//        sloughing_cell_killer.RemoveDeadCells();
-//
-//        for(Crypt<2>::Iterator iter = crypt.Begin();
-//            iter!=crypt.End();
-//            ++iter)
-//        {
-//            double x = iter.rGetLocation()[0];
-//            double y = iter.rGetLocation()[1];
-//            
-//            TS_ASSERT_LESS_THAN(x, 0.5);
-//            TS_ASSERT_LESS_THAN(y, 0.5);
-//        }
+        crypt.RemoveDeadCells();
+
+        for(Crypt<2>::Iterator iter = crypt.Begin();
+            iter!=crypt.End();
+            ++iter)
+        {
+            double x = iter.rGetLocation()[0];
+            double y = iter.rGetLocation()[1];
+            
+            TS_ASSERT_LESS_THAN_EQUALS(x, 0.5);
+            TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
+        }
 
         SimulationTime::Destroy();
     }   
@@ -226,7 +223,7 @@ public:
         p_params->SetCryptLength(0.5);
 
         SloughingCellKiller sloughing_cell_killer(&crypt);
-        sloughing_cell_killer.TestAndLabelCellsForApoptosis();
+        sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         for(Crypt<2>::Iterator iter = crypt.Begin();
             iter!=crypt.End();
@@ -242,19 +239,16 @@ public:
                 TS_ASSERT_EQUALS(iter->IsDead(), false);
             }
         }
-  
-///\todo: fix this. get 'failure to delete node' error, prob because 
-// trying to delete too many at once?
         
-//        sloughing_cell_killer.RemoveDeadCells();
-//
-//        for(Crypt<2>::Iterator iter = crypt.Begin();
-//            iter!=crypt.End();
-//            ++iter)
-//        {
-//            double y = iter.rGetLocation()[1];
-//            TS_ASSERT_LESS_THAN(y, 0.5);
-//        }
+        crypt.RemoveDeadCells();
+
+        for(Crypt<2>::Iterator iter = crypt.Begin();
+            iter!=crypt.End();
+            ++iter)
+        {
+            double y = iter.rGetLocation()[1];
+            TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
+        }
 
         SimulationTime::Destroy();
     }   

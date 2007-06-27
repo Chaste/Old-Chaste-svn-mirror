@@ -60,7 +60,7 @@ public:
      *  Loops over cells and starts apoptosis randomly, based on the user-set 
      *  probability
      */
-    virtual void TestAndLabelCellsForApoptosis()
+    virtual void TestAndLabelCellsForApoptosisOrDeath()
     {
         for (typename Crypt<SPACE_DIM>::Iterator cell_iter = this->mpCrypt->Begin();
              cell_iter != this->mpCrypt->End();

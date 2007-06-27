@@ -453,6 +453,7 @@ public:
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 81u);
         TS_ASSERT_EQUALS(number_of_nodes, 123u);
 
+        delete p_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

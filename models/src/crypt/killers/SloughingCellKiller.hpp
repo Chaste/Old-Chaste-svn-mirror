@@ -61,7 +61,7 @@ public:
     /**
      *  Loops over cells and kills cells outside boundary.
      */
-    virtual void TestAndLabelCellsForApoptosis()
+    virtual void TestAndLabelCellsForApoptosisOrDeath()
     {
         for (Crypt<2>::Iterator cell_iter = this->mpCrypt->Begin();
              cell_iter != this->mpCrypt->End();
