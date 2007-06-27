@@ -23,3 +23,15 @@ unsigned AbstractOdeSystem::GetStateVariableNumberByName(const std::string name)
     }
     return var_number;
 }
+
+std::string AbstractOdeSystem::DumpState(const std::string& message)
+{
+    std::stringstream res;
+    res << message << "\nState:\n";
+    const std::vector<double>& rY = rGetStateVariables();
+    for (unsigned i=0; i<mVariableNames.size(); i++)
+    {
+        res << "\t" << mVariableNames[i] << ":" << rY[i] << "\n";
+    }
+    return res.str();
+}

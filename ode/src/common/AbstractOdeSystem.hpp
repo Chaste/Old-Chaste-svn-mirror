@@ -151,6 +151,14 @@ public:
         assert(varNumber < mNumberOfStateVariables);
         return mVariableUnits[varNumber];
     }
+
+protected:
+    /**
+     * Used to include extra debugging information in exception messages.
+     * For example,
+     *      EXCEPTION(DumpState("Gating variable out of range"));
+     */
+    std::string DumpState(const std::string& message);
 };
 
 
