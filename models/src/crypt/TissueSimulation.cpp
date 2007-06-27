@@ -31,14 +31,6 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
     
     srandom(0);
     
-    // Set up the ghost nodes bool list
-    mIsGhostNode.resize(mrCrypt.rGetMesh().GetNumAllNodes());
-    for (unsigned i=0; i<mIsGhostNode.size(); i++)
-    {
-        mIsGhostNode[i] = false;
-    }
-    mrCrypt.SetGhostNodes(mIsGhostNode);
-    
     // defaults
     mOutputDirectory = "";
     mReMesh = true;
@@ -104,9 +96,9 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
         std::vector<double> cell_cycle_influences;
         if (mWntIncluded)
         {
-#define COVERAGE_IGNORE
+            #define COVERAGE_IGNORE
             assert(DIM==2);
-#undef COVERAGE_IGNORE
+            #undef COVERAGE_IGNORE
             double y = p_our_node->rGetLocation()[1];
             double wnt_stimulus = mWntGradient.GetWntLevel(y);
             cell_cycle_influences.push_back(wnt_stimulus);
@@ -153,7 +145,7 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
 
             if ((x>crypt_width) || (x<0.0) || (y>crypt_length))
             { 
-                mIsGhostNode[cell_iter.GetNode()->GetIndex()] = true;
+                mrCrypt.rGetGhostNodes()[cell_iter.GetNode()->GetIndex()] = true;
                 num_deaths_this_step++;
             }
         }
@@ -489,19 +481,17 @@ const Crypt<DIM>& TissueSimulation<DIM>::rGetCrypt() const
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetGhostNodes(std::set<unsigned> ghostNodeIndices)
 {
-    // First set all to not be ghost nodes
-    for (unsigned i=0 ; i<mIsGhostNode.size() ; i++)
-    {
-        mIsGhostNode[i] = false;
-    }
+    std::vector<bool> ghost_nodes(mrCrypt.rGetMesh().GetNumNodes(), false);
  
     // then update which ones are.
     std::set<unsigned>::iterator iter = ghostNodeIndices.begin();
     while(iter!=ghostNodeIndices.end())
     {
-        mIsGhostNode[*iter]=true;
+        ghost_nodes[*iter]=true;
         iter++;
     }
+    
+    mrCrypt.SetGhostNodes(ghost_nodes);
 }
 
 
@@ -551,9 +541,9 @@ void TissueSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
  * \todo change this to return a const reference
  */
 template<unsigned DIM> 
-std::vector<bool> TissueSimulation<DIM>::GetGhostNodes()
+std::vector<bool>& TissueSimulation<DIM>::GetGhostNodes()
 {
-    return mIsGhostNode;
+    return mrCrypt.rGetGhostNodes();
 }
 
 /**

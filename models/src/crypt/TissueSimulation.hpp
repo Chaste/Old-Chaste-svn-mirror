@@ -74,9 +74,6 @@ protected:
     bool mReMesh;
     
     bool mIncludeSloughing;
-    
-    /** Whether each node is ghosted-ified or not.*/
-    std::vector <bool> mIsGhostNode;
 
     /** The maximum number of cells that this simulation will include (for use by datawriter). */
     unsigned mMaxCells;
@@ -116,7 +113,6 @@ protected:
         archive & mEndTime;
         archive & mNoBirth;
         archive & mReMesh;
-        archive & mIsGhostNode;
         archive & mMaxCells;
         archive & mMaxElements;
         archive & mOutputDirectory;
@@ -227,7 +223,7 @@ public:
     void SetNoSloughing();
     void SetWntGradient(WntGradientType wntGradientType);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
-    std::vector <bool> GetGhostNodes();
+    std::vector<bool>& GetGhostNodes();
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
     
     void Solve();

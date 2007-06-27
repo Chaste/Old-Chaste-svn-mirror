@@ -60,7 +60,7 @@ private:
     std::map<unsigned, MeinekeCryptCell*> mNodeCellMap;
     
     /** Records which nodes are ghosts */
-    std::vector<bool>* mpGhostNodes;
+    std::vector<bool> mIsGhostNode;
     bool mSelfSetGhostNodes;
 
     /** used in seting up tabulated writers */
@@ -85,7 +85,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & *mpGhostNodes;
+        archive & mIsGhostNode;
         archive & mMaxCells;
         archive & mMaxElements;
     }
@@ -113,7 +113,7 @@ public:
     const ConformingTetrahedralMesh<DIM, DIM>& rGetMesh() const;
     const std::list<MeinekeCryptCell>& rGetCells() const;
     std::vector<bool>& rGetGhostNodes();
-    void SetGhostNodes(std::vector<bool>&);
+    void SetGhostNodes(std::vector<bool>);
     void SetMaxCells(unsigned maxCells);
     void SetMaxElements(unsigned maxElements);
     

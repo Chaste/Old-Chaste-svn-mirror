@@ -17,7 +17,7 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
 {
     mDeleteMesh = deleteMesh;
     mSelfSetGhostNodes = true;
-    mpGhostNodes = new std::vector<bool>(mrMesh.GetNumNodes(), false);
+    mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
     
     mMaxCells = 10*mrMesh.GetNumNodes();
     mMaxElements = 10*mrMesh.GetNumElements();
@@ -46,7 +46,7 @@ Crypt<DIM>::~Crypt()
 {
     if (mSelfSetGhostNodes)
     {
-        delete mpGhostNodes;
+        //delete mpGhostNodes;
     }
     if (mDeleteMesh)
     {
@@ -61,7 +61,7 @@ Crypt<DIM>::~Crypt()
 template<unsigned DIM>
 void Crypt<DIM>::Validate()
 {
-	std::vector<bool> validated_node = (*mpGhostNodes); 
+	std::vector<bool> validated_node = mIsGhostNode; 
 	for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
 	{
 		unsigned node_index = cell_iter->GetNodeIndex();
@@ -76,7 +76,7 @@ void Crypt<DIM>::Validate()
 			ss << "Node " << i << " does not appear to be a ghost node or have a cell associated with it";
 			if(mSelfSetGhostNodes)
             {
-                delete mpGhostNodes;
+                //delete mpGhostNodes;
             }
             mSelfSetGhostNodes=false;
             EXCEPTION(ss.str()); 
@@ -117,18 +117,18 @@ const std::list<MeinekeCryptCell>& Crypt<DIM>::rGetCells() const
 template<unsigned DIM>
 std::vector<bool>& Crypt<DIM>::rGetGhostNodes()
 {
-    return *mpGhostNodes;
+    return mIsGhostNode;
 }
 
 template<unsigned DIM>
-void Crypt<DIM>::SetGhostNodes(std::vector<bool>& rGhostNodes)
+void Crypt<DIM>::SetGhostNodes(std::vector<bool> ghostNodes)
 {
     if (mSelfSetGhostNodes)
     {
-        delete mpGhostNodes;
+        //delete mpGhostNodes;
     }
     mSelfSetGhostNodes = false;
-    mpGhostNodes = &rGhostNodes;
+    mIsGhostNode = ghostNodes;
 }
 
 template<unsigned DIM>
@@ -171,7 +171,7 @@ void Crypt<DIM>::UpdateGhostPositions(double dt)
         double damping_constant = CancerParameters::Instance()->GetDampingConstantNormal();
         
         
-        if (!(*mpGhostNodes)[nodeA_global_index])
+        if (!mIsGhostNode[nodeA_global_index])
         {
             drdt[nodeB_global_index] -= force / damping_constant;
         }
@@ -179,7 +179,7 @@ void Crypt<DIM>::UpdateGhostPositions(double dt)
         {
             drdt[nodeA_global_index] += force / damping_constant;
                 
-            if ((*mpGhostNodes)[nodeB_global_index])
+            if (mIsGhostNode[nodeB_global_index])
             {
                 drdt[nodeB_global_index] -= force / damping_constant;
             }
@@ -188,7 +188,7 @@ void Crypt<DIM>::UpdateGhostPositions(double dt)
     
     for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
     {
-        if ((!mrMesh.GetNode(index)->IsDeleted()) && (*mpGhostNodes)[index])
+        if ((!mrMesh.GetNode(index)->IsDeleted()) && mIsGhostNode[index])
         {
             Point<DIM> new_point(mrMesh.GetNode(index)->rGetLocation() + dt*drdt[index]);
             mrMesh.SetNode(index, new_point, false);
@@ -247,10 +247,10 @@ void Crypt<DIM>::AddCell(MeinekeCryptCell newCell, c_vector<double,DIM> newLocat
     mNodeCellMap[new_node_index] = &(mCells.back());
 
     // Update size of IsGhostNode if necessary
-    if (mrMesh.GetNumNodes() > mpGhostNodes->size())
+    if (mrMesh.GetNumNodes() > mIsGhostNode.size())
     {
-        mpGhostNodes->resize(mrMesh.GetNumNodes());
-        (*mpGhostNodes)[new_node_index] = false;
+        mIsGhostNode.resize(mrMesh.GetNumNodes());
+        mIsGhostNode[new_node_index] = false;
     }   
 }
 
@@ -268,17 +268,17 @@ void Crypt<DIM>::ReMesh()
 
     if(!map.IsIdentityMap())
     {
-        // copy ghost nodes bool
-        std::vector<bool> ghost_nodes_before_remesh = *mpGhostNodes;    
-        mpGhostNodes->clear();
-        mpGhostNodes->resize(mrMesh.GetNumNodes());
+        // copy mIsGhostNode. nodes bool
+        std::vector<bool> ghost_nodes_before_remesh = mIsGhostNode;    
+        mIsGhostNode.clear();
+        mIsGhostNode.resize(mrMesh.GetNumNodes());
         
         for(unsigned old_index=0; old_index<map.Size(); old_index++)
         {
             if(!map.IsDeleted(old_index))
             {
                 unsigned new_index = map.GetNewIndex(old_index);
-                (*mpGhostNodes)[new_index] = ghost_nodes_before_remesh[old_index];
+                mIsGhostNode[new_index] = ghost_nodes_before_remesh[old_index];
             }
         }
 
@@ -535,7 +535,7 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
         }
         unsigned colour = 0; // all green if no cells have been passed in
         
-        if ((*mpGhostNodes)[index]==true)
+        if (mIsGhostNode[index]==true)
         {
             colour = 4; // visualizer treats '4' these as invisible
         }
@@ -681,8 +681,8 @@ typename Crypt<DIM>::SpringIterator& Crypt<DIM>::SpringIterator::operator++()
         ++mEdgeIter;
         if(*this !=mrCrypt.SpringsEnd())
         {
-            bool a_is_ghost = (*mrCrypt.mpGhostNodes)[mEdgeIter.GetNodeA()->GetIndex()];
-            bool b_is_ghost = (*mrCrypt.mpGhostNodes)[mEdgeIter.GetNodeB()->GetIndex()];
+            bool a_is_ghost = mrCrypt.mIsGhostNode[mEdgeIter.GetNodeA()->GetIndex()];
+            bool b_is_ghost = mrCrypt.mIsGhostNode[mEdgeIter.GetNodeB()->GetIndex()];
 
             edge_is_ghost = (a_is_ghost || b_is_ghost);
         }
@@ -701,8 +701,8 @@ Crypt<DIM>::SpringIterator::SpringIterator(Crypt& rCrypt,
 {
     if(mEdgeIter!=mrCrypt.mrMesh.EdgesEnd())
     {
-        bool a_is_ghost = (*mrCrypt.mpGhostNodes)[mEdgeIter.GetNodeA()->GetIndex()];
-        bool b_is_ghost = (*mrCrypt.mpGhostNodes)[mEdgeIter.GetNodeB()->GetIndex()];
+        bool a_is_ghost = mrCrypt.mIsGhostNode[mEdgeIter.GetNodeA()->GetIndex()];
+        bool b_is_ghost = mrCrypt.mIsGhostNode[mEdgeIter.GetNodeB()->GetIndex()];
 
         if(a_is_ghost || b_is_ghost)
         {
