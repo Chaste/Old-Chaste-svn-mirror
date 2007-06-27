@@ -782,7 +782,8 @@ void TissueSimulation<DIM>::Save()
     // cast to const.
     const SimulationTime* p_simulation_time = SimulationTime::Instance();
     output_arch << *p_simulation_time;
-    output_arch & this;
+    TissueSimulation<DIM> * p_sim = this;
+    output_arch & p_sim;
 }
 
 /**

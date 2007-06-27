@@ -45,7 +45,7 @@ protected:
      * Compute the values of all state variables except the voltage for one 
      * timestep.
      */
-    void ComputeExceptVoltage(double tStart);
+    void ComputeOneStepExceptVoltage(double tStart);
     
     /**
      * Perform a forward Euler step to update the transmembrane potential.

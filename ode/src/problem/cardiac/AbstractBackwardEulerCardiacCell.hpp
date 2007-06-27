@@ -111,7 +111,7 @@ protected:
      * 
      * This method must be provided by subclasses.
      */
-    virtual void ComputeExceptVoltage(double tStart)=0;
+    virtual void ComputeOneStepExceptVoltage(double tStart)=0;
     
     /**
      * Perform a forward Euler step to update the transmembrane potential.
@@ -168,7 +168,7 @@ OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::Compute(double tStart, doubl
         UpdateTransmembranePotential(curr_time);
         
         // Compute other state variables
-        ComputeExceptVoltage(curr_time);
+        ComputeOneStepExceptVoltage(curr_time);
         
         // Update solutions
         solutions.rGetSolutions().push_back(rGetStateVariables());
@@ -198,7 +198,7 @@ void AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double tStart,
         curr_time = tStart + i*mDt;
         
         // Compute other state variables
-        ComputeExceptVoltage(curr_time);
+        ComputeOneStepExceptVoltage(curr_time);
         
         // check gating variables are still in range
         VerifyGatingVariables();

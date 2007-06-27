@@ -39,8 +39,8 @@ public:
         else
         {
             assert(0);
+            return NULL;
         }
-        
     }
     
     ~MyCardiacCellFactory(void)

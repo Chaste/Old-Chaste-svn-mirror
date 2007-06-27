@@ -13,8 +13,8 @@ public:
     std::vector< c_vector<double, 3>* > mVertices;
 
 private:    
-    const void Increment(std::vector< c_vector<double, 3>* >::iterator& rIterator,
-                         Face& rFace);
+    void Increment(std::vector< c_vector<double, 3>* >::iterator& rIterator,
+                   Face& rFace) const;
 
 public:
     /**

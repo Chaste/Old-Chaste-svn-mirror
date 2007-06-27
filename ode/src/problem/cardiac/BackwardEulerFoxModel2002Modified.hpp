@@ -606,7 +606,7 @@ protected:
         rY[0] += mDt * d_dt_membrane__V;
     }
 
-    void ComputeExceptVoltage(double var_environment__time)
+    void ComputeOneStepExceptVoltage(double var_environment__time)
     {
         // Time units: millisecond
         std::vector<double>& rY = rGetStateVariables();

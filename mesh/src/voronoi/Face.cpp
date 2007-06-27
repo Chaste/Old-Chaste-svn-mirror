@@ -1,8 +1,8 @@
 #include "Face.hpp"
 
 
-const void Face::Increment(std::vector< c_vector<double, 3>* >::iterator& rIterator,
-                           Face& rFace)
+void Face::Increment(std::vector< c_vector<double, 3>* >::iterator& rIterator,
+                     Face& rFace) const
 {
     rIterator++;
     if (rIterator==rFace.mVertices.end() )

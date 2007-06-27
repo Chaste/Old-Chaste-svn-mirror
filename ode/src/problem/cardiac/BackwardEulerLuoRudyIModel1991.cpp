@@ -144,7 +144,7 @@ void BackwardEulerLuoRudyIModel1991::UpdateTransmembranePotential(double time)
     rY[4] += mDt * membrane_V_prime;
 }
 
-void BackwardEulerLuoRudyIModel1991::ComputeExceptVoltage(double tStart)
+void BackwardEulerLuoRudyIModel1991::ComputeOneStepExceptVoltage(double tStart)
 {
     // This method computes one timestep for all state variables except V, using
     // backward Euler.
