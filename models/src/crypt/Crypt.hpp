@@ -104,7 +104,7 @@ public:
      * @param cells MeinekeCryptCells corresponding to the nodes of the mesh.
      * @param deleteMesh set to true if you want the crypt to free the mesh memory on destruction
      */
-    Crypt(ConformingTetrahedralMesh<DIM, DIM>&, std::vector<MeinekeCryptCell>,
+    Crypt(ConformingTetrahedralMesh<DIM, DIM>&, const std::vector<MeinekeCryptCell>&,
           bool deleteMesh=false);
     ~Crypt();
     
@@ -119,7 +119,7 @@ public:
      *  node is a ghost or not. Won't generally be needed to be called, see 
      *  alternate version of SetGhostNodes which takes in the ghost node indices
      */
-    void SetGhostNodes(std::vector<bool> isGhostNode);
+    void SetGhostNodes(const std::vector<bool>& isGhostNode);
 
     /**
      *  Set the ghost nodes by taking in a set of which nodes are ghosts.

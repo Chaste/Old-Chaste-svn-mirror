@@ -274,11 +274,13 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
     mNodes[index]->SetPoint(point);
     if (concreteMove)
     {
-        for (unsigned i=0; i<mNodes[index]->GetNumContainingElements(); i++)
+        for (typename Node<SPACE_DIM>::ContainingElementIterator it = mNodes[index]->ContainingElementsBegin();
+             it != mNodes[index]->ContainingElementsEnd();
+             ++it)
         {
             try
             {
-                GetElement(mNodes[index]->GetNextContainingElementIndex())->RefreshJacobianDeterminant();
+                GetElement(*it)->RefreshJacobianDeterminant();
             }
             catch (Exception e)
             {
@@ -292,11 +294,13 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
                 }
             }
         }
-        for (unsigned i=0; i<mNodes[index]->GetNumBoundaryElements(); i++)
+        for (typename Node<SPACE_DIM>::ContainingBoundaryElementIterator it = mNodes[index]->ContainingBoundaryElementsBegin();
+             it != mNodes[index]->ContainingBoundaryElementsEnd();
+             ++it)
         {
             try
             {
-                GetBoundaryElement(mNodes[index]->GetNextBoundaryElementIndex())->RefreshJacobianDeterminant();
+                GetBoundaryElement(*it)->RefreshJacobianDeterminant();
             }
             catch (Exception e)
             {
@@ -316,35 +320,34 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned index)
 {
-    unsigned target_index;
-    bool found_target=false;
     if (mNodes[index]->IsDeleted())
     {
         EXCEPTION("Trying to delete a deleted node");
     }
-    unsigned attempts=0;
-    while (!found_target)
+    unsigned target_index;
+    bool found_target=false;
+    for (typename Node<SPACE_DIM>::ContainingElementIterator it = mNodes[index]->ContainingElementsBegin();
+         !found_target && it != mNodes[index]->ContainingElementsEnd();
+         ++it)
     {
-        Element <ELEMENT_DIM,SPACE_DIM> *p_element=
-            mElements[mNodes[index]->GetNextContainingElementIndex()];
+        Element <ELEMENT_DIM,SPACE_DIM> *p_element = GetElement(*it);
         for (unsigned i=0; i<=ELEMENT_DIM && !found_target; i++)
         {
-            target_index=p_element->GetNodeGlobalIndex(i);
+            target_index = p_element->GetNodeGlobalIndex(i);
             try
             {
                 MoveMergeNode(index, target_index, false);
-                found_target=true;
+                found_target = true;
             }
             catch (Exception e)
             {
-                //Just go round the loops and try again
-                attempts++;
-                if (attempts > 50)
-                {
-                    EXCEPTION("Failure to delete node");
-                }
+                // Just try the next node
             }
         }
+    }
+    if (!found_target)
+    {
+        EXCEPTION("Failure to delete node");
     }
     
     MoveMergeNode(index, target_index);

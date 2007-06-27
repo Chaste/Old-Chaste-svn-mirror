@@ -159,7 +159,7 @@ void CryptSimulation::Solve()
                     Node<1> *p_our_node = mrMesh.GetNode(i);
                     
                     //Note: May need to check which side element is put esp. at the ends
-                    Element<1,1> *p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
+                    Element<1,1> *p_element = mrMesh.GetElement(*(p_our_node->ContainingElementsBegin()));
                     
                     unsigned new_node_index = AddNodeToElement(p_element,mpSimulationTime->GetDimensionalisedTime());
                     // Update cells        	 variableID unknown vector

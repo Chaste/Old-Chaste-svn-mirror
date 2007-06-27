@@ -17,10 +17,11 @@ protected:
     {
         c_vector<double, SPACE_DIM> measure=zero_vector<double>(SPACE_DIM);
         Node<SPACE_DIM> *p_node=pNodeInfo->pGetNode();
-        for (unsigned i=0; i<p_node->GetNumContainingElements();i++)
+        for (typename Node<SPACE_DIM>::ContainingElementIterator it = p_node->ContainingElementsBegin();
+             it != p_node->ContainingElementsEnd();
+             ++it)
         {
-            Element<SPACE_DIM,SPACE_DIM> *p_element=
-                this->mpMesh->GetElement(p_node->GetNextContainingElementIndex());
+            Element<SPACE_DIM,SPACE_DIM> *p_element = this->mpMesh->GetElement(*it);
             double volume = p_element->GetJacobianDeterminant();
             if (volume != 0.0)
             {

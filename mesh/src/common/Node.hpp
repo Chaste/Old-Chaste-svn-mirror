@@ -264,10 +264,11 @@ public:
     bool IsFlagged(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
     {
         bool in_flagged_element = false;
-        for (unsigned i=0; i<GetNumContainingElements(); i++)
+        for (ContainingElementIterator it = ContainingElementsBegin();
+             it != ContainingElementsEnd();
+             ++it)
         {
-            unsigned ele_index = GetNextContainingElementIndex();
-            if (rMesh.GetElement(ele_index)->IsFlagged())
+            if (rMesh.GetElement(*it)->IsFlagged())
             {
                 in_flagged_element = true;
                 break;

@@ -27,14 +27,18 @@ protected:
     double mNeighbourhoodVolume;
     out_stream mNodeFile, mElementFile, mFibreFile;
     
+    // Save typing!
+    typedef typename Node<SPACE_DIM>::ContainingElementIterator ContainingElementIterator;
+    
     void Initialise(NodeInfo<SPACE_DIM> *pNodeInfo)
     {
         //Pre-requesite mQueue is such that mQueue[i]->GetIndex() == i
-        Node<SPACE_DIM> *pNode=pNodeInfo->mpNode;
-        for (unsigned i=0; i<pNode->GetNumContainingElements(); i++)
+        Node<SPACE_DIM> *p_node=pNodeInfo->mpNode;
+        for (ContainingElementIterator it = p_node->ContainingElementsBegin();
+             it != p_node->ContainingElementsEnd();
+             ++it)
         {
-            unsigned element_index=pNode->GetNextContainingElementIndex();
-            Element <SPACE_DIM, SPACE_DIM> *p_element= mpMesh->GetElement(element_index);
+            Element <SPACE_DIM, SPACE_DIM> *p_element = mpMesh->GetElement(*it);
             for (unsigned j=0; j<SPACE_DIM+1; j++)
             {
                 unsigned index=p_element->GetNodeGlobalIndex(j);
@@ -49,9 +53,11 @@ protected:
         double measure=0.0;
         if (before) measure=0.0;
         Node<SPACE_DIM> *p_node=pNodeInfo->mpNode;
-        for (unsigned i=0; i<p_node->GetNumContainingElements();i++)
+        for (ContainingElementIterator it = p_node->ContainingElementsBegin();
+             it != p_node->ContainingElementsEnd();
+             ++it)
         {
-            Element<SPACE_DIM,SPACE_DIM> *p_element=mpMesh->GetElement(p_node->GetNextContainingElementIndex());
+            Element<SPACE_DIM,SPACE_DIM> *p_element = mpMesh->GetElement(*it);
             measure += p_element->GetJacobianDeterminant();
         }
         if (before)
@@ -67,9 +73,11 @@ protected:
     double CalculateNeighbourhoodVolume(Node<SPACE_DIM> *pNode)
     {
         double measure=0.0;
-        for (unsigned i=0; i<pNode->GetNumContainingElements();i++)
+        for (ContainingElementIterator it = pNode->ContainingElementsBegin();
+             it != pNode->ContainingElementsEnd();
+             ++it)
         {
-            Element<SPACE_DIM,SPACE_DIM> *p_element=mpMesh->GetElement(pNode->GetNextContainingElementIndex());
+            Element<SPACE_DIM,SPACE_DIM> *p_element = mpMesh->GetElement(*it);
             measure += p_element->GetJacobianDeterminant();
         }
         
@@ -193,9 +201,11 @@ protected:
         // its containing elements (when marked for deletion  
         Node<SPACE_DIM> *p_moving_node=p_moving_node_info->mpNode;
         Node<SPACE_DIM> *p_target_node=p_target_node_info->mpNode;
-        for (unsigned i=0; i<p_moving_node->GetNumContainingElements(); i++)
+        for (ContainingElementIterator it = p_moving_node->ContainingElementsBegin();
+             it != p_moving_node->ContainingElementsEnd();
+             ++it)
         {
-            p_target_node->AddElement(                 p_moving_node->GetNextContainingElementIndex());
+            p_target_node->AddElement(*it);
         }
         */
         //Swap moving node for target in all neigbours

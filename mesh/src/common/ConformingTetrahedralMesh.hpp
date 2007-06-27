@@ -51,10 +51,6 @@ private:
     
     std::vector< Node<SPACE_DIM> *> mBoundaryNodes;
     
-    //ElementIterator mpElementIter;
-    //BoundaryElementIterator mpBoundaryElementIter;
-    //BoundaryNodeIterator mpBoundaryNodeIter;
-    
     /**
      * Check whether any neighbouring node is inside the circumsphere of this element.
      * @param pointer to an element
