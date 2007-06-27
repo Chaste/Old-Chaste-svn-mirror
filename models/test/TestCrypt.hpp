@@ -159,18 +159,15 @@ public:
         }
         TS_ASSERT_EQUALS(counter, p_mesh->GetNumNodes());
         
-        // get ghost node indices from the generator and set up the ghost nodes
-        // vector of bools
-        std::vector<bool> is_ghost_node(p_mesh->GetNumNodes(),false);
-        for(std::set<unsigned>::iterator iter = ghost_node_indices.begin();
-            iter!=ghost_node_indices.end();
-            iter++)
-        {
-            is_ghost_node[*iter] = true;
-        }
-        
         // set ghost nodes
-        crypt.SetGhostNodes(is_ghost_node);
+        crypt.SetGhostNodes(ghost_node_indices);
+        std::vector<bool> is_ghost_node(p_mesh->GetNumNodes(), false);
+        for(std::set<unsigned>::iterator it = ghost_node_indices.begin();
+            it != ghost_node_indices.end();
+            it++)
+        {
+            is_ghost_node[*it] = true;
+        }
         
         TS_ASSERT_EQUALS(crypt.rGetGhostNodes(), is_ghost_node);
         
@@ -290,14 +287,15 @@ public:
         // create a crypt, with some random ghost nodes
         Crypt<2> crypt(mesh,cells);
 
+        // set ghost nodes (using alternative constructor)
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
         for(unsigned i=0; i<10; i++)
         {
             is_ghost_node[i] = true;
         }
         is_ghost_node[80]=true;
-        
         crypt.SetGhostNodes(is_ghost_node);
+
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(crypt.rGetCells().size(), 81u);
 
@@ -514,19 +512,8 @@ public:
         
         // create a crypt, with no ghost nodes at the moment
         Crypt<2> crypt(*p_mesh,cells);
-        
-        // get ghost node indices from the generator and set up the ghost nodes
-        // vector of bools
-        std::vector<bool> is_ghost_node(p_mesh->GetNumNodes(),false);
-        for(std::set<unsigned>::iterator iter = ghost_node_indices.begin();
-            iter!=ghost_node_indices.end();
-            iter++)
-        {
-            is_ghost_node[*iter] = true;
-        }
-        
         // set ghost nodes
-        crypt.SetGhostNodes(is_ghost_node);
+        crypt.SetGhostNodes(ghost_node_indices);
                 
         // check that we can iterate over the set of springs
         std::set< std::set< unsigned > > springs_visited;

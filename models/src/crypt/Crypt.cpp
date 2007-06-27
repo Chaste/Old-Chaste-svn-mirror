@@ -16,7 +16,6 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
                mCells(cells.begin(), cells.end())
 {
     mDeleteMesh = deleteMesh;
-    mSelfSetGhostNodes = true;
     mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
     
     mMaxCells = 10*mrMesh.GetNumNodes();
@@ -44,10 +43,6 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
 template<unsigned DIM>
 Crypt<DIM>::~Crypt()
 {
-    if (mSelfSetGhostNodes)
-    {
-        //delete mpGhostNodes;
-    }
     if (mDeleteMesh)
     {
         delete &mrMesh;
@@ -74,11 +69,6 @@ void Crypt<DIM>::Validate()
 		{
 			std::stringstream ss;
 			ss << "Node " << i << " does not appear to be a ghost node or have a cell associated with it";
-			if(mSelfSetGhostNodes)
-            {
-                //delete mpGhostNodes;
-            }
-            mSelfSetGhostNodes=false;
             EXCEPTION(ss.str()); 
 		}
 	}
@@ -123,13 +113,24 @@ std::vector<bool>& Crypt<DIM>::rGetGhostNodes()
 template<unsigned DIM>
 void Crypt<DIM>::SetGhostNodes(std::vector<bool> ghostNodes)
 {
-    if (mSelfSetGhostNodes)
-    {
-        //delete mpGhostNodes;
-    }
-    mSelfSetGhostNodes = false;
     mIsGhostNode = ghostNodes;
 }
+
+template<unsigned DIM> 
+void Crypt<DIM>::SetGhostNodes(const std::set<unsigned>& ghostNodeIndices)
+{
+    // reinitialise all to false..
+    mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
+
+    // ..then update which ones are ghosts
+    std::set<unsigned>::iterator iter = ghostNodeIndices.begin();
+    while(iter!=ghostNodeIndices.end())
+    {
+        mIsGhostNode[*iter]=true;
+        iter++;
+    }
+}
+
 
 template<unsigned DIM>
 unsigned Crypt<DIM>::RemoveDeadCells()

@@ -472,28 +472,6 @@ const Crypt<DIM>& TissueSimulation<DIM>::rGetCrypt() const
     return mrCrypt;
 }
 
-/**
- * The mesh should be surrounded by at least one layer of ghost nodes.  These are nodes which
- * do not correspond to a cell, but are necessary for remeshing (because the remesher tries to
- * create a convex hull of the set of nodes) and visualising purposes.  The mesh is passed into
- * the constructor and the class is told about the ghost nodes by using this method.
- */
-template<unsigned DIM> 
-void TissueSimulation<DIM>::SetGhostNodes(std::set<unsigned> ghostNodeIndices)
-{
-    std::vector<bool> ghost_nodes(mrCrypt.rGetMesh().GetNumNodes(), false);
- 
-    // then update which ones are.
-    std::set<unsigned>::iterator iter = ghostNodeIndices.begin();
-    while(iter!=ghostNodeIndices.end())
-    {
-        ghost_nodes[*iter]=true;
-        iter++;
-    }
-    
-    mrCrypt.SetGhostNodes(ghost_nodes);
-}
-
 
 /**
  * Set whether the mesh should be remeshed at every time step.
@@ -540,11 +518,11 @@ void TissueSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
  * Whether each node is a ghost or not.
  * \todo change this to return a const reference
  */
-template<unsigned DIM> 
-std::vector<bool>& TissueSimulation<DIM>::GetGhostNodes()
-{
-    return mrCrypt.rGetGhostNodes();
-}
+//template<unsigned DIM> 
+//std::vector<bool>& TissueSimulation<DIM>::GetGhostNodes()
+//{
+//    return mrCrypt.rGetGhostNodes();
+//}
 
 /**
  * Set the TissueSimulation to stop using the old method of sloughing cells into ghost nodes

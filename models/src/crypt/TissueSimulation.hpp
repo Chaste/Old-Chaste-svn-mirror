@@ -42,6 +42,12 @@
  * or are ghost nodes. The TissueSimulation then accesses only the 
  * MeinekeCryptCells via an iterator in the crypt facade class.
  * 
+ * The mesh should be surrounded by at least one layer of ghost nodes.  These are 
+ * nodes which do not correspond to a cell, but are necessary for remeshing (because 
+ * the remesher tries to create a convex hull of the set of nodes) and visualising 
+ * purposes. The crypt class deals with ghost nodes. SetGhostNodes() should have been called
+ * on it.
+ * 
  * Cells can divide (at a time governed by their cell cycle models)
  * 
  * Cells can die - at a time/position specified by cell killers which can be 
@@ -163,7 +169,7 @@ protected:
      */ 
     unsigned DoCellRemoval();
    
-   /**
+    /**
      * Calculates the forces on each node
      *
      * @return drdt the force components on each node
@@ -217,13 +223,11 @@ public:
     void SetOutputDirectory(std::string outputDirectory);
     void SetMaxCells(unsigned maxCells);
     void SetMaxElements(unsigned maxElements);
-    void SetGhostNodes(std::set<unsigned> ghostNodeIndices);
     void SetReMeshRule(bool remesh);
     void SetNoBirth(bool nobirth);
     void SetNoSloughing();
     void SetWntGradient(WntGradientType wntGradientType);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
-    std::vector<bool>& GetGhostNodes();
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
     
     void Solve();

@@ -350,13 +350,14 @@ public:
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
                 
         Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+
         TissueSimulation<2> simulator(crypt);
                 
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(12.0);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
-        simulator.SetGhostNodes(ghost_node_indices);
         
         simulator.Solve();
         
@@ -390,6 +391,8 @@ public:
         CreateVectorOfCells(cells, *p_mesh, FIXED, true,-1.0);
                 
         Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+
         TissueSimulation<2> simulator(crypt);
         
         simulator.SetNoSloughing();
@@ -397,7 +400,6 @@ public:
         simulator.SetEndTime(12.0);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
-        simulator.SetGhostNodes(ghost_node_indices);
         
         simulator.Solve();
         
@@ -465,15 +467,16 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
+
         Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+
         TissueSimulation<2> simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DSpringsCorrectCellNumbers");
         simulator.SetEndTime(40); //hours
         simulator.SetMaxCells(800);
         simulator.SetMaxElements(800);
-        
-        simulator.SetGhostNodes(ghost_node_indices);
         
         simulator.Solve();
         
@@ -542,17 +545,14 @@ public:
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
                
         Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+
         TissueSimulation<2> simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DPeriodicNightly");
-        
-        // Set length of simulation here
         simulator.SetEndTime(12.0);
-        
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
-        
-        simulator.SetGhostNodes(ghost_node_indices);
         
         simulator.Solve();
         
@@ -592,18 +592,16 @@ public:
         CreateVectorOfCells(cells, *p_mesh, WNT, true);
         
         Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+
         TissueSimulation<2> simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DPeriodicWntNightly");
         
-        // Set length of simulation here
         simulator.SetEndTime(24.0);
-        
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
         simulator.SetWntGradient(LINEAR);
-        
-        simulator.SetGhostNodes(ghost_node_indices);
         
         simulator.Solve();
         
@@ -661,19 +659,17 @@ public:
         }
         
         Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+
         TissueSimulation<2> simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DPeriodicMutant");
         
-        // Set length of simulation here
         simulator.SetEndTime(12.0);
-        
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
         simulator.SetWntGradient(LINEAR);
         
-        simulator.SetGhostNodes(ghost_node_indices);
-         
         simulator.Solve();
         
         // test we have the same number of cells and nodes at the end of each time
@@ -726,17 +722,14 @@ public:
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
               
         Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+
         TissueSimulation<2> simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DRandomDeathPeriodic");
-                
-        // Set length of simulation here
         simulator.SetEndTime(4.6);
-        
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
-                
-        simulator.SetGhostNodes(ghost_node_indices);
 
         AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&crypt, 0.01);
         simulator.AddCellKiller(p_random_cell_killer);
@@ -772,17 +765,14 @@ public:
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
               
         Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+
         TissueSimulation<2> simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DSloughingDeathNonPeriodic");
-        
-        // Set length of simulation here
         simulator.SetEndTime(4.0);
-        
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
-                
-        simulator.SetGhostNodes(ghost_node_indices);
 
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
@@ -816,17 +806,14 @@ public:
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
               
         Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+
         TissueSimulation<2> simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DSloughingDeathPeriodic");
-                
-        // Set length of simulation here
         simulator.SetEndTime(4.0);
-        
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
-                
-        simulator.SetGhostNodes(ghost_node_indices);
 
         AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&crypt);
         simulator.AddCellKiller(p_cell_killer);

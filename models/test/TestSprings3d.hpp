@@ -535,9 +535,10 @@ public:
         TS_ASSERT(ghost_node_indices.size() > 0)
         
         Crypt<3> crypt(mesh,cells);
+        crypt.SetGhostNodes(ghost_node_indices);        
+
         TissueSimulation<3> simulator(crypt);
 
-        simulator.SetGhostNodes(ghost_node_indices);        
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
         simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");

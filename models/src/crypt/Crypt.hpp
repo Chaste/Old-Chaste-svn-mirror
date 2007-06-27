@@ -55,13 +55,13 @@ private:
      */
     bool mDeleteMesh;
     
+    /** list of cells */
     std::list<MeinekeCryptCell> mCells;
     /** Map node indices back to cells. */
     std::map<unsigned, MeinekeCryptCell*> mNodeCellMap;
     
-    /** Records which nodes are ghosts */
+    /** Records whether a nodes is a ghost node or not */
     std::vector<bool> mIsGhostNode;
-    bool mSelfSetGhostNodes;
 
     /** used in seting up tabulated writers */
     unsigned mMaxCells;
@@ -113,7 +113,19 @@ public:
     const ConformingTetrahedralMesh<DIM, DIM>& rGetMesh() const;
     const std::list<MeinekeCryptCell>& rGetCells() const;
     std::vector<bool>& rGetGhostNodes();
-    void SetGhostNodes(std::vector<bool>);
+
+    /** 
+     *  Set the ghost nodes, by taking in a vector of bools saying whether each 
+     *  node is a ghost or not. Won't generally be needed to be called, see 
+     *  alternate version of SetGhostNodes which takes in the ghost node indices
+     */
+    void SetGhostNodes(std::vector<bool> isGhostNode);
+
+    /**
+     *  Set the ghost nodes by taking in a set of which nodes are ghosts.
+     */
+    void SetGhostNodes(const std::set<unsigned>& ghostNodeIndices);
+
     void SetMaxCells(unsigned maxCells);
     void SetMaxElements(unsigned maxElements);
     
