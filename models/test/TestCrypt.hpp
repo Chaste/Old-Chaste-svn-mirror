@@ -259,8 +259,8 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(old_num_nodes)->rGetLocation()[1], 2.0, 1e-12);
 
         // check the index of the new cell
-        std::vector<MeinekeCryptCell>& r_cells = crypt.rGetCells();
-        TS_ASSERT_EQUALS(r_cells[r_cells.size()-1].GetNodeIndex(), old_num_nodes);
+        MeinekeCryptCell& new_cell = crypt.rGetCells().back();
+        TS_ASSERT_EQUALS(new_cell.GetNodeIndex(), old_num_nodes);
         
         SimulationTime::Destroy();
     }

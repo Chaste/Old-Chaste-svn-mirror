@@ -262,7 +262,7 @@ public:
     // to 24.0 and it will look like a parallelogram.
     // However we keep the simulation time at 1.0 to make
     // the test short.
-    void Test2DSpringSystemWithSloughing() throw (Exception)
+    void dontTest2DSpringSystemWithSloughing() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         
@@ -326,7 +326,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void Test2DHoneycombMeshNotPeriodic() throw (Exception)
+    void dontTest2DHoneycombMeshNotPeriodic() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
        
@@ -366,7 +366,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void TestMonolayer() throw (Exception)
+    void dontTestMonolayer() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
        
@@ -412,7 +412,7 @@ public:
     // differentiated, check the number of cells at the end of the
     // simulation is as expected.
     //////////////////////////////////////////////////////////////////
-    void Test2DCorrectCellNumbers() throw (Exception)
+    void dontTest2DCorrectCellNumbers() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator::Instance();
@@ -524,7 +524,7 @@ public:
 // 
 ////////////////////////////////////////////////////////////////////////////
     
-    void Test2DPeriodicNightly() throw (Exception)
+    void dontTest2DPeriodicNightly() throw (Exception)
     {        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -569,7 +569,7 @@ public:
     }
     
     
-    void TestCrypt2DPeriodicWntNightly() throw (Exception)
+    void dontTestCrypt2DPeriodicWntNightly() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
@@ -619,7 +619,7 @@ public:
     }
     
    
-    void TestWithMutantCellsUsingDifferentViscosities() throw (Exception)
+    void dontTestWithMutantCellsUsingDifferentViscosities() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
@@ -707,7 +707,7 @@ public:
     
 
     
-    void TestRandomDeathWithPeriodicMesh() throw (Exception)
+    void dontTestRandomDeathWithPeriodicMesh() throw (Exception)
     {
         unsigned cells_across = 7;
         unsigned cells_up = 12;
@@ -754,7 +754,7 @@ public:
   
     // Sloughing with a sloughing cell killer and not turning into ghost nodes
     // on a non-periodic mesh
-    void TestSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
+    void dontTestSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
     {
         unsigned cells_across = 6;
         unsigned cells_up = 12;

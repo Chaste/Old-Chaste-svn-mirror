@@ -12,7 +12,7 @@ class TestVolumeCalculator : public CxxTest::TestSuite
 {
 public:
 
-    void Volume(char* meshFile, double expectedVolume, double errorTolerance)
+    void CheckVolume(char* meshFile, double expectedVolume, double errorTolerance)
     {
         TrianglesMeshReader<3,3> meshReader(meshFile);
         ConformingTetrahedralMesh<3,3> mesh;
@@ -23,24 +23,24 @@ public:
     
     void TestCube(void)
     {
-        Volume("mesh/test/data/cube_136_elements", 1.0, 1e-6);
+        CheckVolume("mesh/test/data/cube_136_elements", 1.0, 1e-6);
     }
     
     void TestCube2(void)
     {
-        Volume("mesh/test/data/cube_1626_elements", 1.0, 1e-6);
+        CheckVolume("mesh/test/data/cube_1626_elements", 1.0, 1e-6);
     }
     
     void TestCylinderWithHole(void)
     {
-        Volume("mesh/test/data/cylinder_with_hole_840_elements", (15*5*5-4.0/3.0)*M_PI, 5e-2);
+        CheckVolume("mesh/test/data/cylinder_with_hole_840_elements", (15*5*5-4.0/3.0)*M_PI, 5e-2);
     }
     
     void TestCalculate1DLengthIn1DSpace()
     {
         // Calculate length of non-uniform mesh
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_4_non_uniform_elements");
-        ;
+        
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         

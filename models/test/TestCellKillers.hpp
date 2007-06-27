@@ -54,7 +54,7 @@ public:
         
         Crypt<2> crypt(mesh, cells);
         // Get a reference to the cells held in crypt
-        std::vector<MeinekeCryptCell>& r_cells = crypt.rGetCells();
+        std::list<MeinekeCryptCell>& r_cells = crypt.rGetCells();
         
         // bad probabilities passed in
         TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&crypt, -0.1));
@@ -64,9 +64,9 @@ public:
        
         // check that a single cell reaches apoptosis
         unsigned max_tries=0;
-        while (!r_cells[0].HasApoptosisBegun() && max_tries<99)
+        while (!r_cells.begin()->HasApoptosisBegun() && max_tries<99)
         {
-            random_cell_killer.TestAndLabelSingleCellForApoptosis(r_cells[0]);
+            random_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
             max_tries++;
         }
         TS_ASSERT_DIFFERS(max_tries, 99u);
@@ -79,14 +79,15 @@ public:
         std::set< double > old_locations;
         
         bool apoptosis_cell_found=false;
-        unsigned count=1;
-        while (count<cells.size() && apoptosis_cell_found ==  false)
+        std::list<MeinekeCryptCell>::iterator cell_it = r_cells.begin();
+        ++cell_it;
+        while (cell_it != r_cells.end() && !apoptosis_cell_found)
         {
-            if (r_cells[count].HasApoptosisBegun())
+            if (cell_it->HasApoptosisBegun())
             {
                 apoptosis_cell_found = true;
             }
-            count++;
+            ++cell_it;
         }
         
         TS_ASSERT(apoptosis_cell_found);
@@ -97,11 +98,12 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         
         // store 'locations' of cells which are not dead
-        for (count=0; count<r_cells.size(); count++)
+        for (std::list<MeinekeCryptCell>::iterator it = r_cells.begin();
+             it != r_cells.end(); ++it)
         {
-            if (!r_cells[count].IsDead())
+            if (!it->IsDead())
             {
-                Node<2>* p_node = mesh.GetNode(cells[count].GetNodeIndex());
+                Node<2>* p_node = mesh.GetNode(it->GetNodeIndex());
                 c_vector< double, 2 > location = p_node->rGetLocation();
                 old_locations.insert(location[0]+location[1]*1000);
             }
@@ -112,10 +114,11 @@ public:
         
         // check that dead cells are removed from the mesh
         std::set< double > new_locations;
-        for ( count=0; count<r_cells.size(); count++)
+        for (std::list<MeinekeCryptCell>::iterator it = r_cells.begin();
+             it != r_cells.end(); ++it)
         {
-            TS_ASSERT(!r_cells[count].IsDead());
-            Node<2>* p_node = mesh.GetNode(r_cells[count].GetNodeIndex());
+            TS_ASSERT(!it->IsDead());
+            Node<2>* p_node = mesh.GetNode(it->GetNodeIndex());
             c_vector< double, 2 > location = p_node->rGetLocation();
             new_locations.insert(location[0]+location[1]*1000);
         }

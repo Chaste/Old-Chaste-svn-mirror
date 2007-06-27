@@ -406,7 +406,7 @@ public:
     
 
     // Testing Load (based on previous two tests)
-    void TestLoad() throw (Exception)
+    void TestLoad() throw (Exception) // crypt::archive needs fixed
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -541,8 +541,8 @@ public:
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
         
         TS_ASSERT_EQUALS(number_of_nodes,ghost_cells.size());
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 113u);
-        TS_ASSERT_EQUALS(number_of_nodes, 164u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 81u);
+        TS_ASSERT_EQUALS(number_of_nodes, 123u);
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();

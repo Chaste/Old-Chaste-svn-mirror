@@ -5,8 +5,11 @@
 #include "MeinekeCryptCell.hpp"
 #include "ColumnDataWriter.hpp"
 
+#include <list>
+
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/list.hpp>
 
 /**
  * Structure encapsulating variable identifiers for the node datawriter
@@ -52,7 +55,10 @@ private:
      */
     bool mDeleteMesh;
     
-    std::vector<MeinekeCryptCell> mCells;
+    std::list<MeinekeCryptCell> mCells;
+    /** Map node indices back to cells. */
+    std::map<unsigned, MeinekeCryptCell*> mNodeCellMap;
+    
     /** Records which nodes are ghosts */
     std::vector<bool>* mpGhostNodes;
     bool mSelfSetGhostNodes;
@@ -103,9 +109,9 @@ public:
     ~Crypt();
     
     ConformingTetrahedralMesh<DIM, DIM>& rGetMesh();
-    std::vector<MeinekeCryptCell>& rGetCells();
+    std::list<MeinekeCryptCell>& rGetCells();
     const ConformingTetrahedralMesh<DIM, DIM>& rGetMesh() const;
-    const std::vector<MeinekeCryptCell>& rGetCells() const;
+    const std::list<MeinekeCryptCell>& rGetCells() const;
     std::vector<bool>& rGetGhostNodes();
     void SetGhostNodes(std::vector<bool>&);
     void SetMaxCells(unsigned maxCells);
@@ -179,7 +185,7 @@ public:
         /**
          * Constructor for a new iterator.
          */
-        Iterator(Crypt& rCrypt, unsigned cellIndex);
+        Iterator(Crypt& rCrypt, std::list<MeinekeCryptCell>::iterator cellIter);
         
     private:
         /**
@@ -191,7 +197,7 @@ public:
         bool IsRealCell();
     
         Crypt& mrCrypt;
-        unsigned mCellIndex;
+        std::list<MeinekeCryptCell>::iterator mCellIter;
         unsigned mNodeIndex;
     };
 
@@ -290,12 +296,6 @@ public:
     
         Crypt& mrCrypt;
         
-        unsigned mElemIndex;
-        unsigned mNodeALocalIndex;
-        unsigned mNodeBLocalIndex;
-        unsigned mCellIndex;
-        unsigned mNodeIndex;
-        
         typename ConformingTetrahedralMesh<DIM, DIM>::EdgeIterator mEdgeIter;
     };
 
@@ -338,8 +338,9 @@ inline void load_construct_data(
     Archive & ar, Crypt<DIM> * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
-    std::vector<MeinekeCryptCell> cells;
+    std::list<MeinekeCryptCell> cells;
     ar >> cells;
+    std::vector<MeinekeCryptCell> vec_cells(cells.begin(), cells.end());
     ConformingTetrahedralMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
     // Re-initialise the mesh
@@ -347,7 +348,7 @@ inline void load_construct_data(
     TrianglesMeshReader<DIM,DIM> mesh_reader(Crypt<DIM>::meshPathname);
     p_mesh->ConstructFromMeshReader(mesh_reader);
     // invoke inplace constructor to initialize instance
-    ::new(t)Crypt<DIM>(*p_mesh, cells, true);
+    ::new(t)Crypt<DIM>(*p_mesh, vec_cells, true);
 }
 }
 } // namespace ...

@@ -13,7 +13,7 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
                   std::vector<MeinekeCryptCell> cells,
                   bool deleteMesh)
              : mrMesh(rMesh),
-               mCells(cells)
+               mCells(cells.begin(), cells.end())
 {
     mDeleteMesh = deleteMesh;
     mSelfSetGhostNodes = true;
@@ -22,8 +22,21 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
     mMaxCells = 10*mrMesh.GetNumNodes();
     mMaxElements = 10*mrMesh.GetNumElements();
     
-    if (mCells.size()>0) // remove this line when facade is finished
+    /// \todo remove (need for) tests with empty cells vector, and assert (size>0)
+    if (mCells.size()>0)
     {
+        // Set up the node map
+        for (std::list<MeinekeCryptCell>::iterator it = mCells.begin();
+             it != mCells.end();
+             ++it)
+        {
+            /// \todo check it points to a real cell; if not do
+            /// it = mCells.erase(it); --it; continue;
+            unsigned node_index = it->GetNodeIndex();
+            mNodeCellMap[node_index] = &(*it);
+        }
+        
+        // remove this line when facade is finished
 	    Validate();
     }
 }
@@ -74,14 +87,7 @@ void Crypt<DIM>::Validate()
 template<unsigned DIM>
 MeinekeCryptCell& Crypt<DIM>::rGetCellAtNodeIndex(unsigned nodeGlobalIndex)
 {
-    MeinekeCryptCell& cell = mCells[nodeGlobalIndex];
-    //note: at the moment the index into the mCells vector is the same
-    //as the node index. later this may not be the case, in which case
-    //the following assertion will trip. to deal with this, a map from 
-    //node index to cell will be needed
-    assert(!(*mpGhostNodes)[nodeGlobalIndex]);
-    assert(cell.GetNodeIndex() == nodeGlobalIndex);
-    return cell;
+    return *(mNodeCellMap[nodeGlobalIndex]);
 }
 
 template<unsigned DIM>
@@ -91,7 +97,7 @@ ConformingTetrahedralMesh<DIM, DIM>& Crypt<DIM>::rGetMesh()
 }
 
 template<unsigned DIM>
-std::vector<MeinekeCryptCell>& Crypt<DIM>::rGetCells()
+std::list<MeinekeCryptCell>& Crypt<DIM>::rGetCells()
 {
     return mCells;
 }
@@ -103,7 +109,7 @@ const ConformingTetrahedralMesh<DIM, DIM>& Crypt<DIM>::rGetMesh() const
 }
 
 template<unsigned DIM>
-const std::vector<MeinekeCryptCell>& Crypt<DIM>::rGetCells() const
+const std::list<MeinekeCryptCell>& Crypt<DIM>::rGetCells() const
 {
     return mCells;
 }
@@ -128,41 +134,20 @@ void Crypt<DIM>::SetGhostNodes(std::vector<bool>& rGhostNodes)
 template<unsigned DIM>
 unsigned Crypt<DIM>::RemoveDeadCells()
 {
-    unsigned num_to_be_removed = 0;
-    for (unsigned i=0; i<mCells.size(); i++)
+    unsigned num_removed = 0;
+    for (std::list<MeinekeCryptCell>::iterator it = mCells.begin();
+         it != mCells.end();
+         ++it)
     {
-        if (mCells[i].IsDead())
+        if (it->IsDead())
         {
-            num_to_be_removed++;
+            num_removed++;
+            mrMesh.DeleteNodePriorToReMesh(it->GetNodeIndex());
+            it = mCells.erase(it);
+            --it;
         }
     }
-    
-    if(num_to_be_removed==0)
-    {
-        return 0;
-    }
-    else
-    { 
-        unsigned num_cells = (unsigned)(mCells.size() - num_to_be_removed); 
-        std::vector<MeinekeCryptCell> living_cells;
-        living_cells.reserve(num_cells);
-    
-        for (unsigned i=0; i<mCells.size(); i++)
-        {
-            MeinekeCryptCell* p_cell=&(mCells[i]);
-            if (p_cell->IsDead())
-            {
-                mrMesh.DeleteNodePriorToReMesh(p_cell->GetNodeIndex());
-            }
-            else
-            {
-                living_cells.push_back(*p_cell);
-            }
-        }
-        mCells = living_cells;
-    
-        return num_to_be_removed;
-    }
+    return num_removed;
 }
 
 template<unsigned DIM>
@@ -259,6 +244,7 @@ void Crypt<DIM>::AddCell(MeinekeCryptCell newCell, c_vector<double,DIM> newLocat
 
     newCell.SetNodeIndex(new_node_index);
     mCells.push_back(newCell);
+    mNodeCellMap[new_node_index] = &(mCells.back());
 
     // Update size of IsGhostNode if necessary
     if (mrMesh.GetNumNodes() > mpGhostNodes->size())
@@ -296,18 +282,18 @@ void Crypt<DIM>::ReMesh()
             }
         }
 
-        // loop over cells. NOTE: we CANT use the iterator here, as the 
-        // cells are currently not in sync with the ghost nodes vector
-        for(unsigned cell_index = 0; cell_index<mCells.size(); cell_index++)
+        // Fix up the mappings between cells and nodes
+        mNodeCellMap.clear();
+        for (std::list<MeinekeCryptCell>::iterator it = mCells.begin();
+             it != mCells.end();
+             ++it)
         {
-            unsigned old_node_index = mCells[cell_index].GetNodeIndex();
-
-            // this shouldn't ever happen, as the cell vectors is only ever living 
-            // cells
+            unsigned old_node_index = it->GetNodeIndex();
+            // this shouldn't ever happen, as the cell vectors is only ever living cells
             assert(!map.IsDeleted(old_node_index));
-           
             unsigned new_node_index = map.GetNewIndex(old_node_index);
-            mCells[cell_index].SetNodeIndex(new_node_index);
+            it->SetNodeIndex(new_node_index);
+            mNodeCellMap[new_node_index] = &(*it);
         }
     }
     
@@ -333,7 +319,7 @@ template<unsigned DIM>
 MeinekeCryptCell& Crypt<DIM>::Iterator::operator*()
 {
     assert((*this) != mrCrypt.End());
-    return mrCrypt.rGetCells()[mCellIndex];
+    return *mCellIter;
 }
 
 
@@ -341,7 +327,7 @@ template<unsigned DIM>
 MeinekeCryptCell* Crypt<DIM>::Iterator::operator->()
 {
     assert((*this) != mrCrypt.End());
-    return &(mrCrypt.rGetCells()[mCellIndex]);
+    return &(*mCellIter);
 }
 
 
@@ -361,7 +347,7 @@ const c_vector<double, DIM>& Crypt<DIM>::Iterator::rGetLocation()
 template<unsigned DIM>
 bool Crypt<DIM>::Iterator::operator!=(const Crypt<DIM>::Iterator& other)
 {
-    return mCellIndex != other.mCellIndex;   
+    return mCellIter != other.mCellIter;   
 }
 
 template<unsigned DIM>
@@ -369,10 +355,10 @@ typename Crypt<DIM>::Iterator& Crypt<DIM>::Iterator::operator++()
 {
     do
     {
-        mCellIndex++;
+        ++mCellIter;
         if((*this) != mrCrypt.End())
         {
-            mNodeIndex = mrCrypt.rGetCells()[mCellIndex].GetNodeIndex();
+            mNodeIndex = mCellIter->GetNodeIndex();
         }
     }
     while ((*this) != mrCrypt.End() && !IsRealCell());
@@ -388,18 +374,18 @@ bool Crypt<DIM>::Iterator::IsRealCell()
 }
 
 template<unsigned DIM>
-Crypt<DIM>::Iterator::Iterator(Crypt& rCrypt, unsigned cellIndex)
+Crypt<DIM>::Iterator::Iterator(Crypt& rCrypt, std::list<MeinekeCryptCell>::iterator cellIter)
     : mrCrypt(rCrypt),
-      mCellIndex(cellIndex)
+      mCellIter(cellIter)
 {
     // Make sure the crypt isn't empty
     assert(mrCrypt.rGetCells().size() > 0);
-    if (mCellIndex != mrCrypt.rGetCells().size())
+    if (mCellIter != mrCrypt.rGetCells().end())
     {
-        mNodeIndex = mrCrypt.rGetCells()[mCellIndex].GetNodeIndex();
+        mNodeIndex = cellIter->GetNodeIndex();
     }
     // Make sure we start at a real cell
-    if (mCellIndex == 0 && !IsRealCell())
+    if (mCellIter == mrCrypt.rGetCells().begin() && !IsRealCell())
     {
         ++(*this);
     }
@@ -408,13 +394,13 @@ Crypt<DIM>::Iterator::Iterator(Crypt& rCrypt, unsigned cellIndex)
 template<unsigned DIM>
 typename Crypt<DIM>::Iterator Crypt<DIM>::Begin()
 {
-    return Iterator(*this, 0);
+    return Iterator(*this, mCells.begin());
 }
 
 template<unsigned DIM>
 typename Crypt<DIM>::Iterator Crypt<DIM>::End()
 {
-    return Iterator(*this, mCells.size());
+    return Iterator(*this, mCells.end());
 }
 
 
@@ -553,37 +539,34 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
         {
             colour = 4; // visualizer treats '4' these as invisible
         }
-// remove this else - facade eventually shouldn't be able to have empty cells vector
+        else if (mrMesh.GetNode(index)->IsDeleted())
+        {
+            // do nothing
+        }
+/// \todo remove this if - facade eventually shouldn't be able to have empty cells vector
         else if (mCells.size()>0)
         {
-            if (index < mCells.size())
+            MeinekeCryptCell* p_cell = mNodeCellMap[index];
+            
+            CryptCellType type = p_cell->GetCellType();
+            CryptCellMutationState mutation = p_cell->GetMutationState();
+            
+            if (type == STEM)
             {
-                CryptCellType type = mCells[index].GetCellType();
-                CryptCellMutationState mutation = mCells[index].GetMutationState();
-                
-                if (type == STEM)
-                {
-                    colour = 0;
-                }
-                else if (type == TRANSIT)
-                {
-                    colour = 1;
-                }
-                else
-                {
-                    colour = 2;
-                }
-                
-                if (mutation!=HEALTHY)
-                {
-                    colour = 3;
-                }
+                colour = 0;
+            }
+            else if (type == TRANSIT)
+            {
+                colour = 1;
             }
             else
             {
-                #define COVERAGE_IGNORE
-                colour = 2; //Fix for segmentation fault
-                #undef COVERAGE_IGNORE
+                colour = 2;
+            }
+            
+            if (mutation != HEALTHY)
+            {
+                colour = 3;
             }
             
         }
