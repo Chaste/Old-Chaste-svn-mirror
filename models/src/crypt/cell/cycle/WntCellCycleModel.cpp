@@ -4,6 +4,8 @@
 #include <cassert>
 #include <cfloat>
 
+RungeKutta4IvpOdeSolver WntCellCycleModel::msSolver;
+
 /**
  * Model constructor - an initial wnt stimulus must be provided to set up the
  * wnt pathway in an equilibrium state.
@@ -118,10 +120,10 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 
             double meshSize = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
             
-            OdeSolution solution = mSolver.Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, meshSize, meshSize);
+            OdeSolution solution = msSolver.Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, meshSize, meshSize);
 
             unsigned timeRows = solution.GetNumberOfTimeSteps();
-            if ( mSolver.StoppingEventOccured() == false )
+            if ( msSolver.StoppingEventOccured() == false )
             {
                 //Check ODE solver for consistency
                 assert (solution.rGetTimes()[timeRows] == current_time);
@@ -140,7 +142,7 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
                 }
             }
 
-            if (mSolver.StoppingEventOccured())
+            if (msSolver.StoppingEventOccured())
             {
                 unsigned end = solution.rGetSolutions().size() - 1;
                 // Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)

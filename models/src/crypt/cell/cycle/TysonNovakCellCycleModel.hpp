@@ -22,7 +22,7 @@ class TysonNovakCellCycleModel : public AbstractCellCycleModel
 {
 private:
     TysonNovak2001OdeSystem mOdeSystem;
-    BackwardEulerIvpOdeSolver mSolver;
+    static BackwardEulerIvpOdeSolver msSolver;
     double mLastTime;
     double mDivideTime;
     std::vector <double> mProteinConcentrations;

@@ -2,11 +2,11 @@
 #include "Exception.hpp"
 #include <iostream>
 
+BackwardEulerIvpOdeSolver TysonNovakCellCycleModel::msSolver(6);
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
     : AbstractCellCycleModel(),
       mOdeSystem(),
-      mSolver(6),
       mProteinConcentrations(mOdeSystem.GetInitialConditions())
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
@@ -29,7 +29,6 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime)
     : AbstractCellCycleModel(),
       mOdeSystem(),
-      mSolver(6),
       mProteinConcentrations(parentProteinConcentrations)
 {
     if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
@@ -101,7 +100,7 @@ bool TysonNovakCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
         {
             double dt = 0.1/60.0;
             
-            OdeSolution solution = mSolver.Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, dt, dt);
+            OdeSolution solution = msSolver.Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, dt, dt);
             
             unsigned timeRows = solution.GetNumberOfTimeSteps();
             
@@ -118,7 +117,7 @@ bool TysonNovakCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
             }
             
             mLastTime = current_time;
-            mReadyToDivide = mSolver.StoppingEventOccured();
+            mReadyToDivide = msSolver.StoppingEventOccured();
             if (mReadyToDivide)
             {
                 unsigned end = solution.rGetSolutions().size() - 1;

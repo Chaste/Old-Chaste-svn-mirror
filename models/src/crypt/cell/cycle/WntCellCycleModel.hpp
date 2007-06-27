@@ -20,7 +20,7 @@ class WntCellCycleModel : public AbstractCellCycleModel
 {
 private:
     WntCellCycleOdeSystem mOdeSystem;
-    RungeKutta4IvpOdeSolver mSolver;
+    static RungeKutta4IvpOdeSolver msSolver;
     std::vector <double> mProteinConcentrations;
     double mLastTime;
     double mDivideTime;

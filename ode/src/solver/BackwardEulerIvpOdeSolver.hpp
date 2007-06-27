@@ -19,8 +19,8 @@ private:
     bool mForceUseOfNumericalJacobian;
     
     // NOTE: we use (unsafe) double pointers here rather than
-    // std::vectors because they std::vectors would lead to a
-    // slow down by a factor of about ~4
+    // std::vectors because using std::vectors would lead to a
+    // slow down by a factor of about 4.
     
     /** Working memory : residual vector */
     double* mResidual;
@@ -212,9 +212,6 @@ protected:
     }
     
 public:
-
-
-
     BackwardEulerIvpOdeSolver(unsigned sizeOfOdeSystem)
     {
         mSizeOfOdeSystem = sizeOfOdeSystem;
