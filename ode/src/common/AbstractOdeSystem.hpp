@@ -12,6 +12,8 @@
  */
 class AbstractOdeSystem
 {
+    friend class TestAbstractOdeSystem;
+    
 protected:
     unsigned mNumberOfStateVariables;
     std::vector<double> mStateVariables;

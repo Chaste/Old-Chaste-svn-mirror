@@ -306,8 +306,8 @@ public:
     {
         if (!(0.0<=rY[index] && rY[index]<=1.0))
         {
-            EXCEPTION(mVariableNames[index] + 
-                      " gate has gone out of range. Check model parameters, for example spatial stepsize");
+            EXCEPTION(DumpState(mVariableNames[index] + 
+                      " gate has gone out of range. Check model parameters, for example spatial stepsize"));
         }
     }
 #undef COVERAGE_IGNORE

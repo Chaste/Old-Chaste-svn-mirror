@@ -116,32 +116,32 @@ void LuoRudyIModel1991OdeSystem::EvaluateYDerivatives(double time,
 #define COVERAGE_IGNORE
     if (!(0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0))
     {
-        EXCEPTION("h gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize");
+        EXCEPTION(DumpState("h gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
     
     if (!(0.0<=fast_sodium_current_j_gate_j && fast_sodium_current_j_gate_j<=1.0))
     {
-        EXCEPTION("j gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize");
+        EXCEPTION(DumpState("j gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
     
     if (!(0.0<=fast_sodium_current_m_gate_m && fast_sodium_current_m_gate_m<=1.0))
     {
-        EXCEPTION("m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize");
+        EXCEPTION(DumpState("m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
     
     if (!(0.0<=slow_inward_current_d_gate_d && slow_inward_current_d_gate_d<=1.0))
     {
-        EXCEPTION("d gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize");
+        EXCEPTION(DumpState("d gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
     
     if (!(0.0<=slow_inward_current_f_gate_f && slow_inward_current_f_gate_f<=1.0))
     {
-        EXCEPTION("f gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize");
+        EXCEPTION(DumpState("f gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
     
     if (!(0.0<=time_dependent_potassium_current_X_gate_X && time_dependent_potassium_current_X_gate_X<=1.0))
     {
-        EXCEPTION("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize");
+        EXCEPTION(DumpState("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
 #undef COVERAGE_IGNORE
 #endif

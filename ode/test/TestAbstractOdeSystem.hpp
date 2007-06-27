@@ -120,6 +120,18 @@ public:
         
         TS_ASSERT_EQUALS(ode_system.GetStateVariableUnitsByNumber(var_number), "mMol");        
     }
+    
+    // This test is mainly for coverage purposes.
+    void TestDumpState()
+    {
+        // Create an LR91 ode system
+        InitialStimulus stimulus(0, 0, 0);
+        EulerIvpOdeSolver solver;
+        LuoRudyIModel1991OdeSystem ode_system(&solver, 0.01, &stimulus);
+        
+        // Dump the state variables
+        std::string state = ode_system.DumpState("This is a test.");
+    }
 };
 
 
