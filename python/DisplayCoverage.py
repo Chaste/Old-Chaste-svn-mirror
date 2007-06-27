@@ -92,13 +92,22 @@ def coverage_ignore(src_file):
     
     This will only work if header files don't contain non-template function
     definitions, which should be the case if we're being good programmers.
+    Unfortunately the boost serialization tweaking file "TemplatedExport.hpp"
+    has some templated definitions which are not code, for this reason we only
+    scrape the file for "template" or "class" definitions that are not surrounded
+    by COVERAGE_IGNORE.
     """
     ignore = False
     if src_file['file'][-4:] == '.hpp':
         ignore = True
         fp = open(os.path.join(src_file['dir'], src_file['file']))
+        code = True
         for line in fp:
-            if line.startswith('template') or line.startswith('class '):
+            if line.find('#define COVERAGE_IGNORE') != -1:
+                code = False
+            elif line.find('#undef COVERAGE_IGNORE') != -1:
+                code = True
+	    if code == True and (line.startswith('template') or line.startswith('class ')):
                 ignore = False
                 break
         fp.close()

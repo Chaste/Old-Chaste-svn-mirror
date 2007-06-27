@@ -49,10 +49,12 @@ bool Face::operator==(Face& otherFace)
     return other_iterator==otherFace.mVertices.begin();
 };
 
+#define COVERAGE_IGNORE //Spuriously not covered
 bool Face::operator!=(Face& otherFace)
 {
    return !(*this==otherFace);
 };
+#undef COVERAGE_IGNORE
  
 Face Face::operator-()
 {
