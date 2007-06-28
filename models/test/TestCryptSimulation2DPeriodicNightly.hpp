@@ -24,6 +24,44 @@
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 
+
+// Simple cell killer which just kills a single cell.
+// The constructor takes in a number, and the killer
+// will kill the number-th cell reached using the iterator
+// (or the last cell, if n>num_cells)
+//
+// For testing purposes
+class SingleCellCellKiller : public AbstractCellKiller<2>
+{
+private :
+    unsigned mNumber;
+
+public :
+    SingleCellCellKiller(Crypt<2>* pCrypt, unsigned number)
+        : AbstractCellKiller<2>(pCrypt),
+          mNumber(number)
+    {
+    }
+    
+    virtual void TestAndLabelCellsForApoptosisOrDeath()
+    {
+        if(mpCrypt->GetNumRealCells()==0)
+        {
+            return;
+        }
+        
+        Crypt<2>::Iterator cell_iter = mpCrypt->Begin();
+       
+        for(unsigned i=0; ( (i<mNumber) && (cell_iter!=mpCrypt->End()) ); i++)
+        {
+            ++cell_iter;
+        }
+        
+        cell_iter->Kill();
+    }
+};
+
+
 // Possible types of Cell Cycle Model (just for CreateVectorOfCells method)
 typedef enum CellCycleType_
 {
@@ -785,6 +823,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
 
+
     void TestSloughingDeathWithPeriodicMesh() throw (Exception)
     {
         unsigned cells_across = 7;
@@ -841,6 +880,71 @@ public:
         RandomNumberGenerator::Destroy();
     }
 
+
+    void TestWithMultipleCellKillers() throw (Exception)
+    {
+        unsigned cells_across = 7;
+        unsigned cells_up = 12;
+        unsigned thickness_of_ghost_layer = 4;
+        
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cells;
+        CreateVectorOfCells(cells, *p_mesh, FIXED, true);
+              
+        Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+
+        TissueSimulation<2> simulator(crypt);
+        
+        simulator.SetOutputDirectory("CryptWithMultipleCellKillers");
+
+        // these killers are defined in this test. They kill the first and second
+        // available cell, respectively.
+        AbstractCellKiller<2>* p_cell_killer1 = new SingleCellCellKiller(&crypt,0);
+        AbstractCellKiller<2>* p_cell_killer2 = new SingleCellCellKiller(&crypt,1);
+
+        simulator.AddCellKiller(p_cell_killer1);
+        simulator.AddCellKiller(p_cell_killer2);
+        
+        simulator.SetNoSloughing();
+
+        // just enough time to kill off all the cells, as two are killed per timestep
+        double dt = 0.01;
+        unsigned num_cells = crypt.GetNumRealCells();
+        simulator.SetDt(dt);
+        simulator.SetEndTime(0.5*dt*num_cells);
+
+        
+        simulator.Solve();
+        
+        std::vector<bool> ghost_node_indices_after = crypt.rGetGhostNodes();
+        unsigned num_ghosts=0;
+        for (unsigned i=0; i < ghost_node_indices_after.size() ; i++)
+        {
+            if (ghost_node_indices_after[i])
+            {
+                num_ghosts++;
+            }
+        }
+        
+        // Check no new ghost nodes have been created.
+        TS_ASSERT_EQUALS(num_ghosts, ghost_node_indices.size());
+
+        // all cells should have been removed in this time
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
+    
+        delete p_cell_killer1;
+        delete p_cell_killer2;
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
 };
 
 
