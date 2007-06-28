@@ -1045,13 +1045,17 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     {
         binary_name="tetgen";
     }
-    std::string command   = "./bin/"+ binary_name +" -e "
-                            + full_name + "node"
-                            + " > /dev/null";
+    std::string command =   "./bin/"+ binary_name +" -e "
+                          + full_name + "node"
+                          + " > /dev/null";
     int return_value = system(command.c_str());
     
     if (return_value != 0)
     {
+        // try remeshing again, this time without sending the output to /dev/null 
+        // (just so the error message is displayed
+        std::string command = "./bin/"+ binary_name +" -e " + full_name + "node";
+        system(command.c_str());
         EXCEPTION("The triangle/tetgen mesher did not suceed in remeshing.");
     } 
     

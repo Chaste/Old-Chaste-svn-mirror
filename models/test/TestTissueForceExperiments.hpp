@@ -38,8 +38,7 @@ private :
     double mMaxHeight;
     
 public :
-    TissueSimulationForForceExperiments(Crypt<2> rCrypt,
-                                        std::set<unsigned> ghostNodeIndices,
+    TissueSimulationForForceExperiments(Crypt<2>& rCrypt,
                                         bool fixXNotY)
         : TissueSimulation<2>(rCrypt),
           mFixXNotY(fixXNotY)
@@ -47,8 +46,6 @@ public :
         // this class is hardcoded for a particular honeycomb mesh! check num nodes is 
         // as expected  
         assert(mrCrypt.rGetMesh().GetNumNodes()==360);
-        
-        mrCrypt.SetGhostNodes(ghostNodeIndices);
         
         // calc max value in the fixed direction.
         unsigned x_or_y = mFixXNotY ? 0 : 1;
@@ -87,21 +84,24 @@ public :
         assert(nodeAGlobalIndex!=nodeBGlobalIndex);
         c_vector<double,2> unit_difference;
         c_vector<double,2> node_a_location = mrCrypt.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
-        c_vector<double,2> node_b_location = mrCrypt.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
+        c_vector<double,2> node_b_location = mrCrypt.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
         
         // there is reason not to substract one position from the other (cyclidrical meshes). clever gary
         unit_difference = mrCrypt.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
         double distance_between_nodes = norm_2(unit_difference);
         unit_difference /= distance_between_nodes;
         
+        
         double rest_length = 1.0;
 
         if(!mrCrypt.rGetGhostNodes()[nodeAGlobalIndex] && mrCrypt.rGetGhostNodes()[nodeBGlobalIndex])
         {
+            assert(0);
             rest_length = 2;
         }
         if(mrCrypt.rGetGhostNodes()[nodeAGlobalIndex] && !mrCrypt.rGetGhostNodes()[nodeBGlobalIndex])
         {
+            assert(0);
             rest_length = 2;
         }
 
@@ -121,7 +121,6 @@ public :
     void UpdateNodePositions(const std::vector<c_vector<double,2> >& rDrDt)
     {
         mrCrypt.UpdateGhostPositions(mDt);
-
 
         for (Crypt<2>::Iterator cell_iter = mrCrypt.Begin();
              cell_iter != mrCrypt.End();
@@ -301,10 +300,8 @@ public:
      *  and allowing slip so that the width can change.
      * 
      */
-    void TestMeinekeIncremental()
+    void TestMeinekeIncremental() throw(Exception)
     {      
-        return; // needs fixing, now that things have changed..
-          
         std::vector<double> stretches;
         std::vector<double> forces;
         std::vector<double> areas;
@@ -322,7 +319,7 @@ public:
         // the main code 
         ////////////////////////////////////////////////////
         int num_cells_depth = 20; // the TissueSimulationForForceExperiments class expects these values!
-        int num_cells_width = 10; // the TissueSimulationForForceExperiments class expects these values!
+        int num_cells_width = 11; // the TissueSimulationForForceExperiments class expects these values!
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();        
@@ -370,15 +367,17 @@ public:
             }
 
             Crypt<2> crypt(*p_mesh,cells);
-	        TissueSimulationForForceExperiments simulator(crypt, ghost_node_indices, fix_X_not_Y);
+            crypt.SetGhostNodes(ghost_node_indices);
+
+
+	        TissueSimulationForForceExperiments simulator(crypt, fix_X_not_Y);
 
             simulator.SetOutputDirectory(output_directory);
             simulator.SetEndTime(run_time);
             simulator.SetNoSloughing();     
-            simulator.rGetCrypt().ReMesh();
+            crypt.ReMesh();
 
             simulator.Solve();
-	
             double width = p_mesh->GetNode(327)->rGetLocation()[0] - p_mesh->GetNode(317)->rGetLocation()[0];	
             c_vector<double,2> force = simulator.CalculateTotalForce();
         
@@ -393,7 +392,7 @@ public:
             
 	        areas.push_back( width );
 
-            simulator.rGetCrypt().ReMesh();
+            crypt.ReMesh();
 
             std::vector<bool> is_ghost_node = crypt.rGetGhostNodes();
             ghost_node_indices.clear();
