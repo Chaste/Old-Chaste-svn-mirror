@@ -296,7 +296,12 @@ public:
         //Set the a bad intial guess
         Vec bad_guess;
         VecDuplicate(good_guess, &bad_guess);
-        VecSet(bad_guess, 1e5);
+        PetscScalar too_big = 1e5;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        VecSet(&too_big, bad_guess);
+#else
+        VecSet(bad_guess, too_big);
+#endif
         TS_ASSERT_THROWS_ANYTHING(solution_vector = ls.Solve(&solver, bad_guess));
         
         VecDestroy(solution_vector);

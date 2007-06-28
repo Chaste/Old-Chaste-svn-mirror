@@ -414,7 +414,13 @@ public:
         //Set the bad guess
         Vec bad_guess;
         VecDuplicate(rhs_vector, &bad_guess);
-        VecSet(bad_guess, 5e4);
+        PetscScalar too_big = 5e4;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        VecSet(&too_big, bad_guess);
+#else
+        VecSet(bad_guess, too_big);
+#endif
+
         TS_ASSERT_THROWS_ANYTHING(solver.Solve(lhs_matrix, rhs_vector, 5, mat_null_space, bad_guess));
         
         VecDestroy(lhs_vector);
