@@ -195,19 +195,6 @@ protected:
             p_target_node_info->AddToNeighbourNodes(p_moving_node_info->GetNextNeighbourNode());
         }
         
-        /*
-        //Add neighbour elements to target
-        //This is unnecessary since the moving node has already de-registered from
-        // its containing elements (when marked for deletion  
-        Node<SPACE_DIM> *p_moving_node=p_moving_node_info->mpNode;
-        Node<SPACE_DIM> *p_target_node=p_target_node_info->mpNode;
-        for (ContainingElementIterator it = p_moving_node->ContainingElementsBegin();
-             it != p_moving_node->ContainingElementsEnd();
-             ++it)
-        {
-            p_target_node->AddElement(*it);
-        }
-        */
         //Swap moving node for target in all neigbours
         for (unsigned i=0; i<p_moving_node_info->GetNumNeighbourNodes(); i++)
         {
@@ -224,6 +211,7 @@ protected:
             //Find the neighbour's information
             NodeInfo<SPACE_DIM> *p_neighbour_info=p_moving_node_info->GetNextNeighbourNode();
             Rescore(p_neighbour_info);
+            //UpdateHeap(p_neighbour_info);
         }
         //Remove the moving node information from further consideration
         std::pop_heap(mQueue.begin(), mQueue.end(), CompNodeInfo<SPACE_DIM>());
@@ -331,37 +319,76 @@ protected:
         Heapify(0);
     }
     
-    void Heapify(unsigned i)
+    /**Make a local alteration to the heap after the score of a node has changed 
+     * If the score has increased then it should bubble down the minheap - run heapify
+     * If the score has decrease then it should bubble up the minheap.
+     * This will potentially break the heap invariant at the top of the heap.
+     * 
+     * @param The NodeInfo information of the node whose score has changed.
+     */ 
+    void UpdateHeap(NodeInfo<SPACE_DIM> *pNodeInfo)
+    {
+        unsigned index=pNodeInfo->mPositionInVector;
+        //Bubble low values upwards
+        index=HeapifyUpwards(index);
+        //Bubble high values downwards
+        Heapify(index);
+    }
+    
+    /**Preserve heap invariant locally by bubbling low values up the tree.
+     * Note that when a low value arrives at its new destination it does so 
+     * because it was lower than its parent.  It shouldn't break the invariant
+     * with the other child, but in the case of equality it may.  Therefore it's
+     * a good idea to heapify.
+     * 
+     * @param index of the node to start this local operation
+     * @return index of the last node affected
+     */
+    unsigned HeapifyUpwards(unsigned index)
+    {
+        return index;//todo
+    }
+     
+       
+    /** Core function of the minheap
+     * Preserve heap invariant locally by bubbling high values down the tree.
+     * @param index of the node to start this local operation
+     */
+    void Heapify(unsigned index)
     {
         //Set child to be the left child
         unsigned size=mQueue.size();
-        unsigned child=(2*i+1)<size?(2*i+1):0;
-        if (child == 0)
-        {
-            return;//There are no children
-        }
-        unsigned right_child=(2*i+2)<size?(2*i+2):0;
+        unsigned child=(2*index+1)<size?(2*index+1):0;
         
-        //Set child to be the minimum of the two children
-        if (right_child != 0)
+        while (child)
         {
-            if (!(*mQueue[right_child] > *mQueue[child]))
+            unsigned right_child=child+1<size?child+1:0;
+            
+            //Set child to be the minimum of the two children
+            if (right_child != 0)
             {
-                child=right_child;
+                if (!(*mQueue[right_child] > *mQueue[child]))
+                {
+                    child=right_child;
+                }
             }
-        }
-        
-        //Check the heap invariant and fix as necessary
-        if (*mQueue[i] > *mQueue[child])
-        {
-            //swap
-            NodeInfo<SPACE_DIM> *temp=mQueue[i];
-            mQueue[i]=mQueue[child];
-            mQueue[i]->mPositionInVector=i;
-            mQueue[child]=temp;
-            mQueue[child]->mPositionInVector=child;
-            //recurse
-            Heapify(child);
+            
+            //Check the heap invariant and fix as necessary
+            if (*mQueue[index] > *mQueue[child])
+            {
+                //swap
+                NodeInfo<SPACE_DIM> *temp=mQueue[index];
+                mQueue[index]=mQueue[child];
+                mQueue[index]->mPositionInVector=index;
+                mQueue[child]=temp;
+                mQueue[child]->mPositionInVector=child;
+            }
+            else
+            {
+                break;
+            }
+            index=child;
+            child=(2*index+1)<size?(2*index+1):0;
         }
     }
 public:
@@ -449,12 +476,13 @@ public:
            
         //My make heap
         MakeHeap();
+        /*
         //Check things are in the right places
         for (unsigned i=0; i<mQueue.size();i++)
         {
             assert(mQueue[i]->mPositionInVector == i);
         }
-        /*
+
         for (unsigned i=0; i<mQueue.size();i++)
         {
             std::cout<<"i "<<i<<"("<<mQueue[i]->mScore<<")\t";
