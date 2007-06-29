@@ -6,11 +6,13 @@
 #include "NodeInfo.hpp"
 #include "Exception.hpp"
 #include <vector>
-#include <ext/algorithm>
+//#include <ext/algorithm>
 
 /*** \todo
 * makeheap efficiency
 * inner product interpolation
+* decimator adapters
+* fibres with holes
 */
 
 ///Note ELEMENT_DIM matches SPACE_DIM
@@ -173,15 +175,14 @@ protected:
     
     void ActivateOnce()
     {
-        NodeInfo<SPACE_DIM> *p_moving_node_info=mQueue[0];
+        //Identify the moving node and its ideal target
+        NodeInfo<SPACE_DIM> *p_moving_node_info=PopHeap();
         unsigned moving_node_index=p_moving_node_info->GetIndex();
         
         NodeInfo<SPACE_DIM> *p_target_node_info=p_moving_node_info->mpBestNeighbourNode;
         unsigned target_node_index=p_target_node_info->GetIndex();
         
-        
-        
-        //std::cout<<"Moving "<<moving_node_index<<" to "<<target_node_index<<"\n";
+        //Make the move
         mpMesh->MoveMergeNode(moving_node_index, target_node_index);
         
         //Update the neighbour information
@@ -202,24 +203,16 @@ protected:
             p_neighbour_info->RemoveFromNeighbourNodes(p_moving_node_info);
             p_neighbour_info->AddToNeighbourNodes(p_target_node_info);
         }
-        
-        
-        
-        
+                
+        //Rescore the neighbours
         for (unsigned i=0; i<p_moving_node_info->GetNumNeighbourNodes(); i++)
         {
             //Find the neighbour's information
             NodeInfo<SPACE_DIM> *p_neighbour_info=p_moving_node_info->GetNextNeighbourNode();
             Rescore(p_neighbour_info);
-            //UpdateHeap(p_neighbour_info);
+            UpdateHeap(p_neighbour_info);
         }
-        //Remove the moving node information from further consideration
-        std::pop_heap(mQueue.begin(), mQueue.end(), CompNodeInfo<SPACE_DIM>());
-        mQueue.pop_back();
         delete(p_moving_node_info);
-        
-        //This is potentially inefficient since we've only changed the odd node here and there
-        std::make_heap(mQueue.begin(),mQueue.end(),CompNodeInfo<SPACE_DIM>());
     }
     
     
@@ -319,6 +312,16 @@ protected:
         Heapify(0);
     }
     
+    NodeInfo<SPACE_DIM> *PopHeap()
+    {
+        NodeInfo<SPACE_DIM> *p_top_heap=mQueue[0];
+        //Remove minimum from the heap and re-make it
+        mQueue[0]=mQueue.back();
+        mQueue[0]->mPositionInVector=0;
+        mQueue.pop_back();
+        Heapify(0);
+        return p_top_heap;
+    }
     /**Make a local alteration to the heap after the score of a node has changed 
      * If the score has increased then it should bubble down the minheap - run heapify
      * If the score has decrease then it should bubble up the minheap.
@@ -346,6 +349,25 @@ protected:
      */
     unsigned HeapifyUpwards(unsigned index)
     {
+        while (index != 0)
+        {
+            unsigned parent=(index-1)/2;
+            //Check the heap invariant and fix as necessary
+            if (*mQueue[parent] > *mQueue[index])
+            {
+                //swap
+                NodeInfo<SPACE_DIM> *temp=mQueue[parent];
+                mQueue[parent]=mQueue[index];
+                mQueue[parent]->mPositionInVector=parent;
+                mQueue[index]=temp;
+                mQueue[index]->mPositionInVector=index;
+            }
+            else
+            {
+                break;
+            }
+            index=parent;
+        }
         return index;//todo
     }
      
@@ -363,16 +385,14 @@ protected:
         while (child)
         {
             unsigned right_child=child+1<size?child+1:0;
-            
-            //Set child to be the minimum of the two children
             if (right_child != 0)
             {
+                assert((right_child-1)/2 == index);
                 if (!(*mQueue[right_child] > *mQueue[child]))
                 {
                     child=right_child;
                 }
             }
-            
             //Check the heap invariant and fix as necessary
             if (*mQueue[index] > *mQueue[child])
             {
@@ -476,29 +496,6 @@ public:
            
         //My make heap
         MakeHeap();
-        /*
-        //Check things are in the right places
-        for (unsigned i=0; i<mQueue.size();i++)
-        {
-            assert(mQueue[i]->mPositionInVector == i);
-        }
-
-        for (unsigned i=0; i<mQueue.size();i++)
-        {
-            std::cout<<"i "<<i<<"("<<mQueue[i]->mScore<<")\t";
-            if (2*(i+1)-1 < mQueue.size())
-            {
-                std::cout<<"l "<<2*(i+1)-1<<"("<<mQueue[2*(i+1)-1]->mScore<<")\t";
-                assert(mQueue[i]->mScore <= mQueue[2*(i+1)-1]->mScore); //Left child
-            }
-            if (2*(i+1) < mQueue.size())
-            {
-                std::cout<<"r "<<2*(i+1)<<"("<<mQueue[2*(i+1)]->mScore<<")\t";
-                assert(mQueue[i]->mScore <= mQueue[2*(i+1)]->mScore); //Right child
-            }
-            std::cout<<"\n";
-        }*/
-        
     }
     virtual ~Decimator()
     {

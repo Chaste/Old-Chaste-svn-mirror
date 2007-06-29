@@ -111,7 +111,8 @@ public:
         return mScore;
     }
 };
-
+/*No londer needed since we no longer use the STL heap
+ * 
 template <unsigned SPACE_DIM>
 class CompNodeInfo : public std::binary_function<NodeInfo<SPACE_DIM>*, NodeInfo<SPACE_DIM> *, bool>
 {
@@ -130,6 +131,6 @@ public:
         return (p1->GetIndex() > p2->GetIndex());
     }
 };
-
+*/
 
 #endif //_NODEINFO_HPP_
