@@ -261,10 +261,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 	
 	public void addTimeSlider(Frame frame) 
 	{
-		
-		
 		JPanel scrollPanel_time = new JPanel();
-		
 		
 		time_slider.setPreferredSize(new Dimension(frame.getWidth(),20));
 		time_slider.addAdjustmentListener(this);
@@ -300,8 +297,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 		frame.add(southPanel,BorderLayout.SOUTH);
 	}
 
-	public static void main(String args[]) {
-	     
+	public static void main(String args[]) 
+	{
 		System.out.println("Copyright Gavaghan's goons (everyone but ozzy)");//(Gary Mirams, Sarah Eastburn, Pras Pathmanathan, Alex Fletcher & Joe Pitt-Francis)");
 		output.setState(false);
 		springs.setState(false);
@@ -379,14 +376,15 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         
 
 		
-		
 		Visualize2dCells vis = new Visualize2dCells();
 		
-		try {
+		try 
+		{
 			BufferedReader skim_node_file = new BufferedReader(new FileReader(node_file));
 
 			int num_lines = 0;
-			while (skim_node_file.readLine() != null) {
+			while (skim_node_file.readLine() != null) 
+			{
 				num_lines++;
 			}
 
@@ -437,7 +435,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 			
 			// If line is not end of file continue
 			int row = 0;
-			while (line_node != null) {
+			while (line_node != null) 
+			{
 				// Create a StringTokenizer with a colon sign as a delimiter
 				StringTokenizer st_node = new StringTokenizer(line_node);
 				StringTokenizer st_element = new StringTokenizer(line_element);
@@ -541,8 +540,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             
             canvas.drawBufferedImage();
             canvas.repaint();
-		} catch (Exception e) {
-
+		} 
+		catch (Exception e) 
+		{
+			System.out.println("Error occured. Exception message: "+e.getMessage());
 		}
 	}
 	
