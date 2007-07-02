@@ -19,7 +19,6 @@ private:
     template<unsigned DIM>
     void EdgeIteratorTest(std::string meshFilename) throw(Exception)
     {
-        
         // create a simple mesh
         TrianglesMeshReader<DIM,DIM> mesh_reader(meshFilename);
         ConformingTetrahedralMesh<DIM,DIM> mesh;
@@ -30,7 +29,6 @@ private:
         // this causes element 0 to be deleted which is a good choice for coverage of the begin method
         mesh.DeleteBoundaryNodeAt(0);
 
-                      
         // check that we can iterate over the set of edges
         std::set< std::set< unsigned > > edges_visited;
         
@@ -102,6 +100,7 @@ public:
         TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
     }
     
+
     void Test3dLinearMeshConstructionFromMeshReader(void)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -130,6 +129,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[2], 0.0, 1e-6);
     }
     
+
     void TestMeshWithBoundaryElements(void)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
@@ -152,6 +152,7 @@ public:
         }
     }
     
+
     void TestRescaleMeshFromBoundaryNode(void)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
@@ -166,6 +167,7 @@ public:
         }
     }
     
+
     void Test1DClosedMeshIn2DSpace()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/circle_outline");
@@ -177,9 +179,9 @@ public:
         //Check that the mesh_reader has the unculled "faces" (which are nodes)
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0U);
-        
     }
     
+
     void Test1DMeshIn2DSpace()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
@@ -206,6 +208,7 @@ public:
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0U);
     }
     
+
     void Test2DMeshIn3DSpace()
     {
         TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
@@ -221,6 +224,7 @@ public:
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 100U);
     }
     
+
     void Test1DMeshCrossReference()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
@@ -257,6 +261,7 @@ public:
         // There should be no more containing elements
         TS_ASSERT_EQUALS(++elt_iter, p_node2->ContainingElementsEnd());
     }
+    
     
     void Test2DMeshCrossReference()
     {
@@ -311,6 +316,7 @@ public:
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),0U);
     }
     
+    
     void Test3DMeshCrossReference()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -356,6 +362,7 @@ public:
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),30U);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2),10U);
     }
+    
     
     void Test1DSetPoint()
     {
@@ -411,6 +418,7 @@ public:
         p_element = mesh.GetElement(*++elt_iter);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-6);
     }
+    
     
     void Test2DSetPoint()
     {
@@ -468,6 +476,7 @@ public:
         mesh.SetNode(boundary_node_index, boundary_point);
         TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 0.0645268, 1e-6);
     }
+    
     
     void TestMovingNodesIn3D()
     {
@@ -537,6 +546,7 @@ public:
         TS_ASSERT(fabs(mesh.CalculateMeshVolume() - reference_volume) > 1e-1);
     }
     
+    
     void Test1DMeshIn2DSetPoint()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
@@ -566,14 +576,13 @@ public:
         point.SetCoordinate(0,-0.5);
         TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(boundary_node_index, point));
         
-        
         //Put it back
         point.SetCoordinate(0, -1.0);
         mesh.SetNode(boundary_node_index, point);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.0628215, 1e-6);
         TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 1.0, 1e-6);
-        
     }
+    
     
     void Test2DMeshIn3DSetPoint()
     {
@@ -624,6 +633,7 @@ public:
         point.SetCoordinate(2,0.);
         TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(boundary_node_index, point));
     }
+    
     
     void TestDeletingNodes()
     {
@@ -688,18 +698,15 @@ public:
         TS_ASSERT(p_new_lhs_node->IsBoundaryNode());
         TS_ASSERT_EQUALS(p_new_lhs_node->GetNumContainingElements(), 1u);
         
-        // Check the deleted element/node vectors
-        
+        // Check the deleted element/node vectors       
     }
+    
     
     void TestDeleteNodePriorToReMesh() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/circular_fan");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
-//        TrianglesMeshWriter<2,2> mesh_writer("","DeleteNodePriorToReMesh");
-//        mesh_writer.WriteFilesUsingMesh(mesh);
         
         // test it can also delete a boundary node
         mesh.DeleteNodePriorToReMesh(0);
@@ -710,9 +717,6 @@ public:
 
         NodeMap map(mesh.GetNumNodes());
         mesh.ReMesh(map);
-        
-//        TrianglesMeshWriter<2,2> mesh_writer2("","DeleteNodePriorToReMesh.1");
-//        mesh_writer2.WriteFilesUsingMesh(mesh);
         
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 98u);
     }
@@ -754,11 +758,8 @@ public:
     
     void Test1DNodeMerger()
     {
-    
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
-        
         ConformingTetrahedralMesh<1,1> mesh;
-        
         mesh.ConstructFromMeshReader(mesh_reader);
         
         double length=mesh.CalculateMeshVolume();
@@ -780,17 +781,13 @@ public:
         
         TS_ASSERT_DELTA(length, mesh.CalculateMeshVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 1);
-        
-   
     }
+    
     
     void Test2DNodeMerger()
     {
-    
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        
         ConformingTetrahedralMesh<2,2> mesh;
-        
         mesh.ConstructFromMeshReader(mesh_reader);
         
         double area=mesh.CalculateMeshVolume();
@@ -830,13 +827,11 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
     }
     
+    
     void Test3DNodeMerger() throw (Exception)
     {
-    
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
-        
         ConformingTetrahedralMesh<3,3> mesh;
-        
         mesh.ConstructFromMeshReader(mesh_reader);
         
         double volume=mesh.CalculateMeshVolume();
@@ -894,11 +889,13 @@ public:
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 1u);
     }
     
+    
     void Test2DBoundaryNodeMerger()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_800_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
+        
         double area=mesh.CalculateMeshVolume();
         double perim=mesh.CalculateMeshSurface();
         int num_nodes=mesh.GetNumNodes();
@@ -907,9 +904,9 @@ public:
         const int node_index=9;
         const int target_index=10;
         const int not_boundary_index=31;
+        
         TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_boundary_index));
         mesh.MoveMergeNode(node_index, target_index);
-        
         
         TS_ASSERT_DELTA(area - mesh.CalculateMeshVolume(), 0.00, 1e-6);
         TS_ASSERT_DELTA(perim - mesh.CalculateMeshSurface(), 0.00, 1e-7);
@@ -925,16 +922,16 @@ public:
         TS_ASSERT_DELTA(perim - mesh.CalculateMeshSurface(), 2.92893e-3, 1e-7);
         TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 2U);
         TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 2U);
-        TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 2u);
-        
+        TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 2u); 
     }
+    
     
     void Test3DBoundaryNodeMerger()
     {
-    
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
+        
         double volume=mesh.CalculateMeshVolume();
         double surface=mesh.CalculateMeshSurface();
         unsigned num_nodes=mesh.GetNumNodes();
@@ -945,14 +942,12 @@ public:
         //const int not_boundary_index=400;
         
         mesh.MoveMergeNode(node_index, target_index);
-        
-        
+
         TS_ASSERT_DELTA(volume, mesh.CalculateMeshVolume(), 1e-7);
         TS_ASSERT_DELTA(surface, mesh.CalculateMeshSurface(), 1e-7);
         TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1U);
         TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 3U);
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 2U);
-        
         
         //Can't move corner nodes since this forces some zero volume elements which aren't on the shared list...
     }
@@ -1013,6 +1008,8 @@ public:
         TrianglesMeshWriter<2,2> mesh_writer("","RectangleMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
+    
+   
     void TestConstructRectangleNoStagger()
     {
         ConformingTetrahedralMesh<2,2> mesh;
@@ -1029,35 +1026,33 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
     
+    
     void TestConstruct1x1RectangularMesh(void)
     {
         ConformingTetrahedralMesh<2,2> rect_mesh;
         rect_mesh.ConstructRectangularMesh(1, 1, false);
     }
     
+    
     void TestCheckVoronoiDisk()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
-        
+
         TS_ASSERT_EQUALS(mesh.CheckVoronoi(),true);
-        
     }
     
-    
-    
+
     void TestCheckVoronoiSquare()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        
         TS_ASSERT_EQUALS(mesh.CheckVoronoi(),true);
-        
     }
+    
     
     void TestCheckCircularFan()
     {
@@ -1065,19 +1060,16 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        
         TS_ASSERT_EQUALS(mesh.CheckVoronoi(5e-3),true);
-        
     }
+    
     
     void TestCheckMovingMesh()
     {
         ConformingTetrahedralMesh<2,2> mesh;
-        
         mesh.ConstructRectangularMesh(1,1);
         
         Node<2> *p_node=mesh.GetNode(1);
-        
         Point<2> point=p_node->GetPoint();
         
         for (double x = 1.1; x >= 0.9; x-= 0.01)
@@ -1096,6 +1088,7 @@ public:
             }
         }
     }
+    
     
     void TestSetOwnerships()
     {
@@ -1130,7 +1123,6 @@ public:
                 TS_ASSERT_EQUALS(owned, false);
             }
         }
-        
     }
     
     
@@ -1213,18 +1205,14 @@ public:
         
         TrianglesMeshWriter<3,3> mesh_writer("","CuboidMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
-        
-        
-        
-        
     }
+    
     
     void TestPermute()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
         
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[0], 0.0);
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[1], 0.0);
@@ -1271,12 +1259,11 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[0], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[1], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[2], 0.0);
-        
     }
+    
     
     void TestPermuteWithMetisBinaries()
     {
-    
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -1286,7 +1273,6 @@ public:
         mesh.PermuteNodesWithMetisBinaries();
         TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[0], -0.5358, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[1], -0.8443, 1e-4);
-        
         
         TrianglesMeshReader<3,3> mesh_reader2("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
         ConformingTetrahedralMesh<3,3> mesh2;
@@ -1304,6 +1290,7 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh2);
     }
     
+    
     void TestDeleteNodes() throw (Exception)
     {
         ConformingTetrahedralMesh<2,2> mesh;
@@ -1311,7 +1298,6 @@ public:
         
         TS_ASSERT_EQUALS(mesh.CalculateMeshVolume(), 6.0);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 12U);
-        
         
         //Delete from interior
         mesh.DeleteNode(7);
@@ -1334,6 +1320,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(2,1));
     }
     
+    
     void TestDeleteNodeFails() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/HalfSquareWithExtraNode");
@@ -1341,6 +1328,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_THROWS_ANYTHING(mesh.DeleteNode(0));
     }
+    
     
     void TestClear()
     {
@@ -1361,6 +1349,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(),0u);
     }
     
+    
     void TestUnflagAllElements()
     {
         ConformingTetrahedralMesh<2,2> mesh;
@@ -1377,6 +1366,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(0)->IsFlagged(), false);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->IsFlagged(), false);
     }
+    
     
     void TestCalculateBoundaryOfFlaggedRegion()
     {
@@ -1414,6 +1404,7 @@ public:
         
         TS_ASSERT_EQUALS(correct_boundary, boundary);
     }
+    
     
     void TestCalculateBoundaryOfFlaggedRegion3D()
     {
@@ -1460,6 +1451,7 @@ public:
         TS_ASSERT_EQUALS(boundary, correct_boundary);
     }
     
+    
     void TestGetVectorBetweenPoints() throw (Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
@@ -1497,6 +1489,7 @@ public:
         TS_ASSERT_DELTA(norm_2(vector), sqrt(21.0), 1e-7);
     }
     
+    
     void TestMeshGetWidthAndWidthExtremesMethod(void)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
@@ -1518,11 +1511,9 @@ public:
         TS_ASSERT_DELTA(height_extremes[0], -1, 1e-6);
         TS_ASSERT_DELTA(width_extremes[1], 1, 1e-6);
         TS_ASSERT_DELTA(height_extremes[1], 1, 1e-6);
-        
     }
     
    
-    
     void TestMeshAddNodeAndReMeshMethod(void)
     {
         ConformingTetrahedralMesh<2,2> mesh;
@@ -1624,11 +1615,10 @@ public:
         TS_ASSERT_EQUALS(weights[0], 2.5);
         TS_ASSERT_EQUALS(weights[1], -1.5);
         
-        
-        
         delete nodes1d[0];
         delete nodes1d[1];
     }
+    
     
     void TestPointInElement1D()
     {
@@ -1701,7 +1691,6 @@ public:
         TS_ASSERT_DELTA(psi_on[0],  0.0, 1e-5);
         TS_ASSERT_DELTA(psi_on[1],  2.0/3.0, 1e-5);
 
-        
         Point<2> in_point(1., 1.);
         TS_ASSERT_EQUALS(element2d.IncludesPoint(in_point), true);
         weights=element2d.CalculateInterpolationWeights(in_point);
@@ -1725,8 +1714,6 @@ public:
         delete nodes2d[0];
         delete nodes2d[1];
         delete nodes2d[2];
-        
-        
     }
     
     
@@ -1744,8 +1731,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNearestElementIndex(point1),110U);
         TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point2));
         TS_ASSERT_EQUALS(mesh.GetNearestElementIndex(point2),199U); //Contains top-right corner
-        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3),89U);  //in elements 89,90,91,108,109, 110
-        
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3),89U);  //in elements 89,90,91,108,109, 110    
         
         std::vector<unsigned> indices;
         indices=mesh.GetContainingElementIndices(point1);
@@ -1761,7 +1747,6 @@ public:
         TS_ASSERT_EQUALS(indices[1], 90U);
         TS_ASSERT_EQUALS(indices[5], 110U);
     }
-    
     
     
     void TestPointInElement3D()
@@ -1787,8 +1772,6 @@ public:
         TS_ASSERT_DELTA(psi_on[0],0.0,1e-12);
         TS_ASSERT_DELTA(psi_on[1],0.2,1e-12);
         TS_ASSERT_DELTA(psi_on[2],0.0,1e-12);
-
-
         
         Point<3> in_point(.25, .25, .25);
         TS_ASSERT_EQUALS(element3d.IncludesPoint(in_point), true);
@@ -1806,14 +1789,13 @@ public:
         TS_ASSERT_LESS_THAN(weights[2], 0.0);
         TS_ASSERT_LESS_THAN(0.0, weights[3]);
         
-        
-        
         delete nodes3d[0];
         delete nodes3d[1];
         delete nodes3d[2];
         delete nodes3d[3];
     }
-    
+   
+   
     void TestPointinMesh3D(void)
     {
         // Create mesh from mesh reader
@@ -1836,7 +1818,6 @@ public:
         //should throw because vertex is not strictly contained in any element
         TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point3, true));
         
-        
         std::vector<unsigned> indices;
         indices=mesh.GetContainingElementIndices(point1);
         TS_ASSERT_EQUALS(indices.size(), 1U);
@@ -1851,8 +1832,8 @@ public:
         TS_ASSERT_EQUALS(indices[1], 2047U);
         TS_ASSERT_EQUALS(indices[5], 2286U);
         TS_ASSERT_EQUALS(indices[23], 3026U);
-        
     }
+    
     
     void TestFloatingPointIn3D()
     {
@@ -1878,6 +1859,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge5),142U);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge6),142U);
     }
+           
            
     /*
      * This tests that a 'dummy' archive function does not throw any errors
@@ -1909,9 +1891,9 @@ public:
             
             // restore from the archive
             input_arch >> mesh2;
-            
         }
     }
+    
     
     void TestEdgeIterator() throw(Exception)
     {

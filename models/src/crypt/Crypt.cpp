@@ -21,23 +21,26 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
     mMaxCells = 10*mrMesh.GetNumNodes();
     mMaxElements = 10*mrMesh.GetNumElements();
     
-    /// \todo remove (need for) tests with empty cells vector, and assert (size>0)
-    if (mCells.size()>0)
+    if(mCells.size()!=mrMesh.GetNumNodes())
     {
-        // Set up the node map
-        for (std::list<MeinekeCryptCell>::iterator it = mCells.begin();
-             it != mCells.end();
-             ++it)
-        {
-            /// \todo check it points to a real cell; if not do
-            /// it = mCells.erase(it); --it; continue;
-            unsigned node_index = it->GetNodeIndex();
-            mNodeCellMap[node_index] = &(*it);
-        }
-        
-        // remove this line when facade is finished
-	    Validate();
+        EXCEPTION("Size of mesh and number of cells do not match");
     }
+
+    // Set up the node map
+    for (std::list<MeinekeCryptCell>::iterator it = mCells.begin();
+         it != mCells.end();
+         ++it)
+    {
+        /// \todo check it points to a real cell; if not do
+        /// it = mCells.erase(it); --it; continue;
+        unsigned node_index = it->GetNodeIndex();
+        mNodeCellMap[node_index] = &(*it);
+    }
+        
+    // remove this line when facade is finished 
+    //   - no don't, validate does important stuff like check each non-ghost 
+    //     node has a cell
+	Validate();
 }
 
 template<unsigned DIM>
@@ -51,7 +54,7 @@ Crypt<DIM>::~Crypt()
 
 
 // check every node either has a cell associated with it or is a ghost node
-// (for the time being, we are allowing ghost nodes to also have cells o
+// (for the time being, we are allowing ghost nodes to also have cells 
 // associated with it, although this isn't very clean)
 template<unsigned DIM>
 void Crypt<DIM>::Validate()
@@ -195,7 +198,6 @@ void Crypt<DIM>::UpdateGhostPositions(double dt)
             mrMesh.SetNode(index, new_point, false);
         }
     }
-        
 }
 
 

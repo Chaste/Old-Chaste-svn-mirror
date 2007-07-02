@@ -68,45 +68,52 @@ public :
     virtual ~TissueSimulationForForceExperiments()
     {
     }
-    
-    /*
-     *  Overloaded CalcForceBetweenNodes
-     *  
-     *  only a minor change to the method - the rest length between a ghost node and a real node
-     *  is set to be 2 - this pushes ghost nodes away and stops them interfering this real nodes
-     *  and possibly breaking bonds
-     * 
-     *  Note this means the initial honeycomb mesh isn't the equilibrium solution if stretch=1,
-     *  so not not much point running if stretch=1.
-     */
-    c_vector<double,2> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex)
-    {
-        assert(nodeAGlobalIndex!=nodeBGlobalIndex);
-        c_vector<double,2> unit_difference;
-        c_vector<double,2> node_a_location = mrCrypt.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
-        c_vector<double,2> node_b_location = mrCrypt.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
-        
-        // there is reason not to substract one position from the other (cyclidrical meshes). clever gary
-        unit_difference = mrCrypt.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
-        double distance_between_nodes = norm_2(unit_difference);
-        unit_difference /= distance_between_nodes;
-        
-        
-        double rest_length = 1.0;
 
-        if(!mrCrypt.rGetGhostNodes()[nodeAGlobalIndex] && mrCrypt.rGetGhostNodes()[nodeBGlobalIndex])
-        {
-            assert(0);
-            rest_length = 2;
-        }
-        if(mrCrypt.rGetGhostNodes()[nodeAGlobalIndex] && !mrCrypt.rGetGhostNodes()[nodeBGlobalIndex])
-        {
-            assert(0);
-            rest_length = 2;
-        }
-
-        return mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
-    }
+//////////
+// doesn't do anything useful anymore as tissue sim doesn't loop over ghost edges...
+//
+// could be removed
+//
+// need to overload appropriate method in Crypt...
+//////////    
+//    /*
+//     *  Overloaded CalcForceBetweenNodes
+//     *  
+//     *  only a minor change to the method - the rest length between a ghost node and a real node
+//     *  is set to be 2 - this pushes ghost nodes away and stops them interfering this real nodes
+//     *  and possibly breaking bonds
+//     * 
+//     *  Note this means the initial honeycomb mesh isn't the equilibrium solution if stretch=1,
+//     *  so not not much point running if stretch=1.
+//     */
+//    c_vector<double,2> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex)
+//    {
+//        assert(nodeAGlobalIndex!=nodeBGlobalIndex);
+//        c_vector<double,2> unit_difference;
+//        c_vector<double,2> node_a_location = mrCrypt.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
+//        c_vector<double,2> node_b_location = mrCrypt.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
+//        
+//        // there is reason not to substract one position from the other (cyclidrical meshes). clever gary
+//        unit_difference = mrCrypt.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
+//        double distance_between_nodes = norm_2(unit_difference);
+//        unit_difference /= distance_between_nodes;
+//        
+//        
+//        double rest_length = 1.0;
+//
+//        if(!mrCrypt.rGetGhostNodes()[nodeAGlobalIndex] && mrCrypt.rGetGhostNodes()[nodeBGlobalIndex])
+//        {
+//            assert(0);
+//            rest_length = 2;
+//        }
+//        if(mrCrypt.rGetGhostNodes()[nodeAGlobalIndex] && !mrCrypt.rGetGhostNodes()[nodeBGlobalIndex])
+//        {
+//            assert(0);
+//            rest_length = 2;
+//        }
+//
+//        return mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+//    }
 
 
     /*
@@ -281,11 +288,213 @@ public :
     }
 };
 
+class TissueSimulationForForceExperimentsShearing : public TissueSimulation<2>
+{
+private :
+    double mShear;
+    double mMaxHeight;
+    bool mFirst;
+    
+public :
+    TissueSimulationForForceExperimentsShearing(Crypt<2>& rCrypt, double shear)
+        : TissueSimulation<2>(rCrypt),
+          mShear(shear)
+    {   
+        mFirst = true;
+        // this class is hardcoded for a particular honeycomb mesh! check num nodes is 
+        // as expected  
+        assert(mrCrypt.rGetMesh().GetNumNodes()==360);
+        
+        double max = 0;
+        for(Crypt<2>::Iterator iter = rGetCrypt().Begin();
+            iter != rGetCrypt().End();
+            ++iter)
+        {
+            double val = iter.rGetLocation()[1];
+            if(val > max)
+            {
+                max = val;
+            }
+        }
 
+        mMaxHeight = max;
+    }
+    
+    virtual ~TissueSimulationForForceExperimentsShearing()
+    {
+    }
+
+    /*
+     *  Overloaded method.
+     */
+    void UpdateNodePositions(const std::vector<c_vector<double,2> >& rDrDt)
+    {
+        double disp = 0.0;
+        if(mFirst)
+        {
+            disp = mShear;
+            mFirst = false;
+        }
+        
+        mrCrypt.UpdateGhostPositions(mDt);
+
+        for (Crypt<2>::Iterator cell_iter = mrCrypt.Begin();
+             cell_iter != mrCrypt.End();
+             ++cell_iter)
+        {
+            MeinekeCryptCell& cell = *cell_iter;
+            unsigned index = cell.GetNodeIndex();
+            
+            Point<2> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+            
+            // all nodes must stay in y>0
+            if(new_point.rGetLocation()[1] < 0)
+            {
+                new_point.rGetLocation()[1] = 0;
+            }                
+            // all nodes must stay in y<max height
+            if(new_point.rGetLocation()[1] > mMaxHeight)
+            {
+                new_point.rGetLocation()[1] = mMaxHeight;
+            }
+
+            // top surface
+            if(index>=317 && index<=327)
+            {
+                // comment this first line out to allow slip on top surface
+                new_point.rGetLocation()[0] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[0] + disp;
+                new_point.rGetLocation()[1] = mMaxHeight;
+            }
+            
+            // bottom surface
+            if(index>=32 && index<=42)
+            {
+                // comment this first line out to allow slip on bottom surface
+                new_point.rGetLocation()[0] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[0];
+                new_point.rGetLocation()[1] = 0;
+            }
+            
+            mrCrypt.MoveCell(cell_iter, new_point);
+        }
+    }
+
+
+    /*
+     *  Calculate the force on the pulled/pushed boundary
+     *  
+     *  Estimated by looping over all cells on that boundary, and summing the absolute value of
+     *  the force in each spring connected those cells
+     */
+    c_vector<double,2> CalculateTotalForce()
+    {
+        c_vector<double,2> total_force = zero_vector<double>(2);
+
+        std::set<std::set<unsigned> > node_pairs_checked;
+        for (unsigned elem_index = 0; elem_index<mrCrypt.rGetMesh().GetNumAllElements(); elem_index++)
+        {
+            Element<2,2>* p_element = mrCrypt.rGetMesh().GetElement(elem_index);
+            if (!p_element->IsDeleted())
+            {
+                for (unsigned k=0; k<2+1; k++)
+                {
+                    unsigned nodeA = k;
+                    
+                    for(unsigned l=k+1; l<k+2+1; l++)
+                    {
+                        unsigned nodeB = l%(2+1);
+                    
+                        assert(!p_element->GetNode(nodeA)->IsDeleted());
+                        assert(!p_element->GetNode(nodeB)->IsDeleted());
+                                        
+                        unsigned nodeA_global_index = p_element->GetNode(nodeA)->GetIndex();
+                        unsigned nodeB_global_index = p_element->GetNode(nodeB)->GetIndex();
+                        
+                        if(    mrCrypt.rGetGhostNodes()[nodeA_global_index] 
+                            || mrCrypt.rGetGhostNodes()[nodeB_global_index] )
+                        {
+                            break;
+                        }
+                        
+                        unsigned index = 1;
+
+                        double val_at_A = p_element->GetNode(nodeA)->rGetLocation()[index];
+                        double val_at_B = p_element->GetNode(nodeB)->rGetLocation()[index];
+    
+                        assert(val_at_A <= mMaxHeight );
+                        assert(val_at_B <= mMaxHeight );
+    
+                        if( (fabs(val_at_A-mMaxHeight) < 1e-6) || (fabs(val_at_B-mMaxHeight) < 1e-6) )
+                        {
+                            // check whether we have already worked out the force between these two...
+                            bool is_force_already_calculated = false;
+                            
+                            std::set<unsigned> current_node_pair;
+                            current_node_pair.insert(nodeA_global_index);
+                            current_node_pair.insert(nodeB_global_index);
+                            
+                            // see if the node pair is in the set of node pairs done
+                            std::set<std::set<unsigned> >::iterator set_iter = node_pairs_checked.find(current_node_pair);                    
+                            if(set_iter!=node_pairs_checked.end())
+                            {
+                                // node pair found
+                                is_force_already_calculated = true;
+                            }
+                            else
+                            {
+                                is_force_already_calculated = false;
+                                // add the node pair to the list of node pairs
+                                node_pairs_checked.insert(current_node_pair);
+                            }
+                            
+                            if(!is_force_already_calculated)
+                            {
+                                c_vector<double,2> force = CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),p_element->GetNodeGlobalIndex(nodeB));
+                                if ((!mrCrypt.rGetGhostNodes()[nodeA_global_index]) && (!mrCrypt.rGetGhostNodes()[nodeB_global_index]))
+                                {
+                                    for(unsigned i=0; i<2; i++)
+                                    {
+                                        total_force(i) += fabs(force[i]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return total_force;
+    }
+};
 
 
 class TestTissueForceExperiments : public CxxTest::TestSuite
 {
+private:
+    void ApplyRandomDisplacements(Crypt<2>& rCrypt)
+    {
+        ConformingTetrahedralMesh<2,2>& r_mesh = rCrypt.rGetMesh();
+        
+        double max_disp = 0.1;
+        
+        for(unsigned i=0; i<r_mesh.GetNumNodes(); i++)
+        {
+            double random_num = RandomNumberGenerator::Instance()->ranf();
+            double random_distance = max_disp*random_num;
+
+            random_num = RandomNumberGenerator::Instance()->ranf();
+            double random_angle = 2.0*M_PI*random_num;
+        
+            double u = random_distance*cos(random_angle);
+            double v = random_distance*sin(random_angle);
+            
+            r_mesh.GetNode(i)->rGetModifiableLocation()[0] += u;
+            r_mesh.GetNode(i)->rGetModifiableLocation()[1] += v;
+        }
+        
+        rCrypt.ReMesh();
+    }            
+
+
 public:
     /*
      *  To run: choose the required stretches and set fix_X_not_Y as required, and set
@@ -306,6 +515,8 @@ public:
         std::vector<double> forces;
         std::vector<double> areas;
 
+        // To get this test to pass use a stretch of 1.1, fixXNotY = true 
+        // and end time of 0.3
         for(unsigned i=1; i<2; i++)
         {
             stretches.push_back(1 + 0.1*i);
@@ -357,11 +568,11 @@ public:
 		
             std::vector<MeinekeCryptCell> cells;
 	
-            for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+            for(unsigned j=0; j<p_mesh->GetNumNodes(); j++)
             {
                 MeinekeCryptCell cell(DIFFERENTIATED, HEALTHY, 0, new FixedCellCycleModel());
                 double birth_time = -10;
-                cell.SetNodeIndex(i);
+                cell.SetNodeIndex(j);
 	            cell.SetBirthTime(birth_time);
                 cells.push_back(cell);
             }
@@ -369,7 +580,10 @@ public:
             Crypt<2> crypt(*p_mesh,cells);
             crypt.SetGhostNodes(ghost_node_indices);
 
-
+            // apply a random displacement to each node. doesn't fix the
+            // meineke remeshing of a stretched mesh issue..
+            //ApplyRandomDisplacements(crypt);
+            
 	        TissueSimulationForForceExperiments simulator(crypt, fix_X_not_Y);
 
             simulator.SetOutputDirectory(output_directory);
@@ -418,6 +632,108 @@ public:
         // just check nothing has changed. To get this test to pass use
         // a stretch of 1.1, fixXNotY = true and end time of 0.3
         TS_ASSERT_DELTA(forces[0], 28.4007, 1e-3); 
+    }
+
+    
+    
+    
+    void TestMeinekeIncrementalShearing() throw(Exception)
+    {      
+        std::vector<double> shears;
+        std::vector<double> forces;
+        std::vector<double> areas;
+
+        //for the test to pass
+        double disp = 0.2;
+        for(unsigned i=1; i<2; i++)
+        {
+            shears.push_back(disp*i);
+        }
+        double run_time = 0.3;
+
+//        double disp = 0.2;
+//        for(unsigned i=1; i<20; i++)
+//        {
+//            shears.push_back(disp*i);
+//        }
+//        double run_time = 2; // might need to be more..
+
+
+        ////////////////////////////////////////////////////        
+        // the main code 
+        ////////////////////////////////////////////////////
+        int num_cells_depth = 20; // the TissueSimulationForForceExperiments class expects these values!
+        int num_cells_width = 11; // the TissueSimulationForForceExperiments class expects these values!
+        
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();        
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+
+        //double old_stretch = 1.0;
+        for(unsigned i=0; i<shears.size(); i++)
+        {
+            double shear = shears[i];
+
+            std::stringstream string_stream;
+            string_stream << "TissueForceExperimentMeinekeShear_" << shear;
+            std::string output_directory = string_stream.str();
+            
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+        
+            std::vector<MeinekeCryptCell> cells;
+    
+            for(unsigned j=0; j<p_mesh->GetNumNodes(); j++)
+            {
+                MeinekeCryptCell cell(DIFFERENTIATED, HEALTHY, 0, new FixedCellCycleModel());
+                double birth_time = -10;
+                cell.SetNodeIndex(j);
+                cell.SetBirthTime(birth_time);
+                cells.push_back(cell);
+            }
+        
+            Crypt<2> crypt(*p_mesh,cells);
+            crypt.SetGhostNodes(ghost_node_indices);
+
+            TissueSimulationForForceExperimentsShearing simulator(crypt, disp);
+
+            simulator.SetOutputDirectory(output_directory);
+            simulator.SetEndTime(run_time);
+            simulator.SetNoSloughing();     
+            crypt.ReMesh();
+
+            simulator.Solve();
+
+            c_vector<double,2> force = simulator.CalculateTotalForce();
+        
+            forces.push_back( force[1] );
+ 
+            crypt.ReMesh();
+
+            std::vector<bool> is_ghost_node = crypt.rGetGhostNodes();
+            ghost_node_indices.clear();
+            for(unsigned j=0; j<is_ghost_node.size(); j++)
+            {
+                if(is_ghost_node[j])
+                {
+                    ghost_node_indices.insert(j);
+                }
+            }
+ 
+
+            SimulationTime::Destroy();
+            RandomNumberGenerator::Destroy();
+        }
+
+        std::cout << "\n\nResults - shearing:\n";
+        for(unsigned i=0; i<shears.size(); i++)
+        {
+            std::cout << shears[i] << " " << forces[i] << "\n";
+        }
+        
+        // just check nothing has changed. To get this test to pass use
+        // disp = shears[0] = 0.2, run_time = 0.3
+        TS_ASSERT_DELTA(forces[0], 9.5612, 1e-3); 
     }
 };
 
