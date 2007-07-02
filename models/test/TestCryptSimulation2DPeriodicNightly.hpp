@@ -728,10 +728,10 @@ public:
             }
         }
         
-        TS_ASSERT_EQUALS(number_of_cells, 94u);
+        TS_ASSERT_EQUALS(number_of_cells, 93u);
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), number_of_cells);
-        TS_ASSERT_EQUALS(number_of_nodes, 149u);
-        TS_ASSERT_EQUALS(number_of_mutant_cells, 8u);
+        TS_ASSERT_EQUALS(number_of_nodes, 147u);
+        TS_ASSERT_EQUALS(number_of_mutant_cells, 6u);
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
