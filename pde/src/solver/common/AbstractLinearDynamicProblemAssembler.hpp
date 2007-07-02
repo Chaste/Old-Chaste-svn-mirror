@@ -131,8 +131,8 @@ public :
             this->AssembleSystem(true, !mMatrixIsAssembled, current_solution, stepper.GetTime());
             mMatrixIsAssembled = true;
             
-            next_solution = this->mpLinearSystem->Solve(this->mpLinearSolver);
-
+            //next_solution = this->mpLinearSystem->Solve(this->mpLinearSolver);
+            next_solution = this->mpLinearSystem->Solve(this->mpLinearSolver, current_solution);
             stepper.AdvanceOneTimeStep();
             // Avoid memory leaks
             if (current_solution != mInitialCondition)

@@ -79,15 +79,16 @@ public:
                 TS_ASSERT_DELTA(voltage[index], -83.85, 0.1);
             }
             
-            // final voltages for nodes 0 to 5
-            double test_values[6]={31.0323, 28.9205, 20.0263, -3.9311, -57.9423, -79.777};
+            // final voltages for nodes 0 to 5 produced with ksp_rtol=1e-9
+            double test_values[6]={31.0335, 28.9214, 20.0279, -3.92649, -57.9395, -79.7754};
             
             for (unsigned node=0; node<=5; node++)
             {
                 if (index.Global == node)
                 {
                     // test against hardcoded value to check nothing has changed
-                    TS_ASSERT_DELTA(voltage[index], test_values[node], 1e-3);
+                    TS_ASSERT_DELTA(voltage[index], test_values[node], 7e-3);
+                    //With ksp_rtol set to 1e-6 the starting value may lead to changes of more that 1e-3 in final answer
                 }
             }
         }

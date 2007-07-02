@@ -78,7 +78,7 @@ public:
 
 
 
-class TestMonodomainDg0Assembler : public CxxTest::TestSuite
+class TestMonodomainVersusSimpleDg0ParabolicAssembler : public CxxTest::TestSuite
 {
 public:
     void TestMonodomainDg0AssemblerWithFischer1DAgainstSimpleDg0Assembler()
@@ -146,11 +146,12 @@ public:
              ++index)
         {
             TS_ASSERT_DELTA(dist_sol_1[index], dist_sol_2[index], 1e-3);
-            if (index.Global==10) TS_ASSERT_DELTA(dist_sol_1[index], 5.8028e-07, 1e-9);
-            if (index.Global==25) TS_ASSERT_DELTA(dist_sol_1[index], 0.00648079, 1e-5);
+            if (index.Global==10) TS_ASSERT_DELTA(dist_sol_1[index], 5.8028e-07, 5e-8);
+            if (index.Global==25) TS_ASSERT_DELTA(dist_sol_1[index], 0.00648079, 3e-5);
             if (index.Global==50) TS_ASSERT_DELTA(dist_sol_1[index], 0.992718, 1e-5);
-            if (index.Global==75) TS_ASSERT_DELTA(dist_sol_1[index], 0.00648079, 1e-5);
+            if (index.Global==75) TS_ASSERT_DELTA(dist_sol_1[index], 0.00648079, 3e-5);
         }
+        
         VecDestroy(initial_condition_1);
         VecDestroy(initial_condition_2);
         VecDestroy(current_solution_1);
