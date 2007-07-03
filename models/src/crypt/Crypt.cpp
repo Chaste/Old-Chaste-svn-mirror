@@ -20,11 +20,9 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
     
     mMaxCells = 10*mrMesh.GetNumNodes();
     mMaxElements = 10*mrMesh.GetNumElements();
-    
-    if(mCells.size()!=mrMesh.GetNumNodes())
-    {
-        EXCEPTION("Size of mesh and number of cells do not match");
-    }
+
+    // this must always be true    
+    assert( mCells.size() <= mrMesh.GetNumNodes() );
 
     // Set up the node map
     for (std::list<MeinekeCryptCell>::iterator it = mCells.begin();
