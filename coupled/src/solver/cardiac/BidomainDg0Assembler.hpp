@@ -48,7 +48,7 @@ private:
     double mIExtracellularStimulus;
     
     bool mNullSpaceCreated;
-    
+    Vec mExternalVoltageMask;
     std::vector<unsigned> mFixedExtracellularPotentialNodes;
     
     
@@ -234,6 +234,42 @@ private:
             
             VecDestroy(nullbasis[0]);
             mNullSpaceCreated = true;
+            
+            //Make a mask to use if we need to shift the external voltage
+            VecDuplicate(currentSolution, &mExternalVoltageMask);
+            DistributedVector mask(mExternalVoltageMask);
+            DistributedVector::Stripe v_m(mask,0);
+            DistributedVector::Stripe phi_e(mask,1);
+            for (DistributedVector::Iterator index = DistributedVector::Begin();
+                 index != DistributedVector::End();
+                 ++index)
+            {
+                v_m[index] = 0.0;
+                phi_e[index] = 1.0;
+            }
+            mask.Restore();
+            
+        }
+        
+        if ( mFixedExtracellularPotentialNodes.size() == 0)
+        {
+            //Try to fudge the solution vector with respect to the external voltage
+            //Find the largest absolute value
+            double min, max;
+            VecMax(currentSolution, &max);  
+            VecMin(currentSolution, &min);
+            if ( -min > max ) 
+            {
+                //Largest value is negative
+                max=min;
+            }  
+            //Standard transmembrane potentials are within +-100 mV
+            if (fabs(max) > 1000)
+            {
+                std::cout<<"warning: shifting phi_e by "<<-max<<"\n";
+                //Use mask currentSolution=currentSolution - max*mExternalVoltageMask
+                VecAXPY(currentSolution, -max, mExternalVoltageMask);
+            }
         }
     }
     
@@ -267,6 +303,7 @@ public:
         this->SetMatrixIsConstant();
         
         mFixedExtracellularPotentialNodes.resize(0);
+        
     }
     
     /**
@@ -276,6 +313,10 @@ public:
     {
         // This was allocated by our constructor.  Let's hope no user called SetBCC!
         delete this->mpBoundaryConditions;
+        if (mNullSpaceCreated)
+        {
+            VecDestroy(mExternalVoltageMask);            
+        }
     }
     
     /**
