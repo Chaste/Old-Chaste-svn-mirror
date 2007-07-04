@@ -117,7 +117,7 @@ public :
         assert(mInitialCondition != NULL);
         
         this->PrepareForSolve();
-        this->InitialiseLinearSystem(mInitialCondition);
+        this->InitialiseForSolve(mInitialCondition);
         
         TimeStepper stepper(mTstart, mTend, mDt);
 
@@ -125,14 +125,13 @@ public :
         Vec next_solution;
         while ( !stepper.IsTimeAtEnd() )
         {
-            mDt=stepper.GetNextTimeStep();
+            /// \todo create a stepper class which can guarantee that dt is constant, so we can pull this outside the loop?
+            mDt = stepper.GetNextTimeStep();
             mDtInverse = 1.0/mDt;
             
-            this->AssembleSystem(true, !mMatrixIsAssembled, current_solution, stepper.GetTime());
+            next_solution = this->StaticSolve(current_solution, stepper.GetTime(), !mMatrixIsAssembled);
             mMatrixIsAssembled = true;
             
-            //next_solution = this->mpLinearSystem->Solve(this->mpLinearSolver);
-            next_solution = this->mpLinearSystem->Solve(this->mpLinearSolver, current_solution);
             stepper.AdvanceOneTimeStep();
             // Avoid memory leaks
             if (current_solution != mInitialCondition)
@@ -140,7 +139,6 @@ public :
                 VecDestroy(current_solution);
             }
             current_solution = next_solution;
-            
         }
         return current_solution;
     }

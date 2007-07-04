@@ -38,18 +38,17 @@ public:
      *  Solve the static pde.
      * 
      *  The mesh, pde and boundary conditions container must be set before Solve() 
-     *  is called
+     *  is called.
      */
     virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
+        /// \todo move the asserts into PrepareForSolve()
         assert(this->mpMesh!=NULL);
         assert(this->mpBoundaryConditions!=NULL);
         
         this->PrepareForSolve();
-        
-        this->InitialiseLinearSystem(currentSolutionOrGuess);
-        this->AssembleSystem(true, true, currentSolutionOrGuess, currentTime);
-        return this->mpLinearSystem->Solve(this->mpLinearSolver);
+        this->InitialiseForSolve(currentSolutionOrGuess);
+        return this->StaticSolve(currentSolutionOrGuess, currentTime);
     }
 
 };

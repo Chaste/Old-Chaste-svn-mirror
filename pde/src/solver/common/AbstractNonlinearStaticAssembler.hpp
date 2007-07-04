@@ -244,10 +244,52 @@ protected:
     {
         return true;
     }
+
+    /**
+     * No separate initialisation is needed in the nonlinear case; PrepareForSolve does
+     * everything.  We just check the size of the initial guess.
+     */
+    void InitialiseForSolve(Vec initialGuess)
+    {
+        // Check size of initial guess is correct
+        PetscInt size_of_init_guess;
+        VecGetSize(initialGuess, &size_of_init_guess);
+        PetscInt problem_size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
+        if (size_of_init_guess != problem_size)
+        {
+            std::stringstream error_message;
+            error_message << "Size of initial guess vector, " << size_of_init_guess
+                          << ", does not match size of problem, " << problem_size;
+            EXCEPTION(error_message.str());
+        }
+    }
+    
+    /**
+     * Perform the work of a single solve, but without any initialisation.
+     * 
+     * @param currentSolutionOrGuess  either the current solution (dynamic problem) or
+     *     initial guess (static problem).  MUST be provided. 
+     * @param currentTime  for a dynamic problem, the current time
+     * @return the solution vector
+     */
+    Vec StaticSolve(Vec currentSolutionOrGuess=NULL,
+                    double currentTime=0.0,
+                    bool assembleMatrix=true)
+    {
+        assert(this->mpBoundaryConditions!=NULL); // no flagged mesh to worry about here!
+        assert(currentSolutionOrGuess!=NULL);
+        assert(assembleMatrix); ///\todo do something sensible if assembleMatrix is false.
         
+        // run the solver, telling it which global functions to call in order to assemble
+        // the residual or jacobian
+        Vec answer = this->mpSolver->Solve(&AbstractNonlinearStaticAssembler_AssembleResidual<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
+                                           &AbstractNonlinearStaticAssembler_AssembleJacobian<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
+                                           currentSolutionOrGuess,
+                                           this);
+        return answer;
+    }
+    
 public:
-
-
     /**
      * Constructors just call the base class versions.
      */
@@ -269,10 +311,13 @@ public:
             delete mpSolver;
         }
     }
-    
-    
+        
     /**
-     * Call this method, before the solve method to set whether to use an analytical jacobian.
+     * Set whether to use an analytical jacobian.  This is provided for use when
+     * solving dynamic nonlinear problems; when solving static problems there is
+     * an argument to the Solve method which specifies this property, and overrides
+     * any user call to this method.
+     * 
      * If this method is not called the default is false i.e. numerical jacobian.
      */
     void SetUseAnalyticalJacobian(bool useAnalyticalJacobian)
@@ -281,68 +326,23 @@ public:
     }
     
     /**
-     * This method should be called before the solve method to set the intial guess.
-     */
-    
-    void SetInitialGuess(Vec initialGuess)
-    {
-        mInitialGuess=initialGuess;
-        // check size of initial guess is correct
-        PetscInt size_of_init_guess;
-        VecGetSize(initialGuess, &size_of_init_guess);
-        PetscInt problem_size=PROBLEM_DIM * this->mpMesh->GetNumNodes();
-        if (size_of_init_guess !=  problem_size)
-        {
-            std::stringstream error_message;
-            error_message << "Size of initial guess vector, " << size_of_init_guess
-            << ", does not match size of problem, "
-            << PROBLEM_DIM * this->mpMesh->GetNumNodes();
-            
-            EXCEPTION(error_message.str());
-        }
-    }
-    
-    
-    /**
       * Assemble and solve the system for a nonlinear elliptic PDE.
       *
       * @param initialGuess An initial guess for the iterative solver
-      * @param UseAnalyticalJacobian Set to true to use an analytically calculated
+      * @param useAnalyticalJacobian Set to true to use an analytically calculated
       *     jacobian matrix rather than a numerically approximated one.
       * @return A PETSc vector giving the solution at each mesh node.
       */
-    virtual Vec Solve(Vec initialGuess, bool useAnalyticalJacobian = false)
+    virtual Vec Solve(Vec initialGuess, bool useAnalyticalJacobian=false)
     {
+        assert(initialGuess!=NULL);
         SetUseAnalyticalJacobian(useAnalyticalJacobian);
-        SetInitialGuess(initialGuess);
-        return Solve();
-    }  
-    
-     /**
-      * Assemble and solve the system for a nonlinear elliptic PDE.
-      * The initial guess and whether to use an analytical jacobian
-      * are set with setter methods.
-      *
-      * @return A PETSc vector giving the solution at each mesh node.
-      */  
-    virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
-    {
-        assert(this->mpMesh!=NULL);
-        assert(this->mpBoundaryConditions!=NULL);
-        assert(mInitialGuess != NULL);
         
         this->PrepareForSolve();
+        InitialiseForSolve(initialGuess);
         
-        // run the solver, telling it which global functions to call in order to assemble
-        // the residual or jacobian
-        Vec answer = this->mpSolver->Solve( &AbstractNonlinearStaticAssembler_AssembleResidual<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
-                                            &AbstractNonlinearStaticAssembler_AssembleJacobian<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
-                                            mInitialGuess,
-                                            this);
-        mInitialGuess=answer; // in case solve is being called repeatedly because of dynamic problem                                          
-        return answer;
+        return StaticSolve(initialGuess);
     }
-    
     
     /**
      *  SetNonlinearSolver - by default a SimplePetscNonlinearSolver is created
@@ -358,8 +358,6 @@ public:
         mpSolver = pNonlinearSolver;
         mWeAllocatedSolverMemory = false;
     }
-    
-    
     
     /**
      *  A helpful method for creating an initial guess vector
@@ -385,7 +383,6 @@ public:
         VecAssemblyEnd(initial_guess);
         return initial_guess;
     }
-    
     
     /**
      *  VerifyJacobian

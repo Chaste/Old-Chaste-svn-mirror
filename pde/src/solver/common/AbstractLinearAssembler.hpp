@@ -34,13 +34,13 @@ protected:
     /**
      * Create the linear system object if it hasn't been already.
      * 
-     * Can use a current/initial solution as PETSc template, or base it on the mesh size.
+     * Can use an initial solution as PETSc template, or base it on the mesh size.
      */
-    void InitialiseLinearSystem(Vec currentSolution)
+    void InitialiseForSolve(Vec initialSolution)
     {
         if (this->mpLinearSystem == NULL)
         {
-            if (currentSolution == NULL)
+            if (initialSolution == NULL)
             {
                 // Static problem, create linear system using the size
                 unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
@@ -50,9 +50,8 @@ protected:
             {
                 // Use the currrent solution (ie the initial solution)
                 // as the template in the alternative constructor of
-                // LinearSystem. This appears to avoid problems with
-                // VecScatter.
-                this->mpLinearSystem = new LinearSystem(currentSolution);
+                // LinearSystem. This is to avoid problems with VecScatter.
+                this->mpLinearSystem = new LinearSystem(initialSolution);
             }
         }
     }
@@ -61,6 +60,20 @@ protected:
     {
         return false;
     }
+    
+    /**
+     * Solve a static pde, or a dynamic pde for 1 timestep.
+     * 
+     * The mesh, pde and boundary conditions container must be set first.
+     */
+    virtual Vec StaticSolve(Vec currentSolutionOrGuess=NULL,
+                            double currentTime=0.0,
+                            bool assembleMatrix=true)
+    {
+        this->AssembleSystem(true, assembleMatrix, currentSolutionOrGuess, currentTime);
+        return this->mpLinearSystem->Solve(this->mpLinearSolver, currentSolutionOrGuess);
+    }
+    
     
 public:
     AbstractLinearAssembler(unsigned numQuadPoints = 2,
@@ -71,14 +84,12 @@ public:
     }
     
     /**
-     *  Destructor: ensures that the LinearSystem is thrown away.
+     *  Destructor: ensures that the linear solver is thrown away.
      */
     ~AbstractLinearAssembler()
     {
         delete mpLinearSolver;
     }
-    
-    virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)=0;
     
     
     

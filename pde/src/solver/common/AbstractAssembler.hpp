@@ -613,6 +613,27 @@ protected:
      */
     virtual bool ProblemIsNonlinear() =0;
     
+    
+    /**
+     * Perform the work of a single solve, but without any initialisation.  Static
+     * assemblers must implement this method.
+     * 
+     * @param currentSolutionOrGuess  either the current solution (dynamic problem) or
+     *     initial guess (static problem); optional in some cases
+     * @param currentTime  for a dynamic problem, the current time
+     * @param assembleMatrix  whether to assemble the matrix (it may have been done by
+     *     a previous call)
+     * @return the solution vector
+     */
+    virtual Vec StaticSolve(Vec currentSolutionOrGuess=NULL,
+                            double currentTime=0.0,
+                            bool assembleMatrix=true)=0;
+    
+    /**
+     * Perform any initialisation needed before a sequence of StaticSolve calls.
+     */
+    virtual void InitialiseForSolve(Vec initialGuess)=0;
+    
 public:
     /**
      * Default constructor. Uses linear basis functions.
@@ -668,8 +689,6 @@ public:
         mpBoundaryConditions = pBoundaryConditions;
     }
     
-    
-    virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)=0;
     
     /**
      * Delete any memory allocated by this class.

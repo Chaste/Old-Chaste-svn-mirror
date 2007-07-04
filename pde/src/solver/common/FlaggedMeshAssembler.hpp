@@ -14,7 +14,21 @@ private:
     std::map<unsigned, unsigned> mSmasrmIndexMap;
     
     
-protected :
+protected:
+    /**
+     * Solve a static pde, or a dynamic pde for 1 timestep.
+     * 
+     * The mesh, pde and boundary conditions container must be set first.
+     * 
+     * Overridden to not pass an initial guess to the linear solver.
+     */
+    Vec StaticSolve(Vec currentSolutionOrGuess=NULL,
+                    double currentTime=0.0,
+                    bool assembleMatrix=true)
+    {
+        this->AssembleSystem(true, assembleMatrix, currentSolutionOrGuess, currentTime);
+        return this->mpLinearSystem->Solve(this->mpLinearSolver);
+    }
 
     virtual void AssembleSystem(bool, bool, Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
