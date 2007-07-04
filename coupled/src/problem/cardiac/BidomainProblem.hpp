@@ -22,8 +22,7 @@ class BidomainProblem : public AbstractCardiacProblem<SPACE_DIM, 2>
 private:    
     BidomainPde<SPACE_DIM>* mpBidomainPde;
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */    
-    double mLinearSolverRelativeTolerance;
-    
+   
 protected:
     AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde()
     {
@@ -35,7 +34,7 @@ protected:
     {
         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_bidomain_assembler
             = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(&this->mMesh, mpBidomainPde,
-                                                            2, mLinearSolverRelativeTolerance);
+                                                            2, this->mLinearSolverRelativeTolerance);
         try
         {
             p_bidomain_assembler->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
@@ -60,7 +59,6 @@ public:
             mpBidomainPde(NULL)
     {
         mFixedExtracellularPotentialNodes.resize(0);
-        mLinearSolverRelativeTolerance=1e-6;
     }
     
     /**
@@ -70,10 +68,6 @@ public:
     {
     }
     
-    void SetLinearSolverRelativeTolerance(const double &rRelTol)
-    {
-        mLinearSolverRelativeTolerance = rRelTol;
-    }
     
     /**
      *  Set the nodes at which phi_e (the extracellular potential) is fixed to 

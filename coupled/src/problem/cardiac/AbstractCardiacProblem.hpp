@@ -25,7 +25,7 @@ private:
     double mPrintingTimeStep; 
     bool mWriteInfo;
     bool mPrintOutput;
-    
+ 
     AbstractCardiacPde<SPACE_DIM> *mpCardiacPde;
     
     /** data is not written if output directory or output file prefix are not set*/
@@ -36,6 +36,7 @@ protected:
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
     Vec mVoltage; // Current solution
+    double mLinearSolverRelativeTolerance;
 
     /**
      * Subclasses must override this method to create a PDE object of the appropriate type.
@@ -71,6 +72,7 @@ public:
         mPrintOutput = true;
         mpCardiacPde = NULL;
         mVoltage = NULL;
+        mLinearSolverRelativeTolerance=1e-6;        
     }
     
     virtual ~AbstractCardiacProblem()
@@ -95,6 +97,16 @@ public:
         
         delete mpCardiacPde; // In case we're called twice
         mpCardiacPde = CreateCardiacPde();
+    }
+    
+    void SetLinearSolverRelativeTolerance(const double &rRelTol)
+    {
+        mLinearSolverRelativeTolerance = rRelTol;
+    }
+    
+    double GetLinearSolverRelativeTolerance()
+    {
+        return mLinearSolverRelativeTolerance;
     }
     
     void PreSolveChecks()

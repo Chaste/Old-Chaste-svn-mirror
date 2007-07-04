@@ -73,13 +73,55 @@ public:
         
         // check some voltages    
         ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
-        double atol=4e-3;
-        TS_ASSERT_DELTA(voltage_replicated[1], 20.7709, atol);
-        TS_ASSERT_DELTA(voltage_replicated[3], 21.5321, atol);
-        TS_ASSERT_DELTA(voltage_replicated[5], 22.9282, atol);
-        TS_ASSERT_DELTA(voltage_replicated[7], 24.0612, atol);
-        TS_ASSERT_DELTA(voltage_replicated[9], -0.7694, atol);
-        TS_ASSERT_DELTA(voltage_replicated[10], -19.2224, atol);
+        double atol=5e-3;
+        
+        TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
+        TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
+        TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
+        TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
+        TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
+        TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
+       
+    }
+    
+    void TestMonodomainDg01DWithTolerance()
+    {
+        PlaneStimulusCellFactory<1> cell_factory;
+        MonodomainProblem<1> monodomain_problem( &cell_factory );
+        
+        monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+        monodomain_problem.SetEndTime(2);   // ms
+        monodomain_problem.SetOutputDirectory("MonoDg01d");
+        monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+        monodomain_problem.Initialise();
+        
+        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
+        monodomain_problem.SetLinearSolverRelativeTolerance(1e-9);
+        TS_ASSERT_DELTA(monodomain_problem.GetLinearSolverRelativeTolerance(),1e-9,1e-14);
+        
+        monodomain_problem.Solve();
+        
+        // test whether voltages and gating variables are in correct ranges
+        CheckMonoLr91Vars<1>(monodomain_problem);
+        
+        // check some voltages    
+        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        double atol=1e-6;
+//        std::cout<<std::setprecision(9);
+//        std::cout<<voltage_replicated[1]<<"\n";
+//        std::cout<<voltage_replicated[3]<<"\n";
+//        std::cout<<voltage_replicated[5]<<"\n";
+//        std::cout<<voltage_replicated[7]<<"\n";
+//        std::cout<<voltage_replicated[9]<<"\n";
+//        std::cout<<voltage_replicated[10]<<"\n";
+        TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
+        TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
+        TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
+        TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
+        TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
+        TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
        
     }
     

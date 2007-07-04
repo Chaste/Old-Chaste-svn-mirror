@@ -83,8 +83,9 @@ public:
     SimpleDg0ParabolicAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                 AbstractLinearParabolicPde<SPACE_DIM>* pPde,
                                 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
-                                unsigned numQuadPoints = 2) :
-            AbstractLinearDynamicProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
+                                unsigned numQuadPoints = 2,
+                                double linearSolverRelativeTolerance=1e-6) :
+            AbstractLinearDynamicProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints,linearSolverRelativeTolerance)
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later

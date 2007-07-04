@@ -83,8 +83,9 @@ public:
      */
     MonodomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                            MonodomainPde<SPACE_DIM>* pPde,
-                           unsigned numQuadPoints = 2) :
-            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints)
+                           unsigned numQuadPoints = 2,
+                           double linearSolverRelativeTolerance = 1e-6) :
+            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints, linearSolverRelativeTolerance)
     {
         mpMonodomainPde = pPde;
         

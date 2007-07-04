@@ -26,7 +26,7 @@ protected:
     
     AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, 1>* CreateAssembler()
     {
-        return new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(&this->mMesh, mpMonodomainPde);
+        return new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(&this->mMesh, mpMonodomainPde, 2, this->mLinearSolverRelativeTolerance);
     }
 
 public:
