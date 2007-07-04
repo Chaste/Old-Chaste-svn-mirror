@@ -442,6 +442,13 @@ public:
         simulator.SetMaxElements(1000);
         simulator.SetDt(0.001);
         
+        // Test that labelling a few cells doesn't make any difference to the simulation
+        // and therefore log them in the visualizer files for the next test to check.
+        simulator.rGetCrypt().rGetCellAtNodeIndex(57).SetMutationState(LABELLED);
+        simulator.rGetCrypt().rGetCellAtNodeIndex(56).SetMutationState(APC_ONE_HIT);
+        simulator.rGetCrypt().rGetCellAtNodeIndex(51).SetMutationState(APC_TWO_HIT);
+        simulator.rGetCrypt().rGetCellAtNodeIndex(63).SetMutationState(BETA_CATENIN_ONE_HIT);
+                
         simulator.Solve();
         
         // test we have the same number of cells and nodes at the end of each time

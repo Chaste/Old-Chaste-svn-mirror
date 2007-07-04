@@ -538,7 +538,7 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
         
         if (mIsGhostNode[index]==true)
         {
-            colour = 4; // visualizer treats '4' these as invisible
+            colour = 6; // visualizer treats '6' as invisible
         }
         else if (mrMesh.GetNode(index)->IsDeleted())
         {
@@ -552,6 +552,7 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
             CryptCellType type = p_cell->GetCellType();
             CryptCellMutationState mutation = p_cell->GetMutationState();
             
+            // Set colours dependent on Stem, Transit, Differentiate
             if (type == STEM)
             {
                 colour = 0;
@@ -565,9 +566,21 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                 colour = 2;
             }
             
+            // Override colours for mutant or labelled cells.
             if (mutation != HEALTHY)
             {
-                colour = 3;
+                if (mutation == LABELLED)
+                {
+                    colour = 5;
+                }
+                if (mutation == APC_ONE_HIT)
+                {
+                    colour = 3;
+                }
+                if (mutation == APC_TWO_HIT || mutation == BETA_CATENIN_ONE_HIT)
+                {
+                    colour = 4;   
+                }
             }
             
         }

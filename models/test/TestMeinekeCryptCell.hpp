@@ -1140,7 +1140,7 @@ public:
      * (these test that the cell cycle times are correct for the 
      * various mutant cells)
      */
-    void TestWntMutantVariants() throw(Exception)
+    void TestWntMutantVariantsAndLabelling() throw(Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         
@@ -1164,7 +1164,12 @@ public:
         MeinekeCryptCell wnt_cell3(TRANSIT, // type
                                   APC_TWO_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus,1));     
+                                  new WntCellCycleModel(wnt_stimulus,1)); 
+                                  
+        MeinekeCryptCell wnt_cell4(TRANSIT, // type
+                                  LABELLED,//Mutation State
+                                  1,    // generation
+                                  new WntCellCycleModel(wnt_stimulus,1));                               
 
         std::vector<double> wnt;
         wnt.push_back(wnt_stimulus);
@@ -1174,6 +1179,8 @@ public:
         TS_ASSERT(wnt_cell2.ReadyToDivide(wnt)==false);
         
         TS_ASSERT(wnt_cell3.ReadyToDivide(wnt)==false);
+        
+        TS_ASSERT(wnt_cell4.ReadyToDivide(wnt)==false);
         
         SimulationTime::Destroy();
     }

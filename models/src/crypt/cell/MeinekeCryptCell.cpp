@@ -155,7 +155,7 @@ bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
     }    
     
     double mutation_state = -1;
-    if (mMutationState==HEALTHY)
+    if (mMutationState==HEALTHY || mMutationState==LABELLED)
     {
         //std::cout << "HEALTHY" << std::endl;
         mutation_state=0;

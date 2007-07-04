@@ -69,8 +69,6 @@ void TissueSimulation<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
     rSetupFile.close();
 }
 
-
-
 template<unsigned DIM>  
 unsigned TissueSimulation<DIM>::DoCellBirth()
 {

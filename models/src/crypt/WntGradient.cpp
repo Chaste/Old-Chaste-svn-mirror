@@ -55,13 +55,8 @@ double WntGradient::GetWntLevel(double height)
         }
     }
     
+    assert(wnt_level >= 0.0);
     
-    if (wnt_level<0)
-    {
-#define COVERAGE_IGNORE
-        EXCEPTION("Wnt gradient has been calculated as negative.");
-#undef COVERAGE_IGNORE
-    }
     return wnt_level;
 }
 
