@@ -256,8 +256,15 @@ private:
             //Try to fudge the solution vector with respect to the external voltage
             //Find the largest absolute value
             double min, max;
+
+#if (PETSC_VERSION_MINOR == 2) //Old API
+	    PetscInt position;
+            VecMax(currentSolution, &position, &max);  
+            VecMin(currentSolution, &position, &min);
+#else
             VecMax(currentSolution, &max);  
             VecMin(currentSolution, &min);
+#endif
             if ( -min > max ) 
             {
                 //Largest value is negative
@@ -266,9 +273,16 @@ private:
             //Standard transmembrane potentials are within +-100 mV
             if (fabs(max) > 1000)
             {
+#define COVERAGE_IGNORE
                 std::cout<<"warning: shifting phi_e by "<<-max<<"\n";
                 //Use mask currentSolution=currentSolution - max*mExternalVoltageMask
+#if (PETSC_VERSION_MINOR == 2) //Old API
+                max *= -1;
+		VecAXPY(&max, mExternalVoltageMask, currentSolution);
+#else
                 VecAXPY(currentSolution, -max, mExternalVoltageMask);
+#endif
+#undef COVERAGE_IGNORE
             }
         }
     }
