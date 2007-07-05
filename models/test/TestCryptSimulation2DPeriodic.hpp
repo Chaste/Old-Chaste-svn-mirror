@@ -355,24 +355,30 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    
-    
-    // This is a rubbish test - all cells start at birthTime = 0.
-    // So bizarrely the crypt shrinks as the rest lengths are shortened! But at least it uses Wnt
-    // cell cycle and runs reasonably quickly...
-    // For a better test with more randomly distributed cell ages see the Nightly test pack.
-    void TestWithWntDependentCellsAndAMutation() throw (Exception)
+    /* 
+     * Cells are compressed and are trying to spread out. So the cells 
+     * at the bottom try to push across y=0 but are prevented from doing so.
+     * This is not covered in previous tests because cells are all at age = 0
+     * and try to come together to simulate birth.
+     * 
+     * It is potentially an expensive test computationally, because all 
+     * Wnt cells have to run cell cycle models for a large time 
+     * to be 'mature' cells which won't shrink together. 
+     * Limited this by using only four cells of minimum age.
+     */
+    void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000);
         
-        unsigned cells_across = 6;
-        unsigned cells_up = 12;
-        unsigned thickness_of_ghost_layer = 4;
+        unsigned cells_across = 2;
+        unsigned cells_up = 2;
+        double crypt_width = 0.5;
+        unsigned thickness_of_ghost_layer = 0;
         
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false, crypt_width/cells_across);
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -380,25 +386,40 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, WNT, false);
+        CreateVectorOfCells(cells, *p_mesh, WNT, true);
+        cells[0].SetBirthTime(-1.0);   // Make cell cycle models do minimum work
+        cells[1].SetBirthTime(-1.0);
+        cells[1].SetMutationState(LABELLED);
+        cells[2].SetBirthTime(-1.0);
+        cells[2].SetMutationState(APC_ONE_HIT);
+        cells[3].SetBirthTime(-1.0);
+        cells[3].SetMutationState(BETA_CATENIN_ONE_HIT);
 
-        // Set a stem cell to be an evil cancer cell and see what happens
-        cells[27].SetMutationState(APC_TWO_HIT);
-        
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         TissueSimulation<2> simulator(crypt);
-        simulator.SetOutputDirectory("Crypt2DMutation");
+        simulator.SetOutputDirectory("Crypt2DWntMatureCells");
+        // If you want to visualize this use the 'notcylindrical' option
+        // (it is too small for it to figure out what's happening on its own).
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
         simulator.SetWntGradient(LINEAR);
+        simulator.SetNoSloughing();
         
-        simulator.SetEndTime(0.05);
+        simulator.SetEndTime(0.01);
         
         simulator.Solve();
-                
+        
+        // Check that nothing has moved below y=0
+        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+             cell_iter != crypt.End();
+             ++cell_iter)
+        {
+            TS_ASSERT_LESS_THAN(-1e-15,p_mesh->GetNode(cell_iter->GetNodeIndex())->rGetLocation()[1]);
+        }
+        
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
