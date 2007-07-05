@@ -725,7 +725,6 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
 
 	Color garysSexySilver = new Color(238,238,238);
 	Color garysSpringsSilver = new Color(200,200,200);
-	Color lightGrey = new Color(180,180,180);
 	Color purple = new Color(121,126,234);
 	
 	
@@ -902,7 +901,6 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
 			PlotPoint p=scale(vis.positions[vis.timeStep][i]);
 			
 			SetNodeColour(i);
-			
 			g2.fillOval(p.x - node_radius, p.y - node_radius, 2 * node_radius, 2 * node_radius);
 			//old_x = p.x;
 			//old_y = p.y;
@@ -999,12 +997,6 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
 		PlotPoint mouse_position = new PlotPoint(e.getX(), e.getY());
 		RealPoint real_position = unscale(mouse_position);
 		
-//		g2.setColor(garysSexySilver);
-//		g2.fillRect(0,0,width,height);
-//		g2.setColor(Color.black);
-//				
-//		g2.drawString("Mouse Position = "  + real_position.x + "  " + real_position.y, 10,10);
-//		g2.setColor(Color.black);
 		int nearest_index=-1;
 		for (int i = 0; i < vis.numCells[vis.timeStep]; i++ ) 
 		{
@@ -1025,9 +1017,11 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
 			vis.nearest_label.setText("");
 		}
 	}
+	
 	public void mouseDragged(MouseEvent e) {
 		//Not used
 	}
+	
 	int SquaredDistance(PlotPoint p0, PlotPoint p1)
 	{
 		int diffx=p0.x-p1.x;
@@ -1035,6 +1029,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
 		
 		return diffx*diffx + diffy*diffy;
 	}
+	
 	RealPoint DrawCircumcentre(RealPoint p0, RealPoint p1, RealPoint p2)
 	{
 		/* To find the coordinates (x_c,y_c) of the circumcentre, we first translate
@@ -1110,7 +1105,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
             }
 			else
 			{
-		        g2.setColor(Color.white);
+		        g2.setColor(Color.lightGray);
 			}
 		}
 	}
@@ -1136,7 +1131,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
 		else if (vis.cell_type[vis.timeStep][index]==3)
 		{
 			// DANGER! early CANCER!
-			g2.setColor(lightGrey);
+			g2.setColor(Color.lightGray);
 		}
 		else if (vis.cell_type[vis.timeStep][index]==4)
 		{
