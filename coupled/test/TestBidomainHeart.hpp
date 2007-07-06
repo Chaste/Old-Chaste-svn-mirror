@@ -182,7 +182,7 @@ public:
     *
     */
     
-    void xTestBidomainDg0Heart() throw (Exception)
+    void TestBidomainDg0Heart() throw (Exception)
     {
         double pde_time_step = 0.005;  // ms
         double ode_time_step = 0.0025; // ms
@@ -213,7 +213,7 @@ public:
         bidomain_problem.Solve();
     }
     
-       void TestBidomainDg0HeartMetis() throw (Exception)
+       void xTestBidomainDg0HeartMetis() throw (Exception)
     {
         double pde_time_step = 0.005;  // ms
         double ode_time_step = 0.0025; // ms

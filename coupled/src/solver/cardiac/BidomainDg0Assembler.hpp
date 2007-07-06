@@ -271,7 +271,7 @@ private:
                 max=min;
             }  
             //Standard transmembrane potentials are within +-100 mV
-            if (fabs(max) > 1000)
+            if (fabs(max) > 500)
             {
 #define COVERAGE_IGNORE
                 std::cout<<"warning: shifting phi_e by "<<-max<<"\n";
