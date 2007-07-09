@@ -49,19 +49,12 @@ std::vector<std::string> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataF
         // Remove comments
         
         unsigned hashLocation=RawLineFromFile.find('#',0);
-        if (hashLocation >= 0)
-        {
-            RawLineFromFile=RawLineFromFile.substr(0,hashLocation);
-        }
+        RawLineFromFile=RawLineFromFile.substr(0,hashLocation);
         
         
         // Remove blank lines
-        
-        unsigned notBlankLocation=RawLineFromFile.find_first_not_of(" \t",0);
-        if (notBlankLocation >= 0)
-        {
-            RawDataFromFile.push_back(RawLineFromFile);
-        }
+        RawLineFromFile.find_first_not_of(" \t",0);
+        RawDataFromFile.push_back(RawLineFromFile);
         
         
         // Move onto next line

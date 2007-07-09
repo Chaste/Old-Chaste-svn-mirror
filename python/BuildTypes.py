@@ -600,7 +600,7 @@ class Intel(BuildType):
     self._compiler_type = 'intel'
     # Turn off some warnings, and report warnings as errors
     #self._cc_flags = '-wr470 -wr186 -pc64' #Emulates a 64-bit (not 80-bit) FPU
-    self._cc_flags = '-wr470 -wr186 -Werror'
+    self._cc_flags = '-wr470 -Werror'
     self._link_flags = '-static-libcxa'
     self.build_dir = 'intel'
     # Intel compiler uses optimisation by default

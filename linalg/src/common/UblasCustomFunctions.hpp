@@ -60,8 +60,10 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T,2,2> &m, const unsigned
 {
     using namespace boost::numeric::ublas;
     
-    assert(missrow>=0 && missrow<2);
-    assert(misscol>=0 && misscol<2);
+//    assert(missrow>=0 && missrow<2);
+//    assert(misscol>=0 && misscol<2);
+    assert(missrow<2);
+    assert(misscol<2);
     
     unsigned row=(missrow==1)?0:1;
     unsigned col=(misscol==1)?0:1;
@@ -89,8 +91,8 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T,3,3> &m, const unsigned
 {
     using namespace boost::numeric::ublas;
     
-    assert(missrow>=0 && missrow<3);
-    assert(misscol>=0 && misscol<3);
+    assert(missrow<3);
+    assert(misscol<3);
     
     unsigned lorow=(missrow==0)?1:0;
     unsigned hirow=(missrow==2)?1:2;

@@ -22,7 +22,6 @@ double LinearBasisFunction<3>::ComputeBasisFunction(
     unsigned basisIndex)
 {
     assert(basisIndex <= 3);
-    assert(basisIndex >= 0);
     
     switch (basisIndex)
     {
@@ -59,8 +58,7 @@ double LinearBasisFunction<2>::ComputeBasisFunction(
     unsigned basisIndex)
 {
     assert(basisIndex <= 2);
-    assert(basisIndex >= 0);
-    
+     
     switch (basisIndex)
     {
         case 0:
@@ -93,7 +91,6 @@ double LinearBasisFunction<1>::ComputeBasisFunction(
     unsigned basisIndex)
 {
     assert(basisIndex <= 1);
-    assert(basisIndex >= 0);
     
     switch (basisIndex)
     {
@@ -142,7 +139,6 @@ c_vector<double, 3> LinearBasisFunction<3>::ComputeBasisFunctionDerivative(
     unsigned basisIndex)
 {
     assert(basisIndex <= 3);
-    assert(basisIndex >= 0);
     
     c_vector<double, 3> gradN;
     switch (basisIndex)
@@ -191,7 +187,6 @@ c_vector<double, 2> LinearBasisFunction<2>::ComputeBasisFunctionDerivative(
     unsigned basisIndex)
 {
     assert(basisIndex <= 2);
-    assert(basisIndex >= 0);
     
     c_vector<double, 2> gradN;
     switch (basisIndex)
@@ -232,7 +227,6 @@ c_vector<double, 1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
     unsigned basisIndex)
 {
     assert(basisIndex <= 1);
-    assert(basisIndex >= 0);
     
     c_vector<double, 1> gradN;
     switch (basisIndex)

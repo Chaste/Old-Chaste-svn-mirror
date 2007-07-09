@@ -62,7 +62,7 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
     }
     for (unsigned i=0; i<SPACE_DIM; i++)
     {
-        for (unsigned j=0; j<ELEMENT_DIM; j++)
+        for (unsigned j=0; j!=ELEMENT_DIM; j++) //Does a j<ELEMENT_DIM without ever having to test j<0U (#186: pointless comparison of unsigned integer with zero)
         {
             mJacobian(i,j) = GetNodeLocation(j+1,i) - GetNodeLocation(0,i);
         }

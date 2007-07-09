@@ -642,8 +642,9 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMeshSurface()
 {
     //ELEMENT_DIM-1 is the dimension of the boundary element
+    assert (ELEMENT_DIM>=1);
     unsigned bound_element_dim=ELEMENT_DIM-1;
-    assert(bound_element_dim < 3 &&  bound_element_dim>=0);
+    assert(bound_element_dim < 3);
     if ( bound_element_dim == 0)
     {
         return 0.0;
@@ -1801,7 +1802,6 @@ double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigne
 #undef COVERAGE_IGNORE
 {
     assert(rDimension < SPACE_DIM);
-    assert(rDimension >= 0u);
     c_vector<double,2> extremes = GetWidthExtremes(rDimension);
     return extremes[1]-extremes[0];
 }
@@ -1810,7 +1810,6 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double,2> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const unsigned& rDimension) const
 {
     assert(rDimension < SPACE_DIM);
-    assert(rDimension >= 0u);
     double max = -1e200;
     double min = 1e200;
     assert(GetNumAllNodes() > 0u);
