@@ -4,6 +4,7 @@
 #include "TissueSimulation.hpp"
 #include "Exception.hpp"
 #include "CancerParameters.hpp"
+#include "RandomNumberGenerator.hpp"
 #include <cmath>
 #include <ctime>
 #include <iostream>
@@ -17,19 +18,17 @@
 #include "WntGradient.hpp"
 #include "OutputFileHandler.hpp"
 
-
-
 template<unsigned DIM> 
 TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
   :  mrCrypt(rCrypt)
 {
+    srandom(0);
     mDeleteCrypt = deleteCrypt;
     mpParams = CancerParameters::Instance();
+    mpRandomGenerator = RandomNumberGenerator::Instance();
     
-    mDt = 1.0/120.0;
+    mDt = 1.0/120.0; // Timestep of 30 seconds (as per Meineke)
     mEndTime = 0.0; // hours - this is set later on.
-    
-    srandom(0);
     
     // defaults
     mOutputDirectory = "";
@@ -325,7 +324,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
     // update ghost positions first because they do not affect the real cells
     mrCrypt.UpdateGhostPositions(mDt);
 
-    // Iterate over all cells, seeing if each one can be divided
+    // Iterate over all cells to update their positions.
     for (typename Crypt<DIM>::Iterator cell_iter = mrCrypt.Begin();
          cell_iter != mrCrypt.End();
          ++cell_iter)
@@ -337,37 +336,30 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
         
         if(DIM==2)
         {
-            // TODO: simplify/remove these 2d cases
-            if (mWntIncluded)
+            // Move any node as long as it is not a stem cell.
+            // unpin the stem cells in a Wnt simulation.
+            if (cell.GetCellType()!=STEM || mWntIncluded)
             {   
-                // A new Wnt feature - even stem cells can move as long as they don't go below zero.
+                // if a cell wants to move below y<0 (most likely because it was
+                // just born from a stem cell), stop it doing so
                 if (new_point.rGetLocation()[1] < 0.0)
                 {
-                    new_point.rGetLocation()[1] = 0.0;
+                    /* 
+                     * Here we give the cell a push upwards so that it doesn't 
+                     * get stuck on y=0 for ever (ticket:422).
+                     * 
+                     * Note that all stem cells may get moved to same height and 
+                     * random numbers try to ensure we aren't left with the same 
+                     * problem at a different height!
+                     */
+                    new_point.rGetLocation()[1] = 0.05*mpRandomGenerator->ranf();
                 }
-                mrCrypt.MoveCell(cell_iter, new_point);
-            }
-            else
-            {
-                // THE 'USUAL' SCENARIO move any node as long as it is not a stem cell.
-                if (cell.GetCellType()!=STEM)
-                {   
-                    // if a cell wants to move below y<0 (most likely because it was
-                    // just born from a stem cell), stop it doing so
-                    if (new_point.rGetLocation()[1] < 0.0)
-                    {
-                        // Here we give the cell a push upwards so that it doesn't get stuck on y=0 for ever.
-                        // it is a bit of a hack to make it work nicely!
-                        new_point.rGetLocation()[1] = 0.01;
-                    }
-                    mrCrypt.MoveCell(cell_iter, new_point);
-                }
+                mrCrypt.MoveCell(cell_iter, new_point);                    
             }
         }
         else
-        {
-            // 1d or 3d
-            mrCrypt.MoveCell(cell_iter, new_point);
+        {   // 1D or 3D
+            mrCrypt.MoveCell(cell_iter, new_point);    
         }
     }
 }

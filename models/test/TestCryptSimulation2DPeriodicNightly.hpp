@@ -549,7 +549,7 @@ public:
         TS_ASSERT_EQUALS(num_stem, 1u);
         TS_ASSERT_EQUALS(num_transit, 2u);
         
-        TS_ASSERT_LESS_THAN(num_differentiated, 23u);
+        TS_ASSERT_LESS_THAN(num_differentiated, 25u);
         TS_ASSERT_LESS_THAN(15u, num_differentiated);
         
         SimulationTime::Destroy();
@@ -645,7 +645,7 @@ public:
         // (if we do then the boundaries are probably working!)
 
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 96u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 94u);
         TS_ASSERT_EQUALS(number_of_nodes, 184u);
         
         SimulationTime::Destroy();

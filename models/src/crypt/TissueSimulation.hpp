@@ -65,7 +65,10 @@ class TissueSimulation
     friend class TestSprings3d;
     
 protected:
+    /** TimeStep */
     double mDt;
+    
+    /** Time to run the Solve() method up to */
     double mEndTime;
 
     /** Facade encapsulating cells in the tissue being simulated */
@@ -86,10 +89,14 @@ protected:
     /** The maximum number of elements that this simulation will include (for use by datawriter). */
     unsigned mMaxElements;
     
+    /** Output directory (a subfolder of tmp/<USERNAME>/testoutput) */
     std::string mOutputDirectory;
     
     /** The Meineke and cancer parameters */
     CancerParameters *mpParams;
+    
+    /** The singleton RandomNumberGenerator */
+    RandomNumberGenerator *mpRandomGenerator;
     
     /** Whether Wnt signalling is included or not (defaults to false).*/
     bool mWntIncluded;
@@ -112,6 +119,10 @@ protected:
         mpParams = CancerParameters::Instance();
         archive & *mpParams;
         archive & mpParams;
+        
+        mpRandomGenerator = RandomNumberGenerator::Instance();
+        archive & *mpRandomGenerator;
+        archive & mpRandomGenerator;
         
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
