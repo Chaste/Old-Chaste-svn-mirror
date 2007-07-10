@@ -232,7 +232,75 @@ public :
         finiteelas_with_growth.Run();  
     }
     
+    void NO_Test2dPolypFormationWithElasticUnderside() throw(Exception)
+    {
+        Vector<double> body_force(2); // zero
+        double density = 1.0;
+
+        double length = 30;
+        double height = 30;
+
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
+
+        Triangulation<2> mesh;
+        Point<2> zero;
+        Point<2> opposite_corner;
+        opposite_corner[0] = length;
+        opposite_corner[1] = height;
+        
+        unsigned num_elem_x = 30;
+        unsigned num_elem_y = 30;
+        
+        std::vector<unsigned> repetitions;
+        repetitions.push_back(num_elem_x);
+        repetitions.push_back(num_elem_y);
+        
+        GridGenerator::subdivided_hyper_rectangle(mesh, repetitions, zero, opposite_corner);
+//
+//        double alpha = 1;
+//        double pi = 3.14159265;
+//      TriangulationVertexIterator<2> vertex_iter(&mesh);
+//      while(!vertex_iter.End())
+//      {
+//          Point<2>& position = vertex_iter.GetVertex();
+//          position[1] += alpha*sin(3*pi*position[0]/length); 
+//          vertex_iter.Next();
+//      }
     
+
+        // set all elements as growing region (using a circle with a big radius)
+//        FiniteElasticityTools<2>::SetCircularRegionAsGrowingRegion(mesh, zero, 10*length);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, length, false);
+
+        FiniteElasticityTools<2>::SetAllElementsAsNonGrowingRegion(mesh);
+
+        Triangulation<2>::active_cell_iterator element_iter = mesh.begin_active();
+        while (element_iter!=mesh.end())
+        {
+            for (unsigned i=0; i<GeometryInfo<2>::vertices_per_cell; i++)
+            {
+                if (fabs(element_iter->vertex(i)[1]-height) < 1e-4)
+                {
+                    element_iter->set_material_id(GROWING_REGION);
+                }
+            }
+            element_iter++;
+        }
+
+
+        ConcentrationBasedTumourSourceModel<2> source_model(mesh);
+        
+        FiniteElasticityAssemblerWithGrowth<2> finiteelas_with_growth(&mesh,
+                                                                      &mooney_rivlin_law,
+                                                                      body_force,
+                                                                      density,
+                                                                      "finite_elas_growth/polyp2d_elastic_under",
+                                                                      &source_model);
+                
+        finiteelas_with_growth.SetTimes(0.0, 0.1, 0.1);
+        finiteelas_with_growth.Run();
+    }
     
     
     void NO_Test2dPolypFormation() throw(Exception)
