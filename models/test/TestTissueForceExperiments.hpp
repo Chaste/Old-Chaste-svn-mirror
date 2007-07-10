@@ -359,7 +359,9 @@ public :
             }
 
             // top surface
-            if(index>=317 && index<=327)
+//            if(index>=317 && index<=327)
+
+            if(index>=330 && index<=344)
             {
                 // comment this first line out to allow slip on top surface
                 new_point.rGetLocation()[0] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[0] + disp;
@@ -367,7 +369,9 @@ public :
             }
             
             // bottom surface
-            if(index>=32 && index<=42)
+//            if(index>=32 && index<=42)
+
+            if(index>=30 && index<=44)
             {
                 // comment this first line out to allow slip on bottom surface
                 new_point.rGetLocation()[0] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[0];
@@ -509,7 +513,7 @@ public:
      *  and allowing slip so that the width can change.
      * 
      */
-    void TestMeinekeIncremental() throw(Exception)
+    void xTestMeinekeIncremental() throw(Exception)
     {      
         std::vector<double> stretches;
         std::vector<double> forces;
@@ -638,35 +642,45 @@ public:
     
     
     void TestMeinekeIncrementalShearing() throw(Exception)
-    {      
+    {   
+        return; 
+        
         std::vector<double> shears;
         std::vector<double> forces;
         std::vector<double> areas;
 
         //for the test to pass
-        double disp = 0.2;
-        for(unsigned i=1; i<2; i++)
-        {
-            shears.push_back(disp*i);
-        }
-        double run_time = 0.3;
-
 //        double disp = 0.2;
-//        for(unsigned i=1; i<20; i++)
+//        for(unsigned i=1; i<2; i++)
 //        {
 //            shears.push_back(disp*i);
 //        }
-//        double run_time = 2; // might need to be more..
+//        double run_time = 0.3;
+
+        double disp = 0.2;
+        for(unsigned i=1; i<20; i++)
+        {
+            shears.push_back(disp*i);
+        }
+        double run_time = 2; // might need to be more..
 
 
         ////////////////////////////////////////////////////        
         // the main code 
         ////////////////////////////////////////////////////
-        int num_cells_depth = 20; // the TissueSimulationForForceExperiments class expects these values!
-        int num_cells_width = 11; // the TissueSimulationForForceExperiments class expects these values!
+//        int num_cells_depth = 20; // the TissueSimulationForForceExperiments class expects these values!
+//        int num_cells_width = 11; // the TissueSimulationForForceExperiments class expects these values!
         
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();        
+//        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
+//        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();        
+
+
+        int num_cells_depth = 20; // the TissueSimulationForForceExperiments class expects these values!
+        int num_cells_width = 15; // the TissueSimulationForForceExperiments class expects these values!
+ 
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+ 
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         //double old_stretch = 1.0;
@@ -675,7 +689,7 @@ public:
             double shear = shears[i];
 
             std::stringstream string_stream;
-            string_stream << "TissueForceExperimentMeinekeShear_" << shear;
+            string_stream << "TissueForceExperimentMeinekeShear/" << shear;
             std::string output_directory = string_stream.str();
             
             SimulationTime* p_simulation_time = SimulationTime::Instance();
