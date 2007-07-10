@@ -13,7 +13,7 @@
 
 // these typedefs are just because can't have lines such as
 //  TS_ASSERT_THROWS_NOTHING(pMeshReader=new TrianglesMeshReader<2,2>(name));
-// because the macro thinks the comma seperates two arguments
+// because the macro thinks the comma separates two arguments
 typedef TrianglesMeshReader<1,1> READER_1D;
 typedef TrianglesMeshReader<2,2> READER_2D;
 typedef TrianglesMeshReader<3,3> READER_3D;

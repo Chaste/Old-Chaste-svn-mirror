@@ -46,19 +46,24 @@ std::vector<std::string> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataF
     while (dataFile)
     {
     
-        // Remove comments
-        
-        unsigned hashLocation=RawLineFromFile.find('#',0);
-        RawLineFromFile=RawLineFromFile.substr(0,hashLocation);
-        
-        
-        // Remove blank lines
-        RawLineFromFile.find_first_not_of(" \t",0);
-        RawDataFromFile.push_back(RawLineFromFile);
+        //Remove comments (everything from a hash to the end of the line)
+        //If there is no hash, then hashLocation = string::npos = -1 =  4294967295 = UINT_MAX 
+        //(so it works with unsigneds but is a little nasty)
+        long hash_location=RawLineFromFile.find('#',0);
+        if (hash_location >= 0) 
+        { 
+            RawLineFromFile=RawLineFromFile.substr(0,hash_location); 
+        } 
+        //Remove blank lines.  This is unnecessary, since the tokenizer will
+        //ignore blank lines anyway. 
+        long not_blank_location=RawLineFromFile.find_first_not_of(" \t",0); 
+        if (not_blank_location >= 0) 
+        { 
+            RawDataFromFile.push_back(RawLineFromFile); 
+        } 
         
         
         // Move onto next line
-        
         getline(dataFile, RawLineFromFile);
     }
     

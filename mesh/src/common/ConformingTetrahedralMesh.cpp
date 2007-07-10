@@ -643,7 +643,7 @@ double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMeshSurface()
 {
     //ELEMENT_DIM-1 is the dimension of the boundary element
     assert (ELEMENT_DIM>=1);
-    unsigned bound_element_dim=ELEMENT_DIM-1;
+    const unsigned bound_element_dim=ELEMENT_DIM-1;
     assert(bound_element_dim < 3);
     if ( bound_element_dim == 0)
     {

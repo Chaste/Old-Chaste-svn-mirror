@@ -22,7 +22,7 @@ public:
     {
     }
 
-    virtual double GetForce(double seperation)=0;
+    virtual double GetForce(double separation)=0;
     
     double GetCutoffPoint()
     {
@@ -49,10 +49,10 @@ public:
     {
     }
     
-    double GetForce(double seperation)
+    double GetForce(double separation)
     {
-        assert(seperation < mCutoffPoint);
-        return mStiffness*(seperation - mRestLength);
+        assert(separation < mCutoffPoint);
+        return mStiffness*(separation - mRestLength);
     }
 };    
       
@@ -78,10 +78,10 @@ private:
         {
             for(unsigned j=i; j<mrMesh.GetNumNodes(); j++)
             {
-                double seperation = norm_2(mrMesh.GetVectorFromAtoB(mrMesh.GetNode(i)->rGetLocation(),
+                double separation = norm_2(mrMesh.GetVectorFromAtoB(mrMesh.GetNode(i)->rGetLocation(),
                                                                     mrMesh.GetNode(j)->rGetLocation())); 
         
-                if((i!=j) && (seperation < mpSpringModel->GetCutoffPoint()))
+                if((i!=j) && (separation < mpSpringModel->GetCutoffPoint()))
                 {
                     mEffectingPoints[i].insert(j);
                     mEffectingPoints[j].insert(i);
@@ -269,17 +269,17 @@ public:
                 {
                     const c_vector<double,2>& posn_2 = mesh.GetNode(j)->rGetLocation();
                     
-                    double seperation = norm_2(posn_1 - posn_2);
+                    double separation = norm_2(posn_1 - posn_2);
                 
                     std::set<unsigned>::iterator iter = simulator.mEffectingPoints[i].find(j);
                         
                     if(iter!=simulator.mEffectingPoints[i].end())
                     {
-                        TS_ASSERT_LESS_THAN(seperation, cutoff_point);
+                        TS_ASSERT_LESS_THAN(separation, cutoff_point);
                     }
                     else
                     {
-                        TS_ASSERT_LESS_THAN_EQUALS(cutoff_point, seperation);
+                        TS_ASSERT_LESS_THAN_EQUALS(cutoff_point, separation);
                     }
                 }
             }
