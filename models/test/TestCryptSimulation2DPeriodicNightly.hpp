@@ -614,7 +614,7 @@ public:
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
         
         TS_ASSERT_EQUALS(number_of_cells, 85u);
-        TS_ASSERT_EQUALS(number_of_nodes, 1275u);
+        TS_ASSERT_EQUALS(number_of_nodes, 127u);
         
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
