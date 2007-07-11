@@ -63,6 +63,9 @@ class TissueSimulation
     // private functions eg. DoCellBirth
     friend class TestCryptSimulation2DPeriodic;
     friend class TestSprings3d;
+private:
+
+std::set<std::set <MeinekeCryptCell *> > mDivisionPairs;
     
 protected:
     /** TimeStep */
@@ -208,7 +211,8 @@ protected:
      * dependent on a protein concentration when using the Wnt model.
      */
     void UpdateCellTypes();
-
+    
+    
 public:
 
     /** 

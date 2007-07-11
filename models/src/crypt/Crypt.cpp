@@ -237,22 +237,25 @@ void Crypt<DIM>::MoveCell(Iterator iter, Point<DIM>& rNewLocation)
 }
 
 template<unsigned DIM>  
-void Crypt<DIM>::AddCell(MeinekeCryptCell newCell, c_vector<double,DIM> newLocation)
+MeinekeCryptCell* Crypt<DIM>::AddCell(MeinekeCryptCell newCell, c_vector<double,DIM> newLocation)
 {
     Node<DIM>* p_new_node = new Node<DIM>(mrMesh.GetNumNodes(), newLocation, false);   // never on boundary
-                
+              
     unsigned new_node_index = mrMesh.AddNode(p_new_node);
 
     newCell.SetNodeIndex(new_node_index);
     mCells.push_back(newCell);
-    mNodeCellMap[new_node_index] = &(mCells.back());
-
+    
+    MeinekeCryptCell *p_created_cell=&(mCells.back());
+    mNodeCellMap[new_node_index] = p_created_cell;
+    
     // Update size of IsGhostNode if necessary
     if (mrMesh.GetNumNodes() > mIsGhostNode.size())
     {
         mIsGhostNode.resize(mrMesh.GetNumNodes());
         mIsGhostNode[new_node_index] = false;
-    }   
+    }
+    return p_created_cell;
 }
 
 

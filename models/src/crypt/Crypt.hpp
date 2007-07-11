@@ -234,8 +234,9 @@ public:
      * Add a new cell to the crypt.
      * @param cell  the cell to add
      * @param newLocation  the position in space at which to put it
+     * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    void AddCell(MeinekeCryptCell cell, c_vector<double,DIM> newLocation);
+    MeinekeCryptCell*  AddCell(MeinekeCryptCell cell, c_vector<double,DIM> newLocation);
 
     void ReMesh();
 

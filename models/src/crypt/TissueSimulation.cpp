@@ -110,15 +110,18 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
             // Add a new node to the mesh
             c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
             
-            mrCrypt.AddCell(new_cell, new_location);
+            MeinekeCryptCell *p_new_cell=mrCrypt.AddCell(new_cell, new_location);
+            std::set<MeinekeCryptCell*> new_cell_pair;
+            new_cell_pair.insert(&cell); //Parent cell
+            new_cell_pair.insert(p_new_cell); //New cell (the clue's in the name)
             
+            mDivisionPairs.insert(new_cell_pair);
             num_births_this_step++;
         } // if (ready to divide)
     } // cell iteration loop
    
     return num_births_this_step;
 }
-
 
 
 template<unsigned DIM> 
@@ -143,7 +146,7 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
 template<unsigned DIM> 
 c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename Crypt<DIM>::Iterator parentCell)
 {
-    double separation = 0.1;
+    double separation = 0.3;
     c_vector<double, DIM> parent_coords = parentCell.rGetLocation();
     c_vector<double, DIM> daughter_coords;
     
@@ -284,13 +287,20 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     double ageA = mrCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
     double ageB = mrCrypt.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
     
-    if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
+    if (ageA<=1.0 && ageB<=1.0 )
     {
-        // Spring Rest Length Increases to normal rest length from 0.1 to normal rest length, 1.0, over 1 hour
-        rest_length=(0.1+0.9*ageA);
-        assert(rest_length<=1.0);
+        // Spring Rest Length Increases to normal rest length from ???? to normal rest length, 1.0, over 1 hour
+        std::set<MeinekeCryptCell *> cell_pair;
+        cell_pair.insert(&(mrCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex)));
+        cell_pair.insert(&(mrCrypt.rGetCellAtNodeIndex(nodeBGlobalIndex)));
+        unsigned count=mDivisionPairs.count(cell_pair);
+        if (count==1)
+        {   
+            rest_length=(0.5+(1.0-0.5)*ageA);           
+        }
+       
     }
-    
+    assert(rest_length<=1.0);
     return mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 
