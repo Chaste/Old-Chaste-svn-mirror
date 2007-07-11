@@ -21,7 +21,6 @@ class WntCellCycleModel : public AbstractCellCycleModel
 private:
     WntCellCycleOdeSystem mOdeSystem;
     static RungeKutta4IvpOdeSolver msSolver;
-    std::vector <double> mProteinConcentrations;
     double mLastTime;
     double mDivideTime;
     bool mInSG2MPhase;
@@ -38,10 +37,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        // Don't need to archive the ODE system, as it's state is never used - when we want to
-        // solve the system we use mProteinConcentrations as the current state.
-        //archive & mOdeSystem;
-        archive & mProteinConcentrations;
+        archive & mOdeSystem.rGetStateVariables();
         archive & mLastTime;
         archive & mDivideTime;
         archive & mInSG2MPhase;

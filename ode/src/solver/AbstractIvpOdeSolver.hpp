@@ -79,6 +79,10 @@ public :
         return mStoppingEventOccured;
     }
     
+    double GetStoppingTime()
+    {
+        return mStoppingTime;
+    }    
     
     AbstractIvpOdeSolver()
             : mStoppingEventOccured(false)

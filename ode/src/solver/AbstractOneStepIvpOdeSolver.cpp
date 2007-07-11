@@ -6,20 +6,20 @@
 
 const double smidge=1e-10;
 
-OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
+OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
                                                std::vector<double>& rYValues,
                                                double startTime,
                                                double endTime,
                                                double timeStep,
                                                double timeSampling)
 {
-    assert(rYValues.size()==pAbstractOdeSystem->GetNumberOfStateVariables());
+    assert(rYValues.size()==pOdeSystem->GetNumberOfStateVariables());
     assert(endTime > startTime);
     assert(timeStep > 0.0);
     assert(timeSampling >= timeStep);
     
     mStoppingEventOccured = false;
-    if ( pAbstractOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true )
+    if ( pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true )
     {
         EXCEPTION("Stopping event is true for initial condition");
     } 
@@ -36,7 +36,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     // Solve the ODE system
     while ( !stepper.IsTimeAtEnd() && !mStoppingEventOccured )
     {
-        InternalSolve(pAbstractOdeSystem, rYValues, working_memory, stepper.GetTime(), stepper.GetNextTime(), timeStep);
+        InternalSolve(pOdeSystem, rYValues, working_memory, stepper.GetTime(), stepper.GetNextTime(), timeStep);
         stepper.AdvanceOneTimeStep();
         // write current solution into solutions
         solutions.rGetSolutions().push_back(rYValues);
@@ -56,20 +56,30 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     return solutions;
 }
 
-void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
+void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
                                         std::vector<double>& rYValues,
                                         double startTime,
                                         double endTime,
                                         double timeStep)
 {
+    assert(rYValues.size()==pOdeSystem->GetNumberOfStateVariables());
+    assert(endTime > startTime);
+    assert(timeStep > 0.0);
+    
+    mStoppingEventOccured = false;
+    if ( pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true )
+    {
+        EXCEPTION("Stopping event is true for initial condition");
+    }
+    
     // Allocate working memory
     std::vector<double> working_memory(rYValues.size());
     // And solve...
-    InternalSolve(pAbstractOdeSystem, rYValues, working_memory, startTime, endTime, timeStep);
+    InternalSolve(pOdeSystem, rYValues, working_memory, startTime, endTime, timeStep);
 }
 
 
-void AbstractOneStepIvpOdeSolver::InternalSolve(AbstractOdeSystem* pAbstractOdeSystem,
+void AbstractOneStepIvpOdeSolver::InternalSolve(AbstractOdeSystem* pOdeSystem,
                                                 std::vector<double>& rYValues,
                                                 std::vector<double>& rWorkingMemory,
                                                 double startTime,
@@ -89,14 +99,14 @@ void AbstractOneStepIvpOdeSolver::InternalSolve(AbstractOdeSystem* pAbstractOdeS
     {
         curr_is_curr = not curr_is_curr;
         // Function that calls the appropriate one-step solver
-        CalculateNextYValue(pAbstractOdeSystem,
+        CalculateNextYValue(pOdeSystem,
                             stepper.GetNextTimeStep(),
                             stepper.GetTime(),
                             curr_is_curr ? rYValues : rWorkingMemory,
                             curr_is_curr ? rWorkingMemory : rYValues);
         stepper.AdvanceOneTimeStep();
-        if ( pAbstractOdeSystem->CalculateStoppingEvent(stepper.GetTime(),
-                                                        curr_is_curr ? rWorkingMemory : rYValues) == true )
+        if ( pOdeSystem->CalculateStoppingEvent(stepper.GetTime(),
+                                                curr_is_curr ? rWorkingMemory : rYValues) == true )
         {
             mStoppingTime = stepper.GetTime();
             mStoppingEventOccured = true;

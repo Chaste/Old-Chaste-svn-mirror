@@ -25,7 +25,6 @@ private:
     static BackwardEulerIvpOdeSolver msSolver;
     double mLastTime;
     double mDivideTime;
-    std::vector <double> mProteinConcentrations;
     bool mReadyToDivide;
     
     TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime);
@@ -35,12 +34,10 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        // Don't need to archive the ODE system, as it's state is never used - when we want to
-        // solve the system we use mProteinConcentrations as the current state.
-        //archive & mOdeSystem;
+        
+        archive & mOdeSystem.rGetStateVariables();
         archive & mLastTime;
         archive & mDivideTime;
-        archive & mProteinConcentrations;
         archive & mReadyToDivide;
     }
     

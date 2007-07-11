@@ -6,8 +6,7 @@ BackwardEulerIvpOdeSolver TysonNovakCellCycleModel::msSolver(6);
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
     : AbstractCellCycleModel(),
-      mOdeSystem(),
-      mProteinConcentrations(mOdeSystem.GetInitialConditions())
+      mOdeSystem()
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -18,6 +17,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
     mBirthTime = mLastTime;
     mDivideTime = mBirthTime;
     mReadyToDivide = false;
+    mOdeSystem.SetStateVariables(mOdeSystem.GetInitialConditions());
 }
 
 /**
@@ -28,8 +28,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
  */
 TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime)
     : AbstractCellCycleModel(),
-      mOdeSystem(),
-      mProteinConcentrations(parentProteinConcentrations)
+      mOdeSystem()
 {
     if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
     {
@@ -39,6 +38,8 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentPro
     mBirthTime = divideTime;
     mDivideTime = divideTime;
     mReadyToDivide = false;
+    
+    mOdeSystem.SetStateVariables(parentProteinConcentrations);
 }
 
 TysonNovakCellCycleModel::~TysonNovakCellCycleModel()
@@ -56,22 +57,13 @@ void TysonNovakCellCycleModel::ResetModel()
     // Halve the mass of the cell
     if (false)
     {
-        mProteinConcentrations[5] = mProteinConcentrations[5]/2.0;
+        mOdeSystem.rGetStateVariables()[5] = mOdeSystem.rGetStateVariables()[5]/2.0;
     }
     else
     {
-        //double new_mass=mProteinConcentrations[5]/2.0;
-        mProteinConcentrations = mOdeSystem.GetInitialConditions();
-        //mProteinConcentrations[5]=new_mass;
+        mOdeSystem.SetStateVariables(mOdeSystem.GetInitialConditions());
     }
-    /*
-     * 
-    std::cout << "divide time = " << mDivideTime << std::endl;
-    for (unsigned i=0; i< mProteinConcentrations.size(); i++)
-    {
-        std::cout << "protein[" << i <<"] = " <<  mProteinConcentrations[i] << "\n";
-    }
-    */
+
     mReadyToDivide=false;
 }
 
@@ -100,17 +92,14 @@ bool TysonNovakCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
         {
             double dt = 0.1/60.0;
             
-            OdeSolution solution = msSolver.Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, dt, dt);
-            
-            unsigned timeRows = solution.GetNumberOfTimeSteps();
+            msSolver.SolveAndUpdateStateVariable(&mOdeSystem,mLastTime,current_time,dt);
             
             for (unsigned i=0 ; i<6 ; i++)
             {
-                mProteinConcentrations[i] = solution.rGetSolutions()[timeRows][i];
-                if (mProteinConcentrations[i]<0)
+                if (mOdeSystem.rGetStateVariables()[i]<0)
                 {
 #define COVERAGE_IGNORE
-                    std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
+                    std::cout << "Protein["<< i <<"] = "<< mOdeSystem.rGetStateVariables()[i] << "\n";
                     EXCEPTION("A protein concentration has gone negative\nCHASTE predicts that the TysonNovakCellCycleModel numerical method is probably unstable.");
 #undef COVERAGE_IGNORE
                 }
@@ -120,8 +109,7 @@ bool TysonNovakCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
             mReadyToDivide = msSolver.StoppingEventOccured();
             if (mReadyToDivide)
             {
-                unsigned end = solution.rGetSolutions().size() - 1;
-                mDivideTime = solution.rGetTimes()[end];
+                mDivideTime = msSolver.GetStoppingTime();
             }
         }
     }
@@ -131,12 +119,12 @@ bool TysonNovakCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
 
 std::vector<double> TysonNovakCellCycleModel::GetProteinConcentrations()
 {
-    return mProteinConcentrations;
+    return mOdeSystem.rGetStateVariables();
 }
 
 
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
 {
-    return new TysonNovakCellCycleModel(mProteinConcentrations, mDivideTime);
+    return new TysonNovakCellCycleModel(mOdeSystem.rGetStateVariables(), mDivideTime);
 }
 
