@@ -16,6 +16,8 @@ class TestWntGradient : public CxxTest::TestSuite
 public:
     void TestWntGradientSetup() throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+
         WntGradientType this_type = LINEAR;
         
         TS_ASSERT_THROWS_NOTHING(WntGradient wnt_gradient1);
@@ -25,8 +27,9 @@ public:
     
     void TestNoWntGradient() throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+
         WntGradientType this_type = NONE;
-        //CancerParameters *params = CancerParameters::Instance();
         WntGradient wnt_gradient3(this_type);
         
         double height = 5;
@@ -38,6 +41,8 @@ public:
     
     void TestLinearWntGradient() throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+
         WntGradientType this_type = LINEAR;
         CancerParameters *params = CancerParameters::Instance();
         WntGradient wnt_gradient3(this_type);
@@ -57,12 +62,13 @@ public:
         wnt_level = wnt_gradient3.GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
-        
     }
     
     
     void TestOffsetLinearWntGradient() throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+
         WntGradientType this_type = OFFSET_LINEAR;
         CancerParameters *params = CancerParameters::Instance();
         WntGradient wnt_gradient3(this_type);
@@ -91,6 +97,8 @@ public:
     
     void TestArchiveWntGradient()
     {
+        CancerParameters::Instance()->Reset();
+
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "wnt_grad.arch";

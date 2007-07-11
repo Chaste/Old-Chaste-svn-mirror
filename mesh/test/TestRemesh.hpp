@@ -5,8 +5,6 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include "OutputFileHandler.hpp"
-#include "HoneycombMeshGenerator.hpp"
-#include "CancerParameters.hpp"
 #include "NodeMap.hpp"
 #include <iostream>
 #include <cmath>

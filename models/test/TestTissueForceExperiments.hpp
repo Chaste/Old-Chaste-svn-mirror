@@ -515,6 +515,8 @@ public:
      */
     void xTestMeinekeIncremental() throw(Exception)
     {      
+        CancerParameters::Instance()->Reset();
+
         std::vector<double> stretches;
         std::vector<double> forces;
         std::vector<double> areas;
@@ -592,7 +594,6 @@ public:
 
             simulator.SetOutputDirectory(output_directory);
             simulator.SetEndTime(run_time);
-            simulator.SetNoSloughing();     
             crypt.ReMesh();
 
             simulator.Solve();
@@ -643,6 +644,8 @@ public:
     
     void TestMeinekeIncrementalShearing() throw(Exception)
     {            
+        CancerParameters::Instance()->Reset();
+
         std::vector<double> shears;
         std::vector<double> forces;
         std::vector<double> areas;
@@ -711,7 +714,6 @@ public:
 
             simulator.SetOutputDirectory(output_directory);
             simulator.SetEndTime(run_time);
-            simulator.SetNoSloughing();     
             crypt.ReMesh();
 
             simulator.Solve();

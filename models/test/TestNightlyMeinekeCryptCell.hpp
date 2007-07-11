@@ -25,6 +25,8 @@ public:
 
     void TestTysonNovakImmortalStemCell()
     {
+        CancerParameters::Instance()->Reset();
+
         double end_time=100.0; // A good load of divisions to make sure nothing mucks up..
         // one division = 1.26 hours.
         int time_steps=1000;
@@ -79,6 +81,8 @@ public:
     
     void Test0DBucketWithTysonNovak()
     {
+        CancerParameters::Instance()->Reset();
+
         double end_time=7.0; // not very long because cell cycle time is only 1.2
         // (75 mins) because Tyson Novaks is for yeast
         int time_steps=100;
@@ -170,6 +174,7 @@ public:
      */
     void TestWithWntCellCycleModelAndMutationAPCONEHIT() throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         
         CancerParameters *p_parameters = CancerParameters::Instance();
@@ -255,6 +260,7 @@ public:
      */
     void TestWithWntCellCycleModelAndMutationBetaCat() throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         
         CancerParameters *p_parameters = CancerParameters::Instance();
@@ -340,6 +346,7 @@ public:
      */
     void TestWithWntCellCycleModelAndMutationAPC2() throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         
         CancerParameters *p_parameters = CancerParameters::Instance();

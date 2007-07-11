@@ -205,6 +205,8 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
 public:
     void Test2DCylindrical() throw (Exception)
     {        
+        CancerParameters::Instance()->Reset();
+
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 5.0;
@@ -270,6 +272,7 @@ public:
     void TestWithWntDependentCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         // There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000);
         
@@ -323,6 +326,8 @@ public:
     // A better check that the loaded mesh is the same as that saved
     void TestMeshSurvivesSaveLoad() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
@@ -366,6 +371,7 @@ public:
     void TestSave() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         // There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000); 
         
@@ -416,6 +422,8 @@ public:
     // Testing Load (based on previous two tests)
     void TestLoad() throw (Exception) 
     {
+        CancerParameters::Instance()->Reset();
+
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
 
@@ -470,6 +478,7 @@ public:
     void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         // There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000);
         
@@ -529,6 +538,7 @@ public:
     void TestWithTysonNovakCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();      
         // There is no limit on transit cells in T&N
         p_params->SetMaxTransitGenerations(1000);
         
@@ -603,6 +613,7 @@ public:
     void TestPrivateFunctionsOf2DCryptSimulation() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         RandomNumberGenerator::Instance();
         
         double crypt_length = 9.3;
@@ -645,6 +656,7 @@ public:
     
     void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
         /*
          ************************************************************************
          ************************************************************************ 
@@ -859,6 +871,8 @@ public:
     
     void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         double separation = 0.1;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -894,6 +908,7 @@ public:
 
     void TestCalculateDividingCellCentreLocationsConfMeshStemCell() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
         double separation = 0.1;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -937,6 +952,8 @@ public:
 
     void TestCalculateDividingCellCentreLocationsCylindricalMesh() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         double separation = 0.1;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -968,6 +985,8 @@ public:
 
     void TestCalculateDividingCellCentreLocationsCylindricalMeshStemCell() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         double separation = 0.1;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -1005,6 +1024,8 @@ public:
     // short test which sets mNoBirth for coverage
     void TestNoBirth() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         std::string output_directory = "Crypt2DCylindricalNoBirth";        
         unsigned cells_across = 2;
         unsigned cells_up = 3;
@@ -1061,6 +1082,8 @@ public:
     // Note that birth does occur too.
     void TestRandomDeathOnNonPeriodicCrypt() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         unsigned cells_across = 2;
         unsigned cells_up = 1;
         unsigned thickness_of_ghost_layer = 1;

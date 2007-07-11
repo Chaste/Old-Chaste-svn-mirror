@@ -23,6 +23,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(FixedCellCycleModel model1);
         
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         
         TS_ASSERT_THROWS_ANYTHING(FixedCellCycleModel model2);
@@ -89,6 +90,8 @@ public:
         
         RandomNumberGenerator::Instance();
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
+
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         TS_ASSERT_THROWS_ANYTHING(StochasticCellCycleModel cell_model2);
         
@@ -151,6 +154,8 @@ public:
     
     void TestTysonNovakCellCycleModel(void) throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         TS_ASSERT_THROWS_ANYTHING(TysonNovakCellCycleModel bad_cell_model);
         
         SimulationTime *p_simulation_time = SimulationTime::Instance();
@@ -165,7 +170,6 @@ public:
         SimulationTime::Destroy();
         TS_ASSERT_THROWS_ANYTHING(TysonNovakCellCycleModel* p_another_cell_model = static_cast<TysonNovakCellCycleModel*>(cell_model_1.CreateCellCycleModel());delete p_another_cell_model;)
         
-        //CancerParameters *p_params = CancerParameters::Instance();
         p_simulation_time = SimulationTime::Instance();
         
         double standard_divide_time = 75.19/60.0;
@@ -173,7 +177,6 @@ public:
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
         TysonNovakCellCycleModel cell_model;
-        
         
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -191,7 +194,6 @@ public:
                 TS_ASSERT(result==false);
             }
         }
-        
         
         std::vector<double> proteins = cell_model.GetProteinConcentrations();
         
@@ -248,6 +250,8 @@ public:
     
     void TestWntCellCycleModelForVaryingWntStimulus(void) throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+
         // Here we have a system at rest at Wnt = 1.0 - it would normally go into S phase at 5.971.
         // Instead we reduce Wnt linearly over 0<t<1 to zero and the cell doesn't divide.
         SimulationTime *p_simulation_time = SimulationTime::Instance();
@@ -317,6 +321,8 @@ public:
     
     void TestWntCellCycleModelForAPCSingleHit(void) throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         int num_timesteps = 500;
         double wnt_level = 1.0;
         double mutation = 1.0;
@@ -395,6 +401,8 @@ public:
     
     void TestWntCellCycleModelForBetaCatSingleHit(void) throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+
         int num_timesteps = 500;
         double wnt_level = 0.0;
         double mutation = 2.0;
@@ -444,6 +452,7 @@ public:
                 TS_ASSERT(result==true);
             }
         }
+        
         cell_model.ResetModel();
         WntCellCycleModel cell_model_2 = cell_model;
         double second_cycle_start = cell_model_2.GetBirthTime();
@@ -473,6 +482,8 @@ public:
     
     void TestWntCellCycleModelForAPCDoubleHit(void) throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         int num_timesteps = 500;
         
         double wnt_level = 0.738;// This shouldn't matter for this kind of cell!
@@ -551,6 +562,8 @@ public:
     
     void TestWntCellCycleModelForConstantWntStimulusHealthyCell(void) throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         int num_timesteps = 500;
         double wnt_level = 1.0;
         double mutation = 0.0;
@@ -629,6 +642,8 @@ public:
     
     void TestArchiveFixedCellCycleModels()
     {
+        CancerParameters::Instance()->Reset();
+        
         OutputFileHandler handler("archive");
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "fixed.arch";
@@ -682,6 +697,8 @@ public:
     
     void TestArchiveStochasticCellCycleModels()
     {
+        CancerParameters::Instance()->Reset();
+
         OutputFileHandler handler("archive");
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "stoch_cycle.arch";
@@ -753,6 +770,8 @@ public:
     
     void TestArchiveTysonNovakCellCycleModels()
     {
+        CancerParameters::Instance()->Reset();
+
         OutputFileHandler handler("archive");
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "tyson_novak.arch";
@@ -808,6 +827,8 @@ public:
     
     void TestArchiveWntCellCycleModels()
     {
+        CancerParameters::Instance()->Reset();
+
         OutputFileHandler handler("archive");
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "wnt.arch";
@@ -874,8 +895,7 @@ public:
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
             SimulationTime::Destroy();
         }
-    }
-    
+    }    
 };
 
 #endif /*TESTCELLCYCLEMODELS_HPP_*/

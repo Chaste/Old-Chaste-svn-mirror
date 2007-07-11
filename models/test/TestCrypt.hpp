@@ -8,7 +8,6 @@
 #include "TrianglesMeshReader.cpp"
 #include "OutputFileHandler.hpp"
 #include "MeinekeCryptCell.hpp"
-#include "CancerParameters.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
 #include "Crypt.cpp"

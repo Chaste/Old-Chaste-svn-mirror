@@ -36,6 +36,11 @@ public:
     void SetDampingConstantMutant(double);
     void SetApoptosisTime(double);
     
+    /** 
+     *  Reset all parameters to their defaults
+     */
+    void Reset();
+    
 protected:
     CancerParameters();
     CancerParameters(const CancerParameters&);

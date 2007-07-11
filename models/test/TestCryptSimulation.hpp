@@ -126,6 +126,8 @@ public:
     // are sloughed off.
     void Test1dChainWithNoBirth(void) throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         Make1dCryptMesh("1D_crypt_mesh", 22, 21);
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
@@ -164,6 +166,8 @@ public:
     // the crypt.
     void Test1dChainWithDeathAndNoBirth(void) throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
@@ -215,6 +219,7 @@ public:
     // and pass into the simulation class
     void Test1DChainWithMeinekeCells() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
         RandomNumberGenerator *p_rand_gen=RandomNumberGenerator::Instance();
         
         CancerParameters *p_params = CancerParameters::Instance();
@@ -285,6 +290,7 @@ public:
     void Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();
         
         double crypt_length = 22.0;
@@ -333,8 +339,6 @@ public:
             cells.push_back(cell);
         }
         
-        
-        
         CryptSimulation simulator(mesh, cells);
         
         simulator.SetOutputDirectory("CryptWithCellsAndGrowth");
@@ -354,6 +358,7 @@ public:
     void Test1DChainWithTysonNovakCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();
         
         double crypt_length = 22.0;
@@ -408,8 +413,6 @@ public:
             cells.push_back(cell);
         }
         
-        
-        
         CryptSimulation simulator(mesh, cells);
         
         simulator.SetOutputDirectory("CryptWithTysonNovakCells");
@@ -428,7 +431,6 @@ public:
         
         p_params->SetStemCellCycleTime(temp_stem);
         p_params->SetTransitCellCycleTime(temp_transit);
-        
     }
     
     
@@ -440,6 +442,7 @@ public:
     void Test1dChainCorrectCellNumbers()
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         RandomNumberGenerator::Instance();
         
         // check the stem cell cycle time is still 24 hrs, otherwise
@@ -533,8 +536,6 @@ public:
         }
         RandomNumberGenerator::Destroy();
     }
-    
-
 };
 
 #endif /*TESTCRYPTSIMULATION_HPP_*/

@@ -189,6 +189,8 @@ public:
 
     void TestOne3dElement() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
+
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_Single_tetrahedron_element");
         
         ConformingTetrahedralMesh<3,3> mesh;
@@ -373,6 +375,7 @@ public:
 
     void TestPrivateFunctionsOfSpheroidSimulation3D() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
         RandomNumberGenerator::Instance();
         
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
@@ -419,6 +422,7 @@ public:
     void TestSolveMethodSpheroidSimulation3D() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
                 
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -471,6 +475,7 @@ public:
         double start_time = std::clock();
         
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
                        
         unsigned width = 3;

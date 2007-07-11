@@ -303,6 +303,7 @@ public:
     void Test2DSpringSystem() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         
         double crypt_length = 10;
         double crypt_width = 10;
@@ -367,6 +368,7 @@ public:
     void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
        
         int num_cells_depth = 11;
         int num_cells_width = 6;
@@ -402,7 +404,7 @@ public:
        
         simulator.Solve();
         
-        //CheckAgainstPreviousRun("Crypt2DHoneycombMesh","results_from_time_0", 500u, 1000u);
+        CheckAgainstPreviousRun("Crypt2DHoneycombMesh","results_from_time_0", 500u, 1000u);
        
         delete p_sloughing_cell_killer;       
         SimulationTime::Destroy();
@@ -412,6 +414,7 @@ public:
     void TestMonolayer() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
        
         int num_cells_depth = 11;
         int num_cells_width = 6;
@@ -456,6 +459,7 @@ public:
     void Test2DCorrectCellNumbers() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         RandomNumberGenerator::Instance();
         
         // check the stem cell cycle time is still 24 hrs, otherwise
@@ -572,6 +576,8 @@ public:
     
     void Test2DPeriodicNightly() throw (Exception)
     {        
+        CancerParameters::Instance()->Reset();
+
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
@@ -608,7 +614,7 @@ public:
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
         
         TS_ASSERT_EQUALS(number_of_cells, 85u);
-        TS_ASSERT_EQUALS(number_of_nodes, 145u);
+        TS_ASSERT_EQUALS(number_of_nodes, 1275u);
         
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
@@ -619,6 +625,7 @@ public:
     void TestCrypt2DPeriodicWntNightly() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         // There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000);
         
@@ -659,8 +666,8 @@ public:
         // (if we do then the boundaries are probably working!)
 
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 94u);
-        TS_ASSERT_EQUALS(number_of_nodes, 184u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 95u);
+        TS_ASSERT_EQUALS(number_of_nodes, 137u);
         
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
@@ -671,6 +678,7 @@ public:
     void TestWithMutantCellsUsingDifferentViscosities() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         // There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000);
         
@@ -748,7 +756,7 @@ public:
         
         TS_ASSERT_EQUALS(number_of_cells, 93u);
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), number_of_cells);
-        TS_ASSERT_EQUALS(number_of_nodes, 147u);
+        TS_ASSERT_EQUALS(number_of_nodes, 135u);
         TS_ASSERT_EQUALS(number_of_mutant_cells, 6u);
         
         delete p_sloughing_cell_killer;
@@ -760,6 +768,7 @@ public:
     
     void TestRandomDeathWithPeriodicMesh() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
         unsigned cells_across = 7;
         unsigned cells_up = 12;
         double crypt_width = 6.0;
@@ -804,6 +813,8 @@ public:
     // on a non-periodic mesh
     void TestSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
+
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
@@ -842,6 +853,8 @@ public:
 
     void TestSloughingDeathWithPeriodicMesh() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
+
         unsigned cells_across = 7;
         unsigned cells_up = 12;
         double crypt_width = 6.0;
@@ -897,6 +910,8 @@ public:
 
     void TestWithMultipleCellKillers() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
+
         unsigned cells_across = 7;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
@@ -933,7 +948,6 @@ public:
         simulator.SetDt(dt);
         simulator.SetEndTime(0.5*dt*num_cells);
 
-        
         simulator.Solve();
         
         std::vector<bool> ghost_node_indices_after = crypt.rGetGhostNodes();

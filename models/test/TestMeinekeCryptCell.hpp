@@ -25,6 +25,8 @@ public:
 
     void TestCellsAgeingCorrectly() throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         // These lines are added to cover the exception case that a cell is
         // created without simulation time being set up...
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -71,6 +73,8 @@ public:
     
     void TestCellDivision()
     {
+        CancerParameters::Instance()->Reset();
+        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
@@ -132,6 +136,8 @@ public:
     
     void TestCellDivisionStops()
     {
+        CancerParameters::Instance()->Reset();
+        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
@@ -226,6 +232,8 @@ public:
     
     void TestUpdateCellTypes() throw (Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200, 20);
@@ -273,6 +281,8 @@ public:
     
     void Test0DBucket()
     {
+        CancerParameters::Instance()->Reset();
+        
         double end_time=61.0;
         int time_steps=61;
         
@@ -353,6 +363,7 @@ public:
     
     void TestWithCellCycleModel() throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
         // Simulation time is 6000 because we want to test that differentiated cells never divide.
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -436,7 +447,8 @@ public:
     
     void TestStochasticCycleModel() throw(Exception)
     {
-    
+        CancerParameters::Instance()->Reset();
+        
         // Go up in steps of 0.01 to test stochasticity in cell cycle models
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -500,8 +512,8 @@ public:
     
     void Test0DBucketStochastic()
     {
-    
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         
         // this test needs particular cell cycle times
         TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
@@ -606,6 +618,8 @@ public:
      */
     void TestInitialise0DBucket()
     {
+        CancerParameters::Instance()->Reset();
+        
         //double end_time=60.0;
         //int time_steps=60;
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -733,6 +747,8 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         
         CancerParameters *p_parameters = CancerParameters::Instance();
+        p_parameters->Reset();
+        
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
         unsigned num_steps=100;
@@ -814,13 +830,11 @@ public:
      */
     void TestWithTysonNovakCellCycleModel() throw(Exception)
     {
-    
+        CancerParameters::Instance()->Reset();
+
         double standard_tyson_duration = 75.19/60.0;
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        
-        //CancerParameters *p_parameters = CancerParameters::Instance();
-        //double SG2MDuration = p_parameters->GetSG2MDuration();
         
         unsigned num_steps=100;
         p_simulation_time->SetStartTime(0.0);
@@ -888,6 +902,8 @@ public:
     
     void TestApoptosisAndDeath()
     {
+        CancerParameters::Instance()->Reset();
+        
         // We are going to start at t=0 and jump up in steps of 0.2
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -938,6 +954,8 @@ public:
     
     void TestCantDivideIfUndergoingApoptosis()
     {
+        CancerParameters::Instance()->Reset();
+        
         // We are going to start at t=0 and jump up to t=25
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -960,6 +978,8 @@ public:
     
     void Test0DBucketWithDeath()
     {
+        CancerParameters::Instance()->Reset();
+
         double end_time=92.0;
         int time_steps=92;
         
@@ -1063,6 +1083,8 @@ public:
     
     void TestArchiveCell() throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
+        
         OutputFileHandler handler("archive");
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "cell.arch";
@@ -1142,9 +1164,8 @@ public:
      */
     void TestWntMutantVariantsAndLabelling() throw(Exception)
     {
+        CancerParameters::Instance()->Reset();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        
-        //CancerParameters *p_parameters = CancerParameters::Instance();
         
         unsigned num_steps=10;
         p_simulation_time->SetStartTime(0.0);

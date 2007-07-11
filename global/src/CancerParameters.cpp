@@ -16,17 +16,20 @@ CancerParameters::CancerParameters()
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
     
-    /**
-     * @param mStemCellCycleTime has units of hours
-     * @param mTransitCellCycleTime has units of hours
-     * @param mSG2MDuration has units of hours
-     * @param mMaxTransitGenerations has no units
-     * @param mCryptLength  has units of cell size at equilibrium rest length
-     * @param mNaturalSpringLength has units of cell length at equilibrium rest length.
+    Reset();
+}    
+
+void CancerParameters::Reset()
+{   
+    /* mStemCellCycleTime has units of hours
+     * mTransitCellCycleTime has units of hours
+     * mSG2MDuration has units of hours
+     * mMaxTransitGenerations has no units
+     * mCryptLength  has units of cell size at equilibrium rest length
+     * mNaturalSpringLength has units of cell length at equilibrium rest length.
      * This is set to 1 and should be left unchanged in all simulations.
-     * 
      */
-    
+
     // Default parameter values
     mStemCellCycleTime = 24.0;
     mTransitCellCycleTime = 12.0;
@@ -93,14 +96,17 @@ double CancerParameters::GetApoptosisTime()
 
 void CancerParameters::SetStemCellCycleTime(double stemCellCycleTime)
 {
+    assert(stemCellCycleTime > 0.0);
     mStemCellCycleTime = stemCellCycleTime;
 }
 void CancerParameters::SetTransitCellCycleTime(double transitCellCycleTime)
 {
+    assert(transitCellCycleTime > 0.0);
     mTransitCellCycleTime = transitCellCycleTime;
 }
 void CancerParameters::SetSG2MDuration(double SG2MDuration)
 {
+    assert(SG2MDuration > 0.0);
     mSG2MDuration = SG2MDuration;
 }
 void CancerParameters::SetMaxTransitGenerations(unsigned maxTransitGens)
@@ -109,25 +115,31 @@ void CancerParameters::SetMaxTransitGenerations(unsigned maxTransitGens)
 }
 void CancerParameters::SetCryptLength(double cryptLength)
 {
+    assert(cryptLength > 0.0);
     mCryptLength = cryptLength;
 }
 void CancerParameters::SetCryptWidth(double cryptWidth)
 {
+    assert(cryptWidth > 0.0);
     mCryptWidth = cryptWidth;
 }
 void CancerParameters::SetSpringStiffness(double springStiffness)
 {
+    assert(springStiffness > 0.0);
     mSpringStiffness = springStiffness;
 }
 void CancerParameters::SetDampingConstantNormal(double dampingConstantNormal)
 {
+    assert(dampingConstantNormal > 0.0);
     mDampingConstantNormal = dampingConstantNormal;
 }
 void CancerParameters::SetDampingConstantMutant(double dampingConstantMutant)
 {
+    assert(dampingConstantMutant > 0.0);
     mDampingConstantMutant = dampingConstantMutant;
 }
 void CancerParameters::SetApoptosisTime(double apoptosisTime)
 {
+    assert(apoptosisTime > 0.0);
     mApoptosisTime = apoptosisTime;
 }

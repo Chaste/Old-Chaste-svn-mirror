@@ -33,6 +33,7 @@ public:
     void TestRandomCellKiller(void) throw(Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         
         // read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
@@ -131,13 +132,13 @@ public:
     void TestSloughingCellKillerTopAndSides(void) throw(Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
         
         // read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.Translate(-0.25,-0.25);
-
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -197,7 +198,8 @@ public:
     void TestSloughingCellKillerTopOnly(void) throw(Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        
+        p_params->Reset();
+ 
         // read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -253,90 +255,93 @@ public:
         SimulationTime::Destroy();
     }   
     
-   void TestArchivingOfRandomCellKiller() throw (Exception)
-   {
-       OutputFileHandler handler("archive", false);    // don't erase contents of folder
-       std::string archive_filename;
-       archive_filename = handler.GetTestOutputDirectory() + "random_killer.arch";
+    void TestArchivingOfRandomCellKiller() throw (Exception)
+    {
+        CancerParameters::Instance()->Reset();    
+    
+        OutputFileHandler handler("archive", false);    // don't erase contents of folder
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "random_killer.arch";
+
+        {
+            // Create an ouput archive
+            RandomCellKiller<2> cell_killer(NULL, 0.134);
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Serialize via pointer
+            RandomCellKiller<2> * const p_cell_killer = &cell_killer;
+            output_arch << p_cell_killer;
+
+            TS_ASSERT_DELTA(p_cell_killer->GetDeathProbability(), 0.134, 1e-9);
+       }
 
        {
-           // Create an ouput archive
-           RandomCellKiller<2> cell_killer(NULL, 0.134);
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
 
-           std::ofstream ofs(archive_filename.c_str());
-           boost::archive::text_oarchive output_arch(ofs);
+            RandomCellKiller<2>* p_cell_killer;
 
-           // Serialize via pointer
-           RandomCellKiller<2> * const p_cell_killer = &cell_killer;
-           output_arch << p_cell_killer;
-
-           TS_ASSERT_DELTA(p_cell_killer->GetDeathProbability(), 0.134, 1e-9);
-      }
-
-      {
-           // Create an input archive
-           std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-           boost::archive::text_iarchive input_arch(ifs);
-
-           RandomCellKiller<2>* p_cell_killer;
-
-           // restore from the archive
-           input_arch >> p_cell_killer;
+            // restore from the archive
+            input_arch >> p_cell_killer;
            
-           // test we have restored the probability correctly.
-           TS_ASSERT_DELTA(p_cell_killer->GetDeathProbability(), 0.134, 1e-9);
-           delete p_cell_killer;
-       }
+            // test we have restored the probability correctly.
+            TS_ASSERT_DELTA(p_cell_killer->GetDeathProbability(), 0.134, 1e-9);
+            delete p_cell_killer;
+        }
     }
         
+
     void TestArchivingOfSloughingCellKiller() throw (Exception)
     {
-       OutputFileHandler handler("archive", false);    // don't erase contents of folder
-       std::string archive_filename;
-       archive_filename = handler.GetTestOutputDirectory() + "sloughing_killer.arch";
+        OutputFileHandler handler("archive", false);    // don't erase contents of folder
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "sloughing_killer.arch";
 
-       CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters *p_params = CancerParameters::Instance();
        
-       p_params->SetCryptLength(10.0);
-       p_params->SetCryptWidth(5.0);
+        p_params->SetCryptLength(10.0);
+        p_params->SetCryptWidth(5.0);
 
-       {
-           // Create an ouput archive
-           SloughingCellKiller cell_killer(NULL, true);
+        {
+            // Create an ouput archive
+            SloughingCellKiller cell_killer(NULL, true);
 
-           std::ofstream ofs(archive_filename.c_str());
-           boost::archive::text_oarchive output_arch(ofs);
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
 
-           // Serialize via pointer
-           SloughingCellKiller * const p_cell_killer = &cell_killer;
-           output_arch << p_cell_killer;
+            // Serialize via pointer
+            SloughingCellKiller * const p_cell_killer = &cell_killer;
+            output_arch << p_cell_killer;
 
-           TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);
-           TS_ASSERT_DELTA(p_cell_killer->GetCryptLength(), 10.0, 1e-9);
-           TS_ASSERT_DELTA(p_cell_killer->GetCryptWidth(), 5.0, 1e-9);
-      }
-      // Change the cancer parameters
-      p_params->SetCryptLength(12.0);
-      p_params->SetCryptWidth(6.0);
+            TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);
+            TS_ASSERT_DELTA(p_cell_killer->GetCryptLength(), 10.0, 1e-9);
+            TS_ASSERT_DELTA(p_cell_killer->GetCryptWidth(), 5.0, 1e-9);
+        }
+ 
+        // Change the cancer parameters
+        p_params->SetCryptLength(12.0);
+        p_params->SetCryptWidth(6.0);
 
-      {
-           // Create an input archive
-           std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-           boost::archive::text_iarchive input_arch(ifs);
+        {
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
            
-           SloughingCellKiller* p_cell_killer;
+            SloughingCellKiller* p_cell_killer;
 
-           // restore from the archive
-           input_arch >> p_cell_killer;
+            // restore from the archive
+            input_arch >> p_cell_killer;
            
-           // test we have restored the sloughing properties correctly.
-           TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);
-           TS_ASSERT_DELTA(p_cell_killer->GetCryptLength(), 10.0, 1e-9);
-           TS_ASSERT_DELTA(p_cell_killer->GetCryptWidth(), 5.0, 1e-9);
-           delete p_cell_killer;
-       }  
+            // test we have restored the sloughing properties correctly.
+            TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);
+            TS_ASSERT_DELTA(p_cell_killer->GetCryptLength(), 10.0, 1e-9);
+            TS_ASSERT_DELTA(p_cell_killer->GetCryptWidth(), 5.0, 1e-9);
+            delete p_cell_killer;
+        }  
     }
-
 };
 
 #endif /*TESTCELLKILLERS_HPP_*/
