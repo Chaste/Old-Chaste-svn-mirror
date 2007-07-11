@@ -39,7 +39,6 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
     mWntIncluded = false;
     mNumBirths = 0;
     mNumDeaths = 0;
-    mIncludeSloughing = true;
     
     assert(SimulationTime::Instance()->IsStartTimeSetUp());
     // start time must have been set to create crypt which includes cell cycle models
@@ -126,28 +125,7 @@ template<unsigned DIM>
 unsigned TissueSimulation<DIM>::DoCellRemoval()
 {
     unsigned num_deaths_this_step=0;
-    
-    // Sloughing by turning boundary nodes into ghost nodes.
-    if (DIM==2 && mIncludeSloughing) // sloughing only happens in 2d
-    {
-        double crypt_length=mpParams->GetCryptLength();
-        double crypt_width=mpParams->GetCryptWidth();
-
-        for (typename Crypt<DIM>::Iterator cell_iter = mrCrypt.Begin();
-             cell_iter != mrCrypt.End();
-             ++cell_iter)
-        {
-            double x = cell_iter.rGetLocation()[0];
-            double y = cell_iter.rGetLocation()[1];
-
-            if ((x>crypt_width) || (x<0.0) || (y>crypt_length))
-            { 
-                mrCrypt.rGetGhostNodes()[cell_iter.GetNode()->GetIndex()] = true;
-                num_deaths_this_step++;
-            }
-        }
-    }
-    
+        
     // this labels cells as dead or apoptosing. It does not actually remove the cells, 
     // crypt.RemoveDeadCells() needs to be called for this.
     for(unsigned killer_index = 0; killer_index<mCellKillers.size(); killer_index++)
@@ -503,17 +481,6 @@ void TissueSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
     mCellKillers.push_back(pCellKiller);
 }
 
-
-/**
- * Set the TissueSimulation to stop using the old method of sloughing cells into ghost nodes
- */
-template<unsigned DIM>
-void TissueSimulation<DIM>::SetNoSloughing()
-{
-    mIncludeSloughing = false;
-}
-
-
 /**
  * Get a node's location (ONLY FOR TESTING)
  *
@@ -641,7 +608,7 @@ void TissueSimulation<DIM>::Solve()
         mNumBirths += DoCellBirth();
         
         
-        if( (mNumBirths>0) || (mNumDeaths>0 && !mIncludeSloughing))
+        if( (mNumBirths>0) || (mNumDeaths>0) )
         {   
             // If any nodes have been deleted or added we MUST call a ReMesh
             assert(mReMesh);

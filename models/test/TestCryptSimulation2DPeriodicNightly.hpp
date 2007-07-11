@@ -300,7 +300,7 @@ public:
     // to 24.0 and it will look like a parallelogram.
     // However we keep the simulation time at 1.0 to make
     // the test short.
-    void Test2DSpringSystemWithSloughing() throw (Exception)
+    void Test2DSpringSystem() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         
@@ -397,10 +397,14 @@ public:
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
         
+        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
+        simulator.AddCellKiller(p_sloughing_cell_killer);
+       
         simulator.Solve();
         
         //CheckAgainstPreviousRun("Crypt2DHoneycombMesh","results_from_time_0", 500u, 1000u);
        
+        delete p_sloughing_cell_killer;       
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -432,8 +436,7 @@ public:
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);
-        
-        simulator.SetNoSloughing();
+
         simulator.SetOutputDirectory("Monolayer");
         simulator.SetEndTime(12.0);
         simulator.SetMaxCells(400);
@@ -514,6 +517,9 @@ public:
         simulator.SetMaxCells(800);
         simulator.SetMaxElements(800);
         
+        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
+        simulator.AddCellKiller(p_sloughing_cell_killer);
+        
         simulator.Solve();
         
         // now count the number of each type of cell
@@ -552,6 +558,7 @@ public:
         TS_ASSERT_LESS_THAN(num_differentiated, 25u);
         TS_ASSERT_LESS_THAN(15u, num_differentiated);
         
+        delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -590,6 +597,9 @@ public:
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
         
+        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
+        simulator.AddCellKiller(p_sloughing_cell_killer);
+       
         simulator.Solve();
         
         // test we have the same number of cells and nodes at the end of each time
@@ -600,6 +610,7 @@ public:
         TS_ASSERT_EQUALS(number_of_cells, 85u);
         TS_ASSERT_EQUALS(number_of_nodes, 145u);
         
+        delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -639,6 +650,9 @@ public:
         simulator.SetMaxElements(1000);
         simulator.SetWntGradient(LINEAR);
         
+        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
+        simulator.AddCellKiller(p_sloughing_cell_killer);
+       
         simulator.Solve();
         
         // test we have the same number of cells and nodes at the end of each time
@@ -648,6 +662,7 @@ public:
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 94u);
         TS_ASSERT_EQUALS(number_of_nodes, 184u);
         
+        delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -706,6 +721,9 @@ public:
         simulator.SetMaxElements(1000);
         simulator.SetWntGradient(LINEAR);
         
+        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
+        simulator.AddCellKiller(p_sloughing_cell_killer);
+        
         simulator.Solve();
         
         // test we have the same number of cells and nodes at the end of each time
@@ -733,6 +751,7 @@ public:
         TS_ASSERT_EQUALS(number_of_nodes, 147u);
         TS_ASSERT_EQUALS(number_of_mutant_cells, 6u);
         
+        delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -769,7 +788,7 @@ public:
 
         AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&crypt, 0.01);
         simulator.AddCellKiller(p_random_cell_killer);
-
+    
         simulator.Solve();
         
         // there should be no cells left after this amount of time
@@ -812,9 +831,6 @@ public:
 
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
-
-        // switch off normal sloughing
-        simulator.SetNoSloughing();
         
         simulator.Solve();
     
@@ -854,9 +870,7 @@ public:
 
         AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&crypt);
         simulator.AddCellKiller(p_cell_killer);
-        
-        simulator.SetNoSloughing();
-        
+               
         simulator.Solve();
         
         std::vector<bool> ghost_node_indices_after = crypt.rGetGhostNodes();
@@ -912,8 +926,6 @@ public:
 
         simulator.AddCellKiller(p_cell_killer1);
         simulator.AddCellKiller(p_cell_killer2);
-        
-        simulator.SetNoSloughing();
 
         // just enough time to kill off all the cells, as two are killed per timestep
         double dt = 0.01;

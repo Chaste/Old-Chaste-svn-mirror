@@ -642,9 +642,7 @@ public:
     
     
     void TestMeinekeIncrementalShearing() throw(Exception)
-    {   
-        return; 
-        
+    {            
         std::vector<double> shears;
         std::vector<double> forces;
         std::vector<double> areas;
@@ -658,7 +656,7 @@ public:
 //        double run_time = 0.3;
 
         double disp = 0.2;
-        for(unsigned i=1; i<20; i++)
+        for(unsigned i=1; i<60; i++)
         {
             shears.push_back(disp*i);
         }
@@ -721,6 +719,8 @@ public:
             c_vector<double,2> force = simulator.CalculateTotalForce();
         
             forces.push_back( force[1] );
+            
+            std::cout << " -> " << shear << " " << force[1] << "\n";
  
             crypt.ReMesh();
 

@@ -82,8 +82,6 @@ protected:
     /** Whether to remesh at each timestep or not (defaults to true).*/
     bool mReMesh;
     
-    bool mIncludeSloughing;
-
     /** The maximum number of cells that this simulation will include (for use by datawriter). */
     unsigned mMaxCells;
     /** The maximum number of elements that this simulation will include (for use by datawriter). */
@@ -137,9 +135,6 @@ protected:
         archive & mWntGradient;
         archive & mNumBirths;
         archive & mNumDeaths;
-        archive & mIncludeSloughing;
-        
-        // \todo We need to archive cell killers here see ticket:389.
         archive & mCellKillers;
     }
     
@@ -236,7 +231,6 @@ public:
     void SetMaxElements(unsigned maxElements);
     void SetReMeshRule(bool remesh);
     void SetNoBirth(bool nobirth);
-    void SetNoSloughing();
     void SetWntGradient(WntGradientType wntGradientType);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);

@@ -55,6 +55,31 @@ public:
         return mStiffness*(separation - mRestLength);
     }
 };    
+
+class QuadraticCutoffSpringForceModel : public AbstractCutoffSpringForceModel
+{
+private:
+    double mRestLength;
+    double mStiffness;
+    
+public:
+    QuadraticCutoffSpringForceModel(double cutoffPoint, double stiffness, double restLength)
+        :  AbstractCutoffSpringForceModel(cutoffPoint),
+           mRestLength(restLength),
+           mStiffness(stiffness)
+    {
+    }
+    
+    virtual ~QuadraticCutoffSpringForceModel()
+    {
+    }
+    
+    double GetForce(double separation)
+    {
+        assert(separation < mCutoffPoint);
+        return -mStiffness*(separation - mRestLength)*(separation-2*mCutoffPoint+mRestLength);
+    }
+};   
       
 
 class CutoffSpringTissueSimulation
@@ -355,7 +380,7 @@ public:
     
  
     // for experimental work - probably should be 'xTest'ed out in commits..
-    void xTestSolve() throw(Exception)
+    void TestSolve() throw(Exception)
     {
 //        unsigned num_elem = 6;
 //        ConformingTetrahedralMesh<2,2> mesh;
@@ -365,7 +390,8 @@ public:
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
 
         double cutoff_point = 3.0;
-        LinearCutoffSpringForceModel spring_model(cutoff_point, 100, 1.0);
+//        LinearCutoffSpringForceModel spring_model(cutoff_point, 1.5, 1.0);
+        QuadraticCutoffSpringForceModel spring_model(cutoff_point, 1.5, 1.0);
         
         CutoffSpringTissueSimulation simulator(*p_mesh, &spring_model);
         

@@ -193,6 +193,9 @@ public:
         simulator.SetNoBirth(false);
         simulator.SetOutputDirectory("Crypt2DCylindrical");
         
+        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
+        simulator.AddCellKiller(p_sloughing_cell_killer);
+
         simulator.Solve();
 
         // test we have the same number of cells and nodes at the end of each time
@@ -210,6 +213,7 @@ public:
         simulator.SetOutputDirectory("");
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
 
+        delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -253,6 +257,9 @@ public:
         
         simulator.SetWntGradient(LINEAR);
         
+        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
+        simulator.AddCellKiller(p_sloughing_cell_killer);
+        
         simulator.Solve();
         
         std::vector<double> node_35_location = simulator.GetNodeLocation(35);
@@ -263,6 +270,7 @@ public:
 //        TS_ASSERT_DELTA(node_100_location[0], 4.0000 , 1e-4);
 //        TS_ASSERT_DELTA(node_100_location[1], 8.0945 , 1e-4);
 //          
+        delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -305,11 +313,15 @@ public:
 
         simulator.SetWntGradient(LINEAR);
         
+        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
+        simulator.AddCellKiller(p_sloughing_cell_killer);
+
         simulator.Solve();
         
         // save the results..
         simulator.Save();
         
+        delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -406,10 +418,8 @@ public:
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
         simulator.SetWntGradient(LINEAR);
-        simulator.SetNoSloughing();
-        
         simulator.SetEndTime(0.01);
-        
+                
         simulator.Solve();
         
         // Check that nothing has moved below y=0
@@ -451,12 +461,11 @@ public:
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
-        TissueSimulation<2> simulator(crypt);        
+        TissueSimulation<2> simulator(crypt); 
+               
         AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&crypt);
         simulator.AddCellKiller(p_cell_killer);
-        
-        simulator.SetNoSloughing();
-        
+                
         simulator.SetOutputDirectory("Crypt2DPeriodicTysonNovak");
         simulator.SetEndTime(0.05);
         simulator.SetMaxCells(500);
@@ -530,12 +539,16 @@ public:
         
         TissueSimulation<2> simulator(crypt);
         
+        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
+        simulator.AddCellKiller(p_sloughing_cell_killer);
+        
         unsigned num_deaths = simulator.DoCellRemoval();
         unsigned num_births = simulator.DoCellBirth();
                                                                 
         TS_ASSERT_EQUALS(num_births, 1u);
         TS_ASSERT_EQUALS(num_deaths,11u);
                
+        delete p_sloughing_cell_killer;       
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -935,6 +948,9 @@ public:
         simulator.SetReMeshRule(true);
         simulator.SetNoBirth(true);
         
+        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
+        simulator.AddCellKiller(p_sloughing_cell_killer);
+
         simulator.Solve();
 
         // test we have the same number of cells and nodes at the end of each time
@@ -945,6 +961,7 @@ public:
         TS_ASSERT_EQUALS(number_of_cells, cells_across*cells_up); 
         TS_ASSERT_EQUALS(number_of_nodes, number_of_cells+thickness_of_ghost_layer*2*cells_across); 
 
+        delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
