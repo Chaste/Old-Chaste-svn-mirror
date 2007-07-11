@@ -44,6 +44,7 @@ private:
         archive & mReadyToDivide;
     }
     
+    virtual double GetWntSG2MDuration();
 public:
 
     WntCellCycleModel(double InitialWntStimulus, unsigned mutationStatus = 0);

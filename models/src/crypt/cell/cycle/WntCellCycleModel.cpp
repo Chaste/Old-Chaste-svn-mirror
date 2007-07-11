@@ -138,7 +138,7 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
             {
                 // Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
                 double time_entering_S_phase = msSolver.GetStoppingTime();
-                mDivideTime = time_entering_S_phase + CancerParameters::Instance()->GetSG2MDuration();
+                mDivideTime = time_entering_S_phase + GetWntSG2MDuration();
 
                 mInSG2MPhase = true;
             }
@@ -223,3 +223,9 @@ CryptCellType WntCellCycleModel::UpdateCellType()
     mCellType = cell_type;
     return mCellType;
 }
+
+double WntCellCycleModel::GetWntSG2MDuration()
+{
+    return CancerParameters::Instance()->GetSG2MDuration();
+}
+

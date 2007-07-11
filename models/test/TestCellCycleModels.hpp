@@ -13,6 +13,7 @@
 #include "CancerParameters.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
+#include "StochasticWntCellCycleModel.hpp"
 
 class TestCellCycleModels : public CxxTest::TestSuite
 {
@@ -639,8 +640,51 @@ public:
         SimulationTime::Destroy();
     }
     
+    void TestStochasticWntCellCycleModel() throw (Exception)
+    {
+        int num_timesteps = 100;
+        double wnt_level = 1.0;
+        double mutation = 0.0;
+        
+        
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20, num_timesteps);// 15.971 hours to go into S phase
+        
+
+        StochasticWntCellCycleModel cell_model(wnt_level, (unsigned) mutation);
+        
+        // A WntCellCycleModel does this:
+        // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
+        // Model should enter S phase at 5.971 hrs and then finish dividing
+        // 10 hours later at 15.971 hours.
+        // 
+        // A StochasticWntCellCycleModel does this:
+        // divides at the same time with a random normal distribution 
+        // for the SG2M time (default 10) in this case 9.0676
+        
+        for (int i=0; i<num_timesteps; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            std::vector <double> cell_cycle_params;
+            cell_cycle_params.push_back(wnt_level);
+            cell_cycle_params.push_back(mutation);
+            bool result = cell_model.ReadyToDivide(cell_cycle_params);
+            if (time < 5.971 + 9.0676)
+            {
+                TS_ASSERT(result==false);
+            }
+            else
+            {
+                TS_ASSERT(result==true);
+            }
+        }
+        
+        SimulationTime::Destroy();
+    }
     
-    void TestArchiveFixedCellCycleModels()
+    void TestArchiveFixedCellCycleModels() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
         
