@@ -24,6 +24,8 @@ public:
     double GetDampingConstantNormal();
     double GetDampingConstantMutant();
     double GetApoptosisTime();
+    double GetDivisionRestingSpringLength();
+    double GetDivisionSeparation();
     
     void SetStemCellCycleTime(double);
     void SetTransitCellCycleTime(double);
@@ -35,7 +37,9 @@ public:
     void SetDampingConstantNormal(double);
     void SetDampingConstantMutant(double);
     void SetApoptosisTime(double);
-    
+    void SetDivisionRestingSpringLength(double);
+    void SetDivisionSeparation(double);
+      
     /** 
      *  Reset all parameters to their defaults
      */
@@ -104,6 +108,17 @@ private:
      */
     double mApoptosisTime;
     
+    /**
+     * Initial separation placement of mother/daughter at birth
+     */
+    double mDivisionSeparation;
+    
+    /**
+     * Initial resting spring length after division (should be longer than 
+     * mDivisionSeparation because of pressure from neighbouring springs)
+     */
+    double mDivisionRestingSpringLength;
+      
     friend class boost::serialization::access;
     /**
      * As with other singleton classes, ensure the instance of this

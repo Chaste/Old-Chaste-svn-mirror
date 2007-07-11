@@ -947,9 +947,9 @@ public:
     void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
+        CancerParameters::Instance()->SetDivisionRestingSpringLength(0.9);//Only coverage
+        CancerParameters::Instance()->SetDivisionSeparation(0.1);
         
-        double separation = 0.3;
-
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
@@ -975,7 +975,9 @@ public:
         c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(conf_iter);
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter), separation, 1e-7);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), 
+            CancerParameters::Instance()->GetDivisionSeparation(),
+            1e-7);
 
         SimulationTime::Destroy();
     }
@@ -984,7 +986,6 @@ public:
     void TestCalculateDividingCellCentreLocationsConfMeshStemCell() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
-        double separation = 0.3;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -1019,8 +1020,10 @@ public:
             TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
             TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
             TS_ASSERT(daughter_location[1]>=location[1]);
-            TS_ASSERT_DELTA(norm_2(parent_to_daughter), 0.5*separation, 1e-7);
-        }
+            TS_ASSERT_DELTA(norm_2(parent_to_daughter), 
+                0.5*CancerParameters::Instance()->GetDivisionSeparation(),
+                1e-7);
+       }
 
         SimulationTime::Destroy();
     }
@@ -1029,7 +1032,6 @@ public:
     {
         CancerParameters::Instance()->Reset();
         
-        double separation = 0.3;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -1053,7 +1055,9 @@ public:
         c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(cyl_iter);
         c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter), separation, 1e-7);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), 
+            CancerParameters::Instance()->GetDivisionSeparation(),
+            1e-7);
 
         SimulationTime::Destroy();
     }
@@ -1062,7 +1066,6 @@ public:
     {
         CancerParameters::Instance()->Reset();
         
-        double separation = 0.3;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -1091,7 +1094,9 @@ public:
         TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
         TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
         TS_ASSERT(daughter_location[1]>=location[1]);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter), 0.5*separation, 1e-7);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), 
+            0.5*CancerParameters::Instance()->GetDivisionSeparation(),
+            1e-7);
 
         SimulationTime::Destroy();
     }

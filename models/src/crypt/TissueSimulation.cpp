@@ -146,7 +146,7 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
 template<unsigned DIM> 
 c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename Crypt<DIM>::Iterator parentCell)
 {
-    double separation = 0.3;
+    double separation = CancerParameters::Instance()->GetDivisionSeparation();
     c_vector<double, DIM> parent_coords = parentCell.rGetLocation();
     c_vector<double, DIM> daughter_coords;
     
@@ -296,7 +296,8 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
         unsigned count=mDivisionPairs.count(cell_pair);
         if (count==1)
         {   
-            rest_length=(0.5+(1.0-0.5)*ageA);           
+            double lambda=CancerParameters::Instance()->GetDivisionRestingSpringLength();
+            rest_length=(lambda+(1.0-lambda)*ageA);           
         }
        
     }

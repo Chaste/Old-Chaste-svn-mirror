@@ -41,6 +41,8 @@ void CancerParameters::Reset()
     mDampingConstantNormal = 1.0;  //This is nu in Meineke
     mDampingConstantMutant = 2.0;
     mApoptosisTime = 0.25;  // Cell takes 15 min to fully undergo apoptosis
+    mDivisionRestingSpringLength=0.5;
+    mDivisionSeparation=0.3;    
     // Calculated parameters
     // This was used in non-dimensional case
 }
@@ -89,7 +91,14 @@ double CancerParameters::GetApoptosisTime()
 {
     return mApoptosisTime;
 }
-
+double CancerParameters::GetDivisionRestingSpringLength()
+{
+    return mDivisionRestingSpringLength;
+}
+double CancerParameters::GetDivisionSeparation()
+{
+    return mDivisionSeparation;
+}
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
 ///////////////////////////////////////////////////////////////////////
@@ -142,4 +151,17 @@ void CancerParameters::SetApoptosisTime(double apoptosisTime)
 {
     assert(apoptosisTime > 0.0);
     mApoptosisTime = apoptosisTime;
+}
+void CancerParameters::SetDivisionRestingSpringLength(double divisionRestingSpringLength)
+{
+    assert(divisionRestingSpringLength<=1.0);
+    assert(divisionRestingSpringLength>=0.0);
+    
+    mDivisionRestingSpringLength=divisionRestingSpringLength;
+}
+void CancerParameters::SetDivisionSeparation(double divisionSeparation)
+{
+    assert(divisionSeparation<=1.0);
+    assert(divisionSeparation>=0.0);
+    mDivisionSeparation=divisionSeparation;
 }
