@@ -578,31 +578,36 @@ public:
     
     void TestArchiving() throw (Exception)
     {
-        OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "cylindrical_mesh_base.arch";
+        std::string dirname = "archive";
+        OutputFileHandler handler(dirname, false);
+        std::string archive_filename = handler.GetTestOutputDirectory() + "cylindrical_mesh_base.arch";
         
-        double width = 0.0;
+        std::string mesh_filename = "cylindrical_mesh";
+        std::string mesh_pathname = handler.GetTestOutputDirectory() + mesh_filename;
+        std::cout << "P " << mesh_pathname << " F " << mesh_filename << " D " << handler.GetTestOutputDirectory() << std::endl;
         
-        {   
-            // Set up a mesh
-            unsigned cells_across = 5;
-            unsigned cells_up = 3;
-            double crypt_width = 5.0;
-            unsigned thickness_of_ghost_layer = 0;
-        
-            HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
-            ConformingTetrahedralMesh<2,2> * const p_mesh=generator.GetCylindricalMesh();
-            // You need the const above to stop a BOOST_STATIC_ASSERTION failure.
-            // This is because the serialization library only allows you to save tracked
-            // objects while the compiler considers them const, to prevent the objects changing
-            // during the save, and so object tracking leading to wrong results.
-            // (e.g. A is saved once via pointer, then changed, then saved again.  The second
-            //  save notes that A was saved before, so doesn't write its data again, and the
-            //  change is lost.)
-            
-            width = p_mesh->GetWidth(0);
+        // Set up a mesh
+        unsigned cells_across = 5;
+        unsigned cells_up = 3;
+        double crypt_width = 5.0;
+        unsigned thickness_of_ghost_layer = 0;
+    
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
+        ConformingTetrahedralMesh<2,2> * const p_mesh=generator.GetCylindricalMesh();
+        // You need the const above to stop a BOOST_STATIC_ASSERTION failure.
+        // This is because the serialization library only allows you to save tracked
+        // objects while the compiler considers them const, to prevent the objects changing
+        // during the save, and so object tracking leading to wrong results.
+        // (e.g. A is saved once via pointer, then changed, then saved again.  The second
+        //  save notes that A was saved before, so doesn't write its data again, and the
+        //  change is lost.)
+
+        { // Serialize the mesh
+            double width = p_mesh->GetWidth(0);
             TS_ASSERT_DELTA(width,crypt_width,1e-7);
+            // Save the mesh data using mesh writers
+            TrianglesMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
+            mesh_writer.WriteFilesUsingMesh(*p_mesh);
             // Archive the mesh
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -610,7 +615,7 @@ public:
             output_arch << p_mesh;
         }
         
-        {   
+        { // De-serialize and compare
             ConformingTetrahedralMesh<2,2>* p_mesh2;
             
             // Create an input archive
@@ -619,8 +624,59 @@ public:
             
             // restore from the archive
             input_arch >> p_mesh2;
+            // Re-initialise the mesh
+            p_mesh2->Clear();
+            TrianglesMeshReader<2,2> mesh_reader(mesh_pathname);
+            p_mesh2->ConstructFromMeshReader(mesh_reader);
             
-            TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width, 1e-7);
+            // This is needed, as the honeycomb generator calls ReMesh prior to returning
+            // the mesh, to make it 'properly cylindrical'.   However, the cylindrical ReMesh
+            // creates lots of halo & mirror nodes prior to calling the base class ReMesh,
+            // and doesn't clean up all the internal data structures when it removes them,
+            // so some of the tests below fail, unless we also do a ReMesh after loading.
+            // Even if a ReMesh isn't actually needed, it should be safe.
+            NodeMap map(p_mesh2->GetNumNodes());
+            p_mesh2->ReMesh(map);
+            
+            TS_ASSERT_DELTA(p_mesh2->GetWidth(0), crypt_width, 1e-7);
+            
+            // Compare the loaded mesh against the original
+            TS_ASSERT_EQUALS(p_mesh->GetNumAllNodes(), p_mesh2->GetNumAllNodes());
+            TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), p_mesh2->GetNumNodes());
+            TS_ASSERT_EQUALS(p_mesh->GetNumBoundaryNodes(), p_mesh2->GetNumBoundaryNodes());
+            TS_ASSERT_EQUALS(p_mesh->GetNumCornerNodes(), p_mesh2->GetNumCornerNodes());
+            
+            for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
+            {
+                Node<2> *p_node = p_mesh->GetNode(i);
+                Node<2> *p_node2 = p_mesh2->GetNode(i);
+                TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
+                TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
+                TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), p_node2->IsBoundaryNode());
+                for (unsigned j=0; j<2; j++)
+                {
+                    TS_ASSERT_DELTA(p_node->rGetLocation()[j], p_node2->rGetLocation()[j], 1e-16);
+                }
+            }
+            
+            TS_ASSERT_EQUALS(p_mesh->GetNumElements(), p_mesh2->GetNumElements());
+            TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), p_mesh2->GetNumAllElements());
+            TS_ASSERT_EQUALS(p_mesh->GetNumBoundaryElements(), p_mesh2->GetNumBoundaryElements());
+            TS_ASSERT_EQUALS(p_mesh->GetNumAllBoundaryElements(), p_mesh2->GetNumAllBoundaryElements());
+            ConformingTetrahedralMesh<2,2>::ElementIterator it=p_mesh->GetElementIteratorBegin();
+            ConformingTetrahedralMesh<2,2>::ElementIterator it2=p_mesh2->GetElementIteratorBegin();
+            for (;
+                 it != p_mesh->GetElementIteratorEnd();
+                 ++it, ++it2)
+            {
+                Element<2,2>* p_elt = *it;
+                Element<2,2>* p_elt2 = *it2;
+                TS_ASSERT_EQUALS(p_elt->GetNumNodes(), p_elt2->GetNumNodes());
+                for (unsigned i=0; i<p_elt->GetNumNodes(); i++)
+                {
+                    TS_ASSERT_EQUALS(p_elt->GetNodeGlobalIndex(i), p_elt2->GetNodeGlobalIndex(i));
+                }
+            }
             
             // We now need to free the mesh, since there is no honeycomb generator to do so.
             delete p_mesh2;
@@ -628,67 +684,6 @@ public:
     }
 
 
-    void brokenTestArchivingReferences() throw (Exception)
-    {
-        //This test shows how references may be archived.  If it's a reference
-        //to a base class (but the instance is that of a derived class) then we
-        //have to cast to a pointer so that the serialization library can correctly
-        //infer its true type.
-        //Unfortunately, this doesn't really work, and introduces memory leaks.  This
-        //is because when loading a pointer (that hasn't previously had the object it
-        //points to loaded directly) the serialization framework creates a new instance
-        //for the pointer to point to.  So in the load below a NEW cylindrical mesh is
-        //created, rather than the data being loaded into the existing mesh object.
-        OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "cylindrical_mesh_base.arch";
-        
-        double width = 0.0;
-        
-        {   
-            // Set up a mesh
-            unsigned cells_across = 5;
-            unsigned cells_up = 3;
-            unsigned thickness_of_ghost_layer = 0;
-        
-            HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
-            Cylindrical2dMesh * p_mesh=generator.GetCylindricalMesh();
-            
-            width = p_mesh->GetWidth(0);
-            TS_ASSERT_DELTA(width,cells_across,1e-7);
-            // Archive the mesh
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
-            // Get a reference to the mesh
-            ConformingTetrahedralMesh<2,2>& r_mesh = *p_mesh;
-            TS_ASSERT_DELTA(width,r_mesh.GetWidth(0),1e-7);
-            
-            // Serialize via pointer to the reference
-            ConformingTetrahedralMesh<2,2> * const pr_mesh = &r_mesh;
-            output_arch << pr_mesh;
-        }
-        
-        {   
-            unsigned cells_across = 10;
-            unsigned cells_up = 10;
-            unsigned thickness_of_ghost_layer = 0;
-        
-            HoneycombMeshGenerator generator(cells_across,cells_up,thickness_of_ghost_layer);
-            ConformingTetrahedralMesh<2,2>* p_mesh2 = generator.GetCylindricalMesh();
-            
-            // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
-            
-            TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width + 5.0, 1e-7);
-
-            // restore from the archive
-            input_arch >> p_mesh2;
-            
-            TS_ASSERT_DELTA(p_mesh2->GetWidth(0), width, 1e-7);
-        }
-    }
-    
 };
 
 

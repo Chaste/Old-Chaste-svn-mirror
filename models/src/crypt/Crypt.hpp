@@ -359,6 +359,9 @@ inline void load_construct_data(
     p_mesh->Clear();
     TrianglesMeshReader<DIM,DIM> mesh_reader(Crypt<DIM>::meshPathname);
     p_mesh->ConstructFromMeshReader(mesh_reader);
+    // Needed for cylindrical meshes at present; should be safe in any case.
+    NodeMap map(p_mesh->GetNumNodes());
+    p_mesh->ReMesh(map);
     // invoke inplace constructor to initialize instance
     ::new(t)Crypt<DIM>(*p_mesh, vec_cells, true);
 }

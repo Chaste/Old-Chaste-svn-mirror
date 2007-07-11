@@ -156,6 +156,51 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
         }
     }
 
+    /**
+     * Compare 2 meshes to see if they are 'the same'.  Doesn't check everything,
+     * but is fairly thorough.  Used for testing serialization.
+     */
+    template<unsigned DIM>
+    void CompareMeshes(ConformingTetrahedralMesh<DIM,DIM>* pMesh1,
+                       ConformingTetrahedralMesh<DIM,DIM>* pMesh2)
+    {
+        TS_ASSERT_EQUALS(pMesh1->GetNumAllNodes(), pMesh2->GetNumAllNodes());
+        TS_ASSERT_EQUALS(pMesh1->GetNumNodes(), pMesh2->GetNumNodes());
+        TS_ASSERT_EQUALS(pMesh1->GetNumBoundaryNodes(), pMesh2->GetNumBoundaryNodes());
+        TS_ASSERT_EQUALS(pMesh1->GetNumCornerNodes(), pMesh2->GetNumCornerNodes());
+        
+        for (unsigned i=0; i<pMesh1->GetNumAllNodes(); i++)
+        {
+            Node<DIM> *p_node = pMesh1->GetNode(i);
+            Node<DIM> *p_node2 = pMesh2->GetNode(i);
+            TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
+            TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
+            TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), p_node2->IsBoundaryNode());
+            for (unsigned j=0; j<DIM; j++)
+            {
+                TS_ASSERT_DELTA(p_node->rGetLocation()[j], p_node2->rGetLocation()[j], 1e-16);
+            }
+        }
+        
+        TS_ASSERT_EQUALS(pMesh1->GetNumElements(), pMesh2->GetNumElements());
+        TS_ASSERT_EQUALS(pMesh1->GetNumAllElements(), pMesh2->GetNumAllElements());
+        TS_ASSERT_EQUALS(pMesh1->GetNumBoundaryElements(), pMesh2->GetNumBoundaryElements());
+        TS_ASSERT_EQUALS(pMesh1->GetNumAllBoundaryElements(), pMesh2->GetNumAllBoundaryElements());
+        typename ConformingTetrahedralMesh<DIM,DIM>::ElementIterator it=pMesh1->GetElementIteratorBegin();
+        typename ConformingTetrahedralMesh<DIM,DIM>::ElementIterator it2=pMesh2->GetElementIteratorBegin();
+        for (;
+             it != pMesh1->GetElementIteratorEnd();
+             ++it, ++it2)
+        {
+            Element<DIM,DIM>* p_elt = *it;
+            Element<DIM,DIM>* p_elt2 = *it2;
+            TS_ASSERT_EQUALS(p_elt->GetNumNodes(), p_elt2->GetNumNodes());
+            for (unsigned i=0; i<p_elt->GetNumNodes(); i++)
+            {
+                TS_ASSERT_EQUALS(p_elt->GetNodeGlobalIndex(i), p_elt2->GetNodeGlobalIndex(i));
+            }
+        }
+    }
 
 public:
     void Test2DCylindrical() throw (Exception)
@@ -275,6 +320,47 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
+    // A better check that the loaded mesh is the same as that saved
+    void TestMeshSurvivesSaveLoad() throw (Exception)
+    {
+        unsigned cells_across = 6;
+        unsigned cells_up = 12;
+        unsigned thickness_of_ghost_layer = 4;
+        
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        
+        // Set up a simulation
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        std::vector<MeinekeCryptCell> cells;
+        CreateVectorOfCells(cells, *p_mesh, WNT, false);
+        Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+        TissueSimulation<2> simulator(crypt);
+        simulator.SetOutputDirectory("Crypt2DPeriodicWntSaveAndLoad");
+        simulator.SetEndTime(0.1);
+        simulator.SetMaxCells(500);
+        simulator.SetMaxElements(1000);
+        
+        // Save
+        simulator.Save();
+        
+        // Load
+        TissueSimulation<2>* p_simulator;
+        p_simulator = TissueSimulation<2>::Load("Crypt2DPeriodicWntSaveAndLoad", 0.0);
+        
+        // Create an identical mesh for comparison purposes
+        HoneycombMeshGenerator generator2(cells_across, cells_up, thickness_of_ghost_layer);
+        Cylindrical2dMesh* p_mesh2=generator2.GetCylindricalMesh();
+        
+        // Compare
+        CompareMeshes(p_mesh2, &(p_simulator->rGetCrypt().rGetMesh()));
+        
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
 
     // Testing Save (based on previous test)
     void TestSave() throw (Exception)
@@ -335,34 +421,37 @@ public:
 
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 0.2
-        TissueSimulation<2>* p_simulator;
-        p_simulator = TissueSimulation<2>::Load("Crypt2DPeriodicWntSaveAndLoad", 0.1);
+        TissueSimulation<2>* p_simulator1;
+        p_simulator1 = TissueSimulation<2>::Load("Crypt2DPeriodicWntSaveAndLoad", 0.1);
         
-        p_simulator->SetEndTime(0.2);
-        p_simulator->Solve();
+        p_simulator1->SetEndTime(0.2);
+        p_simulator1->Solve();
         
         // save that then reload
         // and run from 0.2 to 0.3.
-        p_simulator->Save();
-        delete p_simulator;
+        p_simulator1->Save();
         
-        p_simulator = TissueSimulation<2>::Load("Crypt2DPeriodicWntSaveAndLoad", 0.2);
+        TissueSimulation<2>* p_simulator2 = TissueSimulation<2>::Load("Crypt2DPeriodicWntSaveAndLoad", 0.2);
         
-        p_simulator->SetEndTime(0.3);
-        p_simulator->Solve();
+        CompareMeshes(&(p_simulator1->rGetCrypt().rGetMesh()),
+                      &(p_simulator2->rGetCrypt().rGetMesh()));
+        
+        p_simulator2->SetEndTime(0.3);
+        p_simulator2->Solve();
         
         /* 
          * This checks that these two nodes are in exactly the same location 
          * (after a saved and loaded run) as after a single run
          */
-        std::vector<double> node_35_location = p_simulator->GetNodeLocation(35);
+        std::vector<double> node_35_location = p_simulator2->GetNodeLocation(35);
         TS_ASSERT_DELTA(node_35_location[0], 5.5000 , 1e-4);
         TS_ASSERT_DELTA(node_35_location[1], 2.5104 , 1e-4);
-        std::vector<double> node_100_location = p_simulator->GetNodeLocation(100);
+        std::vector<double> node_100_location = p_simulator2->GetNodeLocation(100);
         TS_ASSERT_DELTA(node_100_location[0], 4.0000 , 1e-4);
         TS_ASSERT_DELTA(node_100_location[1], 8.0945 , 1e-4);
         
-        delete p_simulator;
+        delete p_simulator1;
+        delete p_simulator2;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
