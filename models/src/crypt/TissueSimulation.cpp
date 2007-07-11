@@ -287,7 +287,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     double ageA = mrCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
     double ageB = mrCrypt.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
     
-    if (ageA<=1.0 && ageB<=1.0 )
+    if (ageA<1.0 && ageB<1.0 )
     {
         // Spring Rest Length Increases to normal rest length from ???? to normal rest length, 1.0, over 1 hour
         std::set<MeinekeCryptCell *> cell_pair;
@@ -298,6 +298,13 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
         {   
             double lambda=CancerParameters::Instance()->GetDivisionRestingSpringLength();
             rest_length=(lambda+(1.0-lambda)*ageA);           
+        }
+        
+        if (ageA+ SimulationTime::Instance()->GetTimeStep() >= 1.0)
+        {
+            //This spring is about to go out of scope
+            mDivisionPairs.erase(cell_pair);
+            //\todo some of the pairs aren't accessible at this stage(if we lose them due to a remesh
         }
        
     }
