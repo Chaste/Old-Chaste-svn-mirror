@@ -669,5 +669,28 @@ public:
         
     }
     
+    void xTestSimpleTessellation() throw (Exception)
+    {
+        
+        // Create conforming tetrahedral mesh which is Delauny
+        std::vector<Node<2> *> nodes;
+        nodes.push_back(new Node<2>(0, true, 0.0,0.0));
+        nodes.push_back(new Node<2>(1, true, 1.0,1.0));
+        nodes.push_back(new Node<2>(2, true, 1.0,0.0));
+        nodes.push_back(new Node<2>(3, true, 0.0,1.0));
+        nodes.push_back(new Node<2>(4, false,0.57, 0.43));
+        nodes.push_back(new Node<2>(5, false,0.43, 0.57));
+        // These are deleted in the ReMesh in Constructor so don't need 
+        // to be deleted here - or do they?
+        
+        ConformingTetrahedralMesh<2,2> mesh(nodes);
+        
+        Decimator<2> decimator;
+        decimator.SetThreshold(-10.0);
+        decimator.Initialise(&mesh);
+        
+        decimator.DecimateAnimate("Blah");
+        
+    }        
 };
 #endif //_TESTDECIMATION_HPP_
