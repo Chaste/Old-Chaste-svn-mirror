@@ -113,6 +113,9 @@ protected:
     /** List of cell killers */
     std::vector<AbstractCellKiller<DIM>*> mCellKillers;
     
+    /** Whether to use a flat bottom surface or the wavy bottom surface (2d only) */
+    bool mUseNonFlatBottomSurface;
+    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -139,6 +142,7 @@ protected:
         archive & mNumBirths;
         archive & mNumDeaths;
         archive & mCellKillers;
+        archive & mUseNonFlatBottomSurface;
     }
     
     /**
@@ -238,7 +242,7 @@ public:
     void SetWntGradient(WntGradientType wntGradientType);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
-    
+    void UseNonFlatBottomSurface();
     void Solve();
     
     void Save();
@@ -246,6 +250,8 @@ public:
     
     Crypt<DIM>& rGetCrypt();
     const Crypt<DIM>& rGetCrypt() const;
+    
+    double BottomSurfaceProfile(double x);
 };
 
 

@@ -386,7 +386,7 @@ public:
         TS_ASSERT_DELTA(node_35_location[0], 5.5000 , 1e-4);
         // Old version of this test had cells with age zero, therefore small spring lengths.
         // Variable spring lengths now only associated with cell division.
-        TS_ASSERT_DELTA(node_35_location[1], 4.33238 , 1e-4);
+        TS_ASSERT_DELTA(node_35_location[1], 4.33013 , 1e-4);
 //        TS_ASSERT_DELTA(node_100_location[0], 4.0000 , 1e-4);
 //        TS_ASSERT_DELTA(node_100_location[1], 8.0945 , 1e-4);
 //          
@@ -535,7 +535,7 @@ public:
          */
         std::vector<double> node_35_location = p_simulator2->GetNodeLocation(35);
         TS_ASSERT_DELTA(node_35_location[0], 5.5000 , 1e-4);
-        TS_ASSERT_DELTA(node_35_location[1], 0.8719 , 1e-4);
+        TS_ASSERT_DELTA(node_35_location[1], 0.866025 , 1e-4);
         //std::vector<double> node_100_location = p_simulator2->GetNodeLocation(100);
         //TS_ASSERT_DELTA(node_100_location[0], 4.0000 , 1e-4);
         //TS_ASSERT_DELTA(node_100_location[1], 8.0945 , 1e-4);
@@ -1205,6 +1205,53 @@ public:
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
     
         delete p_random_cell_killer;
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+    
+    void TestUsingNonFlatBottomSurfaceNonPeriodic()
+    {
+        CancerParameters::Instance()->Reset();
+        
+        unsigned cells_across = 20;
+        unsigned cells_up = 4;
+        unsigned thickness_of_ghost_layer = 2;
+        double crypt_width = 20.0;
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        
+        //HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
+        //ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cells;
+        CreateVectorOfCells(cells, *p_mesh, FIXED, true);
+              
+        Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+
+        TissueSimulation<2> simulator(crypt);
+        
+        simulator.SetOutputDirectory("Crypt2DNonFlatBottomSurface");
+        simulator.SetEndTime(0.5);
+        simulator.SetMaxCells(500);
+        simulator.SetMaxElements(1000);
+
+        simulator.UseNonFlatBottomSurface();
+
+        simulator.Solve();
+        
+        //double crypt_width = mrCrypt.rGetMesh().GetWidth(0u);
+        double frequency = floor(crypt_width/4.0)+1.0;
+        //return 0.05*(sin(2*frequency*M_PI*x/crypt_width)+1);
+        TS_ASSERT_DELTA(p_mesh->GetNode(48)->rGetLocation()[0],8.0, 1e-4);
+        TS_ASSERT_DELTA(p_mesh->GetNode(48)->rGetLocation()[1],  0.05*(sin(2.0*frequency*M_PI*8.0/crypt_width) + 1.0 ), 1e-4);
+//        TS_ASSERT_DELTA(p_mesh->GetNode(60)->rGetLocation()[1],0.05*(sin(2.0*(floor(crypt.GetWidth()/4.0)+1.0)*M_PI*10.0/crypt.GetWidth())+1.0), 1e-4);
+        
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

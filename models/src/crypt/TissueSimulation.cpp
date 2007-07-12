@@ -39,6 +39,7 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
     mWntIncluded = false;
     mNumBirths = 0;
     mNumDeaths = 0;
+    mUseNonFlatBottomSurface = false;
     
     assert(SimulationTime::Instance()->IsStartTimeSetUp());
     // start time must have been set to create crypt which includes cell cycle models
@@ -149,20 +150,84 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
     double separation = CancerParameters::Instance()->GetDivisionSeparation();
     c_vector<double, DIM> parent_coords = parentCell.rGetLocation();
     c_vector<double, DIM> daughter_coords;
-    
+        
+    // pick a random direction and move the parent cell backwards by 0.5*sep in that
+    // direction and return the position of the daughter cell (0.5*sep forwards in the
+    // random vector direction
+
     // Make a random direction vector of the required length
     c_vector<double, DIM> random_vector;
     
     if(DIM==1)
     {
         random_vector(0) = 0.5*separation;
+
+        daughter_coords = parent_coords+random_vector;
+        parent_coords = parent_coords-random_vector;
     }   
     else if(DIM==2)
     {
         double random_angle = RandomNumberGenerator::Instance()->ranf();
         random_angle *= 2.0*M_PI;
+        
+       // double angle_of_surface = atan(BottomSurfaceProfileDerivative(parent_coords[1]);
+
         random_vector(0) = 0.5*separation*cos(random_angle);
         random_vector(1) = 0.5*separation*sin(random_angle);
+        
+        c_vector<double, 2> proposed_new_parent_coords = parent_coords-random_vector;
+        c_vector<double, 2> proposed_new_daughter_coords = parent_coords+random_vector;
+        
+        if (   (proposed_new_parent_coords(1) <= BottomSurfaceProfile(proposed_new_parent_coords(0)))
+            && (proposed_new_daughter_coords(1) <= BottomSurfaceProfile(proposed_new_daughter_coords(0))))
+        {
+            // the worst case, both parent and daughter would move to below the surface
+            // move them across and then up onto the surface. This is the only case
+            // when the cells won't be 0.1 away from each other
+            parent_coords = proposed_new_parent_coords;
+            parent_coords(1) = BottomSurfaceProfile(parent_coords(0));
+
+            daughter_coords = proposed_new_daughter_coords;
+            daughter_coords(1) = BottomSurfaceProfile(daughter_coords(0));
+        }
+        else if (proposed_new_parent_coords(1) <= BottomSurfaceProfile(proposed_new_parent_coords(0)))
+        {
+            // Leave parent, move daughter twice as far
+            daughter_coords = parent_coords + random_vector;
+        }
+        else if (proposed_new_daughter_coords(1) <= BottomSurfaceProfile(proposed_new_daughter_coords(0)))
+        {
+            // don't move parent, move daughter in opposite direction (twice as far)
+            daughter_coords = parent_coords - random_vector;
+        }
+        else        
+        {   
+            // We are not too close to the bottom of the crypt
+            // move parent
+            parent_coords = proposed_new_parent_coords;
+            daughter_coords = proposed_new_daughter_coords;
+        }
+        
+        
+        
+//        && (daughter_coords(1) > BottomSurfaceProfile(daughter_coords(0)))
+//        else
+//        {   
+//            // Leave the parent where it is and move daughter in a positive direction
+//            // to ensure new cells are not born below y=0
+//            //
+//            // parent cell is not moved so move the daughter cell twice as far
+//            if (random_vector(1)>0.0)
+//            {
+//                daughter_coords = parent_coords+random_vector;
+//            }
+//            else
+//            {
+//                daughter_coords = parent_coords-random_vector;
+//            }
+//        }
+        assert(daughter_coords(1)>=0.0);// to make sure dividing cells stay in the crypt
+        assert(parent_coords(1)>=0.0);// to make sure dividing cells stay in the crypt
     }
     else if(DIM==3)
     {
@@ -174,37 +239,11 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
         random_vector(0) = 0.5*separation*cos(random_azimuth_angle)*sin(random_zenith_angle);
         random_vector(1) = 0.5*separation*sin(random_azimuth_angle)*sin(random_zenith_angle);
         random_vector(2) = 0.5*separation*cos(random_zenith_angle);
-    }
-    
-    if(DIM==2)
-    {
-        if  (  (parent_coords(1)-random_vector(1) > 0.0)
-            && (parent_coords(1)+random_vector(1) > 0.0))
-        {   // We are not too close to the bottom of the crypt
-            // add random vector to the daughter and take it from the parent location
-            daughter_coords = parent_coords+random_vector;
-            parent_coords = parent_coords-random_vector;
-        }
-        else
-        {   // Leave the parent where it is and move daughter in a positive direction
-            // to ensure new cells are not born below y=0
-            if (random_vector(1)>0.0)
-            {
-                daughter_coords = parent_coords+random_vector;
-            }
-            else
-            {
-                daughter_coords = parent_coords-random_vector;
-            }
-        }
-        assert(daughter_coords(1)>=0.0);// to make sure dividing cells stay in the crypt
-        assert(parent_coords(1)>=0.0);// to make sure dividing cells stay in the crypt
-    }
-    else
-    {
+
         daughter_coords = parent_coords+random_vector;
         parent_coords = parent_coords-random_vector;
-    } 
+    }
+    
     
     // set the parent to use this location
     Point<DIM> parent_coords_point(parent_coords);
@@ -332,26 +371,55 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
         
         if(DIM==2)
         {
+               
+ //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+            // stem cells are fixed if no wnt, so reset the x-value to the old x-value           
+            if((cell.GetCellType()==STEM) && (!mWntIncluded))
+            {
+                new_point.rGetLocation()[0] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[0];
+                new_point.rGetLocation()[1] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[1];
+            }
+            
+            // for all cells - move up if below the bottom surface
+            if (new_point.rGetLocation()[1] < BottomSurfaceProfile(new_point.rGetLocation()[0]) )
+            {
+                new_point.rGetLocation()[1] = BottomSurfaceProfile(new_point.rGetLocation()[0]);
+            }
+            
+//            if (cell.GetCellType()==STEM)
+//            {
+//                std::cout<< "stem cell position " << new_point.rGetLocation()[0] << "\t" << new_point.rGetLocation()[1] << "\n" << std::flush;
+//            }
+            // move the cell
+            mrCrypt.MoveCell(cell_iter, new_point);                    
+            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
             // Move any node as long as it is not a stem cell.
             // unpin the stem cells in a Wnt simulation.
-            if (cell.GetCellType()!=STEM || mWntIncluded)
-            {   
-                // if a cell wants to move below y<0 (most likely because it was
-                // just born from a stem cell), stop it doing so
-                if (new_point.rGetLocation()[1] < 0.0)
-                {
-                    /* 
-                     * Here we give the cell a push upwards so that it doesn't 
-                     * get stuck on y=0 for ever (ticket:422).
-                     * 
-                     * Note that all stem cells may get moved to same height and 
-                     * random numbers try to ensure we aren't left with the same 
-                     * problem at a different height!
-                     */
-                    new_point.rGetLocation()[1] = 0.05*mpRandomGenerator->ranf();
-                }
-                mrCrypt.MoveCell(cell_iter, new_point);                    
-            }
+//            if (cell.GetCellType()!=STEM || mWntIncluded)
+//            {   
+//                if (new_point.rGetLocation()[1] < BottomSurfaceProfile(new_point.rGetLocation()[0]) )
+//                {
+//                    new_point.rGetLocation()[1] = BottomSurfaceProfile(new_point.rGetLocation()[0]);
+//                }   
+//
+//
+////                // if a cell wants to move below y<0 (most likely because it was
+////                // just born from a stem cell), stop it doing so
+////                if (new_point.rGetLocation()[1] < 0.0)
+////                {
+////                    /* 
+////                     * Here we give the cell a push upwards so that it doesn't 
+////                     * get stuck on y=0 for ever (ticket:422).
+////                     * 
+////                     * Note that all stem cells may get moved to same height and 
+////                     * random numbers try to ensure we aren't left with the same 
+////                     * problem at a different height!
+////                     */
+////                    new_point.rGetLocation()[1] = 0.05*mpRandomGenerator->ranf();
+////                }
+//                mrCrypt.MoveCell(cell_iter, new_point);                    
+//            }
         }
         else
         {   // 1D or 3D
@@ -775,3 +843,29 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
     
     return p_sim;
 }
+
+
+template<unsigned DIM> 
+double TissueSimulation<DIM>::BottomSurfaceProfile(double x)
+{
+    if(mUseNonFlatBottomSurface)
+    {
+        double crypt_width = mrCrypt.rGetMesh().GetWidth(0u);
+        double frequency = floor(crypt_width/4.0)+1.0;
+        //std::cout<< "\n GetWidth" << mrCrypt.rGetMesh().GetWidth(0u) << " freq" << frequency << std::endl;
+        
+        return 0.05*(sin(2*frequency*M_PI*x/crypt_width)+1);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+template<unsigned DIM>
+void TissueSimulation<DIM>::UseNonFlatBottomSurface()
+{
+    assert(DIM==2);
+    mUseNonFlatBottomSurface = true;
+}
+
