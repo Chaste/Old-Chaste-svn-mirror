@@ -416,17 +416,23 @@ public:
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         TissueSimulation<2> simulator(crypt);
-        simulator.SetOutputDirectory("Crypt2DPeriodicWntSaveAndLoad");
+        simulator.SetOutputDirectory("Crypt2DMeshArchive");
         simulator.SetEndTime(0.1);
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
         
+        
+        // Memory leak (unconditional jump) without the following line.
+        // The archiver assumes that a Solve has been called and simulation time has been set up properly.
+        // In this test it hasn't so we need this to avoid memory leak.
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.1, 100);
+        
         // Save
-        simulator.Save();
+        simulator.Save(); 
         
         // Load
         TissueSimulation<2>* p_simulator;
-        p_simulator = TissueSimulation<2>::Load("Crypt2DPeriodicWntSaveAndLoad", 0.0);
+        p_simulator = TissueSimulation<2>::Load("Crypt2DMeshArchive", 0.0);
         
         // Create an identical mesh for comparison purposes
         HoneycombMeshGenerator generator2(cells_across, cells_up, thickness_of_ghost_layer);
@@ -435,6 +441,7 @@ public:
         // Compare
         CompareMeshes(p_mesh2, &(p_simulator->rGetCrypt().rGetMesh()));
         
+        delete p_simulator;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
