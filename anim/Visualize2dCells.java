@@ -728,24 +728,33 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         
         if (vis.writeFiles)
         {
-        String filename=String.format("image%1$05d.png", vis.timeStep);
-        System.out.println("Writing file : "+filename+".");
-        File f = new File(filename);
-        try 
-        {
-            ImageIO.write(buffered_image, "png", f);
-        } catch (Exception e)
-        {
-        }
+            String filename=String.format("image%1$05d.png", vis.timeStep);
+            System.out.println("Writing file : "+filename+".");
+            File f = new File(filename);
+            try 
+            {
+                ImageIO.write(buffered_image, "png", f);
+            } 
+            catch (Exception e)
+            {
+            }
+            System.out.println("Written file : "+filename+".");
         }
         imageDrawing = false;
     }
     
     public void drawBufferedImage() 
     {
+        int cycle=0;
         while (imageDrawing)
         {
-            
+            System.out.print("");
+            if (cycle==100000)
+            {
+                System.out.print(".");
+                cycle=0;
+            }
+            cycle++;
         }
         imageReady = false;
         
