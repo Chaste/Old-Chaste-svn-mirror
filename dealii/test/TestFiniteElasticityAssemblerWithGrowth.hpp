@@ -232,7 +232,7 @@ public :
         finiteelas_with_growth.Run();  
     }
     
-    void Test2dPolypFormationWithElasticUnderside() throw(Exception)
+    void NO_Test2dPolypFormationWithElasticUnderside() throw(Exception)
     {
         Vector<double> body_force(2); // zero
         double density = 1.0;
