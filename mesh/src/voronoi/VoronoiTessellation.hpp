@@ -12,6 +12,7 @@ class VoronoiTessellation
 {
   private:
     friend class TestVoronoiTessellation;
+    friend class InventorVoronoiWriter;
     
     ConformingTetrahedralMesh<3,3>& mrMesh;
     /**
