@@ -513,7 +513,7 @@ public:
      *  and allowing slip so that the width can change.
      * 
      */
-    void xTestMeinekeIncremental() throw(Exception)
+    void TestMeinekeIncremental() throw(Exception)
     {      
         CancerParameters::Instance()->Reset();
 
@@ -642,7 +642,7 @@ public:
     
     
     
-    void TestMeinekeIncrementalShearing() throw(Exception)
+    void xTestMeinekeIncrementalShearing() throw(Exception)
     {            
         CancerParameters::Instance()->Reset();
 
