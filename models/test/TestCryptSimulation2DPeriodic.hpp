@@ -1022,13 +1022,13 @@ public:
             c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(conf_iter);
             c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
             c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
-    
             // The parent stem cell should stay where it is and the daughter be introduced at positive y.
+            
             TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
             TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
             TS_ASSERT(daughter_location[1]>=location[1]);
             TS_ASSERT_DELTA(norm_2(parent_to_daughter), 
-                0.5*CancerParameters::Instance()->GetDivisionSeparation(),
+                1.0*CancerParameters::Instance()->GetDivisionSeparation(),
                 1e-7);
        }
 
@@ -1102,7 +1102,7 @@ public:
         TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
         TS_ASSERT(daughter_location[1]>=location[1]);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter), 
-            0.5*CancerParameters::Instance()->GetDivisionSeparation(),
+            CancerParameters::Instance()->GetDivisionSeparation(),
             1e-7);
 
         SimulationTime::Destroy();
@@ -1220,8 +1220,6 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         
-        //HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
-        //ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -1245,12 +1243,9 @@ public:
 
         simulator.Solve();
         
-        //double crypt_width = mrCrypt.rGetMesh().GetWidth(0u);
         double frequency = floor(crypt_width/4.0)+1.0;
-        //return 0.05*(sin(2*frequency*M_PI*x/crypt_width)+1);
         TS_ASSERT_DELTA(p_mesh->GetNode(48)->rGetLocation()[0],8.0, 1e-4);
         TS_ASSERT_DELTA(p_mesh->GetNode(48)->rGetLocation()[1],  0.05*(sin(2.0*frequency*M_PI*8.0/crypt_width) + 1.0 ), 1e-4);
-//        TS_ASSERT_DELTA(p_mesh->GetNode(60)->rGetLocation()[1],0.05*(sin(2.0*(floor(crypt.GetWidth()/4.0)+1.0)*M_PI*10.0/crypt.GetWidth())+1.0), 1e-4);
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
