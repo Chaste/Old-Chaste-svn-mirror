@@ -619,6 +619,50 @@ public:
 
         SimulationTime::Destroy();        
     }
+    
+    void TestGetLocationOfCell() throw (Exception)
+    {
+        // set up the simulation time object so the cells can be created
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // so the age = node_index
+        std::vector<MeinekeCryptCell> cells;
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+            double birth_time = 0.0-i;
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+        
+        // create the crypt
+        Crypt<2> crypt(mesh, cells);
+        
+                
+        // loop over nodes
+        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+             cell_iter != crypt.End();
+             ++cell_iter)
+        {
+            // record node location
+            c_vector<double , 2> node_location = cell_iter.GetNode()->rGetLocation();
+            //std::cout << "node_location[0]" << node_location[0] << "\n";
+            // get cell at each node
+            MeinekeCryptCell& r_cell = crypt.rGetCellAtNodeIndex(cell_iter.GetNode()->GetIndex());      
+            // test GetLocationOfCell()
+            TS_ASSERT_DELTA(node_location[0] , crypt.GetLocationOfCell(r_cell)[0] , 1e-9);
+            TS_ASSERT_DELTA(node_location[1] , crypt.GetLocationOfCell(r_cell)[1] , 1e-9);
+        }// end loop
+        SimulationTime::Destroy(); 
+    }
 };
 
 

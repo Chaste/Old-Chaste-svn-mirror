@@ -584,7 +584,6 @@ public:
         
         std::string mesh_filename = "cylindrical_mesh";
         std::string mesh_pathname = handler.GetTestOutputDirectory() + mesh_filename;
-        std::cout << "P " << mesh_pathname << " F " << mesh_filename << " D " << handler.GetTestOutputDirectory() << std::endl;
         
         // Set up a mesh
         unsigned cells_across = 5;

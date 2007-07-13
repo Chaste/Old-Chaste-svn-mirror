@@ -194,7 +194,7 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetCrypt(),0.01);
         simulator.AddCellKiller(p_cell_killer);
         
-        p_params->SetDampingConstantNormal(0.5);    // normally 1
+        p_params->SetDampingConstantNormal(1.0);    // normally 1
 
         // Do not give mutant cells any different movement properties to normal ones
         p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
@@ -205,7 +205,7 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         simulator.Solve();
         simulator.Save();    
         
-//        // set a cell to be mutated (a stemish cell)
+        // set a cell to be labelled (a stemish cell)
         simulator.rGetCrypt().rGetCellAtNodeIndex(37).SetMutationState(LABELLED);
         simulator.rGetCrypt().rGetCellAtNodeIndex(38).SetMutationState(LABELLED);
         simulator.rGetCrypt().rGetCellAtNodeIndex(39).SetMutationState(LABELLED);

@@ -160,6 +160,9 @@ public:
      *  An assertion fails if not.
      */
     MeinekeCryptCell& rGetCellAtNodeIndex(unsigned);
+    
+    c_vector<double, DIM> GetLocationOfCell(const MeinekeCryptCell& rCell);
+    
     /**
      * Iterator class allows one to iterate over cells in the crypt.
      * Dereferencing the iterator will give you the current cell.
