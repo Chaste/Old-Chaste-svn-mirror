@@ -3,7 +3,7 @@
 
 #include "OutputFileHandler.hpp"
 
-const std::string inventor_header="#Inventor V2.0 ascii \n\
+const std::string INVENTOR_HEADER="#Inventor V2.0 ascii \n\
 \n\
 Separator { \n\
   Info { \n\
@@ -40,17 +40,20 @@ Separator { \n\
       point [ \n\
 ";
 
-const std::string inventor_mid="      ] \n\
+const std::string INVENTOR_MID="      ] \n\
     } \n\
     IndexedFaceSet { \n\
       coordIndex [ \n\
 ";
 
-const std::string inventor_footer="      ] \n\
+const std::string INVENTOR_FOOTER="      ] \n\
     } \n\
   } \n\
 } \n\
 ";
+
+
+
 class InventorVoronoiWriter
 {
 protected:
@@ -73,6 +76,9 @@ public:
         delete mpOutputFileHandler;
     }
     
+    /**
+     *  Write the voronoi tessellation in Inventor format
+     */
     void Write(const VoronoiTessellation& rTessellation)
     {
         // open inventor file
@@ -81,7 +87,7 @@ public:
         
         // write out header part of file      
 
-        *p_file << inventor_header;
+        *p_file << INVENTOR_HEADER;
         
         // write out vertices
         // and construct map from pointer to vertex to vertex number
@@ -97,7 +103,7 @@ public:
             vertex_number_map[rTessellation.mVertices[vertex_number]]=vertex_number;
         }
         
-        *p_file << inventor_mid;
+        *p_file << INVENTOR_MID;
         
         // write out faces;
         
@@ -117,10 +123,13 @@ public:
             }
             *p_file << "\n";
         }
-        *p_file << inventor_footer;
+        *p_file << INVENTOR_FOOTER;
     }
     
-    
+    /**
+     *  Scale the vertex of each cell toward the centre of that cell by the given scaleFactor
+     *  and write.
+     */
     void ScaleAndWrite(VoronoiTessellation& rTessellation, double scaleFactor)
     {
         if ((scaleFactor <= 0.0) || (scaleFactor > 1.0))
@@ -133,7 +142,7 @@ public:
         out_stream p_file = this->mpOutputFileHandler->OpenOutputFile(file_name);
         
         // write out header part of file      
-        *p_file << inventor_header;
+        *p_file << INVENTOR_HEADER;
         
         unsigned global_vertex_number = 0;
 
@@ -188,16 +197,19 @@ public:
                 // add the vertex data for this face to the store
                 new_faces_data.push_back( face_vertex_data );
             }
+            
+            // store how many faces were in this cell
             number_faces_per_cell.push_back(r_cell.mFaces.size());
         }
 
         unsigned index=0;
-        
+
+        // write the face info
         for(unsigned i=0; i<number_faces_per_cell.size(); i++)
         {
             if(number_faces_per_cell[i]>0)
             {
-                *p_file << inventor_mid;
+                *p_file << INVENTOR_MID;
 
                 for(unsigned j=0; j<number_faces_per_cell[i]; j++)
                 {
@@ -213,7 +225,7 @@ public:
             }
         }
 
-        *p_file << inventor_footer;
+        *p_file << INVENTOR_FOOTER;
     }
 };
 

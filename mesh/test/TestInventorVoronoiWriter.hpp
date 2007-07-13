@@ -97,7 +97,7 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/ScaledSimpleTet.iv mesh/test/data/InventorWriter/ScaledSimpleTet.iv").c_str()), 0);
     }
 
-
+    // note that this is a different mesh to the non-scaled 'Complex' test
     void TestScaleAndWriteComplex() throw (Exception)
     {
         // Create conforming tetrahedral mesh which is Delaunay
