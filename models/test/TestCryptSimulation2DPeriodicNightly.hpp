@@ -300,7 +300,7 @@ public:
     // to 24.0 and it will look like a parallelogram.
     // However we keep the simulation time at 1.0 to make
     // the test short.
-    void NO_Test2DSpringSystem() throw (Exception)
+    void Test2DSpringSystem() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -365,7 +365,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void NO_Test2DHoneycombMeshNotPeriodic() throw (Exception)
+    void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -411,7 +411,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void NO_TestMonolayer() throw (Exception)
+    void TestMonolayer() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -456,7 +456,7 @@ public:
     // differentiated, check the number of cells at the end of the
     // simulation is as expected.
     //////////////////////////////////////////////////////////////////
-    void NO_Test2DCorrectCellNumbers() throw (Exception)
+    void Test2DCorrectCellNumbers() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -574,7 +574,7 @@ public:
 // 
 ////////////////////////////////////////////////////////////////////////////
     
-    void NO_Test2DPeriodicNightly() throw (Exception)
+    void Test2DPeriodicNightly() throw (Exception)
     {        
         CancerParameters::Instance()->Reset();
 
@@ -666,8 +666,8 @@ public:
         // (if we do then the boundaries are probably working!)
 
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 95u);
-        TS_ASSERT_EQUALS(number_of_nodes, 137u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 96u);
+        TS_ASSERT_EQUALS(number_of_nodes, 138u);
         
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
@@ -675,7 +675,7 @@ public:
     }
     
    
-    void NO_TestWithMutantCellsUsingDifferentViscosities() throw (Exception)
+    void TestWithMutantCellsUsingDifferentViscosities() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -766,7 +766,7 @@ public:
     
 
     
-    void NO_TestRandomDeathWithPeriodicMesh() throw (Exception)
+    void TestRandomDeathWithPeriodicMesh() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
         unsigned cells_across = 7;
@@ -811,7 +811,7 @@ public:
   
     // Sloughing with a sloughing cell killer and not turning into ghost nodes
     // on a non-periodic mesh
-    void NO_TestSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
+    void TestSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
 
@@ -851,7 +851,7 @@ public:
     }
 
 
-    void NO_TestSloughingDeathWithPeriodicMesh() throw (Exception)
+    void TestSloughingDeathWithPeriodicMesh() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
 
@@ -908,7 +908,7 @@ public:
     }
 
 
-    void NO_TestWithMultipleCellKillers() throw (Exception)
+    void TestWithMultipleCellKillers() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
 
