@@ -21,7 +21,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     mStoppingEventOccured = false;
     if ( pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true )
     {
-        EXCEPTION("Stopping event is true for initial condition");
+        EXCEPTION("(Solve with sampling) Stopping event is true for initial condition");
     } 
     TimeStepper stepper(startTime, endTime, timeSampling);
 
@@ -69,7 +69,7 @@ void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     mStoppingEventOccured = false;
     if ( pOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true )
     {
-        EXCEPTION("Stopping event is true for initial condition");
+        EXCEPTION("(Solve without sampling) Stopping event is true for initial condition");
     }
     
     // Allocate working memory

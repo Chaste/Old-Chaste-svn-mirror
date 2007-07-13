@@ -91,7 +91,9 @@ private :
         TS_ASSERT_EQUALS(rSolver.StoppingEventOccured(), true);
         
         // This is to cover the exception when a stopping event occurs before the first timestep.
-        TS_ASSERT_THROWS_ANYTHING(rSolver.Solve(&ode_with_events, state_variables, 2.0, 3.0, 0.001, 0.001));
+        TS_ASSERT_THROWS_ANYTHING(
+            rSolver.Solve(&ode_with_events, state_variables, 2.0, 3.0, 0.001)
+        );
         ///////////////////////////////////////////////
         // repeat with sampling time larger than dt
         ///////////////////////////////////////////////
@@ -126,7 +128,7 @@ private :
     
 public:
 
-    void TestEulerSolver()
+    void TestEulerSolver() throw (Exception)
     {
         EulerIvpOdeSolver euler_solver;
         
