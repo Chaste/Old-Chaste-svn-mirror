@@ -11,7 +11,7 @@
 class VoronoiCell
 {
 public:
-
+    ///\todo Why are these public?
     /***
      * Faces of the cell, which should be distinct.
      */
@@ -26,10 +26,12 @@ public:
      * across the two cells.
      */
     std::vector< bool > mOrientations;
-
+    c_vector<double,3> mCellCentre;
+    
 private:
     bool EqualFaces(Face& face1, bool orientation1, Face& face2, bool orientation2);
-
+    
+    
 public:
 
     /***
@@ -38,6 +40,7 @@ public:
      * Two cells are equal if their set of faces are equal (including whether the faces have the same orientations).
      */
     bool operator==(VoronoiCell& otherCell);
+    c_vector<double, 3>& rGetVoronoiCellCentre();
 };
 
 #endif /*VORONOICELL_HPP_*/

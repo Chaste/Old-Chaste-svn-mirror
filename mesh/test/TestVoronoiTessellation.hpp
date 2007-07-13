@@ -166,6 +166,12 @@ public:
                 TS_ASSERT_EQUALS(cell_index, 4u);
                 // this gives the expected cell
                 TS_ASSERT_EQUALS(tessellation.rGetCell(cell_index), cell);
+                
+                VoronoiCell cell = tessellation.rGetCell(cell_index);
+                // there will only be one non-boundary cell so we know what the position is.
+                TS_ASSERT_DELTA(cell.rGetVoronoiCellCentre()[0], 0.5,1e-5);
+                TS_ASSERT_DELTA(cell.rGetVoronoiCellCentre()[1], 0.5,1e-5);
+                TS_ASSERT_DELTA(cell.rGetVoronoiCellCentre()[2], 0.5,1e-5);
             }
         }
     }

@@ -45,3 +45,8 @@ bool VoronoiCell::operator==(VoronoiCell& otherCell)
     }
     return true;
 };
+
+c_vector<double, 3>& VoronoiCell::rGetVoronoiCellCentre()
+{
+    return mCellCentre;
+};

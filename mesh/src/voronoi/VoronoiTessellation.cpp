@@ -82,11 +82,13 @@ VoronoiTessellation::VoronoiTessellation(ConformingTetrahedralMesh<3,3>& rMesh)
             {
                 mVoronoiCells[p_node_a->GetIndex()].mFaces.push_back(p_face);
                 mVoronoiCells[p_node_a->GetIndex()].mOrientations.push_back(true);
+                mVoronoiCells[p_node_a->GetIndex()].mCellCentre = p_node_a->rGetLocation();
             }
             if (!p_node_b->IsBoundaryNode())
             {
                 mVoronoiCells[p_node_b->GetIndex()].mFaces.push_back(p_face);
                 mVoronoiCells[p_node_b->GetIndex()].mOrientations.push_back(false);
+                mVoronoiCells[p_node_b->GetIndex()].mCellCentre = p_node_b->rGetLocation();
             }
         }
     }
