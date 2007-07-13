@@ -139,6 +139,7 @@ public:
 
         // the face data which will be written to file afterwards
         std::vector<std::vector<unsigned> > new_faces_data;
+        std::vector<unsigned> number_faces_per_cell;
         
         // loop over cells and write out scaled vertices for each one, storing face info as we go
         for (unsigned cell_index = 0; cell_index<rTessellation.mVoronoiCells.size(); cell_index++)
@@ -186,27 +187,30 @@ public:
 
                 // add the vertex data for this face to the store
                 new_faces_data.push_back( face_vertex_data );
-
-//                for(uint j=0; j<face_vertex_data.size(); j++)
-//                {
-//                     std::cout << face_vertex_data[j] << " ";
-//                }
-//                std::cout << "\n";
-
             }
+            number_faces_per_cell.push_back(r_cell.mFaces.size());
         }
 
-        *p_file << inventor_mid;
-
+        unsigned index=0;
         
-        for(unsigned i=0; i<new_faces_data.size(); i++)
+        for(unsigned i=0; i<number_faces_per_cell.size(); i++)
         {
-            *p_file << "        ";
-            for(uint j=0; j<new_faces_data[i].size(); j++)
+            if(number_faces_per_cell[i]>0)
             {
-                *p_file << new_faces_data[i][j] << ", ";
+                *p_file << inventor_mid;
+
+                for(unsigned j=0; j<number_faces_per_cell[i]; j++)
+                {
+                    *p_file << "        ";
+                    assert(index<new_faces_data.size());
+                    for(unsigned k=0; k<new_faces_data[index].size(); k++)
+                    {
+                        *p_file << new_faces_data[index][k] << ", ";
+                    }
+                    *p_file << "\n";
+                    index++;
+                }
             }
-            *p_file << "\n";
         }
 
         *p_file << inventor_footer;

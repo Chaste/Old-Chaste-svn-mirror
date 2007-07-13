@@ -110,7 +110,7 @@ public:
         VoronoiTessellation tessellation(mesh);
         
         InventorVoronoiWriter inventor_writer("InventorWriter", "ScaledComplex");
-        inventor_writer.ScaleAndWrite(tessellation,0.05);
+        inventor_writer.ScaleAndWrite(tessellation,0.5);
         
         // then compare against known good file
         OutputFileHandler handler("InventorWriter",false);
