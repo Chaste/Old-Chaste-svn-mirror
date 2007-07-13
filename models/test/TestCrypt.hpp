@@ -19,6 +19,22 @@ class TestCrypt : public CxxTest::TestSuite
 private: 
     // test construction (without ghost nodes), accessors and iterator
     template<unsigned DIM>
+    std::vector<MeinekeCryptCell> SetUpCells(ConformingTetrahedralMesh<DIM,DIM>* pMesh)
+    {
+        std::vector<MeinekeCryptCell> cells;
+        for(unsigned i=0; i<pMesh->GetNumNodes(); i++)
+        {
+            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+            double birth_time = 0.0-i;
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+        
+        return cells;
+    }
+    
+    template<unsigned DIM>
     void TestSimpleCrypt(std::string meshFilename)
     {
         // set up the simulation time object so the cells can be created
@@ -32,21 +48,13 @@ private:
         
         // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
-        std::vector<MeinekeCryptCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
-            double birth_time = 0.0-i;
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-        
+        std::vector<MeinekeCryptCell> cells = SetUpCells<DIM>(&mesh);
+
         // create the crypt
-        Crypt<DIM> crypt(mesh, cells);
+        Crypt<DIM> crypt(mesh,cells);
         
         TS_ASSERT_EQUALS(crypt.rGetMesh().GetNumNodes(), mesh.GetNumNodes());
-        TS_ASSERT_EQUALS(crypt.rGetCells().size(), cells.size());
+        TS_ASSERT_EQUALS(crypt.rGetCells().size(),cells.size());
         
         unsigned counter = 0;
         for (typename Crypt<DIM>::Iterator cell_iter = crypt.Begin();
@@ -104,15 +112,7 @@ public:
         
         // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
-        std::vector<MeinekeCryptCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
-            double birth_time = 0.0-i;
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
+        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
         cells[0].SetNodeIndex(1);
 
 		// fails as no cell or ghost correponding to node 0        
@@ -137,15 +137,8 @@ public:
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
-        std::vector<MeinekeCryptCell> cells;
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(0);
-            cells.push_back(cell);
-        }
-        
+        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(p_mesh);
+
         // create a crypt, with no ghost nodes at the moment
         Crypt<2> crypt(*p_mesh,cells);
 
@@ -200,15 +193,8 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        // Set up cells
-        std::vector<MeinekeCryptCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(0);
-            cells.push_back(cell);
-        }
+        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
+
         // create a crypt, with no ghost nodes at the moment
         Crypt<2> crypt(mesh, cells);
 
@@ -273,14 +259,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Set up cells
-        std::vector<MeinekeCryptCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(0);
-            cells.push_back(cell);
-        }
+        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
         
         cells[27].StartApoptosis();
         
@@ -351,15 +330,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Set up cells
-        std::vector<MeinekeCryptCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(0);
-            cells.push_back(cell);
-        }
-        
+        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
         cells[27].StartApoptosis();
         
         // create a crypt, with some random ghost nodes
@@ -394,7 +365,6 @@ public:
         unsigned num_removed = crypt.RemoveDeadCells();
         TS_ASSERT_EQUALS(num_removed, 1u);
 
-
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(crypt.rGetCells().size(), 81u);
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 70u);
@@ -426,15 +396,7 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        // Set up cells
-        std::vector<MeinekeCryptCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(0);
-            cells.push_back(cell);
-        }
+        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
      
         Crypt<2> crypt(mesh,cells);
         
@@ -501,14 +463,7 @@ public:
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
-        std::vector<MeinekeCryptCell> cells;
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(0);
-            cells.push_back(cell);
-        }
+        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(p_mesh);
         
         // create a crypt, with no ghost nodes at the moment
         Crypt<2> crypt(*p_mesh,cells);
@@ -550,15 +505,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells
-        std::vector<MeinekeCryptCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(0);
-            cells.push_back(cell);
-        }
-        
+        std::vector<MeinekeCryptCell> cells = SetUpCells<3>(&mesh);
         // create a crypt, with no ghost nodes at the moment
         Crypt<3> crypt(mesh,cells);
         
@@ -634,16 +581,7 @@ public:
         
         // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
-        std::vector<MeinekeCryptCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
-            double birth_time = 0.0-i;
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-        
+        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
         // create the crypt
         Crypt<2> crypt(mesh, cells);
         
