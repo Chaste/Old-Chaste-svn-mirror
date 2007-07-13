@@ -8,9 +8,10 @@
 #include "CryptCellMutationStates.hpp"
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
-#include "FixedCellCycleModel.hpp"
 
 const unsigned MAX_TRANSIT_GENS = 4; // NOT USED ANYWHERE USEFUL AT PRESENT
+
+class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
 
 class MeinekeCryptCell
 {

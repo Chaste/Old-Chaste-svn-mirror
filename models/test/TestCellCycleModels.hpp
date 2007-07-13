@@ -35,53 +35,62 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(FixedCellCycleModel model3);
         
-        FixedCellCycleModel our_fixed_stem_cell_cycle_model;
-        our_fixed_stem_cell_cycle_model.SetCellType(STEM);
-        TS_ASSERT_EQUALS(our_fixed_stem_cell_cycle_model.GetCellType(),STEM);
-        TS_ASSERT_EQUALS(our_fixed_stem_cell_cycle_model.UpdateCellType(),STEM);
+        FixedCellCycleModel* p_our_fixed_stem_cell_cycle_model = new FixedCellCycleModel;
+        MeinekeCryptCell stem_cell(STEM, // type
+                           HEALTHY,//Mutation State
+                           0,  // generation
+                           p_our_fixed_stem_cell_cycle_model);
+                           
+        TS_ASSERT_EQUALS(p_our_fixed_stem_cell_cycle_model->UpdateCellType(),STEM);
         
-        FixedCellCycleModel our_fixed_transit_cell_cycle_model;
-        our_fixed_transit_cell_cycle_model.SetCellType(TRANSIT);
-        TS_ASSERT_EQUALS(our_fixed_transit_cell_cycle_model.UpdateCellType(),TRANSIT);
+        FixedCellCycleModel* p_our_fixed_transit_cell_cycle_model = new FixedCellCycleModel;
+        MeinekeCryptCell transit_cell(TRANSIT, // type
+                           HEALTHY,//Mutation State
+                           0,  // generation
+                           p_our_fixed_transit_cell_cycle_model);
+        TS_ASSERT_EQUALS(p_our_fixed_transit_cell_cycle_model->UpdateCellType(),TRANSIT);
         
-        FixedCellCycleModel our_fixed_diff_cell_cycle_model;
-        our_fixed_diff_cell_cycle_model.SetCellType(DIFFERENTIATED);
-        TS_ASSERT_EQUALS(our_fixed_diff_cell_cycle_model.UpdateCellType(),DIFFERENTIATED);
+        FixedCellCycleModel* p_our_fixed_diff_cell_cycle_model = new FixedCellCycleModel;
+        MeinekeCryptCell diff_cell(DIFFERENTIATED, // type
+                           HEALTHY,//Mutation State
+                           0,  // generation
+                           p_our_fixed_diff_cell_cycle_model);
+        TS_ASSERT_EQUALS(p_our_fixed_diff_cell_cycle_model->UpdateCellType(),DIFFERENTIATED);
         
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
-            //std::cout << "Time = " << time << " cell age = " << our_fixed_stem_cell_cycle_model.GetAge() << "\n";
+            //std::cout << "Time = " << time << " cell age = " << *p_our_fixed_stem_cell_cycle_model.GetAge() << "\n";
             // Test STEM cells
             if (time<p_params->GetStemCellCycleTime())
             {
-                TS_ASSERT(!our_fixed_stem_cell_cycle_model.ReadyToDivide());
+                TS_ASSERT(!p_our_fixed_stem_cell_cycle_model->ReadyToDivide());
                 //std::cout << "No stem division.\n";
             }
             else
             {
-                TS_ASSERT(our_fixed_stem_cell_cycle_model.ReadyToDivide());
+                TS_ASSERT(p_our_fixed_stem_cell_cycle_model->ReadyToDivide());
                 //std::cout << "Stem Division.\n";
             }
             // Test a Transit Cell
             if (time<p_params->GetTransitCellCycleTime())
             {
-                TS_ASSERT(!our_fixed_transit_cell_cycle_model.ReadyToDivide());
+                TS_ASSERT(!p_our_fixed_transit_cell_cycle_model->ReadyToDivide());
                 //std::cout << "No transit division.\n";
             }
             else
             {
-                TS_ASSERT(our_fixed_transit_cell_cycle_model.ReadyToDivide());
+                TS_ASSERT(p_our_fixed_transit_cell_cycle_model->ReadyToDivide());
                 //std::cout << "Transit Division.\n";
             }
             // Test a DIFFERENTIATED cell
-            TS_ASSERT(!our_fixed_diff_cell_cycle_model.ReadyToDivide());
+            TS_ASSERT(!p_our_fixed_diff_cell_cycle_model->ReadyToDivide());
         }
         
-        TS_ASSERT_DELTA(our_fixed_stem_cell_cycle_model.GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
-        TS_ASSERT_DELTA(our_fixed_transit_cell_cycle_model.GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
-        TS_ASSERT_DELTA(our_fixed_diff_cell_cycle_model.GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
+        TS_ASSERT_DELTA(p_our_fixed_stem_cell_cycle_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
+        TS_ASSERT_DELTA(p_our_fixed_transit_cell_cycle_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
+        TS_ASSERT_DELTA(p_our_fixed_diff_cell_cycle_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
         SimulationTime::Destroy();
     }
     
@@ -102,7 +111,11 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(StochasticCellCycleModel cell_model3);
         
-        StochasticCellCycleModel cell_model;
+        StochasticCellCycleModel* p_cell_model = new StochasticCellCycleModel;
+        MeinekeCryptCell cell(TRANSIT, // type
+                           HEALTHY,//Mutation State
+                           0,  // generation
+                           p_cell_model);
         
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
@@ -110,26 +123,26 @@ public:
             double time = p_simulation_time->GetDimensionalisedTime();
             //std::cout << "Time = " << time << " cell age = " << our_fixed_stem_cell_cycle_model.GetAge() << "\n";
             // Test STEM cells
-            cell_model.SetCellType(STEM);
+            cell.SetCellType(STEM);
             if (time<p_params->GetStemCellCycleTime())
             {
-                TS_ASSERT(!cell_model.ReadyToDivide());
+                TS_ASSERT(!p_cell_model->ReadyToDivide());
                 //std::cout << "No stem division.\n";
             }
             else
             {
-                TS_ASSERT(cell_model.ReadyToDivide());
+                TS_ASSERT(p_cell_model->ReadyToDivide());
                 //std::cout << "Stem Division.\n";
             }
             // Test Transit cells - new random number each time they are asked to divide...
             // shouldn't it be done so that they are given a random time when created?
             // Otherwise division time depends upon how often they are asked!
-            cell_model.SetCellType(TRANSIT);
+            cell.SetCellType(TRANSIT);
             const unsigned TESTS = 100;
             unsigned ready_count = 0;
             for (unsigned i=0; i<TESTS; i++)
             {
-                if (cell_model.ReadyToDivide())
+                if (p_cell_model->ReadyToDivide())
                 {
                     ready_count++;
                 }
@@ -692,6 +705,7 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "fixed.arch";
         
+        
         // Create an ouput archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -700,7 +714,6 @@ public:
             FixedCellCycleModel model;
             p_simulation_time->IncrementTimeOneStep();
             
-            model.SetCellType(TRANSIT);
             model.SetBirthTime(-1.0);
             
             std::ofstream ofs(archive_filename.c_str());
@@ -718,7 +731,6 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
             
             FixedCellCycleModel model;
-            model.SetCellType(STEM);
             model.SetBirthTime(-2.0);
             
             
@@ -732,7 +744,6 @@ public:
             
             // Check
             TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
-            TS_ASSERT_EQUALS(model.GetCellType(),TRANSIT);
             TS_ASSERT_DELTA(model.GetAge(),1.5,1e-12);
             
             SimulationTime::Destroy();
@@ -757,8 +768,6 @@ public:
             
             StochasticCellCycleModel model;
             p_simulation_time->IncrementTimeOneStep();
-            
-            model.SetCellType(TRANSIT);
             model.SetBirthTime(-1.0);
             
             std::ofstream ofs(archive_filename.c_str());
@@ -783,7 +792,6 @@ public:
             p_gen->Reseed(36);
             
             StochasticCellCycleModel model;
-            model.SetCellType(STEM);
             model.SetBirthTime(-2.0);
             
             
@@ -801,7 +809,6 @@ public:
             
             // Check
             TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
-            TS_ASSERT_EQUALS(model.GetCellType(),TRANSIT);
             TS_ASSERT_DELTA(model.GetAge(),1.5,1e-12);
             TS_ASSERT_DELTA(p_gen->ranf(),random_number_test,1e-7);
             
@@ -830,7 +837,6 @@ public:
             
             TS_ASSERT_EQUALS(model.ReadyToDivide(),true);
             
-            model.SetCellType(TRANSIT);
             model.SetBirthTime(-1.0);
             
             std::ofstream ofs(archive_filename.c_str());
@@ -848,7 +854,6 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
             
             TysonNovakCellCycleModel model;
-            model.SetCellType(STEM);
             model.SetBirthTime(-2.0);
             
             
@@ -863,7 +868,6 @@ public:
             // Check
             TS_ASSERT_EQUALS(model.ReadyToDivide(),true);
             TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
-            TS_ASSERT_EQUALS(model.GetCellType(),TRANSIT);
             TS_ASSERT_DELTA(model.GetAge(),101.0,1e-12);
             SimulationTime::Destroy();
         }
@@ -892,7 +896,6 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             TS_ASSERT_EQUALS(model.ReadyToDivide(cell_cycle_influence),true);
             
-            model.SetCellType(TRANSIT);
             model.SetBirthTime(-1.0);
             
             std::ofstream ofs(archive_filename.c_str());
@@ -915,7 +918,6 @@ public:
             inst1->SetSG2MDuration(101.0);
             
             WntCellCycleModel model(0.0);
-            model.SetCellType(STEM);
             model.SetBirthTime(-2.0);
             
             
@@ -934,7 +936,6 @@ public:
             cell_cycle_influence.push_back(0.0);
             TS_ASSERT_EQUALS(model.ReadyToDivide(cell_cycle_influence),true);
             TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
-            TS_ASSERT_EQUALS(model.GetCellType(),TRANSIT);
             TS_ASSERT_DELTA(model.GetAge(),17.0,1e-12);
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
             SimulationTime::Destroy();

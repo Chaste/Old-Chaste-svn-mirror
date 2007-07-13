@@ -37,7 +37,7 @@ bool FixedCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
     CancerParameters *p_params = CancerParameters::Instance();
     double timeSinceBirth = GetAge();
     
-    switch (mCellType)
+    switch (mpCell->GetCellType())
     {
         case STEM:
             ready = timeSinceBirth >= p_params->GetStemCellCycleTime();

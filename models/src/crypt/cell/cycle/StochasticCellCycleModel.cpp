@@ -39,7 +39,7 @@ bool StochasticCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
     
     double timeSinceBirth = GetAge();
     
-    switch (mCellType)
+    switch (mpCell->GetCellType())
     {
         case STEM:
             ready = (timeSinceBirth >= p_params->GetStemCellCycleTime());

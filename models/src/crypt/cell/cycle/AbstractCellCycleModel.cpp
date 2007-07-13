@@ -6,21 +6,28 @@
 //BOOST_CLASS_EXPORT(AbstractCellCycleModel)
 
 AbstractCellCycleModel::~AbstractCellCycleModel()
-{}
-
-void AbstractCellCycleModel::SetCellType(CryptCellType cellType)
 {
-    mCellType = cellType;
+    //delete mpCell;
 }
 
-CryptCellType AbstractCellCycleModel::GetCellType()
+void AbstractCellCycleModel::SetCell(MeinekeCryptCell* pCell)
 {
-    return mCellType;
+    mpCell=pCell;
 }
+// to go once wnt is refactored
+//void AbstractCellCycleModel::SetCellType(CryptCellType cellType)
+//{
+//    mCellType = cellType;
+//}
+//
+//CryptCellType AbstractCellCycleModel::GetCellType()
+//{
+//    return mpCell->GetCellType();
+//}
 
 CryptCellType AbstractCellCycleModel::UpdateCellType()
 {   // This doesn't do anything in most classes, overwritten in others.
-    return mCellType;
+    return mpCell->GetCellType();
 }
 
 double AbstractCellCycleModel::GetBirthTime()

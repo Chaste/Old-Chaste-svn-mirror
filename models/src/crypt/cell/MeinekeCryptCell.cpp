@@ -19,11 +19,11 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
     mGeneration=generation;
     mCellType=cellType;
     mMutationState = mutationState;
-    mpCellCycleModel->SetCellType(cellType);
     mCanDivide = false;
     mUndergoingApoptosis = false;
     mIsDead = false;
     mDeathTime = DBL_MAX; // this has to be initialised for archiving...
+    mpCellCycleModel->SetCell(this);
 }
 
 void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
@@ -43,6 +43,7 @@ void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
     mpCellCycleModel = other_cell.mpCellCycleModel->CreateCellCycleModel();
     // Then copy its state
     *mpCellCycleModel = *(other_cell.mpCellCycleModel);
+    mpCellCycleModel->SetCell(this);
     
 }
 
@@ -79,7 +80,7 @@ void MeinekeCryptCell::SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel
         delete mpCellCycleModel;
     }
     mpCellCycleModel = pCellCycleModel;
-    mpCellCycleModel->SetCellType(mCellType);
+    mpCellCycleModel->SetCell(this);
 }
 
 AbstractCellCycleModel *MeinekeCryptCell::GetCellCycleModel() const
@@ -131,7 +132,6 @@ CryptCellMutationState MeinekeCryptCell::GetMutationState() const
 void MeinekeCryptCell::SetCellType(CryptCellType cellType)
 {
     mCellType = cellType;
-    mpCellCycleModel->SetCellType(mCellType);
 }
 
 void MeinekeCryptCell::SetMutationState(CryptCellMutationState mutationState)
@@ -258,7 +258,6 @@ MeinekeCryptCell MeinekeCryptCell::Divide()
         {
             mGeneration++;
             mCellType = DIFFERENTIATED;
-            mpCellCycleModel->SetCellType(mCellType);
             mpCellCycleModel->ResetModel();// Cell goes back to age zero
             return MeinekeCryptCell(DIFFERENTIATED, mMutationState, mGeneration,
                                     mpCellCycleModel->CreateCellCycleModel());

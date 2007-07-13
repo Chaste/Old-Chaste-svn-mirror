@@ -7,10 +7,13 @@
 
 #include "MeinekeCryptCellTypes.hpp"
 #include "SimulationTime.hpp"
+#include "MeinekeCryptCell.hpp"
 #include <vector>
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
+
+class MeinekeCryptCell; // Circular definition (cells need to know about cycle models and vice-versa).
 
 class AbstractCellCycleModel
 {
@@ -19,14 +22,14 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & mCellType;
         archive & mBirthTime;
         // Make sure the simulation time gets saved too
         SimulationTime* p_time = SimulationTime::Instance();
         archive & *p_time;
+        //archive & mpCell;     // we might get away with this.
     }
 protected:
-    CryptCellType mCellType;
+    MeinekeCryptCell* mpCell;
     double mBirthTime; // Time to start model from
     
 public:
@@ -35,12 +38,14 @@ public:
      */
     virtual ~AbstractCellCycleModel();
     
-    /**
-     * Set the cell's type.
-     * 
-     * @param cellType the type of cell defined in MeinekeCryptCellTypes.hpp
-     */
-    void SetCellType(CryptCellType cellType);
+    void SetCell(MeinekeCryptCell* pCell);
+    
+//    /**
+//     * Set the cell's type.
+//     * 
+//     * @param cellType the type of cell defined in MeinekeCryptCellTypes.hpp
+//     */
+//    void SetCellType(CryptCellType cellType);
     
     /**
      * Refreshes the cell's type using cell cycle information.
@@ -49,12 +54,12 @@ public:
      */
     virtual CryptCellType UpdateCellType();
     
-    /**
-     * Set the cell's type.
-     * 
-     * @param cellType the type of cell defined in MeinekeCryptCellTypes.hpp
-     */
-    CryptCellType GetCellType();
+//    /**
+//     * Set the cell's type.
+//     * 
+//     * @param cellType the type of cell defined in MeinekeCryptCellTypes.hpp
+//     */
+//    CryptCellType GetCellType();
     
     
     /**

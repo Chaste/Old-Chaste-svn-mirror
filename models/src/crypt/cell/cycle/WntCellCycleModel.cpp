@@ -219,13 +219,11 @@ CryptCellType WntCellCycleModel::UpdateCellType()
     {
         cell_type = DIFFERENTIATED;
     }
-        
-    mCellType = cell_type;
-    return mCellType;
+    return cell_type;
 }
 
 double WntCellCycleModel::GetWntSG2MDuration()
-{
+{   //overwritten in subclass StochasticWntCellCycleModel
     return CancerParameters::Instance()->GetSG2MDuration();
 }
 
