@@ -197,16 +197,22 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetCrypt(),0.01);
         simulator.AddCellKiller(p_cell_killer);
         
+        // UNUSUAL SET UP HERE
+        
         p_params->SetDampingConstantNormal(1.0);    // normally 1
 
         // Do not give mutant cells any different movement properties to normal ones
         p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
         
-        p_params->SetSpringStiffness(15.0); //normally 15.0;
+        p_params->SetSpringStiffness(30.0); //normally 15.0;
         // 0.3/30 = 0.01 (i.e. Meineke's values)
         
+        simulator.UseNonFlatBottomSurface();
+        
+        // END OF UNUSUAL SET UP!
+        
         simulator.Solve();
-        simulator.Save();    
+           
         
         // set a cell to be labelled (a stemish cell)
         simulator.rGetCrypt().rGetCellAtNodeIndex(37).SetMutationState(LABELLED);
@@ -214,7 +220,8 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         simulator.rGetCrypt().rGetCellAtNodeIndex(39).SetMutationState(LABELLED);
         simulator.rGetCrypt().rGetCellAtNodeIndex(40).SetMutationState(LABELLED);
         simulator.rGetCrypt().rGetCellAtNodeIndex(41).SetMutationState(LABELLED);
-        simulator.rGetCrypt().rGetCellAtNodeIndex(319).SetMutationState(LABELLED);
+        
+        simulator.Save(); 
 
         for (double t=50; t<450.5; t += 50)
         {
