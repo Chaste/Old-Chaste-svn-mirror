@@ -655,6 +655,8 @@ public:
     
     void TestStochasticWntCellCycleModel() throw (Exception)
     {
+        RandomNumberGenerator::Instance()->Reseed(0);
+        
         int num_timesteps = 100;
         double wnt_level = 1.0;
         double mutation = 0.0;
@@ -695,13 +697,14 @@ public:
         }
         
         SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
     
     void TestArchiveFixedCellCycleModels() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
         
-        OutputFileHandler handler("archive");
+        OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "fixed.arch";
         
@@ -754,7 +757,7 @@ public:
     {
         CancerParameters::Instance()->Reset();
 
-        OutputFileHandler handler("archive");
+        OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "stoch_cycle.arch";
         
@@ -823,7 +826,7 @@ public:
     {
         CancerParameters::Instance()->Reset();
 
-        OutputFileHandler handler("archive");
+        OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "tyson_novak.arch";
         
@@ -877,7 +880,7 @@ public:
     {
         CancerParameters::Instance()->Reset();
 
-        OutputFileHandler handler("archive");
+        OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "wnt.arch";
         
@@ -941,6 +944,112 @@ public:
             SimulationTime::Destroy();
         }
     }    
+    
+    void TestArchiveStochasticWntCellCycleModels()
+    {
+        CancerParameters::Instance()->Reset();
+        RandomNumberGenerator::Instance()->Reseed(0);   // reset at beginning of this test.
+        // In this case the first cycle time will be 5.971+9.0676 = 15.0386
+        // note that the S-G2-M time is assigned when the cell finishes G1
+        //(i.e. at time 5.971 here so the model has to be archived BEFORE that.
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "stochastic_wnt.arch";
+        
+        // Create an ouput archive
+        {   // In this test the RandomNumberGenerator in existence 
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 1000);
+            
+            StochasticWntCellCycleModel stoc_model(1.0);
+            WntCellCycleModel wnt_model(1.0);
+            p_simulation_time->IncrementTimeOneStep();// 5.5
+            std::vector<double> cell_cycle_influence;
+            cell_cycle_influence.push_back(1.0);
+            cell_cycle_influence.push_back(0.0);
+            while (p_simulation_time->GetDimensionalisedTime() < 4.0)
+            {
+                p_simulation_time->IncrementTimeOneStep();   
+            }
+            TS_ASSERT_EQUALS(stoc_model.ReadyToDivide(cell_cycle_influence),false);
+            TS_ASSERT_EQUALS(wnt_model.ReadyToDivide(cell_cycle_influence),false);
+            // When these are included here they pass - so are moved down into 
+            // after load to see if they still pass.
+            
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
+            output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
+            output_arch << static_cast<const StochasticWntCellCycleModel&>(stoc_model);
+            output_arch << static_cast<const WntCellCycleModel&>(wnt_model);
+            
+            SimulationTime::Destroy();
+        }
+        
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 2);
+            
+            CancerParameters *inst1 = CancerParameters::Instance();
+            
+            inst1->SetSG2MDuration(101.0);
+            
+            StochasticWntCellCycleModel stoc_model(0.0);
+            WntCellCycleModel wnt_model(0.0);
+            stoc_model.SetBirthTime(+4.0);
+            
+            std::vector<double> cell_cycle_influence1;
+            cell_cycle_influence1.push_back(1.0);
+            cell_cycle_influence1.push_back(0.0);
+            
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            // restore from the archive
+            input_arch >> *p_simulation_time;
+            input_arch >> *inst1;
+            input_arch >> stoc_model;
+            input_arch >> wnt_model;
+            
+            // Check - stochastic should divide at 15.03
+            // Wnt should divide at 15.971
+            std::vector<double> cell_cycle_influence;
+            cell_cycle_influence.push_back(1.0);
+            cell_cycle_influence.push_back(0.0);
+            
+            while (p_simulation_time->GetDimensionalisedTime() < 15.0)
+            {
+                p_simulation_time->IncrementTimeOneStep();   
+            }
+            TS_ASSERT_EQUALS(stoc_model.ReadyToDivide(cell_cycle_influence),false);
+            TS_ASSERT_EQUALS(wnt_model.ReadyToDivide(cell_cycle_influence),false);
+            
+            while (p_simulation_time->GetDimensionalisedTime() < 15.5)
+            {
+                p_simulation_time->IncrementTimeOneStep();   
+            }
+            TS_ASSERT_EQUALS(stoc_model.ReadyToDivide(cell_cycle_influence),true);// only for stochastic
+            TS_ASSERT_EQUALS(wnt_model.ReadyToDivide(cell_cycle_influence),false);
+            
+            while (p_simulation_time->GetDimensionalisedTime() < 16.0)
+            {
+                p_simulation_time->IncrementTimeOneStep();   
+            }
+            TS_ASSERT_EQUALS(stoc_model.ReadyToDivide(cell_cycle_influence),true);
+            TS_ASSERT_EQUALS(wnt_model.ReadyToDivide(cell_cycle_influence),true);
+            
+            TS_ASSERT_DELTA(stoc_model.GetBirthTime(),0.0,1e-12);
+            TS_ASSERT_DELTA(stoc_model.GetAge(),16.0,1e-12);
+            TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
+            SimulationTime::Destroy();
+        }
+        RandomNumberGenerator::Destroy();
+    }    
+    
 };
 
 #endif /*TESTCELLCYCLEMODELS_HPP_*/

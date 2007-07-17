@@ -796,12 +796,6 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
     input_arch >> *p_simulation_time;
     TissueSimulation<DIM>* p_sim;
     input_arch >> p_sim;
-
-//    // Re-initialise the mesh
-//    p_sim->rGetCrypt().rGetMesh().Clear();
-//    TrianglesMeshReader<DIM,DIM> mesh_reader(mesh_filename);
-//    p_sim->rGetCrypt().rGetMesh().ConstructFromMeshReader(mesh_reader);
-    
     
     if (p_sim->rGetCrypt().rGetMesh().GetNumNodes()!=p_sim->rGetCrypt().rGetCells().size())
     {
