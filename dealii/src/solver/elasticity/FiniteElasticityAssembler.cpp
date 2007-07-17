@@ -842,7 +842,7 @@ void FiniteElasticityAssembler<DIM>::WriteOutput(unsigned counter, bool writeDef
     // NOTE: we don't print out every all of 
     // mDeformedPosition[i](index) because for some values of index, 
     // it will correspond to a non-active node.
-    TriangulationVertexIterator<2> vertex_iter(this->mpMesh);
+    TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
     while (!vertex_iter.ReachedEnd())
     {
         unsigned index = vertex_iter.GetVertexGlobalIndex();
