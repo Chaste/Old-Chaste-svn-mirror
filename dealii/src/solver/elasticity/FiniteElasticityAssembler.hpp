@@ -4,14 +4,14 @@
 
 #include "AbstractDealiiAssembler.hpp"
 
-// speed notes:
-//  - don't use Tensor<4,DIM>, use double[][][][] - factor of about 2 difference
-//  - compile using OPTIMISATION!!!!!! - factor of about 200 difference when
-//     assembling system!!
-//  - make reused variables static rather then repeatedly creating them? or member
-//     variables. static may cause problems if a 2d sim is run then a 3d sim is run?
-//     or probably not.
-
+/* Some speed notes:
+ *  1. Don't use Tensor<4,DIM>, use double[][][][] - factor of about 2 difference
+ *  2. Compile using OPTIMISATION!! - factor of about 200 difference when
+ *     assembling system!
+ *  3. Make reused variables static rather then repeatedly creating them? or member
+ *     variables. static may cause problems if a 2d sim is run then a 3d sim is run?
+ *     or probably not.
+ */
 
 
 // TODO: better tests against other code. esp 2d or against other code using quadratics
@@ -21,8 +21,7 @@
 
 // choose newton tolerances better.
 
-// refactor (and test) writestresses
-// refactor writebasic 
+// refactor (and test) WriteStresses
 
 // nonzero neumann
 // refactor out the newton solver?
@@ -160,11 +159,6 @@ protected:
     void ApplyDirichletBoundaryConditions();
     
     /**
-     *  Output the current solution in the specified folder, with stamp 'counter'
-     */
-    void OutputResultsGMV(unsigned counter);
-    
-    /**
      *  Compute the L2 norm of the current residual vector divided by it's length.
      */
     double CalculateResidualNorm();
@@ -198,6 +192,17 @@ protected:
      */ 
     void DistributeDofs();
     
+    
+    /**
+     *  Output current deformed position to file (or the undeformed mesh, if the 
+     *  second parameter is set to false)
+     *  @counter A number to suffix the file. The output file will be 
+     *   <out_dir>/finiteelas_solution_<counter.[nodes/elem/undefnodes/undefelem]
+     *  @writeDeformed whether to write the deformed position or the undeformed
+     *   position, defaults to deformed
+     */
+    void WriteOutput(unsigned counter, bool writeDeformed=true);
+    
 public:
     /**
      *  Constructor
@@ -227,13 +232,10 @@ public:
     
     
     
-    //// this type of function doesn't really work
-    //void SetDisplacementBoundaryConditions(std::vector<unsigned> nodes,
-    //                                       std::vector<unsigned> coordinates,
-    //                                       std::vector<double>   values);
-    
-    //// this type of function doesn't really work
-    //void SetFixedNodes(std::vector<unsigned> nodes);
+    // Note: this type of function doesn't really work
+    // void SetDisplacementBoundaryConditions(std::vector<unsigned> nodes,
+    //                                        std::vector<unsigned> coordinates,
+    //                                        std::vector<double>   values);
     
     /**
      *  Setting boundary conditions is a hassle. Currently, assuming the 

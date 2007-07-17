@@ -111,7 +111,7 @@ public :
         
         TriangulationVertexIterator<2> vertex_iter(&mesh);
         
-        while (!vertex_iter.End())
+        while (!vertex_iter.ReachedEnd())
         {
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
@@ -165,7 +165,7 @@ public :
         Vector<double>& full_solution = finite_elasticity.rGetCurrentSolution();
         DoFHandler<2>& dof_handler = finite_elasticity.rGetDofHandler();
         DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
-        while (!vertex_iter.End())
+        while (!vertex_iter.ReachedEnd())
         {
             // get the pressure at this node
             double pressure = full_solution(vertex_iter.GetDof(2));
@@ -225,7 +225,7 @@ public :
         Vector<double>& solution = finite_elasticity.rGetCurrentSolution();
         DoFHandler<2>& dof_handler = finite_elasticity.rGetDofHandler();
         DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
-        while (!vertex_iter.End())
+        while (!vertex_iter.ReachedEnd())
         {
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
             Point<2> old_posn = vertex_iter.GetVertex();

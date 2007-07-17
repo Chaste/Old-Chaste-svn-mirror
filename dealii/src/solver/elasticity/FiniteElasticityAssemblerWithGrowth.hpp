@@ -59,8 +59,6 @@ protected:
     AbstractGrowingTumourSourceModel<DIM>* mpSourceModel;
     
     double mAverageElementVolume;
-
-    void WriteBasicOutput(unsigned counter, bool writeDeformed=true);
     
     /**
      *  Reimplemented to include growth term (only a minor change)

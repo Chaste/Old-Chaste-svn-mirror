@@ -37,12 +37,12 @@ DynamicFiniteElasticityAssembler<DIM>::~DynamicFiniteElasticityAssembler()
 // AssembleOnElement
 //////////////////////////////////////////////////////////////////////////////////////////
 template<unsigned DIM>
-void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter,
+void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(
+        typename DoFHandler<DIM>::active_cell_iterator  elementIter,
         Vector<double>&       elementRhs,
         FullMatrix<double>&   elementMatrix,
         bool                  assembleResidual,
-        bool                  assembleJacobian
-                                                             )
+        bool                  assembleJacobian)
 {
     static QGauss<DIM>   quadrature_formula(3);
     
@@ -136,8 +136,6 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
         inv_F = invert(F);
         
         double detF = determinant(F);
-        
-        static SymmetricTensor<2,DIM> T2;
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,this->dTdE,assembleJacobian);
         
         
@@ -155,11 +153,11 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
                     {
                         // time derivative part
                         elementMatrix(i,j) +=    this->mDensity
-                                                 * mDtInverse
-                                                 * fe_values.shape_value(i,q_point)
-                                                 * fe_values.shape_value(j,q_point)
-                                                 * identity[component_i][component_j]
-                                                 * fe_values.JxW(q_point);
+                                               * mDtInverse
+                                               * fe_values.shape_value(i,q_point)
+                                               * fe_values.shape_value(j,q_point)
+                                               * identity[component_i][component_j]
+                                               * fe_values.JxW(q_point);
                                                  
                         // stress part
                         for (unsigned M=0; M<DIM; M++)
@@ -168,10 +166,10 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
                             {
                                 // dFdU part
                                 elementMatrix(i,j) +=   T[M][N]
-                                                        * fe_values.shape_grad(j,q_point)[M]
-                                                        * fe_values.shape_grad(i,q_point)[N]
-                                                        * identity[component_i][component_j]
-                                                        * fe_values.JxW(q_point);
+                                                      * fe_values.shape_grad(j,q_point)[M]
+                                                      * fe_values.shape_grad(i,q_point)[N]
+                                                      * identity[component_i][component_j]
+                                                      * fe_values.JxW(q_point);
                                                         
                                 // dTdE part
                                 for (unsigned P=0; P<DIM; P++)
@@ -182,10 +180,10 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
                                                                 * this->dTdE[M][N][P][Q]
                                                                 * (
                                                                     fe_values.shape_grad(j,q_point)[Q]
-                                                                    * F[component_j][P]
-                                                                    +
+                                                                  * F[component_j][P]
+                                                                  +
                                                                     fe_values.shape_grad(j,q_point)[P]
-                                                                    * F[component_j][Q]
+                                                                  * F[component_j][Q]
                                                                 )
                                                                 * F[component_i][M]
                                                                 * fe_values.shape_grad(i,q_point)[N]
@@ -214,10 +212,10 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
                         for (unsigned M=0; M<DIM; M++)
                         {
                             elementMatrix(i,j) +=    fe_values.shape_value(i,q_point)
-                                                     * detF
-                                                     * inv_F[M][component_j]
-                                                     * fe_values.shape_grad(j,q_point)[M]
-                                                     * fe_values.JxW(q_point);
+                                                   * detF
+                                                   * inv_F[M][component_j]
+                                                   * fe_values.shape_grad(j,q_point)[M]
+                                                   * fe_values.JxW(q_point);
                         }
                     }
                     else
@@ -235,7 +233,7 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
                     elementRhs(i) +=   this->mDensity
                                        * (
                                            local_solution_values[q_point](component_i)
-                                           - local_solution_values_last_timestep[q_point](component_i)
+                                         - local_solution_values_last_timestep[q_point](component_i)
                                        )
                                        * mDtInverse
                                        * fe_values.shape_value(i,q_point)
@@ -254,17 +252,17 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
                         for (unsigned N=0; N<DIM; N++)
                         {
                             elementRhs(i) +=   T[M][N]
-                                               * F[component_i][M]
-                                               * fe_values.shape_grad(i,q_point)[N]
-                                               * fe_values.JxW(q_point);
+                                             * F[component_i][M]
+                                             * fe_values.shape_grad(i,q_point)[N]
+                                             * fe_values.JxW(q_point);
                         }
                     }
                 }
                 else
                 {
                     elementRhs(i) +=   fe_values.shape_value(i,q_point)
-                                       * (detF - 1)
-                                       * fe_values.JxW(q_point);
+                                     * (detF - 1)
+                                     * fe_values.JxW(q_point);
                 }
             }
         }
@@ -295,8 +293,8 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
                         if (component_i < this->PRESSURE_COMPONENT_INDEX)
                         {
                             elementRhs(i) +=   neumann_traction(component_i)
-                                               * fe_face_values.shape_value(i,q_point)
-                                               * fe_face_values.JxW(q_point);
+                                             * fe_face_values.shape_value(i,q_point)
+                                             * fe_face_values.JxW(q_point);
                         }
                     }
                 }
@@ -341,13 +339,12 @@ void DynamicFiniteElasticityAssembler<DIM>::Solve()
     
     
     double time = mTstart;
-    
-    this->OutputResultsGMV(0);
+
+    this->WriteOutput(0);
     unsigned time_counter=1;
     
     mSolutionAtLastTimestep = this->mCurrentSolution;
-    
-    
+
     // compute residual
     this->AssembleSystem(true, false);
     double norm_resid = this->CalculateResidualNorm();
@@ -411,7 +408,7 @@ void DynamicFiniteElasticityAssembler<DIM>::Solve()
         mSolutionAtLastTimestep = this->mCurrentSolution;
         
         DofVertexIterator<DIM> vertex_iter(this->mpMesh, &this->mDofHandler);
-        while (!vertex_iter.End())
+        while (!vertex_iter.ReachedEnd())
         {
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
             Point<DIM> old_posn = vertex_iter.GetVertex();
@@ -425,7 +422,7 @@ void DynamicFiniteElasticityAssembler<DIM>::Solve()
             vertex_iter.Next();
         }
         
-        this->OutputResultsGMV(time_counter);
+        this->WriteOutput(time_counter);
         time_counter++;
     }
 }

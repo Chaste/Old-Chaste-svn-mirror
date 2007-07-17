@@ -1,8 +1,9 @@
 TestAbstractDealiiAssembler.hpp
 TestAbstractGrowingTumourSourceModel.hpp
 TestConcentrationBasedTumourSourceModel.hpp
-TestDynamicFiniteElasticityAssembler.hpp
 TestFiniteElasticityAssembler.hpp
+TestDynamicFiniteElasticityAssembler.hpp
+TestFiniteElasticityAssemblerWithGrowth.hpp
 TestFiniteElasticityTools.hpp
 TestGrowthByConstantMassOdeSystem.hpp
 TestMaterialLaws.hpp

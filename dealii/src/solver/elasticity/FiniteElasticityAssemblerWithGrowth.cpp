@@ -548,98 +548,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteStresses(unsigned counter)
 }
 
 
-template<unsigned DIM>
-void FiniteElasticityAssemblerWithGrowth<DIM>::WriteBasicOutput(unsigned counter, bool writeDeformed)
-{
-    // only write output if the flag mWriteOutput has been set
-    if (!this->mWriteOutput)
-    {
-        return;
-    }
-    
-    // make sure mDeformedPosition has been set up
-    this->rGetDeformedPosition();
-    this->rGetUndeformedPosition();
-    
-    /////////////////////////////////////////////////////////////////////
-    // create an node file, by looping over vertices and writing
-    //   vertex_index x y [z]
-    /////////////////////////////////////////////////////////////////////
-    std::stringstream ss_nodes;
-    std::stringstream ss_elem;
-    ss_nodes << this->mOutputDirectoryFullPath << "/finiteelas_solution_" << counter;
-    ss_elem  << this->mOutputDirectoryFullPath << "/finiteelas_solution_" << counter;;
-    if(writeDeformed)
-    {
-        ss_nodes << ".nodes";
-        ss_elem  << ".elem";
-    }
-    else
-    {
-        ss_nodes << ".undefnodes";
-        ss_elem  << ".undefelem";
-    }
-    std::string nodes_filename = ss_nodes.str();
-    std::ofstream nodes_output(nodes_filename.c_str());
 
-    // loop over nodes in the mesh using the vertex iter
-    // NOTE: we don't print out every all of 
-    // mDeformedPosition[i](index) because for some values of index, 
-    // it will correspond to a non-active node.
-    TriangulationVertexIterator<2> vertex_iter(this->mpMesh);
-    while (!vertex_iter.End())
-    {
-        unsigned index = vertex_iter.GetVertexGlobalIndex();
-        
-        nodes_output << index << " "; 
-        for (unsigned i=0; i<DIM; i++)
-        {
-            if(writeDeformed)
-            {
-                nodes_output << this->mDeformedPosition[i](index) << " ";
-            }
-            else
-            {
-                nodes_output << this->mUndeformedPosition[i](index) << " ";
-            }   
-        }
-        nodes_output << "\n";
-        vertex_iter.Next();
-    } 
-    nodes_output.close();
-     
-    /////////////////////////////////////////////////////////////////////
-    // create an element file, by looping over elements and writing
-    //   node1 node2  .... nodeN tumour
-    // where node_i is the vertex index and tumour = 0 or 1 indicating
-    // whether in grwoing region or not
-    /////////////////////////////////////////////////////////////////////
-    std::string elem_filename = ss_elem.str();
-    std::ofstream elem_output(elem_filename.c_str());
-
-    typename Triangulation<DIM>::active_cell_iterator element_iter = this->mpMesh->begin_active();
-    while (element_iter!=this->mpMesh->end())
-    {
-        // loop over all vertices..
-        for (unsigned i=0; i<GeometryInfo<DIM>::vertices_per_cell; i++)
-        {
-            elem_output << element_iter->vertex_index(i) << " ";
-        }
-        
-        unsigned region = element_iter->material_id();
-        if (region == GROWING_REGION)
-        {
-            elem_output << 1 << " ";
-        }
-        else
-        {
-            elem_output << 0 << " ";
-        }
-        elem_output << "\n";
-        element_iter++;
-    }
-    elem_output.close();   
-}
 
 
 
@@ -772,18 +681,17 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         EXCEPTION("Start time, end time, dt have not been set. Call SetTimes() before Solve()");
     }
     
-    this->OutputResultsGMV(0);
-    WriteBasicOutput(0);
+    this->WriteOutput(0);
     this->WriteStresses(0);
 
     unsigned counter=1;
+    
     double time = mTstart;
     while (time < mTend)
     {
         this->mWriteOutput = true;
-        WriteBasicOutput(counter,false);
+        this->WriteOutput(counter,false);
         
-
         // check everything is still fine
         assert(this->mpMesh->n_vertices()==mGrowthOdeSystems.size());
         assert(mGrowthValuesAtVertices.size()==mGrowthOdeSystems.size());
@@ -817,7 +725,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         // update the growth values
         //////////////////////////////////////////////////////
         TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
-        while (!vertex_iter.End())
+        while (!vertex_iter.ReachedEnd())
         {
             Point<2> centre;
             Point<2>& position = vertex_iter.GetVertex();
@@ -903,9 +811,9 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
                 element_iter++;
             }           
             
-            this->mWriteOutput = true;
-            this->OutputResultsGMV(counter+100);
-            WriteBasicOutput(counter+100);
+            // temporary, for debugging
+            this->mWriteOutput = true;            
+            this->WriteOutput(counter+100);
             this->WriteStresses(counter+100);
             WriteGrowthValuesAtVertices(counter+100); 
         }
@@ -927,8 +835,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         // output results
         ////////////////////////////////////////////////////////
         this->mWriteOutput = true;
-        this->OutputResultsGMV(counter);
-        WriteBasicOutput(counter);
+        this->WriteOutput(counter);
         this->WriteStresses(counter);
         WriteGrowthValuesAtVertices(counter);
         
@@ -953,7 +860,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteGrowthValuesAtVertices(unsig
     std::ofstream growth_vals_output(growth_vals_filename.c_str());
 
     TriangulationVertexIterator<2> vertex_iter(this->mpMesh);
-    while (!vertex_iter.End())
+    while (!vertex_iter.ReachedEnd())
     {
         Point<DIM> posn = vertex_iter.GetVertex();
         unsigned index = vertex_iter.GetVertexGlobalIndex();

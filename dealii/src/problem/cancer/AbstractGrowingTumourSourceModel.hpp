@@ -11,7 +11,6 @@ struct EvaluationPointInfo
 {
     Point<DIM> OldPosition;
     Point<DIM> NewPosition;
-//    unsigned MeshGlobalIndex;
     double SourceValue;
 };
 

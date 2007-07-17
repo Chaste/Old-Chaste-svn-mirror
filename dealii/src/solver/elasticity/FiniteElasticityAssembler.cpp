@@ -100,7 +100,7 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
     }
 
     TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
-    while(!vertex_iter.End())
+    while(!vertex_iter.ReachedEnd())
     {
         unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
         Point<DIM> old_posn = vertex_iter.GetVertex();
@@ -130,12 +130,16 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
     mNumNewtonIterations = 0;
 }
 
-template<unsigned DIM>
-FiniteElasticityAssembler<DIM>::~FiniteElasticityAssembler()
-{}
 
 template<unsigned DIM>
-void FiniteElasticityAssembler<DIM>::SetMaterialLawsForHeterogeneousProblem(std::vector<AbstractIncompressibleMaterialLaw<DIM>*> materialLaws,
+FiniteElasticityAssembler<DIM>::~FiniteElasticityAssembler()
+{
+}
+
+
+template<unsigned DIM>
+void FiniteElasticityAssembler<DIM>::SetMaterialLawsForHeterogeneousProblem(
+        std::vector<AbstractIncompressibleMaterialLaw<DIM>*> materialLaws,
         std::vector<unsigned> materialIds)
 {
     // check sizes match
@@ -239,87 +243,6 @@ void FiniteElasticityAssembler<DIM>::FormInitialGuess()
     }
 }
 
-//template<unsigned DIM>
-//void FiniteElasticityAssembler<DIM>::SetDisplacementBoundaryConditions(std::vector<unsigned> node,
-//                                                                       std::vector<unsigned> coordinate,
-//                                                                       std::vector<double> value)
-//{
-//    mBoundaryValues.clear();
-//
-//    assert(node.size()==coordinate.size());
-//    assert(node.size()==value.size());
-//
-//    unsigned num_bcs = node.size();
-//
-//    for(unsigned i=0; i<num_bcs; i++)
-//    {
-//        assert(coordinate[i] < DIM);
-//    }
-//
-//    DofVertexIterator<DIM> vertex_iter(this->mpMesh, &this->mDofHandler);
-//
-//    while(!vertex_iter.End())
-//    {
-//        unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-//
-//        for(unsigned i=0; i<num_bcs; i++)
-//        {
-//            if( node[i]==vertex_index )
-//            {
-//                unsigned dof = vertex_iter.GetDof( coordinate[i] );
-//                mBoundaryValues[dof] = value[i];
-//            }
-//        }
-//
-//        vertex_iter.Next();
-//    }
-//}
-//
-//template<unsigned DIM>
-//void FiniteElasticityAssembler<DIM>::SetFixedNodes(std::vector<unsigned> nodes)
-//{
-//    mBoundaryValues.clear();
-//
-//    DofVertexIterator<DIM> vertex_iter(this->mpMesh, &this->mDofHandler);
-//
-//    while(!vertex_iter.End())
-//    {
-//        unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-//
-//        for(unsigned i=0; i<nodes.size(); i++)
-//        {
-//            if( nodes[i]==vertex_index )
-//            {
-//                for(unsigned j=0; j<DIM; j++)
-//                {
-//                    unsigned dof = vertex_iter.GetDof(j);
-//                    mBoundaryValues[dof] = 0.0;
-//                }
-//            }
-//        }
-//
-//        vertex_iter.Next();
-//    }
-//
-//    unsigned quads[5] = {41,53,56,65,83};
-//
-//    for(unsigned i=0; i<5; i++)
-//    {
-//        mBoundaryValues[quads[i]] = 0.0;
-//        mBoundaryValues[quads[i]+1] = 0.0;
-//        mBoundaryValues[quads[i]+2] = 0.0;
-//    }
-//
-//
-//
-//    std::map<unsigned,double>::iterator iter = mBoundaryValues.begin();
-//
-//    while(iter!=mBoundaryValues.end())
-//    {
-//        std::cout << iter->first << " " << iter->second << "\n";
-//        iter++;
-//    }
-//}
 
 template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::SetBoundaryValues(std::map<unsigned,double> boundaryValues)
@@ -336,6 +259,7 @@ void FiniteElasticityAssembler<DIM>::SetBoundaryValues(std::map<unsigned,double>
     
     assert(!mBoundaryValues.empty());
 }
+
 
 template<unsigned DIM>
 AbstractIncompressibleMaterialLaw<DIM>* FiniteElasticityAssembler<DIM>::GetMaterialLawForElement(typename DoFHandler<DIM>::active_cell_iterator elementIter)
@@ -521,10 +445,10 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                                      * fe_values.JxW(q_point);
                         }
                     }
-                    else
-                    {
+                    //else
+                    //{
                         // do nothing, ie elementMatrix(i,j)  +=  0 * fe_values.JxW(q_point);;
-                    }
+                    //}
                 }
             }
             
@@ -582,8 +506,8 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                         if (component_i < PRESSURE_COMPONENT_INDEX)
                         {
                             elementRhs(i) +=   neumann_traction(component_i)
-                                               * fe_face_values.shape_value(i,q_point)
-                                               * fe_face_values.JxW(q_point);
+                                             * fe_face_values.shape_value(i,q_point)
+                                             * fe_face_values.JxW(q_point);
                         }
                     }
                 }
@@ -880,9 +804,8 @@ void FiniteElasticityAssembler<DIM>::CompareJacobians()
     }
 }
 
-
 template<unsigned DIM>
-void FiniteElasticityAssembler<DIM>::OutputResultsGMV(unsigned counter)
+void FiniteElasticityAssembler<DIM>::WriteOutput(unsigned counter, bool writeDeformed)
 {
     // only write output if the flag mWriteOutput has been set
     if (!mWriteOutput)
@@ -890,32 +813,84 @@ void FiniteElasticityAssembler<DIM>::OutputResultsGMV(unsigned counter)
         return;
     }
     
-    std::stringstream ss;
-    ss << mOutputDirectoryFullPath << "/solution_" << counter << ".gmv";
-    std::string filename = ss.str();
-    std::ofstream output(filename.c_str());
+    // make sure mDeformedPosition has been set up
+    rGetDeformedPosition();
+    rGetUndeformedPosition();
     
-    DataOut<DIM> data_out;
-    data_out.attach_dof_handler(this->mDofHandler);
-    
-    std::vector<std::string> solution_names;
-    
-    solution_names.push_back("x_displacement");
-    if (DIM>1)
+    /////////////////////////////////////////////////////////////////////
+    // create an node file, by looping over vertices and writing
+    //   vertex_index x y [z]
+    /////////////////////////////////////////////////////////////////////
+    std::stringstream ss_nodes;
+    std::stringstream ss_elem;
+    ss_nodes << mOutputDirectoryFullPath << "/finiteelas_solution_" << counter;
+    ss_elem  << mOutputDirectoryFullPath << "/finiteelas_solution_" << counter;;
+    if(writeDeformed)
     {
-        solution_names.push_back("y_displacement");
+        ss_nodes << ".nodes";
+        ss_elem  << ".elem";
     }
-    if (DIM>2)
+    else
     {
-        solution_names.push_back("z_displacement");
+        ss_nodes << ".undefnodes";
+        ss_elem  << ".undefelem";
     }
-    
-    solution_names.push_back("pressure");
-    
-    data_out.add_data_vector(this->mCurrentSolution, solution_names);
-    data_out.build_patches();
-    data_out.write_gmv(output);
+    std::string nodes_filename = ss_nodes.str();
+    std::ofstream nodes_output(nodes_filename.c_str());
+
+    // loop over nodes in the mesh using the vertex iter
+    // NOTE: we don't print out every all of 
+    // mDeformedPosition[i](index) because for some values of index, 
+    // it will correspond to a non-active node.
+    TriangulationVertexIterator<2> vertex_iter(this->mpMesh);
+    while (!vertex_iter.ReachedEnd())
+    {
+        unsigned index = vertex_iter.GetVertexGlobalIndex();
+        
+        nodes_output << index << " "; 
+        for (unsigned i=0; i<DIM; i++)
+        {
+            if(writeDeformed)
+            {
+                nodes_output << mDeformedPosition[i](index) << " ";
+            }
+            else
+            {
+                nodes_output << mUndeformedPosition[i](index) << " ";
+            }   
+        }
+        nodes_output << "\n";
+        vertex_iter.Next();
+    } 
+    nodes_output.close();
+     
+    /////////////////////////////////////////////////////////////////////
+    // create an element file, by looping over elements and writing
+    //   node1 node2  .... nodeN tumour
+    // where node_i is the vertex index and tumour = 0 or 1 indicating
+    // whether in grwoing region or not
+    /////////////////////////////////////////////////////////////////////
+    std::string elem_filename = ss_elem.str();
+    std::ofstream elem_output(elem_filename.c_str());
+
+    for( typename Triangulation<DIM>::active_cell_iterator element_iter = this->mpMesh->begin_active();
+         element_iter!=this->mpMesh->end();
+         element_iter++)
+    {
+        // loop over all vertices..
+        for (unsigned i=0; i<GeometryInfo<DIM>::vertices_per_cell; i++)
+        {
+            elem_output << element_iter->vertex_index(i) << " ";
+        }
+///\ TODO fix this:
+//        elem_output << element_iter->unsigned(material_id()) << "\n";
+//then delete this:
+        elem_output << "\n";
+    }
+
+    elem_output.close();   
 }
+
 
 
 template<unsigned DIM>
@@ -992,7 +967,7 @@ void FiniteElasticityAssembler<DIM>::Solve()
         EXCEPTION("No material laws have been set");
     }
     
-    OutputResultsGMV(0);
+    WriteOutput(0);
     
     FormInitialGuess();
     
@@ -1025,8 +1000,8 @@ void FiniteElasticityAssembler<DIM>::Solve()
         norm_resid = CalculateResidualNorm();
         
         std::cout << "Norm of residual is " << norm_resid << "\n";
-        
-        OutputResultsGMV(counter);
+
+        WriteOutput(counter);
         mNumNewtonIterations = counter;
         
         counter++;
@@ -1054,7 +1029,7 @@ std::vector<Vector<double> >& FiniteElasticityAssembler<DIM>::rGetDeformedPositi
     }
     
     DofVertexIterator<DIM> vertex_iter(this->mpMesh, &this->mDofHandler);
-    while (!vertex_iter.End())
+    while (!vertex_iter.ReachedEnd())
     {
         unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
         Point<DIM> old_posn = vertex_iter.GetVertex();
@@ -1090,7 +1065,7 @@ std::vector<Vector<double> >& FiniteElasticityAssembler<DIM>::rGetUndeformedPosi
     
     // populate
     TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
-    while (!vertex_iter.End())
+    while (!vertex_iter.ReachedEnd())
     {
         unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
         Point<DIM> old_posn = vertex_iter.GetVertex();
