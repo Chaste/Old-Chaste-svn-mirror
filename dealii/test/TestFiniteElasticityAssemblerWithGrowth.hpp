@@ -21,76 +21,11 @@
 
 
 // todos: proper test of answers, compare numerical jacobian
-// sensible test once s set up. change constructor
-
-class TumourGrowingDyingSourceModel : public AbstractGrowingTumourSourceModel<2>
-{
-private :
-    Point<2> mCentre;
-public :    
-    TumourGrowingDyingSourceModel(double centre_x=0, double centre_y=0)
-    {
-        mCentre[0] = centre_x;
-        mCentre[1] = centre_y;
-    }
-    
-    void Run(double tStart, double tEnd, FiniteElasticityAssembler<2>* pFiniteElasticityAssembler)
-    {
-        std::map<unsigned,EvaluationPointInfo<2> >::iterator iter
-            = this->mEvaluationPoints.begin();
-        while (iter!=this->mEvaluationPoints.end())
-        {
-            //unsigned mesh_index = iter->first;
-            Point<2>& position = iter->second.OldPosition;
-            Point<2> diff = position-mCentre;
-    
-            double distance_to_centre = std::sqrt(diff.square());
-            double source_value = 2*(distance_to_centre - 0.7);
-            iter->second.SourceValue = source_value;
-            iter++;
-        }
-    }
-};
+// sensible test once s set up
 
 
 class TestFiniteElasticityAssemblerWithGrowth : public CxxTest::TestSuite
 {
-private :
-    void MakeRectangularMeshWithTwoCircles(Triangulation<2>& mesh)
-    {
-        Point<2> zero;
-        Point<2> opposite_corner;
-        opposite_corner[0] = 1.3;
-        opposite_corner[1] = 1;
-        
-        unsigned num_elem_x = 40;
-        unsigned num_elem_y = 20;
-        
-        std::vector<unsigned> repetitions;
-        repetitions.push_back(num_elem_x);
-        repetitions.push_back(num_elem_y);
-        
-        GridGenerator::subdivided_hyper_rectangle(mesh, repetitions, zero, opposite_corner);
-        
-        FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
-        
-        double radius = 0.21;
-        
-        Point<2> centre1;
-        centre1[0]=0.5;
-        centre1[1]=0.5;
-        
-        Point<2> centre2;
-        centre2[0]=0.8;
-        centre2[1]=0.5;
-        
-        // set all elements as non growing initially, then set circular region as growing
-        FiniteElasticityTools<2>::SetAllElementsAsNonGrowingRegion(mesh);
-        FiniteElasticityTools<2>::SetCircularRegionAsGrowingRegion(mesh, centre1, radius);
-        FiniteElasticityTools<2>::SetCircularRegionAsGrowingRegion(mesh, centre2, radius);
-    }
-    
-    
 public :
     void TestExceptions() throw(Exception)
     {
@@ -134,7 +69,7 @@ public :
     void TestWithSimpleProblem() throw(Exception)
     {
         Vector<double> body_force(2); // zero
-        double density = 1.0;
+        double density = 1.233;
         
         MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
         
@@ -142,19 +77,21 @@ public :
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(3);
         
+        double initial_elem_volume = 1.0/mesh.n_active_cells();
+        
         Point<2> zero;
         FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
         
         // set all elements as growing
         FiniteElasticityTools<2>::SetCircularRegionAsGrowingRegion(mesh, zero, 100);
-        
-        ConcentrationBasedTumourSourceModel<2> source_model(mesh);
+        double source_value = 2;        
+        ConstantTumourSourceModel<2> source_model(source_value);
         
         FiniteElasticityAssemblerWithGrowth<2> finiteelas_with_growth(&mesh,
                                                                       &mooney_rivlin_law,
                                                                       body_force,
                                                                       density,
-                                                                      "finite_elas_growth/simple2d",
+                                                                      "finite_elas_growth/simple",
                                                                       &source_model);
                 
                 
@@ -168,23 +105,53 @@ public :
             vertex_iter.Next();
         }
         
-//        Triangulation<2>::active_cell_iterator element_iter = mesh.begin_active();
-//        while (element_iter!=mesh.end())
-//        {
-//            if (element_iter->material_id()==GROWING_REGION)
-//            {
-//                for (unsigned i=0; i<GeometryInfo<2>::vertices_per_cell; i++)
-//                {
-//                    unsigned vertex_index = element_iter->vertex_index(i);
-//                    TS_ASSERT_EQUALS(finiteelas_with_growth.IsGrowingNode(vertex_index), true);
-//                }
-//            }
-//            element_iter++;
-//        }
-        
-        
-        finiteelas_with_growth.SetTimes(0.0, 10.0, 0.1);
-        finiteelas_with_growth.Run();  
+        // run
+        double end_time = 0.2;
+        finiteelas_with_growth.SetTimes(0.0, end_time, 0.1);
+        finiteelas_with_growth.Run();
+ 
+        std::vector<Vector<double> >& deformed_position
+            = finiteelas_with_growth.rGetDeformedPosition();
+ 
+        // test
+        Triangulation<2>::active_cell_iterator element_iter = mesh.begin_active();
+        while (element_iter!=mesh.end())
+        {
+            double x_undef_node_0 = element_iter->vertex(0)[0];
+            double y_undef_node_0 = element_iter->vertex(0)[1];
+            
+            // look at elements in the top right-hand quadrant, ie those away
+            // from the fixed corner (0,0). (if there was no fixed nodes, then
+            // the solution would just be iostropic enlargement (simple stretching)  
+            if( (x_undef_node_0>0.5) && (y_undef_node_0>0.5))
+            {
+                double x0 = deformed_position[0](element_iter->vertex_index(0));
+                double y0 = deformed_position[1](element_iter->vertex_index(0));
+
+                double x1 = deformed_position[0](element_iter->vertex_index(1));
+                double y1 = deformed_position[1](element_iter->vertex_index(1));
+
+                double x2 = deformed_position[0](element_iter->vertex_index(2));
+                double y2 = deformed_position[1](element_iter->vertex_index(2));
+
+                double x3 = deformed_position[0](element_iter->vertex_index(3));
+                double y3 = deformed_position[1](element_iter->vertex_index(3));
+
+                // these elements are away from the fixed corner, so should be very 
+                // like enlarged rectangles. Verify this, ie check x0=x3, x1=x2, etc
+                TS_ASSERT_DELTA(x0, x3, 1e-3);
+                TS_ASSERT_DELTA(x1, x2, 1e-3);
+                TS_ASSERT_DELTA(y0, y1, 1e-3);
+                TS_ASSERT_DELTA(y2, y3, 1e-3);
+
+                // check volume of enlarged square is as expected
+                // dgdt = 0.5 g rho s, so g = exp(0.5 rho s T)
+                // F = gI so detF = g^2 = exp(rho s T)
+                double expected_volume = exp(density*end_time*source_value)*initial_elem_volume;
+                TS_ASSERT_DELTA( (x1-x0)*(y2-y1), expected_volume, 1e-3);
+            }
+            element_iter++;
+        }
     }
 };
 #endif /*TESTFINITEELASTICITYASSEMBLERWITHGROWTH_HPP_*/

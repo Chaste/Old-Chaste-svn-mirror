@@ -248,8 +248,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
         inv_C = invert(C);
         inv_F = invert(F);
         
-        double detF = determinant(F);
-        
+        double detF = determinant(F);        
        
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,this->dTdE,assembleJacobian);
         
@@ -716,7 +715,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
                 mOdeSolver.SolveAndUpdateStateVariable(mGrowthOdeSystems[i],
                                                        time,
                                                        time+mOdeDt,
-                                                       mOdeDt);
+                                                       mOdeDt/100);
             }
         }
    
@@ -727,6 +726,8 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
         while (!vertex_iter.ReachedEnd())
         {
+            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+
             Point<2> centre;
             Point<2>& position = vertex_iter.GetVertex();
             Point<2> diff = position - centre;
@@ -740,21 +741,19 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
 //                source_value = 3;
 //            }
  
-            double source_value = 10*exp(-0.5*(position[0]-25)*(position[0]-25));
- 
+//            double source_value = 1; //10*exp(-0.5*(position[0]-25)*(position[0]-25));
+//            mGrowthValuesAtVertices(vertex_index) += this->mOdeDt*(1.0/2.0)*source_value*mGrowthValuesAtVertices(vertex_index);
+
+
+            if (mGrowthOdeSystems[vertex_index]!=NULL)
+            {
+                mGrowthValuesAtVertices(vertex_index) = mGrowthOdeSystems[vertex_index]->rGetStateVariables()[0];
+            }
+            else
+            {
+                assert(fabs(mGrowthValuesAtVertices(vertex_index)-1)<1e-6);
+            }
             
-            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            mGrowthValuesAtVertices(vertex_index) += this->mOdeDt*(1.0/2.0)*source_value*mGrowthValuesAtVertices(vertex_index);
-
-
-//            if (mGrowthOdeSystems[vertex_index]!=NULL)
-//            {
-//                mGrowthValuesAtVertices(vertex_index) = mGrowthOdeSystems[vertex_index]->rGetStateVariables()[0];
-//            }
-//            else
-//            {
-//                assert(fabs(mGrowthValuesAtVertices(vertex_index)-1)<1e-6);
-//            }
             
             vertex_iter.Next();
         }
