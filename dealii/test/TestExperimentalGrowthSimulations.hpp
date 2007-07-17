@@ -89,10 +89,17 @@ private :
     
     
 public :
+    // silly hack to avoid any 'no tests defined' errors if all tests are 'NO_Test'ed out 
+    // (this test suite is in the ExtraSimulations test pack so won't be run)
+    void TestDefineATest()
+    {
+        TS_ASSERT_EQUALS(1,1);
+    }
+
+
+
     void NO__TestGrowingDyingTumourModel()
     {
-        return;
-        
         Vector<double> body_force(2); // zero
         double density = 1.0;
         MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
@@ -100,8 +107,6 @@ public :
         Triangulation<2> mesh;
         Point<2> zero;
 
-//        GridGenerator::hyper_cube(mesh, 0.0, 2.0);
-//        mesh.refine_global(3);
         GridGenerator::hyper_ball(mesh);
         HyperBallBoundary<2> boundary(zero);
         mesh.set_boundary(0, boundary);
@@ -185,6 +190,7 @@ public :
         finiteelas_with_growth.Run();  
     }
     
+    
     void NO_Test2dPolypFormationWithElasticUnderside() throw(Exception)
     {
         Vector<double> body_force(2); // zero
@@ -209,20 +215,8 @@ public :
         repetitions.push_back(num_elem_y);
         
         GridGenerator::subdivided_hyper_rectangle(mesh, repetitions, zero, opposite_corner);
-//
-//        double alpha = 1;
-//        double pi = 3.14159265;
-//      TriangulationVertexIterator<2> vertex_iter(&mesh);
-//      while(!vertex_iter.ReachedEnd())
-//      {
-//          Point<2>& position = vertex_iter.GetVertex();
-//          position[1] += alpha*sin(3*pi*position[0]/length); 
-//          vertex_iter.Next();
-//      }
-    
 
         // set all elements as growing region (using a circle with a big radius)
-//        FiniteElasticityTools<2>::SetCircularRegionAsGrowingRegion(mesh, zero, 10*length);
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, length, false);
 
