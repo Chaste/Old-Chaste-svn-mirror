@@ -352,7 +352,7 @@ public :
                 vecs_by_dofs[i].reinit(mpMesh->n_used_vertices());
                 vecs_by_dofs[i]=0;
 
-                DofVertexIterator<2> dof_vertex_iter(mpMesh, &linear_dof_handler);
+                DofVertexIterator<DIM> dof_vertex_iter(mpMesh, &linear_dof_handler);
                 while(!dof_vertex_iter.ReachedEnd())
                 {
                     unsigned index = dof_vertex_iter.GetVertexGlobalIndex();
@@ -402,7 +402,7 @@ public :
             for(unsigned i=0; i<num_vecs_to_interpolate; i++)
             {
                 (*(mVectorsToInterpolate[i])).reinit(mpMesh->n_vertices());
-                DofVertexIterator<2> dof_vertex_iter(mpMesh, &linear_dof_handler);
+                DofVertexIterator<DIM> dof_vertex_iter(mpMesh, &linear_dof_handler);
                 while(!dof_vertex_iter.ReachedEnd())
                 {
                     unsigned index = dof_vertex_iter.GetVertexGlobalIndex();

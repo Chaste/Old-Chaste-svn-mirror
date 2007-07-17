@@ -71,7 +71,7 @@ public :
         Vector<double> body_force(2); // zero
         double density = 1.233;
         
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
         
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);

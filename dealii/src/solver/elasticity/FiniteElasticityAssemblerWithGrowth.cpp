@@ -237,7 +237,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
             }
         }
         
-        assert(DIM==2);
+
         element_volume +=  determinant(full_F) * fe_values.JxW(q_point);
         ////////////////////////////////////////////////////////
         // no more changes after this, until userflag setting //
@@ -269,11 +269,11 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
                             for (unsigned N=0; N<DIM; N++)
                             {
                                 elementMatrix(i,j) +=   T[M][N]
-                                                        * fe_values.shape_grad(j,q_point)[M]
-                                                        * fe_values.shape_grad(i,q_point)[N]
-                                                        * identity[component_i][component_j]
-                                                        * fe_values.JxW(q_point);
-                                                        
+                                                      * fe_values.shape_grad(j,q_point)[M]
+                                                      * fe_values.shape_grad(i,q_point)[N]
+                                                      * identity[component_i][component_j]
+                                                      * fe_values.JxW(q_point);
+                                                      
                                 for (unsigned P=0; P<DIM; P++)
                                 {
                                     for (unsigned Q=0; Q<DIM; Q++)
@@ -314,10 +314,10 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
                         for (unsigned M=0; M<DIM; M++)
                         {
                             elementMatrix(i,j) +=    fe_values.shape_value(i,q_point)
-                                                     * detF
-                                                     * inv_F[M][component_j]
-                                                     * fe_values.shape_grad(j,q_point)[M]
-                                                     * fe_values.JxW(q_point);
+                                                   * detF
+                                                   * inv_F[M][component_j]
+                                                   * fe_values.shape_grad(j,q_point)[M]
+                                                   * fe_values.JxW(q_point);
                         }
                     }
                     else
@@ -340,17 +340,17 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
                         for (unsigned N=0; N<DIM; N++)
                         {
                             elementRhs(i) +=   T[M][N]
-                                               * F[component_i][M]
-                                               * fe_values.shape_grad(i,q_point)[N]
-                                               * fe_values.JxW(q_point);
+                                             * F[component_i][M]
+                                             * fe_values.shape_grad(i,q_point)[N]
+                                             * fe_values.JxW(q_point);
                         }
                     }
                 }
                 else
                 {
                     elementRhs(i) +=   fe_values.shape_value(i,q_point)
-                                       * (detF - 1)
-                                       * fe_values.JxW(q_point);
+                                     * (detF - 1)
+                                     * fe_values.JxW(q_point);
                 }
             }
         }
@@ -445,6 +445,12 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteStresses(unsigned counter)
     static QGauss<DIM>   quadrature_formula(1);
     const unsigned n_q_points = quadrature_formula.n_quadrature_points;
 
+    FE_Q<DIM> linear_fe(1);
+    FEValues<DIM> linear_fe_values(linear_fe, quadrature_formula,
+                                   UpdateFlags(update_values));
+    unsigned linear_dofs_per_element = linear_fe.dofs_per_cell;
+
+
     FEValues<DIM> fe_values(this->mFeSystem, quadrature_formula,
                             UpdateFlags(update_values    |
                                         update_gradients |
@@ -476,6 +482,8 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteStresses(unsigned counter)
    
     while (element_iter!=this->mDofHandler.end())  
     {
+        linear_fe_values.reinit(element_iter);
+
         fe_values.reinit(element_iter); // compute fe values for this element
         fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
         fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
@@ -511,17 +519,15 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteStresses(unsigned counter)
             static Tensor<2,DIM> inv_F;
             static SymmetricTensor<2,DIM> T;
             
-            /// TODO: proper interpolation:
-            assert(DIM==2); // the follow is 2d specific!
-            unsigned n0 = element_iter->vertex_index(0);
-            unsigned n1 = element_iter->vertex_index(1);
-            unsigned n2 = element_iter->vertex_index(2);
-            unsigned n3 = element_iter->vertex_index(3);
-            double growth_term_g = 0.25*(  mGrowthValuesAtVertices(n0)
-                                         + mGrowthValuesAtVertices(n1)
-                                         + mGrowthValuesAtVertices(n2)
-                                         + mGrowthValuesAtVertices(n3)
-                                        );
+            double growth_term_g = 0;
+            for (unsigned i=0; i<linear_dofs_per_element; i++)
+            {
+                // a little iffy - don't know for certain linear_fe_values.shape_value(i,q)
+                // corresponds to the basis function for node i;
+                unsigned node_index = element_iter->vertex_index(i);
+                growth_term_g += mGrowthValuesAtVertices(node_index)*linear_fe_values.shape_value(i,q_point);
+            }
+            
             for (unsigned i=0; i<DIM; i++)
             {
                 for (unsigned j=0; j<DIM; j++)
@@ -597,14 +603,14 @@ bool FiniteElasticityAssemblerWithGrowth<DIM>::RefineOvergrownElements()
         if (element_iter->refine_flag_set())
         {
             ref_counter++;
-            Point<2> posn = element_iter->center();
+//            Point<2> posn = element_iter->center();
 //            std::cout << posn[0] << " " << posn[1] << " 1\n";
         }
 
         if (element_iter->coarsen_flag_set())
         {
             coa_counter++;
-            Point<2> posn = element_iter->center();
+//            Point<2> posn = element_iter->center();
 //            std::cout << posn[0] << " " << posn[1] << " 2\n";
         }
         
@@ -715,7 +721,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
                 mOdeSolver.SolveAndUpdateStateVariable(mGrowthOdeSystems[i],
                                                        time,
                                                        time+mOdeDt,
-                                                       mOdeDt/100);
+                                                       mOdeDt/10);
             }
         }
    
@@ -728,9 +734,9 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         {
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
 
-            Point<2> centre;
-            Point<2>& position = vertex_iter.GetVertex();
-            Point<2> diff = position - centre;
+//            Point<2> centre;
+//            Point<2>& position = vertex_iter.GetVertex();
+//            Point<2> diff = position - centre;
     
 //            double distance_to_centre = std::sqrt(diff.square());
 //            double source_value = 5*(distance_to_centre - 0.7);
@@ -858,7 +864,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteGrowthValuesAtVertices(unsig
     std::string growth_vals_filename = ss.str();
     std::ofstream growth_vals_output(growth_vals_filename.c_str());
 
-    TriangulationVertexIterator<2> vertex_iter(this->mpMesh);
+    TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
     while (!vertex_iter.ReachedEnd())
     {
         Point<DIM> posn = vertex_iter.GetVertex();
