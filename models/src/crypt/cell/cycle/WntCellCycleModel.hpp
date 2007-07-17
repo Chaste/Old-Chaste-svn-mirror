@@ -1,7 +1,9 @@
 #ifndef WNTCELLCYCLEMODEL_HPP_
 #define WNTCELLCYCLEMODEL_HPP_
 
+#include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/base_object.hpp>
 
 #include "AbstractCellCycleModel.hpp"
 #include "WntCellCycleOdeSystem.hpp"
@@ -9,6 +11,9 @@
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  *  Wnt-dependent cell cycle model.

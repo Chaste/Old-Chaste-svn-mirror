@@ -74,7 +74,7 @@ class TestArchiving : public CxxTest::TestSuite
 public:
     void TestArchiveSimpleVars()
     {
-        OutputFileHandler handler("archive");
+        OutputFileHandler handler("archive",false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "simple_vars.arch";
         

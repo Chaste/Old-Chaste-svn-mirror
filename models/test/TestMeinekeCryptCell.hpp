@@ -1085,7 +1085,7 @@ public:
     {
         CancerParameters::Instance()->Reset();
         
-        OutputFileHandler handler("archive");
+        OutputFileHandler handler("archive",false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "cell.arch";
         

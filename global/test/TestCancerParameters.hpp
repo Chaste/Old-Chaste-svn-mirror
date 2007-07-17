@@ -86,7 +86,7 @@ public:
     
     void TestArchiveCancerParameters()
     {
-        OutputFileHandler handler("archive");
+        OutputFileHandler handler("archive",false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "cancer_params.arch";
         

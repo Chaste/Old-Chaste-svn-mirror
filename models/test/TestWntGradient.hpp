@@ -87,12 +87,15 @@ public:
         params->SetCryptLength(10.0);
         wnt_level = wnt_gradient3.GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
-        
+        // under a third of the way up the crypt.
         params->SetCryptLength(22.0);
+        height = 7.0;
+        wnt_level = wnt_gradient3.GetWntLevel(height);
+        TS_ASSERT_DELTA(wnt_level , 1.0 - height/((1.0/3.0)*params->GetCryptLength()) , 1e-9);
+        // more than a third of the way up the crypt.
         height = 10.0;
         wnt_level = wnt_gradient3.GetWntLevel(height);
-        TS_ASSERT_DELTA(wnt_level , 1.0 - 1.5*height/params->GetCryptLength() , 1e-9);
-        
+        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
     }
     
     void TestArchiveWntGradient()

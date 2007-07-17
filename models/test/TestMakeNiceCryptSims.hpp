@@ -164,6 +164,7 @@ public:
 void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exception)
     {        
         CancerParameters* p_params = CancerParameters::Instance();
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         std::string output_directory = "NiceCryptSim";
         
         unsigned cells_across = 12;
@@ -212,7 +213,6 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         // END OF UNUSUAL SET UP!
         
         simulator.Solve();
-           
         
         // set a cell to be labelled (a stemish cell)
         simulator.rGetCrypt().rGetCellAtNodeIndex(37).SetMutationState(LABELLED);
