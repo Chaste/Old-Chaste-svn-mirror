@@ -164,7 +164,6 @@ public:
 void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exception)
     {        
         CancerParameters* p_params = CancerParameters::Instance();
-        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         std::string output_directory = "NiceCryptSim";
         
         unsigned cells_across = 12;

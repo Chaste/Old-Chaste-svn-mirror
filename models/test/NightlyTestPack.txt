@@ -1,4 +1,2 @@
-TestCryptSimulation2DPeriodicNightly.hpp
-TestModifiedSpringModel.hpp
+TestCryptSimulation2DPeriodicNightly.hpps
 TestNightlyMeinekeCryptCell.hpp
-TestTissueForceExperiments.hpp

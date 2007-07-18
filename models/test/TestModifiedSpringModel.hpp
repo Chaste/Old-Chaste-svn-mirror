@@ -11,6 +11,7 @@ class AbstractCutoffSpringForceModel
 {
 protected:
     double mCutoffPoint;
+    
 public:
     AbstractCutoffSpringForceModel(double cutoffPoint)
         : mCutoffPoint(cutoffPoint)
@@ -266,6 +267,21 @@ public:
         TS_ASSERT_DELTA( linear_model.GetForce(0.0), -stiffness, 1e-12 );
     }
     
+    void TestQuadraticCutoffSpringForceModel() throw(Exception)
+    {
+        double cutoff_point = 4.0;
+        double rest_length = 1.0;
+        double stiffness = 1.3435435;
+        
+        QuadraticCutoffSpringForceModel quadratic_model(cutoff_point, stiffness, rest_length);
+        
+        TS_ASSERT_DELTA( quadratic_model.GetCutoffPoint(), cutoff_point, 1e-12 );
+        TS_ASSERT_DELTA( quadratic_model.GetForce(rest_length), 0.0, 1e-12 );
+//        TS_ASSERT_DELTA( quadratic_model.GetForce(rest_length-1),  stiffness*, 1e-12 );
+  //      TS_ASSERT_DELTA( quadratic_model.GetForce(0.0), -stiffness, 1e-12 );
+    }
+    
+    
     void TestFindEffectingPoints() throw(Exception)
     {
         unsigned num_elem = 6;
@@ -389,7 +405,7 @@ public:
         HoneycombMeshGenerator generator(6,6,0,false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
 
-        double cutoff_point = 3.0;
+        double cutoff_point = 2.5;
 //        LinearCutoffSpringForceModel spring_model(cutoff_point, 1.5, 1.0);
         QuadraticCutoffSpringForceModel spring_model(cutoff_point, 1.5, 1.0);
         
