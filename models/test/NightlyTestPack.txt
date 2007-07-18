@@ -1,2 +1,2 @@
-TestCryptSimulation2DPeriodicNightly.hpps
+TestCryptSimulation2DPeriodicNightly.hpp
 TestNightlyMeinekeCryptCell.hpp
