@@ -298,7 +298,7 @@ public:
         // Units: micromolar; Initial value: 0.0472
         double var_calcium_dynamics__Ca_SR = rY[12];
         // Units: micromolar; Initial value: 320
-#ifndef NDEBUG
+//#ifndef NDEBUG
 #define COVERAGE_IGNORE
    
     //Iterate over gating variables
@@ -311,7 +311,7 @@ public:
         }
     }
 #undef COVERAGE_IGNORE
-#endif //NDEBUG        
+//#endif //NDEBUG        
         // Mathematics
         const double var_membrane__R = 8.314;
         const double var_membrane__T = 310.0;

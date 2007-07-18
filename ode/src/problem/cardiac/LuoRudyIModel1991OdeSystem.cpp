@@ -112,7 +112,7 @@ void LuoRudyIModel1991OdeSystem::EvaluateYDerivatives(double time,
     /*
      * Compute the LuoRudyIModel1991OdeSystem model
      */
-#ifndef NDEBUG
+//#ifndef NDEBUG
 #define COVERAGE_IGNORE
     if (!(0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0))
     {
@@ -144,7 +144,7 @@ void LuoRudyIModel1991OdeSystem::EvaluateYDerivatives(double time,
         EXCEPTION(DumpState("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
 #undef COVERAGE_IGNORE
-#endif
+//#endif
     
     
     double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);

@@ -58,10 +58,10 @@ public:
     // Note that this space step ought to be too big!
     void TestMonodomainDg01DWith20elements()
     {
-#ifdef NDEBUG
-        TS_ASSERT(true);
-#else
-        //Note that this test will FAIL under any NDEBUG build.
+//#ifdef NDEBUG
+//        TS_ASSERT(true);
+//#else
+        //Note that this test *used to* FAIL under any NDEBUG build.
         /*
          * This is because it is testing exceptions which are tripped by gating variables going 
          * out of range in the Luo-Rudy cell model.  These variable ranges are not tested in
@@ -86,7 +86,7 @@ public:
         // EvaluateYDerivatives() method of the cell model
 
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
-#endif
+//#endif
     }
 
 };
