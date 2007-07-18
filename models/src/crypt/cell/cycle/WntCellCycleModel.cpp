@@ -223,7 +223,7 @@ CryptCellType WntCellCycleModel::UpdateCellType()
 }
 
 double WntCellCycleModel::GetWntSG2MDuration()
-{   //overwritten in subclass StochasticWntCellCycleModel
+{   // overridden in subclass StochasticWntCellCycleModel
     return CancerParameters::Instance()->GetSG2MDuration();
 }
 

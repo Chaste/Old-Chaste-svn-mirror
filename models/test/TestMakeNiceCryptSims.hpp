@@ -31,6 +31,7 @@ typedef enum CellCycleType_
     FIXED,
     STOCHASTIC,
     WNT,
+    STOCHASTIC_WNT,
     TYSONNOVAK
 } CellCycleType;
 
@@ -77,7 +78,15 @@ class TestNiceCryptSims : public CxxTest::TestSuite
             }
             else if (cycleType==WNT)
             {
-                WntGradient wnt_gradient(LINEAR);
+                WntGradient wnt_gradient(OFFSET_LINEAR);
+                double wnt = wnt_gradient.GetWntLevel(y);
+                p_cell_cycle_model = new WntCellCycleModel(wnt,0);
+                typical_transit_cycle_time = 16.0;
+                typical_stem_cycle_time = typical_transit_cycle_time;
+            }
+            else if (cycleType==STOCHASTIC_WNT)
+            {
+                WntGradient wnt_gradient(OFFSET_LINEAR);
                 double wnt = wnt_gradient.GetWntLevel(y);
                 p_cell_cycle_model = new StochasticWntCellCycleModel(wnt,0);
                 typical_transit_cycle_time = 16.0;
@@ -180,7 +189,7 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, WNT, true);
+        CreateVectorOfCells(cells, *p_mesh, STOCHASTIC_WNT, true);
               
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
@@ -215,10 +224,8 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         
         // set a cell to be labelled (a stemish cell)
         simulator.rGetCrypt().rGetCellAtNodeIndex(37).SetMutationState(LABELLED);
-        simulator.rGetCrypt().rGetCellAtNodeIndex(38).SetMutationState(LABELLED);
-        simulator.rGetCrypt().rGetCellAtNodeIndex(39).SetMutationState(LABELLED);
-        simulator.rGetCrypt().rGetCellAtNodeIndex(40).SetMutationState(LABELLED);
-        simulator.rGetCrypt().rGetCellAtNodeIndex(41).SetMutationState(LABELLED);
+        simulator.rGetCrypt().rGetCellAtNodeIndex(194).SetMutationState(LABELLED);
+        simulator.rGetCrypt().rGetCellAtNodeIndex(304).SetMutationState(LABELLED);
         
         simulator.Save(); 
 

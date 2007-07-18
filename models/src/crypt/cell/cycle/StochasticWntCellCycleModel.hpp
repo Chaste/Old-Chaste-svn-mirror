@@ -14,16 +14,16 @@
 class StochasticWntCellCycleModel : public WntCellCycleModel
 {
   private:
-    double GetWntSG2MDuration()
+
+    /**
+     * This is needed because a wnt model which is not to be run from the current time is 
+     * sometimes needed. Should only be called by the cell itself when it wants to divide.
+     */
+    StochasticWntCellCycleModel(std::vector<double> proteinConcentrations, double birthTime)
+      : WntCellCycleModel(proteinConcentrations, birthTime)
     {
-        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-        double mean = CancerParameters::Instance()->GetSG2MDuration();
-        double standard_deviation = 0.1*mean;
-        double duration = p_gen->NormalRandomDeviate(mean,standard_deviation);
-        //std::cout << "Duration = " << duration << "\n" << std::flush;
-        return duration;
     }
-    
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -31,12 +31,45 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
         archive & boost::serialization::base_object<WntCellCycleModel>(*this);
     }
     
+  protected:
+    /**
+     * This is a function which overrides that in WntCellCycleModel and 
+     * introduces the stochastic element of this class. 
+     * We allow the duration of the S->G2->M phase of the cell cycle to 
+     * vary with a mean of its deterministic duration and a standard 
+     * deviation of 10% of that.
+     * 
+     * @return the duration of the S->G2->M phases of the cell cycle.
+     */
+    double GetWntSG2MDuration()
+    {
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        double mean = CancerParameters::Instance()->GetSG2MDuration();
+        double standard_deviation = 0.1*mean;
+        return p_gen->NormalRandomDeviate(mean,standard_deviation);
+    }
     
   public:
     
+    /**
+     * The standard constructor called in tests
+     */
     StochasticWntCellCycleModel(double wntLevel, unsigned mutationState = 0u)
       :  WntCellCycleModel(wntLevel, mutationState)
     {
+    }
+    
+    /**
+     * Returns a new StochasticWntCellCycleModel created with the correct initial conditions.
+     *
+     * Should be called just after the parent cell cycle model has been .Reset().
+     *
+     */
+    AbstractCellCycleModel* CreateCellCycleModel()
+    {
+        // calls a cheeky version of the constructor which makes the new cell cycle model
+        // the same age as the old one - not a copy at this time.
+        return new StochasticWntCellCycleModel(GetProteinConcentrations(), GetBirthTime());
     }
     
     

@@ -23,6 +23,8 @@
  */
 class WntCellCycleModel : public AbstractCellCycleModel
 {
+    friend class StochasticWntCellCycleModel;// to allow access to private constructor below.
+    
 private:
     WntCellCycleOdeSystem mOdeSystem;
     static RungeKutta4IvpOdeSolver msSolver;
@@ -49,7 +51,9 @@ private:
         archive & mReadyToDivide;
     }
     
+protected:    
     virtual double GetWntSG2MDuration();
+    
 public:
 
     WntCellCycleModel(double InitialWntStimulus, unsigned mutationStatus = 0);

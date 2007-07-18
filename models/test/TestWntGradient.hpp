@@ -53,6 +53,10 @@ public:
         
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
         
+        height = -1e-12;    // for cells very close to 0 on negative side.
+        wnt_level = wnt_gradient3.GetWntLevel(height);
+        TS_ASSERT_DELTA(wnt_level, 1.0, 1e-9);        
+        
         height = 21.0;
         wnt_level = wnt_gradient3.GetWntLevel(height);
         
@@ -78,6 +82,10 @@ public:
         wnt_level = wnt_gradient3.GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
+        
+        height = -1e-12;
+        wnt_level = wnt_gradient3.GetWntLevel(height);
+        TS_ASSERT_DELTA(wnt_level, 1.0, 1e-9);        
         
         height = 21.0;
         wnt_level = wnt_gradient3.GetWntLevel(height);

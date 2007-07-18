@@ -13,7 +13,7 @@
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
-#include "WntCellCycleModel.hpp"
+#include "StochasticWntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
@@ -361,7 +361,7 @@ public:
         SimulationTime::Destroy();
     }
     
-    void TestWithCellCycleModel() throw(Exception)
+    void TestWithFixedCellCycleModel() throw(Exception)
     {
         CancerParameters::Instance()->Reset();
         // Simulation time is 6000 because we want to test that differentiated cells never divide.
@@ -820,6 +820,103 @@ public:
         }
         
         SimulationTime::Destroy();
+    }
+    
+    /*
+     * We are checking that the MeinekeCryptCells work with the StochasticWnt cell cycle models here
+     * That division of wnt cells and stuff works OK.
+     * 
+     * It checks that the cell division thing works nicely too.
+     */
+    void TestWithStochasticWntCellCycleModel() throw(Exception)
+    {
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        RandomNumberGenerator::Instance()->Reseed(0);
+        CancerParameters *p_parameters = CancerParameters::Instance();
+        p_parameters->Reset();
+        
+        // these are the first three normal random with mean 10, s.d. 1 and this seed (0)
+        double SG2MDuration1 = 9.0676;
+        double SG2MDuration2 = 11.1632;
+        double SG2MDuration3 = 9.2712;
+        
+        unsigned num_steps=100;
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
+        
+        double wnt_stimulus = 1.0;
+        MeinekeCryptCell wnt_cell(TRANSIT, // type
+                                  HEALTHY,//Mutation State
+                                  1,    // generation
+                                  new StochasticWntCellCycleModel(wnt_stimulus));
+                                  
+        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            std::vector<double> wnt;
+            wnt.push_back(wnt_stimulus);
+            if (time>=5.971+SG2MDuration1)
+            {
+                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+            }
+            else
+            {
+                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
+            }
+            //std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
+        }
+        
+        std::vector<double> wnt;
+        wnt.push_back(wnt_stimulus);
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+        TS_ASSERT(wnt_cell.GetGeneration()==1);
+        
+        MeinekeCryptCell wnt_cell2 = wnt_cell.Divide();
+        
+        TS_ASSERT(wnt_cell.GetGeneration()==2);
+        TS_ASSERT(wnt_cell2.GetGeneration()==2);
+        
+        //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
+        
+        double timeOfBirth = wnt_cell.GetBirthTime();
+        double timeOfBirth2 = wnt_cell2.GetBirthTime();
+        
+        TS_ASSERT_DELTA(timeOfBirth, timeOfBirth2, 1e-9);
+        
+        //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
+        
+        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            std::vector<double> wnt;
+            wnt.push_back(wnt_stimulus);
+            bool result1=wnt_cell.ReadyToDivide(wnt);
+            bool result2=wnt_cell2.ReadyToDivide(wnt);
+            //std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
+            if (time>=5.971+SG2MDuration2+timeOfBirth)
+            {
+                TS_ASSERT(result1==true);
+            }
+            else
+            {
+                TS_ASSERT(result1==false);
+            }
+            if (time>=5.971+SG2MDuration3+timeOfBirth)
+            {
+                TS_ASSERT(result2==true);
+            }
+            else
+            {
+                TS_ASSERT(result2==false);
+            }
+            
+        }
+        
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
     
     /*

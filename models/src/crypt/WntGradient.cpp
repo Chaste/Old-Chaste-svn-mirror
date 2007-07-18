@@ -29,7 +29,7 @@ double WntGradient::GetWntLevel(double height)
         double crypt_height = mpCancerParams->GetCryptLength();
         //std::cout << "Crypt Height = " << crypt_height << " height = " << height << "\n";
         
-        if ((height >= 0) && (height < crypt_height))
+        if ((height >= -1e-9) && (height < crypt_height))
         {
             wnt_level = 1.0 - height/crypt_height;
         }
@@ -45,7 +45,7 @@ double WntGradient::GetWntLevel(double height)
         double crypt_height = mpCancerParams->GetCryptLength();
         //std::cout << "Crypt Height = " << crypt_height << " height = " << height << "\n";
         double top_of_gradient = 1.0/3.0; // of crypt height.
-        if ((height >= 0) && (height < top_of_gradient*crypt_height))
+        if ((height >= -1e-9) && (height < top_of_gradient*crypt_height))
         {
             wnt_level = 1.0 - height/(top_of_gradient*crypt_height);
         }
