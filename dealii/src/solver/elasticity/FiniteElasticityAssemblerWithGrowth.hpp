@@ -52,6 +52,8 @@ protected:
     double mOdeDt;
     bool   mTimesSet;
     
+    bool mNoRefinement;
+    
     Vector<double> mGrowthValuesAtVertices;
     std::vector<GrowthByConstantMassOdeSystem<DIM>*> mGrowthOdeSystems;
     EulerIvpOdeSolver mOdeSolver;
@@ -112,6 +114,11 @@ public:
      *  this vertex in the mesh. Mainly for testing purposes
      */
     bool IsGrowingNode(unsigned vertexIndex);
+    
+    /** 
+     *  Switches off refinement/coarsening of overgrown/shrunken elements
+     */
+    void SetNoRefinement();
     
     /* Inherited
         virtual void Solve();

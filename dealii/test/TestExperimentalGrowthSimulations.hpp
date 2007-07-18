@@ -16,7 +16,7 @@
 #include "ConcentrationBasedTumourSourceModel.hpp"
 #include "ConstantTumourSourceModel.hpp"
 #include "grid/tria_boundary_lib.h"
-
+#include "ConstantTumourSourceModel.hpp"
 
 
 class TumourGrowingDyingSourceModel : public AbstractGrowingTumourSourceModel<2>
@@ -47,8 +47,6 @@ public :
         }
     }
 };
-
-
 
 class TestExperimentalGrowthSimulations : public CxxTest::TestSuite
 {
@@ -91,9 +89,9 @@ private :
 public :
     // silly hack to avoid any 'no tests defined' errors if all tests are 'NO_Test'ed out 
     // (this test suite is in the ExtraSimulations test pack so won't be run)
-    void TestDefineATest()
+    void TestOnePlusOneEqualsTwo()
     {
-        TS_ASSERT_EQUALS(1,1);
+        TS_ASSERT_EQUALS(1+1,2);
     }
 
 
@@ -164,25 +162,8 @@ public :
                                                                       &mooney_rivlin_law,
                                                                       body_force,
                                                                       density,
-                                                                      "finite_elas_growth/simple2d",
+                                                                      "finite_elas_growth/square2d",
                                                                       &source_model);
-                
-                
-        // loop over all the elements, and if it is in the growing region, check
-        // each node has an ode system associated with it...
-        Triangulation<2>::active_cell_iterator element_iter = mesh.begin_active();
-        while (element_iter!=mesh.end())
-        {
-            if (element_iter->material_id()==GROWING_REGION)
-            {
-                for (unsigned i=0; i<GeometryInfo<2>::vertices_per_cell; i++)
-                {
-                    unsigned vertex_index = element_iter->vertex_index(i);
-                    TS_ASSERT_EQUALS(finiteelas_with_growth.IsGrowingNode(vertex_index), true);
-                }
-            }
-            element_iter++;
-        }
         
         
         finiteelas_with_growth.SetTimes(0.0, 10.0, 0.1);
@@ -191,24 +172,21 @@ public :
     }
     
     
-    void NO_Test2dPolypFormationWithElasticUnderside() throw(Exception)
+    void Test2dPolypFormationWithElasticUnderside() throw(Exception)
     {
         Vector<double> body_force(2); // zero
         double density = 1.0;
-
-        double length = 30;
-        double height = 30;
 
         MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
 
         Triangulation<2> mesh;
         Point<2> zero;
         Point<2> opposite_corner;
-        opposite_corner[0] = length;
-        opposite_corner[1] = height;
+        opposite_corner[0] = 1.0;
+        opposite_corner[1] = 1.0;
         
-        unsigned num_elem_x = 30;
-        unsigned num_elem_y = 30;
+        unsigned num_elem_x = 20;
+        unsigned num_elem_y = 20;
         
         std::vector<unsigned> repetitions;
         repetitions.push_back(num_elem_x);
@@ -218,25 +196,32 @@ public :
 
         // set all elements as growing region (using a circle with a big radius)
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, length, false);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 1.0, false);
 
         FiniteElasticityTools<2>::SetAllElementsAsNonGrowingRegion(mesh);
+
+        bool found_an_element = false;
 
         Triangulation<2>::active_cell_iterator element_iter = mesh.begin_active();
         while (element_iter!=mesh.end())
         {
             for (unsigned i=0; i<GeometryInfo<2>::vertices_per_cell; i++)
             {
-                if (fabs(element_iter->vertex(i)[1]-height) < 1e-4)
+                double x = element_iter->vertex(i)[0];
+                double y = element_iter->vertex(i)[1];
+                if ( (fabs(y-1.0) < 1e-4) && (x>0.4) && (x<0.6) )   
                 {
+                    found_an_element = true;
                     element_iter->set_material_id(GROWING_REGION);
                 }
             }
             element_iter++;
         }
 
+        assert(found_an_element);
 
-        ConcentrationBasedTumourSourceModel<2> source_model(mesh);
+        double source_value = 1;        
+        ConstantTumourSourceModel<2> source_model(source_value);
         
         FiniteElasticityAssemblerWithGrowth<2> finiteelas_with_growth(&mesh,
                                                                       &mooney_rivlin_law,
@@ -245,7 +230,7 @@ public :
                                                                       "finite_elas_growth/polyp2d_elastic_under",
                                                                       &source_model);
                 
-        finiteelas_with_growth.SetTimes(0.0, 10, 0.1);
+        finiteelas_with_growth.SetTimes(0.0, 3, 0.1);
         finiteelas_with_growth.Run();
     }
     

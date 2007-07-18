@@ -882,10 +882,8 @@ void FiniteElasticityAssembler<DIM>::WriteOutput(unsigned counter, bool writeDef
         {
             elem_output << element_iter->vertex_index(i) << " ";
         }
-///\ TODO fix this:
-//        elem_output << element_iter->unsigned(material_id()) << "\n";
-//then delete this:
-        elem_output << "\n";
+        unsigned material_id = element_iter->material_id();
+        elem_output << material_id << "\n";
     }
 
     elem_output.close();   

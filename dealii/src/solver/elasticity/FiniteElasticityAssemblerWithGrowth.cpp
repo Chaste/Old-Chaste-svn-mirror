@@ -29,7 +29,7 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
     mpSourceModel = pSourceModel;
     
     mTimesSet = false;
-    
+    mNoRefinement = false;   
     ///////////////////////////////////////////////////////////
     // initialise growth variables
     ///////////////////////////////////////////////////////////
@@ -584,6 +584,10 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::SetTimes(double Tstart, double Te
 template<unsigned DIM>
 bool FiniteElasticityAssemblerWithGrowth<DIM>::RefineOvergrownElements()
 {
+    if(mNoRefinement)
+    {
+        return false;
+    }
     typename Triangulation<DIM>::active_cell_iterator element_iter = this->mpMesh->begin_active();
     
     // determine if there any elements to refine
@@ -880,6 +884,13 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteGrowthValuesAtVertices(unsig
     } 
     
     growth_vals_output.close();
+}
+
+
+template<unsigned DIM>
+void FiniteElasticityAssemblerWithGrowth<DIM>::SetNoRefinement()
+{
+    mNoRefinement = true;
 }
 
 #undef COVERAGE_IGNORE
