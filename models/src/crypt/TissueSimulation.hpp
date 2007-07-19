@@ -187,7 +187,7 @@ protected:
      *
      * @return drdt the force components on each node
      */
-    std::vector<c_vector<double, DIM> > CalculateVelocitiesOfEachNode();
+    virtual std::vector<c_vector<double, DIM> > CalculateVelocitiesOfEachNode();
     
     /**
      * Calculates the force between two nodes.
@@ -233,6 +233,7 @@ public:
     virtual ~TissueSimulation();
     
     void SetDt(double dt);
+    double GetDt();
     void SetEndTime(double endTime);
     void SetOutputDirectory(std::string outputDirectory);
     void SetMaxCells(unsigned maxCells);

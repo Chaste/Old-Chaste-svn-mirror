@@ -434,6 +434,15 @@ void TissueSimulation<DIM>::SetDt(double dt)
 }
 
 /**
+ * Get the timestep of the simulation
+ */
+template<unsigned DIM> 
+double TissueSimulation<DIM>::GetDt()
+{
+    return mDt;
+}
+
+/**
  * Sets the end time and resets the timestep to be endtime/100
  */
 template<unsigned DIM> 

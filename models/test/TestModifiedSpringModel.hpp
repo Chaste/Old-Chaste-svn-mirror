@@ -166,6 +166,7 @@ private:
             mrMesh.SetNode(index, new_point, false);
         }
         
+        //just to keep elements non-inverted. no computational need for this
         NodeMap map(mrMesh.GetNumNodes());
         mrMesh.ReMesh(map);
     }
