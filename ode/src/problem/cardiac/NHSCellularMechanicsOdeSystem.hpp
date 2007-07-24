@@ -173,6 +173,11 @@ public :
         mCalciumI = calciumI;
     }
     
+    double GetCalciumTroponinValue()
+    {
+        return mStateVariables[0];
+    }
+    
     void EvaluateYDerivatives(double time,
                               const std::vector<double> &rY,
                               std::vector<double> &rDY)

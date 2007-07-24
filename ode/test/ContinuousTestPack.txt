@@ -2,6 +2,7 @@ TestAbstractIvpOdeSolver.hpp
 TestAbstractOdeSystem.hpp
 TestAbstractAnalyticJacobian.hpp
 TestCellularMechanicsOdeSystems.hpp
+TestElectroMechanicCellularModels.hpp
 TestIonicModels.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestMockEulerIvpOdeSolver.hpp
