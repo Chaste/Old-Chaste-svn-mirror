@@ -49,7 +49,8 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
 }
 
 /**
- * Free any memory allocated by the constructor
+ * Free any memory allocated by the constructor.
+ * This frees the crypt and cell killers, if they were created by de-serialization.
  */
 template<unsigned DIM> 
 TissueSimulation<DIM>::~TissueSimulation()
@@ -57,6 +58,12 @@ TissueSimulation<DIM>::~TissueSimulation()
     if (mDeleteCrypt)
     {
         delete &mrCrypt;
+        for (typename std::vector<AbstractCellKiller<DIM>*>::iterator it=mCellKillers.begin();
+             it != mCellKillers.end();
+             ++it)
+        {
+            delete *it;
+        }
     }
 }
 
