@@ -132,7 +132,7 @@ public:
             do
             {
                 PointStimulusCellFactory cell_factory(time_step);
-                MonodomainProblem<1> monodomain_problem(&cell_factory);01D
+                MonodomainProblem<1> monodomain_problem(&cell_factory);
                 
                 monodomain_problem.SetMeshFilename(mesh_pathname);
                 monodomain_problem.SetEndTime(200);   // 200 ms
@@ -165,7 +165,7 @@ public:
                     {
                         // Get ready for the next test by halving the time step
                         
-                        time_step *= 0.5;01D
+                        time_step *= 0.5;
                     }
                     
                     prev_voltage_for_time = probe_voltage;
