@@ -13,20 +13,23 @@
 #include "RegularStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "SimpleDataWriter.hpp"
 
 // specify a functional form of lambda rather than get it from the mechanics.
 // Use tanh so that lambda starts at 1.0 and decreases quickly to 0.8 halfway
 // through the simulation 
-double MyLam(double t, double endTime)
+double MyLam(double t, double endTime, double minLam)
 {
+    double middle = (minLam + 1)/2;
     double scaled_t = 10*t/endTime - 5;
-    return 0.9 + 0.1*tanh(scaled_t);
+    return middle + (1-middle)*tanh(scaled_t);
 }
 
-double MyLamDeriv(double t, double endTime)
+double MyLamDeriv(double t, double endTime, double minLam)
 {
+    double middle = (minLam + 1)/2;
     double scaled_t = 10*t/endTime - 5;
-    return (1.0/endTime)*(1-tanh(scaled_t)*tanh(scaled_t));
+    return (10*(1-middle)/endTime)*(1-tanh(scaled_t)*tanh(scaled_t));
 }
 
 
@@ -41,8 +44,10 @@ public:
         double when      =   0.0;  // ms
         InitialStimulus stimulus(magnitude, duration, when);
         
-        double end_time = 1.0; 
+        double end_time = 10.0; 
         double time_step = 0.001; 
+        
+        double min_lam = 0.9;
                
         EulerIvpOdeSolver solver;
         LuoRudyIModel1991OdeSystem electrophys_model(&solver, time_step, &stimulus);
@@ -76,8 +81,8 @@ public:
             double Ca_I = electrophys_model.rGetStateVariables()[Ca_i_index];
             
             // set lam, dlam_dt and Ca_i in the cellular mechanics model
-            double lam = MyLam(current_time, end_time);
-            double dlam_dt = MyLamDeriv(current_time, end_time);
+            double lam = MyLam(current_time, end_time, min_lam);
+            double dlam_dt = MyLamDeriv(current_time, end_time, min_lam);
             cellmech_model.SetLambda1DerivativeAndCalciumI(lam, dlam_dt, Ca_I);
             
             // solve the cellular mechanics model
@@ -91,11 +96,11 @@ public:
                 electrophys_model_state_vars[Ca_trop_index] = cellmech_model.GetCalciumTroponinValue();
             }
             
-            std::cout << current_time << " " << cellmech_model.GetActiveTension() << "\n";
-
-//            times.push_back(current_time);
-//            active_tensions.push_back( cellmech_model.GetActiveTension() );
+            times.push_back(current_time);
+            active_tensions.push_back( cellmech_model.GetActiveTension() );
         }
+        
+        SimpleDataWriter writer("TestElectroMechanicCellularModels", "specified_lambda.dat", times, active_tensions);
         
     }
 };
