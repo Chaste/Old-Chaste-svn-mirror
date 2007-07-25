@@ -290,10 +290,15 @@ public:
         //Throws because EndTime has not been set
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
         bidomain_problem.SetEndTime(1);  // ms
-        
+               
         // set output data to avoid their exceptions (which is covered in TestMonoDg0Assembler
         bidomain_problem.SetOutputDirectory("temp");
         bidomain_problem.SetOutputFilenamePrefix("temp");
+ 
+        //Throws when we try to print more often than the pde time step 
+        bidomain_problem.SetPdeTimeStep(0.2);
+        bidomain_problem.SetPrintingTimeStep(0.1);
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
         
         //Throws because the node number is slightly bigger than the number of nodes in the mesh
         std::vector<unsigned> too_large;

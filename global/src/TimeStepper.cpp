@@ -20,6 +20,19 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt)
     {
         EXCEPTION("The simulation duration must be strictly positive");
     }
+    /*
+     * \todo This assertion breaks several tests
+     * 
+    if (endTime-startTime < dt-smidge)
+    {
+       std::cout<<"Span is "<<endTime-startTime<<"\n";
+       std::cout<<"Delta is "<<dt<<"\n";
+       assert(0); 
+    }
+     */
+    
+        
+    
     mNextTime=CalculateNextTime();
 }
 

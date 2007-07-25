@@ -11,7 +11,7 @@
 
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "BackwardEulerLuoRudyIModel1991.hpp"
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshWriter.cpp"
 
@@ -36,11 +36,11 @@ public:
         //double z = mpMesh->GetNode(node)->GetPoint()[2];
         if (x*x<=1e-10)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
+            return new BackwardEulerLuoRudyIModel1991(mTimeStep, mpStimulus, mpZeroStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
+            return new BackwardEulerLuoRudyIModel1991(mTimeStep, mpZeroStimulus, mpZeroStimulus);
         }
     }
     
@@ -129,11 +129,7 @@ public:
             do  //do while: pde_time_step
             {
 
-                /*******/
-                //Over-ride the new ode_time_step tweaking code so that we might expect rapid 
-                //pde_time_step convergence
-                ode_time_step=0.0025;
-                /*******/
+                ode_time_step=pde_time_step;
                 
                 PointStimulusCellFactory cell_factory(ode_time_step, num_elements[current_file_num]);
                 BidomainProblem<3> bidomain_problem(&cell_factory);

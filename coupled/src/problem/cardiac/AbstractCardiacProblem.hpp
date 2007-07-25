@@ -126,6 +126,10 @@ public:
                 EXCEPTION("Either explicitly specify not to print output (call SetPrintOutput(false)) or specify the output directory and filename prefix");
             }
         }
+        if (  mPrintingTimeStep < mPdeTimeStep - 1e-10)
+        {
+            EXCEPTION("Printing time step is less than Pde time step");
+        }
     }
     
     // Perhaps this should be a method of AbstractCardiacPde??)
