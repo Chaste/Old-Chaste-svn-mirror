@@ -7,7 +7,7 @@
 
 #include "LinearSystem.hpp"
 #include "AbstractLinearEllipticPde.hpp"
-#include "AbstractLinearStaticProblemAssembler.hpp"
+#include "AbstractLinearAssembler.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractLinearSolver.hpp"
@@ -20,7 +20,7 @@
  *  Assembler for solving AbstractLinearEllipticPdes
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class SimpleLinearEllipticAssembler : public AbstractLinearStaticProblemAssembler<ELEMENT_DIM, SPACE_DIM, 1>
+class SimpleLinearEllipticAssembler : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1>
 {
     friend class TestSimpleLinearEllipticAssembler;
     
@@ -80,7 +80,8 @@ public:
                                   AbstractLinearEllipticPde<SPACE_DIM>* pPde,
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2) :
-            AbstractLinearStaticProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later
@@ -94,7 +95,7 @@ public:
      */
     void PrepareForSolve()
     {
-        AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>::PrepareForSolve();
+        AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1>::PrepareForSolve();
         assert(mpEllipticPde != NULL);
     }
 };

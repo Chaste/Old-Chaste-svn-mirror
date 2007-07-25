@@ -30,7 +30,7 @@ protected:
         return mpBidomainPde;
     }
     
-    AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, 2>* CreateAssembler()
+    AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 2>* CreateAssembler()
     {
         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_bidomain_assembler
             = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(&this->mMesh, mpBidomainPde,

@@ -1,37 +1,19 @@
-#ifndef _ABSTRACTLINEARDYNAMICPROBLEMASSEMBLER_HPP_
-#define _ABSTRACTLINEARDYNAMICPROBLEMASSEMBLER_HPP_
+#ifndef _ABSTRACTDYNAMICASSEMBLERMIXIN_HPP_
+#define _ABSTRACTDYNAMICASSEMBLERMIXIN_HPP_
 
-/**
- *  AbstractLinearDynamicProblemAssembler
- *
- *  Abstract superclass for classes that assemble and solve the linear system
- *  for a dynamic linear PDE, for example a parabolic PDE or the bidomain
- *  equations.
- *
- *  The template parameter PROBLEM_DIM represents the number of
- *  unknown dependent variables in the problem (ie 1 in for example u_xx + u_yy = 0,
- *  2 in u_xx + v = 0, v_xx + 2u = 1
- *
- *  SetTimes() and SetInitialCondition() should be called be the user prior to
- *  Solve().
- */
 #include <vector>
 #include <petscvec.h>
 
-#include "AbstractLinearAssembler.hpp"
-#include "ConformingTetrahedralMesh.hpp"
-#include "BoundaryConditionsContainer.hpp"
-#include "AbstractLinearSolver.hpp"
+#include "AbstractAssembler.hpp"
 #include "TimeStepper.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class AbstractLinearDynamicProblemAssembler : public AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
+class AbstractDynamicAssemblerMixin : virtual public AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
 {
-protected :
+protected:
     double mTstart;
     double mTend;
     double mDt, mDtInverse;
-    
     bool   mTimesSet;
     
     Vec    mInitialCondition;
@@ -46,14 +28,12 @@ protected :
      */
     bool mMatrixIsConstant;
         
-public :
+public:
     /**
-     * AbstractLinearDynamicProblemAssembler
-     * Constructors just call the base class versions.
+     * Constructor notes we haven't been initialised fully yet.
+     * The user needs to call SetTimes and SetInitialCondition.
      */
-    AbstractLinearDynamicProblemAssembler(unsigned numQuadPoints = 2,
-                                          double linearSolverRelativeTolerance = 1e-6) :
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints, linearSolverRelativeTolerance)
+    AbstractDynamicAssemblerMixin()
     {
         mTimesSet = false;
         mInitialCondition = NULL;
@@ -62,7 +42,9 @@ public :
     }
     
     /**
-     *  Set the times to solve between, and the time step to use
+     * Set the times to solve between, and the time step to use.
+     * 
+     * \todo change this to take in a TimeStepper instance?
      */
     void SetTimes(double Tstart, double Tend, double dt)
     {
@@ -97,7 +79,7 @@ public :
     void SetMatrixIsConstant()
     {
         mMatrixIsConstant = true;
-        this->mpLinearSolver->SetMatrixIsConstant();
+        AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetMatrixIsConst();
     }
     
     /**
@@ -113,6 +95,7 @@ public :
      */
     Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
+        //std::cout << "Mixin solve" << std::endl;
         assert(mTimesSet);
         assert(mInitialCondition != NULL);
         
@@ -145,4 +128,4 @@ public :
 
 };
 
-#endif //_ABSTRACTLINEARDYNAMICPROBLEMASSEMBLER_HPP_
+#endif //_ABSTRACTDYNAMICASSEMBLERMIXIN_HPP_

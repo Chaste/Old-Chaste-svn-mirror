@@ -7,7 +7,7 @@
 #include <petscvec.h>
 #include <petscmat.h>
 
-#include "AbstractNonlinearStaticAssembler.hpp"
+#include "AbstractNonlinearAssembler.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
@@ -26,7 +26,7 @@
  * It probably needs re-writing to take advantage of parallel machines.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class SimpleNonlinearEllipticAssembler : public AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1>
+class SimpleNonlinearEllipticAssembler : public AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, 1>
 {
     // Allow tests to access private members, in order to test computation of
     // residual & jacobian directly.
@@ -144,7 +144,8 @@ public :
                                       AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
                                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
                                       unsigned numQuadPoints = 2) :
-            AbstractNonlinearStaticAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
+            AbstractNonlinearAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
     {
         // Store data structures
         assert(pMesh!=NULL);

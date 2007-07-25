@@ -14,15 +14,15 @@
 #include "AbstractLinearSolver.hpp"
 #include "BidomainPde.hpp"
 #include "GaussianQuadratureRule.hpp"
-#include "AbstractLinearDynamicProblemAssembler.hpp"
+#include "AbstractDynamicAssemblerMixin.hpp"
+#include "AbstractLinearAssembler.hpp"
 #include "DistributedVector.hpp"
 
 
 /**
  *  BidomainDg0Assembler
  *
- *  inherits from AbstractLinearDynamicProblemAssembler<ELEM_DIM, SPACE_DIM, 2> (the
- *  2 representing the number of unknowns (ie voltage and extracellular potential)).
+ *  The 2 unknowns are voltage and extracellular potential.
  *
  *  This assembler interpolates quantities such as ionic currents and stimuli from
  *  their nodal values (obtained from a BidomainPde) onto a gauss point, and uses
@@ -30,14 +30,15 @@
  *  which are zero-Neumann boundary conditions on the surface unless
  *  SetFixedExtracellularPotentialNodes() is called.
  *
- *  The user should call Solve() from the superclass AbstractLinearDynamicProblemAssembler.
+ *  The user should call Solve() from the superclass AbstractDynamicAssemblerMixin.
  *
  *  NOTE: if any cells have a non-zero extracellular stimulus, phi_e must be fixed at some
  *  nodes (using SetFixedExtracellularPotentialNodes() ), else no solution is possible.
  */
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class BidomainDg0Assembler : public AbstractLinearDynamicProblemAssembler<ELEMENT_DIM, SPACE_DIM, 2>
+class BidomainDg0Assembler : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 2>,
+                             public AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 2>
 {
 private:
     BidomainPde<SPACE_DIM>* mpBidomainPde;
@@ -297,7 +298,9 @@ public:
                          BidomainPde<SPACE_DIM>* pPde,
                          unsigned numQuadPoints = 2,
                          double linearSolverRelativeTolerance = 1e-6) :
-            AbstractLinearDynamicProblemAssembler<ELEMENT_DIM,SPACE_DIM,2>(numQuadPoints, linearSolverRelativeTolerance)
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,2>(),
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,2>(numQuadPoints, linearSolverRelativeTolerance),
+            AbstractDynamicAssemblerMixin<ELEMENT_DIM,SPACE_DIM,2>()
     {
         assert(pPde != NULL);
         assert(pMesh != NULL);

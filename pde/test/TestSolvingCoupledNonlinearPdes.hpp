@@ -11,7 +11,7 @@
 #include "SimpleNonlinearEllipticAssembler.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "TrianglesMeshReader.cpp"
-#include "AbstractNonlinearStaticAssembler.hpp"
+#include "AbstractNonlinearAssembler.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
 #include "ReplicatableVector.hpp"
 #include "NonlinearHeatEquationPde.hpp"
@@ -33,7 +33,7 @@
 //   \lambda is taken in in the constructor
 //////////////////////////////////////////////////////////////////////////////
 template <int DIM>
-class MySimpleNonlinearCoupledAssembler : public AbstractNonlinearStaticAssembler<DIM,DIM,2>
+class MySimpleNonlinearCoupledAssembler : public AbstractNonlinearAssembler<DIM,DIM,2>
 {
 private:
     double mLambda;
@@ -112,7 +112,7 @@ public:
     MySimpleNonlinearCoupledAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
                                       BoundaryConditionsContainer<DIM,DIM,2>* pBoundaryConditions,
                                       double lambda)
-            :  AbstractNonlinearStaticAssembler<DIM,DIM,2>()
+            :  AbstractNonlinearAssembler<DIM,DIM,2>()
     {
         this->mpMesh = pMesh;
         this->mpBoundaryConditions = pBoundaryConditions;
@@ -130,7 +130,7 @@ public:
 // where f and g (and boundary conditions) are chosen such that the solution is
 //    u = x^2,  v = y
 //////////////////////////////////////////////////////////////////////////////////
-class AnotherCoupledNonlinearAssembler : public AbstractNonlinearStaticAssembler<2,2,2>
+class AnotherCoupledNonlinearAssembler : public AbstractNonlinearAssembler<2,2,2>
 {
     double f(double x,double y)
     {
@@ -204,7 +204,7 @@ class AnotherCoupledNonlinearAssembler : public AbstractNonlinearStaticAssembler
 public :
     AnotherCoupledNonlinearAssembler(ConformingTetrahedralMesh<2,2>* pMesh,
                                      BoundaryConditionsContainer<2,2,2>* pBoundaryConditions)
-            :  AbstractNonlinearStaticAssembler<2,2,2>()
+            :  AbstractNonlinearAssembler<2,2,2>()
     {
         this->mpMesh = pMesh;
         this->mpBoundaryConditions = pBoundaryConditions;

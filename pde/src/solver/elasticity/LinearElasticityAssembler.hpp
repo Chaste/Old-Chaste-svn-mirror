@@ -1,7 +1,7 @@
 #ifndef LINEARELASTICITYASSEMBLER_HPP_
 #define LINEARELASTICITYASSEMBLER_HPP_
 
-#include "AbstractLinearStaticProblemAssembler.hpp"
+#include "AbstractLinearAssembler.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "ElasticityBoundaryConditionsContainer.hpp"
 
@@ -33,7 +33,7 @@
  *  NOTE: currently only solves heterogeneous problems.
  */
 template <unsigned DIM>
-class LinearElasticityAssembler : public AbstractLinearStaticProblemAssembler<DIM,DIM,DIM>
+class LinearElasticityAssembler : public AbstractLinearAssembler<DIM,DIM,DIM>
 {
 private :
     double mLambda;                  // units: anything, but {lambda, mu, rho, g} must be consistent
@@ -116,7 +116,7 @@ private :
      */
     void PrepareForSolve()
     {
-        AbstractLinearStaticProblemAssembler<DIM,DIM,DIM>::PrepareForSolve();
+        AbstractLinearAssembler<DIM,DIM,DIM>::PrepareForSolve();
         
         if (mLameCoefficientsSet == false)
         {
@@ -127,7 +127,8 @@ private :
 public :
     LinearElasticityAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
                               ElasticityBoundaryConditionsContainer<DIM>* pBoundaryConditions)
-            :  AbstractLinearStaticProblemAssembler<DIM,DIM,DIM>()
+            : AbstractAssembler<DIM,DIM,DIM>(),
+              AbstractLinearAssembler<DIM,DIM,DIM>()
     {
         assert(pMesh != NULL);
         assert(pBoundaryConditions != NULL);

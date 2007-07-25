@@ -50,7 +50,7 @@ protected:
      * 
      * This class will take responsibility for freeing the object when it is finished with.
      */
-    virtual AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
+    virtual AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
 
 public:    
     /**
@@ -274,7 +274,7 @@ public:
     void Solve()
     {
         PreSolveChecks();
-        AbstractLinearDynamicProblemAssembler<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* p_assembler = CreateAssembler();
+        AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* p_assembler = CreateAssembler();
         Vec initial_condition = CreateInitialCondition();
 
         TimeStepper stepper(mStartTime, mEndTime, mPrintingTimeStep);

@@ -7,8 +7,6 @@
 #include <petscvec.h>
 
 #include "ConformingTetrahedralMesh.cpp"
-#include "AbstractAssembler.hpp"
-#include "AbstractLinearAssembler.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "MonodomainPde.hpp"
@@ -25,7 +23,7 @@
  *  Also, the MonodomainAssembler automatically creates zero neumann boundary conditions
  *  when constructed and therefore does not need to take in a BoundaryConditionsContainer.
  *
- *  The user should call Solve() from the superclass AbstractLinearDynamicProblemAssembler.
+ *  The user should call Solve() from the superclass AbstractDynamicAssemblerMixin.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainDg0Assembler : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>
@@ -85,6 +83,7 @@ public:
                            MonodomainPde<SPACE_DIM>* pPde,
                            unsigned numQuadPoints = 2,
                            double linearSolverRelativeTolerance = 1e-6) :
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
             SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints, linearSolverRelativeTolerance)
     {
         mpMonodomainPde = pPde;

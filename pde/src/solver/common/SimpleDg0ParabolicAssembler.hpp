@@ -7,7 +7,8 @@
 
 #include "LinearSystem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
-#include "AbstractLinearDynamicProblemAssembler.hpp"
+#include "AbstractLinearAssembler.hpp"
+#include "AbstractDynamicAssemblerMixin.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractLinearSolver.hpp"
@@ -19,13 +20,14 @@
  *  Assembler for solving AbstractLinearParabolicPdes
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class SimpleDg0ParabolicAssembler : public AbstractLinearDynamicProblemAssembler<ELEMENT_DIM, SPACE_DIM, 1>
+class SimpleDg0ParabolicAssembler
+    : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1>,
+      public AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>
 {
-private :
+private:
     AbstractLinearParabolicPde<SPACE_DIM>* mpParabolicPde;
     
 protected:
-
     /**
      *  The term to be added to the element stiffness matrix: 
      *  
@@ -85,7 +87,9 @@ public:
                                 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                 unsigned numQuadPoints = 2,
                                 double linearSolverRelativeTolerance=1e-6) :
-            AbstractLinearDynamicProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints,linearSolverRelativeTolerance)
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints,linearSolverRelativeTolerance),
+            AbstractDynamicAssemblerMixin<ELEMENT_DIM,SPACE_DIM,1>()
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later
@@ -97,12 +101,17 @@ public:
     }
     
     /**
-     * Called by AbstractLinearDynamicProblemSolver at the beginning of Solve() 
+     * Called by AbstractDynamicAssemblerMixin at the beginning of Solve() 
      */
     virtual void PrepareForSolve()
     {
-        AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>::PrepareForSolve();
+        AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1>::PrepareForSolve();
         assert(mpParabolicPde != NULL);
+    }
+    
+    Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
+    {
+        return AbstractDynamicAssemblerMixin<ELEMENT_DIM,SPACE_DIM,1>::Solve(currentSolutionOrGuess,currentTime);
     }
 };
 

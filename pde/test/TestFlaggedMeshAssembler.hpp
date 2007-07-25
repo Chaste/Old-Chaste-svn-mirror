@@ -9,7 +9,7 @@
 #include <iostream>
 #include "TrianglesMeshReader.cpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "FlaggedMeshAssembler.hpp"
+#include "ParabolicFlaggedMeshAssembler.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
 #include "TimeDependentDiffusionEquationPde.hpp"
 #include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
@@ -83,7 +83,7 @@ public :
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(8), p_boundary_condition);
         
         // Assembler
-        FlaggedMeshAssembler<1> assembler(&mesh,&pde,&bcc);
+        ParabolicFlaggedMeshAssembler<1> assembler(&mesh,&pde,&bcc);
         assembler.SetTimes(0.0, 1.0, 0.01);
         
         const size_t full_size = 11u;
@@ -400,7 +400,7 @@ public :
         FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(coarse_mesh, result);
 
         // Assembler
-        FlaggedMeshAssembler<2> flagged_assembler(&fine_mesh,&pde,&flagged_bcc);
+        ParabolicFlaggedMeshAssembler<2> flagged_assembler(&fine_mesh,&pde,&flagged_bcc);
         flagged_assembler.SetTimes(0.0, 0.01, 0.01);
         flagged_assembler.SetInitialCondition(initial_condition_fine);
         
@@ -642,7 +642,7 @@ public :
                 FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(coarse_mesh, result);
         
                 // Assembler for fine mesh flagged region
-                FlaggedMeshAssembler<2> flagged_assembler(&fine_mesh, &pde, &flagged_bcc);
+                ParabolicFlaggedMeshAssembler<2> flagged_assembler(&fine_mesh, &pde, &flagged_bcc);
                 flagged_assembler.SetTimes(current_time, current_time+dt, dt);
                 flagged_assembler.SetInitialCondition(initial_condition_fine);
                 

@@ -6,7 +6,7 @@
 #include <iostream>
 #include <petscvec.h>
 
-#include "AbstractAssembler.hpp"
+#include "AbstractStaticAssembler.hpp"
 #include "AbstractLinearSolver.hpp"
 #include "SimpleLinearSolver.cpp"
 
@@ -14,7 +14,7 @@
  *  AbstractLinearAssembler. See AbstractAssembler for usage.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class AbstractLinearAssembler : public AbstractAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
+class AbstractLinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 {
 
 protected:
@@ -22,6 +22,12 @@ protected:
      * The linear solver used to solve the linear system at each time step.
      */
     AbstractLinearSolver *mpLinearSolver;
+    
+    /** Hack for dynamic mixin */
+    void SetMatrixIsConst()
+    {
+        mpLinearSolver->SetMatrixIsConstant();
+    }
     
     /**
      * Apply Dirichlet boundary conditions to the linear system.
@@ -71,14 +77,28 @@ protected:
                             bool assembleMatrix=true)
     {
         this->AssembleSystem(true, assembleMatrix, currentSolutionOrGuess, currentTime);
-        return this->mpLinearSystem->Solve(this->mpLinearSolver, currentSolutionOrGuess);
+        PetscInt vec_size;
+        if (currentSolutionOrGuess)
+        {
+            VecGetSize(currentSolutionOrGuess, &vec_size);
+        }
+        if (currentSolutionOrGuess && (unsigned)vec_size == this->mpLinearSystem->GetSize())
+        {
+            return this->mpLinearSystem->Solve(this->mpLinearSolver, currentSolutionOrGuess);
+        }
+        else
+        {
+            // When solving on a flagged mesh, the linear system is smaller than the current solution,
+            // so we can't use the current solution as an initial guess for the linear solver.
+            return this->mpLinearSystem->Solve(this->mpLinearSolver);
+        }
     }
     
     
 public:
     AbstractLinearAssembler(unsigned numQuadPoints = 2,
                             double linearSolverRelativeTolerance = 1e-6) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
+            AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
     {
         mpLinearSolver = new SimpleLinearSolver(linearSolverRelativeTolerance);
     }
@@ -91,7 +111,23 @@ public:
         delete mpLinearSolver;
     }
     
-    
+    /**
+     *  Solve the static pde.
+     * 
+     *  The mesh, pde and boundary conditions container must be set before Solve() 
+     *  is called.
+     */
+    virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
+    {
+        std::cout << "ALA::Solve" << std::endl;
+        /// \todo move the asserts into PrepareForSolve()
+        assert(this->mpMesh!=NULL);
+        assert(this->mpBoundaryConditions!=NULL);
+        
+        this->PrepareForSolve();
+        this->InitialiseForSolve(currentSolutionOrGuess);
+        return this->StaticSolve(currentSolutionOrGuess, currentTime);
+    }
     
     /*
     void DebugWithSolution(Vec sol)

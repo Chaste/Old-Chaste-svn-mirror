@@ -11,7 +11,7 @@
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "TrianglesMeshReader.cpp"
-#include "AbstractLinearStaticProblemAssembler.hpp"
+#include "AbstractLinearAssembler.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 #include "ReplicatableVector.hpp"
 
@@ -47,7 +47,7 @@ public:
 //
 //   \lambda is taken in in the constructor
 //////////////////////////////////////////////////////////////////////////////
-class MySimpleCoupledAssembler : public AbstractLinearStaticProblemAssembler<2,2,2>
+class MySimpleCoupledAssembler : public AbstractLinearAssembler<2,2,2>
 {
     double mLambda;
     
@@ -117,7 +117,8 @@ public:
     MySimpleCoupledAssembler(ConformingTetrahedralMesh<2,2>* pMesh,
                              BoundaryConditionsContainer<2,2,2>* pBoundaryConditions,
                              double lambda) :
-            AbstractLinearStaticProblemAssembler<2,2,2>()
+            AbstractAssembler<2,2,2>(),
+            AbstractLinearAssembler<2,2,2>()
     {
         mpMesh = pMesh;
         mpBoundaryConditions = pBoundaryConditions;
@@ -170,6 +171,7 @@ class AnotherCoupledAssembler : public MySimpleCoupledAssembler
 public :
     AnotherCoupledAssembler(ConformingTetrahedralMesh<2,2>* pMesh,
                             BoundaryConditionsContainer<2,2,2>* pBoundaryConditions) :
+            AbstractAssembler<2,2,2>(),
             MySimpleCoupledAssembler(pMesh, pBoundaryConditions,0.0)
     {}
 };
