@@ -163,7 +163,7 @@ public :
         
         mLambda1 = 1.0;
         mDLambda1Dt = 0.0;
-        mCalciumI = 0.0;             // <------------------ ???? what should this be?
+        mCalciumI = 0.0;            
     }
     
     void SetLambda1DerivativeAndCalciumI(double lambda1, double dlambda1Dt, double calciumI)
@@ -173,7 +173,10 @@ public :
         mCalciumI = calciumI;
     }
     
+
+#define COVERAGE_IGNORE
     double GetCalciumTroponinValue()
+#undef COVERAGE_IGNORE
     {
         return mStateVariables[0];
     }

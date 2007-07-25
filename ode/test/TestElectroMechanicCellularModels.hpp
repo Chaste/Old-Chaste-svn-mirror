@@ -14,11 +14,15 @@
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
+// specify a functional form of lambda rather than get it from the mechanics.
+// Use tanh so that lambda starts at 1.0 and decreases quickly to 0.8 halfway
+// through the simulation 
 double MyLam(double t, double endTime)
 {
     double scaled_t = 10*t/endTime - 5;
     return 0.9 + 0.1*tanh(scaled_t);
 }
+
 double MyLamDeriv(double t, double endTime)
 {
     double scaled_t = 10*t/endTime - 5;

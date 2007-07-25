@@ -57,6 +57,39 @@ public:
     }
 };    
 
+
+//class LinearSurfaceAreaBasedCutoffSpringForceModel : public AbstractCutoffSpringForceModel
+//{
+//private:
+//    double mRestLength;
+//    double mBaseStiffness;
+//    
+//public:
+//    LinearSurfaceAreaBasedCutoffSpringForceModel(double cutoffPoint, double baseStiffness, double restLength)
+//        :  AbstractCutoffSpringForceModel(cutoffPoint),
+//           mRestLength(restLength),
+//           mBaseStiffness(baseStiffness)
+//    {
+//    }
+//    
+//    virtual ~LinearSurfaceAreaBasedCutoffSpringForceModel()
+//    {
+//    }
+//    
+//    double GetForce(double separation)
+//    {
+//        assert(separation < mCutoffPoint);
+//        
+//        double R = 0.5*mRestLength;
+//        double contact_area = 2*sqrt(R*R - 0.25*separation*separation);
+//        
+//        double effective_stiffness = mBaseStiffness * ( ?? );
+//        
+//        return effective_stiffness*(separation - mRestLength);
+//    }
+//};    
+
+
 class QuadraticCutoffSpringForceModel : public AbstractCutoffSpringForceModel
 {
 private:
@@ -405,15 +438,16 @@ public:
         
         HoneycombMeshGenerator generator(6,6,0,false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        p_mesh->Scale(1.0, 1.5);
 
-        double cutoff_point = 2.5;
-//        LinearCutoffSpringForceModel spring_model(cutoff_point, 1.5, 1.0);
-        QuadraticCutoffSpringForceModel spring_model(cutoff_point, 1.5, 1.0);
+        double cutoff_point = 2.0;
+        LinearCutoffSpringForceModel spring_model(cutoff_point, 30.0, 1.0);
+//        QuadraticCutoffSpringForceModel spring_model(cutoff_point, 1.5, 1.0);
         
         CutoffSpringTissueSimulation simulator(*p_mesh, &spring_model);
         
         simulator.SetOutputDirectory("ModifiedSpringModel");
-        simulator.SetEndTime(1);
+        simulator.SetEndTime(10);
         simulator.Solve();
     }
 };
