@@ -9,3 +9,4 @@ TestMonodomainNoStimulus.hpp
 TestMonodomainSlab.hpp
 TestSpiralWaveProject.hpp
 TestMonodomainHeartApex.hpp
+Test3dBidomainForConvergence.hpp

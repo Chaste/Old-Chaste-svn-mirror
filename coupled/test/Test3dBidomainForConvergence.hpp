@@ -104,7 +104,7 @@ public:
         bool converging_in_space = false;
         bool failed_to_converge_in_space = false;
         
-        double time_step;   // ms
+        double pde_time_step;   // ms
         
         double probe_voltage;
         ReplicatableVector voltage_replicated;
@@ -117,7 +117,8 @@ public:
             // To ensure that the first test fails
             double prev_voltage_for_time = -999;
             
-            time_step = 0.04;  // ms
+            pde_time_step = 0.04;  // ms
+            double ode_time_step=pde_time_step;
             
             std::string mesh_pathname = output_file_handler.GetTestOutputDirectory()
                                         + file_name[current_file_num];
@@ -125,9 +126,16 @@ public:
             std::cout<<"================================================================================"<<std::endl  << std::flush;
             std::cout<<"Solving with a space step of "<< space_steps[current_file_num] << " cm - mesh " << current_file_num <<std::endl  << std::flush;
             
-            do  //do while: time_step
+            do  //do while: pde_time_step
             {
-                PointStimulusCellFactory cell_factory(time_step, num_elements[current_file_num]);
+
+                /*******/
+                //Over-ride the new ode_time_step tweaking code so that we might expect rapid 
+                //pde_time_step convergence
+                ode_time_step=0.0025;
+                /*******/
+                
+                PointStimulusCellFactory cell_factory(ode_time_step, num_elements[current_file_num]);
                 BidomainProblem<3> bidomain_problem(&cell_factory);
                 
                 bidomain_problem.SetMeshFilename(mesh_pathname);
@@ -136,10 +144,11 @@ public:
                 bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
 
                 bidomain_problem.PrintOutput(false);
-                bidomain_problem.SetPdeTimeStep(time_step);
+                bidomain_problem.SetPdeTimeStep(pde_time_step);
                 bidomain_problem.Initialise();
                 
-                std::cout<<"   Solving with a time step of "<<time_step<<" ms"<<std::endl  << std::flush;
+                std::cout<<"   Solving with a time step of "<<pde_time_step<<" ms"<<std::endl  << std::flush;
+                std::cout<<"   Solving with an ode time step of "<<ode_time_step<<" ms"<<std::endl  << std::flush;
                 
                 try
                 {
@@ -160,10 +169,12 @@ public:
                     else
                     {
                         // Get ready for the next test by halving the time step
-                        time_step *= 0.5;
+                        pde_time_step *= 0.5;
+                        /******* Currently redundant code*/
+                        ode_time_step = pde_time_step;
                     }
                     
-                    if (time_step < 1e-4)
+                    if (pde_time_step < 1e-4)
                     {
                         std::cout << "**** NO TIMESTEP GREATER THAN 1e-4 FOUND WHICH WORKS, MOVING ONTO NEXT MESH...****\n" << std::flush;
                         converging_in_time = true;
@@ -176,12 +187,25 @@ public:
                 {
                     // An exception has been caught, meaning that the time step is too big, so halve it
                     std::cout << "   >>> Convergence test: an exception was thrown (" << e.GetMessage() << ")" << std::endl  << std::flush;
-                    std::cout << "   >>>                   We assume that the time step was too big" << std::endl << std::flush;
+
                     
-                    time_step *= 0.5;
+                    // try halving ode_time_step 
+                    if (ode_time_step> pde_time_step/33.0)
+                    {
+                        /******* Currently redundant code*/
+                        ode_time_step *= 0.5;
+                        std::cout << "   >>>                       We assume that the ode time step was too big" << std::endl << std::flush;
+                    }
+                    // unless its very small in which case reduce pde time step 
+                    else
+                    {
+                        std::cout << "   >>>                   We assume that the pde time step was too big" << std::endl << std::flush;
+                        pde_time_step *= 0.5;
+                        ode_time_step = pde_time_step;
+                    }
                 }
             }
-            while (!converging_in_time);   //do while: time_step
+            while (!converging_in_time);   //do while: pde_time_step
             
             
             double relerr = fabs ((probe_voltage - prev_voltage_for_space) / prev_voltage_for_space);
@@ -211,11 +235,11 @@ public:
         {
             std::cout<<"================================================================================"<<std::endl << std::flush;
             
-            std::cout << "Converged both in space ("<< space_steps[current_file_num] <<" cm) and time ("<< time_step << " ms)" << std::endl << std::flush;
+            std::cout << "Converged both in space ("<< space_steps[current_file_num] <<" cm) and time ("<< pde_time_step << " ms)" << std::endl << std::flush;
         }
         
         // TS_ASSERT_DELTA(space_steps[current_file_num], 0.005, 0.0);
-        // TS_ASSERT_DELTA(time_step, 0.005, 0.0);
+        // TS_ASSERT_DELTA(pde_time_step, 0.005, 0.0);
         // TS_ASSERT_DELTA(probe_voltage, -10.3432, 0.0001);
         // Note: the delta is because of floating point issues (!!)
     }
