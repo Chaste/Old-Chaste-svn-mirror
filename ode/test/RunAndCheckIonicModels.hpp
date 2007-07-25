@@ -16,9 +16,6 @@ void RunOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
                                 std::string filename,
                                 int stepPerRow=100,
                                 bool doComputeExceptVoltage=true);
-
-void SaveSolution(std::string baseResultsFilename, AbstractCardiacCell *pOdeSystem,
-                  OdeSolution& rSolution, int stepPerRow);
                   
 void CheckCellModelResults(std::string baseResultsFilename);
 

@@ -9,6 +9,7 @@
 #include <fstream>
 #include <cassert>
 #include "ColumnDataWriter.hpp"
+#include "AbstractOdeSystem.hpp"
 #include <sstream>
 
 class OdeSolution
@@ -54,9 +55,16 @@ public:
         return mSolutions;
     }
 
-    
-    void WriteToFile(std::string direectoryName,
+
+    /**
+     *  Write the data to a file. 
+     *   @param pOdeSystem The ode system solved to obtain these results (needed for variable 
+     *    names and units). 
+     */ 
+    void WriteToFile(std::string directoryName,
                      std::string baseResultsFilename,
+                     AbstractOdeSystem* pOdeSystem,
+                     std::string timeUnits,
                      unsigned stepPerRow = 1,
                      bool cleanDirectory = true)
     {
@@ -65,18 +73,18 @@ public:
         assert(mTimes.size()==mSolutions.size());
      
         // Write data to a file using ColumnDataWriter
-        ColumnDataWriter writer(direectoryName,baseResultsFilename,cleanDirectory);
-        int time_var_id = writer.DefineUnlimitedDimension("t","");
-        
-        unsigned num_vars = mSolutions[0].size();
+        ColumnDataWriter writer(directoryName,baseResultsFilename,cleanDirectory);
+
+        int time_var_id = writer.DefineUnlimitedDimension("Time",timeUnits);
+    
         std::vector<int> var_ids;
-        for (unsigned i=0; i<num_vars; i++)
+        for (unsigned i=0; i<pOdeSystem->rGetVariableNames().size(); i++)
         {
-            std::stringstream string_stream;
-            string_stream << "x" << i;
-            var_ids.push_back(writer.DefineVariable(string_stream.str(),""));
+            var_ids.push_back(writer.DefineVariable(pOdeSystem->rGetVariableNames()[i],
+                                                    pOdeSystem->rGetVariableUnits()[i]));
         }
         writer.EndDefineMode();
+
         
         for (unsigned i=0; i<mSolutions.size(); i+=stepPerRow)
         {

@@ -30,13 +30,13 @@ public :
         // todo: verify these are correct somehow...
         nhs_system.SetLambda1DerivativeAndCalciumI(0.8, -0.1, 0.1);
         OdeSolution solution = euler_solver.Solve(&nhs_system, nhs_system.rGetStateVariables(), 0, 1, 0.001,0.001);
-        solution.WriteToFile("CellularMechanics/NHS/", "lam_is_0.8");
+        solution.WriteToFile("CellularMechanics/NHS/", "lam_is_0.8", &nhs_system, "ms");
 
         TS_ASSERT_DELTA(nhs_system.GetActiveTension(), 0.0012, 1e-3);
         
         nhs_system.SetLambda1DerivativeAndCalciumI(0.5, 0.1, 0.1);
         solution = euler_solver.Solve(&nhs_system, nhs_system.rGetStateVariables(), 0, 1, 0.001,0.001);
-        solution.WriteToFile("CellularMechanics/NHS/", "lam_is_0.5", 1, false);
+        solution.WriteToFile("CellularMechanics/NHS/", "lam_is_0.5", &nhs_system, "ms", 1, false);
 
         TS_ASSERT_DELTA(nhs_system.GetActiveTension(), -0.1120, 1e-3);        
     }

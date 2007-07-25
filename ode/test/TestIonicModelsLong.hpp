@@ -18,7 +18,7 @@
 #include "FoxModel2002Modified.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
 
-// Note: RunOdeSolverWithIonicModel(), SaveSolution(), CheckCellModelResults(), CompareCellModelResults()
+// Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
 // are defined in RunAndCheckIonicModels.hpp
 
 class TestIonicModelsLong : public CxxTest::TestSuite

@@ -31,39 +31,9 @@ void RunOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
         pOdeSystem->SetStateVariables(state_variables_copy);
     }
     
-    // Solve
+    // Solve and write to file
     OdeSolution solution = pOdeSystem->Compute(start_time, endTime);
-    
-    // Write data to a file using ColumnDataWriter
-    SaveSolution(filename, pOdeSystem, solution, stepPerRow);
-}
-
-void SaveSolution(std::string baseResultsFilename, AbstractCardiacCell *pOdeSystem,
-                  OdeSolution& rSolution, int stepPerRow)
-{
-    // Write data to a file using ColumnDataWriter
-    
-    ColumnDataWriter writer("TestIonicModels",baseResultsFilename,false);
-    int time_var_id = writer.DefineUnlimitedDimension("Time","ms");
-    
-    std::vector<int> var_ids;
-    for (unsigned i=0; i<pOdeSystem->rGetVariableNames().size(); i++)
-    {
-        var_ids.push_back(writer.DefineVariable(pOdeSystem->rGetVariableNames()[i],
-                                                pOdeSystem->rGetVariableUnits()[i]));
-    }
-    writer.EndDefineMode();
-    
-    for (unsigned i = 0; i < rSolution.rGetSolutions().size(); i+=stepPerRow)
-    {
-        writer.PutVariable(time_var_id, rSolution.rGetTimes()[i]);
-        for (unsigned j=0; j<var_ids.size(); j++)
-        {
-            writer.PutVariable(var_ids[j], rSolution.rGetSolutions()[i][j]);
-        }
-        writer.AdvanceAlongUnlimitedDimension();
-    }
-    writer.Close();
+    solution.WriteToFile("TestIonicModels",filename,pOdeSystem,"ms",stepPerRow,false);
 }
 
 void CheckCellModelResults(std::string baseResultsFilename)
