@@ -175,12 +175,14 @@ public :
     
 
 #define COVERAGE_IGNORE
+
     double GetCalciumTroponinValue()
-#undef COVERAGE_IGNORE
     {
         return mStateVariables[0];
     }
     
+#undef COVERAGE_IGNORE
+
     void EvaluateYDerivatives(double time,
                               const std::vector<double> &rY,
                               std::vector<double> &rDY)
