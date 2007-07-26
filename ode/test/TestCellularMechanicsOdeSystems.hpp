@@ -7,7 +7,9 @@
 #include <vector>
 #include <string>
 #include "NHSCellularMechanicsOdeSystem.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
+#include "ZeroStimulus.hpp"
 
 class TestCellularMechanicsOdeSystems : public CxxTest::TestSuite
 {
@@ -23,22 +25,32 @@ public :
         
         EulerIvpOdeSolver euler_solver;
 
+        // the following is just to get a realistic Ca_I value
+        ZeroStimulus zero_stimulus;
+        LuoRudyIModel1991OdeSystem lr91(&euler_solver, 0.01, &zero_stimulus);
+        unsigned Ca_i_index = lr91.GetStateVariableNumberByName("CaI");
+        double Ca_I = lr91.rGetStateVariables()[Ca_i_index];
+        
         // lambda1=1, dlamdt = 0, so there should be no active tension
         euler_solver.SolveAndUpdateStateVariable(&nhs_system, 0, 1, 0.01);
         TS_ASSERT_DELTA(nhs_system.GetActiveTension(), 0.0, 1e-12);
         
-        // todo: verify these are correct somehow...
-        nhs_system.SetLambda1DerivativeAndCalciumI(0.8, -0.1, 0.1);
-        OdeSolution solution = euler_solver.Solve(&nhs_system, nhs_system.rGetStateVariables(), 0, 1, 0.001,0.001);
-        solution.WriteToFile("CellularMechanics/NHS/", "lam_is_0.8", &nhs_system, "ms");
+        // the following test doesn't make sense, as lambda=const, but dlam_dt > 0
+        // but it is not possible to test the NHS system by itself without having a varying 
+        // lambda and get non-trivial solutions. So, we'll have a non-realistic
+        // test here, and TS_ASSERT against hardcoded values, just to check nothing
+        // has changed. A proper test where lambda varies (which means time-looping has
+        // to be done outside the solver is done in TestElectroMechanicCellularModels, 
+        // where NHS is coupled to a cell model
+        nhs_system.SetLambda1DerivativeAndCalciumI(0.5, 0.1, Ca_I);
+        OdeSolution solution = euler_solver.Solve(&nhs_system, nhs_system.rGetStateVariables(), 0, 10, 0.01, 0.01);
 
-        TS_ASSERT_DELTA(nhs_system.GetActiveTension(), 0.0012, 1e-3);
-        
-        nhs_system.SetLambda1DerivativeAndCalciumI(0.5, 0.1, 0.1);
-        solution = euler_solver.Solve(&nhs_system, nhs_system.rGetStateVariables(), 0, 1, 0.001,0.001);
-        solution.WriteToFile("CellularMechanics/NHS/", "lam_is_0.5", &nhs_system, "ms", 1, false);
-
-        TS_ASSERT_DELTA(nhs_system.GetActiveTension(), -0.1120, 1e-3);        
+        unsigned num_timesteps = solution.GetNumberOfTimeSteps();
+        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][0], 0.0056, 1e-2);    
+        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][1], 0.0000, 1e-2);    
+        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][2], 0.0258, 1e-2);    
+        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][3], 0.0727, 1e-2);    
+        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][4], 0.0998, 1e-2);    
     }
 };
 #endif /*TESTCELLULARMECHANICSODESYSTEMS_HPP_*/

@@ -3,6 +3,7 @@
 
 #include "AbstractCardiacCell.hpp"
 #include "ConformingTetrahedralMesh.cpp"
+#include "ZeroStimulus.hpp"
 #include "InitialStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 
@@ -25,7 +26,7 @@ class AbstractCardiacCellFactory
 {
 protected:
     double mTimeStep;
-    InitialStimulus* mpZeroStimulus;
+    ZeroStimulus* mpZeroStimulus;
     AbstractIvpOdeSolver* mpSolver;
     
     /** the mesh is automatically set in MonodomainProblem and BidomainProblem */
@@ -48,7 +49,7 @@ public:
         mTimeStep = timeStep;
         mpMesh = NULL;
         mpSolver = pSolver;
-        mpZeroStimulus = new InitialStimulus(0,0,0);
+        mpZeroStimulus = new ZeroStimulus;
     }
     virtual ~AbstractCardiacCellFactory()
     {

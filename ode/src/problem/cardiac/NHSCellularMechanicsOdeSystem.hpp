@@ -11,76 +11,74 @@ private :
     double mLambda1;
     double mDLambda1Dt;
     double mCalciumI;
-    
-    // parameters
-    /** what are these? */
 
-    /** FILL IN. (microMols)^-1 sec^-1 */
-    double mKon;
+    /** FILL IN. (mMols)^-1 (ms)^-1 */
+    static const double mKon = 100;
 
-    /** FILL IN. sec^-1 */
-    double mKrefoff;
+    /** FILL IN. (ms)^-1 */
+    static const double mKrefoff = 0.2;
 
     /** FILL IN. Dimensionless */
-    double mGamma;
+    static const double mGamma = 2;
 
-    /** FILL IN. microMols */
-    double mCalciumTroponinMax;
+    /** FILL IN. mMols */
+    static const double mCalciumTroponinMax = 0.07;
 
-    /** FILL IN. sec^-1 */
-    double mAlphaR1;
+    /** FILL IN. (ms)^-1 */
+    static const double mAlphaR1 = 0.002;
 
-    /** FILL IN. sec^-1 */
-    double mAlphaR2;
-
-    /** FILL IN. Dimensionless */
-    double mKZ;
+    /** FILL IN. (ms)^-1 */
+    static const double mAlphaR2 = 0.00175;
 
     /** FILL IN. Dimensionless */
-    double mNr;
+    static const double mKZ = 0.15;
 
     /** FILL IN. Dimensionless */
-    double mBeta1;
-
-    /** FILL IN. sec^-1 */
-    double mAlpha0;
+    static const double mNr = 3;
 
     /** FILL IN. Dimensionless */
-    double mN;
+    static const double mBeta1 = -4;
+
+    /** FILL IN. (ms)^-1 */
+    static const double mAlpha0 = 0.008;
 
     /** FILL IN. Dimensionless */
-    double mZp;
+    static const double mN = 3;
 
-    /** FILL IN. microMols */
-    double mCalcium50ref;
+    /** FILL IN. Dimensionless */
+    static const double mZp = 0.85;
+
+    /** FILL IN. mMols */
+    static const double mCalcium50ref = 0.00105;
 
     /** FILL IN. kPa */
-    double mTref;
+    static const double mTref = 56.2;
 
     /** FILL IN. Dimensionless */
-    double mBeta0;
+    static const double mBeta0 = 4.9;
 
     /** FILL IN. Dimensionless */
-    double mA;  
+    static const double mA = 0.35;  
 
     /** FILL IN. Dimensionless */
-    double mA1;
+    static const double mA1 = -29;
 
     /** FILL IN. Dimensionless */
-    double mA2;
+    static const double mA2 = 138;
 
     /** FILL IN. Dimensionless */
-    double mA3;
+    static const double mA3 = 129;
 
-    /** FILL IN. sec^-1 */
-    double mAlpha1;
+    /** FILL IN. (ms)^-1 */
+    static const double mAlpha1 = 0.03;
 
-    /** FILL IN. sec^-1 */
-    double mAlpha2;
+    /** FILL IN. (ms)^-1 */
+    static const double mAlpha2 = 0.130;
 
-    /** FILL IN. sec^-1 */
-    double mAlpha3;
+    /** FILL IN. (ms)^-1 */
+    static const double mAlpha3 = 0.625;
     
+
     double CalculateCalciumTop50()
     {
         double one_plus_beta1_times_lam_minus_one = 1 + mBeta1*(mLambda1-1);
@@ -138,28 +136,28 @@ public :
         mVariableUnits.push_back("");
         mStateVariables.push_back(0);
         
-        mKon = 100;
-        mKrefoff = 200;
-        mGamma = 2;
-        mCalciumTroponinMax = 70;
-        mAlphaR1 = 2;
-        mAlphaR2 = 1.75;
-        mKZ = 0.15;
-        mNr = 3;
-        mBeta1 = -4;
-        mAlpha0 = 8;
-        mN = 3;
-        mZp = 0.85;
-        mCalcium50ref = 1.05;
-        mTref = 56.2;
-        mBeta0 = 4.9;
-        mA = 0.35;  
-        mA1 = -29;
-        mA2 = 138;
-        mA3 = 129;
-        mAlpha1 = 30;
-        mAlpha2 = 130;
-        mAlpha3 = 625;
+//        mKon = 100;
+//        mKrefoff = 0.2;
+//        mGamma = 2;
+//        mCalciumTroponinMax = 0.07;
+//        mAlphaR1 = 0.002;
+//        mAlphaR2 = 0.00175;
+//        mKZ = 0.15;
+//        mNr = 3;
+//        mBeta1 = -4;
+//        mAlpha0 = 0.008;
+//        mN = 3;
+//        mZp = 0.85;
+//        mCalcium50ref = 0.00105;
+//        mTref = 56.2;
+//        mBeta0 = 4.9;
+//        mA = 0.35;  
+//        mA1 = -29;
+//        mA2 = 138;
+//        mA3 = 129;
+//        mAlpha1 = 0.03;
+//        mAlpha2 = 0.130;
+//        mAlpha3 = 0.625;
         
         mLambda1 = 1.0;
         mDLambda1Dt = 0.0;
@@ -193,6 +191,23 @@ public :
         const double& Q2 = rY[3];
         const double& Q3 = rY[4];
         
+        // check the state vars are in the expected range
+        #define COVERAGE_IGNORE
+        if(calcium_troponin < 0)
+        {
+            EXCEPTION("CalciumTrop concentration went negative");
+        }
+        if(z<0)
+        {
+            EXCEPTION("z went negative");
+        }
+        if(z>1)
+        {
+            EXCEPTION("z became greater than 1");
+        }
+        #define COVERAGE_IGNORE
+
+                
         double Q = Q1 + Q2 + Q3;
         double T0 = CalculateT0(z);
         
@@ -214,7 +229,7 @@ public :
                 
         rDY[1] =   mAlpha0 * ca_trop_to_ca_trop50_ratio_to_n * (1-z) 
                  - mAlphaR1 * z
-                  -mAlphaR2 * pow(z,mNr) / (pow(z,mNr) + pow(mKZ,mNr));
+                 - mAlphaR2 * pow(z,mNr) / (pow(z,mNr) + pow(mKZ,mNr));
         
                
         rDY[2] = mAlpha1 * mDLambda1Dt - mAlpha1 * Q1;
