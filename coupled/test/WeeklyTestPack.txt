@@ -1,4 +1,5 @@
 TestMonodomainHeart.hpp
 TestBidomainHeart.hpp
 TestMonodomainSlabLong.hpp
+Test3dBidomainForConvergence.hpp
 Test3dBidomainForConvergenceWithFasterOdes.hpp

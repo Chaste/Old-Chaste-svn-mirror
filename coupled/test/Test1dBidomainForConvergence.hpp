@@ -68,12 +68,12 @@ public:
         double prev_voltage_for_space = -999;   // To ensure that the first test fails
         bool converging_in_space = false;
         double space_step;   // cm
-        double time_step;   // ms
+        double pde_time_step;   // ms
         double probe_voltage = -999;
         ReplicatableVector voltage_replicated;
         
         int middle_node = 4;
-        
+        double ode_time_step=0.0025;
         do
 //       for (int middle_node=1; middle_node<100; middle_node*=2){
         {
@@ -81,7 +81,7 @@ public:
             double prev_voltage_for_time = -999;   // To ensure that the first test fails
             
             space_step=0.04/middle_node;   // cm
-            time_step = 0.04;   // ms
+            pde_time_step = 0.04;   // ms
             
             WriteTemporaryMeshFiles(mesh_filename, middle_node);
             
@@ -93,13 +93,14 @@ public:
             {
                 // since we are refinig the mesh, the stimulus should be inversely proportional
                 // to element volume (length)
-                PlaneStimulusCellFactory<1> cell_factory(time_step,-1500000/space_step*0.01);
+                PlaneStimulusCellFactory<1> cell_factory(ode_time_step,-1500000/space_step*0.01);
                 BidomainProblem<1> bidomain_problem(&cell_factory);
                 
                 bidomain_problem.SetMeshFilename(mesh_pathname);
                 bidomain_problem.SetEndTime(3); // ms
                 
-                bidomain_problem.SetPdeTimeStep(time_step);
+                bidomain_problem.SetPdeTimeStep(pde_time_step);
+                bidomain_problem.SetPrintingTimeStep(pde_time_step);
                 bidomain_problem.Initialise();
                 
                 // temporarily write output
@@ -108,7 +109,7 @@ public:
                 
                 bidomain_problem.PrintOutput(false);
                 
-                std::cout<<"   Solving with a time step of "<<time_step<<" ms"<<std::endl  << std::flush;
+                std::cout<<"   Solving with a time step of "<<pde_time_step<<" ms"<<std::endl  << std::flush;
                 
                 try
                 {
@@ -131,7 +132,7 @@ public:
                     {
                         // Get ready for the next test by halving the time step
                         
-                        time_step *= 0.5;
+                        pde_time_step *= 0.5;
                     }
                     
                     prev_voltage_for_time = probe_voltage;
@@ -143,10 +144,10 @@ public:
                     std::cout << "   >>> Convergence test: an exception was thrown (" << e.GetMessage() << ")" << std::endl  << std::flush;
                     std::cout << "   >>>                   We assume that the time step was too big" << std::endl << std::flush;
                     
-                    time_step *= 0.5;
+                    pde_time_step *= 0.5;
                 }
             }
-            while (!converging_in_time);   //do while: time_step
+            while (!converging_in_time);   //do while: pde_time_step
             
             double relerr = fabs ((probe_voltage - prev_voltage_for_space) / prev_voltage_for_space);
             std::cout<<">>> Convergence test: probe_voltage = "<<probe_voltage<<" mV | prev_voltage_for_space = "<<prev_voltage_for_space
@@ -168,10 +169,12 @@ public:
         
         std::cout<<"================================================================================"<<std::endl << std::flush;
         
-        std::cout << "Converged both in space ("<< space_step <<" cm) and time ("<< time_step << " ms)" << std::endl << std::flush;
+        std::cout << "Converged both in space ("<< space_step <<" cm) and time ("<< pde_time_step << " ms)" << std::endl << std::flush;
         
         TS_ASSERT_EQUALS(space_step, 0.0025);
-        TS_ASSERT_EQUALS(time_step, 0.02);
+        //TS_ASSERT_EQUALS(pde_time_step, 0.02);
+        //\todo #423 This is now different to Monodomain convergence
+        TS_ASSERT_EQUALS(pde_time_step, 0.0025);
         TS_ASSERT_DELTA(probe_voltage, 22.0, 1.0);
         // Note: the delta is because of floating point issues (!!)
     }
