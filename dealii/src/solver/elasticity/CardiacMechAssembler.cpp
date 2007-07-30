@@ -19,6 +19,13 @@ CardiacMechAssembler<DIM>::CardiacMechAssembler(Triangulation<DIM>* pMesh,
         this->mHeterogeneous = false; // as FiniteElasticityAssembler would have set this to be true as NULL passed in to construtor
         mAllocatedMaterialLawMemory = true;
     }
+    
+    // set up quad point info
+    QGauss<DIM>   quadrature_formula(mNumQuadPointsInEachDimension);
+    mTotalQuadPoints = quadrature_formula.n_quadrature_points *this->mpMesh->n_active_cells();
+    mCurrentQuadPointGlobalIndex = 0;
+    
+    mLambda.resize(mTotalQuadPoints, 1.0);
 }
 
 template<unsigned DIM>
@@ -30,22 +37,30 @@ CardiacMechAssembler<DIM>::~CardiacMechAssembler()
     }
 }
 
+
+
+template<unsigned DIM>
+unsigned CardiacMechAssembler<DIM>::GetTotalNumQuadPoints()
+{
+    return mTotalQuadPoints;
+}
+
+
 template<unsigned DIM>
 void CardiacMechAssembler<DIM>::SetActiveTension(std::vector<double> activeTension)
 {
+    assert(activeTension.size() == mTotalQuadPoints);
     mActiveTension = activeTension;
 }
 
 template<unsigned DIM>
-void CardiacMechAssembler<DIM>::GetLambda(std::vector<double>& lambda)
+std::vector<double>& CardiacMechAssembler<DIM>::GetLambda()
 {
-    if(lambda.size()!=this->mpMesh->n_vertices())
-    {
-        lambda.resize(this->mpMesh->n_vertices());
-    }
-    
-    //fill me in..
+    // return mLambda;
 }
+
+
+
 
 /*************************************
  *  AssembleOnElement
@@ -73,19 +88,24 @@ void CardiacMechAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::acti
                                                        bool                  assembleJacobian
                                                       )
 {
-    static QGauss<DIM>   quadrature_formula(3);
-    static QGauss<DIM-1> face_quadrature_formula(3);
+    // if mCurrentQuadPointGlobalIndex is greater than the total num of quad points something
+    // very bad has happened. 
+    assert(mCurrentQuadPointGlobalIndex <= mTotalQuadPoints);
+    
+    if(mCurrentQuadPointGlobalIndex==mTotalQuadPoints)
+    {
+        // if we are not back to the first cell something bad has happened
+        assert( elementIter == this->mDofHandler.begin_active() );
+        
+        mCurrentQuadPointGlobalIndex = 0;
+    }
+
+
+    static QGauss<DIM>   quadrature_formula(mNumQuadPointsInEachDimension);
+    //static QGauss<DIM-1> face_quadrature_formula(3);
     
     const unsigned n_q_points    = quadrature_formula.n_quadrature_points;
     //const unsigned n_face_q_points = face_quadrature_formula.n_quadrature_points;
-
-
-    // linear basis functions, for interpolating active tension
-    FE_Q<DIM> linear_fe(1);
-    FEValues<DIM> linear_fe_values(linear_fe, quadrature_formula,
-                                   UpdateFlags(update_values));
-    unsigned linear_dofs_per_element = linear_fe.dofs_per_cell;
-    linear_fe_values.reinit(elementIter);
     
     
     // would want this to be static too (slight speed up), but causes errors
@@ -152,19 +172,6 @@ void CardiacMechAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::acti
         static Tensor<2,DIM> inv_F;
         static SymmetricTensor<2,DIM> T;
         
-        ////////////////////////////////////////////////
-        // Compute active tension at gauss point
-        ////////////////////////////////////////////////
-        double active_tension = 0;
-        for (unsigned i=0; i<linear_dofs_per_element; i++)
-        {
-            // a little iffy - don't know for certain linear_fe_values.shape_value(i,q)
-            // corresponds to the basis function for node i;
-            unsigned node_index = elementIter->vertex_index(i);
-            active_tension += mActiveTension[node_index]*linear_fe_values.shape_value(i,q_point);
-        }
- 
-
         for (unsigned i=0; i<DIM; i++)
         {
             for (unsigned j=0; j<DIM; j++)
@@ -177,6 +184,13 @@ void CardiacMechAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::acti
         inv_C = invert(C);
         inv_F = invert(F);
         
+        ///////////////////////////////////////////////////////////
+        // Get the active tension at gauss point, and store lambda
+        ///////////////////////////////////////////////////////////
+        double active_tension = mActiveTension[mCurrentQuadPointGlobalIndex];
+        mLambda[mCurrentQuadPointGlobalIndex] = sqrt(C[0][0]);
+
+
         double detF = determinant(F);
         
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,this->dTdE,assembleJacobian);
@@ -309,6 +323,8 @@ void CardiacMechAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::acti
                 }
             }
         }
+
+        mCurrentQuadPointGlobalIndex++;
     }
     
     /* zero applied stress, so do not do this */

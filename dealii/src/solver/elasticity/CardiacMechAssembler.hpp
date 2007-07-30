@@ -7,17 +7,24 @@ template<unsigned DIM>
 class CardiacMechAssembler : public FiniteElasticityAssembler<DIM>
 {
 private:
+    static const unsigned mNumQuadPointsInEachDimension = 3;
+    unsigned mTotalQuadPoints;
+    unsigned mCurrentQuadPointGlobalIndex;
+
     bool mAllocatedMaterialLawMemory;
-    
+
     /** The active tension, node-wise */
     std::vector<double> mActiveTension;
-
+    std::vector<double> mLambda;
+    
     /** Overloaded method for assembling system, which takes into account the active tensions */
     void AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter,
                            Vector<double>&       elementRhs,
                            FullMatrix<double>&   elementMatrix,
                            bool                  assembleResidual,
                            bool                  assembleJacobian);
+                           
+    void SetUpQuadraturePointsInfo();                           
 
 public:
     /**
@@ -33,14 +40,23 @@ public:
                               AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL);
     ~CardiacMechAssembler();
     
-    /** Set the current active tensions, node-wise */
+    /** 
+     *  Get the total number of quadrature points (equal to the n.q^d, where n=number of cells
+     *  q is the number of quad points in each dimension, and d=DIM). 
+     */
+    unsigned GetTotalNumQuadPoints();
+    
+    /** 
+     *  Set the current active tensions, by quadrature point. Quad points don't have indices,
+     *  so these values should be in the order given by looping over cells and then looping
+     *  over quad points
+     */
     void SetActiveTension(std::vector<double> activeTension);
     
     /** 
      *  Get lambda (the stretch ratio). 
-     *  @param lambda A std::vector which will be filled in. Does not have to be correctly-sized
      */
-    void GetLambda(std::vector<double>& lambda);    
+    std::vector<double>& GetLambda();    
 };
 
 #endif /*CARDIACMECHASSEMBLER_HPP_*/
