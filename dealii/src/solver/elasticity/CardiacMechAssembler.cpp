@@ -77,7 +77,7 @@ std::vector<double>& CardiacMechAssembler<DIM>::GetLambda()
  *      have been removed. 
  *      
  *  The fibre direction is currently assumed to be the x-direction, so the active tension
- *  term in the stress is T_a invF_{M1} invF_{N1}
+ *  term in the stress is T_a invF_{M0} invF_{N0}
  * 
  *************************************/
 template<unsigned DIM>
@@ -190,7 +190,7 @@ void CardiacMechAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::acti
         double active_tension = mActiveTension[mCurrentQuadPointGlobalIndex];
         mLambda[mCurrentQuadPointGlobalIndex] = sqrt(C[0][0]);
 
-
+        
         double detF = determinant(F);
         
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,this->dTdE,assembleJacobian);
@@ -242,10 +242,10 @@ void CardiacMechAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::acti
                                 // arising from the active tension part of the stress
                                 ///////////////////////////////////////////////////////////
                                 elementMatrix(i,j) +=  -active_tension
-                                                      * identity[component_i][1]
+                                                      * identity[component_i][0]
                                                       * detF
                                                       * inv_F[N][component_j]
-                                                      * inv_F[M][1]
+                                                      * inv_F[M][0]
                                                       * fe_values.shape_grad(j,q_point)[M]
                                                       * fe_values.shape_grad(i,q_point)[N]
                                                       * fe_values.JxW(q_point);
@@ -309,8 +309,8 @@ void CardiacMechAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::acti
                         // arising from the active tension part of the stress
                         ///////////////////////////////////////////////////////////
                         elementRhs(i) +=   active_tension
-                                         * identity[component_i][1]
-                                         * inv_F[N][1]
+                                         * identity[component_i][0]
+                                         * inv_F[N][0]
                                          * fe_values.shape_grad(i,q_point)[N]
                                          * fe_values.JxW(q_point);
                     }
