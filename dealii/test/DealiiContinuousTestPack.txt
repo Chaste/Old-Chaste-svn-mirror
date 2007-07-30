@@ -1,5 +1,6 @@
 TestAbstractDealiiAssembler.hpp
 TestAbstractGrowingTumourSourceModel.hpp
+TestCardiacMechanicsAssembler.hpp
 TestConcentrationBasedTumourSourceModel.hpp
 TestFiniteElasticityAssembler.hpp
 TestDynamicFiniteElasticityAssembler.hpp
