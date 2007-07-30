@@ -1,11 +1,11 @@
-#ifndef CARDIACMECHASSEMBLER_CPP_
-#define CARDIACMECHASSEMBLER_CPP_
+#ifndef CARDIACMECHANICSASSEMBLER_CPP_
+#define CARDIACMECHANICSASSEMBLER_CPP_
 
-#include "CardiacMechAssembler.hpp"
+#include "CardiacMechanicsAssembler.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
 
 template<unsigned DIM>
-CardiacMechAssembler<DIM>::CardiacMechAssembler(Triangulation<DIM>* pMesh,
+CardiacMechanicsAssembler<DIM>::CardiacMechanicsAssembler(Triangulation<DIM>* pMesh,
                                                           std::string outputDirectory,
                                                           AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
     : FiniteElasticityAssembler<DIM>(pMesh, pMaterialLaw, Vector<double>(DIM), 1.0, outputDirectory, 2, 1)
@@ -29,7 +29,7 @@ CardiacMechAssembler<DIM>::CardiacMechAssembler(Triangulation<DIM>* pMesh,
 }
 
 template<unsigned DIM>
-CardiacMechAssembler<DIM>::~CardiacMechAssembler()
+CardiacMechanicsAssembler<DIM>::~CardiacMechanicsAssembler()
 {
     if(mAllocatedMaterialLawMemory)
     {    
@@ -40,21 +40,21 @@ CardiacMechAssembler<DIM>::~CardiacMechAssembler()
 
 
 template<unsigned DIM>
-unsigned CardiacMechAssembler<DIM>::GetTotalNumQuadPoints()
+unsigned CardiacMechanicsAssembler<DIM>::GetTotalNumQuadPoints()
 {
     return mTotalQuadPoints;
 }
 
 
 template<unsigned DIM>
-void CardiacMechAssembler<DIM>::SetActiveTension(std::vector<double> activeTension)
+void CardiacMechanicsAssembler<DIM>::SetActiveTension(std::vector<double> activeTension)
 {
     assert(activeTension.size() == mTotalQuadPoints);
     mActiveTension = activeTension;
 }
 
 template<unsigned DIM>
-std::vector<double>& CardiacMechAssembler<DIM>::GetLambda()
+std::vector<double>& CardiacMechanicsAssembler<DIM>::GetLambda()
 {
     return mLambda;
 }
@@ -81,7 +81,7 @@ std::vector<double>& CardiacMechAssembler<DIM>::GetLambda()
  * 
  *************************************/
 template<unsigned DIM>
-void CardiacMechAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter,
+void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter,
                                                        Vector<double>&       elementRhs,
                                                        FullMatrix<double>&   elementMatrix,
                                                        bool                  assembleResidual,
@@ -365,4 +365,4 @@ void CardiacMechAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::acti
     first = false;
 }
 
-#endif /*CARDIACMECHASSEMBLER_CPP_*/
+#endif /*CARDIACMECHANICSASSEMBLER_CPP_*/

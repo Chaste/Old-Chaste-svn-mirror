@@ -1,10 +1,10 @@
-#ifndef CARDIACMECHASSEMBLER_HPP_
-#define CARDIACMECHASSEMBLER_HPP_
+#ifndef CARDIACMECHANICSASSEMBLER_HPP_
+#define CARDIACMECHANICSASSEMBLER_HPP_
 
 #include "FiniteElasticityAssembler.cpp"
 
 template<unsigned DIM>
-class CardiacMechAssembler : public FiniteElasticityAssembler<DIM>
+class CardiacMechanicsAssembler : public FiniteElasticityAssembler<DIM>
 {
 private:
     static const unsigned mNumQuadPointsInEachDimension = 3;
@@ -35,10 +35,10 @@ public:
      *  @param pMaterialLaw. The material law for the tissue. Defaults to NULL, in which case
      *   a default material law is used.
      */
-    CardiacMechAssembler(Triangulation<DIM>* pMesh, 
+    CardiacMechanicsAssembler(Triangulation<DIM>* pMesh, 
                               std::string outputDirectory,
                               AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL);
-    ~CardiacMechAssembler();
+    ~CardiacMechanicsAssembler();
     
     /** 
      *  Get the total number of quadrature points (equal to the n.q^d, where n=number of cells
@@ -59,4 +59,4 @@ public:
     std::vector<double>& GetLambda();    
 };
 
-#endif /*CARDIACMECHASSEMBLER_HPP_*/
+#endif /*CARDIACMECHANICSASSEMBLER_HPP_*/

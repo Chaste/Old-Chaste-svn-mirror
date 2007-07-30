@@ -2,13 +2,13 @@
 #define TESTCARDIACMECHANICSASSEMBLER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "CardiacMechAssembler.cpp"
+#include "CardiacMechanicsAssembler.cpp"
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
 #include "FiniteElasticityTools.hpp"
 
 
-class TestCardiacMechAssembler : public CxxTest::TestSuite
+class TestCardiacMechanicsAssembler : public CxxTest::TestSuite
 {
 
 private:
@@ -43,7 +43,7 @@ public :
         // material law is changed.
         MooneyRivlinMaterialLaw<2> material_law(0.02);
 
-        CardiacMechAssembler<2> cardiac_mech_assembler(&mesh, 
+        CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, 
                                                        "CardiacMech/SpecifiedActiveTensionStretching",
                                                        &material_law);
 
@@ -69,7 +69,7 @@ public :
         Point<2> zero;
         FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
 
-        CardiacMechAssembler<2> cardiac_mech_assembler(&mesh, "CardiacMech/ZeroActiveTension");
+        CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, "CardiacMech/ZeroActiveTension");
         
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.0);
         cardiac_mech_assembler.SetActiveTension(active_tension);
@@ -93,7 +93,7 @@ public :
         // material law is changed.
         MooneyRivlinMaterialLaw<2> material_law(0.02);
 
-        CardiacMechAssembler<2> cardiac_mech_assembler(&mesh, 
+        CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, 
                                                        "CardiacMech/SpecifiedActiveTensionStretching",
                                                        &material_law);
 
@@ -127,7 +127,7 @@ public :
         // material law is changed.
         MooneyRivlinMaterialLaw<2> material_law(0.02);
 
-        CardiacMechAssembler<2> cardiac_mech_assembler(&mesh, 
+        CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, 
                                                        "CardiacMech/SpecifiedActiveTensionSquashing",
                                                        &material_law);
 
