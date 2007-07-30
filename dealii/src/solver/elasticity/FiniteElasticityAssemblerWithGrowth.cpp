@@ -137,7 +137,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
     const unsigned n_q_points    = quadrature_formula.n_quadrature_points;
     const unsigned n_face_q_points = face_quadrature_formula.n_quadrature_points;
     
-
+    // linear basis functions, for interpolating g
     FE_Q<DIM> linear_fe(1);
     FEValues<DIM> linear_fe_values(linear_fe, quadrature_formula,
                                    UpdateFlags(update_values));

@@ -736,7 +736,7 @@ void FiniteElasticityAssembler<DIM>::ComputeNumericalJacobian()
 }
 
 template<unsigned DIM>
-void FiniteElasticityAssembler<DIM>::CompareJacobians()
+void FiniteElasticityAssembler<DIM>::CompareJacobians(double tol)
 {
     // compute analytic Jacobian
     this->AssembleSystem(false, true);
@@ -785,7 +785,7 @@ void FiniteElasticityAssembler<DIM>::CompareJacobians()
         for (unsigned j=0; j<this->mSystemMatrix.n(); j++)
         {
             double value = this->mSystemMatrix.el(i,j)-mNumericalJacobianMatrix.el(i,j);
-            if (fabs(value)<1e-8)
+            if (fabs(value)<tol)
             {
                 value = 0.0;
             }

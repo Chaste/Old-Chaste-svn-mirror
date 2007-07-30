@@ -66,6 +66,38 @@ public :
         TS_ASSERT_THROWS_NOTHING(fe_with_growth.SetTimes(0.0, 1.0, 0.01));
     }
     
+///\todo fix    
+//    void TestCompareJacobians() throw(Exception)
+//    {
+//        Vector<double> body_force(2); // zero
+//        
+//        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
+//        
+//        Triangulation<2> mesh;
+//        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
+//        
+//        Point<2> zero;
+//        FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
+//        
+//        // set all elements as growing
+//        FiniteElasticityTools<2>::SetCircularRegionAsGrowingRegion(mesh, zero, 100);
+//        double source_value = 2;        
+//        ConstantTumourSourceModel<2> source_model(source_value);
+//        
+//        FiniteElasticityAssemblerWithGrowth<2> finiteelas_with_growth(&mesh,
+//                                                                      &mooney_rivlin_law,
+//                                                                      body_force,
+//                                                                      1.0,
+//                                                                      "",
+//                                                                      &source_model);
+//
+//        // run for one timestep to solve the odes..
+//        finiteelas_with_growth.SetTimes(0.0, 0.1, 0.1);
+//        finiteelas_with_growth.Run();                                                                      
+//
+//        TS_ASSERT_THROWS_NOTHING( finiteelas_with_growth.CompareJacobians(1.5e-7) );
+//   }
+    
     void TestWithSimpleProblem() throw(Exception)
     {
         Vector<double> body_force(2); // zero

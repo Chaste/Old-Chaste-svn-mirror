@@ -279,8 +279,11 @@ public:
     
     /**
      *  Verify that the analytic jacobian is the same as the numerical jacobian
+     *  
+     *  @param tol. The tolerance with which to compare the absolute component-wise
+     *  difference between the two jacobians. 
      */
-    void CompareJacobians();
+    void CompareJacobians(double tol=1e-8);
 };
 
 
