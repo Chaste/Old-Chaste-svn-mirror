@@ -2,13 +2,13 @@
 #define TESTCARDIACMECHANICSASSEMBLER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "CardiacMechanicsAssembler.cpp"
+#include "CardiacMechAssembler.cpp"
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
 #include "FiniteElasticityTools.hpp"
 
 
-class TestCardiacMechanicsAssembler : public CxxTest::TestSuite
+class TestCardiacMechAssembler : public CxxTest::TestSuite
 {
 public :
     void TestExceptions() throw(Exception)
@@ -22,7 +22,7 @@ public :
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0, 0.0);
         
-        CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, "CardiacMech/ZeroActiveTension");
+        CardiacMechAssembler<2> cardiac_mech_assembler(&mesh, "CardiacMech/ZeroActiveTension");
         
         std::vector<double> active_tension(mesh.n_vertices(), 0.0);
         for(TriangulationVertexIterator<2> vertex_iter(&mesh); !vertex_iter.ReachedEnd(); vertex_iter.Next())
@@ -45,7 +45,7 @@ public :
         Point<2> zero;
         FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
 
-        CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, "CardiacMech/ZeroActiveTension");
+        CardiacMechAssembler<2> cardiac_mech_assembler(&mesh, "CardiacMech/ZeroActiveTension");
         
         std::vector<double> active_tension(mesh.n_vertices(), 0.0);
         cardiac_mech_assembler.SetActiveTension(active_tension);
@@ -68,7 +68,7 @@ public :
         // material law is changed.
         MooneyRivlinMaterialLaw<2> material_law(0.02);
 
-        CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, 
+        CardiacMechAssembler<2> cardiac_mech_assembler(&mesh, 
                                                             "CardiacMech/SpecifiedActiveTension",
                                                             &material_law);
         
