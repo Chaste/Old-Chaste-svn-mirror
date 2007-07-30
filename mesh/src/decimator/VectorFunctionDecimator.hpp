@@ -3,7 +3,24 @@
 
 
 #include "Decimator.hpp"
+template <unsigned SPACE_DIM>
+class VectorFunctionNodeInfo : public NodeInfo<SPACE_DIM>
+{
+public:
+    VectorFunctionNodeInfo(Node<SPACE_DIM> *pNode, unsigned position)
+    : NodeInfo<SPACE_DIM>(pNode, position)
+    {
+         
+    }
 
+private:
+    bool
+    TieBreakGreaterThan(const NodeInfo<SPACE_DIM>* other) const
+    {
+        return  (this->mNeighbourhoodVolume < other->GetNeighbourhoodVolume());
+        
+    }
+};
 ///Note ELEMENT_DIM matches SPACE_DIM
 template <unsigned SPACE_DIM>
 class VectorFunctionDecimator : public Decimator<SPACE_DIM>
@@ -12,6 +29,11 @@ private:
     std::vector<c_vector<double, SPACE_DIM> > mPayload;
     out_stream mFibreFile;
     c_vector<double, SPACE_DIM> mVectorMeasureBefore, mVectorMeasureAfter;
+    
+    NodeInfo<SPACE_DIM> *CreateNodeInfo(Node<SPACE_DIM> *p_node, unsigned position)
+    {
+        return new VectorFunctionNodeInfo<SPACE_DIM>(p_node, position);
+    }
 protected:
     void CalculateLocalMeasure(NodeInfo<SPACE_DIM> *pNodeInfo, bool before)
     {

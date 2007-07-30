@@ -468,7 +468,10 @@ public:
         
     }
     
-    
+    virtual NodeInfo<SPACE_DIM> *CreateNodeInfo(Node<SPACE_DIM> *p_node, unsigned index)
+    {
+        return new NodeInfo<SPACE_DIM>(p_node, index);
+    }
     void Initialise(ConformingTetrahedralMesh<SPACE_DIM, SPACE_DIM> *pMesh)
     {
         mpMesh = pMesh;
@@ -478,7 +481,7 @@ public:
         mQueue.reserve(mpMesh->GetNumAllNodes());
         for (unsigned i=0; i<(unsigned)mpMesh->GetNumAllNodes();i++)
         {
-            NodeInfo<SPACE_DIM> *p_node_info=new NodeInfo<SPACE_DIM>(mpMesh->GetNode(i), i);
+            NodeInfo<SPACE_DIM> *p_node_info=CreateNodeInfo(mpMesh->GetNode(i), i);
             mQueue.push_back(p_node_info);
         }
         for (unsigned i=0; i<(unsigned)mpMesh->GetNumAllNodes();i++)

@@ -546,7 +546,7 @@ public:
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
         decimator.SetThreshold(1e-6);
-        decimator.DecimateAnimate("SquareVectorAnimation",27);
+        decimator.DecimateAnimate("SquareVectorAnimation",10);
         //decimator.Decimate();
         
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 16U);

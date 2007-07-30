@@ -8,15 +8,13 @@
 
 template <unsigned SPACE_DIM>
 class Decimator;
-template <unsigned SPACE_DIM>
-class CompNodeInfo;
+
 
 template <unsigned SPACE_DIM>
 class NodeInfo
 {
 private:
     friend class Decimator<SPACE_DIM>;
-    friend class CompNodeInfo<SPACE_DIM>;
 protected:
     double mScore;
     double mNeighbourhoodVolume;
@@ -39,6 +37,14 @@ public:
         mpNode(pNode)
     {}
 
+    virtual ~NodeInfo(){}
+    
+    virtual bool
+    TieBreakGreaterThan(const NodeInfo<SPACE_DIM>* other) const
+    {
+        return (this->GetIndex() > other->GetIndex());
+    }
+    
     friend bool 
     operator>(const NodeInfo<SPACE_DIM>& r1, const NodeInfo<SPACE_DIM>& r2)
     {
@@ -51,14 +57,14 @@ public:
             return false;
         }
        //Tie-breaker (for repeatability)
-        return (r1.GetIndex() > r2.GetIndex());
+       return r1.TieBreakGreaterThan(&r2);
     }    
     
     unsigned GetPossibleTargetIndex()
     {
         return mPossibleTargetIndex;
     }
-    double GetNeighbourhoodVolume()
+    double GetNeighbourhoodVolume() const
     {
         return mNeighbourhoodVolume;
     }

@@ -4,6 +4,23 @@
 
 #include "Decimator.hpp"
 
+template <unsigned SPACE_DIM>
+class LinearFunctionNodeInfo : public NodeInfo<SPACE_DIM>
+{
+public:
+    LinearFunctionNodeInfo(Node<SPACE_DIM> *pNode, unsigned position)
+    : NodeInfo<SPACE_DIM>(pNode, position)
+    {
+         
+    }
+
+private:
+    bool
+    TieBreakGreaterThan(const NodeInfo<SPACE_DIM>* other) const
+    {
+        return (this->mNeighbourhoodVolume < other->GetNeighbourhoodVolume());
+    }
+};
 ///Note ELEMENT_DIM matches SPACE_DIM
 template <unsigned SPACE_DIM>
 class LinearFunctionDecimator : public Decimator<SPACE_DIM>
@@ -12,6 +29,10 @@ private:
     std::vector<double> mPayload;
 protected:
 
+    NodeInfo<SPACE_DIM> *CreateNodeInfo(Node<SPACE_DIM> *p_node, unsigned position)
+    {
+        return new LinearFunctionNodeInfo<SPACE_DIM>(p_node, position);
+    }
     void CalculateLocalMeasure(NodeInfo<SPACE_DIM> *pNodeInfo, bool before)
     {
         double measure=0.0;
