@@ -56,7 +56,7 @@ void CardiacMechAssembler<DIM>::SetActiveTension(std::vector<double> activeTensi
 template<unsigned DIM>
 std::vector<double>& CardiacMechAssembler<DIM>::GetLambda()
 {
-    // return mLambda;
+    return mLambda;
 }
 
 
