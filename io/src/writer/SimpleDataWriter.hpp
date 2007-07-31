@@ -13,7 +13,7 @@
 
 /**
  *  A basic data writer that is easier to use than ColumnDataWriter but has less
- *  functionality
+ *  functionality. NOTE: this is not an efficient writer.
  * 
  *  This class does not writer header lines so is ideal for immediately reading
  *  with MATLAB or Gnuplot.
@@ -59,6 +59,8 @@ public:
             }
             (*p_file) << "\n";
         }
+        
+        p_file->close();
     }                    
 
    
@@ -80,5 +82,21 @@ public:
         data.push_back(x);
         SimpleDataWriter(directory, fileName, data, cleanDirectory);
     }                    
+
+    /**
+     *  Write the provided data out to the given file in one column
+     *  
+     *  @directory The directory, relative to TEST_OUTPUT
+     *  @fileName  The full file name (no format will be apended)
+     *  @data      A std::vec of data
+     *  @cleanDirectory Whether to clean the directory (defaults to true)
+     */
+    SimpleDataWriter(std::string directory, std::string fileName, std::vector<double> data, bool cleanDirectory=true)
+    {
+        std::vector<std::vector<double> > data_;
+        data_.push_back(data);
+        SimpleDataWriter(directory, fileName, data_, cleanDirectory);
+    }                    
+
 };
 #endif /*SIMPLEDATAWRITER_HPP_*/

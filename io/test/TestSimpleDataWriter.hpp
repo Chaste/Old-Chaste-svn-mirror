@@ -38,7 +38,7 @@ public:
             x.push_back(2*i);
             y.push_back(i+10);
         }
-        
+                
         SimpleDataWriter writer1("SimpleDataWriter", "std_vecs1.dat", t, x);
         
         std::vector<std::vector<double> > full_data;
@@ -48,13 +48,15 @@ public:
         
         SimpleDataWriter writer2("SimpleDataWriter", "std_vecs2.dat", full_data, false);
     
+        SimpleDataWriter writer3("SimpleDataWriter", "std_vecs3.dat", t, false);
+    
         // do the testing now so that to also check the directory wasn't cleaned
         // in the second write       
         OutputFileHandler handler("SimpleDataWriter",false);
         std::string results_dir = handler.GetTestOutputDirectory();
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "std_vecs1.dat  io/test/data/good_std_vec1.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "std_vecs2.dat  io/test/data/good_std_vec2.dat").c_str()), 0);
-        
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "std_vecs3.dat  io/test/data/good_std_vec3.dat").c_str()), 0);
     }
 };
 #endif /*TESTSIMPLEDATAWRITER_HPP_*/
