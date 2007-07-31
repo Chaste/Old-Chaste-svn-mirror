@@ -38,11 +38,24 @@ CardiacMechanicsAssembler<DIM>::~CardiacMechanicsAssembler()
 }
 
 
-
 template<unsigned DIM>
 unsigned CardiacMechanicsAssembler<DIM>::GetTotalNumQuadPoints()
 {
     return mTotalQuadPoints;
+}
+
+template<unsigned DIM>
+unsigned CardiacMechanicsAssembler<DIM>::GetNumQuadPointsPerElement()
+{
+    assert(DIM==2 || DIM==3);
+    if(DIM==2)
+    { 
+        return mNumQuadPointsInEachDimension*mNumQuadPointsInEachDimension;
+    }
+    else //DIM==3
+    {
+        return mNumQuadPointsInEachDimension*mNumQuadPointsInEachDimension*mNumQuadPointsInEachDimension;
+    }
 }
 
 

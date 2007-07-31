@@ -22,15 +22,13 @@ class DealiiMonodomainAssembler : public AbstractDealiiAssembler<DIM>
 {
 private:
     FE_Q<DIM> mFe;
-
     std::vector< AbstractCardiacCell* >& mrCells;
-    
     std::vector<double> mIionicCache;
     std::vector<double> mIntracellularStimulusCache;
-    
     std::vector<double> mVoltage;
-    
+    bool mAssembleMatrix;
     double mDt;
+
 
     void ApplyDirichletBoundaryConditions()
     {
@@ -144,6 +142,8 @@ public:
             this->mCurrentSolution(i) = initial_voltage;
         }
     
+        // true the first time
+        mAssembleMatrix = true;
     }
     
     void Solve(double startTime, double endTime, unsigned numTimeSteps)
@@ -163,9 +163,7 @@ public:
             vertex_iter.Next();
         }
         SimpleDataWriter writer2("DealiiMonodomain", "mesh.dat", x, y, false);
-        
-   
-        bool assemble_matrix = true; 
+
         for(unsigned time_counter = 0; time_counter < numTimeSteps; time_counter++)
         {
             double time = startTime + time_counter*mDt;
@@ -185,8 +183,8 @@ public:
             }
             
             // assemble system
-            this->AssembleSystem(true, assemble_matrix);
-            assemble_matrix = false;
+            this->AssembleSystem(true, mAssembleMatrix);
+            mAssembleMatrix = false;
             
             // solve for voltage
             SolverControl solver_control(1000, 1e-12, false, false);

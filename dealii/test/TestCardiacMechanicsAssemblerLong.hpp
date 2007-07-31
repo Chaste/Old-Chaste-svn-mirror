@@ -88,6 +88,9 @@ public :
                                                             "CardiacMech/SpecifiedActiveTensionCompression3d",
                                                             &material_law);
 
+        TS_ASSERT_EQUALS(cardiac_mech_assembler.GetNumQuadPointsPerElement(), 27);
+        TS_ASSERT_EQUALS(cardiac_mech_assembler.GetTotalNumQuadPoints(), 27*mesh.n_active_cells());
+
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.0);
         SetUpLinearActiveTension<3>(mesh, 0.01, active_tension); 
         

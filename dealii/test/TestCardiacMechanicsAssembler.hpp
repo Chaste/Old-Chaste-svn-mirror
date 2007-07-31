@@ -110,6 +110,9 @@ public :
 
         CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, "CardiacMech/ZeroActiveTension");
         
+        TS_ASSERT_EQUALS(cardiac_mech_assembler.GetNumQuadPointsPerElement(), 9);
+        TS_ASSERT_EQUALS(cardiac_mech_assembler.GetTotalNumQuadPoints(), mesh.n_active_cells()*9);
+                        
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.0);
         cardiac_mech_assembler.SetActiveTension(active_tension);
 

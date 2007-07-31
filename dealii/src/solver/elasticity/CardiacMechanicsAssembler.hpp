@@ -45,7 +45,12 @@ public:
      *  q is the number of quad points in each dimension, and d=DIM). 
      */
     unsigned GetTotalNumQuadPoints();
-    
+
+    /**
+     *  Get the total number of quadrature points in each element
+     */
+    unsigned GetNumQuadPointsPerElement();
+
     /** 
      *  Set the current active tensions, by quadrature point. Quad points don't have indices,
      *  so these values should be in the order given by looping over cells and then looping
