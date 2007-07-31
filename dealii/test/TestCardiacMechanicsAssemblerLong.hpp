@@ -108,7 +108,7 @@ public :
         
         // the lambdas should be less than 1 (positive T_a => compression), and also
         // should be near the same for any particular value of y, ie the same along any 
-        // fibre. Lambda should decrease approx linearly with y. Comment out trace and 
+        // fibre. Lambda should decrease approx linearly with y. Uncomment trace and 
         // view in matlab (plot y against lambda) to observe this. The parameters 
         // 0.07, 0.01 etc were obtained by looking at the plot. 
         for(unsigned i=0; i<lambda.size(); i++)
