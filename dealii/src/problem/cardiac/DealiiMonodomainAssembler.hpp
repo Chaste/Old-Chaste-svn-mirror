@@ -122,8 +122,8 @@ private:
 public:
     DealiiMonodomainAssembler(Triangulation<DIM>* pMesh, std::vector<AbstractCardiacCell*>& rCells)
         : AbstractDealiiAssembler<DIM>(pMesh),
-          mrCells(rCells),
-          mFe(1)
+          mFe(1),
+          mrCells(rCells)
     {
         assert(rCells.size() == pMesh->n_vertices());
 
