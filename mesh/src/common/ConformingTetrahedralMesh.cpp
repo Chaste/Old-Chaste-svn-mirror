@@ -1275,6 +1275,36 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxP
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsigned width)
+{
+    assert(SPACE_DIM == 1);
+    assert(ELEMENT_DIM == 1);
+    
+    for (unsigned node_index=0; node_index<=width; node_index++)
+    {
+        Node<1>* p_node = new Node<1>(node_index, node_index==0 || node_index==width, node_index);
+        mNodes.push_back(p_node); // create node
+        if (node_index==0) // create left boundary node and boundary element
+        {
+            mBoundaryNodes.push_back(p_node);
+            mBoundaryElements.push_back(new BoundaryElement<0,1>(0, p_node) );
+        }
+        if (node_index==width) // create right boundary node and boundary element
+        {
+            mBoundaryNodes.push_back(p_node);
+            mBoundaryElements.push_back(new BoundaryElement<0,1>(1, p_node) );
+        }
+        if (node_index>0) // create element
+        {
+            std::vector<Node<1>*> nodes;
+            nodes.push_back(mNodes[node_index-1]);
+            nodes.push_back(mNodes[node_index]);
+            mElements.push_back(new Element<1,1>(node_index-1, nodes) );
+        }
+    }
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned width, unsigned height, bool stagger)
 {
     assert(SPACE_DIM == 2);

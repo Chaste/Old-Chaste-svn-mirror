@@ -55,6 +55,55 @@ BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
     
     Init();
 }
+/**
+ * Constructor with the same signature as the forward cell models
+ */
+    BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(AbstractIvpOdeSolver *pSolver,
+                                             double dt,
+                                             AbstractStimulusFunction *pIntracellularStimulus,
+                                             AbstractStimulusFunction *pExtracellularStimulus)
+        : AbstractBackwardEulerCardiacCell<1>(8, 4, dt, pIntracellularStimulus,
+                                              pExtracellularStimulus)
+{
+    /*
+     * State variables
+     */
+    
+    mVariableNames.push_back("h");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.9804713);
+    
+    mVariableNames.push_back("j");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.98767124);
+    
+    mVariableNames.push_back("m");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.00187018);
+    
+    mVariableNames.push_back("CaI");
+    mVariableUnits.push_back("mMol");
+    mInitialConditions.push_back(0.0002);
+    
+    mVariableNames.push_back("V");
+    mVariableUnits.push_back("mV");
+    mInitialConditions.push_back(-83.853);
+    
+    mVariableNames.push_back("d");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.00316354);
+    
+    mVariableNames.push_back("f");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.99427859);
+    
+    mVariableNames.push_back("x");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.16647703);
+    
+    Init();
+}
+
 
 /**
  * Destructor

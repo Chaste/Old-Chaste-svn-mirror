@@ -35,6 +35,12 @@ public:
                                    AbstractStimulusFunction *pIntracellularStimulus,
                                    AbstractStimulusFunction *pExtracellularStimulus = NULL);
                                    
+    // Constructor with the same signature as the forward cell models
+    BackwardEulerLuoRudyIModel1991(AbstractIvpOdeSolver *pSolver,
+                                   double dt,
+                                   AbstractStimulusFunction *pIntracellularStimulus,
+                                   AbstractStimulusFunction *pExtracellularStimulus = NULL);
+                                   
     // Destructor
     ~BackwardEulerLuoRudyIModel1991();
     

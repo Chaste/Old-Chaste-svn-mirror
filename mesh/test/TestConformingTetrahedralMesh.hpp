@@ -1008,7 +1008,7 @@ public:
         TrianglesMeshWriter<2,2> mesh_writer("","RectangleMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
-    
+        
    
     void TestConstructRectangleNoStagger()
     {
@@ -1031,6 +1031,24 @@ public:
     {
         ConformingTetrahedralMesh<2,2> rect_mesh;
         rect_mesh.ConstructRectangularMesh(1, 1, false);
+    }
+    
+    void TestConstructLine()
+    {
+        ConformingTetrahedralMesh<1,1> mesh;
+        unsigned width=39;;
+
+        mesh.ConstructLinearMesh(width);
+
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width, 1e-7);
+        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 0u, 1e-7);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), width+1);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2u); 
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  2u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), width);
+        
+        TrianglesMeshWriter<1,1> mesh_writer("","LineMesh");
+        mesh_writer.WriteFilesUsingMesh(mesh);
     }
     
     

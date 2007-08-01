@@ -235,13 +235,15 @@ public:
     void PermuteNodes(std::vector<unsigned> perm);
     
     /**
-     * Checks the entire mesh element by element and checkes whether any neighbouring node
-     * inside the circumsphere of this element.
+     * Checks the entire mesh element by element and checks whether any neighbouring node
+     * is inside the circumsphere of this element.
      * @param maxPenetration is the maximum distance a node is allowed to be inside the
      * circumsphere of an element that it is not a member of, as a proportion of the
      * circumsphere radius.
      */
     bool CheckVoronoi(double maxPenetration=0.0);
+    
+    void ConstructLinearMesh(unsigned width);
     
     /**
      * Construct a rectangular grid on [0,width]x[0,height]
@@ -392,6 +394,5 @@ public:
     EdgeIterator EdgesEnd();
 
 };
-
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_
