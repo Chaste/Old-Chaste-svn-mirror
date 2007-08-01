@@ -3,6 +3,7 @@
 petsc_2_2_path = '/home/zuse/system/software/petsc-2.2.1/'
 petsc_2_3_path = None
 petsc_build_name = 'linux-mpich-gnu-mkl'
+petsc_build_name_optimized = 'linux-mpich-gnu-mkl'
 dealii_path = None
 metis_path = None
 intel_path = '/opt/intel/cc/9.1.039/lib'

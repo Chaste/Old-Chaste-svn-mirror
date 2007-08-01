@@ -71,8 +71,8 @@ def do_petsc(version, optimised):
     else:
         petsc_base = os.path.abspath(conf.petsc_2_3_path)
         if optimised:
-            libpath = os.path.join(petsc_base, 'lib/'+conf.petsc_build_name+'-opt')
-            incpaths.append(os.path.join(petsc_base, 'bmake/'+conf.petsc_build_name+'-opt'))
+            libpath = os.path.join(petsc_base, 'lib/'+conf.petsc_build_name_optimized)
+            incpaths.append(os.path.join(petsc_base, 'bmake/'+conf.petsc_build_name_optimized))
         else:
             libpath = os.path.join(petsc_base, 'lib/'+conf.petsc_build_name)
             incpaths.append(os.path.join(petsc_base, 'bmake/'+conf.petsc_build_name))
@@ -108,7 +108,7 @@ def configure(build):
         do_petsc('2_3', build.is_optimised)
         libraries.extend(conf.blas_lapack)
     if build.CompilerType() == 'intel':
-        intel_path = os.path.abspath(intel_path)
+        intel_path = os.path.abspath(conf.intel_path)
         libpaths.append(os.path.join(intel_path, 'lib'))
     incpaths.extend(conf.other_includepaths)
     libpaths.extend(map(os.path.abspath, conf.other_libpaths))
@@ -118,5 +118,5 @@ def configure(build):
 
     if build.CompilerType() == 'intel':
         build.tools['mpicxx'] += ' -CC=icpc'
-        build.tools['cxx'] = os.path.join(intel_path, 'icpc')
-        build.tools['ar'] = os.path.join(intel_path, 'xiar')
+        build.tools['cxx'] = os.path.join(intel_path, 'bin/icpc')
+        build.tools['ar'] = os.path.join(intel_path, 'bin/xiar')
