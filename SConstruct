@@ -10,6 +10,9 @@ import socket
 sys.path.append('python')
 import BuildTypes
 
+sys.path.append('python/hostconfig')
+import hostconfig
+
 # The type of build to perform (see python/BuildTypes.py for options)
 build_type = ARGUMENTS.get('build', 'default')
 build = BuildTypes.GetBuildType(build_type)
@@ -18,29 +21,6 @@ Export('build', 'build_type')
 
 # Specify test_summary=0 to scons to *NOT* generate a summary html page
 test_summary = ARGUMENTS.get('test_summary', 1)
-
-# Allow the system_name to be derived automatically
-machine_fqdn = socket.getfqdn()
-if machine_fqdn in ["userpc30.comlab.ox.ac.uk", "userpc33.comlab.ox.ac.uk"]:
-    system_name = 'joe'
-elif machine_fqdn in ["userpc44.comlab.ox.ac.uk", "userpc60.comlab.ox.ac.uk",
-                      "userpc58.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk"]:
-    system_name = 'new_chaste'
-elif machine_fqdn == "zuse.osc.ox.ac.uk":
-    system_name = 'zuse'
-elif machine_fqdn.endswith(".comlab.ox.ac.uk"):
-    system_name = 'chaste'
-elif machine_fqdn.startswith('finarfin'):
-    system_name = 'finarfin'
-elif machine_fqdn.endswith(".maths.nottingham.ac.uk"):
-    system_name = 'Nottingham'
-elif machine_fqdn.endswith(".maths.ox.ac.uk"):
-    system_name = 'maths'
-else:
-    system_name = ''
-
-# Specify system_name=<whatever> to scons to change default paths
-system_name = ARGUMENTS.get('system_name', system_name)
 
 # Specifying extra run-time flags
 run_time_flags = ARGUMENTS.get('run_time_flags', '')
@@ -106,222 +86,228 @@ Export('components', 'comp_deps')
 #                  system location).
 #  other_includepaths: paths to search for header files.  Do include the
 #                      path to PETSc headers (unless it's standard).
-if system_name == 'finarfin':
-  # Finarfin (Debian etch)
-  petsc_base = '/home/jonc/work/dphil/petsc-2.3.1-p19/'
-  if build.is_optimised:
-      petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu-opt/')
-      petsc_bmake = petsc_base+'bmake/linux-gnu-opt'
-  else:
-      petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
-      petsc_bmake = petsc_base+'bmake/linux-gnu'
-  petsc_inc = petsc_base+'include'
+hostconfig.configure(build)
+other_libs = hostconfig.libraries
+other_libpaths = hostconfig.libpaths
+other_includepaths = hostconfig.incpaths
 
-  other_libs = ['lapack', 'blas', 'boost_serialization', 'xerces-c']
-  other_libpaths = [petsc_libpath, '/usr/lib/atlas/sse2']
-  other_includepaths = [petsc_inc, petsc_bmake]
-elif system_name == 'maths':
-  # Oxford uni maths inst
-  petsc_base = '/scratch/chaste/petsc-2.3.2-p4/'
-  petsc_inc = petsc_base+'include'
-  petsc_bmake = petsc_base+'bmake/linux-gnu'
-  petsc_mpi = petsc_base+'include/mpiuni'
-  petsc_incs = [petsc_inc, petsc_bmake]
-  petsc_libpath = petsc_base+'lib/linux-gnu/'
 
-  other_libs = ['lapack', 'blas-3']
-  other_libpaths = [petsc_libpath]
-  other_includepaths = petsc_incs
-elif system_name == 'joe':
-  # Joe Pitt-Francis userpc30 (Suse 9.3) and userpc33 (Ubuntu 6.06 Dapper Drake)
-  petsc_base = '/home/jmpf/petsc-2.3.1-p16/'
-  petsc_inc = petsc_base+'include'
-  petsc_bmake = petsc_base+'bmake/linux-gnu'
-  boost = '/home/jmpf'
-  other_includepaths = [petsc_inc, petsc_bmake, boost]
-  petsc_libpath = petsc_base+'lib/linux-gnu/'
-  blas_libpath=  petsc_base+'externalpackages/f2cblaslapack/linux-gnu/'
-  intel_libpath = '/opt/intel/cc/9.1.039/lib'
-  other_libs = ['f2clapack', 'f2cblas','boost_serialization', 'xerces-c']
-  other_libpaths = [petsc_libpath, blas_libpath, intel_libpath]
-  xsd_inc = '/home/jmpf/xsd-2.3.1-i686-linux-gnu/libxsd'
-  other_includepaths.extend([petsc_inc, petsc_bmake, xsd_inc])
-elif system_name == 'zuse':
-  petsc_base = '/home/zuse/system/software/petsc-2.2.1/'
-  petsc_inc = petsc_base+'include'
-  petsc_bmake = petsc_base+'bmake/linux-mpich-gnu-mkl'
-  #petsc_mpi = petsc_base+'include/mpiuni'
-  petsc_mpi = ''
-  #boost = '/home/zuse/system/joe'
-  boost = '/home/zuse/system/joe/boost_v1_34/include/boost-1_34'
-  xsd_inc = '/home/zuse/system/joe/xsd-2.3.1-i686-linux-gnu/libxsd'
-  xerces_inc = '/home/zuse/system/joe/xerces-c-suse_80_AMD_64-gcc_32/include'
-  other_includepaths = [petsc_inc, petsc_bmake, boost, xerces_inc, xsd_inc]
+## if system_name == 'finarfin':
+##   # Finarfin (Debian etch)
+##   petsc_base = '/home/jonc/work/dphil/petsc-2.3.1-p19/'
+##   if build.is_optimised:
+##       petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu-opt/')
+##       petsc_bmake = petsc_base+'bmake/linux-gnu-opt'
+##   else:
+##       petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
+##       petsc_bmake = petsc_base+'bmake/linux-gnu'
+##   petsc_inc = petsc_base+'include'
+
+##   other_libs = ['lapack', 'blas', 'boost_serialization', 'xerces-c']
+##   other_libpaths = [petsc_libpath, '/usr/lib/atlas/sse2']
+##   other_includepaths = [petsc_inc, petsc_bmake]
+## elif system_name == 'maths':
+##   # Oxford uni maths inst
+##   petsc_base = '/scratch/chaste/petsc-2.3.2-p4/'
+##   petsc_inc = petsc_base+'include'
+##   petsc_bmake = petsc_base+'bmake/linux-gnu'
+##   petsc_mpi = petsc_base+'include/mpiuni'
+##   petsc_incs = [petsc_inc, petsc_bmake]
+##   petsc_libpath = petsc_base+'lib/linux-gnu/'
+
+##   other_libs = ['lapack', 'blas-3']
+##   other_libpaths = [petsc_libpath]
+##   other_includepaths = petsc_incs
+## elif system_name == 'joe':
+##   # Joe Pitt-Francis userpc30 (Suse 9.3) and userpc33 (Ubuntu 6.06 Dapper Drake)
+##   petsc_base = '/home/jmpf/petsc-2.3.1-p16/'
+##   petsc_inc = petsc_base+'include'
+##   petsc_bmake = petsc_base+'bmake/linux-gnu'
+##   boost = '/home/jmpf'
+##   other_includepaths = [petsc_inc, petsc_bmake, boost]
+##   petsc_libpath = petsc_base+'lib/linux-gnu/'
+##   blas_libpath=  petsc_base+'externalpackages/f2cblaslapack/linux-gnu/'
+##   intel_libpath = '/opt/intel/cc/9.1.039/lib'
+##   other_libs = ['f2clapack', 'f2cblas','boost_serialization', 'xerces-c']
+##   other_libpaths = [petsc_libpath, blas_libpath, intel_libpath]
+##   xsd_inc = '/home/jmpf/xsd-2.3.1-i686-linux-gnu/libxsd'
+##   other_includepaths.extend([petsc_inc, petsc_bmake, xsd_inc])
+## elif system_name == 'zuse':
+##   petsc_base = '/home/zuse/system/software/petsc-2.2.1/'
+##   petsc_inc = petsc_base+'include'
+##   petsc_bmake = petsc_base+'bmake/linux-mpich-gnu-mkl'
+##   #petsc_mpi = petsc_base+'include/mpiuni'
+##   petsc_mpi = ''
+##   #boost = '/home/zuse/system/joe'
+##   boost = '/home/zuse/system/joe/boost_v1_34/include/boost-1_34'
+##   xsd_inc = '/home/zuse/system/joe/xsd-2.3.1-i686-linux-gnu/libxsd'
+##   xerces_inc = '/home/zuse/system/joe/xerces-c-suse_80_AMD_64-gcc_32/include'
+##   other_includepaths = [petsc_inc, petsc_bmake, boost, xerces_inc, xsd_inc]
   
-  petsc_libpath = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
-  blas_libpath = '/opt/intel/mkl/8.0/lib/em64t/'
-  xerces_libpath = '/home/zuse/system/joe/xerces-c-suse_80_AMD_64-gcc_32/lib'
-  boost_libpath = '/home/zuse/system/joe/boost_v1_34/lib'
-  other_libpaths = [petsc_libpath, blas_libpath, xerces_libpath, boost_libpath]
-  other_libs = ['boost_serialization-gcc32', 'xerces-c']
-elif system_name == 'zuse_opt':
-  petsc_base = '/home/zuse/system/software/petsc-2.2.1/'
-  petsc_inc = petsc_base+'include'
-  petsc_bmake = petsc_base+'bmake/linux-mpich-gnu-mkl'
-  #petsc_mpi = petsc_base+'include/mpiuni'
-  petsc_mpi = ' '
-  boost = '/home/zuse/system/joe'
-  xsd_inc = '/home/zuse/system/joe/xsd-2.3.1-i686-linux-gnu/libxsd'
-  other_includepaths = [petsc_inc, petsc_bmake, boost, xsd_inc]
+##   petsc_libpath = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
+##   blas_libpath = '/opt/intel/mkl/8.0/lib/em64t/'
+##   xerces_libpath = '/home/zuse/system/joe/xerces-c-suse_80_AMD_64-gcc_32/lib'
+##   boost_libpath = '/home/zuse/system/joe/boost_v1_34/lib'
+##   other_libpaths = [petsc_libpath, blas_libpath, xerces_libpath, boost_libpath]
+##   other_libs = ['boost_serialization-gcc32', 'xerces-c']
+## elif system_name == 'zuse_opt':
+##   petsc_base = '/home/zuse/system/software/petsc-2.2.1/'
+##   petsc_inc = petsc_base+'include'
+##   petsc_bmake = petsc_base+'bmake/linux-mpich-gnu-mkl'
+##   #petsc_mpi = petsc_base+'include/mpiuni'
+##   petsc_mpi = ' '
+##   boost = '/home/zuse/system/joe'
+##   xsd_inc = '/home/zuse/system/joe/xsd-2.3.1-i686-linux-gnu/libxsd'
+##   other_includepaths = [petsc_inc, petsc_bmake, boost, xsd_inc]
   
-  petsc_libpath = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
-  blas_libpath = '/opt/intel/mkl/8.0/lib/em64t/'
-  other_libpaths = [petsc_libpath, blas_libpath,
-                      '/home/zuse/system/software/opt/opt/lib/',
-                      '/home/zuse/system/software/opt/opt-deps/gsoap/lib/',
-                      '/home/zuse/system/software/opt/opt-deps/papi/lib/',
-                      '/home/zuse/system/software/opt/opt-deps/libunwind/lib',
-                      '/home/zuse/system/software/opt/opt-deps/papi/lib64']
-  other_libs = ['opt', 'gsoap', 'stdc++', 'dl', 'papi','unwind-x86_64', 'unwind', 'perfctr']
-elif system_name == 'chaste':
-  # Chaste machines in comlab
-  petsc_base = '../../../petsc-2.3.1-p13/'
-  petsc_inc = petsc_base+'include'
-  petsc_bmake = petsc_base+'bmake/linux-gnu'
-  # petsc_mpi = petsc_base+'include/mpiuni'
-  petsc_mpi = ''
-  other_includepaths = [petsc_inc, petsc_bmake]
-  blas_libpath = os.path.abspath(petsc_base+'externalpackages/f2cblaslapack/linux-gnu')
-  petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
-  other_libpaths = [petsc_libpath, blas_libpath]
-  other_libs = ['f2clapack', 'f2cblas', 'boost_serialization']
-elif (system_name == 'new_chaste'):
-  # New Chaste machines in comlab
-  other_includepaths = []
-  if build.using_dealii:
-    petsc_base = '../../../petsc-2.2.1/'
-    dealii_base = '../../../deal.II/'
-    Export('dealii_base')
-    petsc_bmake = petsc_base+'bmake/linux-gnu'
-    if build.is_optimised:
-        petsc_libpath = os.path.abspath(petsc_base+'lib/libO_c++/linux-gnu/')
-    else:
-        petsc_libpath = os.path.abspath(petsc_base+'lib/libg_c++/linux-gnu/')
-    dealii_libpath = os.path.abspath(dealii_base+'lib/')
-    metis_libpath = os.path.abspath('../../../metis-4.0/')
-    other_libpaths = [petsc_libpath, dealii_libpath, metis_libpath]
-    metis_includepath = metis_libpath + '/Lib' # Bizarre, I know!
-    dealii_includepaths = ['base/include', 'lac/include', 'deal.II/include']
-    other_includepaths.extend(map(lambda s: dealii_base + s, dealii_includepaths))
-    other_libs = build.GetDealiiLibraries(dealii_base) + ['blas', 'lapack', 'boost_serialization', 'xerces-c']
-  else:
-    petsc_base = '../../../petsc-2.3.2-p4/'
-    if build.is_optimised:
-        petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu-opt/')
-        petsc_bmake = petsc_base+'bmake/linux-gnu-opt'
-    else:
-        petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
-        petsc_bmake = petsc_base+'bmake/linux-gnu'
-    blas_libpath = os.path.abspath(petsc_base+'externalpackages/f2cblaslapack/linux-gnu')
-    intel_libpath = '/opt/intel/cc/9.1.039/lib'
+##   petsc_libpath = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
+##   blas_libpath = '/opt/intel/mkl/8.0/lib/em64t/'
+##   other_libpaths = [petsc_libpath, blas_libpath,
+##                       '/home/zuse/system/software/opt/opt/lib/',
+##                       '/home/zuse/system/software/opt/opt-deps/gsoap/lib/',
+##                       '/home/zuse/system/software/opt/opt-deps/papi/lib/',
+##                       '/home/zuse/system/software/opt/opt-deps/libunwind/lib',
+##                       '/home/zuse/system/software/opt/opt-deps/papi/lib64']
+##   other_libs = ['opt', 'gsoap', 'stdc++', 'dl', 'papi','unwind-x86_64', 'unwind', 'perfctr']
+## elif system_name == 'chaste':
+##   # Chaste machines in comlab
+##   petsc_base = '../../../petsc-2.3.1-p13/'
+##   petsc_inc = petsc_base+'include'
+##   petsc_bmake = petsc_base+'bmake/linux-gnu'
+##   # petsc_mpi = petsc_base+'include/mpiuni'
+##   petsc_mpi = ''
+##   other_includepaths = [petsc_inc, petsc_bmake]
+##   blas_libpath = os.path.abspath(petsc_base+'externalpackages/f2cblaslapack/linux-gnu')
+##   petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
+##   other_libpaths = [petsc_libpath, blas_libpath]
+##   other_libs = ['f2clapack', 'f2cblas', 'boost_serialization']
+## elif (system_name == 'new_chaste'):
+##   # New Chaste machines in comlab
+##   other_includepaths = []
+##   if build.using_dealii:
+##     petsc_base = '../../../petsc-2.2.1/'
+##     dealii_base = '../../../deal.II/'
+##     Export('dealii_base')
+##     petsc_bmake = petsc_base+'bmake/linux-gnu'
+##     if build.is_optimised:
+##         petsc_libpath = os.path.abspath(petsc_base+'lib/libO_c++/linux-gnu/')
+##     else:
+##         petsc_libpath = os.path.abspath(petsc_base+'lib/libg_c++/linux-gnu/')
+##     dealii_libpath = os.path.abspath(dealii_base+'lib/')
+##     metis_libpath = os.path.abspath('../../../metis-4.0/')
+##     other_libpaths = [petsc_libpath, dealii_libpath, metis_libpath]
+##     metis_includepath = metis_libpath + '/Lib' # Bizarre, I know!
+##     dealii_includepaths = ['base/include', 'lac/include', 'deal.II/include']
+##     other_includepaths.extend(map(lambda s: dealii_base + s, dealii_includepaths))
+##     other_libs = build.GetDealiiLibraries(dealii_base) + ['blas', 'lapack', 'boost_serialization', 'xerces-c']
+##   else:
+##     petsc_base = '../../../petsc-2.3.2-p4/'
+##     if build.is_optimised:
+##         petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu-opt/')
+##         petsc_bmake = petsc_base+'bmake/linux-gnu-opt'
+##     else:
+##         petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
+##         petsc_bmake = petsc_base+'bmake/linux-gnu'
+##     blas_libpath = os.path.abspath(petsc_base+'externalpackages/f2cblaslapack/linux-gnu')
+##     intel_libpath = '/opt/intel/cc/9.1.039/lib'
  
-    other_libpaths = [petsc_libpath, blas_libpath, intel_libpath]
-    other_libs = ['f2clapack', 'f2cblas', 'boost_serialization', 'xerces-c']
-  petsc_inc = petsc_base+'include'
-  # TODO: Make sure Chaste paths come first in the -I list.
-  xsd_inc = '../../../xsd-2.3.1-i686-linux-gnu/libxsd'
-  other_includepaths.extend([petsc_inc, petsc_bmake, xsd_inc])
-elif system_name == 'Nottingham':
-  # Gary, Alex and Helen's machines in Nottingham
-  petsc_base = '/opt/petsc-2.2.1-with-mpi/'
-  petsc_inc = petsc_base+'include'
-  petsc_bmake = petsc_base+'bmake/linux-gnu'
-  boost_path = '/opt/boost/include/boost-1_33_1'
-  other_includepaths = [petsc_inc, petsc_bmake,  boost_path]
-  other_libs = ['lapack', 'blas', 'boost_serialization-gcc','xerces-c']
-  other_libpaths = [petsc_base+'lib/libO_c++/linux-gnu/',
-                    '/opt/boost/lib/']
-else:
-  # Default for cancer course in the DTC
-  petsc_base = '/usr/local/petsc-2.3.1-p15/'
-  petsc_inc = petsc_base+'include'
-  petsc_bmake = petsc_base+'bmake/linux-gnu'
-  other_includepaths = [petsc_inc, petsc_bmake]
-  other_libs = ['lapack', 'blas']
-  other_libpaths = [petsc_base+'lib/linux-gnu/']
+##     other_libpaths = [petsc_libpath, blas_libpath, intel_libpath]
+##     other_libs = ['f2clapack', 'f2cblas', 'boost_serialization', 'xerces-c']
+##   petsc_inc = petsc_base+'include'
+##   # TODO: Make sure Chaste paths come first in the -I list.
+##   xsd_inc = '../../../xsd-2.3.1-i686-linux-gnu/libxsd'
+##   other_includepaths.extend([petsc_inc, petsc_bmake, xsd_inc])
+## elif system_name == 'Nottingham':
+##   # Gary, Alex and Helen's machines in Nottingham
+##   petsc_base = '/opt/petsc-2.2.1-with-mpi/'
+##   petsc_inc = petsc_base+'include'
+##   petsc_bmake = petsc_base+'bmake/linux-gnu'
+##   boost_path = '/opt/boost/include/boost-1_33_1'
+##   other_includepaths = [petsc_inc, petsc_bmake,  boost_path]
+##   other_libs = ['lapack', 'blas', 'boost_serialization-gcc','xerces-c']
+##   other_libpaths = [petsc_base+'lib/libO_c++/linux-gnu/',
+##                     '/opt/boost/lib/']
+## else:
+##   # Default for cancer course in the DTC
+##   petsc_base = '/usr/local/petsc-2.3.1-p15/'
+##   petsc_inc = petsc_base+'include'
+##   petsc_bmake = petsc_base+'bmake/linux-gnu'
+##   other_includepaths = [petsc_inc, petsc_bmake]
+##   other_libs = ['lapack', 'blas']
+##   other_libpaths = [petsc_base+'lib/linux-gnu/']
 
 Export("other_includepaths", "other_libpaths", "other_libs")
 
 
 ## C++ build tools & MPI runner
-if system_name == 'finarfin':
-  mpirun = 'mpirun'
-  if build.CompilerType() == 'intel':
-    # Use intel compiler
-    mpicxx = '/usr/bin/mpicxx -CC=icpc'
-    cxx    = '/opt/intel_cc_80/bin/icpc'
-    ar     = '/opt/intel_cc_80/bin/xiar'
-  else:
-    # Use gcc
-    mpicxx = 'mpicxx'
-    cxx    = 'g++'
-    ar     = 'ar'
-elif system_name == 'maths':
-  mpicxx = 'mpicxx'
-  mpirun = 'mpirun'
-  cxx = 'g++'
-  ar = 'ar'
-elif system_name == 'zuse':
-   mpicxx = '/home/zuse/system/software/mpich-gcc/bin/mpicxx'
-   mpirun = '/home/zuse/system/software/mpich-gcc/bin/mpirun'
-   cxx = '/usr/bin/g++'
-   ar = '/usr/bin/ar'
-elif system_name == 'zuse_opt':
-   mpicxx = '/home/zuse/system/software/mpich-gcc/bin/mpicxx'
-   mpirun = '/home/zuse/system/software/mpich-gcc/bin/mpirun'
-   cxx = '/usr/bin/g++'
-   ar = '/usr/bin/ar'
-elif system_name == 'joe':
-  mpirun = '/home/jmpf/mpi/bin/mpirun'
-  if build.CompilerType() == 'intel':
-  	mpicxx = 'mpicxx -CC=icpc'
-  	cxx = '/opt/intel/cc/9.1.039/bin/icpc'
-  	ar = ' /opt/intel/cc/9.1.039/bin/xiar'
-  else:
-  	mpicxx = '/home/jmpf/mpi/bin/mpicxx'
-  	cxx = '/usr/bin/g++'
-  	ar = '/usr/bin/ar'
-elif system_name == 'chaste':
-  mpicxx = 'mpicxx'
-  mpirun = 'mpirun'
-  cxx = '/usr/bin/g++'
-  ar = '/usr/bin/ar'
-elif system_name == 'new_chaste':
-    mpirun = 'mpirun'
-    if build.CompilerType() == 'intel':
-        mpicxx = 'mpicxx -CC=icpc'
-        cxx = '/opt/intel/cc/9.1.039/bin/icpc'
-        ar = ' /opt/intel/cc/9.1.039/bin/xiar'
-    else:    
-        mpicxx = 'mpicxx'
-        cxx = '/usr/bin/g++'
-        ar = '/usr/bin/ar'
-elif system_name == 'Nottingham':
-  mpicxx = '/opt/mpi/bin/mpicxx'
-  mpirun = '/opt/mpi/bin/mpirun'
-  cxx = '/usr/bin/g++'
-  ar = '/usr/bin/ar'
-else:
-  # DTC cancer course defaults
-  mpicxx = '/usr/local/mpi/bin/mpicxx'
-  mpirun = '/usr/local/mpi/bin/mpirun'
-  cxx = '/usr/bin/g++'
-  ar = '/usr/bin/ar'
+## if system_name == 'finarfin':
+##   mpirun = 'mpirun'
+##   if build.CompilerType() == 'intel':
+##     # Use intel compiler
+##     mpicxx = '/usr/bin/mpicxx -CC=icpc'
+##     cxx    = '/opt/intel_cc_80/bin/icpc'
+##     ar     = '/opt/intel_cc_80/bin/xiar'
+##   else:
+##     # Use gcc
+##     mpicxx = 'mpicxx'
+##     cxx    = 'g++'
+##     ar     = 'ar'
+## elif system_name == 'maths':
+##   mpicxx = 'mpicxx'
+##   mpirun = 'mpirun'
+##   cxx = 'g++'
+##   ar = 'ar'
+## elif system_name == 'zuse':
+##    mpicxx = '/home/zuse/system/software/mpich-gcc/bin/mpicxx'
+##    mpirun = '/home/zuse/system/software/mpich-gcc/bin/mpirun'
+##    cxx = '/usr/bin/g++'
+##    ar = '/usr/bin/ar'
+## elif system_name == 'zuse_opt':
+##    mpicxx = '/home/zuse/system/software/mpich-gcc/bin/mpicxx'
+##    mpirun = '/home/zuse/system/software/mpich-gcc/bin/mpirun'
+##    cxx = '/usr/bin/g++'
+##    ar = '/usr/bin/ar'
+## elif system_name == 'joe':
+##   mpirun = '/home/jmpf/mpi/bin/mpirun'
+##   if build.CompilerType() == 'intel':
+##   	mpicxx = 'mpicxx -CC=icpc'
+##   	cxx = '/opt/intel/cc/9.1.039/bin/icpc'
+##   	ar = ' /opt/intel/cc/9.1.039/bin/xiar'
+##   else:
+##   	mpicxx = '/home/jmpf/mpi/bin/mpicxx'
+##   	cxx = '/usr/bin/g++'
+##   	ar = '/usr/bin/ar'
+## elif system_name == 'chaste':
+##   mpicxx = 'mpicxx'
+##   mpirun = 'mpirun'
+##   cxx = '/usr/bin/g++'
+##   ar = '/usr/bin/ar'
+## elif system_name == 'new_chaste':
+##     mpirun = 'mpirun'
+##     if build.CompilerType() == 'intel':
+##         mpicxx = 'mpicxx -CC=icpc'
+##         cxx = '/opt/intel/cc/9.1.039/bin/icpc'
+##         ar = ' /opt/intel/cc/9.1.039/bin/xiar'
+##     else:    
+##         mpicxx = 'mpicxx'
+##         cxx = '/usr/bin/g++'
+##         ar = '/usr/bin/ar'
+## elif system_name == 'Nottingham':
+##   mpicxx = '/opt/mpi/bin/mpicxx'
+##   mpirun = '/opt/mpi/bin/mpirun'
+##   cxx = '/usr/bin/g++'
+##   ar = '/usr/bin/ar'
+## else:
+##   # DTC cancer course defaults
+##   mpicxx = '/usr/local/mpi/bin/mpicxx'
+##   mpirun = '/usr/local/mpi/bin/mpirun'
+##   cxx = '/usr/bin/g++'
+##   ar = '/usr/bin/ar'
 
-build.tools['mpicxx'] = mpicxx
-build.tools['mpirun'] = mpirun
-build.tools['cxx'] = cxx
-build.tools['ar'] = ar
+## build.tools['mpicxx'] = mpicxx
+## build.tools['mpirun'] = mpirun
+## build.tools['cxx'] = cxx
+## build.tools['ar'] = ar
 
 # Find full path to valgrind, as parallel memory testing needs it to be
 # given explicitly.
@@ -337,11 +323,8 @@ extra_flags = build.CcFlags()
 link_flags  = build.LinkFlags()
 
 # Hack to get around Debian sarge strangeness
-if system_name in ['maths']:
-    extra_flags = extra_flags + " -DCWD_HACK "
-
-if system_name == 'Nottingham':
-    extra_flags = "-isystem " + boost_path + " " + extra_flags
+##if system_name in ['maths']:
+##    extra_flags = extra_flags + " -DCWD_HACK "
 
 Export("extra_flags", "link_flags")
 

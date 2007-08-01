@@ -27,7 +27,7 @@ class BuildType(object):
     self.build_dir = 'default'
     self._num_processes = 1
     self.using_dealii = False
-    self._dealii_debugging = False
+    self.dealii_debugging = False
     self.is_optimised = False
     # Where test output will go
     import socket
@@ -229,7 +229,7 @@ class BuildType(object):
     metis_libs = ['metis']
     dealii_libs = ['deal_II_1d', 'deal_II_2d', 'deal_II_3d', 'lac', 'base']
     dealii_petsc = dealii_basepath + 'lib/libpetsc'
-    if self._dealii_debugging:
+    if self.dealii_debugging:
       dealii_libs = map(lambda s: s + '.g', dealii_libs)
       dealii_petsc = dealii_petsc + '.g'
     dealii_petsc = dealii_petsc + '.so'
@@ -696,7 +696,7 @@ def GetBuildType(buildType):
     elif extra == 'dealii':
       obj.UseDealii(True)
     elif extra == 'debug':
-      obj._dealii_debugging = True
+      obj.dealii_debugging = True
     else:
       # Assume it's a test pack
       obj.AddTestPacks(extra)
