@@ -68,6 +68,10 @@ public:
     {
         return mNeighbourhoodVolume;
     }
+    void SetNeighbourhoodVolume(double volume)
+    {
+        mNeighbourhoodVolume=volume;
+    }
     
     Node<SPACE_DIM> *pGetNode()
     {

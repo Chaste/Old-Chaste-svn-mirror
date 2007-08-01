@@ -18,7 +18,7 @@ private:
     bool
     TieBreakGreaterThan(const NodeInfo<SPACE_DIM>* other) const
     {
-        return (this->mNeighbourhoodVolume < other->GetNeighbourhoodVolume());
+        return (this->mNeighbourhoodVolume > other->GetNeighbourhoodVolume());
     }
 };
 ///Note ELEMENT_DIM matches SPACE_DIM

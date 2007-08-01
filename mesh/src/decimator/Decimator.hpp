@@ -9,7 +9,6 @@
 //#include <ext/algorithm>
 
 /*** \todo
-* makeheap efficiency
 * inner product interpolation
 * decimator adapters
 * fibres with holes
@@ -26,7 +25,7 @@ protected:
     double mVolumeLeakage;
     double mMeasureBefore;
     double mMeasureAfter;
-    double mNeighbourhoodVolume;
+    double mNeighbourhoodVolume; //\todo Push down
     out_stream mNodeFile, mElementFile, mFibreFile;
     
     // Save typing!
@@ -112,9 +111,8 @@ protected:
         CalculateLocalMeasure(pNodeInfo, true);
         Point<SPACE_DIM> point=pNodeInfo->mpNode->GetPoint();
         
-        
         mNeighbourhoodVolume=CalculateNeighbourhoodVolume(pNodeInfo->mpNode);
-        
+                
         for (unsigned i=0; i<pNodeInfo->GetNumNeighbourNodes();i++)
         {
             NodeInfo<SPACE_DIM> *p_neighbour=pNodeInfo->GetNextNeighbourNode();
@@ -126,10 +124,10 @@ protected:
                 double score=0.0;
                 if (pNodeInfo->mpNode->IsBoundaryNode())
                 {
-                    double neighbourhood_volume
+                    double neighbourhood_volume_after
                     =CalculateNeighbourhoodVolume(pNodeInfo->mpNode);
                     score += CalculateBoundaryScore(mNeighbourhoodVolume,
-                                                    neighbourhood_volume);
+                                                    neighbourhood_volume_after);
                 }
                 if (score != INFINITY)
                 {
@@ -169,6 +167,7 @@ protected:
  		{
  			mpMesh->SetNode(pNodeInfo->GetIndex(), point);
  		}
+        pNodeInfo->SetNeighbourhoodVolume(mNeighbourhoodVolume);
     }
     
     
