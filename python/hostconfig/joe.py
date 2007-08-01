@@ -4,6 +4,7 @@ import os
 
 petsc_2_2_path = None
 petsc_2_3_path = '/home/jmpf/petsc-2.3.1-p16/'
+petsc_build_name='linux-gnu'
 dealii_path = None
 metis_path = None
 intel_path = '/opt/intel/cc/9.1.039'

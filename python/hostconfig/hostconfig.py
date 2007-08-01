@@ -64,18 +64,18 @@ def do_petsc(version, optimised):
     if version == '2_2':
         petsc_base = os.path.abspath(conf.petsc_2_2_path)
         if optimised:
-            libpath = os.path.join(petsc_base, 'lib/libO_c++/linux-gnu')
+            libpath = os.path.join(petsc_base, 'lib/libO_c++/'+conf.petsc_build_name)
         else:
-            libpath = os.path.join(petsc_base, 'lib/libg_c++/linux-gnu')
-        incpaths.append(os.path.join(petsc_base, 'bmake/linux-gnu'))
+            libpath = os.path.join(petsc_base, 'lib/libg_c++/'+conf.petsc_build_name)
+        incpaths.append(os.path.join(petsc_base, 'bmake/'+conf.petsc_build_name))
     else:
         petsc_base = os.path.abspath(conf.petsc_2_3_path)
         if optimised:
-            libpath = os.path.join(petsc_base, 'lib/linux-gnu-opt')
-            incpaths.append(os.path.join(petsc_base, 'bmake/linux-gnu-opt'))
+            libpath = os.path.join(petsc_base, 'lib/'+conf.petsc_build_name+'-opt')
+            incpaths.append(os.path.join(petsc_base, 'bmake/'+conf.petsc_build_name+'-opt'))
         else:
-            libpath = os.path.join(petsc_base, 'lib/linux-gnu')
-            incpaths.append(os.path.join(petsc_base, 'bmake/linux-gnu'))
+            libpath = os.path.join(petsc_base, 'lib/'+conf.petsc_build_name)
+            incpaths.append(os.path.join(petsc_base, 'bmake/'+conf.petsc_build_name))
     incpaths.append(os.path.join(petsc_base, 'include'))
     libpaths.append(libpath)
 

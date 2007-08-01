@@ -2,6 +2,7 @@
 
 petsc_2_2_path = '/opt/petsc-2.2.1-with-mpi/'
 petsc_2_3_path = None
+petsc_build_name='linux-gnu'
 dealii_path = None
 metis_path = None
 intel_path = None

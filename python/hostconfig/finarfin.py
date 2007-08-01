@@ -2,6 +2,7 @@
 
 petsc_2_2_path = None
 petsc_2_3_path = '/home/jonc/work/dphil/petsc-2.3.1-p19/'
+petsc_build_name='linux-gnu'
 dealii_path = None
 metis_path = None
 intel_path = '/opt/intel_cc_80'
