@@ -7,14 +7,35 @@ template<unsigned DIM>
 class CardiacMechanicsAssembler : public FiniteElasticityAssembler<DIM>
 {
 private:
-    static const unsigned mNumQuadPointsInEachDimension = 3;
-    unsigned mTotalQuadPoints;
-    unsigned mCurrentQuadPointGlobalIndex;
-
     bool mAllocatedMaterialLawMemory;
 
-    /** The active tension, node-wise */
+    static const unsigned mNumQuadPointsInEachDimension = 3;
+
+    /**
+     *  Total number of quadrature points in the mesh.
+     */  
+    unsigned mTotalQuadPoints;
+
+    /** 
+     *  Which quad point (out of total number of quad points in the mesh), AssembleOnElement
+     *  is currently at. Incremented in AssembleOnElement(). Needed because AssembleOnElement
+     *  needs to know which entry of mLambda and mActiveTension corresponds to the current
+     *  quad point.
+     */ 
+    unsigned mCurrentQuadPointGlobalIndex;
+
+    /** 
+     *  The active tension, quad point-wise. NOTE: the i-th entry of this vector is
+     *  assumed to be the i-th quad point obtained by looping over cells in the obvious
+     *  way and then looping over quad points 
+     */
     std::vector<double> mActiveTension;
+
+    /** 
+     *  The x stretch, quad point-wise. NOTE: the i-th entry of this vector is
+     *  assumed to be the i-th quad point obtained by looping over cells in the obvious
+     *  way and then looping over quad points 
+     */
     std::vector<double> mLambda;
     
     /** Overloaded method for assembling system, which takes into account the active tensions */
@@ -24,8 +45,6 @@ private:
                            bool                  assembleResidual,
                            bool                  assembleJacobian);
                            
-    void SetUpQuadraturePointsInfo();                           
-
 public:
     /**
      *  Constructor
@@ -47,7 +66,7 @@ public:
     unsigned GetTotalNumQuadPoints();
 
     /**
-     *  Get the total number of quadrature points in each element
+     *  Get the total number of quadrature points in each element (ie num_quad_in_each_dir^DIM)
      */
     unsigned GetNumQuadPointsPerElement();
 
@@ -60,6 +79,10 @@ public:
     
     /** 
      *  Get lambda (the stretch ratio). 
+     * 
+     *  NOTE: the i-th entry of this vector is
+     *  assumed to be the i-th quad point obtained by looping over cells in the obvious
+     *  way and then looping over quad points 
      */
     std::vector<double>& GetLambda();    
 };

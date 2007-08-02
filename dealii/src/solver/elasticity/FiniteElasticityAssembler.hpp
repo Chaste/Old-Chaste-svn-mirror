@@ -79,6 +79,8 @@ const double NEWTON_REL_TOL = 1e-7;
  *  The Newton method is used to solve the nonlinear set of finite element equations.
  *  The default degree of the basis functions is quadratic for displacement and linear
  *  for pressure.
+ * 
+ *  Note: Calling Solve() repeatedly will use the previous solution as the starting guess.
  */
 template<unsigned DIM>
 class FiniteElasticityAssembler : public AbstractDealiiAssembler<DIM>
@@ -129,6 +131,14 @@ protected:
     /*< Data structure containing the undeformed position, by vertex index, in easily
      * accessable form. Only created if asked for */
     std::vector<Vector<double> > mUndeformedPosition;
+    
+    /**
+     *  Since this assembler will be used repeatedly in quasi-static simulations (eg cardiac, 
+     *  growth), we want to only call FormInitialGuess() (which guess the zero deformation
+     *  solution) the first time, and use the current solution as the guess the rest of the time.
+     *  This bool is used for this.
+     */ 
+    bool mADeformedHasBeenSolved;
     
     virtual void WriteStresses(unsigned counter);
     
@@ -193,15 +203,6 @@ protected:
     void DistributeDofs();
     
     
-    /**
-     *  Output current deformed position to file (or the undeformed mesh, if the 
-     *  second parameter is set to false)
-     *  @counter A number to suffix the file. The output file will be 
-     *   <out_dir>/finiteelas_solution_<counter.[nodes/elem/undefnodes/undefelem]
-     *  @writeDeformed whether to write the deformed position or the undeformed
-     *   position, defaults to deformed
-     */
-    void WriteOutput(unsigned counter, bool writeDeformed=true);
     
 public:
     /**
@@ -284,6 +285,18 @@ public:
      *  difference between the two jacobians. 
      */
     void CompareJacobians(double tol=1e-8);
+
+    /**
+     *  Output current deformed position to file (or the undeformed mesh, if the 
+     *  second parameter is set to false)
+     *  @counter A number to suffix the file. The output file will be 
+     *   <out_dir>/finiteelas_solution_<counter.[nodes/elem/undefnodes/undefelem]
+     *  @writeDeformed whether to write the deformed position or the undeformed
+     *   position, defaults to deformed
+     */
+    void WriteOutput(unsigned counter, bool writeDeformed=true);
+
+    void SetWriteOutput(bool writeOutput);
 };
 
 

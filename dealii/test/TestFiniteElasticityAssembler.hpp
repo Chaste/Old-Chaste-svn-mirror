@@ -195,6 +195,12 @@ public :
                                                        1.0,
                                                        "finite_elas/simple2d");                                                       
         finite_elasticity.Solve();
+
+
+        // solve again and check that no newton iterations were needed.
+        finite_elasticity.Solve();
+        TS_ASSERT_EQUALS(finite_elasticity.GetNumNewtonIterations(), 0u);
+
         
         // get deformed position
         std::vector<Vector<double> >& deformed_position = finite_elasticity.rGetDeformedPosition();

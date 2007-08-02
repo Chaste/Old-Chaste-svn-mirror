@@ -236,13 +236,11 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
                 F[i][j] = full_F[i][j]/growth_term_g;
             }
         }
-        
+        ///////////////////////////////////////////////////////////////
+        // mostly the same as FiniteElasAss:AssembleOnElement from here
+        ///////////////////////////////////////////////////////////////
 
-        element_volume +=  determinant(full_F) * fe_values.JxW(q_point);
-        ////////////////////////////////////////////////////////
-        // no more changes after this, until userflag setting //
-        ////////////////////////////////////////////////////////
-        
+        element_volume +=  determinant(full_F) * fe_values.JxW(q_point);   
         
         C = transpose(F) * F;
         inv_C = invert(C);
@@ -272,7 +270,8 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
                                                       * fe_values.shape_grad(j,q_point)[M]
                                                       * fe_values.shape_grad(i,q_point)[N]
                                                       * identity[component_i][component_j]
-                                                      * fe_values.JxW(q_point);
+                                                      * fe_values.JxW(q_point)
+                                                      / growth_term_g;                          // <--- !!
                                                       
                                 for (unsigned P=0; P<DIM; P++)
                                 {
@@ -289,7 +288,8 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
                                                                 )
                                                                 * F[component_i][M]
                                                                 * fe_values.shape_grad(i,q_point)[N]
-                                                                * fe_values.JxW(q_point);
+                                                                * fe_values.JxW(q_point)
+                                                                / growth_term_g;               // <--- !!
                                     }
                                 }
                             }
@@ -317,13 +317,14 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
                                                    * detF
                                                    * inv_F[M][component_j]
                                                    * fe_values.shape_grad(j,q_point)[M]
-                                                   * fe_values.JxW(q_point);
+                                                   * fe_values.JxW(q_point)
+                                                   / growth_term_g;   // <------- !!
                         }
                     }
-                    else
-                    {
-                        // do nothing, ie elementMatrix(i,j)  +=  0 * fe_values.JxW(q_point);;
-                    }
+                    //else
+                    //{
+                    //    // do nothing, ie elementMatrix(i,j)  +=  0 * fe_values.JxW(q_point);;
+                    //}
                 }
             }
             

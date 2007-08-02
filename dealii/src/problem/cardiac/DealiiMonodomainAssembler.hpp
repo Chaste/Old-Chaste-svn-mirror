@@ -208,7 +208,7 @@ public:
         }
     }
     
-    std::vector<double>& GetVoltage()
+    std::vector<double>& rGetVoltage()
     {
         return mVoltage;
     }

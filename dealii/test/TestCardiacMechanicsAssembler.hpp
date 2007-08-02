@@ -175,6 +175,7 @@ public :
         }
         
         // FIXME: try running solve again here - should be instantaneous but isn't
+        cardiac_mech_assembler.Solve();
     }
 
     void TestSpecifiedActiveTensionStretching() throw(Exception)

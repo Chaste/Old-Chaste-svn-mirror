@@ -61,7 +61,7 @@ public:
             delete cells[i];
         }
         
-        TS_ASSERT_DELTA(monodomain_assembler.GetVoltage()[1], 41.8787, 1e-3);
+        TS_ASSERT_DELTA(monodomain_assembler.rGetVoltage()[1], 41.8787, 1e-3);
     }
     
 
@@ -75,21 +75,21 @@ public:
      * 
      *  todo: Choose correct parameters, esp material law
      *        Check if supplying material law is working correctly
-     *        check starting guesses for newtons/gmres
      *        Turn test into source and test properly..
      * 
      *  big todos: use two meshes and proper interpolation
      *             transfer Ca_Trop back from coarse quad points to fine mesh?
      *             alter voltage diffusion equation to take into accout deformation
+     *             proper sensible boundary conditions cardiac mechanics
      * 
      ************************************************************************************/
-     
+
     void TestCardiacElectroMechanicsOneMesh()
     {
         // create a single mesh for both electrics and mechanics
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 0.1);
-        mesh.refine_global(3);
+        mesh.refine_global(4);
         Point<2> zero;
         FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
         
@@ -147,15 +147,38 @@ public:
         std::vector<NHSCellularMechanicsOdeSystem> cellmech_systems(num_quad_points);
         
         double time = 0;
-        double end_time = 1;
+        double end_time = 1; //50;
         double dt = 0.01;
+        
+        double time_since_last_mech_solve = 0.0;
+        unsigned mech_writer_counter = 0;
+        double mech_solving_time = 0.1;    // solve the mechanics every 0.1 ms
+        
+        cardiac_mech_assembler.SetWriteOutput(true);
+        cardiac_mech_assembler.WriteOutput(mech_writer_counter);
+        
         while(time < end_time)
         {
-            //std::cout << time << "\n";
+            std::cout << "Time = " << time << "\n";
      
             // solve for the voltage (with solves the electrical cells)
             monodomain_assembler.Solve(time, time+dt, 1);
                 
+//            std::cout << "Voltage:\n";
+//            for(uint i=0; i<cells.size(); i++)
+//            {
+//                std::cout << monodomain_assembler.rGetVoltage()[i] << " ";
+//            }
+//            std::cout << "\n";
+//
+//            std::cout << "Ca_I\n";
+//            for(uint i=0; i<cells.size(); i++)
+//            {
+//                std::cout << cells[i]->rGetStateVariables()[Ca_i_index] << " "; 
+//            }
+//            std::cout << "\n";
+
+//                std::cout << "average_Ca_I:\n";
             // set Ca_I on each NHS system. Set lamda and dlamda_dt at the same time.                
             unsigned current_quad_index = 0;                
             for(Triangulation<2>::cell_iterator element_iter = mesh.begin_active(); 
@@ -171,6 +194,8 @@ public:
                 }
                 average_Ca_I /= GeometryInfo<2>::vertices_per_cell;
                 
+//                std::cout << average_Ca_I << " ";
+                
                 // apply to all nhs systems for quad points in this element
                 for(unsigned i=0; i<cardiac_mech_assembler.GetNumQuadPointsPerElement(); i++)
                 {
@@ -181,12 +206,13 @@ public:
                 }
             }
 
+//            std::cout << "\nActive Tension:\n";
             // solve the cellular mechanics model and get the active tension
             for(unsigned i=0; i<cellmech_systems.size(); i++)
             {
                 euler_solver.SolveAndUpdateStateVariable(&cellmech_systems[i], time, time+dt, dt);
                 
-                //std::cout << cellmech_systems[i].GetActiveTension() << " ";
+//                std::cout << cellmech_systems[i].GetActiveTension() << " ";
                 
                 scaled_active_tension[i] = cellmech_systems[i].GetActiveTension() / mat_law_scaling;
             }
@@ -197,8 +223,23 @@ public:
             // set the active tensions
             cardiac_mech_assembler.SetActiveTension(scaled_active_tension);
             
-            // solve the mechanics system
-            cardiac_mech_assembler.Solve();
+            // the FiniteElasticityAssembler (of which CardiacMechanicsAssembler inherits from)
+            // normally writes out the answer aft er every newton step: suppress this.
+            cardiac_mech_assembler.SetWriteOutput(false);
+            
+
+            if(time_since_last_mech_solve > mech_solving_time)
+            {
+                // solve the mechanics system
+                cardiac_mech_assembler.Solve();
+
+//                std::cout << "Writing mech\n";
+                cardiac_mech_assembler.SetWriteOutput(true);
+                cardiac_mech_assembler.WriteOutput(mech_writer_counter);
+                
+                mech_writer_counter++;
+                time_since_last_mech_solve = 0.0;
+            }
 
             // update lambda and dlambda_dt;
             old_lambda = lambda;
@@ -208,8 +249,26 @@ public:
                 dlambda_dt[i] = (lambda[i] - old_lambda[i])/dt;
             }
 
+            time_since_last_mech_solve += dt;
             time += dt;
         }
+        
+        // write the file solution, if it hasn't just been written.        
+        if(time_since_last_mech_solve > 0.0)
+        {   
+//            std::cout << "Writing mech\n";
+            cardiac_mech_assembler.SetWriteOutput(true);
+            cardiac_mech_assembler.WriteOutput(mech_writer_counter);
+        }
+        
+        // visually inspected results (on a longer run), they look reasonable.
+        // This simulation doesn't run indefinitely (z in NHS goes negative), but
+        // apparently this is expected of a fully explicit algorithm
+        //
+        // (bad) hardcoded test to check nothing has changed (required end_time = 1)
+        // no deformation after 1ms so can't test lambda
+        TS_ASSERT_DELTA(scaled_active_tension[234], 1.00377e-08, 1e-11);
+         
     }
 };
 #endif /*TESTCARDIACELECTROMECHANICS_HPP_*/

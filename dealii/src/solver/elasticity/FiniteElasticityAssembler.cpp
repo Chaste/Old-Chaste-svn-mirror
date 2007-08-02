@@ -128,6 +128,8 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
                                              component_mask);
                                              
     mNumNewtonIterations = 0;
+    
+    mADeformedHasBeenSolved = false;
 }
 
 
@@ -215,7 +217,7 @@ unsigned FiniteElasticityAssembler<DIM>::GetMaterialLawIndexFromMaterialId(unsig
     return index;
 }
 
-
+// note - this seems to assume to position-components of mCurrentSolution is already zero?
 template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::FormInitialGuess()
 {
@@ -394,27 +396,27 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                             for (unsigned N=0; N<DIM; N++)
                             {
                                 elementMatrix(i,j) +=   T[M][N]
-                                                        * fe_values.shape_grad(j,q_point)[M]
-                                                        * fe_values.shape_grad(i,q_point)[N]
-                                                        * identity[component_i][component_j]
-                                                        * fe_values.JxW(q_point);
+                                                      * fe_values.shape_grad(j,q_point)[M]
+                                                      * fe_values.shape_grad(i,q_point)[N]
+                                                      * identity[component_i][component_j]
+                                                      * fe_values.JxW(q_point);
                                                         
                                 for (unsigned P=0; P<DIM; P++)
                                 {
                                     for (unsigned Q=0; Q<DIM; Q++)
                                     {
                                         elementMatrix(i,j) +=   0.5
-                                                                * dTdE[M][N][P][Q]
-                                                                * (
+                                                              * dTdE[M][N][P][Q]
+                                                              * (
                                                                     fe_values.shape_grad(j,q_point)[Q]
-                                                                    * F[component_j][P]
+                                                                  * F[component_j][P]
                                                                     +
                                                                     fe_values.shape_grad(j,q_point)[P]
-                                                                    * F[component_j][Q]
+                                                                  * F[component_j][Q]
                                                                 )
-                                                                * F[component_i][M]
-                                                                * fe_values.shape_grad(i,q_point)[N]
-                                                                * fe_values.JxW(q_point);
+                                                              * F[component_i][M]
+                                                              * fe_values.shape_grad(i,q_point)[N]
+                                                              * fe_values.JxW(q_point);
                                     }
                                 }
                             }
@@ -439,10 +441,10 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                         for (unsigned M=0; M<DIM; M++)
                         {
                             elementMatrix(i,j) +=    fe_values.shape_value(i,q_point)
-                                                     * detF
-                                                     * inv_F[M][component_j]
-                                                     * fe_values.shape_grad(j,q_point)[M]
-                                                     * fe_values.JxW(q_point);
+                                                   * detF
+                                                   * inv_F[M][component_j]
+                                                   * fe_values.shape_grad(j,q_point)[M]
+                                                   * fe_values.JxW(q_point);
                         }
                     }
                     //else
@@ -465,17 +467,17 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                         for (unsigned N=0; N<DIM; N++)
                         {
                             elementRhs(i) +=   T[M][N]
-                                               * F[component_i][M]
-                                               * fe_values.shape_grad(i,q_point)[N]
-                                               * fe_values.JxW(q_point);
+                                             * F[component_i][M]
+                                             * fe_values.shape_grad(i,q_point)[N]
+                                             * fe_values.JxW(q_point);
                         }
                     }
                 }
                 else
                 {
                     elementRhs(i) +=   fe_values.shape_value(i,q_point)
-                                       * (detF - 1)
-                                       * fe_values.JxW(q_point);
+                                     * (detF - 1)
+                                     * fe_values.JxW(q_point);
                 }
             }
         }
@@ -965,9 +967,18 @@ void FiniteElasticityAssembler<DIM>::Solve()
         EXCEPTION("No material laws have been set");
     }
     
-    WriteOutput(0);
+    if(mWriteOutput)
+    {
+        WriteOutput(0);
+    }
     
-    FormInitialGuess();
+    // if nothing has been solved for yet, form an initial guess which is
+    // the zero deformation solution (other the current solution is the best
+    // initial guees)
+    if(!mADeformedHasBeenSolved)
+    {
+        FormInitialGuess();
+    }
     
     // compute residual
     this->AssembleSystem(true, false);
@@ -1016,6 +1027,9 @@ void FiniteElasticityAssembler<DIM>::Solve()
     
     // set up mDeformedPosition
     rGetDeformedPosition();
+    
+    // we have solved for a deformation so note this
+    mADeformedHasBeenSolved = true;
 }
 
 template<unsigned DIM>
@@ -1084,6 +1098,13 @@ unsigned FiniteElasticityAssembler<DIM>::GetNumNewtonIterations()
 {
     return mNumNewtonIterations;
 }
+
+template<unsigned DIM>
+void FiniteElasticityAssembler<DIM>::SetWriteOutput(bool writeOutput)
+{
+    mWriteOutput = writeOutput;
+}
+
 
 #undef COVERAGE_IGNORE
 

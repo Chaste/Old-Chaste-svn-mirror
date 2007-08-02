@@ -80,6 +80,7 @@ public:
         std::vector<double> active_tensions;
         std::vector<double> ca_trop;
         std::vector<double> z;
+        std::vector<double> Ca_Is;
         //std::vector<double> Q1;   //Qi all zero as dlamdt=0
         //std::vector<double> Q2;
         //std::vector<double> Q3;
@@ -110,6 +111,7 @@ public:
             active_tensions.push_back( cellmech_model.GetActiveTension() );
             ca_trop.push_back( cellmech_model.rGetStateVariables()[0] );
             z.push_back( cellmech_model.rGetStateVariables()[1] );
+            Ca_Is.push_back( Ca_I );
             //Q1.push_back( cellmech_model.rGetStateVariables()[2] ); //Qi all zero as dlamdt=0
             //Q2.push_back( cellmech_model.rGetStateVariables()[3] );
             //Q3.push_back( cellmech_model.rGetStateVariables()[4] );
@@ -120,6 +122,7 @@ public:
         data.push_back(active_tensions);
         data.push_back(ca_trop);
         data.push_back(z);
+        data.push_back(Ca_Is);
         //data.push_back(Q1); //Qi all zero as dlamdt=0
         //data.push_back(Q2);
         //data.push_back(Q3);
