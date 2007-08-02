@@ -4,6 +4,7 @@ import os
 # Faster shared library linking
 import sys
 sys.path.append('../../../python')
+sys.path.append('../../../python/hostconfig')
 import fasterSharedLibrary
 fasterSharedLibrary.Copy = Copy
 
@@ -91,7 +92,9 @@ all_libs = ['test'+toplevel_dir] + chaste_libs + petsc_libs + other_libs
 
 
 if toplevel_dir == 'dealii':
-  extra_flags = '-isystem ' + dealii_base + 'contrib/boost/include/ ' + extra_flags
+  import hostconfig
+  dealii_boost = hostconfig.conf.dealii_path + 'contrib/boost/include/ '
+  extra_flags = '-isystem ' + dealii_boost + extra_flags
 
 
 # Set up build environment
