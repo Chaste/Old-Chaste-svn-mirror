@@ -8,7 +8,7 @@ petsc_build_name = 'linux-gnu'
 petsc_build_name_optimized = 'linux-gnu-opt'
 dealii_path = '../../../deal.II/'
 metis_path = '../../../metis-4.0/'
-intel_path = '/opt/intel/cc/9.1.039/lib'
+intel_path = '/opt/intel/cc/9.1.039'
 
 other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd']
 other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/')]

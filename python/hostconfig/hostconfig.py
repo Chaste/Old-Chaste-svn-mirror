@@ -64,18 +64,18 @@ def do_petsc(version, optimised):
     if version == '2_2':
         petsc_base = os.path.abspath(conf.petsc_2_2_path)
         if optimised:
-            libpath = os.path.join(petsc_base, 'lib/libO_c++/'+conf.petsc_build_name)
+            libpath = os.path.join(petsc_base, 'lib/libO_c++', conf.petsc_build_name)
         else:
-            libpath = os.path.join(petsc_base, 'lib/libg_c++/'+conf.petsc_build_name)
-        incpaths.append(os.path.join(petsc_base, 'bmake/'+conf.petsc_build_name))
+            libpath = os.path.join(petsc_base, 'lib/libg_c++', conf.petsc_build_name)
+        incpaths.append(os.path.join(petsc_base, 'bmake', conf.petsc_build_name))
     else:
         petsc_base = os.path.abspath(conf.petsc_2_3_path)
         if optimised:
-            libpath = os.path.join(petsc_base, 'lib/'+conf.petsc_build_name_optimized)
-            incpaths.append(os.path.join(petsc_base, 'bmake/'+conf.petsc_build_name_optimized))
+            libpath = os.path.join(petsc_base, 'lib', conf.petsc_build_name_optimized)
+            incpaths.append(os.path.join(petsc_base, 'bmake', conf.petsc_build_name_optimized))
         else:
-            libpath = os.path.join(petsc_base, 'lib/'+conf.petsc_build_name)
-            incpaths.append(os.path.join(petsc_base, 'bmake/'+conf.petsc_build_name))
+            libpath = os.path.join(petsc_base, 'lib', conf.petsc_build_name)
+            incpaths.append(os.path.join(petsc_base, 'bmake', conf.petsc_build_name))
     incpaths.append(os.path.join(petsc_base, 'include'))
     libpaths.append(libpath)
 
@@ -118,5 +118,5 @@ def configure(build):
 
     if build.CompilerType() == 'intel':
         build.tools['mpicxx'] += ' -CC=icpc'
-        build.tools['cxx'] = os.path.join(intel_path, 'bin/icpc')
-        build.tools['ar'] = os.path.join(intel_path, 'bin/xiar')
+        build.tools['cxx'] = os.path.join(intel_path, 'bin', 'icpc')
+        build.tools['ar'] = os.path.join(intel_path, 'bin', 'xiar')
