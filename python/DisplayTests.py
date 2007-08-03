@@ -151,7 +151,7 @@ def _recent(req, type=None, show=''):
     builds = builds[:20] # About a screenful
 
   bgcols = ["white", "#eedd82"]
-  bgcol_index = 1
+  bgcol_index = 0
   for build in builds:
     if type == 'nightly':
       date = time.strftime('%d/%m/%Y', time.localtime(build[0]))
@@ -270,7 +270,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
   testsuites = testsuite_status.keys()
   testsuites.sort()
   bgcols = ["white", "#eedd82"]
-  bgcol_index = 1
+  bgcol_index = 0
   for testsuite in testsuites:
     bgcol_index = 1 - bgcol_index
     subs = {'bgcol': bgcols[bgcol_index],
