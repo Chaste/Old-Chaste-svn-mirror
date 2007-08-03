@@ -34,7 +34,7 @@ public:
         this->mJacobianDeterminant = 1.0;
         
         this->mFlag = false;
-        
+        this->mIsDeleted=false;
         RegisterWithNodes();
     }
     
