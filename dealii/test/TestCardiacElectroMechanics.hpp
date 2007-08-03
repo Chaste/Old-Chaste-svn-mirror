@@ -74,7 +74,6 @@ public:
      *  Solves on same mesh, and Ca_I is not properly interpolated
      * 
      *  todo: Choose correct parameters, esp material law
-     *        Check if supplying material law is working correctly
      *        Turn test into source and test properly..
      * 
      *  big todos: use two meshes and proper interpolation
@@ -147,7 +146,7 @@ public:
         std::vector<NHSCellularMechanicsOdeSystem> cellmech_systems(num_quad_points);
         
         double time = 0;
-        double end_time = 1; //50;
+        double end_time = 1; //50; works well until 43 when z goes negative (instability expected with explicit method)
         double dt = 0.01;
         
         double time_since_last_mech_solve = 0.0;

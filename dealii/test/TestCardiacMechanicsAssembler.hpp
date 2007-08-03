@@ -140,7 +140,7 @@ public :
                                                             &material_law);
 
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.0);
-        SetUpLinearActiveTension<2>(mesh, 0.1, active_tension); 
+        SetUpLinearActiveTension<2>(mesh, 0.05, active_tension); 
         
 
         cardiac_mech_assembler.SetActiveTension(active_tension);
@@ -149,9 +149,9 @@ public :
         
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 1 is the bottom-right corner node, 
-        // and the deformation is quite large
-        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](1), 0.9782, 1e-3);
-        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), 0.2777, 1e-3);
+        // and the deformation is reasonably large
+        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](1), 0.9994, 1e-3);
+        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), 0.1035, 1e-3);
         
         std::vector<double>& lambda = cardiac_mech_assembler.GetLambda();
         std::vector<std::vector<double> > quad_points = GetQuadPointPositions<2>(mesh);
@@ -164,8 +164,8 @@ public :
         for(unsigned i=0; i<lambda.size(); i++)
         {
             double y = quad_points[1][i];
-            double mid = 1 - 0.35*y;
-            double range = 0.05 + 0.07*y;
+            double mid = 1 - 0.25*y;
+            double range = 0.03;
             
             TS_ASSERT_LESS_THAN(lambda[i], mid + range);
             TS_ASSERT_LESS_THAN(mid - range, lambda[i]);
@@ -173,9 +173,6 @@ public :
             // don't delete:
             //std::cout << quad_points[0][i] << " " << quad_points[1][i] << " " << lambda[i] << "\n";
         }
-        
-        // FIXME: try running solve again here - should be instantaneous but isn't
-        cardiac_mech_assembler.Solve();
     }
 
     void TestSpecifiedActiveTensionStretching() throw(Exception)
@@ -196,30 +193,30 @@ public :
                                                             &material_law);
 
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.0);
-        SetUpLinearActiveTension<2>(mesh, -0.05, active_tension); // doesn't converge if -0.1
+        SetUpLinearActiveTension<2>(mesh, -0.025, active_tension); // doesn't converge if -0.1
         cardiac_mech_assembler.SetActiveTension(active_tension);
 
         cardiac_mech_assembler.Solve();
 
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 1 is the bottom-right corner node, 
-        // and the deformation is quite large
-        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](1),  0.9872, 1e-3);
-        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), -0.1000, 1e-3);
+        // and the deformation is reasonably large
+        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](1),  0.9895, 1e-3);
+        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), -0.0653, 1e-3);
         
         std::vector<double>& lambda = cardiac_mech_assembler.GetLambda();
         std::vector<std::vector<double> > quad_points = GetQuadPointPositions<2>(mesh);
         
         // the lambdas should be greater than 1 (negative T_a => stretch), and also
         // should be near the same for any particular value of y, ie the same along any 
-        // fibre. Lambda should decrease approx linearly with y. Uncomment trace and 
+        // fibre. Lambda should increase approx linearly with y. Uncomment trace and 
         // view in matlab (plot y against lambda) to observe this. The parameters 
         // 0.29, 0.04 were obtained by looking at the plot. 
         for(unsigned i=0; i<lambda.size(); i++)
         {
             double y = quad_points[1][i];
-            double mid = 1 + 0.29*y;
-            double range = 0.04;
+            double mid = 1 + 0.15*y;
+            double range = 0.02;
             
             TS_ASSERT_LESS_THAN(lambda[i], mid + range);
             TS_ASSERT_LESS_THAN(mid - range, lambda[i]);

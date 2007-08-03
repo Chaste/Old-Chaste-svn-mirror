@@ -83,8 +83,8 @@ std::vector<double>& CardiacMechanicsAssembler<DIM>::GetLambda()
  *      using the nodal values of the active tension
  *  
  *   2. The extra term in the stress (see below) arising from the active tension is incorporated 
- *      into the formulation. It is NOT added to the stress (the variable 'T'), but
- *      the extra terms in elementRhs and elementMatrix are computed and added directly
+ *      into the formulation. It is added to the stress (the variable 'T'), and dTdE is amended 
+ *      as well.
  * 
  *   3. Since the body force and Neumann tractions will be zero, the corresponding loops
  *      have been removed. 
@@ -196,17 +196,20 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         C = transpose(F) * F;
         inv_C = invert(C);
         inv_F = invert(F);
+
+        double detF = determinant(F);
         
         ///////////////////////////////////////////////////////////
         // Get the active tension at gauss point, and store lambda
         ///////////////////////////////////////////////////////////
         double active_tension = mActiveTension[mCurrentQuadPointGlobalIndex];
         mLambda[mCurrentQuadPointGlobalIndex] = sqrt(C[0][0]);
-
-        
-        double detF = determinant(F);
         
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,this->dTdE,assembleJacobian);
+
+        // amend the stress and dTdE using the active tension
+        T[0][0] += active_tension/C[0][0];
+        this->dTdE[0][0][0][0] -= 2*active_tension/(C[0][0]*C[0][0]);  
 
                 
         for (unsigned i=0; i<dofs_per_element; i++)
@@ -249,19 +252,21 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                                               * fe_values.JxW(q_point);
                                     }
                                 }
-                                
-                                ///////////////////////////////////////////////////////////
-                                // The extra part of the element stiffness matrix 
-                                // arising from the active tension part of the stress
-                                ///////////////////////////////////////////////////////////
-                                elementMatrix(i,j) +=  -active_tension
-                                                      * identity[component_i][0]
-                                                      * detF
-                                                      * inv_F[N][component_j]
-                                                      * inv_F[M][0]
-                                                      * fe_values.shape_grad(j,q_point)[M]
-                                                      * fe_values.shape_grad(i,q_point)[N]
-                                                      * fe_values.JxW(q_point);
+
+//// implementation of old (wrong) equation, where T = .. + T_a F_{0M} F_{0N}
+//// Note T is now directly altered, so no need to add anything new to elementMatrix
+//                                ///////////////////////////////////////////////////////////
+//                                // The extra part of the element stiffness matrix 
+//                                // arising from the active tension part of the stress
+//                                ///////////////////////////////////////////////////////////
+//                                elementMatrix(i,j) +=  -active_tension
+//                                                      * identity[component_i][0]
+//                                                      * detF
+//                                                      * inv_F[N][component_j]
+//                                                      * inv_F[M][0]
+//                                                      * fe_values.shape_grad(j,q_point)[M]
+//                                                      * fe_values.shape_grad(i,q_point)[N]
+//                                                      * fe_values.JxW(q_point);
 
                             }
                         }
@@ -317,15 +322,17 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                              * fe_values.JxW(q_point);
                         }
 
-                        ///////////////////////////////////////////////////////////
-                        // The extra part of the element stiffness matrix 
-                        // arising from the active tension part of the stress
-                        ///////////////////////////////////////////////////////////
-                        elementRhs(i) +=   active_tension
-                                         * identity[component_i][0]
-                                         * inv_F[N][0]
-                                         * fe_values.shape_grad(i,q_point)[N]
-                                         * fe_values.JxW(q_point);
+//// implementation of old (wrong) equation, where T = .. + T_a F_{0M} F_{0N}
+//// Note T is now directly altered, so no need to add anything new to elementRhs
+//                        ///////////////////////////////////////////////////////////
+//                        // The extra part of the element stiffness matrix 
+//                        // arising from the active tension part of the stress
+//                        ///////////////////////////////////////////////////////////
+//                        elementRhs(i) +=   active_tension
+//                                         * identity[component_i][0]
+//                                         * inv_F[N][0]
+//                                         * fe_values.shape_grad(i,q_point)[N]
+//                                         * fe_values.JxW(q_point);
                     }
                 }
                 else

@@ -132,7 +132,7 @@ public :
             TS_ASSERT_LESS_THAN(mid - range, lambda[i]);
             
             // don't delete:
-            //std::cout << quad_points[0][i] << " " << quad_points[1][i] << " " << quad_points[2][i] << " " << lambda[i] << "\n";
+            std::cout << quad_points[0][i] << " " << quad_points[1][i] << " " << quad_points[2][i] << " " << lambda[i] << "\n";
         }
         
     }

@@ -2,6 +2,7 @@ TestCancerParameters.hpp
 TestCwd.hpp
 TestDistributedVector.hpp
 TestException.hpp
+TestLogFile.hpp
 TestOutputFileHandler.hpp
 TestPetSCSetup.hpp
 TestRandomNumberGenerator.hpp
