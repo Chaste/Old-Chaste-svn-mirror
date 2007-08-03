@@ -149,6 +149,9 @@ def _recent(req, type=None, show=''):
   old_revision = -1
   if show != 'all':
     builds = builds[:20] # About a screenful
+
+  bgcols = ["white", "#eedd82"]
+  bgcol_index = 1
   for build in builds:
     if type == 'nightly':
       date = time.strftime('%d/%m/%Y', time.localtime(build[0]))
@@ -158,22 +161,24 @@ def _recent(req, type=None, show=''):
     if revision != old_revision:
       buildTypesModule = _importBuildTypesModule(revision)
       old_revision = revision
+      bgcol_index = 1 - bgcol_index
     build = buildTypesModule.GetBuildType(buildType)
     test_set_dir = _testResultsDir(type, revision, machine, buildType)
     overall_status, colour = _getTestSummary(test_set_dir, build)
-    #overall_status, colour = 'Fake', 'green'
-    
+    subs = {'bgcol': bgcols[bgcol_index], 'status_col': colour,
+            'date': date, 'machine': machine,
+            'rev': _linkRevision(revision),
+            'build_type': _linkBuildType(buildType, revision),
+            'status': _linkSummary(overall_status, type, revision, machine, buildType)}
     output.append("""\
     <tr>
-      <td>%s</td>
-      <td>%s</td>
-      <td>%s</td>
-      <td>%s</td>
-      <td style="background-color: %s;">%s</td>
+      <td style='background-color: %(bgcol)s;'>%(date)s</td>
+      <td style='background-color: %(bgcol)s;'>%(rev)s</td>
+      <td style='background-color: %(bgcol)s;'>%(build_type)s</td>
+      <td style='background-color: %(bgcol)s;'>%(machine)s</td>
+      <td style='background-color: %(status_col)s;'>%(status)s</td>
     </tr>
-""" % (date, _linkRevision(revision), _linkBuildType(buildType, revision),
-       machine, colour, _linkSummary(overall_status, type, revision,
-                                     machine, buildType)))
+""" % subs)
   output.append("  </table>\n")
 
   del builds
@@ -264,19 +269,27 @@ def _summary(req, type, revision, machine=None, buildType=None):
   # Display the status of each test suite, in alphabetical order
   testsuites = testsuite_status.keys()
   testsuites.sort()
+  bgcols = ["white", "#eedd82"]
+  bgcol_index = 1
   for testsuite in testsuites:
+    bgcol_index = 1 - bgcol_index
+    subs = {'bgcol': bgcols[bgcol_index],
+            'status_col': _statusColour(testsuite_status[testsuite], build),
+            'testsuite': testsuite,
+            'status': _linkTestSuite(type, revision, machine, buildType,
+                                     testsuite, testsuite_status[testsuite],
+                                     runtime[testsuite], build),
+            'runtime': _formatRunTime(runtime[testsuite]),
+            'graph': _linkGraph(type, revision, machine, buildType,
+                                graphs.get(testsuite,''))}
     output.append("""\
     <tr>
-      <td>%s</td>
-      <td style="background-color: %s;">%s</td>
-      <td>%s</td>
-      %s
+      <td style='background-color: %(bgcol)s;'>%(testsuite)s</td>
+      <td style='background-color: %(status_col)s;'>%(status)s</td>
+      <td style='background-color: %(bgcol)s;'>%(runtime)s</td>
+      %(graph)s
     </tr>
-""" % (testsuite, _statusColour(testsuite_status[testsuite], build),
-       _linkTestSuite(type, revision, machine, buildType, testsuite,
-                      testsuite_status[testsuite], runtime[testsuite], build),
-       _formatRunTime(runtime[testsuite]),
-       _linkGraph(type, revision, machine, buildType, graphs.get(testsuite,''))))
+""" % subs)
 
   output.append("  </table>\n")
   
