@@ -9,7 +9,7 @@ specifying where to find libraries and tools.  These variables are:
  * petsc_2_3_path - path to PETSc 2.3 install (None if not present)
  * dealii_path    - path to Deal.II install (None if not present)
  * metis_path     - path to METIS install (None if not present)
- * intel_libpath  - path to libraries required when using the Intel compiler
+ * intel_path     - path to Intel compiler installation
 
  * other_includepaths - list of paths containing other header files
  * other_libpaths     - list of paths containing other libraries, including metis, xsd, and boost
@@ -48,19 +48,39 @@ else:
     print >>sys.stderr, "Unrecognised machine %s; please add a stanza for it to hostconfig.py" % machine_fqdn
     sys.exit(1)
 
-# debug
-for name in dir(conf):
-    if name[0] != '_':
-        print name, '=', getattr(conf,name)
+# For debugging
+#for name in dir(conf):
+#    if name[0] != '_':
+#        print name, '=', getattr(conf, name)
 
+# This is a bit ugly at present: SConstruct calls configure() to fill
+# these global variables in, then reads them directly.
 libpaths = []
 incpaths = []
 libraries = []
 
 def do_petsc(version, optimised):
+    """Determine PETSc include and library paths.
+
+    The locations vary depending on the version of PETSc, and possibly
+    whether optimised libraries are to be used.
+
+    The version can be given as 2_2 or 2_3 to choose PETSc minor version.
+    If a host doesn't support 2.3, we attempt to use 2.2 instead.  A
+    ValueError is raised if 2.2 isn't present when asked for.
+
+    Set optimised to True to use optimised builds of the libraries rather
+    than debug builds.
+
+    TODO: Specify PETSc libraries to link against here rather than in
+    SConscript.
+    """
     if version == '2_3' and conf.petsc_2_3_path is None:
         # Use 2.2 instead
         version = '2_2'
+    if version == '2_2' and conf.petsc_2_2_path is None:
+        # Raise a friendly error
+        raise ValueError('PETSc 2.2 required, but no path given in the host config.')
     if version == '2_2':
         petsc_base = os.path.abspath(conf.petsc_2_2_path)
         if optimised:
@@ -80,6 +100,9 @@ def do_petsc(version, optimised):
     libpaths.append(libpath)
 
 def do_metis():
+    """Add METIS include and library paths."""
+    if conf.metis_path is None:
+        raise ValueError('METIS required, but no path given in the host config.')
     libpath = os.path.abspath(conf.metis_path)
     incpath = os.path.join(libpath, 'Lib') # Yes, METIS is odd!
     libpaths.append(libpath)
@@ -87,6 +110,12 @@ def do_metis():
     libraries.append('metis')
 
 def do_dealii(build):
+    """Add Deal.II include & library paths, and libraries.
+
+    Deal.II uses different library *names* to distinguish optimised versions.
+    """
+    if conf.dealii_path is None:
+        raise ValueError('Deal.II required, but no path given in the host config.')
     base = os.path.abspath(conf.dealii_path)
     libpaths.append(os.path.join(base, 'lib'))
     relative_incpaths = ['base/include', 'lac/include', 'deal.II/include']
@@ -100,7 +129,7 @@ def do_dealii(build):
 def configure(build):
     """Given a build object (BuildTypes.BuildType instance), configure the build."""
     if build.using_dealii:
-        do_petsc('2_2', build.is_optimised)
+        do_petsc('2_2', build.is_optimised) # Deal.II only supports PETSc 2.2
         do_dealii(build)
         do_metis()
         libraries.extend(['blas', 'lapack']) # Use versions provided with Deal.II
@@ -117,6 +146,7 @@ def configure(build):
     build.tools.update(conf.tools)
 
     if build.CompilerType() == 'intel':
+        # Switch to use Intel toolchain
         build.tools['mpicxx'] += ' -CC=icpc'
         build.tools['cxx'] = os.path.join(intel_path, 'bin', 'icpc')
         build.tools['ar'] = os.path.join(intel_path, 'bin', 'xiar')
