@@ -225,5 +225,135 @@ public :
             //std::cout << quad_points[0][i] << " " << quad_points[1][i] << " " << lambda[i] << "\n";
         }
     }
+
+
+    // constant active tension and compression of fibres set to be in the y-direction
+    void TestConstActiveTensionCompressionFibreAt90Deg() throw(Exception)
+    {
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
+        mesh.refine_global(3);
+        
+        Point<2> zero;
+        FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
+        
+        // fix the x=0 surface
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 1, 0.0);
+        
+        // specify this material law so the test continues to pass when the default
+        // material law is changed.
+        MooneyRivlinMaterialLaw<2> material_law(0.02);
+
+        CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, 
+                                                           "CardiacMech/SpecifiedActiveTensionComp90Deg",
+                                                            &material_law);
+
+        Tensor<2,2> zero_mat;
+        // not orthogonal
+        TS_ASSERT_THROWS_ANYTHING(cardiac_mech_assembler.SetFibreSheetMatrix(zero_mat));
+                                                            
+        Tensor<2,2> P;
+        P[0][0] =  0;
+        P[0][1] =  1;
+        P[1][0] = -1;
+        P[1][1] =  0;
+
+        cardiac_mech_assembler.SetFibreSheetMatrix(P);
+
+
+        // constant active tension this time
+        std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.05);
+        cardiac_mech_assembler.SetActiveTension(active_tension);
+
+        cardiac_mech_assembler.Solve();
+
+        // have visually checked the answer and seen that it looks ok, so have
+        // a hardcoded test here. Node that 2 is the top-right corner node, 
+        // and the deformation is reasonably large
+        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](2), 1.1952, 1e-3);
+        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](2), 0.7428, 1e-3);
+        
+        std::vector<double>& lambda = cardiac_mech_assembler.GetLambda();
+        std::vector<std::vector<double> > quad_points = GetQuadPointPositions<2>(mesh);
+        
+        // the lambdas should be less than 1 and approx constant away from the fixed boundary
+        for(unsigned i=0; i<lambda.size(); i++)
+        {
+            double y = quad_points[1][i];
+
+            if (y>0.5) // ie away from the fixed boundary y=0
+            {
+                TS_ASSERT_LESS_THAN(lambda[i], 0.8);
+                TS_ASSERT_LESS_THAN(0.69, lambda[i]);
+            }
+            
+            // don't delete:
+            //std::cout << quad_points[0][i] << " " << quad_points[1][i] << " " << lambda[i] << "\n";
+        }
+    }
+
+
+
+    // constant active tension and compression of fibres set to be at 45 degrees
+    void TestConstActiveTensionCompressionFibreAt45Deg() throw(Exception)
+    {
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
+        mesh.refine_global(3);
+        
+        Point<2> zero;
+        FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
+        
+        // fix the x=0 surface
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 1, 0.0);
+        
+        // specify this material law so the test continues to pass when the default
+        // material law is changed.
+        MooneyRivlinMaterialLaw<2> material_law(0.02);
+
+        CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, 
+                                                           "CardiacMech/SpecifiedActiveTensionComp45Deg",
+                                                            &material_law);
+                                                            
+        Tensor<2,2> P;
+        double theta = 0.785398163; //pi/4;
+        P[0][0] =  cos(theta);
+        P[0][1] =  sin(theta);
+        P[1][0] = -sin(theta);
+        P[1][1] =  cos(theta);
+
+        cardiac_mech_assembler.SetFibreSheetMatrix(P);
+
+
+        // constant active tension this time
+        std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.05);
+        cardiac_mech_assembler.SetActiveTension(active_tension);
+
+        cardiac_mech_assembler.Solve();
+
+        // have visually checked the answer and seen that it looks ok, so have
+        // a hardcoded test here. Node that 2 is the top-right corner node, 
+        // and the deformation is reasonably large
+        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](2), 1.6276, 1e-3);
+        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](2), 0.8998, 1e-3);
+        
+        std::vector<double>& lambda = cardiac_mech_assembler.GetLambda();
+        std::vector<std::vector<double> > quad_points = GetQuadPointPositions<2>(mesh);
+        
+        // the lambdas should be less than 1 and approx constant away from the fixed boundary
+        for(unsigned i=0; i<lambda.size(); i++)
+        {
+            double y = quad_points[1][i];
+
+            if (y>0.5) // ie away from the fixed boundary y=0
+            {
+                TS_ASSERT_LESS_THAN(lambda[i], 0.751);  // varies much less than previous test for some reason..?
+                TS_ASSERT_LESS_THAN(0.73, lambda[i]);
+            }
+            
+            // don't delete:
+            //std::cout << quad_points[0][i] << " " << quad_points[1][i] << " " << lambda[i] << "\n";
+        }
+    }
 };
 #endif /*TESTCARDIACMECHANICSASSEMBLER_HPP_*/

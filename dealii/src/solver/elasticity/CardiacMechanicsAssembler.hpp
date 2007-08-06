@@ -12,6 +12,21 @@ private:
     static const unsigned mNumQuadPointsInEachDimension = 3;
 
     /**
+     *  Storage space for dTdE when T and E are in the rotated fibre-sheet frame
+     */
+    double  dTdE_fibre[DIM][DIM][DIM][DIM];
+
+    /**
+     *  The matrix P using JonW's convention. Orthogonal
+     */
+    Tensor<2,DIM> mFibreSheetMat;
+    
+    /**
+     *  The transpose of P, which is also the inverse of P
+     */
+    Tensor<2,DIM> mTransFibreSheetMat;
+
+    /**
      *  Total number of quadrature points in the mesh.
      */  
     unsigned mTotalQuadPoints;
@@ -45,6 +60,7 @@ private:
                            bool                  assembleResidual,
                            bool                  assembleJacobian);
                            
+
 public:
     /**
      *  Constructor
@@ -85,6 +101,32 @@ public:
      *  way and then looping over quad points 
      */
     std::vector<double>& GetLambda();    
+    
+    
+    /**
+     *  Specify a constant fibre-sheet rotation matrix
+     * 
+     *  This is really a temporary method until the fibre-sheet direction can be read in
+     */
+    void SetFibreSheetMatrix(Tensor<2,DIM> fibreSheetMat)
+    {
+        // check orthogonal
+        Tensor<2,DIM> P_times_transP = fibreSheetMat * transpose(fibreSheetMat);
+        for(unsigned i=0; i<DIM; i++)
+        {
+            for(unsigned j=0; j<DIM; j++)
+            {
+                double expected = i==j ? 1.0 : 0.0;
+                if (fabs(P_times_transP[i][j] - expected) > 1e-9)
+                {
+                    EXCEPTION("Fibre-sheet matrix passed in does not seem to be orthogonal");
+                }
+            }
+        }
+        
+        mFibreSheetMat = fibreSheetMat;
+        mTransFibreSheetMat = transpose(mFibreSheetMat);
+    }
 };
 
 #endif /*CARDIACMECHANICSASSEMBLER_HPP_*/

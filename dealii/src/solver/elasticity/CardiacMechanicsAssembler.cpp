@@ -26,6 +26,31 @@ CardiacMechanicsAssembler<DIM>::CardiacMechanicsAssembler(Triangulation<DIM>* pM
     mCurrentQuadPointGlobalIndex = 0;
     
     mLambda.resize(mTotalQuadPoints, 1.0);
+
+    for(unsigned al=0; al<DIM; al++) 
+    {
+        for(unsigned be=0; be<DIM; be++)
+        {
+            for(unsigned gam=0; gam<DIM; gam++)
+            {
+                for(unsigned de=0; de<DIM; de++)
+                {
+                     dTdE_fibre[al][be][gam][de] = 0;
+                }
+            }
+        }
+    }
+    
+    for(unsigned i=0; i<DIM; i++)
+    {
+        for(unsigned j=0; j<DIM; j++)
+        {
+            mFibreSheetMat[i][j] = i==j ? 1.0 : 0.0;
+            
+        }
+    }
+    mTransFibreSheetMat = transpose(mFibreSheetMat);
+            
 }
 
 template<unsigned DIM>
@@ -74,24 +99,22 @@ std::vector<double>& CardiacMechanicsAssembler<DIM>::GetLambda()
 
 
 
-
 /*************************************
  *  AssembleOnElement
  * 
- *  Differs FiniteElasticityAssembler::AssembleOnElement in a few ways:
- *   1. It sets up the active tension at the gauss point by interpolating linearly 
- *      using the nodal values of the active tension
- *  
+ *  Differs FiniteElasticityAssembler::AssembleOnElement in a few ways:  
+ *   1. The active tension at a quad point is used, and the stretch at the quad point is set.
+ *   
  *   2. The extra term in the stress (see below) arising from the active tension is incorporated 
  *      into the formulation. It is added to the stress (the variable 'T'), and dTdE is amended 
- *      as well.
+ *      as well. The fibre direction is taken into account using a rotation matrix.
  * 
  *   3. Since the body force and Neumann tractions will be zero, the corresponding loops
  *      have been removed. 
- *      
- *  The fibre direction is currently assumed to be the x-direction, so the active tension
- *  term in the stress is T_a invF_{M0} invF_{N0}
  * 
+ *  The active tension term in the stress is T_a/C_fibre[0][0], when C_fibre = P^T C P,
+ *  where P is a rotation matrix rotating the axes onto the fibre-sheet axes.
+ *      
  *************************************/
 template<unsigned DIM>
 void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter,
@@ -173,6 +196,17 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     
     AbstractIncompressibleMaterialLaw<DIM>* p_material_law = GetMaterialLawForElement(elementIter);
     
+
+//// for a varying fibre-direction
+//    assert(DIM==2);
+//    double   theta = 0.785398163/5 * elementIter->vertex(0)[0]; //0->pi/20
+//    mFibreSheetMat[0][0] =  cos(theta);
+//    mFibreSheetMat[0][1] =  sin(theta);
+//    mFibreSheetMat[1][0] = -sin(theta);
+//    mFibreSheetMat[1][1] =  cos(theta);
+//    mTransFibreSheetMat = transpose(mFibreSheetMat);
+    
+    
     for (unsigned q_point=0; q_point<n_q_points; q_point++)
     {
         const std::vector< Tensor<1,DIM> >& grad_u_p = local_solution_gradients[q_point];
@@ -183,7 +217,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         static Tensor<2,DIM> C;
         static Tensor<2,DIM> inv_C;
         static Tensor<2,DIM> inv_F;
-        static SymmetricTensor<2,DIM> T;
+        static Tensor<2,DIM> T;
         
         for (unsigned i=0; i<DIM; i++)
         {
@@ -194,24 +228,114 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         }
         
         C = transpose(F) * F;
+        
         inv_C = invert(C);
         inv_F = invert(F);
 
         double detF = determinant(F);
         
-        ///////////////////////////////////////////////////////////
-        // Get the active tension at gauss point, and store lambda
-        ///////////////////////////////////////////////////////////
+        /*************************************
+         *  The cardiac-specific code
+         ************************************/
+
+        // get the active tension at this quad point
         double active_tension = mActiveTension[mCurrentQuadPointGlobalIndex];
-        mLambda[mCurrentQuadPointGlobalIndex] = sqrt(C[0][0]);
+
+        static Tensor<2,DIM> C_fibre;          // C when transformed to fibre-sheet axes
+        static Tensor<2,DIM> inv_C_fibre;      // C^{-1} transformed to fibre-sheet axes
+        static SymmetricTensor<2,DIM> T_fibre; // T when transformed to fibre-sheet axes
         
-        p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,this->dTdE,assembleJacobian);
+        // transform C and invC
+        C_fibre = mTransFibreSheetMat * C * mFibreSheetMat;
+        inv_C_fibre = mTransFibreSheetMat * inv_C * mFibreSheetMat;
+
+        // store the stretch in the fibre direction
+        mLambda[mCurrentQuadPointGlobalIndex] = sqrt(C_fibre[0][0]);
+
+//
+//        for(unsigned al=0; al<DIM; al++) 
+//        {
+//            for(unsigned be=0; be<DIM; be++)
+//            {
+//                for(unsigned gam=0; gam<DIM; gam++)
+//                {
+//                    for(unsigned de=0; de<DIM; de++)
+//                    {
+//                        dTdE_fibre[al][be][gam][de] = 0;
+//                    }
+//                }
+//            }
+//        }
+//        
+        // compute the transformed tension. The material law should law be a cardiac-
+        // specific law which assumes the x-axes in the fibre, the z-axes the sheet normal
+        p_material_law->ComputeStressAndStressDerivative(C_fibre,inv_C_fibre,p,T_fibre,dTdE_fibre,assembleJacobian);
 
         // amend the stress and dTdE using the active tension
-        T[0][0] += active_tension/C[0][0];
-        this->dTdE[0][0][0][0] -= 2*active_tension/(C[0][0]*C[0][0]);  
+        T_fibre[0][0] += active_tension/C_fibre[0][0];
+        dTdE_fibre[0][0][0][0] -= 2*active_tension/(C_fibre[0][0]*C_fibre[0][0]);  
+        
+        // transform T back to real coordinates
+        // Note we explicitly do the multiplication as can't multiply
+        // deal.II SymmetricTensor with a Tensor
 
-                
+///\todo: make efficient
+        for(unsigned M=0; M<DIM; M++) 
+        {
+            for(unsigned N=0; N<DIM; N++)
+            {
+                T[M][N] = 0;        
+                for(unsigned al=0; al<DIM; al++) 
+                {
+                    for(unsigned be=0; be<DIM; be++)
+                    {
+                        T[M][N] +=                T_fibre [al][be]
+                                    *      mFibreSheetMat [M][al]
+                                    * mTransFibreSheetMat [be][N];
+                    }
+                }
+            }
+        }            
+        
+        // transform dTdE back to real coords (ie dT_{albe}dE_{gam de} to dT_{MN}dE_{PQ})
+///\todo: make efficient
+///\todo: introduce FourthOrderTensor
+        for(unsigned M=0; M<DIM; M++) 
+        {
+            for(unsigned N=0; N<DIM; N++)
+            {
+                for(unsigned P=0; P<DIM; P++) 
+                {
+                    for(unsigned Q=0; Q<DIM; Q++)
+                    {
+                        this->dTdE[M][N][P][Q] = 0;
+                        for(unsigned al=0; al<DIM; al++) 
+                        {
+                            for(unsigned be=0; be<DIM; be++)
+                            {
+                                for(unsigned gam=0; gam<DIM; gam++)
+                                {
+                                    for(unsigned de=0; de<DIM; de++)
+                                    {
+                                        this->dTdE[M][N][P][Q] +=           dTdE_fibre [al][be][gam][de]
+                                                                   *      mFibreSheetMat [M][al]
+                                                                   * mTransFibreSheetMat [be][N]
+                                                                   * mTransFibreSheetMat [gam][P]
+                                                                   *      mFibreSheetMat [Q][de];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }            
+        
+        /********************************
+         * end of cardiac specific code
+         ********************************/
+///\todo: refactor somehow 
+
         for (unsigned i=0; i<dofs_per_element; i++)
         {
             const unsigned component_i = this->mFeSystem.system_to_component_index(i).first;
@@ -246,14 +370,14 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                                                   +
                                                                   fe_values.shape_grad(j,q_point)[P]
                                                                   * F[component_j][Q]
-                                                              )
+                                                                )
                                                               * F[component_i][M]
                                                               * fe_values.shape_grad(i,q_point)[N]
                                                               * fe_values.JxW(q_point);
                                     }
                                 }
 
-//// implementation of old (wrong) equation, where T = .. + T_a F_{0M} F_{0N}
+//// implementation of old (wrong) equation, where T = .. + T_a invF_{0M} invF_{0N}
 //// Note T is now directly altered, so no need to add anything new to elementMatrix
 //                                ///////////////////////////////////////////////////////////
 //                                // The extra part of the element stiffness matrix 
@@ -322,7 +446,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                              * fe_values.JxW(q_point);
                         }
 
-//// implementation of old (wrong) equation, where T = .. + T_a F_{0M} F_{0N}
+//// implementation of old (wrong) equation, where T = .. + T_a invF_{0M} invF_{0N}
 //// Note T is now directly altered, so no need to add anything new to elementRhs
 //                        ///////////////////////////////////////////////////////////
 //                        // The extra part of the element stiffness matrix 
