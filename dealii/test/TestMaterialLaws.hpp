@@ -6,6 +6,7 @@
 #include "MooneyRivlinMaterialLaw.hpp"
 #include "ExponentialMaterialLaw.hpp"
 #include "PolynomialMaterialLaw3d.hpp"
+#include "PoleZeroMaterialLaw.hpp"
 #include <cassert>
 
 
@@ -420,6 +421,222 @@ public:
                 TS_ASSERT_DELTA(T_3d[i][j],0.0,1e-12);
             }
         }
+    }
+    
+    void TestPoleZeroMaterialLaw()
+    {
+        std::vector<std::vector<double> > k(2),a(2),b(2);
+        for(unsigned i=0; i<2; i++)
+        {
+            k[i].resize(2);
+            a[i].resize(2);
+            b[i].resize(2);
+        }
+        
+        k[0][0] = 1;
+        k[1][0] = k[0][1] = 2; 
+        k[1][1] = 3;
+        
+        a[0][0] = 4;
+        a[1][0] = a[0][1] = 5; 
+        a[1][1] = 6;
+        
+        b[0][0] = 7;
+        b[1][0] = b[0][1] = 6; 
+        b[1][1] = 5;
+        
+        PoleZeroMaterialLaw<2> pole_zero_law(k,a,b);
+        
+        Tensor<2,2> C;
+        C[0][0] = 1;
+        C[1][1] = 1;
+        Tensor<2,2> invC = invert(C);
+
+        SymmetricTensor<2,2> T;
+        double dTdE[2][2][2][2];
+        double pressure = pole_zero_law.GetZeroStrainPressure();
+        
+        pole_zero_law.ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,true);
+
+        TS_ASSERT_DELTA( T[0][0], 0.0, 1e-9 );
+        TS_ASSERT_DELTA( T[1][0], 0.0, 1e-9 );
+        TS_ASSERT_DELTA( T[0][1], 0.0, 1e-9 );
+        TS_ASSERT_DELTA( T[1][1], 0.0, 1e-9 );
+        
+        // non-trivial deformation, (checking all components have such that E_MN < a_MN)
+        C[0][0] = 0.5;
+        C[0][1] = -0.1;
+        C[1][0] = -0.1;
+        C[1][1] = 0.5;
+        invC = invert(C);
+
+        // C such that E_MN < 0, p=0 => T=0, dTdE=0;
+        pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
+
+        for(unsigned M=0; M<2; M++)
+        {
+            for(unsigned N=0; N<2; N++)
+            {
+                TS_ASSERT_DELTA(T[M][N], 0.0, 1e-9);
+                for(unsigned P=0; P<2; P++)
+                {
+                    for(unsigned Q=0; Q<2; Q++)
+                    {
+                        TS_ASSERT_DELTA(dTdE[M][N][P][Q], 0.0, 1e-9);
+                    }
+                }
+            }
+        }
+
+        // non-trivial deformation, (checking all components have such that E_MN < a_MN)
+        C[0][0] = 2;
+        C[0][1] = 2;
+        C[1][0] = 2;
+        C[1][1] = 5;
+
+        pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
+        
+        // T_MN = ke(2+be/(a-e))/(a-e)^b
+        double t00 = 1*0.5*3/6433.92969;
+        double t10 = 2.0*1.0*(2+6.0/4.0)/4096.0;
+        double t11 = 3.0*2.0*(2+5*2.0/4.0)/1024.0;
+        
+        TS_ASSERT_DELTA( T[0][0], t00, 1e-9 );
+        TS_ASSERT_DELTA( T[1][0], t10, 1e-9 );
+        TS_ASSERT_DELTA( T[0][1], t10, 1e-9 );
+        TS_ASSERT_DELTA( T[1][1], t11, 1e-9 );
+
+        // test dTdE
+        double dtde00 = ( 2*3.5*3.5 + 14*3.5 + 0.25*7*8 )/78815.6387;
+        double dtde10 = 2*( 2*4*4 + 4*1*6*4 + 42)/65536.0;
+        double dtde11 = 3*( 2*4*4 + 4*2*5*4 + 120)/16384.0;
+
+        TS_ASSERT_DELTA(dTdE[0][0][0][0], dtde00, 1e-9);
+        TS_ASSERT_DELTA(dTdE[0][1][0][1], dtde10, 1e-9);
+        TS_ASSERT_DELTA(dTdE[1][0][1][0], dtde10, 1e-9);
+        TS_ASSERT_DELTA(dTdE[1][1][1][1], dtde11, 1e-9);
+        
+        for(unsigned M=0; M<2; M++)
+        {
+            for(unsigned N=0; N<2; N++)
+            {
+                for(unsigned P=0; P<2; P++)
+                {
+                    for(unsigned Q=0; Q<2; Q++)
+                    {
+                        if((P!=M) || (Q!=N))
+                        {
+                            TS_ASSERT_DELTA(dTdE[M][N][P][Q], 0.0, 1e-9);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // test dTdE via a numerical derivative
+        double old_T00 = T[0][0];
+        double h=0.001;
+        C[0][0]+=h;
+        invC = invert(C);
+        pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,false);
+        
+        double dTdC00_numerical = (T[0][0] - old_T00)/h;  // dC not dE
+        TS_ASSERT_DELTA( dTdE[0][0][0][0], 2*dTdC00_numerical, 1e-4);
+        
+
+        // test the pressure terms in the stress and stress-deriv, by calling with
+        // p=0 and p=1 and verifying the difference is what it should be
+        SymmetricTensor<2,2> T2;
+        double dTdE2[2][2][2][2];
+        pole_zero_law.ComputeStressAndStressDerivative(C, invC, 0.0, T,  dTdE,  true);
+        pole_zero_law.ComputeStressAndStressDerivative(C, invC, 1.0, T2, dTdE2, true);
+        
+        for(unsigned M=0; M<2; M++)
+        {
+            for(unsigned N=0; N<2; N++)
+            {
+                TS_ASSERT_DELTA(T[M][N] - T2[M][N], invC[M][N], 1e-6);
+                for(unsigned P=0; P<2; P++)
+                {
+                    for(unsigned Q=0; Q<2; Q++)
+                    {
+                        TS_ASSERT_DELTA(dTdE[M][N][P][Q]-dTdE2[M][N][P][Q], -2*invC[M][P]*invC[Q][N], 1e-6);
+                    }
+                }
+            }
+        }
+    }
+    
+    void TestPoleZeroMaterialLaw3d()
+    {
+        std::vector<std::vector<double> > k(3),a(3),b(3);
+        for(unsigned i=0; i<3; i++)
+        {
+            k[i].resize(3);
+            a[i].resize(3);
+            b[i].resize(3);
+        }
+        
+        k[0][0] = 1;
+        k[1][0] = k[0][1] = 2; 
+        k[0][2] = k[2][0] = 4; 
+        k[1][1] = 3;
+        k[1][2] = k[2][1] = 5; 
+        k[2][2] = 3;
+        
+        a[0][0] = 4;
+        a[1][0] = a[0][1] = 5; 
+        a[2][0] = a[0][2] = 6; 
+        a[1][1] = 6;
+        a[2][1] = a[1][2] = 4; 
+        a[2][2] = 9;
+        
+        b[0][0] = 7;
+        b[1][0] = b[0][1] = 6; 
+        b[2][0] = b[0][2] = 2; 
+        b[1][1] = 5;
+        b[2][1] = b[1][2] = 4; 
+        b[2][2] = 2;
+        
+        PoleZeroMaterialLaw<3> pole_zero_law(k,a,b);
+        
+        Tensor<2,3> C;
+        Tensor<2,3> invC;
+        C[0][0] = 2;
+        C[0][1] = C[1][0] = 2;
+        C[0][2] = C[2][0] = 3;
+        C[1][1] = 5;
+        C[1][2] = C[1][2] = 4;
+        C[2][2] = 3;
+        invC = invert(C);
+
+        SymmetricTensor<2,3> T;
+        double dTdE[3][3][3][3];
+
+        pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
+        
+        //// same as previous test, except the t22 and dtde22 bits are new
+        double t00 = 1*0.5*3/6433.92969;
+        double t10 = 2.0*1.0*(2+6.0/4.0)/4096.0;
+        double t11 = 3.0*2.0*(2+5*2.0/4.0)/1024.0;
+        double t22 = 3.0*(2+2.0/8.0)/64.0;
+        
+        TS_ASSERT_DELTA( T[0][0], t00, 1e-9 );
+        TS_ASSERT_DELTA( T[1][0], t10, 1e-9 );
+        TS_ASSERT_DELTA( T[0][1], t10, 1e-9 );
+        TS_ASSERT_DELTA( T[2][2], t22, 1e-9 );
+        
+        // test dTdE
+        double dtde00 = ( 2*3.5*3.5 + 14*3.5 + 0.25*7*8 )/78815.6387;
+        double dtde10 = 2*( 2*4*4 + 4*1*6*4 + 42)/65536.0;
+        double dtde11 = 3*( 2*4*4 + 4*2*5*4 + 120)/16384.0;
+        double dtde22 = 3*( 2*64 + 4*1*2*8 + 2*3)/4096.0;
+        
+        TS_ASSERT_DELTA(dTdE[0][0][0][0], dtde00, 1e-9);
+        TS_ASSERT_DELTA(dTdE[0][1][0][1], dtde10, 1e-9);
+        TS_ASSERT_DELTA(dTdE[1][0][1][0], dtde10, 1e-9);
+        TS_ASSERT_DELTA(dTdE[1][1][1][1], dtde11, 1e-9);
+        TS_ASSERT_DELTA(dTdE[2][2][2][2], dtde22, 1e-9);
     }
 };
 

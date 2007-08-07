@@ -155,7 +155,7 @@ public :
      *  @param pressure the pressure
      *  @sigma T an empty matrix, which will be filled in with the stress
      * 
-     *  Note: the compute the material part of the stress (the pressure-independent
+     *  Note: to compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
      */
     void Compute2ndPiolaKirchoffStress(Tensor<2,DIM>& C, double pressure, SymmetricTensor<2,DIM>& T)

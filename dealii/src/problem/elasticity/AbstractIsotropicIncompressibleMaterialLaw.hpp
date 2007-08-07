@@ -81,7 +81,7 @@ public :
         if (DIM==3)
         {
             I2 =   C[0][0]*C[1][1] + C[1][1]*C[2][2] + C[2][2]*C[0][0]
-                   - C[0][1]*C[1][0] - C[1][2]*C[2][1] - C[2][0]*C[0][2];
+                 - C[0][1]*C[1][0] - C[1][2]*C[2][1] - C[2][0]*C[0][2];
         }
         
         double  dW_dI1 = Get_dW_dI1(I1,I2);
@@ -145,13 +145,13 @@ public :
                         for (unsigned Q=0;Q<DIM;Q++)
                         {
                             dTdE[M][N][P][Q]  =    4 * d2W_dI1  * (M==N) * (P==Q)
-                                                   + 2 * pressure * invC[M][P] * invC[Q][N];
+                                                 + 2 * pressure * invC[M][P] * invC[Q][N];
                                                    
                             if (DIM==3)
                             {
                                 dTdE[M][N][P][Q] +=    4 * d2W_dI2   * (I1*(M==N)-C[M][N]) * (I1*(P==Q)-C[P][Q])
-                                                       + 4 * dW_dI2    * ((M==N)*(P==Q)-(M==P)*(N==Q))
-                                                       + 4 * d2W_dI1I2 * ((M==N)*(I1*(P==Q)-C[P][Q]) + (P==Q)*(I1*(M==N)-C[M][N]));
+                                                     + 4 * dW_dI2    * ((M==N)*(P==Q)-(M==P)*(N==Q))
+                                                     + 4 * d2W_dI1I2 * ((M==N)*(I1*(P==Q)-C[P][Q]) + (P==Q)*(I1*(M==N)-C[M][N]));
                             }
                         }
                     }
