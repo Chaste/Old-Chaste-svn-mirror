@@ -74,7 +74,22 @@ ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
     
 }
 
-
+void ParallelColumnDataWriter::PutVectorStripe(int variableId, DistributedVector::Stripe stripe)
+{
+    // put the stripe into its own 'unstriped' vector
+    Vec unstriped_petsc = DistributedVector::CreateVec();
+    DistributedVector unstriped(unstriped_petsc);
+    for (DistributedVector::Iterator index = DistributedVector::Begin();
+         index!= DistributedVector::End();
+         ++index)
+        {
+            unstriped[index] =  stripe[index];
+        }
+    
+    // put the unstriped vector
+    ParallelColumnDataWriter::PutVector(variableId, unstriped_petsc);
+    VecDestroy(unstriped_petsc);
+}
 
 void ParallelColumnDataWriter::EndDefineMode()
 {

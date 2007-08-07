@@ -37,6 +37,7 @@ protected:
     
     Vec mVoltage; // Current solution
     double mLinearSolverRelativeTolerance;
+    
 
     /**
      * Subclasses must override this method to create a PDE object of the appropriate type.
@@ -51,6 +52,9 @@ protected:
      * This class will take responsibility for freeing the object when it is finished with.
      */
     virtual AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
+    
+    ParallelColumnDataWriter *mpWriter;
+    unsigned mVoltageVarId;
 
 public:    
     /**
@@ -62,7 +66,8 @@ public:
             : mMeshFilename(""),     // i.e. undefined
             mOutputDirectory(""),  // i.e. undefined
             mOutputFilenamePrefix(""),   // i.e. undefined
-            mpCellFactory(pCellFactory)
+            mpCellFactory(pCellFactory),
+            mpWriter(NULL)
     {
         mStartTime        = 0.0;  // ms
         mPdeTimeStep      = 0.01; // ms
@@ -280,21 +285,22 @@ public:
         PreSolveChecks();
         AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* p_assembler = CreateAssembler();
         Vec initial_condition = CreateInitialCondition();
+        
+        DistributedVector ic = DistributedVector(initial_condition);
+        DistributedVector::Stripe extracellular_ic(initial_condition, 0);
 
         TimeStepper stepper(mStartTime, mEndTime, mPrintingTimeStep);
 
-        ParallelColumnDataWriter *p_test_writer = NULL;
         unsigned time_var_id = 0;
-        unsigned voltage_var_id = 0;
         if (mPrintOutput)
         {
-            p_test_writer = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
-            p_test_writer->DefineFixedDimension("Node", "dimensionless", PROBLEM_DIM*mMesh.GetNumNodes() );
-            time_var_id = p_test_writer->DefineUnlimitedDimension("Time","msecs");
-            voltage_var_id = p_test_writer->DefineVariable(ColumnName(),"mV");
-            p_test_writer->EndDefineMode();
-            p_test_writer->PutVariable(time_var_id, stepper.GetTime());
-            p_test_writer->PutVector(voltage_var_id, initial_condition);
+            mpWriter = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
+            mpWriter->DefineFixedDimension("Node", "dimensionless", mMesh.GetNumNodes() );
+            time_var_id = mpWriter->DefineUnlimitedDimension("Time","msecs");
+            mVoltageVarId = mpWriter->DefineVariable("V","mV");
+            mpWriter->EndDefineMode();
+            mpWriter->PutVariable(time_var_id, stepper.GetTime());
+            mpWriter->PutVectorStripe(mVoltageVarId, extracellular_ic);
         }
         
         // If we have already run a simulation, free the old solution vec
@@ -321,8 +327,8 @@ public:
                 // Close files
                 if (mPrintOutput)
                 {
-                    p_test_writer->Close();
-                    delete p_test_writer;
+                    mpWriter->Close();
+                    delete mpWriter;
                 }
                 // Re-throw
                 throw e;
@@ -345,10 +351,13 @@ public:
                     WriteInfo(stepper.GetTime());
                 }
                 
+                DistributedVector voltage = DistributedVector(mVoltage);
+                DistributedVector::Stripe extracellular_voltage(voltage, 0);
+                
                 // Writing data out to the file <mOutputFilenamePrefix>.dat
-                p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
-                p_test_writer->PutVariable(time_var_id, stepper.GetTime());
-                p_test_writer->PutVector(voltage_var_id, mVoltage);
+                mpWriter->AdvanceAlongUnlimitedDimension(); //creates a new file
+                mpWriter->PutVariable(time_var_id, stepper.GetTime());
+                mpWriter->PutVectorStripe(mVoltageVarId, extracellular_voltage);
             }
         }
         
@@ -358,8 +367,8 @@ public:
         // close the file that stores voltage values
         if (mPrintOutput)
         {
-            p_test_writer->Close();
-            delete p_test_writer;
+            mpWriter->Close();
+            delete mpWriter;
             
             PetscInt my_rank;
             MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);

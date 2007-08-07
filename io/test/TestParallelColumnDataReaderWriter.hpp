@@ -10,6 +10,7 @@
 #include "ParallelColumnDataWriter.hpp"
 #include "ColumnDataReader.hpp"
 #include "Exception.hpp"
+#include "DistributedVector.hpp"
 #include <petsc.h>
 #include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"
@@ -126,6 +127,7 @@ public:
             mpWriter->PutVariable(var2_id, var2_array[global_index - lo], global_index);
         }
         */
+                
         
         //Write out the data (Parallel)
         mpParallelWriter->PutVariable(time_var_id, 0.2);
@@ -156,6 +158,60 @@ public:
         VecDestroy(var1);
         VecDestroy(var2);
         VecDestroy(var3);
+    }
+    
+    
+    void TestPutSlice(void)
+    {
+        // create a vector slice
+        
+        const unsigned problem_size=10;
+        DistributedVector::SetProblemSize(problem_size);
+        Vec striped=DistributedVector::CreateVec(2);
+        
+        DistributedVector distributed_vector(striped);
+        DistributedVector::Stripe zeros(distributed_vector,0);
+        DistributedVector::Stripe ones(distributed_vector,1);
+        // write some values
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index!= DistributedVector::End();
+             ++index)
+        {
+            zeros[index] =  0;
+            ones[index] =  1;
+        }
+        
+        // write to file with parallel data writer
+        
+        ParallelColumnDataWriter* p_parallel_writer = new ParallelColumnDataWriter("TestParallelColumnDataWriterStripe","Stripe");
+        unsigned time_var_id = p_parallel_writer->DefineUnlimitedDimension("Time","msecs");
+        unsigned var1_id = p_parallel_writer->DefineVariable("Var1","LightYears");
+        p_parallel_writer->DefineFixedDimension("Node","dimensionless", problem_size);
+        p_parallel_writer->EndDefineMode();
+        MPI_Barrier(PETSC_COMM_WORLD);
+        std::string output_dir = p_parallel_writer->GetOutputDirectory();
+        
+        p_parallel_writer->PutVariable(time_var_id, 0.1);
+        p_parallel_writer->PutVectorStripe(var1_id, ones);
+        p_parallel_writer->AdvanceAlongUnlimitedDimension();
+        
+        // check file
+        
+        MPI_Barrier(PETSC_COMM_WORLD);
+        TS_ASSERT_EQUALS(system(
+                             ("diff "+output_dir+"Stripe.info io/test/data/Stripe.info").c_str()),
+                         0);
+                         
+        TS_ASSERT_EQUALS(system(
+                             ("diff "+output_dir+"Stripe_000000.dat io/test/data/Stripe_000000.dat").c_str()),
+                         0);
+                         
+        TS_ASSERT_EQUALS(system(
+                             ("diff "+output_dir+"Stripe_unlimited.dat io/test/data/Stripe_unlimited.dat").c_str()),
+                         0);
+        
+        VecDestroy(striped);
+        
     }
     
     // Read back the data written in the test above

@@ -3,6 +3,7 @@
 
 
 #include "ColumnDataWriter.hpp"
+#include "DistributedVector.hpp"
 #include <petscvec.h>
 class ParallelColumnDataWriter  : public ColumnDataWriter
 {
@@ -16,6 +17,7 @@ public:
     virtual ~ParallelColumnDataWriter();
     bool AmMaster() const;
     void PutVector(int variableID, Vec PetscVector);
+    void PutVectorStripe(int variableId, DistributedVector::Stripe stripe);
     void PutVariable(int variableID, double variableValue,long dimensionPosition = -1);
     void EndDefineMode();
     void AdvanceAlongUnlimitedDimension();

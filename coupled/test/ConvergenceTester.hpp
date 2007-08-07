@@ -90,7 +90,7 @@ public:
 public:    
     ConvergenceTester()
     {
-        const unsigned number_of_meshes = 2;
+        const unsigned number_of_meshes = 3;
         
         double num_elements[number_of_meshes];
         std::string file_name[number_of_meshes];

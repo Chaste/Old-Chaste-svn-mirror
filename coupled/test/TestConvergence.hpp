@@ -16,15 +16,10 @@ class TestConvergence : public CxxTest::TestSuite
 {   
 public:
 
-
-//    void TestMonodomainSpaceAndTime_LuoRudyIModel1991OdeSystem_1D() throw(Exception)
-//    {
-//        ConvergenceTester<LuoRudyIModel1991OdeSystem, MonodomainProblem<1>, 1> tester;
-//    }
     
-    void TestMonodomainSpaceAndTime_LuoRudyIModel1991OdeSystem_2D() throw(Exception)
+    void Test1() throw(Exception)
     {
-        ConvergenceTester<LuoRudyIModel1991OdeSystem, MonodomainProblem<2>, 2> tester;
+        ConvergenceTester<LuoRudyIModel1991OdeSystem, BidomainProblem<2>, 2> tester;
     }
     
 };
