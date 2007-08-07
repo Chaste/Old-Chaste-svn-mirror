@@ -4,10 +4,9 @@
 
 #include <numerics/vectors.h>
 #include <numerics/matrices.h>
-
 #include <base/tensor.h>
 #include <base/symmetric_tensor.h>
-
+#include "FourthOrderTensor.hpp"
 
 /**
  *  AbstractIncompressibleMaterialLaw
@@ -43,7 +42,7 @@ public :
                                                   Tensor<2,DIM>&          invC,
                                                   double                  pressure,
                                                   SymmetricTensor<2,DIM>& T,
-                                                  double                  dTdE[DIM][DIM][DIM][DIM],
+                                                  FourthOrderTensor<DIM>& dTdE,
                                                   bool                    computeDTdE)=0;
                                                   
                                                   
@@ -71,7 +70,7 @@ public :
         
         SymmetricTensor<2,DIM> T;
         
-        static double dTdE[DIM][DIM][DIM][DIM]; // not filled in, made static for efficiency
+        static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
         
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
         
@@ -122,7 +121,7 @@ public :
         
         SymmetricTensor<2,DIM> T;
         
-        static double dTdE[DIM][DIM][DIM][DIM]; // not filled in, made static for efficiency
+        static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
         
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
         
@@ -162,7 +161,7 @@ public :
     {
         Tensor<2,DIM> invC = invert(C);
         
-        static double dTdE[DIM][DIM][DIM][DIM]; // not filled in, made static for efficiency
+        static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
         
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
     }

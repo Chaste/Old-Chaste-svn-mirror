@@ -34,7 +34,7 @@ protected:
         Vector<double>       mResidual;
         std::string          mOutputDirectoryFullPath;
         bool                 mWriteOutput;
-        double dTdE[DIM][DIM][DIM][DIM];
+        FourthOrderTensor<DIM> dTdE;
         AbstractIncompressibleMaterialLaw<DIM>*  mpMaterialLaw;
         Vector<double>       mBodyForce;
         double               mDensity;

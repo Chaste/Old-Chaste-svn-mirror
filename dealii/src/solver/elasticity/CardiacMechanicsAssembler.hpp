@@ -14,7 +14,7 @@ private:
     /**
      *  Storage space for dTdE when T and E are in the rotated fibre-sheet frame
      */
-    double  dTdE_fibre[DIM][DIM][DIM][DIM];
+    FourthOrderTensor<DIM>  mDTdE_fibre;
 
     /**
      *  The matrix P using JonW's convention. Orthogonal

@@ -33,7 +33,7 @@ public :
      *  NOTE: the strain E is not expected to be passed in, instead the Lagrangian
      *  deformation tensor C is required (recall, E = 0.5(C-I)
      * 
-     *  dT/dE is a fourth-order tensor, where dT/dE[M][N][P][Q] = dT^{MN}/dE_{PQ}
+     *  dT/dE is a fourth-order tensor, where dT/dE(M,N,P,Q) = dT^{MN}/dE_{PQ}
      * 
      *  @param C The Lagrangian deformation tensor (F^T F)
      *  @param invC The inverse of C. Should be computed by the user. (Change this?)
@@ -51,7 +51,7 @@ public :
                                           Tensor<2,DIM>&          invC,
                                           double                  pressure,
                                           SymmetricTensor<2,DIM>& T,
-                                          double                  dTdE[DIM][DIM][DIM][DIM],
+                                          FourthOrderTensor<DIM>& dTdE,
                                           bool                    computeDTdE)
     {
         // this is covered, but gcov doesn't see this as being covered 
@@ -144,14 +144,14 @@ public :
                     {
                         for (unsigned Q=0;Q<DIM;Q++)
                         {
-                            dTdE[M][N][P][Q]  =    4 * d2W_dI1  * (M==N) * (P==Q)
-                                                 + 2 * pressure * invC[M][P] * invC[Q][N];
+                            dTdE(M,N,P,Q)  =    4 * d2W_dI1  * (M==N) * (P==Q)
+                                              + 2 * pressure * invC[M][P] * invC[Q][N];
                                                    
                             if (DIM==3)
                             {
-                                dTdE[M][N][P][Q] +=    4 * d2W_dI2   * (I1*(M==N)-C[M][N]) * (I1*(P==Q)-C[P][Q])
-                                                     + 4 * dW_dI2    * ((M==N)*(P==Q)-(M==P)*(N==Q))
-                                                     + 4 * d2W_dI1I2 * ((M==N)*(I1*(P==Q)-C[P][Q]) + (P==Q)*(I1*(M==N)-C[M][N]));
+                                dTdE(M,N,P,Q) +=    4 * d2W_dI2   * (I1*(M==N)-C[M][N]) * (I1*(P==Q)-C[P][Q])
+                                                  + 4 * dW_dI2    * ((M==N)*(P==Q)-(M==P)*(N==Q))
+                                                  + 4 * d2W_dI1I2 * ((M==N)*(I1*(P==Q)-C[P][Q]) + (P==Q)*(I1*(M==N)-C[M][N]));
                             }
                         }
                     }

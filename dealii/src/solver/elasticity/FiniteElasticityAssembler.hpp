@@ -98,7 +98,7 @@ protected:
     
     /** The derivative of stress (ie second derivative of the strain energy).
      *  dTdE[M][N][P][Q] = d(T^{MN})/d(E_{PQ}) */
-    double               dTdE[DIM][DIM][DIM][DIM];
+    FourthOrderTensor<DIM> dTdE;
     
     /*< Whether the material is heterogeneous or not */
     bool                 mHeterogeneous;

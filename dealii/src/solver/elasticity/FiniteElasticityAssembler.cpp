@@ -406,7 +406,7 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                     for (unsigned Q=0; Q<DIM; Q++)
                                     {
                                         elementMatrix(i,j) +=   0.5
-                                                              * dTdE[M][N][P][Q]
+                                                              * dTdE(M,N,P,Q)
                                                               * (
                                                                     fe_values.shape_grad(j,q_point)[Q]
                                                                   * F[component_j][P]

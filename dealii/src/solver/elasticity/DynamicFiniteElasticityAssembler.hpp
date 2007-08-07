@@ -68,8 +68,8 @@ private:
         Vector<double>       mResidual;
     
         std::string          mOutputDirectoryFullPath;
-    
-        double dTdE[DIM][DIM][DIM][DIM];
+ 
+        FourthOrderTensor<DIM> dTdE;
     
         AbstractIncompressibleMaterialLaw<DIM>*  mpMaterialLaw;
         Vector<double>       mBodyForce;

@@ -278,7 +278,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
                                     for (unsigned Q=0; Q<DIM; Q++)
                                     {
                                         elementMatrix(i,j) +=   0.5
-                                                                * this->dTdE[M][N][P][Q]
+                                                                * this->dTdE(M,N,P,Q)
                                                                 * (
                                                                     fe_values.shape_grad(j,q_point)[Q]
                                                                     * F[component_j][P]

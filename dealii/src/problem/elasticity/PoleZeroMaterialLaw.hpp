@@ -82,7 +82,7 @@ public :
                                           Tensor<2,DIM>&          invC,
                                           double                  pressure,
                                           SymmetricTensor<2,DIM>& T,
-                                          double                  dTdE[DIM][DIM][DIM][DIM],
+                                          FourthOrderTensor<DIM>& dTdE,
                                           bool                    computeDTdE)
     {
         assert(fabs(C[0][1]-C[1][0]) < 1e-6);
@@ -123,7 +123,7 @@ public :
                     {
                         for(unsigned Q=0; Q<DIM; Q++)
                         {
-                            dTdE[M][N][P][Q] = 2 * pressure * invC[M][P] * invC[Q][N];
+                            dTdE(M,N,P,Q) = 2 * pressure * invC[M][P] * invC[Q][N];
                         }
                     }
                     
@@ -134,13 +134,13 @@ public :
                         double a = mA[M][N];
                         double k = mK[M][N];
     
-                        dTdE[M][N][M][N] +=   k 
-                                            * pow(a-e, -b-2)
-                                            * (   
-                                                 2*(a-e)*(a-e)
-                                               + 4*b*e*(a-e)
-                                               + b*(b+1)*e*e
-                                              );
+                        dTdE(M,N,M,N) +=   k 
+                                         * pow(a-e, -b-2)
+                                         * (   
+                                              2*(a-e)*(a-e)
+                                            + 4*b*e*(a-e)
+                                            + b*(b+1)*e*e
+                                           );
                     }
                 }
             }

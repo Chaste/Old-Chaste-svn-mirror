@@ -27,20 +27,6 @@ CardiacMechanicsAssembler<DIM>::CardiacMechanicsAssembler(Triangulation<DIM>* pM
     
     mLambda.resize(mTotalQuadPoints, 1.0);
 
-    for(unsigned al=0; al<DIM; al++) 
-    {
-        for(unsigned be=0; be<DIM; be++)
-        {
-            for(unsigned gam=0; gam<DIM; gam++)
-            {
-                for(unsigned de=0; de<DIM; de++)
-                {
-                     dTdE_fibre[al][be][gam][de] = 0;
-                }
-            }
-        }
-    }
-    
     for(unsigned i=0; i<DIM; i++)
     {
         for(unsigned j=0; j<DIM; j++)
@@ -252,28 +238,15 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         // store the stretch in the fibre direction
         mLambda[mCurrentQuadPointGlobalIndex] = sqrt(C_fibre[0][0]);
 
-//
-//        for(unsigned al=0; al<DIM; al++) 
-//        {
-//            for(unsigned be=0; be<DIM; be++)
-//            {
-//                for(unsigned gam=0; gam<DIM; gam++)
-//                {
-//                    for(unsigned de=0; de<DIM; de++)
-//                    {
-//                        dTdE_fibre[al][be][gam][de] = 0;
-//                    }
-//                }
-//            }
-//        }
-//        
+        //mDTdE_fibre.Zero();
+
         // compute the transformed tension. The material law should law be a cardiac-
         // specific law which assumes the x-axes in the fibre, the z-axes the sheet normal
-        p_material_law->ComputeStressAndStressDerivative(C_fibre,inv_C_fibre,p,T_fibre,dTdE_fibre,assembleJacobian);
+        p_material_law->ComputeStressAndStressDerivative(C_fibre,inv_C_fibre,p,T_fibre,mDTdE_fibre,assembleJacobian);
 
         // amend the stress and dTdE using the active tension
         T_fibre[0][0] += active_tension/C_fibre[0][0];
-        dTdE_fibre[0][0][0][0] -= 2*active_tension/(C_fibre[0][0]*C_fibre[0][0]);  
+        mDTdE_fibre(0,0,0,0) -= 2*active_tension/(C_fibre[0][0]*C_fibre[0][0]);  
         
         // transform T back to real coordinates
         // Note we explicitly do the multiplication as can't multiply
@@ -308,7 +281,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                 {
                     for(unsigned Q=0; Q<DIM; Q++)
                     {
-                        this->dTdE[M][N][P][Q] = 0;
+                        this->dTdE(M,N,P,Q) = 0;
                         for(unsigned al=0; al<DIM; al++) 
                         {
                             for(unsigned be=0; be<DIM; be++)
@@ -317,11 +290,11 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                 {
                                     for(unsigned de=0; de<DIM; de++)
                                     {
-                                        this->dTdE[M][N][P][Q] +=           dTdE_fibre [al][be][gam][de]
-                                                                   *      mFibreSheetMat [M][al]
-                                                                   * mTransFibreSheetMat [be][N]
-                                                                   * mTransFibreSheetMat [gam][P]
-                                                                   *      mFibreSheetMat [Q][de];
+                                        this->dTdE(M,N,P,Q) +=            mDTdE_fibre (al,be,gam,de)
+                                                                *      mFibreSheetMat [M][al]
+                                                                * mTransFibreSheetMat [be][N]
+                                                                * mTransFibreSheetMat [gam][P]
+                                                                *      mFibreSheetMat [Q][de];
                                     }
                                 }
                             }
@@ -363,7 +336,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                     for (unsigned Q=0; Q<DIM; Q++)
                                     {
                                         elementMatrix(i,j) +=   0.5
-                                                              * this->dTdE[M][N][P][Q]
+                                                              * this->dTdE(M,N,P,Q)
                                                               * (
                                                                   fe_values.shape_grad(j,q_point)[Q]
                                                                   * F[component_j][P]

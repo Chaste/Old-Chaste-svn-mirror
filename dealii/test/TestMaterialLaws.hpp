@@ -115,7 +115,7 @@ public:
         Tensor<2,3> S;
         Tensor<2,3> sigma;
         
-        double dTdE[3][3][3][3];
+        FourthOrderTensor<3> dTdE;
         
         ml_law_3d.ComputeStressAndStressDerivative(C, invC, pressure, T, dTdE, true);
         ml_law_3d.Compute1stPiolaKirchoffStress(F,pressure,S);
@@ -167,7 +167,7 @@ public:
                         double true_val =   4*c2*((M==N)*(P==Q)-(M==P)*(N==Q))
                                             + 2*pressure*invC[M][P]*invC[Q][N];
                                             
-                        TS_ASSERT_DELTA(dTdE[M][N][P][Q], true_val, 1e-12);
+                        TS_ASSERT_DELTA(dTdE(M,N,P,Q), true_val, 1e-12);
                     }
                 }
             }
@@ -326,7 +326,7 @@ public:
         double pressure = 5.0;
         
         SymmetricTensor<2,3> T;
-        double dTdE[3][3][3][3];
+        FourthOrderTensor<3> dTdE;
         
         poly_law.ComputeStressAndStressDerivative(C, invC, pressure, T, dTdE, true);
         
@@ -370,7 +370,7 @@ public:
                                              + 4 * true_d2WdI1I2 * (dI1_dC_MN*dI2_dC_PQ + dI1_dC_PQ*dI2_dC_MN)
                                              - 2 * pressure * d_invC_dC;
                                              
-                        TS_ASSERT_DELTA(dTdE[M][N][P][Q], true_val, 1e-12);
+                        TS_ASSERT_DELTA(dTdE(M,N,P,Q), true_val, 1e-12);
                     }
                 }
             }
@@ -453,7 +453,7 @@ public:
         Tensor<2,2> invC = invert(C);
 
         SymmetricTensor<2,2> T;
-        double dTdE[2][2][2][2];
+        FourthOrderTensor<2> dTdE;
         double pressure = pole_zero_law.GetZeroStrainPressure();
         
         pole_zero_law.ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,true);
@@ -482,7 +482,7 @@ public:
                 {
                     for(unsigned Q=0; Q<2; Q++)
                     {
-                        TS_ASSERT_DELTA(dTdE[M][N][P][Q], 0.0, 1e-9);
+                        TS_ASSERT_DELTA(dTdE(M,N,P,Q), 0.0, 1e-9);
                     }
                 }
             }
@@ -511,10 +511,10 @@ public:
         double dtde10 = 2*( 2*4*4 + 4*1*6*4 + 42)/65536.0;
         double dtde11 = 3*( 2*4*4 + 4*2*5*4 + 120)/16384.0;
 
-        TS_ASSERT_DELTA(dTdE[0][0][0][0], dtde00, 1e-9);
-        TS_ASSERT_DELTA(dTdE[0][1][0][1], dtde10, 1e-9);
-        TS_ASSERT_DELTA(dTdE[1][0][1][0], dtde10, 1e-9);
-        TS_ASSERT_DELTA(dTdE[1][1][1][1], dtde11, 1e-9);
+        TS_ASSERT_DELTA(dTdE(0,0,0,0), dtde00, 1e-9);
+        TS_ASSERT_DELTA(dTdE(0,1,0,1), dtde10, 1e-9);
+        TS_ASSERT_DELTA(dTdE(1,0,1,0), dtde10, 1e-9);
+        TS_ASSERT_DELTA(dTdE(1,1,1,1), dtde11, 1e-9);
         
         for(unsigned M=0; M<2; M++)
         {
@@ -526,7 +526,7 @@ public:
                     {
                         if((P!=M) || (Q!=N))
                         {
-                            TS_ASSERT_DELTA(dTdE[M][N][P][Q], 0.0, 1e-9);
+                            TS_ASSERT_DELTA(dTdE(M,N,P,Q), 0.0, 1e-9);
                         }
                     }
                 }
@@ -541,13 +541,13 @@ public:
         pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,false);
         
         double dTdC00_numerical = (T[0][0] - old_T00)/h;  // dC not dE
-        TS_ASSERT_DELTA( dTdE[0][0][0][0], 2*dTdC00_numerical, 1e-4);
+        TS_ASSERT_DELTA( dTdE(0,0,0,0), 2*dTdC00_numerical, 1e-4);
         
 
         // test the pressure terms in the stress and stress-deriv, by calling with
         // p=0 and p=1 and verifying the difference is what it should be
         SymmetricTensor<2,2> T2;
-        double dTdE2[2][2][2][2];
+        FourthOrderTensor<2> dTdE2;
         pole_zero_law.ComputeStressAndStressDerivative(C, invC, 0.0, T,  dTdE,  true);
         pole_zero_law.ComputeStressAndStressDerivative(C, invC, 1.0, T2, dTdE2, true);
         
@@ -560,7 +560,7 @@ public:
                 {
                     for(unsigned Q=0; Q<2; Q++)
                     {
-                        TS_ASSERT_DELTA(dTdE[M][N][P][Q]-dTdE2[M][N][P][Q], -2*invC[M][P]*invC[Q][N], 1e-6);
+                        TS_ASSERT_DELTA(dTdE(M,N,P,Q)-dTdE2(M,N,P,Q), -2*invC[M][P]*invC[Q][N], 1e-6);
                     }
                 }
             }
@@ -611,7 +611,7 @@ public:
         invC = invert(C);
 
         SymmetricTensor<2,3> T;
-        double dTdE[3][3][3][3];
+        FourthOrderTensor<3> dTdE;
 
         pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
         
@@ -632,11 +632,11 @@ public:
         double dtde11 = 3*( 2*4*4 + 4*2*5*4 + 120)/16384.0;
         double dtde22 = 3*( 2*64 + 4*1*2*8 + 2*3)/4096.0;
         
-        TS_ASSERT_DELTA(dTdE[0][0][0][0], dtde00, 1e-9);
-        TS_ASSERT_DELTA(dTdE[0][1][0][1], dtde10, 1e-9);
-        TS_ASSERT_DELTA(dTdE[1][0][1][0], dtde10, 1e-9);
-        TS_ASSERT_DELTA(dTdE[1][1][1][1], dtde11, 1e-9);
-        TS_ASSERT_DELTA(dTdE[2][2][2][2], dtde22, 1e-9);
+        TS_ASSERT_DELTA(dTdE(0,0,0,0), dtde00, 1e-9);
+        TS_ASSERT_DELTA(dTdE(0,1,0,1), dtde10, 1e-9);
+        TS_ASSERT_DELTA(dTdE(1,0,1,0), dtde10, 1e-9);
+        TS_ASSERT_DELTA(dTdE(1,1,1,1), dtde11, 1e-9);
+        TS_ASSERT_DELTA(dTdE(2,2,2,2), dtde22, 1e-9);
     }
 };
 
