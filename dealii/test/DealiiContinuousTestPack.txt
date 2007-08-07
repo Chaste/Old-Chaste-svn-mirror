@@ -4,6 +4,7 @@ TestCardiacElectroMechanics.hpp
 TestCardiacMechanicsAssembler.hpp
 TestConcentrationBasedTumourSourceModel.hpp
 TestFiniteElasticityAssembler.hpp
+TestFourthOrderTensor.hpp
 TestDynamicFiniteElasticityAssembler.hpp
 TestFiniteElasticityAssemblerWithGrowth.hpp
 TestFiniteElasticityTools.hpp
