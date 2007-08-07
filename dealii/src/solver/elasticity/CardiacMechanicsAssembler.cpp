@@ -270,39 +270,50 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
             }
         }            
         
-        // transform dTdE back to real coords (ie dT_{albe}dE_{gam de} to dT_{MN}dE_{PQ})
-///\todo: make efficient
-///\todo: introduce FourthOrderTensor
-        for(unsigned M=0; M<DIM; M++) 
-        {
-            for(unsigned N=0; N<DIM; N++)
-            {
-                for(unsigned P=0; P<DIM; P++) 
-                {
-                    for(unsigned Q=0; Q<DIM; Q++)
-                    {
-                        this->dTdE(M,N,P,Q) = 0;
-                        for(unsigned al=0; al<DIM; al++) 
-                        {
-                            for(unsigned be=0; be<DIM; be++)
-                            {
-                                for(unsigned gam=0; gam<DIM; gam++)
-                                {
-                                    for(unsigned de=0; de<DIM; de++)
-                                    {
-                                        this->dTdE(M,N,P,Q) +=            mDTdE_fibre (al,be,gam,de)
-                                                                *      mFibreSheetMat [M][al]
-                                                                * mTransFibreSheetMat [be][N]
-                                                                * mTransFibreSheetMat [gam][P]
-                                                                *      mFibreSheetMat [Q][de];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }            
+//        // transform dTdE back to real coords (ie dT_{albe}dE_{gam de} to dT_{MN}dE_{PQ})
+/////\todo: make efficient
+/////\todo: introduce FourthOrderTensor
+//        for(unsigned M=0; M<DIM; M++) 
+//        {
+//            for(unsigned N=0; N<DIM; N++)
+//            {
+//                for(unsigned P=0; P<DIM; P++) 
+//                {
+//                    for(unsigned Q=0; Q<DIM; Q++)
+//                    {
+//                        this->dTdE(M,N,P,Q) = 0;
+//                        for(unsigned al=0; al<DIM; al++) 
+//                        {
+//                            for(unsigned be=0; be<DIM; be++)
+//                            {
+//                                for(unsigned gam=0; gam<DIM; gam++)
+//                                {
+//                                    for(unsigned de=0; de<DIM; de++)
+//                                    {
+//                                        this->dTdE(M,N,P,Q) +=            mDTdE_fibre (al,be,gam,de)
+//                                                                *      mFibreSheetMat [M][al]
+//                                                                * mTransFibreSheetMat [be][N]
+//                                                                * mTransFibreSheetMat [gam][P]
+//                                                                *      mFibreSheetMat [Q][de];
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }            
+
+        static FourthOrderTensor<DIM> temp1;
+        static FourthOrderTensor<DIM> temp2;
+        static FourthOrderTensor<DIM> temp3;
+
+        temp1.SetAsProduct(mDTdE_fibre, mFibreSheetMat, 0);
+        temp2.SetAsProduct(temp1,       mFibreSheetMat, 1);
+        temp3.SetAsProduct(temp2,       mFibreSheetMat, 2);
+        
+        this->dTdE.SetAsProduct(temp3, mFibreSheetMat, 3);
+
         
         /********************************
          * end of cardiac specific code
@@ -336,7 +347,8 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                     for (unsigned Q=0; Q<DIM; Q++)
                                     {
                                         elementMatrix(i,j) +=   0.5
-                                                              * this->dTdE(M,N,P,Q)
+                                                             //* dTdE_real(M,N,P,Q)
+                                                             * this->dTdE(M,N,P,Q)
                                                               * (
                                                                   fe_values.shape_grad(j,q_point)[Q]
                                                                   * F[component_j][P]

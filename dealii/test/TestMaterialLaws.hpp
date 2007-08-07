@@ -624,6 +624,7 @@ public:
         TS_ASSERT_DELTA( T[0][0], t00, 1e-9 );
         TS_ASSERT_DELTA( T[1][0], t10, 1e-9 );
         TS_ASSERT_DELTA( T[0][1], t10, 1e-9 );
+        TS_ASSERT_DELTA( T[1][1], t11, 1e-9 );
         TS_ASSERT_DELTA( T[2][2], t22, 1e-9 );
         
         // test dTdE
