@@ -12,12 +12,12 @@
  *
  *  W = \Sum_{M,N=1..3} k_{MN} [ E_{MN} ]_+ / (a_{MN} - E_{MN})^b_{MN}
  * 
- *  Note the positive part operator in the denominator, so that
+ *  Note the positive part operator in the numerator, so that
  *  the term in W corresponding to M,N is zero if E_MN < 0. (This differs
  *  from the original pole-zero paper but seems to be what they meant..)
  * 
  *  Note that is the parameters k4,k5,k6,a4,a5,a6 etc are known, then
- *  k01=k01=0.5*k4 and similarly with k5,k6, but a01=a10=a4 etc.
+ *  k01=k10=0.5*k4 and similarly with k5,k6, but a01=a10=a4 etc.
  * 
  *  Not isotropic, so inherits directly from AbstractIncompressibleMaterialLaw
  */
