@@ -100,7 +100,13 @@ public:
 
 LogFile* LogFile::mpInstance = NULL;
 
-#define LOG(level, message) assert(level>0); if(level <= LogFile::Level()) { (*LogFile::Instance()) << message; }
+#ifndef NDEBUG
+    // define the log macro
+    #define LOG(level, message) assert(level>0); if(level <= LogFile::Level()) { (*LogFile::Instance()) << message; }
+#else
+    // do nothing
+    #define LOG(level, message) 
+#endif
 
 
 #endif /*LOGFILE_HPP_*/

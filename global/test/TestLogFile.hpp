@@ -104,6 +104,8 @@ public:
 
         OutputFileHandler handler("TestLogFile",false);
         std::string results_dir = handler.GetTestOutputDirectory();
+        
+        // this should fail if optimised.
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log4.txt  global/test/data/good_log4.txt").c_str()), 0);
 
         LogFile::Close();
