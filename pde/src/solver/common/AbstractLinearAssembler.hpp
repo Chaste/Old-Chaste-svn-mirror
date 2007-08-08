@@ -119,7 +119,6 @@ public:
      */
     virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
-        std::cout << "ALA::Solve" << std::endl;
         /// \todo move the asserts into PrepareForSolve()
         assert(this->mpMesh!=NULL);
         assert(this->mpBoundaryConditions!=NULL);

@@ -79,7 +79,7 @@ public:
     void SetMatrixIsConstant()
     {
         mMatrixIsConstant = true;
-        AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetMatrixIsConst();
+        this->SetMatrixIsConst();
     }
     
     /**
