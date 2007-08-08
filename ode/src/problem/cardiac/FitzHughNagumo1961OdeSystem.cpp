@@ -21,7 +21,8 @@ FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *p
     mVariableNames.push_back("w");
     mVariableUnits.push_back("");
     mInitialConditions.push_back(0.0);
-    Init();
+    
+    AbstractCardiacCell::Init();
 }
 
 
@@ -30,17 +31,6 @@ FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *p
  */
 FitzHughNagumo1961OdeSystem::~FitzHughNagumo1961OdeSystem(void)
 {
-    // Do nothing
-}
-
-
-void FitzHughNagumo1961OdeSystem::Init()
-{
-    AbstractCardiacCell::Init();
-    // Initialize model constants
-    mAlpha = -0.08; // Typical values between 0.10 and 0.15
-    mGamma = 3.00;
-    mEpsilon = 0.005;
 }
 
 /**

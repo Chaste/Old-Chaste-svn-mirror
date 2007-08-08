@@ -32,7 +32,7 @@ HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalO
     mVariableUnits.push_back("");
     mInitialConditions.push_back(0.05);
     
-    Init();
+    AbstractCardiacCell::Init();
 }
 
 /**
@@ -40,7 +40,6 @@ HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalO
  */
 HodgkinHuxleySquidAxon1952OriginalOdeSystem::~HodgkinHuxleySquidAxon1952OriginalOdeSystem(void)
 {
-    // Do nothing
 }
 
 /**
@@ -120,15 +119,6 @@ void HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDerivatives(double ti
     rDY[3] = sodium_channel_m_gate_m_prime;
 }
 
-void HodgkinHuxleySquidAxon1952OriginalOdeSystem::Init()
-{
-    AbstractCardiacCell::Init();
-    leakage_current_g_L = 0.3;   // mS/cm2
-    membrane_Cm = 1.0;   // 1 uF/cm2
-    membrane_E_R = -75.0;   // mV
-    potassium_channel_g_K = 36.0;   // mS/cm2
-    sodium_channel_g_Na = 120.0;   // mS/cm2
-}
 
 double HodgkinHuxleySquidAxon1952OriginalOdeSystem::GetIIonic()
 {

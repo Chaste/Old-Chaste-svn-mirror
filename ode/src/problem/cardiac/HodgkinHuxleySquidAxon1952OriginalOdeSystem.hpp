@@ -12,12 +12,18 @@
 class HodgkinHuxleySquidAxon1952OriginalOdeSystem : public AbstractCardiacCell
 {
 private:
-    // Constants for the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
-    double leakage_current_g_L;
-    double membrane_Cm;
-    double membrane_E_R;
-    double potassium_channel_g_K;
-    double sodium_channel_g_Na;
+    /* Paramters */
+
+    /*< mS/cm2 */
+    static const double leakage_current_g_L = 0.3;    
+    /*< uF/cm2 */
+    static const double membrane_Cm = 1.0;    
+    /*< mV */
+    static const double membrane_E_R = -75.0;   
+    /*< mS/cm2 */
+    static const double potassium_channel_g_K = 36.0;  
+    /*< mS/cm2 */
+    static const double sodium_channel_g_Na = 120.0;   
     
 public:
     // Constructor
@@ -27,9 +33,7 @@ public:
                                                 AbstractStimulusFunction *pExtracellularStimulus=NULL);
     // Destructor
     ~HodgkinHuxleySquidAxon1952OriginalOdeSystem();
-    
-    void Init();
-    
+        
     // This method will compute the RHS of the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY);
     double GetIIonic();

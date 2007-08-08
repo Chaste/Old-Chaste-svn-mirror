@@ -13,10 +13,12 @@ LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSo
                                                        AbstractStimulusFunction *pExtracellularStimulus)
         : AbstractCardiacCell(pSolver, 8, 4, dt, pIntracellularStimulus, pExtracellularStimulus)
 {
-    /*
-     * State variables
-     */
+    // set the final paramter
+    fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) *
+                               log(ionic_concentrations_Nao / ionic_concentrations_Nai);
     
+
+    // State variables
     mVariableNames.push_back("h");
     mVariableUnits.push_back("");
     mInitialConditions.push_back(0.9804713);
@@ -49,42 +51,14 @@ LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSo
     mVariableUnits.push_back("");
     mInitialConditions.push_back(0.16647703);
     
-    Init();
+    AbstractCardiacCell::Init();
 }
 
 /**
  * Destructor
  */
 LuoRudyIModel1991OdeSystem::~LuoRudyIModel1991OdeSystem(void)
-{
-    // Do nothing
-}
-
-void LuoRudyIModel1991OdeSystem::Init()
-{
-    AbstractCardiacCell::Init();
-    /*
-     * Constants for the LuoRudyIModel1991OdeSystem model
-     */
-    membrane_C = 1.0;
-    membrane_F = 96484.6;
-    membrane_R = 8314;
-    membrane_T = 310.0;
-    
-    background_current_E_b = -59.87;
-    background_current_g_b = 0.03921;
-    
-    fast_sodium_current_g_Na = 23.0;
-    ionic_concentrations_Ki = 145.0;
-    ionic_concentrations_Ko = 5.4;
-    ionic_concentrations_Nai = 18.0;
-    ionic_concentrations_Nao = 140.0;
-    
-    fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) *
-                               log(ionic_concentrations_Nao / ionic_concentrations_Nai);
-                               
-    plateau_potassium_current_g_Kp = 0.0183;
-    time_dependent_potassium_current_PR_NaK = 0.01833;
+{    
 }
 
 /**
@@ -113,7 +87,7 @@ void LuoRudyIModel1991OdeSystem::EvaluateYDerivatives(double time,
      * Compute the LuoRudyIModel1991OdeSystem model
      */
 //#ifndef NDEBUG
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     if (!(0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0))
     {
         EXCEPTION(DumpState("h gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize"));
@@ -143,7 +117,7 @@ void LuoRudyIModel1991OdeSystem::EvaluateYDerivatives(double time,
     {
         EXCEPTION(DumpState("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
 //#endif
     
     
@@ -222,9 +196,9 @@ void LuoRudyIModel1991OdeSystem::EvaluateYDerivatives(double time,
     }
     else
     {
-#define COVERAGE_IGNORE
+        #define COVERAGE_IGNORE
         time_dependent_potassium_current_Xi_gate_Xi = 1.0;
-#undef COVERAGE_IGNORE
+        #undef COVERAGE_IGNORE
     }
     
     double time_dependent_potassium_current_X_gate_alpha_X = 0.0005*exp(0.083*(membrane_V+50.0))/(1.0+exp(0.057*(membrane_V+50.0)));

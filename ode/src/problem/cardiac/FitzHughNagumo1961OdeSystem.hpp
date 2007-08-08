@@ -11,11 +11,13 @@
 class FitzHughNagumo1961OdeSystem : public AbstractCardiacCell
 {
 private:
-    // Constants for the FitzHugh-Nagumo model
-    double mAlpha;
-    double mGamma;
-    double mEpsilon;
-    
+    /** 
+     *  Constants for the FitzHugh-Nagumo model
+     */
+    static const double mAlpha = -0.08; 
+    static const double mGamma = 3.00;
+    static const double mEpsilon = 0.005;    
+
 public:
     // Constructor
     FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *pOdeSolver,
@@ -25,8 +27,6 @@ public:
                                 
     // Destructor
     ~FitzHughNagumo1961OdeSystem();
-    
-    void Init();
     
     // Compute the RHS of the FitHugh-Nagumo system of ODEs
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY);

@@ -298,20 +298,21 @@ public:
         // Units: micromolar; Initial value: 0.0472
         double var_calcium_dynamics__Ca_SR = rY[12];
         // Units: micromolar; Initial value: 320
-//#ifndef NDEBUG
-#define COVERAGE_IGNORE
-   
-    //Iterate over gating variables
-    for (unsigned index=1; index<=10; index++)
-    {
-        if (!(0.0<=rY[index] && rY[index]<=1.0))
+
+        //#ifndef NDEBUG
+        #define COVERAGE_IGNORE
+        //Iterate over gating variables
+        for (unsigned index=1; index<=10; index++)
         {
-            EXCEPTION(DumpState(mVariableNames[index] + 
-                      " gate has gone out of range. Check model parameters, for example spatial stepsize"));
+            if (!(0.0<=rY[index] && rY[index]<=1.0))
+            {
+                EXCEPTION(DumpState(mVariableNames[index] + 
+                          " gate has gone out of range. Check model parameters, for example spatial stepsize"));
+            }
         }
-    }
-#undef COVERAGE_IGNORE
-//#endif //NDEBUG        
+        #undef COVERAGE_IGNORE
+        //#endif //NDEBUG        
+
         // Mathematics
         const double var_membrane__R = 8.314;
         const double var_membrane__T = 310.0;
@@ -523,12 +524,12 @@ public:
         const double var_calcium_dynamics__V_SR = 2e-06;
         double var_calcium_dynamics__beta_SR = 1.0 / (1.0 + ((var_calcium_dynamics__CSQN_tot * var_calcium_dynamics__K_mCSQN) / pow(var_calcium_dynamics__K_mCSQN + var_calcium_dynamics__Ca_SR, 2.0)));
         double d_dt_membrane__V = -(var_membrane__i_Na + var_membrane__i_Ca + var_membrane__i_CaK + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_to + var_membrane__i_K1 + var_membrane__i_Kp + var_membrane__i_NaCa + var_membrane__i_NaK + var_membrane__i_p_Ca + var_membrane__i_Na_b + var_membrane__i_Ca_b + var_membrane__i_Stim);
-       // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
+       
+        // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
         if (mSetVoltageDerivativeToZero)
         {
             d_dt_membrane__V = 0;
         }
-
 
         double d_dt_fast_sodium_current_m_gate__m = (var_fast_sodium_current_m_gate__alpha_m * (1.0 - var_fast_sodium_current_m_gate__m)) - (var_fast_sodium_current_m_gate__beta_m * var_fast_sodium_current_m_gate__m);
         double d_dt_fast_sodium_current_h_gate__h = (var_fast_sodium_current_h_gate__alpha_h * (1.0 - var_fast_sodium_current_h_gate__h)) - (var_fast_sodium_current_h_gate__beta_h * var_fast_sodium_current_h_gate__h);
@@ -542,7 +543,6 @@ public:
         double d_dt_L_type_Ca_current_f_Ca_gate__f_Ca = (var_L_type_Ca_current_f_Ca_gate__f_Ca_infinity - var_L_type_Ca_current_f_Ca_gate__f_Ca) / var_L_type_Ca_current_f_Ca_gate__tau_f_Ca;
         double d_dt_calcium_dynamics__Ca_SR = (var_calcium_dynamics__beta_SR * ((var_calcium_dynamics__J_up - var_calcium_dynamics__J_leak) - var_calcium_dynamics__J_rel) * var_calcium_dynamics__V_myo) / var_calcium_dynamics__V_SR;
         double d_dt_calcium_dynamics__Ca_i = var_calcium_dynamics__beta_i * (((var_calcium_dynamics__J_rel + var_calcium_dynamics__J_leak) - var_calcium_dynamics__J_up) - (((var_calcium_dynamics__A_Cap * var_calcium_dynamics__C_sc) / (2.0 * var_calcium_dynamics__F * var_calcium_dynamics__V_myo)) * ((var_calcium_dynamics__i_Ca + var_calcium_dynamics__i_Ca_b + var_calcium_dynamics__i_p_Ca) - (2.0 * var_calcium_dynamics__i_NaCa))));
-        
 
         rDY[0] = d_dt_membrane__V;
         rDY[1] = d_dt_fast_sodium_current_m_gate__m;
@@ -558,7 +558,6 @@ public:
         rDY[11] = d_dt_calcium_dynamics__Ca_i;
         rDY[12] = d_dt_calcium_dynamics__Ca_SR;
     }
-
 };
 
 #endif

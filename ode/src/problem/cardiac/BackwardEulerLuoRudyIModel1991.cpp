@@ -17,90 +17,21 @@ BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
         : AbstractBackwardEulerCardiacCell<1>(8, 4, dt, pIntracellularStimulus,
                                               pExtracellularStimulus)
 {
-    /*
-     * State variables
-     */
-    
-    mVariableNames.push_back("h");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.9804713);
-    
-    mVariableNames.push_back("j");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.98767124);
-    
-    mVariableNames.push_back("m");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.00187018);
-    
-    mVariableNames.push_back("CaI");
-    mVariableUnits.push_back("mMol");
-    mInitialConditions.push_back(0.0002);
-    
-    mVariableNames.push_back("V");
-    mVariableUnits.push_back("mV");
-    mInitialConditions.push_back(-83.853);
-    
-    mVariableNames.push_back("d");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.00316354);
-    
-    mVariableNames.push_back("f");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.99427859);
-    
-    mVariableNames.push_back("x");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.16647703);
-    
     Init();
 }
+
+
 /**
  * Constructor with the same signature as the forward cell models
  */
-    BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(AbstractIvpOdeSolver *pSolver,
-                                             double dt,
-                                             AbstractStimulusFunction *pIntracellularStimulus,
-                                             AbstractStimulusFunction *pExtracellularStimulus)
+BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
+   AbstractIvpOdeSolver *pSolver,
+   double dt,
+   AbstractStimulusFunction *pIntracellularStimulus,
+   AbstractStimulusFunction *pExtracellularStimulus)
         : AbstractBackwardEulerCardiacCell<1>(8, 4, dt, pIntracellularStimulus,
                                               pExtracellularStimulus)
 {
-    /*
-     * State variables
-     */
-    
-    mVariableNames.push_back("h");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.9804713);
-    
-    mVariableNames.push_back("j");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.98767124);
-    
-    mVariableNames.push_back("m");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.00187018);
-    
-    mVariableNames.push_back("CaI");
-    mVariableUnits.push_back("mMol");
-    mInitialConditions.push_back(0.0002);
-    
-    mVariableNames.push_back("V");
-    mVariableUnits.push_back("mV");
-    mInitialConditions.push_back(-83.853);
-    
-    mVariableNames.push_back("d");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.00316354);
-    
-    mVariableNames.push_back("f");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.99427859);
-    
-    mVariableNames.push_back("x");
-    mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.16647703);
-    
     Init();
 }
 
@@ -110,34 +41,49 @@ BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
  */
 BackwardEulerLuoRudyIModel1991::~BackwardEulerLuoRudyIModel1991(void)
 {
-    // Do nothing
 }
+
 
 void BackwardEulerLuoRudyIModel1991::Init()
 {
-    AbstractCardiacCell::Init();
-    /*
-     * Constants for the LuoRudyIModel1991OdeSystem model
-     */
-    membrane_C = 1.0;
-    membrane_F = 96484.6;
-    membrane_R = 8314;
-    membrane_T = 310.0;
-    
-    background_current_E_b = -59.87;
-    background_current_g_b = 0.03921;
-    
-    fast_sodium_current_g_Na = 23.0;
-    ionic_concentrations_Ki = 145.0;
-    ionic_concentrations_Ko = 5.4;
-    ionic_concentrations_Nai = 18.0;
-    ionic_concentrations_Nao = 140.0;
-    
+    // set final parameter member variable
     fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) *
-                               log(ionic_concentrations_Nao / ionic_concentrations_Nai);
-                               
-    plateau_potassium_current_g_Kp = 0.0183;
-    time_dependent_potassium_current_PR_NaK = 0.01833;
+                                log(ionic_concentrations_Nao / ionic_concentrations_Nai);
+
+    // state variables
+    mVariableNames.push_back("h");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.9804713);
+    
+    mVariableNames.push_back("j");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.98767124);
+    
+    mVariableNames.push_back("m");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.00187018);
+    
+    mVariableNames.push_back("CaI");
+    mVariableUnits.push_back("mMol");
+    mInitialConditions.push_back(0.0002);
+    
+    mVariableNames.push_back("V");
+    mVariableUnits.push_back("mV");
+    mInitialConditions.push_back(-83.853);
+    
+    mVariableNames.push_back("d");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.00316354);
+    
+    mVariableNames.push_back("f");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.99427859);
+    
+    mVariableNames.push_back("x");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.16647703);
+
+    AbstractCardiacCell::Init();
 }
 
 
@@ -169,9 +115,9 @@ void BackwardEulerLuoRudyIModel1991::UpdateTransmembranePotential(double time)
     }
     else
     {
-#define COVERAGE_IGNORE
+        #define COVERAGE_IGNORE
         time_dependent_potassium_current_Xi_gate_Xi = 1.0;
-#undef COVERAGE_IGNORE
+        #undef COVERAGE_IGNORE
     }
     
     double time_dependent_potassium_current_E_K = ((membrane_R*membrane_T)/membrane_F)*log((ionic_concentrations_Ko+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nao)/(ionic_concentrations_Ki+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nai));
@@ -385,9 +331,9 @@ double BackwardEulerLuoRudyIModel1991::GetIIonic()
     }
     else
     {
-#define COVERAGE_IGNORE
+        #define COVERAGE_IGNORE
         time_dependent_potassium_current_Xi_gate_Xi = 1.0;
-#undef COVERAGE_IGNORE
+        #undef COVERAGE_IGNORE
     }
     double time_dependent_potassium_current_E_K = ((membrane_R*membrane_T)/membrane_F)*log((ionic_concentrations_Ko+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nao)/(ionic_concentrations_Ki+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nai));
     double time_dependent_potassium_current_i_K = time_dependent_potassium_current_g_K*time_dependent_potassium_current_X_gate_X*time_dependent_potassium_current_Xi_gate_Xi*(membrane_V-time_dependent_potassium_current_E_K);
@@ -420,7 +366,7 @@ void BackwardEulerLuoRudyIModel1991::VerifyGatingVariables()
     const double slow_inward_current_f_gate_f = rY[6];
     const double time_dependent_potassium_current_X_gate_X = rY[7];
     
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     if (!(0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0))
     {
         EXCEPTION("h gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize");
@@ -450,7 +396,7 @@ void BackwardEulerLuoRudyIModel1991::VerifyGatingVariables()
     {
         EXCEPTION("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize");
     }
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
 //#endif
 }
 
