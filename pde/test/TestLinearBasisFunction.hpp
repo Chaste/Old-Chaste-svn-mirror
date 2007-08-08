@@ -15,7 +15,7 @@ public:
 
     void TestLinearBasisFunction0d()
     {
-        Point<0> zero;
+        ChastePoint<0> zero;
         TS_ASSERT_DELTA(LinearBasisFunction<0>::ComputeBasisFunction(zero, 0), 1.0, 1e-12);
         
         c_vector<double, 1> basis_function_vector;
@@ -25,7 +25,7 @@ public:
         
         // check link with 0d quad rule works ok
         GaussianQuadratureRule<0>  quad_rule(1);
-        const Point<0>& quad_point = quad_rule.rGetQuadPoint(0);
+        const ChastePoint<0>& quad_point = quad_rule.rGetQuadPoint(0);
         
         c_vector<double, 1> basis_function_vector2;
         basis_function_vector2 = LinearBasisFunction<0>::ComputeBasisFunctions(quad_point);
@@ -35,10 +35,10 @@ public:
     
     void TestLinearBasisFunction1d()
     {
-        Point<1> zero(0);
-        Point<1> one(1);
+        ChastePoint<1> zero(0);
+        ChastePoint<1> one(1);
         
-        std::vector<Point<1>*> evaluation_points;
+        std::vector<ChastePoint<1>*> evaluation_points;
         evaluation_points.push_back(&zero);
         evaluation_points.push_back(&one);
         
@@ -54,11 +54,11 @@ public:
     
     void TestLinearBasisFunction2d()
     {
-        Point<2> zero(0,0);
-        Point<2> onezero(1,0);
-        Point<2> zeroone(0,1);
+        ChastePoint<2> zero(0,0);
+        ChastePoint<2> onezero(1,0);
+        ChastePoint<2> zeroone(0,1);
         
-        std::vector<Point<2>*> evaluation_points;
+        std::vector<ChastePoint<2>*> evaluation_points;
         evaluation_points.push_back(&zero);
         evaluation_points.push_back(&onezero);
         evaluation_points.push_back(&zeroone);
@@ -77,12 +77,12 @@ public:
     
     void TestLinearBasisFunction3d()
     {
-        Point<3> zero(0,0,0);
-        Point<3> zerozeroone(0,0,1);
-        Point<3> zeroonezero(0,1,0);
-        Point<3> onezerozero(1,0,0);
+        ChastePoint<3> zero(0,0,0);
+        ChastePoint<3> zerozeroone(0,0,1);
+        ChastePoint<3> zeroonezero(0,1,0);
+        ChastePoint<3> onezerozero(1,0,0);
         
-        std::vector<Point<3>*> evaluation_points;
+        std::vector<ChastePoint<3>*> evaluation_points;
         evaluation_points.push_back(&zero);
         evaluation_points.push_back(&onezerozero);
         evaluation_points.push_back(&zeroonezero);
@@ -104,7 +104,7 @@ public:
     void TestComputeTransformedBasisFunctionDerivatives( void )
     {
         // 1D
-        Point<1> one(1);
+        ChastePoint<1> one(1);
         
         c_matrix<double, 1, 1> inv_J;
         inv_J(0,0)=0.5;
@@ -116,7 +116,7 @@ public:
         TS_ASSERT_DELTA(transDeriv(0,1),  0.5, 1e-12);
         
         // 2D
-        Point<2> oneone(1,1);
+        ChastePoint<2> oneone(1,1);
         
         c_matrix<double, 2, 2> inv_J2 = 0.5 * identity_matrix<double>(2);
         
@@ -128,7 +128,7 @@ public:
         TS_ASSERT_DELTA(trans_deriv(0,2),    0, 1e-12);
         
         //3D
-        Point<3> oneoneone(1,1,1);
+        ChastePoint<3> oneoneone(1,1,1);
         
         c_matrix<double, 3, 3> inv_J3 = 0.5 * identity_matrix<double>(3);
         
@@ -152,7 +152,7 @@ public:
         Element<2,2> element(INDEX_IS_NOT_USED, nodes);
         
         const c_matrix<double, 2, 2> *inverseJacobian = element.GetInverseJacobian();
-        Point<2> evaluation_point(1,1);
+        ChastePoint<2> evaluation_point(1,1);
         c_matrix<double, 2, 3> trans_deriv =
             LinearBasisFunction<2>::ComputeTransformedBasisFunctionDerivatives(evaluation_point,
                                                                                *inverseJacobian);

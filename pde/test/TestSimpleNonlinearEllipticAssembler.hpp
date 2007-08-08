@@ -33,14 +33,14 @@
 /**
  * For use in TestSimpleNonlinearEllipticAssembler::Test2dOnUnitSquare.
  */
-double bc_x1_func(Point<2> p)
+double bc_x1_func(ChastePoint<2> p)
 {
     return 2*(2+p[1]*p[1]);
 }
 /**
  * For use in TestSimpleNonlinearEllipticAssembler::Test2dOnUnitSquare.
  */
-double bc_y1_func(Point<2> p)
+double bc_y1_func(ChastePoint<2> p)
 {
     return 2*(2+p[0]*p[0]);
 }
@@ -48,14 +48,14 @@ double bc_y1_func(Point<2> p)
 /**
  * For use in TestSimpleNonlinearEllipticAssembler::TestNasty2dEquationOnUnitSquare.
  */
-double bc_x1_func2(Point<2> p)
+double bc_x1_func2(ChastePoint<2> p)
 {
     return sin(2)*(sin(1)*sin(1)+1+p[1]*p[1]);
 }
 /**
  * For use in TestSimpleNonlinearEllipticAssembler::TestNasty2dEquationOnUnitSquare.
  */
-double bc_y1_func2(Point<2> p)
+double bc_y1_func2(ChastePoint<2> p)
 {
     return 2*(2+sin(p[0])*sin(p[0]));
 }
@@ -63,7 +63,7 @@ double bc_y1_func2(Point<2> p)
 /**
  * For use in TestSimpleNonlinearEllipticAssembler::TestWithHeatEquation2DAndNeumannBCs
  */
-double one_bc(Point<2> p)
+double one_bc(ChastePoint<2> p)
 {
     return p[1];
 }

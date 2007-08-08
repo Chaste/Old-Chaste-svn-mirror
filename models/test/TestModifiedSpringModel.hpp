@@ -195,7 +195,7 @@ private:
     {
         for(unsigned index = 0; index < mrMesh.GetNumNodes(); index++)
         {
-            Point<2> new_point(mrMesh.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+            ChastePoint<2> new_point(mrMesh.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
             mrMesh.SetNode(index, new_point, false);
         }
         

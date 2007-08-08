@@ -485,7 +485,7 @@ c_vector<double, 2> Cylindrical2dMesh::GetVectorFromAtoB(const c_vector<double, 
  * @param concreteMove is set to false if we want to skip the signed area tests
  *
  */
-void Cylindrical2dMesh::SetNode(unsigned index, Point<2> point, bool concreteMove)
+void Cylindrical2dMesh::SetNode(unsigned index, ChastePoint<2> point, bool concreteMove)
 {
     
     // Perform a periodic movement if necessary
@@ -556,7 +556,7 @@ unsigned Cylindrical2dMesh::AddNode(Node<2> *pNewNode)
     unsigned node_index = ConformingTetrahedralMesh<2,2>::AddNode(pNewNode);
     
     // If necessary move it to be back on the cylinder
-    Point<2> new_node_point = pNewNode->GetPoint();
+    ChastePoint<2> new_node_point = pNewNode->GetPoint();
     SetNode(node_index, new_node_point, false); 
     
     return node_index;

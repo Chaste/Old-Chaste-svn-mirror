@@ -861,7 +861,7 @@ public:
         
         // Move a node along the x-axis and calculate the force exerted on a neighbour
         c_vector<double,2> old_point = p_mesh->GetNode(59)->rGetLocation();
-        Point<2> new_point;
+        ChastePoint<2> new_point;
         new_point.rGetLocation()[0] = old_point[0]+0.5;
         new_point.rGetLocation()[1] = old_point[1];
   
@@ -889,7 +889,7 @@ public:
         c_vector<double,2> force_on_spring ; // between nodes 59 and 60
         
         // Find one of the elements that nodes 59 and 60 live on
-        Point<2> new_point2;
+        ChastePoint<2> new_point2;
         new_point2.rGetLocation()[0] = new_point[0] + 0.01;
         new_point2.rGetLocation()[1] = new_point[1] + 0.01 ;
         
@@ -910,7 +910,7 @@ public:
         ************************************************************************ 
         */
         
-        Point<2> point_of_node60 = p_mesh->GetNode(60)->rGetLocation();
+        ChastePoint<2> point_of_node60 = p_mesh->GetNode(60)->rGetLocation();
         
         simulator.SetDt(0.01);
         simulator.UpdateNodePositions(velocities_on_each_node);

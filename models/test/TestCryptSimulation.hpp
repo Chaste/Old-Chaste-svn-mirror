@@ -137,7 +137,7 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Point<1> shifted_point;
+        ChastePoint<1> shifted_point;
         shifted_point.rGetLocation()[0]=10.5;
         mesh.SetNode(10, shifted_point);
         
@@ -177,7 +177,7 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Point<1> shifted_point;
+        ChastePoint<1> shifted_point;
         shifted_point.rGetLocation()[0]=10.5;
         mesh.SetNode(10, shifted_point);
         

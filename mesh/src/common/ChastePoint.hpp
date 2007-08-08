@@ -1,5 +1,5 @@
-#ifndef _POINT_HPP_
-#define _POINT_HPP_
+#ifndef _CHASTEPOINT_HPP_
+#define _CHASTEPOINT_HPP_
 
 
 #include <boost/numeric/ublas/vector.hpp>
@@ -10,7 +10,7 @@ using namespace boost::numeric::ublas;
 
 
 template<unsigned DIM>
-class Point
+class ChastePoint
 {
 private:
     c_vector<double, DIM> mLocation;
@@ -27,7 +27,7 @@ public:
      * Use of this method together with ublas operations
      * is the perfered way to use this class.
      */
-    Point(double v1=0, double v2=0, double v3=0)
+    ChastePoint(double v1=0, double v2=0, double v3=0)
     {
         if (DIM>0)
         {
@@ -48,7 +48,7 @@ public:
      * This constructor takes a vector giving the coordinates of the point.
      * The length of the vector must be at least the dimension of the point.
      */
-    Point(std::vector<double> coords)
+    ChastePoint(std::vector<double> coords)
     {
         for (unsigned i=0; i<DIM; i++)
         {
@@ -56,7 +56,7 @@ public:
         }
     }
     
-    Point(c_vector<double, DIM> location)
+    ChastePoint(c_vector<double, DIM> location)
     {
         mLocation = location;
     }
@@ -80,7 +80,7 @@ public:
 };
 
 template<>
-class Point<0>
+class ChastePoint<0>
 {
 public:
 
@@ -88,8 +88,10 @@ public:
      * Create a zero-dimensional Point object.
      * There are 3 optional arguments, which should not be used.
      */
-    Point(double v1=0, double v2=0, double v3=0)
-    {}
+    ChastePoint(double v1=0, double v2=0, double v3=0)
+    {
+    }
+    
     double operator[] (unsigned i) const
     {
         EXCEPTION("Zero-dimensional point has no data");
@@ -97,4 +99,4 @@ public:
 };
 
 
-#endif //_POINT_HPP_
+#endif //_CHASTEPOINT_HPP_

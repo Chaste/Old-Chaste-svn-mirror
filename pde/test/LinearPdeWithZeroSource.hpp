@@ -11,17 +11,17 @@ template <int SPACE_DIM>
 class LinearPdeWithZeroSource:public AbstractLinearEllipticPde<SPACE_DIM>
 {
 public:
-    double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
+    double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> x)
     {
         return 0.0;
     }
     
-    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
+    double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> x, double u)
     {
         return 0.0;
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> x)
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> x)
     {
         return identity_matrix<double>(SPACE_DIM);
     }

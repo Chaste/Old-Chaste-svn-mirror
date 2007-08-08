@@ -228,7 +228,7 @@ void RefinedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetFineMesh(ConformingTetra
         bool coarse_elements_found=false;
         for (unsigned node_local_index = 0; node_local_index <= ELEMENT_DIM; node_local_index++)
         {
-            Point<SPACE_DIM> vertex = (*i_fine_element)->GetNode(node_local_index)->GetPoint();
+            ChastePoint<SPACE_DIM> vertex = (*i_fine_element)->GetNode(node_local_index)->GetPoint();
             try
             {
                 unsigned coarse_element_index = this->GetContainingElementIndex(vertex, true);
@@ -243,7 +243,7 @@ void RefinedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetFineMesh(ConformingTetra
         if (!coarse_elements_found)
         {
             // fine element must coincide with coarse element
-            Point<SPACE_DIM> centroid = Point<SPACE_DIM>((*i_fine_element)->CalculateCentroid());
+            ChastePoint<SPACE_DIM> centroid = ChastePoint<SPACE_DIM>((*i_fine_element)->CalculateCentroid());
             try
             {
                 unsigned coarse_element_index = this->GetContainingElementIndex(centroid, true);

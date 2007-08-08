@@ -2,7 +2,7 @@
 #define _NODE_HPP_
 
 //#include "ConformingTetrahedralMesh.hpp"
-#include "Point.hpp"
+#include "ChastePoint.hpp"
 #include <set>
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -40,7 +40,7 @@ public:
     {
     }
 
-    Node(unsigned index, Point<SPACE_DIM> point, bool isBoundaryNode=false)
+    Node(unsigned index, ChastePoint<SPACE_DIM> point, bool isBoundaryNode=false)
     {
         mLocation = point.rGetLocation();
         CommonConstructor(index, isBoundaryNode);
@@ -79,7 +79,7 @@ public:
      * Note setting the point in space is dangerous
      * Jacobian and JacobianDeterminant of element need to be updated
      */
-    void SetPoint(Point<SPACE_DIM> point)
+    void SetPoint(ChastePoint<SPACE_DIM> point)
     {
         mLocation = point.rGetLocation();
     }
@@ -97,9 +97,9 @@ public:
         mIsBoundaryNode = value;
     }
     
-    Point<SPACE_DIM> GetPoint() const
+    ChastePoint<SPACE_DIM> GetPoint() const
     {
-        return Point<SPACE_DIM>(mLocation);
+        return ChastePoint<SPACE_DIM>(mLocation);
     }
     
     /**

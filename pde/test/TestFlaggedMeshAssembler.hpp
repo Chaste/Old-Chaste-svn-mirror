@@ -241,7 +241,7 @@ public :
              i_coarse_element++)
         {
             Element<2,2> &element = **i_coarse_element;
-            Point<2> centroid = Point<2>(element.CalculateCentroid());
+            ChastePoint<2> centroid = ChastePoint<2>(element.CalculateCentroid());
             if (centroid[0] > 0)
             {
                 element.Flag();

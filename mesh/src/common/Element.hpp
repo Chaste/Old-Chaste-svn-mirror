@@ -176,7 +176,7 @@ public:
     }
     
     
-    c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(Point<SPACE_DIM> testPoint)
+    c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(ChastePoint<SPACE_DIM> testPoint)
     {
         //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
         assert (ELEMENT_DIM == SPACE_DIM);
@@ -196,7 +196,7 @@ public:
     }
     
     
-    c_vector<double, SPACE_DIM> CalculatePsi(Point<SPACE_DIM> testPoint)
+    c_vector<double, SPACE_DIM> CalculatePsi(ChastePoint<SPACE_DIM> testPoint)
     {
         //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
         assert (ELEMENT_DIM == SPACE_DIM);
@@ -208,7 +208,7 @@ public:
         return prod(this->mInverseJacobian, test_location);
     }
     
-    bool IncludesPoint(Point<SPACE_DIM> testPoint, bool strict=false)
+    bool IncludesPoint(ChastePoint<SPACE_DIM> testPoint, bool strict=false)
     {
         //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
         assert (ELEMENT_DIM == SPACE_DIM);

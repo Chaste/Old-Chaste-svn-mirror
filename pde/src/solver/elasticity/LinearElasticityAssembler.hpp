@@ -46,7 +46,7 @@ private :
     virtual c_matrix<double,DIM*(DIM+1),DIM*(DIM+1)> ComputeMatrixTerm(
         c_vector<double, DIM+1> &rPhi,
         c_matrix<double, DIM, DIM+1> &rGradPhi,
-        Point<DIM> &rX,
+        ChastePoint<DIM> &rX,
         c_vector<double,DIM> &u,
         c_matrix<double,DIM,DIM> &rGradU)
     {
@@ -77,7 +77,7 @@ private :
     virtual c_vector<double,DIM*(DIM+1)> ComputeVectorTerm(
         c_vector<double, DIM+1> &rPhi,
         c_matrix<double, DIM, DIM+1> &rGradPhi,
-        Point<DIM> &rX,
+        ChastePoint<DIM> &rX,
         c_vector<double,DIM> &u,
         c_matrix<double,DIM,DIM> &rGradU)
     {
@@ -95,7 +95,7 @@ private :
     virtual c_vector<double, DIM*DIM> ComputeVectorSurfaceTerm(
         const BoundaryElement<DIM-1,DIM> &rSurfaceElement,
         c_vector<double, DIM> &rPhi,
-        Point<DIM> &rX )
+        ChastePoint<DIM> &rX )
     {
         c_vector<double,DIM*DIM> ret;
         for (unsigned I=0; I<DIM; I++) // DIM = number of nodes, in this context (as element is a surface element)

@@ -156,7 +156,7 @@ public:
             double x_new = mesh.GetNode(i)->GetPoint()[0] + result_repl[2*i];
             double y_new = mesh.GetNode(i)->GetPoint()[1] + result_repl[2*i+1];
             
-            Point<2> new_point(x_new, y_new);
+            ChastePoint<2> new_point(x_new, y_new);
             deformed_mesh.SetNode(i, new_point, false);
         }
         
@@ -248,7 +248,7 @@ public:
             double y_new = mesh.GetNode(i)->GetPoint()[1] + result_repl[3*i+1];
             double z_new = mesh.GetNode(i)->GetPoint()[2] + result_repl[3*i+2];
             
-            Point<3> new_point(x_new, y_new, z_new);
+            ChastePoint<3> new_point(x_new, y_new, z_new);
             deformed_mesh.SetNode(i, new_point, false);
         }
         
@@ -357,7 +357,7 @@ public:
             double y_new = mesh.GetNode(i)->GetPoint()[1] + result_repl[3*i+1];
             double z_new = mesh.GetNode(i)->GetPoint()[2] + result_repl[3*i+2];
             
-            Point<3> new_point(x_new, y_new, z_new);
+            ChastePoint<3> new_point(x_new, y_new, z_new);
             deformed_mesh.SetNode(i, new_point, false);
         }
         

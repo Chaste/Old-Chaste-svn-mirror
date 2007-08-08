@@ -246,7 +246,7 @@ void CryptSimulation::Solve()
             if (!mrMesh.GetNode(index)->IsDeleted())
             {
                 c_vector<double, 1> node_loc = mrMesh.GetNode(index)->rGetLocation();
-                Point<1> new_point;
+                ChastePoint<1> new_point;
                 new_point.rGetLocation()[0] = node_loc[0] + mDt*drdt[index]; // new_point_position[index];
                 mrMesh.SetNode(index, new_point, false);
             }
@@ -368,7 +368,7 @@ unsigned CryptSimulation::AddNodeToElement(Element<1,1>* pElement, double time)
         displacement = 0.2 + (mpGen->ranf())*(element_length-0.4);
         
     }
-    Point<1> new_point(left_position + displacement);
+    ChastePoint<1> new_point(left_position + displacement);
     
     return mrMesh.RefineElement(pElement, new_point);
 }

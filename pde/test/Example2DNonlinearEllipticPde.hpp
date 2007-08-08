@@ -11,28 +11,28 @@ class Example2DNonlinearEllipticPde:public AbstractNonlinearEllipticPde<2>
 {
 
 public:
-    double ComputeLinearSourceTerm(Point<2> p)
+    double ComputeLinearSourceTerm(ChastePoint<2> p)
     {
         double x = p[0], y = p[1];
         return -( 4 + 8*x*x + 8*y*y );
     }
     
-    double ComputeNonlinearSourceTerm(Point<2> , double )
+    double ComputeNonlinearSourceTerm(ChastePoint<2> , double )
     {
         return 0.0;
     }
     
-    c_matrix<double, 2, 2> ComputeDiffusionTerm(Point<2> , double u)
+    c_matrix<double, 2, 2> ComputeDiffusionTerm(ChastePoint<2> , double u)
     {
         return identity_matrix<double>(2)*u;
     }
     
-    c_matrix<double, 2, 2> ComputeDiffusionTermPrime(Point<2> , double )
+    c_matrix<double, 2, 2> ComputeDiffusionTermPrime(ChastePoint<2> , double )
     {
         return identity_matrix<double>(2);
     }
     
-    double ComputeNonlinearSourceTermPrime(Point<2> , double )
+    double ComputeNonlinearSourceTermPrime(ChastePoint<2> , double )
     {
         return 0.0;
     }

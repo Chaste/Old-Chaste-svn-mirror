@@ -28,7 +28,7 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             Node<3> *p_node=mesh.GetNode(i);
-            Point<3> point=p_node->GetPoint();
+            ChastePoint<3> point=p_node->GetPoint();
             point.SetCoordinate(0,point[0]*2.0);
             point.SetCoordinate(1,point[1]*2.0);
             point.SetCoordinate(2,point[2]*2.0);
@@ -52,9 +52,9 @@ public:
         double volume = mesh.CalculateMeshVolume();
         double surface_area = mesh.CalculateMeshSurface();
         Node<3> *p_node1 = mesh.GetNode(36);
-        Point<3> point1=p_node1->GetPoint();
+        ChastePoint<3> point1=p_node1->GetPoint();
         Node<3> *p_node2 = mesh.GetNode(23);
-        Point<3> point2=p_node2->GetPoint();
+        ChastePoint<3> point2=p_node2->GetPoint();
         
         c_vector<double, 3> old_location1 = point1.rGetLocation();
         c_vector<double, 3> old_location2 = point2.rGetLocation();
@@ -89,9 +89,9 @@ public:
         double volume = mesh.CalculateMeshVolume();
         double surface_area = mesh.CalculateMeshSurface();
         Node<2> *p_node1 = mesh.GetNode(36);
-        Point<2> point1=p_node1->GetPoint();
+        ChastePoint<2> point1=p_node1->GetPoint();
         Node<2> *p_node2 = mesh.GetNode(23);
-        Point<2> point2=p_node2->GetPoint();
+        ChastePoint<2> point2=p_node2->GetPoint();
         
         c_vector<double, 2> old_location1 = point1.rGetLocation();
         c_vector<double, 2> old_location2 = point2.rGetLocation();
@@ -123,14 +123,14 @@ public:
         
         // Pick a random node and store spatial position
         Node<3> *node = mesh.GetNode(10);
-        Point<3> original_coordinate = node->GetPoint();
+        ChastePoint<3> original_coordinate = node->GetPoint();
         
         double mesh_volume = mesh.CalculateMeshVolume();
         
         const double x_movement = 1.0, y_movement = 2.5, z_movement = -3.75;
         mesh.Translate(x_movement,y_movement,z_movement);
         
-        Point<3>  new_coordinate = node->GetPoint() ;
+        ChastePoint<3>  new_coordinate = node->GetPoint() ;
         double new_mesh_volume = mesh.CalculateMeshVolume();
         
         TS_ASSERT_DELTA(mesh_volume,new_mesh_volume,1e-6);
@@ -165,11 +165,11 @@ public:
         
             // Find new coordinates of the translated node
             Node<3> * node = mesh.GetNode(i) ;
-            Point<3>  new_coordinate = node->GetPoint() ;
+            ChastePoint<3>  new_coordinate = node->GetPoint() ;
             
             // Get original node
             Node<3> * original_node = original_mesh.GetNode(i) ;
-            Point<3>  original_coordinate = original_node->GetPoint() ;
+            ChastePoint<3>  original_coordinate = original_node->GetPoint() ;
             
             // Run a test to make sure the node has gone to the correct place
             
@@ -208,7 +208,7 @@ public:
         
         
         
-        Point<3> corner_before=mesh.GetNode(6)->GetPoint();
+        ChastePoint<3> corner_before=mesh.GetNode(6)->GetPoint();
         TS_ASSERT_EQUALS(corner_before[0], 1.0);
         TS_ASSERT_EQUALS(corner_before[1], 1.0);
         TS_ASSERT_EQUALS(corner_before[2], 1.0);
@@ -216,7 +216,7 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             Node<3> *p_node=mesh.GetNode(i);
-            Point<3> point=p_node->GetPoint();
+            ChastePoint<3> point=p_node->GetPoint();
             
             c_vector<double, 4> point_location;
             
@@ -236,7 +236,7 @@ public:
             
             
         }
-        Point<3> corner_after=mesh.GetNode(6)->GetPoint();
+        ChastePoint<3> corner_after=mesh.GetNode(6)->GetPoint();
         TS_ASSERT_EQUALS(corner_after[0], 1.0);
         TS_ASSERT_EQUALS(corner_after[1], 1.0);
         TS_ASSERT_DELTA(corner_after[2], -1.0, 1e-7);
@@ -255,7 +255,7 @@ public:
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Point<3> corner_before=mesh.GetNode(6)->GetPoint();
+        ChastePoint<3> corner_before=mesh.GetNode(6)->GetPoint();
         TS_ASSERT_EQUALS(corner_before[0], 1.0);
         TS_ASSERT_EQUALS(corner_before[1], 1.0);
         TS_ASSERT_EQUALS(corner_before[2], 1.0);
@@ -267,7 +267,7 @@ public:
         double new_mesh_volume = mesh.CalculateMeshVolume();
         TS_ASSERT_DELTA(mesh_volume,new_mesh_volume,1e-6);
         
-        Point<3> corner_after=mesh.GetNode(6)->GetPoint();
+        ChastePoint<3> corner_after=mesh.GetNode(6)->GetPoint();
         TS_ASSERT_DELTA(corner_after[0],  1.0, 1e-7);
         TS_ASSERT_DELTA(corner_after[1],  1.0, 1e-7);
         TS_ASSERT_DELTA(corner_after[2], -1.0, 1e-7);
@@ -285,7 +285,7 @@ public:
         double new_mesh_volume = mesh.CalculateMeshVolume();
         TS_ASSERT_DELTA(mesh_volume,new_mesh_volume,1e-6);
         
-        Point<3> corner_after=mesh.GetNode(6)->GetPoint();
+        ChastePoint<3> corner_after=mesh.GetNode(6)->GetPoint();
         TS_ASSERT_DELTA(corner_after[0],  -1.0, 1e-7);
         TS_ASSERT_DELTA(corner_after[1],  1.0, 1e-7);
         TS_ASSERT_DELTA(corner_after[2],  1.0, 1e-7);
@@ -303,7 +303,7 @@ public:
         double new_mesh_volume = mesh.CalculateMeshVolume();
         TS_ASSERT_DELTA(mesh_volume,new_mesh_volume,1e-6);
         
-        Point<3> corner_after=mesh.GetNode(6)->GetPoint();
+        ChastePoint<3> corner_after=mesh.GetNode(6)->GetPoint();
         TS_ASSERT_DELTA(corner_after[0],  1.0, 1e-7);
         TS_ASSERT_DELTA(corner_after[1], -1.0, 1e-7);
         TS_ASSERT_DELTA(corner_after[2],  1.0, 1e-7);
@@ -362,7 +362,7 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             Node<3> *p_node=mesh.GetNode(i);
-            Point<3> point=p_node->GetPoint();
+            ChastePoint<3> point=p_node->GetPoint();
             
             c_vector<double, 4> point_location;
             
@@ -387,7 +387,7 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),1.0,1e-6);
         TS_ASSERT_DELTA(mesh.CalculateMeshSurface(),6.0,1e-6);
         
-        Point<3> corner_after=mesh.GetNode(6)->GetPoint();
+        ChastePoint<3> corner_after=mesh.GetNode(6)->GetPoint();
         TS_ASSERT_DELTA(corner_after[0],  3.59782,  5e-5);
         TS_ASSERT_DELTA(corner_after[1],  0.583418, 5e-5);
         TS_ASSERT_DELTA(corner_after[2],  4.65889,  5e-5);
@@ -418,7 +418,7 @@ public:
         double new_mesh_volume = mesh.CalculateMeshVolume();
         TS_ASSERT_DELTA(mesh_volume,new_mesh_volume,1e-6);
         
-        Point<3> corner_after=mesh.GetNode(6)->GetPoint();
+        ChastePoint<3> corner_after=mesh.GetNode(6)->GetPoint();
         TS_ASSERT_DELTA(corner_after[0],  3.59782,  5e-5);
         TS_ASSERT_DELTA(corner_after[1],  0.583418, 5e-5);
         TS_ASSERT_DELTA(corner_after[2],  4.65889,  5e-5);
@@ -450,11 +450,11 @@ public:
         {
         
             Node<3> * node = mesh.GetNode(i) ;
-            Point<3>  new_coordinate = node->GetPoint() ;
+            ChastePoint<3>  new_coordinate = node->GetPoint() ;
             
             // Get original node
             Node<3> * original_node = original_mesh.GetNode(i) ;
-            Point<3>  original_coordinate = original_node->GetPoint() ;
+            ChastePoint<3>  original_coordinate = original_node->GetPoint() ;
             
             // Run a test to make sure the node has gone to the correct place
             
@@ -491,11 +491,11 @@ public:
         
             // Find new coordinates of the translated node
             Node<2> * node = mesh.GetNode(i) ;
-            Point<2>  new_coordinate = node->GetPoint() ;
+            ChastePoint<2>  new_coordinate = node->GetPoint() ;
             
             // Get original node
             Node<2> * original_node = original_mesh.GetNode(i) ;
-            Point<2>  original_coordinate = original_node->GetPoint() ;
+            ChastePoint<2>  original_coordinate = original_node->GetPoint() ;
             
             // Run a test to make sure the node has gone to the correct place
             
@@ -523,7 +523,7 @@ public:
         mesh.Scale(2.0, 3.0, 4.0);
         TS_ASSERT_DELTA(24.0*mesh_volume,mesh.CalculateMeshVolume(),1e-6);
         
-        Point<3> corner_after=mesh.GetNode(6)->GetPoint();
+        ChastePoint<3> corner_after=mesh.GetNode(6)->GetPoint();
         TS_ASSERT_DELTA(corner_after[0],  2.0, 1e-7);
         TS_ASSERT_DELTA(corner_after[1],  3.0, 1e-7);
         TS_ASSERT_DELTA(corner_after[2],  4.0, 1e-7);

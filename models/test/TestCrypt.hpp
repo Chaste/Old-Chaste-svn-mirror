@@ -207,7 +207,7 @@ public:
         c_vector<double,2> new_location = cell_iter.rGetLocation();
         new_location[0] += 1e-2;
         new_location[1] += 1e-2;
-        Point<2> new_location_point(new_location);
+        ChastePoint<2> new_location_point(new_location);
         crypt.MoveCell(cell_iter, new_location_point);
         
         TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[0], new_location[0], 1e-12);

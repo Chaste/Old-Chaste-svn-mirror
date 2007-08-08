@@ -105,7 +105,7 @@ public:
              i_coarse_element++)
         {
             Element<2,2> &element = **i_coarse_element;
-            Point<2> centroid = Point<2>(element.CalculateCentroid());
+            ChastePoint<2> centroid = ChastePoint<2>(element.CalculateCentroid());
             if (centroid[0] > 1.0)
             {
                 element.Flag();
@@ -127,7 +127,7 @@ public:
              i_fine_element++)
         {
             Element<2,2> &element = **i_fine_element;
-            Point<2> centroid = Point<2>(element.CalculateCentroid());
+            ChastePoint<2> centroid = ChastePoint<2>(element.CalculateCentroid());
             if (centroid[0] > 1.0)
             {
                 TS_ASSERT(element.IsFlagged());
@@ -202,7 +202,7 @@ public:
              i_coarse_element++)
         {
             Element<2,2> &element = **i_coarse_element;
-            Point<2> centroid = Point<2>(element.CalculateCentroid());
+            ChastePoint<2> centroid = ChastePoint<2>(element.CalculateCentroid());
             if (centroid[0] > 0)
             {
                 element.Flag();
@@ -308,7 +308,7 @@ public:
              i_coarse_element++)
         {
             Element<2,2> &element = **i_coarse_element;
-            Point<2> centroid = Point<2>(element.CalculateCentroid());
+            ChastePoint<2> centroid = ChastePoint<2>(element.CalculateCentroid());
             if (centroid[0] > 0.5)
             {
                 element.Flag();
@@ -422,7 +422,7 @@ public:
              i_coarse_element++)
         {
             Element<2,2> &element = **i_coarse_element;
-            Point<2> centroid = Point<2>(element.CalculateCentroid());
+            ChastePoint<2> centroid = ChastePoint<2>(element.CalculateCentroid());
             if (centroid[0] > 0.5)
             {
                 element.Flag();

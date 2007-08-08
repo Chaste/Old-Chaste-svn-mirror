@@ -2,7 +2,7 @@
 #define _ABSTRACTNONLINEARELLIPTICPDE_HPP_
 
 #include "UblasCustomFunctions.hpp"
-#include "Point.hpp"
+#include "ChastePoint.hpp"
 
 
 /**
@@ -19,18 +19,18 @@ class AbstractNonlinearEllipticPde
 {
 public:
 
-    virtual double ComputeLinearSourceTerm(Point<SPACE_DIM> x)=0;
+    virtual double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> x)=0;
     
-    virtual double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x,
+    virtual double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> x,
                                               double u)=0;
                                               
-    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> x,
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> x,
             double u)=0;
             
-    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(Point<SPACE_DIM> x,
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(ChastePoint<SPACE_DIM> x,
             double u)=0;
             
-    virtual double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> x,
+    virtual double ComputeNonlinearSourceTermPrime(ChastePoint<SPACE_DIM> x,
                                                    double u)=0;
     virtual ~AbstractNonlinearEllipticPde()
     {}

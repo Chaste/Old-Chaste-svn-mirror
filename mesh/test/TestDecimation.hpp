@@ -445,7 +445,7 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),1.0,1e-6);
-        mesh.RescaleMeshFromBoundaryNode(Point<1>(2.0*M_PI),100);
+        mesh.RescaleMeshFromBoundaryNode(ChastePoint<1>(2.0*M_PI),100);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),6.2831853,1e-6);
         
         //Make a payload

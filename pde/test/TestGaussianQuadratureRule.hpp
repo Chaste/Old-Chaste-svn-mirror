@@ -112,9 +112,9 @@ public :
                 
                 for (unsigned quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
                 {
-                    const Point<1>& quad_point = quad_rule.rGetQuadPoint(quad_index);
-                    const Point<1> transformed_quad_point =
-                        Point<1>((1-quad_point[0])*x1 + quad_point[0]*x2);
+                    const ChastePoint<1>& quad_point = quad_rule.rGetQuadPoint(quad_index);
+                    const ChastePoint<1> transformed_quad_point =
+                        ChastePoint<1>((1-quad_point[0])*x1 + quad_point[0]*x2);
                         
                     double integrand_value = pow(transformed_quad_point[0],poly_degree);
                     
@@ -163,7 +163,7 @@ public :
                          quad_index<quad_rule.GetNumQuadPoints();
                          quad_index++)
                     {
-                        const Point<2>& quad_point = quad_rule.rGetQuadPoint(quad_index);
+                        const ChastePoint<2>& quad_point = quad_rule.rGetQuadPoint(quad_index);
                         
                         integral += pow(quad_point[0], poly_degree_x)
                                     *pow(quad_point[1], poly_degree_y)
@@ -251,7 +251,7 @@ public :
                              quad_index<quad_rule.GetNumQuadPoints();
                              quad_index++)
                         {
-                            const Point<3>& quad_point = quad_rule.rGetQuadPoint(quad_index);
+                            const ChastePoint<3>& quad_point = quad_rule.rGetQuadPoint(quad_index);
                             
                             integral += pow(quad_point[0], poly_degree_x)
                                         *pow(quad_point[1], poly_degree_y)

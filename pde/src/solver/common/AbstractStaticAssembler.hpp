@@ -121,7 +121,7 @@ protected:
         // loop over Gauss points
         for (unsigned quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
         {
-            const Point<ELEMENT_DIM>& quad_point = quad_rule.rGetQuadPoint(quad_index);
+            const ChastePoint<ELEMENT_DIM>& quad_point = quad_rule.rGetQuadPoint(quad_index);
             
             c_vector<double, ELEMENT_DIM+1> phi = BasisFunction::ComputeBasisFunctions(quad_point);
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
@@ -134,7 +134,7 @@ protected:
             
             // Location of the gauss point in the original element will be stored in x
             // Where applicable, u will be set to the value of the current solution at x
-            Point<SPACE_DIM> x(0,0,0);
+            ChastePoint<SPACE_DIM> x(0,0,0);
             
             c_vector<double,PROBLEM_DIM> u = zero_vector<double>(PROBLEM_DIM);
             c_matrix<double,PROBLEM_DIM,SPACE_DIM> grad_u = zero_matrix<double>(PROBLEM_DIM,SPACE_DIM);
@@ -227,7 +227,7 @@ protected:
         // loop over Gauss points
         for (unsigned quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
         {
-            const Point<ELEMENT_DIM-1>& quad_point = quad_rule.rGetQuadPoint(quad_index);
+            const ChastePoint<ELEMENT_DIM-1>& quad_point = quad_rule.rGetQuadPoint(quad_index);
             
             c_vector<double, ELEMENT_DIM>  phi = SurfaceBasisFunction::ComputeBasisFunctions(quad_point);
             
@@ -238,7 +238,7 @@ protected:
             
             // Location of the gauss point in the original element will be
             // stored in x
-            Point<SPACE_DIM> x(0,0,0);
+            ChastePoint<SPACE_DIM> x(0,0,0);
             
             this->ResetInterpolatedQuantities();
             for (unsigned i=0; i<rSurfaceElement.GetNumNodes(); i++)

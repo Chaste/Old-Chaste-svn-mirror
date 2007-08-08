@@ -231,7 +231,7 @@ public:
      * @param iter  pointer to the cell to move
      * @param rNewLocation  where to move it to
      */
-    void MoveCell(Iterator iter, Point<DIM>& rNewLocation);
+    void MoveCell(Iterator iter, ChastePoint<DIM>& rNewLocation);
     
     /**
      * Add a new cell to the crypt.

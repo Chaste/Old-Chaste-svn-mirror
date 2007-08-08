@@ -136,7 +136,7 @@ public :
             MeinekeCryptCell& cell = *cell_iter;
             unsigned index = cell.GetNodeIndex();
             
-            Point<2> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+            ChastePoint<2> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
             
             if(mFixXNotY)
             { 
@@ -345,7 +345,7 @@ public :
             MeinekeCryptCell& cell = *cell_iter;
             unsigned index = cell.GetNodeIndex();
             
-            Point<2> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+            ChastePoint<2> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
             
             // all nodes must stay in y>0
             if(new_point.rGetLocation()[1] < 0)

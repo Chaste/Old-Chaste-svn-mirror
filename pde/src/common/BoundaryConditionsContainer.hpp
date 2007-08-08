@@ -341,7 +341,7 @@ public:
      * It is up to the user to ensure that the point x is contained in the surface element.
      */
     double GetNeumannBCValue(const BoundaryElement<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement,
-                             Point<SPACE_DIM> x,
+                             ChastePoint<SPACE_DIM> x,
                              unsigned indexOfUnknown = 0)
     {
         assert(indexOfUnknown < PROBLEM_DIM);

@@ -229,8 +229,8 @@ public:
     
     void TestNodeToElementConversion(void)
     {
-        Point<1> point1(1.0);
-        Point<2> point2(2.0,-1.0);
+        ChastePoint<1> point1(1.0);
+        ChastePoint<2> point2(2.0,-1.0);
         
         Node<1> node1(0, point1);
         Node<2> node2(0, point2);
@@ -246,9 +246,9 @@ public:
     
     void TestGetNodeLocation() throw(Exception)
     {
-        Point<2> point1(0.0,1.0);
-        Point<2> point2(4.0,6.0);
-        Point<2> point3(2.0,3.0);
+        ChastePoint<2> point1(0.0,1.0);
+        ChastePoint<2> point2(4.0,6.0);
+        ChastePoint<2> point3(2.0,3.0);
         
         std::vector<Node<2>*> element_nodes;
         element_nodes.push_back(new Node<2>(0, point1));
@@ -273,9 +273,9 @@ public:
     
     void TestElementSwapsNodesIfJacobianIsNegative()
     {
-        Point<1> a0(0),    a1(1);
-        Point<2> b0(0,0),  b1(1,0)  ,b2(0,1);
-        Point<3> c0(0,0,0),c1(1,0,0),c2(0,1,0),c3(0,0,1);
+        ChastePoint<1> a0(0),    a1(1);
+        ChastePoint<2> b0(0,0),  b1(1,0)  ,b2(0,1);
+        ChastePoint<3> c0(0,0,0),c1(1,0,0),c2(0,1,0),c3(0,0,1);
         
         Node<1>  na0(0,a0), na1(1,a1);
         Node<2>  nb0(0,b0), nb1(1,b1), nb2(2,b2);
@@ -622,7 +622,7 @@ public:
         
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Point<1> new_point(0.01);
+        ChastePoint<1> new_point(0.01);
         Element<1,1>* p_first_element=mesh.GetElement(0);
         
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_first_element,new_point));
@@ -673,7 +673,7 @@ public:
         
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Point<1> new_point(0.11);
+        ChastePoint<1> new_point(0.11);
         Element<1,1>* p_first_element=mesh.GetElement(0);
         
         // Trying to add Point(0.11) to Element(0)
@@ -690,7 +690,7 @@ public:
         
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Point<1> new_point(-0.1);
+        ChastePoint<1> new_point(-0.1);
         Element<1,1>* p_first_element=mesh.GetElement(0);
         
         // Trying to add Point(-0.1) to Element(0)
@@ -713,7 +713,7 @@ public:
         // but more than 10 should still work
         for (int i=1; i<=20; i++)
         {
-            Point<1> new_point(0.1 - i*0.0005);
+            ChastePoint<1> new_point(0.1 - i*0.0005);
             mesh.RefineElement(p_first_element,new_point);
         }
         
@@ -737,7 +737,7 @@ public:
         TS_ASSERT_DELTA(p_corner_element->GetJacobianDeterminant(),0.0001 , 1e-6);
         
         // Point to be inserted in the bottom right corner
-        Point<2> new_point(0.095,0.003);
+        ChastePoint<2> new_point(0.095,0.003);
         
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_corner_element,new_point));
         
@@ -755,7 +755,7 @@ public:
         TS_ASSERT_DELTA(p_middle_element->GetJacobianDeterminant(),0.0001 , 1e-6);
         
         // Point to be inserted in the middle of the mesh
-        Point<2> new_point1(0.045,0.053);
+        ChastePoint<2> new_point1(0.045,0.053);
         
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_middle_element,new_point1));
         
@@ -779,7 +779,7 @@ public:
         Element<2,2>* p_corner_element=mesh.GetElement(18);
         
         // Point to be inserted on the edge of the element
-        Point<2> new_point(0.095,0.005);
+        ChastePoint<2> new_point(0.095,0.005);
         
         //Shouldn't be able to insert this point at the edge of the element
         TS_ASSERT_THROWS_ANYTHING(mesh.RefineElement(p_corner_element,new_point));
@@ -804,7 +804,7 @@ public:
         TS_ASSERT_DELTA(p_corner_element->GetJacobianDeterminant(),0.03125 , 1e-6);
         
         // Point to be inserted in the top corner
-        Point<3> new_point(0.9,0.75,0.9);
+        ChastePoint<3> new_point(0.9,0.75,0.9);
         
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_corner_element,new_point));
         
@@ -823,7 +823,7 @@ public:
         TS_ASSERT_DELTA(p_middle_element->GetJacobianDeterminant(),0.0625 , 1e-6);
         
         // Point to be inserted near node 22 (middle of cube)
-        Point<3> new_point1(0.49, 0.47, 0.6);
+        ChastePoint<3> new_point1(0.49, 0.47, 0.6);
         
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_middle_element, new_point1));
         
@@ -853,7 +853,7 @@ public:
         TS_ASSERT_DELTA(p_corner_element->GetJacobianDeterminant(),0.03125 , 1e-6);
         
         // Point to be inserted in wrong place
-        Point<3> new_point(0.9,0.75,1.0);
+        ChastePoint<3> new_point(0.9,0.75,1.0);
         
         TS_ASSERT_THROWS_ANYTHING(mesh.RefineElement(p_corner_element,new_point));
     }

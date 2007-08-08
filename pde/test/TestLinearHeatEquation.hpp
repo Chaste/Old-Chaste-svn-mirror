@@ -18,9 +18,9 @@ public:
     
     void TestLinearHeatEquationPdeMethod()
     {
-        Point<1> zero1(0);
-        Point<2> zero2(0,0);
-        Point<3> zero3(0,0,0);
+        ChastePoint<1> zero1(0);
+        ChastePoint<2> zero2(0,0);
+        ChastePoint<3> zero3(0,0,0);
         double u = 2.0;
         
         LinearHeatEquationPde<1> heat_equation1;

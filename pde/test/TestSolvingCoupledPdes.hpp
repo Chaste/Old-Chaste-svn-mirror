@@ -23,17 +23,17 @@
 class MySimplePde : public AbstractLinearEllipticPde<2>
 {
 public:
-    double ComputeLinearSourceTerm(Point<2> x)
+    double ComputeLinearSourceTerm(ChastePoint<2> x)
     {
         return x[0];
     }
     
-    double ComputeNonlinearSourceTerm(Point<2>, double )
+    double ComputeNonlinearSourceTerm(ChastePoint<2>, double )
     {
         return 0.0;
     }
     
-    c_matrix<double,2,2> ComputeDiffusionTerm(Point<2> x)
+    c_matrix<double,2,2> ComputeDiffusionTerm(ChastePoint<2> x)
     {
         return identity_matrix<double>(2);
     }
@@ -53,7 +53,7 @@ class MySimpleCoupledAssembler : public AbstractLinearAssembler<2,2,2>
     
     virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeMatrixTerm(c_vector<double, 2+1> &rPhi,
                                                                c_matrix<double, 2, 2+1> &rGradPhi,
-                                                               Point<2> &rX,
+                                                               ChastePoint<2> &rX,
                                                                c_vector<double,2> &u,
                                                                c_matrix<double,2,2> &rGradU)
     {
@@ -79,7 +79,7 @@ class MySimpleCoupledAssembler : public AbstractLinearAssembler<2,2,2>
     
     virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1> &rPhi,
                                                        c_matrix<double, 2, 2+1> &rGradPhi,
-                                                       Point<2> &rX,
+                                                       ChastePoint<2> &rX,
                                                        c_vector<double,2> &u,
                                                        c_matrix<double,2,2> &rGradU)
     {
@@ -96,7 +96,7 @@ class MySimpleCoupledAssembler : public AbstractLinearAssembler<2,2,2>
     
     virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2> &rSurfaceElement,
                                                            c_vector<double,2> &rPhi,
-                                                           Point<2> &rX )
+                                                           ChastePoint<2> &rX )
     {
         // D_times_grad_u_dot_n  = (D gradu) \dot n
         double D_times_grad_u_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
@@ -153,7 +153,7 @@ class AnotherCoupledAssembler : public MySimpleCoupledAssembler
     
     virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1> &rPhi,
                                                        c_matrix<double, 2, 2+1> &rGradPhi,
-                                                       Point<2> &rX,
+                                                       ChastePoint<2> &rX,
                                                        c_vector<double,2> &u,
                                                        c_matrix<double,2,2> &rGradU)
     {

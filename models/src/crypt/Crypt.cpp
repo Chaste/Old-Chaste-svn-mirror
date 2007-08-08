@@ -206,7 +206,7 @@ void Crypt<DIM>::UpdateGhostPositions(double dt)
     {
         if ((!mrMesh.GetNode(index)->IsDeleted()) && mIsGhostNode[index])
         {
-            Point<DIM> new_point(mrMesh.GetNode(index)->rGetLocation() + dt*drdt[index]);
+            ChastePoint<DIM> new_point(mrMesh.GetNode(index)->rGetLocation() + dt*drdt[index]);
             mrMesh.SetNode(index, new_point, false);
         }
     }
@@ -244,7 +244,7 @@ c_vector<double, DIM> Crypt<DIM>::CalculateForceBetweenNodes(const unsigned& rNo
 }
 
 template<unsigned DIM>
-void Crypt<DIM>::MoveCell(Iterator iter, Point<DIM>& rNewLocation)
+void Crypt<DIM>::MoveCell(Iterator iter, ChastePoint<DIM>& rNewLocation)
 {
     unsigned index = iter.GetNode()->GetIndex();
     mrMesh.SetNode(index, rNewLocation, false);

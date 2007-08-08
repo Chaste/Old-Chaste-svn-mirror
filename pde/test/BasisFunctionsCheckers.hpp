@@ -8,7 +8,7 @@ template <int SPACE_DIM>
 class BasisFunctionsCheckers
 {
 public:
-    void checkBasisFunctions(std::vector<Point<SPACE_DIM>*> evaluationPoints)
+    void checkBasisFunctions(std::vector<ChastePoint<SPACE_DIM>*> evaluationPoints)
     {
         int size = evaluationPoints.size();		// number of evalutation points and basis functions too
         std::vector<double> basis_function_vector; // store results of evalutation

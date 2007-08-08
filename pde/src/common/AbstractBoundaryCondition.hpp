@@ -1,7 +1,7 @@
 #ifndef _ABSTRACTBOUNDARYCONDITION_HPP_
 #define _ABSTRACTBOUNDARYCONDITION_HPP_
 
-#include "Point.hpp"
+#include "ChastePoint.hpp"
 #include "UblasCustomFunctions.hpp"
 
 /**
@@ -16,7 +16,7 @@ public:
      * 
      * @param x The point at which to evaluate the boundary condition.
      */
-    virtual double GetValue(const Point<SPACE_DIM> x) const = 0;
+    virtual double GetValue(const ChastePoint<SPACE_DIM> x) const = 0;
     
     // Make derived classes work
     AbstractBoundaryCondition()

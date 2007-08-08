@@ -245,7 +245,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumCornerNodes()
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryNode(Point<1> updatedPoint, unsigned boundaryNodeIndex)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryNode(ChastePoint<1> updatedPoint, unsigned boundaryNodeIndex)
 {
     assert(GetNode(boundaryNodeIndex)->IsBoundaryNode());
     double scaleFactor = updatedPoint[0] / GetNode(boundaryNodeIndex)->GetPoint()[0];
@@ -253,7 +253,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryN
     for (unsigned i=0; i < boundaryNodeIndex+1; i++)
     {
         temp = scaleFactor * mNodes[i]->GetPoint()[0];
-        Point<1> newPoint(temp);
+        ChastePoint<1> newPoint(temp);
         mNodes[i]->SetPoint(newPoint);
     }
     RefreshMesh();
@@ -268,7 +268,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryN
   */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
-        Point<SPACE_DIM> point,
+        ChastePoint<SPACE_DIM> point,
         bool concreteMove)
 {
     mNodes[index]->SetPoint(point);
@@ -555,7 +555,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     Element<ELEMENT_DIM,SPACE_DIM>* pElement,
-    Point<SPACE_DIM> point)
+    ChastePoint<SPACE_DIM> point)
 {
 
     //Check that the point is in the element
@@ -1402,7 +1402,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Point<SPACE_DIM> testPoint, bool strict)
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, bool strict)
 {
     ///\todo This ought to return a set of all elements that contain the point (if the point is a node in the mesh then it's contained in multiple elements)
     ///\todo Polling every element is unnecessary.  We ought to start from a likely place and hill climb
@@ -1420,7 +1420,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElement
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndex(Point<SPACE_DIM> testPoint)
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndex(ChastePoint<SPACE_DIM> testPoint)
 {
     ///\todo This ought to return a set of all elements that contain the point (if the point is a node in the mesh then it's contained in multiple elements)
     ///\todo Polling every element is unnecessary.  We ought to start from a likely place and hill climb
@@ -1450,7 +1450,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementInd
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<unsigned> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndices(Point<SPACE_DIM> testPoint)
+std::vector<unsigned> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndices(ChastePoint<SPACE_DIM> testPoint)
 {
     std::vector<unsigned> element_indices;
     for (unsigned i=0; i < mElements.size();i++)

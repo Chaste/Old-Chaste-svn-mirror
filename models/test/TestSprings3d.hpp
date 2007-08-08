@@ -258,7 +258,7 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             c_vector<double,3> old_point = mesh.GetNode(i)->rGetLocation();
-            Point<3> new_point;
+            ChastePoint<3> new_point;
             new_point.rGetLocation()[0] = scale_factor*old_point[0];
             new_point.rGetLocation()[1] = scale_factor*old_point[1];
             new_point.rGetLocation()[2] = scale_factor*old_point[2];
@@ -291,7 +291,7 @@ public:
         simulator2.SetMaxElements(40);
         
         c_vector<double,3> old_point = mesh2.GetNode(0)->rGetLocation();
-        Point<3> new_point;
+        ChastePoint<3> new_point;
         new_point.rGetLocation()[0] = 0.0;
         new_point.rGetLocation()[1] = 0.0;
         new_point.rGetLocation()[2] = 0.0;

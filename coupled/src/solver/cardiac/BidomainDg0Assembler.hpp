@@ -79,7 +79,7 @@ private:
     virtual c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ComputeMatrixTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        Point<SPACE_DIM> &rX,
+        ChastePoint<SPACE_DIM> &rX,
         c_vector<double,2> &u,
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */)
     {
@@ -138,7 +138,7 @@ private:
     virtual c_vector<double,2*(ELEMENT_DIM+1)> ComputeVectorTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        Point<SPACE_DIM> &rX,
+        ChastePoint<SPACE_DIM> &rX,
         c_vector<double,2> &u,
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */)
     {
@@ -176,7 +176,7 @@ private:
     virtual c_vector<double, 2*ELEMENT_DIM> ComputeVectorSurfaceTerm(
         const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
         c_vector<double,ELEMENT_DIM> &rPhi,
-        Point<SPACE_DIM> &rX)
+        ChastePoint<SPACE_DIM> &rX)
     {
         // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
         double D_times_grad_v_dot_n     = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);

@@ -66,7 +66,7 @@ public:
         
     void ReMesh(NodeMap &map);
     c_vector<double, 2> GetVectorFromAtoB(const c_vector<double, 2>& rLocation1, const c_vector<double, 2>& rLocation2);
-    void SetNode(unsigned index, Point<2> point, bool concreteMove);
+    void SetNode(unsigned index, ChastePoint<2> point, bool concreteMove);
     bool IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes);
     double GetWidth(const unsigned& rDimension) const;
     unsigned AddNode(Node<2> *pNewNode);

@@ -10,7 +10,7 @@ public:
     void TestVaryingPde1D ( void )
     {
         VaryingDiffusionAndSourceTermPde<1> pde;
-        Point<1> evaluation_point(2);
+        ChastePoint<1> evaluation_point(2);
         TS_ASSERT_EQUALS(pde.ComputeNonlinearSourceTerm(evaluation_point,1.0),0.0);
         TS_ASSERT_EQUALS(pde.ComputeLinearSourceTerm(evaluation_point),8.0);
         c_matrix<double, 1, 1> diffusion_term=pde.ComputeDiffusionTerm(evaluation_point);
@@ -20,7 +20,7 @@ public:
     void TestVaryingPde2D ( void )
     {
         VaryingDiffusionAndSourceTermPde<2> pde;
-        Point<2> evaluation_point(3,4);
+        ChastePoint<2> evaluation_point(3,4);
         TS_ASSERT_EQUALS(pde.ComputeNonlinearSourceTerm(evaluation_point,1.0),0.0);
         TS_ASSERT_EQUALS(pde.ComputeLinearSourceTerm(evaluation_point),125.0);
         c_matrix<double, 2, 2> diffusion_term=pde.ComputeDiffusionTerm(evaluation_point);

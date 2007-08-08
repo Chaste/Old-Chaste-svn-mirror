@@ -109,7 +109,7 @@ protected:
         pNodeInfo->mScore=INFINITY;
         //pNodeInfo->mPossibleTargetIndex=pNodeInfo->GetIndex();
         CalculateLocalMeasure(pNodeInfo, true);
-        Point<SPACE_DIM> point=pNodeInfo->mpNode->GetPoint();
+        ChastePoint<SPACE_DIM> point=pNodeInfo->mpNode->GetPoint();
         
         mNeighbourhoodVolume=CalculateNeighbourhoodVolume(pNodeInfo->mpNode);
                 

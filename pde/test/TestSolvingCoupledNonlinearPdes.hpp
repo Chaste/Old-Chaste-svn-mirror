@@ -39,7 +39,7 @@ private:
     double mLambda;
     virtual c_matrix<double,2*(DIM+1),2*(DIM+1)> ComputeMatrixTerm(c_vector<double, DIM+1> &rPhi,
             c_matrix<double, DIM, DIM+1> &rGradPhi,
-            Point<DIM> &rX,
+            ChastePoint<DIM> &rX,
             c_vector<double,2> &u,
             c_matrix<double,2,DIM> &rGradU)
     {
@@ -69,7 +69,7 @@ private:
     
     virtual c_vector<double,2*(DIM+1)> ComputeVectorTerm(c_vector<double, DIM+1> &rPhi,
                                                          c_matrix<double, DIM, DIM+1> &rGradPhi,
-                                                         Point<DIM> &rX,
+                                                         ChastePoint<DIM> &rX,
                                                          c_vector<double,2> &u,
                                                          c_matrix<double,2,DIM> &rGradU)
     {
@@ -92,7 +92,7 @@ private:
     
     virtual c_vector<double, 2*DIM> ComputeVectorSurfaceTerm(const BoundaryElement<DIM-1,DIM> &rSurfaceElement,
                                                              c_vector<double,DIM> &rPhi,
-                                                             Point<DIM> &rX )
+                                                             ChastePoint<DIM> &rX )
     {
         c_vector<double,2*DIM> ret;
         
@@ -145,7 +145,7 @@ class AnotherCoupledNonlinearAssembler : public AbstractNonlinearAssembler<2,2,2
     
     virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeMatrixTerm(c_vector<double, 2+1> &rPhi,
                                                                c_matrix<double, 2, 2+1> &rGradPhi,
-                                                               Point<2> &rX,
+                                                               ChastePoint<2> &rX,
                                                                c_vector<double,2> &u,
                                                                c_matrix<double,2,2> &rGradU)
     {
@@ -173,7 +173,7 @@ class AnotherCoupledNonlinearAssembler : public AbstractNonlinearAssembler<2,2,2
     
     virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1> &rPhi,
                                                        c_matrix<double, 2, 2+1> &rGradPhi,
-                                                       Point<2> &rX,
+                                                       ChastePoint<2> &rX,
                                                        c_vector<double,2> &u,
                                                        c_matrix<double,2,2> &rGradU)
     {
@@ -193,7 +193,7 @@ class AnotherCoupledNonlinearAssembler : public AbstractNonlinearAssembler<2,2,2
     
     
     // not used
-    virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2> &rSurfaceElement, c_vector<double,2> &rPhi, Point<2> &rX)
+    virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2> &rSurfaceElement, c_vector<double,2> &rPhi, ChastePoint<2> &rX)
     {
         assert(0);
         return zero_vector<double>(2*2);

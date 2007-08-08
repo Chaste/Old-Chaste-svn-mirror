@@ -1,7 +1,7 @@
 #ifndef _TESTNODE_HPP_
 #define _TESTNODE_HPP_
 
-#include "Point.hpp"
+#include "ChastePoint.hpp"
 #include "Node.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include <cxxtest/TestSuite.h>
@@ -17,8 +17,8 @@ public:
      */
     void TestNodeMethod(void)
     {
-        Point<1> point1(1.0);
-        Point<1> point2(2.0);
+        ChastePoint<1> point1(1.0);
+        ChastePoint<1> point2(2.0);
         
         Node<1> node1(0, point1);
         TS_ASSERT_EQUALS(node1.GetIndex(), 0U);
@@ -58,7 +58,7 @@ public:
     
     void TestNodeNewAndOld(void)
     {
-        Point<1> point1(1.0);
+        ChastePoint<1> point1(1.0);
         
         // create a node with old interface
         Node<1> node1(0, point1);

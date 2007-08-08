@@ -159,7 +159,7 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Point<1> updatedPoint(1.5);
+        ChastePoint<1> updatedPoint(1.5);
         mesh.RescaleMeshFromBoundaryNode(updatedPoint,10);
         for (int i=0; i < 11; i++)
         {
@@ -373,7 +373,7 @@ public:
         const int node_index=3;
         Node<1> *p_node=mesh.GetNode(node_index);
         
-        Point<1> point=p_node->GetPoint();
+        ChastePoint<1> point=p_node->GetPoint();
         TS_ASSERT_DELTA(point[0],0.3,1e-6);
         
         Element<1,1> *p_element;
@@ -434,7 +434,7 @@ public:
         Node<2>::ContainingElementIterator elt_iter = p_node->ContainingElementsBegin();
         p_element = mesh.GetElement(*elt_iter);
         
-        Point<2> point=p_node->GetPoint();
+        ChastePoint<2> point=p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], 0.063497248392600097, 1e-6);
         TS_ASSERT_DELTA(point[1], -0.45483180039309123, 1e-6);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.00907521, 1e-6);
@@ -465,7 +465,7 @@ public:
         
         //Now try to move a boundary node
         p_node=mesh.GetNode(boundary_node_index);
-        Point<2> boundary_point=p_node->GetPoint();
+        ChastePoint<2> boundary_point=p_node->GetPoint();
         TS_ASSERT_DELTA(boundary_point[0], 0.99211470130000001, 1e-6);
         TS_ASSERT_DELTA(boundary_point[1], -0.12533323360000001, 1e-6);
         
@@ -492,7 +492,7 @@ public:
         Element<3,3> *p_element = mesh.GetElement(*p_node->ContainingElementsBegin());
         BoundaryElement<2,3> *p_boundary_element = mesh.GetBoundaryElement(*p_node->ContainingBoundaryElementsBegin());
         
-        Point<3> point=p_node->GetPoint();
+        ChastePoint<3> point=p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], 1, 1e-6);
         TS_ASSERT_DELTA(point[1], 0.75, 1e-6);
         TS_ASSERT_DELTA(point[2], 0.75, 1e-6);
@@ -559,7 +559,7 @@ public:
         Element<1,2> *p_element = mesh.GetElement(*p_node->ContainingElementsBegin());
         BoundaryElement<0,2> *p_boundary_element = mesh.GetBoundaryElement(*p_node->ContainingBoundaryElementsBegin());
         
-        Point<2> point=p_node->GetPoint();
+        ChastePoint<2> point=p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], -1.0, 1e-6);
         TS_ASSERT_DELTA(point[1], 0.0, 1e-6);
         
@@ -596,7 +596,7 @@ public:
         Element<2,3> *p_element = mesh.GetElement(*p_node->ContainingElementsBegin());
         BoundaryElement<1,3> *p_boundary_element = mesh.GetBoundaryElement(*p_node->ContainingBoundaryElementsBegin());
         
-        Point<3> point=p_node->GetPoint();
+        ChastePoint<3> point=p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], 0.99211470130000001, 1e-6);
         TS_ASSERT_DELTA(point[1], -0.12533323360000001, 1e-6);
         TS_ASSERT_DELTA(point[2], 0.0, 1e-6);
@@ -729,7 +729,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Add a node at position 0.01
-        Point<1> new_point(0.01);
+        ChastePoint<1> new_point(0.01);
         Element<1,1>* p_first_element = mesh.GetElement(0);
         
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_first_element, new_point));
@@ -742,7 +742,7 @@ public:
         mesh.DeleteBoundaryNodeAt(10);
         
         // Add a node
-        Point<1> new_point2(0.55);
+        ChastePoint<1> new_point2(0.55);
         Element<1,1>* p_sixth_element = mesh.GetElement(5);
         
         mesh.RefineElement(p_sixth_element, new_point2);
@@ -1088,7 +1088,7 @@ public:
         mesh.ConstructRectangularMesh(1,1);
         
         Node<2> *p_node=mesh.GetNode(1);
-        Point<2> point=p_node->GetPoint();
+        ChastePoint<2> point=p_node->GetPoint();
         
         for (double x = 1.1; x >= 0.9; x-= 0.01)
         {
@@ -1154,8 +1154,8 @@ public:
             BoundaryElement<2,3> *b_element=mesh.GetBoundaryElement(i);
             c_vector<double, 3> normal=*(b_element->pGetWeightedDirection());
             c_vector<double, 3> centroid=b_element->CalculateCentroid();
-            Point<3> out(centroid+normal);
-            Point<3> in(centroid-normal);
+            ChastePoint<3> out(centroid+normal);
+            ChastePoint<3> in(centroid-normal);
             TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElementIndex(in));
             TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(out));
         }
@@ -1190,8 +1190,8 @@ public:
             BoundaryElement<2,3> *b_element=mesh.GetBoundaryElement(i);
             c_vector<double, 3> normal=*(b_element->pGetWeightedDirection());
             c_vector<double, 3> centroid=b_element->CalculateCentroid();
-            Point<3> out(centroid+normal);
-            Point<3> in(centroid-normal);
+            ChastePoint<3> out(centroid+normal);
+            ChastePoint<3> in(centroid-normal);
             normal/=norm_2(normal);
             if (fabs(centroid[0]) < 1e-5)
             {
@@ -1618,9 +1618,9 @@ public:
         nodes1d.push_back(new Node<1>(1, false, 2.5));
         Element<1,1> element1d(INDEX_IS_NOT_USED, nodes1d);
         
-        Point<1> in_point(2.25);
-        Point<1> on_point(2.00);
-        Point<1> out_point(1.25);
+        ChastePoint<1> in_point(2.25);
+        ChastePoint<1> on_point(2.00);
+        ChastePoint<1> out_point(1.25);
         c_vector <double, 2> weights;
         weights=element1d.CalculateInterpolationWeights(on_point);
         TS_ASSERT_EQUALS(weights[0], 1.0);
@@ -1645,9 +1645,9 @@ public:
         nodes1d.push_back(new Node<1>(1, false, 2.5));
         Element<1,1> element1d(INDEX_IS_NOT_USED, nodes1d);
         
-        Point<1> in_point(2.25);
-        Point<1> on_point(2.00);
-        Point<1> out_point(1.25);
+        ChastePoint<1> in_point(2.25);
+        ChastePoint<1> on_point(2.00);
+        ChastePoint<1> out_point(1.25);
         bool strict=true;
         TS_ASSERT_EQUALS(element1d.IncludesPoint(in_point), true);
         TS_ASSERT_EQUALS(element1d.IncludesPoint(on_point), true);
@@ -1666,9 +1666,9 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Point<1> point1(0.15);
-        Point<1> point2(-0.1);
-        Point<1> point3(0.2);
+        ChastePoint<1> point1(0.15);
+        ChastePoint<1> point2(-0.1);
+        ChastePoint<1> point3(0.2);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1),1U);
         TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point2));
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3),1U);  //in elements 1 and 2
@@ -1696,7 +1696,7 @@ public:
         nodes2d.push_back(new Node<2>(2, false, 0.0, 3.0));
         Element<2,2> element2d(INDEX_IS_NOT_USED, nodes2d);
         
-        Point<2> on_point(0., 2.);
+        ChastePoint<2> on_point(0., 2.);
         c_vector <double, 3> weights;
         bool strict=true;
         TS_ASSERT_EQUALS(element2d.IncludesPoint(on_point), true);
@@ -1709,7 +1709,7 @@ public:
         TS_ASSERT_DELTA(psi_on[0],  0.0, 1e-5);
         TS_ASSERT_DELTA(psi_on[1],  2.0/3.0, 1e-5);
 
-        Point<2> in_point(1., 1.);
+        ChastePoint<2> in_point(1., 1.);
         TS_ASSERT_EQUALS(element2d.IncludesPoint(in_point), true);
         weights=element2d.CalculateInterpolationWeights(in_point);
         c_vector <double, 2> psi_in = element2d.CalculatePsi(in_point);
@@ -1719,7 +1719,7 @@ public:
         TS_ASSERT_DELTA(psi_in[0],0.5,1e-12);
         TS_ASSERT_DELTA(psi_in[1],1.0/6.0,1e-12);
         
-        Point<2> out_point(1., 0.);
+        ChastePoint<2> out_point(1., 0.);
         TS_ASSERT_EQUALS(element2d.IncludesPoint(out_point), false);
         weights=element2d.CalculateInterpolationWeights(out_point);
         c_vector <double, 2> psi_out = element2d.CalculatePsi(out_point);
@@ -1742,9 +1742,9 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Point<2> point1(0.051, 0.051);
-        Point<2> point2(0.2,0.2);
-        Point<2> point3(0.05, 0.05); //Node 60 of mesh
+        ChastePoint<2> point1(0.051, 0.051);
+        ChastePoint<2> point2(0.2,0.2);
+        ChastePoint<2> point3(0.05, 0.05); //Node 60 of mesh
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1),110U);
         TS_ASSERT_EQUALS(mesh.GetNearestElementIndex(point1),110U);
         TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point2));
@@ -1777,7 +1777,7 @@ public:
         Element<3,3> element3d(INDEX_IS_NOT_USED, nodes3d);
         
         bool strict=true;
-        Point<3> on_point(0., 0.2, 0.);
+        ChastePoint<3> on_point(0., 0.2, 0.);
         c_vector <double, 4> weights;
         TS_ASSERT_EQUALS(element3d.IncludesPoint(on_point), true);
         TS_ASSERT_EQUALS(element3d.IncludesPoint(on_point, strict), false);
@@ -1791,7 +1791,7 @@ public:
         TS_ASSERT_DELTA(psi_on[1],0.2,1e-12);
         TS_ASSERT_DELTA(psi_on[2],0.0,1e-12);
         
-        Point<3> in_point(.25, .25, .25);
+        ChastePoint<3> in_point(.25, .25, .25);
         TS_ASSERT_EQUALS(element3d.IncludesPoint(in_point), true);
         weights=element3d.CalculateInterpolationWeights(in_point);
         TS_ASSERT_LESS_THAN(0.0, weights[0]);
@@ -1799,7 +1799,7 @@ public:
         TS_ASSERT_LESS_THAN(0.0, weights[2]);
         TS_ASSERT_LESS_THAN(0.0, weights[3]);
         
-        Point<3> out_point(0.1, -10., 0.1);
+        ChastePoint<3> out_point(0.1, -10., 0.1);
         TS_ASSERT_EQUALS(element3d.IncludesPoint(out_point), false);
         weights=element3d.CalculateInterpolationWeights(out_point);
         TS_ASSERT_LESS_THAN(0.0, weights[0]);
@@ -1821,9 +1821,9 @@ public:
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Point<3> point1(0.051, 0.051,0.051);
-        Point<3> point2(0.2,0.2,0.2);
-        Point<3> point3(0.050000000000000003,  0.050000000000000003,  0.050000000000000003);
+        ChastePoint<3> point1(0.051, 0.051,0.051);
+        ChastePoint<3> point2(0.2,0.2,0.2);
+        ChastePoint<3> point3(0.050000000000000003,  0.050000000000000003,  0.050000000000000003);
         //Node 665 of mesh
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1),2992U);
         TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point2));
@@ -1864,12 +1864,12 @@ public:
         double third=1.0L/3.0L;
         mesh.Scale(third, third, third);
         
-        Point<3> point_on_edge1(5.0/6.0,   0.5,       1.0);
-        Point<3> point_on_edge2(5.0L/6.0L, 0.5,       1.0);
-        Point<3> point_on_edge3(5.0L/6.0L, 0.5L,      1.0L);
-        Point<3> point_on_edge4(5.0L/6.0L, 3.0L/6.0L, 1.0L);
-        Point<3> point_on_edge5(5.0L/6.0L, 0.5L,      6.0L/6.0L);
-        Point<3> point_on_edge6(5.0L/6.0L, 3.0L/6.0L, 6.0L/6.0L);
+        ChastePoint<3> point_on_edge1(5.0/6.0,   0.5,       1.0);
+        ChastePoint<3> point_on_edge2(5.0L/6.0L, 0.5,       1.0);
+        ChastePoint<3> point_on_edge3(5.0L/6.0L, 0.5L,      1.0L);
+        ChastePoint<3> point_on_edge4(5.0L/6.0L, 3.0L/6.0L, 1.0L);
+        ChastePoint<3> point_on_edge5(5.0L/6.0L, 0.5L,      6.0L/6.0L);
+        ChastePoint<3> point_on_edge6(5.0L/6.0L, 3.0L/6.0L, 6.0L/6.0L);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge1),142U);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge2),142U);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge3),142U);

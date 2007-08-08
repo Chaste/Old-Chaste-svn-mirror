@@ -260,7 +260,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
     
     
     // set the parent to use this location
-    Point<DIM> parent_coords_point(parent_coords);
+    ChastePoint<DIM> parent_coords_point(parent_coords);
     mrCrypt.MoveCell(parentCell, parent_coords_point);
     return daughter_coords;
 }
@@ -381,7 +381,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
         MeinekeCryptCell& cell = *cell_iter;
         unsigned index = cell.GetNodeIndex();
         
-        Point<DIM> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+        ChastePoint<DIM> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
         
         if(DIM==2)
         {

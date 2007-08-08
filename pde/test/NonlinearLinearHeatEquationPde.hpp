@@ -12,27 +12,27 @@ class NonlinearLinearHeatEquationPde : public AbstractNonlinearEllipticPde<SPACE
 {
 public:
 
-    double ComputeLinearSourceTerm(Point<SPACE_DIM> )
+    double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> )
     {
         return 1.0;
     }
     
-    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> , double )
+    double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> , double )
     {
         return 0.0;
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> , double u)
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> , double u)
     {
         return identity_matrix<double>(SPACE_DIM);
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(Point<SPACE_DIM> , double )
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(ChastePoint<SPACE_DIM> , double )
     {
         return identity_matrix<double>(SPACE_DIM)*0.0;
     }
     
-    double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> , double )
+    double ComputeNonlinearSourceTermPrime(ChastePoint<SPACE_DIM> , double )
     {
         return 0.0;
     }

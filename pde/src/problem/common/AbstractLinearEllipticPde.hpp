@@ -2,7 +2,7 @@
 #define _ABSTRACTLINEARELLIPTICPDE_HPP_
 
 #include "UblasCustomFunctions.hpp"
-#include "Point.hpp"
+#include "ChastePoint.hpp"
 #include "Node.hpp"
 #include <petscvec.h>
 
@@ -39,13 +39,13 @@ public:
      * Compute Linear Source Term.
      * @param x The point in space at which the Linear Source Term is computed.
      */
-    virtual double ComputeLinearSourceTerm(Point<SPACE_DIM> x)=0;
+    virtual double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> x)=0;
     
     /**
     * Compute Nonlinear Source Term.
     * @param x The point in space at which the Nonlinear Source Term is computed.
     */
-    virtual double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x,
+    virtual double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> x,
                                               double u)=0;
                                               
     /**
@@ -53,12 +53,12 @@ public:
      * @param x The point in space at which the Diffusion Term is computed.
      * @return A matrix. 
      */
-    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> x)=0;
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> x)=0;
     
     
     // - The following is defined in AbstractLinearParabolicPde, which inherits this class
     // - Compute the coefficient c(x) of du/dt
-    //virtual double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> x)=0;
+    //virtual double ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM> x)=0;
     
     virtual double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double u)
     {

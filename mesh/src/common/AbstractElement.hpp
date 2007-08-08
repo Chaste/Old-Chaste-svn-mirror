@@ -5,7 +5,7 @@
  */
 
 #include "Node.hpp"
-#include "Point.hpp"
+#include "ChastePoint.hpp"
 #include "UblasCustomFunctions.hpp"
 
 #include "Exception.hpp"

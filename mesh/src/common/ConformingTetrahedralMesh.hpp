@@ -76,7 +76,7 @@ public:
     
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader);
     
-    void RescaleMeshFromBoundaryNode(Point<1> updatedPoint, unsigned boundaryNodeIndex);
+    void RescaleMeshFromBoundaryNode(ChastePoint<1> updatedPoint, unsigned boundaryNodeIndex);
     
     Node<SPACE_DIM> *GetNode(unsigned index);
     
@@ -156,14 +156,14 @@ public:
         return (mBoundaryElements[index]);
     }
     
-    virtual void SetNode(unsigned index, Point<SPACE_DIM> point, bool concreteMove=true);
+    virtual void SetNode(unsigned index, ChastePoint<SPACE_DIM> point, bool concreteMove=true);
     void MoveMergeNode(unsigned index, unsigned targetIndex, bool concreteMove=true);
 
     void DeleteNode(unsigned index);
     
     void DeleteNodePriorToReMesh(unsigned index);
     
-    unsigned RefineElement(Element<ELEMENT_DIM,SPACE_DIM>* pElement, Point<SPACE_DIM> Point);
+    unsigned RefineElement(Element<ELEMENT_DIM,SPACE_DIM>* pElement, ChastePoint<SPACE_DIM> Point);
     void RefreshMesh(void);
     
     /**
@@ -267,7 +267,7 @@ public:
      *  @param strict Should the element returned contain the point in the interior and
      *  not on an edge/face/vertex (default = not strict)
      */
-    unsigned GetContainingElementIndex(Point<SPACE_DIM> testPoint, bool strict=false);
+    unsigned GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, bool strict=false);
     
     /**
      *  Returns the element index for an element is closest to the testPoint
@@ -276,13 +276,13 @@ public:
      *  @param testPoint
      * 
      */
-    unsigned GetNearestElementIndex(Point<SPACE_DIM> testPoint);
+    unsigned GetNearestElementIndex(ChastePoint<SPACE_DIM> testPoint);
     
     /**
      *  Returns all element indices for elements that are known to contain a test point
      *  @param testPoint 
      */
-    std::vector<unsigned> GetContainingElementIndices(Point<SPACE_DIM> testPoint);
+    std::vector<unsigned> GetContainingElementIndices(ChastePoint<SPACE_DIM> testPoint);
     
     
     /**

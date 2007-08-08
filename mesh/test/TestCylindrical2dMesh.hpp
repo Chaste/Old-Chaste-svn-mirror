@@ -94,10 +94,10 @@ public:
 //            
 //            // move one of the bottom nodes and ensure it throws.
 //            c_vector<double, 2> location = p_mesh->GetNode(0)->rGetLocation();
-//            Point<2> old_point(location);
+//            ChastePoint<2> old_point(location);
 //            c_vector<double, 2> new_location = location;
 //            new_location[1] = -0.866025;
-//            Point<2> new_point(new_location);
+//            ChastePoint<2> new_point(new_location);
 //            p_mesh->GetNode(0)->SetPoint(new_point);
 //            TS_ASSERT_THROWS_ANYTHING(p_mesh->TestTopAndBottomRowAlignment());
 //            
@@ -384,7 +384,7 @@ public:
          */
 //        c_vector<double, 2> new_location = p_mesh->GetNode(0)->rGetLocation();
 //        new_location[1] = -1.760;
-//        Point<2> boundary_point(new_location);
+//        ChastePoint<2> boundary_point(new_location);
 //        // We just move one of the bottom boundary nodes and then...
 //        p_mesh->SetNode(0u, boundary_point,false);
 //        // check that all the nodes on this boundary have moved down
@@ -396,7 +396,7 @@ public:
 //        // Same for one of the top boundary nodes
 //        new_location = p_mesh->GetNode(19)->rGetLocation();
 //        new_location[1] = 4.0;
-//        Point<2> boundary_point2(new_location);
+//        ChastePoint<2> boundary_point2(new_location);
 //        p_mesh->SetNode(19u, boundary_point2,false);
 //        // check that all the nodes on this boundary have moved up
 //        for (unsigned i=18; i<21 ; i++)
@@ -408,7 +408,7 @@ public:
         c_vector<double, 2> new_point_location;
         new_point_location[0] = 2.999999999;
         new_point_location[1] = -0.866025;
-        Point<2> new_point(new_point_location);
+        ChastePoint<2> new_point(new_point_location);
         p_mesh->GetNode(5)->SetPoint(new_point);
         
       

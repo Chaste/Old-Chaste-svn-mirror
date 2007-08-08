@@ -2,7 +2,7 @@
 #define _VARYINGDIFFUSIONANDSOURCETERMPDE_
 
 #include "AbstractLinearEllipticPde.hpp"
-#include "Point.hpp"
+#include "ChastePoint.hpp"
 #include <cmath>
 
 /**
@@ -14,7 +14,7 @@ template <int SPACE_DIM>
 class VaryingDiffusionAndSourceTermPde : public AbstractLinearEllipticPde<SPACE_DIM>
 {
 private:
-    double DistanceFromOrigin(Point<SPACE_DIM> x)
+    double DistanceFromOrigin(ChastePoint<SPACE_DIM> x)
     {
         double sum=0;
         for (int i=0; i<SPACE_DIM; i++)
@@ -25,17 +25,17 @@ private:
     }
     
 public:
-    double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
+    double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> x)
     {
         return pow(DistanceFromOrigin(x),3);
     }
     
-    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> , double )
+    double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> , double )
     {
         return 0.0;
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> x)
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> x)
     {
         return pow(DistanceFromOrigin(x),2)*identity_matrix<double>(SPACE_DIM);
     }

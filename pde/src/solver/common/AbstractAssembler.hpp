@@ -82,7 +82,7 @@ protected:
     virtual c_matrix<double,PROBLEM_DIM*(ELEMENT_DIM+1),PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeMatrixTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        Point<SPACE_DIM> &rX,
+        ChastePoint<SPACE_DIM> &rX,
         c_vector<double,PROBLEM_DIM> &u,
         c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU)=0;
         
@@ -108,7 +108,7 @@ protected:
     virtual c_vector<double,PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeVectorTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        Point<SPACE_DIM> &rX,
+        ChastePoint<SPACE_DIM> &rX,
         c_vector<double,PROBLEM_DIM> &u,
         c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU)=0;
         
@@ -130,7 +130,7 @@ protected:
     virtual c_vector<double, PROBLEM_DIM*ELEMENT_DIM> ComputeVectorSurfaceTerm(
         const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
         c_vector<double, ELEMENT_DIM> &rPhi,
-        Point<SPACE_DIM> &rX)=0;
+        ChastePoint<SPACE_DIM> &rX)=0;
         
         
     /**

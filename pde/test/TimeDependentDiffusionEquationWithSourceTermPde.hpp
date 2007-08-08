@@ -3,7 +3,7 @@
 
 
 #include "AbstractLinearParabolicPde.hpp"
-#include "Point.hpp"
+#include "ChastePoint.hpp"
 
 /**
  * A simple parabolic PDE used in tests.
@@ -14,22 +14,22 @@ class TimeDependentDiffusionEquationWithSourceTermPde : public AbstractLinearPar
 {
 
 public:
-    double ComputeLinearSourceTerm(Point<SPACE_DIM> )
+    double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> )
     {
         return 1.0;
     }
     
-    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> , double )
+    double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> , double )
     {
         return 0.0;
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> )
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> )
     {
         return identity_matrix<double>(SPACE_DIM);
     }
     
-    double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
+    double ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM> )
     {
         return 1;
     }

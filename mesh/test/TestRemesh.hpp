@@ -33,8 +33,8 @@ public:
         
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<3> point = mesh.GetNode(i)->GetPoint();
-            Point<3> old_mesh_point = old_mesh.GetNode(i)->GetPoint();
+            ChastePoint<3> point = mesh.GetNode(i)->GetPoint();
+            ChastePoint<3> old_mesh_point = old_mesh.GetNode(i)->GetPoint();
             for (int j=0; j<3; j++)
             {
                 if (fabs(point[j]-0.0) >1e-6 && fabs(point[j]-1.0) >1e-6)
@@ -96,7 +96,7 @@ public:
         
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<3> point=mesh.GetNode(i)->GetPoint();
+            ChastePoint<3> point=mesh.GetNode(i)->GetPoint();
             for (int j=0; j<3; j++)
             {
                 if (fabs(point[j]-0.0) >1e-6 && fabs(point[j]-1.0) >1e-6)
