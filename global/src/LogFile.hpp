@@ -5,7 +5,6 @@
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
 #include <cassert>
-//#include <iostream>
 
 /**
  *  A singleton log file class. Allows the user to define log file in the test, which
@@ -13,16 +12,22 @@
  * 
  *  Usage (in test):
  *  LogFile* p_log = LogFile::Instance();
- *  p_log->SetDirectoryAndFile("dir","file");
+ *  p_log->Set(level, "dir","file");
  *  // run simulatiom
  *  LogFile::Close();
  * 
- *  Usage (in source):
- *  (*LogFile::Instance()) << "Info to be written to the log file\n";
+ *  Here 'level' is a number between 0 and LogFile::MaxLoggingLevel, with zero
+ *  meaning no logging and MaxLoggingLevel meaning full logging.
  * 
- *  If no log file is set up,  
+ *  Usage (in source) - use the macro 'LOG'
+ *  LOG(1, "Info to be written to the log file\n" << "More info\n");
+ * 
+ *  This checks whether the given level (here '1') is greater or equal to the given
+ *  logging level, in which case it writes to the current log file. If there is
+ *  no log file is set up it does nothing.
+ * 
+ *  Note the log file can be written to directly, without any level-checking, using  
  *  (*LogFile::Instance()) << "Info to be written to the log file\n";
- *  does nothing.
  */
 class LogFile
 {
@@ -42,35 +47,14 @@ public:
     /**
      *  Get the single instance of the LogFile object. 
      */
-    static LogFile* Instance()
-    {
-        if (mpInstance == NULL)
-        {
-            mpInstance = new LogFile; // default construtor which doesn't write
-        }
-        return mpInstance;
-    }
+    static LogFile* Instance();
     
-    static unsigned Level()
-    {
-        if (mpInstance == NULL)
-        {
-            return 0;
-        }
-        else
-        {
-            return mpInstance->mLevel;
-        }
-    }
+    static unsigned Level();
 
     /**
      *  Constructor. Should never be called directly, call LogFile::Instance() instead.
      */
-    LogFile()
-    {
-        mFileSet = false;
-        mLevel = 0;
-    }
+    LogFile();
 
     /**
      *  Set the logging level, the directory (relative to TEST_OUTPUT) and the file 
@@ -83,50 +67,20 @@ public:
      *  
      *  The directory is never cleaned.
      */
-    void Set(unsigned level, std::string directory, std::string fileName="log.txt")
-    {
-        if(level > mMaxLoggingLevel)
-        {
-            std::stringstream string_stream;
-            string_stream << "Requested level " << Level 
-                          << " should have been less than or equal to " << mMaxLoggingLevel;
-            EXCEPTION(string_stream.str());
-        }
-        mLevel = level;
+    void Set(unsigned level, std::string directory, std::string fileName="log.txt");    
 
-        OutputFileHandler handler(directory, false);
-        mpOutStream = handler.OpenOutputFile(fileName);
-        mFileSet = true;
-        
-        // write header in the log file..?
-    }
-    
-    static unsigned MaxLoggingLevel()
-    {
-        return mMaxLoggingLevel;
-    } 
+    /** Get the maximum allowed logging level */
+    static unsigned MaxLoggingLevel();
 
     /**
      *  Close the currently open file, and delete the single LogFile instance
      */
-    static void Close()
-    {
-        if (mpInstance)
-        {
-            mpInstance->mpOutStream->close();
-            delete mpInstance;
-            mpInstance = NULL;
-        }
-    }
-    
+    static void Close();
+
     /**
-     *  Whether SetDirectoryAndFile() or SetDirectory() has been called
+     *  Whether Set() has been called
      */
-    bool IsFileSet()
-    {
-        return mFileSet;
-    }
-    
+    bool IsFileSet();    
    
     /**
      *  Overloaded << operator, to write to the log file, if one has been set, and
@@ -139,7 +93,7 @@ public:
         {
             (*mpOutStream) << message << std::flush;
         }
-
+    
         return *this;
     }
 };
@@ -147,5 +101,6 @@ public:
 LogFile* LogFile::mpInstance = NULL;
 
 #define LOG(level, message) assert(level>0); if(level <= LogFile::Level()) { (*LogFile::Instance()) << message; }
+
 
 #endif /*LOGFILE_HPP_*/
