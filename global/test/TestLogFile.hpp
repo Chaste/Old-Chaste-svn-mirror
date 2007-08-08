@@ -11,14 +11,11 @@ public:
     {
         LogFile* p_log_file = LogFile::Instance();
     
-        // no directory
-        TS_ASSERT_THROWS_ANYTHING(p_log_file->SetDirectory(""));
-
         // no file set yet
         TS_ASSERT_EQUALS(p_log_file->IsFileSet(), false);
         
         // set the file
-        p_log_file->SetDirectory("TestLogFile");
+        p_log_file->Set(1, "TestLogFile");
         TS_ASSERT_EQUALS(p_log_file->IsFileSet(), true);
         
         // check a new instance works correctly
@@ -44,7 +41,7 @@ public:
     void TestWritingToFile1()
     {
         LogFile* p_log_file = LogFile::Instance();
-        p_log_file->SetDirectoryAndFile("TestLogFile", "log2.txt");
+        p_log_file->Set(1, "TestLogFile", "log2.txt");
         
         (*p_log_file) << "Some stuff\n" << "Some more\n";
         (*p_log_file) << "Even more\n";
@@ -75,11 +72,11 @@ public:
     void TestWritingToNewFiles()
     {
         LogFile* p_log_file = LogFile::Instance();
-        p_log_file->SetDirectory("TestLogFile");
+        p_log_file->Set(1, "TestLogFile");
         (*p_log_file) << "data";
 
         // open a new file without closing the previous
-        p_log_file->SetDirectoryAndFile("TestLogFile","log3.txt");
+        p_log_file->Set(1, "TestLogFile","log3.txt");
         (*p_log_file) << "data";
 
         OutputFileHandler handler("TestLogFile",false);
@@ -87,6 +84,28 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log.txt  global/test/data/good_log.txt").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log3.txt  global/test/data/good_log.txt").c_str()), 0);
         
+        LogFile::Close();
+    }
+    
+    
+    void TestUsingMacroAndLevels()
+    {
+        LogFile* p_log_file = LogFile::Instance();
+        
+        // bad level
+        TS_ASSERT_THROWS_ANYTHING(p_log_file->Set( LogFile::MaxLoggingLevel()+1, "TestLogFile") );
+        
+        p_log_file->Set(1, "TestLogFile", "log4.txt");
+        
+        unsigned i=0;
+        LOG(1, "Level 1 info, will be written. i = " << i << "\n"); 
+        LOG(2, "Level 2 info, WONT be written. i = " << i << "\n"); 
+
+
+        OutputFileHandler handler("TestLogFile",false);
+        std::string results_dir = handler.GetTestOutputDirectory();
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log4.txt  global/test/data/good_log4.txt").c_str()), 0);
+
         LogFile::Close();
     }
 };

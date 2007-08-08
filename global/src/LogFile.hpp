@@ -4,6 +4,7 @@
 #include <string>
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
+#include <cassert>
 //#include <iostream>
 
 /**
@@ -33,7 +34,9 @@ private:
     /** the file to be written to */
     out_stream mpOutStream;
     
-//    unsigned mLevel;
+    unsigned mLevel;
+
+    static const unsigned mMaxLoggingLevel = 2;
 
 public:
     /**
@@ -48,17 +51,17 @@ public:
         return mpInstance;
     }
     
-//    static unsigned Level()
-//    {
-//        if (mpInstance == NULL)
-//        {
-//            return 0;
-//        }
-//        else
-//        {
-//            return mpInstance->mLevel;
-//        }
-//    }
+    static unsigned Level()
+    {
+        if (mpInstance == NULL)
+        {
+            return 0;
+        }
+        else
+        {
+            return mpInstance->mLevel;
+        }
+    }
 
     /**
      *  Constructor. Should never be called directly, call LogFile::Instance() instead.
@@ -66,24 +69,30 @@ public:
     LogFile()
     {
         mFileSet = false;
-//        mLevel = 0;
+        mLevel = 0;
     }
 
     /**
-     *  Set the directory (relative to TEST_OUTPUT) and the file the log should be
-     *  written to (file defaults to "log.txt".
+     *  Set the logging level, the directory (relative to TEST_OUTPUT) and the file 
+     *  the log should be written to (file defaults to "log.txt").
+     *  
+     *  The level should be a number between 0 and LogFile
      * 
      *  Note: we intentionally do NOT check or throw an exception if a file has already
      *  been set (ie Close() wasn't called the last time a log was used).
      *  
      *  The directory is never cleaned.
      */
-    void SetDirectoryAndFile(std::string directory, std::string fileName="log.txt")
+    void Set(unsigned level, std::string directory, std::string fileName="log.txt")
     {
-        if(directory=="")
+        if(level > mMaxLoggingLevel)
         {
-            EXCEPTION("No directory given");
+            std::stringstream string_stream;
+            string_stream << "Requested level " << Level 
+                          << " should have been less than or equal to " << mMaxLoggingLevel;
+            EXCEPTION(string_stream.str());
         }
+        mLevel = level;
 
         OutputFileHandler handler(directory, false);
         mpOutStream = handler.OpenOutputFile(fileName);
@@ -91,30 +100,11 @@ public:
         
         // write header in the log file..?
     }
-
-
-    /**
-     *  Set the directory (relative to TEST_OUTPUT) and use default file name ("log.txt")
-     *  This method is just to avoid having odd looking code (ie calling SetDirectoryAndFile
-     *  with one argument).
-     * 
-     *  Note: we intentionally do NOT check or throw an exception if a file has already
-     *  been set (ie Close() wasn't called the last time a log was used).
-     * 
-     *  The directory is never cleaned.
-     */
-    void SetDirectory(std::string directory)
+    
+    static unsigned MaxLoggingLevel()
     {
-        SetDirectoryAndFile(directory);
-    }
-    
-
-//    void SetLevel(unsigned level)
-//    {
-//        assert(level < 3); // three levels for the time being
-//        mLevel = level;
-//    }
-    
+        return mMaxLoggingLevel;
+    } 
 
     /**
      *  Close the currently open file, and delete the single LogFile instance
@@ -156,6 +146,6 @@ public:
 
 LogFile* LogFile::mpInstance = NULL;
 
-//#define LOG(level, message) if(LogFile::Level() > level) { (*LogFile::Instance()) << message; }
+#define LOG(level, message) assert(level>0); if(level <= LogFile::Level()) { (*LogFile::Instance()) << message; }
 
 #endif /*LOGFILE_HPP_*/
