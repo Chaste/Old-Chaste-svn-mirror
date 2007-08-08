@@ -95,15 +95,6 @@ other_includepaths = hostconfig.incpaths
 Export("other_libpaths", "other_libs")
 
 
-# Find full path to valgrind, as parallel memory testing needs it to be
-# given explicitly.
-# We search on os.environ['PATH'] for now.  When #258 is done use the environment.
-vg_path = WhereIs(build.tools['valgrind'])
-if vg_path:
-    build.tools['valgrind'] = vg_path
-del vg_path
-
-
 ## Any extra CCFLAGS and LINKFLAGS
 extra_flags = build.CcFlags()
 link_flags  = build.LinkFlags()
@@ -147,8 +138,14 @@ env.Replace(CPPPATH = cpppath)
 
 # Create Builders for generating test .cpp files, and running test executables
 test = Builder(action = 'cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURCES')
-runtests = Builder(action = 'python/TestRunner.py $SOURCE $TARGET ' +
-                   build_type + ' ' + run_time_flags)
+#runtests = Builder(action = 'python/TestRunner.py $SOURCE $TARGET ' +
+#                   build_type + ' ' + run_time_flags)
+import TestRunner
+def test_description(target, source, env):
+    return "running '%s'" % (source[0])
+test_action = Action(TestRunner.get_build_function(build, run_time_flags),
+                     test_description)
+runtests = Builder(action=test_action)
 env['BUILDERS']['Test'] = test
 env['BUILDERS']['RunTests'] = runtests
 
@@ -157,6 +154,13 @@ import fasterSharedLibrary
 fasterSharedLibrary.Copy = Copy
 env['BUILDERS']['OriginalSharedLibrary'] = env['BUILDERS']['SharedLibrary']
 env['BUILDERS']['SharedLibrary'] = fasterSharedLibrary.fasterSharedLibrary
+
+# Find full path to valgrind, as parallel memory testing needs it to be
+# given explicitly.
+vg_path = env.WhereIs(build.tools['valgrind'])
+if vg_path:
+    build.tools['valgrind'] = vg_path
+del vg_path
 
 # Export the build environment to SConscript files
 Export('env')
@@ -234,4 +238,6 @@ if test_summary and not compile_only:
   file_list = File(os.path.join(output_dir, '.filelist'))
   env.AlwaysBuild(file_list)
   env.Command(file_list, test_depends, lister)
-  env.TestSummary(os.path.join(output_dir, 'index.html'), [file_list, test_depends])
+  summary_index = os.path.join(output_dir, 'index.html')
+  env.TestSummary(summary_index, [file_list, test_depends])
+  env.AlwaysBuild(summary_index)

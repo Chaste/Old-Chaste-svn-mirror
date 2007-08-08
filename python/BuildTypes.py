@@ -37,7 +37,7 @@ class BuildType(object):
     # The SConstruct file can then override these as appropriate
     self.tools = {'mpirun': 'mpirun', 'mpicxx': 'mpicxx',
                   'ar': 'ar', 'cxx': 'cxx',
-                  'valgrind': '/usr/bin/valgrind', # Change when #332 done
+                  'valgrind': 'valgrind',
                   'gprof': 'gprof', 'pprof': 'pprof',
                   'rm': 'rm', 'cat': 'cat'}
   
