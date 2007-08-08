@@ -211,7 +211,7 @@ public:
                          0);
         
         VecDestroy(striped);
-        
+        delete p_parallel_writer;
     }
     
     // Read back the data written in the test above
