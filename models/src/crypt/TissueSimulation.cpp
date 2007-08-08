@@ -17,6 +17,7 @@
 #include "WntCellCycleModel.hpp"
 #include "WntGradient.hpp"
 #include "OutputFileHandler.hpp"
+#include "LogFile.hpp"
 
 template<unsigned DIM> 
 TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
@@ -674,15 +675,18 @@ void TissueSimulation<DIM>::Solve()
     /////////////////////////////////////////////////////////////////////
     while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
     {        
-        // std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << "\t**\n" << std::flush;
+        LOG(1, "--TIME = " << p_simulation_time->GetDimensionalisedTime() << "\n");
         
         // remove dead cells before doing birth
         // neither of these functions use any element information so they 
         // just delete and create nodes
         mNumDeaths += DoCellRemoval();
+        LOG(1, "\tNum deaths = " << mNumDeaths << "\n");
+
         mNumBirths += DoCellBirth();
+        LOG(1, "\tNum births = " << mNumBirths << "\n");
         
-        
+
         if( (mNumBirths>0) || (mNumDeaths>0) )
         {   
             // If any nodes have been deleted or added we MUST call a ReMesh
@@ -691,6 +695,7 @@ void TissueSimulation<DIM>::Solve()
 
         if(mReMesh)
         {
+            LOG(1, "\tRemeshing..\n");
             mrCrypt.ReMesh();
         }
 
@@ -711,10 +716,10 @@ void TissueSimulation<DIM>::Solve()
         
         // Write results to file
         mrCrypt.WriteResultsToFiles(tabulated_node_writer, 
-                                   tabulated_element_writer, 
-                                   *p_node_file, *p_element_file,
-                                   tabulated_output_counter%80==0,
-                                   true);
+                                    tabulated_element_writer, 
+                                    *p_node_file, *p_element_file,
+                                    tabulated_output_counter%80==0,
+                                    true);
                             
         tabulated_output_counter++;
     }
@@ -722,10 +727,10 @@ void TissueSimulation<DIM>::Solve()
     // Write end state to tabulated files (not visualizer - this
     // is taken care of in the main loop).
     mrCrypt.WriteResultsToFiles(tabulated_node_writer, 
-                               tabulated_element_writer, 
-                               *p_node_file, *p_element_file,
-                               true,
-                               false);
+                                tabulated_element_writer, 
+                                *p_node_file, *p_element_file,
+                                true,
+                                false);
                         
     tabulated_node_writer.Close();
     tabulated_element_writer.Close();

@@ -266,7 +266,11 @@ public:
     }
     
     void Test2DCylindricalMultipleDivisions() throw (Exception)
-    {        
+    {   
+        // create a log of this test.
+        LogFile* p_log_file = LogFile::Instance();
+        p_log_file->Set(2,"Crypt2DCylindricalMultipleDivisions");
+             
         unsigned cells_across = 6;
         unsigned cells_up = 8;
         double crypt_width = 5.0;
@@ -333,6 +337,8 @@ public:
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
         
+        // close the log file opened in this test
+        LogFile::Close();
     }
 
     // This is a rubbish test - all cells start at birthTime = 0.

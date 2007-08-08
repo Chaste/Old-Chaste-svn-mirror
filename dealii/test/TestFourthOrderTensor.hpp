@@ -96,6 +96,11 @@ public :
         FourthOrderTensor<3> X;
         Tensor<2,3> A;
         
+        // check throws if bad component passed in..
+        FourthOrderTensor<3> Z;
+        TS_ASSERT_THROWS_ANYTHING(Z.SetAsProduct(X,A,5));
+        
+        
         for(unsigned M=0; M<3; M++)
         {
             for(unsigned N=0; N<3; N++)

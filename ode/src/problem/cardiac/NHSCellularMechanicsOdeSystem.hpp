@@ -172,14 +172,12 @@ public :
     }
     
 
-#define COVERAGE_IGNORE
-
+    #define COVERAGE_IGNORE
     double GetCalciumTroponinValue()
     {
         return mStateVariables[0];
     }
-    
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
 
     void EvaluateYDerivatives(double time,
                               const std::vector<double> &rY,
@@ -205,7 +203,7 @@ public :
         {
             EXCEPTION("z became greater than 1");
         }
-        #define COVERAGE_IGNORE
+        #undef COVERAGE_IGNORE
 
                 
         double Q = Q1 + Q2 + Q3;

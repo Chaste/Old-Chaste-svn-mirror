@@ -32,8 +32,15 @@ public:
         bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         
-        // Pin extracellular potential of node 100 to 0
         std::vector<unsigned> pinned_nodes;
+
+        // check throws if the fixed node num isn't valid
+        pinned_nodes.push_back(1000);
+        bidomain_problem.SetFixedExtracellularPotentialNodes(pinned_nodes);
+        TS_ASSERT_THROWS_ANYTHING( bidomain_problem.Solve() );
+
+        // Pin extracellular potential of node 100 to 0
+        pinned_nodes.clear();
         pinned_nodes.push_back(100);
         bidomain_problem.SetFixedExtracellularPotentialNodes(pinned_nodes);      
         

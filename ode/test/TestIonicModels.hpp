@@ -237,6 +237,10 @@ public:
         BackwardEulerLuoRudyIModel1991 backward_lr91(0.01, &stimulus);
         // calc IIonic using initial conditions
         TS_ASSERT_DELTA(lr91.GetIIonic(), backward_lr91.GetIIonic(), 1e-12);
+
+        // cover alternative constructor
+        EulerIvpOdeSolver solver2;
+        BackwardEulerLuoRudyIModel1991 lr91_backward_euler3(&solver2, time_step, &stimulus);
     }
     
     void TestOdeSolverForFox2002WithRegularStimulus(void) throw (Exception)
