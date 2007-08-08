@@ -55,6 +55,7 @@ else:
 
 # This is a bit ugly at present: SConstruct calls configure() to fill
 # these global variables in, then reads them directly.
+# Note that the order in which things are added to these lists often matters!
 libpaths = []
 incpaths = []
 libraries = []
@@ -71,9 +72,6 @@ def do_petsc(version, optimised):
 
     Set optimised to True to use optimised builds of the libraries rather
     than debug builds.
-
-    TODO: Specify PETSc libraries to link against here rather than in
-    SConscript.
     """
     if version == '2_3' and conf.petsc_2_3_path is None:
         # Use 2.2 instead
@@ -98,6 +96,8 @@ def do_petsc(version, optimised):
             incpaths.append(os.path.join(petsc_base, 'bmake', conf.petsc_build_name))
     incpaths.append(os.path.join(petsc_base, 'include'))
     libpaths.append(libpath)
+    libraries.extend(['petscts', 'petscsnes', 'petscksp', 'petscdm', 
+                      'petscmat', 'petscvec', 'petsc'])
 
 def do_metis():
     """Add METIS include and library paths."""

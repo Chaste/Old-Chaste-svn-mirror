@@ -54,10 +54,6 @@ class BuildType(object):
     Note that this does not cover include paths or library search paths.
     """
     return self._cc_flags
-
-  def ComponentSpecificCcFlags(self, component):
-    """Return compiler flags that depend on the component being compiled."""
-    return ""
   
   def LinkFlags(self):
     """
@@ -606,12 +602,6 @@ class Intel(BuildType):
     # Intel compiler uses optimisation by default
     self.is_optimised = True
 
-  def ComponentSpecificCcFlags(self, component):
-    """There are no component-specific compiler flags when using the
-    Intel compilers.
-    """
-    return ""
-
   def SetReporting(self, vec=1):
     """
     Set the reporting level.
@@ -657,10 +647,6 @@ class StyleCheck(GccDebug):
         self.build_dir = 'style_check'
         self._test_packs.extend(['Failing', 'Profile', 'Nightly'])
     
-    def ComponentSpecificCcFlags(self, component):
-        """No component-specific flags for this build type."""
-        return ""
-
     def GetTestRunnerCommand(self, exefile, exeflags=''):
         """This build shouldn't be used to run tests."""
         return ""

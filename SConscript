@@ -1,13 +1,6 @@
 import glob
 import os
 
-# Faster shared library linking
-import sys
-sys.path.append('../../../python')
-sys.path.append('../../../python/hostconfig')
-import fasterSharedLibrary
-fasterSharedLibrary.Copy = Copy
-
 # Compatability with Python 2.3
 try:
   set = set
@@ -85,52 +78,24 @@ for file in os.listdir('../../test'):
 
 # Determine libraries to link against.
 # Note that order does matter!
-petsc_libs = ['petscts', 'petscsnes', 'petscksp', 'petscdm', 
-              'petscmat', 'petscvec', 'petsc']
 chaste_libs = [toplevel_dir] + comp_deps[toplevel_dir]
-all_libs = ['test'+toplevel_dir] + chaste_libs + petsc_libs + other_libs
+all_libs = ['test'+toplevel_dir] + chaste_libs + other_libs
 
 
+
+# Set up build environment for this component
 if toplevel_dir == 'dealii':
-  import hostconfig
-  dealii_boost = hostconfig.conf.dealii_path + 'contrib/boost/include/ '
-  extra_flags = '-isystem ' + dealii_boost + extra_flags
-
-
-# Set up build environment
-opt = Environment(
-  ENV = {'PATH': os.environ['PATH'],
-         'USER': os.environ['USER'],
-         'INTEL_LICENSE_FILE': '28518@lic1.osc.ox.ac.uk',
-         'CHASTE_TEST_OUTPUT':
-         os.environ.get('CHASTE_TEST_OUTPUT',
-                        '/tmp/'+os.environ['USER']+'/testoutput/')})
-opt['ENV']['LD_LIBRARY_PATH'] = ':'.join(other_libpaths) + ':' + os.path.abspath('../../../lib')
-opt.Append(CCFLAGS = '-isystem ' + ' -isystem '.join(other_includepaths)
-           + ' ' + extra_flags + build.ComponentSpecificCcFlags(toplevel_dir))
-opt.Append(LINKFLAGS = link_flags)
-opt.Append(BOPT = 'g_c++')
-opt.Replace(CXX = build.tools['mpicxx'])
-opt.Replace(AR = build.tools['ar'])
-opt.Replace(CPPPATH = cpppath)
-
-# Create Builders for generating test .cpp files, and running test executables
-test = Builder(action = 'cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURCES')
-runtests = Builder(action = 'python/TestRunner.py $SOURCE $TARGET ' +
-                   build_type + ' ' + run_time_flags)
-
-opt['BUILDERS']['Test'] = test
-opt['BUILDERS']['RunTests'] = runtests
-
-# New shared library builder
-opt['BUILDERS']['OriginalSharedLibrary'] = opt['BUILDERS']['SharedLibrary']
-opt['BUILDERS']['SharedLibrary'] = fasterSharedLibrary.fasterSharedLibrary
+    # Use Deal.II's boost
+    env = env.Copy()
+    import hostconfig
+    dealii_boost = hostconfig.conf.dealii_path + 'contrib/boost/include/ '
+    env.Prepend(CCFLAGS='-isystem ' + dealii_boost)
 
 # Build and install the library for this component
-opt.SharedLibrary(toplevel_dir, files)
-#opt.Install('#lib', 'lib'+toplevel_dir+'.so')
+env.SharedLibrary(toplevel_dir, files)
+#env.Install('#lib', 'lib'+toplevel_dir+'.so')
 # Build the test library for this component
-opt.Library('test'+toplevel_dir, testsource)
+env.Library('test'+toplevel_dir, testsource)
 
 # Make test output depend on shared libraries, so if implementation changes
 # then tests are re-run.  Choose which line according to taste.
@@ -145,14 +110,14 @@ test_log_files = []
 # Build and run tests of this component
 for testfile in testfiles:
     prefix = testfile[:-4]
-    runner_cpp = opt.Test(prefix+'Runner.cpp', 'test/' + testfile) 
-    opt.Program(prefix+'Runner', runner_cpp,
+    runner_cpp = env.Test(prefix+'Runner.cpp', 'test/' + testfile) 
+    env.Program(prefix+'Runner', runner_cpp,
                 LIBS = all_libs,
                 LIBPATH = ['#linklib', '.'] + other_libpaths)
     if not compile_only:
-        log_file = opt.File(prefix+'.log')
-        opt.Depends(log_file, lib_deps)
+        log_file = env.File(prefix+'.log')
+        env.Depends(log_file, lib_deps)
         test_log_files.append(log_file)
-        opt.RunTests(log_file, prefix+'Runner')
+        env.RunTests(log_file, prefix+'Runner')
 
 Return("test_log_files")
