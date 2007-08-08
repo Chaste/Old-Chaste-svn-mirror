@@ -393,8 +393,6 @@ public:
     }
     
     virtual void WriteInfo(double time) =0;
-    
-    virtual std::string ColumnName() =0;
 };
 
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

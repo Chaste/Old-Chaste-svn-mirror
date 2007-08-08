@@ -90,7 +90,7 @@ public:
 public:    
     ConvergenceTester()
     {
-        const unsigned number_of_meshes = 3;
+        const unsigned number_of_meshes = 5;
         
         double num_elements[number_of_meshes];
         std::string file_name[number_of_meshes];
@@ -302,8 +302,8 @@ public:
             
             
             double relerr = fabs ((probe_velocity - prev_velocity_for_space) / prev_velocity_for_space);
-            std::cout<<">>> Convergence test: probe_velocity = "<<probe_velocity<<" mV | prev_velocity_for_space = "<<prev_velocity_for_space
-            <<" mV | relerr = "<<relerr<<std::endl << std::flush;
+            std::cout<<">>> Convergence test: conduction velocity = "<<probe_velocity<<" cm/msec | prev_velocity_for_space = "<<prev_velocity_for_space
+            <<" cm/msec | relerr = "<<relerr<<std::endl << std::flush;
             
             if (relerr < 1e-2)
             {

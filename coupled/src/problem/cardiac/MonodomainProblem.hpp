@@ -79,11 +79,7 @@ public:
         <<   v_max << " "
         <<   v_min << "\n" << std::flush;
     }
-    
-    std::string ColumnName()
-    {
-        return "V";
-    }
+
 };
 
 #endif /*MONODOMAINPROBLEM_HPP_*/

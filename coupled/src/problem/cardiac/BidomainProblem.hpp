@@ -134,11 +134,6 @@ public:
         << phi_max << " "
         << phi_min << "\n" << std::flush;
     }
-    
-    std::string ColumnName()
-    {
-        return "Vm_And_Phi_e";
-    }
 };
 
 
