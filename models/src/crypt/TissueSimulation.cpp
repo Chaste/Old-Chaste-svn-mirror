@@ -42,6 +42,13 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
     mNumDeaths = 0;
     mUseNonFlatBottomSurface = false;
     
+    // whether to use a cutoff point, ie specify zero force if two 
+    // cells are greater than a certain distance apart. By default 
+    // we don't have a cutoff point
+    mUseCutoffPoint = false;
+    mCutoffPoint = 1e10;
+    
+    
     assert(SimulationTime::Instance()->IsStartTimeSetUp());
     // start time must have been set to create crypt which includes cell cycle models
     
@@ -335,6 +342,14 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     
     unit_difference /= distance_between_nodes;
     
+    if(mUseCutoffPoint)
+    {
+        if( distance_between_nodes >= mCutoffPoint )
+        {
+            return c_vector<double,DIM>(); // ie return zero force;
+        }
+    }
+    
     double rest_length = 1.0;
         
     double ageA = mrCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
@@ -533,6 +548,19 @@ template<unsigned DIM>
 void TissueSimulation<DIM>::SetNoBirth(bool nobirth)
 {
     mNoBirth = nobirth;
+}
+
+
+/**
+ * Use a cutoff point, ie specify zero force if two cells are greater 
+ * than the cutoff distance apart
+ */
+template<unsigned DIM>
+void TissueSimulation<DIM>::UseCutoffPoint(double cutoffPoint)
+{
+    assert(cutoffPoint > 0.0);
+    mUseCutoffPoint = true;
+    mCutoffPoint = cutoffPoint;
 }
 
 

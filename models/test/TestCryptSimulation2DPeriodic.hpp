@@ -203,7 +203,7 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
     }
 
 public:
-    void Test2DCylindrical() throw (Exception)
+    void zzTest2DCylindrical() throw (Exception)
     {        
         CancerParameters::Instance()->Reset();
 
@@ -265,7 +265,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void Test2DCylindricalMultipleDivisions() throw (Exception)
+    void zzTest2DCylindricalMultipleDivisions() throw (Exception)
     {   
         // create a log of this test.
         LogFile* p_log_file = LogFile::Instance();
@@ -345,7 +345,7 @@ public:
     // So bizarrely the crypt shrinks as the rest lengths are shortened! 
     // But at least it uses Wnt cell cycle and runs reasonably quickly...
     // For a better test with more randomly distributed cell ages see the Nightly test pack.
-    void TestWithWntDependentCells() throw (Exception)
+    void zzTestWithWntDependentCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -402,7 +402,7 @@ public:
     }
     
     // A better check that the loaded mesh is the same as that saved
-    void TestMeshSurvivesSaveLoad() throw (Exception)
+    void zzTestMeshSurvivesSaveLoad() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
         
@@ -453,7 +453,7 @@ public:
     }
 
     // Testing Save (based on previous test)
-    void TestSave() throw (Exception)
+    void zzTestSave() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -505,7 +505,7 @@ public:
     
 
     // Testing Load (based on previous two tests)
-    void TestLoad() throw (Exception) 
+    void zzTestLoad() throw (Exception) 
     {
         CancerParameters::Instance()->Reset();
 
@@ -563,7 +563,7 @@ public:
      * to be 'mature' cells which won't shrink together. 
      * Limited this by using only four cells of minimum age.
      */
-    void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
+    void zzTestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -623,7 +623,7 @@ public:
     
     // This is strange test -- all cells divide within a quick time, it gives
     // good testing of the periodic boundaries though... [comment no longer valid?]
-    void TestWithTysonNovakCells() throw (Exception)
+    void zzTestWithTysonNovakCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();      
@@ -687,7 +687,7 @@ public:
      * 
      * Note - if the previous test is changed we need to update the file this test refers to. 
      */
-    void TestVisualizerOutput() throw (Exception)
+    void zzTestVisualizerOutput() throw (Exception)
     {
         // work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DPeriodicTysonNovak",false);
@@ -698,7 +698,7 @@ public:
     }
    
     
-    void TestPrivateFunctionsOf2DCryptSimulation() throw (Exception)
+    void zzTestPrivateFunctionsOf2DCryptSimulation() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -897,11 +897,11 @@ public:
         Element<2,2>* p_element = p_mesh->GetElement(elem_index);
         
         force_on_spring = simulator.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
-        
         TS_ASSERT_DELTA(force_on_spring[0], 0.5*p_params->GetSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
         
         
+
        /*
         ************************************************************************
         ************************************************************************ 
@@ -953,11 +953,29 @@ public:
         
         }
         
+        /*
+         ******************************************
+         ******************************************
+         *  test force with cutoff point
+         ******************************************
+         ******************************************
+         */
+        double dist = norm_2( p_mesh->GetVectorFromAtoB(p_element->GetNode(0)->rGetLocation(), p_element->GetNode(1)->rGetLocation()) );   
+
+        simulator.UseCutoffPoint(dist-0.1);
+        
+        force_on_spring = simulator.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
+        TS_ASSERT_DELTA(force_on_spring[0], 0.0, 1e-4);
+        TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
+                
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
     
-    void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
+    void zzTestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
         CancerParameters::Instance()->SetDivisionRestingSpringLength(0.9);//Only coverage
@@ -996,7 +1014,7 @@ public:
     }
     
 
-    void TestCalculateDividingCellCentreLocationsConfMeshStemCell() throw (Exception)
+    void zzTestCalculateDividingCellCentreLocationsConfMeshStemCell() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
 
@@ -1041,7 +1059,7 @@ public:
         SimulationTime::Destroy();
     }
 
-    void TestCalculateDividingCellCentreLocationsCylindricalMesh() throw (Exception)
+    void zzTestCalculateDividingCellCentreLocationsCylindricalMesh() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
         
@@ -1075,7 +1093,7 @@ public:
         SimulationTime::Destroy();
     }
 
-    void TestCalculateDividingCellCentreLocationsCylindricalMeshStemCell() throw (Exception)
+    void zzTestCalculateDividingCellCentreLocationsCylindricalMeshStemCell() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
         
@@ -1115,7 +1133,7 @@ public:
     }
     
     // short test which sets mNoBirth for coverage
-    void TestNoBirth() throw (Exception)
+    void zzTestNoBirth() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
         
@@ -1173,7 +1191,7 @@ public:
     // Death on a non-periodic mesh
     // Massive amount of random death eventually leading to every cell being killed off..
     // Note that birth does occur too.
-    void TestRandomDeathOnNonPeriodicCrypt() throw (Exception)
+    void zzTestRandomDeathOnNonPeriodicCrypt() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
         
@@ -1215,7 +1233,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void TestUsingNonFlatBottomSurfaceNonPeriodic()
+    void zzTestUsingNonFlatBottomSurfaceNonPeriodic()
     {
         CancerParameters::Instance()->Reset();
         

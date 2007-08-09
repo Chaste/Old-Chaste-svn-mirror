@@ -971,6 +971,51 @@ public:
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
+    
+    
+    
+    void TestMonolayerWithCutoffPointAndNoGhosts() throw (Exception)
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
+       
+        int num_cells_depth = 11;
+        int num_cells_width = 6;
+        double crypt_length = num_cells_depth-1.0;
+        double crypt_width = num_cells_width-1.0;
+        
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        
+        p_params->SetCryptLength(crypt_length);
+        p_params->SetCryptWidth(crypt_width);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cells;
+        CreateVectorOfCells(cells, *p_mesh, FIXED, true,-1.0);
+                
+        Crypt<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+
+        TissueSimulation<2> simulator(crypt);
+
+        simulator.SetOutputDirectory("MonolayerCutoffPointNoGhosts");
+        simulator.SetEndTime(12.0);
+        simulator.SetMaxCells(400);
+        simulator.SetMaxElements(800);
+
+        simulator.UseCutoffPoint( sqrt(2) ); // root2 is a sensible choice
+        
+        simulator.Solve();
+        
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+    
 };
 
 

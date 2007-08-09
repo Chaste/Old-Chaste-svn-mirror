@@ -12,36 +12,49 @@
 #include "CancerParameters.hpp"
 #include "HoneycombMeshGenerator.hpp"
 
+
+
 class BloodCellModel : public TissueSimulation<2>
 {
 private:
+    static const double mCellRadius = 0.5;
+
     double mTop;
     double mBottom;
-
+    
     std::vector<c_vector<double,2> > CalculateVelocitiesOfEachNode()
     {
         std::vector<c_vector<double,2> > drdt = TissueSimulation<2>::CalculateVelocitiesOfEachNode();
         
         double damping = CancerParameters::Instance()->GetDampingConstantNormal();
+        double stiffness = CancerParameters::Instance()->GetSpringStiffness();
         double body_force = 10;
-        double friction = 5;
+        double friction = stiffness;
         
         assert(body_force>0 && friction>0);
+
         for(Crypt<2>::Iterator iter = mrCrypt.Begin(); 
             iter != mrCrypt.End();
             ++iter)
         {
+            // body force
             drdt[iter->GetNodeIndex()](0) += damping*body_force;
             
+            // friction
             double y = iter.rGetLocation()[1];
-            if(y<mBottom + 0.1*(mTop - mBottom))
+            double dist_to_bottom = y - mBottom;
+            double dist_to_top    = mTop - y; 
+            
+            if( dist_to_bottom < mCellRadius )
             {
                 drdt[iter->GetNodeIndex()](0) -= damping*friction;
+                drdt[iter->GetNodeIndex()](1) += damping*stiffness*(mCellRadius - dist_to_bottom);
             }
 
-            if(y>mBottom + 0.9*(mTop - mBottom))
+            if( dist_to_top < mCellRadius )
             {
                 drdt[iter->GetNodeIndex()](0) -= damping*friction;
+                drdt[iter->GetNodeIndex()](1) -= damping*stiffness*(mCellRadius - dist_to_top);
             }
         } 
         
@@ -80,44 +93,39 @@ private:
     }
     
 public:
-    BloodCellModel(Crypt<2>& rCrypt)
+    BloodCellModel(Crypt<2>& rCrypt, double bottom, double top)
         : TissueSimulation<2>(rCrypt)
     {
-        double min_y =  1e200;
-        double max_y = -1e200;
+        assert(bottom < top);
+        mBottom = bottom;
+        mTop = top;
          
         for(Crypt<2>::Iterator iter = mrCrypt.Begin(); 
             iter != mrCrypt.End();
             ++iter)
         {
             double y = iter.rGetLocation()[1];
- 
-            if(y > max_y)
-            {
-                max_y = y;
-            }
-            if(y < min_y)
-            {
-                min_y = y;
-            }
-            
+            assert((y>mBottom) && (y<mTop));
         }
-        
-        mBottom = min_y - 0.5;
-        mTop    = max_y + 0.5;
+
+        UseCutoffPoint(1.0);
     }
 };
 
 
+
 class TestBloodCellModel : public CxxTest::TestSuite
 {
-public :
-    void testBloodCellModel()
+private:
+    void Run(std::string outputDirectory)
     { 
+        assert(outputDirectory!="");
+        
         int num_cells_depth = 6; 
         int num_cells_width = 20;
+        unsigned num_ghosts = 0;
  
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, num_ghosts);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
  
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
@@ -138,14 +146,75 @@ public :
     
         Crypt<2> crypt(*p_mesh,cells);
         crypt.SetGhostNodes(ghost_node_indices);
+        
+        double vessel_height = 10;
+        double vessel_width  = 25;
+        CancerParameters* p_params = CancerParameters::Instance();
+        p_params->SetCryptLength(vessel_height);
+        p_params->SetCryptWidth(vessel_width);
 
-        BloodCellModel blood_cell_model(crypt);
 
-        blood_cell_model.SetOutputDirectory("BloodCellModel");
+        RandomNumberGenerator* rng = RandomNumberGenerator::Instance();
+        for(Crypt<2>::Iterator iter = crypt.Begin(); 
+            iter != crypt.End();
+            ++iter)
+        {
+            // completely random
+            double x = rng->ranf() * vessel_width;
+            double y = rng->ranf() * vessel_height;
+            
+//// random perturbation
+//            double x = iter.rGetLocation()[0] + (rng->ranf() * 0.2 - 0.1);
+//            double y = iter.rGetLocation()[1] + (rng->ranf() * 0.2 - 0.1);
+
+            ChastePoint<2> new_location(x,y);
+            
+            crypt.MoveCell(iter, new_location);
+        }
+    
+        crypt.ReMesh();
+ 
+        BloodCellModel blood_cell_model(crypt, 0, vessel_height);
+
+        blood_cell_model.SetOutputDirectory(outputDirectory);
         blood_cell_model.SetEndTime(2);
 
         blood_cell_model.Solve();
+
+        SimulationTime::Destroy();
     }
+    
+
+
+public:
+
+    void TestNormal() throw(Exception)
+    {
+        CancerParameters* p_params = CancerParameters::Instance();
+        p_params->Reset();
+        
+        Run("BloodCellModelNormal");
+    }
+
+    void TestTwiceAsStiff() throw(Exception)
+    {
+        CancerParameters* p_params = CancerParameters::Instance();
+        p_params->Reset();
+        double stiffness = p_params->GetSpringStiffness();
+        p_params->SetSpringStiffness(2*stiffness);
+        
+        Run("BloodCellModelTwiceAsStiff");
+    }
+
+//    void xTestFiveTimesAsStiff() throw(Exception)
+//    {
+//        CancerParameters* p_params = CancerParameters::Instance();
+//        p_params->Reset();
+//        double stiffness = p_params->GetSpringStiffness();
+//        p_params->SetSpringStiffness(2*stiffness);
+//        
+//        Run("BloodCellModelFiveTimesAsStiff");
+//    }
 };
 
 

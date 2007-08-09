@@ -103,7 +103,12 @@ protected:
     bool mWntIncluded;
     /** The Wnt gradient, if any */
     WntGradient mWntGradient;
-        
+
+    /** Whether to have zero force if the cells are far enough apart */
+    bool mUseCutoffPoint;
+    /** Have zero force if the cells are this distance apart (and mUseCutoffPoint==true) */
+    double mCutoffPoint;
+
     /** Counts the number of births during the simulation */
     unsigned mNumBirths;
     
@@ -143,6 +148,8 @@ protected:
         archive & mNumDeaths;
         archive & mCellKillers;
         archive & mUseNonFlatBottomSurface;
+        archive & mUseCutoffPoint;
+        archive & mCutoffPoint;
     }
     
     /**
@@ -244,11 +251,13 @@ public:
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
     void UseNonFlatBottomSurface();
+    void UseCutoffPoint(double cutoffPoint);
+
     void Solve();
     
     void Save();
     static TissueSimulation<DIM>* Load(const std::string& rArchiveDirectory, const double& rTimeStamp);
-    
+
     Crypt<DIM>& rGetCrypt();
     const Crypt<DIM>& rGetCrypt() const;
     

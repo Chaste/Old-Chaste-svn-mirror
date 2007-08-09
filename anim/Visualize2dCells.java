@@ -42,6 +42,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     
     public static boolean drawSprings=false;
     public static boolean drawCells=true;
+    public static boolean drawCircles=false;
     public static boolean writeFiles=false;
     public static boolean drawGhosts=false;
     public static boolean drawFibres=false;
@@ -67,6 +68,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static Checkbox fibre=new Checkbox("Fibres");
     public static Checkbox cells=new Checkbox("Cells");
     public static Checkbox ghost_nodes=new Checkbox("Ghosts");
+    public static Checkbox circles=new Checkbox("Cells as circles");
     public static JLabel nearest_label = new JLabel();
     public static int numSteps = 0;
 
@@ -155,6 +157,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         {
             drawGhosts = state;
             System.out.println("Drawing ghost nodes = "+drawGhosts);    
+        }
+        else if (cb == circles)
+        {
+            drawCircles = state;
+            System.out.println("Drawing cells as circles = "+drawCircles);    
         }
         canvas.drawBufferedImage();
         canvas.repaint();
@@ -257,12 +264,14 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         fibre.addItemListener(this);
         cells.addItemListener(this);
         ghost_nodes.addItemListener(this);
+        circles.addItemListener(this);
         
         checkPanel.add(output);
         checkPanel.add(springs);
         checkPanel.add(fibre);
         checkPanel.add(cells);
         checkPanel.add(ghost_nodes);
+        checkPanel.add(circles);
         
         checkPanel.add(nearest_label);
         
@@ -282,6 +291,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         fibre.setState(false);
         cells.setState(true);
         ghost_nodes.setState(false);
+        circles.setState(false);
         for (int i=1; i<args.length; i++)
         {
             if (args[i].equals("output"))
@@ -308,6 +318,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             {
                 drawGhosts = true;
                 ghost_nodes.setState(true);
+            }
+            else if (args[i].equals("circles"))
+            {
+                drawCircles = true;
+                circles.setState(true);
             }
             else if (args[i].equals("notcylindrical"))
             {
@@ -779,8 +794,42 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         g2.setColor(Color.black);
                 
         g2.drawString("Time = " + vis.times[vis.timeStep], 10,10);
+
+        if(vis.drawCircles)
+        {
+	        //draw cell circle interiors
+	        for (int i=0; i<vis.numCells[vis.timeStep]; i++ ) 
+	        {
+	            PlotPoint p=scale(vis.positions[vis.timeStep][i]);
+	
+	            int rx = (int) (0.5* width /(vis.max_x - vis.min_x));
+	            int ry = (int) (0.5 * height /(vis.max_y - vis.min_y));
+	            SetCellColour(i); 
+	            if(vis.cell_type[vis.timeStep][i]!=6) // if not ghost
+	            {
+	            	g2.fillOval(p.x-rx, p.y-ry, 2*rx, 2*ry);
+	            }
+	        }        
+	        
+	        //draw cell circle boundaries
+	        for (int i=0; i<vis.numCells[vis.timeStep]; i++ ) 
+	        {
+	            PlotPoint p=scale(vis.positions[vis.timeStep][i]);
+	
+	            int rx = (int) (0.5* width /(vis.max_x - vis.min_x));
+	            int ry = (int) (0.5 * height /(vis.max_y - vis.min_y));
+	            g2.setColor(Color.black);
+	            if(vis.cell_type[vis.timeStep][i]!=6) // if not ghost
+	            {
+	            	g2.drawOval(p.x-rx, p.y-ry, 2*rx, 2*ry);
+	            }
+	        }        
+        }
+        
+        
+        
         g2.setColor(Color.black);
-                Shape original_clip=g2.getClip();
+        Shape original_clip=g2.getClip();
         
         // draw elements first
         for (int i=0 ; i < vis.numElements[vis.timeStep]; i++)
@@ -816,21 +865,21 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
             {
                  int clipx[]=new int[3];
                  int clipy[]=new int[3];
-                                 for (int node=0;node<3;node++)
-                                 {
-                                     clipx[node]=vertex[node].x;
-                                     clipy[node]=vertex[node].y;
-                                 }
-                                 Polygon clip=new Polygon(clipx,clipy,3);
-                                 boolean clip_me=false;
-                                 //Is circumcentre in the triangle?
-                                 //If not, then we'll clip the next bit of drawing to fit inside the triangle (ticket #432)
-                                 if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
-                                 {
+                 for (int node=0;node<3;node++)
+                 {
+                	 clipx[node]=vertex[node].x;
+                     clipy[node]=vertex[node].y;
+                 }
+                 Polygon clip=new Polygon(clipx,clipy,3);
+                 boolean clip_me=false;
+                 //Is circumcentre in the triangle?
+                 //If not, then we'll clip the next bit of drawing to fit inside the triangle (ticket #432)
+                 if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
+                 {
                      clip_me=true;
                      g2.setClip(clip);
-                                 }
-                                 for (int node=0;node<3;node++)
+                 }
+                 for (int node=0;node<3;node++)
                  {
                      SetCellColour(index[node]);
                      int xs[]=new int[4];
@@ -860,10 +909,10 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                 {
                     g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
-                                if (clip_me)
-                                {
-                        g2.setClip(original_clip);
-                                }
+                if (clip_me)
+                {
+                	g2.setClip(original_clip);
+                }
             }
             
             if (vis.drawSprings)
