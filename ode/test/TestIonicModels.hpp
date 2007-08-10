@@ -219,7 +219,10 @@ public:
         // Try with larger timestep and coarser tolerance.
         // We can't use a larger time step than 0.01 for forward Euler - the gating
         // variables go out of range.
-        BackwardEulerLuoRudyIModel1991 lr91_backward_euler2(time_step*50, &stimulus);
+        
+        // (Use alternative contructor for coverage. This is a hack but see ticket:451)
+        
+        BackwardEulerLuoRudyIModel1991 lr91_backward_euler2(new EulerIvpOdeSolver() ,time_step*50, &stimulus);
         ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_backward_euler2,
                                    end_time,

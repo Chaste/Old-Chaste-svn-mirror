@@ -1,2 +1,3 @@
 TestBidomainCompareWithMemfem.hpp
-TestConvergence.hpp
+Test3dBidomainForConvergence.hpp
+Test3dBidomainForConvergenceWithFasterOdes.hpp
