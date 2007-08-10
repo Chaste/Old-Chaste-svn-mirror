@@ -43,7 +43,6 @@ protected:
         void AssembleSystem(bool assembleResidual, bool assembleJacobian);
         void ApplyDirichletBoundaryConditions(bool assembleResidual, bool assembleJacobian);
         void OutputResults(unsigned counter);
-        double CalculateResidualNorm();
         void TakeNewtonStep();
     */
     

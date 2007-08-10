@@ -282,6 +282,94 @@ protected:
     }
     
     
+    /**
+     *  Compute the L2 norm of the current residual vector divided by it's length.
+     * 
+     *  This method obviously only makes sense if the assembler is for a nonlinear
+     *  PDE, and assumes mRhsVector is the residual vector. 
+     *  
+     */
+    double CalculateResidualNorm()
+    {
+        return mRhsVector.norm_sqr()/mDofHandler.n_dofs();
+    }
+    
+    /**
+     *  Take one Newton step.
+     * 
+     *  This method obviously only makes sense if the assembler is for a nonlinear
+     *  PDE, and assumes mSystemMatrix is the jacobian matrix and mRhsVector is the 
+     *  residual vector. It solves for the update vector, and determines best damping 
+     *  value.
+     * 
+     *  NOTE: gmres, identity preconditioning, num iterations etc are all hardcoded 
+     *  in here at the moment.
+     */
+    void TakeNewtonStep()
+    {
+        // compute Jacobian
+        AssembleSystem(false, true);
+        
+        // solve the linear system
+        SolverControl  solver_control(200000, 1e-6, false, true);
+        PrimitiveVectorMemory<> vector_memory;
+        
+        Vector<double> update;
+        update.reinit(mDofHandler.n_dofs());
+        
+        SolverGMRES<>::AdditionalData gmres_additional_data(200);
+        SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);
+        
+        gmres.solve(mSystemMatrix, update, mRhsVector, PreconditionIdentity());
+    
+        // deal with hanging nodes - form a continuous solutions
+        mHangingNodeConstraints.distribute(update);
+        
+        // save the old current solution
+        Vector<double> old_solution = mCurrentSolution;
+        
+        double best_norm_resid = 1e10;
+        double best_damping_value = 0.0;
+        
+        std::vector<double> damping_values;
+        damping_values.push_back(0.0);
+        damping_values.push_back(0.05);
+        for (unsigned i=1; i<=10; i++)
+        {
+            damping_values.push_back((double)i/10.0);
+        }
+        
+        for (unsigned i=0; i<damping_values.size(); i++)
+        {
+            mCurrentSolution.equ(1.0, old_solution, -damping_values[i], update);
+            
+            // compute residual
+            AssembleSystem(true, false);
+            double norm_resid = CalculateResidualNorm();
+            
+            std::cout << "\tTesting s = " << damping_values[i] << ", |f| = " << norm_resid << "\n" << std::flush;
+            if (norm_resid < best_norm_resid)
+            {
+                best_norm_resid = norm_resid;
+                best_damping_value = damping_values[i];
+            }
+        }
+        
+        
+        if (best_damping_value == 0.0)
+        {
+            std::cout << "\nResidual does not decrease in newton direction, quitting\n" << std::flush;
+            assert(0);
+        }
+        else
+        {
+            std::cout << "\tBest s = " << best_damping_value << "\n"  << std::flush;
+        }
+        // implement best update and recalculate residual
+        mCurrentSolution.equ(1.0, old_solution, -best_damping_value, update);
+    }    
+    
+    
 public :
     AbstractDealiiAssembler(Triangulation<DIM>* pMesh) :
             mDofHandler(*pMesh)  // associate the mesh with the dof handler

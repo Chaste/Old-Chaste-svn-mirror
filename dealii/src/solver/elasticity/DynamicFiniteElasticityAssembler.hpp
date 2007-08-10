@@ -81,7 +81,6 @@ private:
         void AssembleSystem(bool assembleResidual, bool assembleJacobian);
         void ApplyDirichletBoundaryConditions(bool assembleResidual, bool assembleJacobian);
     
-        double CalculateResidualNorm();
         void OutputResults(unsigned newtonIteration);
         SparseMatrix<double> mNumericalJacobianMatrix;
      */

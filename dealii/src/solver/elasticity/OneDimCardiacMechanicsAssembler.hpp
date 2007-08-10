@@ -6,11 +6,9 @@
 
 /* Todo:
  * 
- * fix X=0
  * add T(C) function
  * compute dTdE
  * 
- * test
  * change algorithm...
  */
 
@@ -19,6 +17,9 @@ class OneDimCardiacMechanicsAssembler : public AbstractDealiiAssembler<1>
     FE_Q<1> mFe;
     double mDensity;
     unsigned mNumNewtonIterations;
+    std::vector<Vector<double> > mDeformedPosition;
+    std::vector<Vector<double> > mUndeformedPosition;
+
 
     // cardiac mech
     static const unsigned mNumQuadPointsInEachDimension = 3;
@@ -27,11 +28,17 @@ class OneDimCardiacMechanicsAssembler : public AbstractDealiiAssembler<1>
     std::vector<double> mActiveTension;
     std::vector<double> mLambda;
 
+    unsigned mEndNodeDof;
+
 
     void ApplyDirichletBoundaryConditions()
     {
-        // fix X=0
-        std::cout << "ADD BOUNDARY CONDITIONS\n";
+        for(unsigned j=0; j<mSystemMatrix.n(); j++)
+        {
+            this->mSystemMatrix.set(mEndNodeDof, j, 0.0);
+        }
+        this->mSystemMatrix.set(mEndNodeDof, mEndNodeDof, 1.0);
+        this->mRhsVector(mEndNodeDof) = this->mCurrentSolution(mEndNodeDof);
     }
 
     void DistributeDofs()
@@ -39,78 +46,6 @@ class OneDimCardiacMechanicsAssembler : public AbstractDealiiAssembler<1>
         this->mDofHandler.distribute_dofs(mFe);
     }
     
-
-    double CalculateResidualNorm()
-    {
-        return this->mRhsVector.norm_sqr()/this->mDofHandler.n_dofs();
-    }
-    
-
-    void TakeNewtonStep()
-    {
-        // compute Jacobian
-        this->AssembleSystem(false, true);
-        
-        // solve the linear system
-        SolverControl  solver_control(200000, 1e-6, false, true);
-        PrimitiveVectorMemory<> vector_memory;
-        
-        Vector<double> update;
-        update.reinit(this->mDofHandler.n_dofs());
-        
-        SolverGMRES<>::AdditionalData gmres_additional_data(200);
-        SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);
-        
-        gmres.solve(this->mSystemMatrix, update, this->mRhsVector, PreconditionIdentity());
-    
-        // deal with hanging nodes - form a continuous solutions
-        this->mHangingNodeConstraints.distribute(update);
-        
-        // save the old current solution
-        Vector<double> old_solution = this->mCurrentSolution;
-        
-        double best_norm_resid = 1e10;
-        double best_damping_value = 0.0;
-        
-        std::vector<double> damping_values;
-        damping_values.push_back(0.0);
-        damping_values.push_back(0.05);
-        for (unsigned i=1; i<=10; i++)
-        {
-            damping_values.push_back((double)i/10.0);
-        }
-        
-        for (unsigned i=0; i<damping_values.size(); i++)
-        {
-            this->mCurrentSolution.equ(1.0, old_solution, -damping_values[i], update);
-            
-            // compute residual
-            this->AssembleSystem(true, false);
-            double norm_resid = CalculateResidualNorm();
-            
-            std::cout << "\tTesting s = " << damping_values[i] << ", |f| = " << norm_resid << "\n" << std::flush;
-            if (norm_resid < best_norm_resid)
-            {
-                best_norm_resid = norm_resid;
-                best_damping_value = damping_values[i];
-            }
-        }
-        
-        
-        if (best_damping_value == 0.0)
-        {
-            std::cout << "\nResidual does not decrease in newton direction, quitting\n" << std::flush;
-            assert(0);
-        }
-        else
-        {
-            std::cout << "\tBest s = " << best_damping_value << "\n"  << std::flush;
-        }
-        // implement best update and recalculate residual
-        this->mCurrentSolution.equ(1.0, old_solution, -best_damping_value, update);
-    }
-    
-
 
 public:
     OneDimCardiacMechanicsAssembler(Triangulation<1>* pMesh)
@@ -130,6 +65,25 @@ public:
         mCurrentQuadPointGlobalIndex = 0;
         
         mLambda.resize(mTotalQuadPoints, 1.0);
+        
+        
+        bool found = false;
+        
+        DofVertexIterator<1> vertex_iter(this->mpMesh, &this->mDofHandler);
+        while (!vertex_iter.ReachedEnd())
+        {
+            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+            Point<1> posn = vertex_iter.GetVertex();
+            if( posn[0]==0)
+            {
+                mEndNodeDof = vertex_iter.GetDof(0);
+                found = true;
+                break;
+            }
+            vertex_iter.Next();
+        }
+        
+        assert(found); // check have found the end node..
     }    
 
 
@@ -147,7 +101,7 @@ public:
     
         // compute residual
         this->AssembleSystem(true, false);
-        double norm_resid = CalculateResidualNorm();
+        double norm_resid = this->CalculateResidualNorm();
         std::cout << "\nNorm of residual is " << norm_resid << "\n";
         
         mNumNewtonIterations = 0;
@@ -168,9 +122,9 @@ public:
                       <<   "Newton iteration " << counter
                       << ":\n-------------------\n";
             
-            TakeNewtonStep();
+            this->TakeNewtonStep();
             this->AssembleSystem(true, false);
-            norm_resid = CalculateResidualNorm();
+            norm_resid = this->CalculateResidualNorm();
             
             std::cout << "Norm of residual is " << norm_resid << "\n";
 
@@ -310,20 +264,15 @@ private:
 //    
 //            double detF = determinant(F);
 
-            double F;
-            double C;
-            double inv_C;
-            double inv_F;
+            double F = 1 + grad_u[0][0];;
+            double C = F*F;
+            //double inv_C = 1.0/C;
+            //double inv_F = 1.0/F;
             double T;
-            double dTdE;
+            double dTdE;            
+            //double detF = F;
             
-            F = 1 + grad_u[0][0];
-            C = F*F;
-            inv_C = 1.0/C;
-            inv_F = 1.0/F;
-            
-            double detF = F;
-            
+
             /*************************************
              *  The cardiac-specific code
              ************************************/
@@ -344,19 +293,11 @@ private:
 
             mLambda[mCurrentQuadPointGlobalIndex] = F; //=sqrt(C);
 
-//            // compute the transformed tension. The material law should law be a cardiac-
-//            // specific law which assumes the x-axes in the fibre, the z-axes the sheet normal
 //            p_material_law->ComputeStressAndStressDerivative(C_fibre,inv_C_fibre,p,T_fibre,mDTdE_fibre,assembleJacobian);
-//    
 //            // amend the stress and dTdE using the active tension
 //            T_fibre[0][0] += active_tension/C_fibre[0][0];
 //            mDTdE_fibre(0,0,0,0) -= 2*active_tension/(C_fibre[0][0]*C_fibre[0][0]);  
-//            
-//            // transform T back to real coordinates
-//            // Note we explicitly do the multiplication as can't multiply
-//            // deal.II SymmetricTensor with a Tensor
-//    
-//    ///\todo: make efficient
+//
 //            for(unsigned M=0; M<DIM; M++) 
 //            {
 //                for(unsigned N=0; N<DIM; N++)
@@ -373,41 +314,6 @@ private:
 //                    }
 //                }
 //            }            
-//            
-//    //        // transform dTdE back to real coords (ie dT_{albe}dE_{gam de} to dT_{MN}dE_{PQ})
-//    /////\todo: make efficient
-//    /////\todo: introduce FourthOrderTensor
-//    //        for(unsigned M=0; M<DIM; M++) 
-//    //        {
-//    //            for(unsigned N=0; N<DIM; N++)
-//    //            {
-//    //                for(unsigned P=0; P<DIM; P++) 
-//    //                {
-//    //                    for(unsigned Q=0; Q<DIM; Q++)
-//    //                    {
-//    //                        this->dTdE(M,N,P,Q) = 0;
-//    //                        for(unsigned al=0; al<DIM; al++) 
-//    //                        {
-//    //                            for(unsigned be=0; be<DIM; be++)
-//    //                            {
-//    //                                for(unsigned gam=0; gam<DIM; gam++)
-//    //                                {
-//    //                                    for(unsigned de=0; de<DIM; de++)
-//    //                                    {
-//    //                                        this->dTdE(M,N,P,Q) +=            mDTdE_fibre (al,be,gam,de)
-//    //                                                                *      mFibreSheetMat [M][al]
-//    //                                                                * mTransFibreSheetMat [be][N]
-//    //                                                                * mTransFibreSheetMat [gam][P]
-//    //                                                                *      mFibreSheetMat [Q][de];
-//    //                                    }
-//    //                                }
-//    //                            }
-//    //                        }
-//    //                    }
-//    //                }
-//    //            }
-//    //        }            
-//    
 //            static FourthOrderTensor<DIM> temp1;
 //            static FourthOrderTensor<DIM> temp2;
 //            static FourthOrderTensor<DIM> temp3;
@@ -421,7 +327,7 @@ private:
 
 // Compute T(C), dTdE(C)...
 //assert(0); 
-T = 0;
+T = 0.5*(C-1) + active_tension;
 dTdE = 1;
     
             
@@ -534,6 +440,46 @@ dTdE = 1;
         }
         
         first = false;
+    }
+
+
+public: 
+    std::vector<Vector<double> >& rGetDeformedPosition()
+    {
+        mDeformedPosition.clear();
+        mDeformedPosition.resize(1);
+        mDeformedPosition[0].reinit(this->mpMesh->n_vertices());
+    
+        DofVertexIterator<1> vertex_iter(this->mpMesh, &this->mDofHandler);
+        while (!vertex_iter.ReachedEnd())
+        {
+            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+            Point<1> old_posn = vertex_iter.GetVertex();
+            
+            mDeformedPosition[0](vertex_index) =   old_posn(0)
+                                                 + mCurrentSolution(vertex_iter.GetDof(0));
+            vertex_iter.Next();
+        }
+    
+        return mDeformedPosition;
+    }
+
+    std::vector<Vector<double> >& rGetUndeformedPosition()
+    {
+        mUndeformedPosition.clear();
+        mUndeformedPosition.resize(1);
+        mUndeformedPosition[0].reinit(this->mpMesh->n_vertices());
+    
+        TriangulationVertexIterator<1> vertex_iter(this->mpMesh);
+        while (!vertex_iter.ReachedEnd())
+        {
+            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+            Point<1> old_posn = vertex_iter.GetVertex();
+            mUndeformedPosition[0](vertex_index) = old_posn(0);
+            vertex_iter.Next();
+        }
+    
+        return mUndeformedPosition;
     }
 };
 

@@ -168,16 +168,6 @@ protected:
      */
     void ApplyDirichletBoundaryConditions();
     
-    /**
-     *  Compute the L2 norm of the current residual vector divided by it's length.
-     */
-    double CalculateResidualNorm();
-    
-    /**
-     *  Take one Newton step, ie assemble the jacobian matrix and residual, solve for
-     *  the update, and determine best damping value.
-     */
-    void TakeNewtonStep();
     
     /**
      *  Gets the material law corresponding to the required region of the mesh. 

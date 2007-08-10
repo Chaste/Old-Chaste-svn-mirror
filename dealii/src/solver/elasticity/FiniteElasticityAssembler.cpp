@@ -894,72 +894,6 @@ void FiniteElasticityAssembler<DIM>::WriteOutput(unsigned counter, bool writeDef
 
 
 template<unsigned DIM>
-void FiniteElasticityAssembler<DIM>::TakeNewtonStep()
-{
-    // compute Jacobian
-    this->AssembleSystem(false, true);
-    
-    // solve the linear system
-    SolverControl  solver_control(200000, 1e-6, false, true);
-    PrimitiveVectorMemory<> vector_memory;
-    
-    Vector<double> update;
-    update.reinit(this->mDofHandler.n_dofs());
-    
-    SolverGMRES<>::AdditionalData gmres_additional_data(200);
-    SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);
-    
-    gmres.solve(this->mSystemMatrix, update, this->mRhsVector, PreconditionIdentity());
-
-    // deal with hanging nodes - form a continuous solutions
-    this->mHangingNodeConstraints.distribute(update);
-    
-    // save the old current solution
-    Vector<double> old_solution = this->mCurrentSolution;
-    
-    double best_norm_resid = 1e10;
-    double best_damping_value = 0.0;
-    
-    std::vector<double> damping_values;
-    damping_values.push_back(0.0);
-    damping_values.push_back(0.05);
-    for (unsigned i=1; i<=10; i++)
-    {
-        damping_values.push_back((double)i/10.0);
-    }
-    
-    for (unsigned i=0; i<damping_values.size(); i++)
-    {
-        this->mCurrentSolution.equ(1.0, old_solution, -damping_values[i], update);
-        
-        // compute residual
-        this->AssembleSystem(true, false);
-        double norm_resid = CalculateResidualNorm();
-        
-        std::cout << "\tTesting s = " << damping_values[i] << ", |f| = " << norm_resid << "\n" << std::flush;
-        if (norm_resid < best_norm_resid)
-        {
-            best_norm_resid = norm_resid;
-            best_damping_value = damping_values[i];
-        }
-    }
-    
-    
-    if (best_damping_value == 0.0)
-    {
-        std::cout << "\nResidual does not decrease in newton direction, quitting\n" << std::flush;
-        assert(0);
-    }
-    else
-    {
-        std::cout << "\tBest s = " << best_damping_value << "\n"  << std::flush;
-    }
-    // implement best update and recalculate residual
-    this->mCurrentSolution.equ(1.0, old_solution, -best_damping_value, update);
-}
-
-
-template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::Solve()
 {
     if (mMaterialLaws.size()==0)
@@ -982,7 +916,7 @@ void FiniteElasticityAssembler<DIM>::Solve()
     
     // compute residual
     this->AssembleSystem(true, false);
-    double norm_resid = CalculateResidualNorm();
+    double norm_resid = this->CalculateResidualNorm();
     std::cout << "\nNorm of residual is " << norm_resid << "\n";
     
     mNumNewtonIterations = 0;
@@ -1004,9 +938,9 @@ void FiniteElasticityAssembler<DIM>::Solve()
                   <<   "Newton iteration " << counter
                   << ":\n-------------------\n";
         
-        TakeNewtonStep();
+        this->TakeNewtonStep();
         this->AssembleSystem(true, false);
-        norm_resid = CalculateResidualNorm();
+        norm_resid = this->CalculateResidualNorm();
         
         std::cout << "Norm of residual is " << norm_resid << "\n";
 
@@ -1058,11 +992,7 @@ std::vector<Vector<double> >& FiniteElasticityAssembler<DIM>::rGetDeformedPositi
     return mDeformedPosition;
 }
 
-template<unsigned DIM>
-double FiniteElasticityAssembler<DIM>::CalculateResidualNorm()
-{
-    return this->mRhsVector.norm_sqr()/this->mDofHandler.n_dofs();
-}
+
 
 
 template<unsigned DIM>
