@@ -73,16 +73,20 @@ echo "  Output file path is "${OUTPUT_PATH}
 
 #######################################################################################
 # Decide if monodomain or bidomain
+# currently we are only writing out the transmembrane potential even for a bidomain
+# so this code is not used
 #######################################################################################
 # test if the number of lines in the node file is the same as the data file (=> monodomain),
 # allowing for a comment line in the node file
-IS_MONODOMAIN=0
-node_lines=`wc -l ${MESH_PATH}.node | cut -f 1 -d ' '`
-data_lines=`wc -l ${RESULTS_PATH}_000000.dat | cut -f 1 -d ' '`
-dlp1=$((($data_lines + 1)))
-if [ $node_lines -eq $data_lines -o $node_lines -eq $dlp1 ]; then  
-   	IS_MONODOMAIN=1
-fi
+#IS_MONODOMAIN=0
+#node_lines=`wc -l ${MESH_PATH}.node | cut -f 1 -d ' '`
+#data_lines=`wc -l ${RESULTS_PATH}_000000.dat | cut -f 1 -d ' '`
+#dlp1=$((($data_lines + 1)))
+#if [ $node_lines -eq $data_lines -o $node_lines -eq $dlp1 ]; then  
+#   	IS_MONODOMAIN=1
+#fi
+IS_MONODOMAIN=1
+
 
 
 #######################################################################################

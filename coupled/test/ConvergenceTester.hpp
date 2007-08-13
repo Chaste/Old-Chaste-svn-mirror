@@ -19,7 +19,7 @@
 #include "PropagationPropertiesCalculator.hpp"
 #include "ColumnDataReader.hpp"
 
-const double initial_pde_time_step = 0.04; //ms
+const double initial_pde_time_step = 0.02; //ms
 const double mesh_width = 0.2; // cm
 const double simulation_time = 8.0; //ms
 // meshes to use for convergence testing.
@@ -103,7 +103,6 @@ public:
         // To ensure that the first test fails
         double prev_velocity_for_space = -999;
         bool converging_in_space = false;
-        bool failed_to_converge_in_space = false;
         
         double pde_time_step;   // ms
         
@@ -149,7 +148,7 @@ public:
                 /*******/
                 //Over-ride the new ode_time_step tweaking code so that we might expect rapid 
                 //pde_time_step convergence
-                ode_time_step=0.0025;
+                ode_time_step=pde_time_step/4;
                 /*******/
                 
                 PointStimulusCellFactory<CELL, DIM> cell_factory(ode_time_step, num_elements);
@@ -168,59 +167,67 @@ public:
                 
                 std::cout<<"   Solving with a time step of "<<pde_time_step<<" ms"<<std::endl  << std::flush;
                 std::cout<<"   Solving with an ode time step of "<<ode_time_step<<" ms"<<std::endl  << std::flush;
-                
-                cardiac_problem.Solve();
-                
-                // Calculate conduction velocity between 1/4 and 3/4 through the mesh
-                unsigned third_quadrant_node;
-                unsigned first_quadrant_node;
-                switch(DIM)
-                {
-                    case 1:
+               
+                double relerr; 
+                try {
+                    cardiac_problem.Solve();
+                    
+                    // Calculate conduction velocity between 1/4 and 3/4 through the mesh
+                    unsigned third_quadrant_node;
+                    unsigned first_quadrant_node;
+                    switch(DIM)
                     {
-                        first_quadrant_node = (unsigned) (0.25*num_elements);
-                        third_quadrant_node = (unsigned) (0.75*num_elements);
-                        assert(cardiac_problem.rGetMesh().GetNode(first_quadrant_node)->rGetLocation()[0]==0.25*mesh_width);
-                        assert(cardiac_problem.rGetMesh().GetNode(third_quadrant_node)->rGetLocation()[0]==0.75*mesh_width);
-                        break;
-                    }
-                    case 2:
-                    {
-                        unsigned n= (unsigned) pow (2, mesh_num+2);
-                        first_quadrant_node =   (n+1)*(n/2)+  n/4 ;
-                        third_quadrant_node =   (n+1)*(n/2)+3*n/4 ;
-                        break;
-                    }
-                    case 3:
-                    {
-                        first_quadrant_node = first_quadrant_nodes_3d[mesh_num];
-                        third_quadrant_node = third_quadrant_nodes_3d[mesh_num];
-                        break;
+                        case 1:
+                        {
+                            first_quadrant_node = (unsigned) (0.25*num_elements);
+                            third_quadrant_node = (unsigned) (0.75*num_elements);
+                            assert(cardiac_problem.rGetMesh().GetNode(first_quadrant_node)->rGetLocation()[0]==0.25*mesh_width);
+                            assert(cardiac_problem.rGetMesh().GetNode(third_quadrant_node)->rGetLocation()[0]==0.75*mesh_width);
+                            break;
+                        }
+                        case 2:
+                        {
+                            unsigned n= (unsigned) pow (2, mesh_num+2);
+                            first_quadrant_node =   (n+1)*(n/2)+  n/4 ;
+                            third_quadrant_node =   (n+1)*(n/2)+3*n/4 ;
+                            break;
+                        }
+                        case 3:
+                        {
+                            first_quadrant_node = first_quadrant_nodes_3d[mesh_num];
+                            third_quadrant_node = third_quadrant_nodes_3d[mesh_num];
+                            break;
+                        }
+                        
+                        default:
+                            assert(0);
                     }
                     
-                    default:
-                        assert(0);
+                    Node<DIM>* fqn = cardiac_problem.rGetMesh().GetNode(first_quadrant_node);
+                    Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);
+                    assert(fqn->rGetLocation()[0]==0.25*mesh_width);
+                    assert(tqn->rGetLocation()[0]==0.75*mesh_width);
+                    for (unsigned coord=1; coord<DIM; coord++)
+                    {
+                        assert(fqn->rGetLocation()[coord]==0.5*mesh_width);
+                        assert(tqn->rGetLocation()[coord]==0.5*mesh_width);
+                    }
+                    
+                    
+                    OutputFileHandler results_handler("Convergence", false);
+                    ColumnDataReader results_reader(results_handler.GetTestOutputDirectory(), "Results", false);
+                    PropagationPropertiesCalculator propagation_calc(&results_reader);
+                    probe_velocity = propagation_calc.CalculateConductionVelocity(first_quadrant_node, third_quadrant_node, 0.5*mesh_width);
+                    
+                    relerr = fabs ((probe_velocity - prev_velocity_for_time) / prev_velocity_for_time);
+                    std::cout<<"   >>> Convergence test: conduction velocity= "<<probe_velocity<<" cm/msec | prev_velocity_for_time = "<<prev_velocity_for_time
+                    <<" cm/msec | relerr = "<<relerr<<std::endl  << std::flush;
                 }
-                
-                Node<DIM>* fqn = cardiac_problem.rGetMesh().GetNode(first_quadrant_node);
-                Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);
-                assert(fqn->rGetLocation()[0]==0.25*mesh_width);
-                assert(tqn->rGetLocation()[0]==0.75*mesh_width);
-                for (unsigned coord=1; coord<DIM; coord++)
+                catch (Exception e)
                 {
-                    assert(fqn->rGetLocation()[coord]==0.5*mesh_width);
-                    assert(tqn->rGetLocation()[coord]==0.5*mesh_width);
+                    std::cout << "Exception thrown, therefore halve ode+pde time step \n";
+                    relerr = 1.0;
                 }
-                
-                
-                OutputFileHandler results_handler("Convergence", false);
-                ColumnDataReader results_reader(results_handler.GetTestOutputDirectory(), "Results", false);
-                PropagationPropertiesCalculator propagation_calc(&results_reader);
-                probe_velocity = propagation_calc.CalculateConductionVelocity(first_quadrant_node, third_quadrant_node, 0.5*mesh_width);
-                
-                double relerr = fabs ((probe_velocity - prev_velocity_for_time) / prev_velocity_for_time);
-                std::cout<<"   >>> Convergence test: conduction velocity= "<<probe_velocity<<" cm/msec | prev_velocity_for_time = "<<prev_velocity_for_time
-                <<" cm/msec | relerr = "<<relerr<<std::endl  << std::flush;
                 
                 if (relerr < 1e-2)
                 {
@@ -231,7 +238,7 @@ public:
                     // Get ready for the next test by halving the time step
                     pde_time_step *= 0.5;
                     /******* Currently redundant code*/
-                    ode_time_step = pde_time_step;
+                    //ode_time_step = pde_time_step;
                 }
                 
                 if (pde_time_step < 1e-4)
@@ -253,21 +260,10 @@ public:
             {
                 converging_in_space = true;
             }
-            else
-            {
-                // Use the next mesh next time
-                mesh_num++;
-                if (mesh_num>=last_mesh)
-                {
-                    convergedInSpace=false;
-                    
-                    failed_to_converge_in_space = true;
-                    return;
-                }
-            }
+            mesh_num++;
             prev_velocity_for_space = probe_velocity;
         }
-        while (!converging_in_space && !failed_to_converge_in_space);   //do while: space_step
+        while (!converging_in_space && mesh_num<=last_mesh);   //do while: space_step
         
         if (converging_in_space)
         {
@@ -277,10 +273,6 @@ public:
         }
         
         TS_ASSERT(converging_in_space);
-        
-        odeTimeStep=ode_time_step;
-        pdeTimeStep=pde_time_step;
-        convergedInSpace=true;
     }    
 };
 #endif /*CONVERGENCETESTER_HPP_*/
