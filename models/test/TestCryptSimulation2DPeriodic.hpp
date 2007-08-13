@@ -967,9 +967,16 @@ public:
         force_on_spring = simulator.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
         TS_ASSERT_DELTA(force_on_spring[0], 0.0, 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
+        //\todo The above test is not guaranteed repeatible.  It appears to 
+        //give different answers on different runs
+        
+        //Here's a double check that the geometry is the same:
+        TS_ASSERT_DELTA(dist, 0.7607, 1e-4);
+        TS_ASSERT_DELTA(p_element->GetNode(0)->rGetLocation()[0], 4.2767, 1e-4);
+        TS_ASSERT_DELTA(p_element->GetNode(0)->rGetLocation()[1], 0.8660, 1e-4);
+        TS_ASSERT_DELTA(p_element->GetNode(1)->rGetLocation()[0], 5.0375, 1e-4);
+        TS_ASSERT_DELTA(p_element->GetNode(1)->rGetLocation()[1], 0.8660, 1e-4);
                 
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
