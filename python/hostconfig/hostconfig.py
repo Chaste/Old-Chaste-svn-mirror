@@ -81,10 +81,16 @@ def do_petsc(version, optimised):
         raise ValueError('PETSc 2.2 required, but no path given in the host config.')
     if version == '2_2':
         petsc_base = os.path.abspath(conf.petsc_2_2_path)
+        # Gracefully fall back to optimised/non-opt if the requested one isn't there
         if optimised:
-            libpath = os.path.join(petsc_base, 'lib/libO_c++', conf.petsc_build_name)
+            dirs = ['libO_c++', 'libg_c++']
         else:
-            libpath = os.path.join(petsc_base, 'lib/libg_c++', conf.petsc_build_name)
+            dirs = ['libg_c++', 'libO_c++']
+        for d in dirs:
+            libpath = os.path.join(petsc_base, 'lib', d, conf.petsc_build_name)
+            if os.path.exists(libpath): break
+        else:
+            raise ValueError('No PETSc 2.2 libraries found.')
         incpaths.append(os.path.join(petsc_base, 'bmake', conf.petsc_build_name))
     else:
         petsc_base = os.path.abspath(conf.petsc_2_3_path)

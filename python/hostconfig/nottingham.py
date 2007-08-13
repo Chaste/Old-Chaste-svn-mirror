@@ -14,4 +14,4 @@ blas_lapack = ['lapack', 'blas']
 other_libraries = ['boost_serialization-gcc', 'xerces-c']
 
 tools = {'mpirun': '/opt/mpi/bin/mpirun',
-         'mpicxx': '/usr/local/mpi/bin/mpicxx'}
+         'mpicxx': '/opt/mpi/bin/mpicxx'}
