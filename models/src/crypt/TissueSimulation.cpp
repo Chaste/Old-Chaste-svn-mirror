@@ -346,7 +346,9 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     {
         if( distance_between_nodes >= mCutoffPoint )
         {
-            return c_vector<double,DIM>(); // ie return zero force;
+            return zero_vector<double>(DIM);
+            //c_vector<double,DIM>() is not guaranteed to be fresh memory
+            // ie return zero force;
         }
     }
     
