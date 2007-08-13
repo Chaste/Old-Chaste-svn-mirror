@@ -32,7 +32,7 @@
 class TestIonicModels : public CxxTest::TestSuite
 {
 public:
-    void xTestOdeSolverForHH52WithInitialStimulus(void)
+    void TestOdeSolverForHH52WithInitialStimulus(void)
     {
         clock_t ck_start, ck_end;
 
@@ -69,7 +69,7 @@ public:
     }
     
     
-    void xTestOdeSolverForFHN61WithInitialStimulus(void)
+    void TestOdeSolverForFHN61WithInitialStimulus(void)
     {
         clock_t ck_start, ck_end;
 
@@ -121,7 +121,7 @@ public:
     }
     
     
-    void xTestOdeSolverForLR91WithDelayedInitialStimulus(void)
+    void TestOdeSolverForLR91WithDelayedInitialStimulus(void)
     {
         clock_t ck_start, ck_end;
 
@@ -158,7 +158,7 @@ public:
         TS_ASSERT_DELTA( lr91_ode_system.GetIIonic(), 1.9411, 1e-3);
     }
     
-    void xTestOdeSolverForLR91WithRegularStimulus(void) throw (Exception)
+    void TestOdeSolverForLR91WithRegularStimulus(void) throw (Exception)
     {
         // Set stimulus
         double magnitude = -25.5;
@@ -247,7 +247,7 @@ public:
         BackwardEulerLuoRudyIModel1991 lr91_backward_euler3(&solver2, time_step, &stimulus);
     }
     
-    void xTestOdeSolverForFox2002WithRegularStimulus(void) throw (Exception)
+    void TestOdeSolverForFox2002WithRegularStimulus(void) throw (Exception)
     {
         clock_t ck_start, ck_end;
 
@@ -299,7 +299,7 @@ public:
         
     }
     
-    void xTestLr91WithVoltageDropVariousTimeStepRatios()
+    void TestLr91WithVoltageDropVariousTimeStepRatios()
     {
         TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(1));
         TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(2));
