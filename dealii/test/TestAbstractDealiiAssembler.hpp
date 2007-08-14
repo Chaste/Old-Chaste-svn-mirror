@@ -6,6 +6,8 @@
 #include "AbstractDealiiAssembler.hpp"
 #include "grid/tria_boundary_lib.h"
 
+#include "ConformingTetrahedralMesh.hpp" // not needed, just testing there are no deal.II Boost issues.
+
 // simple concrete assembler for laplace's equation 
 template<unsigned DIM>
 class LaplacesAssembler : public AbstractDealiiAssembler<DIM>
