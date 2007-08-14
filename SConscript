@@ -82,15 +82,6 @@ chaste_libs = [toplevel_dir] + comp_deps[toplevel_dir]
 all_libs = ['test'+toplevel_dir] + chaste_libs + other_libs
 
 
-
-# Set up build environment for this component
-if toplevel_dir == 'dealii':
-    # Use Deal.II's boost
-    env = env.Copy()
-    import hostconfig
-    dealii_boost = hostconfig.conf.dealii_path + 'contrib/boost/include/ '
-    env.Prepend(CCFLAGS='-isystem ' + dealii_boost)
-
 # Build and install the library for this component
 env.SharedLibrary(toplevel_dir, files)
 #env.Install('#lib', 'lib'+toplevel_dir+'.so')
