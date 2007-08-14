@@ -81,7 +81,9 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
         TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
-       
+        
+        // cover get pde
+        monodomain_problem.rGetPde();       
     }
     
     void TestMonodomainDg01DWithTolerance()

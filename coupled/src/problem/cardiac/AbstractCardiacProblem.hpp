@@ -32,6 +32,8 @@ private:
     std::string  mOutputDirectory, mOutputFilenamePrefix;
 
 protected:
+    AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler; 
+
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
@@ -52,7 +54,7 @@ protected:
      * This class will take responsibility for freeing the object when it is finished with.
      */
     virtual AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
-    
+
     ParallelColumnDataWriter *mpWriter;
     unsigned mVoltageVarId;
 
@@ -76,6 +78,7 @@ public:
         mWriteInfo = false;
         mPrintOutput = true;
         mpCardiacPde = NULL;
+        mpAssembler = NULL;
         mVoltage = NULL;
         mLinearSolverRelativeTolerance=1e-6;        
     }
@@ -280,10 +283,15 @@ public:
         return mMesh;
     }
     
+    AbstractCardiacPde<SPACE_DIM>* rGetPde()
+    {
+        return mpCardiacPde;
+    }
+    
     void Solve()
     {
         PreSolveChecks();
-        AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* p_assembler = CreateAssembler();
+        mpAssembler = CreateAssembler();
         Vec initial_condition = CreateInitialCondition();
         
         DistributedVector ic = DistributedVector(initial_condition);
@@ -312,17 +320,17 @@ public:
         while ( !stepper.IsTimeAtEnd() )
         {
             // solve from now up to the next printing time
-            p_assembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), mPdeTimeStep);
-            p_assembler->SetInitialCondition( initial_condition );
+            mpAssembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), mPdeTimeStep);
+            mpAssembler->SetInitialCondition( initial_condition );
 
             try
             {
-                mVoltage = p_assembler->Solve();
+                mVoltage = mpAssembler->Solve();
             }
             catch (Exception &e)
             {
                 // Free memory.
-                delete p_assembler;                 
+                delete mpAssembler;                 
                 //VecDestroy(initial_condition);
                 // Close files
                 if (mPrintOutput)
@@ -362,7 +370,7 @@ public:
         }
         
         // Free assembler
-        delete p_assembler;
+        delete mpAssembler;
 
         // close the file that stores voltage values
         if (mPrintOutput)
