@@ -1,6 +1,7 @@
 #ifndef INVENTORVORONOIWRITER_HPP_
 #define INVENTORVORONOIWRITER_HPP_
 
+#include "VoronoiTessellation.cpp"
 #include "OutputFileHandler.hpp"
 
 const std::string INVENTOR_HEADER="#Inventor V2.0 ascii \n\
@@ -79,7 +80,7 @@ public:
     /**
      *  Write the voronoi tessellation in Inventor format
      */
-    void Write(const VoronoiTessellation& rTessellation)
+    void Write(const VoronoiTessellation<3>& rTessellation)
     {
         // open inventor file
         std::string file_name = this->mBaseName+".iv";
@@ -130,7 +131,7 @@ public:
      *  Scale the vertex of each cell toward the centre of that cell by the given scaleFactor
      *  and write.
      */
-    void ScaleAndWrite(VoronoiTessellation& rTessellation, double scaleFactor)
+    void ScaleAndWrite(VoronoiTessellation<3>& rTessellation, double scaleFactor)
     {
         if ((scaleFactor <= 0.0) || (scaleFactor > 1.0))
         {

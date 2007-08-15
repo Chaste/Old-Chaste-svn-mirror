@@ -1,15 +1,40 @@
+#ifndef VORONOITESSELLATION_CPP
+#define VORONOITESSELLATION_CPP
+
 #include "VoronoiTessellation.hpp"
 
-VoronoiTessellation::VoronoiTessellation(ConformingTetrahedralMesh<3,3>& rMesh)
-: mrMesh(rMesh)
+template<unsigned DIM>
+VoronoiTessellation<DIM>::VoronoiTessellation(ConformingTetrahedralMesh<DIM,DIM>& rMesh)
+    : mrMesh(rMesh)
 {
     GenerateVerticesFromElementCircumcentres();
-    mVoronoiCells.resize(rMesh.GetNumAllNodes());
     
+    assert(DIM==2 || DIM==3);
+    if(DIM==2)
+    {
+        Initialise2d(rMesh);
+    }
+    else
+    {
+        mVoronoiCells.resize(rMesh.GetNumAllNodes());    
+        Initialise3d(rMesh);
+    }
+};
 
-    
+
+template<unsigned DIM>
+void VoronoiTessellation<DIM>::Initialise2d(ConformingTetrahedralMesh<DIM,DIM>& rMesh)
+{
+    assert(0); // to be filled in
+}
+
+
+template<unsigned DIM>
+void VoronoiTessellation<DIM>::Initialise3d(ConformingTetrahedralMesh<DIM,DIM>& rMesh)
+{
+    assert(DIM==3);
     // loop over each edge
-    for (ConformingTetrahedralMesh<3,3>::EdgeIterator edge_iterator = mrMesh.EdgesBegin();
+    for (typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edge_iterator = mrMesh.EdgesBegin();
          edge_iterator != mrMesh.EdgesEnd();
          ++edge_iterator)
     {
@@ -24,7 +49,6 @@ VoronoiTessellation::VoronoiTessellation(ConformingTetrahedralMesh<3,3>& rMesh)
         }
         else
         {
-            
             std::set< unsigned >& node_a_element_indices = p_node_a->rGetContainingElementIndices();
             std::set< unsigned >& node_b_element_indices = p_node_b->rGetContainingElementIndices();
             std::set< unsigned > edge_element_indices;
@@ -68,7 +92,7 @@ VoronoiTessellation::VoronoiTessellation(ConformingTetrahedralMesh<3,3>& rMesh)
             
             // create face
             Face<3>* p_face = new Face<3>;
-            for ( std::vector< VertexAndAngle >::iterator vertex_iterator = vertices.begin();
+            for ( typename std::vector< VertexAndAngle >::iterator vertex_iterator = vertices.begin();
                   vertex_iterator !=vertices.end();
                   vertex_iterator++)
             {
@@ -92,19 +116,23 @@ VoronoiTessellation::VoronoiTessellation(ConformingTetrahedralMesh<3,3>& rMesh)
             }
         }
     }
-};
+}    
+    
+    
 
-VoronoiTessellation::~VoronoiTessellation()
+
+template<unsigned DIM>
+VoronoiTessellation<DIM>::~VoronoiTessellation()
 {
     // delete faces
-    for (std::vector< Face<3>* >::iterator face_iterator=mFaces.begin();
+    for (typename std::vector< Face<DIM>* >::iterator face_iterator=mFaces.begin();
          face_iterator!=mFaces.end();
          face_iterator++)
     {
         delete *face_iterator;
     }
     // delete vertices
-    for (std::vector< c_vector<double, 3>* >::iterator vertex_iterator=mVertices.begin();
+    for (typename std::vector< c_vector<double,DIM>* >::iterator vertex_iterator=mVertices.begin();
          vertex_iterator!=mVertices.end();
          vertex_iterator++)
     {
@@ -112,21 +140,24 @@ VoronoiTessellation::~VoronoiTessellation()
     }
 };
 
-void VoronoiTessellation::GenerateVerticesFromElementCircumcentres()
+template<unsigned DIM>
+void VoronoiTessellation<DIM>::GenerateVerticesFromElementCircumcentres()
 {
     for(unsigned i=0; i<mrMesh.GetNumElements() ; i++)
     {
-        c_vector<double,4> circumsphere = mrMesh.GetElement(i)->CalculateCircumsphere();
+        c_vector<double,DIM+1> circumsphere = mrMesh.GetElement(i)->CalculateCircumsphere();
         
-        c_vector<double,3>*  p_circumcentre = new c_vector<double, 3>;
-        (*p_circumcentre)(0)=circumsphere(0);
-        (*p_circumcentre)(1)=circumsphere(1);
-        (*p_circumcentre)(2)=circumsphere(2);
+        c_vector<double,DIM>*  p_circumcentre = new c_vector<double, DIM>;
+        for(unsigned i=0; i<DIM; i++)
+        {
+            (*p_circumcentre)(i)=circumsphere(i);
+        }
         mVertices.push_back(p_circumcentre);
     }
 };
 
-double VoronoiTessellation::ReturnPolarAngle(double x, double y) const
+template<unsigned DIM>
+double VoronoiTessellation<DIM>::ReturnPolarAngle(double x, double y) const
 {
     double angle = atan(y/x);
                     
@@ -141,7 +172,10 @@ double VoronoiTessellation::ReturnPolarAngle(double x, double y) const
     return angle;  
 };
 
-const VoronoiCell& VoronoiTessellation::rGetCell(unsigned index) const
+template<unsigned DIM>
+const VoronoiCell& VoronoiTessellation<DIM>::rGetCell(unsigned index) const
 {
     return mVoronoiCells[index];
 };
+
+#endif //VORONOITESSELLATION_CPP

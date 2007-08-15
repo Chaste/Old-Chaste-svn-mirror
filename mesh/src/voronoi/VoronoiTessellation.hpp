@@ -8,21 +8,22 @@
 #include <cmath>
 #include <vector>
 
+template<unsigned DIM>
 class VoronoiTessellation
 {
   private:
     friend class TestVoronoiTessellation;
     friend class InventorVoronoiWriter;
     
-    ConformingTetrahedralMesh<3,3>& mrMesh;
+    ConformingTetrahedralMesh<DIM,DIM>& mrMesh;
     /**
      * Vertices correspond to elements of the mesh
      */
-    std::vector< c_vector<double, 3>* > mVertices;
+    std::vector< c_vector<double,DIM>* > mVertices;
     /**
      * Faces corespond to edges of the mesh
      */
-    std::vector< Face<3>* > mFaces;
+    std::vector< Face<DIM>* > mFaces;
     /**
      * Cells correspond to nodes of the mesh
      */
@@ -32,7 +33,7 @@ class VoronoiTessellation
     class VertexAndAngle
     {
     public:
-        c_vector< double ,3 >* mpVertex;
+        c_vector< double ,DIM >* mpVertex;
         double mAngle;
         bool operator<(const VertexAndAngle& other) const
         {
@@ -44,7 +45,9 @@ class VoronoiTessellation
         
     double ReturnPolarAngle(double x, double y) const;
     
-
+    void Initialise2d(ConformingTetrahedralMesh<DIM,DIM>& rMesh);
+    void Initialise3d(ConformingTetrahedralMesh<DIM,DIM>& rMesh);
+    
 
   public:
     
@@ -53,7 +56,7 @@ class VoronoiTessellation
      * Constructor. Create a tesselation of the given mesh which must be Delauny
      * (see ConformingTetrahedralMesh::CheckVoronoi).
      */
-    VoronoiTessellation(ConformingTetrahedralMesh<3,3>& rMesh);
+    VoronoiTessellation(ConformingTetrahedralMesh<DIM,DIM>& rMesh);
     
     ~VoronoiTessellation();
     

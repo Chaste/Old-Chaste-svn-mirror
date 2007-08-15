@@ -5,7 +5,7 @@
 #include "UblasCustomFunctions.hpp"
 #include <cxxtest/TestSuite.h>
 #include "VoronoiCell.hpp"
-#include "VoronoiTessellation.hpp"
+#include "VoronoiTessellation.cpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "Exception.hpp"
 
@@ -28,7 +28,7 @@ public:
         ConformingTetrahedralMesh<3,3> mesh(nodes);
         
         // Create Voronoi Tesselation
-        VoronoiTessellation tessellation(mesh); 
+        VoronoiTessellation<3> tessellation(mesh); 
         
         // Four cases to test:
         // x> 0, y>0
@@ -58,7 +58,7 @@ public:
         ConformingTetrahedralMesh<3,3> mesh(nodes);
         
         // Create Voronoi Tesselation
-        VoronoiTessellation tessellation(mesh);
+        VoronoiTessellation<3> tessellation(mesh);
         
         tessellation.GenerateVerticesFromElementCircumcentres();
         
@@ -150,7 +150,7 @@ public:
         cell.mOrientations.push_back(true);
         
         // Create Voronoi Tesselation
-        VoronoiTessellation tessellation(mesh);
+        VoronoiTessellation<3> tessellation(mesh);
         
         // check tesellation is correct
         for (unsigned cell_index=0; cell_index<mesh.GetNumNodes(); cell_index++)

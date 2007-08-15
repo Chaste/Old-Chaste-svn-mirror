@@ -5,7 +5,7 @@
 #include "UblasCustomFunctions.hpp"
 #include <cxxtest/TestSuite.h>
 #include "VoronoiCell.hpp"
-#include "VoronoiTessellation.hpp"
+#include "VoronoiTessellation.cpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "Exception.hpp"
 #include "InventorVoronoiWriter.hpp"
@@ -32,7 +32,7 @@ public:
         ConformingTetrahedralMesh<3,3> mesh(nodes);
         
         // Create Voronoi Tesselation
-        VoronoiTessellation tessellation(mesh);
+        VoronoiTessellation<3> tessellation(mesh);
         
         InventorVoronoiWriter inventor_writer("InventorWriter", "SimpleTet");
         inventor_writer.Write(tessellation);
@@ -55,7 +55,7 @@ public:
         TS_ASSERT(mesh.CheckVoronoi());
         
         // Create Voronoi Tesselation
-        VoronoiTessellation tessellation(mesh);
+        VoronoiTessellation<3> tessellation(mesh);
         
         InventorVoronoiWriter inventor_writer("InventorWriter", "Complex", false);
         inventor_writer.Write(tessellation);
@@ -81,7 +81,7 @@ public:
         ConformingTetrahedralMesh<3,3> mesh(nodes);
 
         // Create Voronoi Tesselation
-        VoronoiTessellation tessellation(mesh);
+        VoronoiTessellation<3> tessellation(mesh);
         
         InventorVoronoiWriter inventor_writer("InventorWriter", "ScaledSimpleTet");
         
@@ -107,7 +107,7 @@ public:
         mesh.ConstructFromMeshReader(reader);
 
         // Create Voronoi Tesselation
-        VoronoiTessellation tessellation(mesh);
+        VoronoiTessellation<3> tessellation(mesh);
         
         InventorVoronoiWriter inventor_writer("InventorWriter", "ScaledComplex");
         inventor_writer.ScaleAndWrite(tessellation,0.5);
