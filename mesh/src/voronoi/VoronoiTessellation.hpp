@@ -45,8 +45,8 @@ class VoronoiTessellation
         
     double ReturnPolarAngle(double x, double y) const;
     
-    void Initialise2d(ConformingTetrahedralMesh<DIM,DIM>& rMesh);
-    void Initialise3d(ConformingTetrahedralMesh<DIM,DIM>& rMesh);
+    void Initialise(ConformingTetrahedralMesh<2,2>& rMesh);
+    void Initialise(ConformingTetrahedralMesh<3,3>& rMesh);
     
 
   public:

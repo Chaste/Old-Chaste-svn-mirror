@@ -7,30 +7,70 @@ template<unsigned DIM>
 VoronoiTessellation<DIM>::VoronoiTessellation(ConformingTetrahedralMesh<DIM,DIM>& rMesh)
     : mrMesh(rMesh)
 {
-    GenerateVerticesFromElementCircumcentres();
-    
     assert(DIM==2 || DIM==3);
+
     if(DIM==2)
     {
-        Initialise2d(rMesh);
     }
     else
     {
+        GenerateVerticesFromElementCircumcentres();
         mVoronoiCells.resize(rMesh.GetNumAllNodes());    
-        Initialise3d(rMesh);
     }
+
+    Initialise(rMesh);
 };
 
 
 template<unsigned DIM>
-void VoronoiTessellation<DIM>::Initialise2d(ConformingTetrahedralMesh<DIM,DIM>& rMesh)
+void VoronoiTessellation<DIM>::Initialise(ConformingTetrahedralMesh<2,2>& rMesh)
 {
-    assert(0); // to be filled in
+    for(unsigned i=0; i<rMesh.GetNumAllNodes(); i++)
+    {
+        // this edge is on the boundary
+        Face<DIM>* p_face = new Face<DIM>;
+        mFaces.push_back(p_face);
+    }
+
+    
+    // loop over elements, for each element calculate circumcentre (=vertex), set that as a 
+    // vertex for each node(=face in 2d) of that element. Also loop over mesh-edges of the element 
+    // and add the vertex as a vertex for that vertex-edge
+    for(unsigned i=0; i<mrMesh.GetNumElements(); i++)
+    {
+        c_vector<double,DIM+1> circumsphere = mrMesh.GetElement(i)->CalculateCircumsphere();
+        
+        c_vector<double,DIM>*  p_circumcentre = new c_vector<double, DIM>;
+        for(unsigned j=0; j<DIM; j++)
+        {
+            (*p_circumcentre)(j)=circumsphere(j);
+        }
+        mVertices.push_back(p_circumcentre);
+        
+        for(unsigned node_index=0; node_index<DIM+1; node_index++)
+        {
+            unsigned node_global_index = mrMesh.GetElement(i)->GetNodeGlobalIndex(node_index);
+            mFaces[node_global_index]->mVertices.push_back(p_circumcentre);
+        }
+    }
+    
+    for(unsigned i=0; i<mFaces.size(); i++)
+    {
+        for(unsigned j=0; j<mFaces[i]->mVertices.size(); j++)
+        {
+            for(unsigned k=0; k<2; k++)
+            {
+                std::cout << (*(mFaces[i]->mVertices[j]))(k) << " ";
+            }
+            std::cout << ", ";
+        }
+        std::cout << "\n";
+    }    
 }
 
 
 template<unsigned DIM>
-void VoronoiTessellation<DIM>::Initialise3d(ConformingTetrahedralMesh<DIM,DIM>& rMesh)
+void VoronoiTessellation<DIM>::Initialise(ConformingTetrahedralMesh<3,3>& rMesh)
 {
     assert(DIM==3);
     // loop over each edge
@@ -38,13 +78,13 @@ void VoronoiTessellation<DIM>::Initialise3d(ConformingTetrahedralMesh<DIM,DIM>& 
          edge_iterator != mrMesh.EdgesEnd();
          ++edge_iterator)
     {
-        Node<3>* p_node_a = edge_iterator.GetNodeA();
-        Node<3>* p_node_b = edge_iterator.GetNodeB();
+        Node<DIM>* p_node_a = edge_iterator.GetNodeA();
+        Node<DIM>* p_node_b = edge_iterator.GetNodeB();
         
         if ( p_node_a->IsBoundaryNode() && p_node_b->IsBoundaryNode() )
         {
             // this edge is on the boundary
-            Face<3>* p_null_face = new Face<3>;
+            Face<DIM>* p_null_face = new Face<DIM>;
             mFaces.push_back(p_null_face);
         }
         else
@@ -57,11 +97,11 @@ void VoronoiTessellation<DIM>::Initialise3d(ConformingTetrahedralMesh<DIM,DIM>& 
                                   node_b_element_indices.begin(),
                                   node_b_element_indices.end(),
                                   std::inserter(edge_element_indices, edge_element_indices.begin()));
-            c_vector<double,3> edge_vector = p_node_b->rGetLocation() - p_node_a->rGetLocation();
-            c_vector<double,3> mid_edge = edge_vector*0.5 + p_node_a->rGetLocation();
+            c_vector<double,DIM> edge_vector = p_node_b->rGetLocation() - p_node_a->rGetLocation();
+            c_vector<double,DIM> mid_edge = edge_vector*0.5 + p_node_a->rGetLocation();
             unsigned element0_index=*(edge_element_indices.begin());
-            c_vector<double,3> basis_vector1 = *(mVertices[element0_index]) - mid_edge;
-            c_vector<double,3> basis_vector2;
+            c_vector<double,DIM> basis_vector1 = *(mVertices[element0_index]) - mid_edge;
+            c_vector<double,DIM> basis_vector2;
             basis_vector2[0] = edge_vector[1]*basis_vector1[2] - edge_vector[2]*basis_vector1[1];
             basis_vector2[1] = edge_vector[2]*basis_vector1[0] - edge_vector[0]*basis_vector1[2];
             basis_vector2[2] = edge_vector[0]*basis_vector1[1] - edge_vector[1]*basis_vector1[0]; 
@@ -75,7 +115,7 @@ void VoronoiTessellation<DIM>::Initialise3d(ConformingTetrahedralMesh<DIM,DIM>& 
                  element_index_iterator++)
             {
                 // Calculate angle
-                c_vector< double, 3 > vertex_vector = *(mVertices[*element_index_iterator]) - mid_edge;
+                c_vector< double, DIM > vertex_vector = *(mVertices[*element_index_iterator]) - mid_edge;
                 
                 double local_vertex_dot_basis_vector1 = inner_prod(vertex_vector, basis_vector1);
                 double local_vertex_dot_basis_vector2 = inner_prod(vertex_vector, basis_vector2);
@@ -91,7 +131,7 @@ void VoronoiTessellation<DIM>::Initialise3d(ConformingTetrahedralMesh<DIM,DIM>& 
             std::sort(vertices.begin(), vertices.end()); 
             
             // create face
-            Face<3>* p_face = new Face<3>;
+            Face<DIM>* p_face = new Face<DIM>;
             for ( typename std::vector< VertexAndAngle >::iterator vertex_iterator = vertices.begin();
                   vertex_iterator !=vertices.end();
                   vertex_iterator++)
@@ -148,9 +188,9 @@ void VoronoiTessellation<DIM>::GenerateVerticesFromElementCircumcentres()
         c_vector<double,DIM+1> circumsphere = mrMesh.GetElement(i)->CalculateCircumsphere();
         
         c_vector<double,DIM>*  p_circumcentre = new c_vector<double, DIM>;
-        for(unsigned i=0; i<DIM; i++)
+        for(unsigned j=0; j<DIM; j++)
         {
-            (*p_circumcentre)(i)=circumsphere(i);
+            (*p_circumcentre)(j)=circumsphere(j);
         }
         mVertices.push_back(p_circumcentre);
     }
