@@ -122,19 +122,19 @@ public:
         vertex4(1)=1.2500;
         vertex4(2)=1.2500;
         
-        Face face1;
+        Face<3> face1;
         face1.mVertices.push_back(&vertex2);
         face1.mVertices.push_back(&vertex3);
         face1.mVertices.push_back(&vertex4);
-        Face face2;
+        Face<3> face2;
         face2.mVertices.push_back(&vertex1);
         face2.mVertices.push_back(&vertex4);
         face2.mVertices.push_back(&vertex3);
-        Face face3;
+        Face<3> face3;
         face3.mVertices.push_back(&vertex1);
         face3.mVertices.push_back(&vertex2);
         face3.mVertices.push_back(&vertex4);
-        Face face4;
+        Face<3> face4;
         face4.mVertices.push_back(&vertex1);
         face4.mVertices.push_back(&vertex3);
         face4.mVertices.push_back(&vertex2);

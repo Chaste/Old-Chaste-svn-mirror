@@ -3,7 +3,7 @@
 
 #include "UblasCustomFunctions.hpp"
 #include <cxxtest/TestSuite.h>
-#include "Face.hpp"
+#include "Face.cpp"
 
 
 class TestFace : public CxxTest::TestSuite
@@ -41,28 +41,28 @@ public:
         vertex6(0)= 2.0;      
         vertex6(1)=2.0;
         vertex6(2)=2.0;
-        Face face0;
-        Face face1;
+        Face<3> face0;
+        Face<3> face1;
         face1.mVertices.push_back(&vertex2);
         face1.mVertices.push_back(&vertex3);
         face1.mVertices.push_back(&vertex4);
-        Face face2;
+        Face<3> face2;
         face2.mVertices.push_back(&vertex1);
         face2.mVertices.push_back(&vertex5);
         face2.mVertices.push_back(&vertex6);
-        Face face3;
+        Face<3> face3;
         face3.mVertices.push_back(&vertex0);
         face3.mVertices.push_back(&vertex5);
         face3.mVertices.push_back(&vertex6);
-        Face face4;
+        Face<3> face4;
         face4.mVertices.push_back(&vertex3);
         face4.mVertices.push_back(&vertex4);
         face4.mVertices.push_back(&vertex6);
-        Face face5;
+        Face<3> face5;
         face5.mVertices.push_back(&vertex3);
         face5.mVertices.push_back(&vertex4);
         face5.mVertices.push_back(&vertex2);
-        Face face6;
+        Face<3> face6;
         face6.mVertices.push_back(&vertex4);
         face6.mVertices.push_back(&vertex3);
         face6.mVertices.push_back(&vertex2);
@@ -82,6 +82,34 @@ public:
         TS_ASSERT_DIFFERS(face0, face1);
         
         TS_ASSERT_EQUALS(face1, -face6);
+    }
+    
+    void TestFace2D()
+    {
+        c_vector<double, 2> vertex0;
+        vertex0(0)=0.0;      
+        vertex0(1)=0.0;
+        
+        c_vector<double, 2> vertex1;
+        vertex1(0)=1.0;      
+        vertex1(1)=0.0;
+        
+        c_vector<double, 2> vertex2;
+        vertex2(0)=1.0;      
+        vertex2(1)=1.0;
+        
+        c_vector<double, 2> vertex3;
+        vertex3(0)=0.0;      
+        vertex3(1)=1.0;
+        
+        Face<2> face;
+        face.mVertices.push_back(&vertex0);
+        face.mVertices.push_back(&vertex1);
+        face.mVertices.push_back(&vertex2);
+        face.mVertices.push_back(&vertex3);
+        
+        TS_ASSERT_DELTA(face.GetPerimeter(),4.0,1e-12);
+        TS_ASSERT_DELTA(face.GetArea(),1.0,1e-12);
     }
 };
 

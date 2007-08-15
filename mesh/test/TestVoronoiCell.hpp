@@ -34,42 +34,42 @@ public:
         vertex5(1)=1.0;
         vertex5(2)=1.0;
         
-        Face face1;
+        Face<3> face1;
         face1.mVertices.push_back(&vertex2);
         face1.mVertices.push_back(&vertex3);
         face1.mVertices.push_back(&vertex4);
-        Face face2;
+        Face<3> face2;
         face2.mVertices.push_back(&vertex1);
         face2.mVertices.push_back(&vertex4);
         face2.mVertices.push_back(&vertex3);
-        Face face3;
+        Face<3> face3;
         face3.mVertices.push_back(&vertex1);
         face3.mVertices.push_back(&vertex2);
         face3.mVertices.push_back(&vertex4);
-        Face face4;
+        Face<3> face4;
         face4.mVertices.push_back(&vertex1);
         face4.mVertices.push_back(&vertex3);
         face4.mVertices.push_back(&vertex2);
                 
-        Face face1b;
+        Face<3> face1b;
         face1b.mVertices.push_back(&vertex2);
         face1b.mVertices.push_back(&vertex3);
         face1b.mVertices.push_back(&vertex5);
-        Face face2b;
+        Face<3> face2b;
         face2b.mVertices.push_back(&vertex1);
         face2b.mVertices.push_back(&vertex4);
         face2b.mVertices.push_back(&vertex5);
-        Face face3b;
+        Face<3> face3b;
         face3b.mVertices.push_back(&vertex1);
         face3b.mVertices.push_back(&vertex2);
         face3b.mVertices.push_back(&vertex5);
         // face 1 permuted
-        Face face1p;
+        Face<3> face1p;
         face1p.mVertices.push_back(&vertex4);
         face1p.mVertices.push_back(&vertex3);
         face1p.mVertices.push_back(&vertex2);
         // face 1 rotated
-        Face face1r;
+        Face<3> face1r;
         face1r.mVertices.push_back(&vertex4);
         face1r.mVertices.push_back(&vertex2);
         face1r.mVertices.push_back(&vertex3);

@@ -2,7 +2,7 @@
 #define VORONOICELL_HPP_
 
 #include "UblasCustomFunctions.hpp"
-#include "Face.hpp"
+#include "Face.cpp"
 #include <cxxtest/TestSuite.h>
 
 #include <cmath>
@@ -15,7 +15,7 @@ public:
     /***
      * Faces of the cell, which should be distinct.
      */
-    std::vector< Face* > mFaces;
+    std::vector< Face<3>* > mFaces;
     
     /***
      * How each face is oriented.
@@ -29,7 +29,7 @@ public:
     c_vector<double,3> mCellCentre;
     
 private:
-    bool EqualFaces(Face& face1, bool orientation1, Face& face2, bool orientation2);
+    bool EqualFaces(Face<3>& face1, bool orientation1, Face<3>& face2, bool orientation2);
     
     
 public:

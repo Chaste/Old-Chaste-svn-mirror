@@ -112,7 +112,7 @@ public:
              face_number++)
         {
             *p_file << "        ";
-            Face& face=*(rTessellation.mFaces[face_number]);
+            Face<3>& face=*(rTessellation.mFaces[face_number]);
             for (unsigned vertex_local_number=0;
                  vertex_local_number < face.mVertices.size();
                  vertex_local_number++)
@@ -164,7 +164,7 @@ public:
             {
                 std::vector<unsigned> face_vertex_data;
 
-                Face& r_face = *(r_cell.mFaces[face_number]);
+                Face<3>& r_face = *(r_cell.mFaces[face_number]);
                 for (unsigned face_vertex_number=0; face_vertex_number<r_face.mVertices.size(); face_vertex_number++)
                 {
                     unsigned global_number_for_this_vertex;

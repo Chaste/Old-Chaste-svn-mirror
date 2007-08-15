@@ -22,7 +22,7 @@ class VoronoiTessellation
     /**
      * Faces corespond to edges of the mesh
      */
-    std::vector< Face* > mFaces;
+    std::vector< Face<3>* > mFaces;
     /**
      * Cells correspond to nodes of the mesh
      */

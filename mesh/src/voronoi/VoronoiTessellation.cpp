@@ -19,7 +19,7 @@ VoronoiTessellation::VoronoiTessellation(ConformingTetrahedralMesh<3,3>& rMesh)
         if ( p_node_a->IsBoundaryNode() && p_node_b->IsBoundaryNode() )
         {
             // this edge is on the boundary
-            Face* p_null_face = new Face;
+            Face<3>* p_null_face = new Face<3>;
             mFaces.push_back(p_null_face);
         }
         else
@@ -67,7 +67,7 @@ VoronoiTessellation::VoronoiTessellation(ConformingTetrahedralMesh<3,3>& rMesh)
             std::sort(vertices.begin(), vertices.end()); 
             
             // create face
-            Face* p_face = new Face;
+            Face<3>* p_face = new Face<3>;
             for ( std::vector< VertexAndAngle >::iterator vertex_iterator = vertices.begin();
                   vertex_iterator !=vertices.end();
                   vertex_iterator++)
@@ -97,7 +97,7 @@ VoronoiTessellation::VoronoiTessellation(ConformingTetrahedralMesh<3,3>& rMesh)
 VoronoiTessellation::~VoronoiTessellation()
 {
     // delete faces
-    for (std::vector< Face* >::iterator face_iterator=mFaces.begin();
+    for (std::vector< Face<3>* >::iterator face_iterator=mFaces.begin();
          face_iterator!=mFaces.end();
          face_iterator++)
     {

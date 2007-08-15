@@ -1,8 +1,8 @@
 #include "Face.hpp"
 
-
-void Face::Increment(std::vector< c_vector<double, 3>* >::iterator& rIterator,
-                     Face& rFace) const
+template <unsigned DIM>
+void Face<DIM>::Increment(typename std::vector< c_vector<double, DIM>* >::iterator& rIterator,
+                     Face<DIM>& rFace) const
 {
     rIterator++;
     if (rIterator==rFace.mVertices.end() )
@@ -11,10 +11,11 @@ void Face::Increment(std::vector< c_vector<double, 3>* >::iterator& rIterator,
     }
 };
 
-bool Face::operator==(Face& otherFace)
+template <unsigned DIM>
+bool Face<DIM>::operator==(Face<DIM>& otherFace)
 {
-    std::vector< c_vector<double, 3>* >::iterator this_iterator=mVertices.begin();
-    std::vector< c_vector<double, 3>* >::iterator other_iterator=otherFace.mVertices.begin();
+    typename std::vector< c_vector<double, DIM>* >::iterator this_iterator=mVertices.begin();
+    typename std::vector< c_vector<double, DIM>* >::iterator other_iterator=otherFace.mVertices.begin();
     // find first vertex
     while ( this_iterator!=mVertices.end() && 
             other_iterator!=otherFace.mVertices.end() && 
@@ -29,7 +30,7 @@ bool Face::operator==(Face& otherFace)
         return this_iterator==mVertices.end() && other_iterator==otherFace.mVertices.end();
     }
     
-    std::vector< c_vector<double, 3>* >::iterator this_start=this_iterator;
+    typename std::vector< c_vector<double, DIM>* >::iterator this_start=this_iterator;
     Increment(this_iterator, *this);
     Increment(other_iterator, otherFace);
     
@@ -50,16 +51,18 @@ bool Face::operator==(Face& otherFace)
 };
 
 #define COVERAGE_IGNORE //Spuriously not covered
-bool Face::operator!=(Face& otherFace)
+template <unsigned DIM>
+bool Face<DIM>::operator!=(Face& otherFace)
 {
    return !(*this==otherFace);
 };
 #undef COVERAGE_IGNORE
- 
-Face Face::operator-()
+
+template <unsigned DIM>
+Face<DIM> Face<DIM>::operator-()
 {
-   Face reversed_face;
-   std::vector< c_vector<double, 3>* >::iterator this_iterator=mVertices.end();
+   Face<DIM> reversed_face;
+   typename std::vector< c_vector<double, DIM>* >::iterator this_iterator=mVertices.end();
    while (this_iterator !=mVertices.begin())
    {
        this_iterator--;
@@ -67,3 +70,31 @@ Face Face::operator-()
    }
    return reversed_face;
 };
+
+template <unsigned DIM>
+double Face<DIM>::GetPerimeter()
+{
+    double perimeter_return = 0;
+    for(unsigned i=0; i<mVertices.size(); i++)
+    {
+        perimeter_return += norm_2(*mVertices[i]-*mVertices[(i+1)%mVertices.size()]);
+    }
+    return perimeter_return;
+};
+
+template <unsigned DIM>
+double Face<DIM>::GetArea()
+{
+    assert(DIM==2);
+    double area_return = 0;
+    for(unsigned i=0; i<mVertices.size(); i++)
+    {
+        //  Area = sum ( x_i * y_i+1 - y_i * x_i+1 )/2.0 over all vertices, 
+        //      assuming vertices are ordered anti-clockwise
+        area_return +=   ( (*mVertices[i])(0) * (*mVertices[(i+1)%mVertices.size()])(1) 
+                          -(*mVertices[i])(1) * (*mVertices[(i+1)%mVertices.size()])(0) ) / 2.0 ;
+    }
+    return area_return;
+};
+
+
