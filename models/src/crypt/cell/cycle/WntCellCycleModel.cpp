@@ -19,8 +19,7 @@ RungeKutta4IvpOdeSolver WntCellCycleModel::msSolver;
  * \todo consider using an enum for the mutation state.
  */
 WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutationStatus)
-        : AbstractCellCycleModel(),
-          mOdeSystem(InitialWntStimulus, mutationStatus)
+        : AbstractCellCycleModel()
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -32,7 +31,8 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutatio
     mInSG2MPhase = false;
     mReadyToDivide = false;
     mDivideTime = DBL_MAX;
-    mOdeSystem.SetStateVariables(mOdeSystem.GetInitialConditions());
+    mpOdeSystem = new WntCellCycleOdeSystem(InitialWntStimulus, mutationStatus);
+    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 }
 
 /**
@@ -42,19 +42,19 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutatio
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
  */
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, double birthTime)
-        : AbstractCellCycleModel(),
-          mOdeSystem(rParentProteinConcentrations[8], (unsigned)rParentProteinConcentrations[9])
+        : AbstractCellCycleModel()
 {
+    mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], (unsigned)rParentProteinConcentrations[9]);
     // Protein concentrations are initialised such that the cell cycle part of
     // the model (first 5 ODEs) is at the start of G1 phase.
-    mOdeSystem.SetStateVariables(mOdeSystem.GetInitialConditions());
+    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
     // Set the mutation state of the daughter to be the same as the parent cell.
-    mOdeSystem.rGetStateVariables()[9] = rParentProteinConcentrations[9];
+    mpOdeSystem->rGetStateVariables()[9] = rParentProteinConcentrations[9];
     // Set the Wnt pathway parts of the model to be the same as the parent cell.
-    mOdeSystem.rGetStateVariables()[8] = rParentProteinConcentrations[8];
-    mOdeSystem.rGetStateVariables()[7] = rParentProteinConcentrations[7];
-    mOdeSystem.rGetStateVariables()[6] = rParentProteinConcentrations[6];
-    mOdeSystem.rGetStateVariables()[5] = rParentProteinConcentrations[5];
+    mpOdeSystem->rGetStateVariables()[8] = rParentProteinConcentrations[8];
+    mpOdeSystem->rGetStateVariables()[7] = rParentProteinConcentrations[7];
+    mpOdeSystem->rGetStateVariables()[6] = rParentProteinConcentrations[6];
+    mpOdeSystem->rGetStateVariables()[5] = rParentProteinConcentrations[5];
     
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -70,7 +70,9 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
 }
 
 WntCellCycleModel::~WntCellCycleModel()
-{}
+{
+    delete mpOdeSystem;
+}
 
 /**
  * Resets the Wnt Model to the start of the cell cycle (this model does not cycle naturally)
@@ -87,10 +89,10 @@ void WntCellCycleModel::ResetModel()
     mBirthTime = mDivideTime;
     // Keep the Wnt pathway in the same state but reset the cell cycle part
     // Cell cycle is proteins 0 to 4 (first 5 ODEs)
-    std::vector<double> init_conds = mOdeSystem.GetInitialConditions();
+    std::vector<double> init_conds = mpOdeSystem->GetInitialConditions();
     for (unsigned i = 0 ; i<5 ; i++)
     {
-        mOdeSystem.rGetStateVariables()[i] = init_conds[i];
+        mpOdeSystem->rGetStateVariables()[i] = init_conds[i];
     }
     mInSG2MPhase = false;
     mReadyToDivide = false;
@@ -107,9 +109,9 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
     assert(cellCycleInfluences.size()==2);
     
     // Use the WntStimulus provided as an input
-    mOdeSystem.rGetStateVariables()[8] = cellCycleInfluences[0];
+    mpOdeSystem->rGetStateVariables()[8] = cellCycleInfluences[0];
     // Use the cell's current mutation status as another input
-    mOdeSystem.rGetStateVariables()[9] = cellCycleInfluences[1];
+    mpOdeSystem->rGetStateVariables()[9] = cellCycleInfluences[1];
     
     double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
     
@@ -121,14 +123,14 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 
             double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
             
-            msSolver.SolveAndUpdateStateVariable(&mOdeSystem, mLastTime, current_time, dt);
+            msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, current_time, dt);
 
             for (unsigned i=0 ; i<10 ; i++)
             {
-                if (mOdeSystem.rGetStateVariables()[i]<0)
+                if (mpOdeSystem->rGetStateVariables()[i]<0)
                 {
                     #define COVERAGE_IGNORE
-                    std::cout << "Protein["<< i <<"] = "<< mOdeSystem.rGetStateVariables()[i] << "\n";
+                    std::cout << "Protein["<< i <<"] = "<< mpOdeSystem->rGetStateVariables()[i] << "\n";
                     EXCEPTION("A protein concentration has gone negative\nCHASTE predicts that the WntCellCycleModel numerical method is probably unstable.");
                     #undef COVERAGE_IGNORE
                 }
@@ -164,7 +166,7 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
  */
 std::vector<double> WntCellCycleModel::GetProteinConcentrations()
 {
-    return mOdeSystem.rGetStateVariables();
+    return mpOdeSystem->rGetStateVariables();
 }
 
 /**
@@ -177,7 +179,7 @@ AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
 {
     // calls a cheeky version of the constructor which makes the new cell cycle model
     // the same age as the old one - not a copy at this time.
-    return new WntCellCycleModel(mOdeSystem.rGetStateVariables(), mBirthTime);
+    return new WntCellCycleModel(mpOdeSystem->rGetStateVariables(), mBirthTime);
 }
 
 /**
@@ -202,15 +204,15 @@ void WntCellCycleModel::SetBirthTime(double birthTime)
  */
 void WntCellCycleModel::SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations)
 {
-    assert(proteinConcentrations.size()==mOdeSystem.rGetStateVariables().size());
+    assert(proteinConcentrations.size()==mpOdeSystem->rGetStateVariables().size());
     mLastTime = lastTime;
-    mOdeSystem.SetStateVariables(proteinConcentrations);
+    mpOdeSystem->SetStateVariables(proteinConcentrations);
 }
 
 
 CryptCellType WntCellCycleModel::UpdateCellType()
 {
-    double betaCateninLevel = mOdeSystem.rGetStateVariables()[6] + mOdeSystem.rGetStateVariables()[7];
+    double betaCateninLevel = mpOdeSystem->rGetStateVariables()[6] + mpOdeSystem->rGetStateVariables()[7];
     //std::cout << "beta-catenin level = " << betaCateninLevel << "\n" << std::flush;        
     CryptCellType cell_type=TRANSIT;
                 

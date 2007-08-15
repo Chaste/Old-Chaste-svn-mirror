@@ -26,7 +26,7 @@ class WntCellCycleModel : public AbstractCellCycleModel
     friend class StochasticWntCellCycleModel;// to allow access to private constructor below.
     
 private:
-    WntCellCycleOdeSystem mOdeSystem;
+    WntCellCycleOdeSystem* mpOdeSystem;
     static RungeKutta4IvpOdeSolver msSolver;
     double mLastTime;
     double mDivideTime;
@@ -44,7 +44,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        archive & mOdeSystem.rGetStateVariables();
+        archive & mpOdeSystem->rGetStateVariables();
         archive & mLastTime;
         archive & mDivideTime;
         archive & mInSG2MPhase;
