@@ -66,6 +66,8 @@ class TissueSimulation
 private:
 
 std::set<std::set <MeinekeCryptCell *> > mDivisionPairs;
+
+
     
 protected:
     /** TimeStep */
@@ -84,6 +86,9 @@ protected:
     
     /** Whether to remesh at each timestep or not (defaults to true).*/
     bool mReMesh;
+    
+    /** Whether to count the number of each cell type and output to file*/
+    bool mOutputCellTypes;
     
     /** The maximum number of cells that this simulation will include (for use by datawriter). */
     unsigned mMaxCells;
@@ -247,6 +252,7 @@ public:
     void SetMaxElements(unsigned maxElements);
     void SetReMeshRule(bool remesh);
     void SetNoBirth(bool nobirth);
+    void SetOutputCellTypes(bool output_cell_types);
     void SetWntGradient(WntGradientType wntGradientType);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);

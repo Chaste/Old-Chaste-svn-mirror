@@ -522,12 +522,19 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                                      ColumnDataWriter& rElementWriter,
                                      std::ofstream& rNodeFile, 
                                      std::ofstream& rElementFile,
+                                     std::ofstream& rCellTypesFile,
                                      bool writeTabulatedResults,
-                                     bool writeVisualizerResults)
+                                     bool writeVisualizerResults,
+                                     bool OutputCellTypes)
 {
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
     double time = p_simulation_time->GetDimensionalisedTime();
+    int cell_counter[5];
+    for(int i=0; i < 5; i++)
+    {
+        cell_counter[i] =0;
+    }
     
     if (writeVisualizerResults)
     {
@@ -535,6 +542,11 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
         rElementFile <<  time << "\t";
     }
     
+    if (OutputCellTypes)
+    {
+        rCellTypesFile <<  time << "\t";
+    }
+       
     if (writeTabulatedResults)
     {
         rNodeWriter.PutVariable(mNodeVarIds.time, time);
@@ -589,16 +601,44 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                 if (mutation == LABELLED)
                 {
                     colour = 5;
+                    if (OutputCellTypes)
+                    {
+                        cell_counter[1]++;
+                    }
                 }
                 if (mutation == APC_ONE_HIT)
                 {
                     colour = 3;
+                    if (OutputCellTypes)
+                    {
+                        cell_counter[2]++;
+                    }
                 }
-                if (mutation == APC_TWO_HIT || mutation == BETA_CATENIN_ONE_HIT)
+                if (mutation == APC_TWO_HIT )
                 {
-                    colour = 4;   
+                    colour = 4;
+                    if (OutputCellTypes)
+                    {
+                        cell_counter[3]++;
+                    }  
+                }
+                if ( mutation == BETA_CATENIN_ONE_HIT)
+                {
+                    colour = 4;
+                    if (OutputCellTypes)
+                    {
+                        cell_counter[4]++;
+                    }  
                 }
             }
+            else // its healthy
+            {
+                if (OutputCellTypes)
+                {
+                    cell_counter[0]++;
+                }  
+            }
+            
             
         }
         
@@ -650,6 +690,16 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                 }
             }
         }
+    }
+    
+    
+    if (OutputCellTypes)
+    {
+        for(int i=0; i < 5; i++)
+        {
+            rCellTypesFile <<  cell_counter[i] << "\t";
+        }
+        rCellTypesFile <<  "\n";
     }
     
     if (writeVisualizerResults)

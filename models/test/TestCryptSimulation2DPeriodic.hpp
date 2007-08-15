@@ -234,6 +234,8 @@ public:
         TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(10));
         simulator.SetMaxElements(1000);
         
+        simulator.SetOutputCellTypes(true);
+                
         // These are for coverage and use the defaults
         simulator.SetDt(1.0/120.0);
         simulator.SetReMeshRule(true);
@@ -563,7 +565,7 @@ public:
      * to be 'mature' cells which won't shrink together. 
      * Limited this by using only four cells of minimum age.
      */
-    void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
+    void xTestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -605,7 +607,7 @@ public:
         simulator.SetMaxElements(1000);
         simulator.SetWntGradient(LINEAR);
         simulator.SetEndTime(0.01);
-                
+        simulator.SetOutputCellTypes(true);        
         simulator.Solve();
         
         // Check that nothing has moved below y=0
@@ -665,7 +667,7 @@ public:
         simulator.rGetCrypt().rGetCellAtNodeIndex(56).SetMutationState(APC_ONE_HIT);
         simulator.rGetCrypt().rGetCellAtNodeIndex(51).SetMutationState(APC_TWO_HIT);
         simulator.rGetCrypt().rGetCellAtNodeIndex(63).SetMutationState(BETA_CATENIN_ONE_HIT);
-                
+        simulator.SetOutputCellTypes(true);             
         simulator.Solve();
         
         // test we have the same number of cells and nodes at the end of each time

@@ -34,6 +34,7 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
     // defaults
     mOutputDirectory = "";
     mReMesh = true;
+    mOutputCellTypes = false ;
     mNoBirth = false;
     mMaxCells = 10*mrCrypt.rGetMesh().GetNumNodes();
     mMaxElements = 10*mrCrypt.rGetMesh().GetNumElements();
@@ -552,6 +553,15 @@ void TissueSimulation<DIM>::SetNoBirth(bool nobirth)
     mNoBirth = nobirth;
 }
 
+/**
+ * Set the simulation to Count and store the number of each cell type.
+ */
+template<unsigned DIM> 
+void TissueSimulation<DIM>::SetOutputCellTypes(bool output_cell_types)
+{
+    mOutputCellTypes = output_cell_types;
+}
+
 
 /**
  * Use a cutoff point, ie specify zero force if two cells are greater 
@@ -660,6 +670,14 @@ void TissueSimulation<DIM>::Solve()
     out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
     out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
     out_stream p_setup_file = output_file_handler.OpenOutputFile("results.vizsetup");
+    // Creates output file to store number of different cells
+    
+    out_stream p_cell_types_file = output_file_handler.OpenOutputFile("celltypes.dat");
+    if (mOutputCellTypes)
+    {
+        *p_cell_types_file <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
+    }
+    
     
     
     /* Age the cells to the correct time (cells set up with negative birth dates
@@ -695,9 +713,10 @@ void TissueSimulation<DIM>::Solve()
     
     mrCrypt.WriteResultsToFiles(tabulated_node_writer, 
                                tabulated_element_writer,
-                               *p_node_file, *p_element_file,
+                               *p_node_file, *p_element_file, *p_cell_types_file,
                                false,
-                               true);
+                               true,
+                               mOutputCellTypes);
                                
                                
     /////////////////////////////////////////////////////////////////////
@@ -747,19 +766,26 @@ void TissueSimulation<DIM>::Solve()
         // Write results to file
         mrCrypt.WriteResultsToFiles(tabulated_node_writer, 
                                     tabulated_element_writer, 
-                                    *p_node_file, *p_element_file,
+                                    *p_node_file, *p_element_file, *p_cell_types_file,
                                     tabulated_output_counter%80==0,
-                                    true);
+                                    true,
+                                    mOutputCellTypes);
+        
+        
+        
+        
                             
         tabulated_output_counter++;
     }
     
     // Write end state to tabulated files (not visualizer - this
     // is taken care of in the main loop).
+    // Doesn't need to count cell types again as it is done in the last loop
     mrCrypt.WriteResultsToFiles(tabulated_node_writer, 
                                 tabulated_element_writer, 
-                                *p_node_file, *p_element_file,
+                                *p_node_file, *p_element_file, *p_cell_types_file,
                                 true,
+                                false,
                                 false);
                         
     tabulated_node_writer.Close();

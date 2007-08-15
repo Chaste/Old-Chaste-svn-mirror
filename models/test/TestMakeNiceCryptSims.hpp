@@ -195,9 +195,12 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         crypt.SetGhostNodes(ghost_node_indices);
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory(output_directory);
+        
+        // Set simulation to output cell types
+        simulator.SetOutputCellTypes(true);
                 
         // Set length of simulation here
-        simulator.SetEndTime(50.0);
+        simulator.SetEndTime(1);
         
         simulator.SetMaxCells(1000);
         simulator.SetMaxElements(2000);

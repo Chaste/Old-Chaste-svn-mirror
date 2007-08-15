@@ -264,8 +264,10 @@ public:
                              ColumnDataWriter& rElementWriter, 
                              std::ofstream& rNodeFile, 
                              std::ofstream& rElementFile,
+                             std::ofstream& rCellTypesFile,
                              bool writeTabulatedResults,
-                             bool writeVisualizerResults);
+                             bool writeVisualizerResults,
+                             bool OutputCellTypes);
 
 
     /**

@@ -409,13 +409,16 @@ public:
                 
         out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
         out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
-      
+        out_stream p_cell_types_file = output_file_handler.OpenOutputFile("results.vizelements");
+        
         crypt.WriteResultsToFiles(tabulated_node_writer,
                                   tabulated_element_writer,
                                   *p_node_file,
                                   *p_element_file,
+                                  *p_cell_types_file,
                                   true,
-                                  true);
+                                  true,
+                                  false);
         p_node_file->close();                          
         p_element_file->close();                          
 
