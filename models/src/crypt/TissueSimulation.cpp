@@ -17,7 +17,7 @@
 #include "WntCellCycleModel.hpp"
 #include "WntGradient.hpp"
 #include "OutputFileHandler.hpp"
-#include "LogFile.hpp"
+#include "LogFile.cpp"
 
 template<unsigned DIM> 
 TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)

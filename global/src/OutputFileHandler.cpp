@@ -3,8 +3,9 @@
 #include <cstdlib>
 #include <sys/stat.h>
 
+#ifndef SPECIAL_SERIAL
 #include <petsc.h>
-
+#endif //SPECIAL_SERIAL
 #include "Exception.hpp"
 
 
@@ -12,6 +13,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                                      bool rCleanOutputDirectory)
 {
     // Are we the master process?  Only the master should do any writing to disk
+#ifndef SPECIAL_SERIAL
     PetscTruth is_there;
     PetscInitialized(&is_there);
     if (is_there == PETSC_TRUE)
@@ -28,6 +30,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
         }
     }
     else
+#endif //SPECIAL_SERIAL
     {
         // Not using PETSc, so we're definitely the only process
         mAmMaster = true;

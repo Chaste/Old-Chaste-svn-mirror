@@ -1,3 +1,6 @@
+#ifndef LOGFILE_CPP_
+#define LOGFILE_CPP_
+
 #include "LogFile.hpp"
 
 
@@ -71,4 +74,5 @@ bool LogFile::IsFileSet()
 }
 
 
+#endif /*LOGFILE_CPP_*/
 
