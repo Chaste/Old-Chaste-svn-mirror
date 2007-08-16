@@ -8,6 +8,7 @@
 #include "VoronoiTessellation.cpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "Exception.hpp"
+#include "TrianglesMeshWriter.cpp"
 
 #include <cmath>
 #include <vector>
@@ -232,6 +233,32 @@ public:
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(4u, 2u), pow(2.0, -0.5), 1e-7);
         
         
+    }
+    
+    void TestTessellation2dComplex() throw (Exception)
+    {
+        std::vector<Node<2> *> nodes;
+        nodes.push_back(new Node<2>(0, true,  0,  0));
+        nodes.push_back(new Node<2>(0, true,  0,  1));
+        nodes.push_back(new Node<2>(0, true,  -1,  0));
+        nodes.push_back(new Node<2>(0, true,  1,  0));
+        nodes.push_back(new Node<2>(0, true,  0.5,-pow(3,0.5)/2.0));
+        nodes.push_back(new Node<2>(0, true,  -0.5,-pow(3,0.5)/2.0));
+        
+        ConformingTetrahedralMesh<2,2> mesh(nodes);
+        
+        TS_ASSERT(mesh.CheckVoronoi());
+        
+        // Create Voronoi Tesselation
+        VoronoiTessellation<2> tessellation(mesh);
+
+        
+        TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 1u), 1.0, 1e-6);
+        TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 2u), 0.5 + pow(3,-0.5)/2.0, 1e-6);
+        TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 3u), 0.5 + pow(3,-0.5)/2.0, 1e-6);
+        TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 4u), pow(3,-0.5), 1e-6)
+        TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 5u), pow(3,-0.5), 1e-6)
+         
     }
 };
 

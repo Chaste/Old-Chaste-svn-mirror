@@ -264,13 +264,13 @@ double VoronoiTessellation<DIM>::GetEdgeLength(unsigned node_index_1, unsigned n
     
     std::vector< c_vector<double, DIM>* > vertices_1 = mFaces[node_index_1]->mVertices;
     std::vector< c_vector<double, DIM>* > vertices_2 = mFaces[node_index_2]->mVertices;
-    
+    std::sort(vertices_1.begin(), vertices_1.end());
+    std::sort(vertices_2.begin(), vertices_2.end());
     std::vector< c_vector<double, DIM>* > intersecting_vertices;
     
     set_intersection( vertices_1.begin(), vertices_1.end(),
                       vertices_2.begin(), vertices_2.end(),
                       back_inserter(intersecting_vertices) );
-                      
     assert(intersecting_vertices.size()==2);
     
     return norm_2(*(intersecting_vertices[0]) - *(intersecting_vertices[1]));
