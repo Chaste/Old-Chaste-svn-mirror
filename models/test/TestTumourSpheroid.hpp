@@ -17,6 +17,7 @@
 #include "RandomCellKiller.hpp"
 
 
+
 class RadiusBasedCellKiller : public AbstractCellKiller<2>
 {
 private :
@@ -40,7 +41,12 @@ public :
             const c_vector<double,2>& location = cell_iter.GetNode()->rGetLocation();
             double dist_to_centre = norm_2(location - mCentre);
             
-            double prob_of_death = 0.2*mTimeStep - 0.01*mTimeStep*dist_to_centre;
+            
+            double prob_of_death = 2*mTimeStep - 1*mTimeStep*dist_to_centre;
+            if (prob_of_death<=0.0)
+            {
+                prob_of_death=0.0;
+            }
             
             if (!cell_iter->HasApoptosisBegun() &&
                 RandomNumberGenerator::Instance()->ranf() < prob_of_death)
@@ -67,7 +73,7 @@ public :
         double crypt_length = num_cells_depth-1.0;
         double crypt_width = num_cells_width-1.0;
         
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -94,9 +100,10 @@ public :
         TissueSimulation<2> simulator(crypt);
 
         simulator.SetOutputDirectory("2dSpheroid");
-        simulator.SetEndTime(12.0);
+        simulator.SetEndTime(5.0);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
+        //simulator.UseCutoffPoint(1.5);
         
         c_vector<double,2> centre(2);
         centre(0) = (double)num_cells_width/2.0;
