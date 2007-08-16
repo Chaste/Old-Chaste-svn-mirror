@@ -42,7 +42,12 @@ class VoronoiTessellation
     };
     
     void GenerateVerticesFromElementCircumcentres();
-        
+    
+    /**
+     * @param x x-coordinate
+     * @param y y-coordinate
+     * @return Polar angle in interval (-PI,PI]
+     */    
     double ReturnPolarAngle(double x, double y) const;
     
     void Initialise(ConformingTetrahedralMesh<2,2>& rMesh);
@@ -67,7 +72,8 @@ class VoronoiTessellation
      * If the corresponding node was on the boundary, this will return a cell with no faces.
      */
     const VoronoiCell& rGetCell(unsigned index) const;
-
+    const Face<DIM>* GetFace(unsigned index) const;
+    
 };
 
 #endif /*VORONOITESSELLATION_HPP_*/

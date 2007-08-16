@@ -56,15 +56,31 @@ void VoronoiTessellation<DIM>::Initialise(ConformingTetrahedralMesh<2,2>& rMesh)
     
     for(unsigned i=0; i<mFaces.size(); i++)
     {
+        std::vector< VertexAndAngle> vertices_and_angles;
         for(unsigned j=0; j<mFaces[i]->mVertices.size(); j++)
         {
-            for(unsigned k=0; k<2; k++)
-            {
-                std::cout << (*(mFaces[i]->mVertices[j]))(k) << " ";
-            }
-            std::cout << ", ";
+            
+            VertexAndAngle va;
+            c_vector<double, DIM> centre_to_vertex;
+            centre_to_vertex = *(mFaces[i]->mVertices[j]) - mrMesh.GetNode(i)->rGetLocation();
+            va.mAngle = ReturnPolarAngle(centre_to_vertex(0), centre_to_vertex(1));
+            va.mpVertex = mFaces[i]->mVertices[j];
+            vertices_and_angles.push_back(va);
         }
-        std::cout << "\n";
+        std::sort(vertices_and_angles.begin(), vertices_and_angles.end()); 
+        
+        // create face
+        Face<DIM>* p_face = new Face<DIM>;
+        for ( typename std::vector< VertexAndAngle >::iterator vertex_iterator = vertices_and_angles.begin();
+              vertex_iterator !=vertices_and_angles.end();
+              vertex_iterator++)
+        {
+            p_face->mVertices.push_back(vertex_iterator->mpVertex);
+        }
+        
+        // add face to list of faces
+        delete mFaces[i];
+        mFaces[i] = p_face;
     }    
 }
 
@@ -199,9 +215,25 @@ void VoronoiTessellation<DIM>::GenerateVerticesFromElementCircumcentres()
 template<unsigned DIM>
 double VoronoiTessellation<DIM>::ReturnPolarAngle(double x, double y) const
 {
+    if (x==0)
+    {
+        if (y>0)
+        {
+            return M_PI/2.0;
+        }
+        else if (y<0)
+        {
+            return -M_PI/2.0;
+        }
+        else
+        {
+            assert(0);
+        }
+    } 
+    
     double angle = atan(y/x);
                     
-    if (y > 0 && x < 0 )
+    if (y >= 0 && x < 0 )
     {
         angle += M_PI;
     }
@@ -216,6 +248,13 @@ template<unsigned DIM>
 const VoronoiCell& VoronoiTessellation<DIM>::rGetCell(unsigned index) const
 {
     return mVoronoiCells[index];
+};
+
+template<unsigned DIM>
+const Face<DIM>* VoronoiTessellation<DIM>::GetFace(unsigned index) const
+{
+    assert(DIM==2);
+    return mFaces[index];
 };
 
 #endif //VORONOITESSELLATION_CPP

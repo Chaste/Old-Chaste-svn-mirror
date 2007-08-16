@@ -43,6 +43,20 @@ public:
         
         angle = tessellation.ReturnPolarAngle(-1.0,-sqrt(3.0));
         TS_ASSERT_DELTA(angle, -2.0*M_PI/3.0, 1e-7);
+        
+        // check boundary cases
+        angle = tessellation.ReturnPolarAngle(1.0,0.0);
+        TS_ASSERT_DELTA(angle, 0.0, 1e-7);
+        
+        angle = tessellation.ReturnPolarAngle(0.0,1.0);
+        TS_ASSERT_DELTA(angle, M_PI/2.0, 1e-7);
+        
+        angle = tessellation.ReturnPolarAngle(-1.0,0.0);
+        TS_ASSERT_DELTA(angle, M_PI, 1e-7);
+        
+        angle = tessellation.ReturnPolarAngle(0.0,-1.0);
+        TS_ASSERT_DELTA(angle, -M_PI/2.0, 1e-7);
+        
     }
     
     void TestGenerateVerticesFromElementCircumcentres() throw (Exception)
@@ -192,6 +206,27 @@ public:
         
         // Create Voronoi Tesselation
         VoronoiTessellation<2> tessellation(mesh);
+        
+        Face<2> expected_face;
+        c_vector<double, 2> vertex1;
+        vertex1(0)= 0.5;      
+        vertex1(1)= 0.0;
+        expected_face.mVertices.push_back(&vertex1);
+        c_vector<double, 2> vertex2;
+        vertex2(0)= 1.0;      
+        vertex2(1)= 0.5;
+        expected_face.mVertices.push_back(&vertex2);
+        c_vector<double, 2> vertex3;
+        vertex3(0)= 0.5;      
+        vertex3(1)= 1.0;
+        expected_face.mVertices.push_back(&vertex3);
+        c_vector<double, 2> vertex4;
+        vertex4(0)= 0.0;      
+        vertex4(1)= 0.5;
+        expected_face.mVertices.push_back(&vertex4);
+        
+        TS_ASSERT_EQUALS(*(tessellation.GetFace(4)), expected_face);
+        
     }
 };
 
