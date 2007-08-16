@@ -1,7 +1,6 @@
 #include "TysonNovak2001OdeSystem.hpp"
 #include <cmath>
 #include <cassert>
-#include "ReplicatableVector.hpp"
 /**
  * Constructor
  */

@@ -1,4 +1,4 @@
-LOCALINCS = -I. -Icxxtest -Ipde/src -Ipde/src/problem -Ipde/src/common -Ipde/src/solver -Ipde/src/problem/elasticity -Ipde/src/problem/common \
+INCS = -I. -Icxxtest -Ipde/src -Ipde/src/problem -Ipde/src/common -Ipde/src/solver -Ipde/src/problem/elasticity -Ipde/src/problem/common \
 -Ipde/src/solver/elasticity -Ipde/src/solver/common -Imesh/src -Imesh/src/voronoi -Imesh/src/writer -Imesh/src/common -Imesh/src/reader \
 -Imesh/src/decimator  \
 -Iio/src -Iio/src/writer -Iio/src/reader \
@@ -7,7 +7,6 @@ LOCALINCS = -I. -Icxxtest -Ipde/src -Ipde/src/problem -Ipde/src/common -Ipde/src
 -Icoupled/src/problem/elasticity -Icoupled/src/problem/cardiac -Icoupled/src/solver/cancer -Icoupled/src/solver/elasticity \
 -Icoupled/src/solver/cardiac -Imodels/src -Imodels/src/crypt -Imodels/src/crypt/cell -Imodels/src/crypt/killers -Imodels/src/crypt/cell/cycle
 
-INCS=${LOCALINCS} -I/home/chaste/petsc-2.2.1/include/  -I/home/chaste/petsc-2.2.1/bmake/linux-gnu/ -I/home/chaste/petsc-2.2.1/include/mpiuni/
 
 LIBS=global/src/Exception.o  \
 models/src/crypt/cell/cycle/AbstractCellCycleModel.o \
@@ -29,17 +28,24 @@ ode/src/solver/RungeKutta4IvpOdeSolver.o \
 ode/src/common/AbstractOdeSystem.o \
 
 CXXFLAGS = -DSPECIAL_SERIAL -O3 ${INCS}
-LDFLAGS =  -L/home/chaste/petsc-2.2.1/lib/libg/linux-gnu/ -lboost_serialization -lpetsc -lmpiuni
+LDFLAGS =   -lboost_serialization 
 
 
 default:	TestMakeNiceCryptSimsRunner TestCryptSimulation2DPeriodicRunner
 
-
+FRESH_DIR=`date +%F-%H-%M`
+	
 
 TestMakeNiceCryptSimsRunner.cpp:	models/test/TestMakeNiceCryptSims.hpp
 	cxxtest/cxxtestgen.py  --error-printer -o TestMakeNiceCryptSimsRunner.cpp models/test/TestMakeNiceCryptSims.hpp
 
 TestMakeNiceCryptSimsRunner: TestMakeNiceCryptSimsRunner.o ${LIBS}
+	g++ TestMakeNiceCryptSimsRunner.o ${LIBS} -o TestMakeNiceCryptSimsRunner ${LDFLAGS};\
+	echo "Making new experiment in ${FRESH_DIR} " ;\
+	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
+	cp TestMakeNiceCryptSimsRunner ${FRESH_DIR} ;\
+	cd ${FRESH_DIR}/bin ;\
+	ln -s ../../bin/triangle triangle 
 
 
 TestCryptSimulation2DPeriodicRunner.cpp:	models/test/TestCryptSimulation2DPeriodic.hpp
