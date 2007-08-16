@@ -227,6 +227,11 @@ public:
         
         TS_ASSERT_EQUALS(*(tessellation.GetFace(4)), expected_face);
         
+        //  Calculate length of voronoi edge between nodes 4 and 2
+        
+        TS_ASSERT_DELTA(tessellation.GetEdgeLength(4u, 2u), pow(2.0, -0.5), 1e-7);
+        
+        
     }
 };
 

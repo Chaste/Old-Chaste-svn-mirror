@@ -257,4 +257,24 @@ const Face<DIM>* VoronoiTessellation<DIM>::GetFace(unsigned index) const
     return mFaces[index];
 };
 
+template<unsigned DIM>
+double VoronoiTessellation<DIM>::GetEdgeLength(unsigned node_index_1, unsigned node_index_2) const
+{
+    assert(DIM==2);
+    
+    std::vector< c_vector<double, DIM>* > vertices_1 = mFaces[node_index_1]->mVertices;
+    std::vector< c_vector<double, DIM>* > vertices_2 = mFaces[node_index_2]->mVertices;
+    
+    std::vector< c_vector<double, DIM>* > intersecting_vertices;
+    
+    set_intersection( vertices_1.begin(), vertices_1.end(),
+                      vertices_2.begin(), vertices_2.end(),
+                      back_inserter(intersecting_vertices) );
+                      
+    assert(intersecting_vertices.size()==2);
+    
+    return norm_2(*(intersecting_vertices[0]) - *(intersecting_vertices[1]));
+};
+
+
 #endif //VORONOITESSELLATION_CPP
