@@ -379,7 +379,24 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
         }
        
     }
-    assert(rest_length<=1.0);
+    
+    double a_rest_length=rest_length*0.5;
+    double b_rest_length=a_rest_length;    
+    
+    if (mrCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex).HasApoptosisBegun())
+    {
+        double time_until_death_a = mrCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex).TimeUntilDeath();
+        a_rest_length = a_rest_length*(time_until_death_a)/(CancerParameters::Instance()->GetApoptosisTime());
+    }
+    if (mrCrypt.rGetCellAtNodeIndex(nodeBGlobalIndex).HasApoptosisBegun())
+    {
+        double time_until_death_b = mrCrypt.rGetCellAtNodeIndex(nodeBGlobalIndex).TimeUntilDeath();
+        b_rest_length = b_rest_length*(time_until_death_b)/(CancerParameters::Instance()->GetApoptosisTime());
+    }
+    
+    rest_length = a_rest_length + b_rest_length;
+    
+    assert(rest_length<=1.0+1e-12);
     return mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 

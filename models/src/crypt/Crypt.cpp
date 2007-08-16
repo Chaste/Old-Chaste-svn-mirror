@@ -567,7 +567,7 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
         
         if (mIsGhostNode[index]==true)
         {
-            colour = 6; // visualizer treats '6' as invisible
+            colour = 7; // visualizer treats '7' as invisible
         }
         else if (mrMesh.GetNode(index)->IsDeleted())
         {
@@ -637,6 +637,11 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                 {
                     cell_counter[0]++;
                 }  
+            }
+            
+            if (p_cell->HasApoptosisBegun())
+            {   // For any type of cell set the colour to this if it is undergoing apoptosis.
+                colour = 6;   
             }
             
             
