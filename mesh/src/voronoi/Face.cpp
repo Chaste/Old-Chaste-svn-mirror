@@ -72,7 +72,7 @@ Face<DIM> Face<DIM>::operator-()
 };
 
 template <unsigned DIM>
-double Face<DIM>::GetPerimeter()
+double Face<DIM>::GetPerimeter() const
 {
     double perimeter_return = 0;
     for(unsigned i=0; i<mVertices.size(); i++)
@@ -83,7 +83,7 @@ double Face<DIM>::GetPerimeter()
 };
 
 template <unsigned DIM>
-double Face<DIM>::GetArea()
+double Face<DIM>::GetArea() const
 {
     assert(DIM==2);
     double area_return = 0;

@@ -256,8 +256,11 @@ public:
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 1u), 1.0, 1e-6);
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 2u), 0.5 + pow(3,-0.5)/2.0, 1e-6);
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 3u), 0.5 + pow(3,-0.5)/2.0, 1e-6);
-        TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 4u), pow(3,-0.5), 1e-6)
-        TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 5u), pow(3,-0.5), 1e-6)
+        TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 4u), pow(3,-0.5), 1e-6);
+        TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 5u), pow(3,-0.5), 1e-6);
+        
+        TS_ASSERT_DELTA(tessellation.GetFace(0)->GetArea(), pow(3, 0.5)/4.0+0.5, 1e-6); 
+        TS_ASSERT_DELTA(tessellation.GetFace(0)->GetPerimeter(), 2.0 + pow(3, 0.5) , 1e-6); 
          
     }
 };

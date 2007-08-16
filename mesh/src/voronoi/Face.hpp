@@ -37,12 +37,12 @@ public:
     /**
      * Gets the sum of the length of all edges
      */
-    double GetPerimeter();
+    double GetPerimeter() const;
     
     /**
      * Gets the area of a voronoi face for 2d space only
      */
-    double GetArea();
+    double GetArea() const;
     
 };
 
