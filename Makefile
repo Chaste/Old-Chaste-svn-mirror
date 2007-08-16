@@ -7,6 +7,7 @@ INCS = -I. -Icxxtest -Ipde/src -Ipde/src/problem -Ipde/src/common -Ipde/src/solv
 -Icoupled/src/problem/elasticity -Icoupled/src/problem/cardiac -Icoupled/src/solver/cancer -Icoupled/src/solver/elasticity \
 -Icoupled/src/solver/cardiac -Imodels/src -Imodels/src/crypt -Imodels/src/crypt/cell -Imodels/src/crypt/killers -Imodels/src/crypt/cell/cycle
 
+INCS += -I/opt/boost/include/boost-1_33_1
 
 LIBS=global/src/Exception.o  \
 models/src/crypt/cell/cycle/AbstractCellCycleModel.o \
@@ -28,7 +29,12 @@ ode/src/solver/RungeKutta4IvpOdeSolver.o \
 ode/src/common/AbstractOdeSystem.o \
 
 CXXFLAGS = -DSPECIAL_SERIAL -O3 ${INCS}
-LDFLAGS =   -lboost_serialization 
+
+#On userpc44
+#LDFLAGS =   -lboost_serialization
+
+#On engels in Nottingham
+LDFLAGS =   -L/opt/boost/lib -lboost_serialization-gcc
 
 
 default:	TestMakeNiceCryptSimsRunner TestCryptSimulation2DPeriodicRunner
@@ -42,10 +48,14 @@ TestMakeNiceCryptSimsRunner.cpp:	models/test/TestMakeNiceCryptSims.hpp
 TestMakeNiceCryptSimsRunner: TestMakeNiceCryptSimsRunner.o ${LIBS}
 	g++ TestMakeNiceCryptSimsRunner.o ${LIBS} -o TestMakeNiceCryptSimsRunner ${LDFLAGS};\
 	echo "Making new experiment in ${FRESH_DIR} " ;\
+	echo "Do scp -r -C ${FRESH_DIR} pmxgm@deimos.math.nottingham.ac.uk:" ;\
+	echo "Then qsub simulation.sh on deimos";\
 	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
 	cp TestMakeNiceCryptSimsRunner ${FRESH_DIR} ;\
 	cd ${FRESH_DIR}/bin ;\
-	ln -s ../../bin/triangle triangle 
+	cp ../../bin/triangle triangle ;\
+	cd .. ;\
+	cp ../simulation.sh . 
 
 
 TestCryptSimulation2DPeriodicRunner.cpp:	models/test/TestCryptSimulation2DPeriodic.hpp
