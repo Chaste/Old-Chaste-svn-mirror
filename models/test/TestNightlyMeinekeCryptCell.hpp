@@ -185,10 +185,11 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
+        WntGradient wnt_gradient;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   APC_ONE_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));
+                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));
                                   
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -271,10 +272,11 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 0.0;
+        WntGradient wnt_gradient;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   BETA_CATENIN_ONE_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));
+                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));
                                   
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -357,10 +359,11 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 0.0;
+        WntGradient wnt_gradient;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   APC_ONE_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));
+                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));
                                   
         CryptCellMutationState this_state = wnt_cell.GetMutationState();
         

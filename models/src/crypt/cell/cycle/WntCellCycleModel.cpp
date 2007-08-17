@@ -1,4 +1,5 @@
 #include "WntCellCycleModel.hpp"
+#include "WntGradient.hpp"
 #include "CryptCellMutationStates.hpp"
 #include "Exception.hpp"
 #include <iostream>
@@ -16,10 +17,11 @@ RungeKutta4IvpOdeSolver WntCellCycleModel::msSolver;
  *
  * @param InitialWntStimulus a value between 0 and 1.
  */
-WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
+WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, WntGradient &rWntGradient)
         : AbstractCellCycleModel(),
           mpOdeSystem(NULL),
-          mInitialWntStimulus(InitialWntStimulus)          
+          mInitialWntStimulus(InitialWntStimulus),
+          mrWntGradient(rWntGradient)          
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -39,8 +41,9 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
  */
-WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, double birthTime)
-        : AbstractCellCycleModel()
+WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, double birthTime, WntGradient& rWntGradient)
+        : AbstractCellCycleModel(),
+          mrWntGradient(rWntGradient)
 {
     mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], HEALTHY);// mutation state and wnt pathway are reset in a couple of lines.
     // Protein concentrations are initialised such that the cell cycle part of
@@ -183,7 +186,7 @@ AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
     assert(mpOdeSystem!=NULL);
     // calls a cheeky version of the constructor which makes the new cell cycle model
     // the same age as the old one - not a copy at this time.
-    return new WntCellCycleModel(mpOdeSystem->rGetStateVariables(), mBirthTime);
+    return new WntCellCycleModel(mpOdeSystem->rGetStateVariables(), mBirthTime, mrWntGradient);
 }
 
 /**

@@ -11,6 +11,7 @@
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
+#include "WntGradient.hpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
@@ -33,12 +34,15 @@ private:
     bool mInSG2MPhase;
     bool mReadyToDivide;
     double mInitialWntStimulus;
+    WntGradient& mrWntGradient;
     
     /**
      * This is needed because a wnt model which is not to be run from the current time is 
      * sometimes needed. Should only be called by the cell itself when it wants to divide.
      */
-    WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, double birthTime);
+    WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
+                      double birthTime,
+                      WntGradient& rWntGradient);
     
     friend class boost::serialization::access;
     template<class Archive>
@@ -57,7 +61,7 @@ protected:
     
 public:
 
-    WntCellCycleModel(double InitialWntStimulus);
+    WntCellCycleModel(double InitialWntStimulus, WntGradient& rWntGradient);
     
     virtual ~WntCellCycleModel();
     
@@ -111,7 +115,9 @@ inline void load_construct_data(
     // state loaded later from the archive will overwrite their effect in
     // this case.
     // Invoke inplace constructor to initialize instance of my_class
-    ::new(t)WntCellCycleModel(0.0);
+    WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL;
+    WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient;
+    ::new(t)WntCellCycleModel(0.0, r_wnt_gradient);
 }
 }
 } // namespace ...

@@ -5,6 +5,7 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "WntCellCycleModel.hpp"
+#include "WntGradient.hpp"
 #include "RandomNumberGenerator.hpp"
 
 // Needs to be included last
@@ -19,8 +20,8 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
      * This is needed because a wnt model which is not to be run from the current time is 
      * sometimes needed. Should only be called by the cell itself when it wants to divide.
      */
-    StochasticWntCellCycleModel(std::vector<double> proteinConcentrations, double birthTime)
-      : WntCellCycleModel(proteinConcentrations, birthTime)
+    StochasticWntCellCycleModel(std::vector<double> proteinConcentrations, double birthTime,WntGradient& rWntGradient)
+      : WntCellCycleModel(proteinConcentrations, birthTime, rWntGradient)
     {
     }
 
@@ -54,8 +55,8 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
     /**
      * The standard constructor called in tests
      */
-    StochasticWntCellCycleModel(double wntLevel)
-      :  WntCellCycleModel(wntLevel)
+    StochasticWntCellCycleModel(double wntLevel, WntGradient& rWntGradient)
+      :  WntCellCycleModel(wntLevel, rWntGradient)
     {
     }
     
@@ -69,7 +70,7 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
     {
         // calls a cheeky version of the constructor which makes the new cell cycle model
         // the same age as the old one - not a copy at this time.
-        return new StochasticWntCellCycleModel(GetProteinConcentrations(), GetBirthTime());
+        return new StochasticWntCellCycleModel(GetProteinConcentrations(), GetBirthTime(),mrWntGradient);
     }
     
     
@@ -97,7 +98,9 @@ inline void load_construct_data(
     // state loaded later from the archive will overwrite their effect in
     // this case.
     // Invoke inplace constructor to initialize instance of my_class
-    ::new(t) StochasticWntCellCycleModel(0.0);
+    WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL;
+    WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient;
+    ::new(t) StochasticWntCellCycleModel(0.0,r_wnt_gradient);
 }
 }
 } // namespace ...

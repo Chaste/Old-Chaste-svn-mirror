@@ -77,7 +77,7 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
             {
                 WntGradient wnt_gradient(LINEAR);
                 double wnt = wnt_gradient.GetWntLevel(y);
-                p_cell_cycle_model = new WntCellCycleModel(wnt);
+                p_cell_cycle_model = new WntCellCycleModel(wnt, wnt_gradient);
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }
@@ -830,7 +830,7 @@ public:
             WntGradient wnt_gradient(LINEAR);
             double wnt = wnt_gradient.GetWntLevel(y);
             
-            MeinekeCryptCell cell(cell_type, mutation_state, generation, new WntCellCycleModel(wnt));
+            MeinekeCryptCell cell(cell_type, mutation_state, generation, new WntCellCycleModel(wnt, wnt_gradient));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

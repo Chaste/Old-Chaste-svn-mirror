@@ -17,6 +17,7 @@
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
+#include "WntGradient.hpp"
 #include <iostream>
 
 class TestMeinekeCryptCell: public CxxTest::TestSuite
@@ -254,11 +255,12 @@ public:
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
         
         // Test a Wnt dependent cell
+        WntGradient wnt_gradient;
         
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
-                                   new WntCellCycleModel(0.0));
+                                   new WntCellCycleModel(0.0, wnt_gradient));
                                    
         wnt_cell.UpdateCellType();
         
@@ -755,12 +757,14 @@ public:
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
+        WntGradient wnt_gradient;
+        
         double wnt_stimulus = 1.0;
         std::cout << "Hello Joe 1\n" << std::flush;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   HEALTHY,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));
+                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));
         std::cout << "Hello Joe 2\n" << std::flush;
                  
         for (unsigned i=0 ; i<num_steps/2 ; i++)
@@ -848,10 +852,11 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
+        WntGradient wnt_gradient;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   HEALTHY,//Mutation State
                                   1,    // generation
-                                  new StochasticWntCellCycleModel(wnt_stimulus));
+                                  new StochasticWntCellCycleModel(wnt_stimulus, wnt_gradient));
                                   
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -1272,25 +1277,26 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
+        WntGradient wnt_gradient;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   APC_ONE_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));
+                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));
                                   
         MeinekeCryptCell wnt_cell2(TRANSIT, // type
                                   BETA_CATENIN_ONE_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));                          
+                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));                          
                                   
         MeinekeCryptCell wnt_cell3(TRANSIT, // type
                                   APC_TWO_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus)); 
+                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient)); 
                                   
         MeinekeCryptCell wnt_cell4(TRANSIT, // type
                                   LABELLED,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));                               
+                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));                               
 
         std::vector<double> wnt;
         wnt.push_back(wnt_stimulus);
