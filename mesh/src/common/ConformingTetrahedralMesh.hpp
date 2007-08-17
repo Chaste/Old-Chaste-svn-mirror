@@ -339,6 +339,12 @@ public:
     c_vector<double,2> GetWidthExtremes(const unsigned& rDimension) const;
     
     void UnflagAllElements();
+    
+    
+    /**
+     *  Flag all elements not containing ANY of the given nodes
+     */
+    void FlagElementsNotContainingNodes(std::set<unsigned> nodesList);
 
 
     /**

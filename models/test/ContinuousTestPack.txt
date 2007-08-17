@@ -7,4 +7,6 @@ TestMeinekeCryptCell.hpp
 TestWntGradient.hpp
 TestCellKillers.hpp
 TestSprings3d.hpp
+TestPdeOnFlaggedMesh.hpp
+TestSprings3d.hpp
 TestTumourSpheroid.hpp

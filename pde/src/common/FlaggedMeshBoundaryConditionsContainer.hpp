@@ -73,6 +73,34 @@ public:
         }
     }
     
+    /**
+     *  Constructor which takes in a mesh (which should have some flagged elements) and sets 
+     *  a constant dirichlet boundary condition on the boundary
+     */ 
+    FlaggedMeshBoundaryConditionsContainer(ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh, double value)
+            : AbstractBoundaryConditionsContainer<SPACE_DIM,SPACE_DIM,PROBLEM_DIM>()
+    {
+        std::set<unsigned> boundary_of_flagged_region = rMesh.CalculateBoundaryOfFlaggedRegion();
+        if(boundary_of_flagged_region.empty())
+        {
+            EXCEPTION("Mesh has not been flagged");
+        }
+
+        std::set<unsigned>::iterator node_iter = boundary_of_flagged_region.begin();
+        while(node_iter!=boundary_of_flagged_region.end())
+        {
+            unsigned node_index = *node_iter;
+            // define boundary condition object and store 
+            ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition 
+                = new ConstBoundaryCondition<SPACE_DIM>(value);
+
+            this->AddDirichletBoundaryCondition(rMesh.GetNode(node_index), p_boundary_condition);
+            
+            node_iter++;
+        }
+    }
+
+
     
 //    ~FlaggedMeshBoundaryConditionsContainer()
 //    {

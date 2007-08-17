@@ -1876,6 +1876,36 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::UnflagAllElements()
     }
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::FlagElementsNotContainingNodes(std::set<unsigned> nodesList)
+{
+    typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
+        iter = GetElementIteratorBegin();
+    while (iter != GetElementIteratorEnd())
+    {
+        Element<ELEMENT_DIM, SPACE_DIM>& element = **iter;
+
+        bool found_node = false;
+        for (unsigned i=0; i<element.GetNumNodes(); i++)
+        {
+            unsigned node_index = element.GetNodeGlobalIndex(i);
+            
+            std::set<unsigned>::iterator set_iter = nodesList.find(node_index);
+            if(set_iter!=nodesList.end())
+            {
+                found_node = true;
+            }               
+        }
+        
+        if (!found_node)
+        {
+            element.Flag();
+        }
+        ++iter;
+    }
+}
+
+
 //////////////////////////////////////////////////////////////////////////////
 //                          edge iterator class                           // 
 //////////////////////////////////////////////////////////////////////////////

@@ -1423,6 +1423,24 @@ public:
         TS_ASSERT_EQUALS(correct_boundary, boundary);
     }
     
+    void TestFlagElementsNotContainingNodes()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        std::set<unsigned> nodes;
+        nodes.insert(0);
+        nodes.insert(1);
+        
+        mesh.FlagElementsNotContainingNodes(nodes);
+        
+        TS_ASSERT_EQUALS( mesh.GetElement(0)->IsFlagged(), false);
+        TS_ASSERT_EQUALS( mesh.GetElement(1)->IsFlagged(), false);
+        TS_ASSERT_EQUALS( mesh.GetElement(2)->IsFlagged(), false);
+        TS_ASSERT_EQUALS( mesh.GetElement(3)->IsFlagged(), true);
+    }
+    
     
     void TestCalculateBoundaryOfFlaggedRegion3D()
     {
