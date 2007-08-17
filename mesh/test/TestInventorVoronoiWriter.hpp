@@ -40,6 +40,7 @@ public:
         // then compare against known good file
         OutputFileHandler handler("InventorWriter",false);
         std::string results_dir = handler.GetTestOutputDirectory();
+        std::cout<< "/n TEST DIREC "<<results_dir;
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/SimpleTet.iv mesh/test/data/InventorWriter/SimpleTet.iv").c_str()), 0);
         
     }

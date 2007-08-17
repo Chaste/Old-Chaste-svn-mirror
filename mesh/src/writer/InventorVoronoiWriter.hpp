@@ -206,22 +206,34 @@ public:
         unsigned index=0;
 
         // write the face info
+        // Loop over cells
         for(unsigned i=0; i<number_faces_per_cell.size(); i++)
         {
             if(number_faces_per_cell[i]>0)
             {
                 *p_file << INVENTOR_MID;
-
+                // Loop over faces
                 for(unsigned j=0; j<number_faces_per_cell[i]; j++)
                 {
                     *p_file << "        ";
                     assert(index<new_faces_data.size());
-                    for(unsigned k=0; k<new_faces_data[index].size(); k++)
+                    if ((rTessellation.rGetCell(i).mOrientations)[j])
                     {
-                        *p_file << new_faces_data[index][k] << ", ";
-                    }
-                    *p_file << "\n";
-                    index++;
+                        for(unsigned k=0; k<new_faces_data[index].size(); k++)
+                        {
+                            *p_file << new_faces_data[index][k] << ", ";
+                        }
+                     }
+                     else
+                     {
+                        for(unsigned k=0; k<new_faces_data[index].size(); k++)
+                        {
+                            unsigned l = new_faces_data[index].size() - k - 1;
+                            *p_file << new_faces_data[index][l] << ", ";
+                        }
+                     }
+                     *p_file << "\n";
+                     index++;
                 }
             }
         }
