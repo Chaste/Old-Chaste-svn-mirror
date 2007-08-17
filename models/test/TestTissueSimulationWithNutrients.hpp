@@ -229,7 +229,7 @@ public:
         double crypt_length = num_cells_depth-1.0;
         double crypt_width = num_cells_width-1.0;
         
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -271,6 +271,9 @@ public:
         simulator.AddCellKiller(p_killer);
         
         simulator.Solve();
+        
+        // add get methods etc and test
+        
         
         delete p_killer;
         SimulationTime::Destroy();
