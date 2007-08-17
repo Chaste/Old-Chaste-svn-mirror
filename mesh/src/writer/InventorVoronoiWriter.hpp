@@ -4,6 +4,7 @@
 #include "VoronoiTessellation.cpp"
 #include "OutputFileHandler.hpp"
 
+
 const std::string INVENTOR_HEADER="#Inventor V2.0 ascii \n\
 \n\
 Separator { \n\
@@ -41,6 +42,38 @@ Separator { \n\
       point [ \n\
 ";
 
+
+////  This is what we will need to change the header to changing \n to be \n with a backslash on it:
+//const std::string INVENTOR_HEADER="#Inventor V2.1 ascii \n
+//\n
+//Separator { \n
+//    IndexedFaceSet { \n
+//    vertexProperty      VertexProperty { \n
+//        vertex  [ \n
+//";
+//
+//const std::string INVENTOR_MID="                ] \n
+//                texCoord    [  ] \n
+//                orderedRGBA [  ] \n
+//                materialBinding PER_VERTEX \n
+//                normalBinding   PER_PART \n
+//    }  \n
+//      coordIndex [ \n
+//";
+//
+// const std::string INVENTOR_FOOTER="      ]   \n
+//      \n
+//  }   \n
+// Translation {  \n
+//    translation 3 0 0  \n
+//    }  \n
+//}   \n
+//";
+////  NOTE: You also need to change INVENTOR_MID used between cells to "\n\"
+// 
+// 
+ 
+      
 const std::string INVENTOR_MID="      ] \n\
     } \n\
     IndexedFaceSet { \n\
@@ -104,7 +137,7 @@ public:
             vertex_number_map[rTessellation.mVertices[vertex_number]]=vertex_number;
         }
         
-        *p_file << INVENTOR_MID;
+        *p_file << INVENTOR_MID; //  CHANGE this to: *p_file << "\n";
         
         // write out faces;
         
