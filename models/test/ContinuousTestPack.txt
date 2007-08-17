@@ -9,4 +9,5 @@ TestCellKillers.hpp
 TestSprings3d.hpp
 TestPdeOnFlaggedMesh.hpp
 TestSprings3d.hpp
+TestTissueSimulationWithNutrients.hpp
 TestTumourSpheroid.hpp

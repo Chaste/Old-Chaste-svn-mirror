@@ -126,6 +126,20 @@ std::vector<bool>& Crypt<DIM>::rGetGhostNodes()
 }
 
 template<unsigned DIM>
+std::set<unsigned> Crypt<DIM>::GetGhostNodeIndices()
+{
+    std::set<unsigned> ghost_node_indices;
+    for (unsigned i=0; i<mIsGhostNode.size(); i++)
+    {
+        if (mIsGhostNode[i])
+        {
+            ghost_node_indices.insert(i);    
+        }        
+    }
+    return ghost_node_indices;        
+}
+
+template<unsigned DIM>
 void Crypt<DIM>::SetGhostNodes(const std::vector<bool>& rGhostNodes)
 {
     mIsGhostNode = rGhostNodes;

@@ -115,6 +115,8 @@ public:
     const std::list<MeinekeCryptCell>& rGetCells() const;
     std::vector<bool>& rGetGhostNodes();
 
+    std::set<unsigned> GetGhostNodeIndices();
+    
     /** 
      *  Set the ghost nodes, by taking in a vector of bools saying whether each 
      *  node is a ghost or not. Won't generally be needed to be called, see 

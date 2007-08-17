@@ -167,6 +167,10 @@ public:
         
         TS_ASSERT_EQUALS(crypt.rGetGhostNodes(), is_ghost_node);
         
+        // test the GetGhostNodeIndices method
+        std::set<unsigned> ghost_node_indices2 = crypt.GetGhostNodeIndices();
+        TS_ASSERT_EQUALS(ghost_node_indices, ghost_node_indices2);
+        
         // check the iterator doesn't loop over ghost nodes
         counter = 0;
         for (Crypt<2>::Iterator cell_iter = crypt.Begin();

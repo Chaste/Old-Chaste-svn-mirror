@@ -787,12 +787,10 @@ void TissueSimulation<DIM>::Solve()
                                     tabulated_output_counter%80==0,
                                     true,
                                     mOutputCellTypes);
-        
-        
-        
-        
-                            
+                                    
         tabulated_output_counter++;
+        
+        PostSolve();
     }
     
     // Write end state to tabulated files (not visualizer - this

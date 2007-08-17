@@ -229,6 +229,13 @@ protected:
      */
     void UpdateCellTypes();
     
+    /** 
+     *  A method for subclasses to do something at the end of each timestep
+     */
+    virtual void PostSolve()
+    {
+    }
+    
     
 public:
 
