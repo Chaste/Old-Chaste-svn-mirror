@@ -300,7 +300,7 @@ public:
     // to 24.0 and it will look like a parallelogram.
     // However we keep the simulation time at 1.0 to make
     // the test short.
-    void xTest2DSpringSystem() throw (Exception)
+    void Test2DSpringSystem() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -365,7 +365,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void xTest2DHoneycombMeshNotPeriodic() throw (Exception)
+    void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -456,7 +456,7 @@ public:
     // differentiated, check the number of cells at the end of the
     // simulation is as expected.
     //////////////////////////////////////////////////////////////////
-    void xTest2DCorrectCellNumbers() throw (Exception)
+    void Test2DCorrectCellNumbers() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -574,7 +574,7 @@ public:
 // 
 ////////////////////////////////////////////////////////////////////////////
     
-    void xTest2DPeriodicNightly() throw (Exception)
+    void Test2DPeriodicNightly() throw (Exception)
     {        
         CancerParameters::Instance()->Reset();
 
@@ -622,7 +622,7 @@ public:
     }
     
     
-    void xTestCrypt2DPeriodicWntNightly() throw (Exception)
+    void TestCrypt2DPeriodicWntNightly() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -675,7 +675,7 @@ public:
     }
     
    
-    void xTestWithMutantCellsUsingDifferentViscosities() throw (Exception)
+    void TestWithMutantCellsUsingDifferentViscosities() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -766,7 +766,7 @@ public:
     
 
     
-    void xTestRandomDeathWithPeriodicMesh() throw (Exception)
+    void TestRandomDeathWithPeriodicMesh() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
         unsigned cells_across = 7;
@@ -811,7 +811,7 @@ public:
   
     // Sloughing with a sloughing cell killer and not turning into ghost nodes
     // on a non-periodic mesh
-    void xTestSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
+    void TestSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
 
@@ -851,7 +851,7 @@ public:
     }
 
 
-    void xTestSloughingDeathWithPeriodicMesh() throw (Exception)
+    void TestSloughingDeathWithPeriodicMesh() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
 
@@ -908,7 +908,7 @@ public:
     }
 
 
-    void xTestWithMultipleCellKillers() throw (Exception)
+    void TestWithMultipleCellKillers() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
 
@@ -974,7 +974,7 @@ public:
     
     
     
-    void xTestMonolayerWithCutoffPointAndNoGhosts() throw (Exception)
+    void TestMonolayerWithCutoffPointAndNoGhosts() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
