@@ -11,8 +11,92 @@
 
 #include <boost/serialization/vector.hpp>
 
-// see http://www.boost.org/libs/serialization/doc/index.html
+#include <boost/serialization/export.hpp>
 
+// see http://www.boost.org/libs/serialization/doc/index.html
+class ParentClass;
+
+class ChildClass    // this is an abstract of an AbstractCellCycleModel!
+{
+public:
+    unsigned mTag;
+    ParentClass *mpParent;
+    ChildClass() : mTag(1)
+    {
+    }
+    void SetParent(ParentClass *pParent)
+    {
+        mpParent = pParent;
+    }
+    
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // If Archive is an output archive, then & resolves to <<
+        // If Archive is an input archive, then & resolves to >>
+        //std::cout << "Child archiving\n" << std::flush;
+        archive & mTag;
+    }
+};
+//BOOST_CLASS_EXPORT(ChildClass)
+
+class ParentClass   // this is an abstract of a MeinekeCryptCell.
+{
+public:
+    unsigned mTag;
+    ChildClass *mpChild;
+    ParentClass(ChildClass *pChild) : mTag(0), mpChild(pChild)
+    {
+        mpChild->SetParent(this);
+    }
+    
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // If Archive is an output archive, then & resolves to <<
+        // If Archive is an input archive, then & resolves to >>
+        //std::cout << "Parent archiving\n" << std::flush;
+        archive & mTag;
+    }
+};
+BOOST_CLASS_EXPORT(ParentClass)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a WntCellCycleModel instance.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const ParentClass * t, const unsigned int file_version)
+{
+    //std::cout << "Parent save construct\n" << std::flush;
+    ar << t->mpChild;
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a WntCellCycleModel instance.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, ParentClass * t, const unsigned int file_version)
+{
+    // It doesn't actually matter what values we pass to our standard
+    // constructor, provided they are valid parameter values, since the
+    // state loaded later from the archive will overwrite their effect in
+    // this case.
+    // Invoke inplace constructor to initialize instance of my_class
+    //std::cout << "Parent load construct\n" << std::flush;
+    ChildClass* p_child;
+    ar >> p_child;
+    ::new(t)ParentClass(p_child);
+}
+}
+} // namespace ...
 
 class ClassOfSimpleVariables
 {
@@ -126,6 +210,49 @@ public:
             
             TS_ASSERT_EQUALS(j.GetVectorOfBools()[0],true);
             TS_ASSERT_EQUALS(j.GetVectorOfBools()[1],true);
+        }
+    }
+    
+    void TestArchivingLinkedChildAndParent() throw (Exception)
+    {
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "linked_classes.arch";
+        
+        // Save
+        {
+            // Create an ouput archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            ChildClass* p_child = new ChildClass;
+            ParentClass* p_parent = new ParentClass(p_child);
+            
+            p_child->mTag = 11;
+            p_parent->mTag = 10;
+            
+            ParentClass* const  p_parent_for_archiving = p_parent;
+            //ChildClass* const p_child_for_archiving = p_child;
+            
+            //output_arch << p_child_for_archiving;
+            output_arch << p_parent_for_archiving;
+            
+        }
+        
+        // Load
+        {
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            //ChildClass* p_child;
+            ParentClass* p_parent;
+            
+            input_arch >> p_parent;
+            
+            TS_ASSERT_EQUALS(p_parent->mTag, 10u);
+            TS_ASSERT_EQUALS(p_parent->mpChild->mTag, 11u);
+            TS_ASSERT_EQUALS(p_parent->mpChild->mpParent, p_parent);
         }
     }
 };
