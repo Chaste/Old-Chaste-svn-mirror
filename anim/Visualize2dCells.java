@@ -43,6 +43,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static boolean drawSprings=false;
     public static boolean drawCells=true;
     public static boolean drawCircles=false;
+    public static boolean drawNutrient=false;
     public static boolean writeFiles=false;
     public static boolean drawGhosts=false;
     public static boolean drawFibres=false;
@@ -69,10 +70,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static Checkbox cells=new Checkbox("Cells");
     public static Checkbox ghost_nodes=new Checkbox("Ghosts");
     public static Checkbox circles=new Checkbox("Cells as circles");
+    public static Checkbox nutrient=new Checkbox("Nutrient");
     public static JLabel nearest_label = new JLabel();
     public static int numSteps = 0;
 
-
+    public static String nutrient_file;
         
     public Visualize2dCells() {
         frame.setSize(700, 700);
@@ -162,6 +164,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         {
             drawCircles = state;
             System.out.println("Drawing cells as circles = "+drawCircles);    
+        }
+        else if (cb == nutrient)
+        {
+            drawNutrient = state;
+            System.out.println("Drawing nutrient = "+drawNutrient);    
         }
         canvas.drawBufferedImage();
         canvas.repaint();
@@ -258,24 +265,25 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         scrollPanel_time.add(time_slider);
         scrollPanel_time.add(end_time);
                         
-        JPanel checkPanel = new JPanel(new GridLayout(0,3));
+        JPanel checkPanel = new JPanel(new GridLayout(0,4));
         output.addItemListener(this);
         springs.addItemListener(this);
         fibre.addItemListener(this);
         cells.addItemListener(this);
         ghost_nodes.addItemListener(this);
         circles.addItemListener(this);
+        nutrient.addItemListener(this);
         
         checkPanel.add(output);
         checkPanel.add(springs);
+        checkPanel.add(nutrient);
         checkPanel.add(fibre);
         checkPanel.add(cells);
         checkPanel.add(ghost_nodes);
         checkPanel.add(circles);
         
         checkPanel.add(nearest_label);
-        
-        
+                
         JPanel southPanel = new JPanel(new GridLayout(2,0));
         
         southPanel.add(scrollPanel_time);
@@ -285,13 +293,15 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
     public static void main(String args[]) 
     {
-        System.out.println("Copyright Gavaghan's goons (everyone but ozzy)");//(Gary Mirams, Sarah Eastburn, Pras Pathmanathan, Alex Fletcher & Joe Pitt-Francis)");
+        System.out.println("Copyright Gavaghan's goons");//(Gary Mirams, Sarah Eastburn, Pras Pathmanathan, Alex Fletcher & Joe Pitt-Francis)");
         output.setState(false);
         springs.setState(false);
         fibre.setState(false);
         cells.setState(true);
         ghost_nodes.setState(false);
         circles.setState(false);
+        nutrient.setState(false);
+        
         for (int i=1; i<args.length; i++)
         {
             if (args[i].equals("output"))
@@ -324,6 +334,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 drawCircles = true;
                 circles.setState(true);
             }
+            else if (args[i].equals("nutrient"))
+            {
+                drawNutrient = true;
+                nutrient.setState(true);
+            }
             else if (args[i].equals("notcylindrical"))
             {
                 drawCylinderOverride = false;
@@ -335,6 +350,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         }
         File node_file = new File(args[0]+"/vis_results/results.viznodes");
         File element_file = new File(args[0]+"/vis_results/results.vizelements");
+        
+        // save where the nutrient file will be, in case it is needed later
+        nutrient_file = args[0] + "/../nutrients/";
         
         if (!node_file.isFile())
         {
@@ -353,7 +371,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             System.out.println("The file "+args[0]+"/vis_results/results.vizfibres doesn't exist");
             fibre.setVisible(false);
             drawFibres=false;
-        } else {
+        } 
+        else 
+        {
             fibre.setState(true);
             drawFibres=true; //Sorry, this is just to get it working
         }
@@ -362,11 +382,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         if (!setup_file.isFile())
         {
             System.out.println("The file "+args[0]+"/vis_results/results.vizsetup doesn't exist");
-        } else {
+        }
+        else 
+        {
             setupFilePresent = true;
         }
-        
-
         
         Visualize2dCells vis = new Visualize2dCells();
         
@@ -404,7 +424,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 BufferedReader in_setup_file = new BufferedReader(new FileReader(setup_file));
                 String line_setup = in_setup_file.readLine();   // above.
                 // Read setup information.
-                while (line_setup != null) {
+                while (line_setup != null)
+                {
                     StringTokenizer st_setup = new StringTokenizer(line_setup);
                     String parameter = st_setup.nextToken();
                     if (parameter.equals("MeshWidth"))  // .equals?? That took some doing!
@@ -949,6 +970,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                     g2.setColor(Color.black);
                 }
             } 
+            
         }
         
         // draw nodes second so that dots are on top of lines
@@ -973,6 +995,59 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         
         drawXAxis(tick_length, num_ticks);
         drawYAxis(tick_length, num_ticks);
+
+        
+        if(vis.drawNutrient)
+        {
+            try
+            {
+                File nutrient_file = new File(vis.nutrient_file+"/nutrients_"+vis.timeStep+".dat");
+                BufferedReader in_nut_file = new BufferedReader(new FileReader(nutrient_file));
+                
+                int row = 0;
+                String line_nut = in_nut_file.readLine(); 
+                
+                double[] nut_x = new double[100];
+                double[] nut_y = new double[100];
+                double[] nut_u = new double[100];
+                
+                while (line_nut != null) 
+                {
+                    // Create a StringTokenizer with a colon sign as a delimiter
+                    StringTokenizer st = new StringTokenizer(line_nut);
+
+                    Double x = Double.valueOf(st.nextToken());
+                    Double y = Double.valueOf(st.nextToken());
+                    Double u = Double.valueOf(st.nextToken());
+
+                    RealPoint xy = new RealPoint(x,y);
+                    PlotPoint plot_point = scale(xy);
+                    
+                    if(u > 0)
+                    {
+                        g2.setColor(Color.black);
+                        g2.fillOval(plot_point.x, plot_point.y, 8,8);
+                    }
+                    else
+                    {
+
+                        g2.setColor(Color.blue);
+                        g2.fillOval(plot_point.x, plot_point.y, 8,8);
+                    }
+//                    nut_x[row] = x.doubleValue();            
+//                    nut_y[row] = y.doubleValue();            
+//                    nut_u[row] = u.doubleValue();          
+                    
+                    line_nut = in_nut_file.readLine();
+                    row++;
+                }
+            }
+            catch (Exception e) 
+            {
+                System.out.println("Error occured. Exception message: "+e.getMessage());
+            }
+        }
+
         
         imageReady = true;
     }
