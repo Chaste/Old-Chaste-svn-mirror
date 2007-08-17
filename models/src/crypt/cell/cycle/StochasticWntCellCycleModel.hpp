@@ -54,8 +54,8 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
     /**
      * The standard constructor called in tests
      */
-    StochasticWntCellCycleModel(double wntLevel, unsigned mutationState = 0u)
-      :  WntCellCycleModel(wntLevel, mutationState)
+    StochasticWntCellCycleModel(double wntLevel)
+      :  WntCellCycleModel(wntLevel)
     {
     }
     
@@ -97,7 +97,7 @@ inline void load_construct_data(
     // state loaded later from the archive will overwrite their effect in
     // this case.
     // Invoke inplace constructor to initialize instance of my_class
-    ::new(t) StochasticWntCellCycleModel(0.0, 0u);
+    ::new(t) StochasticWntCellCycleModel(0.0);
 }
 }
 } // namespace ...

@@ -1892,23 +1892,35 @@ public:
         
         // Create an ouput archive
         {
+            ConformingTetrahedralMesh<2,2>* const p_mesh = new ConformingTetrahedralMesh<2,2>;
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
             ConformingTetrahedralMesh<2,2> mesh;
-                             
+            p_mesh->ConstructFromMeshReader(mesh_reader);
+            TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),4u);
+            TS_ASSERT_EQUALS(p_mesh->GetNumElements(),2u);
+            
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
-            output_arch << static_cast<const ConformingTetrahedralMesh<2,2>&>(mesh);
+            output_arch << p_mesh;
+            delete p_mesh;
         }
         
         {
-            ConformingTetrahedralMesh<2,2> mesh2;
+            ConformingTetrahedralMesh<2,2>* p_mesh2;
             
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
             // restore from the archive
-            input_arch >> mesh2;
+            input_arch >> p_mesh2;
+            
+            // \TODO:ticket:412 These lines will test proper mesh archiving.
+//            TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(),4u);
+//            TS_ASSERT_EQUALS(p_mesh2->GetNumElements(),2u);
+            
+            delete p_mesh2;
         }
     }
     

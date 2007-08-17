@@ -4,6 +4,7 @@
 #include <vector>
 #include <cmath>
 #include "AbstractOdeSystem.hpp"
+#include "CryptCellMutationStates.hpp"
 
 /**
  * Represents the Mirams et al. (2007-with any luck) system of ODEs.
@@ -55,7 +56,7 @@ private:
     
 public:
     // Constructor
-    WntCellCycleOdeSystem(double WntStimulus = 0.0, unsigned mutationState = 0);
+    WntCellCycleOdeSystem(double WntStimulus = 0.0, CryptCellMutationState mutationState = HEALTHY);
     
     // Destructor
     ~WntCellCycleOdeSystem();

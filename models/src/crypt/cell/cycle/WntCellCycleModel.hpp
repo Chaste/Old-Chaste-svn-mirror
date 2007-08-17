@@ -32,6 +32,7 @@ private:
     double mDivideTime;
     bool mInSG2MPhase;
     bool mReadyToDivide;
+    double mInitialWntStimulus;
     
     /**
      * This is needed because a wnt model which is not to be run from the current time is 
@@ -56,7 +57,7 @@ protected:
     
 public:
 
-    WntCellCycleModel(double InitialWntStimulus, unsigned mutationStatus = 0);
+    WntCellCycleModel(double InitialWntStimulus);
     
     virtual ~WntCellCycleModel();
     
@@ -73,6 +74,8 @@ public:
     void SetBirthTime(double birthTime);
     
     void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations);
+    
+    void SetCell(MeinekeCryptCell* pCell);
 };
 
 // declare identifier for the serializer
@@ -88,6 +91,18 @@ namespace serialization
  * instantiate a WntCellCycleModel instance.
  */
 template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const WntCellCycleModel * t, const unsigned int file_version)
+{
+
+   
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a WntCellCycleModel instance.
+ */
+template<class Archive>
 inline void load_construct_data(
     Archive & ar, WntCellCycleModel * t, const unsigned int file_version)
 {
@@ -96,7 +111,7 @@ inline void load_construct_data(
     // state loaded later from the archive will overwrite their effect in
     // this case.
     // Invoke inplace constructor to initialize instance of my_class
-    ::new(t)WntCellCycleModel(0.0, 0u);
+    ::new(t)WntCellCycleModel(0.0);
 }
 }
 } // namespace ...

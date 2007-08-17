@@ -14,16 +14,12 @@ void AbstractCellCycleModel::SetCell(MeinekeCryptCell* pCell)
 {
     mpCell=pCell;
 }
-// to go once wnt is refactored
-//void AbstractCellCycleModel::SetCellType(CryptCellType cellType)
-//{
-//    mCellType = cellType;
-//}
-//
-//CryptCellType AbstractCellCycleModel::GetCellType()
-//{
-//    return mpCell->GetCellType();
-//}
+
+MeinekeCryptCell* AbstractCellCycleModel::GetCell()
+{
+    assert(mpCell!=NULL);
+    return mpCell;
+}
 
 CryptCellType AbstractCellCycleModel::UpdateCellType()
 {   // This doesn't do anything in most classes, overwritten in others.

@@ -138,6 +138,7 @@ protected:
         archive & *mpRandomGenerator;
         archive & mpRandomGenerator;
         
+        
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
         archive & mDt;
@@ -296,7 +297,10 @@ inline void load_construct_data(
 {
     // retrieve data from archive required to construct new instance
     Crypt<DIM>* p_crypt;
+
+//fails here:
     ar >> p_crypt;
+
     // invoke inplace constructor to initialize instance
     ::new(t)TissueSimulation<DIM>(*p_crypt, true);
 }

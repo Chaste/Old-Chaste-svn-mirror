@@ -1,4 +1,5 @@
 #include "WntCellCycleModel.hpp"
+#include "CryptCellMutationStates.hpp"
 #include "Exception.hpp"
 #include <iostream>
 #include <cassert>
@@ -14,12 +15,11 @@ RungeKutta4IvpOdeSolver WntCellCycleModel::msSolver;
  * generate a default one for us.
  *
  * @param InitialWntStimulus a value between 0 and 1.
- * @param mutationStatus an unsigned taking the values 0 (healthy), 1 (APC+/-), 2 (BetaCat Delta45), 3 (APC-/-).
- *
- * \todo consider using an enum for the mutation state.
  */
-WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutationStatus)
-        : AbstractCellCycleModel()
+WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
+        : AbstractCellCycleModel(),
+          mpOdeSystem(NULL),
+          mInitialWntStimulus(InitialWntStimulus)          
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -31,8 +31,6 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutatio
     mInSG2MPhase = false;
     mReadyToDivide = false;
     mDivideTime = DBL_MAX;
-    mpOdeSystem = new WntCellCycleOdeSystem(InitialWntStimulus, mutationStatus);
-    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 }
 
 /**
@@ -44,7 +42,7 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutatio
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, double birthTime)
         : AbstractCellCycleModel()
 {
-    mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], (unsigned)rParentProteinConcentrations[9]);
+    mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], HEALTHY);// mutation state and wnt pathway are reset in a couple of lines.
     // Protein concentrations are initialised such that the cell cycle part of
     // the model (first 5 ODEs) is at the start of G1 phase.
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
@@ -83,7 +81,10 @@ WntCellCycleModel::~WntCellCycleModel()
  *
  */
 void WntCellCycleModel::ResetModel()
-{	// This model needs the protein concentrations and phase resetting to G0/G1.
+{	
+    assert(mpOdeSystem!=NULL);
+    
+    // This model needs the protein concentrations and phase resetting to G0/G1.
     assert(mReadyToDivide);
     mLastTime = mDivideTime;
     mBirthTime = mDivideTime;
@@ -106,6 +107,7 @@ void WntCellCycleModel::ResetModel()
  */
 bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
+    assert(mpOdeSystem!=NULL);
     assert(cellCycleInfluences.size()==2);
     
     // Use the WntStimulus provided as an input
@@ -166,6 +168,7 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
  */
 std::vector<double> WntCellCycleModel::GetProteinConcentrations()
 {
+    assert(mpOdeSystem!=NULL);
     return mpOdeSystem->rGetStateVariables();
 }
 
@@ -177,6 +180,7 @@ std::vector<double> WntCellCycleModel::GetProteinConcentrations()
  */
 AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
 {
+    assert(mpOdeSystem!=NULL);
     // calls a cheeky version of the constructor which makes the new cell cycle model
     // the same age as the old one - not a copy at this time.
     return new WntCellCycleModel(mpOdeSystem->rGetStateVariables(), mBirthTime);
@@ -204,6 +208,7 @@ void WntCellCycleModel::SetBirthTime(double birthTime)
  */
 void WntCellCycleModel::SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations)
 {
+    assert(mpOdeSystem!=NULL);
     assert(proteinConcentrations.size()==mpOdeSystem->rGetStateVariables().size());
     mLastTime = lastTime;
     mpOdeSystem->SetStateVariables(proteinConcentrations);
@@ -212,6 +217,7 @@ void WntCellCycleModel::SetProteinConcentrationsForTestsOnly(double lastTime, st
 
 CryptCellType WntCellCycleModel::UpdateCellType()
 {
+    assert(mpOdeSystem!=NULL);
     double betaCateninLevel = mpOdeSystem->rGetStateVariables()[6] + mpOdeSystem->rGetStateVariables()[7];
     //std::cout << "beta-catenin level = " << betaCateninLevel << "\n" << std::flush;        
     CryptCellType cell_type=TRANSIT;
@@ -229,3 +235,13 @@ double WntCellCycleModel::GetWntSG2MDuration()
     return CancerParameters::Instance()->GetSG2MDuration();
 }
 
+void WntCellCycleModel::SetCell(MeinekeCryptCell* pCell)
+{   
+    mpCell = pCell;
+    if(mpOdeSystem==NULL)   // this is a new cell (not a dividing original cell) and needs an ODE system.
+    { 
+        mpOdeSystem = new WntCellCycleOdeSystem(mInitialWntStimulus, pCell->GetMutationState());
+        mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+    }
+            
+}

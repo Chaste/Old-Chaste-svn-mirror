@@ -14,6 +14,10 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
     {
         EXCEPTION("MeinekeCryptCell is setting up a cell cycle model but SimulationTime has not been set up");
     }
+    if(pCellCycleModel==NULL)
+    {
+        EXCEPTION("Cell cycle model is null");
+    }
     // Stem cells are the only ones with generation = 0
     //assert( (generation == 0) == (cellType == STEM) ); Not for Wnt cells
     mGeneration=generation;
@@ -43,8 +47,10 @@ void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
     mpCellCycleModel = other_cell.mpCellCycleModel->CreateCellCycleModel();
     // Then copy its state
     *mpCellCycleModel = *(other_cell.mpCellCycleModel);
-    mpCellCycleModel->SetCell(this);
-    
+
+    // note: we call the base class version because we want to do model.mpCell=*this
+    // only, as the model is fully set up (from the above line) already.
+    mpCellCycleModel->AbstractCellCycleModel::SetCell(this);
 }
 
 MeinekeCryptCell::MeinekeCryptCell(const MeinekeCryptCell &other_cell)

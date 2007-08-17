@@ -884,12 +884,16 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
     // Create an input archive
     std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
     boost::archive::text_iarchive input_arch(ifs);
-
+        
     // Read the archive
     assert(p_simulation_time->IsStartTimeSetUp());
     input_arch >> *p_simulation_time;
+
     TissueSimulation<DIM>* p_sim;
+
+//failing here:
     input_arch >> p_sim;
+
     
     if (p_sim->rGetCrypt().rGetMesh().GetNumNodes()!=p_sim->rGetCrypt().rGetCells().size())
     {

@@ -38,7 +38,9 @@ public:
      */
     virtual ~AbstractCellCycleModel();
     
-    void SetCell(MeinekeCryptCell* pCell);
+    virtual void SetCell(MeinekeCryptCell* pCell);
+    
+    MeinekeCryptCell* GetCell();
     
 //    /**
 //     * Set the cell's type.

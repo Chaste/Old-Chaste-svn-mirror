@@ -1,4 +1,5 @@
 #include "WntCellCycleOdeSystem.hpp"
+
 #include <cmath>
 #include <cassert>
 #include <vector>
@@ -11,7 +12,7 @@
  *
  * \todo consider using an enum for the mutation state.
  */
-WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, unsigned mutationState)
+WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, CryptCellMutationState mutationState)
         : AbstractOdeSystem(10)
 {
     /*
@@ -33,27 +34,34 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, unsigned mutationS
     double destruction_level = ma5d/(ma4d*WntLevel+ma5d);
     double beta_cat_level_1 = -1.0;
     double beta_cat_level_2 = -1.0;
+    
+    double mutation_double = 0.0;
+    
     // These three lines set up a wnt signalling pathway in a steady state
-    if (mutationState == 0)	// healthy
+    if (mutationState == HEALTHY || mutationState == LABELLED)	// healthy cells
     {
         beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
         beta_cat_level_2 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
+        mutation_double = 0.0;
     }
-    else if (mutationState == 1) // APC +/-
+    else if (mutationState == APC_ONE_HIT) // APC +/-
     {
         beta_cat_level_1 = 0.5*ma2d/(ma2d+0.5*ma3d*destruction_level); // only half are active
         beta_cat_level_2 = 0.5*ma2d/(ma2d+0.5*ma3d*destruction_level);
+        mutation_double = 1.0;
     }
-    else if (mutationState == 2) // Beta-cat delta 45
+    else if (mutationState == BETA_CATENIN_ONE_HIT) // Beta-cat delta 45
     {
         beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
         beta_cat_level_2 = 0.5;
+        mutation_double = 2.0;
     }
-    else if (mutationState == 3) // APC -/-
+    else if (mutationState == APC_TWO_HIT) // APC -/-
     {
         destruction_level = 0.0; // no active destruction complex
         beta_cat_level_1 = 0.5; // fully active beta-catenin
         beta_cat_level_2 = 0.5; // fully active beta-catenin
+        mutation_double = 3.0;
     }
     else
     {
@@ -98,7 +106,7 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, unsigned mutationS
     
     mVariableNames.push_back("Mutation_State");
     mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back((double)(mutationState));
+    mInitialConditions.push_back(mutation_double);
     
     mNumberOfStateVariables=10;
 }

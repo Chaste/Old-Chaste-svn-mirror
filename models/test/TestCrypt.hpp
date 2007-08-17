@@ -2,6 +2,9 @@
 #define TESTCRYPT_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include <cmath>
 #include <vector>
 #include "ConformingTetrahedralMesh.cpp"
@@ -604,6 +607,88 @@ public:
             TS_ASSERT_DELTA(node_location[1] , crypt.GetLocationOfCell(r_cell)[1] , 1e-9);
         }// end loop
         SimulationTime::Destroy(); 
+    }
+    
+    // At the moment the crypt cannot be properly archived since the mesh cannot be. This test
+    // just checks that the cells are correctly archived.
+    void TestArchivingCrypt() throw (Exception)
+    {
+        CancerParameters::Instance()->Reset();
+        
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "crypt.arch";
+        
+        // Archive a crypt 
+        {
+            // need to set up time 
+            unsigned num_steps=10;
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
+            
+            // create a simple mesh
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+            ConformingTetrahedralMesh<2,2> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+        
+            // Set up cells, one for each node. Get each a birth time of -node_index,
+            // so the age = node_index            
+            std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
+            
+            // create the crypt
+            Crypt<2>* const p_crypt = new Crypt<2>(mesh, cells);
+        
+            // create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            // write the crypt to the archive
+            output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
+            output_arch << p_crypt;
+            SimulationTime::Destroy();
+            delete p_crypt;
+        }
+        
+        // Restore crypt
+        {
+            // need to set up time 
+            unsigned num_steps=10;
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
+            p_simulation_time->IncrementTimeOneStep();
+            
+            // initialise crypt
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
+            ConformingTetrahedralMesh<2,2> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+            std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
+            Crypt<2>* p_crypt = new Crypt<2>(mesh, cells);
+                                                   
+            // restore the crypt
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            input_arch >> *p_simulation_time;
+            
+            // WARNING! This is here because the loading of a crypt is only ever called
+            // by TissueSimulation::Load() which has a line like this:
+            Crypt<2>::meshPathname = "mesh/test/data/square_4_elements";
+            // this horribleness will go away when ticket:412 (proper mesh archiving) is done.
+            
+            input_arch >> p_crypt;
+                        
+            // check the simulation time has been restored (through the cell)
+            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.0);
+            
+            // check the crypt has been restored
+            TS_ASSERT_EQUALS(p_crypt->rGetCells().size(),5u);            
+
+            // This won't pass because of the mesh not being archived 
+            // TS_ASSERT_EQUALS(crypt.rGetMesh().GetNumNodes(),5u);            
+            
+            SimulationTime::Destroy();
+        }
     }
 };
 

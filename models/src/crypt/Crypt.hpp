@@ -85,6 +85,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
+        //std::cout << "Archiving crypt member variables\n" << std::flush;
         archive & mIsGhostNode;
         archive & mMaxCells;
         archive & mMaxElements;
@@ -342,6 +343,7 @@ template<class Archive, unsigned DIM>
 inline void save_construct_data(
     Archive & ar, const Crypt<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
+    //std::cout << "Saving construct data\n" << std::flush;
     // save data required to construct instance
     ar & t->rGetCells();
     const ConformingTetrahedralMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
@@ -355,6 +357,7 @@ template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, Crypt<DIM> * t, const unsigned int file_version)
 {
+    //std::cout << "Loading construct data\n" << std::flush; 
     // retrieve data from archive required to construct new instance
     std::list<MeinekeCryptCell> cells;
     ar >> cells;

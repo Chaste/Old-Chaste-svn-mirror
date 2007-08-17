@@ -52,6 +52,8 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
         
         CancerParameters* p_params = CancerParameters::Instance();
         
+        rCells.reserve(num_cells);
+        
         for (unsigned i=0; i<num_cells; i++)
         {
             CryptCellType cell_type;
@@ -75,7 +77,7 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
             {
                 WntGradient wnt_gradient(LINEAR);
                 double wnt = wnt_gradient.GetWntLevel(y);
-                p_cell_cycle_model = new WntCellCycleModel(wnt,0);
+                p_cell_cycle_model = new WntCellCycleModel(wnt);
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }
@@ -420,7 +422,9 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, WNT, false);
+//        CreateVectorOfCells(cells, *p_mesh, WNT, false);
+//      //Following line is a replacement only until #374 is finished 
+        CreateVectorOfCells(cells, *p_mesh, FIXED, false);
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         TissueSimulation<2> simulator(crypt);
@@ -441,6 +445,7 @@ public:
         // Load
         TissueSimulation<2>* p_simulator;
         p_simulator = TissueSimulation<2>::Load("Crypt2DMeshArchive", 0.0);
+
         
         // Create an identical mesh for comparison purposes
         HoneycombMeshGenerator generator2(cells_across, cells_up, thickness_of_ghost_layer);
@@ -475,7 +480,9 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, WNT, false);
+ //        CreateVectorOfCells(cells, *p_mesh, WNT, false);
+//      //Following line is a replacement only until #374 is finished 
+        CreateVectorOfCells(cells, *p_mesh, FIXED, false);
         
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
@@ -565,7 +572,7 @@ public:
      * to be 'mature' cells which won't shrink together. 
      * Limited this by using only four cells of minimum age.
      */
-    void xTestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
+    void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -823,7 +830,7 @@ public:
             WntGradient wnt_gradient(LINEAR);
             double wnt = wnt_gradient.GetWntLevel(y);
             
-            MeinekeCryptCell cell(cell_type, mutation_state, generation, new WntCellCycleModel(wnt,0));
+            MeinekeCryptCell cell(cell_type, mutation_state, generation, new WntCellCycleModel(wnt));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

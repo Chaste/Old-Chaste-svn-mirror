@@ -11,6 +11,7 @@
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "ColumnDataWriter.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "CryptCellMutationStates.hpp"
 
 
 class TestWntCellCycleOdeSystem : public CxxTest::TestSuite
@@ -45,7 +46,7 @@ public:
          * And the same for a high Wnt level
          */
         WntLevel = 1.0;
-        WntCellCycleOdeSystem wnt_cell_cycle_system2(WntLevel);
+        WntCellCycleOdeSystem wnt_cell_cycle_system2(WntLevel,LABELLED);
         initial_conditions = wnt_cell_cycle_system2.GetInitialConditions();
         //std::cout << "mutation 0 beta-cat = " << initial_conditions[6] << "\n";
         wnt_cell_cycle_system2.EvaluateYDerivatives(time, initial_conditions, derivs);
@@ -67,7 +68,7 @@ public:
          * A test for the case mutation = 1
          * (An APC +/- mutation)
          */
-        unsigned mutation = 1;
+        CryptCellMutationState mutation = APC_ONE_HIT;
         WntLevel = 1.0;
         WntCellCycleOdeSystem wnt_cell_cycle_system3(WntLevel,mutation);
         initial_conditions = wnt_cell_cycle_system3.GetInitialConditions();
@@ -93,7 +94,7 @@ public:
         * A test for the case mutation = 2
         * (A beta-cat delta45 mutation)
         */
-        mutation = 2;
+        mutation = BETA_CATENIN_ONE_HIT;
         WntLevel = 1.0;
         WntCellCycleOdeSystem wnt_cell_cycle_system4(WntLevel,mutation);
         initial_conditions = wnt_cell_cycle_system4.GetInitialConditions();
@@ -119,7 +120,7 @@ public:
         * A test for the case mutation = 3
         * (An APC -/- mutation)
         */
-        mutation = 3;
+        mutation = APC_TWO_HIT;
         WntLevel = 1.0;
         WntCellCycleOdeSystem wnt_cell_cycle_system5(WntLevel,mutation);
         initial_conditions = wnt_cell_cycle_system5.GetInitialConditions();
@@ -142,9 +143,6 @@ public:
         TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[9],0.0, 1e-5);
         
-        mutation = 4;
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleOdeSystem wnt_cell_cycle_system6(WntLevel,mutation););
-        
         initial_conditions[9] = 5;
         TS_ASSERT_THROWS_ANYTHING(wnt_cell_cycle_system5.EvaluateYDerivatives(time, initial_conditions, derivs));
     }
@@ -152,7 +150,7 @@ public:
     void TestWntCellCycleSolver() throw(Exception)
     {
         double WntLevel = 1.0;
-        WntCellCycleOdeSystem wnt_system(WntLevel);
+        WntCellCycleOdeSystem wnt_system(WntLevel,LABELLED);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
@@ -235,7 +233,7 @@ public:
     void TestWntCellCycleSolverWithAPCSingleHit() throw(Exception)
     {
         double WntLevel = 1.0;
-        WntCellCycleOdeSystem wnt_system(WntLevel,(unsigned) 1);
+        WntCellCycleOdeSystem wnt_system(WntLevel,APC_ONE_HIT);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
@@ -302,7 +300,7 @@ public:
     void TestWntCellCycleSolverWithBetaCateninHit() throw(Exception)
     {
         double WntLevel = 0.0;
-        WntCellCycleOdeSystem wnt_system(WntLevel,(unsigned) 2);
+        WntCellCycleOdeSystem wnt_system(WntLevel,BETA_CATENIN_ONE_HIT);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
@@ -373,7 +371,7 @@ public:
     void TestWntCellCycleSolverWithAPCDoubleHit() throw(Exception)
     {
         double WntLevel = 0.0;
-        WntCellCycleOdeSystem wnt_system(WntLevel,(unsigned) 3);
+        WntCellCycleOdeSystem wnt_system(WntLevel,APC_TWO_HIT);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         

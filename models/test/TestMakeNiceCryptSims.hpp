@@ -80,7 +80,7 @@ class TestNiceCryptSims : public CxxTest::TestSuite
             {
                 WntGradient wnt_gradient(OFFSET_LINEAR);
                 double wnt = wnt_gradient.GetWntLevel(y);
-                p_cell_cycle_model = new WntCellCycleModel(wnt,0);
+                p_cell_cycle_model = new WntCellCycleModel(wnt);
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }
@@ -88,7 +88,7 @@ class TestNiceCryptSims : public CxxTest::TestSuite
             {
                 WntGradient wnt_gradient(OFFSET_LINEAR);
                 double wnt = wnt_gradient.GetWntLevel(y);
-                p_cell_cycle_model = new StochasticWntCellCycleModel(wnt,0);
+                p_cell_cycle_model = new StochasticWntCellCycleModel(wnt);
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }
