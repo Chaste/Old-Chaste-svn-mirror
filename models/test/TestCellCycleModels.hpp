@@ -980,7 +980,7 @@ public:
         }
     }    
     
-    // THIS IS COMMENTED OUT ONLY until #374 is finished.
+   // Ticket:374 requires this test to work properly. It isn't.
     void xTestArchiveStochasticWntCellCycleModels()
     {
         CancerParameters::Instance()->Reset();
@@ -999,19 +999,17 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 1000);
             
-//            WntCellCycleModel* const p_stoc_model = new StochasticWntCellCycleModel(1.0);
-//                    
-//            MeinekeCryptCell stoc_cell(STEM, // type
-//                                       HEALTHY,//Mutation State
-//                                       0,  // generation
-//                                       p_stoc_model); 
+                    
+            MeinekeCryptCell stoc_cell(STEM, // type
+                                       HEALTHY,//Mutation State
+                                       0,  // generation
+                                       new StochasticWntCellCycleModel(1.0, wnt_gradient)); 
                                        
-            WntCellCycleModel* const p_wnt_model = new WntCellCycleModel(1.0, wnt_gradient);
             
             MeinekeCryptCell wnt_cell(STEM, // type
                                       HEALTHY,//Mutation State
                                       0,  // generation
-                                      p_wnt_model); 
+                                      new WntCellCycleModel(1.0, wnt_gradient)); 
                                        
             p_simulation_time->IncrementTimeOneStep();// 5.5
             std::vector<double> cell_cycle_influence;
@@ -1021,20 +1019,21 @@ public:
             {
                 p_simulation_time->IncrementTimeOneStep();   
             }
-//            TS_ASSERT_EQUALS(p_stoc_model->ReadyToDivide(cell_cycle_influence),false);
-//            TS_ASSERT_EQUALS(p_wnt_model->ReadyToDivide(cell_cycle_influence),false);
+            TS_ASSERT_EQUALS(stoc_cell.GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),false);
+            TS_ASSERT_EQUALS(wnt_cell.GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),false);
             // When these are included here they pass - so are moved down into 
             // after load to see if they still pass.
             
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
+            MeinekeCryptCell* const p_wnt_cell = &wnt_cell;
+            MeinekeCryptCell* const p_stoc_cell = &stoc_cell;
+            
             output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
             output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
-//            output_arch << p_stoc_model;
-//            output_arch << static_cast<const MeinekeCryptCell&>(stoc_cell);
-            output_arch << p_wnt_model;
-            output_arch << static_cast<const MeinekeCryptCell&>(wnt_cell);
+            output_arch << p_stoc_cell;
+            output_arch << p_wnt_cell;
             SimulationTime::Destroy();
         }
         std::cout << "Saving done\n" << std::flush;
@@ -1047,19 +1046,8 @@ public:
             
             inst1->SetSG2MDuration(101.0);
             
-           // WntCellCycleModel* p_stoc_model = new WntCellCycleModel(1.0);// archiving should figure out this was saved
-            // as a subclass and bring it back accordingly.
-            WntCellCycleModel* p_wnt_model = new WntCellCycleModel(1.0, wnt_gradient);
-                        
-//            MeinekeCryptCell stoc_cell(STEM, // type
-//                                       HEALTHY,//Mutation State
-//                                       0,  // generation
-//                                       p_stoc_model); 
-                                       
-            MeinekeCryptCell wnt_cell(STEM, // type
-                                       HEALTHY,//Mutation State
-                                       0,  // generation
-                                       p_wnt_model); 
+            MeinekeCryptCell* p_stoc_cell; 
+            MeinekeCryptCell* p_wnt_cell; 
                       
             std::vector<double> cell_cycle_influence1;
             cell_cycle_influence1.push_back(1.0);
@@ -1073,12 +1061,9 @@ public:
             // restore from the archive
             input_arch >> *p_simulation_time;
             input_arch >> *inst1;
-//            input_arch >> p_stoc_model; 
-//            input_arch >> stoc_cell;
-            std::cout << "loading wnt model\n" << std::flush;
-            input_arch >> p_wnt_model;
-            std::cout << "loading wnt cell\n" << std::flush;
-            input_arch >> wnt_cell;
+            input_arch >> p_stoc_cell;
+            input_arch >> p_wnt_cell;
+            
             std::cout << "Finish load\n" << std::flush;
             // Check - stochastic should divide at 15.03
             // Wnt should divide at 15.971
@@ -1090,25 +1075,25 @@ public:
             {
                 p_simulation_time->IncrementTimeOneStep();   
             }
-            //TS_ASSERT_EQUALS(p_stoc_model->ReadyToDivide(cell_cycle_influence),false);
-            TS_ASSERT_EQUALS(p_wnt_model->ReadyToDivide(cell_cycle_influence),false);
+            TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),false);
+            TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),false);
             
             while (p_simulation_time->GetDimensionalisedTime() < 15.5)
             {
                 p_simulation_time->IncrementTimeOneStep();   
             }
-            //TS_ASSERT_EQUALS(p_stoc_model->ReadyToDivide(cell_cycle_influence),true);// only for stochastic
-            TS_ASSERT_EQUALS(p_wnt_model->ReadyToDivide(cell_cycle_influence),false);
+            TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),true);// only for stochastic
+            TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),false);
             
             while (p_simulation_time->GetDimensionalisedTime() < 16.0)
             {
                 p_simulation_time->IncrementTimeOneStep();   
             }
-            //TS_ASSERT_EQUALS(p_stoc_model->ReadyToDivide(cell_cycle_influence),true);
-            TS_ASSERT_EQUALS(p_wnt_model->ReadyToDivide(cell_cycle_influence),true);
+            TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),true);
+            TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),true);
             
-            //TS_ASSERT_DELTA(p_stoc_model->GetBirthTime(),0.0,1e-12);
-            //TS_ASSERT_DELTA(p_stoc_model->GetAge(),16.0,1e-12);
+            TS_ASSERT_DELTA(p_stoc_cell->GetCellCycleModel()->GetBirthTime(),0.0,1e-12);
+            TS_ASSERT_DELTA(p_stoc_cell->GetCellCycleModel()->GetAge(),16.0,1e-12);
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
             SimulationTime::Destroy();
         }

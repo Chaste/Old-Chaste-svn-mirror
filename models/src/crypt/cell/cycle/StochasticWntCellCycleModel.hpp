@@ -16,15 +16,6 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
 {
   private:
 
-    /**
-     * This is needed because a wnt model which is not to be run from the current time is 
-     * sometimes needed. Should only be called by the cell itself when it wants to divide.
-     */
-    StochasticWntCellCycleModel(std::vector<double> proteinConcentrations, double birthTime,WntGradient& rWntGradient)
-      : WntCellCycleModel(proteinConcentrations, birthTime, rWntGradient)
-    {
-    }
-
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -61,6 +52,15 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
     }
     
     /**
+     * This is needed because a wnt model which is not to be run from the current time is 
+     * sometimes needed. Should only be called by the cell itself when it wants to divide.
+     */
+    StochasticWntCellCycleModel(std::vector<double> proteinConcentrations, double birthTime,WntGradient& rWntGradient)
+      : WntCellCycleModel(proteinConcentrations, birthTime, rWntGradient)
+    {
+    }
+    
+    /**
      * Returns a new StochasticWntCellCycleModel created with the correct initial conditions.
      *
      * Should be called just after the parent cell cycle model has been .Reset().
@@ -87,7 +87,22 @@ namespace serialization
 {
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a StochasticWntCellCycleModel instance.
+ * instantiate a WntCellCycleModel instance.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const StochasticWntCellCycleModel * t, const unsigned int file_version)
+{
+
+    const std::vector<double> vec=t->GetProteinConcentrations();
+    ar << vec;
+    const double birth_time=t->GetBirthTime();
+    ar << birth_time;
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a WntCellCycleModel instance.
  */
 template<class Archive>
 inline void load_construct_data(
@@ -98,9 +113,14 @@ inline void load_construct_data(
     // state loaded later from the archive will overwrite their effect in
     // this case.
     // Invoke inplace constructor to initialize instance of my_class
-    WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL;
-    WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient;
-    ::new(t) StochasticWntCellCycleModel(0.0,r_wnt_gradient);
+    
+    std::vector<double> vars;
+    ar >> vars;
+    double birth_time;
+    ar >> birth_time;
+    WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL; 
+    WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient; 
+    ::new(t)StochasticWntCellCycleModel(vars, birth_time, r_wnt_gradient);
 }
 }
 } // namespace ...

@@ -422,9 +422,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         std::vector<MeinekeCryptCell> cells;
-//        CreateVectorOfCells(cells, *p_mesh, WNT, false);
-//      //Following line is a replacement only until #374 is finished 
-        CreateVectorOfCells(cells, *p_mesh, FIXED, false);
+        CreateVectorOfCells(cells, *p_mesh, WNT, false);
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         TissueSimulation<2> simulator(crypt);
@@ -480,9 +478,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
- //        CreateVectorOfCells(cells, *p_mesh, WNT, false);
-//      //Following line is a replacement only until #374 is finished 
-        CreateVectorOfCells(cells, *p_mesh, FIXED, false);
+        CreateVectorOfCells(cells, *p_mesh, WNT, false);
         
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
