@@ -237,8 +237,10 @@ public:
             //output_arch << p_child_for_archiving;
             output_arch << p_parent_for_archiving;
             
+            delete p_child;
+            delete p_parent;
         }
-        
+
         // Load
         {
             // Create an input archive
@@ -253,6 +255,9 @@ public:
             TS_ASSERT_EQUALS(p_parent->mTag, 10u);
             TS_ASSERT_EQUALS(p_parent->mpChild->mTag, 11u);
             TS_ASSERT_EQUALS(p_parent->mpChild->mpParent, p_parent);
+            
+            delete p_parent->mpChild;
+            delete p_parent;
         }
     }
 };

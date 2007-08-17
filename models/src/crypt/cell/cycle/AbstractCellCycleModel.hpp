@@ -26,7 +26,8 @@ private:
         // Make sure the simulation time gets saved too
         SimulationTime* p_time = SimulationTime::Instance();
         archive & *p_time;
-        //archive & mpCell;     // we might get away with this.
+        // DO NOT archive & mpCell; -- The CellCycleModel is only ever archived from the Cell 
+        // which knows this and it is handled in the load_construct of MeinekeCryptCell.
     }
 protected:
     MeinekeCryptCell* mpCell;
@@ -80,7 +81,7 @@ public:
     /**
      * Returns the cell's birth time...
      */
-    double GetBirthTime();
+    double GetBirthTime() const;
     
     /**
      * Determine whether the cell is ready to divide.

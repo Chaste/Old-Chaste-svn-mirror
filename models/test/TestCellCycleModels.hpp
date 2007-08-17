@@ -899,6 +899,7 @@ public:
         }
     }
     
+    // NB - to archive a cell cycle model it has to be archived via the cell that owns it.
     void TestArchiveWntCellCycleModels()
     {
         CancerParameters::Instance()->Reset();
@@ -914,32 +915,32 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16, 2);
             
-            WntCellCycleModel* p_cell_model = new WntCellCycleModel(1.0, wnt_gradient);
-        
+           
             MeinekeCryptCell stem_cell(STEM, // type
                                      HEALTHY,//Mutation State
                                      0,  // generation
-                                     p_cell_model); 
+                                     new WntCellCycleModel(1.0,wnt_gradient)); 
                                      
             p_simulation_time->IncrementTimeOneStep();
             std::vector<double> cell_cycle_influence;
             cell_cycle_influence.push_back(1.0);
             cell_cycle_influence.push_back(0.0);
-            TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(cell_cycle_influence),false);
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),false);
             p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(cell_cycle_influence),true);
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),true);
             
-            p_cell_model->SetBirthTime(-1.0);
+            stem_cell.GetCellCycleModel()->SetBirthTime(-1.0);
             
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
+            MeinekeCryptCell* const p_cell = &stem_cell;
+            
             output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
             output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
-            output_arch << static_cast<const WntCellCycleModel&>(*p_cell_model);
-            output_arch << static_cast<const MeinekeCryptCell&>(stem_cell);
-            
+            output_arch << p_cell;
             SimulationTime::Destroy();
+            
         }
         
         {
@@ -951,16 +952,8 @@ public:
             
             inst1->SetSG2MDuration(101.0);
             
-            WntCellCycleModel* p_cell_model = new WntCellCycleModel(0.0, wnt_gradient);
-        
-            MeinekeCryptCell stem_cell(STEM, // type
-                                       HEALTHY,//Mutation State
-                                       0,  // generation
-                                       p_cell_model); 
-                                     
-            p_cell_model->SetBirthTime(-2.0);
-            
-            
+            MeinekeCryptCell* p_cell;
+                                 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
@@ -968,16 +961,12 @@ public:
             // restore from the archive
             input_arch >> *p_simulation_time;
             input_arch >> *inst1;
-            input_arch >> *p_cell_model;
-            input_arch >> stem_cell;
+            input_arch >> p_cell;
             
             // Check
             
-            AbstractCellCycleModel* p_possibly_cell_model = stem_cell.GetCellCycleModel();
-            TS_ASSERT(p_cell_model == p_possibly_cell_model);
-            
-            MeinekeCryptCell* p_possibly_cell = p_cell_model->GetCell();
-            TS_ASSERT(&stem_cell == p_possibly_cell);            
+            AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
+            TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());            
                         
             std::vector<double> cell_cycle_influence;
             cell_cycle_influence.push_back(1.0);
@@ -987,6 +976,7 @@ public:
             TS_ASSERT_DELTA(p_cell_model->GetAge(),17.0,1e-12);
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
             SimulationTime::Destroy();
+            delete p_cell;
         }
     }    
     

@@ -1215,9 +1215,11 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
+            MeinekeCryptCell* const p_cell = &stem_cell;
+            
             // and write the cell to the archive
             output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
-            output_arch << static_cast<const MeinekeCryptCell&>(stem_cell);
+            output_arch << p_cell;
             SimulationTime::Destroy();
         }
         
@@ -1229,30 +1231,29 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 1); // will be restored
             
             // Initialise a cell
-            AbstractCellCycleModel *temp_model = new FixedCellCycleModel();
-            MeinekeCryptCell stem_cell(TRANSIT, // the type will be restored soon
-                                       HEALTHY,//Mutation State
-                                       1,    // generation
-                                       temp_model);
+            
+            MeinekeCryptCell* p_stem_cell; 
                                        
             // restore the cell
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
             input_arch >> *p_simulation_time;
-            input_arch >> stem_cell;
+            input_arch >> p_stem_cell;
             
-            // Free memory
-            delete temp_model;
             
             // check the simulation time has been restored (through the cell)
             TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.5);
             TS_ASSERT_EQUALS(p_simulation_time->GetTimeStep(), 0.5);
             
-            TS_ASSERT_EQUALS(stem_cell.GetNodeIndex(), 3u);
-            TS_ASSERT_EQUALS(stem_cell.GetAge(), 0.5);
-            TS_ASSERT_EQUALS(stem_cell.GetGeneration(), 0u);
-            TS_ASSERT_EQUALS(stem_cell.GetCellType(), STEM);
+            TS_ASSERT_EQUALS(p_stem_cell->GetNodeIndex(), 3u);
+            TS_ASSERT_EQUALS(p_stem_cell->GetAge(), 0.5);
+            TS_ASSERT_EQUALS(p_stem_cell->GetGeneration(), 0u);
+            TS_ASSERT_EQUALS(p_stem_cell->GetCellType(), STEM);
+            
+            AbstractCellCycleModel* p_model = p_stem_cell->GetCellCycleModel();
+            
+            TS_ASSERT_EQUALS(p_model->GetCell(), p_stem_cell);
             
             SimulationTime::Destroy();
         }

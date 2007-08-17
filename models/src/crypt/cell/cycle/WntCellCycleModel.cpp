@@ -169,7 +169,7 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
  *
  * NB: Will copy the vector - you can't use this to modify the concentrations.
  */
-std::vector<double> WntCellCycleModel::GetProteinConcentrations()
+std::vector<double>  WntCellCycleModel::GetProteinConcentrations() const
 {
     assert(mpOdeSystem!=NULL);
     return mpOdeSystem->rGetStateVariables();

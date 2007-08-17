@@ -63,7 +63,8 @@ public:
      * @param generation  its generation
      * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
-     */
+     */  
+     
     MeinekeCryptCell(CryptCellType cellType,
                      CryptCellMutationState mutationState,
                      unsigned generation,

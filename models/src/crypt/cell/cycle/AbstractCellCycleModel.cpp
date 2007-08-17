@@ -26,7 +26,7 @@ CryptCellType AbstractCellCycleModel::UpdateCellType()
     return mpCell->GetCellType();
 }
 
-double AbstractCellCycleModel::GetBirthTime()
+double AbstractCellCycleModel::GetBirthTime() const
 {
     return mBirthTime;
 }
