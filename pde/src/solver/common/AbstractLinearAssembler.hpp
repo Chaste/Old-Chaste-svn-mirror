@@ -121,7 +121,10 @@ public:
     {
         /// \todo move the asserts into PrepareForSolve()
         assert(this->mpMesh!=NULL);
-        assert(this->mpBoundaryConditions!=NULL);
+
+        // have to comment this out because the flagged mesh assembler uses a different
+        // bcc and so this is null.
+        //assert(this->mpBoundaryConditions!=NULL);
         
         this->PrepareForSolve();
         this->InitialiseForSolve(currentSolutionOrGuess);
