@@ -981,7 +981,7 @@ public:
     }    
     
    // Ticket:374 requires this test to work properly. It isn't.
-    void xTestArchiveStochasticWntCellCycleModels()
+    void TestArchiveStochasticWntCellCycleModels()
     {
         CancerParameters::Instance()->Reset();
         RandomNumberGenerator::Instance()->Reseed(0);   // reset at beginning of this test.
@@ -1036,7 +1036,7 @@ public:
             output_arch << p_wnt_cell;
             SimulationTime::Destroy();
         }
-        std::cout << "Saving done\n" << std::flush;
+        
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
@@ -1057,14 +1057,12 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            std::cout << "Start load\n" << std::flush;
             // restore from the archive
             input_arch >> *p_simulation_time;
             input_arch >> *inst1;
             input_arch >> p_stoc_cell;
             input_arch >> p_wnt_cell;
             
-            std::cout << "Finish load\n" << std::flush;
             // Check - stochastic should divide at 15.03
             // Wnt should divide at 15.971
             std::vector<double> cell_cycle_influence;

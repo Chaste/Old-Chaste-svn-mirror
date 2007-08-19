@@ -93,11 +93,6 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const StochasticWntCellCycleModel * t, const unsigned int file_version)
 {
-
-    const std::vector<double> vec=t->GetProteinConcentrations();
-    ar << vec;
-    const double birth_time=t->GetBirthTime();
-    ar << birth_time;
 }
 
 /**
@@ -114,13 +109,15 @@ inline void load_construct_data(
     // this case.
     // Invoke inplace constructor to initialize instance of my_class
     
-    std::vector<double> vars;
-    ar >> vars;
-    double birth_time;
-    ar >> birth_time;
+    std::vector<double> state_vars;
+    for (unsigned i=0 ; i<10 ; i++)
+    {
+        state_vars.push_back(0.0);
+    }   
+    double birth_time = 0.0;
     WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL; 
     WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient; 
-    ::new(t)StochasticWntCellCycleModel(vars, birth_time, r_wnt_gradient);
+    ::new(t)StochasticWntCellCycleModel(state_vars, birth_time, r_wnt_gradient);
 }
 }
 } // namespace ...

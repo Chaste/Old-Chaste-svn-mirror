@@ -42,6 +42,10 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
+        // reference can be read or written into once mpOdeSystem has been set up
+        // mpOdeSystem isn't set up by the first constructor, but is by the second
+        // which is now utilised by the load_construct at the bottom of this file.
+        archive & mpOdeSystem->rGetStateVariables();    
         archive & mLastTime;
         archive & mDivideTime;
         archive & mInSG2MPhase;
@@ -95,11 +99,6 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const WntCellCycleModel * t, const unsigned int file_version)
 {
-
-    const std::vector<double> vec=t->GetProteinConcentrations();
-    ar << vec;
-    const double birth_time=t->GetBirthTime();
-    ar << birth_time;
 }
 
 /**
@@ -116,13 +115,15 @@ inline void load_construct_data(
     // this case.
     // Invoke inplace constructor to initialize instance of my_class
     
-    std::vector<double> vars;
-    ar >> vars;
-    double birth_time;
-    ar >> birth_time;
+    std::vector<double> state_vars;
+    for (unsigned i=0 ; i<10 ; i++)
+    {
+        state_vars.push_back(0.0);
+    }   
+    double birth_time = 0.0;
     WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL; 
     WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient; 
-    ::new(t)WntCellCycleModel(vars, birth_time, r_wnt_gradient);
+    ::new(t)WntCellCycleModel(state_vars, birth_time, r_wnt_gradient);
 }
 }
 } // namespace ...
