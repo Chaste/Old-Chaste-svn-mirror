@@ -760,12 +760,10 @@ public:
         WntGradient wnt_gradient;
         
         double wnt_stimulus = 1.0;
-        std::cout << "Hello Joe 1\n" << std::flush;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   HEALTHY,//Mutation State
                                   1,    // generation
                                   new WntCellCycleModel(wnt_stimulus, wnt_gradient));
-        std::cout << "Hello Joe 2\n" << std::flush;
                  
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -790,9 +788,7 @@ public:
         TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
         TS_ASSERT(wnt_cell.GetGeneration()==1);
         
-        std::cout << "Hello Joe 3\n" << std::flush;
         MeinekeCryptCell wnt_cell2 = wnt_cell.Divide();
-        std::cout << "Hello Joe 4\n" << std::flush;
         TS_ASSERT(wnt_cell.GetGeneration()==2);
         TS_ASSERT(wnt_cell2.GetGeneration()==2);
         
