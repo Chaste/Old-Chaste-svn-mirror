@@ -99,7 +99,6 @@ AbstractCellCycleModel *MeinekeCryptCell::GetCellCycleModel() const
  * 
  * @param index Index of the node
  */
-
 void MeinekeCryptCell::SetNodeIndex(unsigned index)
 {
     mNodeIndex = index;

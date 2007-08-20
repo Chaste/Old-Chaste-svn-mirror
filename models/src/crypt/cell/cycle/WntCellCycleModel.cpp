@@ -134,7 +134,7 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
             
             msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, current_time, dt);
 
-            for (unsigned i=0 ; i<10 ; i++)
+            for (unsigned i=0 ; i<mpOdeSystem->GetNumberOfStateVariables() ; i++)
             {
                 if (mpOdeSystem->rGetStateVariables()[i]<0)
                 {
