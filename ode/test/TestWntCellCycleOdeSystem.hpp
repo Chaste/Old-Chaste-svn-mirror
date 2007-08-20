@@ -40,7 +40,6 @@ public:
         TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[9],0.0, 1e-5);
         
         /**
          * And the same for a high Wnt level
@@ -62,7 +61,6 @@ public:
         TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[9],0.0, 1e-5);
         
         /**
          * A test for the case mutation = 1
@@ -88,7 +86,6 @@ public:
         TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[9],0.0, 1e-5);
         
         /**
         * A test for the case mutation = 2
@@ -114,7 +111,6 @@ public:
         TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[9],0.0, 1e-5);
         
         /**
         * A test for the case mutation = 3
@@ -141,10 +137,6 @@ public:
         TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[9],0.0, 1e-5);
-        
-        initial_conditions[9] = 5;
-        TS_ASSERT_THROWS_ANYTHING(wnt_cell_cycle_system5.EvaluateYDerivatives(time, initial_conditions, derivs));
     }
     
     void TestWntCellCycleSolver() throw(Exception)
@@ -163,8 +155,7 @@ public:
         //OdeSolution solutions2;
         
         std::vector<double> initial_conditions = wnt_system.GetInitialConditions();
-        
-        
+                
         double start_time, end_time, elapsed_time = 0.0;
         start_time = std::clock();
         solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
@@ -246,40 +237,9 @@ public:
         //OdeSolution solutions2;
         
         std::vector<double> initial_conditions = wnt_system.GetInitialConditions();
-        
-        
+                
         solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
         
-//        int my_rank;
-//        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-//        if (my_rank==0) // if master process
-//        {
-//
-//            int step_per_row = 1;
-//            ColumnDataWriter writer("WntCellCycleAPC1Hit","WntCellCycleAPC1Hit");
-//            int time_var_id = writer.DefineUnlimitedDimension("Time","s");
-//
-//            std::vector<int> var_ids;
-//            for (unsigned i=0; i<wnt_system.rGetVariableNames().size(); i++)
-//            {
-//                var_ids.push_back(writer.DefineVariable(wnt_system.rGetVariableNames()[i],
-//                                                    wnt_system.rGetVariableUnits()[i]));
-//            }
-//            writer.EndDefineMode();
-//
-//            for (unsigned i = 0; i < solutions.rGetSolutions().size(); i+=step_per_row)
-//            {
-//                writer.PutVariable(time_var_id, solutions.rGetTimes()[i]);
-//                for (unsigned j=0; j<var_ids.size(); j++)
-//                {
-//                    writer.PutVariable(var_ids[j], solutions.rGetSolutions()[i][j]);
-//                }
-//                writer.AdvanceAlongUnlimitedDimension();
-//            }
-//            writer.Close();
-//        }
-//        MPI_Barrier(PETSC_COMM_WORLD);
-
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
         // Tests the simulation is ending at the right time...(going into S phase at 3.94 hours)
@@ -294,7 +254,6 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][6],0.375, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][7],0.375, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],1.00, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][9],1.00, 1e-3);
     }
     
     void TestWntCellCycleSolverWithBetaCateninHit() throw(Exception)
@@ -365,7 +324,6 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][6],3.707764665147012e-03, 1e-5);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][7],0.5, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],0.00, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][9],2.00, 1e-3);
     }
     
     void TestWntCellCycleSolverWithAPCDoubleHit() throw(Exception)
@@ -431,7 +389,6 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][6],0.5, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][7],0.5, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],0.00, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][9],3.00, 1e-3);
     }
     
 };

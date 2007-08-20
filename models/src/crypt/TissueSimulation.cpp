@@ -889,10 +889,8 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
 
     TissueSimulation<DIM>* p_sim;
 
-//failing here:
     input_arch >> p_sim;
 
-    
     if (p_sim->rGetCrypt().rGetMesh().GetNumNodes()!=p_sim->rGetCrypt().rGetCells().size())
     {
         #define COVERAGE_IGNORE

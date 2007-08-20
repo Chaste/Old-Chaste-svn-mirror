@@ -52,16 +52,29 @@ private:
     double ma5d;
     double mk16d;
     double mk61d;
-    double mPhiE2F1;
+    double mPhiE2F1;    
+    CryptCellMutationState mMutationState;
     
 public:
     // Constructor
-    WntCellCycleOdeSystem(double WntStimulus = 0.0, CryptCellMutationState mutationState = HEALTHY);
+    WntCellCycleOdeSystem(double WntStimulus = 0.0, const CryptCellMutationState& rMutationState = HEALTHY);
     
     // Destructor
     ~WntCellCycleOdeSystem();
     
     void Init(); //Sets up the parameter values
+    
+    void SetMutationState(const CryptCellMutationState &rMutationState);
+    
+    /** 
+     * Called by the archive function on the wnt cell cycle model.
+     * @return mMutationState the mutation state of the cell defined by 
+     * CryptCellMutationStates.hpp
+     */
+    CryptCellMutationState& rGetMutationState()
+    {
+        return mMutationState;
+    }
     
     // Compute the RHS of the WntCellCycle system of ODEs
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);

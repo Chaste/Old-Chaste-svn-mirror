@@ -45,7 +45,8 @@ private:
         // reference can be read or written into once mpOdeSystem has been set up
         // mpOdeSystem isn't set up by the first constructor, but is by the second
         // which is now utilised by the load_construct at the bottom of this file.
-        archive & mpOdeSystem->rGetStateVariables();    
+        archive & mpOdeSystem->rGetStateVariables();   
+        archive & mpOdeSystem->rGetMutationState(); 
         archive & mLastTime;
         archive & mDivideTime;
         archive & mInSG2MPhase;
@@ -58,11 +59,15 @@ protected:
 public:
 
     WntCellCycleModel(double InitialWntStimulus,  WntGradient &rWntGradient);
+   
    /**
      * This is needed because a wnt model which is not to be run from the current time is 
      * sometimes needed. Should only be called by the cell itself when it wants to divide.
+     * And by archiver to set up a new ODE system.
      */
-    WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, double birthTime, WntGradient &rWntGradient);
+    WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
+                      const CryptCellMutationState& rMutationState, 
+                      double birthTime, WntGradient &rWntGradient);
      
     virtual ~WntCellCycleModel();
     
@@ -116,14 +121,15 @@ inline void load_construct_data(
     // Invoke inplace constructor to initialize instance of my_class
     
     std::vector<double> state_vars;
-    for (unsigned i=0 ; i<10 ; i++)
+    for (unsigned i=0 ; i<9 ; i++)
     {
         state_vars.push_back(0.0);
     }   
     double birth_time = 0.0;
+    CryptCellMutationState mutation_state = HEALTHY;
     WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL; 
     WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient; 
-    ::new(t)WntCellCycleModel(state_vars, birth_time, r_wnt_gradient);
+    ::new(t)WntCellCycleModel(state_vars, mutation_state, birth_time, r_wnt_gradient);
 }
 }
 } // namespace ...

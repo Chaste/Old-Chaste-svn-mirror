@@ -54,9 +54,12 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
     /**
      * This is needed because a wnt model which is not to be run from the current time is 
      * sometimes needed. Should only be called by the cell itself when it wants to divide.
+     * Now also used by the archiver.
      */
-    StochasticWntCellCycleModel(std::vector<double> proteinConcentrations, double birthTime,WntGradient& rWntGradient)
-      : WntCellCycleModel(proteinConcentrations, birthTime, rWntGradient)
+    StochasticWntCellCycleModel(std::vector<double> proteinConcentrations, 
+                                CryptCellMutationState mutationState,
+                                double birthTime,WntGradient& rWntGradient)
+      : WntCellCycleModel(proteinConcentrations, mutationState, birthTime, rWntGradient)
     {
     }
     
@@ -68,9 +71,11 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
      */
     AbstractCellCycleModel* CreateCellCycleModel()
     {
+        assert(mpOdeSystem!=NULL);
+        assert(mpCell!=NULL);
         // calls a cheeky version of the constructor which makes the new cell cycle model
         // the same age as the old one - not a copy at this time.
-        return new StochasticWntCellCycleModel(GetProteinConcentrations(), GetBirthTime(),mrWntGradient);
+        return new StochasticWntCellCycleModel(GetProteinConcentrations(), mpCell->GetMutationState(), GetBirthTime(),mrWntGradient);
     }
     
     
@@ -110,14 +115,15 @@ inline void load_construct_data(
     // Invoke inplace constructor to initialize instance of my_class
     
     std::vector<double> state_vars;
-    for (unsigned i=0 ; i<10 ; i++)
+    for (unsigned i=0 ; i<9 ; i++)
     {
         state_vars.push_back(0.0);
     }   
     double birth_time = 0.0;
+    CryptCellMutationState mutation_state = HEALTHY;
     WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL; 
     WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient; 
-    ::new(t)StochasticWntCellCycleModel(state_vars, birth_time, r_wnt_gradient);
+    ::new(t)StochasticWntCellCycleModel(state_vars, mutation_state,birth_time, r_wnt_gradient);
 }
 }
 } // namespace ...

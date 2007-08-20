@@ -278,7 +278,6 @@ public:
         
         WntGradient wnt_gradient;
         double wnt_level = 1.0;
-        double mutation = 0.0;
                        
         WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level,wnt_gradient);
 
@@ -295,7 +294,6 @@ public:
         
         std::vector<double> cell_cycle_influences;
         cell_cycle_influences.push_back(wnt_level);
-        cell_cycle_influences.push_back(mutation);
         for (int i=0; i<numTimesteps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -348,8 +346,7 @@ public:
         
         int num_timesteps = 500;
         double wnt_level = 1.0;
-        double mutation = 1.0;
-        
+                
         WntGradient wnt_gradient;
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level, wnt_gradient));
         
@@ -384,7 +381,6 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
-            cell_cycle_params.push_back(mutation);
             bool result = p_cell_model_1->ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time < 4.804+SG2MDuration)
@@ -406,7 +402,6 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
-            cell_cycle_params.push_back(mutation);
             bool result = p_cell_model_1->ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time< second_cycle_start+4.804+SG2MDuration)
@@ -428,7 +423,6 @@ public:
 
         int num_timesteps = 500;
         double wnt_level = 0.0;
-        double mutation = 2.0;
         
         WntGradient wnt_gradient;
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level, wnt_gradient));
@@ -468,7 +462,6 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
-            cell_cycle_params.push_back(mutation);
             bool result = p_cell_model_1->ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time < 7.82+SG2MDuration)
@@ -491,7 +484,6 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
-            cell_cycle_params.push_back(mutation);
             bool result = p_cell_model_1->ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time< second_cycle_start+7.82+SG2MDuration)
@@ -514,7 +506,6 @@ public:
         int num_timesteps = 500;
         
         double wnt_level = 0.738;// This shouldn't matter for this kind of cell!
-        double mutation = 3;
         WntGradient wnt_gradient;
         
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level, wnt_gradient));
@@ -552,7 +543,6 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
-            cell_cycle_params.push_back(mutation);
             bool result = p_cell_model_2->ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time < 3.9435+SG2MDuration)
@@ -574,7 +564,6 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
-            cell_cycle_params.push_back(mutation);
             bool result = p_cell_model_2->ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time< second_cycle_start+3.9435+SG2MDuration)
@@ -596,7 +585,6 @@ public:
         
         int num_timesteps = 500;
         double wnt_level = 1.0;
-        double mutation = 0.0;
         WntGradient wnt_gradient;
         
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level, wnt_gradient));
@@ -633,7 +621,6 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
-            cell_cycle_params.push_back(mutation);
             bool result = p_cell_model_2->ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time < 5.971+SG2MDuration)
@@ -655,7 +642,6 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
-            cell_cycle_params.push_back(mutation);
             bool result = p_cell_model_2->ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time< second_cycle_start+5.971+SG2MDuration)
@@ -677,7 +663,6 @@ public:
         
         int num_timesteps = 100;
         double wnt_level = 1.0;
-        double mutation = 0.0;
         
         WntGradient wnt_gradient;
         
@@ -707,7 +692,6 @@ public:
             double time = p_simulation_time->GetDimensionalisedTime();
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
-            cell_cycle_params.push_back(mutation);
             bool result = p_cell_model->ReadyToDivide(cell_cycle_params);
             if (time < 5.971 + 9.0676)
             {
@@ -908,7 +892,6 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "wnt_cell_cycle.arch";
         WntGradient wnt_gradient;
-        
         // Create an ouput archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -924,11 +907,10 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             std::vector<double> cell_cycle_influence;
             cell_cycle_influence.push_back(1.0);
-            cell_cycle_influence.push_back(0.0);
             TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),false);
             p_simulation_time->IncrementTimeOneStep();
             TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),true);
-            
+
             stem_cell.GetCellCycleModel()->SetBirthTime(-1.0);
             
             std::ofstream ofs(archive_filename.c_str());
@@ -940,7 +922,6 @@ public:
             output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
             output_arch << p_cell;
             SimulationTime::Destroy();
-            
         }
         
         {
@@ -953,7 +934,6 @@ public:
             inst1->SetSG2MDuration(101.0);
             
             MeinekeCryptCell* p_cell;
-                                 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
@@ -970,7 +950,6 @@ public:
                         
             std::vector<double> cell_cycle_influence;
             cell_cycle_influence.push_back(1.0);
-            cell_cycle_influence.push_back(0.0);
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(cell_cycle_influence),true);
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(),-1.0,1e-12);
             TS_ASSERT_DELTA(p_cell_model->GetAge(),17.0,1e-12);
@@ -980,7 +959,6 @@ public:
         }
     }    
     
-   // Ticket:374 requires this test to work properly. It isn't.
     void TestArchiveStochasticWntCellCycleModels()
     {
         CancerParameters::Instance()->Reset();
@@ -1014,7 +992,6 @@ public:
             p_simulation_time->IncrementTimeOneStep();// 5.5
             std::vector<double> cell_cycle_influence;
             cell_cycle_influence.push_back(1.0);
-            cell_cycle_influence.push_back(0.0);
             while (p_simulation_time->GetDimensionalisedTime() < 4.0)
             {
                 p_simulation_time->IncrementTimeOneStep();   
@@ -1051,7 +1028,6 @@ public:
                       
             std::vector<double> cell_cycle_influence1;
             cell_cycle_influence1.push_back(1.0);
-            cell_cycle_influence1.push_back(0.0);
             
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -1067,7 +1043,6 @@ public:
             // Wnt should divide at 15.971
             std::vector<double> cell_cycle_influence;
             cell_cycle_influence.push_back(1.0);
-            cell_cycle_influence.push_back(0.0);
             
             while (p_simulation_time->GetDimensionalisedTime() < 15.0)
             {

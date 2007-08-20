@@ -41,16 +41,16 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, WntGradient &rWn
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
  */
-WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, double birthTime, WntGradient& rWntGradient)
+WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
+                                     const CryptCellMutationState& rMutationState, 
+                                     double birthTime, WntGradient& rWntGradient)
         : AbstractCellCycleModel(),
           mrWntGradient(rWntGradient)
 {
-    mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], HEALTHY);// mutation state and wnt pathway are reset in a couple of lines.
+    mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState);// wnt pathway is reset in a couple of lines.
     // Protein concentrations are initialised such that the cell cycle part of
     // the model (first 5 ODEs) is at the start of G1 phase.
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
-    // Set the mutation state of the daughter to be the same as the parent cell.
-    mpOdeSystem->rGetStateVariables()[9] = rParentProteinConcentrations[9];
     // Set the Wnt pathway parts of the model to be the same as the parent cell.
     mpOdeSystem->rGetStateVariables()[8] = rParentProteinConcentrations[8];
     mpOdeSystem->rGetStateVariables()[7] = rParentProteinConcentrations[7];
@@ -105,18 +105,22 @@ void WntCellCycleModel::ResetModel()
 /**
  * Returns a bool of whether or not the cell is ready to divide,
  *
- * @param cellCycleInfluences the wnt stimulus -- must be the sole member of a standard vector of doubles and take a value between 0 and 1.
- *
+ * @param cellCycleInfluences the wnt stimulus -- must be the sole member 
+ * of a standard vector of doubles and take a value between 0 and 1.
+ * 
+ * This function sets one of the ODE system variables to represent the 
+ * Wnt level and also gives the ODE system the mutation state of this cell.
  */
 bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
     assert(mpOdeSystem!=NULL);
-    assert(cellCycleInfluences.size()==2);
+    assert(mpCell!=NULL);
+    assert(cellCycleInfluences.size()==1);
     
     // Use the WntStimulus provided as an input
     mpOdeSystem->rGetStateVariables()[8] = cellCycleInfluences[0];
     // Use the cell's current mutation status as another input
-    mpOdeSystem->rGetStateVariables()[9] = cellCycleInfluences[1];
+    mpOdeSystem->SetMutationState(mpCell->GetMutationState());
     
     double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
     
@@ -184,9 +188,10 @@ std::vector<double>  WntCellCycleModel::GetProteinConcentrations() const
 AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
 {
     assert(mpOdeSystem!=NULL);
+    assert(mpCell!=NULL);
     // calls a cheeky version of the constructor which makes the new cell cycle model
     // the same age as the old one - not a copy at this time.
-    return new WntCellCycleModel(mpOdeSystem->rGetStateVariables(), mBirthTime, mrWntGradient);
+    return new WntCellCycleModel(mpOdeSystem->rGetStateVariables(), mpCell->GetMutationState(), mBirthTime, mrWntGradient);
 }
 
 /**

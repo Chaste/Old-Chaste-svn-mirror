@@ -20,8 +20,8 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
     }
     // Stem cells are the only ones with generation = 0
     //assert( (generation == 0) == (cellType == STEM) ); Not for Wnt cells
-    mGeneration=generation;
-    mCellType=cellType;
+    mGeneration = generation;
+    mCellType = cellType;
     mMutationState = mutationState;
     mCanDivide = false;
     mUndergoingApoptosis = false;
@@ -149,8 +149,7 @@ void MeinekeCryptCell::SetMutationState(CryptCellMutationState mutationState)
  * The MeinekeCryptCell ready to divide method
  *
  * @param cellCycleInfluences a std::vector of doubles, with any relevant cell
- * cycle influences in it. This function pushes back the mutation state of this
- * cell onto the vector before sending it to the cell cycle models.
+ * cycle influences in it.
  */
 bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
@@ -159,35 +158,6 @@ bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
     {
         return false;
     }    
-    
-    double mutation_state = -1;
-    if (mMutationState==HEALTHY || mMutationState==LABELLED)
-    {
-        //std::cout << "HEALTHY" << std::endl;
-        mutation_state=0;
-    }
-    if (mMutationState==APC_ONE_HIT)
-    {
-        //std::cout << "APC +/-" << std::endl;
-        mutation_state=1;
-    }
-    if (mMutationState==BETA_CATENIN_ONE_HIT)
-    {
-        //std::cout << "Beta-cat +/-" << std::endl;
-        mutation_state=2;
-    }
-    if (mMutationState==APC_TWO_HIT)
-    {
-        //std::cout << "APC -/-" << std::endl;
-        mutation_state=3;
-    }
-    if (fabs(mutation_state+1)<1e-6)
-    {
-        #define COVERAGE_IGNORE
-        EXCEPTION("This cell has an invalid mutation state");
-        #undef COVERAGE_IGNORE
-    }
-    cellCycleInfluences.push_back(mutation_state);
     
     mCanDivide = mpCellCycleModel->ReadyToDivide(cellCycleInfluences);
 
