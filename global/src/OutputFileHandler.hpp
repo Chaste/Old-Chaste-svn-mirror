@@ -3,6 +3,7 @@
 
 #include <string>
 #include <fstream>
+#include <sstream>
 #include <memory>
 
 /** Type of our output streams; a managed pointer to an std::ofstream */
@@ -65,6 +66,18 @@ public:
      */
     out_stream OpenOutputFile(std::string filename,
                               std::ios_base::openmode mode=std::ios::out | std::ios::trunc);
+                              
+     
+    /** 
+     *  This just calls the other OpenOutputFile after concatenating the first three arguments 
+     *  together to make the full filename. For example OpenOutputFile("results_", 3, ".dat") 
+     *  creates results_3.dat. See documentation for alternative OpenOutputFile
+     */
+    out_stream OpenOutputFile(std::string fileName,
+                              unsigned number,
+                              std::string fileFormat,
+                              std::ios_base::openmode mode=std::ios::out | std::ios::trunc);
+                              
 };
 
 #endif /*OUTPUTFILEHANDLER_HPP_*/

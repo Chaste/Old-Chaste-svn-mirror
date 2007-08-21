@@ -29,6 +29,8 @@ public:
         TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file"));
         
         TS_ASSERT_THROWS_NOTHING(p_file_stream = handler2.OpenOutputFile("test_file"));
+ 
+        TS_ASSERT_THROWS_NOTHING(p_file_stream = handler2.OpenOutputFile("test_",34,".txt"));
         
         // This should try to write files to /, which isn't allowed (we hope!)
         OutputFileHandler handler3("../../../../../../../../../../../../../../../",

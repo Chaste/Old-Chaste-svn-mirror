@@ -83,7 +83,7 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
         
         // cover get pde
-        monodomain_problem.rGetPde();       
+        monodomain_problem.GetPde();       
     }
     
     void TestMonodomainDg01DWithTolerance()
@@ -283,7 +283,12 @@ public:
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1>* p_monodomain_problem = new MonodomainProblem<1>( &cell_factory );
         
-        p_monodomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+        // pass in mesh this time rather than a filename
+        TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1mm_10_elements");
+        ConformingTetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        p_monodomain_problem->SetMesh(&mesh);
         
         p_monodomain_problem->SetEndTime(0.30);          // ms
         p_monodomain_problem->SetPdeTimeStep(0.01);      // ms

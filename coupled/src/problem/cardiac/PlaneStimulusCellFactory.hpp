@@ -18,10 +18,10 @@ public:
         mpStimulus = new InitialStimulus(-600, 0.5);
     }
     
-    PlaneStimulusCellFactory(double timeStep, double stimulusVoltage) : AbstractCardiacCellFactory<DIM>(timeStep)
+    PlaneStimulusCellFactory(double timeStep, double stimulusMagnitude) : AbstractCardiacCellFactory<DIM>(timeStep)
     {
         // set the new stimulus
-        mpStimulus = new InitialStimulus(stimulusVoltage, 0.5);
+        mpStimulus = new InitialStimulus(stimulusMagnitude, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)

@@ -17,7 +17,7 @@ class MonodomainProblem : public AbstractCardiacProblem<SPACE_DIM, 1>
 private:
     MonodomainPde<SPACE_DIM> *mpMonodomainPde;    
 
-protected:
+public:
     AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde()
     {
         mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);

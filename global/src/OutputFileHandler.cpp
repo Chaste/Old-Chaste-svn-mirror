@@ -89,15 +89,7 @@ std::string OutputFileHandler::GetTestOutputDirectory()
     return mDirectory;
 }
 
-/**
- * Open an output file in our directory, and check it was opened successfully.
- * Throws an Exception if not.
- *
- * @param filename  the name of the file to open, relative to the output directory.
- * @param mode  optionally, flags to use when opening the file (defaults are as for
- *         std::ofstream).
- * @return  a managed pointer to the opened file stream.
- */
+
 out_stream OutputFileHandler::OpenOutputFile(std::string filename,
                                              std::ios_base::openmode mode)
 {
@@ -108,3 +100,14 @@ out_stream OutputFileHandler::OpenOutputFile(std::string filename,
     }
     return p_output_file;
 }
+
+
+out_stream OutputFileHandler::OpenOutputFile(std::string fileName,
+                                             unsigned number,
+                                             std::string fileFormat,
+                                             std::ios_base::openmode mode)
+{
+    std::stringstream string_stream;
+    string_stream << fileName << number << fileFormat;
+    return OpenOutputFile(string_stream.str(), mode);
+}                                              

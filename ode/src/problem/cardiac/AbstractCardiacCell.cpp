@@ -100,13 +100,16 @@ void AbstractCardiacCell::SetExtracellularStimulusFunction(AbstractStimulusFunct
 
 double AbstractCardiacCell::GetExtracellularStimulus(double time)
 {
-    /// \todo should this be an Exception?
     assert (HasExtracellularStimulus());
-    
     return mpExtracellularStimulus->GetStimulus(time);
 }
 
 bool AbstractCardiacCell::HasExtracellularStimulus()
 {
     return mpExtracellularStimulus != NULL;
+}
+
+double AbstractCardiacCell::GetIntracellularCalciumConcentration()
+{
+    EXCEPTION("AbstractCardiacCell::GetIntracellularCalciumConcentration() called. Either model has no [Ca_i] or method has not been implemented yet");
 }

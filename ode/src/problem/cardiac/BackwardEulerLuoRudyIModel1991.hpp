@@ -78,6 +78,8 @@ public:
      *  Exception if any have.
      */
     void VerifyGatingVariables();
+
+    double GetIntracellularCalciumConcentration();
 };
 
 #endif // _BACKWARDEULERLUORUDYIMODEL1991_HPP_

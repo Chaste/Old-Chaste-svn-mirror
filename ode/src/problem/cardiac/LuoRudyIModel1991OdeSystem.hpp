@@ -45,6 +45,8 @@ public:
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
     
     double GetIIonic();
+    
+    double GetIntracellularCalciumConcentration();
 };
 
 #endif // _LUORUDYIMODEL1991ODESYSTEM_HPP_

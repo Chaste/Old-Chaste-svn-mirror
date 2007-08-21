@@ -61,6 +61,11 @@ LuoRudyIModel1991OdeSystem::~LuoRudyIModel1991OdeSystem(void)
 {    
 }
 
+double LuoRudyIModel1991OdeSystem::GetIntracellularCalciumConcentration()
+{
+    return mStateVariables[3];
+}
+
 /**
  * Fill in a vector representing the RHS of the LuoRudyIModel1991OdeSystem system
  * of Odes at each time step, y' = [y1' ... yn'].
@@ -290,3 +295,4 @@ double LuoRudyIModel1991OdeSystem::GetIIonic()
     double i_ionic = fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b;
     return i_ionic;
 }
+

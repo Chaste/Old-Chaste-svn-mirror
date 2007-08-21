@@ -84,6 +84,9 @@ public:
         EulerIvpOdeSolver solver;
         double time_step = 0.01;
         FitzHughNagumo1961OdeSystem fhn61_ode_system(&solver, time_step, &stimulus);
+
+        // fhn has no [Ca_i]
+        TS_ASSERT_THROWS_ANYTHING(fhn61_ode_system.GetIntracellularCalciumConcentration())
         
         // Solve and write to file
         ck_start = clock();
@@ -173,13 +176,15 @@ public:
         EulerIvpOdeSolver solver;
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
         
+        // cover get intracellular calcium
+        TS_ASSERT_DELTA(lr91_ode_system.GetIntracellularCalciumConcentration(), 0.0002, 1e-5)
+        
         // Solve and write to file
         RunOdeSolverWithIonicModel(&lr91_ode_system,
                                    end_time,
                                    "Lr91RegularStim");
                                    
         CheckCellModelResults("Lr91RegularStim");
-        
     }
     
     void TestBackwardEulerLr91WithDelayedInitialStimulus(void) throw (Exception)
@@ -196,6 +201,10 @@ public:
         
         // Solve using backward euler
         BackwardEulerLuoRudyIModel1991 lr91_backward_euler(time_step, &stimulus);
+        
+        // cover get intracellular calcium
+        TS_ASSERT_DELTA(lr91_backward_euler.GetIntracellularCalciumConcentration(), 0.0002, 1e-5)
+        
         ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_backward_euler,
                                    end_time,

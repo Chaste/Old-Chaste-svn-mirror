@@ -86,6 +86,11 @@ void BackwardEulerLuoRudyIModel1991::Init()
     AbstractCardiacCell::Init();
 }
 
+double BackwardEulerLuoRudyIModel1991::GetIntracellularCalciumConcentration()
+{
+    return mStateVariables[3];
+}
+
 
 void BackwardEulerLuoRudyIModel1991::UpdateTransmembranePotential(double time)
 {

@@ -8,6 +8,8 @@
 #include "DistributedVector.hpp"
 #include "TimeStepper.hpp"
 #include "DistributedVector.hpp"
+#include "AbstractCardiacPde.hpp"
+#include "AbstractDynamicAssemblerMixin.hpp"
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
@@ -66,10 +68,10 @@ public:
      */
     AbstractCardiacProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
             : mMeshFilename(""),     // i.e. undefined
-            mOutputDirectory(""),  // i.e. undefined
-            mOutputFilenamePrefix(""),   // i.e. undefined
-            mpCellFactory(pCellFactory),
-            mpWriter(NULL)
+              mOutputDirectory(""),  // i.e. undefined
+              mOutputFilenamePrefix(""),   // i.e. undefined
+              mpCellFactory(pCellFactory),
+              mpWriter(NULL)
     {
         mStartTime        = 0.0;  // ms
         mPdeTimeStep      = 0.01; // ms
@@ -97,9 +99,9 @@ public:
      */
     void Initialise()
     {
-        if ( mMeshFilename=="" )
+        if ( (mMeshFilename=="") && (mMesh.GetNumNodes()==0))
         {
-            EXCEPTION("Mesh filename was not set");
+            EXCEPTION("SetMesh() or SetMeshFilename() was not set");
         }
         mpCellFactory->SetMesh( &mMesh );
         
@@ -236,6 +238,12 @@ public:
         TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(mMeshFilename);
         mMesh.ConstructFromMeshReader(mesh_reader);
     }
+
+    void SetMesh(ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
+    {
+        assert(pMesh!=NULL);
+        mMesh = *pMesh;
+    }
     
     void SetOutputDirectory(const std::string &rOutputDirectory)
     {
@@ -283,7 +291,7 @@ public:
         return mMesh;
     }
     
-    AbstractCardiacPde<SPACE_DIM>* rGetPde()
+    AbstractCardiacPde<SPACE_DIM>* GetPde()
     {
         return mpCardiacPde;
     }
