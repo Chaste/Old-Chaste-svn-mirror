@@ -200,7 +200,7 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         simulator.SetOutputCellTypes(true);
                 
         // Set length of simulation here
-        simulator.SetEndTime(1);
+        simulator.SetEndTime(50);
         
         simulator.SetMaxCells(1000);
         simulator.SetMaxElements(2000);
@@ -225,10 +225,12 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         
         simulator.Solve();
         
-        // set a cell to be labelled (a stemish cell)
-        simulator.rGetCrypt().rGetCellAtNodeIndex(37).SetMutationState(LABELLED);
-        simulator.rGetCrypt().rGetCellAtNodeIndex(194).SetMutationState(LABELLED);
-        simulator.rGetCrypt().rGetCellAtNodeIndex(304).SetMutationState(LABELLED);
+        std::vector<unsigned> label_these = Label();
+        // set a cell to be labelled (probably a stemish cell)
+        for (unsigned i=0; i<label_these.size() ; i++)
+        {
+            simulator.rGetCrypt().rGetCellAtNodeIndex(label_these[i]).SetMutationState(LABELLED);
+        }
         
         simulator.Save(); 
 
@@ -246,6 +248,14 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
+    
+std::vector<unsigned> Label()
+{
+    std::vector<unsigned> label_these;
+    label_these.push_back(37);
+    label_these.push_back(309);
+    return label_these;   
+}
 
 };
 

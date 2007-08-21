@@ -694,16 +694,13 @@ void TissueSimulation<DIM>::Solve()
     {
         *p_cell_types_file <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
     }
-    
-    
-    
+        
     /* Age the cells to the correct time (cells set up with negative birth dates
      * to give some that are almost ready to divide).
      * 
      * TODO:For some strange reason this seems to take about 3 minutes for a realistic Wnt-Crypt.
      * Not sure why - when the same code was evaluated in a test it seemed almost instant.
      */
-    
     for (typename Crypt<DIM>::Iterator cell_iter = mrCrypt.Begin();
          cell_iter != mrCrypt.End();
          ++cell_iter)
@@ -715,8 +712,9 @@ void TissueSimulation<DIM>::Solve()
             double wnt_stimulus = mWntGradient.GetWntLevel(y);
             cell_cycle_influences.push_back(wnt_stimulus);
         }
-        // We don't use the result; this call is just to force the cells to age to time 0,
-        // running their cell cycle models to get there.
+        /* We don't use the result; this call is just to force the cells 
+         * to age to current time running their cell cycle models to get there.
+         */
         cell_iter->ReadyToDivide(cell_cycle_influences);
     }
     
