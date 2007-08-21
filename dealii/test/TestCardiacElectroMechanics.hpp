@@ -295,7 +295,7 @@ public:
 //        assert(0); // need to set up links between the two meshes..
 //                
 //        
-//        unsigned Ca_i_index = bidomain_problem.rGetPde().GetCardiacCell(0)->GetStateVariableNumberByName("CaI");
+//        unsigned Ca_i_index = bidomain_problem.rGetPde()->GetCardiacCell(0)->GetStateVariableNumberByName("CaI");
 //
 //
 //        // create a material law, scaling the material params to help gmres convergence

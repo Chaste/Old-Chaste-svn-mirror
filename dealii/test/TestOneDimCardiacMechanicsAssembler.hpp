@@ -19,26 +19,7 @@
 class TestOneDimCardiacMechanicsAssembler : public CxxTest::TestSuite
 {
 public:
-    void TestPoleZero3dIn1dLaw()
-    {
-        PoleZero3dIn1dLaw law;
-
-        TS_ASSERT_DELTA( law.GetT(0), 0.0, 1e-12 );
-        TS_ASSERT_DELTA( law.GetT(0.1), 2.0809, 1e-3 );
-        TS_ASSERT_DELTA( law.GetT(0.2), 8.5158, 1e-3 );
-        TS_ASSERT_DELTA( law.GetT(0.3), 37.0291, 1e-3 );
-
-        TS_ASSERT_DELTA( law.GetT(-0.1), -0.5023, 1e-3 );
-        TS_ASSERT_DELTA( law.GetT(-0.2), -2.2589, 1e-3 );
-
-        law.SetUpStores();
-
-        TS_ASSERT_DELTA( law.GetT(-0.1), -0.5023, 1e-3 );
-        TS_ASSERT_DELTA( law.GetT(-0.2), -2.2589, 1e-3 );
-    }
-
-
-    void TestSimple()
+    void TestSimple() throw(Exception)
     {
         Triangulation<1> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -46,7 +27,7 @@ public:
         
         OneDimCardiacMechanicsAssembler mechanics(&mesh);
 
-        std::vector<double> active_tension(mechanics.GetTotalNumQuadPoints(), 1);
+        std::vector<double> active_tension(mechanics.GetTotalNumQuadPoints(), 0.5);
         
         mechanics.SetActiveTension( active_tension );
         mechanics.Solve();
@@ -69,7 +50,7 @@ public:
     }
 
 
-    void TestOneDimElectroMechanics()
+    void TestOneDimElectroMechanics() throw(Exception)
     {
         // create a single mesh for both electrics and mechanics
         Triangulation<1> mesh;
@@ -81,7 +62,7 @@ public:
         AbstractStimulusFunction* p_zero_stim = new ZeroStimulus;
         EulerIvpOdeSolver euler_solver;
         
-        double time_step = 0.1;
+        double time_step = 0.01;
         
         // create the cells, stimulating one face
         std::vector< AbstractCardiacCell* > cells(mesh.n_vertices());
@@ -122,7 +103,7 @@ public:
         std::vector<NHSCellularMechanicsOdeSystem> cellmech_systems(num_quad_points);
         
         double time = 0;
-        double end_time = 1000; 
+        double end_time = 1; 
         double dt = time_step;
         
       //  double time_since_last_mech_solve = 0.0;
@@ -214,6 +195,9 @@ public:
                 std::stringstream ss;
                 ss << "results_" << mech_writer_counter << ".dat"; 
                 out_stream p_file = output_file_handler.OpenOutputFile(ss.str());
+            
+                std::vector<Vector<double> >& deformed_position = cardiac_mech_assembler.rGetDeformedPosition();
+
                 for(unsigned i=0; i<deformed_position[0].size(); i++)
                 {
                     (*p_file) << deformed_position[0](i) << "\n";
@@ -231,8 +215,6 @@ public:
                 dlambda_dt[i] = (lambda[i] - old_lambda[i])/dt;
             }
             
-            std::vector<Vector<double> >& deformed_position = cardiac_mech_assembler.rGetDeformedPosition();
-            
     //        time_since_last_mech_solve += dt;
             time += dt;
         }
@@ -241,7 +223,9 @@ public:
 //        if(time_since_last_mech_solve > 0.0)
 //        {   
 //        }
-        
+
+        // use L=10, dt=0.01, t=1 for this.
+        TS_ASSERT_DELTA(cardiac_mech_assembler.rGetDeformedPosition()[0](1), 9.9999, 1e-3);
     }
 };
 #endif /*TEST1DCARDIACMECHANICSASSEMBLER_HPP_*/

@@ -7,6 +7,7 @@
 #include "ExponentialMaterialLaw.hpp"
 #include "PolynomialMaterialLaw3d.hpp"
 #include "PoleZeroMaterialLaw.hpp"
+#include "PoleZero3dIn1dLaw.hpp"
 #include <cassert>
 
 
@@ -639,6 +640,24 @@ public:
         TS_ASSERT_DELTA(dTdE(1,1,1,1), dtde11, 1e-9);
         TS_ASSERT_DELTA(dTdE(2,2,2,2), dtde22, 1e-9);
     }
+    
+    void TestPoleZero3dIn1dLaw() throw(Exception)
+    {
+        PoleZero3dIn1dLaw law;
+
+        TS_ASSERT_DELTA( law.GetT(0), 0.0, 1e-12 );
+        TS_ASSERT_DELTA( law.GetT(0.1), 2.0809, 1e-3 );
+        TS_ASSERT_DELTA( law.GetT(0.2), 8.5158, 1e-3 );
+        TS_ASSERT_DELTA( law.GetT(0.3), 37.0291, 1e-3 );
+
+        TS_ASSERT_DELTA( law.GetT(-0.1), -0.5023, 1e-3 );
+        TS_ASSERT_DELTA( law.GetT(-0.2), -2.2589, 1e-3 );
+
+        law.SetUpStores();
+
+        TS_ASSERT_DELTA( law.GetT(-0.1), -0.5023, 1e-3 );
+        TS_ASSERT_DELTA( law.GetT(-0.2), -2.2589, 1e-3 );
+    }    
 };
 
 #endif /*TESTMATERIALLAWS_HPP_*/

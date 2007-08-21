@@ -78,10 +78,17 @@ private:
             double source_term=0;
             for (unsigned int j=0; j<dofs_per_element; ++j)
             {
-               unsigned cell_index = local_dof_indices[j];
-               double non_linear_source_term_at_node= - surface_area_to_volume_ratio*mIionicCache[cell_index]
-                                                      - mIntracellularStimulusCache[cell_index];
-               source_term += fe_values.shape_value(j, q_point) * non_linear_source_term_at_node;
+                unsigned cell_index = local_dof_indices[j];
+                double non_linear_source_term_at_node= - surface_area_to_volume_ratio*mIionicCache[cell_index]
+                                                       - mIntracellularStimulusCache[cell_index];
+                                                      
+               
+                if(isnan(mIionicCache[cell_index]))
+                {
+                    assert(0);                        
+                }
+
+                source_term += fe_values.shape_value(j, q_point) * non_linear_source_term_at_node;
             }
                
             double voltage=0;

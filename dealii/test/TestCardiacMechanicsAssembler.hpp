@@ -30,45 +30,6 @@ private:
         }
     }
     
-    template<unsigned DIM>
-    std::vector<std::vector<double> >  GetQuadPointPositions(Triangulation<DIM>& rMesh)
-    {
-        QGauss<DIM> quadrature_formula(3);
-        unsigned n_q_points = quadrature_formula.n_quadrature_points;
-
-        std::vector<std::vector<double> > ret(DIM);
-        for(unsigned i=0; i<DIM; i++)
-        {
-            ret[i].resize(n_q_points * rMesh.n_active_cells());
-        }
-        
-        
-        FE_Q<DIM> fe(2);
-        FEValues<DIM> fe_values(fe, quadrature_formula,
-                                UpdateFlags(update_q_points));
-        
-        unsigned current=0;                        
-        for(typename Triangulation<DIM>::cell_iterator element_iter = rMesh.begin_active(); 
-            element_iter!=rMesh.end();
-            element_iter++)
-        {
-            fe_values.reinit(element_iter);
-            
-            std::vector<Point<DIM> > quad_points = fe_values.get_quadrature_points();
-
-            for(unsigned q=0; q<quad_points.size(); q++)
-            {
-                for(unsigned i=0; i<DIM; i++)
-                {
-                    ret[i][current] = quad_points[q][i];
-                }
-                current++;
-            }
-        }
-        
-        return ret;
-    }
-    
 public :    
     void TestCompareJacobians() throw(Exception)
     {
@@ -154,7 +115,8 @@ public :
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), 0.1035, 1e-3);
         
         std::vector<double>& lambda = cardiac_mech_assembler.GetLambda();
-        std::vector<std::vector<double> > quad_points = GetQuadPointPositions<2>(mesh);
+        std::vector<std::vector<double> > quad_points 
+           = FiniteElasticityTools<2>::GetQuadPointPositions(mesh,3);
         
         // the lambdas should be less than 1 (positive T_a => compression), and also
         // should be near the same for any particular value of y, ie the same along any 
@@ -163,7 +125,7 @@ public :
         // 0.35,0.05 etc were obtained by looking at the plot. 
         for(unsigned i=0; i<lambda.size(); i++)
         {
-            double y = quad_points[1][i];
+            double y = quad_points[i][1];
             double mid = 1 - 0.25*y;
             double range = 0.03;
             
@@ -171,7 +133,7 @@ public :
             TS_ASSERT_LESS_THAN(mid - range, lambda[i]);
             
             // don't delete:
-            //std::cout << quad_points[0][i] << " " << quad_points[1][i] << " " << lambda[i] << "\n";
+            //std::cout << quad_points[i][0] << " " << quad_points[i][1] << " " << lambda[i] << "\n";
         }
     }
 
@@ -205,7 +167,9 @@ public :
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), -0.0653, 1e-3);
         
         std::vector<double>& lambda = cardiac_mech_assembler.GetLambda();
-        std::vector<std::vector<double> > quad_points = GetQuadPointPositions<2>(mesh);
+        std::vector<std::vector<double> > quad_points 
+           = FiniteElasticityTools<2>::GetQuadPointPositions(mesh,3);
+         
         
         // the lambdas should be greater than 1 (negative T_a => stretch), and also
         // should be near the same for any particular value of y, ie the same along any 
@@ -214,7 +178,7 @@ public :
         // 0.29, 0.04 were obtained by looking at the plot. 
         for(unsigned i=0; i<lambda.size(); i++)
         {
-            double y = quad_points[1][i];
+            double y = quad_points[i][1];
             double mid = 1 + 0.15*y;
             double range = 0.02;
             
@@ -222,7 +186,7 @@ public :
             TS_ASSERT_LESS_THAN(mid - range, lambda[i]);
             
             // don't delete:
-            //std::cout << quad_points[0][i] << " " << quad_points[1][i] << " " << lambda[i] << "\n";
+            //std::cout << quad_points[i][0] << " " << quad_points[i][1] << " " << lambda[i] << "\n";
         }
     }
 
@@ -274,12 +238,13 @@ public :
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](2), 0.7428, 1e-3);
         
         std::vector<double>& lambda = cardiac_mech_assembler.GetLambda();
-        std::vector<std::vector<double> > quad_points = GetQuadPointPositions<2>(mesh);
+        std::vector<std::vector<double> > quad_points 
+           = FiniteElasticityTools<2>::GetQuadPointPositions(mesh,3);
         
         // the lambdas should be less than 1 and approx constant away from the fixed boundary
         for(unsigned i=0; i<lambda.size(); i++)
         {
-            double y = quad_points[1][i];
+            double y = quad_points[i][1];
 
             if (y>0.5) // ie away from the fixed boundary y=0
             {
@@ -288,7 +253,7 @@ public :
             }
             
             // don't delete:
-            //std::cout << quad_points[0][i] << " " << quad_points[1][i] << " " << lambda[i] << "\n";
+            //std::cout << quad_points[i][0] << " " << quad_points[i][1] << " " << lambda[i] << "\n";
         }
     }
 
@@ -338,7 +303,8 @@ public :
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](2), 0.8998, 1e-3);
         
         std::vector<double>& lambda = cardiac_mech_assembler.GetLambda();
-        std::vector<std::vector<double> > quad_points = GetQuadPointPositions<2>(mesh);
+        std::vector<std::vector<double> > quad_points 
+           = FiniteElasticityTools<2>::GetQuadPointPositions(mesh,3);
         
         // the lambdas should be less than 1 and approx constant away from the fixed boundary
         for(unsigned i=0; i<lambda.size(); i++)

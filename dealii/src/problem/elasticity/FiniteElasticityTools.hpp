@@ -164,6 +164,44 @@ public:
             element_iter++;
         }
     }
+
+    static std::vector<std::vector<double> >  GetQuadPointPositions(Triangulation<DIM>& rMesh, unsigned numQuadPointsInEachDim)
+    {
+        assert(numQuadPointsInEachDim>0);
+        QGauss<DIM> quadrature_formula(numQuadPointsInEachDim);
+        unsigned n_q_points = quadrature_formula.n_quadrature_points;
+
+        std::vector<std::vector<double> > ret(n_q_points * rMesh.n_active_cells());
+        for(unsigned i=0; i<n_q_points * rMesh.n_active_cells(); i++)
+        {
+            ret[i].resize(DIM);
+        }
+        
+        FE_Q<DIM> fe(2);
+        FEValues<DIM> fe_values(fe, quadrature_formula,
+                                UpdateFlags(update_q_points));
+        
+        unsigned current=0;                        
+        for(typename Triangulation<DIM>::cell_iterator element_iter = rMesh.begin_active(); 
+            element_iter!=rMesh.end();
+            element_iter++)
+        {
+            fe_values.reinit(element_iter);
+            
+            std::vector<Point<DIM> > quad_points = fe_values.get_quadrature_points();
+
+            for(unsigned q=0; q<quad_points.size(); q++)
+            {
+                for(unsigned i=0; i<DIM; i++)
+                {
+                    ret[current][i] = quad_points[q][i];
+                }
+                current++;
+            }
+        }
+        
+        return ret;
+    }
 };
 
 #endif /*FINITEELASTICITYTOOLS_HPP_*/

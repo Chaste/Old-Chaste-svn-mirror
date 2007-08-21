@@ -40,9 +40,10 @@
 
 #include <numerics/solution_transfer.h>
 
-
+#include <math.h>
 #include <iostream>
 
+#include "Exception.hpp"
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
 
@@ -260,13 +261,12 @@ protected:
 
                 if (assembleVector)
                 {
-                    mRhsVector(local_dof_indices[i]) += element_rhs(i);
+                    mRhsVector(local_dof_indices[i]) += element_rhs(i);                    
                 }
             }
             
             element_iter++;
         }
-        //if(assembleMatrix) { std::cout << "\n"; }
         
         // note this has to be done before applying dirichlet bcs
         if (assembleMatrix)
@@ -279,8 +279,17 @@ protected:
         }
 
         ApplyDirichletBoundaryConditions();
+        
+        // stupid thing won't quit if variables become NaN (and says norm_rhs_vec=0 too!), 
+        // so have to check here
+        for(unsigned i=0; i<mRhsVector.size(); i++)
+        {
+            if( isnan(mRhsVector(i)))
+            {
+                EXCEPTION("Component of the system rhs vector became NaN - check for division by zero."); 
+            }
+        }
     }
-    
     
     /**
      *  Compute the L2 norm of the current residual vector divided by it's length.
