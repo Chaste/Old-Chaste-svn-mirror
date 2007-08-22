@@ -1181,7 +1181,6 @@ public:
     }
     
     
-    
     void TestArchiveCell() throw(Exception)
     {
         CancerParameters::Instance()->Reset();
@@ -1298,13 +1297,13 @@ public:
         std::vector<double> wnt;
         wnt.push_back(wnt_stimulus);
 
-        TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
+        TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(wnt),false);
 
-        TS_ASSERT(wnt_cell2.ReadyToDivide(wnt)==false);
+        TS_ASSERT_EQUALS(wnt_cell2.ReadyToDivide(wnt),false);
         
-        TS_ASSERT(wnt_cell3.ReadyToDivide(wnt)==false);
+        TS_ASSERT_EQUALS(wnt_cell3.ReadyToDivide(wnt),false);
         
-        TS_ASSERT(wnt_cell4.ReadyToDivide(wnt)==false);
+        TS_ASSERT_EQUALS(wnt_cell4.ReadyToDivide(wnt),false);
         
         SimulationTime::Destroy();
     }

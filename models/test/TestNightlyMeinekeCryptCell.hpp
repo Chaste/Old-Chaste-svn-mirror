@@ -361,21 +361,23 @@ public:
         double wnt_stimulus = 0.0;
         WntGradient wnt_gradient;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
-                                  APC_ONE_HIT,//Mutation State
+                                  APC_TWO_HIT,//Mutation State
                                   1,    // generation
                                   new WntCellCycleModel(wnt_stimulus, wnt_gradient));
                                   
         CryptCellMutationState this_state = wnt_cell.GetMutationState();
         
-        TS_ASSERT(this_state==APC_ONE_HIT);
+        TS_ASSERT(this_state==APC_TWO_HIT);
         
-        this_state = APC_TWO_HIT;
+        this_state = APC_ONE_HIT;
         
         wnt_cell.SetMutationState(this_state);
         
         this_state = wnt_cell.GetMutationState();
         
-        TS_ASSERT(this_state==APC_TWO_HIT);
+        TS_ASSERT(this_state==APC_ONE_HIT);
+        
+        wnt_cell.SetMutationState(APC_TWO_HIT);
         
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {

@@ -43,19 +43,15 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, WntGradient &rWn
  */
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                                      const CryptCellMutationState& rMutationState, 
-                                     double birthTime, WntGradient& rWntGradient)
+                                     double birthTime, double lastTime, 
+                                     WntGradient& rWntGradient,
+                                     bool inSG2MPhase, bool readyToDivide, double divideTime)
         : AbstractCellCycleModel(),
           mrWntGradient(rWntGradient)
 {
     mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState);// wnt pathway is reset in a couple of lines.
-    // Protein concentrations are initialised such that the cell cycle part of
-    // the model (first 5 ODEs) is at the start of G1 phase.
-    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
-    // Set the Wnt pathway parts of the model to be the same as the parent cell.
-    mpOdeSystem->rGetStateVariables()[8] = rParentProteinConcentrations[8];
-    mpOdeSystem->rGetStateVariables()[7] = rParentProteinConcentrations[7];
-    mpOdeSystem->rGetStateVariables()[6] = rParentProteinConcentrations[6];
-    mpOdeSystem->rGetStateVariables()[5] = rParentProteinConcentrations[5];
+    // Set the model to be the same as the parent cell.
+    mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
     
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -63,11 +59,10 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
         EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
     }
     mBirthTime = birthTime;
-    mLastTime = birthTime;
-    
-    mInSG2MPhase = false;
-    mReadyToDivide = false;
-    mDivideTime = DBL_MAX;
+    mLastTime = lastTime;
+    mInSG2MPhase = inSG2MPhase;
+    mReadyToDivide = readyToDivide;
+    mDivideTime = divideTime;
 }
 
 WntCellCycleModel::~WntCellCycleModel()
@@ -129,7 +124,6 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
         if (!mInSG2MPhase)
         {	// WE ARE IN G0 or G1 PHASE - running cell cycle ODEs
             // feed this time step's Wnt stimulus into the solver as a constant over this timestep.
-
             double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
             
             msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, current_time, dt);
@@ -183,15 +177,17 @@ std::vector<double>  WntCellCycleModel::GetProteinConcentrations() const
  * Returns a new WntCellCycleModel created with the correct initial conditions.
  *
  * Should be called just after the parent cell cycle model has been .Reset().
- *
  */
 AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
 {
     assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
-    // calls a cheeky version of the constructor which makes the new cell cycle model
-    // the same age as the old one - not a copy at this time.
-    return new WntCellCycleModel(mpOdeSystem->rGetStateVariables(), mpCell->GetMutationState(), mBirthTime, mrWntGradient);
+    // calls a cheeky version of the constructor which makes the new cell 
+    // cycle model the same as the old one - not a dividing copy at this time.
+    // unless the parent cell has just divided.
+    return new WntCellCycleModel(mpOdeSystem->rGetStateVariables(), 
+                                mpCell->GetMutationState(), mBirthTime, mLastTime, 
+                                mrWntGradient, mInSG2MPhase, mReadyToDivide, mDivideTime);
 }
 
 /**
@@ -250,6 +246,5 @@ void WntCellCycleModel::SetCell(MeinekeCryptCell* pCell)
     { 
         mpOdeSystem = new WntCellCycleOdeSystem(mInitialWntStimulus, pCell->GetMutationState());
         mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
-    }
-            
+    }            
 }

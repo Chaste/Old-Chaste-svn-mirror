@@ -61,13 +61,13 @@ public:
     WntCellCycleModel(double InitialWntStimulus,  WntGradient &rWntGradient);
    
    /**
-     * This is needed because a wnt model which is not to be run from the current time is 
-     * sometimes needed. Should only be called by the cell itself when it wants to divide.
-     * And by archiver to set up a new ODE system.
+     * This is needed to create an exact copy of the current cell cycle model
+     * (called by CreateCellCycleModel() and archiving functions)
      */
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                       const CryptCellMutationState& rMutationState, 
-                      double birthTime, WntGradient &rWntGradient);
+                      double birthTime, double lastTime, WntGradient &rWntGradient,
+                      bool inSG2MPhase, bool readyToDivide, double divideTime);
      
     virtual ~WntCellCycleModel();
     
@@ -86,6 +86,7 @@ public:
     void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations);
     
     void SetCell(MeinekeCryptCell* pCell);
+
 };
 
 // declare identifier for the serializer
@@ -104,6 +105,7 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const WntCellCycleModel * t, const unsigned int file_version)
 {
+    //std::cout << "WntCellCycle Save Constructor called\n" << std::flush;
 }
 
 /**
@@ -125,11 +127,11 @@ inline void load_construct_data(
     {
         state_vars.push_back(0.0);
     }   
-    double birth_time = 0.0;
     CryptCellMutationState mutation_state = HEALTHY;
     WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL; 
     WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient; 
-    ::new(t)WntCellCycleModel(state_vars, mutation_state, birth_time, r_wnt_gradient);
+    ::new(t)WntCellCycleModel(state_vars, mutation_state, 0.0, 0.0, r_wnt_gradient, false, false, 0.0);
+    //std::cout << "WntCellCycle Load Constructor called\n" << std::flush;
 }
 }
 } // namespace ...

@@ -84,6 +84,7 @@ public:
      * Builder method to create new instances of the cell cycle model.
      * Each concrete subclass must implement this method to create an
      * instance of that subclass.
+     * NB It should create an instance which is identical to the host instance.
      * 
      * This method is called in 2 circumstances:
      *  - By the copy constructor and operator= of MeinekeCryptCell to create a copy of the cell cycle model
@@ -91,8 +92,8 @@ public:
      *    as operator= on the cell cycle model is then called to ensure the model is copied properly.
      *  - By MeinekeCryptCell.Divide to create a cell cycle model for the daughter cell. CreateCellCycleModel
      *    must thus produce a cell cycle model in a suitable state for a newly-born cell spawned from the
-     *    'current' cell. Note that the parent cell cycle model is reset just before CreateCellCycleModel is
-     *    called. 
+     *    'current' cell. Note that the parent cell cycle model should be Reset() just before CreateCellCycleModel is
+     *    called to copy its state. 
      */
     virtual AbstractCellCycleModel *CreateCellCycleModel()=0;
     

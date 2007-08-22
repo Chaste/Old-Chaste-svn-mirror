@@ -12,6 +12,7 @@
 #include "OutputFileHandler.hpp"
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
+#include "WntCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
 #include "Crypt.cpp"
@@ -27,7 +28,8 @@ private:
         std::vector<MeinekeCryptCell> cells;
         for(unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+            WntGradient wnt_gradient;
+            MeinekeCryptCell cell(STEM, HEALTHY, 0, new WntCellCycleModel(0.0,wnt_gradient));
             double birth_time = 0.0-i;
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -643,6 +645,17 @@ public:
             // create the crypt
             Crypt<2>* const p_crypt = new Crypt<2>(mesh, cells);
         
+            // Cells have been given birth times of 0, -1, -2, -3, -4.
+            // loop over them to run to time 0.0;
+            for(Crypt<2>::Iterator cell_iter = p_crypt->Begin();
+             cell_iter != p_crypt->End();
+             ++cell_iter)
+            {
+                std::vector<double> cell_influence;
+                cell_influence.push_back(0.0);
+                cell_iter->ReadyToDivide(cell_influence);
+            }
+        
             // create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -681,6 +694,17 @@ public:
             // this horribleness will go away when ticket:412 (proper mesh archiving) is done.
             
             input_arch >> p_crypt;
+            
+            // Cells have been given birth times of 0, -1, -2, -3, -4.
+            // loop over them to run to time 0.0;
+            for(Crypt<2>::Iterator cell_iter = p_crypt->Begin();
+             cell_iter != p_crypt->End();
+             ++cell_iter)
+            {
+                std::vector<double> cell_influence;
+                cell_influence.push_back(0.0);
+                cell_iter->ReadyToDivide(cell_influence);
+            }
                         
             // check the simulation time has been restored (through the cell)
             TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.0);
