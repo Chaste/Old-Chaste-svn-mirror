@@ -23,12 +23,12 @@ public :
      *     condition.
      */
     FunctionalBoundaryCondition(double (*func)(const ChastePoint<SPACE_DIM> x)) : mFunction(func)
-    {};
+    {
+    }
     
     double GetValue( const ChastePoint<SPACE_DIM> x) const
     {
         return mFunction(x);
-        ;
     }
 };
 

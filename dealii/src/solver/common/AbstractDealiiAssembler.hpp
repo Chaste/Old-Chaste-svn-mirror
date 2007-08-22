@@ -341,6 +341,7 @@ protected:
         double best_damping_value = 0.0;
         
         std::vector<double> damping_values;
+        damping_values.reserve(12);
         damping_values.push_back(0.0);
         damping_values.push_back(0.05);
         for (unsigned i=1; i<=10; i++)

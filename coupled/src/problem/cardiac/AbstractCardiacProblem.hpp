@@ -150,6 +150,7 @@ public:
         Vec initial_condition=DistributedVector::CreateVec(PROBLEM_DIM);
         DistributedVector ic(initial_condition);
         std::vector< DistributedVector::Stripe > stripe;
+        stripe.reserve(PROBLEM_DIM);
         
         for (unsigned i=0; i<PROBLEM_DIM; i++)
         {

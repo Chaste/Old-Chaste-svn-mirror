@@ -37,8 +37,7 @@ public:
     typedef typename std::vector<Node<SPACE_DIM> *>::const_iterator BoundaryNodeIterator;
 private:
     unsigned mNumCornerNodes;
-    // Note that since these are vectors of objects, not pointers, push_back
-    // will copy the objects.
+   
     std::vector<Element<ELEMENT_DIM, SPACE_DIM> *> mElements;
     std::vector<Node<SPACE_DIM> *> mNodes;
     std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;

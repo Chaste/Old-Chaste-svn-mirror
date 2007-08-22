@@ -129,6 +129,8 @@ public:
         }
 
 
+unsigned counter = 0;
+
         TimeStepper stepper(0.0, mEndTime, mTimeStep);
         while ( !stepper.IsTimeAtEnd() )
         {
@@ -179,7 +181,9 @@ public:
             {
                 dlambda_dt[i] = (lambda[i] - old_lambda[i])/mTimeStep;
             }
-            
+
+if((counter++)%1==0)
+{            
             OutputFileHandler output_file_handler(mOutputDirectory, false);
             out_stream p_file = output_file_handler.OpenOutputFile("results_", mech_writer_counter, ".dat");
             std::vector<Vector<double> >& deformed_position = mpCardiacMechAssembler->rGetDeformedPosition();
@@ -188,9 +192,9 @@ public:
                 assert(DIM==1);
                 (*p_file) << deformed_position[0](i) << "\n";
             }
-                        
-            // update the current time
             mech_writer_counter++;
+}                        
+            // update the current time
             stepper.AdvanceOneTimeStep();
         }
         

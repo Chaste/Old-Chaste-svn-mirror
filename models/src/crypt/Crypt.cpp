@@ -290,13 +290,8 @@ MeinekeCryptCell* Crypt<DIM>::AddCell(MeinekeCryptCell newCell, c_vector<double,
 template<unsigned DIM>
 void Crypt<DIM>::ReMesh()
 {
-    unsigned old_all_nodes = mrMesh.GetNumAllNodes();
-
     NodeMap map(mrMesh.GetNumAllNodes());
     mrMesh.ReMesh(map);
-
-    // if this is not true the mesh is not returning a good map        
-	assert(map.Size()==old_all_nodes);
 
     if(!map.IsIdentityMap())
     {

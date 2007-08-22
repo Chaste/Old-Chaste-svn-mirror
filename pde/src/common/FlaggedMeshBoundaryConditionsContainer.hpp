@@ -19,8 +19,20 @@ public:
      */
     FlaggedMeshBoundaryConditionsContainer()
             : AbstractBoundaryConditionsContainer<SPACE_DIM,SPACE_DIM,PROBLEM_DIM>()
-    {}
+    {
+    }
     
+    /** 
+     *  Constructor for use in mixed mesh problems.
+     *  @rMesh MixedTetrahedralMesh (a mixed coarse and refined mesh). The refined
+     *   mesh must have a flagged subregion
+     *  @solutionVector a vector of values on the coarse mesh
+     * 
+     *  This constructor finds the boundary of the flagged region of the fine mesh,
+     *  and for each node in this boundary, computes and sets up an appropriate dirichlet
+     *  boundary condition (by using the solutionVector, and interpolating from the coarse
+     *  mesh onto that node)
+     */
     FlaggedMeshBoundaryConditionsContainer(RefinedTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
                                            Vec solutionVector)
             : AbstractBoundaryConditionsContainer<SPACE_DIM,SPACE_DIM,PROBLEM_DIM>()
@@ -101,11 +113,6 @@ public:
     }
 
 
-    
-//    ~FlaggedMeshBoundaryConditionsContainer()
-//    {
-//    }
-
     /**
      * Add a dirichlet boundary condition specifying two parameters, a pointer to a node,
      * and a pointer to a boundary condition object associated with that node.
@@ -177,9 +184,6 @@ public:
             }
         }
     }
-    
-    
-    
 };
 
 #endif /*FLAGGEDMESHBOUNDARYCONDITIONSCONTAINER_HPP_*/

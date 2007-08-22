@@ -78,6 +78,7 @@ public:
         int time_var_id = writer.DefineUnlimitedDimension("Time",timeUnits);
     
         std::vector<int> var_ids;
+        var_ids.reserve(pOdeSystem->rGetVariableNames().size());
         for (unsigned i=0; i<pOdeSystem->rGetVariableNames().size(); i++)
         {
             var_ids.push_back(writer.DefineVariable(pOdeSystem->rGetVariableNames()[i],

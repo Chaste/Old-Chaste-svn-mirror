@@ -357,9 +357,9 @@ public :
         GridGenerator::hyper_cube(mesh, -1.0, 1.0);
 
         std::vector<std::vector<double> > quad_points = FiniteElasticityTools<2>::GetQuadPointPositions(mesh,2);
-        TS_ASSERT_EQUALS(quad_points.size(), 4);
-        TS_ASSERT_EQUALS(quad_points[0].size(), 2);
-        TS_ASSERT_EQUALS(quad_points[2].size(), 2);
+        TS_ASSERT_EQUALS(quad_points.size(), 4u);
+        TS_ASSERT_EQUALS(quad_points[0].size(), 2u);
+        TS_ASSERT_EQUALS(quad_points[2].size(), 2u);
         
         // (don't know without checking which order this will come out in)
         TS_ASSERT_DELTA(quad_points[0][0], -one_over_root3, 1e-6);
@@ -377,8 +377,8 @@ public :
         mesh.refine_global(2); // now 4 by 4 
         quad_points = FiniteElasticityTools<2>::GetQuadPointPositions(mesh,3); // => 16*9 quad points
 
-        TS_ASSERT_EQUALS(quad_points.size(), 144);
-        TS_ASSERT_EQUALS(quad_points[0].size(), 2);
+        TS_ASSERT_EQUALS(quad_points.size(), 144u);
+        TS_ASSERT_EQUALS(quad_points[0].size(), 2u);
     
         double root_3_over_5 = sqrt(3.0/5.0);
         
@@ -397,8 +397,8 @@ public :
         
         // 1d test.
         std::vector<std::vector<double> > quad_points_1d = FiniteElasticityTools<1>::GetQuadPointPositions(mesh1d,2);
-        TS_ASSERT_EQUALS(quad_points_1d.size(), 2);
-        TS_ASSERT_EQUALS(quad_points_1d[0].size(), 1);
+        TS_ASSERT_EQUALS(quad_points_1d.size(), 2u);
+        TS_ASSERT_EQUALS(quad_points_1d[0].size(), 1u);
         TS_ASSERT_DELTA(quad_points_1d[0][0], -one_over_root3, 1e-6);
     }
 };

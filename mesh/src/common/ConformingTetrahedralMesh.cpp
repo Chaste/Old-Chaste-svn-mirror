@@ -436,34 +436,35 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned i
     for (std::set<unsigned>::const_iterator element_iter=unshared_element_indices.begin();
              element_iter != unshared_element_indices.end();
              element_iter++)
+    {
+        try
         {
-            try
+        
+            GetElement(*element_iter)->RefreshJacobianDeterminant(concreteMove);
+            if (concreteMove)
             {
+                GetElement(*element_iter)->ReplaceNode(mNodes[index], mNodes[targetIndex]);
+            }
             
-                GetElement(*element_iter)->RefreshJacobianDeterminant(concreteMove);
-                if (concreteMove)
-                {
-                    GetElement(*element_iter)->ReplaceNode(mNodes[index], mNodes[targetIndex]);
-                }
-                
-            }
-            catch (Exception e)
-            {
-                EXCEPTION("Moving node caused an element to have a non-positive Jacobian determinant");
-            }
         }
+        catch (Exception e)
+        {
+            EXCEPTION("Moving node caused an element to have a non-positive Jacobian determinant");
+        }
+    }
+    
     for (std::set<unsigned>::const_iterator boundary_element_iter=
                  unshared_boundary_element_indices.begin();
              boundary_element_iter != unshared_boundary_element_indices.end();
              boundary_element_iter++)
+    {
+    
+        GetBoundaryElement(*boundary_element_iter)->RefreshJacobianDeterminant(concreteMove);
+        if (concreteMove)
         {
-        
-            GetBoundaryElement(*boundary_element_iter)->RefreshJacobianDeterminant(concreteMove);
-            if (concreteMove)
-            {
-                GetBoundaryElement(*boundary_element_iter)->ReplaceNode(mNodes[index], mNodes[targetIndex]);
-            }
+            GetBoundaryElement(*boundary_element_iter)->ReplaceNode(mNodes[index], mNodes[targetIndex]);
         }
+    }
         
     std::set<unsigned> shared_element_indices;
     std::set_intersection(mNodes[index]->rGetContainingElementIndices().begin(),
@@ -471,20 +472,21 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned i
                           mNodes[targetIndex]->rGetContainingElementIndices().begin(),
                           mNodes[targetIndex]->rGetContainingElementIndices().end(),
                           std::inserter(shared_element_indices, shared_element_indices.begin()));
+    
     for (std::set<unsigned>::const_iterator element_iter=shared_element_indices.begin();
              element_iter != shared_element_indices.end();
              element_iter++)
+    {
+        if (concreteMove)
         {
-            if (concreteMove)
-            {
-                GetElement(*element_iter)->MarkAsDeleted();
-                mDeletedElementIndices.push_back(*element_iter);
-            }
-            else
-            {
-                GetElement(*element_iter)->ZeroJacobianDeterminant();
-            }
+            GetElement(*element_iter)->MarkAsDeleted();
+            mDeletedElementIndices.push_back(*element_iter);
         }
+        else
+        {
+            GetElement(*element_iter)->ZeroJacobianDeterminant();
+        }
+    }
         
         
     std::set<unsigned> shared_boundary_element_indices;
@@ -1054,7 +1056,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     if (return_value != 0)
     {
         // try remeshing again, this time without sending the output to /dev/null 
-        // (just so the error message is displayed
+        // (just so the error message is displayed in std output)
         std::string command = "./bin/"+ binary_name +" -e " + full_name + "node";
         system(command.c_str());
         EXCEPTION("The triangle/tetgen mesher did not suceed in remeshing.");
