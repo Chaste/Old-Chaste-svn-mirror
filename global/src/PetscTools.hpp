@@ -9,14 +9,16 @@
 #include <assert.h>
 #include "DistributedVector.hpp"
 #include "ReplicatableVector.hpp"
-#include "PetscSetupAndFinalize.hpp"
 
 /**
- *  
+ *  A helper class of static methods.
  */
 class PetscTools
 {
 public :
+    /**
+     *  Just returns whether their is one process or not
+     */
     static bool IsSequential()
     {
         int num_procs;
@@ -24,6 +26,9 @@ public :
         return (num_procs==1);
     }
  
+    /**
+     *  Create a vector of the specified size. SetFromOptions is called.
+     */
     static Vec CreateVec(int size)
     {
         assert(size>0);
@@ -34,6 +39,10 @@ public :
         return ret;
     }
     
+    /**
+     *  Create a vector of the specified size with all values set to be the given
+     *  constant. SetFromOptions is called.
+     */
     static Vec CreateVec(int size, double value)
     {
         assert(size>0);
@@ -50,6 +59,9 @@ public :
         return ret;
     }
     
+    /** 
+     *  Create a Vec from the given data.
+     */
     static Vec CreateVec(std::vector<double> data)
     {
         assert(data.size()>0);
@@ -72,7 +84,10 @@ public :
         return ret;
     }
     
-    
+    /**
+     *  Set up a matrix - set the size using the given parameters, the type (default MATMPIAIJ). The
+     *  number of local rows and columns is by default PETSC_DECIDE. SetFromOptions is called.
+     */
     static void SetupMat(Mat& rMat, int numRows, int numColumns, MatType matType=MATMPIAIJ, int numLocalRows=PETSC_DECIDE, int numLocalColumns=PETSC_DECIDE)
     {
         assert(numRows>0);

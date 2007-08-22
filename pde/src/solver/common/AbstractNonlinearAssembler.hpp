@@ -405,18 +405,9 @@ public:
         
         Mat analytic_jacobian; //Jacobian Matrix
         Mat numerical_jacobian; //Jacobian Matrix
-        
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,size,size,&analytic_jacobian);
-        MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,size,size,&numerical_jacobian);
-#else
-        MatCreate(PETSC_COMM_WORLD,&analytic_jacobian);
-        MatSetSizes(analytic_jacobian,PETSC_DECIDE,PETSC_DECIDE,size,size);
-        MatCreate(PETSC_COMM_WORLD,&numerical_jacobian);
-        MatSetSizes(numerical_jacobian,PETSC_DECIDE,PETSC_DECIDE,size,size);
-#endif
-        MatSetFromOptions(analytic_jacobian);
-        MatSetFromOptions(numerical_jacobian);
+
+        PetscTools::SetupMat(analytic_jacobian, size, size);        
+        PetscTools::SetupMat(numerical_jacobian, size, size);        
         
         mUseAnalyticalJacobian = true;
         AssembleJacobian(initial_guess, &analytic_jacobian);

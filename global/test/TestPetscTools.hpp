@@ -5,6 +5,7 @@
 #include <petscvec.h>
 #include <petscmat.h>
 #include "PetscTools.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestPetscTools : public CxxTest::TestSuite
 {

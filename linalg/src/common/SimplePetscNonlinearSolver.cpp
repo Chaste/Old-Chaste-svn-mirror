@@ -7,6 +7,7 @@
 #include "SimplePetscNonlinearSolver.hpp"
 #include "Exception.hpp"
 #include "petscsnes.h"
+#include "PetscTools.hpp"
 #include <sstream>
 
 
@@ -50,24 +51,17 @@ Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Ve
     Vec residual;
     VecDuplicate(initialGuess, &residual);
     
-    Mat J; //Jacobian Matrix
+    Mat jacobian; //Jacobian Matrix
     
     PetscInt N; //number of elements
     //get the size of the jacobian from the residual
     VecGetSize(initialGuess,&N);
     
-    
-#if (PETSC_VERSION_MINOR == 2) //Old API
-    MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,N,N,&J);
-#else
-    MatCreate(PETSC_COMM_WORLD,&J);
-    MatSetSizes(J,PETSC_DECIDE,PETSC_DECIDE,N,N);
-#endif
-    MatSetFromOptions(J);
+    PetscTools::SetupMat(jacobian, N, N);
     
     SNESCreate(PETSC_COMM_WORLD, &snes);
     SNESSetFunction(snes, residual, pComputeResidual, pContext);
-    SNESSetJacobian(snes, J, J, pComputeJacobian, pContext);
+    SNESSetJacobian(snes, jacobian, jacobian, pComputeJacobian, pContext);
     SNESSetType(snes,SNESLS);
     SNESSetTolerances(snes,1.0e-5,1.0e-5,1.0e-5,PETSC_DEFAULT,PETSC_DEFAULT);
     
@@ -84,7 +78,7 @@ Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Ve
 #endif
     
     VecDestroy(residual);
-    MatDestroy(J); // Free Jacobian
+    MatDestroy(jacobian); // Free Jacobian
     
     SNESConvergedReason reason;
     SNESGetConvergedReason(snes,&reason);

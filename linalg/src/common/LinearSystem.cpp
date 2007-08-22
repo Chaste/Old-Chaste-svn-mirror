@@ -7,7 +7,7 @@
 #include "PetscException.hpp"
 //#include <iostream>
 #include "OutputFileHandler.hpp"
-
+#include "PetscTools.hpp"
 #include <cassert>
 
 
@@ -15,21 +15,11 @@
 
 LinearSystem::LinearSystem(PetscInt lhsVectorSize)
 {
-
     VecCreate(PETSC_COMM_WORLD, &mRhsVector);
     VecSetSizes(mRhsVector, PETSC_DECIDE, lhsVectorSize);
     VecSetFromOptions(mRhsVector);
     
-#if (PETSC_VERSION_MINOR == 2) //Old API
-    MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,lhsVectorSize,lhsVectorSize,&mLhsMatrix);
-#else //New API
-    MatCreate(PETSC_COMM_WORLD,&mLhsMatrix);
-    MatSetSizes(mLhsMatrix,PETSC_DECIDE,PETSC_DECIDE,lhsVectorSize,lhsVectorSize);
-#endif
-    
-    
-    MatSetType(mLhsMatrix, MATMPIAIJ);
-    MatSetFromOptions(mLhsMatrix);
+    PetscTools::SetupMat(mLhsMatrix, lhsVectorSize, lhsVectorSize);
     
     ///\todo: Sparsify matrices - get the allocation rule correct.
     //MatMPIAIJSetPreallocation(mLhsMatrix, 5, PETSC_NULL, 5, PETSC_NULL);
@@ -55,16 +45,9 @@ LinearSystem::LinearSystem(Vec templateVector)
     VecGetSize(mRhsVector, &mSize);
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
     PetscInt local_size = mOwnershipRangeHi - mOwnershipRangeLo;
-    
-#if (PETSC_VERSION_MINOR == 2) //Old API
-    MatCreate(PETSC_COMM_WORLD,local_size,local_size,mSize,mSize,&mLhsMatrix);
-#else //New API
-    MatCreate(PETSC_COMM_WORLD,&mLhsMatrix);
-    MatSetSizes(mLhsMatrix,local_size,local_size,mSize,mSize);
-#endif
-    MatSetType(mLhsMatrix, MATMPIAIJ);
-    MatSetFromOptions(mLhsMatrix);
-    
+
+    PetscTools::SetupMat(mLhsMatrix, mSize, mSize, MATMPIAIJ, local_size, local_size);
+
     mMatNullSpace = NULL;
     mDestroyPetscObjects = true;
 }
