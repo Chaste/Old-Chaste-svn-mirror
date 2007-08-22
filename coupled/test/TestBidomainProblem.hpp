@@ -291,7 +291,6 @@ public:
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetMeshFilename(""));
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetMeshFilename("AnyOldRandomStringWillDo"));
         TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());
         
         //Throws because EndTime has not been set

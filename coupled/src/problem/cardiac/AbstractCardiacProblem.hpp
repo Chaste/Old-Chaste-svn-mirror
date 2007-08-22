@@ -16,6 +16,7 @@ class AbstractCardiacProblem
 {
 private:
     std::string mMeshFilename;
+    bool mAllocatedMemoryForMesh;
     
     /**
      *  Start time defaults to 0, pde timestep defaults to 0.01 (ms), the
@@ -37,7 +38,7 @@ protected:
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler; 
 
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
+    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
     
     Vec mVoltage; // Current solution
     double mLinearSolverRelativeTolerance;
@@ -71,6 +72,7 @@ public:
               mOutputDirectory(""),  // i.e. undefined
               mOutputFilenamePrefix(""),   // i.e. undefined
               mpCellFactory(pCellFactory),
+              mpMesh(NULL),
               mpWriter(NULL)
     {
         mStartTime        = 0.0;  // ms
@@ -82,7 +84,8 @@ public:
         mpCardiacPde = NULL;
         mpAssembler = NULL;
         mVoltage = NULL;
-        mLinearSolverRelativeTolerance=1e-6;        
+        mLinearSolverRelativeTolerance=1e-6;
+        mAllocatedMemoryForMesh = false;
     }
     
     virtual ~AbstractCardiacProblem()
@@ -92,6 +95,11 @@ public:
         {
             VecDestroy(mVoltage);
         }
+        
+        if(mAllocatedMemoryForMesh)
+        {
+            delete mpMesh;
+        }
     };
     
     /*
@@ -99,11 +107,11 @@ public:
      */
     void Initialise()
     {
-        if ( (mMeshFilename=="") && (mMesh.GetNumNodes()==0))
+        if (mpMesh==NULL)
         {
             EXCEPTION("SetMesh() or SetMeshFilename() was not set");
         }
-        mpCellFactory->SetMesh( &mMesh );
+        mpCellFactory->SetMesh( mpMesh );
         
         delete mpCardiacPde; // In case we're called twice
         mpCardiacPde = CreateCardiacPde();
@@ -146,7 +154,7 @@ public:
     
     Vec CreateInitialCondition()
     {
-        DistributedVector::SetProblemSize(mMesh.GetNumNodes());
+        DistributedVector::SetProblemSize(mpMesh->GetNumNodes());
         Vec initial_condition=DistributedVector::CreateVec(PROBLEM_DIM);
         DistributedVector ic(initial_condition);
         std::vector< DistributedVector::Stripe > stripe;
@@ -226,24 +234,31 @@ public:
     
     void SetMeshFilename(const std::string &rMeshFilename)
     {
-        if ( mMeshFilename!="" )
-        {
-            EXCEPTION("Mesh filename was already set");
-        }
+        // If this fails the mesh has already been set. We assert rather throw an exception 
+        // to avoid a memory leak when checking it throws correctly
+        assert(mpMesh==NULL); 
+        
         if ( rMeshFilename=="" )
         {
             EXCEPTION("Mesh filename was passed in empty");
         }
+        
         mMeshFilename = rMeshFilename;
         
         TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(mMeshFilename);
-        mMesh.ConstructFromMeshReader(mesh_reader);
+        mpMesh = new ConformingTetrahedralMesh<SPACE_DIM, SPACE_DIM>();
+        mAllocatedMemoryForMesh = true;
+        mpMesh->ConstructFromMeshReader(mesh_reader);
     }
 
     void SetMesh(ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
     {
+        // If this fails the mesh has already been set. We assert rather throw an exception 
+        // to avoid a memory leak when checking it throws correctly
+        assert(mpMesh==NULL);
+        mAllocatedMemoryForMesh = false;
         assert(pMesh!=NULL);
-        mMesh = *pMesh;
+        mpMesh = pMesh;
     }
     
     void SetOutputDirectory(const std::string &rOutputDirectory)
@@ -289,7 +304,7 @@ public:
     
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> & rGetMesh()    
     {
-        return mMesh;
+        return *mpMesh;
     }
     
     AbstractCardiacPde<SPACE_DIM>* GetPde()
@@ -312,7 +327,7 @@ public:
         if (mPrintOutput)
         {
             mpWriter = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
-            mpWriter->DefineFixedDimension("Node", "dimensionless", mMesh.GetNumNodes() );
+            mpWriter->DefineFixedDimension("Node", "dimensionless", mpMesh->GetNumNodes() );
             time_var_id = mpWriter->DefineUnlimitedDimension("Time","msecs");
             mVoltageVarId = mpWriter->DefineVariable("V","mV");
             mpWriter->EndDefineMode();

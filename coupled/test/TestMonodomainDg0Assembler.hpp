@@ -283,12 +283,14 @@ public:
         PlaneStimulusCellFactory<1> cell_factory;
         MonodomainProblem<1>* p_monodomain_problem = new MonodomainProblem<1>( &cell_factory );
         
-        // pass in mesh this time rather than a filename
-        TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1mm_10_elements");
-        ConformingTetrahedralMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(reader);
-        
-        p_monodomain_problem->SetMesh(&mesh);
+//        // pass in mesh this time rather than a filename
+//        TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1mm_10_elements");
+//        ConformingTetrahedralMesh<1,1> mesh;
+//        mesh.ConstructFromMeshReader(reader);
+//        p_monodomain_problem->SetMesh(&mesh);
+
+        p_monodomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+
         
         p_monodomain_problem->SetEndTime(0.30);          // ms
         p_monodomain_problem->SetPdeTimeStep(0.01);      // ms
@@ -358,6 +360,10 @@ public:
         
         // Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Initialise());
+        
+        // Throws because of the bad file name
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetMeshFilename(""));
+
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         TS_ASSERT_THROWS_NOTHING(monodomain_problem.Initialise());
 

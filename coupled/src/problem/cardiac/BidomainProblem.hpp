@@ -33,7 +33,7 @@ protected:
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 2>* CreateAssembler()
     {
         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_bidomain_assembler
-            = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(&this->mMesh, mpBidomainPde,
+            = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh, mpBidomainPde,
                                                             2, this->mLinearSolverRelativeTolerance);
         try
         {
@@ -109,7 +109,7 @@ public:
         voltage_replicated.ReplicatePetscVector(this->mVoltage);
         double v_max = -1e5, v_min = 1e5, phi_max = -1e5, phi_min = 1e5;
 
-        for (unsigned i=0; i<this->mMesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
         {
             if ( voltage_replicated[2*i] > v_max)
             {

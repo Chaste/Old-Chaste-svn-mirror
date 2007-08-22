@@ -26,7 +26,7 @@ public:
     
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* CreateAssembler()
     {
-        return new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(&this->mMesh, mpMonodomainPde, 2, this->mLinearSolverRelativeTolerance);
+        return new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh, mpMonodomainPde, 2, this->mLinearSolverRelativeTolerance);
     }
 
 public:
@@ -64,7 +64,7 @@ public:
         ReplicatableVector voltage_replicated;
         voltage_replicated.ReplicatePetscVector(this->mVoltage);
         double v_max = -1e5, v_min = 1e5;
-        for (unsigned i=0; i<this->mMesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
         {
             if ( voltage_replicated[i] > v_max)
             {
@@ -75,11 +75,8 @@ public:
                 v_min = voltage_replicated[i];
             }
         }
-        std::cout << " max/min V = "
-        <<   v_max << " "
-        <<   v_min << "\n" << std::flush;
+        std::cout << " max/min V = " <<  v_max << " " <<   v_min << "\n" << std::flush;
     }
-
 };
 
 #endif /*MONODOMAINPROBLEM_HPP_*/
