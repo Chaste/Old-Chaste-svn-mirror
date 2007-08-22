@@ -18,36 +18,11 @@
 #include "ParallelColumnDataWriter.hpp"
 #include "TrianglesMeshWriter.cpp"
 #include "RandomNumberGenerator.hpp"
+#include "PetscTools.hpp"
+
 
 class TestFlaggedMeshAssembler : public CxxTest::TestSuite
 {
-private :
-    Vec CreateInitialConditionVec(int size)
-    {
-        Vec initial_condition;
-        VecCreate(PETSC_COMM_WORLD, &initial_condition);
-        VecSetSizes(initial_condition, PETSC_DECIDE, size);
-        VecSetFromOptions(initial_condition);
-        return initial_condition;
-    }
-    
-    Vec CreateConstantConditionVec(int size, double value)
-    {
-        Vec initial_condition = CreateInitialConditionVec(size);
-        
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        VecSet(&value, initial_condition);
-#else
-        VecSet(initial_condition, value);
-#endif
-        
-        VecAssemblyBegin(initial_condition);
-        VecAssemblyEnd(initial_condition);
-        return initial_condition;
-    }
-    
-    
-    
 public :
     void TestAssembleSystem() throw(Exception)
     {
@@ -88,7 +63,7 @@ public :
         
         const size_t full_size = 11u;
         const size_t smasrm_size = 5u;
-        Vec initial_condition = CreateConstantConditionVec(full_size, 0.0);
+        Vec initial_condition = PetscTools::CreateVec(full_size, 0.0);
         
         assembler.AssembleSystem(true, true, initial_condition, 0.0);
         
@@ -172,29 +147,13 @@ public :
         }
         
         // set up petsc vector of the solution on the coarse mesh 
-        unsigned num_coarse_nodes = coarse_mesh.GetNumNodes();
-        Vec solution_vector;
-        int lo, hi;
-        VecCreate(PETSC_COMM_WORLD, &solution_vector);
-        VecSetSizes(solution_vector, PETSC_DECIDE, num_coarse_nodes);
-        VecSetFromOptions(solution_vector);
-        VecGetOwnershipRange(solution_vector,&lo,&hi);
-        
-        double *p_solution_vector;
-        
-        VecGetArray(solution_vector, &p_solution_vector);
-        for (int global_index=lo; global_index<hi; global_index++)
+        std::vector<double> soln(coarse_mesh.GetNumNodes());
+        for (unsigned i=0; i<coarse_mesh.GetNumNodes(); i++)
         {
-            int local_index = global_index - lo;
-            
-            c_vector<double,3> posn=coarse_mesh.GetNode(global_index)->rGetLocation();
-            p_solution_vector[local_index] = posn[0] + 2*posn[1] - posn[2];
+            c_vector<double,3> posn=coarse_mesh.GetNode(i)->rGetLocation();
+            soln[i] = posn[0] + 2*posn[1] - posn[2];
         }
-
-        VecRestoreArray(solution_vector, &p_solution_vector);
-        VecAssemblyBegin(solution_vector);
-        VecAssemblyEnd(solution_vector);
-        
+        Vec solution_vector = PetscTools::CreateVec(soln);
         
         // interpolate boundary conditions        
         FlaggedMeshBoundaryConditionsContainer<3,1> bcc(coarse_mesh, solution_vector);
@@ -251,30 +210,15 @@ public :
                 element.Unflag();
             }
         }
-        
-        // set up petsc vector of the solution on the coarse mesh 
-        unsigned num_coarse_nodes = coarse_mesh.GetNumNodes();
-        Vec solution_vector;
-        int lo, hi;
-        VecCreate(PETSC_COMM_WORLD, &solution_vector);
-        VecSetSizes(solution_vector, PETSC_DECIDE, num_coarse_nodes);
-        VecSetFromOptions(solution_vector);
-        VecGetOwnershipRange(solution_vector,&lo,&hi);
-        
-        double *p_solution_vector;
-        
-        VecGetArray(solution_vector, &p_solution_vector);
-        for (int global_index=lo; global_index<hi; global_index++)
-        {
-            int local_index = global_index - lo;
-            
-            c_vector<double,2> posn=coarse_mesh.GetNode(global_index)->rGetLocation();
-            p_solution_vector[local_index] = 5*posn[0] + 7*posn[1];
-        }
 
-        VecRestoreArray(solution_vector, &p_solution_vector);
-        VecAssemblyBegin(solution_vector);
-        VecAssemblyEnd(solution_vector);
+        // set up petsc vector of the solution on the coarse mesh 
+        std::vector<double> soln(coarse_mesh.GetNumNodes());
+        for (unsigned i=0; i<coarse_mesh.GetNumNodes(); i++)
+        {
+            c_vector<double,3> posn=coarse_mesh.GetNode(i)->rGetLocation();
+            soln[i] = 5*posn[0] + 7*posn[1];
+        }
+        Vec solution_vector = PetscTools::CreateVec(soln);
         
         // throws as flags not transfered to fine mesh yet       
         typedef FlaggedMeshBoundaryConditionsContainer<2,1> FlaggedMeshBccTwoDimOneUnknown;
@@ -335,35 +279,25 @@ public :
         
         // Assembler
         SimpleDg0ParabolicAssembler<2,2> assembler(&coarse_mesh,&pde,&bcc);
-        
-        Vec initial_condition_coarse = CreateInitialConditionVec(coarse_mesh.GetNumNodes());
-        
-        double* p_initial_condition_coarse;
-        VecGetArray(initial_condition_coarse, &p_initial_condition_coarse);
-        
-        int lo, hi;
-        VecGetOwnershipRange(initial_condition_coarse, &lo, &hi);
-        
-        for (int global_index = lo; global_index < hi; global_index++)
+
+        std::vector<double> init_cond_coarse(coarse_mesh.GetNumNodes());
+        for (unsigned i=0; i<coarse_mesh.GetNumNodes(); i++)
         {
-            int local_index = global_index - lo;
-            double x = coarse_mesh.GetNode(global_index)->GetPoint()[0];
-            double y = coarse_mesh.GetNode(global_index)->GetPoint()[1];
+            double x = coarse_mesh.GetNode(i)->GetPoint()[0];
+            double y = coarse_mesh.GetNode(i)->GetPoint()[1];
             if(sqrt((x-0.5)*(x-0.5)+(y-0.5)*(y-0.5)) < 0.3)
             {
-                p_initial_condition_coarse[local_index] = 1.0;
+                init_cond_coarse[i] = 1.0;
             }
             else
             {
-                p_initial_condition_coarse[local_index] = 0.0;
+                init_cond_coarse[i] = 0.0;
             }
         }
-        VecRestoreArray(initial_condition_coarse, &p_initial_condition_coarse);
-        
-        ReplicatableVector ic_coarse_replicated(initial_condition_coarse);
-        
+        Vec initial_condition_coarse = PetscTools::CreateVec(init_cond_coarse);
+     
         // Create initial_condition_fine from initial_condition_coarse by interpolation        
-        Vec initial_condition_fine = CreateInitialConditionVec(fine_mesh.GetNumNodes());
+        Vec initial_condition_fine = PetscTools::CreateVec(fine_mesh.GetNumNodes());
         DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
         coarse_mesh.InterpolateOnUnflaggedRegion(initial_condition_coarse, initial_condition_fine);
         
@@ -528,32 +462,24 @@ public :
         // Assembler
         SimpleDg0ParabolicAssembler<2,2> assembler(&coarse_mesh,&pde,&bcc);
         
-        Vec initial_condition_coarse = CreateInitialConditionVec(coarse_mesh.GetNumNodes());
-        
-        double* p_initial_condition_coarse;
-        VecGetArray(initial_condition_coarse, &p_initial_condition_coarse);
-        
-        int lo, hi;
-        VecGetOwnershipRange(initial_condition_coarse, &lo, &hi);
-        
-        for (int global_index = lo; global_index < hi; global_index++)
+        std::vector<double> init_cond_coarse(coarse_mesh.GetNumNodes());
+        for (unsigned i=0; i<coarse_mesh.GetNumNodes(); i++)
         {
-            int local_index = global_index - lo;
-            double x = coarse_mesh.GetNode(global_index)->GetPoint()[0];
-            double y = coarse_mesh.GetNode(global_index)->GetPoint()[1];
+            double x = coarse_mesh.GetNode(i)->GetPoint()[0];
+            double y = coarse_mesh.GetNode(i)->GetPoint()[1];
             if(sqrt((x-0.5)*(x-0.5)+(y-0.5)*(y-0.5)) < 0.3)
             {
-                p_initial_condition_coarse[local_index] = 1.0;
+                init_cond_coarse[i] = 1.0;
             }
             else
             {
-                p_initial_condition_coarse[local_index] = 0.0;
+                init_cond_coarse[i] = 0.0;
             }
         }
-        VecRestoreArray(initial_condition_coarse, &p_initial_condition_coarse);
+        Vec initial_condition_coarse = PetscTools::CreateVec(init_cond_coarse);
                 
         // Create initial_condition_fine from initial_condition_coarse by interpolation        
-        Vec initial_condition_fine = CreateInitialConditionVec(fine_mesh.GetNumNodes());
+        Vec initial_condition_fine = PetscTools::CreateVec(fine_mesh.GetNumNodes());
         DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
         coarse_mesh.InterpolateOnUnflaggedRegion(initial_condition_coarse, initial_condition_fine);
         

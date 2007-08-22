@@ -150,21 +150,16 @@ public:
         SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
-        
-        // Check result
-        double *p_result;
-        int lo,hi;
-        VecGetOwnershipRange(result,&lo,&hi);
-        VecGetArray(result, &p_result);
+        ReplicatableVector result_repl(result);
+
         // Solution should be u = 0.5*x*(3-x)
-        for (int global_index = lo; global_index < hi; global_index++)
+        for (unsigned i=0; i<result_repl.size(); i++)
         {
-            int local_index = global_index - lo;
-            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double x = mesh.GetNode(i)->GetPoint()[0];
             double u = 0.5*x*(3-x);
-            TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
+            TS_ASSERT_DELTA(result_repl[i], u, 0.001);
         }
-        VecRestoreArray(result, &p_result);
+
         VecDestroy(result);
     }
     
@@ -193,19 +188,14 @@ public:
         SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
-        
-        int lo,hi;
-        VecGetOwnershipRange(result,&lo,&hi);
-        double *p_result;
-        VecGetArray(result, &p_result);
-        for (int global_index = lo; global_index < hi; global_index++)
+        ReplicatableVector result_repl(result);
+        for (unsigned i=0; i<result_repl.size(); i++)
         {
-            int local_index = global_index - lo;
-            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double x = mesh.GetNode(i)->GetPoint()[0];
             double u = 1 - 0.5*(x+1)*(5+x);
-            TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
+            TS_ASSERT_DELTA(result_repl[i], u, 0.001);
         }
-        VecRestoreArray(result, &p_result);
+
         VecDestroy(result);
     }
     
@@ -237,20 +227,14 @@ public:
         SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
-        
-        
-        int lo, hi;
-        VecGetOwnershipRange(result, &lo, &hi);
-        double *p_result;
-        VecGetArray(result, &p_result);
-        for (int global_index = lo; global_index < hi; global_index++)
+        ReplicatableVector result_repl(result);
+        for (unsigned i=0; i<result_repl.size(); i++)
         {
-            int local_index = global_index - lo;
-            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double x = mesh.GetNode(i)->GetPoint()[0];
             double u = -0.5*x*x - 2*x - 0.5;
-            TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
+            TS_ASSERT_DELTA(result_repl[i], u, 0.001);
         }
-        VecRestoreArray(result, &p_result);
+
         VecDestroy(result);
     }
     
@@ -276,18 +260,9 @@ public:
         SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
-        
-        // Check result
-        int lo, hi;
-        VecGetOwnershipRange(result, &lo, &hi);
-        double *p_result;
-        VecGetArray(result, &p_result);
-        // Solution at 4th node should be 0.08
-        if (4>=lo && 4<hi)
-        {
-            TS_ASSERT_DELTA(p_result[4-lo], 1.0/12.0, 0.001);
-        }
-        VecRestoreArray(result, &p_result);
+        ReplicatableVector result_repl(result);
+        TS_ASSERT_DELTA(result_repl[4], 1.0/12.0, 0.001);
+
         VecDestroy(result);
     }
     
@@ -320,21 +295,16 @@ public:
         SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
-        
-        int lo, hi;
-        VecGetOwnershipRange(result, &lo, &hi);
-        double *p_result;
-        VecGetArray(result, &p_result);
-        for (int global_index = lo; global_index < hi; global_index++)
+        ReplicatableVector result_repl(result);
+        for (unsigned i=0; i<result_repl.size(); i++)
         {
-            int local_index = global_index - lo;
             c_vector<double, 2> r;
-            r(0) = mesh.GetNode(global_index)->GetPoint()[0];
-            r(1) = mesh.GetNode(global_index)->GetPoint()[1];
+            r(0) = mesh.GetNode(i)->GetPoint()[0];
+            r(1) = mesh.GetNode(i)->GetPoint()[1];
             double u = -0.25 * inner_prod(r, r) + 2.25;
-            TS_ASSERT_DELTA(p_result[local_index], u, 0.01);
+            TS_ASSERT_DELTA(result_repl[i], u, 0.01);
         }
-        VecRestoreArray(result, &p_result);
+
         VecDestroy(result);
     }
     
@@ -365,20 +335,14 @@ public:
         SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
-        
-        // Check result
-        int lo, hi;
-        VecGetOwnershipRange(result, &lo, &hi);
-        double *p_result;
-        VecGetArray(result, &p_result);
-        for (int global_index = lo; global_index < hi; global_index++)
+        ReplicatableVector result_repl(result);
+        for (unsigned i=0; i<result_repl.size(); i++)
         {
-            int local_index = global_index - lo;
-            double x = mesh.GetNode(global_index)->GetPoint()[0] ;
+            double x = mesh.GetNode(i)->GetPoint()[0] ;
             double u = -(x*x*x/12.0)-(333/(4*x))+4+1000.0/12.0;
-            TS_ASSERT_DELTA(p_result[local_index], u, 0.2);
+            TS_ASSERT_DELTA(result_repl[i], u, 0.2);
         }
-        VecRestoreArray(result, &p_result);
+
         VecDestroy(result);
     }
     
@@ -498,24 +462,18 @@ public:
         SimpleLinearEllipticAssembler<3,3> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
-        
-        // Check result
-        int lo, hi;
-        VecGetOwnershipRange(result, &lo, &hi);
-        double *p_result;
-        VecGetArray(result, &p_result);
-        
+        ReplicatableVector result_repl(result);
+
         //Solution should be -1/6*(x^2 + y^2 +z^2)
-        for (int global_index = lo; global_index < hi; global_index++)
+        for (unsigned i=0; i<result_repl.size(); i++)
         {
-            int local_index = global_index - lo;
-            double x = mesh.GetNode(global_index)->GetPoint()[0];
-            double y = mesh.GetNode(global_index)->GetPoint()[1];
-            double z = mesh.GetNode(global_index)->GetPoint()[2];
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            double y = mesh.GetNode(i)->GetPoint()[1];
+            double z = mesh.GetNode(i)->GetPoint()[2];
             double u = -1.0/6 * (x*x+y*y+z*z);
-            TS_ASSERT_DELTA(p_result[local_index], u, 0.01);
+            TS_ASSERT_DELTA(result_repl[i], u, 0.01);
         }
-        VecRestoreArray(result, &p_result);
+
         VecDestroy(result);
     }
     
@@ -571,24 +529,18 @@ public:
         SimpleLinearEllipticAssembler<3,3> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
-        
-        // Check result
-        int lo, hi;
-        VecGetOwnershipRange(result, &lo, &hi);
-        double *p_result;
-        VecGetArray(result, &p_result);
-        
+        ReplicatableVector result_repl(result);
+
         //Solution should be -1/6*(x^2 + y^2 +z^2)
-        for (int global_index = lo; global_index < hi; global_index++)
+        for (unsigned i=0; i<result_repl.size(); i++)
         {
-            int local_index = global_index - lo;
-            double x = mesh.GetNode(global_index)->GetPoint()[0];
-            double y = mesh.GetNode(global_index)->GetPoint()[1];
-            double z = mesh.GetNode(global_index)->GetPoint()[2];
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            double y = mesh.GetNode(i)->GetPoint()[1];
+            double z = mesh.GetNode(i)->GetPoint()[2];
             double u = -1.0/6 * (x*x+y*y+z*z);
-            TS_ASSERT_DELTA(p_result[local_index], u, 0.1);
+            TS_ASSERT_DELTA(result_repl[i], u, 0.1);
         }
-        VecRestoreArray(result, &p_result);
+
         VecDestroy(result);
     }
 };

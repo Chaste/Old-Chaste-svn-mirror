@@ -17,6 +17,7 @@
 #include "AbstractNonlinearSolver.hpp"
 #include "SimplePetscNonlinearSolver.hpp"
 #include "RandomNumberGenerator.hpp"
+#include "PetscTools.hpp"
 
 
 
@@ -363,23 +364,8 @@ public:
     Vec CreateConstantInitialGuess(double value)
     {
         assert(this->mpMesh!=NULL);
-        
         unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
-        
-        Vec initial_guess;
-        VecCreate(PETSC_COMM_WORLD, &initial_guess);
-        VecSetSizes(initial_guess, PETSC_DECIDE, size);
-        VecSetFromOptions(initial_guess);
-        
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        VecSet(&value, initial_guess);
-#else
-        VecSet(initial_guess, value);
-#endif
-        
-        VecAssemblyBegin(initial_guess);
-        VecAssemblyEnd(initial_guess);
-        return initial_guess;
+        return PetscTools::CreateVec(size, value);
     }
     
     /**

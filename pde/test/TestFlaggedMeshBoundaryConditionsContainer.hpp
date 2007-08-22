@@ -10,6 +10,7 @@
 #include "TrianglesMeshReader.cpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "FlaggedMeshBoundaryConditionsContainer.hpp"
+#include "PetscTools.hpp"
 
 class TestFlaggedMeshBoundaryConditionsContainer : public CxxTest::TestSuite
 {
@@ -66,26 +67,29 @@ public:
     
         linear_system.AssembleFinalLinearSystem();
 
-        // altered row
-        TS_ASSERT_DELTA( linear_system.GetMatrixElement(0,0), 1.0, 1e-9);
-        TS_ASSERT_DELTA( linear_system.GetMatrixElement(0,1), 0.0, 1e-9);
-        TS_ASSERT_DELTA( linear_system.GetMatrixElement(0,2), 0.0, 1e-9);
-
-        // unaltered row
-        TS_ASSERT_DELTA( linear_system.GetMatrixElement(1,0), 3.0, 1e-9);
-        TS_ASSERT_DELTA( linear_system.GetMatrixElement(1,1), 3.0, 1e-9);
-        TS_ASSERT_DELTA( linear_system.GetMatrixElement(1,2), 3.0, 1e-9);
-        
-        // altered row
-        TS_ASSERT_DELTA( linear_system.GetMatrixElement(2,0), 0.0, 1e-9);
-        TS_ASSERT_DELTA( linear_system.GetMatrixElement(2,1), 0.0, 1e-9);
-        TS_ASSERT_DELTA( linear_system.GetMatrixElement(2,2), 1.0, 1e-9);
+        if(PetscTools::IsSequential())
+        {
+            // altered row
+            TS_ASSERT_DELTA( linear_system.GetMatrixElement(0,0), 1.0, 1e-9);
+            TS_ASSERT_DELTA( linear_system.GetMatrixElement(0,1), 0.0, 1e-9);
+            TS_ASSERT_DELTA( linear_system.GetMatrixElement(0,2), 0.0, 1e-9);
     
-        // vector
-        TS_ASSERT_DELTA( linear_system.GetRhsVectorElement(0), 0.0, 1e-9);
-        TS_ASSERT_DELTA( linear_system.GetRhsVectorElement(1), 2.0, 1e-9);
-        TS_ASSERT_DELTA( linear_system.GetRhsVectorElement(2), 0.0, 1e-9);
-    } 
+            // unaltered row
+            TS_ASSERT_DELTA( linear_system.GetMatrixElement(1,0), 3.0, 1e-9);
+            TS_ASSERT_DELTA( linear_system.GetMatrixElement(1,1), 3.0, 1e-9);
+            TS_ASSERT_DELTA( linear_system.GetMatrixElement(1,2), 3.0, 1e-9);
+            
+            // altered row
+            TS_ASSERT_DELTA( linear_system.GetMatrixElement(2,0), 0.0, 1e-9);
+            TS_ASSERT_DELTA( linear_system.GetMatrixElement(2,1), 0.0, 1e-9);
+            TS_ASSERT_DELTA( linear_system.GetMatrixElement(2,2), 1.0, 1e-9);
+        
+            // vector
+            TS_ASSERT_DELTA( linear_system.GetRhsVectorElement(0), 0.0, 1e-9);
+            TS_ASSERT_DELTA( linear_system.GetRhsVectorElement(1), 2.0, 1e-9);
+            TS_ASSERT_DELTA( linear_system.GetRhsVectorElement(2), 0.0, 1e-9);
+        } 
+    }
     
 //    
 //    void TestWithMixedMeshConstructor()

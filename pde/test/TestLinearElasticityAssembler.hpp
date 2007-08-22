@@ -110,7 +110,7 @@ public:
         bcc.FixNode(mesh.GetNode(0));
         
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter
-        = mesh.GetBoundaryNodeIteratorBegin();
+            = mesh.GetBoundaryNodeIteratorBegin();
         
         // fix the u-displacement of the left and right sides of the square
         while ( iter != mesh.GetBoundaryNodeIteratorEnd() )
@@ -210,7 +210,7 @@ public:
         ElasticityBoundaryConditionsContainer<3> bcc;
         
         ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter
-        = mesh.GetBoundaryNodeIteratorBegin();
+            = mesh.GetBoundaryNodeIteratorBegin();
         
         // fix nodes whose z value is 0.0 (ie the bottom surface)
         while ( iter != mesh.GetBoundaryNodeIteratorEnd() )
@@ -315,7 +315,7 @@ public:
         }
         
         ConformingTetrahedralMesh<3,3>::BoundaryElementIterator elem_iter
-        = mesh.GetBoundaryElementIteratorBegin();
+            = mesh.GetBoundaryElementIteratorBegin();
         
         c_vector<double,3> traction;
         traction(0) = 0;

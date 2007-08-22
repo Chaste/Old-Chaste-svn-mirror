@@ -5,6 +5,7 @@ TestException.hpp
 TestLogFile.hpp
 TestOutputFileHandler.hpp
 TestPetSCSetup.hpp
+TestPetscTools.hpp
 TestRandomNumberGenerator.hpp
 TestReplicatableVector.hpp
 TestSimulationTime.hpp

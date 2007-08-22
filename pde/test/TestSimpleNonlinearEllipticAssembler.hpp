@@ -338,8 +338,7 @@ public:
         
         // Set up initial Guess
         Vec initial_guess = assembler.CreateConstantInitialGuess(0.25);
-        
-        
+
         // Set no. of gauss points to use
         assembler.SetNumberOfQuadraturePointsPerDimension(3);
         

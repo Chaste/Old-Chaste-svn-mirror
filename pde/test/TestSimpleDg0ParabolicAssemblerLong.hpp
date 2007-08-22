@@ -1,16 +1,14 @@
 #ifndef _TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_
 #define _TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_
 
-/**
+/*
  * TestSimpleDg0ParabolicAssembler.hpp
  *
  * Test suite for the Dg0ParabolicAssembler class.
  *
  * Tests the class for the solution of parabolic pdes in 1D, 2D and 3D with and
  * without source terms with neumann and dirichlet booundary conditions.
- *
  */
-
 
 #include <cxxtest/TestSuite.h>
 #include "ConformingTetrahedralMesh.cpp"
@@ -26,46 +24,15 @@
 #include "ParallelColumnDataWriter.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "FemlabMeshReader.cpp"
-
 #include "TimeDependentDiffusionEquationPde.hpp"
 #include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
-
+#include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 
-class TestSimpleDg0ParabolicAssembler : public CxxTest::TestSuite
+class TestSimpleDg0ParabolicAssemblerLong : public CxxTest::TestSuite
 {
-private:
-
-    /**
-     * Refactor code to set up a PETSc vector holding the initial condition.
-     */
-    Vec CreateInitialConditionVec(int size)
-    {
-        Vec initial_condition;
-        VecCreate(PETSC_COMM_WORLD, &initial_condition);
-        VecSetSizes(initial_condition, PETSC_DECIDE, size);
-        VecSetFromOptions(initial_condition);
-        return initial_condition;
-    }
-    Vec CreateConstantConditionVec(int size, double value)
-    {
-        Vec initial_condition = CreateInitialConditionVec(size);
-        
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        VecSet(&value, initial_condition);
-#else
-        VecSet(initial_condition, value);
-#endif
-        
-        VecAssemblyBegin(initial_condition);
-        VecAssemblyEnd(initial_condition);
-        return initial_condition;
-    }
-    
 public:
-
-
     // test 2D problem - takes a long time to run.
     // solution is incorrect to specified tolerance.
     void xTestSimpleDg0ParabolicAssembler2DNeumannWithSmallTimeStepAndFineMesh( void )
@@ -133,41 +100,33 @@ public:
         SimpleDg0ParabolicAssembler<2,2> assembler(&mesh,&pde,&bcc);
         
         // initial condition, u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
-        Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
-        
-        double* p_initial_condition;
-        VecGetArray(initial_condition, &p_initial_condition);
-        
-        int lo, hi;
-        VecGetOwnershipRange(initial_condition, &lo, &hi);
-        for (int global_index = lo; global_index < hi; global_index++)
+        std::vector<double> init_cond(mesh.GetNumNodes());
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            int local_index = global_index - lo;
-            double x = mesh.GetNode(global_index)->GetPoint()[0];
-            double y = mesh.GetNode(global_index)->GetPoint()[1];
-            p_initial_condition[local_index] = sin(0.5*M_PI*x)*sin(M_PI*y)+x;
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            double y = mesh.GetNode(i)->GetPoint()[1];
+            init_cond[i] = sin(0.5*M_PI*x)*sin(M_PI*y)+x;
         }
-        VecRestoreArray(initial_condition, &p_initial_condition);
+        Vec initial_condition = PetscTools::CreateVec(init_cond);
+
         
         double t_end = 0.1;
         assembler.SetTimes(0, t_end, 0.001);
         assembler.SetInitialCondition(initial_condition);
+        
         Vec result = assembler.Solve();
-        
-        // Check result
-        double *p_result;
-        VecGetArray(result, &p_result);
-        
+        ReplicatableVector result_repl(result);
+
+        // check result
         // Solution should be u = e^{-5/4*M_PI*M_PI*t} sin(0.5*M_PI*x)*sin(M_PI*y)+x, t=0.1
-        for (int global_index = lo; global_index < hi; global_index++)
+        for (unsigned i=0; i<result_repl.size(); i++)
         {
-            int local_index = global_index - lo;
-            double x = mesh.GetNode(global_index)->GetPoint()[0];
-            double y = mesh.GetNode(global_index)->GetPoint()[1];
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            double y = mesh.GetNode(i)->GetPoint()[1];
             double u = exp((-5/4)*M_PI*M_PI*t_end) * sin(0.5*M_PI*x) * sin(M_PI*y) + x;
-            TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
+            TS_ASSERT_DELTA(result_repl[i], u, 0.001);
         }
-        VecRestoreArray(result, &p_result);
+
         VecDestroy(result);
         VecDestroy(initial_condition);
     }
@@ -199,43 +158,35 @@ public:
         // initial condition;
         // choose initial condition sin(x*pi)*sin(y*pi)*sin(z*pi) as this is an
         // eigenfunction of the heat equation.
-        Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
-        
-        double* p_initial_condition;
-        VecGetArray(initial_condition, &p_initial_condition);
-        
-        int lo, hi;
-        VecGetOwnershipRange(initial_condition, &lo, &hi);
-        for (int global_index = lo; global_index < hi; global_index++)
+        std::vector<double> init_cond(mesh.GetNumNodes());
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            int local_index = global_index - lo;
-            double x = mesh.GetNode(global_index)->GetPoint()[0];
-            double y = mesh.GetNode(global_index)->GetPoint()[1];
-            double z = mesh.GetNode(global_index)->GetPoint()[2];
-            p_initial_condition[local_index] = sin(x*M_PI)*sin(y*M_PI)*sin(z*M_PI);
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            double y = mesh.GetNode(i)->GetPoint()[1];
+            double z = mesh.GetNode(i)->GetPoint()[2];
+            init_cond[i] = sin(x*M_PI)*sin(y*M_PI)*sin(z*M_PI);
         }
-        VecRestoreArray(initial_condition, &p_initial_condition);
-        
+        Vec initial_condition = PetscTools::CreateVec(init_cond);
+
+
         double t_end = 0.1;
         assembler.SetTimes(0, t_end, 0.001);
         assembler.SetInitialCondition(initial_condition);
+
         Vec result = assembler.Solve();
-        
-        // Check result
-        double *p_result;
-        VecGetArray(result, &p_result);
-        
+        ReplicatableVector result_repl(result);
+
+        // check result
         // Solution should be u = e^{-3*t*pi*pi} sin(x*pi)*sin(y*pi)*sin(z*pi), t=0.1
-        for (int global_index = lo; global_index < hi; global_index++)
+        for (unsigned i=0; i<result_repl.size(); i++)
         {
-            int local_index = global_index - lo;
-            double x = mesh.GetNode(global_index)->GetPoint()[0];
-            double y = mesh.GetNode(global_index)->GetPoint()[1];
-            double z = mesh.GetNode(global_index)->GetPoint()[2];
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            double y = mesh.GetNode(i)->GetPoint()[1];
+            double z = mesh.GetNode(i)->GetPoint()[2];
             double u = exp(-3*t_end*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI)*sin(z*M_PI);
-            TS_ASSERT_DELTA(p_result[local_index], u, 0.1);
+            TS_ASSERT_DELTA(result_repl[i], u, 0.1);
         }
-        VecRestoreArray(result, &p_result);
+
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
@@ -278,7 +229,7 @@ public:
         SimpleDg0ParabolicAssembler<3,3> assembler(&mesh,&pde,&bcc);
         
         // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)*sin(z*pi)-1/6*(x^2+y^2+z^2);
-        Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
+        Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
         
         double* p_initial_condition;
         VecGetArray(initial_condition, &p_initial_condition);
@@ -385,7 +336,7 @@ public:
         SimpleDg0ParabolicAssembler<3,3> assembler(&mesh,&pde,&bcc);
         
         // initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
-        Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
+        Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
         
         double* p_initial_condition;
         VecGetArray(initial_condition, &p_initial_condition);
@@ -425,8 +376,7 @@ public:
         VecRestoreArray(result, &p_result);
         VecDestroy(initial_condition);
         VecDestroy(result);
-    }
-    
+    }    
 };
 
 #endif //_TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_
