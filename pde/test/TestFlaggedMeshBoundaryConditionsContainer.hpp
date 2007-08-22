@@ -104,7 +104,7 @@ public:
         fine_mesh.Scale(sixth, sixth, sixth);
         
         // create coarse mesh as RTM
-        RefinedTetrahedralMesh<3,3> coarse_mesh;
+        MixedTetrahedralMesh<3,3> coarse_mesh;
         
         coarse_mesh.ConstructCuboid(3, 3, 3);
         double third=1.0L/3.0L;
@@ -169,7 +169,7 @@ public:
         fine_mesh.ConstructFromMeshReader(fine_mesh_reader);
         
         TrianglesMeshReader<2,2> coarse_mesh_reader("mesh/test/data/DecimatedDisk");
-        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        MixedTetrahedralMesh<2,2> coarse_mesh;
         coarse_mesh.ConstructFromMeshReader(coarse_mesh_reader);
         
         coarse_mesh.SetFineMesh(&fine_mesh);

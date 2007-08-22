@@ -2,7 +2,7 @@
 #define FLAGGEDMESHBOUNDARYCONDITIONSCONTAINER_HPP_
 
 #include "AbstractBoundaryConditionsContainer.hpp"
-#include "RefinedTetrahedralMesh.cpp"
+#include "MixedTetrahedralMesh.cpp"
 #include "ConstBoundaryCondition.hpp"
 #include "ReplicatableVector.hpp"
 
@@ -33,7 +33,7 @@ public:
      *  boundary condition (by using the solutionVector, and interpolating from the coarse
      *  mesh onto that node)
      */
-    FlaggedMeshBoundaryConditionsContainer(RefinedTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+    FlaggedMeshBoundaryConditionsContainer(MixedTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
                                            Vec solutionVector)
             : AbstractBoundaryConditionsContainer<SPACE_DIM,SPACE_DIM,PROBLEM_DIM>()
     {

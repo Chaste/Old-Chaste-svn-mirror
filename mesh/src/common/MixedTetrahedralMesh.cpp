@@ -10,8 +10,7 @@
 #include "DistributedVector.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class RefinedTetrahedralMesh :
-            public ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
+class MixedTetrahedralMesh : public ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
 {
 private:
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpFineMesh;
@@ -58,13 +57,13 @@ private:
     };
 
 public:
-    RefinedTetrahedralMesh() : ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>()
+    MixedTetrahedralMesh() : ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>()
     {
         mpCoarseFineNodeMap = NULL;
         mpFineMesh = NULL;
     }
     
-    ~RefinedTetrahedralMesh()
+    ~MixedTetrahedralMesh()
     {
         delete mpCoarseFineNodeMap;
     }
@@ -153,7 +152,7 @@ public:
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetFineMesh(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pFineMesh)
+void MixedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetFineMesh(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pFineMesh)
 {
     if (mpFineMesh != NULL)
     {
@@ -261,7 +260,7 @@ void RefinedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetFineMesh(ConformingTetra
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::TransferFlags()
+bool MixedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::TransferFlags()
 {
     if (mpFineMesh == NULL)
     {
@@ -298,7 +297,7 @@ bool RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::TransferFlags()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion(Vec coarseSolution, Vec fineSolution)
+void MixedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion(Vec coarseSolution, Vec fineSolution)
 {
     // Replicate the coarse solution on all processes
     ReplicatableVector coarse_soln_replicated(coarseSolution);
@@ -338,7 +337,7 @@ void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::UpdateCoarseSolutionOnFlaggedRegion(Vec coarseSolution, Vec fineSolution)
+void MixedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::UpdateCoarseSolutionOnFlaggedRegion(Vec coarseSolution, Vec fineSolution)
 {
     ReplicatableVector fine_solution_repl(fineSolution);
     DistributedVector::SetProblemSize(this->GetNumNodes());

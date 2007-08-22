@@ -13,7 +13,7 @@
 #include "SimpleDg0ParabolicAssembler.hpp"
 #include "TimeDependentDiffusionEquationPde.hpp"
 #include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
-#include "RefinedTetrahedralMesh.cpp"
+#include "MixedTetrahedralMesh.cpp"
 //#include "ConstBoundaryCondition.hpp"
 #include "ParallelColumnDataWriter.hpp"
 #include "TrianglesMeshWriter.cpp"
@@ -125,7 +125,7 @@ public :
         fine_mesh.Scale(1.0/num_elem, 1.0/num_elem);
         
         // create coarse mesh as RTM
-        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        MixedTetrahedralMesh<2,2> coarse_mesh;
         
         num_elem = 12;
         coarse_mesh.ConstructRectangularMesh(num_elem, num_elem);
@@ -307,7 +307,7 @@ public :
         fine_mesh.Scale(1.0/num_elem, 1.0/num_elem);
         
         // create coarse mesh as RTM
-        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        MixedTetrahedralMesh<2,2> coarse_mesh;
         
         num_elem = 12;
         coarse_mesh.ConstructRectangularMesh(num_elem, num_elem);

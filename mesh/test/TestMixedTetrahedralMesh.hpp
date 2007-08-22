@@ -1,16 +1,16 @@
-#ifndef TESTREFINEDTETRAHEDRALMESH_HPP_
-#define TESTREFINEDTETRAHEDRALMESH_HPP_
+#ifndef TESTMIXEDTETRAHEDRALMESH_HPP_
+#define TESTMIXEDTETRAHEDRALMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
 
-#include "RefinedTetrahedralMesh.cpp"
+#include "MixedTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include "DistributedVector.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
 
-class TestRefinedTetrahedralMesh : public CxxTest::TestSuite
+class TestMixedTetrahedralMesh : public CxxTest::TestSuite
 {
 public:
 
@@ -27,7 +27,7 @@ public:
         fine_mesh.Scale(sixth, sixth, sixth);
         
         // create coarse mesh as RTM
-        RefinedTetrahedralMesh<3,3> coarse_mesh;
+        MixedTetrahedralMesh<3,3> coarse_mesh;
         
         coarse_mesh.ConstructCuboid(3, 3, 3);
         double third=1.0L/3.0L;
@@ -63,7 +63,7 @@ public:
         fine_mesh.Scale(half, half, 0.0);
         
         // create coarse mesh as RTM
-        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        MixedTetrahedralMesh<2,2> coarse_mesh;
         coarse_mesh.ConstructRectangularMesh(1, 1, false);
         
         // give fine mesh to coarse mesh and calculate node map
@@ -89,7 +89,7 @@ public:
         fine_mesh.Scale(half, half, 0.0);
         
         // create coarse mesh as RTM
-        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        MixedTetrahedralMesh<2,2> coarse_mesh;
         coarse_mesh.ConstructRectangularMesh(2, 2, false);
         
         // give fine mesh to coarse mesh and calculate node map
@@ -147,7 +147,7 @@ public:
         fine_mesh.Scale(half, half, 0.0);
         
         // create coarse mesh as RTM
-        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        MixedTetrahedralMesh<2,2> coarse_mesh;
         coarse_mesh.ConstructRectangularMesh(1, 1, false);
         
         // give fine mesh to coarse mesh and calculate node map
@@ -170,7 +170,7 @@ public:
         fine_mesh.Scale(fifth, fifth, fifth);
         
         // create coarse mesh as RTM
-        RefinedTetrahedralMesh<3,3> coarse_mesh;
+        MixedTetrahedralMesh<3,3> coarse_mesh;
         
         coarse_mesh.ConstructCuboid(3, 3, 3);
         double third=1.0L/3.0L;
@@ -188,7 +188,7 @@ public:
         fine_mesh.ConstructFromMeshReader(fine_mesh_reader);
         
         TrianglesMeshReader<2,2> coarse_mesh_reader("mesh/test/data/DecimatedDisk");
-        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        MixedTetrahedralMesh<2,2> coarse_mesh;
         coarse_mesh.ConstructFromMeshReader(coarse_mesh_reader);
         
         TS_ASSERT_THROWS_ANYTHING(coarse_mesh.TransferFlags());
@@ -261,7 +261,7 @@ public:
         fine_mesh.Scale(1.0/num_elem, 1.0/num_elem);
         
         // create coarse mesh as RTM
-        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        MixedTetrahedralMesh<2,2> coarse_mesh;
         
         num_elem = 4;
         coarse_mesh.ConstructRectangularMesh(num_elem, num_elem);
@@ -375,7 +375,7 @@ public:
         fine_mesh.Scale(1.0/num_elem, 1.0/num_elem);
         
         // create coarse mesh as RTM
-        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        MixedTetrahedralMesh<2,2> coarse_mesh;
         
         num_elem = 4;
         coarse_mesh.ConstructRectangularMesh(num_elem, num_elem);
@@ -481,4 +481,4 @@ public:
 
 
 
-#endif /*TESTREFINEDTETRAHEDRALMESH_HPP_*/
+#endif /*TESTMIXEDTETRAHEDRALMESH_HPP_*/

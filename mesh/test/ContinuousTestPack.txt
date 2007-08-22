@@ -10,7 +10,7 @@ TestTrianglesMeshReader.hpp
 TestElement.hpp
 TestNode.hpp
 TestPoint.hpp
-TestRefinedTetrahedralMesh.hpp
+TestMixedTetrahedralMesh.hpp
 TestVolumeCalculator.hpp
 TestTransformations.hpp
 TestRemesh.hpp
