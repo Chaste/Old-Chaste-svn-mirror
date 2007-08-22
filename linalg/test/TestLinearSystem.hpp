@@ -6,8 +6,8 @@
 #include "LinearSystem.hpp"
 #include "SimpleLinearSolver.hpp"
 #include "DistributedVector.hpp"
-
 #include "PetscSetupAndFinalize.hpp"
+#include "PetscTools.hpp"
 
 class TestLinearSystem : public CxxTest::TestSuite
 {
@@ -204,14 +204,7 @@ public:
         
         // Now try with just a matrix
         Mat m;
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,size,size,&m);
-#else //New API
-        MatCreate(PETSC_COMM_WORLD,&m);
-        MatSetSizes(m,PETSC_DECIDE,PETSC_DECIDE,size,size);
-#endif
-        MatSetType(m, MATMPIAIJ);
-        MatSetFromOptions(m);
+        PetscTools::SetupMat(m, size, size);
         
         if (dist_vec.Begin() != dist_vec.End())
         {

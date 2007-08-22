@@ -11,7 +11,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "DistributedVector.hpp"
-#include <petsc.h>
+#include "PetscTools.hpp"
 #include <cxxtest/TestSuite.h>
 
 class MyCardiacCellFactory : public AbstractCardiacCellFactory<1>
@@ -87,15 +87,7 @@ public:
         double initial_voltage = -83.853;
         
         // initial condition;
-        Vec voltage;
-        VecCreate(PETSC_COMM_WORLD, &voltage);
-        VecSetSizes(voltage, PETSC_DECIDE, num_nodes);
-        VecSetFromOptions(voltage);
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        VecSet(&initial_voltage, voltage);
-#else
-        VecSet(voltage, initial_voltage);
-#endif
+        Vec voltage = PetscTools::CreateVec(num_nodes, initial_voltage);
         
         // Solve 1 (PDE) timestep using MonodomainPde
         monodomain_pde.SolveCellSystems(voltage, start_time, start_time+big_time_step);

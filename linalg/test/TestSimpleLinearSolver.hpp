@@ -6,6 +6,7 @@
 #include <petsc.h>
 
 #include "PetscSetupAndFinalize.hpp"
+#include "PetscTools.hpp"
 
 class TestSimpleLinearSolver : public CxxTest::TestSuite
 {
@@ -28,14 +29,7 @@ public:
         
         //Set Matrix
         Mat lhs_matrix;
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &lhs_matrix);
-#else
-        MatCreate(PETSC_COMM_WORLD,&lhs_matrix);
-        MatSetSizes(lhs_matrix, PETSC_DECIDE, PETSC_DECIDE,2,2);
-#endif
-        //MatSetType(lhs_matrix, MATSEQDENSE);
-        MatSetType(lhs_matrix, MATMPIDENSE);
+        PetscTools::SetupMat(lhs_matrix, 2, 2, MATMPIDENSE);
         
         // Set Matrix to Identity matrix
         MatSetValue(lhs_matrix, (PetscInt) 0, (PetscInt) 0, (PetscReal) 1, INSERT_VALUES);
@@ -88,14 +82,7 @@ public:
         
         //Set Matrix
         Mat lhs_matrix;
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &lhs_matrix);
-#else
-        MatCreate(PETSC_COMM_WORLD,&lhs_matrix);
-        MatSetSizes(lhs_matrix, PETSC_DECIDE, PETSC_DECIDE,2,2);
-#endif
-        //MatSetType(lhs_matrix, MATSEQDENSE);
-        MatSetType(lhs_matrix, MATMPIDENSE);
+        PetscTools::SetupMat(lhs_matrix, 2, 2, MATMPIDENSE);
         
         // Set Matrix to Zero matrix
         MatSetValue(lhs_matrix, (PetscInt) 0, (PetscInt) 0, (PetscReal) 0, INSERT_VALUES);
@@ -134,14 +121,7 @@ public:
         
         //Set Matrix
         Mat lhs_matrix;
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &lhs_matrix);
-#else
-        MatCreate(PETSC_COMM_WORLD,&lhs_matrix);
-        MatSetSizes(lhs_matrix, PETSC_DECIDE, PETSC_DECIDE,2,2);
-#endif
-        //MatSetType(lhs_matrix, MATSEQDENSE);
-        MatSetType(lhs_matrix, MATMPIDENSE);
+        PetscTools::SetupMat(lhs_matrix, 2, 2, MATMPIDENSE);
         
         // Set Matrix values
         MatSetValue(lhs_matrix, (PetscInt) 0, (PetscInt) 0, (PetscReal) 1, INSERT_VALUES);
@@ -201,13 +181,7 @@ public:
         
         //Set Matrix
         Mat lhs_matrix;
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &lhs_matrix);
-#else
-        MatCreate(PETSC_COMM_WORLD,&lhs_matrix);
-        MatSetSizes(lhs_matrix, PETSC_DECIDE, PETSC_DECIDE,2,2);
-#endif
-        MatSetType(lhs_matrix, MATMPIDENSE);
+        PetscTools::SetupMat(lhs_matrix, 2, 2, MATMPIDENSE);
         
         // Set Matrix values
         MatSetValue(lhs_matrix, (PetscInt) 0, (PetscInt) 0, (PetscReal) 6, INSERT_VALUES);
@@ -263,13 +237,7 @@ public:
         
         //Set Matrix
         Mat lhs_matrix;
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 5, 5, &lhs_matrix);
-#else
-        MatCreate(PETSC_COMM_WORLD,&lhs_matrix);
-        MatSetSizes(lhs_matrix, PETSC_DECIDE, PETSC_DECIDE,5,5);
-#endif
-        MatSetType(lhs_matrix, MATMPIDENSE);
+        PetscTools::SetupMat(lhs_matrix, 5, 5, MATMPIDENSE);
         
         Vec null_basis_vector;
         VecDuplicate(rhs_vector, &null_basis_vector);
@@ -343,13 +311,7 @@ public:
         
         //Set Matrix
         Mat lhs_matrix;
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 5, 5, &lhs_matrix);
-#else
-        MatCreate(PETSC_COMM_WORLD,&lhs_matrix);
-        MatSetSizes(lhs_matrix, PETSC_DECIDE, PETSC_DECIDE,5,5);
-#endif
-        MatSetType(lhs_matrix, MATMPIDENSE);
+        PetscTools::SetupMat(lhs_matrix, 5, 5, MATMPIDENSE);
         
         Vec null_basis_vector;
         VecDuplicate(rhs_vector, &null_basis_vector);

@@ -45,6 +45,20 @@ public:
         {
             TS_ASSERT_DELTA(vec2_repl[i], i+0.45, 1e-12);
         }
+        
+        ///////////////////////////////////////////////////
+        // test SetupMatrix
+        ///////////////////////////////////////////////////
+        Mat mat;
+        PetscTools::SetupMat(mat, 10, 11);
+        int m,n;
+        MatGetSize(mat, &m, &n);
+        TS_ASSERT_EQUALS(m, 10);
+        TS_ASSERT_EQUALS(n, 11);
+        
+        MatType type;
+        MatGetType(mat,&type);
+        //TS_ASSERT_EQUALS(type, MATMPIAIJ); // this does seem to work, but doesn't pass: it says "found (mpiaij != mpiaij)"
     }
 };
 #endif /*TESTPETSCTOOLS_HPP_*/

@@ -259,7 +259,7 @@ private:
             double min, max;
 
 #if (PETSC_VERSION_MINOR == 2) //Old API
-	    PetscInt position;
+	        PetscInt position;
             VecMax(currentSolution, &position, &max);  
             VecMin(currentSolution, &position, &min);
 #else
@@ -279,7 +279,7 @@ private:
                 //Use mask currentSolution=currentSolution - max*mExternalVoltageMask
 #if (PETSC_VERSION_MINOR == 2) //Old API
                 max *= -1;
-		VecAXPY(&max, mExternalVoltageMask, currentSolution);
+                VecAXPY(&max, mExternalVoltageMask, currentSolution);
 #else
                 VecAXPY(currentSolution, -max, mExternalVoltageMask);
 #endif

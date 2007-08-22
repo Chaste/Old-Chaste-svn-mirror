@@ -126,22 +126,10 @@ public:
 //        SimpleDiffusionPde pde;
 //        
 //        // Initial condition, u=1
-//        Vec initial_condition;
-//        VecCreate(PETSC_COMM_WORLD, &initial_condition);
-//        VecSetSizes(initial_condition, PETSC_DECIDE, p_mesh->GetNumNodes());
-//        VecSetFromOptions(initial_condition);
-//        
 //        double value = 1.0 ;
-//        
-//        #if (PETSC_VERSION_MINOR == 2) //Old API
-//        VecSet(&value, initial_condition);
-//        #else
-//        VecSet(initial_condition, value);
-//        #endif
-//        
-//        VecAssemblyBegin(initial_condition);
-//        VecAssemblyEnd(initial_condition);
-//        
+//        // include PetscTools.hpp for this
+//        Vec initial_condition = PetscTools::CreateVec(p_mesh->GetNumNodes(),value);
+//
 //        DistributedVector::SetProblemSize(p_mesh->GetNumNodes());
 //
 //        // Set up boundary conditions

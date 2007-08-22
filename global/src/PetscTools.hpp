@@ -3,6 +3,7 @@
 
 
 #include <vector>
+#include <petsc.h>
 #include <petscvec.h>
 #include <iostream>
 #include <assert.h>
@@ -25,6 +26,7 @@ public :
  
     static Vec CreateVec(int size)
     {
+        assert(size>0);
         Vec ret;
         VecCreate(PETSC_COMM_WORLD, &ret);
         VecSetSizes(ret, PETSC_DECIDE, size);
@@ -34,6 +36,7 @@ public :
     
     static Vec CreateVec(int size, double value)
     {
+        assert(size>0);
         Vec ret = CreateVec(size);
         
         #if (PETSC_VERSION_MINOR == 2) //Old API
@@ -67,6 +70,23 @@ public :
         VecAssemblyEnd(ret);
         
         return ret;
+    }
+    
+    
+    static void SetupMat(Mat& rMat, int numRows, int numColumns, MatType matType=MATMPIAIJ, int numLocalRows=PETSC_DECIDE, int numLocalColumns=PETSC_DECIDE)
+    {
+        assert(numRows>0);
+        assert(numColumns>0);
+        
+        #if (PETSC_VERSION_MINOR == 2) //Old API
+        MatCreate(PETSC_COMM_WORLD,numLocalRows,numLocalColumns,numRows,numColumns,&rMat);
+        #else //New API
+        MatCreate(PETSC_COMM_WORLD,&rMat);
+        MatSetSizes(rMat,numLocalRows,numLocalColumns,numRows,numColumns);
+        #endif
+    
+        MatSetType(rMat, matType);
+        MatSetFromOptions(rMat);
     }
 };
 #endif /*PETSCTOOLS_HPP_*/

@@ -15,11 +15,6 @@
 #include "AbstractNonlinearEllipticPde.hpp"
 #include "ReplicatableVector.hpp"
 #include "NonlinearHeatEquationPde.hpp"
-
-
-
-
-
 #include "SimpleNewtonNonlinearSolver.hpp"
 
 
@@ -496,7 +491,6 @@ public:
         // IMPORTANT NOTE: both the petsc nonlinear solver and the Newton solver will FAIL
         // if an initial guess of zeroes is given.
         Vec result = assembler.Solve( assembler.CreateConstantInitialGuess(1.0), false);
-        
         
         int size;
         VecGetSize(result,&size);

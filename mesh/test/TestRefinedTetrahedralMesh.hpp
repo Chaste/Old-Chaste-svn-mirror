@@ -291,12 +291,12 @@ public:
         // Set zero initial condition on the fine mesh, so we know if interpolation changed things
         DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
         Vec fine_ic_petsc = DistributedVector::CreateVec();
-#if (PETSC_VERSION_MINOR == 2) //Old API
+        #if (PETSC_VERSION_MINOR == 2) //Old API
         PetscScalar zero = 0;
         VecSet(&zero, fine_ic_petsc);
-#else
+        #else
         VecSet(fine_ic_petsc, 0);
-#endif  
+        #endif  
         VecAssemblyBegin(fine_ic_petsc);
         VecAssemblyEnd(fine_ic_petsc);
         
