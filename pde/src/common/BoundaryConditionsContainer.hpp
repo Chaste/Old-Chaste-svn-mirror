@@ -133,20 +133,33 @@ public:
     void DefineZeroDirichletOnMeshBoundary(ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                            unsigned indexOfUnknown = 0)
     {
+        this->DefineConstantDirichletOnMeshBoundary(pMesh, 0.0, indexOfUnknown);
+    }
+    
+    /**
+     * This function defines constant dirichlet boundary conditions on every boundary node
+     * of the mesh.
+     * 
+     * @param pMesh Pointer to a mesh object, from which we extract the boundary.
+     * @param value the value of the constant Dirichlet boundary condition
+     */
+    void DefineConstantDirichletOnMeshBoundary(ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+                                               double value,
+                                               unsigned indexOfUnknown = 0)
+    {
         assert(indexOfUnknown < PROBLEM_DIM);
         
-        ConstBoundaryCondition<SPACE_DIM>* p_zero_boundary_condition =
-            new ConstBoundaryCondition<SPACE_DIM>( 0.0 );
+        ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition =
+            new ConstBoundaryCondition<SPACE_DIM>( value );
         
         typename ConformingTetrahedralMesh<ELEM_DIM, SPACE_DIM>::BoundaryNodeIterator iter;
         iter = pMesh->GetBoundaryNodeIteratorBegin();
         while (iter != pMesh->GetBoundaryNodeIteratorEnd())
         {
-            AddDirichletBoundaryCondition(*iter, p_zero_boundary_condition, indexOfUnknown);
+            AddDirichletBoundaryCondition(*iter, p_boundary_condition, indexOfUnknown);
             iter++;
         }
     }
-    
     
     
     /**
@@ -173,6 +186,8 @@ public:
         
         mAnyNonZeroNeumannConditionsForUnknown[indexOfUnknown] = false;
     }
+    
+    
     
     /**
      *  Alter the given linear system to satisfy dirichlet boundary conditions
