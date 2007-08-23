@@ -1,5 +1,5 @@
-#ifndef CONVERGENCETESTER_HPP_
-#define CONVERGENCETESTER_HPP_
+#ifndef SPACECONVERGENCETESTER_HPP_
+#define SPACESCONVERGENCETESTER_HPP_
 
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
@@ -21,8 +21,8 @@ const double mesh_width = 0.2; // cm
 const double simulation_time = 8.0; //ms
 // meshes to use for convergence testing.
 // n-dimensional cubes with 2^(mesh_num+2) elements in each dimension 
-const unsigned first_mesh=4;
-const unsigned last_mesh=4;
+const unsigned first_mesh=1;
+const unsigned last_mesh=6;
 
 const unsigned first_quadrant_nodes_3d[5]={61, 362, 2452, 17960, 137296};
 const unsigned third_quadrant_nodes_3d[5]={63, 366, 2460, 17976, 137328};
@@ -66,7 +66,7 @@ public:
 
 
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
-class ConvergenceTester
+class SpaceConvergenceTester
 {
 private:
 
@@ -90,7 +90,7 @@ public:
     double spaceStep;
 
 public:    
-    ConvergenceTester()
+    SpaceConvergenceTester()
     {
         
         // Create the meshes on which the test will be based
@@ -103,9 +103,9 @@ public:
         double ksp_rtol=1e-8;
         double scaling;
         unsigned mesh_num = first_mesh;
-        double ode_time_step=0.04;
+        double ode_time_step=0.01;
         bool converged=false;
-        pde_time_step = 0.04;  // ms
+        pde_time_step = 0.01;  // ms
         
         unsigned prev_mesh_num=9999;
         std::string mesh_pathname;
@@ -268,15 +268,14 @@ public:
             // Get ready for the next test by halving the time step
             if (!converged)
             {
-                pde_time_step *= 0.5;
-                ode_time_step=pde_time_step;
+                mesh_num++;
                 file_num++;
             }
         }
-    while (pde_time_step> 1e-8 && !converged);   //do while: pde_time_step
+    while (mesh_num<last_mesh && !converged);   //do while: pde_time_step
     
     TS_ASSERT(converged);
-    TS_ASSERT_DELTA(pde_time_step, 2.5e-3, 1e-10);
+    TS_ASSERT_EQUALS(mesh_num, 5u);
     }    
 };
-#endif /*CONVERGENCETESTER_HPP_*/
+#endif /*SPACECONVERGENCETESTER_HPP_*/

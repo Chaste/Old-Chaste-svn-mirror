@@ -11,7 +11,7 @@
 #include <math.h>
 
 #include "BackwardEulerLuoRudyIModel1991.hpp"
-#include "ConvergenceTester.hpp"
+#include "SpaceConvergenceTester.hpp"
 
 class TestConvergence : public CxxTest::TestSuite
 {   
@@ -20,7 +20,7 @@ public:
     
     void Test1DTime() throw(Exception)
     {
-        ConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
     }
 
  
