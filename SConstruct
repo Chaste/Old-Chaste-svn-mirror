@@ -200,6 +200,8 @@ for lib in glob.glob('linklib/*'):
 
 # Test summary generation
 if test_summary and not compile_only:
+  # Copy the build env, since we change TargetSigs
+  senv = env.Copy()
   # Get the directory to put results & summary in
   output_dir = build.output_dir
   # Remove old results. Note that this command gets run before anything is built.
@@ -232,12 +234,13 @@ if test_summary and not compile_only:
     return None # Successful build
   lister = Action(output_dir_lister,
                   lambda ts, ss, env: "Generating file list %s" % ts[0])
-  env['BUILDERS']['TestSummary'] = summary
+  senv['BUILDERS']['TestSummary'] = summary
   # Make sure we use the file list contents as its signature
-  env.TargetSignatures('content')
+  senv.TargetSignatures('content')
   file_list = File(os.path.join(output_dir, '.filelist'))
-  env.AlwaysBuild(file_list)
-  env.Command(file_list, test_depends, lister)
+  senv.AlwaysBuild(file_list)
+  senv.Command(file_list, test_depends, lister)
   summary_index = os.path.join(output_dir, 'index.html')
-  env.TestSummary(summary_index, [file_list, test_depends])
-  env.AlwaysBuild(summary_index)
+  senv.TestSummary(summary_index, [file_list, test_depends])
+  senv.AlwaysBuild(summary_index)
+
