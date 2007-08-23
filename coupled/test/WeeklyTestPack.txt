@@ -1,4 +1,3 @@
 TestMonodomainHeart.hpp
 TestBidomainHeart.hpp
 TestMonodomainSlabLong.hpp
-TestConvergence.hpp

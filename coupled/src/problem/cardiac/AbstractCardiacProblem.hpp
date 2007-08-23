@@ -141,7 +141,7 @@ public:
         {
             if( (mOutputDirectory=="") || (mOutputFilenamePrefix==""))
             {
-                EXCEPTION("Either explicitly specify not to print output (call SetPrintOutput(false)) or specify the output directory and filename prefix");
+                EXCEPTION("Either explicitly specify not to print output (call PrintOutput(false)) or specify the output directory and filename prefix");
             }
         }
         if (  mPrintingTimeStep < mPdeTimeStep - 1e-10)

@@ -10,6 +10,7 @@
 #include <fstream>
 #include <math.h>
 
+#include "BackwardEulerLuoRudyIModel1991.hpp"
 #include "ConvergenceTester.hpp"
 
 class TestConvergence : public CxxTest::TestSuite
@@ -19,7 +20,7 @@ public:
     
     void Test1D() throw(Exception)
     {
-        ConvergenceTester<LuoRudyIModel1991OdeSystem, BidomainProblem<1>, 1> tester;
+        ConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
     }
 
 //    void Test2D() throw(Exception)
