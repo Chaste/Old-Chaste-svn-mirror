@@ -20,12 +20,7 @@
 const double mesh_width = 0.2; // cm
 const double simulation_time = 8.0; //ms
 // meshes to use for convergence testing.
-// n-dimensional cubes with 2^(mesh_num+2) elements in each dimension 
-const unsigned first_mesh=4;
-const unsigned last_mesh=4;
-
-const unsigned first_quadrant_nodes_3d[5]={61, 362, 2452, 17960, 137296};
-const unsigned third_quadrant_nodes_3d[5]={63, 366, 2460, 17976, 137328};
+// n-dimensional cubes with 2^(mesh_num+2) elements in each dimension
 
 
 template <class CELL, unsigned DIM>
@@ -46,8 +41,6 @@ public:
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         double x = this->mpMesh->GetNode(node)->GetPoint()[0];
-        //double y = mpMesh->GetNode(node)->GetPoint()[1];
-        //double z = mpMesh->GetNode(node)->GetPoint()[2];
         if (x*x<=1e-10)
         {
             return new CELL(this->mpSolver, this->mTimeStep, this->mpStimulus, this->mpZeroStimulus);
@@ -85,9 +78,10 @@ private:
 
 public:    
     AbstractConvergenceTester()
-    : mOdeTimeStep(0.04),
-      mPdeTimeStep(0.04),
+    : mOdeTimeStep(0.01),
+      mPdeTimeStep(0.01),
       mMeshNum(4u),
+      mKspRtol(1e-8),
       mConverged(false)
     {
     }
@@ -101,10 +95,7 @@ public:
         ReplicatableVector voltage_replicated;
 
         unsigned file_num=0;
-        double ksp_rtol=1e-8;
         double scaling;
-        mOdeTimeStep=0.01;
-        mPdeTimeStep = 0.01;  // ms
         
         SetInitialConvergenceParameters();
         
@@ -113,7 +104,7 @@ public:
         std::string mesh_filename;
         unsigned num_elements;
         
-        do  //do while: mPdeTimeStep
+        do
         {
 
             if (mMeshNum!=prev_mesh_num)
@@ -134,8 +125,6 @@ public:
                                             + mesh_filename;
                 prev_mesh_num = mMeshNum;
             }                            
-            std::cout<<"================================================================================"<<std::endl  << std::flush;
-            std::cout<<"Solving with a space step of "<< scaling << " cm - mesh " << mMeshNum <<std::endl  << std::flush;
             
             double prev_voltage[201];
             
@@ -147,15 +136,13 @@ public:
             cardiac_problem.SetOutputFilenamePrefix ("Results");
             
             cardiac_problem.SetEndTime(simulation_time);   // ms
-            cardiac_problem.SetLinearSolverRelativeTolerance(ksp_rtol);
+            cardiac_problem.SetLinearSolverRelativeTolerance(mKspRtol);
     
             cardiac_problem.SetPdeTimeStep(mPdeTimeStep);
             cardiac_problem.SetPrintingTimeStep(mPdeTimeStep);
             cardiac_problem.Initialise();
-            
-            std::cout<<"   Solving with a time step of "<<mPdeTimeStep<<" ms"<<std::endl  << std::flush;
-            std::cout<<"   Solving with an ode time step of "<<mOdeTimeStep<<" ms"<<std::endl  << std::flush;
-    
+
+            DisplayRun();
             cardiac_problem.Solve();
             // Calculate positions of nodes 1/4 and 3/4 through the mesh
             unsigned third_quadrant_node;
@@ -179,6 +166,9 @@ public:
                 }
                 case 3:
                 {
+                    const unsigned first_quadrant_nodes_3d[5]={61, 362, 2452, 17960, 137296};
+                    const unsigned third_quadrant_nodes_3d[5]={63, 366, 2460, 17976, 137328};
+                    assert(mMeshNum<5);
                     first_quadrant_node = first_quadrant_nodes_3d[mMeshNum];
                     third_quadrant_node = third_quadrant_nodes_3d[mMeshNum];
                     break;
@@ -241,12 +231,9 @@ public:
                 }                 
                 if (file_num!=0)
                 {
-                    std::cout << "log10 timestep= " << log10(mPdeTimeStep) << "\n";
                     std::cout << "max_abs_error = " << max_abs_error << " log10 = " << log10(max_abs_error) << "\n";
                     std::cout << "l2 error = " << sum_sq_abs_error/sum_sq_prev_voltage << " log10 = " << log10(sum_sq_abs_error/sum_sq_prev_voltage) << "\n";
-                    std::cout << log10(mPdeTimeStep) << "\t"<<log10(max_abs_error)<<"\t"
-                        <<log10(sum_sq_abs_error/sum_sq_prev_voltage) <<"\t#Logs for Gnuplot\n";
-                        
+                    std::cout << log10(Abscissa()) << "\t" << log10(sum_sq_abs_error/sum_sq_prev_voltage) <<"\t#Logs for Gnuplot\n";
                     // convergence criterion
                     mConverged = sum_sq_abs_error/sum_sq_prev_voltage<1e-4;
                 }
@@ -273,8 +260,18 @@ public:
                 file_num++;
             }
         }
-    while (!GiveUpConvergence() && !mConverged);   //do while: mPdeTimeStep
+        while (!GiveUpConvergence() && !mConverged);
+    }
     
+    void DisplayRun()
+    {
+            unsigned mesh_size = (unsigned) pow(2, mMeshNum+2); // number of elements in each dimension
+            double scaling = mesh_width/(double) mesh_size;
+            std::cout<<"================================================================================"<<std::endl  << std::flush;
+            std::cout<<"Solving with a space step of "<< scaling << " cm" << mMeshNum <<std::endl  << std::flush;
+            std::cout<<"Solving with a time step of "<<mPdeTimeStep<<" ms"<<std::endl  << std::flush;
+            std::cout<<"Solving with an ode time step of "<<mOdeTimeStep<<" ms"<<std::endl  << std::flush;
+            std::cout<<"Solving with a KSP relative tolerance of "<<mKspRtol<<std::endl  << std::flush;
     }
     
 
@@ -282,6 +279,7 @@ public:
     double mOdeTimeStep;
     double mPdeTimeStep;
     unsigned mMeshNum;
+    double mKspRtol;
     bool mConverged;
     
     virtual ~AbstractConvergenceTester() {}
@@ -289,5 +287,6 @@ public:
     virtual void SetInitialConvergenceParameters()=0;
     virtual void UpdateConvergenceParameters()=0;
     virtual bool GiveUpConvergence()=0;
+    virtual double Abscissa()=0;
 };
 #endif /*ABSTRACTCONVERGENCETESTER_HPP_*/

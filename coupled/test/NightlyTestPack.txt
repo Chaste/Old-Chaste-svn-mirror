@@ -9,5 +9,4 @@ TestMonodomainDg0AssemblerLong.hpp
 TestMonodomainNoStimulus.hpp
 TestMonodomainSlab.hpp
 TestSpiralWaveProject.hpp
-TestSpaceConvergence.hpp
 TestMonodomainHeartApex.hpp

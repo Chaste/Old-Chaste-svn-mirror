@@ -10,7 +10,6 @@ class SpaceConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PR
 public:
     void SetInitialConvergenceParameters()
     {
-        std::cout << "Yep";
         this->mMeshNum=1;
     }
     void UpdateConvergenceParameters()
@@ -21,6 +20,11 @@ public:
     bool GiveUpConvergence()
     {
         return this->mMeshNum>6;
+    }
+    double Abscissa()
+    {
+        unsigned mesh_size = (unsigned) pow(2, this->mMeshNum+2); // number of elements in each dimension
+        return mesh_width/(double) mesh_size;
     }
 };
 

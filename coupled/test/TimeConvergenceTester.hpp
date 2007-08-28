@@ -14,7 +14,6 @@ public:
     }
     void UpdateConvergenceParameters()
     {
-        std::cout << "Yo" << "\n";
         this->mPdeTimeStep *= 0.5;
         this->mOdeTimeStep = this->mPdeTimeStep;
     
@@ -22,6 +21,11 @@ public:
     bool GiveUpConvergence()
     {
         return this->mPdeTimeStep<=1e-8;
+    }
+    
+    double Abscissa()
+    {
+        return this->mPdeTimeStep;
     }
     
 };
