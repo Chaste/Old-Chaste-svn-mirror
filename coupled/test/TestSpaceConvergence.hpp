@@ -13,14 +13,17 @@
 #include "BackwardEulerLuoRudyIModel1991.hpp"
 #include "SpaceConvergenceTester.hpp"
 
-class TestConvergence : public CxxTest::TestSuite
+class TestSpaceConvergence : public CxxTest::TestSuite
 {   
 public:
 
     
-    void Test1DTime() throw(Exception)
+    void Test1DSpace() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+        tester.Converge();
+        TS_ASSERT(tester.mConverged);
+        TS_ASSERT_EQUALS(tester.mMeshNum, 5u); 
     }
 
  

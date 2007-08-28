@@ -1,5 +1,5 @@
-#ifndef CONVERGENCETESTER_HPP_
-#define CONVERGENCETESTER_HPP_
+#ifndef ABSTRACTCONVERGENCETESTER_HPP_
+#define ABSTRACTCONVERGENCETESTER_HPP_
 
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
@@ -66,7 +66,7 @@ public:
 
 
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
-class ConvergenceTester
+class AbstractConvergenceTester
 {
 private:
 
@@ -83,42 +83,43 @@ private:
         rMesh.ConstructCuboid(width, width, width);
     }
 
-public:
-    bool convergedInSpace;
-    double odeTimeStep;
-    double pdeTimeStep;
-    double spaceStep;
-
 public:    
-    ConvergenceTester()
+    AbstractConvergenceTester()
+    : mOdeTimeStep(0.04),
+      mPdeTimeStep(0.04),
+      mMeshNum(4u),
+      mConverged(false)
+    {
+    }
+    
+    void Converge()
     {
         
         // Create the meshes on which the test will be based
         const std::string mesh_dir = "ConvergenceMesh";
         OutputFileHandler output_file_handler(mesh_dir);
-        double pde_time_step;   // ms
         ReplicatableVector voltage_replicated;
 
         unsigned file_num=0;
         double ksp_rtol=1e-8;
         double scaling;
-        unsigned mesh_num = first_mesh;
-        double ode_time_step=0.04;
-        bool converged=false;
-        pde_time_step = 0.04;  // ms
+        mOdeTimeStep=0.01;
+        mPdeTimeStep = 0.01;  // ms
+        
+        SetInitialConvergenceParameters();
         
         unsigned prev_mesh_num=9999;
         std::string mesh_pathname;
         std::string mesh_filename;
         unsigned num_elements;
         
-        do  //do while: pde_time_step
+        do  //do while: mPdeTimeStep
         {
 
-            if (mesh_num!=prev_mesh_num)
+            if (mMeshNum!=prev_mesh_num)
             {
                 // create the mesh
-                unsigned mesh_size = (unsigned) pow(2, mesh_num+2); // number of elements in each dimension
+                unsigned mesh_size = (unsigned) pow(2, mMeshNum+2); // number of elements in each dimension
                 scaling = mesh_width/(double) mesh_size;
                 ConformingTetrahedralMesh<DIM,DIM> mesh;
                 ConstructHyperCube(mesh, mesh_size);
@@ -131,14 +132,14 @@ public:
                 mesh_writer.WriteFilesUsingMesh(mesh);
                 mesh_pathname = output_file_handler.GetTestOutputDirectory()
                                             + mesh_filename;
-                prev_mesh_num = mesh_num;
+                prev_mesh_num = mMeshNum;
             }                            
             std::cout<<"================================================================================"<<std::endl  << std::flush;
-            std::cout<<"Solving with a space step of "<< scaling << " cm - mesh " << mesh_num <<std::endl  << std::flush;
+            std::cout<<"Solving with a space step of "<< scaling << " cm - mesh " << mMeshNum <<std::endl  << std::flush;
             
             double prev_voltage[201];
             
-            PointStimulusCellFactory<CELL, DIM> cell_factory(ode_time_step, num_elements);
+            PointStimulusCellFactory<CELL, DIM> cell_factory(mOdeTimeStep, num_elements);
             CARDIAC_PROBLEM cardiac_problem(&cell_factory);
             
             cardiac_problem.SetMeshFilename(mesh_pathname);
@@ -148,12 +149,12 @@ public:
             cardiac_problem.SetEndTime(simulation_time);   // ms
             cardiac_problem.SetLinearSolverRelativeTolerance(ksp_rtol);
     
-            cardiac_problem.SetPdeTimeStep(pde_time_step);
-            cardiac_problem.SetPrintingTimeStep(pde_time_step);
+            cardiac_problem.SetPdeTimeStep(mPdeTimeStep);
+            cardiac_problem.SetPrintingTimeStep(mPdeTimeStep);
             cardiac_problem.Initialise();
             
-            std::cout<<"   Solving with a time step of "<<pde_time_step<<" ms"<<std::endl  << std::flush;
-            std::cout<<"   Solving with an ode time step of "<<ode_time_step<<" ms"<<std::endl  << std::flush;
+            std::cout<<"   Solving with a time step of "<<mPdeTimeStep<<" ms"<<std::endl  << std::flush;
+            std::cout<<"   Solving with an ode time step of "<<mOdeTimeStep<<" ms"<<std::endl  << std::flush;
     
             cardiac_problem.Solve();
             // Calculate positions of nodes 1/4 and 3/4 through the mesh
@@ -171,15 +172,15 @@ public:
                 }
                 case 2:
                 {
-                    unsigned n= (unsigned) pow (2, mesh_num+2);
+                    unsigned n= (unsigned) pow (2, mMeshNum+2);
                     first_quadrant_node =   (n+1)*(n/2)+  n/4 ;
                     third_quadrant_node =   (n+1)*(n/2)+3*n/4 ;
                     break;
                 }
                 case 3:
                 {
-                    first_quadrant_node = first_quadrant_nodes_3d[mesh_num];
-                    third_quadrant_node = third_quadrant_nodes_3d[mesh_num];
+                    first_quadrant_node = first_quadrant_nodes_3d[mMeshNum];
+                    third_quadrant_node = third_quadrant_nodes_3d[mMeshNum];
                     break;
                 }
                 
@@ -200,10 +201,10 @@ public:
             OutputFileHandler results_handler("Convergence", false);
             ColumnDataReader results_reader(results_handler.GetTestOutputDirectory(), "Results", false);
             
-            unsigned time_step_write_increment = (unsigned) round(0.04/pde_time_step);
+            unsigned time_step_write_increment = (unsigned) round(0.04/mPdeTimeStep);
             
-            // pde_time_step must be of the form 0.04*2^(-n) where n is a natural
-            assert( fabs(pde_time_step*time_step_write_increment-0.04)< 1e-6);
+            // mPdeTimeStep must be of the form 0.04*2^(-n) where n is a natural
+            assert( fabs(mPdeTimeStep*time_step_write_increment-0.04)< 1e-6);
             
             // Write out the time series for the node at first and third quadrant
             {
@@ -240,14 +241,14 @@ public:
                 }                 
                 if (file_num!=0)
                 {
-                    std::cout << "log10 timestep= " << log10(pde_time_step) << "\n";
+                    std::cout << "log10 timestep= " << log10(mPdeTimeStep) << "\n";
                     std::cout << "max_abs_error = " << max_abs_error << " log10 = " << log10(max_abs_error) << "\n";
                     std::cout << "l2 error = " << sum_sq_abs_error/sum_sq_prev_voltage << " log10 = " << log10(sum_sq_abs_error/sum_sq_prev_voltage) << "\n";
-                    std::cout << log10(pde_time_step) << "\t"<<log10(max_abs_error)<<"\t"
+                    std::cout << log10(mPdeTimeStep) << "\t"<<log10(max_abs_error)<<"\t"
                         <<log10(sum_sq_abs_error/sum_sq_prev_voltage) <<"\t#Logs for Gnuplot\n";
                         
                     // convergence criterion
-                    converged = sum_sq_abs_error/sum_sq_prev_voltage<1e-4;
+                    mConverged = sum_sq_abs_error/sum_sq_prev_voltage<1e-4;
                 }
             }
             
@@ -266,17 +267,27 @@ public:
             }                    
             
             // Get ready for the next test by halving the time step
-            if (!converged)
+            if (!mConverged)
             {
-                pde_time_step *= 0.5;
-                ode_time_step=pde_time_step;
+                UpdateConvergenceParameters();
                 file_num++;
             }
         }
-    while (pde_time_step> 1e-8 && !converged);   //do while: pde_time_step
+    while (!GiveUpConvergence() && !mConverged);   //do while: mPdeTimeStep
     
-    TS_ASSERT(converged);
-    TS_ASSERT_DELTA(pde_time_step, 2.5e-3, 1e-10);
-    }    
+    }
+    
+
+public:
+    double mOdeTimeStep;
+    double mPdeTimeStep;
+    unsigned mMeshNum;
+    bool mConverged;
+    
+    virtual ~AbstractConvergenceTester() {}
+    
+    virtual void SetInitialConvergenceParameters()=0;
+    virtual void UpdateConvergenceParameters()=0;
+    virtual bool GiveUpConvergence()=0;
 };
-#endif /*CONVERGENCETESTER_HPP_*/
+#endif /*ABSTRACTCONVERGENCETESTER_HPP_*/

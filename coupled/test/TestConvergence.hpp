@@ -11,7 +11,7 @@
 #include <math.h>
 
 #include "BackwardEulerLuoRudyIModel1991.hpp"
-#include "ConvergenceTester.hpp"
+#include "TimeConvergenceTester.hpp"
 
 class TestConvergence : public CxxTest::TestSuite
 {   
@@ -20,7 +20,10 @@ public:
     
     void Test1DTime() throw(Exception)
     {
-        ConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+        TimeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+        tester.Converge();
+        TS_ASSERT(tester.mConverged);
+        TS_ASSERT_DELTA(tester.mPdeTimeStep, 2.5e-3, 1e-10);
     }
 
  
