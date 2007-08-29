@@ -730,8 +730,12 @@ def _overallStatus(statuses, build):
     result = "Warnings on %d out of %d test suites" % (warnings, total)
     colour = "orange"
   else:
-    result = "All tests (that ran) passed"
-    colour = "green"
+    if total == 0:
+      result = "No test results found"
+      colour = "red"
+    else:
+      result = "All tests (that ran) passed"
+      colour = "green"
   return result, colour
 
 def _statusColour(status, build):
