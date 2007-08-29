@@ -1,7 +1,6 @@
 #ifndef TESTTISSUESIMULATIONWITHNUTRIENTS_HPP_
 #define TESTTISSUESIMULATIONWITHNUTRIENTS_HPP_
 
-
 #include <cxxtest/TestSuite.h>
 #include "TissueSimulationWithNutrients.hpp"
 #include "HoneycombMeshGenerator.hpp"

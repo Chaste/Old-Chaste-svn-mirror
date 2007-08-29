@@ -46,6 +46,11 @@ public:
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
         
+        TS_ASSERT_THROWS_ANYTHING(MeinekeCryptCell stem_cell(STEM,
+                                   HEALTHY,
+                                   0,// generation
+                                   NULL));
+        
         MeinekeCryptCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    0,    // generation

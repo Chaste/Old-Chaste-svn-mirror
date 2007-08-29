@@ -4,7 +4,9 @@
 #include <cassert>
 #include "CancerParameters.hpp"
 
-
+/**
+ * @param type the types of WntGradient defined in WntGradientTypes.hpp
+ */
 WntGradient::WntGradient(WntGradientType type)
 {
     mpCancerParams = CancerParameters::Instance();
@@ -14,6 +16,10 @@ WntGradient::WntGradient(WntGradientType type)
 WntGradient::~WntGradient()
 {}
 
+/**
+ * @param height The height of the cell we want the Wnt concentration of
+ * @return wnt_level The concentration of Wnt for this cell (dimensionless)
+ */
 double WntGradient::GetWntLevel(double height)
 {
     double wnt_level = -1.0;

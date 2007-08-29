@@ -56,7 +56,9 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
     {
+        #define COVERAGE_IGNORE
         EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
+        #undef COVERAGE_IGNORE
     }
     mBirthTime = birthTime;
     mLastTime = lastTime;

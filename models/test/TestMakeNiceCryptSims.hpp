@@ -175,9 +175,9 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         CancerParameters* p_params = CancerParameters::Instance();
         std::string output_directory = "NiceCryptSim";
         
-        unsigned cells_across = 12;
+        unsigned cells_across = 13;
         unsigned cells_up = 25;
-        double crypt_width = 12.0;
+        double crypt_width = 12.1;
         unsigned thickness_of_ghost_layer = 3;
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
@@ -252,8 +252,8 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
 std::vector<unsigned> Label()
 {
     std::vector<unsigned> label_these;
-    label_these.push_back(37);
-    label_these.push_back(309);
+//    label_these.push_back(37);
+//    label_these.push_back(309);
     return label_these;   
 }
 

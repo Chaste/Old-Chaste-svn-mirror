@@ -48,7 +48,7 @@ TestMakeNiceCryptSimsRunner.cpp:	models/test/TestMakeNiceCryptSims.hpp
 TestMakeNiceCryptSimsRunner: TestMakeNiceCryptSimsRunner.o ${LIBS}
 	g++ TestMakeNiceCryptSimsRunner.o ${LIBS} -o TestMakeNiceCryptSimsRunner ${LDFLAGS};\
 	echo "Making new experiment in ${FRESH_DIR} " ;\
-	echo "Do scp -r -C ${FRESH_DIR} pmxgm@deimos.math.nottingham.ac.uk:" ;\
+	echo "Do scp -r -C ${FRESH_DIR} pmxgm@deimos.nottingham.ac.uk:" ;\
 	echo "Then qsub simulation.sh on deimos";\
 	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
 	cp TestMakeNiceCryptSimsRunner ${FRESH_DIR} ;\
