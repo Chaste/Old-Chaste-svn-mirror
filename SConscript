@@ -67,14 +67,28 @@ elif test_component in ['', toplevel_dir]:
       pass
 
 
-# Look for source files that tests depend on in test/.
+# Look for source files that tests depend on under test/.
+# We also need to add any subfolders to the CPPPATH, so they are searched
+# for #includes.
 testsource = []
-for file in os.listdir('../../test'):
-  if file[-4:] == '.cpp':
-    testsource.append('test/' + file)
+test_cpppath = []
+for dirpath, dirnames, filenames in os.walk('../../test'):
+    for dirname in dirnames[:]:
+        if dirname in ['.svn', 'data']:
+            dirnames.remove(dirname)
+        else:
+            test_cpppath.append(os.path.join(dirpath, dirname))
+    for filename in filenames:
+        if filename[-4:] == '.cpp':
+            testsource.append(os.path.join(dirpath, filename))
 
+#print test_cpppath, testsource
 #print files, testfiles, testsource
 
+# Add test folders to CPPPATH only for this component
+if test_cpppath:
+    env = env.Copy()
+    env.Prepend(CPPPATH=test_cpppath)
 
 # Determine libraries to link against.
 # Note that order does matter!

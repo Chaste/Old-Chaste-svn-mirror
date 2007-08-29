@@ -104,7 +104,6 @@ link_flags  = build.LinkFlags()
 ##    extra_flags = extra_flags + " -DCWD_HACK "
 
 # Search path for Chaste #includes
-import glob
 cpppath = ['#/', '#/cxxtest']
 src_folders = glob.glob('*/src')
 for src_folder in src_folders:
