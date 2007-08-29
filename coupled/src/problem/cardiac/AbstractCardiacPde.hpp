@@ -10,6 +10,7 @@
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacCell.hpp"
 #include "DistributedVector.hpp"
+#include "EventHandler.hpp"
 
 /**
  *  Pde containing common functionality to mono and bidomain pdes.
@@ -183,6 +184,8 @@ public:
      */
     void SolveCellSystems(Vec currentSolution, double currentTime, double nextTime)
     {   
+        EventHandler::BeginEvent(SOLVE_ODES);
+        
         DistributedVector dist_solution(currentSolution);
         DistributedVector::Stripe voltage(dist_solution, 0);
         for (DistributedVector::Iterator index = DistributedVector::Begin();
@@ -207,8 +210,13 @@ public:
             // update the Iionic and stimulus caches
             UpdateCaches(index.Global, index.Local, nextTime);
         }
+        EventHandler::EndEvent(SOLVE_ODES);
+
         ReplicateException(false);
+
+        EventHandler::BeginEvent(COMMUNICATION);
         ReplicateCaches();
+        EventHandler::EndEvent(COMMUNICATION);
     }
     
     ReplicatableVector& GetIionicCacheReplicated()

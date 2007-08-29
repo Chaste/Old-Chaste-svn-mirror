@@ -10,6 +10,7 @@
 #include "DistributedVector.hpp"
 #include "AbstractCardiacPde.hpp"
 #include "AbstractDynamicAssemblerMixin.hpp"
+#include "EventHandler.hpp"
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
@@ -88,6 +89,8 @@ public:
         mVoltage = NULL;
         mLinearSolverRelativeTolerance=1e-6;
         mAllocatedMemoryForMesh = false;
+        
+        EventHandler::Initialise();
     }
     
     virtual ~AbstractCardiacProblem()
@@ -250,7 +253,10 @@ public:
         TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(mMeshFilename);
         mpMesh = new ConformingTetrahedralMesh<SPACE_DIM, SPACE_DIM>();
         mAllocatedMemoryForMesh = true;
+        
+        EventHandler::BeginEvent(READ_MESH);
         mpMesh->ConstructFromMeshReader(mesh_reader);
+        EventHandler::EndEvent(READ_MESH);
     }
 
     void SetMesh(ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
@@ -327,10 +333,12 @@ public:
 
         if (mPrintOutput)
         {
+            EventHandler::BeginEvent(WRITE_OUTPUT);
             mpWriter = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
             DefineWriterColumns();
             mpWriter->EndDefineMode();
             WriteOneStep(stepper.GetTime(), initial_condition);
+            EventHandler::EndEvent(WRITE_OUTPUT);
         }
         
         // If we have already run a simulation, free the old solution vec
@@ -382,8 +390,10 @@ public:
                 }
                 
                 // Writing data out to the file <mOutputFilenamePrefix>.dat
+                EventHandler::BeginEvent(WRITE_OUTPUT);
                 mpWriter->AdvanceAlongUnlimitedDimension(); //creates a new file
                 WriteOneStep(stepper.GetTime(), mVoltage);
+                EventHandler::EndEvent(WRITE_OUTPUT);
             }
         }
         

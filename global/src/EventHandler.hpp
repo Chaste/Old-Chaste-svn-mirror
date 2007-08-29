@@ -12,14 +12,15 @@ typedef enum EventType_
     COMMUNICATION,
     ASSEMBLE_RHS,
     SOLVE_LINEAR_SYSTEM,
-    WRITE_OUTPUT
+    WRITE_OUTPUT,
+    EVERYTHING
 } EventType;
 
 
 class EventHandler
 {
 public:
-    const static unsigned NUM_EVENTS=7;
+    const static unsigned NUM_EVENTS=8;
     const static char* EVENT_NAME[NUM_EVENTS];
     static PetscEvent mPetscEvent[NUM_EVENTS];
     
@@ -45,6 +46,6 @@ public:
 
 PetscEvent EventHandler::mPetscEvent[] = { 0 };
 const char* EventHandler::EVENT_NAME[] = { "Read mesh", "Assemble system", "Solve ODEs", 
-                                           "Communication", "Assemble Rhs", "Solve Linear System",
-                                           "Write Output" };
+                                           "Communication", "Assemble Rhs", "Solve Lin. Sys.",
+                                           "Write Output", "Everything" };
 #endif /*EVENTHANDLER_HPP_*/

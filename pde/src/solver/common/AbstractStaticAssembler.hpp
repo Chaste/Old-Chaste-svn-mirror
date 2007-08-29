@@ -10,6 +10,7 @@
 #include "GaussianQuadratureRule.hpp"
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
+#include "EventHandler.hpp"
 
 /**
  *  AbstractStaticAssembler
@@ -295,6 +296,16 @@ protected:
     virtual void AssembleSystem(bool assembleVector, bool assembleMatrix,
                                 Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
+        EventType assemble_event;
+        if(assembleMatrix)
+        {
+            assemble_event = ASSEMBLE_SYSTEM;
+        }
+        else
+        {
+            assemble_event = ASSEMBLE_RHS;
+        }
+        
         // Check we've actually been asked to do something!
         assert(assembleVector || assembleMatrix);
         
@@ -309,8 +320,13 @@ protected:
         // AssembleOnElement
         if (currentSolutionOrGuess != NULL)
         {
+            EventHandler::BeginEvent(COMMUNICATION);
             this->mCurrentSolutionOrGuessReplicated.ReplicatePetscVector(currentSolutionOrGuess);
+            EventHandler::EndEvent(COMMUNICATION);
         }
+
+        EventHandler::BeginEvent(assemble_event);
+
         // the AssembleOnElement type methods will determine if a current solution or
         // current guess exists by looking at the size of the replicated vector, so
         // check the size is zero if there isn't a current solution
@@ -458,6 +474,8 @@ protected:
         // overload this method if the assembler has to do anything else
         // required (like setting up a null basis (see BidomainDg0Assembler))
         this->FinaliseAssembleSystem(currentSolutionOrGuess, currentTime);
+        
+        EventHandler::EndEvent(assemble_event);
     }
     
     

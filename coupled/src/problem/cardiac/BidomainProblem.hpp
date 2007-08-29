@@ -129,11 +129,7 @@ public:
                 phi_min = voltage_replicated[2*i+1];
             }
         }
-        std::cout << " max/min V, phi_e = "
-        << v_max << " "
-        << v_min << " "
-        << phi_max << " "
-        << phi_min << "\n" << std::flush;
+        std::cout << " max/min V, phi_e = " << v_max << " " << v_min << " " << phi_max << " " << phi_min << "\n" << std::flush;
     }
     
     virtual void DefineWriterColumns()
