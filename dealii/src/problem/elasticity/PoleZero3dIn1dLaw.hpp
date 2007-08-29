@@ -24,8 +24,11 @@ class PoleZero3dIn1dLaw
         assert(index>=0 && index<=2);
         if(Eii >= a[index])
         {
-            std::cout << index << " " << Eii << "\n";
-            assert(0);
+            #define COVERAGE_IGNORE
+            std::stringstream ss;
+            ss << "Eii > aii, where i = " << index << " and Eii = " << Eii << "\n";
+            EXCEPTION(ss.str());
+            #undef COVERAGE_IGNORE
         }
         
         return   k[index] 
@@ -191,7 +194,9 @@ class PoleZero3dIn1dLaw
         
         if(best_damping == 0)
         {
-            assert(0);
+            #define COVERAGE_IGNORE
+            EXCEPTION("Newton step increased residual");
+            #undef COVERAGE_IGNORE
         }
         
         return best_damping;

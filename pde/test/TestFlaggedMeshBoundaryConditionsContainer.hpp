@@ -12,6 +12,8 @@
 #include "FlaggedMeshBoundaryConditionsContainer.hpp"
 #include "PetscTools.hpp"
 
+#define ONEDIM_FLAGGEDBCC FlaggedMeshBoundaryConditionsContainer<1,1>
+
 class TestFlaggedMeshBoundaryConditionsContainer : public CxxTest::TestSuite
 {
 public:
@@ -239,6 +241,9 @@ public:
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
+        
+        typedef FlaggedMeshBoundaryConditionsContainer<1,1> FlaggedMeshBccOneDim;
+        TS_ASSERT_THROWS_ANYTHING(FlaggedMeshBccOneDim bad_bcc(mesh, 1.0));
         
         // flag elements 0-3, therefore nodes 0 and 4 are the boundary 
         mesh.GetElement(0)->Flag();

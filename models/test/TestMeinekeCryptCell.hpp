@@ -87,6 +87,10 @@ public:
         TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
         
         p_simulation_time->IncrementTimeOneStep();//t=6
+        
+        // cover bad cell cycle model
+        TS_ASSERT_THROWS_ANYTHING(MeinekeCryptCell bad_cell2(STEM, HEALTHY, 0, NULL));
+        
         MeinekeCryptCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    0,    // generation

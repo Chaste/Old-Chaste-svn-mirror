@@ -59,7 +59,10 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CryptCellMut
     }
     else
     {
-        EXCEPTION("Wnt Cell Cycle Odes must be given a mutation state of unsigned 0,1,2 or 3");
+        // can't get here until new mutation states are added to CryptCellMutationState
+        #define COVERAGE_IGNORE
+        assert(0);
+        #undef COVERAGE_IGNORE
     }
     
     mVariableNames.push_back("pRb");
@@ -256,9 +259,12 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
         dx7 = ma2d*(0.5-b1);
         dx8 = ma2d*(0.5-b2);
     }
-    else	// Shouldn't happen
+    else
     {
-        EXCEPTION("Wnt Cell Cycle model using invalid mutation state");
+        // can't get here until new mutation states are added to CryptCellMutationState
+        #define COVERAGE_IGNORE
+        assert(0);
+        #undef COVERAGE_IGNORE
     }
     
     // Now the cell cycle stuff...

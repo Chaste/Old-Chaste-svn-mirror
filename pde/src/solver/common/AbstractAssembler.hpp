@@ -54,10 +54,12 @@ protected:
     /** Boundary conditions to be applied */
     BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditions;
     
+    #define COVERAGE_IGNORE
     /** Hack for dynamic mixin */
     virtual void SetMatrixIsConst()
     {
     }
+    #undef COVERAGE_IGNORE
     
     
     /**

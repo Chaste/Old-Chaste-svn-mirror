@@ -36,12 +36,15 @@ public:
         double angle = tessellation.ReturnPolarAngle(1.0,sqrt(3.0));
         TS_ASSERT_DELTA(angle, M_PI/3.0, 1e-7);
         
+        // x> 0, y<0
         angle = tessellation.ReturnPolarAngle(1.0,-sqrt(3.0));
         TS_ASSERT_DELTA(angle, -M_PI/3.0, 1e-7);
         
+        // x< 0, y>0
         angle = tessellation.ReturnPolarAngle(-1.0,sqrt(3.0));
         TS_ASSERT_DELTA(angle, 2.0*M_PI/3.0, 1e-7);
         
+        // x< 0, y<0
         angle = tessellation.ReturnPolarAngle(-1.0,-sqrt(3.0));
         TS_ASSERT_DELTA(angle, -2.0*M_PI/3.0, 1e-7);
         
@@ -58,6 +61,7 @@ public:
         angle = tessellation.ReturnPolarAngle(0.0,-1.0);
         TS_ASSERT_DELTA(angle, -M_PI/2.0, 1e-7);
         
+        TS_ASSERT_THROWS_ANYTHING(tessellation.ReturnPolarAngle(0.0, 0.0));
     }
     
     void TestGenerateVerticesFromElementCircumcentres() throw (Exception)

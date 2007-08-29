@@ -267,18 +267,22 @@ public:
     {
         CancerParameters::Instance()->Reset();
 
+        WntGradient wnt_gradient;
+
         // Here we have a system at rest at Wnt = 1.0 - it would normally go into S phase at 5.971.
         // Instead we reduce Wnt linearly over 0<t<1 to zero and the cell doesn't divide.
         SimulationTime *p_simulation_time = SimulationTime::Instance();
+
+        // fails because start time has not been set up
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel bad_model(1.0,wnt_gradient));
+        
         double endTime = 10.0; //hours
         int numTimesteps = 1000*(int)endTime;
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(endTime, numTimesteps);// 15.971 hours to go into S phase
-        
-        
-        WntGradient wnt_gradient;
+                
         double wnt_level = 1.0;
-                       
+
         WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level,wnt_gradient);
 
         MeinekeCryptCell stem_cell(STEM, // type

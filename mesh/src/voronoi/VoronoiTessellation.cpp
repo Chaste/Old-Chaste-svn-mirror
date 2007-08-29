@@ -227,7 +227,7 @@ double VoronoiTessellation<DIM>::ReturnPolarAngle(double x, double y) const
         }
         else
         {
-            assert(0);
+            EXCEPTION("Tried to compute polar angle of (0,0)");
         }
     } 
     

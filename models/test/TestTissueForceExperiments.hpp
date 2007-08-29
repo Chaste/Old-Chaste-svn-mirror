@@ -523,13 +523,19 @@ public:
 
         // To get this test to pass use a stretch of 1.1, fixXNotY = true 
         // and end time of 0.3
-        for(unsigned i=1; i<2; i++)
+        for(unsigned i=1; i<=12; i++)
         {
-            stretches.push_back(1 + 0.1*i);
+            stretches.push_back(1 - 0.05*i);
         }
+
+        for(unsigned i=11; i>=1; i--)
+        {
+            stretches.push_back(1 - 0.05*i);
+        }
+
         
-        bool fix_X_not_Y = true;
-        double run_time = 0.3;
+        bool fix_X_not_Y = false;
+        double run_time = 3;
 
 
         ////////////////////////////////////////////////////        
