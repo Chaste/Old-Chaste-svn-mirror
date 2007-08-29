@@ -12,8 +12,6 @@
 #include "FlaggedMeshBoundaryConditionsContainer.hpp"
 #include "PetscTools.hpp"
 
-#define ONEDIM_FLAGGEDBCC FlaggedMeshBoundaryConditionsContainer<1,1>
-
 class TestFlaggedMeshBoundaryConditionsContainer : public CxxTest::TestSuite
 {
 public:
