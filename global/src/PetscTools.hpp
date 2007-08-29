@@ -17,7 +17,7 @@ class PetscTools
 {
 public :
     /**
-     *  Just returns whether their is one process or not
+     *  Just returns whether there is one process or not
      */
     static bool IsSequential()
     {

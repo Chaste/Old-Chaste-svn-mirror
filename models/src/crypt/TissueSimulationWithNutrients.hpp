@@ -60,6 +60,8 @@ private :
         string_stream << "nutrients_" << counter << ".dat";
         SimpleDataWriter writer(this->mOutputDirectory+"/nutrients/", string_stream.str(), data, false);
         counter++;
+        
+        VecDestroy(result_elliptic_restricted); // for the time being, while this is completely decoupled
     }
 
 

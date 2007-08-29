@@ -69,11 +69,11 @@ public:
 };
 
 
-class TestPDEOnFlaggedMesh: public CxxTest::TestSuite
+class TestPdeOnFlaggedMesh: public CxxTest::TestSuite
 {
 
 public:    
-    void TestPDEOnHoneycombMesh() throw (Exception)
+    void TestPdeOnHoneycombMesh() throw (Exception)
     {
         int num_cells_depth = 11;
         int num_cells_width = 6;
@@ -218,12 +218,13 @@ public:
         
         //SimpleDataWriter writer2("temp", "ellip", data2, false);
 
-
-//        TS_ASSERT_EQUALS(result_elliptic_repl.size(),result_diffusion_repl.size());
-//        for (unsigned i=0; i< result_diffusion_repl.size(); i++)
-//        {
-//            TS_ASSERT_DELTA(result_elliptic_repl[i],result_diffusion_repl[i],1e-2);
-//        }
+        //TS_ASSERT_EQUALS(result_elliptic_repl.size(),result_diffusion_repl.size());
+        //for (unsigned i=0; i< result_diffusion_repl.size(); i++)
+        //{
+        //    TS_ASSERT_DELTA(result_elliptic_repl[i],result_diffusion_repl[i],1e-2);
+        //}
+        
+        VecDestroy(result_elliptic_restricted);
     }
 };
 

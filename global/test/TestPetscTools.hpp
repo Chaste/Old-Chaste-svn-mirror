@@ -60,6 +60,10 @@ public:
         MatType type;
         MatGetType(mat,&type);
         //TS_ASSERT_EQUALS(type, MATMPIAIJ); // this does seem to work, but doesn't pass: it says "found (mpiaij != mpiaij)"
+
+        VecDestroy(vec1);
+        VecDestroy(vec2);
+        MatDestroy(mat);
     }
 };
 #endif /*TESTPETSCTOOLS_HPP_*/
