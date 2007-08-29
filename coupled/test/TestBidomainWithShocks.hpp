@@ -159,10 +159,10 @@ public:
         ColumnDataReader data_reader("Bidomain1d_with_shock","bidomain1d_with_shock");
         
         std::vector<double> times = data_reader.GetUnlimitedDimensionValues();
-        std::vector<double> voltage_values_at_node_0   = data_reader.GetValues("Vm_And_Phi_e", 0);
-        std::vector<double> phi_e_values_at_node_0     = data_reader.GetValues("Vm_And_Phi_e", 1);
-        std::vector<double> voltage_values_at_node_100 = data_reader.GetValues("Vm_And_Phi_e", 200);
-        std::vector<double> phi_e_values_at_node_100   = data_reader.GetValues("Vm_And_Phi_e", 201);
+        std::vector<double> voltage_values_at_node_0   = data_reader.GetValues("V", 0);
+        std::vector<double> phi_e_values_at_node_0     = data_reader.GetValues("Phi_e", 0);
+        std::vector<double> voltage_values_at_node_100 = data_reader.GetValues("V", 100);
+        std::vector<double> phi_e_values_at_node_100   = data_reader.GetValues("Phi_e", 100);
         
         unsigned num_printed_times = voltage_values_at_node_0.size();
         
@@ -254,9 +254,9 @@ public:
         
         ColumnDataReader data_reader("Bidomain2d_with_shock","bidomain2d_with_shock");
         std::vector<double> times = data_reader.GetUnlimitedDimensionValues();
-        std::vector<double> voltage_values_at_node_0   = data_reader.GetValues("Vm_And_Phi_e", 0);
-        std::vector<double> phi_e_values_at_node_0     = data_reader.GetValues("Vm_And_Phi_e", 1);
-        std::vector<double> voltage_values_at_node_120 = data_reader.GetValues("Vm_And_Phi_e", 240);
+        std::vector<double> voltage_values_at_node_0   = data_reader.GetValues("V", 0);
+        std::vector<double> phi_e_values_at_node_0     = data_reader.GetValues("Phi_e", 0);
+        std::vector<double> voltage_values_at_node_120 = data_reader.GetValues("V", 120);
         
         
         unsigned num_printed_times = voltage_values_at_node_0.size();

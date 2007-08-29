@@ -59,7 +59,9 @@ protected:
     virtual AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
 
     ParallelColumnDataWriter *mpWriter;
-    unsigned mVoltageVarId;
+    unsigned mVoltageColumnId;
+    unsigned mTimeColumnId;
+    unsigned mNodeColumnId;
 
 public:    
     /**
@@ -318,21 +320,17 @@ public:
         mpAssembler = CreateAssembler();
         Vec initial_condition = CreateInitialCondition();
         
-        DistributedVector ic = DistributedVector(initial_condition);
-        DistributedVector::Stripe extracellular_ic(initial_condition, 0);
+//        DistributedVector ic = DistributedVector(initial_condition);
+//        DistributedVector::Stripe transmembrane_ic(initial_condition, 0);
 
         TimeStepper stepper(mStartTime, mEndTime, mPrintingTimeStep);
 
-        unsigned time_var_id = 0;
         if (mPrintOutput)
         {
             mpWriter = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
-            mpWriter->DefineFixedDimension("Node", "dimensionless", mpMesh->GetNumNodes() );
-            time_var_id = mpWriter->DefineUnlimitedDimension("Time","msecs");
-            mVoltageVarId = mpWriter->DefineVariable("V","mV");
+            DefineWriterColumns();
             mpWriter->EndDefineMode();
-            mpWriter->PutVariable(time_var_id, stepper.GetTime());
-            mpWriter->PutVectorStripe(mVoltageVarId, extracellular_ic);
+            WriteOneStep(stepper.GetTime(), initial_condition);
         }
         
         // If we have already run a simulation, free the old solution vec
@@ -383,13 +381,9 @@ public:
                     WriteInfo(stepper.GetTime());
                 }
                 
-                DistributedVector voltage = DistributedVector(mVoltage);
-                DistributedVector::Stripe extracellular_voltage(voltage, 0);
-                
                 // Writing data out to the file <mOutputFilenamePrefix>.dat
                 mpWriter->AdvanceAlongUnlimitedDimension(); //creates a new file
-                mpWriter->PutVariable(time_var_id, stepper.GetTime());
-                mpWriter->PutVectorStripe(mVoltageVarId, extracellular_voltage);
+                WriteOneStep(stepper.GetTime(), mVoltage);
             }
         }
         
@@ -425,6 +419,24 @@ public:
     }
     
     virtual void WriteInfo(double time) =0;
+    
+    virtual void DefineWriterColumns()
+    {
+        mNodeColumnId = mpWriter->DefineFixedDimension("Node", "dimensionless", mpMesh->GetNumNodes() );
+        mTimeColumnId = mpWriter->DefineUnlimitedDimension("Time","msecs");
+        mVoltageColumnId = mpWriter->DefineVariable("V","mV");
+    }
+    
+    virtual void WriteOneStep(double time, Vec voltageVec)
+    {
+        for (unsigned node = 0; node < mpMesh->GetNumNodes(); node++)
+        {
+            mpWriter->PutVariable(mNodeColumnId, node, node);
+        }
+        DistributedVector::Stripe transmembrane(voltageVec, 0);
+        mpWriter->PutVariable(mTimeColumnId, time);
+        mpWriter->PutVectorStripe(mVoltageColumnId, transmembrane);
+    }
 };
 
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

@@ -22,7 +22,8 @@ class BidomainProblem : public AbstractCardiacProblem<SPACE_DIM, 2>
 private:    
     BidomainPde<SPACE_DIM>* mpBidomainPde;
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */    
-   
+    unsigned mExtracelluarColumnId;
+    
 protected:
     AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde()
     {
@@ -134,6 +135,20 @@ public:
         << phi_max << " "
         << phi_min << "\n" << std::flush;
     }
+    
+    virtual void DefineWriterColumns()
+    {
+        AbstractCardiacProblem<SPACE_DIM,2>::DefineWriterColumns();
+        mExtracelluarColumnId = this->mpWriter->DefineVariable("Phi_e","mV");
+    }
+    
+    virtual void WriteOneStep(double time, Vec voltageVec)
+    {
+        AbstractCardiacProblem<SPACE_DIM,2>::WriteOneStep(time, voltageVec);
+        DistributedVector::Stripe extracellular(voltageVec, 1);
+        this->mpWriter->PutVectorStripe(mExtracelluarColumnId, extracellular);
+    }
+    
 };
 
 
