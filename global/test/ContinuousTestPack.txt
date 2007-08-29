@@ -4,6 +4,7 @@ TestDistributedVector.hpp
 TestException.hpp
 TestLogFile.hpp
 TestOutputFileHandler.hpp
+TestPetscEvents.hpp
 TestPetSCSetup.hpp
 TestPetscTools.hpp
 TestRandomNumberGenerator.hpp
