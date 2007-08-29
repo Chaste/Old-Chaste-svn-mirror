@@ -43,6 +43,11 @@ private:
 
     static const unsigned mMaxLoggingLevel = 2;
 
+    /**
+     *  Constructor. Should never be called directly, call LogFile::Instance() instead.
+     */
+    LogFile();
+
 public:
     /**
      *  Get the single instance of the LogFile object. 
@@ -50,11 +55,6 @@ public:
     static LogFile* Instance();
     
     static unsigned Level();
-
-    /**
-     *  Constructor. Should never be called directly, call LogFile::Instance() instead.
-     */
-    LogFile();
 
     /**
      *  Set the logging level, the directory (relative to TEST_OUTPUT) and the file 
@@ -97,8 +97,6 @@ public:
         return *this;
     }
 };
-
-LogFile* LogFile::mpInstance = NULL;
 
 #ifndef NDEBUG
     // define the log macro

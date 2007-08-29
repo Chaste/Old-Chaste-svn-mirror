@@ -8,7 +8,7 @@
 
 #include "AbstractStaticAssembler.hpp"
 #include "AbstractLinearSolver.hpp"
-#include "SimpleLinearSolver.cpp"
+#include "SimpleLinearSolver.hpp"
 
 /**
  *  AbstractLinearAssembler. See AbstractAssembler for usage.

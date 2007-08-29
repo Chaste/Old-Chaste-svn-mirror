@@ -1,3 +1,6 @@
+#ifndef _TISSUESIMULATION_CPP_
+#define _TISSUESIMULATION_CPP_
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
@@ -17,7 +20,7 @@
 #include "WntCellCycleModel.hpp"
 #include "WntGradient.hpp"
 #include "OutputFileHandler.hpp"
-#include "LogFile.cpp"
+#include "LogFile.hpp"
 
 template<unsigned DIM> 
 TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
@@ -927,3 +930,4 @@ void TissueSimulation<DIM>::UseNonFlatBottomSurface()
     mUseNonFlatBottomSurface = true;
 }
 
+#endif //_TISSUESIMULATION_CPP_

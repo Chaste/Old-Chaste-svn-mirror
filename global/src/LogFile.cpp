@@ -1,8 +1,6 @@
-#ifndef LOGFILE_CPP_
-#define LOGFILE_CPP_
-
 #include "LogFile.hpp"
 
+LogFile* LogFile::mpInstance = NULL;
 
 LogFile::LogFile()
 {
@@ -72,7 +70,3 @@ bool LogFile::IsFileSet()
 {
     return mFileSet;
 }
-
-
-#endif /*LOGFILE_CPP_*/
-
