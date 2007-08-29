@@ -253,7 +253,7 @@ class Coverage(GccDebug):
     self._link_flags += ' -fprofile-arcs -ftest-coverage'
     self.build_dir = 'coverage'
     self._num_processes = 2
-    self._test_packs.append('Failing')
+    #self._test_packs.append('Failing')
     #self.UseDealii(True)
 
   def UseDealii(self, use_dealii):
