@@ -10,6 +10,8 @@ INCS = -I. -Icxxtest -Ipde/src -Ipde/src/problem -Ipde/src/common -Ipde/src/solv
 INCS += -I/opt/boost/include/boost-1_33_1
 
 LIBS=global/src/Exception.o  \
+global/src/LogFile.o \
+global/src/CancerParameters.o \
 models/src/crypt/cell/cycle/AbstractCellCycleModel.o \
 models/src/crypt/cell/cycle/TysonNovakCellCycleModel.o \
 models/src/crypt/cell/cycle/StochasticCellCycleModel.o \
