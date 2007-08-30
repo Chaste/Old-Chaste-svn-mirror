@@ -16,6 +16,8 @@ specifying where to find libraries and tools.  These variables are:
  * other_libraries    - list of other libraries to link against.  This *must* include
                         lapack, blas, and boost_serialization, as their names vary across systems.
 
+ * ccflags - any extra compiler flags needed, as a string
+
  * tools - a dictionary mapping executable names to their absolute paths, for tools
            not found on $PATH.
 
@@ -156,3 +158,9 @@ def configure(build):
         build.tools['mpicxx'] += ' -CC=icpc'
         build.tools['cxx'] = os.path.join(intel_path, 'bin', 'icpc')
         build.tools['ar'] = os.path.join(intel_path, 'bin', 'xiar')
+
+def ccflags():
+    try:
+        return conf.ccflags
+    except:
+        return ''

@@ -13,4 +13,6 @@ other_libpaths = []
 blas_lapack = ['lapack', 'blas-3']
 other_libraries = ['boost_serialization', 'xerces-c']
 
+ccflags = '-DCWD_HACK'
+
 tools = {}

@@ -96,7 +96,7 @@ Export("other_libpaths", "other_libs")
 
 
 ## Any extra CCFLAGS and LINKFLAGS
-extra_flags = build.CcFlags()
+extra_flags = build.CcFlags() + ' ' + hostconfig.ccflags() + ' '
 link_flags  = build.LinkFlags()
 
 # Hack to get around Debian sarge strangeness
