@@ -170,10 +170,13 @@ class TestNiceCryptSims : public CxxTest::TestSuite
     }
 public:
 
-void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exception)
+void TestNiceCryptSimulation() throw (Exception)
     {        
         CancerParameters* p_params = CancerParameters::Instance();
         std::string output_directory = "NiceCryptSim";
+        
+        double end_of_simulation = 500.0; // hours
+        double time_of_each_run = 50.0; // for each run
         
         unsigned cells_across = 13;
         unsigned cells_up = 25;
@@ -200,7 +203,7 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         simulator.SetOutputCellTypes(true);
                 
         // Set length of simulation here
-        simulator.SetEndTime(50);
+        simulator.SetEndTime(time_of_each_run);
         
         simulator.SetMaxCells(1000);
         simulator.SetMaxElements(2000);
@@ -209,7 +212,7 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetCrypt(),0.01);
         simulator.AddCellKiller(p_cell_killer);
         
-        // UNUSUAL SET UP HERE
+        // UNUSUAL SET UP HERE /////////////////////////////////////
         
         p_params->SetDampingConstantNormal(1.0);    // normally 1
 
@@ -221,7 +224,7 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
         
         simulator.UseNonFlatBottomSurface();
         
-        // END OF UNUSUAL SET UP!
+        // END OF UNUSUAL SET UP! //////////////////////////////////
         
         simulator.Solve();
         
@@ -232,12 +235,12 @@ void TestNiceCryptSimulationWithWntDependentBirthAndSloughingDeath() throw (Exce
             simulator.rGetCrypt().rGetCellAtNodeIndex(label_these[i]).SetMutationState(LABELLED);
         }
         
-        simulator.Save(); 
-
-        for (double t=50; t<450.5; t += 50)
+        simulator.Save();
+        
+        for (double t=time_of_each_run; t<end_of_simulation+0.5; t += time_of_each_run)
         {
             TissueSimulation<2>* p_simulator = TissueSimulation<2>::Load("NiceCryptSim",t);
-            p_simulator->SetEndTime(t+50);
+            p_simulator->SetEndTime(t+time_of_each_run);
             p_simulator->Solve();
             p_simulator->Save();
             delete p_simulator;
