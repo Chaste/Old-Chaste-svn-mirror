@@ -34,12 +34,12 @@ public:
     
     static void BeginEvent(EventType event)
     {
-        PetscLogEventBegin(mPetscEvent[event],0,0,0,0);
+        (void)PetscLogEventBegin(mPetscEvent[event],0,0,0,0);
     }
     
     static void EndEvent(EventType event)
     {
-        PetscLogEventEnd(mPetscEvent[event],0,0,0,0);
+        (void)PetscLogEventEnd(mPetscEvent[event],0,0,0,0);
     }
 
 };

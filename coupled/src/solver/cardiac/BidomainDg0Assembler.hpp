@@ -259,7 +259,7 @@ private:
             double min, max;
 
 #if (PETSC_VERSION_MINOR == 2) //Old API
-	        PetscInt position;
+            PetscInt position;
             VecMax(currentSolution, &position, &max);  
             VecMin(currentSolution, &position, &min);
 #else
