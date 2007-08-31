@@ -33,15 +33,16 @@ private :
         std::map<unsigned, unsigned> map = elliptic_assembler.GetSmasrmIndexMap();
         std::map<unsigned, unsigned>::iterator map_iter = map.begin();
 
+		std::vector<double> global_index;
         std::vector<double> x;
         std::vector<double> y;
         std::vector<double> u;
-
+        
         while (map_iter!=map.end())
         {
             unsigned node_index = map_iter->first;
             unsigned smasrm_index = map_iter->second;
-            
+            global_index.push_back((double) node_index);
             x.push_back(r_mesh.GetNode(node_index)->rGetLocation()[0]);
             y.push_back(r_mesh.GetNode(node_index)->rGetLocation()[1]);
             u.push_back(result_elliptic_repl[smasrm_index]);
@@ -51,6 +52,7 @@ private :
 
 //todo - using SimpleDataWriter is inefficient
         std::vector<std::vector<double> > data;
+        data.push_back(global_index);
         data.push_back(x);
         data.push_back(y);
         data.push_back(u);

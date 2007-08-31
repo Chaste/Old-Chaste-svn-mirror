@@ -30,7 +30,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static int[][] element_nodes;
     public static int[][] cell_type;
     public static int[][] image_cells;
-
+        
     public static double max_x = -1e12;
     public static double max_y = -1e12;
     public static double min_x =  1e12;
@@ -408,7 +408,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             numCells = new int[num_lines];
             numElements = new int[num_lines];
             element_nodes = new int[num_lines][];
-            image_cells = new int[num_lines][];
+            image_cells = new int[num_lines][];            
             fibres =  new RealPoint[num_lines][];
             String line_fibre="";
             BufferedReader in_fibre_file=null;
@@ -848,11 +848,45 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
 	        }        
         }
         
-        
+        double[] nutrient_conc = new double[500];    
+        for  (int j=0 ; j < 200; j++)
+        { 
+        	nutrient_conc[j] = 2.0;
+        }        
+        if (vis.drawNutrient)
+        {
+        	try
+        	{
+        		File nutrient_file = new File(vis.nutrient_file+"/nutrients_"+vis.timeStep+".dat");
+        		BufferedReader in_nut_file = new BufferedReader(new FileReader(nutrient_file));
+
+        		int row = 0;
+        		String line_nut = in_nut_file.readLine(); 
+
+        		while (line_nut != null) 
+        		{
+        			// Create a StringTokenizer with a colon sign as a delimiter
+        			StringTokenizer st = new StringTokenizer(line_nut);
+        			
+        			int node_index = Integer.valueOf(st.nextToken());
+        			Double x = Double.valueOf(st.nextToken());
+        			Double y = Double.valueOf(st.nextToken());        			
+        			nutrient_conc[node_index] = Double.valueOf(st.nextToken());
+        			
+        			line_nut = in_nut_file.readLine();
+        			row++;
+        		}
+        	}
+        	catch (Exception e) 
+        	{
+        		System.out.println("Error occured. Exception message: "+e.getMessage());
+        	}
+        }
+    
         
         g2.setColor(Color.black);
         Shape original_clip=g2.getClip();
-        
+                      
         // draw elements first
         for (int i=0 ; i < vis.numElements[vis.timeStep]; i++)
         {       
@@ -902,7 +936,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                      g2.setClip(clip);
                  }
                  for (int node=0;node<3;node++)
-                 {
+                 {                	 
                      SetCellColour(index[node]);
                      int xs[]=new int[4];
                      int ys[]=new int[4];
@@ -935,7 +969,65 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                 {
                 	g2.setClip(original_clip);
                 }
-            }
+            }            
+
+            if (vis.drawNutrient)
+            {           
+            	vis.drawCells = false;
+            	vis.drawCircles = false;
+            	
+                int clipx[]=new int[3];
+                int clipy[]=new int[3];
+                for (int node=0;node<3;node++)
+                {
+                	clipx[node]=vertex[node].x;
+                	clipy[node]=vertex[node].y;
+                }
+                Polygon clip=new Polygon(clipx,clipy,3);
+                boolean clip_me=false;
+                // Is circumcentre in the triangle?
+                // If not, then we'll clip the next bit of drawing to fit inside the triangle (ticket #432)
+                if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
+                {
+                	clip_me=true;
+                	g2.setClip(clip);
+                }
+                
+                for (int node=0;node<3;node++)
+                {    
+                	 SetCellNutrientColour(nutrient_conc[index[node]], index[node]);
+                     int xs[]=new int[4];
+                     int ys[]=new int[4];
+                     xs[0]=plotcircumcentre.x;
+                     ys[0]=plotcircumcentre.y;
+                     xs[1]=midpoint[(node+1)%3].x;
+                     ys[1]=midpoint[(node+1)%3].y;
+                     xs[2]=vertex[node].x;
+                     ys[2]=vertex[node].y;
+                     xs[3]=midpoint[(node+2)%3].x;
+                     ys[3]=midpoint[(node+2)%3].y;
+                     g2.fillPolygon(xs,ys,4);
+                }
+           
+                g2.setColor(Color.black);
+                // Plot cell boundary lines
+                if( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7))
+                {
+                    g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
+                }
+                if( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7))
+                {
+                    g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
+                }
+                if( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7))
+                {
+                    g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
+                }
+                if (clip_me)
+                {
+                	g2.setClip(original_clip);
+                }
+            }            
             
             if (vis.drawSprings)
             {
@@ -973,80 +1065,82 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
             
         }
         
+
         // draw nodes second so that dots are on top of lines
         double fibre_length=1.2*node_radius;
         for (int i = 0; i < vis.numCells[vis.timeStep]; i++ ) 
         {
-            PlotPoint p=scale(vis.positions[vis.timeStep][i]);
-            
-            SetNodeColour(i);
-            g2.fillOval(p.x - node_radius, p.y - node_radius, 2 * node_radius, 2 * node_radius);
-            //old_x = p.x;
-            //old_y = p.y;
-            if (vis.drawFibres)
-            {
-                g2.setColor(Color.magenta);
-                RealPoint fibre=vis.fibres[vis.timeStep][i];
-                g2.drawLine(p.x, p.y, (int) (p.x+fibre_length*fibre.x), (int) (p.y-fibre_length*fibre.y) );
-                
-            }
+        	PlotPoint p=scale(vis.positions[vis.timeStep][i]);
+
+        	SetNodeColour(i);
+
+        	if (!vis.drawNutrient)
+        	{
+        		g2.fillOval(p.x - node_radius, p.y - node_radius, 2 * node_radius, 2 * node_radius);
+        	}
+        	//old_x = p.x;
+        	//old_y = p.y;
+        	if (vis.drawFibres)
+        	{
+        		g2.setColor(Color.magenta);
+        		RealPoint fibre=vis.fibres[vis.timeStep][i];
+        		g2.drawLine(p.x, p.y, (int) (p.x+fibre_length*fibre.x), (int) (p.y-fibre_length*fibre.y) );
+
+        	}
         }
         g2.setColor(Color.black);
-        
+
         drawXAxis(tick_length, num_ticks);
         drawYAxis(tick_length, num_ticks);
 
-        
-        if(vis.drawNutrient)
-        {
-            try
-            {
-                File nutrient_file = new File(vis.nutrient_file+"/nutrients_"+vis.timeStep+".dat");
-                BufferedReader in_nut_file = new BufferedReader(new FileReader(nutrient_file));
-                
-                int row = 0;
-                String line_nut = in_nut_file.readLine(); 
-                
-                double[] nut_x = new double[100];
-                double[] nut_y = new double[100];
-                double[] nut_u = new double[100];
-                
-                while (line_nut != null) 
-                {
-                    // Create a StringTokenizer with a colon sign as a delimiter
-                    StringTokenizer st = new StringTokenizer(line_nut);
-
-                    Double x = Double.valueOf(st.nextToken());
-                    Double y = Double.valueOf(st.nextToken());
-                    Double u = Double.valueOf(st.nextToken());
-
-                    RealPoint xy = new RealPoint(x,y);
-                    PlotPoint plot_point = scale(xy);
-                    
-                    if(u > 0)
-                    {
-                        g2.setColor(Color.black);
-                        g2.fillOval(plot_point.x, plot_point.y, 8,8);
-                    }
-                    else
-                    {
-
-                        g2.setColor(Color.blue);
-                        g2.fillOval(plot_point.x, plot_point.y, 8,8);
-                    }
-//                    nut_x[row] = x.doubleValue();            
-//                    nut_y[row] = y.doubleValue();            
-//                    nut_u[row] = u.doubleValue();          
-                    
-                    line_nut = in_nut_file.readLine();
-                    row++;
-                }
-            }
-            catch (Exception e) 
-            {
-                System.out.println("Error occured. Exception message: "+e.getMessage());
-            }
-        }
+//        
+//        if(vis.drawNutrient)
+//        {
+//            try
+//            {
+//                File nutrient_file = new File(vis.nutrient_file+"/nutrients_"+vis.timeStep+".dat");
+//                BufferedReader in_nut_file = new BufferedReader(new FileReader(nutrient_file));
+//                
+//                int row = 0;
+//                String line_nut = in_nut_file.readLine(); 
+//                
+//                double[] nut_x = new double[100];
+//                double[] nut_y = new double[100];
+//                double[] nut_u = new double[100];
+//                
+//                while (line_nut != null) 
+//                {
+//                    // Create a StringTokenizer with a colon sign as a delimiter
+//                    StringTokenizer st = new StringTokenizer(line_nut);
+//
+//                    Double x = Double.valueOf(st.nextToken());
+//                    Double y = Double.valueOf(st.nextToken());
+//                    Double u = Double.valueOf(st.nextToken());
+//
+//                    RealPoint xy = new RealPoint(x,y);
+//                    PlotPoint plot_point = scale(xy);
+//                    
+//                    if(u > 0)
+//                    {
+//                        g2.setColor(Color.black);
+//                        g2.fillOval(plot_point.x, plot_point.y, 8,8);
+//                    }
+//                    else
+//                    {
+//
+//                        g2.setColor(Color.blue);
+//                        g2.fillOval(plot_point.x, plot_point.y, 8,8);
+//                    }      
+//                    
+//                    line_nut = in_nut_file.readLine();
+//                    row++;
+//                }
+//            }
+//            catch (Exception e) 
+//            {
+//                System.out.println("Error occured. Exception message: "+e.getMessage());
+//            }
+//        }
 
         
         imageReady = true;
@@ -1290,6 +1384,48 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
             // danger! sloughed - don't draw anything
             g2.setColor(garysSexySilver);
         }
+    }
+    
+    void SetCellNutrientColour(double conc, int index)
+    {
+    	if(vis.cell_type[vis.timeStep][index]==6)
+        {
+            // Undergoing Apoptosis
+            g2.setColor(ozzysDirtyGrey);
+        }
+        else if(vis.cell_type[vis.timeStep][index]==7)
+        {
+            // danger! sloughed - don't draw anything
+            g2.setColor(garysSexySilver);
+        }
+        else
+        {
+        	// colour according to the nutrient level at node 'node', which has index 'index[node]'
+        	if(conc > 0.8)
+        	{
+        		g2.setColor(Color.red);
+        	}
+        	else if(conc > 0.6)
+        	{
+        		g2.setColor(Color.orange);
+        	}       
+        	else if(conc > 0.4)
+        	{
+        		g2.setColor(Color.yellow);
+        	}   
+        	else if(conc > 0.2)
+        	{
+        		g2.setColor(Color.green);
+        	}   
+        	else if(conc > 0.0)
+        	{
+        		g2.setColor(Color.cyan);
+        	}
+        	else
+        	{
+        		g2.setColor(Color.blue);
+        	}
+        }   	
     }
             
     
