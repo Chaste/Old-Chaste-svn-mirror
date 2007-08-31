@@ -1400,31 +1400,35 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         }
         else
         {
-        	// colour according to the nutrient level at node 'node', which has index 'index[node]'
-        	if(conc > 0.8)
-        	{
-        		g2.setColor(Color.red);
-        	}
-        	else if(conc > 0.6)
-        	{
-        		g2.setColor(Color.orange);
-        	}       
-        	else if(conc > 0.4)
-        	{
-        		g2.setColor(Color.yellow);
-        	}   
-        	else if(conc > 0.2)
-        	{
-        		g2.setColor(Color.green);
-        	}   
-        	else if(conc > 0.0)
-        	{
-        		g2.setColor(Color.cyan);
-        	}
-        	else
-        	{
-        		g2.setColor(Color.blue);
-        	}
+            int r = (int)(121 - 20*conc); 
+            if (r<0) 
+            {
+            	r=0;
+            }
+            if (r>255)
+            { 
+            	r=255;
+            }
+            int g = (int)(126 - 20*conc); 
+            if (g<0) 
+            {
+            	g=0;
+            }
+            if (g>255)
+            {
+            	g=255;
+            }
+            int b = (int)(200 - 20*conc); 
+            if (b<0) 
+            {
+            	b=0; 
+            }
+            if(b>255)
+            {
+            	b=255;
+            }
+            Color colour = new Color(r,g,b);
+            g2.setColor(colour);
         }   	
     }
             
