@@ -263,8 +263,8 @@ private:
             VecMax(currentSolution, &position, &max);  
             VecMin(currentSolution, &position, &min);
 #else
-            VecMax(currentSolution, &max);  
-            VecMin(currentSolution, &min);
+            VecMax(currentSolution, PETSC_NULL, &max);  
+            VecMin(currentSolution, PETSC_NULL, &min);
 #endif
             if ( -min > max ) 
             {
