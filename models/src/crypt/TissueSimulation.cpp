@@ -690,11 +690,11 @@ void TissueSimulation<DIM>::Solve()
     out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
     out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
     out_stream p_setup_file = output_file_handler.OpenOutputFile("results.vizsetup");
-    // Creates output file to store number of different cells
     
+    // Creates output file to store number of different cells
     out_stream p_cell_types_file = output_file_handler.OpenOutputFile("celltypes.dat");
     if (mOutputCellTypes)
-    {
+    { 
         *p_cell_types_file <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
     }
         
@@ -788,7 +788,6 @@ void TissueSimulation<DIM>::Solve()
                                     tabulated_output_counter%80==0,
                                     true,
                                     mOutputCellTypes);
-                                    
         tabulated_output_counter++;
         
         PostSolve();

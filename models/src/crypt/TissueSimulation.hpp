@@ -155,6 +155,7 @@ protected:
         archive & mUseNonFlatBottomSurface;
         archive & mUseCutoffPoint;
         archive & mCutoffPoint;
+        archive & mOutputCellTypes;
     }
     
     /**
@@ -304,7 +305,6 @@ inline void load_construct_data(
     // retrieve data from archive required to construct new instance
     Crypt<DIM>* p_crypt;
 
-//fails here:
     ar >> p_crypt;
 
     // invoke inplace constructor to initialize instance

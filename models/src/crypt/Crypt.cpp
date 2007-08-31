@@ -539,8 +539,8 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
     double time = p_simulation_time->GetDimensionalisedTime();
-    int cell_counter[5];
-    for(int i=0; i < 5; i++)
+    unsigned cell_counter[5];
+    for(unsigned i=0; i < 5; i++)
     {
         cell_counter[i] =0;
     }
@@ -709,7 +709,7 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
     
     if (OutputCellTypes)
     {
-        for(int i=0; i < 5; i++)
+        for(unsigned i=0; i < 5; i++)
         {
             rCellTypesFile <<  cell_counter[i] << "\t";
         }

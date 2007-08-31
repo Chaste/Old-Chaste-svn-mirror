@@ -35,6 +35,7 @@ void TestRepresentativeSimulationForProfiling() throw (Exception)
 
         std::string test_to_profile = "NiceCryptSim";
         double t = 350;   // this is the folder and time that the stored results were archived (needed to know foldernames)
+        double run_for = 10; // run for 10 hours.
         
         // The archive needs to be copied from models/test/data/<test_to_profile>
         // to the testoutput directory to continue running the simulation.     
@@ -46,7 +47,7 @@ void TestRepresentativeSimulationForProfiling() throw (Exception)
         TS_ASSERT_EQUALS(return_value, 0);
         
         TissueSimulation<2>* p_simulator = TissueSimulation<2>::Load(test_to_profile,t);
-        p_simulator->SetEndTime(t+10);
+        p_simulator->SetEndTime(t+run_for); // start time + duration
         p_simulator->Solve();
         delete p_simulator;
                 
