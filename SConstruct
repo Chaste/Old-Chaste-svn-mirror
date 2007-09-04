@@ -134,6 +134,7 @@ env.Append(BOPT = 'g_c++')
 env.Replace(CXX = build.tools['mpicxx'])
 env.Replace(AR = build.tools['ar'])
 env.Replace(CPPPATH = cpppath)
+env['build'] = build
 
 # Create Builders for generating test .cpp files, and running test executables
 test = Builder(action = 'cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURCES')
@@ -143,7 +144,7 @@ import TestRunner
 def test_description(target, source, env):
     return "running '%s'" % (source[0])
 test_action = Action(TestRunner.get_build_function(build, run_time_flags),
-                     test_description)
+                     test_description, ['build'])
 runtests = Builder(action=test_action)
 env['BUILDERS']['Test'] = test
 env['BUILDERS']['RunTests'] = runtests
