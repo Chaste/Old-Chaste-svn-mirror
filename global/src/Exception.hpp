@@ -38,5 +38,4 @@ public:
 #define UNUSED_OPT(var)
 #endif
 
-
 #endif // _EXCEPTION_HPP_
