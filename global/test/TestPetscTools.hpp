@@ -64,6 +64,20 @@ public:
         VecDestroy(vec1);
         VecDestroy(vec2);
         MatDestroy(mat);
+        
+    }
+    
+    void TestReplicateError()
+    {
+        DistributedVector::SetProblemSize(1);
+        if (DistributedVector::IsGlobalIndexLocal(0))
+        {
+            TS_ASSERT_THROWS_NOTHING(PetscTools::ReplicateException(true));
+        }
+        else
+        {
+            TS_ASSERT_THROWS_ANYTHING(PetscTools::ReplicateException(false));
+        }
     }
 };
 #endif /*TESTPETSCTOOLS_HPP_*/
