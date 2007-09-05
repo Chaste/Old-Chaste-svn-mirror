@@ -1259,6 +1259,7 @@ public:
             
             TS_ASSERT_EQUALS(p_model->GetCell(), p_stem_cell);
             
+            delete p_stem_cell;
             SimulationTime::Destroy();
         }
     }

@@ -676,12 +676,7 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
             p_simulation_time->IncrementTimeOneStep();
             
-            // initialise crypt
-            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-            ConformingTetrahedralMesh<2,2> mesh;
-            mesh.ConstructFromMeshReader(mesh_reader);
-            std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
-            Crypt<2>* p_crypt = new Crypt<2>(mesh, cells);
+            Crypt<2>* p_crypt;
                                                    
             // restore the crypt
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -695,6 +690,8 @@ public:
             
             input_arch >> p_crypt;
             
+            // TODO: This should actually test something!!!
+            // TODO: The cells should have been run to time 0 before the crypt was saved!
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // loop over them to run to time 0.0;
             for(Crypt<2>::Iterator cell_iter = p_crypt->Begin();
@@ -715,6 +712,7 @@ public:
             // This won't pass because of the mesh not being archived 
             // TS_ASSERT_EQUALS(crypt.rGetMesh().GetNumNodes(),5u);            
             
+            delete p_crypt;
             SimulationTime::Destroy();
         }
     }

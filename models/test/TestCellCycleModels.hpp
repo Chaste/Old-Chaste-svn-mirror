@@ -325,7 +325,6 @@ public:
         TS_ASSERT_DELTA(testResults[6] , 0.5*7.415537855270896e-03 , 1e-5);
         TS_ASSERT_DELTA(testResults[7] , 0.5*7.415537855270896e-03 , 1e-5);
         TS_ASSERT_DELTA(testResults[8] , 0.0 , 1e-6);
-        TS_ASSERT_DELTA(testResults[9] , 0.0 , 1e-6);
         
         test_type = p_cell_model->UpdateCellType();
         TS_ASSERT_EQUALS(test_type, DIFFERENTIATED);

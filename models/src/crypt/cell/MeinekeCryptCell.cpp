@@ -27,6 +27,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
     mUndergoingApoptosis = false;
     mIsDead = false;
     mDeathTime = DBL_MAX; // this has to be initialised for archiving...
+    mNodeIndex = (unsigned)(-1); // initialise to a silly value for archiving (avoid memory check error)
     mpCellCycleModel->SetCell(this);
 }
 

@@ -218,7 +218,6 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],4.975124378109454e-03, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][6]+solutions.rGetSolutions()[end][7],6.002649406788524e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],1.00, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][9],0.00, 1e-3);
     }
     
     void TestWntCellCycleSolverWithAPCSingleHit() throw(Exception)
