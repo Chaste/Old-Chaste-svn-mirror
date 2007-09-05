@@ -155,13 +155,13 @@ public:
         MonodomainPde<1> monodomain_pde( &cell_factory );
         DistributedVector::SetProblemSize(2);
         
-        if (DistributedVector::Begin().Local<=0 && DistributedVector::End().Local<=0)
+        if (DistributedVector::IsGlobalIndexLocal(0))
         {
             AbstractCardiacCell* cell = monodomain_pde.GetCardiacCell(0);
             TS_ASSERT_DELTA(cell->GetStimulus(0.001),-80,1e-10);
         }
         
-        if (DistributedVector::Begin().Local<=1 && 1<DistributedVector::End().Local)
+        if (DistributedVector::IsGlobalIndexLocal(1))
         {
             AbstractCardiacCell* cell = monodomain_pde.GetCardiacCell(1);
             TS_ASSERT_DELTA(cell->GetStimulus(0.001),0,1e-10);
