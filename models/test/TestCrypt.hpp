@@ -690,17 +690,15 @@ public:
             
             input_arch >> p_crypt;
             
-            // TODO: This should actually test something!!!
-            // TODO: The cells should have been run to time 0 before the crypt was saved!
             // Cells have been given birth times of 0, -1, -2, -3, -4.
-            // loop over them to run to time 0.0;
+            // this checks that individual cells and their models are archived.
+            unsigned counter = 0u;
             for(Crypt<2>::Iterator cell_iter = p_crypt->Begin();
              cell_iter != p_crypt->End();
              ++cell_iter)
             {
-                std::vector<double> cell_influence;
-                cell_influence.push_back(0.0);
-                cell_iter->ReadyToDivide(cell_influence);
+                TS_ASSERT_DELTA(cell_iter->GetAge(),(double)(counter),1e-7);
+                counter++;
             }
                         
             // check the simulation time has been restored (through the cell)
