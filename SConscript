@@ -115,17 +115,10 @@ test_log_files = []
 # Build and run tests of this component
 for testfile in testfiles:
     prefix = testfile[:-4]
-    test_hpp = File('test/' + testfile)
-    runner_cpp = env.Test(prefix+'Runner.cpp', test_hpp)
-    obj = env.Object(prefix+'Runner', runner_cpp)
-    prog = env.TestProgram(prefix+'Runner', obj,
-                TEST_HPP=test_hpp, RUNNER_CPP=runner_cpp[0],
-                LIBS = other_libs,# Want just other_libs, not all_libs
+    runner_cpp = env.Test(prefix+'Runner.cpp', 'test/' + testfile) 
+    env.Program(prefix+'Runner', runner_cpp,
+                LIBS = all_libs,
                 LIBPATH = ['#linklib', '.'] + other_libpaths)
-    nlist = env.ListFiles(prefix+'List.txt', obj,
-                          RUNNER_EXE=prog[0])
-    env.Depends(prog, nlist)
-    env.AlwaysBuild(nlist)
     if not compile_only:
         log_file = env.File(prefix+'.log')
         env.Depends(log_file, lib_deps)
