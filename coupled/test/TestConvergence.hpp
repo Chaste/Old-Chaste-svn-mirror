@@ -11,9 +11,11 @@
 #include <math.h>
 
 #include "BackwardEulerLuoRudyIModel1991.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
 #include "TimeConvergenceTester.hpp"
 #include "SpaceConvergenceTester.hpp"
 #include "KspConvergenceTester.hpp"
+#include "OdeConvergenceTester.hpp"
 
 
 class TestConvergence : public CxxTest::TestSuite
@@ -45,6 +47,13 @@ public:
         TS_ASSERT_DELTA(tester.mKspRtol, 1e-5, 1e-10);
     }
 
+    void Test1DOde() throw(Exception)
+    {
+        OdeConvergenceTester<LuoRudyIModel1991OdeSystem, BidomainProblem<1>, 1> tester;
+        tester.Converge();
+        TS_ASSERT(tester.mConverged);
+        TS_ASSERT_DELTA(tester.mOdeTimeStep, 0.00125, 1e-10);
+    }
  
 };
 

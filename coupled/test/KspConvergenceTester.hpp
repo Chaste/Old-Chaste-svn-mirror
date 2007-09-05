@@ -7,7 +7,7 @@ class KspConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PROB
 public:
     void SetInitialConvergenceParameters()
     {
-        this->mKspRtol=1e-1;
+        this->mKspRtol=1e-2;
     }
     void UpdateConvergenceParameters()
     {

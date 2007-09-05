@@ -78,9 +78,9 @@ private:
 
 public:    
     AbstractConvergenceTester()
-    : mOdeTimeStep(0.01),
-      mPdeTimeStep(0.01),
-      mMeshNum(4u),
+    : mOdeTimeStep(0.0025),
+      mPdeTimeStep(0.0025),
+      mMeshNum(5u),
       mKspRtol(1e-8),
       mConverged(false)
     {
@@ -268,7 +268,7 @@ public:
             unsigned mesh_size = (unsigned) pow(2, mMeshNum+2); // number of elements in each dimension
             double scaling = mesh_width/(double) mesh_size;
             std::cout<<"================================================================================"<<std::endl  << std::flush;
-            std::cout<<"Solving with a space step of "<< scaling << " cm" << mMeshNum <<std::endl  << std::flush;
+            std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << mMeshNum << ")" << std::endl  << std::flush;
             std::cout<<"Solving with a time step of "<<mPdeTimeStep<<" ms"<<std::endl  << std::flush;
             std::cout<<"Solving with an ode time step of "<<mOdeTimeStep<<" ms"<<std::endl  << std::flush;
             std::cout<<"Solving with a KSP relative tolerance of "<<mKspRtol<<std::endl  << std::flush;
