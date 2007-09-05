@@ -11,6 +11,7 @@
 #include "AbstractCardiacPde.hpp"
 #include "AbstractDynamicAssemblerMixin.hpp"
 #include "EventHandler.hpp"
+#include "PetscTools.hpp"
 
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
@@ -368,9 +369,11 @@ public:
                     mpWriter->Close();
                     delete mpWriter;
                 }
+                PetscTools::ReplicateException(true);
                 // Re-throw
                 throw e;
             }
+            PetscTools::ReplicateException(false);
             
             // Free old initial condition
             VecDestroy(initial_condition);
@@ -403,12 +406,11 @@ public:
         // close the file that stores voltage values
         if (mPrintOutput)
         {
+            bool am_master = mpWriter->AmMaster();
             mpWriter->Close();
             delete mpWriter;
             
-            PetscInt my_rank;
-            MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-            if (my_rank==0) // ie only if master process and results files were written
+            if (am_master) // ie only if master process and results files were written
             {
                 // call shell script which converts the data to meshalyzer format
                 std::string chaste_2_meshalyzer;
@@ -439,12 +441,15 @@ public:
     
     virtual void WriteOneStep(double time, Vec voltageVec)
     {
-        for (unsigned node = 0; node < mpMesh->GetNumNodes(); node++)
+        if (mpWriter->AmMaster())
         {
-            mpWriter->PutVariable(mNodeColumnId, node, node);
+            for (unsigned node = 0; node < mpMesh->GetNumNodes(); node++)
+            {
+                mpWriter->PutVariable(mNodeColumnId, node, node);
+            }
+            mpWriter->PutVariable(mTimeColumnId, time);
         }
         DistributedVector::Stripe transmembrane(voltageVec, 0);
-        mpWriter->PutVariable(mTimeColumnId, time);
         mpWriter->PutVectorStripe(mVoltageColumnId, transmembrane);
     }
 };

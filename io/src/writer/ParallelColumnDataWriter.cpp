@@ -104,21 +104,15 @@ void ParallelColumnDataWriter::EndDefineMode()
 }
 
 /**
- * There are two ways of calling PutVariable
+ * There are two ways of calling PutVariable:
  * 1) All processes call it as a collective operation from the user's code.
  *    This only makes sense if they are writing the unlimited dimension (time) variable.
- *    It is an error if any non-master process writes anything other than
- *      unlimited dimension
+ *    It is actually a no-op if any non-master process attempts to write anything at all.
  * 2) The master calls the equivalent method in the parent class after concentrating
  *      the data into a single Vec (ie. from the method PutVector() above).
  */
 void ParallelColumnDataWriter::PutVariable(int variableID, double variableValue,long dimensionPosition)
 {
-    if (variableID != UNLIMITED_DIMENSION_VAR_ID && !mAmMaster)
-    {
-        EXCEPTION("Non-master processes cannot write to disk.");
-    }
-    
     if (mAmMaster)
     {
         //Master process is allowed to write

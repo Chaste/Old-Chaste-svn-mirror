@@ -101,14 +101,11 @@ public:
         mpParallelWriter->PutVariable(time_var_id, 0.1);
         TS_ASSERT_THROWS_NOTHING( mpParallelWriter->PutVector(var1_id, var1) );
         TS_ASSERT_THROWS_NOTHING( mpParallelWriter->PutVector(var2_id, var2) );
+        // Throws since var3 is the wrong size
         TS_ASSERT_THROWS_ANYTHING(mpParallelWriter->PutVector(var1_id, var3) );
         
-        PetscInt my_rank;
-        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-        if (my_rank!=0)
-        {        
-            TS_ASSERT_THROWS_ANYTHING(mpParallelWriter->PutVariable(var1_id, 0.0, 0));
-        }
+        // No-op if not master, writes anyway if we are
+        TS_ASSERT_THROWS_NOTHING(mpParallelWriter->PutVariable(var1_id, 0.0, 0));
         
         TS_ASSERT_THROWS_NOTHING( mpParallelWriter->AdvanceAlongUnlimitedDimension() );
         

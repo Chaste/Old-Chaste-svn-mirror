@@ -11,6 +11,7 @@
 #include "AbstractCardiacCell.hpp"
 #include "DistributedVector.hpp"
 #include "EventHandler.hpp"
+#include "PetscTools.hpp"
 
 /**
  *  Pde containing common functionality to mono and bidomain pdes.
@@ -203,7 +204,7 @@ public:
             }
             catch (Exception &e)
             {
-                ReplicateException(true);
+                PetscTools::ReplicateException(true);
                 throw e;
             }
             
@@ -212,7 +213,7 @@ public:
         }
         EventHandler::EndEvent(SOLVE_ODES);
 
-        ReplicateException(false);
+        PetscTools::ReplicateException(false);
 
         EventHandler::BeginEvent(COMMUNICATION);
         ReplicateCaches();
@@ -250,22 +251,6 @@ public:
     {
         mIionicCacheReplicated.Replicate(DistributedVector::Begin().Global, DistributedVector::End().Global);
         mIntracellularStimulusCacheReplicated.Replicate(DistributedVector::Begin().Global, DistributedVector::End().Global);
-    }
-    
-    void ReplicateException(bool flag)
-    {
-        unsigned my_error = (unsigned) flag;
-        unsigned anyones_error;
-        MPI_Allreduce(&my_error, &anyones_error, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-        if (flag)
-        {
-            // Return control to exception thrower
-            return;
-        }
-        if (anyones_error)
-        {
-            EXCEPTION("Another process threw an exception in PrepareForAssembleSystem");
-        }
     }
 };
 

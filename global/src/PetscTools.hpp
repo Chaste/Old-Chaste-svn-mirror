@@ -5,6 +5,7 @@
 #include <vector>
 #include <petsc.h>
 #include <petscvec.h>
+#include <petscmat.h>
 #include <iostream>
 #include <assert.h>
 #include "DistributedVector.hpp"
@@ -103,5 +104,28 @@ public :
         MatSetType(rMat, matType);
         MatSetFromOptions(rMat);
     }
+    
+    /**
+     * Ensure exceptions are handled cleanly in parallel code, by causing all processes to
+     * throw if any one does.
+     * 
+     * @param flag is set to true if this process has thrown.
+     */
+    static void ReplicateException(bool flag)
+    {
+        unsigned my_error = (unsigned) flag;
+        unsigned anyones_error;
+        MPI_Allreduce(&my_error, &anyones_error, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        if (flag)
+        {
+            // Return control to exception thrower
+            return;
+        }
+        if (anyones_error)
+        {
+            EXCEPTION("Another process threw an exception in PrepareForAssembleSystem");
+        }
+    }
 };
+
 #endif /*PETSCTOOLS_HPP_*/
