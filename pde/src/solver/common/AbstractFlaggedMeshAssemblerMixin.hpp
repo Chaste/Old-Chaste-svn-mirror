@@ -54,34 +54,15 @@ protected:
         
         ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& r_mesh = this->rGetMesh();
         
-        // Figure out the SMASRM size, and generate a map from global node number
-        // to SMASRM index.
-        mSmasrmIndexMap.clear();
-
-        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
-            iter = r_mesh.GetElementIteratorBegin();
-        unsigned smasrm_size = 0;
-        while (iter != r_mesh.GetElementIteratorEnd())
+        if (mSmasrmIndexMap.size()==0)
         {
-            Element<ELEMENT_DIM, SPACE_DIM>& element = **iter;
-            
-            if (element.IsFlagged())
-            {
-                // Add this element's nodes to the map
-                const unsigned num_nodes = element.GetNumNodes();
-                for (unsigned i=0; i<num_nodes; i++)
-                {
-                    unsigned node_index = element.GetNodeGlobalIndex(i);
-                    if (mSmasrmIndexMap.count(node_index) == 0)
-                    {
-                        // This is a new node
-                        mSmasrmIndexMap[node_index] = smasrm_size++;
-                    }
-                }
-            }
-            ++iter;
+            SetupMap();
         }
         
+        if (currentSolutionOrGuess)
+        {
+            assert(mSmasrmIndexMap.size() == r_curr_soln.size());
+        }
         //// Debugging: display index map
         //std::cout << "SMASRM index map" << std::endl;
         //std::map<unsigned, unsigned>::iterator smasrm_map_iter = mSmasrmIndexMap.begin();
@@ -97,7 +78,7 @@ protected:
         {
             delete *(this->GetLinearSystem());
         }
-        LinearSystem* p_linear_system = new LinearSystem(smasrm_size);
+        LinearSystem* p_linear_system = new LinearSystem(mSmasrmIndexMap.size());
         *(this->GetLinearSystem()) = p_linear_system;
         
 //        //If this is the first time through then it's appropriate to set the
@@ -113,7 +94,8 @@ protected:
 
 
         // Assume all elements have the same number of nodes...
-        iter = r_mesh.GetElementIteratorBegin();
+        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
+            iter = r_mesh.GetElementIteratorBegin();
         const unsigned num_elem_nodes = (*iter)->GetNumNodes();
         c_matrix<double, 1*(ELEMENT_DIM+1), 1*(ELEMENT_DIM+1)> a_elem;
         c_vector<double, 1*(ELEMENT_DIM+1)> b_elem;
@@ -169,16 +151,71 @@ protected:
         this->FinaliseAssembleSystem(currentSolutionOrGuess, currentTime);
     }
     
+     double GetCurrentSolutionOrGuessValue(unsigned nodeIndex, unsigned indexOfUnknown)
+     {
+        assert(PROBLEM_DIM==1); // not taking into account PROBLEM_DIM>1 yet 
+        assert(indexOfUnknown<PROBLEM_DIM);
+
+        std::map<unsigned, unsigned>::iterator map_iter = mSmasrmIndexMap.find(nodeIndex);
+        assert(map_iter!=mSmasrmIndexMap.end());
+
+        unsigned vec_index=map_iter->second;
+        ///\todo: not efficient - maybe store a ref to mCurrentSolnOrGuessReplicated
+        // as a member variable
+        return this->rGetCurrentSolutionOrGuess()[ PROBLEM_DIM*vec_index + indexOfUnknown];
+     }
+    
+    
 public :
     AbstractFlaggedMeshAssemblerMixin(FlaggedMeshBoundaryConditionsContainer<SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>()
     {
         mpFlaggedMeshBcc=pBoundaryConditions;
     }
-    
-    
-    std::map<unsigned, unsigned> GetSmasrmIndexMap()
+
+
+    void SetupMap()
     {
+        ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& r_mesh = this->rGetMesh();
+        
+        // Figure out the SMASRM size, and generate a map from global node number
+        // to SMASRM index.
+        mSmasrmIndexMap.clear();
+
+        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
+            iter = r_mesh.GetElementIteratorBegin();
+        unsigned smasrm_size = 0;
+
+        while (iter != r_mesh.GetElementIteratorEnd())
+        {
+            Element<ELEMENT_DIM, SPACE_DIM>& element = **iter;
+            
+            if (element.IsFlagged())
+            {
+                // Add this element's nodes to the map
+                const unsigned num_nodes = element.GetNumNodes();
+                for (unsigned i=0; i<num_nodes; i++)
+                {
+                    unsigned node_index = element.GetNodeGlobalIndex(i);
+                    if (mSmasrmIndexMap.count(node_index) == 0)
+                    {
+                        // This is a new node
+                        mSmasrmIndexMap[node_index] = smasrm_size++;
+                    }
+                }
+            }
+            ++iter;
+        }
+        assert(mSmasrmIndexMap.size() == smasrm_size);
+           
+    }
+        
+    std::map<unsigned, unsigned>& rGetSmasrmIndexMap()
+    {
+        if (mSmasrmIndexMap.size()==0)
+        {
+            SetupMap();
+        }
         return mSmasrmIndexMap;
     }
 };

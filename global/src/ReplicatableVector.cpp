@@ -3,6 +3,7 @@
 #include <vector>
 #include <petscvec.h>
 #include <iostream>
+#include <cassert>
 
 // Private methods
 
@@ -75,6 +76,7 @@ void ReplicatableVector::resize(unsigned size)
 
 double& ReplicatableVector::operator[](unsigned index)
 {
+    assert(index < mData.size());
     return mData[index];
 }
 

@@ -92,7 +92,6 @@ protected:
         GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
             *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpQuadRule);
             
-            
         /**
          * \todo This assumes that the Jacobian is constant on an element.
          * This is true for linear basis functions, but not for any other type of
@@ -168,15 +167,17 @@ protected:
                         // NOTE - currentSolutionOrGuess input is actually now redundant at this point -
                         
                         // NOTE - following assumes that, if say there are two unknowns u and v, they
-                        // are stored in the curren solution vector as
+                        // are stored in the current solution vector as
                         // [U1 V1 U2 V2 ... U_n V_n]
-                        u(index_of_unknown) += phi(i)*this->mCurrentSolutionOrGuessReplicated[ PROBLEM_DIM*node_global_index + index_of_unknown];
+                        double u_at_node=GetCurrentSolutionOrGuessValue(node_global_index, index_of_unknown);
+                        u(index_of_unknown) += phi(i)*u_at_node;
                         
                         if ( this->ProblemIsNonlinear() ) // don't need to construct grad_phi or grad_u in that case
                         {
                             for (unsigned j=0; j<SPACE_DIM; j++)
                             {
-                                grad_u(index_of_unknown,j) += grad_phi(j,i)*this->mCurrentSolutionOrGuessReplicated[ PROBLEM_DIM*node_global_index + index_of_unknown];
+                                grad_u(index_of_unknown,j) += grad_phi(j,i)*u_at_node;
+             
                             }
                         }
                     }
@@ -498,22 +499,38 @@ protected:
     
     
     /**
-     * Accessor methods that subclasses of AbstractAssembler (but not us)
+     * Accessor method that subclasses of AbstractAssembler (but not us)
      * can use to get to useful data.
      */
     ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rGetMesh()
     {
+        assert(mpMesh!=NULL);
         return *mpMesh;
     }
+
+    /**
+     * Accessor method that subclasses of AbstractAssembler (but not us)
+     * can use to get to useful data.
+     */
     LinearSystem** GetLinearSystem()
     {
         return &mpLinearSystem;
     }
+
+    /**
+     * Accessor method that subclasses of AbstractAssembler (but not us)
+     * can use to get to useful data.
+     */
     ReplicatableVector& rGetCurrentSolutionOrGuess()
     {
         return mCurrentSolutionOrGuessReplicated;
     }
     
+    
+    virtual double GetCurrentSolutionOrGuessValue(unsigned nodeIndex, unsigned indexOfUnknown)
+    {
+        return mCurrentSolutionOrGuessReplicated[ PROBLEM_DIM*nodeIndex + indexOfUnknown];
+    }
 public:
     /**
      * Default constructor. Uses linear basis functions.

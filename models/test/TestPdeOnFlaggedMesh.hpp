@@ -143,7 +143,7 @@ public:
 //        Vec result_diffusion_restricted = diffusion_assembler.Solve();
 //        ReplicatableVector result_diffusion_repl(result_diffusion_restricted);
 //
-//        std::map<unsigned, unsigned> map = diffusion_assembler.GetSmasrmIndexMap();
+//        std::map<unsigned, unsigned>& map = diffusion_assembler.rGetSmasrmIndexMap();
 //        std::map<unsigned, unsigned>::iterator map_iter = map.begin();
 //
 //        std::vector<double> x1;
@@ -188,7 +188,7 @@ public:
         Vec result_elliptic_restricted = elliptic_assembler.Solve();
         ReplicatableVector result_elliptic_repl(result_elliptic_restricted);
 
-        std::map<unsigned, unsigned> map2 = elliptic_assembler.GetSmasrmIndexMap();
+        std::map<unsigned, unsigned>& map2 = elliptic_assembler.rGetSmasrmIndexMap();
         std::map<unsigned, unsigned>::iterator map_iter2 = map2.begin();
 
         std::vector<double> x2;

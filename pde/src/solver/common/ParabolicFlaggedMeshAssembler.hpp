@@ -25,6 +25,11 @@ private:
         AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>::AssembleSystem(assembleVector, assembleMatrix, currentSolutionOrGuess, currentTime);
     }
     
+    double GetCurrentSolutionOrGuessValue(unsigned nodeIndex, unsigned indexOfUnknown)
+    {      
+        return AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>::GetCurrentSolutionOrGuessValue(nodeIndex, indexOfUnknown);
+    }
+  
 public :
     ParabolicFlaggedMeshAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
                                   AbstractLinearParabolicPde<DIM>* pPde,

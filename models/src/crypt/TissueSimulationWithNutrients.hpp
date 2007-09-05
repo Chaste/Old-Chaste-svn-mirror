@@ -30,7 +30,7 @@ private :
         Vec result_elliptic_restricted = elliptic_assembler.Solve();
         ReplicatableVector result_elliptic_repl(result_elliptic_restricted);
 
-        std::map<unsigned, unsigned> map = elliptic_assembler.GetSmasrmIndexMap();
+        std::map<unsigned, unsigned>& map = elliptic_assembler.rGetSmasrmIndexMap();
         std::map<unsigned, unsigned>::iterator map_iter = map.begin();
 
 		std::vector<double> global_index;
