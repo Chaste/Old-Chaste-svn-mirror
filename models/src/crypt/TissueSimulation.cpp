@@ -929,4 +929,20 @@ void TissueSimulation<DIM>::UseNonFlatBottomSurface()
     mUseNonFlatBottomSurface = true;
 }
 
+/**
+ * Find out how many cells of each mutation state there are
+ * 
+ * @return The number of cells of each type (evaluated at each visualizer output)
+ * [0] = healthy count
+ * [1] = labelled cells
+ * [2] = APC one hit
+ * [3] = APC two hit
+ * [4] = beta catenin one hit
+ */
+template<unsigned DIM>
+c_vector<unsigned,5> TissueSimulation<DIM>::GetCellTypeCount()
+{
+    return mrCrypt.GetCellTypeCount();
+}
+
 #endif //_TISSUESIMULATION_CPP_

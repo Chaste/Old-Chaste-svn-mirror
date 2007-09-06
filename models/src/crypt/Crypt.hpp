@@ -68,6 +68,9 @@ private:
     /** used in seting up tabulated writers */
     unsigned mMaxElements;
     
+    /** Current cell type counts */
+    c_vector<unsigned,5> mCellTypeCount;
+    
     /** used by tabulated writers */
     NodeWriterIdsT mNodeVarIds;
     /** used by tabulated writers */
@@ -157,7 +160,8 @@ public:
 	 */
     unsigned RemoveDeadCells();
     
-    /** Get the cell corresponding to a given node
+    /** 
+     *  Get the cell corresponding to a given node
      *
      *  Currently assumes there is one cell for each node, and they are ordered identically in their vectors. 
      *  An assertion fails if not.
@@ -165,6 +169,18 @@ public:
     MeinekeCryptCell& rGetCellAtNodeIndex(unsigned);
     
     c_vector<double, DIM> GetLocationOfCell(const MeinekeCryptCell& rCell);
+    
+    /**
+     * Find out how many cells of each mutation state there are
+     * 
+     * @return The number of cells of each type (evaluated at each visualizer output)
+     * [0] = healthy count
+     * [1] = labelled cells
+     * [2] = APC one hit
+     * [3] = APC two hit
+     * [4] = beta catenin one hit
+     */
+    c_vector<unsigned,5> GetCellTypeCount();
     
     /**
      * Iterator class allows one to iterate over cells in the crypt.

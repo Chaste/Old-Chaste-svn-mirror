@@ -266,6 +266,7 @@ public:
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
     void UseNonFlatBottomSurface();
     void UseCutoffPoint(double cutoffPoint);
+    c_vector<unsigned,5> GetCellTypeCount();
 
     void Solve();
     

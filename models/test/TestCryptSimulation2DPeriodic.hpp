@@ -621,6 +621,13 @@ public:
             TS_ASSERT_LESS_THAN(-1e-15,p_mesh->GetNode(cell_iter->GetNodeIndex())->rGetLocation()[1]);
         }
         
+        c_vector<unsigned,5> cellTypeCount = simulator.GetCellTypeCount();
+        TS_ASSERT_EQUALS(cellTypeCount[0],1u);
+        TS_ASSERT_EQUALS(cellTypeCount[1],1u);
+        TS_ASSERT_EQUALS(cellTypeCount[2],1u);
+        TS_ASSERT_EQUALS(cellTypeCount[3],0u);  // No APC two hit, one of all the rest.
+        TS_ASSERT_EQUALS(cellTypeCount[4],1u);
+        
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

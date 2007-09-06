@@ -34,6 +34,11 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
         unsigned node_index = it->GetNodeIndex();
         mNodeCellMap[node_index] = &(*it);
     }
+    
+    for(unsigned i=0; i < 5; i++)
+    {
+        mCellTypeCount[i] =0;
+    }
         
     // remove this line when facade is finished 
     //   - no don't, validate does important stuff like check each non-ghost 
@@ -526,6 +531,12 @@ void Crypt<DIM>::SetupTabulatedWriters(ColumnDataWriter& rNodeWriter, ColumnData
 }
 
 
+template<unsigned DIM> 
+c_vector<unsigned,5> Crypt<DIM>::GetCellTypeCount()
+{
+    return mCellTypeCount;
+}
+
 template<unsigned DIM>  
 void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                                      ColumnDataWriter& rElementWriter,
@@ -711,6 +722,7 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
     {
         for(unsigned i=0; i < 5; i++)
         {
+            mCellTypeCount[i] = cell_counter[i];
             rCellTypesFile <<  cell_counter[i] << "\t";
         }
         rCellTypesFile <<  "\n";

@@ -427,7 +427,7 @@ public:
                                   *p_cell_types_file,
                                   true,
                                   true,
-                                  false);
+                                  true);
         p_node_file->close();                          
         p_element_file->close();                          
 
@@ -439,6 +439,18 @@ public:
 
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_node_results.dat models/test/data/TestCryptWriters/tab_node_results.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_elem_results.dat models/test/data/TestCryptWriters/tab_elem_results.dat").c_str()), 0);
+        
+        /*
+         * Test the GetCellTypeCount function
+         * There should only be healthy cells
+         */
+        c_vector<unsigned,5> cellTypes = crypt.GetCellTypeCount();
+        TS_ASSERT_EQUALS(cellTypes[0], crypt.GetNumRealCells());
+        for (unsigned i=1; i<5 ; i++)
+        {
+            TS_ASSERT_EQUALS(cellTypes[i], 0u);
+        }
+        
         SimulationTime::Destroy();        
     }
     
