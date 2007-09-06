@@ -17,7 +17,7 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
                                                           unsigned degreeOfBasesForPosition,
                                                           unsigned degreeOfBasesForPressure
                                                          )  :
-        AbstractDealiiAssembler<DIM>(pMesh),
+        AbstractElasticityAssembler<DIM>(pMesh),
         // DIM bases for position, 1 for pressure
         mFeSystem(FE_Q<DIM>(degreeOfBasesForPosition), DIM, FE_Q<DIM>(1), degreeOfBasesForPressure),
         mBodyForce(bodyForce),
@@ -88,29 +88,6 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
     if (!found_fixed_boundary)
     {
         EXCEPTION("No fixed surface found. (no surface elements in the mesh have had their boundary indicator set to be FIXED_BOUNDARY");
-    }
-    
-    // initialise the deformed positions structure. It will
-    // be a std::vector of x_posns, y_posns, z_posns, which
-    // x_posns being a Vector<double> etc
-    mDeformedPosition.resize(DIM);
-    for (unsigned i=0; i<DIM; i++)
-    {
-        mDeformedPosition[i].reinit(this->mpMesh->n_vertices());
-    }
-
-    TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
-    while(!vertex_iter.ReachedEnd())
-    {
-        unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-        Point<DIM> old_posn = vertex_iter.GetVertex();
-
-        for(unsigned i=0; i<DIM; i++)
-        {
-            mDeformedPosition[i](vertex_index) =  old_posn(i);
-        }
-        
-        vertex_iter.Next();
     }
 
     std::vector<bool> component_mask(DIM+1);
@@ -815,9 +792,6 @@ void FiniteElasticityAssembler<DIM>::WriteOutput(unsigned counter, bool writeDef
         return;
     }
     
-    // make sure mDeformedPosition has been set up
-    rGetDeformedPosition();
-    rGetUndeformedPosition();
     
     /////////////////////////////////////////////////////////////////////
     // create an node file, by looping over vertices and writing
@@ -840,9 +814,12 @@ void FiniteElasticityAssembler<DIM>::WriteOutput(unsigned counter, bool writeDef
     std::string nodes_filename = ss_nodes.str();
     std::ofstream nodes_output(nodes_filename.c_str());
 
+    std::vector<Vector<double> >& r_deformed_position = this->rGetDeformedPosition();
+    std::vector<Vector<double> >& r_undeformed_position = this->rGetUndeformedPosition();
+
     // loop over nodes in the mesh using the vertex iter
     // NOTE: we don't print out every all of 
-    // mDeformedPosition[i](index) because for some values of index, 
+    // r_deformed_position[i](index) because for some values of index, 
     // it will correspond to a non-active node.
     TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
     while (!vertex_iter.ReachedEnd())
@@ -854,11 +831,11 @@ void FiniteElasticityAssembler<DIM>::WriteOutput(unsigned counter, bool writeDef
         {
             if(writeDeformed)
             {
-                nodes_output << mDeformedPosition[i](index) << " ";
+                nodes_output << r_deformed_position[i](index) << " ";
             }
             else
             {
-                nodes_output << mUndeformedPosition[i](index) << " ";
+                nodes_output << r_undeformed_position[i](index) << " ";
             }   
         }
         nodes_output << "\n";
@@ -959,69 +936,11 @@ void FiniteElasticityAssembler<DIM>::Solve()
         EXCEPTION("Failed to converge");
     }
     
-    // set up mDeformedPosition
-    rGetDeformedPosition();
-    
     // we have solved for a deformation so note this
     mADeformedHasBeenSolved = true;
 }
 
-template<unsigned DIM>
-std::vector<Vector<double> >& FiniteElasticityAssembler<DIM>::rGetDeformedPosition()
-{
-    for (unsigned i=0; i<DIM; i++)
-    {
-        mDeformedPosition[i].reinit(this->mpMesh->n_vertices());
-    }
-    
-    DofVertexIterator<DIM> vertex_iter(this->mpMesh, &this->mDofHandler);
-    while (!vertex_iter.ReachedEnd())
-    {
-        unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-        Point<DIM> old_posn = vertex_iter.GetVertex();
-        
-        for (unsigned i=0; i<DIM; i++)
-        {
-            mDeformedPosition[i](vertex_index) =   old_posn(i)
-                                                 + mCurrentSolution(vertex_iter.GetDof(i));
-        }
-        
-        vertex_iter.Next();
-    }
-    
-    return mDeformedPosition;
-}
 
-
-
-
-template<unsigned DIM>
-std::vector<Vector<double> >& FiniteElasticityAssembler<DIM>::rGetUndeformedPosition()
-{
-    // initialise
-    mUndeformedPosition.resize(DIM);
-    for (unsigned i=0; i<DIM; i++)
-    {
-        mUndeformedPosition[i].reinit(this->mpMesh->n_vertices());
-    }
-    
-    // populate
-    TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
-    while (!vertex_iter.ReachedEnd())
-    {
-        unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-        Point<DIM> old_posn = vertex_iter.GetVertex();
-        
-        for (unsigned i=0; i<DIM; i++)
-        {
-            mUndeformedPosition[i](vertex_index) = vertex_iter.GetVertex()(i);
-        }
-        
-        vertex_iter.Next();
-    }
-    
-    return mUndeformedPosition;
-}
 
 template<unsigned DIM>
 unsigned FiniteElasticityAssembler<DIM>::GetNumNewtonIterations()

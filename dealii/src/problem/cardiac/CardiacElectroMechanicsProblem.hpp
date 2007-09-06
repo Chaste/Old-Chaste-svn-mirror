@@ -17,10 +17,18 @@
  * make two-mesh
  * move mesh stuff out
  * don't output every timestep
+ * 
+ * think about architecture (of AbstractCardiacProblem) when this is done properly..
  */
 
 
 ///\todo -make this struct
+/**
+ *  At the beginning of a two mesh simulation we need to figure out and store
+ *  which (electrics-mesh) element each (mechanics-mesh) gauss point is in, and
+ *  what the weight of that gauss point for that particular element is. This struct
+ *  just contains this two pieces of data
+ */
 template<unsigned DIM>
 class ElementAndWeights
 {
@@ -30,28 +38,62 @@ public:
 };
 
 
+
+/**
+ *  CardiacElectroMechanicsProblem 
+ *  
+ *  Solve a coupled cardiac electromechanics problem
+ *  
+ *  Currently just uses the monodomain assembler (to use bidomain need to manually change 
+ *  the code), and currently just uses the OneDimCardiacMechanicsAssembler, will eventually
+ *  use the (2d/3d) CardiacMechanicsAssembler.
+ *  
+ *   
+ */
 template<unsigned DIM>
 class CardiacElectroMechanicsProblem
 {
 private: 
+    /*< The cardiac problem class */
     MonodomainProblem<DIM>* mpMonodomainProblem;
+    
+    /*< The mechanics assembler */
     OneDimCardiacMechanicsAssembler* mpCardiacMechAssembler;
 
     double mEndTime;
     double mTimeStep;    
     
+    /*< A chaste mesh for the electrics */
     ConformingTetrahedralMesh<DIM,DIM>* mpElectricsMesh;
+    /*<  A dealii mesh for the mechanics */
     Triangulation<DIM>*                 mpMechanicsMesh;
 
+    /** 
+     *  The (electrics-mesh) element numbers and saying which element each 
+     *  (mechanics-mesh) gauss point is in, and the weight of that gauss point 
+     *  for that particular element is.
+     */
     std::vector<ElementAndWeights<DIM> > mElementAndWeightsForQuadPoints;
 
     std::string mOutputDirectory;
+    bool mWriteOutput;
+    /*< when to write output */    
+    const static int WRITE_EVERY_NTH_TIME = 1; 
         
 public:
+    /** 
+     *  Constructor
+     *  @param pCellFactory cell factory for creating cells (see Monodomain tests)
+     *  @endTime end time of the simulation. Start time is assumed to be 0.0
+     *  @timeStep time step for the electrics (and currently the mechanics too)
+     *  @outputDirectory. Output directory. Omit if no output is required.
+     * 
+     *  The meshes are currently hardcoded in here.
+     */
     CardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
                                    double endTime,
                                    double timeStep,
-                                   std::string outputDirectory)
+                                   std::string outputDirectory = "")
     {
         assert(pCellFactory != NULL);
         mpMonodomainProblem = new MonodomainProblem<DIM>(pCellFactory);
@@ -60,9 +102,11 @@ public:
         mEndTime = endTime;
         mTimeStep = timeStep;
         
-        assert(outputDirectory!="");
+        // check whether output is required
+        mWriteOutput = (outputDirectory!="");
         mOutputDirectory = outputDirectory;
                 
+        // create electrics mesh
         mpElectricsMesh = new ConformingTetrahedralMesh<DIM,DIM>();
         unsigned num_elem = 128;
         mpElectricsMesh->ConstructLinearMesh(num_elem);
@@ -72,6 +116,7 @@ public:
         mpMonodomainProblem->SetMesh(mpElectricsMesh);
         mpMonodomainProblem->Initialise();
         
+        // create mechanics mesh
         mpMechanicsMesh = new Triangulation<DIM>();
         GridGenerator::hyper_cube(*mpMechanicsMesh, 0.0, 1);
         mpMechanicsMesh->refine_global(7);
@@ -80,6 +125,7 @@ public:
 
         mpCardiacMechAssembler = new OneDimCardiacMechanicsAssembler(mpMechanicsMesh);
         
+        // find the element nums and weights for each gauss point in the mechanics mesh
         mElementAndWeightsForQuadPoints.resize(mpCardiacMechAssembler->GetTotalNumQuadPoints());
         std::vector<std::vector<double> > quad_point_posns
            = FiniteElasticityTools<DIM>::GetQuadPointPositions(*mpMechanicsMesh, mpCardiacMechAssembler->GetNumQuadPointsInEachDimension());
@@ -97,11 +143,18 @@ public:
         }
     }
     
-    
+
+    /** 
+     *  Solve the electromechanincs problem
+     */    
     void Solve()
     {
+        // get an electrics assembler from the problem. Note that we don't call
+        // Solve() on the CardiacProblem class, we do the looping here.
         AbstractDynamicAssemblerMixin<DIM,DIM,1>* mpElectricsAssembler 
            = mpMonodomainProblem->CreateAssembler();
+
+        // set up initial voltage etc
         Vec voltage;        
         Vec initial_voltage = mpMonodomainProblem->CreateInitialCondition();
 
@@ -115,33 +168,41 @@ public:
         // create NHS systems for each quad point in the mesh
         std::vector<NHSCellularMechanicsOdeSystem> cellmech_systems(num_quad_points);
 
+        // a solver for the nhs models
         EulerIvpOdeSolver euler_solver;
 
         unsigned mech_writer_counter = 0;
 
-        OutputFileHandler output_file_handler(mOutputDirectory, true);
-        out_stream p_file = output_file_handler.OpenOutputFile("results_", mech_writer_counter, ".dat");
-        std::vector<Vector<double> >& deformed_position = mpCardiacMechAssembler->rGetDeformedPosition();
-        for(unsigned i=0; i<deformed_position[0].size(); i++)
+        if(mWriteOutput)
         {
-            assert(DIM==1);
-            (*p_file) << deformed_position[0](i) << "\n";
+            OutputFileHandler output_file_handler(mOutputDirectory, true);
+            out_stream p_file = output_file_handler.OpenOutputFile("results_", mech_writer_counter, ".dat");
+            std::vector<Vector<double> >& deformed_position = mpCardiacMechAssembler->rGetDeformedPosition();
+            for(unsigned i=0; i<deformed_position[0].size(); i++)
+            {
+                assert(DIM==1);
+                (*p_file) << deformed_position[0](i) << "\n";
+            }
         }
 
 
-unsigned counter = 0;
+        unsigned counter = 0;
 
         TimeStepper stepper(0.0, mEndTime, mTimeStep);
         while ( !stepper.IsTimeAtEnd() )
         {
+            std::cout << "**Time = " << stepper.GetTime() << "\n" << std::flush;
+            
+            // solve the electrics
             mpElectricsAssembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), mTimeStep);
             mpElectricsAssembler->SetInitialCondition( initial_voltage );
-
             voltage = mpElectricsAssembler->Solve();
 
             VecDestroy(initial_voltage);
             initial_voltage = voltage;
             
+            // compute Ca_I at each quad point (by interpolation, using the info on which
+            // electrics element the quad point is in, and set on the nhs systems
             for(unsigned i=0; i<mElementAndWeightsForQuadPoints.size(); i++)
             {
                 double interpolated_Ca_I = 0;
@@ -172,6 +233,7 @@ unsigned counter = 0;
             // set the active tensions
             mpCardiacMechAssembler->SetActiveTension(active_tension);
 
+            // solve the mechanics
             mpCardiacMechAssembler->Solve();
 
             // update lambda and dlambda_dt;
@@ -182,18 +244,18 @@ unsigned counter = 0;
                 dlambda_dt[i] = (lambda[i] - old_lambda[i])/mTimeStep;
             }
 
-if((counter++)%1==0)
-{            
-            OutputFileHandler output_file_handler(mOutputDirectory, false);
-            out_stream p_file = output_file_handler.OpenOutputFile("results_", mech_writer_counter, ".dat");
-            std::vector<Vector<double> >& deformed_position = mpCardiacMechAssembler->rGetDeformedPosition();
-            for(unsigned i=0; i<deformed_position[0].size(); i++)
-            {
-                assert(DIM==1);
-                (*p_file) << deformed_position[0](i) << "\n";
-            }
-            mech_writer_counter++;
-}                        
+            if(mWriteOutput && (counter++)%WRITE_EVERY_NTH_TIME==0)
+            {            
+                OutputFileHandler output_file_handler(mOutputDirectory, false);
+                out_stream p_file = output_file_handler.OpenOutputFile("results_", mech_writer_counter, ".dat");
+                std::vector<Vector<double> >& deformed_position = mpCardiacMechAssembler->rGetDeformedPosition();
+                for(unsigned i=0; i<deformed_position[0].size(); i++)
+                {
+                    assert(DIM==1);
+                    (*p_file) << deformed_position[0](i) << "\n";
+                }
+                mech_writer_counter++;
+            }                        
             // update the current time
             stepper.AdvanceOneTimeStep();
         }

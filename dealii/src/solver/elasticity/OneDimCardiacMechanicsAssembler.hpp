@@ -1,20 +1,15 @@
 #ifndef _ONEDIMCARDIACMECHANICSASSEMBLER_HPP_
 #define _ONEDIMCARDIACMECHANICSASSEMBLER_HPP_
 
-#include "FiniteElasticityAssembler.hpp" // just for tolerances...
-#include "AbstractDealiiAssembler.hpp"
+#include "AbstractElasticityAssembler.hpp"
 #include "PoleZero3dIn1dLaw.hpp"
 
-
-
-class OneDimCardiacMechanicsAssembler : public AbstractDealiiAssembler<1>
+class OneDimCardiacMechanicsAssembler : public AbstractElasticityAssembler<1>
 {
 private:
     FE_Q<1> mFe;
     double mDensity;
     unsigned mNumNewtonIterations;
-    std::vector<Vector<double> > mDeformedPosition;
-    std::vector<Vector<double> > mUndeformedPosition;
 
     // cardiac mech
     static const unsigned mNumQuadPointsInEachDimension = 3;
@@ -44,7 +39,7 @@ private:
 
 public:
     OneDimCardiacMechanicsAssembler(Triangulation<1>* pMesh)
-        : AbstractDealiiAssembler<1>(pMesh),
+        : AbstractElasticityAssembler<1>(pMesh),
           mFe(1)
     {
         DistributeDofs();
@@ -280,46 +275,6 @@ private:
         }
         
         first = false;
-    }
-
-
-public: 
-    std::vector<Vector<double> >& rGetDeformedPosition()
-    {
-        mDeformedPosition.clear();
-        mDeformedPosition.resize(1);
-        mDeformedPosition[0].reinit(this->mpMesh->n_vertices());
-    
-        DofVertexIterator<1> vertex_iter(this->mpMesh, &this->mDofHandler);
-        while (!vertex_iter.ReachedEnd())
-        {
-            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            Point<1> old_posn = vertex_iter.GetVertex();
-            
-            mDeformedPosition[0](vertex_index) =   old_posn(0)
-                                                 + mCurrentSolution(vertex_iter.GetDof(0));
-            vertex_iter.Next();
-        }
-    
-        return mDeformedPosition;
-    }
-
-    std::vector<Vector<double> >& rGetUndeformedPosition()
-    {
-        mUndeformedPosition.clear();
-        mUndeformedPosition.resize(1);
-        mUndeformedPosition[0].reinit(this->mpMesh->n_vertices());
-    
-        TriangulationVertexIterator<1> vertex_iter(this->mpMesh);
-        while (!vertex_iter.ReachedEnd())
-        {
-            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            Point<1> old_posn = vertex_iter.GetVertex();
-            mUndeformedPosition[0](vertex_index) = old_posn(0);
-            vertex_iter.Next();
-        }
-    
-        return mUndeformedPosition;
     }
 };
 

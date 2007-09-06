@@ -15,7 +15,7 @@ public:
     {
         double time_step = 0.01;
         PlaneStimulusCellFactory<1> cell_factory(time_step, -1000*1000);
-        CardiacElectroMechanicsProblem<1> problem(&cell_factory, 10, time_step, "CardiacElectroMech");
+        CardiacElectroMechanicsProblem<1> problem(&cell_factory, 1, time_step, "CardiacElectroMech");
         problem.Solve();
     }
 };

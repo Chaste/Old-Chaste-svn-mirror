@@ -2,7 +2,7 @@
 #define FINITEELASTICITYASSEMBLER_HPP_
 
 
-#include "AbstractDealiiAssembler.hpp"
+#include "AbstractElasticityAssembler.hpp"
 
 /* Some speed notes:
  *  1. Don't use Tensor<4,DIM>, use double[][][][] - factor of about 2 difference
@@ -83,7 +83,7 @@ const double NEWTON_REL_TOL = 1e-7;
  *  Note: Calling Solve() repeatedly will use the previous solution as the starting guess.
  */
 template<unsigned DIM>
-class FiniteElasticityAssembler : public AbstractDealiiAssembler<DIM>
+class FiniteElasticityAssembler : public AbstractElasticityAssembler<DIM>
 {
 protected:
     // note that this must be defined before mDofHandler. except this doesn't
@@ -125,12 +125,6 @@ protected:
     /*< Storage for a numerical approximation of the Jacobian (mainly used in testing) */
     SparseMatrix<double> mNumericalJacobianMatrix;
     
-    /*< Data structure containing the deformed position, by vertex index, in easily
-     * accessable form. Only created if asked for */
-    std::vector<Vector<double> > mDeformedPosition;
-    /*< Data structure containing the undeformed position, by vertex index, in easily
-     * accessable form. Only created if asked for */
-    std::vector<Vector<double> > mUndeformedPosition;
     
     /**
      *  Since this assembler will be used repeatedly in quasi-static simulations (eg cardiac, 
@@ -250,19 +244,7 @@ public:
      *  Solve the static finite elasticity problem
      */
     virtual void Solve();
-    
-    /**
-     *  Get the deformed position. rGetDeformedPosition()[i][j] is the x_i value at node j
-     */
-    std::vector<Vector<double> >& rGetDeformedPosition();
-    /**
-     *  Get the undeformed position. rGetUndeformedPosition()[i][j] is the X_i value at node j
-     *  Obviously this data is accessible from the mesh as well, this method is more useful
-     *  in some situations are. Note, this data structure is not set up unless this method 
-     *  is called.
-     */
-    std::vector<Vector<double> >& rGetUndeformedPosition();
-       
+
     /**
      *  Get the number of newton iterations that had been required to solve the problem
      */

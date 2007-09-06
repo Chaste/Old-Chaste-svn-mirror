@@ -839,7 +839,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         // update the new position at the evaluation points
         // in the source model
         ////////////////////////////////////////////////////////
-        mpSourceModel->UpdateEvaluationPointsNewPosition(this->mDeformedPosition);
+        mpSourceModel->UpdateEvaluationPointsNewPosition(this->rGetDeformedPosition());
         
         ////////////////////////////////////////////////////////
         // output results
