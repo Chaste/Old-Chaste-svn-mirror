@@ -168,6 +168,7 @@ class TestNiceCryptSims : public CxxTest::TestSuite
             rCells.push_back(cell);
         }
     }
+    
 public:
 
 void TestNiceCryptSimulation() throw (Exception)
