@@ -9,8 +9,8 @@ class OdeConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PROB
 public:
     void SetInitialConvergenceParameters()
     {
-        this->mPdeTimeStep = 2.5e-3;
-        this->mOdeTimeStep = this->mPdeTimeStep;
+        this->mPdeTimeStep = 2e-2;
+        this->mOdeTimeStep = 1e-2;
     }
     void UpdateConvergenceParameters()
     {

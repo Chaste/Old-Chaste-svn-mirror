@@ -10,14 +10,14 @@ public:
     void SetInitialConvergenceParameters()
     {
         this->mPdeTimeStep = 0.04;
-        this->mOdeTimeStep = this->mPdeTimeStep;
+        //this->mOdeTimeStep = this->mPdeTimeStep;
+        this->mOdeTimeStep = 0.0025;
     }
     void UpdateConvergenceParameters()
     {
         this->mPdeTimeStep *= 0.5;
-        this->mOdeTimeStep = this->mPdeTimeStep;
-    
-    }
+        //this->mOdeTimeStep = this->mPdeTimeStep;
+     }
     bool GiveUpConvergence()
     {
         return this->mPdeTimeStep<=1e-8;

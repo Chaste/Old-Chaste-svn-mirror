@@ -139,11 +139,20 @@ public:
             cardiac_problem.SetLinearSolverRelativeTolerance(mKspRtol);
     
             cardiac_problem.SetPdeTimeStep(mPdeTimeStep);
-            cardiac_problem.SetPrintingTimeStep(mPdeTimeStep);
+            
+            assert(fabs(0.04/mPdeTimeStep - round(0.04/mPdeTimeStep)) <1e-15 );
+            cardiac_problem.SetPrintingTimeStep(0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
             cardiac_problem.Initialise();
 
             DisplayRun();
-            cardiac_problem.Solve();
+            try
+            {
+                cardiac_problem.Solve();
+            }
+            catch (Exception e)
+            {
+                std::cout<<"Warning - this run threw an exception.  Check convergence results\n";                 
+            }
             // Calculate positions of nodes 1/4 and 3/4 through the mesh
             unsigned third_quadrant_node;
             unsigned first_quadrant_node;
@@ -191,10 +200,6 @@ public:
             OutputFileHandler results_handler("Convergence", false);
             ColumnDataReader results_reader(results_handler.GetTestOutputDirectory(), "Results", false);
             
-            unsigned time_step_write_increment = (unsigned) round(0.04/mPdeTimeStep);
-            
-            // mPdeTimeStep must be of the form 0.04*2^(-n) where n is a natural
-            assert( fabs(mPdeTimeStep*time_step_write_increment-0.04)< 1e-6);
             
             // Write out the time series for the node at first and third quadrant
             {
@@ -204,7 +209,7 @@ public:
                 std::stringstream plot_file_name_stream;
                 plot_file_name_stream<< "Node1_"<< file_num << "_timestep.csv";
                 out_stream p_plot_file = plot_file_handler.OpenOutputFile(plot_file_name_stream.str());
-                for (unsigned data_point = 0; data_point<time_series.size(); data_point+=time_step_write_increment)
+                for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
                 {
                     (*p_plot_file) << time_series[data_point] << "\t" << transmembrane_potential[data_point] << "\n";                 
                 }
@@ -216,7 +221,7 @@ public:
                 double sum_sq_prev_voltage = 0;
                 
                 
-                for (unsigned data_point = 0; data_point<time_series.size(); data_point+=time_step_write_increment)
+                for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
                 {
                     if (file_num!=0)
                     {
@@ -233,7 +238,9 @@ public:
                 {
                     std::cout << "max_abs_error = " << max_abs_error << " log10 = " << log10(max_abs_error) << "\n";
                     std::cout << "l2 error = " << sum_sq_abs_error/sum_sq_prev_voltage << " log10 = " << log10(sum_sq_abs_error/sum_sq_prev_voltage) << "\n";
-                    std::cout << log10(Abscissa()) << "\t" << log10(sum_sq_abs_error/sum_sq_prev_voltage) <<"\t#Logs for Gnuplot\n";
+                    //std::cout << log10(Abscissa()) << "\t" << log10(sum_sq_abs_error/sum_sq_prev_voltage) <<"\t#Logs for Gnuplot\n";
+                    //Use "set logscale x; set logscale y" to get loglog plots in Gnuplot
+                    std::cout << Abscissa() << "\t" << sum_sq_abs_error/sum_sq_prev_voltage <<"\t#Gnuplot raw data\n";
                     // convergence criterion
                     mConverged = sum_sq_abs_error/sum_sq_prev_voltage<1e-4;
                 }
@@ -246,7 +253,7 @@ public:
                 std::stringstream plot_file_name_stream;
                 plot_file_name_stream<< "Node2_"<< file_num << "_timestep.csv";
                 out_stream p_plot_file = plot_file_handler.OpenOutputFile(plot_file_name_stream.str());
-                for (unsigned data_point = 0; data_point<time_series.size(); data_point+=time_step_write_increment)
+                for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
                 {
                     (*p_plot_file) << time_series[data_point] << "\t" << transmembrane_potential[data_point] << "\n";                 
                 }
