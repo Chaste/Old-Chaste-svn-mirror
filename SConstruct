@@ -53,6 +53,11 @@ test_component = ARGUMENTS.get('test_component', '')
 Export('test_component')
 
 
+# Use a single file to store signatures.
+# Forwards-compatible with SCons 0.97.
+SConsignFile('.sconsign')
+
+
 # Chaste components (top level dirs).
 # We hard code dependencies between them, and use this to work out the
 # order to link them in.  Each one is linked against just its dependencies,
