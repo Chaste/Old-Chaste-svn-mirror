@@ -10,7 +10,7 @@ class SpaceConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PR
 public:
     void SetInitialConvergenceParameters()
     {
-        this->mMeshNum=1;
+        this->mMeshNum=0;
     }
     void UpdateConvergenceParameters()
     {
@@ -19,7 +19,26 @@ public:
     }
     bool GiveUpConvergence()
     {
-        return this->mMeshNum>6;
+        switch(DIM)
+        {
+            case 1:
+            {
+                return this->mMeshNum>6;
+                break;
+            }
+            case 2:
+            {
+                return this->mMeshNum>4;
+                break;
+            }
+            case 3:
+            {
+                assert(0);
+                break;
+            }
+            default:
+                assert(0);
+        }
     }
     double Abscissa()
     {

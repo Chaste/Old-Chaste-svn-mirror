@@ -35,7 +35,27 @@ public:
     {
         // scale stimulus depending on space_step of elements
         //\todo It looks like the value of the stimulus is specific to 3D
-        mpStimulus = new InitialStimulus(-10000000*numElements/64.0, 0.5);
+
+        switch(DIM)
+        {
+            case 1:
+            {
+                mpStimulus = new InitialStimulus(-10000000*numElements/64.0, 0.5);
+                break;
+            }
+            case 2:
+            {
+                mpStimulus = new InitialStimulus(-5000*numElements, 0.5);
+                break;
+            }
+            case 3:
+            {
+                assert(0);
+                break;
+            }
+            default:
+                assert(0);
+        }
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)

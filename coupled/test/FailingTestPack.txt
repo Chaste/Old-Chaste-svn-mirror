@@ -1,1 +1,2 @@
 TestBidomainCompareWithMemfem.hpp
+Test2dConvergence.hpp

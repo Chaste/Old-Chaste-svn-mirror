@@ -72,24 +72,6 @@ echo "  Output file path is "${OUTPUT_PATH}
 
 
 #######################################################################################
-# Decide if monodomain or bidomain
-# currently we are only writing out the transmembrane potential even for a bidomain
-# so this code is not used
-#######################################################################################
-# test if the number of lines in the node file is the same as the data file (=> monodomain),
-# allowing for a comment line in the node file
-#IS_MONODOMAIN=0
-#node_lines=`wc -l ${MESH_PATH}.node | cut -f 1 -d ' '`
-#data_lines=`wc -l ${RESULTS_PATH}_000000.dat | cut -f 1 -d ' '`
-#dlp1=$((($data_lines + 1)))
-#if [ $node_lines -eq $data_lines -o $node_lines -eq $dlp1 ]; then  
-#   	IS_MONODOMAIN=1
-#fi
-IS_MONODOMAIN=1
-
-
-
-#######################################################################################
 #  create mesh files
 #######################################################################################
 cat ${MESH_PATH}.node | head -n 1 | awk '{print $1}' > ${OUTPUT_PATH}.pts
@@ -118,16 +100,9 @@ fi
 rm -f ${OUTPUT_PATH}.dat
 rm -f ${OUTPUT_PATH}_voltage.dat
 rm -f ${OUTPUT_PATH}_extracell.dat
-if [ ${IS_MONODOMAIN} -eq 1 ]; then
-	for i in ${RESULTS_PATH}_0*.dat; do
- 		tail -n +2 $i >> ${OUTPUT_PATH}.dat
-	done
-else
-	for i in ${RESULTS_PATH}_0*.dat; do
- 		tail -n +2 $i | awk '{if (NR%2==1) print $1}' >> ${OUTPUT_PATH}_voltage.dat
-	  	tail -n +2 $i | awk '{if (NR%2==0) print $1}' >> ${OUTPUT_PATH}_extracell.dat
-	done
-fi
+for i in ${RESULTS_PATH}_0*.dat; do
+	tail -n +2 $i | awk '{print $2}' >> ${OUTPUT_PATH}.dat
+done
 
 echo "  ..done!"
 echo ""
