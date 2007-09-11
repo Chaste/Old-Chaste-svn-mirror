@@ -8,6 +8,8 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "FlaggedMeshBoundaryConditionsContainer.hpp"
 #include "SimpleDataWriter.hpp"
+#include "PetscTools.hpp"
+
 
 
 /*
@@ -75,6 +77,11 @@ class TestPdeOnFlaggedMesh: public CxxTest::TestSuite
 public:    
     void TestPdeOnHoneycombMesh() throw (Exception)
     {
+        if (!PetscTools::IsSequential())
+        {
+            TS_TRACE("This test does not pass in parallel yet. HoneycombMeshGenerator writes and reads files which produce a race-condition");
+            return;
+        }
         int num_cells_depth = 11;
         int num_cells_width = 6;
         
