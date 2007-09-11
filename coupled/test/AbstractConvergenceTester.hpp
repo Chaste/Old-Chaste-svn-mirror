@@ -102,6 +102,7 @@ public:
       mPdeTimeStep(0.0025),
       mMeshNum(5u),
       mKspRtol(1e-8),
+      mRelativeConvergenceCriterion(1e-4),
       mConverged(false)
     {
     }
@@ -262,7 +263,7 @@ public:
                     //Use "set logscale x; set logscale y" to get loglog plots in Gnuplot
                     std::cout << Abscissa() << "\t" << sum_sq_abs_error/sum_sq_prev_voltage <<"\t#Gnuplot raw data\n";
                     // convergence criterion
-                    mConverged = sum_sq_abs_error/sum_sq_prev_voltage<1e-4;
+                    mConverged = sum_sq_abs_error/sum_sq_prev_voltage<mRelativeConvergenceCriterion;
                 }
             }
             
@@ -307,6 +308,7 @@ public:
     double mPdeTimeStep;
     unsigned mMeshNum;
     double mKspRtol;
+    double mRelativeConvergenceCriterion;
     bool mConverged;
     
     virtual ~AbstractConvergenceTester() {}
