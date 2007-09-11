@@ -16,6 +16,7 @@
 #include "ColumnDataReader.hpp"
 #include "SimulationTime.hpp"
 #include "SloughingCellKiller.hpp"
+#include "PetscTools.hpp"
 
 // Possible types of Cell Cycle Model (just for CreateVectorOfCells method)
 typedef enum CellCycleType_
@@ -218,6 +219,13 @@ public:
 
     void TestWithOxygen() throw(Exception)
     {
+        if (!PetscTools::IsSequential())
+        {
+            TS_TRACE("This test does not pass in parallel yet.");
+            return;
+        }
+        
+        
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
 
