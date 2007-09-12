@@ -41,7 +41,7 @@ if single_test_suite:
       os.remove(single_test_suite[:-4] + '.log')
     except OSError:
       pass
-elif test_component in ['', toplevel_dir]:
+elif test_component in ['', toplevel_dir] or toplevel_dir in COMMAND_LINE_TARGETS:
   packfiles = []
   if all_tests:
     for packfile in glob.glob('../../test/*TestPack.txt'):
@@ -99,8 +99,10 @@ all_libs = ['test'+toplevel_dir] + chaste_libs + other_libs
 # Build and install the library for this component
 env.SharedLibrary(toplevel_dir, files)
 #env.Install('#lib', 'lib'+toplevel_dir+'.so')
+
 # Build the test library for this component
 env.Library('test'+toplevel_dir, testsource)
+
 
 # Make test output depend on shared libraries, so if implementation changes
 # then tests are re-run.  Choose which line according to taste.

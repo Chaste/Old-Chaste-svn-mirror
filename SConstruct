@@ -1,6 +1,8 @@
 # Controlling scons build script for Chaste
 
-# This script is executed within the root Chaste source directory
+# This script is executed within the root Chaste source directory.
+# We need at least Python 2.3.
+EnsurePythonVersion(2,3)
 
 import sys
 import os
@@ -77,6 +79,7 @@ if build.using_dealii:
     components = ['dealii'] + components
 Export('components', 'comp_deps')
 
+Alias('core', Split('global io linalg mesh ode pde'))
 
 # Set extra paths to search for libraries and include files.
 # Paths to PETSc, and any other external libraries, should be set here.
