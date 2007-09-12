@@ -1,10 +1,11 @@
-# Chaste Build System Scripts
+"""Chaste Build System
 
-# This module is designed to be imported by both the build scripts and the
-# web interface to test results. Given a name representing a build type
-# (a valid value of the build argument to scons) it determines what compile
-# tools & flags to use, and also how to interpret the status string of a test
-# suite.
+This module is designed to be imported by both the build scripts and the
+web interface to test results.  Given a name representing a build type
+(a valid value of the build argument to scons) it determines what compile
+tools & flags to use, and also how to interpret the status string of a test
+suite.
+"""
 
 import os
 
@@ -21,8 +22,8 @@ class BuildType(object):
     """
     self.build_type = buildType
     self._compiler_type = 'gcc'
-    self._cc_flags = '-Wall -Werror'
-    self._link_flags = ''
+    self._cc_flags = ['-Wall', '-Werror']
+    self._link_flags = []
     self._test_packs = ['Continuous']
     self._revision = ''
     self.build_dir = 'default'
@@ -54,14 +55,14 @@ class BuildType(object):
     Return the CC flags to use, as a string.
     Note that this does not cover include paths or library search paths.
     """
-    return self._cc_flags
+    return ' '.join(self._cc_flags)
   
   def LinkFlags(self):
     """
     Return the linker flags to use, as a string.
     Note that this does not cover library search paths or what to link with.
     """
-    return self._link_flags
+    return ' '.join(self._link_flags)
   
   def TestPacks(self):
     """
@@ -249,7 +250,7 @@ class GccDebug(Gcc):
   """
   def __init__(self, *args, **kwargs):
     Gcc.__init__(self, *args, **kwargs)
-    self._cc_flags += ' -g'
+    self._cc_flags.append('-g')
     self.build_dir = 'debug'
     
 class Coverage(GccDebug):
@@ -258,8 +259,8 @@ class Coverage(GccDebug):
   """
   def __init__(self, *args, **kwargs):
     GccDebug.__init__(self, *args, **kwargs)
-    self._cc_flags += ' -fprofile-arcs -ftest-coverage'
-    self._link_flags += ' -fprofile-arcs -ftest-coverage'
+    self._cc_flags.extend(['-fprofile-arcs', '-ftest-coverage'])
+    self._link_flags.extend(['-fprofile-arcs', '-ftest-coverage'])
     self.build_dir = 'coverage'
     self._num_processes = 2
     #self._test_packs.append('Failing')
@@ -317,8 +318,8 @@ class Profile(GccDebug):
   """
   def __init__(self, *args, **kwargs):
     GccDebug.__init__(self, *args, **kwargs)
-    self._cc_flags += ' -O3 -pg'
-    self._link_flags += ' -pg'
+    self._cc_flags.extend(['-O3', '-pg'])
+    self._link_flags.append('-pg')
     self._test_packs = ['Profile']
     self.build_dir = 'profile'
   
@@ -333,8 +334,8 @@ class GoogleProfile(GccDebug):
   """
   def __init__(self, *args, **kwargs):
     GccDebug.__init__(self, *args, **kwargs)
-    self._cc_flags += ' -O3'
-    self._link_flags += ' -lprofiler'
+    self._cc_flags.append('-O3')
+    self._link_flags.append('-lprofiler')
     self._test_packs = ['Profile']
     self.build_dir = 'google_profile'
  
@@ -440,7 +441,8 @@ class MemoryTesting(GccDebug):
 
   def __init__(self, *args, **kwargs):
     GccDebug.__init__(self, *args, **kwargs)
-    #self._cc_flags = self._cc_flags + ' -DPETSC_MEMORY_TRACING'
+    #self._cc_flags.append('-DPETSC_MEMORY_TRACING')
+    #self.build_dir += '_mem'
 
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run all tests using valgrind to check for memory leaks."
@@ -585,7 +587,7 @@ class GccOpt(Gcc):
   """
   def __init__(self, *args, **kwargs):
     Gcc.__init__(self, *args, **kwargs)
-    self._cc_flags = '-O3'
+    self._cc_flags = ['-O3']
     self.build_dir = 'optimised'
     self.is_optimised = True
 
@@ -595,7 +597,7 @@ class GccOptP4(GccOpt):
   """
   def __init__(self, *args, **kwargs):
     GccOpt.__init__(self, *args, **kwargs)
-    self._cc_flags = self._cc_flags+' -march=pentium4 -mmmx -msse -msse2 -mfpmath=sse'
+    self._cc_flags.extend(['-march=pentium4', '-mmmx', '-msse', '-msse2', '-mfpmath=sse'])
     self.build_dir = 'optimised_P4'
     
 class Intel(BuildType):
@@ -604,9 +606,9 @@ class Intel(BuildType):
     BuildType.__init__(self, *args, **kwargs)
     self._compiler_type = 'intel'
     # Turn off some warnings, and report warnings as errors
-    #self._cc_flags = '-wr470 -wr186 -pc64' #Emulates a 64-bit (not 80-bit) FPU
-    self._cc_flags = ' -Werror'
-    self._link_flags = '-static-libcxa'
+    #self._cc_flags = ['-wr470', '-wr186', '-pc64'] #Emulates a 64-bit (not 80-bit) FPU
+    self._cc_flags = ['-Werror']
+    self._link_flags = ['-static-libcxa']
     self.build_dir = 'intel'
     # Intel compiler uses optimisation by default
     self.is_optimised = True
@@ -619,16 +621,17 @@ class Intel(BuildType):
       find out why loops aren't vectorised.
     """
     # Remove any current reporting
-    i = self._cc_flags.find('-vec_report')
-    if i > -1:
-      self._cc_flags = self._cc_flags[:i] + self._cc_flags[i+13:]
-    self._cc_flags = self._cc_flags + ' -vec_report' + vec
+    for i, flag in enumerate(self._cc_flags):
+      if flag.startswith('-vec_report'):
+        del self._cc_flags[i]
+        break
+    self._cc_flags.append('-vec_report' + vec)
 
 class IntelNonopt(Intel):
   "Intel compilers with no optimisation."
   def __init__(self, *args, **kwargs):
     Intel.__init__(self, *args, **kwargs)
-    self._cc_flags = self._cc_flags + ' -O0 -xK'
+    self._cc_flags.extend(['-O0', '-xK'])
     self.build_dir = 'intel_nonopt'
     self.is_optimised = False
 
@@ -636,23 +639,26 @@ class IntelP3(Intel):
   "Intel compilers optimised for Pentium 3."
   def __init__(self, *args, **kwargs):
     Intel.__init__(self, *args, **kwargs)
-    self._cc_flags = self._cc_flags + ' -xK -O3 -ip -ipo0 -ipo_obj'
-    self._link_flags = self._link_flags + ' -ipo'
+    self._cc_flags.extend(['-xK', '-O3', '-ip', '-ipo0', '-ipo_obj'])
+    self._link_flags.append('-ipo')
     self.build_dir = 'intel_p3'
 
 class IntelP4(Intel):
-  "Intel compilers optimised for Pentium 4."
+  """Intel compilers optimised for Pentium 4.
+
+  TODO: Don't hardcode the library path for svml.
+  """
   def __init__(self, *args, **kwargs):
     Intel.__init__(self, *args, **kwargs)
-    self._cc_flags = self._cc_flags + ' -xN -O3 -ip -ipo0 -ipo_obj -static'
-    self._link_flags = self._link_flags + ' -ipo -lsvml -L/opt/intel_cc_80/lib -static'
+    self._cc_flags.extend(['-xN', '-O3', '-ip', '-ipo0', '-ipo_obj', '-static'])
+    self._link_flags.extend(['-ipo', '-lsvml', '-L/opt/intel_cc_80/lib', '-static'])
     self.build_dir = 'intel_p4'
 
 class StyleCheck(GccDebug):
     """Check the code against Effective C++ style guidelines."""
     def __init__(self, *args, **kwargs):
         GccDebug.__init__(self, *args, **kwargs)
-        self._cc_flags = '-Weffc++'
+        self._cc_flags = ['-Weffc++']
         self.build_dir = 'style_check'
         self._test_packs.extend(['Failing', 'Profile', 'Nightly'])
     
@@ -686,7 +692,7 @@ def GetBuildType(buildType):
     elif extra == 'onlytests':
       obj.ClearTestPacks()
     elif extra == 'ndebug':
-      obj._cc_flags += ' -DNDEBUG'
+      obj._cc_flags.append('-DNDEBUG')
       obj.build_dir += '_ndebug'
     elif extra == 'dealii':
       obj.UseDealii(True)
