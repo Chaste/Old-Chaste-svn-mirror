@@ -19,6 +19,7 @@ class BuildType(object):
     Do any setup.
     Here we set member variables for each method to use.
     """
+    self.build_type = buildType
     self._compiler_type = 'gcc'
     self._cc_flags = '-Wall -Werror'
     self._link_flags = ''
@@ -230,6 +231,14 @@ class BuildType(object):
       dealii_petsc = dealii_petsc + '.g'
     dealii_petsc = dealii_petsc + '.so'
     return dealii_libs + metis_libs
+
+  def GetSignature(self):
+    """Return the signature of this build object for SCons.
+
+    This determines when tests need to be re-run because a different build
+    is being used.
+    """
+    return '*'.join([self.build_type, self.build_dir])
 
 
 Gcc = BuildType
