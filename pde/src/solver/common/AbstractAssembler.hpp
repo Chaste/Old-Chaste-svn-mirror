@@ -270,6 +270,11 @@ protected:
      */
     virtual double GetCurrentSolutionOrGuessValue(unsigned nodeIndex, unsigned indexOfUnknown)=0;
     
+    virtual Vec ExtractOnReleventMesh(Vec vec)
+    {
+        return vec;
+    }
+
 public:
 
     /**

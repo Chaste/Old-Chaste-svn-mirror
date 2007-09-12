@@ -195,7 +195,7 @@ public:
         Vec result_elliptic_restricted = elliptic_assembler.Solve();
         ReplicatableVector result_elliptic_repl(result_elliptic_restricted);
 
-        std::map<unsigned, unsigned>& map2 = elliptic_assembler.rGetSmasrmIndexMap();
+        std::map<unsigned, unsigned>& map2 = p_mesh->rGetSmasrmMap();
         std::map<unsigned, unsigned>::iterator map_iter2 = map2.begin();
 
         std::vector<double> x2;

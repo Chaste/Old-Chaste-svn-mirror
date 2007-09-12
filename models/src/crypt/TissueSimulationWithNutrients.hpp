@@ -20,6 +20,7 @@ private :
 
         std::set<unsigned> ghost_node_indices = this->mrCrypt.GetGhostNodeIndices();
         r_mesh.FlagElementsNotContainingNodes(ghost_node_indices);
+        r_mesh.SetupSmasrmMap();
         
         // Set up boundary conditions
         FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(r_mesh, 1.0);
@@ -30,7 +31,7 @@ private :
         Vec result_elliptic_restricted = elliptic_assembler.Solve();
         ReplicatableVector result_elliptic_repl(result_elliptic_restricted);
 
-        std::map<unsigned, unsigned>& map = elliptic_assembler.rGetSmasrmIndexMap();
+        std::map<unsigned, unsigned>& map = r_mesh.rGetSmasrmMap();
         std::map<unsigned, unsigned>::iterator map_iter = map.begin();
 
 		std::vector<double> global_index;

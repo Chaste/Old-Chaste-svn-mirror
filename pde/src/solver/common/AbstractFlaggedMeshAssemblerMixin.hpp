@@ -3,6 +3,7 @@
 
 #include "AbstractStaticAssembler.hpp"
 #include "FlaggedMeshBoundaryConditionsContainer.hpp"
+#include "PetscTools.hpp"
 
 /**
  * A mixin class providing the ability to assemble a problem only on a flagged subset
@@ -19,7 +20,7 @@ private:
     friend class TestFlaggedMeshAssembler;
     FlaggedMeshBoundaryConditionsContainer<SPACE_DIM,PROBLEM_DIM>* mpFlaggedMeshBcc;
     
-    std::map<unsigned, unsigned> mSmasrmIndexMap;
+//    std::map<unsigned, unsigned> mSmasrmIndexMap;
     
 protected:
     /**
@@ -54,14 +55,16 @@ protected:
         
         ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& r_mesh = this->rGetMesh();
         
-        if (mSmasrmIndexMap.size()==0)
+        if (this->rGetMesh().rGetSmasrmMap().size()==0)
         {
-            SetupMap();
+            this->rGetMesh().SetupSmasrmMap();
         }
+        
+        std::map<unsigned,unsigned>& r_smasrm_map = this->rGetMesh().rGetSmasrmMap();
         
         if (currentSolutionOrGuess)
         {
-            assert(mSmasrmIndexMap.size() == r_curr_soln.size());
+            assert(r_smasrm_map.size() == r_curr_soln.size());
         }
         //// Debugging: display index map
         //std::cout << "SMASRM index map" << std::endl;
@@ -78,7 +81,7 @@ protected:
         {
             delete *(this->GetLinearSystem());
         }
-        LinearSystem* p_linear_system = new LinearSystem(mSmasrmIndexMap.size());
+        LinearSystem* p_linear_system = new LinearSystem(r_smasrm_map.size());
         *(this->GetLinearSystem()) = p_linear_system;
         
 //        //If this is the first time through then it's appropriate to set the
@@ -115,13 +118,13 @@ protected:
                 
                 for (unsigned i=0; i<num_elem_nodes; i++)
                 {
-                    unsigned index1 = mSmasrmIndexMap[element.GetNodeGlobalIndex(i)];
+                    unsigned index1 = r_smasrm_map[element.GetNodeGlobalIndex(i)];
                     
                     if (assembleMatrix)
                     {
                         for (unsigned j=0; j<num_elem_nodes; j++)
                         {
-                            unsigned index2 = mSmasrmIndexMap[element.GetNodeGlobalIndex(j)];
+                            unsigned index2 = r_smasrm_map[element.GetNodeGlobalIndex(j)];
                             p_linear_system->AddToMatrixElement( index1,
                                                                  index2,
                                                                  a_elem(i,j) );
@@ -142,7 +145,7 @@ protected:
         // Apply dirichlet boundary conditions.
         // This may well need to change to make use of the mSmasrmIndexMap;
         // might be better to put the code in here rather than the container.
-        mpFlaggedMeshBcc->ApplyDirichletToLinearProblem(*p_linear_system, mSmasrmIndexMap, true);
+        mpFlaggedMeshBcc->ApplyDirichletToLinearProblem(*p_linear_system, r_smasrm_map, true);
         
         p_linear_system->AssembleFinalLinearSystem();
         
@@ -156,8 +159,10 @@ protected:
         assert(PROBLEM_DIM==1); // not taking into account PROBLEM_DIM>1 yet 
         assert(indexOfUnknown<PROBLEM_DIM);
 
-        std::map<unsigned, unsigned>::iterator map_iter = mSmasrmIndexMap.find(nodeIndex);
-        assert(map_iter!=mSmasrmIndexMap.end());
+        std::map<unsigned,unsigned>& r_smasrm_map = this->rGetMesh().rGetSmasrmMap();
+
+        std::map<unsigned, unsigned>::iterator map_iter = r_smasrm_map.find(nodeIndex);
+        assert(map_iter!=r_smasrm_map.end());
 
         unsigned vec_index=map_iter->second;
         ///\todo: not efficient - maybe store a ref to mCurrentSolnOrGuessReplicated
@@ -165,6 +170,28 @@ protected:
         return this->rGetCurrentSolutionOrGuess()[ PROBLEM_DIM*vec_index + indexOfUnknown];
      }
     
+    Vec ExtractOnReleventMesh(Vec largeVec)
+    {
+        if (this->rGetMesh().rGetSmasrmMap().size()==0)
+        {
+            this->rGetMesh().SetupSmasrmMap();
+        }
+        
+        Vec small_vec = PetscTools::CreateVec(this->rGetMesh().rGetSmasrmMap().size());
+        ReplicatableVector large_vec_repl(largeVec);
+        
+        for(std::map<unsigned,unsigned>::iterator map_iter = this->rGetMesh().rGetSmasrmMap().begin();
+            map_iter != this->rGetMesh().rGetSmasrmMap().end();
+            map_iter++)
+        {
+            unsigned node_index = map_iter->first;
+            unsigned smasrm_index = map_iter->second;
+            
+            VecSetValue(small_vec, smasrm_index, large_vec_repl[node_index], INSERT_VALUES);
+        }
+        
+        return small_vec;
+    }
     
 public :
     AbstractFlaggedMeshAssemblerMixin(FlaggedMeshBoundaryConditionsContainer<SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions) :
@@ -174,49 +201,5 @@ public :
     }
 
 
-    void SetupMap()
-    {
-        ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& r_mesh = this->rGetMesh();
-        
-        // Figure out the SMASRM size, and generate a map from global node number
-        // to SMASRM index.
-        mSmasrmIndexMap.clear();
-
-        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
-            iter = r_mesh.GetElementIteratorBegin();
-        unsigned smasrm_size = 0;
-
-        while (iter != r_mesh.GetElementIteratorEnd())
-        {
-            Element<ELEMENT_DIM, SPACE_DIM>& element = **iter;
-            
-            if (element.IsFlagged())
-            {
-                // Add this element's nodes to the map
-                const unsigned num_nodes = element.GetNumNodes();
-                for (unsigned i=0; i<num_nodes; i++)
-                {
-                    unsigned node_index = element.GetNodeGlobalIndex(i);
-                    if (mSmasrmIndexMap.count(node_index) == 0)
-                    {
-                        // This is a new node
-                        mSmasrmIndexMap[node_index] = smasrm_size++;
-                    }
-                }
-            }
-            ++iter;
-        }
-        assert(mSmasrmIndexMap.size() == smasrm_size);
-           
-    }
-        
-    std::map<unsigned, unsigned>& rGetSmasrmIndexMap()
-    {
-        if (mSmasrmIndexMap.size()==0)
-        {
-            SetupMap();
-        }
-        return mSmasrmIndexMap;
-    }
 };
 #endif /*ABSTRACTFLAGGEDMESHASSEMBLERMIXIN_HPP_*/

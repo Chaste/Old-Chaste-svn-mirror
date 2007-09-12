@@ -26,6 +26,29 @@
 
 class TestFlaggedMeshAssembler : public CxxTest::TestSuite
 {
+private:
+    void CreateQuadrantFlaggedMesh(ConformingTetrahedralMesh<2,2>& rMesh)
+    {
+        // create a mesh on [0,2]x[0,2]
+        rMesh.ConstructRectangularMesh(50,50);
+        rMesh.Scale(2.0/50, 2.0/50);
+        
+        // flag the [0,1]x[0,1] quadrant
+        for(unsigned i=0; i<rMesh.GetNumElements(); i++)
+        {
+            for(unsigned j=0; j<rMesh.GetElement(i)->GetNumNodes(); j++)
+            {
+                double x = rMesh.GetElement(i)->GetNode(j)->rGetLocation()[0];
+                double y = rMesh.GetElement(i)->GetNode(j)->rGetLocation()[1];
+                
+                if((x<1.0)&&(y<1.0))
+                {
+                    rMesh.GetElement(i)->Flag();
+                }
+            }
+        }
+    }
+
 public :
     void TestAssembleSystem() throw(Exception)
     {
@@ -126,25 +149,10 @@ public :
         // solve using a flaggled assembler on [0,1]x[0,1] using a flagged mesh
         ///////////////////////////////////////////////////////////////////////////
 
-        // create a mesh on [0,2]x[0,2]
-        ConformingTetrahedralMesh<2,2> flagged_mesh; 
-        flagged_mesh.ConstructRectangularMesh(50,50);
-        flagged_mesh.Scale(2.0/50, 2.0/50);
-        
-        // flag the [0,1]x[0,1] quadrant
-        for(unsigned i=0; i<flagged_mesh.GetNumElements(); i++)
-        {
-            for(unsigned j=0; j<flagged_mesh.GetElement(i)->GetNumNodes(); j++)
-            {
-                double x = flagged_mesh.GetElement(i)->GetNode(j)->rGetLocation()[0];
-                double y = flagged_mesh.GetElement(i)->GetNode(j)->rGetLocation()[1];
-                
-                if((x<1.0)&&(y<1.0))
-                {
-                    flagged_mesh.GetElement(i)->Flag();
-                }
-            }
-        }
+        // create a mesh on [0,2]x[0,2] with [0,1]x[0,1] flagged
+        ConformingTetrahedralMesh<2,2> flagged_mesh;
+        CreateQuadrantFlaggedMesh(flagged_mesh);
+        flagged_mesh.SetupSmasrmMap();
 
         // Set up boundary conditions - u=1.0 on the boundary of the flagged mesh
         FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(flagged_mesh, 1.0);
@@ -160,8 +168,8 @@ public :
         flagged_assembler.SetTimes(0, 1, 0.1);
         
         // Initial condition, u=1 (note the size of the vec is the number of flagged nodes)
-        Vec initial_condition_flagged = PetscTools::CreateVec(flagged_assembler.rGetSmasrmIndexMap().size(),1.0);
-        flagged_assembler.SetInitialCondition(initial_condition_flagged);
+        Vec initial_condition_everywhere = PetscTools::CreateVec(flagged_mesh.GetNumNodes(),1.0);
+        flagged_assembler.SetInitialCondition(initial_condition_everywhere);
 
         // solve
         Vec result_flagged = flagged_assembler.Solve();
@@ -201,7 +209,7 @@ public :
         /////////////////////////////////////////////////////        
 
         // get the map from flagged region index to global node index.
-        std::map<unsigned, unsigned>& map = flagged_assembler.rGetSmasrmIndexMap();
+        std::map<unsigned, unsigned>& map = flagged_mesh.rGetSmasrmMap();
 
         // loop over nodes in the flagged region
         std::map<unsigned, unsigned>::iterator map_iter = map.begin();
@@ -241,7 +249,7 @@ public :
         VecDestroy(result);
         VecDestroy(result_flagged);
         VecDestroy(initial_condition);
-        VecDestroy(initial_condition_flagged);    
+        VecDestroy(initial_condition_everywhere);    
     }
 
 
@@ -252,27 +260,11 @@ public :
             TS_TRACE("This test does not pass in parallel yet.");
             return;
         }
-        
-        
-        // create a mesh on [0,2]x[0,2]
-        ConformingTetrahedralMesh<2,2> flagged_mesh; 
-        flagged_mesh.ConstructRectangularMesh(50,50);
-        flagged_mesh.Scale(2.0/50, 2.0/50);
-        
-        // flag the [0,1]x[0,1] quadrant
-        for(unsigned i=0; i<flagged_mesh.GetNumElements(); i++)
-        {
-            for(unsigned j=0; j<flagged_mesh.GetElement(i)->GetNumNodes(); j++)
-            {
-                double x = flagged_mesh.GetElement(i)->GetNode(j)->rGetLocation()[0];
-                double y = flagged_mesh.GetElement(i)->GetNode(j)->rGetLocation()[1];
                 
-                if((x<1.0)&&(y<1.0))
-                {
-                    flagged_mesh.GetElement(i)->Flag();
-                }
-            }
-        }
+        // create a mesh on [0,2]x[0,2] with [0,1]x[0,1] flagged
+        ConformingTetrahedralMesh<2,2> flagged_mesh; 
+        CreateQuadrantFlaggedMesh(flagged_mesh);       
+        flagged_mesh.SetupSmasrmMap();
 
         // Set up boundary conditions - u=1.0 on the boundary of the flagged mesh
         FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(flagged_mesh, 1.0);
@@ -280,7 +272,6 @@ public :
         // create the pde
         LinearHeatEquationPde<2> pde;
         
-
         // set the problem size
         DistributedVector::SetProblemSize(flagged_mesh.GetNumNodes());
 
@@ -320,7 +311,7 @@ public :
         /////////////////////////////////////////////////////        
 
         // get the map from flagged region index to global node index.
-        std::map<unsigned, unsigned>& map = flagged_assembler.rGetSmasrmIndexMap();
+        std::map<unsigned, unsigned>& map = flagged_mesh.rGetSmasrmMap();
 
         // loop over nodes in the flagged region
         std::map<unsigned, unsigned>::iterator map_iter = map.begin();
@@ -370,7 +361,7 @@ public :
 // mixed mesh with the flagged mesh, ie initial work towards the 
 // JW bidomain method, eventually to be turned into source.
 //////////////////////////////////////////////////////////////////////////
-    void xToDOxTestCoarseAndFineDiffusion() throw (Exception)
+    void TestCoarseAndFineDiffusion() throw (Exception)
     {
         ConformingTetrahedralMesh<2,2> fine_mesh;
         
@@ -459,7 +450,7 @@ public :
         Vec result_fine_restricted = flagged_assembler.Solve();  
         ReplicatableVector result_fine_restricted_repl(result_fine_restricted);
 
-        std::map<unsigned, unsigned>& map = flagged_assembler.rGetSmasrmIndexMap();
+        std::map<unsigned, unsigned>& map = fine_mesh.rGetSmasrmMap();
         DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
         DistributedVector result_fine(initial_condition_fine);
         
@@ -552,7 +543,7 @@ public :
         VecDestroy(result);
     }
 
-    void xTodoXTestCoarseAndFineDiffusionWithTimeLoop() throw (Exception)
+    void TestCoarseAndFineDiffusionWithTimeLoop() throw (Exception)
     {
         ConformingTetrahedralMesh<2,2> fine_mesh;
         
@@ -694,7 +685,7 @@ public :
     
                 // Copy the results for the flagged region of the fine mesh
                 // into a large vector for the whole of the fine mesh. 
-                std::map<unsigned, unsigned>& map = flagged_assembler.rGetSmasrmIndexMap();
+                std::map<unsigned, unsigned>& map = fine_mesh.rGetSmasrmMap();
                 DistributedVector result_fine(initial_condition_fine);
                 ReplicatableVector result_fine_restricted_repl(result_fine_restricted);
                 
@@ -758,6 +749,52 @@ public :
         
         VecDestroy(initial_condition_coarse);
         VecDestroy(initial_condition_fine);
+    }
+    
+    void TestExtractOnRelevantMesh()
+    {
+        // create a mesh on [0,2]x[0,2] with [0,1]x[0,1] flagged
+        ConformingTetrahedralMesh<2,2> flagged_mesh; 
+        CreateQuadrantFlaggedMesh(flagged_mesh);        
+        flagged_mesh.SetupSmasrmMap();
+
+        std::map<unsigned, unsigned> smasrm_map=flagged_mesh.rGetSmasrmMap();
+
+        std::vector<double> data(flagged_mesh.GetNumNodes());
+        for(unsigned i=0; i<flagged_mesh.GetNumNodes(); i++)
+        {
+            double x = flagged_mesh.GetNode(i)->rGetLocation()[0];
+            double y = flagged_mesh.GetNode(i)->rGetLocation()[1];
+            
+            data[i] = x*y;
+        }
+        Vec initial_cond_everywhere = PetscTools::CreateVec(data);
+
+        // Assembler for fine mesh flagged region
+        FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(flagged_mesh, 1.0);
+        TimeDependentDiffusionEquationWithSourceTermPde<2> pde;
+        DistributedVector::SetProblemSize(flagged_mesh.GetNumNodes());
+        ParabolicFlaggedMeshAssembler<2> flagged_assembler(&flagged_mesh, &pde, &flagged_bcc);
+
+        Vec initial_cond_flagged = flagged_assembler.ExtractOnReleventMesh(initial_cond_everywhere);
+        
+        PetscInt size;
+        VecGetSize(initial_cond_flagged, &size);
+
+        TS_ASSERT_EQUALS((unsigned)size, smasrm_map.size());
+        
+        ReplicatableVector initial_cond_everywhere_repl(initial_cond_everywhere);
+        ReplicatableVector initial_cond_flagged_repl(initial_cond_flagged);
+        
+        for (std::map<unsigned, unsigned>::iterator map_iterator = smasrm_map.begin();
+             map_iterator != smasrm_map.end();
+             map_iterator++)
+        {
+            unsigned node_index = map_iterator->first;
+            unsigned smasrm_index = map_iterator->second;
+        
+            TS_ASSERT_EQUALS( initial_cond_everywhere_repl[node_index], initial_cond_flagged_repl[smasrm_index] );
+        }
     }
 };
 #endif /*TESTFLAGGEDMESHASSEMBLER_HPP_*/

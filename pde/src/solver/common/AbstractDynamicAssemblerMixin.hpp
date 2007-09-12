@@ -71,7 +71,7 @@ public:
      */
     void SetInitialCondition(Vec initCondition)
     {
-        mInitialCondition = initCondition;
+        mInitialCondition = this->ExtractOnReleventMesh(initCondition);
     }
     
     /**
