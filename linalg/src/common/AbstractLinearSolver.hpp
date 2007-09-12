@@ -18,7 +18,7 @@ public:
     * @return The solution x.
     */
     virtual Vec Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNullSpace, Vec=NULL) = 0;
-    virtual void SetMatrixIsConstant()=0;
+    virtual void SetMatrixIsConstant(bool matrixIsConstant = true)=0;
     virtual ~AbstractLinearSolver()
     {}
 };

@@ -77,10 +77,10 @@ public:
     /**
      * Set the boolean mMatrixIsConstant to true to build the matrix only once. 
      */
-    void SetMatrixIsConstant()
+    void SetMatrixIsConstant(bool matrixIsConstant = true)
     {
-        mMatrixIsConstant = true;
-        this->SetMatrixIsConst();
+        mMatrixIsConstant = matrixIsConstant;
+        this->SetMatrixIsConst(mMatrixIsConstant);
     }
     
     /**

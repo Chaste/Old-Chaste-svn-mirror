@@ -24,7 +24,7 @@ protected:
     AbstractLinearSolver *mpLinearSolver;
     
     /** Hack for dynamic mixin */
-    void SetMatrixIsConst()
+    void SetMatrixIsConst(bool matrixIsConstant = true)
     {
         mpLinearSolver->SetMatrixIsConstant();
     }

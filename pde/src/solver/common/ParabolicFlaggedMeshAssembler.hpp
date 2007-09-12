@@ -39,6 +39,7 @@ public :
             SimpleDg0ParabolicAssembler<DIM,DIM>(pMesh,pPde,NULL,numQuadPoints),
             AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>(pBoundaryConditions)
     {
+        this->SetMatrixIsConstant(false);
     }
 };
 #endif /*PARABOLICFLAGGEDMESHASSEMBLER_HPP_*/

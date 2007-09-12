@@ -28,9 +28,9 @@ public:
         }
     }
     
-    void SetMatrixIsConstant()
+    void SetMatrixIsConstant(bool matrixIsConstant = true)
     {
-        mMatrixIsConstant = true;
+        mMatrixIsConstant = matrixIsConstant;
     }
     
 private:

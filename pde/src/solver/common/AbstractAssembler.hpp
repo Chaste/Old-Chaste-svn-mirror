@@ -56,7 +56,7 @@ protected:
     
     #define COVERAGE_IGNORE
     /** Hack for dynamic mixin */
-    virtual void SetMatrixIsConst()
+    virtual void SetMatrixIsConst(bool matrixIsConstant = true)
     {
     }
     #undef COVERAGE_IGNORE
