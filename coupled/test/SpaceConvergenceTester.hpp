@@ -34,11 +34,14 @@ public:
             case 3:
             {
                 assert(0);
+                return true;//To keep Intel compiler happy
                 break;
             }
             default:
                 assert(0);
+                return true;//To keep Intel compiler happy
         }
+        return true;//To keep Intel compiler happy
     }
     double Abscissa()
     {
