@@ -64,8 +64,8 @@ SConsignFile('.sconsign')
 # We hard code dependencies between them, and use this to work out the
 # order to link them in.  Each one is linked against just its dependencies,
 # in the order given here.
-comp_deps = {'models': ['ode', 'mesh', 'linalg', 'io', 'global'],
-			 'dealii': ['models', 'coupled', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
+comp_deps = {'cancer': ['ode', 'mesh', 'linalg', 'io', 'global'],
+			 'dealii': ['cancer', 'coupled', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
 			 'coupled': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
 			 'pde': ['mesh', 'linalg', 'io', 'global'],
 			 'mesh': ['linalg', 'global'],
@@ -73,7 +73,7 @@ comp_deps = {'models': ['ode', 'mesh', 'linalg', 'io', 'global'],
 			 'ode': ['linalg', 'io', 'global'],
 			 'io': ['global'],
 			 'global': []}
-components = ['models', 'coupled', 'pde', 'ode',
+components = ['cancer', 'coupled', 'pde', 'ode',
                'mesh', 'linalg', 'io', 'global']
 if build.using_dealii:
     components = ['dealii'] + components

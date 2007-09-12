@@ -1,6 +1,5 @@
 TestDecimation.hpp
 TestConformingTetrahedralMesh.hpp
-TestHoneycombMeshGenerator.hpp
 TestFemlabMeshReader.hpp
 TestFace.hpp
 TestInventorVoronoiWriter.hpp
@@ -14,6 +13,5 @@ TestMixedTetrahedralMesh.hpp
 TestVolumeCalculator.hpp
 TestTransformations.hpp
 TestRemesh.hpp
-TestCylindrical2dMesh.hpp
 TestVoronoiCell.hpp
 TestVoronoiTessellation.hpp

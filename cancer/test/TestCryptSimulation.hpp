@@ -62,7 +62,7 @@ class TestCryptSimulation : public CxxTest::TestSuite
                                                              "tabulated_results",
                                                              true);
                                                              
-        ColumnDataReader expected_results = ColumnDataReader("models/test/data/" + resultDirectory,
+        ColumnDataReader expected_results = ColumnDataReader("cancer/test/data/" + resultDirectory,
                                                              "tabulated_results",
                                                              false);
                                                              

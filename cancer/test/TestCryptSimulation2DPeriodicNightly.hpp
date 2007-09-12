@@ -82,14 +82,14 @@ class TestCryptSimulation2DPeriodicNightly : public CxxTest::TestSuite
                                                                   "tabulated_node_results",
                                                                   true);
                                                                   
-        ColumnDataReader expected_node_results = ColumnDataReader("models/test/data/" + resultDirectory+"Results",
+        ColumnDataReader expected_node_results = ColumnDataReader("cancer/test/data/" + resultDirectory+"Results",
                                                                   "tabulated_node_results",
                                                                   false);
         ColumnDataReader computed_element_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",
                                                     "tabulated_element_results",
                                                     true);
                                                     
-        ColumnDataReader expected_element_results = ColumnDataReader("models/test/data/" + resultDirectory+"Results",
+        ColumnDataReader expected_element_results = ColumnDataReader("cancer/test/data/" + resultDirectory+"Results",
                                                     "tabulated_element_results",
                                                     false);
         

@@ -37,11 +37,11 @@ void TestRepresentativeSimulationForProfiling() throw (Exception)
         double t = 350;   // this is the folder and time that the stored results were archived (needed to know foldernames)
         double run_for = 10; // run for 10 hours.
         
-        // The archive needs to be copied from models/test/data/<test_to_profile>
+        // The archive needs to be copied from cancer/test/data/<test_to_profile>
         // to the testoutput directory to continue running the simulation.     
         OutputFileHandler any_old_handler("",false);
         std::string test_output_directory = any_old_handler.GetTestOutputDirectory();
-        std::string test_data_directory = "models/test/data/" + test_to_profile +"/";
+        std::string test_data_directory = "cancer/test/data/" + test_to_profile +"/";
         std::string command = "cp -R --remove-destination --reply=yes " + test_data_directory +" "+ test_output_directory +"/";     
         int return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value, 0);

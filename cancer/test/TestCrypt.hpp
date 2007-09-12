@@ -434,11 +434,11 @@ public:
         // compare output with saved files of what they should look like                           
         std::string results_dir = output_file_handler.GetTestOutputDirectory();
 
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.vizelements  models/test/data/TestCryptWriters/results.vizelements").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.viznodes     models/test/data/TestCryptWriters/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.vizelements  cancer/test/data/TestCryptWriters/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.viznodes     cancer/test/data/TestCryptWriters/results.viznodes").c_str()), 0);
 
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_node_results.dat models/test/data/TestCryptWriters/tab_node_results.dat").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_elem_results.dat models/test/data/TestCryptWriters/tab_elem_results.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_node_results.dat cancer/test/data/TestCryptWriters/tab_node_results.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_elem_results.dat cancer/test/data/TestCryptWriters/tab_elem_results.dat").c_str()), 0);
         
         /*
          * Test the GetCellTypeCount function

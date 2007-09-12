@@ -1,4 +1,3 @@
-TestCancerParameters.hpp
 TestCwd.hpp
 TestDistributedVector.hpp
 TestException.hpp
@@ -9,6 +8,5 @@ TestPetSCSetup.hpp
 TestPetscTools.hpp
 TestRandomNumberGenerator.hpp
 TestReplicatableVector.hpp
-TestSimulationTime.hpp
 TestStaticPolymorphism.hpp
 TestTimeStepper.hpp
