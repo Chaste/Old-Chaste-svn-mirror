@@ -100,8 +100,6 @@ public:
 };
 
 
-// Avoid compiler errors on some systems
-// Seems to break things on the Chaste machines, unfortunately :(
 BOOST_IS_ABSTRACT(AbstractCellCycleModel)
 
 

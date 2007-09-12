@@ -100,8 +100,6 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CryptCellMut
     mVariableNames.push_back("Wnt");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(WntLevel);
-    
-    mNumberOfStateVariables=9;
 }
 
 /**

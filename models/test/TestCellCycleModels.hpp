@@ -1071,6 +1071,9 @@ public:
             TS_ASSERT_DELTA(p_stoc_cell->GetCellCycleModel()->GetBirthTime(),0.0,1e-12);
             TS_ASSERT_DELTA(p_stoc_cell->GetCellCycleModel()->GetAge(),16.0,1e-12);
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
+            
+            delete p_stoc_cell;
+            delete p_wnt_cell;
             SimulationTime::Destroy();
         }
         RandomNumberGenerator::Destroy();
