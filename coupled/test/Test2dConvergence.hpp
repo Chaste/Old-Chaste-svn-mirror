@@ -25,8 +25,8 @@ public:
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
         tester.Converge();
-        TS_ASSERT(tester.mConverged);
-        TS_ASSERT_EQUALS(tester.mMeshNum, 5u); 
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
     }
 };
 
