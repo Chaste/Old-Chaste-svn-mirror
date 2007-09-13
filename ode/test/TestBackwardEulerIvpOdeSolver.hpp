@@ -33,7 +33,7 @@ public:
         
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         solutions = backward_euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, h_value, h_value);
-        int last = solutions.GetNumberOfTimeSteps();
+        unsigned last = solutions.GetNumberOfTimeSteps();
         
         double numerical_solution[3];
         numerical_solution[0] = solutions.rGetSolutions()[last][0];
@@ -66,7 +66,7 @@ public:
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         
         solutions = backward_euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, h_value, h_value);
-        int last = solutions.GetNumberOfTimeSteps();
+        unsigned last = solutions.GetNumberOfTimeSteps();
         
         double numerical_solution;
         numerical_solution = solutions.rGetSolutions()[last][0];
@@ -91,7 +91,7 @@ public:
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         
         solutions = backward_euler_solver.Solve(&ode_system, state_variables, 0.0, end_time, h_value, h_value);
-        int last = solutions.GetNumberOfTimeSteps();
+        unsigned last = solutions.GetNumberOfTimeSteps();
         
         double numerical_solution;
         numerical_solution = solutions.rGetSolutions()[last][0];
@@ -114,7 +114,7 @@ public:
         
         std::vector<double> state_variables = ode_system_with_events.GetInitialConditions();
         solutions = backward_euler_solver.Solve(&ode_system_with_events, state_variables, 0.0, 2.0, h_value, h_value);
-        int last = solutions.GetNumberOfTimeSteps();
+        unsigned last = solutions.GetNumberOfTimeSteps();
         
         // final time should be pi/6 (?)
         TS_ASSERT_DELTA( solutions.rGetTimes()[last], 0.5236, 0.01);
@@ -142,7 +142,7 @@ public:
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         
         solutions = backward_euler_solver.Solve(&ode_system, state_variables, 0.0, end_time, h_value, h_value);
-        int last = solutions.GetNumberOfTimeSteps();
+        unsigned last = solutions.GetNumberOfTimeSteps();
         
         double numerical_solution;
         numerical_solution = solutions.rGetSolutions()[last][0];

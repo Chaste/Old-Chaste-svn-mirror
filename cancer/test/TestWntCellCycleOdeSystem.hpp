@@ -8,6 +8,7 @@
 #include <vector>
 #include <iostream>
 #include "RungeKutta4IvpOdeSolver.hpp"
+#include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "ColumnDataWriter.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -149,6 +150,7 @@ public:
         double h_value=0.001;
         
         RungeKutta4IvpOdeSolver rk4_solver;
+        RungeKuttaFehlbergIvpOdeSolver rkf_solver;
         BackwardEulerIvpOdeSolver back_solver(9);
         
         OdeSolution solutions;
@@ -162,6 +164,15 @@ public:
         end_time = std::clock();
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
+        
+        h_value = 0.1;
+        
+        initial_conditions = wnt_system.GetInitialConditions();
+        start_time = std::clock();
+        solutions = rkf_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, 1e-4);
+        end_time = std::clock();
+        elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
+        std::cout <<  "2. Runge-Kutta-Fehlberg Elapsed time = " << elapsed_time << "\n";
         
 //        WntCellCycleOdeSystem wnt_system_2(WntLevel);
 //        initial_conditions = wnt_system.GetInitialConditions();
@@ -211,7 +222,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 5.971 , 1e-2);
         // Proper values from MatLab ode15s - shocking tolerances to pass though.
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],2.880603485931000e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],1.000220438771564e+00, 1e-2);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],1.000220438771564e+00, 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],2.453870380958196e+00, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3],1.446185835615586e+00, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4],1.383272155041549e-01, 1e-3);

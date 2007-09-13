@@ -8,3 +8,5 @@ TestMockEulerIvpOdeSolver.hpp
 TestSolvingStiffOdeSystems.hpp
 TestStimulus.hpp
 TestBackwardEulerIvpOdeSolver.hpp
+TestRungeKuttaFehlbergIvpOdeSolver.hpp
+
