@@ -795,6 +795,9 @@ public :
         
             TS_ASSERT_EQUALS( initial_cond_everywhere_repl[node_index], initial_cond_flagged_repl[smasrm_index] );
         }
+        
+        VecDestroy(initial_cond_everywhere);
+        // initial_cond_flagged deleted by destructor of assembler
     }
 };
 #endif /*TESTFLAGGEDMESHASSEMBLER_HPP_*/

@@ -19,6 +19,8 @@ class AbstractFlaggedMeshAssemblerMixin : virtual public AbstractAssembler<ELEME
 private:
     friend class TestFlaggedMeshAssembler;
     FlaggedMeshBoundaryConditionsContainer<SPACE_DIM,PROBLEM_DIM>* mpFlaggedMeshBcc;
+    Vec mInitialConditionOnFlagged; // used to store ic on flagged region
+    bool mIcWasAllocated;        // whether the above has been used and needs VecDestroying
     
 //    std::map<unsigned, unsigned> mSmasrmIndexMap;
     
@@ -177,7 +179,12 @@ protected:
             this->rGetMesh().SetupSmasrmMap();
         }
         
-        Vec small_vec = PetscTools::CreateVec(this->rGetMesh().rGetSmasrmMap().size());
+        if (mIcWasAllocated)
+        {
+            VecDestroy(mInitialConditionOnFlagged);
+        }
+        mInitialConditionOnFlagged = PetscTools::CreateVec(this->rGetMesh().rGetSmasrmMap().size());
+        mIcWasAllocated=true;
         ReplicatableVector large_vec_repl(largeVec);
         
         for(std::map<unsigned,unsigned>::iterator map_iter = this->rGetMesh().rGetSmasrmMap().begin();
@@ -187,17 +194,26 @@ protected:
             unsigned node_index = map_iter->first;
             unsigned smasrm_index = map_iter->second;
             
-            VecSetValue(small_vec, smasrm_index, large_vec_repl[node_index], INSERT_VALUES);
+            VecSetValue(mInitialConditionOnFlagged, smasrm_index, large_vec_repl[node_index], INSERT_VALUES);
         }
         
-        return small_vec;
+        return mInitialConditionOnFlagged;
     }
     
 public :
     AbstractFlaggedMeshAssemblerMixin(FlaggedMeshBoundaryConditionsContainer<SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>()
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(),
+            mIcWasAllocated(false)
     {
         mpFlaggedMeshBcc=pBoundaryConditions;
+    }
+    
+    ~AbstractFlaggedMeshAssemblerMixin()
+    {
+        if (mIcWasAllocated)
+        {
+            VecDestroy(mInitialConditionOnFlagged);
+        }
     }
 
 
