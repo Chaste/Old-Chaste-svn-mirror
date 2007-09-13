@@ -16,22 +16,22 @@ void PetscException(PetscInt petscError,
         
         //PetscErrorMessage will swing p_text to point to the error code's message
         //...but only if it's a valid code
-        PetscErrorMessage(petscError,  &p_text, NULL);
+        PetscErrorMessage(petscError,  &p_text, NULL); 
         if (p_text == 0)
         {
             p_text=default_message;
         }
         
-        std::string err_string;
-        err_string=p_text;
-        err_string+= " in function '";
-        err_string+= funct;
-        err_string+= "' on line " ;
-        err_string+= line;
-        err_string+= " of file ";
-        err_string+= file;
+        std::stringstream err_string;
+        err_string << p_text;
+        err_string << " in function '";
+        err_string << funct;
+        err_string << "' on line " ;
+        err_string << line;
+        err_string << " of file ";
+        err_string << file;
         
-        EXCEPTION(err_string);
+        EXCEPTION(err_string.str());
     }
 }
 
