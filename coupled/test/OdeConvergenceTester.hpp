@@ -9,22 +9,22 @@ class OdeConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PROB
 public:
     void SetInitialConvergenceParameters()
     {
-        this->mPdeTimeStep = 2e-2;
-        this->mOdeTimeStep = 1e-2;
+        this->PdeTimeStep = 2e-2;
+        this->OdeTimeStep = 1e-2;
     }
     void UpdateConvergenceParameters()
     {
-        this->mOdeTimeStep *= 0.5;
+        this->OdeTimeStep *= 0.5;
     
     }
     bool GiveUpConvergence()
     {
-        return this->mOdeTimeStep<=1e-8;
+        return this->OdeTimeStep<=1e-8;
     }
     
     double Abscissa()
     {
-        return this->mOdeTimeStep;
+        return this->OdeTimeStep;
     }
     
 };

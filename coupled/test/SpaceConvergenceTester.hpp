@@ -10,11 +10,11 @@ class SpaceConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PR
 public:
     void SetInitialConvergenceParameters()
     {
-        this->mMeshNum=0;
+        this->MeshNum=0;
     }
     void UpdateConvergenceParameters()
     {
-        this->mMeshNum++;
+        this->MeshNum++;
     
     }
     bool GiveUpConvergence()
@@ -23,12 +23,12 @@ public:
         {
             case 1:
             {
-                return this->mMeshNum>6;
+                return this->MeshNum>6;
                 break;
             }
             case 2:
             {
-                return this->mMeshNum>4;
+                return this->MeshNum>4;
                 break;
             }
             case 3:
@@ -45,7 +45,7 @@ public:
     }
     double Abscissa()
     {
-        unsigned mesh_size = (unsigned) pow(2, this->mMeshNum+2); // number of elements in each dimension
+        unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
         return mesh_width/(double) mesh_size;
     }
 };

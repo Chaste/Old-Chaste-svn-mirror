@@ -98,12 +98,12 @@ private:
 
 public:    
     AbstractConvergenceTester()
-    : mOdeTimeStep(0.0025),
-      mPdeTimeStep(0.0025),
-      mMeshNum(5u),
-      mKspRtol(1e-8),
-      mRelativeConvergenceCriterion(1e-4),
-      mConverged(false)
+    : OdeTimeStep(0.0025),
+      PdeTimeStep(0.0025),
+      MeshNum(5u),
+      KspRtol(1e-8),
+      RelativeConvergenceCriterion(1e-4),
+      Converged(false)
     {
     }
     
@@ -128,10 +128,10 @@ public:
         do
         {
 
-            if (mMeshNum!=prev_mesh_num)
+            if (MeshNum!=prev_mesh_num)
             {
                 // create the mesh
-                unsigned mesh_size = (unsigned) pow(2, mMeshNum+2); // number of elements in each dimension
+                unsigned mesh_size = (unsigned) pow(2, MeshNum+2); // number of elements in each dimension
                 scaling = mesh_width/(double) mesh_size;
                 ConformingTetrahedralMesh<DIM,DIM> mesh;
                 ConstructHyperCube(mesh, mesh_size);
@@ -144,12 +144,12 @@ public:
                 mesh_writer.WriteFilesUsingMesh(mesh);
                 mesh_pathname = output_file_handler.GetTestOutputDirectory()
                                             + mesh_filename;
-                prev_mesh_num = mMeshNum;
+                prev_mesh_num = MeshNum;
             }                            
             
             double prev_voltage[201];
             
-            PointStimulusCellFactory<CELL, DIM> cell_factory(mOdeTimeStep, num_elements);
+            PointStimulusCellFactory<CELL, DIM> cell_factory(OdeTimeStep, num_elements);
             CARDIAC_PROBLEM cardiac_problem(&cell_factory);
             
             cardiac_problem.SetMeshFilename(mesh_pathname);
@@ -157,11 +157,11 @@ public:
             cardiac_problem.SetOutputFilenamePrefix ("Results");
             
             cardiac_problem.SetEndTime(simulation_time);   // ms
-            cardiac_problem.SetLinearSolverRelativeTolerance(mKspRtol);
+            cardiac_problem.SetLinearSolverRelativeTolerance(KspRtol);
     
-            cardiac_problem.SetPdeTimeStep(mPdeTimeStep);
+            cardiac_problem.SetPdeTimeStep(PdeTimeStep);
             
-            assert(fabs(0.04/mPdeTimeStep - round(0.04/mPdeTimeStep)) <1e-15 );
+            assert(fabs(0.04/PdeTimeStep - round(0.04/PdeTimeStep)) <1e-15 );
             cardiac_problem.SetPrintingTimeStep(0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
             cardiac_problem.Initialise();
 
@@ -189,7 +189,7 @@ public:
                 }
                 case 2:
                 {
-                    unsigned n= (unsigned) pow (2, mMeshNum+2);
+                    unsigned n= (unsigned) pow (2, MeshNum+2);
                     first_quadrant_node =   (n+1)*(n/2)+  n/4 ;
                     third_quadrant_node =   (n+1)*(n/2)+3*n/4 ;
                     break;
@@ -198,9 +198,9 @@ public:
                 {
                     const unsigned first_quadrant_nodes_3d[5]={61, 362, 2452, 17960, 137296};
                     const unsigned third_quadrant_nodes_3d[5]={63, 366, 2460, 17976, 137328};
-                    assert(mMeshNum<5);
-                    first_quadrant_node = first_quadrant_nodes_3d[mMeshNum];
-                    third_quadrant_node = third_quadrant_nodes_3d[mMeshNum];
+                    assert(MeshNum<5);
+                    first_quadrant_node = first_quadrant_nodes_3d[MeshNum];
+                    third_quadrant_node = third_quadrant_nodes_3d[MeshNum];
                     break;
                 }
                 
@@ -263,7 +263,7 @@ public:
                     //Use "set logscale x; set logscale y" to get loglog plots in Gnuplot
                     std::cout << Abscissa() << "\t" << sum_sq_abs_error/sum_sq_prev_voltage <<"\t#Gnuplot raw data\n";
                     // convergence criterion
-                    mConverged = sum_sq_abs_error/sum_sq_prev_voltage<mRelativeConvergenceCriterion;
+                    Converged = sum_sq_abs_error/sum_sq_prev_voltage<RelativeConvergenceCriterion;
                 }
             }
             
@@ -282,34 +282,34 @@ public:
             }                    
             
             // Get ready for the next test by halving the time step
-            if (!mConverged)
+            if (!Converged)
             {
                 UpdateConvergenceParameters();
                 file_num++;
             }
         }
-        while (!GiveUpConvergence() && !mConverged);
+        while (!GiveUpConvergence() && !Converged);
     }
     
     void DisplayRun()
     {
-            unsigned mesh_size = (unsigned) pow(2, mMeshNum+2); // number of elements in each dimension
+            unsigned mesh_size = (unsigned) pow(2, MeshNum+2); // number of elements in each dimension
             double scaling = mesh_width/(double) mesh_size;
             std::cout<<"================================================================================"<<std::endl  << std::flush;
-            std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << mMeshNum << ")" << std::endl  << std::flush;
-            std::cout<<"Solving with a time step of "<<mPdeTimeStep<<" ms"<<std::endl  << std::flush;
-            std::cout<<"Solving with an ode time step of "<<mOdeTimeStep<<" ms"<<std::endl  << std::flush;
-            std::cout<<"Solving with a KSP relative tolerance of "<<mKspRtol<<std::endl  << std::flush;
+            std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << MeshNum << ")" << std::endl  << std::flush;
+            std::cout<<"Solving with a time step of "<<PdeTimeStep<<" ms"<<std::endl  << std::flush;
+            std::cout<<"Solving with an ode time step of "<<OdeTimeStep<<" ms"<<std::endl  << std::flush;
+            std::cout<<"Solving with a KSP relative tolerance of "<<KspRtol<<std::endl  << std::flush;
     }
     
 
 public:
-    double mOdeTimeStep;
-    double mPdeTimeStep;
-    unsigned mMeshNum;
-    double mKspRtol;
-    double mRelativeConvergenceCriterion;
-    bool mConverged;
+    double OdeTimeStep;
+    double PdeTimeStep;
+    unsigned MeshNum;
+    double KspRtol;
+    double RelativeConvergenceCriterion;
+    bool Converged;
     
     virtual ~AbstractConvergenceTester() {}
     

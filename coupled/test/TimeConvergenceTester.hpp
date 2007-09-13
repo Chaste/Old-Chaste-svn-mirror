@@ -9,24 +9,20 @@ class TimeConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PRO
 public:
     void SetInitialConvergenceParameters()
     {
-        this->mPdeTimeStep = 0.04;
-        //this->mOdeTimeStep = this->mPdeTimeStep;
-        this->mOdeTimeStep = 0.0025;
+        this->PdeTimeStep = 0.04;
+        this->OdeTimeStep = 0.0025;
     }
     void UpdateConvergenceParameters()
     {
-        this->mPdeTimeStep *= 0.5;
-        //this->mOdeTimeStep = this->mPdeTimeStep;
-     }
+        this->PdeTimeStep *= 0.5;
+    }
     bool GiveUpConvergence()
     {
-        return this->mPdeTimeStep<=1e-8;
+        return this->PdeTimeStep<=1e-8;
     }
-    
     double Abscissa()
     {
-        return this->mPdeTimeStep;
+        return this->PdeTimeStep;
     }
-    
 };
 #endif /*TIMECONVERGENCETESTER_HPP_*/
