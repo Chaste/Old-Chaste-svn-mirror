@@ -13,9 +13,7 @@ TestPdeOnFlaggedMesh.hpp
 TestSprings3d.hpp
 TestTissueSimulationWithNutrients.hpp
 TestTumourSpheroid.hpp
-
 TestTysonNovak2001OdeSystem.hpp
 TestWntCellCycleOdeSystem.hpp
-
 TestCancerParameters.hpp
 TestSimulationTime.hpp

@@ -135,39 +135,22 @@ public :
         mVariableNames.push_back("Q3");
         mVariableUnits.push_back("");
         mStateVariables.push_back(0);
-        
-//        mKon = 100;
-//        mKrefoff = 0.2;
-//        mGamma = 2;
-//        mCalciumTroponinMax = 0.07;
-//        mAlphaR1 = 0.002;
-//        mAlphaR2 = 0.00175;
-//        mKZ = 0.15;
-//        mNr = 3;
-//        mBeta1 = -4;
-//        mAlpha0 = 0.008;
-//        mN = 3;
-//        mZp = 0.85;
-//        mCalcium50ref = 0.00105;
-//        mTref = 56.2;
-//        mBeta0 = 4.9;
-//        mA = 0.35;  
-//        mA1 = -29;
-//        mA2 = 138;
-//        mA3 = 129;
-//        mAlpha1 = 0.03;
-//        mAlpha2 = 0.130;
-//        mAlpha3 = 0.625;
-        
+                
         mLambda1 = 1.0;
         mDLambda1Dt = 0.0;
         mCalciumI = 0.0;            
     }
     
-    void SetLambda1DerivativeAndCalciumI(double lambda1, double dlambda1Dt, double calciumI)
+    void SetLambda1AndDerivative(double lambda1, double dlambda1Dt)
     {
+        assert(lambda1>0.0);
         mLambda1 = lambda1;
         mDLambda1Dt = dlambda1Dt;
+    }
+    
+    void SetIntracellularCalciumConcentration(double calciumI)
+    {
+        assert(calciumI > 0.0);
         mCalciumI = calciumI;
     }
     

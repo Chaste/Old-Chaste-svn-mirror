@@ -29,9 +29,11 @@ private:
         double damping = CancerParameters::Instance()->GetDampingConstantNormal();
         double stiffness = CancerParameters::Instance()->GetSpringStiffness();
         double body_force = 10;
-        double friction = stiffness;
+        double coeff_of_friction = 2;
         
-        assert(body_force>0 && friction>0);
+        assert(body_force>0 && coeff_of_friction>0);
+
+        double average_flow_rate = 0;
 
         for(Crypt<2>::Iterator iter = mrCrypt.Begin(); 
             iter != mrCrypt.End();
@@ -47,16 +49,34 @@ private:
             
             if( dist_to_bottom < mCellRadius )
             {
-                drdt[iter->GetNodeIndex()](0) -= damping*friction;
-                drdt[iter->GetNodeIndex()](1) += damping*stiffness*(mCellRadius - dist_to_bottom);
+                double reaction = stiffness*(mCellRadius - dist_to_bottom);
+                
+                drdt[iter->GetNodeIndex()](1) += damping * reaction; 
+                drdt[iter->GetNodeIndex()](0) -= coeff_of_friction * reaction * damping;
+                if(drdt[iter->GetNodeIndex()](0) < 0)
+                {
+                    drdt[iter->GetNodeIndex()](0) = 0;
+                }
             }
 
             if( dist_to_top < mCellRadius )
             {
-                drdt[iter->GetNodeIndex()](0) -= damping*friction;
-                drdt[iter->GetNodeIndex()](1) -= damping*stiffness*(mCellRadius - dist_to_top);
+                double reaction = stiffness*(mCellRadius - dist_to_top);
+
+                drdt[iter->GetNodeIndex()](1) -= damping * reaction; 
+                drdt[iter->GetNodeIndex()](0) -= coeff_of_friction * reaction * damping;
+                if(drdt[iter->GetNodeIndex()](0) < 0)
+                {
+                    drdt[iter->GetNodeIndex()](0) = 0;
+                }
             }
+            
+            average_flow_rate += drdt[iter->GetNodeIndex()](0);
         } 
+        
+        average_flow_rate /= mrCrypt.GetNumRealCells();
+        
+        std::cout << SimulationTime::Instance()->GetDimensionalisedTime() << ": " << average_flow_rate <<"\n";  
         
         return drdt;
     }    
@@ -92,6 +112,25 @@ private:
         }
     }
     
+    void PostSolve()
+    {
+        double stiffness_ratio = 4;
+        static bool has_stiffened = false;
+        if(SimulationTime::Instance()->GetDimensionalisedTime() > 0.5*mEndTime)
+        {
+            if(!has_stiffened)
+            {
+                CancerParameters* p_params = CancerParameters::Instance();
+                double stiffness = p_params->GetSpringStiffness();
+                p_params->SetSpringStiffness(stiffness_ratio*stiffness);
+                has_stiffened = true;
+                
+                std::cout << "Stiffening from " << stiffness << " to " << stiffness_ratio*stiffness 
+                          << " at t=" << SimulationTime::Instance()->GetDimensionalisedTime() << "\n";
+            }
+        }
+    }
+    
 public:
     BloodCellModel(Crypt<2>& rCrypt, double bottom, double top)
         : TissueSimulation<2>(rCrypt)
@@ -117,12 +156,12 @@ public:
 class TestBloodCellModel : public CxxTest::TestSuite
 {
 private:
-    void Run(std::string outputDirectory)
+    void Run(std::string outputDirectory, double vesselHeight = 10)
     { 
         assert(outputDirectory!="");
         
-        int num_cells_depth = 6; 
-        int num_cells_width = 20;
+        int num_cells_depth = 3; 
+        int num_cells_width = 10;
         unsigned num_ghosts = 0;
  
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, num_ghosts);
@@ -147,10 +186,9 @@ private:
         Crypt<2> crypt(*p_mesh,cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
-        double vessel_height = 10;
-        double vessel_width  = 25;
+        double vessel_width  = 20;
         CancerParameters* p_params = CancerParameters::Instance();
-        p_params->SetCryptLength(vessel_height);
+        p_params->SetCryptLength(vesselHeight);
         p_params->SetCryptWidth(vessel_width);
 
 
@@ -161,7 +199,7 @@ private:
         {
             // completely random
             double x = rng->ranf() * vessel_width;
-            double y = rng->ranf() * vessel_height;
+            double y = rng->ranf() * vesselHeight;
             
 //// random perturbation
 //            double x = iter.rGetLocation()[0] + (rng->ranf() * 0.2 - 0.1);
@@ -174,10 +212,10 @@ private:
     
         crypt.ReMesh();
  
-        BloodCellModel blood_cell_model(crypt, 0, vessel_height);
+        BloodCellModel blood_cell_model(crypt, 0, vesselHeight);
 
         blood_cell_model.SetOutputDirectory(outputDirectory);
-        blood_cell_model.SetEndTime(2);
+        blood_cell_model.SetEndTime(5);
 
         blood_cell_model.Solve();
 
@@ -188,7 +226,7 @@ private:
 
 public:
 
-    void TestNormal() throw(Exception)
+    void xTestNormal() throw(Exception)
     {
         CancerParameters* p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -196,7 +234,7 @@ public:
         Run("BloodCellModelNormal");
     }
 
-    void TestTwiceAsStiff() throw(Exception)
+    void xTestTwiceAsStiff() throw(Exception)
     {
         CancerParameters* p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -205,16 +243,22 @@ public:
         
         Run("BloodCellModelTwiceAsStiff");
     }
-
-//    void xTestFiveTimesAsStiff() throw(Exception)
-//    {
-//        CancerParameters* p_params = CancerParameters::Instance();
-//        p_params->Reset();
-//        double stiffness = p_params->GetSpringStiffness();
-//        p_params->SetSpringStiffness(2*stiffness);
-//        
-//        Run("BloodCellModelFiveTimesAsStiff");
-//    }
+    
+    void TestMe() throw(Exception)
+    {
+        double stiffness_ratio = 1;
+        double height = 3;
+        
+        CancerParameters* p_params = CancerParameters::Instance();
+        p_params->Reset();
+        double stiffness = p_params->GetSpringStiffness();
+        p_params->SetSpringStiffness(stiffness_ratio*stiffness);
+        
+        std::stringstream ss;
+        ss << "BloodCellModel_" << stiffness_ratio << "_" << height;
+        
+        Run(ss.str(), height);
+    }
 };
 
 

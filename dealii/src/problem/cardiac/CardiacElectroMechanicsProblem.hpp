@@ -215,9 +215,8 @@ public:
                     interpolated_Ca_I += Ca_I_at_node*mElementAndWeightsForQuadPoints[i].Weights(node_index);
                 }
 
-                cellmech_systems[i].SetLambda1DerivativeAndCalciumI(lambda[i], 
-                                                                    dlambda_dt[i],
-                                                                    interpolated_Ca_I);
+                cellmech_systems[i].SetLambda1AndDerivative(lambda[i], dlambda_dt[i]);
+                cellmech_systems[i].SetIntracellularCalciumConcentration(interpolated_Ca_I);
             }
 
             // solve the cellular mechanics model and get the active tension
