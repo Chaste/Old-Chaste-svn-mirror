@@ -87,14 +87,32 @@ public:
         current_y_values[0] = 0.5;
         next_y_values = current_y_values;
         
-        std::vector<double> error(1);
-
-        error = rkf_solver.CalculateNextYValue(&ode, time_step, time, 
+        unsigned number_of_variables = ode.GetNumberOfStateVariables();
+        
+        /*
+         * These commands are all in the InternalSolve() method, which is 
+         * the only thing that ever calls CalculateYValues.
+         */
+        rkf_solver.mError.reserve(number_of_variables);
+        rkf_solver.mk1.reserve(number_of_variables);
+        rkf_solver.mk2.reserve(number_of_variables);
+        rkf_solver.mk3.reserve(number_of_variables);
+        rkf_solver.mk4.reserve(number_of_variables);
+        rkf_solver.mk5.reserve(number_of_variables);
+        rkf_solver.mk6.reserve(number_of_variables);
+        rkf_solver.myk2.reserve(number_of_variables);
+        rkf_solver.myk3.reserve(number_of_variables);
+        rkf_solver.myk4.reserve(number_of_variables);
+        rkf_solver.myk5.reserve(number_of_variables);
+        rkf_solver.myk6.reserve(number_of_variables);
+        
+        
+        rkf_solver.CalculateNextYValue(&ode, time_step, time, 
                                         current_y_values, next_y_values);
                                
         TS_ASSERT_DELTA(current_y_values[0], 0.5, 1e-9);
         TS_ASSERT_DELTA(next_y_values[0], 9.204873e-01, 1e-5);
-        TS_ASSERT_DELTA(error[0], 6.2e-6, 1e-7);
+        TS_ASSERT_DELTA(rkf_solver.mError[0], 6.2e-6, 1e-7);
     }
     
     void TestRKFehlbergWithExampleFromBook() throw(Exception)

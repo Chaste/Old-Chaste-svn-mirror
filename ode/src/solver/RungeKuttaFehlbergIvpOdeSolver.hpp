@@ -15,6 +15,10 @@ class RungeKuttaFehlbergIvpOdeSolver : public AbstractIvpOdeSolver
 friend class TestRungeKuttaFehlbergIvpOdeSolver;    
     
 private:
+    /*
+     * All these are here for more efficient memory allocation, rather than 
+     * because they need to be member variables...
+     */
     double m1932o2197;
     double m7200o2197;
     double m7296o2197;
@@ -32,6 +36,18 @@ private:
     double m25o216;
     double m1408o2565;
     double m2197o4104;
+    std::vector<double> mError;
+    std::vector<double> mk1;
+    std::vector<double> mk2;
+    std::vector<double> mk3;
+    std::vector<double> mk4;
+    std::vector<double> mk5;
+    std::vector<double> mk6;
+    std::vector<double> myk2;
+    std::vector<double> myk3;
+    std::vector<double> myk4;
+    std::vector<double> myk5;
+    std::vector<double> myk6;
     
 protected:
     /**
@@ -59,9 +75,9 @@ protected:
                                bool outputSolution);
                                
     /**
-     * Calculate the next time step.  Concrete subclasses should provide this method.
+     * Calculate the next time step. Updates the mError vector with current error.
      */
-    std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
+    void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                      double timeStep,
                                      double time,
                                      std::vector<double>& currentYValues,
