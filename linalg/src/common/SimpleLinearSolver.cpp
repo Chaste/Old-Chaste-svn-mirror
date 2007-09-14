@@ -20,8 +20,13 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNu
      *    MatView(lhsMatrix,    PETSC_VIEWER_STDOUT_WORLD);
      *    VecView(rhsVector,    PETSC_VIEWER_STDOUT_WORLD);
      */
+    //Double check that the non-zero pattern hasn't changed
+    MatInfo mat_info;
+    MatGetInfo(lhsMatrix, MAT_GLOBAL_SUM, &mat_info);
+ 
     if (!mLinearSystemKnown)
     {
+        mNonZerosUsed=mat_info.nz_used;
         PC prec; //Type of pre-conditioner
         
         KSPCreate(PETSC_COMM_WORLD, &mSimpleSolver);
@@ -68,6 +73,13 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNu
         KSPSetUp(mSimpleSolver);
         
         mLinearSystemKnown = true;
+    }
+    else
+    {
+        if (mNonZerosUsed!=mat_info.nz_used)
+        {
+            EXCEPTION("SimpleLinearSolver doesn't allow the non-zero pattern of a matrix to change. (I think you changed it).");
+        }
     }
     
     // Create solution vector

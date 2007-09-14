@@ -37,6 +37,7 @@ private:
     bool mLinearSystemKnown;
     bool mMatrixIsConstant;
     KSP mSimpleSolver;
+    double mNonZerosUsed; //Yes, it really is stored as a double.
     
 };
 
