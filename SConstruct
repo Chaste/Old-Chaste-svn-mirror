@@ -257,4 +257,16 @@ if test_summary and not compile_only:
   summary_index = os.path.join(output_dir, 'index.html')
   senv.TestSummary(summary_index, [file_list, test_depends])
   senv.AlwaysBuild(summary_index)
+  
+  Help("""
 
+  Type: 'scons -c' to remove all the compiled files (clean build),
+        'scons' to do a default build,
+        'scons test_suite=<Path from chaste folder>' to run a single test.
+  
+  For other options, such as profiling, optimised builds and 
+  memory testing please refer to:
+  
+  https://chaste.ediamond.ox.ac.uk/cgi-bin/trac.cgi/wiki/BuildGuide
+  
+  """)
