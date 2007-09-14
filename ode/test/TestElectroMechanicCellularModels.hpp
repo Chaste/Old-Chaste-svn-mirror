@@ -199,8 +199,11 @@ public:
             double lam = MyLam(current_time, end_time, min_lam);
             double dlam_dt = MyLamDeriv(current_time, end_time, min_lam);
 
-            cellmech_model.SetLambda1DerivativeAndCalciumI(lam, dlam_dt, Ca_I);
-
+            //cellmech_model.SetLambda1DerivativeAndCalciumI(lam, dlam_dt, Ca_I);
+            cellmech_model.SetLambda1AndDerivative(lam, dlam_dt); 
+            cellmech_model.SetIntracellularCalciumConcentration(Ca_I); 
+    
+    
             // solve the cellular mechanics model
             solver.SolveAndUpdateStateVariable(&cellmech_model, current_time, current_time+time_step, time_step);
                     
