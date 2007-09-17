@@ -1,7 +1,6 @@
 #ifndef TESTPETSCEVENTS_HPP_
 #define TESTPETSCEVENTS_HPP_
 
-#include "EventHandler.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
@@ -29,29 +28,8 @@ public:
         
         //PetscLogPrintDetailed(MPI_COMM_WORLD, filename);
     }
-    
-    void TestEventHandler() throw(Exception)
-    {
-        EventHandler::Initialise();
-        EventHandler::BeginEvent(SOLVE_ODES);
-        for (unsigned i=0; i<1000000; i++);
-        EventHandler::EndEvent(SOLVE_ODES);
-
-        EventHandler::BeginEvent(READ_MESH);
-        for (unsigned i=0; i<1000000; i++);
-        EventHandler::EndEvent(READ_MESH);
-
-        EventHandler::BeginEvent(COMMUNICATION);
-        for (unsigned i=0; i<1000000; i++);
-
-        EventHandler::BeginEvent(SOLVE_LINEAR_SYSTEM);
-        for (unsigned i=0; i<1000000; i++);
-        EventHandler::EndEvent(SOLVE_LINEAR_SYSTEM);
-
-        EventHandler::EndEvent(COMMUNICATION);
-
-        //PetscLogPrintSummary(MPI_COMM_WORLD, filename);
-    }
+    // this test should be run on the command line with -log_summary
+    // to check that a summary is given
 };
 
 

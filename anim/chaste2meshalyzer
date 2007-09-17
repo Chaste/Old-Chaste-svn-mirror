@@ -22,8 +22,7 @@ TESTOUTPUT_DIR=${CHASTE_TEST_OUTPUT:-"/tmp/"${USER}"/testoutput/"}
 OUTPUT_DIR=${TESTOUTPUT_DIR}"/anim/"
 
 
-echo ""
-echo "Running chaste2meshalyzer:"
+# echo "Running chaste2meshalyzer:"
 
 mkdir -p ${OUTPUT_DIR}
 
@@ -62,13 +61,13 @@ fi
 #  set up paths
 #######################################################################################
 
-echo "  Mesh path is "${MESH_PATH}
+# echo "  Mesh path is "${MESH_PATH}
 
 RESULTS_PATH=${TESTOUTPUT_DIR}${RESULTS_PREFIX}
-echo "  Results path is "${RESULTS_PATH}
+# echo "  Results path is "${RESULTS_PATH}
 
 OUTPUT_PATH=${OUTPUT_DIR}${OUTPUT_PREFIX}
-echo "  Output file path is "${OUTPUT_PATH}
+# echo "  Output file path is "${OUTPUT_PATH}
 
 
 #######################################################################################
@@ -104,5 +103,4 @@ for i in ${RESULTS_PATH}_0*.dat; do
 	tail -n +2 $i | awk '{print $2}' >> ${OUTPUT_PATH}.dat
 done
 
-echo "  ..done!"
-echo ""
+#echo "  ..done!"

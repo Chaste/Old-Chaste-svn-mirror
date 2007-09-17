@@ -275,7 +275,7 @@ private:
             if (fabs(max) > 500)
             {
 #define COVERAGE_IGNORE
-                std::cout<<"warning: shifting phi_e by "<<-max<<"\n";
+                // std::cout<<"warning: shifting phi_e by "<<-max<<"\n";
                 //Use mask currentSolution=currentSolution - max*mExternalVoltageMask
 #if (PETSC_VERSION_MINOR == 2) //Old API
                 max *= -1;

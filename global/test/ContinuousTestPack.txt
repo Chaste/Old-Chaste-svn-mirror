@@ -1,5 +1,6 @@
 TestCwd.hpp
 TestDistributedVector.hpp
+TestEventHandler.hpp
 TestException.hpp
 TestLogFile.hpp
 TestOutputFileHandler.hpp

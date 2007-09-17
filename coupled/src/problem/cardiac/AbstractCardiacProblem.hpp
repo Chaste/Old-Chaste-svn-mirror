@@ -91,7 +91,7 @@ public:
         mLinearSolverRelativeTolerance=1e-6;
         mAllocatedMemoryForMesh = false;
         
-        EventHandler::Initialise();
+        EventHandler::BeginEvent(EVERYTHING);
     }
     
     virtual ~AbstractCardiacProblem()
@@ -106,6 +106,8 @@ public:
         {
             delete mpMesh;
         }
+        
+        EventHandler::EndEvent(EVERYTHING);
     };
     
     /*
