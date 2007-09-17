@@ -24,16 +24,16 @@ public:
     const static unsigned NUM_EVENTS=8;
     const static char* EVENT_NAME[NUM_EVENTS];
     static PetscEvent mPetscEvent[NUM_EVENTS];
-    static unsigned mCpuTime[NUM_EVENTS];
+    static double mCpuTime[NUM_EVENTS];
     
     static void BeginEvent(EventType event)
     {
-        mCpuTime[event]-=clock()/1000; // clock() is always gives a multiple of 1000
+        mCpuTime[event]-= (double) (clock()/1000); // clock() is always gives a multiple of 1000
     }
     
     static void EndEvent(EventType event)
     {
-        mCpuTime[event]+=clock()/1000;
+        mCpuTime[event]+= (double) (clock()/1000);
     }
     
     
@@ -42,8 +42,8 @@ public:
         // times are in milliseconds
         for (unsigned event=0; event<NUM_EVENTS; event++)
         {
-            printf("%2.1e\t", (double) mCpuTime[event]);
-            mCpuTime[event]=0;
+            printf("%2.1e\t", mCpuTime[event]);
+            mCpuTime[event]=0.0;
         }
         std::cout << "\n";
     }
@@ -59,7 +59,7 @@ public:
 };
 
 PetscEvent EventHandler::mPetscEvent[] = { 0 };
-unsigned EventHandler::mCpuTime[] = { 0 };
+double EventHandler::mCpuTime[] = { 0.0 };
 const char* EventHandler::EVENT_NAME[] = { "InMesh", "AssSys", "Ode", 
                                            "Comms", "AssRhs", "Ksp",
                                            "Output", "Total" };
