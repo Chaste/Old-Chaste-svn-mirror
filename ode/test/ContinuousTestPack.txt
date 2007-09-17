@@ -4,7 +4,7 @@ TestAbstractAnalyticJacobian.hpp
 TestBackwardEulerIvpOdeSolver.hpp
 TestCellularMechanicsOdeSystems.hpp
 TestIonicModels.hpp
-TestImplicitNhsCellularMechSystemSolver.hpp
+TestNhsSystemWithImplicitSolver.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestMockEulerIvpOdeSolver.hpp
 TestRungeKuttaFehlbergIvpOdeSolver.hpp

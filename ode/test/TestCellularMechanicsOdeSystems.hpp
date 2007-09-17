@@ -47,11 +47,11 @@ public :
         OdeSolution solution = euler_solver.Solve(&nhs_system, nhs_system.rGetStateVariables(), 0, 10, 0.01, 0.01);
 
         unsigned num_timesteps = solution.GetNumberOfTimeSteps();
-        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][0], 0.0056, 1e-2);    
-        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][1], 0.0000, 1e-2);    
-        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][2], 0.0258, 1e-2);    
-        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][3], 0.0727, 1e-2);    
-        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][4], 0.0998, 1e-2);    
+        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][0],   0.0056, 1e-2 );    
+        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][1],   0.0000, 1e-2 );    
+        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][2], -25.0359, 1e-2 );    
+        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][3],  77.2103, 1e-2 );    
+        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][4],  20.6006, 1e-2 );    
     }
 };
 #endif /*TESTCELLULARMECHANICSODESYSTEMS_HPP_*/

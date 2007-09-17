@@ -46,7 +46,7 @@ if single_test_suite:
         sys.stderr.write('Path to test suite is too short')
         sys.exit(0)
     if  single_test_suite[-2]!='test' :
-        sys.stderr.write('Test suite is not in a  test folder')
+        sys.stderr.write('Test suite is not in a test folder')
         sys.exit(0)
     single_test_suite_dir = single_test_suite[-3]
     single_test_suite = single_test_suite[-1]
