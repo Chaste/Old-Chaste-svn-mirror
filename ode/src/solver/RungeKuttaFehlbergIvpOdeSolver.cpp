@@ -14,17 +14,9 @@
 const double smidge=1e-10;
 
 /*
- * PROTECTED FUNCTIONS
+ * PROTECTED FUNCTIONS =========================================================
  */
  
- /**
-  * This algorithm implements the `rkf45' routine using adaptive time stepping to 
-  * solve as fast as possible to a given accuracy.
-  * 
-  * Note the change in the use of the solutions vector to give results when they are evaluated.
-  * 
-  * 
-  */
 void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
                                                 AbstractOdeSystem* pOdeSystem,
                                                 std::vector<double>& rYValues,
@@ -139,19 +131,6 @@ void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
 }
 
 
-/**
- * Solves a system of ODEs using the Runge Kutta Fehlberg Adaptive timestep Initial Value Problem Ordinary Differential Equation Solver
- *
- * To be used in the form:
- *
- * RungeKuttaFehlbergIvpOdeSolver mySolver
- *
- * OdeSolution solution=mySolver.Solve(pMyOdeSystem, yInit, StartTime, EndTime, MaximumTimeStep, any_old_double);
- *
- * See documentation for AbstractIvpOdeSolver::Solve()
- * 
- * @return error the difference between the 4th and 5th order approximations.
- */
 void RungeKuttaFehlbergIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                                   double timeStep,
                                                   double time,
@@ -250,7 +229,7 @@ void RungeKuttaFehlbergIvpOdeSolver::AdjustStepSize(double& rCurrentStepSize,
 
 
 /*
- * PUBLIC FUNCTIONS
+ * PUBLIC FUNCTIONS=============================================================
  */
 
 OdeSolution RungeKuttaFehlbergIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,

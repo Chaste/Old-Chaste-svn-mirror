@@ -1,5 +1,5 @@
 /**
- * Concrete RungeKutta2IvpOdeSolver class.
+ * Concrete RungeKuttaFehlbergIvpOdeSolver class.
  */
 #ifndef _RUNGEKUTTAFEHLBERGIVPODESOLVER_HPP_
 #define _RUNGEKUTTAFEHLBERGIVPODESOLVER_HPP_
@@ -10,6 +10,17 @@
 
 #include <vector>
 
+/**
+ * Use this class to solve a system of ODEs using the 
+ * Runge Kutta Fehlberg Adaptive timestep Initial Value Problem 
+ * Ordinary Differential Equation Solver (RKF45).
+ * 
+ * Good for problems where you need to be able to guarantee the accuracy of
+ * the answer as it is specified via the tolerance parameter.
+ * 
+ * Should be reasonably fast too as it increases the timestep when the
+ * solutions are changing slowly, whilst maintaining accuracy.
+ */
 class RungeKuttaFehlbergIvpOdeSolver : public AbstractIvpOdeSolver
 {
 friend class TestRungeKuttaFehlbergIvpOdeSolver;    
@@ -55,8 +66,7 @@ protected:
      * 
      * @param rSolution  an ode solution to input data into if requited
      * @param pAbstractOdeSystem  the system to solve
-     * @param rCurrentYValues  the current (initial) state; results will also be returned
-     *     in here
+     * @param rCurrentYValues  the current (initial) state; results will also be returned in here
      * @param rWorkingMemory  working memory; same size as rCurrentYValues
      * @param startTime  initial time
      * @param endTime  time to solve to
@@ -75,7 +85,15 @@ protected:
                                bool outputSolution);
                                
     /**
-     * Calculate the next time step. Updates the mError vector with current error.
+     * Calculate the next time step, using rkf45 numerical routine
+     * 
+     * Updates the mError vector with current error.
+     * 
+     * @param pAbstractOdeSystem  the ode system to be solved
+     * @param timeStep  the current timestep
+     * @param time  the current time
+     * @param currentYValues  Y Values at the current time
+     * @param nextYValues  the 4th order approximation for the Y values at the end of the timestep.
      */
     void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                      double timeStep,
@@ -84,11 +102,14 @@ protected:
                                      std::vector<double>& nextYValues);
     
     /**
-     * @param rCurrentStepSize The current step size being used (returns answer via this reference)
-     * @param rError The error in the approximation at this time step
-     * @param rTolerance The tolerance required
-     * @param rMaxTimeStep The maximum timestep to be used
-     * @param rMinTimeStep The minimum timestep to be used (to prevent huge loops)
+     * Uses the error approximation of the last CalculateNextYValue() call to 
+     * change the time step appropriately.
+     * 
+     * @param rCurrentStepSize  The current step size being used (returns answer via this reference)
+     * @param rError  The error in the approximation at this time step
+     * @param rTolerance  The tolerance required
+     * @param rMaxTimeStep  The maximum timestep to be used
+     * @param rMinTimeStep  The minimum timestep to be used (to prevent huge loops)
      */                                 
     void AdjustStepSize(double& rCurrentStepSize, const double& rError, const double& rTolerance, 
                                 const double& rMaxTimeStep, const double& rMinTimeStep);                               

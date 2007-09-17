@@ -267,6 +267,10 @@ public:
         
         // solver should correctly state the stopping event occured
         TS_ASSERT_EQUALS(rkf_solver.StoppingEventOccured(), true);
+        
+        // Coverage of exceptions
+        TS_ASSERT_THROWS_ANYTHING(rkf_solver.Solve(&ode_system_with_events, solutions.rGetSolutions()[last], M_PI/6.0, 2.0, 0.1, 1e-5));
+        TS_ASSERT_THROWS_ANYTHING(rkf_solver.Solve(&ode_system_with_events, solutions.rGetSolutions()[last],M_PI/6.0, 2.0, 0.1));
     }
     
     void TestRKFehlbergAnotherNonlinearEquationAnalytic() throw(Exception)
@@ -306,12 +310,13 @@ public:
         OdeSolution solutions;
         
         std::vector<double> state_variables = ode_system.GetInitialConditions();
+        ode_system.rGetStateVariables() = state_variables;       
         
-        solutions = rkf_solver.Solve(&ode_system, state_variables, 0.0, end_time, h_value, 1e-4);
-        unsigned last = solutions.GetNumberOfTimeSteps();
-        
-        double numerical_solution;
-        numerical_solution = solutions.rGetSolutions()[last][0];
+        rkf_solver.SolveAndUpdateStateVariable(&ode_system, 0.0, end_time, h_value);
+
+        std::vector<double> numerical_solution;
+        numerical_solution.reserve(ode_system.GetNumberOfStateVariables());
+        numerical_solution = ode_system.rGetStateVariables();
         
 //        OutputFileHandler handler("");
 //        out_stream rabbit_file=handler.OpenOutputFile("foxrabbit.dat");
@@ -323,8 +328,10 @@ public:
 //        rabbit_file->close();   
         
         // assert that we are within a [-2,2] in x and [-2,2] in y (on limit cycle)
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[last][0],0,2);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[last][1],0,2);
+        TS_ASSERT_DELTA(numerical_solution[0],0,2);
+        TS_ASSERT_DELTA(numerical_solution[1],0,2);
+        
+
     }
     
     
