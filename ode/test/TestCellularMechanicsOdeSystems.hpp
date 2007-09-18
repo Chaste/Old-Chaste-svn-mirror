@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "NHSCellularMechanicsOdeSystem.hpp"
+#include "NhsCellularMechanicsOdeSystem.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "ZeroStimulus.hpp"
@@ -14,9 +14,9 @@
 class TestCellularMechanicsOdeSystems : public CxxTest::TestSuite
 {
 public :
-    void TestNHSCellularMechanicsOdeSystem() throw(Exception)
+    void TestNhsCellularMechanicsOdeSystem() throw(Exception)
     {
-        NHSCellularMechanicsOdeSystem nhs_system;
+        NhsCellularMechanicsOdeSystem nhs_system;
         
         // Hardcoded results for two values for z when lambda1=0.
         // Note: CalculateT0(z) is a private method.

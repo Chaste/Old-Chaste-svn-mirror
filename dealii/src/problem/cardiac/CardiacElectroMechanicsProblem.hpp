@@ -5,7 +5,7 @@
 #include "OneDimCardiacMechanicsAssembler.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "FiniteElasticityTools.hpp"
-#include "NHSCellularMechanicsOdeSystem.hpp"
+#include "NhsCellularMechanicsOdeSystem.hpp"
 
 
 /* todos:

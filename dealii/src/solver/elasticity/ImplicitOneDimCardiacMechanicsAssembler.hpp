@@ -4,6 +4,7 @@
 #include "AbstractElasticityAssembler.hpp"
 #include "PoleZero3dIn1dLaw.hpp"
 #include "OneDimCardiacMechanicsAssembler.hpp"
+#include "NhsSystemWithImplicitSolver.hpp"
 
 ///\todo: everything
 
@@ -12,14 +13,16 @@ class ImplicitOneDimCardiacMechanicsAssembler : public OneDimCardiacMechanicsAss
 {
 private:
     //implicit only 
-    std::vector<NHSCellularMechanicsOdeSystem> mCellMechSystems; 
-    
+    std::vector<NhsSystemWithImplicitSolver> mCellMechSystems; 
+    std::vector<double> mLambdaLastTimeStep;
+    double mCurrentTime, mNextTime, mDt;
 
 public:
     ImplicitOneDimCardiacMechanicsAssembler(Triangulation<1>* pMesh)
         :  OneDimCardiacMechanicsAssembler(pMesh)
     {
         mCellMechSystems.resize(mTotalQuadPoints);
+        mLambdaLastTimeStep.resize(mTotalQuadPoints, 1);
     }    
 
     // overloaded - shouldn't be called
@@ -33,7 +36,7 @@ public:
         assert(caI.size() == mTotalQuadPoints);
         for(unsigned i=0; i<caI.size(); i++)
         {
-            mCellMechSystems[i].SetCalciumI(caI[i]);
+            mCellMechSystems[i].SetIntracellularCalciumConcentration(caI[i]);
         } 
     }
 
@@ -43,6 +46,69 @@ public:
         assert(0);
         return mLambda;
     }   
+
+
+
+    void Solve(double currentTime, double nextTime, double timestep)
+    {
+        assert(currentTime < nextTime);
+        
+        mCurrentTime = currentTime;
+        mNextTime = nextTime;
+        mDt = timestep;
+        
+        // compute residual
+        this->AssembleSystem(true, false);
+        double norm_resid = this->CalculateResidualNorm();
+        std::cout << "\nNorm of residual is " << norm_resid << "\n";
+        
+        mNumNewtonIterations = 0;
+        unsigned counter = 1;
+    
+        // use the larger of the tolerances formed from the absolute or
+        // relative possibilities
+        double tol = NEWTON_ABS_TOL;
+        if ( tol < NEWTON_REL_TOL*norm_resid )
+        {
+            tol = NEWTON_REL_TOL*norm_resid;
+        }
+        std::cout << "Solving with tolerance " << tol << "\n";
+        
+        while (norm_resid > tol)
+        {
+            std::cout <<  "\n-------------------\n"
+                      <<   "Newton iteration " << counter
+                      << ":\n-------------------\n";
+            
+            this->TakeNewtonStep();
+            this->AssembleSystem(true, false);
+            norm_resid = this->CalculateResidualNorm();
+            
+            std::cout << "Norm of residual is " << norm_resid << "\n";
+            
+            //WriteOutput(counter);
+            mNumNewtonIterations = counter;
+            
+            counter++;
+            if (counter==20)
+            {
+                EXCEPTION("Not converged after 20 newton iterations, quitting");
+            }
+        }
+    
+
+        if (norm_resid > tol)
+        {
+            EXCEPTION("Failed to converge");
+        }
+    
+        for(unsigned i=0; i<mCellMechSystems.size(); i++)
+        {
+             mCellMechSystems[i].UpdateStateVariables();
+             mLambdaLastTimeStep[i] = mCellMechSystems[i].GetLambda();
+        }
+    }
+
 
 private:
 
@@ -114,21 +180,27 @@ private:
         {
             const std::vector< Tensor<1,1> >& grad_u = local_solution_gradients[q_point];
             
-            double F = 1 + grad_u[0][0];;
+            double F = 1 + grad_u[0][0];
             double C = F*F;
             double T;
             double dTdE;            
 
             // get the active tension at this quad point
-            double active_tension = mActiveTension[mCurrentQuadPointGlobalIndex];
-            mLambda[mCurrentQuadPointGlobalIndex] = F; 
+            //double active_tension = mActiveTension[mCurrentQuadPointGlobalIndex];
+            
+            double lam = F;
+            double dlam_dt = (lam-mLambdaLastTimeStep[mCurrentQuadPointGlobalIndex])/(mNextTime-mCurrentTime);
+
+            mCellMechSystems[mCurrentQuadPointGlobalIndex].SetLambda1AndDerivative(lam, dlam_dt);
+            mCellMechSystems[mCurrentQuadPointGlobalIndex].SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+              
+            double active_tension = mCellMechSystems[mCurrentQuadPointGlobalIndex].GetSolvedActiveTension();        
 
             // Compute T(C), dTdE(C)...
             double E = 0.5*(C-1);
             T = mLaw.GetT(E) + active_tension/C; 
             dTdE = mLaw.GetDTdE(E) - 2*active_tension/(C*C);
     
-
             for (unsigned i=0; i<dofs_per_element; i++)
             {
                 if (assembleJacobian)

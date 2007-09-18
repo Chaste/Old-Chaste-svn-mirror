@@ -5,7 +5,7 @@
 
 ///\todo: doxy
 
-class NHSCellularMechanicsOdeSystem  : public AbstractOdeSystem
+class NhsCellularMechanicsOdeSystem  : public AbstractOdeSystem
 {
 friend class TestCellularMechanicsOdeSystems;
 
@@ -89,7 +89,7 @@ protected :
     double CalculateT0(double z);
      
 public : 
-    NHSCellularMechanicsOdeSystem();
+    NhsCellularMechanicsOdeSystem();
     
     void SetLambda1AndDerivative(double lambda1, double dlambda1Dt);    
 
@@ -100,5 +100,7 @@ public :
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
     
     double GetActiveTension();
+    
+    double GetLambda();
 };
 #endif /*NHSCELLULARMECHANICSODESYSTEM_HPP_*/

@@ -1,7 +1,7 @@
 #ifndef NHSSYSTEMWITHIMPLICITSOLVER_HPP_
 #define NHSSYSTEMWITHIMPLICITSOLVER_HPP_
 
-#include "NHSCellularMechanicsOdeSystem.hpp"
+#include "NhsCellularMechanicsOdeSystem.hpp"
 
 // todo: doxygen
 
@@ -9,7 +9,7 @@
  *  NHS system with build in implicit solver. Jon Whiteley's method, which breaks down
  *  the multivariable implicit solve into a sequence of 1d implicit solves
  */
-class NhsSystemWithImplicitSolver : public NHSCellularMechanicsOdeSystem
+class NhsSystemWithImplicitSolver : public NhsCellularMechanicsOdeSystem
 {
 private:
     const static double mTolerance = 1e-6; 
@@ -43,6 +43,11 @@ public :
     void UpdateStateVariables();
     
     void UseImplicitExplicitSolveForZ(bool useImplicitExplicitSolveForZ = true);
+    
+    double GetSolvedActiveTension() 
+    { 
+        return mActiveTensionSolution;
+    }
 };
 
 #endif /*NHSSYSTEMWITHIMPLICITSOLVER_HPP_*/

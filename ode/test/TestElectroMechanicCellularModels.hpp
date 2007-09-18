@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "NHSCellularMechanicsOdeSystem.hpp"
+#include "NhsCellularMechanicsOdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "InitialStimulus.hpp"
 #include "RegularStimulus.hpp"
@@ -59,7 +59,7 @@ public:
         
         EulerIvpOdeSolver solver;
         LuoRudyIModel1991OdeSystem electrophys_model(&solver, time_step, &stimulus);
-        NHSCellularMechanicsOdeSystem cellmech_model;
+        NhsCellularMechanicsOdeSystem cellmech_model;
         
         // find out if electrophys model has CaTrop
         unsigned Ca_i_index = electrophys_model.GetStateVariableNumberByName("CaI");
@@ -161,7 +161,7 @@ public:
                
         EulerIvpOdeSolver solver;
         LuoRudyIModel1991OdeSystem electrophys_model(&solver, time_step, &zero_stimulus);
-        NHSCellularMechanicsOdeSystem cellmech_model;
+        NhsCellularMechanicsOdeSystem cellmech_model;
         
         // find out if electrophys model has CaTrop
         unsigned Ca_i_index = electrophys_model.GetStateVariableNumberByName("CaI");
@@ -241,10 +241,10 @@ public:
         //
         // 2 hardcoded tests as the answers look correct, on plateau and decreasing stage
         TS_ASSERT_DELTA(times[3000], 30, 1e-2); 
-        TS_ASSERT_DELTA(active_tensions[3000], 0.0896, 1e-3);
+        TS_ASSERT_DELTA(active_tensions[3000],  0.0662, 1e-3);
  
         TS_ASSERT_DELTA(times[6000], 60, 1e-2); 
-        TS_ASSERT_DELTA(active_tensions[6000], 0.0602, 1e-3);
+        TS_ASSERT_DELTA(active_tensions[6000], -0.0031, 1e-3);
     }
 };
 #endif /*TESTELECTROMECHANICCALELLULARMODELS_HPP_*/

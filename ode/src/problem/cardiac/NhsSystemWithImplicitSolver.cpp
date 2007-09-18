@@ -24,8 +24,13 @@ void NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension()
     } 
     assert(counter<15);
     
-    mActiveTensionSolution = current_active_tension;
-    mActiveTensionInitialGuess = mActiveTensionSolution;
+    // save the active tension initial guess for next time round
+    mActiveTensionInitialGuess = current_active_tension;
+
+    //// could have something like this, an an overloaded GetActiveTension(),
+    //// but it will be the same as it parent::GetActiveTension is called after
+    //// the state vars have been updated
+    mActiveTensionSolution = current_active_tension; 
 }
 
 double NhsSystemWithImplicitSolver::CalcActiveTensionResidual(double activeTensionGuess)
@@ -150,11 +155,13 @@ double NhsSystemWithImplicitSolver::ImplicitSolveForQ()
  */
 
 NhsSystemWithImplicitSolver::NhsSystemWithImplicitSolver()
-    : NHSCellularMechanicsOdeSystem()
+    : NhsCellularMechanicsOdeSystem()
 {
     mTempStoredStateVariables.resize(GetNumberOfStateVariables());
-    mActiveTensionInitialGuess = 0.0;
+    mActiveTensionInitialGuess = GetActiveTension();
     mUseImplicitExplicitSolveForZ = false;
+    
+    mActiveTensionSolution = NhsCellularMechanicsOdeSystem::GetActiveTension();
 }
 
 void NhsSystemWithImplicitSolver::SetActiveTensionInitialGuess(double activeTensionInitialGuess)
@@ -197,5 +204,3 @@ void NhsSystemWithImplicitSolver::UseImplicitExplicitSolveForZ(bool useImplicitE
 {
     mUseImplicitExplicitSolveForZ = useImplicitExplicitSolveForZ;
 }
-
-

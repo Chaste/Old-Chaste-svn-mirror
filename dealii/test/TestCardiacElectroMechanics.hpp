@@ -14,7 +14,7 @@
 #include "AbstractCardiacCell.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "CardiacMechanicsAssembler.cpp"
-#include "NHSCellularMechanicsOdeSystem.hpp"
+#include "NhsCellularMechanicsOdeSystem.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "BidomainProblem.hpp"
 
@@ -145,7 +145,7 @@ public:
         std::vector<double> scaled_active_tension(num_quad_points, 0.0);
 
         // create NHS systems for each quad point in the mesh
-        std::vector<NHSCellularMechanicsOdeSystem> cellmech_systems(num_quad_points);
+        std::vector<NhsCellularMechanicsOdeSystem> cellmech_systems(num_quad_points);
         
         double time = 0;
         double end_time = 1; //50; works well until 43 when z goes negative (instability expected with explicit method)
@@ -319,7 +319,7 @@ public:
 //        std::vector<double> scaled_active_tension(num_quad_points, 0.0);
 //
 //        // create NHS systems for each quad point in the mesh
-//        std::vector<NHSCellularMechanicsOdeSystem> cellmech_systems(num_quad_points);
+//        std::vector<NhsCellularMechanicsOdeSystem> cellmech_systems(num_quad_points);
 //        
 //        double time = 0;
 //        double end_time = 1; //50; works well until 43 when z goes negative (instability expected with explicit method)

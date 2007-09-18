@@ -6,7 +6,7 @@
 
 class OneDimCardiacMechanicsAssembler : public AbstractElasticityAssembler<1>
 {
-private:
+protected :
     FE_Q<1> mFe;
     double mDensity;
     unsigned mNumNewtonIterations;
@@ -105,7 +105,7 @@ public:
             norm_resid = this->CalculateResidualNorm();
             
             std::cout << "Norm of residual is " << norm_resid << "\n";
-
+            
             //WriteOutput(counter);
             mNumNewtonIterations = counter;
             

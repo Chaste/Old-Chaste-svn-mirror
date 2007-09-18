@@ -23,8 +23,8 @@ public:
     void TestSolverSingleTimestep()
     {
         NhsSystemWithImplicitSolver system_with_solver;
-
-        // lam=const, dlamdt not const doesn't make much sense, just for testing purposes
+        
+        // lam=const, dlamdt not zero doesn't make much sense, just for testing purposes
         system_with_solver.SetLambda1AndDerivative(0.5, 0.1);
         double Ca_I = GetSampleCaIValue();
         system_with_solver.SetIntracellularCalciumConcentration(Ca_I);
@@ -32,7 +32,7 @@ public:
         // solve system (but don't update state vars yet 
         system_with_solver.SolveDoNotUpdate(0, 0.1, 0.1); // one timestep
         
-        NHSCellularMechanicsOdeSystem system_for_euler_solver;
+        NhsCellularMechanicsOdeSystem system_for_euler_solver;
         
         unsigned num_vars = system_with_solver.GetNumberOfStateVariables();
         for(unsigned i=0; i<num_vars; i++)
@@ -76,7 +76,7 @@ public:
     
             NhsSystemWithImplicitSolver system_with_solver;
     
-            // lam=const, dlamdt not const doesn't make much sense, just for testing purposes
+            // lam=const, dlamdt not zero doesn't make much sense, just for testing purposes
             system_with_solver.SetLambda1AndDerivative(0.5, 0.1);
             double Ca_I = GetSampleCaIValue();
             // bigger Ca_I, so we get some active tension (and so the a few iterations are
@@ -98,7 +98,7 @@ public:
             system_with_solver.UpdateStateVariables();
     
             // solve system with euler
-            NHSCellularMechanicsOdeSystem system_for_euler_solver;
+            NhsCellularMechanicsOdeSystem system_for_euler_solver;
             system_for_euler_solver.SetLambda1AndDerivative(0.5, 0.1); 
             system_for_euler_solver.SetIntracellularCalciumConcentration(10*Ca_I);
             EulerIvpOdeSolver euler_solver;
@@ -121,6 +121,9 @@ public:
                                 fabs(system_with_solver.rGetStateVariables()[i]*1e-2));
             }     
             std::cout << "TIMES: " << implicit_solve_time << " " << explicit_solve_time << "\n\n";
+
+            // for coverage
+            system_with_solver.SetActiveTensionInitialGuess(system_with_solver.GetActiveTension());
         }
     }
     
