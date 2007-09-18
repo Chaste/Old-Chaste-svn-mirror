@@ -16,66 +16,8 @@
 #include "TrianglesMeshWriter.cpp"
 #include "PropagationPropertiesCalculator.hpp"
 #include "ColumnDataReader.hpp"
-
-const double mesh_width = 0.2; // cm
-// meshes to use for convergence testing.
-// n-dimensional cubes with 2^(mesh_num+2) elements in each dimension
-
-
-template <class CELL, unsigned DIM>
-class PointStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
-{
-private:
-    // define a new stimulus
-    InitialStimulus* mpStimulus;
-    
-public:
-    PointStimulusCellFactory(double timeStep, double numElements) : AbstractCardiacCellFactory<DIM>(timeStep)
-    {
-        // scale stimulus depending on space_step of elements
-        //\todo It looks like the value of the stimulus is specific to 3D
-
-        switch(DIM)
-        {
-            case 1:
-            {
-                mpStimulus = new InitialStimulus(-10000000*numElements/64.0, 0.5);
-                break;
-            }
-            case 2:
-            {
-                mpStimulus = new InitialStimulus(-5000*numElements, 0.5);
-                break;
-            }
-            case 3:
-            {
-                assert(0);
-                break;
-            }
-            default:
-                assert(0);
-        }
-    }
-    
-    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
-    {
-        double x = this->mpMesh->GetNode(node)->GetPoint()[0];
-        if (x*x<=1e-10)
-        {
-            return new CELL(this->mpSolver, this->mTimeStep, this->mpStimulus, this->mpZeroStimulus);
-        }
-        else
-        {
-            return new CELL(this->mpSolver, this->mTimeStep, this->mpZeroStimulus, this->mpZeroStimulus);
-        }
-    }
-    
-    ~PointStimulusCellFactory(void)
-    {
-        delete mpStimulus;
-    }
-};
-
+#include "GeneralPlaneStimulusCellFactory.hpp"
+#include "CuboidMeshConstructor.hpp"
 
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
 class PerformanceTester
@@ -114,33 +56,20 @@ public:
         const std::string mesh_dir = "ConvergenceMesh";
         OutputFileHandler output_file_handler(mesh_dir);
 
-        double scaling;
         unsigned prev_mesh_num=9999;
         std::string mesh_pathname;
         std::string mesh_filename;
 
+        CuboidMeshConstructor<DIM> constructor;
 
         if (MeshNum!=prev_mesh_num)
         {
-            // create the mesh
-            unsigned mesh_size = (unsigned) pow(2, MeshNum+2); // number of elements in each dimension
-            scaling = mesh_width/(double) mesh_size;
-            ConformingTetrahedralMesh<DIM,DIM> mesh;
-            ConstructHyperCube(mesh, mesh_size);
-            mesh.Scale(scaling, scaling, scaling);
-            mNumElements = mesh.GetNumElements();
-            mNumNodes = mesh.GetNumNodes();
-            std::stringstream file_name_stream;
-            file_name_stream<< "cube_" << DIM << "D_2mm_"<< mNumElements <<"_elements";
-            mesh_filename = file_name_stream.str();
-            TrianglesMeshWriter<DIM,DIM> mesh_writer(mesh_dir, mesh_filename, false);           
-            mesh_writer.WriteFilesUsingMesh(mesh);
-            mesh_pathname = output_file_handler.GetTestOutputDirectory()
-                                        + mesh_filename;
+            mesh_pathname = constructor.Construct(MeshNum);
+            mNumElements = constructor.NumElements;
             prev_mesh_num = MeshNum;
-        }                            
+        }
         
-        PointStimulusCellFactory<CELL, DIM> cell_factory(OdeTimeStep, mNumElements);
+        GeneralPlaneStimulusCellFactory<CELL, DIM> cell_factory(OdeTimeStep, mNumElements);
         CARDIAC_PROBLEM cardiac_problem(&cell_factory);
         
         cardiac_problem.SetMeshFilename(mesh_pathname);
