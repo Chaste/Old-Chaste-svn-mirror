@@ -1,5 +1,5 @@
 #ifndef SPACECONVERGENCETESTER_HPP_
-#define SPACESCONVERGENCETESTER_HPP_
+#define SPACECONVERGENCETESTER_HPP_
 
 
 #include "AbstractConvergenceTester.hpp"

@@ -27,28 +27,19 @@ const double simulation_time = 8.0; //ms
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
 class AbstractConvergenceTester
 {
-private:
 
-    void ConstructHyperCube(ConformingTetrahedralMesh<1,1> &rMesh, unsigned width)
-    {
-        rMesh.ConstructLinearMesh(width);
-    }
-    void ConstructHyperCube(ConformingTetrahedralMesh<2,2> &rMesh, unsigned width)
-    {
-        rMesh.ConstructRectangularMesh(width, width);
-    }
-    void ConstructHyperCube(ConformingTetrahedralMesh<3,3> &rMesh, unsigned width)
-    {
-        rMesh.ConstructCuboid(width, width, width);
-    }
 
 public:    
     AbstractConvergenceTester()
     : OdeTimeStep(0.0025),
-      PdeTimeStep(0.0025),
+      PdeTimeStep(0.005),
       MeshNum(5u),
       KspRtol(1e-8),
       RelativeConvergenceCriterion(1e-4),
+      AbsoluteStimulus(-1e7),
+      PopulatedResult(false),
+      FixedResult(false),
+      UseAbsoluteStimulus(false),
       Converged(false)
     {
     }
@@ -69,6 +60,8 @@ public:
         std::string mesh_pathname;
         std::string mesh_filename;
         
+        double prev_voltage[201];
+        PopulateStandardResult(prev_voltage);
         do
         {
             CuboidMeshConstructor<DIM> constructor;
@@ -79,10 +72,17 @@ public:
                 prev_mesh_num = MeshNum;
             }                            
             
-            double prev_voltage[201];
+            GeneralPlaneStimulusCellFactory<CELL, DIM>* p_cell_factory;
+            if (UseAbsoluteStimulus)
+            {
+                p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(OdeTimeStep, AbsoluteStimulus, true);
+            }
+            else
+            {
+                p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(OdeTimeStep, constructor.NumElements);                
+            }
             
-            GeneralPlaneStimulusCellFactory<CELL, DIM> cell_factory(OdeTimeStep, constructor.NumElements);
-            CARDIAC_PROBLEM cardiac_problem(&cell_factory);
+            CARDIAC_PROBLEM cardiac_problem(p_cell_factory);
             
             cardiac_problem.SetMeshFilename(mesh_pathname);
             cardiac_problem.SetOutputDirectory ("Convergence");
@@ -96,8 +96,9 @@ public:
             assert(fabs(0.04/PdeTimeStep - round(0.04/PdeTimeStep)) <1e-15 );
             cardiac_problem.SetPrintingTimeStep(0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
             cardiac_problem.Initialise();
-
+            
             DisplayRun();
+            
             try
             {
                 cardiac_problem.Solve();
@@ -168,7 +169,7 @@ public:
                 }
                 p_plot_file->close();
                 // calculate l2norm
-                double *p_prev_voltage = prev_voltage;
+                //double *p_prev_voltage = prev_voltage;
                 double max_abs_error = 0;
                 double sum_sq_abs_error =0;
                 double sum_sq_prev_voltage = 0;
@@ -176,18 +177,20 @@ public:
                 
                 for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
                 {
-                    if (file_num!=0)
+                    if (PopulatedResult)
                     {
-                        double abs_error = fabs(transmembrane_potential[data_point]-*p_prev_voltage);
+                        double abs_error = fabs(transmembrane_potential[data_point]-prev_voltage[data_point]);
                         max_abs_error = (abs_error > max_abs_error) ? abs_error : max_abs_error;
                         sum_sq_abs_error += abs_error*abs_error;
-                        sum_sq_prev_voltage += *p_prev_voltage * *p_prev_voltage;
+                        sum_sq_prev_voltage += prev_voltage[data_point] * prev_voltage[data_point];
                     } 
                     
-                    *p_prev_voltage= transmembrane_potential[data_point];
-                    p_prev_voltage++;
-                }                 
-                if (file_num!=0)
+                    if (!PopulatedResult || !FixedResult)
+                    {
+                        prev_voltage[data_point] = transmembrane_potential[data_point];
+                    }
+                }
+                if (PopulatedResult)
                 {
                     std::cout << "max_abs_error = " << max_abs_error << " log10 = " << log10(max_abs_error) << "\n";
                     std::cout << "l2 error = " << sum_sq_abs_error/sum_sq_prev_voltage << " log10 = " << log10(sum_sq_abs_error/sum_sq_prev_voltage) << "\n";
@@ -196,6 +199,10 @@ public:
                     std::cout << Abscissa() << "\t" << sum_sq_abs_error/sum_sq_prev_voltage <<"\t#Gnuplot raw data\n";
                     // convergence criterion
                     Converged = sum_sq_abs_error/sum_sq_prev_voltage<RelativeConvergenceCriterion;
+                }
+                if (!PopulatedResult)
+                {
+                    PopulatedResult=true;
                 }
             }
             
@@ -225,22 +232,30 @@ public:
     
     void DisplayRun()
     {
-            unsigned mesh_size = (unsigned) pow(2, MeshNum+2); // number of elements in each dimension
-            double scaling = mesh_width/(double) mesh_size;
-            std::cout<<"================================================================================"<<std::endl  << std::flush;
-            std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << MeshNum << ")" << std::endl  << std::flush;
-            std::cout<<"Solving with a time step of "<<PdeTimeStep<<" ms"<<std::endl  << std::flush;
-            std::cout<<"Solving with an ode time step of "<<OdeTimeStep<<" ms"<<std::endl  << std::flush;
-            std::cout<<"Solving with a KSP relative tolerance of "<<KspRtol<<std::endl  << std::flush;
+        unsigned mesh_size = (unsigned) pow(2, MeshNum+2); // number of elements in each dimension
+        double scaling = mesh_width/(double) mesh_size;
+        std::cout<<"================================================================================"<<std::endl  << std::flush;
+        std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << MeshNum << ")" << std::endl  << std::flush;
+        std::cout<<"Solving with a time step of "<<PdeTimeStep<<" ms"<<std::endl  << std::flush;
+        std::cout<<"Solving with an ode time step of "<<OdeTimeStep<<" ms"<<std::endl  << std::flush;
+        std::cout<<"Solving with a KSP relative tolerance of "<<KspRtol<<std::endl  << std::flush;
+        if (UseAbsoluteStimulus)
+        {
+            std::cout<<"Using absolute stimulus of "<<AbsoluteStimulus<<std::endl  << std::flush;
+        }
+        
     }
     
-
 public:
     double OdeTimeStep;
     double PdeTimeStep;
     unsigned MeshNum;
     double KspRtol;
     double RelativeConvergenceCriterion;
+    double AbsoluteStimulus;
+    bool PopulatedResult;
+    bool FixedResult;
+    bool UseAbsoluteStimulus;
     bool Converged;
     
     virtual ~AbstractConvergenceTester() {}
@@ -249,5 +264,9 @@ public:
     virtual void UpdateConvergenceParameters()=0;
     virtual bool GiveUpConvergence()=0;
     virtual double Abscissa()=0;
+    virtual void PopulateStandardResult(double result[])
+    {
+        assert(PopulatedResult==false);
+    }
 };
 #endif /*ABSTRACTCONVERGENCETESTER_HPP_*/

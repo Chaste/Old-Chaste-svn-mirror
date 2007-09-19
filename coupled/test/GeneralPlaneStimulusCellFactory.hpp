@@ -11,30 +11,36 @@ private:
     InitialStimulus* mpStimulus;
     
 public:
-    GeneralPlaneStimulusCellFactory(double timeStep, double numElements) : AbstractCardiacCellFactory<DIM>(timeStep)
+    GeneralPlaneStimulusCellFactory(double timeStep, double numElements, bool useNumElementsAsMag=false) : AbstractCardiacCellFactory<DIM>(timeStep)
     {
         // scale stimulus depending on space_step of elements
         //\todo It looks like the value of the stimulus is specific to 3D
-
-        switch(DIM)
+        if (useNumElementsAsMag)
         {
-            case 1:
+            mpStimulus = new InitialStimulus(numElements, 0.5);
+        }
+        else
+        {
+            switch(DIM)
             {
-                mpStimulus = new InitialStimulus(-10000000*numElements/64.0, 0.5);
-                break;
+                case 1:
+                {
+                    mpStimulus = new InitialStimulus(-10000000*numElements/64.0, 0.5);
+                    break;
+                }
+                case 2:
+                {
+                    mpStimulus = new InitialStimulus(-5000*numElements, 0.5);
+                    break;
+                }
+                case 3:
+                {
+                    assert(0);
+                    break;
+                }
+                default:
+                    assert(0);
             }
-            case 2:
-            {
-                mpStimulus = new InitialStimulus(-5000*numElements, 0.5);
-                break;
-            }
-            case 3:
-            {
-                assert(0);
-                break;
-            }
-            default:
-                assert(0);
         }
     }
     
