@@ -136,7 +136,7 @@ public:
         
         this->MeshNum++;
         ExpectedStimulus = this->AbsoluteStimulus*2;//For next refinement
-        Increment=-ExpectedStimulus/50;
+        Increment=-ExpectedStimulus/10;
         PlotPoints=8;
         this->AbsoluteStimulus = ExpectedStimulus-PlotPoints*Increment/2;
     }
