@@ -4,6 +4,18 @@
 # We need at least Python 2.3.
 EnsurePythonVersion(2,3)
 
+Help("""
+  Type: 'scons -c' to remove all the compiled files (clean build),
+        'scons' to do a default build,
+        'scons test_suite=<Path from chaste folder>' to run a single test.
+  
+  For other options, such as profiling, optimised builds and 
+  memory testing please refer to:
+  
+  https://chaste.ediamond.ox.ac.uk/cgi-bin/trac.cgi/wiki/BuildGuide
+
+""")
+
 import sys
 import os
 import glob
@@ -43,11 +55,9 @@ single_test_suite = ARGUMENTS.get('test_suite', '')
 if single_test_suite:
     single_test_suite = single_test_suite.split(os.path.sep)
     if (len(single_test_suite)<2):
-        sys.stderr.write('Path to test suite is too short')
-        sys.exit(0)
+        raise ValueError('Path to test suite is too short')
     if  single_test_suite[-2]!='test' :
-        sys.stderr.write('Test suite is not in a test folder')
-        sys.exit(0)
+        raise ValueError('Test suite is not in a test folder')
     single_test_suite_dir = single_test_suite[-3]
     single_test_suite = single_test_suite[-1]
     #print single_test_suite, single_test_suite_dir
@@ -211,6 +221,9 @@ for lib in glob.glob('linklib/*'):
     Clean('.', lib)
 
 
+env.Default('.')
+#for comp in components:
+#    env.Default(comp)
 
 # Test summary generation
 if test_summary and not compile_only:
@@ -234,39 +247,19 @@ if test_summary and not compile_only:
           if filename[-5:] == '.gcda' or filename[-4:] == '.log':
             os.remove(os.path.join(dirpath, filename))
     # For a Coverage build, run gcov & summarise instead
-    summary = Builder(action = 'python python/DisplayCoverage.py ' + output_dir+' '+build_type)
+    summary_action = 'python python/DisplayCoverage.py ' + output_dir+' '+build_type
   else:
-    summary = Builder(action = 'python python/DisplayTests.py '+output_dir+' '+build_type)
-  def output_dir_lister(target, source, env, output_dir=output_dir):
-    """Create a file containing a directory listing."""
-    files = filter(lambda f: f[0] != '.', os.listdir(output_dir))
-    files.sort()
-    fp = file(str(target[0]), 'w')
-    for f in files:
-      fp.write(f + '\n')
-    fp.close()
-    return None # Successful build
-  lister = Action(output_dir_lister,
-                  lambda ts, ss, env: "Generating file list %s" % ts[0])
-  senv['BUILDERS']['TestSummary'] = summary
-  # Make sure we use the file list contents as its signature
-  senv.TargetSignatures('content')
-  file_list = File(os.path.join(output_dir, '.filelist'))
-  senv.AlwaysBuild(file_list)
-  senv.Command(file_list, test_depends, lister)
+    summary_action = 'python python/DisplayTests.py '+output_dir+' '+build_type
+  
   summary_index = os.path.join(output_dir, 'index.html')
-  senv.TestSummary(summary_index, [file_list, test_depends])
   senv.AlwaysBuild(summary_index)
-  
-  Help("""
-
-  Type: 'scons -c' to remove all the compiled files (clean build),
-        'scons' to do a default build,
-        'scons test_suite=<Path from chaste folder>' to run a single test.
-  
-  For other options, such as profiling, optimised builds and 
-  memory testing please refer to:
-  
-  https://chaste.ediamond.ox.ac.uk/cgi-bin/trac.cgi/wiki/BuildGuide
-  
-  """)
+  senv.SourceSignatures('timestamp')
+  #senv.Command(summary_index, Dir(output_dir), summary_action)
+  senv.Command(summary_index, Flatten(test_depends), summary_action)
+  # Avoid circular dependencies
+  senv.Ignore(summary_index, summary_index)
+  senv.Ignore(Dir(output_dir), summary_index)
+  # Make sure the summary is always required by the build targets requested
+  for targ in BUILD_TARGETS:
+      senv.Depends(targ, summary_index)
+  senv.Default(summary_index)

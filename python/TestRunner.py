@@ -74,6 +74,7 @@ def run_test(exefile, logfile, build, run_time_flags='', echo=True):
                                         runtime=end_time-start_time)
         #print copy_to
         os.system("/bin/cp -f " + logfile + " " + copy_to)
+        return copy_to
 
 
 if __name__ == '__main__':
@@ -111,7 +112,10 @@ def get_build_function(build, run_time_flags=''):
         # Set up the environment from env['ENV']
         os.environ.update(env['ENV'])
         # Run the test
-        run_test(str(source[0]), str(target[0]), build, run_time_flags)
+        log = run_test(str(source[0]), str(target[0]), build, run_time_flags)
+        # Note the extra dependency of the copied log file
+        env.SideEffect(log, target)
+        env.Depends(os.path.join(os.path.dirname(log), 'index.html'), log)
         return None
 
     return build_function
