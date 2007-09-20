@@ -66,6 +66,7 @@ public:
         {
             mesh_pathname = constructor.Construct(MeshNum);
             mNumElements = constructor.NumElements;
+            mNumNodes = constructor.NumNodes;
             prev_mesh_num = MeshNum;
         }
         

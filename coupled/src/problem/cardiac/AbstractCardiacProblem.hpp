@@ -141,9 +141,9 @@ public:
         {
             EXCEPTION("Pde is null, Initialise() probably hasn't been called");
         }
-        if ( mStartTime >= mEndTime )
+        if ( mStartTime > mEndTime )
         {
-            EXCEPTION("Start time should be less than end time");
+            EXCEPTION("Start time should be no more than end time");
         }
         if (mPrintOutput==true) 
         {

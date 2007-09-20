@@ -102,6 +102,7 @@ public :
         #endif
     
         MatSetType(rMat, matType);
+        // MatMPIAIJSetPreallocation(rMat, 16, PETSC_NULL, 0, PETSC_NULL); // based on 2d uniprocessor performance work (LM)
         MatSetFromOptions(rMat);
     }
     

@@ -25,7 +25,8 @@ private:
     }
     
 public:
-    unsigned NumElements;    
+    unsigned NumElements;   
+    unsigned NumNodes; 
     
     std::string Construct(unsigned meshNum)
     {
@@ -41,6 +42,7 @@ public:
         ConstructHyperCube(mesh, mesh_size);
         mesh.Scale(scaling, scaling, scaling);
         NumElements = mesh.GetNumElements();
+        NumNodes = mesh.GetNumNodes();
         std::stringstream file_name_stream;
         file_name_stream<< "cube_" << DIM << "D_2mm_"<< NumElements <<"_elements";
         mesh_filename = file_name_stream.str();
