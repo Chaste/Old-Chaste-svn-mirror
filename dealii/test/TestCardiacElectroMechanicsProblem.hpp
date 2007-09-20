@@ -7,16 +7,51 @@
 #include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"
 #include "CardiacElectroMechanicsProblem.hpp"
+#include "ImplicitCardiacElectroMechanicsProblem.hpp"
 
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
 public:
-    void TestSimple() throw(Exception)
+    void TestCompareExplicitVsImplicit() throw(Exception)
     {
         double time_step = 0.01;
         PlaneStimulusCellFactory<1> cell_factory(time_step, -1000*1000);
-        CardiacElectroMechanicsProblem<1> problem(&cell_factory, 1, time_step, "CardiacElectroMech");
-        problem.Solve();
+
+        // instabilities appear at about 6.8
+        CardiacElectroMechanicsProblem<1> explicit_problem(&cell_factory, 5, time_step, "CardiacElectroMech");
+        explicit_problem.Solve();
+
+        ImplicitCardiacElectroMechanicsProblem<1> implicit_problem(&cell_factory, 10, time_step, "ImplicitCardiacElectroMech");
+        implicit_problem.Solve();
+        
+        // temporary test 
+        for(unsigned i=0; i<500; i++)
+        {
+            OutputFileHandler handler("CardiacElectroMech",false);
+            std::string full_path1 = handler.GetTestOutputDirectory();
+            
+            std::stringstream file1;
+            file1 << full_path1 << "/results_" << i << ".dat";
+            
+            std::ifstream ifs1(file1.str().c_str());
+            double unused, length_of_fibre1;
+            ifs1 >> unused;
+            ifs1 >> length_of_fibre1;                 // the second entry is the length
+
+            OutputFileHandler handler2("ImplicitCardiacElectroMech",false);
+            std::string full_path2 = handler2.GetTestOutputDirectory();
+            
+            std::stringstream file2;
+            file2 << full_path2 << "/results_" << i << ".dat";
+
+            std::ifstream ifs2(file2.str().c_str());
+            double length_of_fibre2;
+            ifs2 >> unused;
+            ifs2 >> length_of_fibre2;                // the second entry is the length
+
+            
+            TS_ASSERT_DELTA(length_of_fibre1, length_of_fibre2, fabs(length_of_fibre1*1e-5));
+        }
     }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEM_HPP_*/

@@ -6,8 +6,7 @@
 #include "OneDimCardiacMechanicsAssembler.hpp"
 #include "NhsSystemWithImplicitSolver.hpp"
 
-///\todo: everything
-
+///\todo: refactor, quantitive test?, doxy, test of analytic jacobian
 
 class ImplicitOneDimCardiacMechanicsAssembler : public OneDimCardiacMechanicsAssembler
 {
@@ -22,7 +21,12 @@ public:
         :  OneDimCardiacMechanicsAssembler(pMesh)
     {
         mCellMechSystems.resize(mTotalQuadPoints);
-        mLambdaLastTimeStep.resize(mTotalQuadPoints, 1);
+        mLambdaLastTimeStep.resize(mTotalQuadPoints);
+        
+        for(unsigned i=0; i<mLambdaLastTimeStep.size(); i++)
+        {
+            mLambdaLastTimeStep[i] = 1.0;
+        }
     }    
 
     // overloaded - shouldn't be called
@@ -191,10 +195,26 @@ private:
             double lam = F;
             double dlam_dt = (lam-mLambdaLastTimeStep[mCurrentQuadPointGlobalIndex])/(mNextTime-mCurrentTime);
 
+            // get active tension for (lam+h,dlamdt)
+            double h1 = std::max(1e-8, lam/100);
+            mCellMechSystems[mCurrentQuadPointGlobalIndex].SetLambda1AndDerivative(lam+h1, dlam_dt);
+            mCellMechSystems[mCurrentQuadPointGlobalIndex].SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+            double active_tension_at_lam_plus_h = mCellMechSystems[mCurrentQuadPointGlobalIndex].GetSolvedActiveTension();        
+
+            // get active tension for (lam,dlamdt+h)
+            double h2 = std::max(1e-8, dlam_dt/100);
+            mCellMechSystems[mCurrentQuadPointGlobalIndex].SetLambda1AndDerivative(lam, dlam_dt+h2);
+            mCellMechSystems[mCurrentQuadPointGlobalIndex].SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+            double active_tension_at_dlamdt_plus_h = mCellMechSystems[mCurrentQuadPointGlobalIndex].GetSolvedActiveTension();        
+
+            // get proper active tension
             mCellMechSystems[mCurrentQuadPointGlobalIndex].SetLambda1AndDerivative(lam, dlam_dt);
             mCellMechSystems[mCurrentQuadPointGlobalIndex].SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-              
             double active_tension = mCellMechSystems[mCurrentQuadPointGlobalIndex].GetSolvedActiveTension();        
+
+            double d_act_tension_dlam = (active_tension_at_lam_plus_h - active_tension)/h1;
+            double d_act_tension_d_dlamdt = (active_tension_at_dlamdt_plus_h - active_tension)/h2;
+
 
             // Compute T(C), dTdE(C)...
             double E = 0.5*(C-1);
@@ -224,6 +244,19 @@ private:
                                               * F   
                                               * fe_values.shape_grad(i,q_point)[0]
                                               * fe_values.JxW(q_point);
+ 
+                        // differentiate Ta wrt lam and dlamdt
+                        elementMatrix(i,j)  +=    (
+                                                       d_act_tension_dlam
+                                                     +
+                                                       d_act_tension_d_dlamdt/mDt
+                                                  )
+                                                * (fe_values.shape_grad(j,q_point)[0]/C)                 
+                                                * F   
+                                                * fe_values.shape_grad(i,q_point)[0]
+                                                * fe_values.JxW(q_point);
+                        
+                         
                     }
                 }
                 

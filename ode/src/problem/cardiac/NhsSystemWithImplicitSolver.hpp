@@ -12,7 +12,7 @@
 class NhsSystemWithImplicitSolver : public NhsCellularMechanicsOdeSystem
 {
 private:
-    const static double mTolerance = 1e-6; 
+    const static double mTolerance = 1e-10; 
     double mDt;
     bool mUseImplicitExplicitSolveForZ;
 

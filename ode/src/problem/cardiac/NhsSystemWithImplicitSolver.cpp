@@ -151,7 +151,7 @@ double NhsSystemWithImplicitSolver::ImplicitSolveForQ()
 
 
 /*
- *=========================== PRIVATE METHODS ==============================
+ *=========================== PUBLIC METHODS ==============================
  */
 
 NhsSystemWithImplicitSolver::NhsSystemWithImplicitSolver()
