@@ -166,7 +166,7 @@ public:
         std::vector<double> active_tension(num_quad_points, 0.0);
 
         // create NHS systems for each quad point in the mesh
-        std::vector<NHSCellularMechanicsOdeSystem> cellmech_systems(num_quad_points);
+        std::vector<NhsCellularMechanicsOdeSystem> cellmech_systems(num_quad_points);
 
         // a solver for the nhs models
         EulerIvpOdeSolver euler_solver;
