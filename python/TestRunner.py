@@ -114,7 +114,7 @@ def get_build_function(build, run_time_flags=''):
         # Run the test
         log = run_test(str(source[0]), str(target[0]), build, run_time_flags)
         # Note the extra dependency of the copied log file
-        env.SideEffect(log, target)
+        #env.SideEffect(log, target)
         env.Depends(os.path.join(os.path.dirname(log), 'index.html'), log)
         return None
 
