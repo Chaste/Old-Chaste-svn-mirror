@@ -28,7 +28,7 @@ public:
         // base line
         PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
         tester.SimTime=0.0025;
-        tester.MeshNum=1;
+        tester.MeshNum=5;
         tester.Run();
         
         EventHandler::Report();
