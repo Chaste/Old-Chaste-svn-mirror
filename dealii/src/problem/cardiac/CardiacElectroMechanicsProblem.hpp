@@ -14,9 +14,10 @@
  * add tests
  * 
  * tidy
- * make two-mesh
  * move mesh stuff out
  * don't output every timestep
+ * 
+ * refactor and link with implicit one-dim solver
  * 
  * think about architecture (of AbstractCardiacProblem) when this is done properly..
  */
@@ -215,10 +216,8 @@ public:
                     interpolated_Ca_I += Ca_I_at_node*mElementAndWeightsForQuadPoints[i].Weights(node_index);
                 }
 
-                cellmech_systems[i].SetLambda1AndDerivative(lambda[i], dlambda_dt[i]);
+                cellmech_systems[i].SetLambdaAndDerivative(lambda[i], dlambda_dt[i]);
                 cellmech_systems[i].SetIntracellularCalciumConcentration(interpolated_Ca_I);
-
-                std::cout << interpolated_Ca_I << " ";
             }
 
             // solve the cellular mechanics model and get the active tension

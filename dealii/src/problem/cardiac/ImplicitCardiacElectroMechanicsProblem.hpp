@@ -10,49 +10,11 @@
 
 #include "CardiacElectroMechanicsProblem.hpp" // for the ElementsAndWeights class
 
-/* todos:
- * 
- * add comments
- * add tests
- * 
- * tidy
- * make two-mesh
- * move mesh stuff out
- * don't output every timestep
- * 
- * think about architecture (of AbstractCardiacProblem) when this is done properly..
- */
+
+// todos: - see CardiacElectroMechanicsProblem
+ 
 
 
-
-///\todo -make this struct
-/**
- *  At the beginning of a two mesh simulation we need to figure out and store
- *  which (electrics-mesh) element each (mechanics-mesh) gauss point is in, and
- *  what the weight of that gauss point for that particular element is. This struct
- *  just contains this two pieces of data
- */
-//template<unsigned DIM>
-//class ElementAndWeights
-//{
-//public:
-//    unsigned ElementNum;
-//    c_vector<double,DIM+1> Weights;  
-//};
-
-
-
-/**
- *  CardiacElectroMechanicsProblem 
- *  
- *  Solve a coupled cardiac electromechanics problem
- *  
- *  Currently just uses the monodomain assembler (to use bidomain need to manually change 
- *  the code), and currently just uses the OneDimCardiacMechanicsAssembler, will eventually
- *  use the (2d/3d) CardiacMechanicsAssembler.
- *  
- *   
- */
 template<unsigned DIM>
 class ImplicitCardiacElectroMechanicsProblem
 {

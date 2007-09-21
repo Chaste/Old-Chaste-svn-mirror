@@ -197,20 +197,20 @@ private:
 
             // get active tension for (lam+h,dlamdt)
             double h1 = std::max(1e-8, lam/100);
-            mCellMechSystems[mCurrentQuadPointGlobalIndex].SetLambda1AndDerivative(lam+h1, dlam_dt);
+            mCellMechSystems[mCurrentQuadPointGlobalIndex].SetLambdaAndDerivative(lam+h1, dlam_dt);
             mCellMechSystems[mCurrentQuadPointGlobalIndex].SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-            double active_tension_at_lam_plus_h = mCellMechSystems[mCurrentQuadPointGlobalIndex].GetSolvedActiveTension();        
+            double active_tension_at_lam_plus_h = mCellMechSystems[mCurrentQuadPointGlobalIndex].GetActiveTensionAtNextTime();        
 
             // get active tension for (lam,dlamdt+h)
             double h2 = std::max(1e-8, dlam_dt/100);
-            mCellMechSystems[mCurrentQuadPointGlobalIndex].SetLambda1AndDerivative(lam, dlam_dt+h2);
+            mCellMechSystems[mCurrentQuadPointGlobalIndex].SetLambdaAndDerivative(lam, dlam_dt+h2);
             mCellMechSystems[mCurrentQuadPointGlobalIndex].SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-            double active_tension_at_dlamdt_plus_h = mCellMechSystems[mCurrentQuadPointGlobalIndex].GetSolvedActiveTension();        
+            double active_tension_at_dlamdt_plus_h = mCellMechSystems[mCurrentQuadPointGlobalIndex].GetActiveTensionAtNextTime();        
 
             // get proper active tension
-            mCellMechSystems[mCurrentQuadPointGlobalIndex].SetLambda1AndDerivative(lam, dlam_dt);
+            mCellMechSystems[mCurrentQuadPointGlobalIndex].SetLambdaAndDerivative(lam, dlam_dt);
             mCellMechSystems[mCurrentQuadPointGlobalIndex].SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-            double active_tension = mCellMechSystems[mCurrentQuadPointGlobalIndex].GetSolvedActiveTension();        
+            double active_tension = mCellMechSystems[mCurrentQuadPointGlobalIndex].GetActiveTensionAtNextTime();        
 
             double d_act_tension_dlam = (active_tension_at_lam_plus_h - active_tension)/h1;
             double d_act_tension_d_dlamdt = (active_tension_at_dlamdt_plus_h - active_tension)/h2;

@@ -3,51 +3,135 @@
 
 #include "NhsCellularMechanicsOdeSystem.hpp"
 
-// todo: doxygen
 
 /** 
  *  NHS system with build in implicit solver. Jon Whiteley's method, which breaks down
- *  the multivariable implicit solve into a sequence of 1d implicit solves
+ *  the multivariable implicit solve into a sequence of 1d implicit solves.
+ * 
+ *  The idea is to solve a 1d nonlinear problem for the active tension, where the problem
+ *  f(T_a)=T_a, where T_a is the current active tension, and f(T_a) is the active tension 
+ *  obtained by assuming this active tension and solving the ODEs as follows:
+ *  
+ *  Given T_a, so compute solution for Ca_trop using backward euler (1d linear problem)
+ *  Using this Ca_trop, compute solution for z using backward euler (1d nonlinear problem)
+ *  Solve for Qi implicitly using backward euler (three 1d linear problems)
+ *  Compute T0, Q and then T_a 
+ * 
+ *  Reference: J.P. Whiteley, M.J. Bishop, D.J. Gavaghan "Soft Tissue Modelling of Cardiac
+ *  Fibres for Use in Coupled Mechano-Electric Simulations"
  */
 class NhsSystemWithImplicitSolver : public NhsCellularMechanicsOdeSystem
 {
 private:
+    /** 
+     *  Tolerance for solving nonlinear system which require newton's method
+     *  NOTE: 1e-6 doesn't give graphically close results when solving a full
+     *  problem and comparing implicit with explicit
+     */
     const static double mTolerance = 1e-10; 
+    
+    /*< Timestep for the ODEs solving */
     double mDt;
+
+    /*< See SetUseImplicitExplicitSolveForZ() */
     bool mUseImplicitExplicitSolveForZ;
 
+    /*< Temporary stored state variables - current guesses to the current solution */
     std::vector<double> mTempStoredStateVariables;
+    /*< Current state variables to be used in the next timestep */
     std::vector<double> mCurrentStateVars;
-    
+
+    /*< Initial guess for the active tension */
     double mActiveTensionInitialGuess;
+    /*< The solution for the active tension after a SolveDoNotUpdate() has been called */
     double mActiveTensionSolution;
 
+    /** 
+     *  The main Newton solve
+     * 
+     *  Solve a 1d nonlinear system, f(T_a)=T_a, where T_a is the current active tension 
+     *  and f(T_a) is the active tension obtained by assuming this active tension and solving
+     *  the ODEs as follows
+     *  
+     *  Given T_a, so compute solution for Ca_trop using backward euler (1d linear problem)
+     *  Using this Ca_trop, compute solution for z using backward euler (1d nonlinear problem)
+     *  Solve for Qi implicitly using backward euler (three 1d linear problems)
+     *  Compute T0, Q and then T_a
+     */ 
     void ImplicitSolveForActiveTension();
+    /*< The residual function for the main Newton solve. See ImplicitSolveForActiveTension() */
     double CalcActiveTensionResidual(double activeTensionGuess);
 
+    /**
+     *  Assume the active tension is known and solve for the Ca_trop at the next time
+     *  implicitly using backward euler. This can be done directly as the rhs is linear 
+     *  in Ca_trop
+     */ 
     double ImplicitSolveForCaTrop(double newActiveTension);
 
+    /**
+     *  Assume the Ca_trop is known and solve for the z at the next time
+     *  implicitly using backward euler. Uses Newton's method
+     */
     double ImplicitSolveForZ(double newCaTrop);
+    /*< Residual for solving z implicitly. See ImplicitSolveForZ() */
     double CalcZResidual(double z, double newCaTrop);
+    /*< Solve for z semi implicitly. See UseImplicitExplicitSolveForZ() */
     double ImplicitExplicitSolveForZ(double newCaTrop);
 
+    /** 
+     *  Solve for Q1,Q2,Q3 (and therefore Q) implicitly using backward euler. 
+     *  These can be done directly as the rhs is linear in Qi
+     */ 
     double ImplicitSolveForQ();
 
-public :  
+public :
+    /**
+     *  Constructor
+     */  
     NhsSystemWithImplicitSolver();
 
+    /**
+     *  Set a current active tension guess. Generally not needed as the current
+     *  active tension is used if this isn't called
+     */
     void SetActiveTensionInitialGuess(double activeTensionInitialGuess);
     
+    /**
+     *  Solves for the new state variables at the given end time using the implicit
+     *  method. Note that the internal state variables are not altered, the solution
+     *  is saved instead. Call UpdateStateVariables() to update, and 
+     *  GetActiveTensionAtNextTime() to get the solved active tension
+     * 
+     *  The state variables are not updated because this solve will be called as part
+     *  of the newton iteration (ie guess stretch, see what the new active tension is)
+     *  in a fully implicit method
+     */
     void SolveDoNotUpdate(double startTime, double endTime, double timestep);
     
+    /**
+     *  Update the state variables using the stored solution. Call after 
+     *  SolveDoNotUpdate() if the solution is to be accepted
+     */
     void UpdateStateVariables();
     
+    /**
+     *  Solve for z semi-implicitly instead of fully implicitly. If we assume we know
+     *  Ca_trop solving for z is a 1d nonlinear problem. Call this to treat the problem
+     *  implicitly in the linear terms on the rhs of dzdt (the (1-z) and (z) terms), and 
+     *  explicitly in the nonlinear term (the z^nr/(z^nr + K^nr) term. This means the 
+     *  problem can be solved directly and no Newton iterations are needed.
+     */ 
     void UseImplicitExplicitSolveForZ(bool useImplicitExplicitSolveForZ = true);
     
-    double GetSolvedActiveTension() 
-    { 
-        return mActiveTensionSolution;
-    }
+    /**
+     *  Get the active tension corresponding to the stored state variables computed
+     *  from the last SolveDoNoUpdate(), ie the active tension at the next time. 
+     *  Note that calling GetActiveTension() on the base class will use the internal
+     *  state variables and return the active tension at the last time, if 
+     *  SolveDoNoUpdate() has been called but UpdateStateVariables() has not
+     */
+    double GetActiveTensionAtNextTime();
 };
 
 #endif /*NHSSYSTEMWITHIMPLICITSOLVER_HPP_*/

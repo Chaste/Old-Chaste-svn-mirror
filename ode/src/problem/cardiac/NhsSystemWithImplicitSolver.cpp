@@ -9,12 +9,20 @@
 
 void NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension()
 {
+    // solve a 1d nonlinear problem for the active tension
+    
+    // current active tension
     double current_active_tension = mActiveTensionInitialGuess;
+
+    // see what the residual is
     double residual = CalcActiveTensionResidual(current_active_tension);
 
+    // solve using Newton's method, no damping. Stop if num iterations
+    // reaches 15 (very conservative)
     unsigned counter = 0;
     while ((fabs(residual)>mTolerance) && (counter++<15))
     {
+        // numerically approximate the jacobian
         double h = std::max(fabs(current_active_tension/100),1e-8);
 
         double jac = (CalcActiveTensionResidual(current_active_tension+h) - CalcActiveTensionResidual(current_active_tension))/h;
@@ -35,12 +43,17 @@ void NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension()
 
 double NhsSystemWithImplicitSolver::CalcActiveTensionResidual(double activeTensionGuess)
 {
+    // to calculate the active tension residual, we solve use the current active tension,
+    // solve for Ca_trop implicitly, then z implicitly, then Q implicitly, then see
+    // what the resulting active tension was 
+   
     // solve for new Ca_trop implicitly
     double new_Ca_Trop = ImplicitSolveForCaTrop(activeTensionGuess);
-    
+
+    // store the current Ca_trop solution, in case it turns out to be the current one    
     mTempStoredStateVariables[0] = new_Ca_Trop;
     
-    // solve for new Ca_trop implicitly (or with a mixed implicit-explicit scheme, if asked for)
+    // solve for new z implicitly (or with a mixed implicit-explicit scheme, if asked for)
     double new_z;
     if(!mUseImplicitExplicitSolveForZ)
     {
@@ -51,14 +64,17 @@ double NhsSystemWithImplicitSolver::CalcActiveTensionResidual(double activeTensi
         new_z = ImplicitExplicitSolveForZ(new_Ca_Trop);
     }
     
+    // store the current z solution, in case it turns out to be the current one    
     mTempStoredStateVariables[1] = new_z;
 
     // get the new T0 
     double new_T0 = CalculateT0(new_z); 
 
-    // solve for the new Qi's (and therefore Q) implicitly
-    double new_Q = ImplicitSolveForQ();  // should be moved up
-                
+    // solve for the new Qi's (and therefore Q) implicitly (note Q1, Q2, Q3 are stored in 
+    // this method
+    double new_Q = ImplicitSolveForQ();                        // <-- SHOULD BE MOVED UP!!
+
+    // compute the new active tension and return the difference                
     double new_active_tension = 0;
     if(new_Q > 0)
     {
@@ -73,7 +89,9 @@ double NhsSystemWithImplicitSolver::CalcActiveTensionResidual(double activeTensi
 }
 
         
-
+// Assume the active tension is known and solve for the Ca_trop at the next time
+// implicitly using backward euler. This can be done directly as the rhs is linear 
+// in Ca_trop
 double NhsSystemWithImplicitSolver::ImplicitSolveForCaTrop(double newActiveTension)
 {
     double old_Ca_trop = mCurrentStateVars[0];
@@ -84,7 +102,8 @@ double NhsSystemWithImplicitSolver::ImplicitSolveForCaTrop(double newActiveTensi
     return numer/denom;
 }
 
-
+// Assume the Ca_trop is known and solve for the z at the next time
+// implicitly using backward euler. Uses Newton's method
 double NhsSystemWithImplicitSolver::ImplicitSolveForZ(double newCaTrop)
 {
     double current_z = mCurrentStateVars[1];
@@ -105,6 +124,7 @@ double NhsSystemWithImplicitSolver::ImplicitSolveForZ(double newCaTrop)
     return current_z;
 }
 
+
 double NhsSystemWithImplicitSolver::CalcZResidual(double z, double newCaTrop)
 {
     double ca_trop_to_ca_trop50_ratio_to_n = pow(newCaTrop/mCalciumTrop50, mN);
@@ -116,6 +136,11 @@ double NhsSystemWithImplicitSolver::CalcZResidual(double z, double newCaTrop)
 }
 
 
+// Solve for z semi-implicitly instead of fully implicitly. If we assume we know
+// Ca_trop solving for z is a 1d nonlinear problem. Call this to treat the problem
+// implicitly in the linear terms on the rhs of dzdt (the (1-z) and (z) terms), and 
+// explicitly in the nonlinear term (the z^nr/(z^nr + K^nr) term. This means the 
+// problem can be solved directly and no Newton iterations are needed.
 double NhsSystemWithImplicitSolver::ImplicitExplicitSolveForZ(double newCaTrop)
 {
     double ca_trop_to_ca_trop50_ratio_to_n = pow(newCaTrop/mCalciumTrop50, mN);
@@ -129,16 +154,16 @@ double NhsSystemWithImplicitSolver::ImplicitExplicitSolveForZ(double newCaTrop)
 }
 
 
-
+// Solve for Q1, Q2,, Q3 implicitly and directly
 double NhsSystemWithImplicitSolver::ImplicitSolveForQ()
 {
     double old_Q1 = mCurrentStateVars[2];
     double old_Q2 = mCurrentStateVars[3];
     double old_Q3 = mCurrentStateVars[4];
     
-    double new_Q1 = (old_Q1 + mDt*mA1*mDLambda1Dt)/(1 + mAlpha1*mDt);
-    double new_Q2 = (old_Q2 + mDt*mA2*mDLambda1Dt)/(1 + mAlpha2*mDt);
-    double new_Q3 = (old_Q3 + mDt*mA3*mDLambda1Dt)/(1 + mAlpha3*mDt);
+    double new_Q1 = (old_Q1 + mDt*mA1*mDLambdaDt)/(1 + mAlpha1*mDt);
+    double new_Q2 = (old_Q2 + mDt*mA2*mDLambdaDt)/(1 + mAlpha2*mDt);
+    double new_Q3 = (old_Q3 + mDt*mA3*mDLambdaDt)/(1 + mAlpha3*mDt);
     
     mTempStoredStateVariables[2] = new_Q1;
     mTempStoredStateVariables[3] = new_Q2;
@@ -190,6 +215,8 @@ void NhsSystemWithImplicitSolver::SolveDoNotUpdate(double startTime,
     
         stepper.AdvanceOneTimeStep();
     }
+    
+    // note: state variables NOT updated.
 }
 
 void NhsSystemWithImplicitSolver::UpdateStateVariables()
@@ -204,3 +231,9 @@ void NhsSystemWithImplicitSolver::UseImplicitExplicitSolveForZ(bool useImplicitE
 {
     mUseImplicitExplicitSolveForZ = useImplicitExplicitSolveForZ;
 }
+
+double NhsSystemWithImplicitSolver::GetActiveTensionAtNextTime() 
+{ 
+    return mActiveTensionSolution;
+}
+

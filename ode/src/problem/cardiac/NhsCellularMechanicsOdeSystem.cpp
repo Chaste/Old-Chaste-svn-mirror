@@ -7,7 +7,7 @@
  */
 void NhsCellularMechanicsOdeSystem::CalculateCalciumTrop50()
 {
-    double one_plus_beta1_times_lam_minus_one = 1 + mBeta1*(mLambda1-1);
+    double one_plus_beta1_times_lam_minus_one = 1 + mBeta1*(mLambda-1);
 
     mCalciumTrop50 = mCalciumTroponinMax * mCalcium50ref * one_plus_beta1_times_lam_minus_one;
     mCalciumTrop50 /= mCalcium50ref*one_plus_beta1_times_lam_minus_one + (1-one_plus_beta1_times_lam_minus_one/(2*mGamma))*mKrefoff/mKon;
@@ -21,7 +21,7 @@ double NhsCellularMechanicsOdeSystem::CalculateT0(double z)
     double z_max = mAlpha0 - mK2*calcium_ratio_to_n;
     z_max /= mAlpha0 + (mAlphaR1 + mK1)*calcium_ratio_to_n;
 
-    return z * mTref * (1+mBeta0*(mLambda1-1)) / z_max;
+    return z * mTref * (1+mBeta0*(mLambda-1)) / z_max;
 }
 
 
@@ -53,8 +53,8 @@ NhsCellularMechanicsOdeSystem::NhsCellularMechanicsOdeSystem()
     mVariableUnits.push_back("");
     mStateVariables.push_back(0);
             
-    mLambda1 = 1.0;
-    mDLambda1Dt = 0.0;
+    mLambda = 1.0;
+    mDLambdaDt = 0.0;
     mCalciumI = 0.0;            
     
     // Initialise mCalciumTrop50!!
@@ -69,11 +69,11 @@ NhsCellularMechanicsOdeSystem::NhsCellularMechanicsOdeSystem()
     mK2 *= 1 - mNr*pow(mKZ,mNr)/zp_to_n_plus_K_to_n;
 }
 
-void NhsCellularMechanicsOdeSystem::SetLambda1AndDerivative(double lambda1, double dlambda1Dt)
+void NhsCellularMechanicsOdeSystem::SetLambdaAndDerivative(double lambda, double dlambdaDt)
 {
-    assert(lambda1>0.0);
-    mLambda1 = lambda1;
-    mDLambda1Dt = dlambda1Dt;
+    assert(lambda>0.0);
+    mLambda = lambda;
+    mDLambdaDt = dlambdaDt;
     // lambda changed so update mCalciumTrop50!!
     CalculateCalciumTrop50();
 }
@@ -141,9 +141,9 @@ void NhsCellularMechanicsOdeSystem::EvaluateYDerivatives(double time,
              - mAlphaR2 * pow(z,mNr) / (pow(z,mNr) + pow(mKZ,mNr));
     
            
-    rDY[2] = mA1 * mDLambda1Dt - mAlpha1 * Q1;
-    rDY[3] = mA2 * mDLambda1Dt - mAlpha2 * Q2;
-    rDY[4] = mA3 * mDLambda1Dt - mAlpha3 * Q3;
+    rDY[2] = mA1 * mDLambdaDt - mAlpha1 * Q1;
+    rDY[3] = mA2 * mDLambdaDt - mAlpha2 * Q2;
+    rDY[4] = mA3 * mDLambdaDt - mAlpha3 * Q3;
 }
 
 
@@ -164,5 +164,5 @@ double NhsCellularMechanicsOdeSystem::GetActiveTension()
 
 double NhsCellularMechanicsOdeSystem::GetLambda()
 {
-    return mLambda1;
+    return mLambda;
 }

@@ -200,7 +200,7 @@ public:
                 // apply to all nhs systems for quad points in this element
                 for(unsigned i=0; i<cardiac_mech_assembler.GetNumQuadPointsPerElement(); i++)
                 {
-                    cellmech_systems[current_quad_index].SetLambda1AndDerivative(lambda[current_quad_index], dlambda_dt[current_quad_index]);
+                    cellmech_systems[current_quad_index].SetLambdaAndDerivative(lambda[current_quad_index], dlambda_dt[current_quad_index]);
                     cellmech_systems[current_quad_index].SetIntracellularCalciumConcentration(average_Ca_I);
                     current_quad_index++;                                                                                         
                 }
@@ -360,7 +360,7 @@ public:
 //                // apply to all nhs systems for quad points in this element
 //                for(unsigned i=0; i<cardiac_mech_assembler.GetNumQuadPointsPerElement(); i++)
 //                {
-//                    cellmech_systems[current_quad_index].SetLambda1DerivativeAndCalciumI(lambda[current_quad_index], 
+//                    cellmech_systems[current_quad_index].SetLambdaDerivativeAndCalciumI(lambda[current_quad_index], 
 //                                                                                         dlambda_dt[current_quad_index],
 //                                                                                         Ca_I);
 //                    current_quad_index++;                                                                                         

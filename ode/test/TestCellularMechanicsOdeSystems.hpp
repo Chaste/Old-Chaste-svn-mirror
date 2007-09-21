@@ -42,7 +42,7 @@ public :
         // has changed. A proper test where lambda varies (which means time-looping has
         // to be done outside the solver is done in TestElectroMechanicCellularModels, 
         // where NHS is coupled to a cell model
-        nhs_system.SetLambda1AndDerivative(0.5, 0.1);
+        nhs_system.SetLambdaAndDerivative(0.5, 0.1);
         nhs_system.SetIntracellularCalciumConcentration(Ca_I);
         OdeSolution solution = euler_solver.Solve(&nhs_system, nhs_system.rGetStateVariables(), 0, 10, 0.01, 0.01);
 

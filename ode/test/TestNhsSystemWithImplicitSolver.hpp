@@ -25,7 +25,7 @@ public:
         NhsSystemWithImplicitSolver system_with_solver;
         
         // lam=const, dlamdt not zero doesn't make much sense, just for testing purposes
-        system_with_solver.SetLambda1AndDerivative(0.5, 0.1);
+        system_with_solver.SetLambdaAndDerivative(0.5, 0.1);
         double Ca_I = GetSampleCaIValue();
         system_with_solver.SetIntracellularCalciumConcentration(Ca_I);
 
@@ -44,7 +44,7 @@ public:
         }                             
 
         // solve system with euler
-        system_for_euler_solver.SetLambda1AndDerivative(0.5, 0.1); 
+        system_for_euler_solver.SetLambdaAndDerivative(0.5, 0.1); 
         system_for_euler_solver.SetIntracellularCalciumConcentration(Ca_I);
         EulerIvpOdeSolver euler_solver;
         euler_solver.SolveAndUpdateStateVariable(&system_for_euler_solver, 0, 0.1, 0.1);  // one timestep
@@ -77,7 +77,7 @@ public:
             NhsSystemWithImplicitSolver system_with_solver;
     
             // lam=const, dlamdt not zero doesn't make much sense, just for testing purposes
-            system_with_solver.SetLambda1AndDerivative(0.5, 0.1);
+            system_with_solver.SetLambdaAndDerivative(0.5, 0.1);
             double Ca_I = GetSampleCaIValue();
             // bigger Ca_I, so we get some active tension (and so the a few iterations are
             // needed when solving for T_a and z
@@ -96,10 +96,15 @@ public:
             double implicit_solve_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         
             system_with_solver.UpdateStateVariables();
+
+            // GetActiveTensionAtNextTime should now be equal to baseclass::GetActiveTension(),
+            // as the state vars have been updated
+            TS_ASSERT_EQUALS(system_with_solver.GetActiveTensionAtNextTime(), 
+                             system_with_solver.GetActiveTension());
     
             // solve system with euler
             NhsCellularMechanicsOdeSystem system_for_euler_solver;
-            system_for_euler_solver.SetLambda1AndDerivative(0.5, 0.1); 
+            system_for_euler_solver.SetLambdaAndDerivative(0.5, 0.1); 
             system_for_euler_solver.SetIntracellularCalciumConcentration(10*Ca_I);
             EulerIvpOdeSolver euler_solver;
 
@@ -131,14 +136,14 @@ public:
 //    void TestImplicitSolverWithLargeTimeSteps()
 //    {
 //        NhsSystemWithImplicitSolver system_with_solver;
-//        system_with_solver.SetLambda1AndDerivative(0.5, 0.1);
+//        system_with_solver.SetLambdaAndDerivative(0.5, 0.1);
 //        system_with_solver.SetIntracellularCalciumConcentration(10*GetSampleCaIValue());
 //
 //        system_with_solver.SolveDoNotUpdate(0, 100, 0.01); 
 //        system_with_solver.UpdateStateVariables();
 //
 //        NhsSystemWithImplicitSolver system_with_solver2;
-//        system_with_solver2.SetLambda1AndDerivative(0.5, 0.1);
+//        system_with_solver2.SetLambdaAndDerivative(0.5, 0.1);
 //        system_with_solver2.SetIntracellularCalciumConcentration(10*GetSampleCaIValue());
 //
 //        system_with_solver2.SolveDoNotUpdate(0, 100, 1); 

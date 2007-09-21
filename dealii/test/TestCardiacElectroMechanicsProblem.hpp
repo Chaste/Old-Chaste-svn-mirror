@@ -21,7 +21,7 @@ public:
         CardiacElectroMechanicsProblem<1> explicit_problem(&cell_factory, 5, time_step, "CardiacElectroMech");
         explicit_problem.Solve();
 
-        ImplicitCardiacElectroMechanicsProblem<1> implicit_problem(&cell_factory, 10, time_step, "ImplicitCardiacElectroMech");
+        ImplicitCardiacElectroMechanicsProblem<1> implicit_problem(&cell_factory, 5, time_step, "ImplicitCardiacElectroMech");
         implicit_problem.Solve();
         
         // temporary test 

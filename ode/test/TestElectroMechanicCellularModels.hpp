@@ -94,7 +94,7 @@ public:
             
             // get CaI 
             double Ca_I = electrophys_model.rGetStateVariables()[Ca_i_index];
-            cellmech_model.SetLambda1AndDerivative(1.0, 0.0);
+            cellmech_model.SetLambdaAndDerivative(1.0, 0.0);
             cellmech_model.SetIntracellularCalciumConcentration(Ca_I);
 
             // solve the cellular mechanics model
@@ -199,8 +199,7 @@ public:
             double lam = MyLam(current_time, end_time, min_lam);
             double dlam_dt = MyLamDeriv(current_time, end_time, min_lam);
 
-            //cellmech_model.SetLambda1DerivativeAndCalciumI(lam, dlam_dt, Ca_I);
-            cellmech_model.SetLambda1AndDerivative(lam, dlam_dt); 
+            cellmech_model.SetLambdaAndDerivative(lam, dlam_dt); 
             cellmech_model.SetIntracellularCalciumConcentration(Ca_I); 
     
     
