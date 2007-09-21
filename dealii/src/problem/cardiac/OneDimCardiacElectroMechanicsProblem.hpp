@@ -1,8 +1,9 @@
-#ifndef CARDIACELECTROMECHANICSPROBLEM_HPP_
-#define CARDIACELECTROMECHANICSPROBLEM_HPP_
+#ifndef ONDEDIMCARDIACELECTROMECHANICSPROBLEM_HPP_
+#define ONDEDIMCARDIACELECTROMECHANICSPROBLEM_HPP_
 
 #include "MonodomainProblem.hpp"
 #include "OneDimCardiacMechanicsAssembler.hpp"
+#include "ImplicitOneDimCardiacMechanicsAssembler.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "FiniteElasticityTools.hpp"
 #include "NhsCellularMechanicsOdeSystem.hpp"
@@ -13,11 +14,9 @@
  * add comments
  * add tests
  * 
- * tidy
  * move mesh stuff out
- * don't output every timestep
  * 
- * refactor and link with implicit one-dim solver
+ * refactor to use 2d/3d cardiacmechassembler
  * 
  * think about architecture (of AbstractCardiacProblem) when this is done properly..
  */
@@ -41,27 +40,28 @@ public:
 
 
 /**
- *  CardiacElectroMechanicsProblem 
+ *  OneDimCardiacElectroMechanicsProblem 
  *  
  *  Solve a coupled cardiac electromechanics problem
  *  
  *  Currently just uses the monodomain assembler (to use bidomain need to manually change 
  *  the code), and currently just uses the OneDimCardiacMechanicsAssembler, will eventually
- *  use the (2d/3d) CardiacMechanicsAssembler.
- *  
- *   
+ *  use the (2d/3d) CardiacMechanicsAssembler. Can use both explicit and implicit 1d 
+ *  assemblers
  */
 template<unsigned DIM>
-class CardiacElectroMechanicsProblem
+class OneDimCardiacElectroMechanicsProblem
 {
 private: 
     /*< The cardiac problem class */
     MonodomainProblem<DIM>* mpMonodomainProblem;
     
     /*< The mechanics assembler */
-    OneDimCardiacMechanicsAssembler* mpCardiacMechAssembler;
+    OneDimCardiacMechanicsAssembler* mpCardiacMechAssembler;  // can be ImplicitOneDim..
 
+    /*< End time. The start time is assumed to be 0.0 */
     double mEndTime;
+    /*< The timestep. TODO: different timesteps for different bits */
     double mTimeStep;    
     
     /*< A chaste mesh for the electrics */
@@ -76,7 +76,12 @@ private:
      */
     std::vector<ElementAndWeights<DIM> > mElementAndWeightsForQuadPoints;
 
+    /*< Whether to use an explicit or implicit method */
+    bool mUseExplicitMethod;
+
+    /*< Output directory, relative to TEST_OUTPUT */
     std::string mOutputDirectory;
+    /*< Whether to write any output */
     bool mWriteOutput;
     /*< when to write output */    
     const static int WRITE_EVERY_NTH_TIME = 1; 
@@ -87,13 +92,15 @@ public:
      *  @param pCellFactory cell factory for creating cells (see Monodomain tests)
      *  @endTime end time of the simulation. Start time is assumed to be 0.0
      *  @timeStep time step for the electrics (and currently the mechanics too)
+     *  @useExplicit Whether to use an explicit or implicit mechanics solver
      *  @outputDirectory. Output directory. Omit if no output is required.
      * 
      *  The meshes are currently hardcoded in here.
      */
-    CardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
+    OneDimCardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
                                    double endTime,
                                    double timeStep,
+                                   bool useExplicitMethod,
                                    std::string outputDirectory = "")
     {
         assert(pCellFactory != NULL);
@@ -107,6 +114,8 @@ public:
         mWriteOutput = (outputDirectory!="");
         mOutputDirectory = outputDirectory;
                 
+        mUseExplicitMethod = useExplicitMethod;        
+                        
         // create electrics mesh
         mpElectricsMesh = new ConformingTetrahedralMesh<DIM,DIM>();
         unsigned num_elem = 128;
@@ -124,7 +133,14 @@ public:
         
         assert(mpMechanicsMesh->n_vertices()==mpElectricsMesh->GetNumNodes());
 
-        mpCardiacMechAssembler = new OneDimCardiacMechanicsAssembler(mpMechanicsMesh);
+        if(mUseExplicitMethod)
+        {
+            mpCardiacMechAssembler = new OneDimCardiacMechanicsAssembler(mpMechanicsMesh);
+        }
+        else
+        {
+            mpCardiacMechAssembler = new ImplicitOneDimCardiacMechanicsAssembler(mpMechanicsMesh);
+        }
         
         // find the element nums and weights for each gauss point in the mechanics mesh
         mElementAndWeightsForQuadPoints.resize(mpCardiacMechAssembler->GetTotalNumQuadPoints());
@@ -161,19 +177,29 @@ public:
 
         // create stores of lambda, lambda_dot and old lambda
         unsigned num_quad_points = mpCardiacMechAssembler->GetTotalNumQuadPoints();
-        std::vector<double> lambda(num_quad_points, 1.0);
-        std::vector<double> old_lambda(num_quad_points, 1.0);
-        std::vector<double> dlambda_dt(num_quad_points, 0.0);
-        std::vector<double> active_tension(num_quad_points, 0.0);
 
-        // create NHS systems for each quad point in the mesh
-        std::vector<NhsCellularMechanicsOdeSystem> cellmech_systems(num_quad_points);
-
-        // a solver for the nhs models
+        // these are only needed if explicit
+        std::vector<double> lambda;
+        std::vector<double> old_lambda;
+        std::vector<double> dlambda_dt;
+        std::vector<NhsCellularMechanicsOdeSystem> cellmech_systems;
         EulerIvpOdeSolver euler_solver;
+
+        // this is the active tension if explicit and the calcium conc if implicit
+        std::vector<double> forcing_quantity(num_quad_points,0.0);
+        
+        // initial cellmechanics systems, lambda, etc, if required
+        if(mUseExplicitMethod)
+        {
+            lambda.resize(num_quad_points, 1.0);
+            old_lambda.resize(num_quad_points, 1.0);
+            dlambda_dt.resize(num_quad_points, 0.0);
+            cellmech_systems.resize(num_quad_points);
+        }
 
         unsigned mech_writer_counter = 0;
 
+        // write initial positions
         if(mWriteOutput)
         {
             OutputFileHandler output_file_handler(mOutputDirectory, true);
@@ -203,7 +229,9 @@ public:
             initial_voltage = voltage;
             
             // compute Ca_I at each quad point (by interpolation, using the info on which
-            // electrics element the quad point is in, and set on the nhs systems
+            // electrics element the quad point is in. Then: 
+            //   Explicit: Set Ca_I on the nhs systems and solve them to get the active tension
+            //   Implicit: Set Ca_I on the mechanics solver
             for(unsigned i=0; i<mElementAndWeightsForQuadPoints.size(); i++)
             {
                 double interpolated_Ca_I = 0;
@@ -216,34 +244,43 @@ public:
                     interpolated_Ca_I += Ca_I_at_node*mElementAndWeightsForQuadPoints[i].Weights(node_index);
                 }
 
-                cellmech_systems[i].SetLambdaAndDerivative(lambda[i], dlambda_dt[i]);
-                cellmech_systems[i].SetIntracellularCalciumConcentration(interpolated_Ca_I);
+                if(mUseExplicitMethod)
+                {
+                    // explicit: forcing quantity on the assembler is the active tension
+                    cellmech_systems[i].SetLambdaAndDerivative(lambda[i], dlambda_dt[i]);
+                    cellmech_systems[i].SetIntracellularCalciumConcentration(interpolated_Ca_I);
+                    euler_solver.SolveAndUpdateStateVariable(&cellmech_systems[i], stepper.GetTime(), stepper.GetNextTime(), mTimeStep);
+                    forcing_quantity[i] = cellmech_systems[i].GetActiveTension();
+                }
+                else
+                {
+                    // explicit: forcing quantity on the assembler is the calcium concentration
+                    forcing_quantity[i] = interpolated_Ca_I;
+                }
             }
 
-            // solve the cellular mechanics model and get the active tension
-            for(unsigned i=0; i<cellmech_systems.size(); i++)
-            {
-                euler_solver.SolveAndUpdateStateVariable(&cellmech_systems[i], stepper.GetTime(), stepper.GetNextTime(), mTimeStep);
-                active_tension[i] = cellmech_systems[i].GetActiveTension();
-            }
-            
             // NOTE: HERE WE SHOULD REALLY CHECK WHETHER THE CELL MODELS HAVE Ca_Trop
-            // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS..
+            // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS.. (esp for implicit)
             
             // set the active tensions
-            mpCardiacMechAssembler->SetActiveTension(active_tension);
+            mpCardiacMechAssembler->SetForcingQuantity(forcing_quantity);
 
             // solve the mechanics
-            mpCardiacMechAssembler->Solve();
+            mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), stepper.GetNextTime()-stepper.GetTime());
 
-            // update lambda and dlambda_dt;
-            old_lambda = lambda;
-            lambda = mpCardiacMechAssembler->GetLambda();
-            for(unsigned i=0; i<dlambda_dt.size(); i++)
+            // if explicit store the new lambda and update lam
+            if(mUseExplicitMethod)
             {
-                dlambda_dt[i] = (lambda[i] - old_lambda[i])/mTimeStep;
+                // update lambda and dlambda_dt;
+                old_lambda = lambda;
+                lambda = mpCardiacMechAssembler->GetLambda();
+                for(unsigned i=0; i<dlambda_dt.size(); i++)
+                {
+                    dlambda_dt[i] = (lambda[i] - old_lambda[i])/mTimeStep;
+                }
             }
 
+            // write
             if(mWriteOutput && (counter++)%WRITE_EVERY_NTH_TIME==0)
             {            
                 OutputFileHandler output_file_handler(mOutputDirectory, false);
@@ -256,6 +293,7 @@ public:
                 }
                 mech_writer_counter++;
             }                        
+            
             // update the current time
             stepper.AdvanceOneTimeStep();
         }
@@ -264,4 +302,4 @@ public:
     }
 };
 
-#endif /*CARDIACELECTROMECHANICSPROBLEM_HPP_*/
+#endif /*ONDEDIMCARDIACELECTROMECHANICSPROBLEM_HPP_*/

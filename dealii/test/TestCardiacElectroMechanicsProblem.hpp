@@ -6,8 +6,7 @@
 #include "PlaneStimulusCellFactory.hpp"
 #include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"
-#include "CardiacElectroMechanicsProblem.hpp"
-#include "ImplicitCardiacElectroMechanicsProblem.hpp"
+#include "OneDimCardiacElectroMechanicsProblem.hpp"
 
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
@@ -18,13 +17,13 @@ public:
         PlaneStimulusCellFactory<1> cell_factory(time_step, -1000*1000);
 
         // instabilities appear at about 6.8
-        CardiacElectroMechanicsProblem<1> explicit_problem(&cell_factory, 5, time_step, "CardiacElectroMech");
+        OneDimCardiacElectroMechanicsProblem<1> explicit_problem(&cell_factory, 5, time_step, true, "CardiacElectroMech");
         explicit_problem.Solve();
 
-        ImplicitCardiacElectroMechanicsProblem<1> implicit_problem(&cell_factory, 5, time_step, "ImplicitCardiacElectroMech");
+        OneDimCardiacElectroMechanicsProblem<1> implicit_problem(&cell_factory, 5, time_step, false, "ImplicitCardiacElectroMech");
         implicit_problem.Solve();
         
-        // temporary test 
+        // temporary test - needs rewriting when output format is finalised
         for(unsigned i=0; i<500; i++)
         {
             OutputFileHandler handler("CardiacElectroMech",false);
@@ -48,9 +47,15 @@ public:
             double length_of_fibre2;
             ifs2 >> unused;
             ifs2 >> length_of_fibre2;                // the second entry is the length
-
             
             TS_ASSERT_DELTA(length_of_fibre1, length_of_fibre2, fabs(length_of_fibre1*1e-5));
+            
+            // hardcoded test
+            if(i==450)
+            {
+                std::cout << "LENGTH = " << length_of_fibre2 << "\n";
+                TS_ASSERT_DELTA(length_of_fibre2, 0.999378, 1e-5);
+            }
         }
     }
 };

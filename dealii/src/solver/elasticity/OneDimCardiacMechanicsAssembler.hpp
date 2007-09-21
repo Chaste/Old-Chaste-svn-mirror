@@ -75,7 +75,7 @@ public:
     }    
 
 
-    void Solve()
+    virtual void Solve(double startTime, double endTime, double timestep) //params are a bit of a hack for refactoring at the moment..
     {
         // compute residual
         this->AssembleSystem(true, false);
@@ -140,7 +140,7 @@ public:
         return mNumQuadPointsInEachDimension;
     }
 
-    void SetActiveTension(std::vector<double> activeTension)
+    virtual void SetForcingQuantity(std::vector<double>& activeTension)
     {
         assert(activeTension.size() == mTotalQuadPoints);
         mActiveTension = activeTension;

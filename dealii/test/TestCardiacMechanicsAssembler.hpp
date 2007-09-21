@@ -135,6 +135,9 @@ public :
             // don't delete:
             //std::cout << quad_points[i][0] << " " << quad_points[i][1] << " " << lambda[i] << "\n";
         }
+        
+        // hardcoded test
+        TS_ASSERT_DELTA(lambda[34], 0.9694, 1e-4);
     }
 
     void TestSpecifiedActiveTensionStretching() throw(Exception)
@@ -188,6 +191,9 @@ public :
             // don't delete:
             //std::cout << quad_points[i][0] << " " << quad_points[i][1] << " " << lambda[i] << "\n";
         }
+
+        // hardcoded test
+        TS_ASSERT_DELTA(lambda[34], 1.0169, 1e-4);
     }
 
 
@@ -255,6 +261,9 @@ public :
             // don't delete:
             //std::cout << quad_points[i][0] << " " << quad_points[i][1] << " " << lambda[i] << "\n";
         }
+
+        // hardcoded test
+        TS_ASSERT_DELTA(lambda[34], 0.7924, 1e-4);
     }
 
 
@@ -320,6 +329,9 @@ public :
             // don't delete:
             //std::cout << quad_points[0][i] << " " << quad_points[1][i] << " " << lambda[i] << "\n";
         }
+
+        // hardcoded test
+        TS_ASSERT_DELTA(lambda[34], 0.7773, 1e-4);
     }
 };
 #endif /*TESTCARDIACMECHANICSASSEMBLER_HPP_*/

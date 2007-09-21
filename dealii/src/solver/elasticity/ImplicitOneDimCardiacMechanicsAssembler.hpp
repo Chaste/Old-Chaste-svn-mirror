@@ -11,7 +11,6 @@
 class ImplicitOneDimCardiacMechanicsAssembler : public OneDimCardiacMechanicsAssembler
 {
 private:
-    //implicit only 
     std::vector<NhsSystemWithImplicitSolver> mCellMechSystems; 
     std::vector<double> mLambdaLastTimeStep;
     double mCurrentTime, mNextTime, mDt;
@@ -29,13 +28,7 @@ public:
         }
     }    
 
-    // overloaded - shouldn't be called
-    void SetActiveTension(std::vector<double> activeTension)
-    {
-        assert(0);
-    }
-
-    void SetIntracellularCalciumConcentration(std::vector<double>& caI)
+    void SetForcingQuantity(std::vector<double>& caI)
     {
         assert(caI.size() == mTotalQuadPoints);
         for(unsigned i=0; i<caI.size(); i++)
@@ -44,13 +37,13 @@ public:
         } 
     }
 
-    // overloaded -shouldn't be called.
+    // overloaded -shouldn't be called, as the OneDimCardiacMechanicsAssembler::mLambda
+    // is not populated in this class
     std::vector<double>& GetLambda()
     {
         assert(0);
         return mLambda;
     }   
-
 
 
     void Solve(double currentTime, double nextTime, double timestep)
@@ -61,50 +54,7 @@ public:
         mNextTime = nextTime;
         mDt = timestep;
         
-        // compute residual
-        this->AssembleSystem(true, false);
-        double norm_resid = this->CalculateResidualNorm();
-        std::cout << "\nNorm of residual is " << norm_resid << "\n";
-        
-        mNumNewtonIterations = 0;
-        unsigned counter = 1;
-    
-        // use the larger of the tolerances formed from the absolute or
-        // relative possibilities
-        double tol = NEWTON_ABS_TOL;
-        if ( tol < NEWTON_REL_TOL*norm_resid )
-        {
-            tol = NEWTON_REL_TOL*norm_resid;
-        }
-        std::cout << "Solving with tolerance " << tol << "\n";
-        
-        while (norm_resid > tol)
-        {
-            std::cout <<  "\n-------------------\n"
-                      <<   "Newton iteration " << counter
-                      << ":\n-------------------\n";
-            
-            this->TakeNewtonStep();
-            this->AssembleSystem(true, false);
-            norm_resid = this->CalculateResidualNorm();
-            
-            std::cout << "Norm of residual is " << norm_resid << "\n";
-            
-            //WriteOutput(counter);
-            mNumNewtonIterations = counter;
-            
-            counter++;
-            if (counter==20)
-            {
-                EXCEPTION("Not converged after 20 newton iterations, quitting");
-            }
-        }
-    
-
-        if (norm_resid > tol)
-        {
-            EXCEPTION("Failed to converge");
-        }
+        OneDimCardiacMechanicsAssembler::Solve(currentTime,nextTime,timestep);
     
         for(unsigned i=0; i<mCellMechSystems.size(); i++)
         {
