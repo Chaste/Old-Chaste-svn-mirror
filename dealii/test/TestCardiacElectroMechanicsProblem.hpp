@@ -17,7 +17,7 @@ public:
         PlaneStimulusCellFactory<1> cell_factory(time_step, -1000*1000);
 
         // instabilities appear at about 6.8
-        OneDimCardiacElectroMechanicsProblem<1> explicit_problem(&cell_factory, 5, time_step, true, "CardiacElectroMech");
+        OneDimCardiacElectroMechanicsProblem<1> explicit_problem(&cell_factory, 5, time_step, true, "ExplicitCardiacElectroMech");
         explicit_problem.Solve();
 
         OneDimCardiacElectroMechanicsProblem<1> implicit_problem(&cell_factory, 5, time_step, false, "ImplicitCardiacElectroMech");
