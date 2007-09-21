@@ -97,7 +97,21 @@ public:
             cardiac_problem.SetPrintingTimeStep(0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
             cardiac_problem.Initialise();
             
-            DisplayRun();
+            unsigned mesh_size = (unsigned) pow(2, MeshNum+2); // number of elements in each dimension
+	    unsigned num_cubes=  (unsigned) pow(mesh_size,DIM);
+	    if (DIM==1)
+	    {
+                assert(constructor.NumElements == num_cubes);
+	    }
+	    else if (DIM==2)
+	    {
+                assert(constructor.NumElements == num_cubes*2);
+	    }
+	    else// (DIM==3)
+	    {
+                assert(constructor.NumElements == num_cubes*6);
+	    }
+	    DisplayRun();
             
             try
             {

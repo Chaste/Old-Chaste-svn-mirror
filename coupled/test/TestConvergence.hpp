@@ -64,13 +64,13 @@ public:
         }
      }
     
-//    void Test1DSpace() throw(Exception)
-//    {
-//        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
-//        tester.Converge();
-//        TS_ASSERT(tester.Converged);
-//        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
-//    }
+    void xTest1DSpace() throw(Exception)
+    {
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
+    }
 //        
 //    void Test1DKsp() throw(Exception)
 //    {

@@ -16,12 +16,26 @@
 #include "SpaceConvergenceTester.hpp"
 #include "KspConvergenceTester.hpp"
 #include "OdeConvergenceTester.hpp"
-
+#include "StimulusConvergenceTester.hpp"
 
 class Test2dConvergence : public CxxTest::TestSuite
 {   
 public:
-    void Test2DSpace() throw(Exception)
+    void Test2DStimulus() throw (Exception)
+    {
+        StimulusConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
+        //int i=0;
+        for (int i=0; i<6;i++)
+        {
+            tester.FirstMesh=i;
+            std::cout<<"###############Gnu new run \n#Gnu First mesh = "<< tester.FirstMesh<<"\n";
+            tester.Converge();
+            tester.PopulatedResult=false;
+        }
+     }
+    
+    
+    void xTest2DSpace() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
         tester.Converge();
