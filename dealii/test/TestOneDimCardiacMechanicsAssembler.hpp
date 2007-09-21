@@ -2,24 +2,24 @@
 #define TEST1DCARDIACMECHANICSASSEMBLER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "OneDimCardiacMechanicsAssembler.hpp"
-#include "ImplicitOneDimCardiacMechanicsAssembler.hpp"
+#include "ExplicitOneDimCardiacMechanicsAssembler.hpp"
+#include "ImplicitOneDimCardiacMechanicsAssembler.hpp" 
 
 class TestOneDimCardiacMechanicsAssembler : public CxxTest::TestSuite
 {
 public:
-    void TestUncoupled() throw(Exception)
+    void TestUncoupledExplicit() throw(Exception)
     {
         Triangulation<1> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(7);
         
-        OneDimCardiacMechanicsAssembler mechanics(&mesh);
+        ExplicitOneDimCardiacMechanicsAssembler mechanics(&mesh);
 
         std::vector<double> active_tension(mechanics.GetTotalNumQuadPoints(), 0.5);
         
-        mechanics.SetActiveTension( active_tension );
-        mechanics.Solve();
+        mechanics.SetForcingQuantity( active_tension );
+        mechanics.Solve(0, 0.1, 0.1); // times not used
         
         std::vector<Vector<double> > undeformed_position = mechanics.rGetUndeformedPosition();
         std::vector<Vector<double> > deformed_position = mechanics.rGetDeformedPosition();
@@ -48,7 +48,7 @@ public:
         ImplicitOneDimCardiacMechanicsAssembler mechanics(&mesh);
         std::vector<double> caI(mechanics.GetTotalNumQuadPoints(), 0.02);
         
-        mechanics.SetIntracellularCalciumConcentration( caI );
+        mechanics.SetForcingQuantity( caI );
         mechanics.Solve(0, 0.1, 0.01);
         
         std::vector<Vector<double> > undeformed_position = mechanics.rGetUndeformedPosition();

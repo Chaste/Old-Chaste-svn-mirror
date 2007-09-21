@@ -2,7 +2,7 @@
 #define ONDEDIMCARDIACELECTROMECHANICSPROBLEM_HPP_
 
 #include "MonodomainProblem.hpp"
-#include "OneDimCardiacMechanicsAssembler.hpp"
+#include "ExplicitOneDimCardiacMechanicsAssembler.hpp"
 #include "ImplicitOneDimCardiacMechanicsAssembler.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "FiniteElasticityTools.hpp"
@@ -13,6 +13,8 @@
  * 
  * add comments
  * add tests
+ * 
+ * det F
  * 
  * move mesh stuff out
  * 
@@ -45,9 +47,8 @@ public:
  *  Solve a coupled cardiac electromechanics problem
  *  
  *  Currently just uses the monodomain assembler (to use bidomain need to manually change 
- *  the code), and currently just uses the OneDimCardiacMechanicsAssembler, will eventually
- *  use the (2d/3d) CardiacMechanicsAssembler. Can use both explicit and implicit 1d 
- *  assemblers
+ *  the code), and currently just uses the [Exp/Imp]OneDimCardiacMechanicsAssembler, will 
+ *  eventually use the (2d/3d) CardiacMechanicsAssembler. 
  */
 template<unsigned DIM>
 class OneDimCardiacElectroMechanicsProblem
@@ -57,7 +58,7 @@ private:
     MonodomainProblem<DIM>* mpMonodomainProblem;
     
     /*< The mechanics assembler */
-    OneDimCardiacMechanicsAssembler* mpCardiacMechAssembler;  // can be ImplicitOneDim..
+    AbstractOneDimCardiacMechanicsAssembler* mpCardiacMechAssembler;  // can be ImplicitOneDim..
 
     /*< End time. The start time is assumed to be 0.0 */
     double mEndTime;
@@ -135,7 +136,7 @@ public:
 
         if(mUseExplicitMethod)
         {
-            mpCardiacMechAssembler = new OneDimCardiacMechanicsAssembler(mpMechanicsMesh);
+            mpCardiacMechAssembler = new ExplicitOneDimCardiacMechanicsAssembler(mpMechanicsMesh);
         }
         else
         {

@@ -3,29 +3,23 @@
 
 #include "AbstractElasticityAssembler.hpp"
 #include "PoleZero3dIn1dLaw.hpp"
-#include "OneDimCardiacMechanicsAssembler.hpp"
+#include "AbstractOneDimCardiacMechanicsAssembler.hpp"
 #include "NhsSystemWithImplicitSolver.hpp"
 
-///\todo: refactor, quantitive test?, doxy, test of analytic jacobian
+///\todo: quantitive test?, doxy, test of analytic jacobian
 
-class ImplicitOneDimCardiacMechanicsAssembler : public OneDimCardiacMechanicsAssembler
+class ImplicitOneDimCardiacMechanicsAssembler : public AbstractOneDimCardiacMechanicsAssembler
 {
 private:
     std::vector<NhsSystemWithImplicitSolver> mCellMechSystems; 
     std::vector<double> mLambdaLastTimeStep;
-    double mCurrentTime, mNextTime, mDt;
 
 public:
     ImplicitOneDimCardiacMechanicsAssembler(Triangulation<1>* pMesh)
-        :  OneDimCardiacMechanicsAssembler(pMesh)
+        :  AbstractOneDimCardiacMechanicsAssembler(pMesh)
     {
         mCellMechSystems.resize(mTotalQuadPoints);
-        mLambdaLastTimeStep.resize(mTotalQuadPoints);
-        
-        for(unsigned i=0; i<mLambdaLastTimeStep.size(); i++)
-        {
-            mLambdaLastTimeStep[i] = 1.0;
-        }
+        mLambdaLastTimeStep.resize(mTotalQuadPoints, 1.0);
     }    
 
     void SetForcingQuantity(std::vector<double>& caI)
@@ -37,24 +31,9 @@ public:
         } 
     }
 
-    // overloaded -shouldn't be called, as the OneDimCardiacMechanicsAssembler::mLambda
-    // is not populated in this class
-    std::vector<double>& GetLambda()
-    {
-        assert(0);
-        return mLambda;
-    }   
-
-
     void Solve(double currentTime, double nextTime, double timestep)
-    {
-        assert(currentTime < nextTime);
-        
-        mCurrentTime = currentTime;
-        mNextTime = nextTime;
-        mDt = timestep;
-        
-        OneDimCardiacMechanicsAssembler::Solve(currentTime,nextTime,timestep);
+    {        
+        AbstractOneDimCardiacMechanicsAssembler::Solve(currentTime,nextTime,timestep);
     
         for(unsigned i=0; i<mCellMechSystems.size(); i++)
         {
