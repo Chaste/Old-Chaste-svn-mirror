@@ -294,8 +294,6 @@ public:
 
         TS_ASSERT_EQUALS(test_type,TRANSIT);
         
-        //TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel());
-        
         std::vector<double> cell_cycle_influences;
         cell_cycle_influences.push_back(wnt_level);
         for (int i=0; i<numTimesteps; i++)
