@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cassert>
 #include <vector>
+#include <iostream>
 
 /**
  * Constructor.
@@ -18,52 +19,65 @@ IngeWntOdeSystem::IngeWntOdeSystem(double wntLevel, const CryptCellMutationState
 {
     Init(); //Set up parameters
     
+    double d_d_hat = mDd + mXiD*wntLevel;
+    double d_d_x_hat = mDdx + mXiDx*wntLevel;
+    double d_x_hat = mDx + mXiX*wntLevel;
+    //double p_c_hat = mPc + mXiC*wntLevel;
     
-    // These three lines set up a wnt signalling pathway in a steady state
-    if (mMutationState == HEALTHY || mMutationState == LABELLED)	// healthy cells
+    double sigma_D = 0.0;   // for healthy cells
+    double sigma_B = 0.0;   // for healthy cells
+    
+    switch(mMutationState)
     {
-        //beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
-        //beta_cat_level_2 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
-    }
-    else if (mMutationState == APC_ONE_HIT) // APC +/-
-    {
-        //beta_cat_level_1 = 0.5*ma2d/(ma2d+0.5*ma3d*destruction_level); // only half are active
-        //beta_cat_level_2 = 0.5*ma2d/(ma2d+0.5*ma3d*destruction_level);
-    }
-    else if (mMutationState == BETA_CATENIN_ONE_HIT) // Beta-cat delta 45
-    {
-        //beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
-        //beta_cat_level_2 = 0.5;
-    }
-    else if (mMutationState == APC_TWO_HIT) // APC -/-
-    {
-        //destruction_level = 0.0; // no active destruction complex
-        //beta_cat_level_1 = 0.5; // fully active beta-catenin
-        //beta_cat_level_2 = 0.5; // fully active beta-catenin
-    }
-    else
-    {
-        // can't get here until new mutation states are added to CryptCellMutationState
+        case HEALTHY:
+        {
+            break;
+        }   
+        case LABELLED:
+        {
+            break;
+        }
+        case APC_ONE_HIT:
+        {
+            sigma_D = 0.5;
+            break;
+        }
+        case APC_TWO_HIT:
+        {
+            sigma_D = 1.0;
+            break;   
+        }
+        case BETA_CATENIN_ONE_HIT:
+        {
+            sigma_B = 0.5;
+            break;
+        }
+        default:
         #define COVERAGE_IGNORE
-        assert(0);
+            assert(0);  // this can't happen if all mutation states are catered for.
         #undef COVERAGE_IGNORE
     }
     
+    double temp = ((1.0-sigma_D)*mSd*mSx)/((1.0-sigma_D)*mSd*d_d_hat + d_x_hat*(d_d_hat + d_d_x_hat));
+    
     mVariableNames.push_back("D");  //  Destruction complex (APC/Axin/GSK3B)
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.67);
+    mInitialConditions.push_back(temp);
+    
+    // TODO: This line does not give 0.06666666666667
+    //temp = (mSx*(d_d_hat+d_d_x_hat))/((1.0-sigma_D)*mSd*d_d_hat+d_d_x_hat*(d_d_hat+d_d_x_hat));
     
     mVariableNames.push_back("X");  //  Axin
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.067);
+    mInitialConditions.push_back(0.06666666666667);
     
     mVariableNames.push_back("Cu"); //  beta-catenin to be ubiquitinated
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.45);
+    mInitialConditions.push_back(0.4492);
     
     mVariableNames.push_back("Co"); //  Open form beta-catenin
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(2.54);
+    mInitialConditions.push_back(2.5403);
     
     mVariableNames.push_back("Cc"); //  Closed form beta-catenin
     mVariableUnits.push_back("nM");
@@ -83,11 +97,11 @@ IngeWntOdeSystem::IngeWntOdeSystem(double wntLevel, const CryptCellMutationState
     
     mVariableNames.push_back("Ca"); //  Co-A    Adhesion complex
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(18.14);
+    mInitialConditions.push_back(18.1449);
     
     mVariableNames.push_back("Ma"); //  Mo-A    Mutant adhesion complex
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(18.14);
+    mInitialConditions.push_back(18.1449);
     
     mVariableNames.push_back("T");  //  `free' transcription molecules (TCF)
     mVariableUnits.push_back("nM");
@@ -95,7 +109,7 @@ IngeWntOdeSystem::IngeWntOdeSystem(double wntLevel, const CryptCellMutationState
     
     mVariableNames.push_back("Cot");//  Co-T open form beta-catenin/TCF
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(2.54);
+    mInitialConditions.push_back(2.5403);
     
     mVariableNames.push_back("Cct");//  Cc-T closed beta-catenin/TCF
     mVariableUnits.push_back("nM");
@@ -103,7 +117,7 @@ IngeWntOdeSystem::IngeWntOdeSystem(double wntLevel, const CryptCellMutationState
     
     mVariableNames.push_back("Mot");//  Mo-T open form mutant beta-catenin/TCF
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(2.54);
+    mInitialConditions.push_back(0.0);
     
     mVariableNames.push_back("Mct");//  Mc-T closed form mutant beta-catenin/TCF
     mVariableUnits.push_back("nM");
@@ -111,7 +125,7 @@ IngeWntOdeSystem::IngeWntOdeSystem(double wntLevel, const CryptCellMutationState
     
     mVariableNames.push_back("Y");  //  Wnt target protein
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.48);
+    mInitialConditions.push_back(0.4835);
     
     mVariableNames.push_back("Sw");  //  Wnt stimulus
     mVariableUnits.push_back("nM");
@@ -250,8 +264,8 @@ void IngeWntOdeSystem::EvaluateYDerivatives(double time, const std::vector<doubl
         #undef COVERAGE_IGNORE
     }
       
-    
     rDY[0] = (1.0-sigma_D)*mSd*X - (d_d_hat + d_d_x_hat)*D;
+    
     rDY[1] = mSx - (1.0-sigma_D)*mSd*X - d_x_hat*X + d_d_x_hat*D;
     rDY[2] = (mPu*D*Cf)/(Cf+mKd) - mDu*Cu;
     rDY[3] = (1.0-sigma_B)*mSc + mDca*Ca + mDct*Cot - (mSca*A + mSct*T + mDc)*Co

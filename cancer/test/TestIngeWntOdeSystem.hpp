@@ -23,10 +23,29 @@ public:
         double WntLevel = 0.0;
         IngeWntOdeSystem wnt_ode_system(WntLevel);
         
+        TS_ASSERT_EQUALS(wnt_ode_system.rGetMutationState(), HEALTHY);
+        
         double time = 0.0;
         std::vector<double> initial_conditions = wnt_ode_system.GetInitialConditions();
         
         TS_ASSERT_EQUALS(initial_conditions.size(), 17u);
+        TS_ASSERT_DELTA(initial_conditions[0],2.0/3.0, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[1],2.0/30.0, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[2],0.4492, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[3],2.5403, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[4],0.0, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[5],0.0, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[6],0.0, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[7],10.0, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[8],18.1449, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[9],18.1449, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[10],25.0, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[11],2.5403, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[12],0.0, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[13],0.0, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[14],0.0, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[15],0.4835, 1e-5);
+        TS_ASSERT_DELTA(initial_conditions[16],WntLevel, 1e-5);
         
         wnt_ode_system.SetUseHypothesisTwo(false);
                 
@@ -35,6 +54,10 @@ public:
         
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from MatLab code)
+        for (unsigned i=0 ; i<17 ; i++)
+        {
+            TS_ASSERT_DELTA(derivs[i],0.0, 1e-5);
+        }
         TS_ASSERT_DELTA(derivs[0],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[1],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[2],0.0, 1e-5);
@@ -52,13 +75,15 @@ public:
         TS_ASSERT_DELTA(derivs[14],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[15],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[16],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[17],0.0, 1e-5);
         
         wnt_ode_system.SetUseHypothesisTwo(true);
         wnt_ode_system.EvaluateYDerivatives(time, initial_conditions, derivs);
         
         // Test derivatives are correct at t=0 for these initial conditions
-
+        for (unsigned i=0 ; i<17 ; i++)
+        {
+            TS_ASSERT_DELTA(derivs[i],0.0, 1e-5);
+        }
         TS_ASSERT_DELTA(derivs[0],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[1],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[2],0.0, 1e-5);
@@ -76,7 +101,6 @@ public:
         TS_ASSERT_DELTA(derivs[14],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[15],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[16],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[17],0.0, 1e-5);
         
         /**
          * And the same for a high Wnt level
@@ -92,22 +116,10 @@ public:
         // (figures from MatLab code)
         TS_ASSERT_DELTA(derivs[0],-6.666666667, 1e-5);
         TS_ASSERT_DELTA(derivs[1],-10.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[2],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[3],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[4],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[5],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[9],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[10],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[11],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[12],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[13],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[14],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[15],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[16],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[17],0.0, 1e-5);
+        for (unsigned i=2 ; i<17 ; i++)
+        {
+            TS_ASSERT_DELTA(derivs[i],0.0, 1e-5);
+        }
         
         wnt_ode_system2.SetUseHypothesisTwo(true);
         wnt_ode_system2.EvaluateYDerivatives(time, initial_conditions, derivs);
@@ -119,26 +131,16 @@ public:
         TS_ASSERT_DELTA(derivs[2],0.0, 1e-5);
         TS_ASSERT_DELTA(derivs[3],-62.7108, 1e-5);
         TS_ASSERT_DELTA(derivs[4],62.7108, 1e-5);
-        TS_ASSERT_DELTA(derivs[5],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[9],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[10],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[11],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[12],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[13],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[14],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[15],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[16],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[17],0.0, 1e-5);
+        for (unsigned i=5 ; i<17 ; i++)
+        {
+            TS_ASSERT_DELTA(derivs[i],0.0, 1e-5);
+        }
         
         /**
-         * A test for the case mutation = 1
-         * (An APC +/- mutation)
+         * A test for the APC +/- mutation
          */
         CryptCellMutationState mutation = APC_ONE_HIT;
-        WntLevel = 1.0;
+        WntLevel = 0.0;
         IngeWntOdeSystem wnt_ode_system3(WntLevel,mutation);
         initial_conditions = wnt_ode_system3.GetInitialConditions();
         //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
@@ -148,47 +150,41 @@ public:
         
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from MatLab code)
-        TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
-        TS_ASSERT_DELTA(derivs[2],7.3260e+00, 1e-4);
-        TS_ASSERT_DELTA(derivs[3],-7.449833887043188e-03, 1e-5);
-        TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[5],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[0],-3.333333334, 1e-5);
+        TS_ASSERT_DELTA(derivs[1],3.333333334, 1e-5);
+        for (unsigned i=2 ; i<17 ; i++)
+        {
+            TS_ASSERT_DELTA(derivs[i],0.0, 1e-5);
+        }
         
         /**
-        * A test for the case mutation = 2
-        * (A beta-cat delta45 mutation)
+        * A test for the beta-cat delta45 mutation
         */
         mutation = BETA_CATENIN_ONE_HIT;
-        WntLevel = 1.0;
+        WntLevel = 0.0;
         IngeWntOdeSystem wnt_ode_system4(WntLevel,mutation);
         initial_conditions = wnt_ode_system4.GetInitialConditions();
-        //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
-        TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.8001,1e-4);
         
         wnt_ode_system4.EvaluateYDerivatives(time, initial_conditions, derivs);
         
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from MatLab code)
-        TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
-        TS_ASSERT_DELTA(derivs[2],7.8190e+00, 1e-4);
-        TS_ASSERT_DELTA(derivs[3],-7.449833887043188e-03, 1e-5);
-        TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[5],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[0],0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[1],0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[2],0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[3],-12.5, 1e-5);
+        TS_ASSERT_DELTA(derivs[4],0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[5],12.5, 1e-5);
+        for (unsigned i=6 ; i<17 ; i++)
+        {
+            TS_ASSERT_DELTA(derivs[i],0.0, 1e-5);
+        }
         
         /**
-        * A test for the case mutation = 3
-        * (An APC -/- mutation)
+        * A test for APC -/- mutation
         */
         mutation = APC_TWO_HIT;
-        WntLevel = 1.0;
+        WntLevel = 0.0;
         IngeWntOdeSystem wnt_ode_system5(WntLevel,mutation);
         initial_conditions = wnt_ode_system5.GetInitialConditions();
         //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
@@ -199,18 +195,15 @@ public:
         
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from MatLab code)
-        TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
-        TS_ASSERT_DELTA(derivs[2],9.7928e+00, 1e-4);
-        TS_ASSERT_DELTA(derivs[3],-7.449833887043188e-03, 1e-5);
-        TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[5],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[0],-6.666666666667, 1e-5);
+        TS_ASSERT_DELTA(derivs[1],6.66666666667, 1e-5);
+        for (unsigned i=2 ; i<17 ; i++)
+        {
+            TS_ASSERT_DELTA(derivs[i],0.0, 1e-5);
+        }
     }
     
-    void TestWntCellCycleSolver() throw(Exception)
+    void xTestWntCellCycleSolver() throw(Exception)
     {
         double WntLevel = 1.0;
         IngeWntOdeSystem wnt_system(WntLevel,LABELLED);
@@ -270,7 +263,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],1.00, 1e-3);
     }
     
-    void TestWntCellCycleSolverWithAPCSingleHit() throw(Exception)
+    void xTestWntCellCycleSolverWithAPCSingleHit() throw(Exception)
     {
         double WntLevel = 1.0;
         IngeWntOdeSystem wnt_system(WntLevel,APC_ONE_HIT);
@@ -305,7 +298,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],1.00, 1e-3);
     }
     
-    void TestWntCellCycleSolverWithBetaCateninHit() throw(Exception)
+    void xTestWntCellCycleSolverWithBetaCateninHit() throw(Exception)
     {
         double WntLevel = 0.0;
         IngeWntOdeSystem wnt_system(WntLevel,BETA_CATENIN_ONE_HIT);
@@ -346,7 +339,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],0.00, 1e-3);
     }
     
-    void TestWntCellCycleSolverWithAPCDoubleHit() throw(Exception)
+    void xTestWntCellCycleSolverWithAPCDoubleHit() throw(Exception)
     {
         double WntLevel = 0.0;
         IngeWntOdeSystem wnt_system(WntLevel,APC_TWO_HIT);
