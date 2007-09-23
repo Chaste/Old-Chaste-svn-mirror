@@ -99,8 +99,9 @@ public:
 
             // GetActiveTensionAtNextTime should now be equal to baseclass::GetActiveTension(),
             // as the state vars have been updated
-            TS_ASSERT_EQUALS(system_with_solver.GetActiveTensionAtNextTime(), 
-                             system_with_solver.GetActiveTension());
+            TS_ASSERT_DELTA(system_with_solver.GetActiveTensionAtNextTime(), 
+                            system_with_solver.GetActiveTension(), 
+                            1e-12);
     
             // solve system with euler
             NhsCellularMechanicsOdeSystem system_for_euler_solver;

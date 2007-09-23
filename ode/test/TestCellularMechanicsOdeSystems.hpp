@@ -43,6 +43,7 @@ public :
         // to be done outside the solver is done in TestElectroMechanicCellularModels, 
         // where NHS is coupled to a cell model
         nhs_system.SetLambdaAndDerivative(0.5, 0.1);
+        TS_ASSERT_DELTA(nhs_system.GetLambda(), 0.5, 1e-12);
         nhs_system.SetIntracellularCalciumConcentration(Ca_I);
         OdeSolution solution = euler_solver.Solve(&nhs_system, nhs_system.rGetStateVariables(), 0, 10, 0.01, 0.01);
 

@@ -82,7 +82,9 @@ double NhsSystemWithImplicitSolver::CalcActiveTensionResidual(double activeTensi
     }
     else
     {
+        #define COVERAGE_IGNORE // not quite sure how to cover this, of if it is worth it
         new_active_tension = new_T0*(1+mA*new_Q)/(1-new_Q);
+        #undef COVERAGE_IGNORE
     }
     
     return new_active_tension - activeTensionGuess;

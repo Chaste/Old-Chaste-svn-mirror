@@ -16,9 +16,6 @@ protected :
     unsigned mTotalQuadPoints;
     unsigned mCurrentQuadPointGlobalIndex;
 
-    // only really for implicit
-    double mCurrentTime, mNextTime, mDt;
-
     unsigned mEndNodeDof;
     PoleZero3dIn1dLaw mLaw;
 
@@ -79,12 +76,6 @@ public:
 
     virtual void Solve(double currentTime, double nextTime, double timestep) //params are a bit of a hack for refactoring at the moment..
     {
-        assert(currentTime < nextTime);
-        
-        mCurrentTime = currentTime;
-        mNextTime = nextTime;
-        mDt = timestep;
-
         // compute residual
         this->AssembleSystem(true, false);
         double norm_resid = this->CalculateResidualNorm();

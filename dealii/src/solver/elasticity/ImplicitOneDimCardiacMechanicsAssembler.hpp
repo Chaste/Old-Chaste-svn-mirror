@@ -14,6 +14,11 @@ private:
     std::vector<NhsSystemWithImplicitSolver> mCellMechSystems; 
     std::vector<double> mLambdaLastTimeStep;
 
+    double mCurrentTime;
+    double mNextTime;
+    double mDt;
+
+
 public:
     ImplicitOneDimCardiacMechanicsAssembler(Triangulation<1>* pMesh)
         :  AbstractOneDimCardiacMechanicsAssembler(pMesh)
@@ -32,7 +37,12 @@ public:
     }
 
     void Solve(double currentTime, double nextTime, double timestep)
-    {        
+    {
+        assert(currentTime < nextTime);
+        mCurrentTime = currentTime;
+        mNextTime = nextTime;
+        mDt = timestep;
+        
         AbstractOneDimCardiacMechanicsAssembler::Solve(currentTime,nextTime,timestep);
     
         for(unsigned i=0; i<mCellMechSystems.size(); i++)
