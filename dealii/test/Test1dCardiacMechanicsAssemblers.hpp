@@ -1,11 +1,11 @@
-#ifndef TEST1DCARDIACMECHANICSASSEMBLER_HPP_
-#define TEST1DCARDIACMECHANICSASSEMBLER_HPP_
+#ifndef TEST1DCARDIACMECHANICSASSEMBLERS_HPP_
+#define TEST1DCARDIACMECHANICSASSEMBLERS_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "ExplicitOneDimCardiacMechanicsAssembler.hpp"
-#include "ImplicitOneDimCardiacMechanicsAssembler.hpp" 
+#include "Explicit1dCardiacMechanicsAssembler.hpp"
+#include "Implicit1dCardiacMechanicsAssembler.hpp" 
 
-class TestOneDimCardiacMechanicsAssembler : public CxxTest::TestSuite
+class Test1dCardiacMechanicsAssembler : public CxxTest::TestSuite
 {
 public:
     void TestUncoupledExplicit() throw(Exception)
@@ -14,7 +14,7 @@ public:
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(7);
         
-        ExplicitOneDimCardiacMechanicsAssembler mechanics(&mesh);
+        Explicit1dCardiacMechanicsAssembler mechanics(&mesh);
 
         std::vector<double> active_tension(mechanics.GetTotalNumQuadPoints(), 0.5);
         
@@ -45,7 +45,7 @@ public:
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(7);
         
-        ImplicitOneDimCardiacMechanicsAssembler mechanics(&mesh);
+        Implicit1dCardiacMechanicsAssembler mechanics(&mesh);
         std::vector<double> caI(mechanics.GetTotalNumQuadPoints(), 0.02);
         
         mechanics.SetForcingQuantity( caI );
@@ -69,4 +69,4 @@ public:
     }
     
 };
-#endif /*TEST1DCARDIACMECHANICSASSEMBLER_HPP_*/
+#endif /*TEST1DCARDIACMECHANICSASSEMBLERS_HPP_*/

@@ -54,7 +54,7 @@ public :
             active_tension[i] = 0.1;
         }
 
-        cardiac_mech_assembler.SetActiveTension(active_tension);
+        cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
         TS_ASSERT_THROWS_NOTHING( cardiac_mech_assembler.CompareJacobians(2e-6) );
     }
@@ -75,9 +75,9 @@ public :
         TS_ASSERT_EQUALS(cardiac_mech_assembler.GetTotalNumQuadPoints(), mesh.n_active_cells()*9u);
                         
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.0);
-        cardiac_mech_assembler.SetActiveTension(active_tension);
+        cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
-        cardiac_mech_assembler.Solve();
+        cardiac_mech_assembler.Solve(0,1,1); // the times are unused as explicit
         
         TS_ASSERT_EQUALS(cardiac_mech_assembler.GetNumNewtonIterations(), 0u);
     }
@@ -104,9 +104,9 @@ public :
         SetUpLinearActiveTension<2>(mesh, 0.05, active_tension); 
         
 
-        cardiac_mech_assembler.SetActiveTension(active_tension);
+        cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
-        cardiac_mech_assembler.Solve();
+        cardiac_mech_assembler.Solve(0,1,1); // the times are unused as explicit
         
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 1 is the bottom-right corner node, 
@@ -114,7 +114,7 @@ public :
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](1), 0.9994, 1e-3);
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), 0.1035, 1e-3);
         
-        std::vector<double>& lambda = cardiac_mech_assembler.GetLambda();
+        std::vector<double>& lambda = cardiac_mech_assembler.rGetLambda();
         std::vector<std::vector<double> > quad_points 
            = FiniteElasticityTools<2>::GetQuadPointPositions(mesh,3);
         
@@ -159,9 +159,9 @@ public :
 
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.0);
         SetUpLinearActiveTension<2>(mesh, -0.025, active_tension); // doesn't converge if -0.1
-        cardiac_mech_assembler.SetActiveTension(active_tension);
+        cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
-        cardiac_mech_assembler.Solve();
+        cardiac_mech_assembler.Solve(0,1,1); // the times are unused as explicit
 
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 1 is the bottom-right corner node, 
@@ -169,7 +169,7 @@ public :
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](1),  0.9895, 1e-3);
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), -0.0653, 1e-3);
         
-        std::vector<double>& lambda = cardiac_mech_assembler.GetLambda();
+        std::vector<double>& lambda = cardiac_mech_assembler.rGetLambda();
         std::vector<std::vector<double> > quad_points 
            = FiniteElasticityTools<2>::GetQuadPointPositions(mesh,3);
          
@@ -233,9 +233,9 @@ public :
 
         // constant active tension this time
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.05);
-        cardiac_mech_assembler.SetActiveTension(active_tension);
+        cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
-        cardiac_mech_assembler.Solve();
+        cardiac_mech_assembler.Solve(0,1,1); // the times are unused as explicit
 
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 2 is the top-right corner node, 
@@ -243,7 +243,7 @@ public :
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](2), 1.1952, 1e-3);
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](2), 0.7428, 1e-3);
         
-        std::vector<double>& lambda = cardiac_mech_assembler.GetLambda();
+        std::vector<double>& lambda = cardiac_mech_assembler.rGetLambda();
         std::vector<std::vector<double> > quad_points 
            = FiniteElasticityTools<2>::GetQuadPointPositions(mesh,3);
         
@@ -301,9 +301,9 @@ public :
 
         // constant active tension this time
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.05);
-        cardiac_mech_assembler.SetActiveTension(active_tension);
+        cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
-        cardiac_mech_assembler.Solve();
+        cardiac_mech_assembler.Solve(0,1,1); // the times are unused as explicit
 
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 2 is the top-right corner node, 
@@ -311,7 +311,7 @@ public :
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](2), 1.6276, 1e-3);
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](2), 0.8998, 1e-3);
         
-        std::vector<double>& lambda = cardiac_mech_assembler.GetLambda();
+        std::vector<double>& lambda = cardiac_mech_assembler.rGetLambda();
         std::vector<std::vector<double> > quad_points 
            = FiniteElasticityTools<2>::GetQuadPointPositions(mesh,3);
         

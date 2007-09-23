@@ -1,20 +1,16 @@
-#ifndef ABSTRACTONEDIMCARDIACMECHANICSASSEMBLER_HPP_
-#define ABSTRACTONEDIMCARDIACMECHANICSASSEMBLER_HPP_
+#ifndef ABSTRACT1DCARDIACMECHANICSASSEMBLER_HPP_
+#define ABSTRACT1DCARDIACMECHANICSASSEMBLER_HPP_
 
 #include "AbstractElasticityAssembler.hpp"
+#include "AbstractCardiacMechanicsAssembler.hpp"
 #include "PoleZero3dIn1dLaw.hpp"
 
-class AbstractOneDimCardiacMechanicsAssembler : public AbstractElasticityAssembler<1>
+class Abstract1dCardiacMechanicsAssembler : public AbstractElasticityAssembler<1>, public AbstractCardiacMechanicsAssembler<1>
 {
 protected :
     FE_Q<1> mFe;
     double mDensity;
     unsigned mNumNewtonIterations;
-
-    // cardiac mech
-    static const unsigned mNumQuadPointsInEachDimension = 3;
-    unsigned mTotalQuadPoints;
-    unsigned mCurrentQuadPointGlobalIndex;
 
     unsigned mEndNodeDof;
     PoleZero3dIn1dLaw mLaw;
@@ -33,12 +29,11 @@ protected :
     {
         this->mDofHandler.distribute_dofs(mFe);
     }
-    
-    std::vector<double> mLambda;
 
 public:
-    AbstractOneDimCardiacMechanicsAssembler(Triangulation<1>* pMesh)
+    Abstract1dCardiacMechanicsAssembler(Triangulation<1>* pMesh)
         : AbstractElasticityAssembler<1>(pMesh),
+          AbstractCardiacMechanicsAssembler<1>(pMesh),
           mFe(1)
     {
         DistributeDofs();
@@ -47,12 +42,7 @@ public:
         
         mDensity = 1.0;
         mNumNewtonIterations = 0;
-        
-        // set up quad point info
-        QGauss<1>   quadrature_formula(mNumQuadPointsInEachDimension);
-        mTotalQuadPoints = quadrature_formula.n_quadrature_points *this->mpMesh->n_active_cells();
-        mCurrentQuadPointGlobalIndex = 0;
-        
+                
         bool found = false;
         DofVertexIterator<1> vertex_iter(this->mpMesh, &this->mDofHandler);
         while (!vertex_iter.ReachedEnd())
@@ -120,28 +110,6 @@ public:
             EXCEPTION("Failed to converge");
         }
     }
-
-    unsigned GetTotalNumQuadPoints()
-    {
-        return mTotalQuadPoints;
-    }
-    
-    unsigned GetNumQuadPointsPerElement()
-    {
-        return mNumQuadPointsInEachDimension; 
-    }
-    
-    unsigned GetNumQuadPointsInEachDimension()
-    {
-        return mNumQuadPointsInEachDimension;
-    }
-    
-    virtual void SetForcingQuantity(std::vector<double>& forcingQuantity)=0;
-
-    std::vector<double>& GetLambda()
-    {
-        return mLambda;
-    }       
 };
 
-#endif /*ABSTRACTONEDIMCARDIACMECHANICSASSEMBLER_HPP_*/
+#endif /*ABSTRACT1DCARDIACMECHANICSASSEMBLER_HPP_*/

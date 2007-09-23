@@ -6,21 +6,21 @@
 #include "PlaneStimulusCellFactory.hpp"
 #include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"
-#include "OneDimCardiacElectroMechanicsProblem.hpp"
+#include "CardiacElectroMechanicsProblem.hpp"
 
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
 public:
-    void TestCompareExplicitVsImplicit() throw(Exception)
+    void Test_1D_CompareExplicitVsImplicit() throw(Exception)
     {
         double time_step = 0.01;
         PlaneStimulusCellFactory<1> cell_factory(time_step, -1000*1000);
 
         // instabilities appear at about 6.8
-        OneDimCardiacElectroMechanicsProblem<1> explicit_problem(&cell_factory, 5, time_step, true,  "ExplicitCardiacElectroMech");
+        CardiacElectroMechanicsProblem<1> explicit_problem(&cell_factory, 5, time_step, true,  "ExplicitCardiacElectroMech");
         explicit_problem.Solve();
 
-        OneDimCardiacElectroMechanicsProblem<1> implicit_problem(&cell_factory, 5, time_step, false, "ImplicitCardiacElectroMech");
+        CardiacElectroMechanicsProblem<1> implicit_problem(&cell_factory, 5, time_step, false, "ImplicitCardiacElectroMech");
         implicit_problem.Solve();
         
         // temporary test - needs rewriting when output format is finalised
@@ -58,5 +58,14 @@ public:
             }
         }
     }
+    
+//    void Test_2D() throw(Exception)
+//    {
+//        double time_step = 0.01;
+//        PlaneStimulusCellFactory<2> cell_factory(time_step, -1000*1000);
+//
+//        CardiacElectroMechanicsProblem<2> problem(&cell_factory, 5, time_step, true,  "CardiacElectroMech2d");
+//        problem.Solve();
+//    }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEM_HPP_*/

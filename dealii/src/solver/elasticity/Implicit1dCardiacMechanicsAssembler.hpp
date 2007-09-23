@@ -1,14 +1,14 @@
-#ifndef _IMPLICITONEDIMCARDIACMECHANICSASSEMBLER_HPP_
-#define _IMPLICITONEDIMCARDIACMECHANICSASSEMBLER_HPP_
+#ifndef _IMPLICIT1DCARDIACMECHANICSASSEMBLER_HPP_
+#define _IMPLICIT1DCARDIACMECHANICSASSEMBLER_HPP_
 
 #include "AbstractElasticityAssembler.hpp"
 #include "PoleZero3dIn1dLaw.hpp"
-#include "AbstractOneDimCardiacMechanicsAssembler.hpp"
+#include "Abstract1dCardiacMechanicsAssembler.hpp"
 #include "NhsSystemWithImplicitSolver.hpp"
 
 ///\todo: quantitive test?, doxy, test of analytic jacobian
 
-class ImplicitOneDimCardiacMechanicsAssembler : public AbstractOneDimCardiacMechanicsAssembler
+class Implicit1dCardiacMechanicsAssembler : public Abstract1dCardiacMechanicsAssembler
 {
 private:
     std::vector<NhsSystemWithImplicitSolver> mCellMechSystems; 
@@ -20,8 +20,8 @@ private:
 
 
 public:
-    ImplicitOneDimCardiacMechanicsAssembler(Triangulation<1>* pMesh)
-        :  AbstractOneDimCardiacMechanicsAssembler(pMesh)
+    Implicit1dCardiacMechanicsAssembler(Triangulation<1>* pMesh)
+        :  Abstract1dCardiacMechanicsAssembler(pMesh)
     {
         mCellMechSystems.resize(mTotalQuadPoints);
         mLambdaLastTimeStep.resize(mTotalQuadPoints, 1.0);
@@ -43,7 +43,7 @@ public:
         mNextTime = nextTime;
         mDt = timestep;
         
-        AbstractOneDimCardiacMechanicsAssembler::Solve(currentTime,nextTime,timestep);
+        Abstract1dCardiacMechanicsAssembler::Solve(currentTime,nextTime,timestep);
     
         for(unsigned i=0; i<mCellMechSystems.size(); i++)
         {
@@ -215,4 +215,4 @@ private:
     }
 };
 
-#endif /*_IMPLICITONEDIMCARDIACMECHANICSASSEMBLER_HPP_*/
+#endif /*_IMPLICIT1DCARDIACMECHANICSASSEMBLER_HPP_*/

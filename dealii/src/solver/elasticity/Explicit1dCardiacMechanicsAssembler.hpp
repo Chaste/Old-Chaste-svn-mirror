@@ -1,16 +1,16 @@
-#ifndef _EXPLICITONEDIMCARDIACMECHANICSASSEMBLER_HPP_
-#define _EXPLICITONEDIMCARDIACMECHANICSASSEMBLER_HPP_
+#ifndef _EXPLICIT1DCARDIACMECHANICSASSEMBLER_HPP_
+#define _EXPLICIT1DCARDIACMECHANICSASSEMBLER_HPP_
 
-#include "AbstractOneDimCardiacMechanicsAssembler.hpp"
+#include "Abstract1dCardiacMechanicsAssembler.hpp"
 
-class ExplicitOneDimCardiacMechanicsAssembler : public AbstractOneDimCardiacMechanicsAssembler
+class Explicit1dCardiacMechanicsAssembler : public Abstract1dCardiacMechanicsAssembler
 {
 protected :
     std::vector<double> mActiveTension;
 
 public:
-    ExplicitOneDimCardiacMechanicsAssembler(Triangulation<1>* pMesh)
-        : AbstractOneDimCardiacMechanicsAssembler(pMesh)
+    Explicit1dCardiacMechanicsAssembler(Triangulation<1>* pMesh)
+        : Abstract1dCardiacMechanicsAssembler(pMesh)
     {
         assert(mTotalQuadPoints > 0);
         mActiveTension.resize(mTotalQuadPoints, 1.0);
@@ -148,4 +148,4 @@ private:
     }
 };
 
-#endif /*_ONEDIMCARDIACMECHANICSASSEMBLER_HPP_*/
+#endif /*_EXPLICIT1DCARDIACMECHANICSASSEMBLER_HPP_*/

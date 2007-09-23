@@ -221,7 +221,7 @@ public:
             // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS..
             
             // set the active tensions
-            cardiac_mech_assembler.SetActiveTension(scaled_active_tension);
+            cardiac_mech_assembler.SetForcingQuantity(scaled_active_tension);
             
             // the FiniteElasticityAssembler (of which CardiacMechanicsAssembler inherits from)
             // normally writes out the answer aft er every newton step: suppress this.
@@ -231,7 +231,7 @@ public:
             if(time_since_last_mech_solve > mech_solving_time)
             {
                 // solve the mechanics system
-                cardiac_mech_assembler.Solve();
+                cardiac_mech_assembler.Solve(time, time+dt, dt);
 
 //                std::cout << "Writing mech\n";
                 cardiac_mech_assembler.SetWriteOutput(true);
@@ -243,7 +243,7 @@ public:
 
             // update lambda and dlambda_dt;
             old_lambda = lambda;
-            lambda = cardiac_mech_assembler.GetLambda();
+            lambda = cardiac_mech_assembler.rGetLambda();
             for(unsigned i=0; i<dlambda_dt.size(); i++)
             {
                 dlambda_dt[i] = (lambda[i] - old_lambda[i])/dt;
@@ -381,7 +381,7 @@ public:
 //            // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS..
 //            
 //            // set the active tensions
-//            cardiac_mech_assembler.SetActiveTension(scaled_active_tension);
+//            cardiac_mech_assembler.SetForcingQuantity(scaled_active_tension);
 //            
 //            // the FiniteElasticityAssembler (of which CardiacMechanicsAssembler inherits from)
 //            // normally writes out the answer aft er every newton step: suppress this.
@@ -402,7 +402,7 @@ public:
 //
 //            // update lambda and dlambda_dt;
 //            old_lambda = lambda;
-//            lambda = cardiac_mech_assembler.GetLambda();
+//            lambda = cardiac_mech_assembler.rGetLambda();
 //            for(unsigned i=0; i<dlambda_dt.size(); i++)
 //            {
 //                dlambda_dt[i] = (lambda[i] - old_lambda[i])/dt;

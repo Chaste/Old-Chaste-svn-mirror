@@ -1,9 +1,10 @@
-#ifndef ONDEDIMCARDIACELECTROMECHANICSPROBLEM_HPP_
-#define ONDEDIMCARDIACELECTROMECHANICSPROBLEM_HPP_
+#ifndef CARDIACELECTROMECHANICSPROBLEM_HPP_
+#define CARDIACELECTROMECHANICSPROBLEM_HPP_
 
 #include "MonodomainProblem.hpp"
-#include "ExplicitOneDimCardiacMechanicsAssembler.hpp"
-#include "ImplicitOneDimCardiacMechanicsAssembler.hpp"
+#include "AbstractCardiacMechanicsAssembler.hpp"
+#include "Explicit1dCardiacMechanicsAssembler.hpp"
+#include "Implicit1dCardiacMechanicsAssembler.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "FiniteElasticityTools.hpp"
 #include "NhsCellularMechanicsOdeSystem.hpp"
@@ -42,23 +43,23 @@ public:
 
 
 /**
- *  OneDimCardiacElectroMechanicsProblem 
+ *  CardiacElectroMechanicsProblem 
  *  
  *  Solve a coupled cardiac electromechanics problem
  *  
  *  Currently just uses the monodomain assembler (to use bidomain need to manually change 
- *  the code), and currently just uses the [Exp/Imp]OneDimCardiacMechanicsAssembler, will 
+ *  the code), and currently just uses the [Exp/Imp]1dCardiacMechanicsAssembler, will 
  *  eventually use the (2d/3d) CardiacMechanicsAssembler. 
  */
 template<unsigned DIM>
-class OneDimCardiacElectroMechanicsProblem
+class CardiacElectroMechanicsProblem
 {
 private: 
     /*< The cardiac problem class */
     MonodomainProblem<DIM>* mpMonodomainProblem;
     
     /*< The mechanics assembler */
-    AbstractOneDimCardiacMechanicsAssembler* mpCardiacMechAssembler;  // can be ImplicitOneDim..
+    AbstractCardiacMechanicsAssembler<DIM>* mpCardiacMechAssembler;  
 
     /*< End time. The start time is assumed to be 0.0 */
     double mEndTime;
@@ -98,7 +99,7 @@ public:
      * 
      *  The meshes are currently hardcoded in here.
      */
-    OneDimCardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
+    CardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
                                    double endTime,
                                    double timeStep,
                                    bool useExplicitMethod,
@@ -134,13 +135,30 @@ public:
         
         assert(mpMechanicsMesh->n_vertices()==mpElectricsMesh->GetNumNodes());
 
-        if(mUseExplicitMethod)
+        assert(DIM>=1 && DIM<=3);
+        if(DIM==1)
         {
-            mpCardiacMechAssembler = new ExplicitOneDimCardiacMechanicsAssembler(mpMechanicsMesh);
+            if(mUseExplicitMethod)
+            {
+                mpCardiacMechAssembler = new Explicit1dCardiacMechanicsAssembler(mpMechanicsMesh);
+            }
+            else
+            {
+                mpCardiacMechAssembler = new Implicit1dCardiacMechanicsAssembler(mpMechanicsMesh);
+            }
         }
         else
         {
-            mpCardiacMechAssembler = new ImplicitOneDimCardiacMechanicsAssembler(mpMechanicsMesh);
+            if(mUseExplicitMethod)
+            {
+                assert(0);
+                //mpCardiacMechAssembler = new CardiacMechanicsAssembler<DIM>(mpMechanicsMesh);
+            }
+            else
+            {
+                assert(0); // not done yet..
+                //mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mpMechanicsMesh);
+            }
         }
         
         // find the element nums and weights for each gauss point in the mechanics mesh
@@ -205,7 +223,7 @@ public:
         {
             OutputFileHandler output_file_handler(mOutputDirectory, true);
             out_stream p_file = output_file_handler.OpenOutputFile("results_", mech_writer_counter, ".dat");
-            std::vector<Vector<double> >& deformed_position = mpCardiacMechAssembler->rGetDeformedPosition();
+            std::vector<Vector<double> >& deformed_position = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->rGetDeformedPosition();
             for(unsigned i=0; i<deformed_position[0].size(); i++)
             {
                 assert(DIM==1);
@@ -274,7 +292,7 @@ public:
             {
                 // update lambda and dlambda_dt;
                 old_lambda = lambda;
-                lambda = mpCardiacMechAssembler->GetLambda();
+                lambda = mpCardiacMechAssembler->rGetLambda();
                 for(unsigned i=0; i<dlambda_dt.size(); i++)
                 {
                     dlambda_dt[i] = (lambda[i] - old_lambda[i])/mTimeStep;
@@ -286,7 +304,7 @@ public:
             {            
                 OutputFileHandler output_file_handler(mOutputDirectory, false);
                 out_stream p_file = output_file_handler.OpenOutputFile("results_", mech_writer_counter, ".dat");
-                std::vector<Vector<double> >& deformed_position = mpCardiacMechAssembler->rGetDeformedPosition();
+                std::vector<Vector<double> >& deformed_position = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->rGetDeformedPosition();
                 for(unsigned i=0; i<deformed_position[0].size(); i++)
                 {
                     assert(DIM==1);
@@ -303,4 +321,4 @@ public:
     }
 };
 
-#endif /*ONDEDIMCARDIACELECTROMECHANICSPROBLEM_HPP_*/
+#endif /*CARDIACELECTROMECHANICSPROBLEM_HPP_*/

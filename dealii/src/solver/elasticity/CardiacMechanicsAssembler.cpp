@@ -8,7 +8,8 @@ template<unsigned DIM>
 CardiacMechanicsAssembler<DIM>::CardiacMechanicsAssembler(Triangulation<DIM>* pMesh,
                                                           std::string outputDirectory,
                                                           AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
-    : FiniteElasticityAssembler<DIM>(pMesh, pMaterialLaw, Vector<double>(DIM), 1.0, outputDirectory, 2, 1)
+    : FiniteElasticityAssembler<DIM>(pMesh, pMaterialLaw, Vector<double>(DIM), 1.0, outputDirectory, 2, 1),
+      AbstractCardiacMechanicsAssembler<DIM>(pMesh)
 {
     mAllocatedMaterialLawMemory = false;
 
@@ -19,13 +20,6 @@ CardiacMechanicsAssembler<DIM>::CardiacMechanicsAssembler(Triangulation<DIM>* pM
         this->mHeterogeneous = false; // as FiniteElasticityAssembler would have set this to be true as NULL passed in to construtor
         mAllocatedMaterialLawMemory = true;
     }
-    
-    // set up quad point info
-    QGauss<DIM>   quadrature_formula(mNumQuadPointsInEachDimension);
-    mTotalQuadPoints = quadrature_formula.n_quadrature_points *this->mpMesh->n_active_cells();
-    mCurrentQuadPointGlobalIndex = 0;
-    
-    mLambda.resize(mTotalQuadPoints, 1.0);
 
     for(unsigned i=0; i<DIM; i++)
     {
@@ -50,37 +44,17 @@ CardiacMechanicsAssembler<DIM>::~CardiacMechanicsAssembler()
 
 
 template<unsigned DIM>
-unsigned CardiacMechanicsAssembler<DIM>::GetTotalNumQuadPoints()
+void CardiacMechanicsAssembler<DIM>::SetForcingQuantity(std::vector<double>& activeTension)
 {
-    return mTotalQuadPoints;
-}
-
-template<unsigned DIM>
-unsigned CardiacMechanicsAssembler<DIM>::GetNumQuadPointsPerElement()
-{
-    assert(DIM==2 || DIM==3);
-    if(DIM==2)
-    { 
-        return mNumQuadPointsInEachDimension*mNumQuadPointsInEachDimension;
-    }
-    else //DIM==3
-    {
-        return mNumQuadPointsInEachDimension*mNumQuadPointsInEachDimension*mNumQuadPointsInEachDimension;
-    }
-}
-
-
-template<unsigned DIM>
-void CardiacMechanicsAssembler<DIM>::SetActiveTension(std::vector<double> activeTension)
-{
-    assert(activeTension.size() == mTotalQuadPoints);
+    assert(activeTension.size() == this->mTotalQuadPoints);
     mActiveTension = activeTension;
 }
 
 template<unsigned DIM>
-std::vector<double>& CardiacMechanicsAssembler<DIM>::GetLambda()
+void CardiacMechanicsAssembler<DIM>::Solve(double currentTime, double nextTime, double timestep)
 {
-    return mLambda;
+    // do nothing with the times (as explicit) and call Solve on the base class
+    FiniteElasticityAssembler<DIM>::Solve();
 }
 
 
@@ -112,18 +86,18 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 {
     // if mCurrentQuadPointGlobalIndex is greater than the total num of quad points something
     // very bad has happened. 
-    assert(mCurrentQuadPointGlobalIndex <= mTotalQuadPoints);
+    assert(this->mCurrentQuadPointGlobalIndex <= this->mTotalQuadPoints);
     
-    if(mCurrentQuadPointGlobalIndex==mTotalQuadPoints)
+    if(this->mCurrentQuadPointGlobalIndex==this->mTotalQuadPoints)
     {
         // if we are not back to the first cell something bad has happened
         assert( elementIter == this->mDofHandler.begin_active() );
         
-        mCurrentQuadPointGlobalIndex = 0;
+        this->mCurrentQuadPointGlobalIndex = 0;
     }
 
 
-    static QGauss<DIM>   quadrature_formula(mNumQuadPointsInEachDimension);
+    static QGauss<DIM>   quadrature_formula(this->mNumQuadPointsInEachDimension);
     //static QGauss<DIM-1> face_quadrature_formula(3);
     
     const unsigned n_q_points    = quadrature_formula.n_quadrature_points;
@@ -225,7 +199,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
          ************************************/
 
         // get the active tension at this quad point
-        double active_tension = mActiveTension[mCurrentQuadPointGlobalIndex];
+        double active_tension = mActiveTension[this->mCurrentQuadPointGlobalIndex];
 
         static Tensor<2,DIM> C_fibre;          // C when transformed to fibre-sheet axes
         static Tensor<2,DIM> inv_C_fibre;      // C^{-1} transformed to fibre-sheet axes
@@ -236,7 +210,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         inv_C_fibre = mTransFibreSheetMat * inv_C * mFibreSheetMat;
 
         // store the stretch in the fibre direction
-        mLambda[mCurrentQuadPointGlobalIndex] = sqrt(C_fibre[0][0]);
+        this->mLambda[this->mCurrentQuadPointGlobalIndex] = sqrt(C_fibre[0][0]);
 
         //mDTdE_fibre.Zero();
 
@@ -453,7 +427,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
             }
         }
 
-        mCurrentQuadPointGlobalIndex++;
+        this->mCurrentQuadPointGlobalIndex++;
     }
     
     /* zero applied stress, so do not do this */
