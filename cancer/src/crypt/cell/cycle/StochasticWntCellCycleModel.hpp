@@ -54,7 +54,19 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
     /**
      * This is needed because a wnt model which is not to be run from the current time is 
      * sometimes needed. Should only be called by the cell itself when it wants to divide.
-     * Now also used by the archiver.
+     */
+    StochasticWntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,
+                                CryptCellMutationState mutationState,
+                                double birthTime, double lastTime, WntGradient& rWntGradient,
+                                bool inSG2MPhase, bool readyToDivide, double divideTime)
+      : WntCellCycleModel(pParentOdeSystem, mutationState, birthTime, lastTime, 
+                          rWntGradient, inSG2MPhase, readyToDivide, divideTime)
+    {
+    }
+    
+    /**
+     * This is needed because a wnt model which is not to be run from the current time is 
+     * sometimes needed. Should only be called by the archiver.
      */
     StochasticWntCellCycleModel(std::vector<double> proteinConcentrations, 
                                 CryptCellMutationState mutationState,
@@ -63,8 +75,7 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
       : WntCellCycleModel(proteinConcentrations, mutationState, birthTime, lastTime, 
                           rWntGradient, inSG2MPhase, readyToDivide, divideTime)
     {
-    }
-    
+    }    
     /**
      * Returns a new StochasticWntCellCycleModel created with the correct initial conditions.
      *
@@ -77,7 +88,7 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
         assert(mpCell!=NULL);
         // calls a cheeky version of the constructor which makes the new cell cycle model
         // the same age as the old one - not a copy at this time.
-        return new StochasticWntCellCycleModel(GetProteinConcentrations(), mpCell->GetMutationState(), mBirthTime, mLastTime,mrWntGradient, mInSG2MPhase, mReadyToDivide,mDivideTime);
+        return new StochasticWntCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), mBirthTime, mLastTime,mrWntGradient, mInSG2MPhase, mReadyToDivide,mDivideTime);
     }
     
     

@@ -90,6 +90,8 @@ public:
     void SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel);
     AbstractCellCycleModel *GetCellCycleModel() const;
     
+    void InitialiseCellCycleModel();
+    
     void UpdateCellType();
     
     void SetNodeIndex(unsigned index);

@@ -5,6 +5,7 @@
 
 #include "CancerParameters.hpp"
 #include "WntGradientTypes.hpp"
+#include "Crypt.cpp"
 
 /**
  *  Wnt gradient getter and setters.
@@ -14,6 +15,7 @@ class WntGradient
 private:
     CancerParameters* mpCancerParams;
     WntGradientType mGradientType;
+    Crypt<2>* mpCrypt;
     
     friend class boost::serialization::access;
     template<class Archive>
@@ -30,6 +32,10 @@ public:
     ~WntGradient();
     
     double GetWntLevel(double height);
+    
+    double GetWntLevel(MeinekeCryptCell* pCell);
+    
+    void SetCrypt(Crypt<2>& rCrypt);
 };
 
 

@@ -8,9 +8,10 @@
  * @param type the types of WntGradient defined in WntGradientTypes.hpp
  */
 WntGradient::WntGradient(WntGradientType type)
+ :  mpCancerParams(CancerParameters::Instance()),
+    mGradientType(type),
+    mpCrypt(NULL)
 {
-    mpCancerParams = CancerParameters::Instance();
-    mGradientType = type;
 }
 
 WntGradient::~WntGradient()
@@ -66,3 +67,16 @@ double WntGradient::GetWntLevel(double height)
     return wnt_level;
 }
 
+double WntGradient::GetWntLevel(MeinekeCryptCell* pCell)
+{
+    assert(mpCrypt!=NULL);
+    assert(pCell!=NULL);
+    double height=(mpCrypt->GetLocationOfCell(*pCell))(1);
+    return GetWntLevel(height);
+}
+
+void WntGradient::SetCrypt(Crypt<2>& rCrypt)
+{
+    mpCrypt=&rCrypt;
+    rCrypt.InitialiseCells();
+}

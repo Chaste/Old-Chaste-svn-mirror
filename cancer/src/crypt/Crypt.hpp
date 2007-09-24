@@ -110,7 +110,10 @@ public:
      */
     Crypt(ConformingTetrahedralMesh<DIM, DIM>&, const std::vector<MeinekeCryptCell>&,
           bool deleteMesh=false);
+    
     ~Crypt();
+    
+    void InitialiseCells();
     
     ConformingTetrahedralMesh<DIM, DIM>& rGetMesh();
     std::list<MeinekeCryptCell>& rGetCells();

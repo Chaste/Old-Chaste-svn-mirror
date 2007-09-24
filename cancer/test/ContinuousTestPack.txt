@@ -7,6 +7,7 @@ TestCylindrical2dMesh.hpp
 TestHoneycombMeshGenerator.hpp
 TestMeinekeCryptCell.hpp
 TestWntGradient.hpp
+TestWntInitialisation.hpp
 TestCellKillers.hpp
 TestSprings3d.hpp
 TestPdeOnFlaggedMesh.hpp

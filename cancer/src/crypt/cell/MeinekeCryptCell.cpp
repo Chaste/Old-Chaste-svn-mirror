@@ -90,9 +90,14 @@ void MeinekeCryptCell::SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel
     mpCellCycleModel->SetCell(this);
 }
 
-AbstractCellCycleModel *MeinekeCryptCell::GetCellCycleModel() const
+AbstractCellCycleModel* MeinekeCryptCell::GetCellCycleModel() const
 {
     return mpCellCycleModel;
+}
+
+void MeinekeCryptCell::InitialiseCellCycleModel()
+{
+    mpCellCycleModel->Initialise();
 }
 
 /**

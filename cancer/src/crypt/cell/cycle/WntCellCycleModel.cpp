@@ -33,10 +33,56 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, WntGradient &rWn
     mInSG2MPhase = false;
     mReadyToDivide = false;
     mDivideTime = DBL_MAX;
+
+    //temp
+    mUseWntGradient = false;
 }
 
 /**
  * A private constructor for daughter cells called only by the CreateCellCycleModel function
+ *
+ * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
+ * @param birthTime the simulation time when the cell divided (birth time of parent cell)
+ */
+WntCellCycleModel::WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
+                                     const CryptCellMutationState& rMutationState, 
+                                     double birthTime, double lastTime, 
+                                     WntGradient& rWntGradient,
+                                     bool inSG2MPhase, bool readyToDivide, double divideTime, bool useWntGradient)
+        : AbstractCellCycleModel(),
+          mrWntGradient(rWntGradient)
+{
+    if (pParentOdeSystem !=NULL)
+    {
+        std::vector<double> parent_protein_concs = pParentOdeSystem->rGetStateVariables();
+        mpOdeSystem = new WntCellCycleOdeSystem(parent_protein_concs[8], rMutationState);// wnt pathway is reset in a couple of lines.
+        // Set the model to be the same as the parent cell.
+        mpOdeSystem->rGetStateVariables() = parent_protein_concs;
+    }
+    else
+    {
+        mpOdeSystem = NULL;
+    }
+    SimulationTime* p_sim_time = SimulationTime::Instance();
+    if (p_sim_time->IsStartTimeSetUp()==false)
+    {
+        #define COVERAGE_IGNORE
+        EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
+        #undef COVERAGE_IGNORE
+    }
+    mBirthTime = birthTime;
+    mLastTime = lastTime;
+    mInSG2MPhase = inSG2MPhase;
+    mReadyToDivide = readyToDivide;
+    mDivideTime = divideTime;
+
+    //temp
+    mUseWntGradient = useWntGradient;
+
+}
+
+/**
+ * A private constructor for archiving
  *
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
@@ -182,14 +228,14 @@ std::vector<double>  WntCellCycleModel::GetProteinConcentrations() const
  */
 AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
 {
-    assert(mpOdeSystem!=NULL);
+    //assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
     // calls a cheeky version of the constructor which makes the new cell 
     // cycle model the same as the old one - not a dividing copy at this time.
     // unless the parent cell has just divided.
-    return new WntCellCycleModel(mpOdeSystem->rGetStateVariables(), 
-                                mpCell->GetMutationState(), mBirthTime, mLastTime, 
-                                mrWntGradient, mInSG2MPhase, mReadyToDivide, mDivideTime);
+    return new WntCellCycleModel(mpOdeSystem, 
+                                 mpCell->GetMutationState(), mBirthTime, mLastTime, 
+                                 mrWntGradient, mInSG2MPhase, mReadyToDivide, mDivideTime, mUseWntGradient);
 }
 
 /**
@@ -237,16 +283,36 @@ CryptCellType WntCellCycleModel::UpdateCellType()
 }
 
 double WntCellCycleModel::GetWntSG2MDuration()
-{   // overridden in subclass StochasticWntCellCycleModel
+{   
+    // overridden in subclass StochasticWntCellCycleModel
     return CancerParameters::Instance()->GetSG2MDuration();
 }
 
 void WntCellCycleModel::SetCell(MeinekeCryptCell* pCell)
-{   
+{  
     mpCell = pCell;
     if(mpOdeSystem==NULL)   // this is a new cell (not a dividing original cell) and needs an ODE system.
     { 
-        mpOdeSystem = new WntCellCycleOdeSystem(mInitialWntStimulus, pCell->GetMutationState());
-        mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+        if(!mUseWntGradient)
+        {
+            mpOdeSystem = new WntCellCycleOdeSystem(mInitialWntStimulus, pCell->GetMutationState());
+            mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+        }
     }            
+}
+
+void WntCellCycleModel::Initialise()
+{
+    assert(mpOdeSystem==NULL);
+    assert(mpCell!=NULL);
+    assert(mUseWntGradient);
+    mpOdeSystem = new WntCellCycleOdeSystem(mrWntGradient.GetWntLevel(mpCell), mpCell->GetMutationState());
+    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+}    
+
+
+//temporary
+void WntCellCycleModel::SetUseWntGradient()
+{
+    mUseWntGradient = true;
 }

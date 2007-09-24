@@ -55,6 +55,15 @@ Crypt<DIM>::~Crypt()
     }
 }
 
+template<unsigned DIM>
+void Crypt<DIM>::InitialiseCells()
+{
+    for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
+    {
+        cell_iter->InitialiseCellCycleModel();
+    }
+}
+
 
 // check every node either has a cell associated with it or is a ghost node
 // (for the time being, we are allowing ghost nodes to also have cells 

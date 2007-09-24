@@ -27,8 +27,9 @@ class WntCellCycleModel : public AbstractCellCycleModel
     friend class StochasticWntCellCycleModel;// to allow access to private constructor below.
     friend class boost::serialization::access;   
     
-private:
+public:
     WntCellCycleOdeSystem* mpOdeSystem;
+private:
     static RungeKutta4IvpOdeSolver msSolver;
     double mLastTime;
     double mDivideTime;
@@ -36,11 +37,15 @@ private:
     bool mReadyToDivide;
     double mInitialWntStimulus;
     WntGradient& mrWntGradient; 
+
+    //temp
+    bool mUseWntGradient;
     
     
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
+        assert(mpOdeSystem!=NULL);
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
         // reference can be read or written into once mpOdeSystem has been set up
         // mpOdeSystem isn't set up by the first constructor, but is by the second
@@ -50,7 +55,8 @@ private:
         archive & mLastTime;
         archive & mDivideTime;
         archive & mInSG2MPhase;
-        archive & mReadyToDivide;   
+        archive & mReadyToDivide;
+        archive & mUseWntGradient;   
     }
        
 protected:    
@@ -64,11 +70,18 @@ public:
      * This is needed to create an exact copy of the current cell cycle model
      * (called by CreateCellCycleModel() and archiving functions)
      */
+    WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem, 
+                      const CryptCellMutationState& rMutationState, 
+                      double birthTime, double lastTime, WntGradient &rWntGradient,
+                      bool inSG2MPhase, bool readyToDivide, double divideTime, bool useWntGradient=false);
+   /**
+     * This is needed to create an exact copy of the current cell cycle model
+     * (called by archiving functions)
+     */
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                       const CryptCellMutationState& rMutationState, 
                       double birthTime, double lastTime, WntGradient &rWntGradient,
-                      bool inSG2MPhase, bool readyToDivide, double divideTime);
-     
+                      bool inSG2MPhase, bool readyToDivide, double divideTime);     
     virtual ~WntCellCycleModel();
     
     virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
@@ -86,7 +99,13 @@ public:
     void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations);
     
     void SetCell(MeinekeCryptCell* pCell);
+    
+    void Initialise();
 
+    //temp
+    void SetUseWntGradient();
+    
+    
 };
 
 // declare identifier for the serializer
@@ -127,6 +146,7 @@ inline void load_construct_data(
     {
         state_vars.push_back(0.0);
     }   
+
     CryptCellMutationState mutation_state = HEALTHY;
     WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL; 
     WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient; 

@@ -41,6 +41,8 @@ public:
     
     virtual void SetCell(MeinekeCryptCell* pCell);
     
+    virtual void Initialise() {}
+    
     MeinekeCryptCell* GetCell();
     
     /**
