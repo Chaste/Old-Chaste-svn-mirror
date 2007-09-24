@@ -55,9 +55,9 @@ public :
         SetUpLinearActiveTension<3>(mesh, 0.01, active_tension); 
         
 
-        cardiac_mech_assembler.SetActiveTension(active_tension);
+        cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
-        cardiac_mech_assembler.Solve();
+        cardiac_mech_assembler.Solve(0,1,1);
         
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 1 is a corner node, 
@@ -66,7 +66,7 @@ public :
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), -0.0023, 1e-3);
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[2](1),  0.0009, 1e-3);
         
-        std::vector<double>& lambda = cardiac_mech_assembler.GetLambda();
+        std::vector<double>& lambda = cardiac_mech_assembler.rGetLambda();
         std::vector<std::vector<double> > quad_points 
             = FiniteElasticityTools<3>::GetQuadPointPositions(mesh,3);
         
