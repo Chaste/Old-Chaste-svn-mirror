@@ -61,7 +61,11 @@ public:
         mLaw.SetUpStores();
         
         mLambda.resize(mTotalQuadPoints,1.0);
-    }    
+    }
+    
+    virtual ~Abstract1dCardiacMechanicsAssembler()
+    {
+    }
 
 
     virtual void Solve(double currentTime, double nextTime, double timestep) //params are a bit of a hack for refactoring at the moment..

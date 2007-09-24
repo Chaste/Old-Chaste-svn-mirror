@@ -34,6 +34,9 @@ public :
         mLambda.resize(mTotalQuadPoints, 1.0);
     }
     
+    virtual ~AbstractCardiacMechanicsAssembler()
+    {
+    }
 
 
     unsigned GetNumQuadPointsInEachDimension()
