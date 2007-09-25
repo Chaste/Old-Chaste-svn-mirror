@@ -278,12 +278,12 @@ public:
         // Set up the simulation time
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 10);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,10u);
                 
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 5.0;
-        unsigned thickness_of_ghost_layer = 0;
+        unsigned thickness_of_ghost_layer = 3;
        
         HoneycombMeshGenerator regular_generator(cells_across, cells_up,thickness_of_ghost_layer, false,crypt_width/cells_across);
         ConformingTetrahedralMesh<2,2>* p_regular_mesh=regular_generator.GetMesh();
@@ -310,6 +310,7 @@ public:
         regular_simulator.SetNoBirth(false);
         regular_simulator.SetOutputDirectory("Crypt2DEdgeBasedSpring");
         regular_simulator.SetOutputCellTypes(true);
+        //regular_simulator.Solve();
         
         // check that the force between nodes is correctly calculated when the spring constant is constant (!)
         regular_simulator.SetEdgeBasedSpringConstant(false);
@@ -318,10 +319,10 @@ public:
         spring_iterator!=regular_crypt.SpringsEnd();
         ++spring_iterator)
         {
+            
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
             c_vector<double, 2> force = regular_simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
-                        
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],6.25,1e-3);
         }
         
@@ -329,6 +330,17 @@ public:
         // is proportional to the length of the edge between adjacent cells  
         regular_simulator.SetEdgeBasedSpringConstant(true); 
         regular_simulator.mrCrypt.CreateVoronoiTessellation();  
+        
+        
+        for(Crypt<2>::SpringIterator spring_iterator=regular_crypt.SpringsBegin();
+        spring_iterator!=regular_crypt.SpringsEnd();
+        ++spring_iterator)
+        {
+            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
+            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
+            c_vector<double, 2> force = regular_simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
+            TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
+        }
         
         // choose two interior neighbour nodes
         c_vector<double, 2> force = regular_simulator.CalculateForceBetweenNodes(20u,21u);
@@ -352,8 +364,8 @@ public:
         TS_ASSERT_DELTA(new_force[0]*new_force[0] + new_force[1]*new_force[1], 3.83479824,1e-3);
     
             
-        // Test on a periodic mesh
-        
+//        // Test on a periodic mesh
+//        
 //        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
 //        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
 //        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
@@ -416,7 +428,7 @@ public:
 //                std::cout << "Not working \t " << nodeA_global_index << "\t" << nodeB_global_index << "\n" << std::flush; 
 //            }
 //        }              
-//            
+            
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
                 
