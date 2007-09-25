@@ -58,7 +58,7 @@ void SimulationTime::SetStartTime(double startTime)
 }
 
 /**
- * Get the simlation time step.
+ * Get the simulation time step.
  * Warning: Use of this method may result in round errors
  *  -- see GetDimensionalisedTime.
  * @return time step

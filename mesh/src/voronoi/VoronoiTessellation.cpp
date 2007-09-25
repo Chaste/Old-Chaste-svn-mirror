@@ -271,6 +271,7 @@ double VoronoiTessellation<DIM>::GetEdgeLength(unsigned node_index_1, unsigned n
     set_intersection( vertices_1.begin(), vertices_1.end(),
                       vertices_2.begin(), vertices_2.end(),
                       back_inserter(intersecting_vertices) );
+    
     assert(intersecting_vertices.size()==2);
     
     return norm_2(*(intersecting_vertices[0]) - *(intersecting_vertices[1]));

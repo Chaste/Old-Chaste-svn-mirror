@@ -4,6 +4,7 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "MeinekeCryptCell.hpp"
 #include "ColumnDataWriter.hpp"
+#include "VoronoiTessellation.cpp"
 
 #include <list>
 
@@ -48,6 +49,8 @@ class Crypt
 private:
     
     ConformingTetrahedralMesh<DIM, DIM>& mrMesh;
+    
+    VoronoiTessellation<DIM>* mpVoronoiTessellation;
     
     /**
      * Whether to delete the mesh when we are destroyed.
@@ -290,7 +293,12 @@ public:
                              bool writeTabulatedResults,
                              bool writeVisualizerResults,
                              bool OutputCellTypes);
+                             
+                             
+    /** Get a reference to a Voronoi Tessellation of the mesh */                         
+    void CreateVoronoiTessellation();
 
+    VoronoiTessellation<DIM>& rGetVoronoiTessellation();
 
     /**
      * Iterator over edges in the mesh, which correspond to springs between cells.

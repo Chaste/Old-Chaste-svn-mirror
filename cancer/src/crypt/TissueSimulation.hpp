@@ -2,8 +2,7 @@
 #define TISSUESIMULATION_HPP_
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp> // for archiving std::vector
-#include <boost/serialization/set.hpp> // for archiving std::set
+#include <boost/serialization/vector.hpp> // for archiving vectors
 #include <boost/serialization/string.hpp>
 
 #include "ColumnDataWriter.hpp"
@@ -127,6 +126,9 @@ protected:
     /** Whether to use a flat bottom surface or the wavy bottom surface (2d only) */
     bool mUseNonFlatBottomSurface;
     
+    /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
+    bool mUseEdgeBasedSpringConstant;
+    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -157,7 +159,7 @@ protected:
         archive & mUseCutoffPoint;
         archive & mCutoffPoint;
         archive & mOutputCellTypes;
-        //archive & mDivisionPairs;
+        archive & mUseEdgeBasedSpringConstant;
     }
     
     /**
@@ -264,6 +266,7 @@ public:
     void SetNoBirth(bool nobirth);
     void SetOutputCellTypes(bool output_cell_types);
     void SetWntGradient(WntGradientType wntGradientType);
+    void SetEdgeBasedSpringConstant(bool use_edge_based_spring_constant);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
     void UseNonFlatBottomSurface();

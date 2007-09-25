@@ -3,6 +3,7 @@
 
 #include "Crypt.hpp"
 #include "CancerParameters.hpp"
+#include "VoronoiTessellation.cpp"
 
 ///\todo: make this constructor take in ghost nodes, and validate the three objects
 // are in sync ie num cells + num ghost nodes = num_nodes ? this would mean all ghosts
@@ -15,6 +16,8 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
              : mrMesh(rMesh),
                mCells(rCells.begin(), rCells.end())
 {
+    mpVoronoiTessellation = NULL;
+    
     mDeleteMesh = deleteMesh;
     mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
     
@@ -53,6 +56,8 @@ Crypt<DIM>::~Crypt()
     {
         delete &mrMesh;
     }
+    
+    //delete mpVoronoiTessellation;
 }
 
 template<unsigned DIM>
@@ -838,6 +843,20 @@ typename Crypt<DIM>::SpringIterator Crypt<DIM>::SpringsEnd()
 {
     return SpringIterator(*this, mrMesh.EdgesEnd());
 }
+
+template<unsigned DIM>
+void Crypt<DIM>::CreateVoronoiTessellation()
+{
+    mpVoronoiTessellation = new VoronoiTessellation<DIM>(mrMesh);
+}
+
+template<unsigned DIM>
+VoronoiTessellation<DIM>& Crypt<DIM>::rGetVoronoiTessellation()
+{
+    assert(mpVoronoiTessellation!=NULL);
+    return *mpVoronoiTessellation;
+}
+    
 
 
 #endif //CRYPT_CPP

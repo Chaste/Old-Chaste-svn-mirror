@@ -21,6 +21,7 @@
 #include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
 #include "SloughingCellKiller.hpp"
+#include "VoronoiTessellation.cpp"
 
 // Possible types of Cell Cycle Model (just for CreateVectorOfCells method)
 typedef enum CellCycleType_
@@ -268,6 +269,159 @@ public:
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
+    
+    
+    void TestEdgeLengthBasedSpring() throw (Exception)
+    {        
+        CancerParameters::Instance()->Reset();
+
+        // Set up the simulation time
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 10);
+                
+        unsigned cells_across = 6;
+        unsigned cells_up = 12;
+        double crypt_width = 5.0;
+        unsigned thickness_of_ghost_layer = 0;
+       
+        HoneycombMeshGenerator regular_generator(cells_across, cells_up,thickness_of_ghost_layer, false,crypt_width/cells_across);
+        ConformingTetrahedralMesh<2,2>* p_regular_mesh=regular_generator.GetMesh();
+        std::set<unsigned> regular_ghost_node_indices = regular_generator.GetGhostNodeIndices();      
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> regular_cells;
+        CreateVectorOfCells(regular_cells, *p_regular_mesh, FIXED, true);// true = mature cells
+
+        Crypt<2> regular_crypt(*p_regular_mesh, regular_cells);               
+        regular_crypt.SetGhostNodes(regular_ghost_node_indices);
+
+        TissueSimulation<2> regular_simulator(regular_crypt);
+        
+        regular_simulator.SetEndTime(1.0);
+        TS_ASSERT_THROWS_ANYTHING(regular_simulator.SetMaxCells(10));
+        regular_simulator.SetMaxCells(500);
+        TS_ASSERT_THROWS_ANYTHING(regular_simulator.SetMaxElements(10));
+        regular_simulator.SetMaxElements(1000);
+        
+        // These are for coverage and use the defaults
+        regular_simulator.SetDt(1.0/120.0);
+        regular_simulator.SetReMeshRule(true);
+        regular_simulator.SetNoBirth(false);
+        regular_simulator.SetOutputDirectory("Crypt2DEdgeBasedSpring");
+        regular_simulator.SetOutputCellTypes(true);
+        
+        // check that the force between nodes is correctly calculated when the spring constant is constant (!)
+        regular_simulator.SetEdgeBasedSpringConstant(false);
+                      
+        for(Crypt<2>::SpringIterator spring_iterator=regular_crypt.SpringsBegin();
+        spring_iterator!=regular_crypt.SpringsEnd();
+        ++spring_iterator)
+        {
+            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
+            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
+            c_vector<double, 2> force = regular_simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
+                        
+            TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],6.25,1e-3);
+        }
+        
+        // check that the force between nodes is correctly calculated when the spring constant 
+        // is proportional to the length of the edge between adjacent cells  
+        regular_simulator.SetEdgeBasedSpringConstant(true); 
+        regular_simulator.mrCrypt.CreateVoronoiTessellation();  
+        
+        // choose two interior neighbour nodes
+        c_vector<double, 2> force = regular_simulator.CalculateForceBetweenNodes(20u,21u);
+        
+        TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
+        
+        // now move node 21 a bit and check that the force calculation changes correctly
+        c_vector<double,2> shift;
+        shift[0] = 0.01;
+        shift[1] = 0.0;                 
+        ChastePoint<2> new_point(regular_simulator.rGetCrypt().rGetMesh().GetNode(21u)->rGetLocation() + shift);
+        regular_simulator.rGetCrypt().rGetMesh().SetNode(21u, new_point, false);
+        
+        // check that the new force between nodes is correctly calculated
+        regular_simulator.mrCrypt.CreateVoronoiTessellation();  
+        c_vector<double, 2> new_force = regular_simulator.CalculateForceBetweenNodes(20u,21u);
+        
+        // force calculation: shift is along x-axis so we should have
+        // new_edge_length = (5/6 + shift[0])*tan(0.5*arctan(5*sqrt(3)/(5 + 12*shift[0]))),
+        // force^2 = mu^2 * (new_edge_length*sqrt(3))^2 * (1 - 5/6 - shift[0])^2
+        TS_ASSERT_DELTA(new_force[0]*new_force[0] + new_force[1]*new_force[1], 3.83479824,1e-3);
+    
+            
+        // Test on a periodic mesh
+        
+//        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+//        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+//        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+//        
+//        // Set up cells
+//        std::vector<MeinekeCryptCell> cells;
+//        CreateVectorOfCells(cells, *p_mesh, FIXED, true);// true = mature cells
+//
+//        Crypt<2> crypt(*p_mesh, cells);               
+//        crypt.SetGhostNodes(ghost_node_indices);
+//
+//        TissueSimulation<2> simulator(crypt);
+//        
+//        simulator.SetEndTime(1.0);
+//        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(10));
+//        simulator.SetMaxCells(500);
+//        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(10));
+//        simulator.SetMaxElements(1000);
+//        
+//        // These are for coverage and use the defaults
+//        simulator.SetDt(1.0/120.0);
+//        simulator.SetReMeshRule(true);
+//        simulator.SetNoBirth(false);
+//        simulator.SetOutputDirectory("Crypt2DCylindrical");
+//        simulator.SetOutputCellTypes(true);
+//        
+//
+//        // check that the force between nodes is correctly calculated when the spring constant is constant (!)
+//        simulator.SetEdgeBasedSpringConstant(false);
+//                      
+//        for(Crypt<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
+//        spring_iterator!=crypt.SpringsEnd();
+//        ++spring_iterator)
+//        {
+//            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
+//            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
+//            c_vector<double, 2> force = simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
+//                        
+//            TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],6.25,1e-3);
+//        }
+//        
+//        // check that the force between nodes is correctly calculated when the spring constant 
+//        // is proportional to the length of the edge between adjacenet cells  
+//        simulator.SetEdgeBasedSpringConstant(true); 
+//        simulator.mrCrypt.CreateVoronoiTessellation();  
+//        for(Crypt<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
+//        spring_iterator!=crypt.SpringsEnd();
+//        ++spring_iterator)
+//        {
+//            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
+//            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
+//            c_vector<double, 2> force = simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
+//            TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
+//            if (fabs(force[0]*force[0] + force[1]*force[1] - 4.34027778) < 1e-3)
+//            {
+//                std::cout << nodeA_global_index << "\t" << nodeB_global_index << "\n" << std::flush;   
+//            }
+//            else
+//            {
+//                std::cout << "Not working \t " << nodeA_global_index << "\t" << nodeB_global_index << "\n" << std::flush; 
+//            }
+//        }              
+//            
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+                
+    }
+    
     
     void Test2DCylindricalMultipleDivisions() throw (Exception)
     {   

@@ -21,6 +21,7 @@
 #include "WntGradient.hpp"
 #include "OutputFileHandler.hpp"
 #include "LogFile.hpp"
+#include "VoronoiTessellation.cpp"
 
 template<unsigned DIM> 
 TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
@@ -45,6 +46,7 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
     mNumBirths = 0;
     mNumDeaths = 0;
     mUseNonFlatBottomSurface = false;
+    mUseEdgeBasedSpringConstant = false;
     
     // whether to use a cutoff point, ie specify zero force if two 
     // cells are greater than a certain distance apart. By default 
@@ -400,7 +402,17 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     rest_length = a_rest_length + b_rest_length;
     
     assert(rest_length<=1.0+1e-12);
-    return mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+    
+    double multiplication_factor = 1.0;
+    
+    if (mUseEdgeBasedSpringConstant)
+    {
+        VoronoiTessellation<DIM>& tess = mrCrypt.rGetVoronoiTessellation();
+        
+        multiplication_factor = tess.GetEdgeLength(nodeAGlobalIndex,nodeBGlobalIndex)*sqrt(3);
+    }
+    
+    return multiplication_factor * mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 
 
@@ -607,6 +619,14 @@ void TissueSimulation<DIM>::SetWntGradient(WntGradientType wntGradientType)
     mWntGradient = WntGradient(wntGradientType);
 }
 
+/**
+ * Use an edge-based spring constant
+ */
+template<unsigned DIM> 
+void TissueSimulation<DIM>::SetEdgeBasedSpringConstant(bool use_edge_based_spring_constant)
+{
+    mUseEdgeBasedSpringConstant = use_edge_based_spring_constant;
+}
 
 /**
  * Add a cell killer to be used in this simulation
@@ -764,6 +784,11 @@ void TissueSimulation<DIM>::Solve()
         {
             LOG(1, "\tRemeshing..\n");
             mrCrypt.ReMesh();
+        }
+
+        if (mUseEdgeBasedSpringConstant)
+        {
+            mrCrypt.CreateVoronoiTessellation();
         }
 
         //  calculate node velocities
