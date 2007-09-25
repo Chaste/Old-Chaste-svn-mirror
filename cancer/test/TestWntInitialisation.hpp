@@ -51,7 +51,9 @@ public:
         
         CancerParameters::Instance()->SetCryptLength(1.0);
 
-        wnt_gradient.SetCrypt(crypt);
+        //wnt_gradient.SetCrypt(crypt);
+        SingletonWntGradient::Instance()->SetType(LINEAR);
+        SingletonWntGradient::Instance()->SetCrypt(crypt);
         
         Crypt<2>::Iterator iter = crypt.Begin();
         
@@ -77,6 +79,8 @@ public:
 
             ++iter;
         }
+
+        SingletonWntGradient::Destroy();
     }
 };
 #endif /*TESTWNTINITIALISATION_HPP_*/

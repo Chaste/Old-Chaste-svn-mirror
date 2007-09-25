@@ -12,6 +12,7 @@
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
 #include "WntGradient.hpp"
+#include "SingletonWntGradient.hpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
@@ -45,7 +46,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        assert(mpOdeSystem!=NULL);
+        assert(mpOdeSystem!=NULL); 
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
         // reference can be read or written into once mpOdeSystem has been set up
         // mpOdeSystem isn't set up by the first constructor, but is by the second
@@ -57,6 +58,9 @@ private:
         archive & mInSG2MPhase;
         archive & mReadyToDivide;
         archive & mUseWntGradient;   
+//        std::cout << "Archiving mrWntGradient\n" << std::flush;
+//        archive & mrWntGradient;
+//        std::cout << "Done mrWntGradient = " << &mrWntGradient << "\n" << std::flush;
     }
        
 protected:    
@@ -81,7 +85,8 @@ public:
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                       const CryptCellMutationState& rMutationState, 
                       double birthTime, double lastTime, WntGradient &rWntGradient,
-                      bool inSG2MPhase, bool readyToDivide, double divideTime);     
+                      bool inSG2MPhase, bool readyToDivide, double divideTime); 
+                          
     virtual ~WntCellCycleModel();
     
     virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
@@ -105,7 +110,17 @@ public:
     //temp
     void SetUseWntGradient();
     
-    
+    /**
+     * For archiving Save constructor.
+     */
+    const WntGradient& rGetWntGradient() const
+    {
+        return mrWntGradient; 
+    }
+    WntGradient& rGetWntGradient()
+    {
+        return mrWntGradient; 
+    }    
 };
 
 // declare identifier for the serializer
@@ -124,7 +139,10 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const WntCellCycleModel * t, const unsigned int file_version)
 {
-    //std::cout << "WntCellCycle Save Constructor called\n" << std::flush;
+//    std::cout << "WntCellCycle Save Constructor called\n" << std::flush;
+//    const WntGradient* p_wnt_gradient = &(t->rGetWntGradient());
+//    ar & p_wnt_gradient;
+//    std::cout << "WntCellCycle Save Constructor finished\n" << std::flush;
 }
 
 /**
@@ -141,17 +159,21 @@ inline void load_construct_data(
     // this case.
     // Invoke inplace constructor to initialize instance of my_class
     
+    //WntGradient* p_wnt_gradient;
+    //ar & p_wnt_gradient; 
+    
     std::vector<double> state_vars;
     for (unsigned i=0 ; i<9 ; i++)
     {
         state_vars.push_back(0.0);
-    }   
+    }
+
+    WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL;
+    WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient;
 
     CryptCellMutationState mutation_state = HEALTHY;
-    WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL; 
-    WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient; 
+
     ::new(t)WntCellCycleModel(state_vars, mutation_state, 0.0, 0.0, r_wnt_gradient, false, false, 0.0);
-    //std::cout << "WntCellCycle Load Constructor called\n" << std::flush;
 }
 }
 } // namespace ...

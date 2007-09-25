@@ -111,6 +111,8 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const StochasticWntCellCycleModel * t, const unsigned int file_version)
 {
+//    const WntGradient* p_wnt_gradient = &(t->rGetWntGradient());
+//    ar & p_wnt_gradient;
 }
 
 /**
@@ -127,14 +129,21 @@ inline void load_construct_data(
     // this case.
     // Invoke inplace constructor to initialize instance of my_class
     
+    
+//    WntGradient* p_wnt_gradient;
+//    ar & p_wnt_gradient; 
+
+    WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL;
+    WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient;
+
     std::vector<double> state_vars;
     for (unsigned i=0 ; i<9 ; i++)
     {
         state_vars.push_back(0.0);
     }   
+
     CryptCellMutationState mutation_state = HEALTHY;
-    WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL; 
-    WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient; 
+
     ::new(t)StochasticWntCellCycleModel(state_vars, mutation_state,0.0, 0.0, r_wnt_gradient, false, false, 0.0);
 }
 }

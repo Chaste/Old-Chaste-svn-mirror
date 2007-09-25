@@ -63,9 +63,15 @@ Crypt<DIM>::~Crypt()
 template<unsigned DIM>
 void Crypt<DIM>::InitialiseCells()
 {
-    for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
+//    for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
+//    {
+//        cell_iter->InitialiseCellCycleModel();
+//    }
+    for(std::list<MeinekeCryptCell>::iterator iter = mCells.begin();
+        iter != mCells.end();
+        ++iter)
     {
-        cell_iter->InitialiseCellCycleModel();
+        iter->InitialiseCellCycleModel();
     }
 }
 

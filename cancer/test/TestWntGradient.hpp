@@ -9,6 +9,7 @@
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
 #include "WntGradient.hpp"
+#include "SingletonWntGradient.hpp"
 #include "WntGradientTypes.hpp"
 
 class TestWntGradient : public CxxTest::TestSuite
@@ -21,7 +22,6 @@ public:
         WntGradientType this_type = LINEAR;
         
         TS_ASSERT_THROWS_NOTHING(WntGradient wnt_gradient1);
-        
         TS_ASSERT_THROWS_NOTHING(WntGradient wnt_gradient2(this_type));
     }
     
@@ -118,21 +118,22 @@ public:
         {
             WntGradientType this_type = LINEAR;
             
-            WntGradient wnt_gradient(this_type);
+            WntGradient* const p_wnt_gradient = new WntGradient(this_type);
             
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
             output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
-            output_arch << static_cast<const WntGradient&>(wnt_gradient);
+            output_arch << p_wnt_gradient;
             
             CancerParameters *inst1 = CancerParameters::Instance();
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
+            
+            delete p_wnt_gradient;
         }
         
         {
-            WntGradientType this_type = NONE;
-            WntGradient wnt_gradient(this_type);
+            WntGradient* p_wnt;
             
             CancerParameters *inst1 = CancerParameters::Instance();
             
@@ -144,7 +145,7 @@ public:
             
             // restore from the archive
             input_arch >> *inst1;
-            input_arch >> wnt_gradient;
+            input_arch >> p_wnt;
             
             CancerParameters *inst2 = CancerParameters::Instance();
             TS_ASSERT_EQUALS(inst1, inst2);
@@ -152,10 +153,54 @@ public:
             // Check
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
             double height = 21.0;
-            double wnt_level = wnt_gradient.GetWntLevel(height);
+            double wnt_level = p_wnt->GetWntLevel(height);
             
             TS_ASSERT_DELTA(wnt_level, 1.0-height/inst1->GetCryptLength(), 1e-9);
         }
+    }
+    
+    
+    void TestSingletonWntGradient()
+    {
+        CancerParameters::Instance()->Reset();
+        CancerParameters *params = CancerParameters::Instance();
+        
+        SingletonWntGradient* p_wnt_gradient = SingletonWntGradient::Instance();
+        p_wnt_gradient->SetType(NONE);
+        
+        double height = 5;
+        double wnt_level = 0.0;
+        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        
+        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
+        
+        TS_ASSERT_THROWS_ANYTHING(p_wnt_gradient->SetType(NONE));
+        
+        SingletonWntGradient::Destroy();   
+ 
+        p_wnt_gradient = SingletonWntGradient::Instance();
+
+        p_wnt_gradient->SetType(LINEAR);
+        
+        height = 100;
+        wnt_level = 0.0;
+        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        
+        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
+        
+        height = -1e-12;    // for cells very close to 0 on negative side.
+        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        TS_ASSERT_DELTA(wnt_level, 1.0, 1e-9);        
+        
+        height = 21.0;
+        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        
+        TS_ASSERT_DELTA(wnt_level, 1.0-height/params->GetCryptLength(), 1e-9);
+        
+        params->SetCryptLength(10.0);
+        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        
+        TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
     }
 };
 

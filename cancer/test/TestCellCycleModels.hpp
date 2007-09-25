@@ -7,6 +7,8 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <fstream>
 
+//#include <boost/serialization/access.hpp>
+
 #include "OutputFileHandler.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
@@ -15,23 +17,79 @@
 #include "TysonNovakCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "WntGradient.hpp"
+#include "SingletonWntGradient.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 class PseudoWntGradient : public WntGradient 
 {
+//    friend class boost::serialization::access;  
+    
 private:
     double mWntLevel;
-public:
+    
+//    template<class Archive>
+//    void serialize(Archive & archive, const unsigned int version)
+//    {
+//        archive & boost::serialization::base_object<WntGradient>(*this);
+//        archive & mWntLevel;
+//    }
+    
+    
+public:   
+    
     PseudoWntGradient(double wntLevel)
         : WntGradient()
     {
         mWntLevel = wntLevel;
     }
-
+    
     double GetWntLevel(MeinekeCryptCell* pCell)
     {
         return mWntLevel;
     }
+    
+    void ChangeWntLevel(double wntLevel)
+    {
+        mWntLevel = wntLevel;
+    }
 };
+
+//// declare identifier for the serializer
+//BOOST_CLASS_EXPORT(PseudoWntGradient)
+//
+//namespace boost
+//{
+//namespace serialization
+//{
+///**
+// * Allow us to not need a default constructor, by specifying how Boost should
+// * instantiate a WntGradient instance.
+// */
+//template<class Archive>
+//inline void save_construct_data(
+//    Archive & ar, const PseudoWntGradient * t, const unsigned int file_version)
+//{
+//}
+//
+///**
+// * Allow us to not need a default constructor, by specifying how Boost should
+// * instantiate a WntGradient instance.
+// */
+//template<class Archive>
+//inline void load_construct_data(
+//    Archive & ar, PseudoWntGradient * t, const unsigned int file_version)
+//{
+//    // It doesn't actually matter what values we pass to our standard
+//    // constructor, provided they are valid parameter values, since the
+//    // state loaded later from the archive will overwrite their effect in
+//    // this case.
+//    // Invoke inplace constructor to initialize instance of my_class
+//    ::new(t)PseudoWntGradient(0.0);
+//}
+//}
+//} // namespace ...
 
 class TestCellCycleModels : public CxxTest::TestSuite
 {
@@ -283,7 +341,7 @@ public:
     void TestWntCellCycleModelForVaryingWntStimulus(void) throw(Exception)
     {
         CancerParameters::Instance()->Reset();
-
+        
 
         // Here we have a system at rest at Wnt = 1.0 - it would normally go into S phase at 5.971.
         // Instead we reduce Wnt linearly over 0<t<1 to zero and the cell doesn't divide.
@@ -301,6 +359,7 @@ public:
                 
         double wnt_level = 1.0;
         PseudoWntGradient wnt_gradient(wnt_level);
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level,wnt_gradient);
 
@@ -337,8 +396,12 @@ public:
             {
                 wnt_level = 0.0;
             }
+            wnt_gradient.ChangeWntLevel(wnt_level);
+            SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+            
             TS_ASSERT(result==false)
         }
+        
         std::vector<double> testResults = p_cell_model->GetProteinConcentrations();
         TS_ASSERT_DELTA(testResults[0] , 7.330036281693106e-01 , 1e-5);
         TS_ASSERT_DELTA(testResults[1] , 1.715690244022676e-01 , 1e-5);
@@ -365,6 +428,7 @@ public:
                 
         SimulationTime::Destroy();
         
+        SingletonWntGradient::Destroy();
     }
     
     void TestWntCellCycleModelForAPCSingleHit(void) throw(Exception)
@@ -379,7 +443,8 @@ public:
         
         double wnt_level = 1.0;
         PseudoWntGradient wnt_gradient(wnt_level);
-                
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+
         WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level, wnt_gradient);
 
 
@@ -450,6 +515,7 @@ public:
         }
         
         SimulationTime::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
     void TestWntCellCycleModelForBetaCatSingleHit(void) throw(Exception)
@@ -463,6 +529,7 @@ public:
 
         double wnt_level = 0.0;
         PseudoWntGradient wnt_gradient(wnt_level);
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         
         WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level, wnt_gradient);
@@ -535,6 +602,7 @@ public:
         }
         
         SimulationTime::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
     void TestWntCellCycleModelForAPCDoubleHit(void) throw(Exception)
@@ -548,6 +616,7 @@ public:
         
         double wnt_level = 0.738;// This shouldn't matter for this kind of cell!
         PseudoWntGradient wnt_gradient(wnt_level);
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level, wnt_gradient);
@@ -616,6 +685,7 @@ public:
         }
         
         SimulationTime::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
     void TestWntCellCycleModelForConstantWntStimulusHealthyCell(void) throw(Exception)
@@ -628,6 +698,7 @@ public:
         
         double wnt_level = 1.0;
         PseudoWntGradient wnt_gradient(wnt_level);
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level, wnt_gradient);
@@ -696,6 +767,7 @@ public:
         }
         
         SimulationTime::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
     void TestStochasticWntCellCycleModel() throw (Exception)
@@ -709,6 +781,7 @@ public:
 
         double wnt_level = 1.0;
         PseudoWntGradient wnt_gradient(wnt_level);
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel(wnt_level, wnt_gradient);
         p_cell_model->SetUseWntGradient();
@@ -749,6 +822,7 @@ public:
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
     void TestArchiveFixedCellCycleModels() throw (Exception)
@@ -936,6 +1010,8 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "wnt_cell_cycle.arch";
         PseudoWntGradient wnt_gradient(1.0);
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(1.0);
+
         // Create an ouput archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -1004,6 +1080,8 @@ public:
             SimulationTime::Destroy();
             delete p_cell;
         }
+
+        SingletonWntGradient::Destroy();
     }    
     
     void TestArchiveStochasticWntCellCycleModels()
@@ -1017,6 +1095,7 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "stochastic_wnt_cell_cycle.arch";
         PseudoWntGradient wnt_gradient(1.0);
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(1.0);
         
         // Create an ouput archive
         {   // In this test the RandomNumberGenerator in existence 
@@ -1068,7 +1147,7 @@ public:
             output_arch << p_wnt_cell;
             SimulationTime::Destroy();
         }
-        
+        std::cout << "\n\n FINISHED SAVE \n\n" << std::flush;
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
@@ -1093,6 +1172,8 @@ public:
             input_arch >> *inst1;
             input_arch >> p_stoc_cell;
             input_arch >> p_wnt_cell;
+            
+            std::cout << "Finished Load\n" << std::flush;
             
             // Check - stochastic should divide at 15.03
             // Wnt should divide at 15.971
@@ -1129,8 +1210,8 @@ public:
             SimulationTime::Destroy();
         }
         RandomNumberGenerator::Destroy();
+        SingletonWntGradient::Destroy();
     }    
-    
 };
 
 #endif /*TESTCELLCYCLEMODELS_HPP_*/

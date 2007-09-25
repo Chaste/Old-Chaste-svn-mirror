@@ -21,7 +21,9 @@
 #include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
 #include "SloughingCellKiller.hpp"
+#include "SingletonWntGradient.hpp"
 #include "VoronoiTessellation.cpp"
+
 
 // Possible types of Cell Cycle Model (just for CreateVectorOfCells method)
 typedef enum CellCycleType_
@@ -39,6 +41,7 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
                              ConformingTetrahedralMesh<2,2>& rMesh, 
                              CellCycleType cycleType, 
                              bool randomBirthTimes,
+                             WntGradient *pWntGradient= NULL,
                              double y0 = 0.3,
                              double y1 = 2.0,
                              double y2 = 3.0,
@@ -76,9 +79,12 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
             }
             else if (cycleType==WNT)
             {
-                WntGradient wnt_gradient(LINEAR);
-                double wnt = wnt_gradient.GetWntLevel(y);
-                p_cell_cycle_model = new WntCellCycleModel(wnt, wnt_gradient);
+                assert(pWntGradient!=NULL);
+                
+                double wnt = pWntGradient->GetWntLevel(y);
+                p_cell_cycle_model = new WntCellCycleModel(wnt, *pWntGradient);
+                //temporary line of code
+                ((WntCellCycleModel*)(p_cell_cycle_model))->SetUseWntGradient();
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }
@@ -500,7 +506,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-                    TS_ASSERT(cell_iter->GetCellType() != DIFFERENTIATED);
+             TS_ASSERT(cell_iter->GetCellType() != DIFFERENTIATED);
         }
         
         delete p_sloughing_cell_killer;
@@ -534,11 +540,17 @@ public:
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells 
-        std::vector<MeinekeCryptCell> cells;        
-        CreateVectorOfCells(cells, *p_mesh, WNT, false);
-
+        std::vector<MeinekeCryptCell> cells; 
+        
+        WntGradient wnt_gradient(LINEAR);       
+        CreateVectorOfCells(cells, *p_mesh, WNT, false, &wnt_gradient);
+        
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
+        
+        SingletonWntGradient::Instance()->SetType(LINEAR);
+        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        //wnt_gradient.SetCrypt(crypt);
 
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DPeriodicWnt");
@@ -566,6 +578,7 @@ public:
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
     // A better check that the loaded mesh is the same as that saved
@@ -585,9 +598,16 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, WNT, false);
+        
+        WntGradient wnt_gradient(LINEAR);
+        CreateVectorOfCells(cells, *p_mesh, WNT, false, &wnt_gradient);
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
+        
+        SingletonWntGradient::Instance()->SetType(LINEAR);
+        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        //wnt_gradient.SetCrypt(crypt);
+        
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DMeshArchive");
         simulator.SetEndTime(0.1);
@@ -599,9 +619,13 @@ public:
         // The archiver assumes that a Solve has been called and simulation time has been set up properly.
         // In this test it hasn't so we need this to avoid memory leak.
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.1, 100);
-        
+
+        AbstractCellCycleModel* model = crypt.rGetCellAtNodeIndex(0).GetCellCycleModel();
+        WntCellCycleModel* wnt_model = (WntCellCycleModel*)(model);
+        std::cout <<  wnt_model->GetProteinConcentrations()[0] << "\n";
+
         // Save
-        simulator.Save(); 
+        simulator.Save();
         
         // Load
         TissueSimulation<2>* p_simulator;
@@ -618,6 +642,7 @@ public:
         delete p_simulator;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        SingletonWntGradient::Destroy();
     }
 
     void TestStandardResultForArchivingTestsBelow() throw (Exception)
@@ -814,9 +839,12 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
+        WntGradient wnt_gradient(LINEAR);
+        
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, WNT, true);
+        
+        CreateVectorOfCells(cells, *p_mesh, WNT, true, &wnt_gradient);
         cells[0].SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         cells[1].SetBirthTime(-1.0);
         cells[1].SetMutationState(LABELLED);
@@ -827,6 +855,11 @@ public:
 
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
+        
+        SingletonWntGradient::Instance()->SetType(LINEAR);
+        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        //wnt_gradient.SetCrypt(crypt);
+        
         
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DWntMatureCells");
@@ -857,6 +890,7 @@ public:
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        SingletonWntGradient::Destroy();
     }
 
     
@@ -958,7 +992,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, mesh, FIXED, false, 0.0, 3.0, 6.5, 8.0);
+        CreateVectorOfCells(cells, mesh, FIXED, false, NULL, 0.0, 3.0, 6.5, 8.0);
         
         cells[60].SetBirthTime(-50.0);
         
@@ -1006,7 +1040,7 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator::Instance();
         
-
+        WntGradient wnt_gradient(LINEAR);
         
         // Set up cells by iterating through the mesh nodes
         std::vector<MeinekeCryptCell> cells;
@@ -1057,10 +1091,13 @@ public:
                 mutation_state = APC_TWO_HIT;
             }
             
-            WntGradient wnt_gradient(LINEAR);
+            
             double wnt = wnt_gradient.GetWntLevel(y);
             
-            MeinekeCryptCell cell(cell_type, mutation_state, generation, new WntCellCycleModel(wnt, wnt_gradient));
+            WntCellCycleModel* p_model = new WntCellCycleModel(wnt, wnt_gradient);
+            p_model->SetUseWntGradient();
+            
+            MeinekeCryptCell cell(cell_type, mutation_state, generation, p_model);
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -1068,6 +1105,10 @@ public:
         
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
+
+        SingletonWntGradient::Instance()->SetType(LINEAR);
+        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        //wnt_gradient.SetCrypt(crypt);
 
         TissueSimulation<2> simulator(crypt);
         
@@ -1219,6 +1260,7 @@ public:
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
     void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
