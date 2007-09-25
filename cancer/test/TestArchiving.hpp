@@ -10,6 +10,7 @@
 #include "OutputFileHandler.hpp"
 
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/set.hpp>
 
 #include <boost/serialization/export.hpp>
 
@@ -121,6 +122,10 @@ private:
     
 public:
 
+    ClassOfSimpleVariables()
+    {
+        //Do nothing.  Used when loading into a pointer
+    }
     ClassOfSimpleVariables(int initial,
                            std::string string,
                            std::vector<double> doubles,
@@ -258,6 +263,62 @@ public:
             
             delete p_parent->mpChild;
             delete p_parent;
+        }
+    }
+    
+    
+    void TestArchivingSetOfPointers() throw (Exception)
+    {
+        std::vector<double> doubles;
+        std::vector<bool> bools;
+        
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "pointer_set.arch";
+        
+        // Save
+        {
+            // Create aClassOfSimpleVariablesn ouput archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            std::set<ClassOfSimpleVariables*> a_set;
+            ClassOfSimpleVariables* p_one = new ClassOfSimpleVariables(42,"hello", doubles,bools);
+            a_set.insert(p_one);
+            ClassOfSimpleVariables* p_two = new ClassOfSimpleVariables(256,"goodbye", doubles,bools);
+        
+            a_set.insert(p_two);
+            
+            
+            //output_arch << p_child_for_archiving;
+            output_arch << static_cast<const std::set<ClassOfSimpleVariables*>&>(a_set);            
+        }
+        //Load
+        {
+            std::set<ClassOfSimpleVariables*> a_set;
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            
+            TS_ASSERT_EQUALS(a_set.size(), 0u);
+            input_arch >> a_set;
+            TS_ASSERT_EQUALS(a_set.size(), 2u);
+            for (std::set<ClassOfSimpleVariables*>::iterator it = a_set.begin();
+                it!=a_set.end(); ++it)
+            {
+                   ClassOfSimpleVariables* p_class = *(it);
+                   if (p_class->GetNumber()==42)
+                   {
+                        TS_ASSERT_EQUALS(p_class->GetNumber(), 42);
+                        TS_ASSERT_EQUALS(p_class->GetString(),"hello");
+                   }
+                   else
+                   {
+                        TS_ASSERT_EQUALS(p_class->GetNumber(), 256);
+                        TS_ASSERT_EQUALS(p_class->GetString(),"goodbye");
+                   }
+            }
         }
     }
 };
