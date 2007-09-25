@@ -29,11 +29,11 @@ private:
 public:
     WntGradient(WntGradientType gradientType = NONE);
     
-    ~WntGradient();
+    virtual ~WntGradient();
     
     double GetWntLevel(double height);
     
-    double GetWntLevel(MeinekeCryptCell* pCell);
+    virtual double GetWntLevel(MeinekeCryptCell* pCell);
     
     void SetCrypt(Crypt<2>& rCrypt);
 };

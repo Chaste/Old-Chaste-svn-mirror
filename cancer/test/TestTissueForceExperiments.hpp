@@ -13,7 +13,6 @@
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-#include "WntGradient.hpp"
 #include "WntCellCycleOdeSystem.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"

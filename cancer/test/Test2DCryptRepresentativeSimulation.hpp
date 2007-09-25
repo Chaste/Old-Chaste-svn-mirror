@@ -15,7 +15,6 @@
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
-#include "WntGradient.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "CancerParameters.hpp"

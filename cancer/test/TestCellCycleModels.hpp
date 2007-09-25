@@ -16,6 +16,23 @@
 #include "WntCellCycleModel.hpp"
 #include "WntGradient.hpp"
 
+class PseudoWntGradient : public WntGradient 
+{
+private:
+    double mWntLevel;
+public:
+    PseudoWntGradient(double wntLevel)
+        : WntGradient()
+    {
+        mWntLevel = wntLevel;
+    }
+
+    double GetWntLevel(MeinekeCryptCell* pCell)
+    {
+        return mWntLevel;
+    }
+};
+
 class TestCellCycleModels : public CxxTest::TestSuite
 {
 public:
@@ -267,29 +284,38 @@ public:
     {
         CancerParameters::Instance()->Reset();
 
-        WntGradient wnt_gradient;
 
         // Here we have a system at rest at Wnt = 1.0 - it would normally go into S phase at 5.971.
         // Instead we reduce Wnt linearly over 0<t<1 to zero and the cell doesn't divide.
         SimulationTime *p_simulation_time = SimulationTime::Instance();
 
+        PseudoWntGradient wnt_grad_for_bad_model(1.0);
         // fails because start time has not been set up
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel bad_model(1.0,wnt_gradient));
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel bad_model(1.0,wnt_grad_for_bad_model));
         
         double endTime = 10.0; //hours
         int numTimesteps = 1000*(int)endTime;
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(endTime, numTimesteps);// 15.971 hours to go into S phase
+
                 
         double wnt_level = 1.0;
+        PseudoWntGradient wnt_gradient(wnt_level);
 
         WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level,wnt_gradient);
+
+        
+        p_cell_model->SetUseWntGradient();
+
 
         MeinekeCryptCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
                                    p_cell_model);
                            
+        stem_cell.InitialiseCellCycleModel();
+
+
         CryptCellType test_type = p_cell_model->UpdateCellType();
 
         TS_ASSERT_EQUALS(test_type,TRANSIT);
@@ -343,34 +369,42 @@ public:
     
     void TestWntCellCycleModelForAPCSingleHit(void) throw(Exception)
     {
-        CancerParameters::Instance()->Reset();
-        
         int num_timesteps = 500;
-        double wnt_level = 1.0;
-                
-        WntGradient wnt_gradient;
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level, wnt_gradient));
-        
+
+        CancerParameters::Instance()->Reset();
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
+
         
+        double wnt_level = 1.0;
+        PseudoWntGradient wnt_gradient(wnt_level);
+                
         WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level, wnt_gradient);
 
+
+        p_cell_model->SetUseWntGradient();
+        
         MeinekeCryptCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
                                    p_cell_model);
+
+        stem_cell.InitialiseCellCycleModel();
+
+
                                                               
         double SG2MDuration = CancerParameters::Instance()->GetSG2MDuration();
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level, wnt_gradient));
         
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level, wnt_gradient);
+        p_cell_model_1->SetUseWntGradient();
         
         MeinekeCryptCell stem_cell_1(STEM, // type
                                      APC_ONE_HIT,//Mutation State
                                      0,  // generation
                                      p_cell_model_1);
+        stem_cell_1.InitialiseCellCycleModel();
                 
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 4.804 hrs and then finish dividing
@@ -423,22 +457,23 @@ public:
         CancerParameters::Instance()->Reset();
 
         int num_timesteps = 500;
-        double wnt_level = 0.0;
-        
-        WntGradient wnt_gradient;
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level, wnt_gradient));
-        
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
+
+        double wnt_level = 0.0;
+        PseudoWntGradient wnt_gradient(wnt_level);
+
         
         WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level, wnt_gradient);
+        p_cell_model->SetUseWntGradient();
+
         
         MeinekeCryptCell stem_cell(STEM, // type
-                                     BETA_CATENIN_ONE_HIT,//Mutation State
-                                     0,  // generation
-                                     p_cell_model);
-                
+                                   BETA_CATENIN_ONE_HIT,//Mutation State
+                                   0,  // generation
+                                   p_cell_model);
+        stem_cell.InitialiseCellCycleModel();
                         
         CancerParameters *p_parameters = CancerParameters::Instance();
         
@@ -447,11 +482,13 @@ public:
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level, wnt_gradient));
         
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level, wnt_gradient);
+        p_cell_model_1->SetUseWntGradient();
         
         MeinekeCryptCell stem_cell_1(STEM, // type
                                      BETA_CATENIN_ONE_HIT,//Mutation State
                                      0,  // generation
                                      p_cell_model_1);        
+        stem_cell_1.InitialiseCellCycleModel();
         
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 7.82 hrs and then finish dividing
@@ -505,22 +542,21 @@ public:
         CancerParameters::Instance()->Reset();
         
         int num_timesteps = 500;
-        
-        double wnt_level = 0.738;// This shouldn't matter for this kind of cell!
-        WntGradient wnt_gradient;
-        
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level, wnt_gradient));
-        
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
         
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level, wnt_gradient);
+        double wnt_level = 0.738;// This shouldn't matter for this kind of cell!
+        PseudoWntGradient wnt_gradient(wnt_level);
         
+        
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level, wnt_gradient);
+        p_cell_model_1->SetUseWntGradient();
         MeinekeCryptCell stem_cell_1(STEM, // type
                                      APC_TWO_HIT,//Mutation State
                                      0,  // generation
                                      p_cell_model_1);   
+        stem_cell_1.InitialiseCellCycleModel();
         
         
         CancerParameters *p_parameters = CancerParameters::Instance();
@@ -528,11 +564,13 @@ public:
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
         WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(wnt_level, wnt_gradient);
+        p_cell_model_2->SetUseWntGradient();
         
         MeinekeCryptCell stem_cell_2(STEM, // type
                                      APC_TWO_HIT,//Mutation State
                                      0,  // generation
                                      p_cell_model_2);   
+        stem_cell_2.InitialiseCellCycleModel();
         
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 3.943 hrs and then finish dividing
@@ -583,34 +621,36 @@ public:
     void TestWntCellCycleModelForConstantWntStimulusHealthyCell(void) throw(Exception)
     {
         CancerParameters::Instance()->Reset();
-        
         int num_timesteps = 500;
-        double wnt_level = 1.0;
-        WntGradient wnt_gradient;
-        
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level, wnt_gradient));
-        
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
         
+        double wnt_level = 1.0;
+        PseudoWntGradient wnt_gradient(wnt_level);
+        
+        
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level, wnt_gradient);
+        p_cell_model_1->SetUseWntGradient();
         
         MeinekeCryptCell stem_cell_1(STEM, // type
                                      HEALTHY,//Mutation State
                                      0,  // generation
                                      p_cell_model_1);   
+        stem_cell_1.InitialiseCellCycleModel();
         
         CancerParameters *p_parameters = CancerParameters::Instance();
          
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
         WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(wnt_level, wnt_gradient);
+        p_cell_model_2->SetUseWntGradient();
         
         MeinekeCryptCell stem_cell_2(STEM, // type
                                      HEALTHY,//Mutation State
                                      0,  // generation
                                      p_cell_model_2);   
+        stem_cell_2.InitialiseCellCycleModel();
         
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 5.971 hrs and then finish dividing
@@ -663,20 +703,23 @@ public:
         RandomNumberGenerator::Instance()->Reseed(0);
         
         int num_timesteps = 100;
-        double wnt_level = 1.0;
-        
-        WntGradient wnt_gradient;
-        
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20, num_timesteps);// 15.971 hours to go into S phase
+
+        double wnt_level = 1.0;
+        PseudoWntGradient wnt_gradient(wnt_level);
         
         StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel(wnt_level, wnt_gradient);
+        p_cell_model->SetUseWntGradient();
         
         MeinekeCryptCell stem_cell(STEM, // type
-                                     HEALTHY,//Mutation State
-                                     0,  // generation
-                                     p_cell_model);   
+                                   HEALTHY,//Mutation State
+                                   0,  // generation
+                                   p_cell_model);   
+        stem_cell.InitialiseCellCycleModel();
+       
+       
         
         // A WntCellCycleModel does this:
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
@@ -892,19 +935,22 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "wnt_cell_cycle.arch";
-        WntGradient wnt_gradient;
+        PseudoWntGradient wnt_gradient(1.0);
         // Create an ouput archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16, 2);
-            
-           
+                       
+            WntCellCycleModel* p_cell_model = new WntCellCycleModel(1.0, wnt_gradient);
+            p_cell_model->SetUseWntGradient();
+
             MeinekeCryptCell stem_cell(STEM, // type
-                                     HEALTHY,//Mutation State
-                                     0,  // generation
-                                     new WntCellCycleModel(1.0,wnt_gradient)); 
-                                     
+                                       HEALTHY,//Mutation State
+                                       0,  // generation
+                                       p_cell_model);
+            stem_cell.InitialiseCellCycleModel();  
+            
             p_simulation_time->IncrementTimeOneStep();
             std::vector<double> cell_cycle_influence;
             cell_cycle_influence.push_back(1.0);
@@ -970,7 +1016,7 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "stochastic_wnt_cell_cycle.arch";
-        WntGradient wnt_gradient;
+        PseudoWntGradient wnt_gradient(1.0);
         
         // Create an ouput archive
         {   // In this test the RandomNumberGenerator in existence 
@@ -978,17 +1024,25 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 1000);
             
-                    
+            StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel(1.0, wnt_gradient);                    
+            p_stoc_model->SetUseWntGradient();
+                               
             MeinekeCryptCell stoc_cell(STEM, // type
                                        HEALTHY,//Mutation State
                                        0,  // generation
-                                       new StochasticWntCellCycleModel(1.0, wnt_gradient)); 
-                                       
+                                       p_stoc_model); 
+            stoc_cell.InitialiseCellCycleModel();                                       
             
+
+            WntCellCycleModel* p_wnt_model = new WntCellCycleModel(1.0, wnt_gradient);
+            p_wnt_model->SetUseWntGradient();
+
             MeinekeCryptCell wnt_cell(STEM, // type
                                       HEALTHY,//Mutation State
                                       0,  // generation
-                                      new WntCellCycleModel(1.0, wnt_gradient)); 
+                                      p_wnt_model); 
+            wnt_cell.InitialiseCellCycleModel();                                       
+
                                        
             p_simulation_time->IncrementTimeOneStep();// 5.5
             std::vector<double> cell_cycle_influence;

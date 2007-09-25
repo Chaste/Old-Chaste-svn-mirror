@@ -28,8 +28,7 @@ private:
         std::vector<MeinekeCryptCell> cells;
         for(unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
-            WntGradient wnt_gradient;
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new WntCellCycleModel(0.0,wnt_gradient));
+            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
             double birth_time = 0.0-i;
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
