@@ -625,6 +625,7 @@ void TissueSimulation<DIM>::SetWntGradient(WntGradientType wntGradientType)
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetEdgeBasedSpringConstant(bool use_edge_based_spring_constant)
 {
+    assert(DIM == 2);
     mUseEdgeBasedSpringConstant = use_edge_based_spring_constant;
 }
 
