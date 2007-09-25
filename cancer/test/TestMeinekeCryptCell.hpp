@@ -269,7 +269,7 @@ public:
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
-                                   new WntCellCycleModel(0.0, wnt_gradient));
+                                   new WntCellCycleModel(0.0));
                                    
         wnt_cell.UpdateCellType();
         
@@ -772,7 +772,7 @@ public:
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   HEALTHY,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));
+                                  new WntCellCycleModel(wnt_stimulus));
                  
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -861,7 +861,7 @@ public:
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   HEALTHY,//Mutation State
                                   1,    // generation
-                                  new StochasticWntCellCycleModel(wnt_stimulus, wnt_gradient));
+                                  new StochasticWntCellCycleModel(wnt_stimulus));
                                   
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -1287,22 +1287,22 @@ public:
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   APC_ONE_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));
+                                  new WntCellCycleModel(wnt_stimulus));
                                   
         MeinekeCryptCell wnt_cell2(TRANSIT, // type
                                   BETA_CATENIN_ONE_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));                          
+                                  new WntCellCycleModel(wnt_stimulus));                          
                                   
         MeinekeCryptCell wnt_cell3(TRANSIT, // type
                                   APC_TWO_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient)); 
+                                  new WntCellCycleModel(wnt_stimulus)); 
                                   
         MeinekeCryptCell wnt_cell4(TRANSIT, // type
                                   LABELLED,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));                               
+                                  new WntCellCycleModel(wnt_stimulus));                               
 
         std::vector<double> wnt;
         wnt.push_back(wnt_stimulus);

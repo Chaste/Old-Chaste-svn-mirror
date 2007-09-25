@@ -1,5 +1,4 @@
 #include "WntCellCycleModel.hpp"
-#include "WntGradient.hpp"
 #include "CryptCellMutationStates.hpp"
 #include "Exception.hpp"
 #include "SingletonWntGradient.hpp"
@@ -18,11 +17,10 @@ RungeKutta4IvpOdeSolver WntCellCycleModel::msSolver;
  *
  * @param InitialWntStimulus a value between 0 and 1.
  */
-WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, WntGradient &rWntGradient)
+WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
         : AbstractCellCycleModel(),
           mpOdeSystem(NULL),
-          mInitialWntStimulus(InitialWntStimulus),
-          mrWntGradient(rWntGradient)          
+          mInitialWntStimulus(InitialWntStimulus)
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -47,11 +45,9 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, WntGradient &rWn
  */
 WntCellCycleModel::WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
                                      const CryptCellMutationState& rMutationState, 
-                                     double birthTime, double lastTime, 
-                                     WntGradient& rWntGradient,
+                                     double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime, bool useWntGradient)
-        : AbstractCellCycleModel(),
-          mrWntGradient(rWntGradient)
+        : AbstractCellCycleModel()
 {
     if (pParentOdeSystem !=NULL)
     {
@@ -90,11 +86,9 @@ WntCellCycleModel::WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,//c
  */
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                                      const CryptCellMutationState& rMutationState, 
-                                     double birthTime, double lastTime, 
-                                     WntGradient& rWntGradient,
+                                     double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime)
-        : AbstractCellCycleModel(),
-          mrWntGradient(rWntGradient)
+        : AbstractCellCycleModel()
 {
     mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState);// wnt pathway is reset in a couple of lines.
     // Set the model to be the same as the parent cell.
@@ -244,7 +238,7 @@ AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
     // unless the parent cell has just divided.
     return new WntCellCycleModel(mpOdeSystem, 
                                  mpCell->GetMutationState(), mBirthTime, mLastTime, 
-                                 mrWntGradient, mInSG2MPhase, mReadyToDivide, mDivideTime, mUseWntGradient);
+                                 mInSG2MPhase, mReadyToDivide, mDivideTime, mUseWntGradient);
 }
 
 /**

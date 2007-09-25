@@ -349,7 +349,7 @@ public:
 
         PseudoWntGradient wnt_grad_for_bad_model(1.0);
         // fails because start time has not been set up
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel bad_model(1.0,wnt_grad_for_bad_model));
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel bad_model(1.0));
         
         double endTime = 10.0; //hours
         int numTimesteps = 1000*(int)endTime;
@@ -361,7 +361,7 @@ public:
         PseudoWntGradient wnt_gradient(wnt_level);
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level,wnt_gradient);
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level);
 
         
         p_cell_model->SetUseWntGradient();
@@ -445,7 +445,7 @@ public:
         PseudoWntGradient wnt_gradient(wnt_level);
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level, wnt_gradient);
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level);
 
 
         p_cell_model->SetUseWntGradient();
@@ -460,9 +460,9 @@ public:
 
                                                               
         double SG2MDuration = CancerParameters::Instance()->GetSG2MDuration();
-        TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level, wnt_gradient));
+        TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
         
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level, wnt_gradient);
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level);
         p_cell_model_1->SetUseWntGradient();
         
         MeinekeCryptCell stem_cell_1(STEM, // type
@@ -532,7 +532,7 @@ public:
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         
-        WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level, wnt_gradient);
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level);
         p_cell_model->SetUseWntGradient();
 
         
@@ -546,9 +546,9 @@ public:
         
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
-        TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level, wnt_gradient));
+        TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
         
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level, wnt_gradient);
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level);
         p_cell_model_1->SetUseWntGradient();
         
         MeinekeCryptCell stem_cell_1(STEM, // type
@@ -619,7 +619,7 @@ public:
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level, wnt_gradient);
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level);
         p_cell_model_1->SetUseWntGradient();
         MeinekeCryptCell stem_cell_1(STEM, // type
                                      APC_TWO_HIT,//Mutation State
@@ -632,7 +632,7 @@ public:
         
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
-        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(wnt_level, wnt_gradient);
+        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(wnt_level);
         p_cell_model_2->SetUseWntGradient();
         
         MeinekeCryptCell stem_cell_2(STEM, // type
@@ -701,7 +701,7 @@ public:
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level, wnt_gradient);
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level);
         p_cell_model_1->SetUseWntGradient();
         
         MeinekeCryptCell stem_cell_1(STEM, // type
@@ -714,7 +714,7 @@ public:
          
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
-        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(wnt_level, wnt_gradient);
+        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(wnt_level);
         p_cell_model_2->SetUseWntGradient();
         
         MeinekeCryptCell stem_cell_2(STEM, // type
@@ -783,7 +783,7 @@ public:
         PseudoWntGradient wnt_gradient(wnt_level);
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
         
-        StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel(wnt_level, wnt_gradient);
+        StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel(wnt_level);
         p_cell_model->SetUseWntGradient();
         
         MeinekeCryptCell stem_cell(STEM, // type
@@ -1018,7 +1018,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16, 2);
                        
-            WntCellCycleModel* p_cell_model = new WntCellCycleModel(1.0, wnt_gradient);
+            WntCellCycleModel* p_cell_model = new WntCellCycleModel(1.0);
             p_cell_model->SetUseWntGradient();
 
             MeinekeCryptCell stem_cell(STEM, // type
@@ -1103,7 +1103,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 1000);
             
-            StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel(1.0, wnt_gradient);                    
+            StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel(1.0);                    
             p_stoc_model->SetUseWntGradient();
                                
             MeinekeCryptCell stoc_cell(STEM, // type
@@ -1113,7 +1113,7 @@ public:
             stoc_cell.InitialiseCellCycleModel();                                       
             
 
-            WntCellCycleModel* p_wnt_model = new WntCellCycleModel(1.0, wnt_gradient);
+            WntCellCycleModel* p_wnt_model = new WntCellCycleModel(1.0);
             p_wnt_model->SetUseWntGradient();
 
             MeinekeCryptCell wnt_cell(STEM, // type
@@ -1147,7 +1147,7 @@ public:
             output_arch << p_wnt_cell;
             SimulationTime::Destroy();
         }
-        std::cout << "\n\n FINISHED SAVE \n\n" << std::flush;
+        
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);

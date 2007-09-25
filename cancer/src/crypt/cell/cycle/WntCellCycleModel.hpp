@@ -11,7 +11,6 @@
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
-#include "WntGradient.hpp"
 #include "SingletonWntGradient.hpp"
 
 // Needs to be included last
@@ -37,7 +36,6 @@ private:
     bool mInSG2MPhase;
     bool mReadyToDivide;
     double mInitialWntStimulus;
-    WntGradient& mrWntGradient; 
 
     //temp
     bool mUseWntGradient;
@@ -57,10 +55,7 @@ private:
         archive & mDivideTime;
         archive & mInSG2MPhase;
         archive & mReadyToDivide;
-        archive & mUseWntGradient;   
-//        std::cout << "Archiving mrWntGradient\n" << std::flush;
-//        archive & mrWntGradient;
-//        std::cout << "Done mrWntGradient = " << &mrWntGradient << "\n" << std::flush;
+        archive & mUseWntGradient; 
     }
        
 protected:    
@@ -68,7 +63,7 @@ protected:
     
 public:
 
-    WntCellCycleModel(double InitialWntStimulus,  WntGradient &rWntGradient);
+    WntCellCycleModel(double InitialWntStimulus);
    
    /**
      * This is needed to create an exact copy of the current cell cycle model
@@ -76,7 +71,7 @@ public:
      */
     WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem, 
                       const CryptCellMutationState& rMutationState, 
-                      double birthTime, double lastTime, WntGradient &rWntGradient,
+                      double birthTime, double lastTime,
                       bool inSG2MPhase, bool readyToDivide, double divideTime, bool useWntGradient=false);
    /**
      * This is needed to create an exact copy of the current cell cycle model
@@ -84,7 +79,7 @@ public:
      */
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                       const CryptCellMutationState& rMutationState, 
-                      double birthTime, double lastTime, WntGradient &rWntGradient,
+                      double birthTime, double lastTime,
                       bool inSG2MPhase, bool readyToDivide, double divideTime); 
                           
     virtual ~WntCellCycleModel();
@@ -108,19 +103,7 @@ public:
     void Initialise();
 
     //temp
-    void SetUseWntGradient();
-    
-    /**
-     * For archiving Save constructor.
-     */
-    const WntGradient& rGetWntGradient() const
-    {
-        return mrWntGradient; 
-    }
-    WntGradient& rGetWntGradient()
-    {
-        return mrWntGradient; 
-    }    
+    void SetUseWntGradient(); 
 };
 
 // declare identifier for the serializer
@@ -139,10 +122,6 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const WntCellCycleModel * t, const unsigned int file_version)
 {
-//    std::cout << "WntCellCycle Save Constructor called\n" << std::flush;
-//    const WntGradient* p_wnt_gradient = &(t->rGetWntGradient());
-//    ar & p_wnt_gradient;
-//    std::cout << "WntCellCycle Save Constructor finished\n" << std::flush;
 }
 
 /**
@@ -158,9 +137,7 @@ inline void load_construct_data(
     // state loaded later from the archive will overwrite their effect in
     // this case.
     // Invoke inplace constructor to initialize instance of my_class
-    
-    //WntGradient* p_wnt_gradient;
-    //ar & p_wnt_gradient; 
+   
     
     std::vector<double> state_vars;
     for (unsigned i=0 ; i<9 ; i++)
@@ -168,12 +145,8 @@ inline void load_construct_data(
         state_vars.push_back(0.0);
     }
 
-    WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL;
-    WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient;
-
     CryptCellMutationState mutation_state = HEALTHY;
-
-    ::new(t)WntCellCycleModel(state_vars, mutation_state, 0.0, 0.0, r_wnt_gradient, false, false, 0.0);
+    ::new(t)WntCellCycleModel(state_vars, mutation_state, 0.0, 0.0, false, false, 0.0);
 }
 }
 } // namespace ...

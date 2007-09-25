@@ -189,7 +189,7 @@ public:
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   APC_ONE_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));
+                                  new WntCellCycleModel(wnt_stimulus));
                                   
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -219,7 +219,7 @@ public:
         
         TS_ASSERT(wnt_cell.GetGeneration()==2);
         TS_ASSERT(wnt_cell2.GetGeneration()==2);
-        
+        wnt_gradient
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
         double timeOfBirth = wnt_cell.GetBirthTime();
@@ -238,7 +238,7 @@ public:
             bool result1=wnt_cell.ReadyToDivide(wnt);
             bool result2=wnt_cell2.ReadyToDivide(wnt);
             //std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
-            if (time>=4.804+SG2MDuration+timeOfBirth)
+            if (time>=4.804+SG2MDuration+timeOfBirth)wnt_gradient
             {
                 TS_ASSERT(result1==true);
                 TS_ASSERT(result2==true);
@@ -276,7 +276,7 @@ public:
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   BETA_CATENIN_ONE_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));
+                                  new WntCellCycleModel(wnt_stimulus));
                                   
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -363,7 +363,7 @@ public:
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   APC_TWO_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus, wnt_gradient));
+                                  new WntCellCycleModel(wnt_stimulus));
                                   
         CryptCellMutationState this_state = wnt_cell.GetMutationState();
         

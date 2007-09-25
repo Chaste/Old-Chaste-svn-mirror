@@ -35,7 +35,7 @@ public:
         std::vector<MeinekeCryptCell> cells;
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            WntCellCycleModel* p_model = new WntCellCycleModel(0.0,wnt_gradient);
+            WntCellCycleModel* p_model = new WntCellCycleModel(0.0);
             p_model->SetUseWntGradient();
             MeinekeCryptCell cell(STEM, HEALTHY, 0, p_model);
             double birth_time = 0.0-i;

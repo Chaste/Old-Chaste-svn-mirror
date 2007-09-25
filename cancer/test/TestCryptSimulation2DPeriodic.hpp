@@ -41,7 +41,6 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
                              ConformingTetrahedralMesh<2,2>& rMesh, 
                              CellCycleType cycleType, 
                              bool randomBirthTimes,
-                             WntGradient *pWntGradient= NULL,
                              double y0 = 0.3,
                              double y1 = 2.0,
                              double y2 = 3.0,
@@ -79,10 +78,9 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
             }
             else if (cycleType==WNT)
             {
-                assert(pWntGradient!=NULL);
-                
-                double wnt = pWntGradient->GetWntLevel(y);
-                p_cell_cycle_model = new WntCellCycleModel(wnt, *pWntGradient);
+                WntGradient wnt_gradient(LINEAR);
+                double wnt = wnt_gradient.GetWntLevel(y);
+                p_cell_cycle_model = new WntCellCycleModel(wnt);
                 //temporary line of code
                 ((WntCellCycleModel*)(p_cell_cycle_model))->SetUseWntGradient();
                 typical_transit_cycle_time = 16.0;
@@ -543,7 +541,7 @@ public:
         std::vector<MeinekeCryptCell> cells; 
         
         WntGradient wnt_gradient(LINEAR);       
-        CreateVectorOfCells(cells, *p_mesh, WNT, false, &wnt_gradient);
+        CreateVectorOfCells(cells, *p_mesh, WNT, false);
         
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
@@ -600,7 +598,7 @@ public:
         std::vector<MeinekeCryptCell> cells;
         
         WntGradient wnt_gradient(LINEAR);
-        CreateVectorOfCells(cells, *p_mesh, WNT, false, &wnt_gradient);
+        CreateVectorOfCells(cells, *p_mesh, WNT, false);
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
@@ -844,7 +842,7 @@ public:
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
         
-        CreateVectorOfCells(cells, *p_mesh, WNT, true, &wnt_gradient);
+        CreateVectorOfCells(cells, *p_mesh, WNT, true);
         cells[0].SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         cells[1].SetBirthTime(-1.0);
         cells[1].SetMutationState(LABELLED);
@@ -992,7 +990,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, mesh, FIXED, false, NULL, 0.0, 3.0, 6.5, 8.0);
+        CreateVectorOfCells(cells, mesh, FIXED, false, 0.0, 3.0, 6.5, 8.0);
         
         cells[60].SetBirthTime(-50.0);
         
@@ -1094,7 +1092,7 @@ public:
             
             double wnt = wnt_gradient.GetWntLevel(y);
             
-            WntCellCycleModel* p_model = new WntCellCycleModel(wnt, wnt_gradient);
+            WntCellCycleModel* p_model = new WntCellCycleModel(wnt);
             p_model->SetUseWntGradient();
             
             MeinekeCryptCell cell(cell_type, mutation_state, generation, p_model);

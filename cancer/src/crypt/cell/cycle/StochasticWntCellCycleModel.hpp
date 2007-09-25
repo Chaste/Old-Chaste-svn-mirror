@@ -5,7 +5,6 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "WntCellCycleModel.hpp"
-#include "WntGradient.hpp"
 #include "RandomNumberGenerator.hpp"
 
 // Needs to be included last
@@ -46,8 +45,8 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
     /**
      * The standard constructor called in tests
      */
-    StochasticWntCellCycleModel(double wntLevel, WntGradient& rWntGradient)
-      :  WntCellCycleModel(wntLevel, rWntGradient)
+    StochasticWntCellCycleModel(double wntLevel)
+      :  WntCellCycleModel(wntLevel)
     {
     }
     
@@ -57,10 +56,10 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
      */
     StochasticWntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,
                                 CryptCellMutationState mutationState,
-                                double birthTime, double lastTime, WntGradient& rWntGradient,
+                                double birthTime, double lastTime,
                                 bool inSG2MPhase, bool readyToDivide, double divideTime)
       : WntCellCycleModel(pParentOdeSystem, mutationState, birthTime, lastTime, 
-                          rWntGradient, inSG2MPhase, readyToDivide, divideTime)
+                          inSG2MPhase, readyToDivide, divideTime)
     {
     }
     
@@ -70,10 +69,10 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
      */
     StochasticWntCellCycleModel(std::vector<double> proteinConcentrations, 
                                 CryptCellMutationState mutationState,
-                                double birthTime, double lastTime, WntGradient& rWntGradient,
+                                double birthTime, double lastTime,
                                 bool inSG2MPhase, bool readyToDivide, double divideTime)
       : WntCellCycleModel(proteinConcentrations, mutationState, birthTime, lastTime, 
-                          rWntGradient, inSG2MPhase, readyToDivide, divideTime)
+                          inSG2MPhase, readyToDivide, divideTime)
     {
     }    
     /**
@@ -88,7 +87,7 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
         assert(mpCell!=NULL);
         // calls a cheeky version of the constructor which makes the new cell cycle model
         // the same age as the old one - not a copy at this time.
-        return new StochasticWntCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), mBirthTime, mLastTime,mrWntGradient, mInSG2MPhase, mReadyToDivide,mDivideTime);
+        return new StochasticWntCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), mBirthTime, mLastTime, mInSG2MPhase, mReadyToDivide,mDivideTime);
     }
     
     
@@ -111,8 +110,6 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const StochasticWntCellCycleModel * t, const unsigned int file_version)
 {
-//    const WntGradient* p_wnt_gradient = &(t->rGetWntGradient());
-//    ar & p_wnt_gradient;
 }
 
 /**
@@ -128,13 +125,6 @@ inline void load_construct_data(
     // state loaded later from the archive will overwrite their effect in
     // this case.
     // Invoke inplace constructor to initialize instance of my_class
-    
-    
-//    WntGradient* p_wnt_gradient;
-//    ar & p_wnt_gradient; 
-
-    WntGradient* p_dummy_wnt_gradient = (WntGradient*)NULL;
-    WntGradient& r_wnt_gradient = *p_dummy_wnt_gradient;
 
     std::vector<double> state_vars;
     for (unsigned i=0 ; i<9 ; i++)
@@ -144,7 +134,7 @@ inline void load_construct_data(
 
     CryptCellMutationState mutation_state = HEALTHY;
 
-    ::new(t)StochasticWntCellCycleModel(state_vars, mutation_state,0.0, 0.0, r_wnt_gradient, false, false, 0.0);
+    ::new(t)StochasticWntCellCycleModel(state_vars, mutation_state,0.0, 0.0, false, false, 0.0);
 }
 }
 } // namespace ...
