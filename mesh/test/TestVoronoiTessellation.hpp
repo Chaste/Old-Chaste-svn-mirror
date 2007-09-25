@@ -7,6 +7,8 @@
 #include "VoronoiCell.hpp"
 #include "VoronoiTessellation.cpp"
 #include "ConformingTetrahedralMesh.cpp"
+#include "HoneycombMeshGenerator.hpp"
+#include "CancerParameters.hpp"
 #include "Exception.hpp"
 #include "TrianglesMeshWriter.cpp"
 
@@ -231,7 +233,11 @@ public:
         expected_face.mVertices.push_back(&vertex4);
         
         TS_ASSERT_EQUALS(*(tessellation.GetFace(4)), expected_face);
+        TS_ASSERT_EQUALS( tessellation.GetFace(4)->GetNumVertices(), 4u);
         
+        std::vector< c_vector<double, 2>*> vertices_of_face4 = tessellation.GetFace(4)->GetVertices();
+        c_vector<double, 2> first_vertex_of_face4 = *(vertices_of_face4[0]);
+        TS_ASSERT_DELTA( first_vertex_of_face4(0), 0.5,1e-4);
         //  Calculate length of voronoi edge between nodes 4 and 2
         
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(4u, 2u), pow(2.0, -0.5), 1e-7);
@@ -267,6 +273,40 @@ public:
         TS_ASSERT_DELTA(tessellation.GetFace(0)->GetPerimeter(), 2.0 + pow(3, 0.5) , 1e-6); 
          
     }
+    
+
+//    void TestWhetherMutationsSpread() throw (Exception)
+//    {        
+//        SimulationTime* p_simulation_time = SimulationTime::Instance();
+//        p_simulation_time->SetStartTime(0.0);
+//
+//        /*
+//         * We load the steady state that the profiled test uses
+//         */
+//        std::string test_to_profile = "NiceCryptSim";
+//        double load_time = 350;   // this is the folder and time that the stored results were archived (needed to know foldernames)
+//        double time_of_each_run = 10; // run for 10 hours.
+//        double end_of_simulation = 1000;
+//        
+//        
+//        // Call a function to label a cell
+//        TissueSimulation<2>* p_simulator = TissueSimulation<2>::Load(test_to_profile,load_time);
+//        unsigned label_this = Label();
+//        p_simulator->rGetCrypt().rGetCellAtNodeIndex(label_this).SetMutationState(LABELLED);
+//        p_simulator->Save();
+//        
+//        // write out to file which cell it was
+//        OutputFileHandler results_handler("NiceCryptSim",false);
+//        out_stream file=results_handler.OpenOutputFile("overall_results.dat");
+//        std::vector<double> position = p_simulator->GetNodeLocation(label_this);
+//        (*file) << "Node = " << label_this << " at x = " << position[0] << "\ty = " << position[1] << "\n" << std::flush;
+//  
+//        delete p_simulator;
+//        
+//        
+//        SimulationTime::Destroy();
+//        RandomNumberGenerator::Destroy();
+//    }
 };
 
 #endif /*TESTVORONOITESSELLATION_HPP_*/

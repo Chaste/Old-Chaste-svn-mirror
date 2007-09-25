@@ -44,6 +44,15 @@ public:
      */
     double GetArea() const;
     
+    /**
+     * Returns number of vertices of a particular face
+     */
+    unsigned GetNumVertices() const;
+    
+    /**
+     * Returns a vector of vertices
+     */
+    std::vector< c_vector<double, DIM>* > GetVertices() const;
 };
 
 

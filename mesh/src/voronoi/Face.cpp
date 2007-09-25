@@ -97,4 +97,14 @@ double Face<DIM>::GetArea() const
     return area_return;
 };
 
+template <unsigned DIM>
+unsigned Face<DIM>::GetNumVertices() const
+{
+    return mVertices.size();
+};
 
+template <unsigned DIM>
+std::vector< c_vector<double, DIM>* > Face<DIM>::GetVertices() const
+{
+    return mVertices;
+};

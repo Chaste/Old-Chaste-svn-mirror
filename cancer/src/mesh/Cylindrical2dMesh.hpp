@@ -59,6 +59,7 @@ private:
 public:
     
     Cylindrical2dMesh(double width);
+    Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes);
          
     ~Cylindrical2dMesh()
     {

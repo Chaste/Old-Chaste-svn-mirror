@@ -35,6 +35,26 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width)
     
 }
 
+
+Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes)
+  : ConformingTetrahedralMesh<2, 2>(),
+    mWidth(width)
+{
+    assert(width > 0.0);
+    for (unsigned index=0; index<nodes.size(); index++)
+    {
+        Node<2>* temp_node = nodes[index];
+        double x = temp_node->rGetLocation()[0];
+        assert( 0 <= x && x < width);
+        mNodes.push_back(temp_node);
+    }
+    
+    NodeMap node_map(nodes.size());
+    std::cout << "About to remesh\n" << std::flush;
+    ReMesh(node_map);
+    std::cout << "Remeshed\n" << std::flush;
+}
+
 /**
  * Calls GetWidthExtremes on the Conforming mesh class
  * to calculate mTop and mBottom for the cylindrical mesh.
@@ -153,7 +173,7 @@ void Cylindrical2dMesh::CreateHaloNodes()
  */
 void Cylindrical2dMesh::ReMesh(NodeMap &map)
 {
-	unsigned old_num_all_nodes = GetNumAllNodes();
+    unsigned old_num_all_nodes = GetNumAllNodes();
 	
 	map.Resize(old_num_all_nodes);
 	map.ResetToIdentity();
@@ -178,11 +198,10 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
     // boundary elements.
 
     // Call the normal re-mesh
-    // note that the mesh now has lots of extra nodes which will be deleted, hence the name 'big_map'    
+    // note that the mesh now has lots of extra nodes which will be deleted, hence the name 'big_map'
     NodeMap big_map(GetNumAllNodes()); 
-
+    
     ConformingTetrahedralMesh<2,2>::ReMesh(big_map);
-
     // if the big_map isn't the identity map, the little map ('map') needs to be
     // altered accordingly before being passed to the user. not sure how this all works,
     // so deal with this bridge when we get to it 
@@ -207,19 +226,15 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
         mTopHaloNodes[i] = big_map.GetNewIndex(mTopHaloNodes[i]);
         mBottomHaloNodes[i] = big_map.GetNewIndex(mBottomHaloNodes[i]);
     }
-    
     // This method takes in the double sized mesh, 
     // with its new boundary elements,
     // and removes the relevant nodes, elements and boundary elements
     // to leave a proper periodic mesh.
     ReconstructCylindricalMesh();
-    
     DeleteHaloNodes();
-
     // now call ReIndex to remove the temporary nodes which are marked as deleted. 
 	NodeMap reindex_map(GetNumAllNodes());
     ReIndex(reindex_map);
-
     assert(!reindex_map.IsIdentityMap());  // maybe don't need this
     
     // go through the reindex map and use it to populate the original NodeMap
@@ -395,7 +410,30 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
 
 void Cylindrical2dMesh::DeleteHaloNodes()
 {
-
+//    for (unsigned i=0; i<mTopHaloNodes.size(); i++)
+//    {
+//        Node<2>* temp_node = mNodes[mTopHaloNodes[i]];
+//        double x = temp_node->rGetLocation()[0];
+//        double y = temp_node->rGetLocation()[1];
+//        std::cout << "Top Halo node " << mTopHaloNodes[i] << " is at x= " << x <<", y= " << y << "  \n" << std::flush;
+//        
+//    }
+//    for (unsigned i=0; i<mBottomHaloNodes.size(); i++)
+//    {
+//        Node<2>* temp_node = mNodes[mBottomHaloNodes[i]];
+//        double x = temp_node->rGetLocation()[0];
+//        double y = temp_node->rGetLocation()[1];
+//        std::cout << "Bottom Halo node " << mBottomHaloNodes[i] << " is at x= " << x <<", y= " << y << "  \n" << std::flush;
+//        
+//    }
+//    for (unsigned i=0; i<mNodes.size(); i++)
+//    {
+//        Node<2>* temp_node = mNodes[i];
+//        double x = temp_node->rGetLocation()[0];
+//        double y = temp_node->rGetLocation()[1];
+//        std::cout << "Actual node " << i << " is at x= " << x <<", y= " << y << "  \n" << std::flush;
+//        
+//    }
     for (unsigned i=0; i<mTopHaloNodes.size(); i++)
     {
         
@@ -414,7 +452,6 @@ void Cylindrical2dMesh::DeleteHaloNodes()
 //        TrianglesMeshWriter<2,2> writer2("", name2);
 //        writer2.WriteFilesUsingMesh(*this);
     }
-    
     // Create a random (!) boundary element between two nodes of the first element if it is not deleted.
     // This is a temporary measure to get around reindex crashing when there are no boundary elements ( J. Coopers idea )
     bool boundary_element_made = false;
