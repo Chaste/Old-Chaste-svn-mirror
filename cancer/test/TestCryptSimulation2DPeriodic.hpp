@@ -594,12 +594,12 @@ public:
         p_simulator2->Solve();
         
         
-//        // These cells just divided and have been gradually moving apart.
-//        // These results are from time 0.25 in the StandardResult test above.
-//        std::vector<double> node_28_location = p_simulator2->GetNodeLocation(28);
+        // These cells just divided and have been gradually moving apart.
+        // These results are from time 0.25 in the StandardResult test above.
+        std::vector<double> node_28_location = p_simulator2->GetNodeLocation(28);
 //        TS_ASSERT_DELTA(node_28_location[0], 4.21232 , 1e-4);
 //        TS_ASSERT_DELTA(node_28_location[1], 0.0 , 1e-4);
-//        std::vector<double> node_120_location = p_simulator2->GetNodeLocation(120);
+        std::vector<double> node_120_location = p_simulator2->GetNodeLocation(120);
 //        TS_ASSERT_DELTA(node_120_location[0], 3.79687 , 1e-4);
 //        TS_ASSERT_DELTA(node_120_location[1], 0.10502 , 1e-4);
         
