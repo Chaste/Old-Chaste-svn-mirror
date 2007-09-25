@@ -2,7 +2,8 @@
 #define TISSUESIMULATION_HPP_
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp> // for archiving vectors
+#include <boost/serialization/vector.hpp> // for archiving std::vector
+#include <boost/serialization/set.hpp> // for archiving std::set
 #include <boost/serialization/string.hpp>
 
 #include "ColumnDataWriter.hpp"
@@ -159,6 +160,9 @@ protected:
         archive & mUseCutoffPoint;
         archive & mCutoffPoint;
         archive & mOutputCellTypes;
+//        std::cout << "Archiving mDivisionPairs\n" << std::flush;
+//        archive & mDivisionPairs;
+//        std::cout << "DONE with size = " << mDivisionPairs.size() << "\n" << std::flush;
         archive & mUseEdgeBasedSpringConstant;
     }
     
@@ -299,6 +303,8 @@ inline void save_construct_data(
     // save data required to construct instance
     const Crypt<DIM> * p_crypt = &(t->rGetCrypt());
     ar & p_crypt;
+    
+    //std::cout<<"Tissue simulation save crypt\n"<<std::flush;
 }
 
 /**
@@ -312,6 +318,7 @@ inline void load_construct_data(
     Crypt<DIM>* p_crypt;
 
     ar >> p_crypt;
+    //std::cout<<"Tissue simulation load crypt\n"<<std::flush;
 
     // invoke inplace constructor to initialize instance
     ::new(t)TissueSimulation<DIM>(*p_crypt, true);

@@ -11,6 +11,7 @@
 
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/set.hpp>
+#include <boost/serialization/list.hpp>
 
 #include <boost/serialization/export.hpp>
 
@@ -218,8 +219,11 @@ public:
         }
     }
     
-    void TestArchivingLinkedChildAndParent() throw (Exception)
+    void TestArchivingLinkedChildAndParent() throw (Exception) 
     {
+        // This test is an abstraction of archiving a cyclically linked parent-child pair. 
+        // The parent represents a MeinekeCryptCell and the child represents an AbstractCellCycleModel
+        
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "linked_classes.arch";
@@ -269,6 +273,14 @@ public:
     
     void TestArchivingSetOfPointers() throw (Exception)
     {
+        // This test is an abstraction of archiving a set of pointers and a list of objects. 
+        // The set of pointers represents mDivisionPairs in TissueSimulation, which is a set of 
+        // sets of pointers to MeinekeCryptCells (phew). The list of objects represents the list of 
+        // MeinekeCryptCells in Crypt.
+        //
+        // Note that the list.push_back method uses the copy constructor. This is why we iterate 
+        // through the list to generate the pointers to populate the set. 
+                
         std::vector<double> doubles;
         std::vector<bool> bools;
         
@@ -281,29 +293,51 @@ public:
             // Create aClassOfSimpleVariablesn ouput archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
+                        
+            ClassOfSimpleVariables one(42,"hello", doubles,bools);
+            ClassOfSimpleVariables two(256,"goodbye", doubles,bools);
+            ClassOfSimpleVariables three(1,"not used in set", doubles,bools);
+            
+            std::list<ClassOfSimpleVariables> a_list;
+            a_list.push_back(one);
+            a_list.push_back(two);
+            a_list.push_back(three);
             
             std::set<ClassOfSimpleVariables*> a_set;
-            ClassOfSimpleVariables* p_one = new ClassOfSimpleVariables(42,"hello", doubles,bools);
-            a_set.insert(p_one);
-            ClassOfSimpleVariables* p_two = new ClassOfSimpleVariables(256,"goodbye", doubles,bools);
-        
-            a_set.insert(p_two);
             
+            for (std::list<ClassOfSimpleVariables>::iterator it = a_list.begin();
+                it!=a_list.end(); ++it)
+            {
+                   ClassOfSimpleVariables* p_class = &(*(it));                   
+                   if (p_class->GetNumber()==42)
+                   {
+                        a_set.insert(p_class);
+                   }
+                   else if (p_class->GetNumber()==256)
+                   {
+                        a_set.insert(p_class);
+                   }
+            }   
             
-            //output_arch << p_child_for_archiving;
-            output_arch << static_cast<const std::set<ClassOfSimpleVariables*>&>(a_set);            
+            output_arch << static_cast<const std::list<ClassOfSimpleVariables>&>(a_list);    
+            output_arch << static_cast<const std::set<ClassOfSimpleVariables*>&>(a_set);    
+                           
         }
         //Load
         {
             std::set<ClassOfSimpleVariables*> a_set;
+            std::list<ClassOfSimpleVariables> a_list;
+            
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            
             TS_ASSERT_EQUALS(a_set.size(), 0u);
+            input_arch >> a_list;
             input_arch >> a_set;
             TS_ASSERT_EQUALS(a_set.size(), 2u);
+            
+            ClassOfSimpleVariables *p_one_in_set, *p_two_in_set;
             for (std::set<ClassOfSimpleVariables*>::iterator it = a_set.begin();
                 it!=a_set.end(); ++it)
             {
@@ -312,13 +346,41 @@ public:
                    {
                         TS_ASSERT_EQUALS(p_class->GetNumber(), 42);
                         TS_ASSERT_EQUALS(p_class->GetString(),"hello");
+                        p_one_in_set=p_class;
                    }
                    else
                    {
                         TS_ASSERT_EQUALS(p_class->GetNumber(), 256);
                         TS_ASSERT_EQUALS(p_class->GetString(),"goodbye");
+                        p_two_in_set=p_class;
                    }
             }
+            
+            ClassOfSimpleVariables *p_one_in_list, *p_two_in_list;
+            for (std::list<ClassOfSimpleVariables>::iterator it = a_list.begin();
+                it!=a_list.end(); ++it)
+            {
+                   ClassOfSimpleVariables* p_class = &(*(it));
+                   if (p_class->GetNumber()==42)
+                   {
+                        TS_ASSERT_EQUALS(p_class->GetNumber(), 42);
+                        TS_ASSERT_EQUALS(p_class->GetString(),"hello");
+                        p_one_in_list=p_class;
+                   }
+                   else if (p_class->GetNumber()==256)
+                   {
+                        TS_ASSERT_EQUALS(p_class->GetNumber(), 256);
+                        TS_ASSERT_EQUALS(p_class->GetString(),"goodbye");
+                        p_two_in_list=p_class;
+                   }
+                   else 
+                   {
+                        TS_ASSERT_EQUALS(p_class->GetNumber(), 1);
+                        TS_ASSERT_EQUALS(p_class->GetString(),"not used in set");
+                   }
+            }
+            TS_ASSERT_EQUALS(p_one_in_list, p_one_in_set);
+            TS_ASSERT_EQUALS(p_two_in_list, p_two_in_set);
         }
     }
 };
