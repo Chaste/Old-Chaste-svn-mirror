@@ -2,7 +2,8 @@
 #define TISSUESIMULATION_HPP_
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp> // for archiving vectors
+#include <boost/serialization/vector.hpp> // for archiving std::vector
+#include <boost/serialization/set.hpp> // for archiving std::set
 #include <boost/serialization/string.hpp>
 
 #include "ColumnDataWriter.hpp"
@@ -156,6 +157,7 @@ protected:
         archive & mUseCutoffPoint;
         archive & mCutoffPoint;
         archive & mOutputCellTypes;
+        //archive & mDivisionPairs;
     }
     
     /**
