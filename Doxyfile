@@ -89,7 +89,7 @@ INPUT                  =    coupled/src \
 							mesh/src \
 							ode/src \ 
 							pde/src \
-							models/src
+							cancer/src
 							                         
 FILE_PATTERNS          = *.c \
                          *.cc \
