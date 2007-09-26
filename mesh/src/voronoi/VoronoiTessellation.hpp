@@ -73,7 +73,11 @@ public:
     const VoronoiCell& rGetCell(unsigned index) const;
     const Face<DIM>* GetFace(unsigned index) const;
     
+    double GetFaceArea(unsigned index) const;
+    double GetFacePerimeter(unsigned index) const;
+    
     double GetEdgeLength(unsigned node_index_1, unsigned node_index_2) const;    
+
 };
 
 #endif /*VORONOITESSELLATION_HPP_*/

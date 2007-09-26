@@ -110,7 +110,22 @@ public:
         
         TS_ASSERT_DELTA(face.GetPerimeter(),4.0,1e-12);
         TS_ASSERT_DELTA(face.GetArea(),1.0,1e-12);
+        
+        //Test the reorder Method
+        
+        Face<2> reordered_face=-face;
+        
+                
+        TS_ASSERT_DIFFERS(reordered_face,face);
+        
+        reordered_face.OrderVerticesAntiClockwise();
+        
+        TS_ASSERT_EQUALS(reordered_face,face);
+        
+        
     }
+    
+    
 };
 
 #endif /*TESTFACE_HPP_*/

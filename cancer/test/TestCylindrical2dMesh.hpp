@@ -339,12 +339,10 @@ public:
         c_vector<double, 2> vector = p_mesh->GetVectorFromAtoB(location1, location2);
         TS_ASSERT_DELTA(vector[0], 0.5, 1e-7);
         TS_ASSERT_DELTA(vector[1], sqrt(3.0)/2.0, 1e-4);
-        TS_ASSERT_DELTA(norm_2(vector), 1.0, 1e-4);
         // and the opposite vector
         vector = p_mesh->GetVectorFromAtoB(location2, location1);
         TS_ASSERT_DELTA(vector[0], -0.5, 1e-7);
         TS_ASSERT_DELTA(vector[1], -sqrt(3.0)/2.0, 1e-4);
-        TS_ASSERT_DELTA(norm_2(vector), 1.0, 1e-4);
         
         // test a periodic calculation
         location1[0] = 0.5;
@@ -354,7 +352,6 @@ public:
         vector = p_mesh->GetVectorFromAtoB(location1, location2);
         TS_ASSERT_DELTA(vector[0], -1.0, 1e-7);
         TS_ASSERT_DELTA(vector[1], +1.0, 1e-7);
-        TS_ASSERT_DELTA(norm_2(vector), sqrt(2.0), 1e-7);
         
         // test a periodic calculation where points need to be swapped
         location1[0] = 2.5;
@@ -364,7 +361,18 @@ public:
         vector = p_mesh->GetVectorFromAtoB(location1, location2);
         TS_ASSERT_DELTA(vector[0], +1.0, 1e-7);
         TS_ASSERT_DELTA(vector[1], -1.0, 1e-7);
-        TS_ASSERT_DELTA(norm_2(vector), sqrt(2.0), 1e-7);
+        
+        // we also want GetVectorFromAtoB to work when the x coord of A and B is not
+        // between 0 and crypt width, by first normalizing the x coord (by taking modulus by crypt width)
+        
+        location1[0] = -0.5;
+        location1[1] = 0;
+        location2[0] = 2.5;
+        location2[1] = 1;
+        vector = p_mesh->GetVectorFromAtoB(location1, location2);
+        TS_ASSERT_DELTA(vector[0], 0.0, 1e-7);
+        TS_ASSERT_DELTA(vector[1], +1.0, 1e-7);
+        
     }
     
     void TestSetNodeLocationForCylindricalMesh() throw (Exception)
@@ -698,13 +706,47 @@ public:
         
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 6u);
         
-//        for (unsigned i=0; i<mesh.GetNumElements(); i++)
-//        {
-//            std::cout << "Element " << i << "has nodes " << mesh.GetElement(i)->GetNodeGlobalIndex(0) << " , "<< mesh.GetElement(i)->GetNodeGlobalIndex(1) << " , "<< mesh.GetElement(i)->GetNodeGlobalIndex(2) << " \n" << std::flush;
-//            
-//        }
-    }
+        // find the element with node indices 2,3,5 (which stradles the periodic boundary)
+        unsigned element_index;
+        std::set<unsigned> target_element_node_indices;
+        for (element_index=0; element_index<mesh.GetNumElements(); element_index++)
+        {
+            target_element_node_indices.clear();
+            target_element_node_indices.insert(2);
+            target_element_node_indices.insert(3);
+            target_element_node_indices.insert(5);
+            
+            for (unsigned node_local_index = 0; node_local_index<=2; node_local_index++)
+            {
+                target_element_node_indices.erase(mesh.GetElement(element_index)->GetNodeGlobalIndex(node_local_index));
+            }
+            if (target_element_node_indices.empty())
+            {
+                break;
+            }
+        }
+        TS_ASSERT(target_element_node_indices.empty());
+        
+        
+        // calculate the circumsphere of the element
+        c_vector<double, 3> circumsphere = mesh.GetElement(element_index)->CalculateCircumsphere();
+        
+        TS_ASSERT_DELTA(circumsphere[0], 0.9509, 1e-3);
+        TS_ASSERT_DELTA(circumsphere[1], 0.5100, 1e-3);
+        TS_ASSERT_DELTA(circumsphere[2], 0.2526, 1e-3);
 
+        /* The reason that the circumsphere is calculated correctly for a periodic boundary
+         * stradling element is somewhat obscure
+         * The jacobian of the element is calculate when the element has a mirror node
+         * The mirror node is then replaced with the node within the periodic mesh
+         * The circumsphere is calculated based on the jacobian and the replaced node within the periodic mesh
+         * 
+         * uncommenting the following line of code causes an error:
+         * Jacobian determinant is non-positive
+         * 
+         * mesh.GetElement(element_index)->RefreshJacobianDeterminant();
+         */
+    }
 
 };
 

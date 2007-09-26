@@ -50,9 +50,7 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes)
     }
     
     NodeMap node_map(nodes.size());
-    std::cout << "About to remesh\n" << std::flush;
     ReMesh(node_map);
-    std::cout << "Remeshed\n" << std::flush;
 }
 
 /**
@@ -478,7 +476,7 @@ void Cylindrical2dMesh::DeleteHaloNodes()
 /**
  * This OVERRIDDEN method evaluates the (surface) distance between two points in a 2D Cylindrical geometry.
  * 
- * locations should lie between [0, mWidth) 
+ * locations should lie between [-mWidth/4, 5*mWidth/4) 
  * 
  * @param rLocation1 the x and y co-ordinates of point 1
  * @param rLocation2 the x and y co-ordinates of point 2
@@ -488,23 +486,24 @@ void Cylindrical2dMesh::DeleteHaloNodes()
 c_vector<double, 2> Cylindrical2dMesh::GetVectorFromAtoB(const c_vector<double, 2>& rLocation1, const c_vector<double, 2>& rLocation2)
 {
     assert(mWidth>0.0);
-    assert(0.0<=rLocation1[0]);  // 1st point is not in cylinder
-    assert(0.0<=rLocation2[0]);  // 2nd point is not in cylinder
-    assert(mWidth>=rLocation1[0]);  // 1st point is not in cylinder
-    assert(mWidth>=rLocation2[0]);  // 2nd point is not in cylinder
+    
+    assert(-mWidth/4<=rLocation1[0]);  // 1st point is not in cylinder
+    assert(-mWidth/4<=rLocation2[0]);  // 2nd point is not in cylinder
+    assert(5*mWidth/4>=rLocation1[0]);  // 1st point is not in cylinder
+    assert(5*mWidth/4>=rLocation2[0]);  // 2nd point is not in cylinder
     
     c_vector<double, 2> vector = rLocation2 - rLocation1;
             
     // handle the cylindrical condition here
     // if the points are more than halfway around the cylinder apart
     // measure the other way.
-    if ( vector(0) > (mWidth / 2.0) )
+    if ( vector[0] > (mWidth / 2.0) )
     {
-        vector(0) -= mWidth;
+        vector[0] -= mWidth;
     }
-    if ( vector(0) < -(mWidth / 2.0))
+    if ( vector[0] < -(mWidth / 2.0))
     {
-        vector(0) += mWidth;  
+        vector[0] += mWidth;  
     }
     return vector;
 }

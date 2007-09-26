@@ -67,6 +67,8 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
             mJacobian(i,j) = GetNodeLocation(j+1,i) - GetNodeLocation(0,i);
         }
     }
+    
+    
     if (ELEMENT_DIM == SPACE_DIM)
     {
         mJacobianDeterminant = Determinant(mJacobian);

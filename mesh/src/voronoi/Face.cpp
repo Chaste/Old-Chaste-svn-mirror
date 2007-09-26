@@ -108,3 +108,79 @@ std::vector< c_vector<double, DIM>* > Face<DIM>::GetVertices() const
 {
     return mVertices;
 };
+
+template<unsigned DIM>
+double Face<DIM>::ReturnPolarAngle(double x, double y) const
+{
+    if (x==0)
+    {
+        if (y>0)
+        {
+            return M_PI/2.0;
+        }
+        else if (y<0)
+        {
+            return -M_PI/2.0;
+        }
+        else
+        {
+            EXCEPTION("Tried to compute polar angle of (0,0)");
+        }
+    } 
+    
+    double angle = atan(y/x);
+                    
+    if (y >= 0 && x < 0 )
+    {
+        angle += M_PI;
+    }
+    else if (y < 0 && x < 0 )
+    {                           
+        angle -= M_PI;
+    }
+    return angle;  
+};
+
+
+
+template <unsigned DIM>
+void Face<DIM>::OrderVerticesAntiClockwise()
+{
+     // Reorder mVertices Anticlockwise
+    std::vector< VertexAndAngle > vertices_and_angles;
+    
+    c_vector<double,DIM> centre ; 
+    
+    for(unsigned j=0; j<mVertices.size(); j++)
+    {
+        //std::cout<< "\n mVertices" << j << " " << (*(mVertices[j]))(0) << std::flush;
+        centre += *(mVertices[j]);
+    }
+    
+    centre /= mVertices.size();
+    for(unsigned j=0; j<mVertices.size(); j++)
+    {
+        
+        VertexAndAngle va;
+        c_vector<double, DIM> centre_to_vertex;
+        //assert(centre  *(mVertices[j]) );
+        centre_to_vertex = *(mVertices[j]) - centre;
+        va.mAngle = ReturnPolarAngle(centre_to_vertex(0), centre_to_vertex(1));
+        va.mpVertex = mVertices[j];
+        vertices_and_angles.push_back(va);
+    }
+    
+    std::sort(vertices_and_angles.begin(), vertices_and_angles.end()); 
+    
+    // create face
+    mVertices.clear();
+    for ( typename std::vector< VertexAndAngle >::iterator vertex_iterator = vertices_and_angles.begin();
+          vertex_iterator !=vertices_and_angles.end();
+          vertex_iterator++)
+    {
+        mVertices.push_back(vertex_iterator->mpVertex);
+    }
+    
+        
+};
+

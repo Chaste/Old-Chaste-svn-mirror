@@ -53,10 +53,11 @@ void VoronoiTessellation<DIM>::Initialise(ConformingTetrahedralMesh<2,2>& rMesh)
             mFaces[node_global_index]->mVertices.push_back(p_circumcentre);
         }
     }
-    
+    // Reorder mVertices Anticlockwise
     for(unsigned i=0; i<mFaces.size(); i++)
     {
-        std::vector< VertexAndAngle> vertices_and_angles;
+        
+        std::vector< VertexAndAngle > vertices_and_angles;
         for(unsigned j=0; j<mFaces[i]->mVertices.size(); j++)
         {
             
@@ -77,6 +78,7 @@ void VoronoiTessellation<DIM>::Initialise(ConformingTetrahedralMesh<2,2>& rMesh)
         {
             p_face->mVertices.push_back(vertex_iterator->mpVertex);
         }
+        
         
         // add face to list of faces
         delete mFaces[i];
@@ -274,8 +276,64 @@ double VoronoiTessellation<DIM>::GetEdgeLength(unsigned node_index_1, unsigned n
                       
     assert(intersecting_vertices.size()==2);
     
-    return norm_2(*(intersecting_vertices[0]) - *(intersecting_vertices[1]));
+    c_vector<double, DIM> edge_vector = mrMesh.GetVectorFromAtoB( *(intersecting_vertices[0]),
+                                                                  *(intersecting_vertices[1]) );
+    
+    return norm_2(edge_vector);
 };
 
+template<unsigned DIM>
+double VoronoiTessellation<DIM>::GetFaceArea(unsigned index) const
+{
+    assert(DIM==2);
+    Face<DIM>& face= *(mFaces[index]);
+    assert(face.mVertices.size()>0);
+    
+    Face<DIM> normalised_face;
+    std::vector< c_vector<double, DIM> > normalised_vertices;
+    normalised_vertices.reserve(face.mVertices.size());
+    
+    c_vector<double, DIM> vertex = zero_vector<double>(DIM);
+    normalised_vertices.push_back(vertex);
+    
+    normalised_face.mVertices.push_back( &(normalised_vertices[0]) );
+    
+    for (unsigned vertex_index=1; vertex_index<face.mVertices.size(); vertex_index++)
+    {
+        vertex = mrMesh.GetVectorFromAtoB( *(face.mVertices[0]),
+                                           *(face.mVertices[vertex_index]) );
+        normalised_vertices.push_back(vertex);
+        normalised_face.mVertices.push_back( &(normalised_vertices.back()) );
+    }
+    normalised_face.OrderVerticesAntiClockwise();
+    return normalised_face.GetArea();
+};
+
+template<unsigned DIM>
+double VoronoiTessellation<DIM>::GetFacePerimeter(unsigned index) const
+{
+    assert(DIM==2);
+    Face<DIM>& face= *(mFaces[index]);
+    assert(face.mVertices.size()>0);
+    
+    Face<DIM> normalised_face;
+    std::vector< c_vector<double, DIM> > normalised_vertices;
+    normalised_vertices.reserve(face.mVertices.size());
+    
+    c_vector<double, DIM> vertex = zero_vector<double>(DIM);
+    normalised_vertices.push_back(vertex);
+    
+    normalised_face.mVertices.push_back( &(normalised_vertices[0]) );
+    
+    for (unsigned vertex_index=1; vertex_index<face.mVertices.size(); vertex_index++)
+    {
+        vertex = mrMesh.GetVectorFromAtoB( *(face.mVertices[0]),
+                                           *(face.mVertices[vertex_index]) );
+        normalised_vertices.push_back(vertex);
+        normalised_face.mVertices.push_back( &(normalised_vertices.back()) );
+    }
+    normalised_face.OrderVerticesAntiClockwise();
+    return normalised_face.GetPerimeter();
+};
 
 #endif //VORONOITESSELLATION_CPP

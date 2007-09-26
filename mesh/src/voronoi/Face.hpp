@@ -3,13 +3,14 @@
 
 #include "UblasCustomFunctions.hpp"
 #include <vector>
+#include "Exception.hpp"
 
 template <unsigned DIM>
 class Face
 {
 public:
     /**
-     * The vertices of the face, in clockwise order. Each vertex must be distinct.
+     * The vertices of the face, in anticlockwise order. Each vertex must be distinct.
      */
     std::vector< c_vector<double, DIM>* > mVertices;
 
@@ -18,6 +19,20 @@ private:
                    Face<DIM>& rFace) const;
 
 public:
+
+
+    class VertexAndAngle
+    {
+    public:
+        c_vector< double ,DIM >* mpVertex;
+        double mAngle;
+        bool operator<(const VertexAndAngle& other) const
+        {
+            return mAngle < other.mAngle;
+        }
+    };
+
+
     /**
      * Compare two faces for equality.
      * Two faces are the same if their vertices differ only by cyclic permutation.
@@ -53,6 +68,20 @@ public:
      * Returns a vector of vertices
      */
     std::vector< c_vector<double, DIM>* > GetVertices() const;
+    
+    
+    /**
+     * Reorders the Vertices of the face anticlockwise
+     */
+     void OrderVerticesAntiClockwise();
+     
+     /**
+     * @param x x-coordinate
+     * @param y y-coordinate
+     * @return Polar angle in interval (-PI,PI]
+     */
+     double ReturnPolarAngle(double x, double y) const;
+     
 };
 
 

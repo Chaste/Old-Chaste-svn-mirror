@@ -275,6 +275,52 @@ public:
     }
     
 
+    void TestOrderVerticesAntiClockwise()
+    {
+        
+        std::vector<Node<2> *> nodes;
+        nodes.push_back(new Node<2>(0, true,  0,  0));
+        nodes.push_back(new Node<2>(0, true,  0,  1));
+        nodes.push_back(new Node<2>(0, true,  1,  1));
+        nodes.push_back(new Node<2>(0, true,  1,  0));
+        nodes.push_back(new Node<2>(0, true,  0.5,0.5));
+                
+        ConformingTetrahedralMesh<2,2> mesh(nodes);
+                
+        TS_ASSERT(mesh.CheckVoronoi());
+        
+        // Create Voronoi Tesselation
+        VoronoiTessellation<2> tessellation(mesh);
+        
+        Face<2> original_face = *(tessellation.GetFace(0u));
+        
+        
+        
+        Face<2>* p_reordered_face = tessellation.mFaces[0];
+        
+                
+        c_vector<double,2>* p_temp = p_reordered_face->mVertices[0] ;
+        
+        std::cout<< "\n Before " << *(p_reordered_face->mVertices[0]);
+        std::cout<< "\n"<< *(original_face.mVertices[0]);
+           std::cout<< "\n Before " << *(p_reordered_face->mVertices[1]);
+        std::cout<< "\n"<< *(original_face.mVertices[1]);
+        
+        p_reordered_face->mVertices[0] = p_reordered_face->mVertices[1] ; 
+        p_reordered_face->mVertices[1] = p_temp ;
+        
+        std::cout<< "\n After " << *(p_reordered_face->mVertices[0]) ;
+        std::cout<< "\n"<< *(original_face.mVertices[0]);
+        std::cout<< "\n After " << *(p_reordered_face->mVertices[1]) ;
+        std::cout<< "\n"<< *(original_face.mVertices[1]);        
+        //tessellation.OrderFaceVerticesAntiClockwise(0u); 
+        
+        TS_ASSERT_EQUALS(*p_reordered_face,original_face);
+        
+        //TS_ASSERT_DIFFERS(original_face,original_face);
+        
+    
+    }
 //    void TestWhetherMutationsSpread() throw (Exception)
 //    {        
 //        SimulationTime* p_simulation_time = SimulationTime::Instance();
