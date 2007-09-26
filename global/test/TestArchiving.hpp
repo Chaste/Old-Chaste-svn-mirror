@@ -271,9 +271,9 @@ public:
     }
     
     
-    void TestArchivingSetOfPointers() throw (Exception)
+    void TestArchivingSetOfSetOfPointers() throw (Exception)
     {
-        // This test is an abstraction of archiving a set of pointers and a list of objects. 
+        // This test is an abstraction of archiving a set of sets of pointers and a list of objects. 
         // The set of pointers represents mDivisionPairs in TissueSimulation, which is a set of 
         // sets of pointers to MeinekeCryptCells (phew). The list of objects represents the list of 
         // MeinekeCryptCells in Crypt.
@@ -299,42 +299,35 @@ public:
             ClassOfSimpleVariables three(1,"not used in set", doubles,bools);
             
             std::list<ClassOfSimpleVariables> a_list;
+            std::set<ClassOfSimpleVariables*> a_set;
             a_list.push_back(one);
+            a_set.insert( &(a_list.back()) );
             a_list.push_back(two);
+            a_set.insert( &(a_list.back()) );
             a_list.push_back(three);
             
-            std::set<ClassOfSimpleVariables*> a_set;
             
-            for (std::list<ClassOfSimpleVariables>::iterator it = a_list.begin();
-                it!=a_list.end(); ++it)
-            {
-                   ClassOfSimpleVariables* p_class = &(*(it));                   
-                   if (p_class->GetNumber()==42)
-                   {
-                        a_set.insert(p_class);
-                   }
-                   else if (p_class->GetNumber()==256)
-                   {
-                        a_set.insert(p_class);
-                   }
-            }   
+            std::set<std::set<ClassOfSimpleVariables*> > wrapper_set;
+            wrapper_set.insert(a_set);
             
             output_arch << static_cast<const std::list<ClassOfSimpleVariables>&>(a_list);    
-            output_arch << static_cast<const std::set<ClassOfSimpleVariables*>&>(a_set);    
+            output_arch << static_cast<const std::set<std::set<ClassOfSimpleVariables*> >&>(wrapper_set);    
                            
         }
         //Load
         {
-            std::set<ClassOfSimpleVariables*> a_set;
+            std::set<std::set<ClassOfSimpleVariables*> > wrapper_set;
             std::list<ClassOfSimpleVariables> a_list;
             
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            TS_ASSERT_EQUALS(a_set.size(), 0u);
+            TS_ASSERT_EQUALS(wrapper_set.size(), 0u);
             input_arch >> a_list;
-            input_arch >> a_set;
+            input_arch >> wrapper_set;
+            TS_ASSERT_EQUALS(wrapper_set.size(), 1u);
+            const std::set<ClassOfSimpleVariables*>& a_set = *(wrapper_set.begin());
             TS_ASSERT_EQUALS(a_set.size(), 2u);
             
             ClassOfSimpleVariables *p_one_in_set, *p_two_in_set;

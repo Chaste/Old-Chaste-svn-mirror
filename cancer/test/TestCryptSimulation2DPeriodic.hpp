@@ -770,21 +770,12 @@ public:
         // These cells just divided and have been gradually moving apart.
         // These results are from time 0.25 in the StandardResult test above.
         std::vector<double> node_28_location = p_simulator2->GetNodeLocation(28);
-//        TS_ASSERT_DELTA(node_28_location[0], 4.0 , 1e-4);
-//        TS_ASSERT_DELTA(node_28_location[1], 0.0 , 1e-4);
-        std::vector<double> node_120_location = p_simulator2->GetNodeLocation(120);
-//        TS_ASSERT_DELTA(node_120_location[0], 3.8380 , 1e-4);
-//        TS_ASSERT_DELTA(node_120_location[1], 0.2938 , 1e-4);
-        
-        // These cells just divided and have been gradually moving apart.
-        // These results are from time 0.25 in the StandardResult test above.
-        //Bad results - The following ought not to pass.
         TS_ASSERT_DELTA(node_28_location[0], 4.0 , 1e-4);
         TS_ASSERT_DELTA(node_28_location[1], 0.0 , 1e-4);
-        
-        TS_ASSERT_DELTA(node_120_location[0], 3.66667 , 1e-4);
-        TS_ASSERT_DELTA(node_120_location[1], 0.5230 , 1e-4);
-                
+        std::vector<double> node_120_location = p_simulator2->GetNodeLocation(120);
+        TS_ASSERT_DELTA(node_120_location[0], 3.8380 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[1], 0.2938 , 1e-4);
+                        
         delete p_simulator1;
         delete p_simulator2;
         SimulationTime::Destroy();

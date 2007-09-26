@@ -11,6 +11,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/list.hpp>
+#include <boost/serialization/map.hpp>
 
 /**
  * Structure encapsulating variable identifiers for the node datawriter
@@ -92,10 +93,17 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         //std::cout << "Archiving crypt member variables\n" << std::flush;
+        archive & mCells;
+        archive & mNodeCellMap;
         archive & mIsGhostNode;
         archive & mMaxCells;
         archive & mMaxElements;
+        
+        //CheckCryptCellPointers();
     }
+    
+    /// For debugging
+    void CheckCryptCellPointers();
     
 public:
     /** Hack until meshes are fully archived using boost::serialization */
@@ -113,6 +121,13 @@ public:
      */
     Crypt(ConformingTetrahedralMesh<DIM, DIM>&, const std::vector<MeinekeCryptCell>&,
           bool deleteMesh=false);
+          
+    /**
+     * Constructor for use by the de-serializer.
+     * 
+     * @param rMesh a conforming tetrahedral mesh.
+     */
+    Crypt(ConformingTetrahedralMesh<DIM, DIM>&);
     
     ~Crypt();
     
@@ -374,7 +389,6 @@ inline void save_construct_data(
 {
     //std::cout << "Saving construct data\n" << std::flush;
     // save data required to construct instance
-    ar & t->rGetCells();
     const ConformingTetrahedralMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
     ar & p_mesh;
 }
@@ -388,9 +402,6 @@ inline void load_construct_data(
 {
     //std::cout << "Loading construct data\n" << std::flush; 
     // retrieve data from archive required to construct new instance
-    std::list<MeinekeCryptCell> cells;
-    ar >> cells;
-    std::vector<MeinekeCryptCell> vec_cells(cells.begin(), cells.end());
     ConformingTetrahedralMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
     // Re-initialise the mesh
@@ -401,7 +412,7 @@ inline void load_construct_data(
     NodeMap map(p_mesh->GetNumNodes());
     p_mesh->ReMesh(map);
     // invoke inplace constructor to initialize instance
-    ::new(t)Crypt<DIM>(*p_mesh, vec_cells, true);
+    ::new(t)Crypt<DIM>(*p_mesh);
 }
 }
 } // namespace ...

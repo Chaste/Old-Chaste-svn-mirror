@@ -130,6 +130,48 @@ protected:
     /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
     bool mUseEdgeBasedSpringConstant;
     
+#define COVERAGE_IGNORE
+    /**
+     * A helpful method for debugging.
+     */
+    void CheckDivisionPairPointers()
+    {
+        bool res = true;
+        for (std::set<std::set<MeinekeCryptCell*> >::iterator it1 = mDivisionPairs.begin();
+             it1 != mDivisionPairs.end();
+             ++it1)
+        {
+            const std::set<MeinekeCryptCell*>& r_pair = *it1;
+            assert(r_pair.size() == 2);
+            for (std::set<MeinekeCryptCell*>::iterator it2 = r_pair.begin();
+                 it2 != r_pair.end();
+                 ++it2)
+            {
+                MeinekeCryptCell* p_cell = *it2;
+                assert(p_cell);
+                AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
+                assert(p_model);
+                // Check cell exists in crypt
+                unsigned node_index = p_cell->GetNodeIndex();
+                std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
+                MeinekeCryptCell& r_cell = mrCrypt.rGetCellAtNodeIndex(node_index);
+                if (&r_cell != p_cell)
+                {
+                    std::cout << "  Mismatch with crypt" << std::endl << std::flush;
+                    res = false;
+                }
+                // Check model links back to cell
+                if (p_model->GetCell() != p_cell)
+                {
+                    std::cout << "  Mismatch with cycle model" << std::endl << std::flush;
+                    res = false;
+                }
+            }
+        }
+        assert(res);
+    }
+#undef COVERAGE_IGNORE
+    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -160,9 +202,8 @@ protected:
         archive & mUseCutoffPoint;
         archive & mCutoffPoint;
         archive & mOutputCellTypes;
-//        std::cout << "Archiving mDivisionPairs\n" << std::flush;
-//        archive & mDivisionPairs;
-//        std::cout << "DONE with size = " << mDivisionPairs.size() << "\n" << std::flush;
+        archive & mDivisionPairs;
+        //CheckDivisionPairPointers();
         archive & mUseEdgeBasedSpringConstant;
     }
     

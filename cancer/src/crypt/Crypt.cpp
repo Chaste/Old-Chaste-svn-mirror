@@ -50,6 +50,13 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
 }
 
 template<unsigned DIM>
+Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh)
+             : mrMesh(rMesh)
+{
+    mDeleteMesh = true;
+}
+
+template<unsigned DIM>
 Crypt<DIM>::~Crypt()
 {
     if (mDeleteMesh)
@@ -862,8 +869,39 @@ VoronoiTessellation<DIM>& Crypt<DIM>::rGetVoronoiTessellation()
     assert(mpVoronoiTessellation!=NULL);
     return *mpVoronoiTessellation;
 }
-    
 
+#define COVERAGE_IGNORE
+template<unsigned DIM>
+void Crypt<DIM>::CheckCryptCellPointers()
+{
+    bool res=true;
+    for (std::list<MeinekeCryptCell>::iterator it=mCells.begin();
+        it!=mCells.end();
+        ++it)
+    {
+        MeinekeCryptCell* p_cell=&(*it);
+        assert(p_cell);
+        AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
+        assert(p_model);
+        // Check cell exists in crypt
+        unsigned node_index = p_cell->GetNodeIndex();
+        std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
+        MeinekeCryptCell& r_cell = rGetCellAtNodeIndex(node_index);
+        if (&r_cell != p_cell)
+        {
+            std::cout << "  Mismatch with crypt" << std::endl << std::flush;
+            res = false;
+        }
+        // Check model links back to cell
+        if (p_model->GetCell() != p_cell)
+        {
+            std::cout << "  Mismatch with cycle model" << std::endl << std::flush;
+            res = false;
+        }
+    }
+    assert(res);
+}
+#undef COVERAGE_IGNORE
 
 #endif //CRYPT_CPP
 
