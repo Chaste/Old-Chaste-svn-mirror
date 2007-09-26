@@ -22,7 +22,7 @@ IngeWntOdeSystem::IngeWntOdeSystem(double wntLevel, const CryptCellMutationState
     double d_d_hat = mDd + mXiD*wntLevel;
     double d_d_x_hat = mDdx + mXiDx*wntLevel;
     double d_x_hat = mDx + mXiX*wntLevel;
-    //double p_c_hat = mPc + mXiC*wntLevel;
+    double p_c_hat = mPc + mXiC*wntLevel;
     
     double sigma_D = 0.0;   // for healthy cells
     double sigma_B = 0.0;   // for healthy cells
@@ -58,30 +58,38 @@ IngeWntOdeSystem::IngeWntOdeSystem(double wntLevel, const CryptCellMutationState
         #undef COVERAGE_IGNORE
     }
     
-    double temp = ((1.0-sigma_D)*mSd*mSx)/((1.0-sigma_D)*mSd*d_d_hat + d_x_hat*(d_d_hat + d_d_x_hat));
+    double steady_D = ((1.0-sigma_D)*mSd*mSx)/((1.0-sigma_D)*mSd*d_d_hat + d_x_hat*(d_d_hat + d_d_x_hat));
     
     mVariableNames.push_back("D");  //  Destruction complex (APC/Axin/GSK3B)
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(temp);
+    mInitialConditions.push_back(steady_D);
     
-    // TODO: This line does not give 0.06666666666667
-    //temp = (mSx*(d_d_hat+d_d_x_hat))/((1.0-sigma_D)*mSd*d_d_hat+d_d_x_hat*(d_d_hat+d_d_x_hat));
+    double temp = (mSx*(d_d_hat+d_d_x_hat))/((1.0-sigma_D)*mSd*d_d_hat+d_x_hat*(d_d_hat+d_d_x_hat));
     
     mVariableNames.push_back("X");  //  Axin
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.06666666666667);
+    mInitialConditions.push_back(temp);
+    
+    double steady_Cf = ((mSc-mDc*mKd - mPu*steady_D)+sqrt(pow((mSc-mDc*mKd - mPu*steady_D),2) + (4.0*mSc*mDc*mKd)))/(2.0*mDc);
+    temp = (mPu*steady_D*steady_Cf)/(mDu*(steady_Cf+mKd));
     
     mVariableNames.push_back("Cu"); //  beta-catenin to be ubiquitinated
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.4492);
+    mInitialConditions.push_back(temp);
+    
+    double theta = mDc+ (mPu*steady_D)/(steady_Cf + mKd);
+    
+    double steady_Co = ( mSc - p_c_hat - theta*mKc + sqrt(4.0*mSc*theta*mKc + pow((mSc - p_c_hat - theta*mKc),2)) )/(2.0*theta);
     
     mVariableNames.push_back("Co"); //  Open form beta-catenin
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(2.5403);
+    mInitialConditions.push_back(steady_Co);
+    
+    double steady_Cc = steady_Cf - steady_Co;
     
     mVariableNames.push_back("Cc"); //  Closed form beta-catenin
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.0);
+    mInitialConditions.push_back(steady_Cc);
     
     mVariableNames.push_back("Mo"); //  Open form mutant beta-catenin
     mVariableUnits.push_back("nM");
@@ -93,27 +101,27 @@ IngeWntOdeSystem::IngeWntOdeSystem(double wntLevel, const CryptCellMutationState
     
     mVariableNames.push_back("A");  //  `Free' adhesion molecules
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(10.0);
+    mInitialConditions.push_back(mSa/mDa);
     
     mVariableNames.push_back("Ca"); //  Co-A    Adhesion complex
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(18.1449);
+    mInitialConditions.push_back(mSa*mSca*steady_Co/(mDa*mDca));
     
     mVariableNames.push_back("Ma"); //  Mo-A    Mutant adhesion complex
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(18.1449);
+    mInitialConditions.push_back(0.0);
     
     mVariableNames.push_back("T");  //  `free' transcription molecules (TCF)
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(25.0);
+    mInitialConditions.push_back(mSt/mDt);
     
     mVariableNames.push_back("Cot");//  Co-T open form beta-catenin/TCF
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(2.5403);
+    mInitialConditions.push_back(mSct*mSt*steady_Co/(mDt*mDct));
     
     mVariableNames.push_back("Cct");//  Cc-T closed beta-catenin/TCF
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.0);
+    mInitialConditions.push_back(mSct*mSt*steady_Cc/(mDt*mDct));
     
     mVariableNames.push_back("Mot");//  Mo-T open form mutant beta-catenin/TCF
     mVariableUnits.push_back("nM");
@@ -123,9 +131,11 @@ IngeWntOdeSystem::IngeWntOdeSystem(double wntLevel, const CryptCellMutationState
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(0.0);
     
+    temp = (mSct*mSt*mSy*steady_Cf)/(mDy*(mSct*mSt*steady_Cf + mDct*mDt*mKt));
+    
     mVariableNames.push_back("Y");  //  Wnt target protein
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.4835);
+    mInitialConditions.push_back(temp);
     
     mVariableNames.push_back("Sw");  //  Wnt stimulus
     mVariableUnits.push_back("nM");
@@ -265,11 +275,13 @@ void IngeWntOdeSystem::EvaluateYDerivatives(double time, const std::vector<doubl
     }
       
     rDY[0] = (1.0-sigma_D)*mSd*X - (d_d_hat + d_d_x_hat)*D;
-    
     rDY[1] = mSx - (1.0-sigma_D)*mSd*X - d_x_hat*X + d_d_x_hat*D;
     rDY[2] = (mPu*D*Cf)/(Cf+mKd) - mDu*Cu;
+
     rDY[3] = (1.0-sigma_B)*mSc + mDca*Ca + mDct*Cot - (mSca*A + mSct*T + mDc)*Co
              - (p_c_hat*Co)/(Co + Mo + mKc) - (mPu*D*Co)/(Cf+mKd);
+    
+
     rDY[4] = (p_c_hat*Co)/(Co + Mo + mKc) + mDct*Cct - (mSct*T + mDc)*Cc
              - (mPu*D*Cc)/(Cf+mKd);
     rDY[5] = sigma_B*mSc + mDca*Ma + mDct*Mot - (mSca*A + mSct*T + mDc)*Mo
@@ -277,7 +289,9 @@ void IngeWntOdeSystem::EvaluateYDerivatives(double time, const std::vector<doubl
     rDY[6] = (p_c_hat*Mo)/(Co + Mo + mKc) + mDct*Mct - (mSct*T + mDc)*Mc;    
     rDY[7] = mSa + mDca*(Ca+Ma) - (mSca*(Co+Mo) + mDa)*A;
     rDY[8] = mSca*Co*A - mDca*Ca; 
+
     rDY[9] = mSca*Mo*A - mDca*Ma; 
+
     rDY[10] = mSt + mDct*(Ct+Mt) - mSct*(Cf+Mf)*T - mDt*T;
     rDY[11] = mSct*Co*T - mDct*Cot; 
     rDY[12] = mSct*Cc*T - mDct*Cct; 

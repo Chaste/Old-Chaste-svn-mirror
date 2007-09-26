@@ -3,7 +3,9 @@ TestCryptSimulation.hpp
 TestCryptSimulation2DPeriodic.hpp
 TestCellCycleModels.hpp
 TestCylindrical2dMesh.hpp
+TestGaryWntOdeSystem.hpp
 TestHoneycombMeshGenerator.hpp
+TestIngeWntOdeSystem.hpp
 TestMeinekeCryptCell.hpp
 TestWntGradient.hpp
 TestCellKillers.hpp
