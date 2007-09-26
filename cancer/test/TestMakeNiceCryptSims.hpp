@@ -78,17 +78,13 @@ class TestNiceCryptSims : public CxxTest::TestSuite
             }
             else if (cycleType==WNT)
             {
-                WntGradient wnt_gradient(OFFSET_LINEAR);
-                double wnt = wnt_gradient.GetWntLevel(y);
-                p_cell_cycle_model = new WntCellCycleModel(wnt);
+                p_cell_cycle_model = new WntCellCycleModel(0.0);
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }
             else if (cycleType==STOCHASTIC_WNT)
             {
-                WntGradient wnt_gradient(OFFSET_LINEAR);
-                double wnt = wnt_gradient.GetWntLevel(y);
-                p_cell_cycle_model = new StochasticWntCellCycleModel(wnt);
+                p_cell_cycle_model = new StochasticWntCellCycleModel(0.0);
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }
@@ -102,8 +98,7 @@ class TestNiceCryptSims : public CxxTest::TestSuite
             {
                 EXCEPTION("Cell Cycle Type is not recognised");   
             }
-            
-            
+                        
             double birth_time = 0.0;
             
             if (y <= y0)
@@ -197,6 +192,10 @@ void TestNiceCryptSimulation() throw (Exception)
               
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
+                
+        SingletonWntGradient::Instance()->SetType(OFFSET_LINEAR);
+        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory(output_directory);
         
@@ -208,7 +207,6 @@ void TestNiceCryptSimulation() throw (Exception)
         
         simulator.SetMaxCells(1000);
         simulator.SetMaxElements(2000);
-        simulator.SetWntGradient(OFFSET_LINEAR);
 
         AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetCrypt(),0.01);
         simulator.AddCellKiller(p_cell_killer);
@@ -251,6 +249,7 @@ void TestNiceCryptSimulation() throw (Exception)
         delete p_params;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
 std::vector<unsigned> Label()

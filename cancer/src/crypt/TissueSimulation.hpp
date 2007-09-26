@@ -269,7 +269,6 @@ public:
     void SetReMeshRule(bool remesh);
     void SetNoBirth(bool nobirth);
     void SetOutputCellTypes(bool output_cell_types);
-    void SetWntGradient(WntGradientType wntGradientType);
     void SetEdgeBasedSpringConstant(bool use_edge_based_spring_constant);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);

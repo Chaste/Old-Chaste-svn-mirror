@@ -13,7 +13,7 @@
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-#include "WntGradient.hpp"
+#include "SingletonWntGradient.hpp"
 #include "WntCellCycleOdeSystem.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
@@ -647,6 +647,9 @@ public:
         
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
+        
+        SingletonWntGradient::Instance()->SetType(LINEAR);
+        SingletonWntGradient::Instance()->SetCrypt(crypt);
 
         TissueSimulation<2> simulator(crypt);
         
@@ -655,7 +658,6 @@ public:
         simulator.SetEndTime(24.0);
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
-        simulator.SetWntGradient(LINEAR);
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
@@ -672,6 +674,7 @@ public:
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
    
@@ -720,14 +723,15 @@ public:
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
+        SingletonWntGradient::Instance()->SetType(LINEAR);
+        SingletonWntGradient::Instance()->SetCrypt(crypt);
+
         TissueSimulation<2> simulator(crypt);
         
-        simulator.SetOutputDirectory("Crypt2DPeriodicMutant");
-        
+        simulator.SetOutputDirectory("Crypt2DPeriodicMutant");        
         simulator.SetEndTime(12.0);
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
-        simulator.SetWntGradient(LINEAR);
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
@@ -762,6 +766,7 @@ public:
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
 
@@ -1014,8 +1019,7 @@ public:
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
-    }
-    
+    }  
 };
 
 

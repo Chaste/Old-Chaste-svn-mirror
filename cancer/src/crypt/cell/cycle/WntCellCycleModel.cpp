@@ -34,7 +34,7 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
     mDivideTime = DBL_MAX;
 
     //temp
-    mUseWntGradient = false;
+    mUseWntGradient = true;
 }
 
 /**
@@ -47,7 +47,8 @@ WntCellCycleModel::WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,//c
                                      const CryptCellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime, bool useWntGradient)
-        : AbstractCellCycleModel()
+        : AbstractCellCycleModel(),
+          mUseWntGradient(useWntGradient)
 {
     if (pParentOdeSystem !=NULL)
     {
@@ -72,10 +73,6 @@ WntCellCycleModel::WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,//c
     mInSG2MPhase = inSG2MPhase;
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
-
-    //temp
-    mUseWntGradient = useWntGradient;
-
 }
 
 /**
@@ -153,11 +150,11 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
     assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
-    assert(cellCycleInfluences.size()==1);
     
     // Use the WntStimulus provided as an input
     if(!mUseWntGradient)
-    {    
+    {   
+        assert(0); // no longer going through here..
         mpOdeSystem->rGetStateVariables()[8] = cellCycleInfluences[0];
     }
     else

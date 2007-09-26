@@ -607,18 +607,6 @@ void TissueSimulation<DIM>::UseCutoffPoint(double cutoffPoint)
     mCutoffPoint = cutoffPoint;
 }
 
-
-/**
- * This automatically sets this to be a wnt dependent simulation.
- * You should supply cells with a wnt cell cycle...
- */
-template<unsigned DIM> 
-void TissueSimulation<DIM>::SetWntGradient(WntGradientType wntGradientType)
-{
-    mWntIncluded = true;
-    mWntGradient = WntGradient(wntGradientType);
-}
-
 /**
  * Use an edge-based spring constant
  */

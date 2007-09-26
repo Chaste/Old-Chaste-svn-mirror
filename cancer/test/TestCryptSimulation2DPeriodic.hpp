@@ -78,11 +78,7 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
             }
             else if (cycleType==WNT)
             {
-                WntGradient wnt_gradient(LINEAR);
-                double wnt = wnt_gradient.GetWntLevel(y);
-                p_cell_cycle_model = new WntCellCycleModel(wnt);
-                //temporary line of code
-                ((WntCellCycleModel*)(p_cell_cycle_model))->SetUseWntGradient();
+                p_cell_cycle_model = new WntCellCycleModel(0.0);
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }
@@ -538,18 +534,15 @@ public:
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells 
-        std::vector<MeinekeCryptCell> cells; 
-        
-        WntGradient wnt_gradient(LINEAR);       
+        std::vector<MeinekeCryptCell> cells;                      
         CreateVectorOfCells(cells, *p_mesh, WNT, false);
         
         Crypt<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
+        crypt.SetGhostNodes(ghost_node_indices);  
         
-        SingletonWntGradient::Instance()->SetType(LINEAR);
+        SingletonWntGradient::Instance()->SetType(LINEAR);             
         SingletonWntGradient::Instance()->SetCrypt(crypt);
-        //wnt_gradient.SetCrypt(crypt);
-
+        
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DPeriodicWnt");
         
@@ -557,9 +550,7 @@ public:
         simulator.SetEndTime(0.3);
         
         simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
-        
-        simulator.SetWntGradient(LINEAR);
+        simulator.SetMaxElements(1000);   
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
@@ -596,8 +587,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         std::vector<MeinekeCryptCell> cells;
-        
-        WntGradient wnt_gradient(LINEAR);
+                
         CreateVectorOfCells(cells, *p_mesh, WNT, false);
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
@@ -610,8 +600,7 @@ public:
         simulator.SetOutputDirectory("Crypt2DMeshArchive");
         simulator.SetEndTime(0.1);
         simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
-        
+        simulator.SetMaxElements(1000);        
         
         // Memory leak (unconditional jump) without the following line.
         // The archiver assumes that a Solve has been called and simulation time has been set up properly.
@@ -629,7 +618,6 @@ public:
         TissueSimulation<2>* p_simulator;
         p_simulator = TissueSimulation<2>::Load("Crypt2DMeshArchive", 0.0);
 
-        
         // Create an identical mesh for comparison purposes
         HoneycombMeshGenerator generator2(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh2=generator2.GetCylindricalMesh();
@@ -677,8 +665,6 @@ public:
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
-
-        simulator.SetWntGradient(LINEAR);
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
@@ -689,11 +675,11 @@ public:
         // These results are from time 0.25, which is also tested below
         // after a save and a load. (To check archiving of mDivisionPairs)
         std::vector<double> node_28_location = simulator.GetNodeLocation(28);
-        TS_ASSERT_DELTA(node_28_location[0], 4.21232 , 1e-4);
+        TS_ASSERT_DELTA(node_28_location[0], 4.0 , 1e-4);
         TS_ASSERT_DELTA(node_28_location[1], 0.0 , 1e-4);
         std::vector<double> node_120_location = simulator.GetNodeLocation(120);
-        TS_ASSERT_DELTA(node_120_location[0], 3.79687 , 1e-4);
-        TS_ASSERT_DELTA(node_120_location[1], 0.10502 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[0], 3.8380 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[1], 0.2938 , 1e-4);
                 
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
@@ -735,8 +721,6 @@ public:
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
-
-        simulator.SetWntGradient(LINEAR);
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
@@ -786,20 +770,20 @@ public:
         // These cells just divided and have been gradually moving apart.
         // These results are from time 0.25 in the StandardResult test above.
         std::vector<double> node_28_location = p_simulator2->GetNodeLocation(28);
-//        TS_ASSERT_DELTA(node_28_location[0], 4.21232 , 1e-4);
+//        TS_ASSERT_DELTA(node_28_location[0], 4.0 , 1e-4);
 //        TS_ASSERT_DELTA(node_28_location[1], 0.0 , 1e-4);
         std::vector<double> node_120_location = p_simulator2->GetNodeLocation(120);
-//        TS_ASSERT_DELTA(node_120_location[0], 3.79687 , 1e-4);
-//        TS_ASSERT_DELTA(node_120_location[1], 0.10502 , 1e-4);
+//        TS_ASSERT_DELTA(node_120_location[0], 3.8380 , 1e-4);
+//        TS_ASSERT_DELTA(node_120_location[1], 0.2938 , 1e-4);
         
         // These cells just divided and have been gradually moving apart.
         // These results are from time 0.25 in the StandardResult test above.
         //Bad results - The following ought not to pass.
-        TS_ASSERT_DELTA(node_28_location[0], 4.38459 , 1e-4);
+        TS_ASSERT_DELTA(node_28_location[0], 4.0 , 1e-4);
         TS_ASSERT_DELTA(node_28_location[1], 0.0 , 1e-4);
         
-        TS_ASSERT_DELTA(node_120_location[0], 3.67007 , 1e-4);
-        TS_ASSERT_DELTA(node_120_location[1], 0.16461 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[0], 3.66667 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[1], 0.5230 , 1e-4);
                 
         delete p_simulator1;
         delete p_simulator2;
@@ -836,13 +820,11 @@ public:
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-        
-        WntGradient wnt_gradient(LINEAR);
-        
+                
         // Set up cells
-        std::vector<MeinekeCryptCell> cells;
-        
+        std::vector<MeinekeCryptCell> cells;        
         CreateVectorOfCells(cells, *p_mesh, WNT, true);
+        
         cells[0].SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         cells[1].SetBirthTime(-1.0);
         cells[1].SetMutationState(LABELLED);
@@ -856,9 +838,7 @@ public:
         
         SingletonWntGradient::Instance()->SetType(LINEAR);
         SingletonWntGradient::Instance()->SetCrypt(crypt);
-        //wnt_gradient.SetCrypt(crypt);
-        
-        
+                
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DWntMatureCells");
         // If you want to visualize this use the 'notcylindrical' option
@@ -866,7 +846,6 @@ public:
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
-        simulator.SetWntGradient(LINEAR);
         simulator.SetEndTime(0.01);
         simulator.SetOutputCellTypes(true);        
         simulator.Solve();
@@ -890,9 +869,8 @@ public:
         RandomNumberGenerator::Destroy();
         SingletonWntGradient::Destroy();
     }
-
     
-    // This is strange test -- all cells divide within a quick time, it gives
+    // This is a strange test -- all cells divide within a quick time, it gives
     // good testing of the periodic boundaries though... [comment no longer valid?]
     void TestWithTysonNovakCells() throw (Exception)
     {
@@ -1037,9 +1015,7 @@ public:
         
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator::Instance();
-        
-        WntGradient wnt_gradient(LINEAR);
-        
+                
         // Set up cells by iterating through the mesh nodes
         std::vector<MeinekeCryptCell> cells;
         for (unsigned i=0; i<num_cells; i++)
@@ -1088,11 +1064,8 @@ public:
             {
                 mutation_state = APC_TWO_HIT;
             }
-            
-            
-            double wnt = wnt_gradient.GetWntLevel(y);
-            
-            WntCellCycleModel* p_model = new WntCellCycleModel(wnt);
+                  
+            WntCellCycleModel* p_model = new WntCellCycleModel(0.0);
             p_model->SetUseWntGradient();
             
             MeinekeCryptCell cell(cell_type, mutation_state, generation, p_model);
@@ -1106,8 +1079,7 @@ public:
 
         SingletonWntGradient::Instance()->SetType(LINEAR);
         SingletonWntGradient::Instance()->SetCrypt(crypt);
-        //wnt_gradient.SetCrypt(crypt);
-
+        
         TissueSimulation<2> simulator(crypt);
         
         simulator.SetMaxCells(400);
@@ -1203,9 +1175,7 @@ public:
         ************************************************************************
         ************************************************************************ 
         */
-        simulator.SetWntGradient(LINEAR);
-        simulator.UpdateCellTypes();
-        
+        simulator.UpdateCellTypes();        
         
         for (Crypt<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();

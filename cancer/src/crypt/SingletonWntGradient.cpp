@@ -51,7 +51,7 @@ void SingletonWntGradient::Destroy()
 
 double SingletonWntGradient::GetWntLevel(MeinekeCryptCell* pCell)
 {
-    if(mUseConstantWntValueForTesting)
+    if(mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a crypt
     {
         return mConstantWntValueForTesting;
     }
@@ -59,7 +59,7 @@ double SingletonWntGradient::GetWntLevel(MeinekeCryptCell* pCell)
     assert(mpCrypt!=NULL);
     assert(mTypeSet);
     assert(pCell!=NULL);
-    double height=(mpCrypt->GetLocationOfCell(*pCell))(1);
+    double height=(mpCrypt->GetLocationOfCell(*pCell))(1);// y-coord.
     return GetWntLevel(height);
 }
 

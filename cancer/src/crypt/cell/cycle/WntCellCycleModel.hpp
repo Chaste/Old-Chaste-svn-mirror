@@ -72,7 +72,7 @@ public:
     WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem, 
                       const CryptCellMutationState& rMutationState, 
                       double birthTime, double lastTime,
-                      bool inSG2MPhase, bool readyToDivide, double divideTime, bool useWntGradient=false);
+                      bool inSG2MPhase, bool readyToDivide, double divideTime, bool useWntGradient=true);
    /**
      * This is needed to create an exact copy of the current cell cycle model
      * (called by archiving functions)

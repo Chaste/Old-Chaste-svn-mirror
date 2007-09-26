@@ -37,8 +37,7 @@ public:
         TS_ASSERT_DELTA(derivs[5],factor*2.725552844639836e-04, 1e-5);
         TS_ASSERT_DELTA(derivs[6],factor*2.649781064090187e-07, 1e-5);
         TS_ASSERT_DELTA(derivs[7],factor*0.0, 1e-5);
-        
-       }
+    }
     
     void TestLee2003WntSignallingOdeSolver() throw(Exception)
     {
@@ -108,11 +107,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],1.530283641433451e+02, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][6],4.922155688613715e-04, 1e-5);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][7],1.00, 1e-5);
-            
-        
     }
-    
-    
 };
 
 #endif /*TESTWNTCELLCYCLEODESYSTEM_HPP_*/

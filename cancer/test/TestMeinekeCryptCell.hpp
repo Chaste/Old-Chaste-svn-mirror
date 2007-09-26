@@ -265,16 +265,20 @@ public:
         
         // Test a Wnt dependent cell
         WntGradient wnt_gradient;
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(0.0);
         
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
                                    new WntCellCycleModel(0.0));
+        wnt_cell.InitialiseCellCycleModel();
                                    
         wnt_cell.UpdateCellType();
         
         TS_ASSERT_EQUALS(wnt_cell.GetCellType(),DIFFERENTIATED);
         
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(1.0);
+
         // Push up the Wnt stimulus and go forward through time
         std::vector<double> cell_cycle_influences;
         cell_cycle_influences.push_back(1.0);
@@ -282,12 +286,14 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
         }
+
         wnt_cell.ReadyToDivide(cell_cycle_influences);
         wnt_cell.UpdateCellType();
         
         TS_ASSERT_EQUALS(wnt_cell.GetCellType(),TRANSIT);
           
         SimulationTime::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
     void Test0DBucket()
@@ -305,10 +311,7 @@ public:
                                    HEALTHY,//Mutation State
                                    0,  // generation
                                    new FixedCellCycleModel());
-                                   
-                                   
-                                   
-                                   
+                                                                      
         std::vector<MeinekeCryptCell> cells;
         std::vector<MeinekeCryptCell> newly_born;
         std::vector<unsigned> stem_cells(time_steps);
@@ -769,10 +772,12 @@ public:
         WntGradient wnt_gradient;
         
         double wnt_stimulus = 1.0;
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   HEALTHY,//Mutation State
                                   1,    // generation
                                   new WntCellCycleModel(wnt_stimulus));
+        wnt_cell.InitialiseCellCycleModel();
                  
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -780,6 +785,8 @@ public:
             double time = p_simulation_time->GetDimensionalisedTime();
             std::vector<double> wnt;
             wnt.push_back(wnt_stimulus);
+
+            SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
             if (time>=5.971+SG2MDuration)
             {
                 TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
@@ -794,6 +801,9 @@ public:
         std::vector<double> wnt;
         wnt.push_back(wnt_stimulus);
         p_simulation_time->IncrementTimeOneStep();
+
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+
         TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
         TS_ASSERT(wnt_cell.GetGeneration()==1);
         
@@ -803,12 +813,12 @@ public:
         
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
-        double timeOfBirth = wnt_cell.GetBirthTime();
-        double timeOfBirth2 = wnt_cell2.GetBirthTime();
+        double time_of_birth = wnt_cell.GetBirthTime();
+        double time_of_birth2 = wnt_cell2.GetBirthTime();
         
-        TS_ASSERT_DELTA(timeOfBirth, timeOfBirth2, 1e-9);
+        TS_ASSERT_DELTA(time_of_birth, time_of_birth2, 1e-9);
         
-        //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
+        //std::cout << "time of cell divisions = " << time_of_birth << "\tand\t" << time_of_birth2 << "\n" << std::endl;
         
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -819,7 +829,7 @@ public:
             bool result1=wnt_cell.ReadyToDivide(wnt);
             bool result2=wnt_cell2.ReadyToDivide(wnt);
             //std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
-            if (time>=5.971+SG2MDuration+timeOfBirth)
+            if (time>=5.971+SG2MDuration+time_of_birth)
             {
                 TS_ASSERT(result1==true);
                 TS_ASSERT(result2==true);
@@ -832,6 +842,7 @@ public:
         }
         
         SimulationTime::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
     /*
@@ -857,11 +868,14 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        
         WntGradient wnt_gradient;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   HEALTHY,//Mutation State
                                   1,    // generation
                                   new StochasticWntCellCycleModel(wnt_stimulus));
+        wnt_cell.InitialiseCellCycleModel();
                                   
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -893,12 +907,12 @@ public:
         
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
-        double timeOfBirth = wnt_cell.GetBirthTime();
-        double timeOfBirth2 = wnt_cell2.GetBirthTime();
+        double time_of_birth = wnt_cell.GetBirthTime();
+        double time_of_birth2 = wnt_cell2.GetBirthTime();
         
-        TS_ASSERT_DELTA(timeOfBirth, timeOfBirth2, 1e-9);
+        TS_ASSERT_DELTA(time_of_birth, time_of_birth2, 1e-9);
         
-        //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
+        //std::cout << "time of cell divisions = " << time_of_birth << "\tand\t" << time_of_birth2 << "\n" << std::endl;
         
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -909,7 +923,7 @@ public:
             bool result1=wnt_cell.ReadyToDivide(wnt);
             bool result2=wnt_cell2.ReadyToDivide(wnt);
             //std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
-            if (time>=5.971+SG2MDuration2+timeOfBirth)
+            if (time>=5.971+SG2MDuration2+time_of_birth)
             {
                 TS_ASSERT(result1==true);
             }
@@ -917,7 +931,7 @@ public:
             {
                 TS_ASSERT(result1==false);
             }
-            if (time>=5.971+SG2MDuration3+timeOfBirth)
+            if (time>=5.971+SG2MDuration3+time_of_birth)
             {
                 TS_ASSERT(result2==true);
             }
@@ -930,6 +944,7 @@ public:
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
     /*
@@ -981,12 +996,12 @@ public:
         
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
-        double timeOfBirth = tn_cell.GetBirthTime();
-        double timeOfBirth2 = tn_cell2.GetBirthTime();
+        double time_of_birth = tn_cell.GetBirthTime();
+        double time_of_birth2 = tn_cell2.GetBirthTime();
         
-        TS_ASSERT_DELTA(timeOfBirth, timeOfBirth2, 1e-9);
+        TS_ASSERT_DELTA(time_of_birth, time_of_birth2, 1e-9);
         
-        //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
+        //std::cout << "time of cell divisions = " << time_of_birth << "\tand\t" << time_of_birth2 << "\n" << std::endl;
         
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -995,7 +1010,7 @@ public:
             bool result1=tn_cell.ReadyToDivide();
             bool result2=tn_cell2.ReadyToDivide();
             //std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
-            if (time>=standard_tyson_duration+timeOfBirth)
+            if (time>=standard_tyson_duration+time_of_birth)
             {
                 TS_ASSERT(result1==true);
                 TS_ASSERT(result2==true);
@@ -1283,27 +1298,37 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
+        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        
         WntGradient wnt_gradient;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   APC_ONE_HIT,//Mutation State
                                   1,    // generation
                                   new WntCellCycleModel(wnt_stimulus));
                                   
+        wnt_cell.InitialiseCellCycleModel();
+                                  
         MeinekeCryptCell wnt_cell2(TRANSIT, // type
                                   BETA_CATENIN_ONE_HIT,//Mutation State
                                   1,    // generation
                                   new WntCellCycleModel(wnt_stimulus));                          
+        
+        wnt_cell2.InitialiseCellCycleModel();
                                   
         MeinekeCryptCell wnt_cell3(TRANSIT, // type
                                   APC_TWO_HIT,//Mutation State
                                   1,    // generation
                                   new WntCellCycleModel(wnt_stimulus)); 
                                   
+        wnt_cell3.InitialiseCellCycleModel();
+        
         MeinekeCryptCell wnt_cell4(TRANSIT, // type
                                   LABELLED,//Mutation State
                                   1,    // generation
                                   new WntCellCycleModel(wnt_stimulus));                               
 
+        wnt_cell4.InitialiseCellCycleModel();
+        
         std::vector<double> wnt;
         wnt.push_back(wnt_stimulus);
 
@@ -1316,6 +1341,7 @@ public:
         TS_ASSERT_EQUALS(wnt_cell4.ReadyToDivide(wnt),false);
         
         SimulationTime::Destroy();
+        SingletonWntGradient::Destroy();
     }
 };
 
