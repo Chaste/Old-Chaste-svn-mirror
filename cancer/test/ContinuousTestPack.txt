@@ -17,3 +17,4 @@ TestTysonNovak2001OdeSystem.hpp
 TestWntCellCycleOdeSystem.hpp
 TestCancerParameters.hpp
 TestSimulationTime.hpp
+TestCryptVoronoiDataWriter.hpp
