@@ -9,7 +9,11 @@
  *  
  *  Write position and voronoi cell area and perimeter data for each cell.
  *  Usage: create a crypt, create this writer. Everytime timestep create the 
- *  tessellation on the crypt and call WriteData() on this class
+ *  tessellation on the crypt and call WriteData() on this class. 
+ * 
+ *  Alternatively call SetLogged() on a cell and pass true for the final
+ *  argument of the constructor so just log ONE cell. Note only one cell is 
+ *  logged even if SetLogged() is set on many cells.
  * 
  *  Output form: each line in the file looks like
  *  
