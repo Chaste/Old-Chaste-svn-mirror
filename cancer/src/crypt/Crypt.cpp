@@ -53,6 +53,7 @@ template<unsigned DIM>
 Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh)
              : mrMesh(rMesh)
 {
+    mpVoronoiTessellation = NULL;
     mDeleteMesh = true;
 }
 

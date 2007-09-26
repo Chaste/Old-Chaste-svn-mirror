@@ -100,6 +100,10 @@ private:
         archive & mMaxElements;
         
         //CheckCryptCellPointers();
+        
+        // The Voronoi stuff can't be archived yet
+        //archive & mpVoronoiTessellation
+        delete mpVoronoiTessellation;
     }
     
     /// For debugging
