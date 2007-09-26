@@ -314,6 +314,9 @@ public:
         
         // check that the force between nodes is correctly calculated when the spring constant is constant (!)
         regular_simulator.SetEdgeBasedSpringConstant(false);
+
+        // cover the write voronoi data method
+        regular_simulator.SetWriteVoronoiData(true);
                       
         for(Crypt<2>::SpringIterator spring_iterator=regular_crypt.SpringsBegin();
         spring_iterator!=regular_crypt.SpringsEnd();
@@ -1521,67 +1524,6 @@ public:
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
-    
-    void TestCellPerimeters()
-    {
-        CancerParameters::Instance()->Reset();
-
-        // Set up the simulation time
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-                
-        unsigned cells_across = 6;
-        unsigned cells_up = 12;
-        double crypt_width = 5.0;
-        unsigned thickness_of_ghost_layer = 3;
-       
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false,crypt_width/cells_across);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
-        
-        // Set up cells
-        std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, FIXED, true);// true = mature cells
-
-        Crypt<2> crypt(*p_mesh, cells);               
-        crypt.SetGhostNodes(ghost_node_indices);
-
-        TissueSimulation<2> simulator(crypt);
-        
-        simulator.SetEndTime(1.0);
-        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(10));
-        simulator.SetMaxCells(500);
-        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(10));
-        simulator.SetMaxElements(1000);
-        
-        // These are for coverage and use the defaults
-        simulator.SetDt(1.0/120.0);
-        simulator.SetReMeshRule(true);
-        simulator.SetNoBirth(false);
-        simulator.SetOutputDirectory("Crypt2DCellPerimeters");
-        simulator.SetOutputCellTypes(true);
-        
-        // check that the force between nodes is correctly calculated when the spring constant is constant (!)
-        
-        simulator.Solve();
-        
-        
-        
-        simulator.mrCrypt.CreateVoronoiTessellation();
-        VoronoiTessellation<2>& rTessel = simulator.mrCrypt.rGetVoronoiTessellation();
-        const Face<2>* p_face188 = rTessel.GetFace(188);
-//        TS_ASSERT_DELTA(p_face188->GetPerimeter(), 2.0 * pow(3, 0.5),1e-5);
-//        TS_ASSERT_DELTA(p_face188->GetArea(), 0.5 * pow(3, 0.5),1e-5);
-        
-        TS_ASSERT_DELTA(p_face188->GetPerimeter(), 2.0 * pow(3, 0.5),1e-1);
-        TS_ASSERT_DELTA(p_face188->GetArea(), 0.5 * pow(3, 0.5),1e-1);
-        
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-    }
-    
-    
 };
 
 #endif /*TESTCRYPTSIMULATION2DPERIODIC_HPP_*/

@@ -37,6 +37,7 @@ public:
         // set up the simulation time object so the cells can be created
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,1);
         
         // create a simple mesh
         HoneycombMeshGenerator generator(5, 5, 2, false);
@@ -52,7 +53,9 @@ public:
         // put this in brackets just so the writer does out scope, so it's destructor
         // gets called and the file in closed
         {        
-            CryptVoronoiDataWriter writer(crypt,"TestCryptVoronoiDataWriter","Simple.dat");
+            CryptVoronoiDataWriter<2> writer(crypt,"TestCryptVoronoiDataWriter","Simple.dat");
+            writer.WriteData();
+            p_simulation_time->IncrementTimeOneStep();
             writer.WriteData();
         }
 

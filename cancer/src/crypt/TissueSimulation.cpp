@@ -46,6 +46,8 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
     mNumDeaths = 0;
     mUseNonFlatBottomSurface = false;
     mUseEdgeBasedSpringConstant = false;
+    mWriteVoronoiData = false;
+    mCreateVoronoiTessellation = false;
     
     // whether to use a cutoff point, ie specify zero force if two 
     // cells are greater than a certain distance apart. By default 
@@ -574,9 +576,9 @@ void TissueSimulation<DIM>::SetNoBirth(bool nobirth)
  * Set the simulation to Count and store the number of each cell type.
  */
 template<unsigned DIM> 
-void TissueSimulation<DIM>::SetOutputCellTypes(bool output_cell_types)
+void TissueSimulation<DIM>::SetOutputCellTypes(bool outputCellTypes)
 {
-    mOutputCellTypes = output_cell_types;
+    mOutputCellTypes = outputCellTypes;
 }
 
 
@@ -596,10 +598,19 @@ void TissueSimulation<DIM>::UseCutoffPoint(double cutoffPoint)
  * Use an edge-based spring constant
  */
 template<unsigned DIM> 
-void TissueSimulation<DIM>::SetEdgeBasedSpringConstant(bool use_edge_based_spring_constant)
+void TissueSimulation<DIM>::SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant)
 {
     assert(DIM == 2);
-    mUseEdgeBasedSpringConstant = use_edge_based_spring_constant;
+    mUseEdgeBasedSpringConstant = useEdgeBasedSpringConstant;
+    mCreateVoronoiTessellation = useEdgeBasedSpringConstant;
+}
+
+template<unsigned DIM> 
+void TissueSimulation<DIM>::SetWriteVoronoiData(bool writeVoronoiData)
+{
+    assert(DIM == 2);
+    mWriteVoronoiData = writeVoronoiData;
+    mCreateVoronoiTessellation = writeVoronoiData;
 }
 
 /**
@@ -717,12 +728,18 @@ void TissueSimulation<DIM>::Solve()
     }
     
     mrCrypt.WriteResultsToFiles(tabulated_node_writer, 
-                               tabulated_element_writer,
-                               *p_node_file, *p_element_file, *p_cell_types_file,
-                               false,
-                               true,
-                               mOutputCellTypes);
-                               
+                                tabulated_element_writer,
+                                *p_node_file, *p_element_file, *p_cell_types_file,
+                                false,
+                                true,
+                                mOutputCellTypes);
+
+    CryptVoronoiDataWriter<DIM>* p_voronoi_data_writer = NULL;
+    if(mWriteVoronoiData)
+    {
+        p_voronoi_data_writer = new CryptVoronoiDataWriter<DIM>(mrCrypt,mOutputDirectory,"VoronoiAreaAndPerimeter.dat");
+    }
+
                                
     /////////////////////////////////////////////////////////////////////
     // Main time loop
@@ -753,7 +770,7 @@ void TissueSimulation<DIM>::Solve()
             mrCrypt.ReMesh();
         }
 
-        if (mUseEdgeBasedSpringConstant)
+        if (mCreateVoronoiTessellation)
         {
             mrCrypt.CreateVoronoiTessellation();
         }
@@ -780,6 +797,12 @@ void TissueSimulation<DIM>::Solve()
                                     tabulated_output_counter%80==0,
                                     true,
                                     mOutputCellTypes);
+                                    
+        if(mWriteVoronoiData)
+        {
+            p_voronoi_data_writer->WriteData();
+        }
+
         tabulated_output_counter++;
         
         PostSolve();
@@ -797,6 +820,11 @@ void TissueSimulation<DIM>::Solve()
                         
     tabulated_node_writer.Close();
     tabulated_element_writer.Close();
+    
+    if(p_voronoi_data_writer!=NULL)
+    {
+        delete p_voronoi_data_writer;
+    }
 }
 
 

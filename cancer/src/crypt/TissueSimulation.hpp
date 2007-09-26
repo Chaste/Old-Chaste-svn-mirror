@@ -14,6 +14,7 @@
 #include "RandomCellKiller.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "Crypt.cpp"
+#include "CryptVoronoiDataWriter.hpp"
 #include <vector>
 
 
@@ -124,6 +125,12 @@ protected:
     
     /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
     bool mUseEdgeBasedSpringConstant;
+    
+    /** Whether to do a voronoi tessellation every time step */
+    bool mCreateVoronoiTessellation;
+
+    /** Whether to print out cell area and perimeter info */
+    bool mWriteVoronoiData;
     
 #define COVERAGE_IGNORE
     /**
@@ -302,8 +309,9 @@ public:
     void SetMaxElements(unsigned maxElements);
     void SetReMeshRule(bool remesh);
     void SetNoBirth(bool nobirth);
-    void SetOutputCellTypes(bool output_cell_types);
-    void SetEdgeBasedSpringConstant(bool use_edge_based_spring_constant);
+    void SetOutputCellTypes(bool outputCellTypes);
+    void SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant);
+    void SetWriteVoronoiData(bool writeVoronoiData);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
     void UseNonFlatBottomSurface();

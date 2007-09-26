@@ -16,21 +16,26 @@
  *  current_time node_index1 x1 y1 A1 P1 node_index2 x2 y2 A2 P2 ....
  *   
  *  where (x,y) is the position, A the area of the Voronoi cell and P the perimeter
+ * 
+ *  Note the output directory is not cleaned.
+ * 
+ *  Templated over dim but only meant for dim=2
  */
+template<unsigned DIM>
 class CryptVoronoiDataWriter
 {
 private:
-    Crypt<2>& mrCrypt;
+    Crypt<DIM>& mrCrypt;
     out_stream mOutStream;
     
     
 public:
-    CryptVoronoiDataWriter(Crypt<2>& rCrypt, std::string directory, std::string filename)
+    CryptVoronoiDataWriter(Crypt<DIM>& rCrypt, std::string directory, std::string filename)
         :mrCrypt(rCrypt)
     {
-        OutputFileHandler output_file_handler(directory);
+        assert(DIM==2);
+        OutputFileHandler output_file_handler(directory,false);
         mOutStream = output_file_handler.OpenOutputFile(filename);
-        
     }
 
     ~CryptVoronoiDataWriter()
@@ -41,7 +46,7 @@ public:
     void WriteData()
     {
         (*mOutStream)<< SimulationTime::Instance()->GetDimensionalisedTime() << " ";
-        for (Crypt<2>::Iterator cell_iter = mrCrypt.Begin();
+        for (typename Crypt<DIM>::Iterator cell_iter = mrCrypt.Begin();
              cell_iter != mrCrypt.End();
              ++cell_iter)
         {
