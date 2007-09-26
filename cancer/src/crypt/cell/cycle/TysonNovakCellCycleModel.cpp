@@ -81,9 +81,8 @@ void TysonNovakCellCycleModel::SetBirthTime(double birthTime)
     mDivideTime = birthTime;
 }
 
-bool TysonNovakCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
+bool TysonNovakCellCycleModel::ReadyToDivide()
 {
-    //assert(cellCycleInfluences.size()==0);
     double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
     
     if (!mReadyToDivide)

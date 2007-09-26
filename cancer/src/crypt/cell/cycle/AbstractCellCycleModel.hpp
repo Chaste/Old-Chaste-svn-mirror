@@ -75,7 +75,7 @@ public:
      * 
      * @param timeSinceBirth  the elapsed time since the cell was born
      */
-    virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>())=0;
+    virtual bool ReadyToDivide()=0;
     
     /**
      * Each cell cycle model must be able to be reset after a cell division.

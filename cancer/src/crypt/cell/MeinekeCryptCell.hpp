@@ -109,10 +109,8 @@ public:
     /**
      * Determine if this cell will be ready to divide at the given simulation time.
      * MUST be called before Divide().
-     * 
-     * @param cellCycleInfluences a vector of doubles that are inputs to the cell cycle model e.g. Wnt stimulus
      */
-    bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
+    bool ReadyToDivide();
     
     void StartApoptosis();
     void Kill();

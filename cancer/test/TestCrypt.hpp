@@ -661,10 +661,8 @@ public:
             for(Crypt<2>::Iterator cell_iter = p_crypt->Begin();
              cell_iter != p_crypt->End();
              ++cell_iter)
-            {
-                std::vector<double> cell_influence;
-                cell_influence.push_back(0.0);
-                cell_iter->ReadyToDivide(cell_influence);
+            {                
+                cell_iter->ReadyToDivide();
             }
         
             // create an output archive

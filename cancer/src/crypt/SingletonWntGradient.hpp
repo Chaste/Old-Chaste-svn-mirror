@@ -55,6 +55,9 @@ public:
         mConstantWntValueForTesting = value;
         mUseConstantWntValueForTesting = true;
     }
+    
+    bool IsGradientSetUp();
+    
 };
 
 //

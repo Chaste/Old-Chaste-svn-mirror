@@ -146,22 +146,13 @@ void WntCellCycleModel::ResetModel()
  * This function sets one of the ODE system variables to represent the 
  * Wnt level and also gives the ODE system the mutation state of this cell.
  */
-bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
+bool WntCellCycleModel::ReadyToDivide()
 {
     assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
     
-    // Use the WntStimulus provided as an input
-    if(!mUseWntGradient)
-    {   
-        assert(0); // no longer going through here..
-        mpOdeSystem->rGetStateVariables()[8] = cellCycleInfluences[0];
-    }
-    else
-    {
-        mpOdeSystem->rGetStateVariables()[8] = SingletonWntGradient::Instance()->GetWntLevel(mpCell);
-    }
-
+    mpOdeSystem->rGetStateVariables()[8] = SingletonWntGradient::Instance()->GetWntLevel(mpCell);
+    
     // Use the cell's current mutation status as another input
     mpOdeSystem->SetMutationState(mpCell->GetMutationState());
     
@@ -286,19 +277,6 @@ double WntCellCycleModel::GetWntSG2MDuration()
 {   
     // overridden in subclass StochasticWntCellCycleModel
     return CancerParameters::Instance()->GetSG2MDuration();
-}
-
-void WntCellCycleModel::SetCell(MeinekeCryptCell* pCell)
-{  
-    mpCell = pCell;
-    if(mpOdeSystem==NULL)   // this is a new cell (not a dividing original cell) and needs an ODE system.
-    { 
-        if(!mUseWntGradient)
-        {
-            mpOdeSystem = new WntCellCycleOdeSystem(mInitialWntStimulus, pCell->GetMutationState());
-            mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
-        }
-    }            
 }
 
 void WntCellCycleModel::Initialise()

@@ -19,7 +19,7 @@ private:
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
     }
 public:
-    virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
+    virtual bool ReadyToDivide();
     
     virtual void ResetModel();
     

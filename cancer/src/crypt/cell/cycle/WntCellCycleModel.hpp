@@ -65,7 +65,7 @@ public:
 
     WntCellCycleModel(double InitialWntStimulus);
    
-   /**
+    /**
      * This is needed to create an exact copy of the current cell cycle model
      * (called by CreateCellCycleModel() and archiving functions)
      */
@@ -84,7 +84,7 @@ public:
                           
     virtual ~WntCellCycleModel();
     
-    virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
+    virtual bool ReadyToDivide();
     
     virtual void ResetModel();
     
@@ -97,9 +97,7 @@ public:
     void SetBirthTime(double birthTime);
     
     void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations);
-    
-    void SetCell(MeinekeCryptCell* pCell);
-    
+      
     void Initialise();
 
     //temp

@@ -153,10 +153,8 @@ void MeinekeCryptCell::SetMutationState(CryptCellMutationState mutationState)
 /**
  * The MeinekeCryptCell ready to divide method
  *
- * @param cellCycleInfluences a std::vector of doubles, with any relevant cell
- * cycle influences in it.
  */
-bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
+bool MeinekeCryptCell::ReadyToDivide()
 {
     assert(!IsDead());
     if (mUndergoingApoptosis)
@@ -164,7 +162,7 @@ bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
         return false;
     }    
     
-    mCanDivide = mpCellCycleModel->ReadyToDivide(cellCycleInfluences);
+    mCanDivide = mpCellCycleModel->ReadyToDivide();
 
     return mCanDivide;
 }

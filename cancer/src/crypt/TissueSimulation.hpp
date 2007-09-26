@@ -105,11 +105,6 @@ protected:
     /** The singleton RandomNumberGenerator */
     RandomNumberGenerator *mpRandomGenerator;
     
-    /** Whether Wnt signalling is included or not (defaults to false).*/
-    bool mWntIncluded;
-    /** The Wnt gradient, if any */
-    WntGradient mWntGradient;
-
     /** Whether to have zero force if the cells are far enough apart */
     bool mUseCutoffPoint;
     /** Have zero force if the cells are this distance apart (and mUseCutoffPoint==true) */
@@ -193,8 +188,6 @@ protected:
         archive & mMaxCells;
         archive & mMaxElements;
         archive & mOutputDirectory;
-        archive & mWntIncluded;
-        archive & mWntGradient;
         archive & mNumBirths;
         archive & mNumDeaths;
         archive & mCellKillers;

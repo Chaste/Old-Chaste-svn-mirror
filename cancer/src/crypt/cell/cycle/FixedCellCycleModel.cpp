@@ -29,7 +29,7 @@ void FixedCellCycleModel::ResetModel()
     mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
 }
 
-bool FixedCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
+bool FixedCellCycleModel::ReadyToDivide()
 {
     //assert(cellCycleInfluences.size()==0); NOT Needed - we just ignore them
     bool ready;

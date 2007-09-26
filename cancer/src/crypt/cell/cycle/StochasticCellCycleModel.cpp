@@ -30,11 +30,11 @@ void StochasticCellCycleModel::ResetModel()
     mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
 }
 
-bool StochasticCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
+bool StochasticCellCycleModel::ReadyToDivide()
 {
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
     CancerParameters* p_params = CancerParameters::Instance(); 
-    //assert(cellCycleInfluences.size()==0);
+    
     bool ready;
     
     double timeSinceBirth = GetAge();

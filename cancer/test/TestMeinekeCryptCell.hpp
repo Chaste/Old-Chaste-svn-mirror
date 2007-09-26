@@ -279,15 +279,13 @@ public:
         
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(1.0);
 
-        // Push up the Wnt stimulus and go forward through time
-        std::vector<double> cell_cycle_influences;
-        cell_cycle_influences.push_back(1.0);
+        // go forward through time        
         for (unsigned i=0 ; i<20 ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
         }
 
-        wnt_cell.ReadyToDivide(cell_cycle_influences);
+        wnt_cell.ReadyToDivide();
         wnt_cell.UpdateCellType();
         
         TS_ASSERT_EQUALS(wnt_cell.GetCellType(),TRANSIT);
@@ -783,28 +781,23 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
-            std::vector<double> wnt;
-            wnt.push_back(wnt_stimulus);
-
+            
             SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
             if (time>=5.971+SG2MDuration)
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+                TS_ASSERT(wnt_cell.ReadyToDivide()==true);
             }
             else
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
+                TS_ASSERT(wnt_cell.ReadyToDivide()==false);
             }
             //std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
         }
         
-        std::vector<double> wnt;
-        wnt.push_back(wnt_stimulus);
         p_simulation_time->IncrementTimeOneStep();
-
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
-        TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+        TS_ASSERT(wnt_cell.ReadyToDivide()==true);
         TS_ASSERT(wnt_cell.GetGeneration()==1);
         
         MeinekeCryptCell wnt_cell2 = wnt_cell.Divide();
@@ -824,11 +817,10 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
-            std::vector<double> wnt;
-            wnt.push_back(wnt_stimulus);
-            bool result1=wnt_cell.ReadyToDivide(wnt);
-            bool result2=wnt_cell2.ReadyToDivide(wnt);
-            //std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
+            
+            bool result1=wnt_cell.ReadyToDivide();
+            bool result2=wnt_cell2.ReadyToDivide();
+            
             if (time>=5.971+SG2MDuration+time_of_birth)
             {
                 TS_ASSERT(result1==true);
@@ -881,23 +873,20 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
-            std::vector<double> wnt;
-            wnt.push_back(wnt_stimulus);
+            
             if (time>=5.971+SG2MDuration1)
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+                TS_ASSERT(wnt_cell.ReadyToDivide()==true);
             }
             else
             {
-                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
+                TS_ASSERT(wnt_cell.ReadyToDivide()==false);
             }
             //std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
         }
         
-        std::vector<double> wnt;
-        wnt.push_back(wnt_stimulus);
         p_simulation_time->IncrementTimeOneStep();
-        TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+        TS_ASSERT(wnt_cell.ReadyToDivide()==true);
         TS_ASSERT(wnt_cell.GetGeneration()==1);
         
         MeinekeCryptCell wnt_cell2 = wnt_cell.Divide();
@@ -918,10 +907,9 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
-            std::vector<double> wnt;
-            wnt.push_back(wnt_stimulus);
-            bool result1=wnt_cell.ReadyToDivide(wnt);
-            bool result2=wnt_cell2.ReadyToDivide(wnt);
+            
+            bool result1=wnt_cell.ReadyToDivide();
+            bool result2=wnt_cell2.ReadyToDivide();
             //std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
             if (time>=5.971+SG2MDuration2+time_of_birth)
             {
@@ -1328,17 +1316,11 @@ public:
                                   new WntCellCycleModel(wnt_stimulus));                               
 
         wnt_cell4.InitialiseCellCycleModel();
-        
-        std::vector<double> wnt;
-        wnt.push_back(wnt_stimulus);
-
-        TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(wnt),false);
-
-        TS_ASSERT_EQUALS(wnt_cell2.ReadyToDivide(wnt),false);
-        
-        TS_ASSERT_EQUALS(wnt_cell3.ReadyToDivide(wnt),false);
-        
-        TS_ASSERT_EQUALS(wnt_cell4.ReadyToDivide(wnt),false);
+                
+        TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(),false);
+        TS_ASSERT_EQUALS(wnt_cell2.ReadyToDivide(),false);
+        TS_ASSERT_EQUALS(wnt_cell3.ReadyToDivide(),false);
+        TS_ASSERT_EQUALS(wnt_cell4.ReadyToDivide(),false);
         
         SimulationTime::Destroy();
         SingletonWntGradient::Destroy();

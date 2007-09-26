@@ -22,75 +22,6 @@
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
-class PseudoWntGradient : public WntGradient 
-{
-//    friend class boost::serialization::access;  
-    
-private:
-    double mWntLevel;
-    
-//    template<class Archive>
-//    void serialize(Archive & archive, const unsigned int version)
-//    {
-//        archive & boost::serialization::base_object<WntGradient>(*this);
-//        archive & mWntLevel;
-//    }
-    
-    
-public:   
-    
-    PseudoWntGradient(double wntLevel)
-        : WntGradient()
-    {
-        mWntLevel = wntLevel;
-    }
-    
-    double GetWntLevel(MeinekeCryptCell* pCell)
-    {
-        return mWntLevel;
-    }
-    
-    void ChangeWntLevel(double wntLevel)
-    {
-        mWntLevel = wntLevel;
-    }
-};
-
-//// declare identifier for the serializer
-//BOOST_CLASS_EXPORT(PseudoWntGradient)
-//
-//namespace boost
-//{
-//namespace serialization
-//{
-///**
-// * Allow us to not need a default constructor, by specifying how Boost should
-// * instantiate a WntGradient instance.
-// */
-//template<class Archive>
-//inline void save_construct_data(
-//    Archive & ar, const PseudoWntGradient * t, const unsigned int file_version)
-//{
-//}
-//
-///**
-// * Allow us to not need a default constructor, by specifying how Boost should
-// * instantiate a WntGradient instance.
-// */
-//template<class Archive>
-//inline void load_construct_data(
-//    Archive & ar, PseudoWntGradient * t, const unsigned int file_version)
-//{
-//    // It doesn't actually matter what values we pass to our standard
-//    // constructor, provided they are valid parameter values, since the
-//    // state loaded later from the archive will overwrite their effect in
-//    // this case.
-//    // Invoke inplace constructor to initialize instance of my_class
-//    ::new(t)PseudoWntGradient(0.0);
-//}
-//}
-//} // namespace ...
-
 class TestCellCycleModels : public CxxTest::TestSuite
 {
 public:
@@ -347,7 +278,6 @@ public:
         // Instead we reduce Wnt linearly over 0<t<1 to zero and the cell doesn't divide.
         SimulationTime *p_simulation_time = SimulationTime::Instance();
 
-        PseudoWntGradient wnt_grad_for_bad_model(1.0);
         // fails because start time has not been set up
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel bad_model(1.0));
         
@@ -355,17 +285,12 @@ public:
         int numTimesteps = 1000*(int)endTime;
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(endTime, numTimesteps);// 15.971 hours to go into S phase
-
                 
         double wnt_level = 1.0;
-        PseudoWntGradient wnt_gradient(wnt_level);
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level);
-
-        
         p_cell_model->SetUseWntGradient();
-
 
         MeinekeCryptCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
@@ -374,19 +299,15 @@ public:
                            
         stem_cell.InitialiseCellCycleModel();
 
-
         CryptCellType test_type = p_cell_model->UpdateCellType();
 
         TS_ASSERT_EQUALS(test_type,TRANSIT);
-        
-        std::vector<double> cell_cycle_influences;
-        cell_cycle_influences.push_back(wnt_level);
+                
         for (int i=0; i<numTimesteps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime() ;
-            cell_cycle_influences[0] = wnt_level;
-            bool result = p_cell_model->ReadyToDivide(cell_cycle_influences);
+            double time = p_simulation_time->GetDimensionalisedTime();            
+            bool result = p_cell_model->ReadyToDivide();
             
             if (time <= 1.0)
             {
@@ -396,7 +317,6 @@ public:
             {
                 wnt_level = 0.0;
             }
-            wnt_gradient.ChangeWntLevel(wnt_level);
             SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
             
             TS_ASSERT(result==false)
@@ -439,15 +359,11 @@ public:
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
-
         
-        double wnt_level = 1.0;
-        PseudoWntGradient wnt_gradient(wnt_level);
+        double wnt_level = 1.0;        
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level);
-
-
         p_cell_model->SetUseWntGradient();
         
         MeinekeCryptCell stem_cell(STEM, // type
@@ -456,8 +372,6 @@ public:
                                    p_cell_model);
 
         stem_cell.InitialiseCellCycleModel();
-
-
                                                               
         double SG2MDuration = CancerParameters::Instance()->GetSG2MDuration();
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
@@ -477,12 +391,8 @@ public:
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
-            //std::cout << "Time = " << time << "\n";
-            std::vector <double> cell_cycle_params;
-            cell_cycle_params.push_back(wnt_level);
-            bool result = p_cell_model_1->ReadyToDivide(cell_cycle_params);
-            //std::cout << "divide = " << result << "\n";
+            double time = p_simulation_time->GetDimensionalisedTime();            
+            bool result = p_cell_model_1->ReadyToDivide();
             if (time < 4.804+SG2MDuration)
             {
                 TS_ASSERT(result==false);
@@ -498,12 +408,8 @@ public:
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime() ;
-            //std::cout << "Time = " << time << "\n";
-            std::vector <double> cell_cycle_params;
-            cell_cycle_params.push_back(wnt_level);
-            bool result = p_cell_model_1->ReadyToDivide(cell_cycle_params);
-            //std::cout << "divide = " << result << "\n";
+            double time = p_simulation_time->GetDimensionalisedTime();            
+            bool result = p_cell_model_1->ReadyToDivide();
             if (time< second_cycle_start+4.804+SG2MDuration)
             {
                 TS_ASSERT(result==false);
@@ -528,13 +434,10 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
 
         double wnt_level = 0.0;
-        PseudoWntGradient wnt_gradient(wnt_level);
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
-
         
         WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level);
         p_cell_model->SetUseWntGradient();
-
         
         MeinekeCryptCell stem_cell(STEM, // type
                                    BETA_CATENIN_ONE_HIT,//Mutation State
@@ -563,12 +466,9 @@ public:
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
-            //std::cout << "Time = " << time << "\n";
-            std::vector <double> cell_cycle_params;
-            cell_cycle_params.push_back(wnt_level);
-            bool result = p_cell_model_1->ReadyToDivide(cell_cycle_params);
-            //std::cout << "divide = " << result << "\n";
+            double time = p_simulation_time->GetDimensionalisedTime();            
+            bool result = p_cell_model_1->ReadyToDivide();
+            
             if (time < 7.82+SG2MDuration)
             {
                 TS_ASSERT(result==false);
@@ -585,12 +485,9 @@ public:
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime() ;
-            //std::cout << "Time = " << time << "\n";
-            std::vector <double> cell_cycle_params;
-            cell_cycle_params.push_back(wnt_level);
-            bool result = p_cell_model_1->ReadyToDivide(cell_cycle_params);
-            //std::cout << "divide = " << result << "\n";
+            double time = p_simulation_time->GetDimensionalisedTime();            
+            bool result = p_cell_model_1->ReadyToDivide();
+
             if (time< second_cycle_start+7.82+SG2MDuration)
             {
                 TS_ASSERT(result==false);
@@ -615,10 +512,8 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
         
         double wnt_level = 0.738;// This shouldn't matter for this kind of cell!
-        PseudoWntGradient wnt_gradient(wnt_level);
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
-        
-        
+                
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level);
         p_cell_model_1->SetUseWntGradient();
         MeinekeCryptCell stem_cell_1(STEM, // type
@@ -626,8 +521,7 @@ public:
                                      0,  // generation
                                      p_cell_model_1);   
         stem_cell_1.InitialiseCellCycleModel();
-        
-        
+                
         CancerParameters *p_parameters = CancerParameters::Instance();
         
         double SG2MDuration = p_parameters->GetSG2MDuration();
@@ -648,11 +542,9 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
-            //std::cout << "Time = " << time << "\n";
-            std::vector <double> cell_cycle_params;
-            cell_cycle_params.push_back(wnt_level);
-            bool result = p_cell_model_2->ReadyToDivide(cell_cycle_params);
-            //std::cout << "divide = " << result << "\n";
+            
+            bool result = p_cell_model_2->ReadyToDivide();
+            
             if (time < 3.9435+SG2MDuration)
             {
                 TS_ASSERT(result==false);
@@ -669,11 +561,8 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime() ;
-            //std::cout << "Time = " << time << "\n";
-            std::vector <double> cell_cycle_params;
-            cell_cycle_params.push_back(wnt_level);
-            bool result = p_cell_model_2->ReadyToDivide(cell_cycle_params);
-            //std::cout << "divide = " << result << "\n";
+            bool result = p_cell_model_2->ReadyToDivide();
+
             if (time< second_cycle_start+3.9435+SG2MDuration)
             {
                 TS_ASSERT(result==false);
@@ -697,10 +586,8 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
         
         double wnt_level = 1.0;
-        PseudoWntGradient wnt_gradient(wnt_level);
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
-        
-        
+                
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level);
         p_cell_model_1->SetUseWntGradient();
         
@@ -729,12 +616,9 @@ public:
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
-            //std::cout << "Time = " << time << "\n";
-            std::vector <double> cell_cycle_params;
-            cell_cycle_params.push_back(wnt_level);
-            bool result = p_cell_model_2->ReadyToDivide(cell_cycle_params);
-            //std::cout << "divide = " << result << "\n";
+            double time = p_simulation_time->GetDimensionalisedTime();            
+            bool result = p_cell_model_2->ReadyToDivide();
+            
             if (time < 5.971+SG2MDuration)
             {
                 TS_ASSERT(result==false);
@@ -751,11 +635,8 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime() ;
-            //std::cout << "Time = " << time << "\n";
-            std::vector <double> cell_cycle_params;
-            cell_cycle_params.push_back(wnt_level);
-            bool result = p_cell_model_2->ReadyToDivide(cell_cycle_params);
-            //std::cout << "divide = " << result << "\n";
+            bool result = p_cell_model_2->ReadyToDivide();
+
             if (time< second_cycle_start+5.971+SG2MDuration)
             {
                 TS_ASSERT(result==false);
@@ -780,7 +661,6 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20, num_timesteps);// 15.971 hours to go into S phase
 
         double wnt_level = 1.0;
-        PseudoWntGradient wnt_gradient(wnt_level);
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel(wnt_level);
@@ -791,9 +671,7 @@ public:
                                    0,  // generation
                                    p_cell_model);   
         stem_cell.InitialiseCellCycleModel();
-       
-       
-        
+               
         // A WntCellCycleModel does this:
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 5.971 hrs and then finish dividing
@@ -806,10 +684,9 @@ public:
         for (int i=0; i<num_timesteps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
-            std::vector <double> cell_cycle_params;
-            cell_cycle_params.push_back(wnt_level);
-            bool result = p_cell_model->ReadyToDivide(cell_cycle_params);
+            double time = p_simulation_time->GetDimensionalisedTime();            
+            bool result = p_cell_model->ReadyToDivide();
+            
             if (time < 5.971 + 9.0676)
             {
                 TS_ASSERT(result==false);
@@ -1009,7 +886,6 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "wnt_cell_cycle.arch";
-        PseudoWntGradient wnt_gradient(1.0);
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(1.0);
 
         // Create an ouput archive
@@ -1027,12 +903,10 @@ public:
                                        p_cell_model);
             stem_cell.InitialiseCellCycleModel();  
             
+            p_simulation_time->IncrementTimeOneStep();            
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(),false);
             p_simulation_time->IncrementTimeOneStep();
-            std::vector<double> cell_cycle_influence;
-            cell_cycle_influence.push_back(1.0);
-            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),false);
-            p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),true);
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(),true);
 
             stem_cell.GetCellCycleModel()->SetBirthTime(-1.0);
             
@@ -1070,10 +944,8 @@ public:
             
             AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
             TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());            
-                        
-            std::vector<double> cell_cycle_influence;
-            cell_cycle_influence.push_back(1.0);
-            TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(cell_cycle_influence),true);
+                 
+            TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),true);
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(),-1.0,1e-12);
             TS_ASSERT_DELTA(p_cell_model->GetAge(),17.0,1e-12);
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
@@ -1094,7 +966,6 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "stochastic_wnt_cell_cycle.arch";
-        PseudoWntGradient wnt_gradient(1.0);
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(1.0);
         
         // Create an ouput archive
@@ -1112,7 +983,6 @@ public:
                                        p_stoc_model); 
             stoc_cell.InitialiseCellCycleModel();                                       
             
-
             WntCellCycleModel* p_wnt_model = new WntCellCycleModel(1.0);
             p_wnt_model->SetUseWntGradient();
 
@@ -1121,17 +991,15 @@ public:
                                       0,  // generation
                                       p_wnt_model); 
             wnt_cell.InitialiseCellCycleModel();                                       
-
                                        
-            p_simulation_time->IncrementTimeOneStep();// 5.5
-            std::vector<double> cell_cycle_influence;
-            cell_cycle_influence.push_back(1.0);
+            p_simulation_time->IncrementTimeOneStep(); // 5.5
+            
             while (p_simulation_time->GetDimensionalisedTime() < 4.0)
             {
                 p_simulation_time->IncrementTimeOneStep();   
             }
-            TS_ASSERT_EQUALS(stoc_cell.GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),false);
-            TS_ASSERT_EQUALS(wnt_cell.GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),false);
+            TS_ASSERT_EQUALS(stoc_cell.GetCellCycleModel()->ReadyToDivide(),false);
+            TS_ASSERT_EQUALS(wnt_cell.GetCellCycleModel()->ReadyToDivide(),false);
             // When these are included here they pass - so are moved down into 
             // after load to see if they still pass.
             
@@ -1177,29 +1045,27 @@ public:
             
             // Check - stochastic should divide at 15.03
             // Wnt should divide at 15.971
-            std::vector<double> cell_cycle_influence;
-            cell_cycle_influence.push_back(1.0);
-            
+                        
             while (p_simulation_time->GetDimensionalisedTime() < 15.0)
             {
                 p_simulation_time->IncrementTimeOneStep();   
             }
-            TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),false);
-            TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),false);
+            TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(),false);
+            TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(),false);
             
             while (p_simulation_time->GetDimensionalisedTime() < 15.5)
             {
                 p_simulation_time->IncrementTimeOneStep();   
             }
-            TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),true);// only for stochastic
-            TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),false);
+            TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(),true);// only for stochastic
+            TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(),false);
             
             while (p_simulation_time->GetDimensionalisedTime() < 16.0)
             {
                 p_simulation_time->IncrementTimeOneStep();   
             }
-            TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),true);
-            TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(cell_cycle_influence),true);
+            TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(),true);
+            TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(),true);
             
             TS_ASSERT_DELTA(p_stoc_cell->GetCellCycleModel()->GetBirthTime(),0.0,1e-12);
             TS_ASSERT_DELTA(p_stoc_cell->GetCellCycleModel()->GetAge(),16.0,1e-12);

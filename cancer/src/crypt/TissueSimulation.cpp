@@ -18,7 +18,7 @@
 #include "SimulationTime.hpp"
 #include "ColumnDataWriter.hpp"
 #include "WntCellCycleModel.hpp"
-#include "WntGradient.hpp"
+#include "SingletonWntGradient.hpp"
 #include "OutputFileHandler.hpp"
 #include "LogFile.hpp"
 #include "VoronoiTessellation.cpp"
@@ -42,7 +42,6 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
     mNoBirth = false;
     mMaxCells = 10*mrCrypt.rGetMesh().GetNumNodes();
     mMaxElements = 10*mrCrypt.rGetMesh().GetNumElements();
-    mWntIncluded = false;
     mNumBirths = 0;
     mNumDeaths = 0;
     mUseNonFlatBottomSurface = false;
@@ -106,24 +105,9 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
          ++cell_iter)
     {
         MeinekeCryptCell& cell = *cell_iter;
-        Node<DIM>* p_our_node = cell_iter.GetNode();
-        
-        // Check for this cell dividing
-        // Construct any influences for the cell cycle...
 
-        std::vector<double> cell_cycle_influences;
-        if (mWntIncluded)
-        {
-            #define COVERAGE_IGNORE
-            assert(DIM==2);
-            #undef COVERAGE_IGNORE
-            double y = p_our_node->rGetLocation()[1];
-            double wnt_stimulus = mWntGradient.GetWntLevel(y);
-            cell_cycle_influences.push_back(wnt_stimulus);
-        }
-        
         // check if this cell is ready to divide - if so create a new cell etc.
-        if (cell.ReadyToDivide(cell_cycle_influences))
+        if (cell.ReadyToDivide())
         {
             // Create new cell
             MeinekeCryptCell new_cell = cell.Divide();
@@ -435,9 +419,10 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
         
         if(DIM==2)
         {
-               
+            bool is_wnt_included = SingletonWntGradient::Instance()->IsGradientSetUp();
+            if (!is_wnt_included) SingletonWntGradient::Destroy();
             // stem cells are fixed if no wnt, so reset the x-value to the old x-value           
-            if((cell.GetCellType()==STEM) && (!mWntIncluded))
+            if((cell.GetCellType()==STEM) && (!is_wnt_included))
             {
                 new_point.rGetLocation()[0] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[0];
                 new_point.rGetLocation()[1] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[1];
@@ -717,17 +702,10 @@ void TissueSimulation<DIM>::Solve()
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
-        double y = cell_iter.rGetLocation()[1];
-        std::vector<double> cell_cycle_influences;
-        if (mWntIncluded)
-        {
-            double wnt_stimulus = mWntGradient.GetWntLevel(y);
-            cell_cycle_influences.push_back(wnt_stimulus);
-        }
         /* We don't use the result; this call is just to force the cells 
          * to age to current time running their cell cycle models to get there.
          */
-        cell_iter->ReadyToDivide(cell_cycle_influences);
+        cell_iter->ReadyToDivide();
     }
     
     UpdateCellTypes();

@@ -130,3 +130,19 @@ double SingletonWntGradient::GetWntLevel(double height)
     return wnt_level;
 }
 
+/**
+ * This allows the TissueSimulation to ask whether a WntGradient has been set up or not
+ * To let it know whether it should move stem cells around!!
+ * 
+ * @return result  True if the wnt gradient is set up.
+ */
+bool SingletonWntGradient::IsGradientSetUp()
+{
+    bool result = false;
+    if (mTypeSet && mpCrypt!=NULL)
+    {
+        result = true;
+    }
+    return result;   
+}
+

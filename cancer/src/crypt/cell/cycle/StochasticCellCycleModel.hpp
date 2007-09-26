@@ -30,7 +30,7 @@ private:
 public:
     StochasticCellCycleModel();
     
-    virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
+    virtual bool ReadyToDivide();
     
     virtual void ResetModel();
     
