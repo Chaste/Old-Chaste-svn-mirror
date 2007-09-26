@@ -660,6 +660,11 @@ public:
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
+        // We have a Wnt Gradient - but not Wnt dependent cells
+        // so that the test runs quickly, but we test archiving of it!
+        SingletonWntGradient::Instance()->SetType(LINEAR);
+        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        
         TissueSimulation<2> simulator(crypt);
 
         simulator.SetOutputDirectory("Crypt2DPeriodicStandardResult");
@@ -679,15 +684,23 @@ public:
         // These results are from time 0.25, which is also tested below
         // after a save and a load. (To check archiving of mDivisionPairs)
         std::vector<double> node_28_location = simulator.GetNodeLocation(28);
-        TS_ASSERT_DELTA(node_28_location[0], 4.0 , 1e-4);
+        TS_ASSERT_DELTA(node_28_location[0], 4.2123 , 1e-4);
         TS_ASSERT_DELTA(node_28_location[1], 0.0 , 1e-4);
         std::vector<double> node_120_location = simulator.GetNodeLocation(120);
-        TS_ASSERT_DELTA(node_120_location[0], 3.8380 , 1e-4);
-        TS_ASSERT_DELTA(node_120_location[1], 0.2938 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[0], 3.7968 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[1], 0.1050 , 1e-4);
                 
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        
+        // test the Wnt gradient result
+        MeinekeCryptCell* p_cell = &(crypt.rGetCellAtNodeIndex(28));
+        TS_ASSERT_DELTA(SingletonWntGradient::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
+        p_cell = &(crypt.rGetCellAtNodeIndex(120));
+        TS_ASSERT_DELTA(SingletonWntGradient::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
+        SingletonWntGradient::Destroy();
+        
     }
 
     // Testing Save 
@@ -695,8 +708,6 @@ public:
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
-        // There is no limit on transit cells in Wnt simulation
-        p_params->SetMaxTransitGenerations(1000); 
         
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -715,6 +726,9 @@ public:
         
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
+        
+        SingletonWntGradient::Instance()->SetType(LINEAR);
+        SingletonWntGradient::Instance()->SetCrypt(crypt);
 
         TissueSimulation<2> simulator(crypt);
 
@@ -737,6 +751,7 @@ public:
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        SingletonWntGradient::Destroy();
     }
     
 
@@ -751,6 +766,10 @@ public:
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 0.2
         TissueSimulation<2>* p_simulator1;
+        
+        SingletonWntGradient::Instance();   // Make sure there is no existing Wnt Gradient before load.
+        SingletonWntGradient::Destroy();
+        
         p_simulator1 = TissueSimulation<2>::Load("Crypt2DPeriodicSaveAndLoad", 0.1);
         
         p_simulator1->SetEndTime(0.2);
@@ -774,16 +793,26 @@ public:
         // These cells just divided and have been gradually moving apart.
         // These results are from time 0.25 in the StandardResult test above.
         std::vector<double> node_28_location = p_simulator2->GetNodeLocation(28);
-        TS_ASSERT_DELTA(node_28_location[0], 4.0 , 1e-4);
+        TS_ASSERT_DELTA(node_28_location[0], 4.2123 , 1e-4);
         TS_ASSERT_DELTA(node_28_location[1], 0.0 , 1e-4);
         std::vector<double> node_120_location = p_simulator2->GetNodeLocation(120);
-        TS_ASSERT_DELTA(node_120_location[0], 3.8380 , 1e-4);
-        TS_ASSERT_DELTA(node_120_location[1], 0.2938 , 1e-4);
-                        
+        TS_ASSERT_DELTA(node_120_location[0], 3.7968 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[1], 0.1050 , 1e-4);
+        
+        // test Wnt Gradient was set up correctly
+        TS_ASSERT_EQUALS(SingletonWntGradient::Instance()->IsGradientSetUp(),true);
+        // test the Wnt gradient result
+        MeinekeCryptCell* p_cell = &(p_simulator2->rGetCrypt().rGetCellAtNodeIndex(28));
+        TS_ASSERT_DELTA(SingletonWntGradient::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
+        p_cell = &(p_simulator2->rGetCrypt().rGetCellAtNodeIndex(120));
+        TS_ASSERT_DELTA(SingletonWntGradient::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
+        
         delete p_simulator1;
         delete p_simulator2;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        
+        SingletonWntGradient::Destroy();
     }
     
     /* 
