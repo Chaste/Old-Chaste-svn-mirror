@@ -214,7 +214,6 @@ std::vector<double>  WntCellCycleModel::GetProteinConcentrations() const
  */
 AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
 {
-    //assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
     // calls a cheeky version of the constructor which makes the new cell 
     // cycle model the same as the old one - not a dividing copy at this time.

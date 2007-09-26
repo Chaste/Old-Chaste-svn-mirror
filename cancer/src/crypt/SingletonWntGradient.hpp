@@ -64,10 +64,10 @@ public:
     
 };
 
-//
-//// declare identifier for the serializer
-//BOOST_CLASS_EXPORT(SingletonWntGradient)
-//
+
+// declare identifier for the serializer
+BOOST_CLASS_EXPORT(SingletonWntGradient)
+
 //
 //namespace boost
 //{
