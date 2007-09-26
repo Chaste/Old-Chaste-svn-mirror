@@ -46,7 +46,8 @@ protected:
     bool mUndergoingApoptosis;
     double mDeathTime;
     bool mIsDead;
-    
+    bool mIsLogged;
+
     /**
      * Contains code common to both the copy constructor and operator=.
      */
@@ -123,6 +124,8 @@ public:
         */
     MeinekeCryptCell Divide();
     
+    void SetLogged();
+    bool IsLogged();
 };
 
 

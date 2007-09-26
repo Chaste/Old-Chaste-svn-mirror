@@ -48,6 +48,7 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
     mUseEdgeBasedSpringConstant = false;
     mWriteVoronoiData = false;
     mCreateVoronoiTessellation = false;
+    mFollowLoggedCell = false;
     
     // whether to use a cutoff point, ie specify zero force if two 
     // cells are greater than a certain distance apart. By default 
@@ -606,11 +607,12 @@ void TissueSimulation<DIM>::SetEdgeBasedSpringConstant(bool useEdgeBasedSpringCo
 }
 
 template<unsigned DIM> 
-void TissueSimulation<DIM>::SetWriteVoronoiData(bool writeVoronoiData)
+void TissueSimulation<DIM>::SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell)
 {
     assert(DIM == 2);
     mWriteVoronoiData = writeVoronoiData;
     mCreateVoronoiTessellation = writeVoronoiData;
+    mFollowLoggedCell = followLoggedCell;
 }
 
 /**
@@ -737,7 +739,10 @@ void TissueSimulation<DIM>::Solve()
     CryptVoronoiDataWriter<DIM>* p_voronoi_data_writer = NULL;
     if(mWriteVoronoiData)
     {
-        p_voronoi_data_writer = new CryptVoronoiDataWriter<DIM>(mrCrypt,mOutputDirectory,"VoronoiAreaAndPerimeter.dat");
+        p_voronoi_data_writer = new CryptVoronoiDataWriter<DIM>(mrCrypt,
+                                                                mOutputDirectory,
+                                                                "VoronoiAreaAndPerimeter.dat",
+                                                                mFollowLoggedCell);
     }
 
                                

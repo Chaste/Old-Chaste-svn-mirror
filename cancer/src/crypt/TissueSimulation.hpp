@@ -131,6 +131,9 @@ protected:
     /** Whether to print out cell area and perimeter info */
     bool mWriteVoronoiData;
     
+    /** Whether to follow only the logged cell if writing voronoi data */
+    bool mFollowLoggedCell;
+    
 #define COVERAGE_IGNORE
     /**
      * A helpful method for debugging.
@@ -204,6 +207,9 @@ protected:
         archive & mDivisionPairs;
         //CheckDivisionPairPointers();
         archive & mUseEdgeBasedSpringConstant;
+        archive & mCreateVoronoiTessellation;
+        archive & mWriteVoronoiData;
+        archive & mFollowLoggedCell;
     }
     
     /**
@@ -310,7 +316,7 @@ public:
     void SetNoBirth(bool nobirth);
     void SetOutputCellTypes(bool outputCellTypes);
     void SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant);
-    void SetWriteVoronoiData(bool writeVoronoiData);
+    void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
     void UseNonFlatBottomSurface();

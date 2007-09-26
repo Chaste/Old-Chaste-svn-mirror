@@ -28,6 +28,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
     mIsDead = false;
     mDeathTime = DBL_MAX; // this has to be initialised for archiving...
     mNodeIndex = (unsigned)(-1); // initialise to a silly value for archiving (avoid memory check error)
+    mIsLogged = false;
     mpCellCycleModel->SetCell(this);
 }
 
@@ -48,6 +49,8 @@ void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
     mpCellCycleModel = other_cell.mpCellCycleModel->CreateCellCycleModel();
     // Then copy its state
     *mpCellCycleModel = *(other_cell.mpCellCycleModel);
+
+    mIsLogged = other_cell.mIsLogged;
 
     // note: we call the base class version because we want to do model.mpCell=*this
     // only, as the model is fully set up (from the above line) already.
@@ -150,6 +153,15 @@ void MeinekeCryptCell::SetMutationState(CryptCellMutationState mutationState)
     mMutationState = mutationState;
 }
 
+void MeinekeCryptCell::SetLogged()
+{
+    mIsLogged = true;
+}
+
+bool MeinekeCryptCell::IsLogged()
+{
+    return mIsLogged;
+}
 /**
  * The MeinekeCryptCell ready to divide method
  *

@@ -308,13 +308,9 @@ public:
         regular_simulator.SetNoBirth(false);
         regular_simulator.SetOutputDirectory("Crypt2DEdgeBasedSpring");
         regular_simulator.SetOutputCellTypes(true);
-        //regular_simulator.Solve();
         
         // check that the force between nodes is correctly calculated when the spring constant is constant (!)
         regular_simulator.SetEdgeBasedSpringConstant(false);
-
-        // cover the write voronoi data method
-        regular_simulator.SetWriteVoronoiData(true);
                       
         for(Crypt<2>::SpringIterator spring_iterator=regular_crypt.SpringsBegin();
         spring_iterator!=regular_crypt.SpringsEnd();
@@ -365,9 +361,9 @@ public:
         TS_ASSERT_DELTA(new_force[0]*new_force[0] + new_force[1]*new_force[1], 3.83479824,1e-3);
     
         SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-    
+        RandomNumberGenerator::Destroy();    
     }
+    
     void TestEdgeBasedSpringsOnPeriodicMesh() throw (Exception)
     {     
         // Test on a periodic mesh
@@ -439,8 +435,7 @@ public:
         }              
             
         SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-                
+        RandomNumberGenerator::Destroy();                
     }
     
     
@@ -802,7 +797,7 @@ public:
      * to be 'mature' cells which won't shrink together. 
      * Limited this by using only four cells of minimum age.
      */
-    void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
+    void TestWntCellsCannotMoveAcrossYEqualsZeroAndVoronoiWriter() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -812,7 +807,7 @@ public:
         unsigned cells_across = 2;
         unsigned cells_up = 2;
         double crypt_width = 0.5;
-        unsigned thickness_of_ghost_layer = 0;
+        unsigned thickness_of_ghost_layer = 1;
         
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false, crypt_width/cells_across);
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
@@ -825,17 +820,29 @@ public:
         std::vector<MeinekeCryptCell> cells;        
         CreateVectorOfCells(cells, *p_mesh, WNT, true);
         
-        cells[0].SetBirthTime(-1.0);   // Make cell cycle models do minimum work
-        cells[1].SetBirthTime(-1.0);
-        cells[1].SetMutationState(LABELLED);
-        cells[2].SetBirthTime(-1.0);
-        cells[2].SetMutationState(APC_ONE_HIT);
-        cells[3].SetBirthTime(-1.0);
-        cells[3].SetMutationState(BETA_CATENIN_ONE_HIT);
+//        cells[0].SetBirthTime(-1.0);   // Make cell cycle models do minimum work
+//        cells[1].SetBirthTime(-1.0);
+//        cells[1].SetMutationState(LABELLED);
+//        cells[2].SetBirthTime(-1.0);
+//        cells[2].SetMutationState(APC_ONE_HIT);
+//        cells[3].SetBirthTime(-1.0);
+//        cells[3].SetMutationState(BETA_CATENIN_ONE_HIT);
 
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
+        Crypt<2>::Iterator cell_iterator = crypt.Begin();
+        cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
+        ++cell_iterator;
+        cell_iterator->SetBirthTime(-1.0);
+        cell_iterator->SetMutationState(LABELLED);
+        ++cell_iterator;
+        cell_iterator->SetBirthTime(-1.0);
+        cell_iterator->SetMutationState(APC_ONE_HIT);
+        ++cell_iterator;
+        cell_iterator->SetBirthTime(-1.0);
+        cell_iterator->SetMutationState(BETA_CATENIN_ONE_HIT);
+                
         SingletonWntGradient::Instance()->SetType(LINEAR);
         SingletonWntGradient::Instance()->SetCrypt(crypt);
                 
@@ -847,7 +854,9 @@ public:
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
         simulator.SetEndTime(0.01);
-        simulator.SetOutputCellTypes(true);        
+        simulator.SetOutputCellTypes(true);   
+        // cover the write voronoi data method
+        simulator.SetWriteVoronoiData(true, false);     
         simulator.Solve();
         
         // Check that nothing has moved below y=0
@@ -859,12 +868,17 @@ public:
         }
         
         c_vector<unsigned,5> cellTypeCount = simulator.GetCellTypeCount();
-        TS_ASSERT_EQUALS(cellTypeCount[0],1u);
+        TS_ASSERT_EQUALS(cellTypeCount[0],3u); // see ticket:500
         TS_ASSERT_EQUALS(cellTypeCount[1],1u);
         TS_ASSERT_EQUALS(cellTypeCount[2],1u);
         TS_ASSERT_EQUALS(cellTypeCount[3],0u);  // No APC two hit, one of all the rest.
         TS_ASSERT_EQUALS(cellTypeCount[4],1u);
         
+        // check writing of voronoi data
+        OutputFileHandler handler("Crypt2DWntMatureCells",false);
+        std::string results_file = handler.GetTestOutputDirectory() + "VoronoiAreaAndPerimeter.dat";
+        TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat").c_str()), 0);
+            
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
         SingletonWntGradient::Destroy();
@@ -1196,8 +1210,7 @@ public:
                 {
                     TS_ASSERT_EQUALS(cell_type,DIFFERENTIATED);
                 }
-            }
-        
+            }  
         }
         
         /*

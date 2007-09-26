@@ -27,15 +27,18 @@ class CryptVoronoiDataWriter
 private:
     Crypt<DIM>& mrCrypt;
     out_stream mOutStream;
+    bool mFollowLoggedCell;
     
     
 public:
-    CryptVoronoiDataWriter(Crypt<DIM>& rCrypt, std::string directory, std::string filename)
-        :mrCrypt(rCrypt)
+    CryptVoronoiDataWriter(Crypt<DIM>& rCrypt, std::string directory, std::string filename, bool followLoggedCell = false)
+        :mrCrypt(rCrypt),
+         mFollowLoggedCell(followLoggedCell)
     {
         assert(DIM==2);
         OutputFileHandler output_file_handler(directory,false);
         mOutStream = output_file_handler.OpenOutputFile(filename);
+        
     }
 
     ~CryptVoronoiDataWriter()
@@ -50,14 +53,22 @@ public:
              cell_iter != mrCrypt.End();
              ++cell_iter)
         {
-            unsigned node_index = cell_iter.GetNode()->GetIndex();
-            double x = cell_iter.rGetLocation()[0];
-            double y = cell_iter.rGetLocation()[1];
+            if((!mFollowLoggedCell) || ((mFollowLoggedCell) && (cell_iter->IsLogged())))
+            {
+                unsigned node_index = cell_iter.GetNode()->GetIndex();
+                double x = cell_iter.rGetLocation()[0];
+                double y = cell_iter.rGetLocation()[1];
             
-            double cell_area = mrCrypt.rGetVoronoiTessellation().GetFace(node_index)->GetArea();
-            double cell_perimeter = mrCrypt.rGetVoronoiTessellation().GetFace(node_index)->GetPerimeter();
+                double cell_area = mrCrypt.rGetVoronoiTessellation().GetFace(node_index)->GetArea();
+                double cell_perimeter = mrCrypt.rGetVoronoiTessellation().GetFace(node_index)->GetPerimeter();
             
-            (*mOutStream)<< node_index << " " << x << " " << y << " " << cell_area << " " << cell_perimeter << " ";
+                (*mOutStream)<< node_index << " " << x << " " << y << " " << cell_area << " " << cell_perimeter << " ";
+                
+                if(mFollowLoggedCell)
+                {
+                    break;
+                }
+            }
         }
         (*mOutStream)<< "\n";
     }

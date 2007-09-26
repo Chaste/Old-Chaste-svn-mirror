@@ -436,15 +436,25 @@ public:
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
+        // set the first cell to be logged
+        crypt.Begin()->SetLogged();
+
         TissueSimulation<2> simulator(crypt);
 
         simulator.SetOutputDirectory("Monolayer");
-        simulator.SetEndTime(0.01);
+        simulator.SetEndTime(1);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
+
+        simulator.SetWriteVoronoiData(true,true);
         
         simulator.Solve();
         
+        // check writing of voronoi data
+        OutputFileHandler handler("Monolayer",false);
+        std::string results_file = handler.GetTestOutputDirectory() + "VoronoiAreaAndPerimeter.dat";
+        TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/Monolayer/VoronoiAreaAndPerimeter.dat").c_str()), 0);
+     
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

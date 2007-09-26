@@ -1319,6 +1319,39 @@ public:
         SimulationTime::Destroy();
         SingletonWntGradient::Destroy();
     }
+    
+    void TestIsLogged()
+    {
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 1);
+        
+        MeinekeCryptCell cell(STEM, // type
+                              HEALTHY,//Mutation State
+                              0,    // generation
+                              new FixedCellCycleModel());
+                                   
+        TS_ASSERT(!cell.IsLogged());
+        
+        cell.SetLogged();
+        
+        TS_ASSERT(cell.IsLogged());
+        
+        MeinekeCryptCell copied_cell = cell;
+        
+        TS_ASSERT(copied_cell.IsLogged());
+        
+        p_simulation_time->IncrementTimeOneStep();
+        
+        TS_ASSERT(cell.ReadyToDivide());
+        
+        MeinekeCryptCell daughter_cell = cell.Divide();
+        
+        TS_ASSERT(cell.IsLogged());
+        TS_ASSERT(!daughter_cell.IsLogged());
+        
+        SimulationTime::Destroy();
+    }
 };
 
 
