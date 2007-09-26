@@ -65,7 +65,7 @@ Crypt<DIM>::~Crypt()
         delete &mrMesh;
     }
     
-    delete mpVoronoiTessellation;
+    //delete mpVoronoiTessellation;
 }
 
 template<unsigned DIM>

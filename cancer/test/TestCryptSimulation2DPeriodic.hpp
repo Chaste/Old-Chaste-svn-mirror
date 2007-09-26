@@ -364,71 +364,79 @@ public:
         // force^2 = mu^2 * (new_edge_length*sqrt(3))^2 * (1 - 5/6 - shift[0])^2
         TS_ASSERT_DELTA(new_force[0]*new_force[0] + new_force[1]*new_force[1], 3.83479824,1e-3);
     
-            
-//        // Test on a periodic mesh
-//        
-//        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-//        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-//        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-//        
-//        // Set up cells
-//        std::vector<MeinekeCryptCell> cells;
-//        CreateVectorOfCells(cells, *p_mesh, FIXED, true);// true = mature cells
-//
-//        Crypt<2> crypt(*p_mesh, cells);               
-//        crypt.SetGhostNodes(ghost_node_indices);
-//
-//        TissueSimulation<2> simulator(crypt);
-//        
-//        simulator.SetEndTime(1.0);
-//        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(10));
-//        simulator.SetMaxCells(500);
-//        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(10));
-//        simulator.SetMaxElements(1000);
-//        
-//        // These are for coverage and use the defaults
-//        simulator.SetDt(1.0/120.0);
-//        simulator.SetReMeshRule(true);
-//        simulator.SetNoBirth(false);
-//        simulator.SetOutputDirectory("Crypt2DCylindrical");
-//        simulator.SetOutputCellTypes(true);
-//        
-//
-//        // check that the force between nodes is correctly calculated when the spring constant is constant (!)
-//        simulator.SetEdgeBasedSpringConstant(false);
-//                      
-//        for(Crypt<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
-//        spring_iterator!=crypt.SpringsEnd();
-//        ++spring_iterator)
-//        {
-//            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
-//            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
-//            c_vector<double, 2> force = simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
-//                        
-//            TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],6.25,1e-3);
-//        }
-//        
-//        // check that the force between nodes is correctly calculated when the spring constant 
-//        // is proportional to the length of the edge between adjacenet cells  
-//        simulator.SetEdgeBasedSpringConstant(true); 
-//        simulator.mrCrypt.CreateVoronoiTessellation();  
-//        for(Crypt<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
-//        spring_iterator!=crypt.SpringsEnd();
-//        ++spring_iterator)
-//        {
-//            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
-//            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
-//            c_vector<double, 2> force = simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
-//            TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
-//            if (fabs(force[0]*force[0] + force[1]*force[1] - 4.34027778) < 1e-3)
-//            {
-//                std::cout << nodeA_global_index << "\t" << nodeB_global_index << "\n" << std::flush;   
-//            }
-//            else
-//            {
-//                std::cout << "Not working \t " << nodeA_global_index << "\t" << nodeB_global_index << "\n" << std::flush; 
-//            }
-//        }              
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    
+    }
+    void TestEdgeBasedSpringsOnPeriodicMesh() throw (Exception)
+    {     
+        // Test on a periodic mesh
+        CancerParameters::Instance()->Reset();
+
+        // Set up the simulation time
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,10u);
+                
+        unsigned cells_across = 6;
+        unsigned cells_up = 12;
+        double crypt_width = 5.0;
+        unsigned thickness_of_ghost_layer = 3;
+       
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cells;
+        CreateVectorOfCells(cells, *p_mesh, FIXED, true);// true = mature cells
+
+        Crypt<2> crypt(*p_mesh, cells);               
+        crypt.SetGhostNodes(ghost_node_indices);
+
+        TissueSimulation<2> simulator(crypt);
+        
+        simulator.SetEndTime(1.0);
+        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(10));
+        simulator.SetMaxCells(500);
+        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(10));
+        simulator.SetMaxElements(1000);
+        
+        // These are for coverage and use the defaults
+        simulator.SetDt(1.0/120.0);
+        simulator.SetReMeshRule(true);
+        simulator.SetNoBirth(false);
+        simulator.SetOutputDirectory("Crypt2DCylindricalWithEdgeSprings");
+        simulator.SetOutputCellTypes(true);
+        
+
+        // check that the force between nodes is correctly calculated when the spring constant is constant (!)
+        simulator.SetEdgeBasedSpringConstant(false);
+                      
+        for(Crypt<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
+        spring_iterator!=crypt.SpringsEnd();
+        ++spring_iterator)
+        {
+            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
+            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
+            c_vector<double, 2> force = simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
+                        
+            TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],6.25,1e-3);
+        }
+        
+        // check that the force between nodes is correctly calculated when the spring constant 
+        // is proportional to the length of the edge between adjacenet cells  
+        simulator.SetEdgeBasedSpringConstant(true); 
+        simulator.mrCrypt.CreateVoronoiTessellation();  
+        for(Crypt<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
+        spring_iterator!=crypt.SpringsEnd();
+        ++spring_iterator)
+        {
+            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
+            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
+            c_vector<double, 2> force = simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
+            TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
+        }              
             
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
