@@ -190,7 +190,7 @@ public:
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   APC_ONE_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));
+                                  new WntCellCycleModel());
                                   
         wnt_cell.InitialiseCellCycleModel();
         
@@ -276,7 +276,7 @@ public:
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   BETA_CATENIN_ONE_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));
+                                  new WntCellCycleModel());
                                   
         wnt_cell.InitialiseCellCycleModel();
                                   
@@ -361,7 +361,7 @@ public:
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   APC_TWO_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));
+                                  new WntCellCycleModel());
         
         wnt_cell.InitialiseCellCycleModel();
                                           

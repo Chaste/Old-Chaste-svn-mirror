@@ -16,7 +16,6 @@
 #include "CancerParameters.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-#include "WntGradient.hpp"
 #include "SingletonWntGradient.hpp"
 
 // Needs to be included last
@@ -279,7 +278,7 @@ public:
         SimulationTime *p_simulation_time = SimulationTime::Instance();
 
         // fails because start time has not been set up
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel bad_model(1.0));
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel bad_model);
         
         double endTime = 10.0; //hours
         int numTimesteps = 1000*(int)endTime;
@@ -289,9 +288,8 @@ public:
         double wnt_level = 1.0;
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level);
-        p_cell_model->SetUseWntGradient();
-
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel();
+        
         MeinekeCryptCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
@@ -363,9 +361,8 @@ public:
         double wnt_level = 1.0;        
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level);
-        p_cell_model->SetUseWntGradient();
-        
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel();
+                
         MeinekeCryptCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
@@ -374,11 +371,10 @@ public:
         stem_cell.InitialiseCellCycleModel();
                                                               
         double SG2MDuration = CancerParameters::Instance()->GetSG2MDuration();
-        TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
+        TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
         
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level);
-        p_cell_model_1->SetUseWntGradient();
-        
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
+                
         MeinekeCryptCell stem_cell_1(STEM, // type
                                      APC_ONE_HIT,//Mutation State
                                      0,  // generation
@@ -436,9 +432,8 @@ public:
         double wnt_level = 0.0;
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
         
-        WntCellCycleModel* p_cell_model = new WntCellCycleModel(wnt_level);
-        p_cell_model->SetUseWntGradient();
-        
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel();
+                
         MeinekeCryptCell stem_cell(STEM, // type
                                    BETA_CATENIN_ONE_HIT,//Mutation State
                                    0,  // generation
@@ -449,11 +444,10 @@ public:
         
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
-        TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
+        TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
         
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level);
-        p_cell_model_1->SetUseWntGradient();
-        
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
+                
         MeinekeCryptCell stem_cell_1(STEM, // type
                                      BETA_CATENIN_ONE_HIT,//Mutation State
                                      0,  // generation
@@ -514,8 +508,8 @@ public:
         double wnt_level = 0.738;// This shouldn't matter for this kind of cell!
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
                 
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level);
-        p_cell_model_1->SetUseWntGradient();
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
+        
         MeinekeCryptCell stem_cell_1(STEM, // type
                                      APC_TWO_HIT,//Mutation State
                                      0,  // generation
@@ -526,9 +520,8 @@ public:
         
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
-        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(wnt_level);
-        p_cell_model_2->SetUseWntGradient();
-        
+        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
+                
         MeinekeCryptCell stem_cell_2(STEM, // type
                                      APC_TWO_HIT,//Mutation State
                                      0,  // generation
@@ -588,9 +581,8 @@ public:
         double wnt_level = 1.0;
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
                 
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(wnt_level);
-        p_cell_model_1->SetUseWntGradient();
-        
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
+                
         MeinekeCryptCell stem_cell_1(STEM, // type
                                      HEALTHY,//Mutation State
                                      0,  // generation
@@ -601,9 +593,8 @@ public:
          
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
-        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(wnt_level);
-        p_cell_model_2->SetUseWntGradient();
-        
+        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
+                
         MeinekeCryptCell stem_cell_2(STEM, // type
                                      HEALTHY,//Mutation State
                                      0,  // generation
@@ -663,9 +654,8 @@ public:
         double wnt_level = 1.0;
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
         
-        StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel(wnt_level);
-        p_cell_model->SetUseWntGradient();
-        
+        StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel();
+                
         MeinekeCryptCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
@@ -894,9 +884,8 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16, 2);
                        
-            WntCellCycleModel* p_cell_model = new WntCellCycleModel(1.0);
-            p_cell_model->SetUseWntGradient();
-
+            WntCellCycleModel* p_cell_model = new WntCellCycleModel();
+            
             MeinekeCryptCell stem_cell(STEM, // type
                                        HEALTHY,//Mutation State
                                        0,  // generation
@@ -974,18 +963,16 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 1000);
             
-            StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel(1.0);                    
-            p_stoc_model->SetUseWntGradient();
-                               
+            StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel();                    
+                                           
             MeinekeCryptCell stoc_cell(STEM, // type
                                        HEALTHY,//Mutation State
                                        0,  // generation
                                        p_stoc_model); 
             stoc_cell.InitialiseCellCycleModel();                                       
             
-            WntCellCycleModel* p_wnt_model = new WntCellCycleModel(1.0);
-            p_wnt_model->SetUseWntGradient();
-
+            WntCellCycleModel* p_wnt_model = new WntCellCycleModel();
+            
             MeinekeCryptCell wnt_cell(STEM, // type
                                       HEALTHY,//Mutation State
                                       0,  // generation

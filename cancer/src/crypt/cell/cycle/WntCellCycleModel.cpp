@@ -15,12 +15,10 @@ RungeKutta4IvpOdeSolver WntCellCycleModel::msSolver;
  * Note that since we provide our own constructor, the compiler will *not*
  * generate a default one for us.
  *
- * @param InitialWntStimulus a value between 0 and 1.
  */
-WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
+WntCellCycleModel::WntCellCycleModel()
         : AbstractCellCycleModel(),
-          mpOdeSystem(NULL),
-          mInitialWntStimulus(InitialWntStimulus)
+          mpOdeSystem(NULL)
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -33,8 +31,6 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
     mReadyToDivide = false;
     mDivideTime = DBL_MAX;
 
-    //temp
-    mUseWntGradient = true;
 }
 
 /**
@@ -46,9 +42,8 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
 WntCellCycleModel::WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
                                      const CryptCellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
-                                     bool inSG2MPhase, bool readyToDivide, double divideTime, bool useWntGradient)
-        : AbstractCellCycleModel(),
-          mUseWntGradient(useWntGradient)
+                                     bool inSG2MPhase, bool readyToDivide, double divideTime)
+        : AbstractCellCycleModel()
 {
     if (pParentOdeSystem !=NULL)
     {
@@ -226,7 +221,7 @@ AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
     // unless the parent cell has just divided.
     return new WntCellCycleModel(mpOdeSystem, 
                                  mpCell->GetMutationState(), mBirthTime, mLastTime, 
-                                 mInSG2MPhase, mReadyToDivide, mDivideTime, mUseWntGradient);
+                                 mInSG2MPhase, mReadyToDivide, mDivideTime);
 }
 
 /**
@@ -283,14 +278,7 @@ void WntCellCycleModel::Initialise()
 {
     assert(mpOdeSystem==NULL);
     assert(mpCell!=NULL);
-    assert(mUseWntGradient);
     mpOdeSystem = new WntCellCycleOdeSystem(SingletonWntGradient::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 }    
 
-
-//temporary
-void WntCellCycleModel::SetUseWntGradient()
-{
-    mUseWntGradient = true;
-}

@@ -17,7 +17,6 @@
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
-#include "WntGradient.hpp"
 #include <iostream>
 
 class TestMeinekeCryptCell: public CxxTest::TestSuite
@@ -264,13 +263,12 @@ public:
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
         
         // Test a Wnt dependent cell
-        WntGradient wnt_gradient;
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(0.0);
         
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
-                                   new WntCellCycleModel(0.0));
+                                   new WntCellCycleModel());
         wnt_cell.InitialiseCellCycleModel();
                                    
         wnt_cell.UpdateCellType();
@@ -767,14 +765,12 @@ public:
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
-        WntGradient wnt_gradient;
-        
         double wnt_stimulus = 1.0;
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   HEALTHY,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));
+                                  new WntCellCycleModel());
         wnt_cell.InitialiseCellCycleModel();
                  
         for (unsigned i=0 ; i<num_steps/2 ; i++)
@@ -862,11 +858,10 @@ public:
         double wnt_stimulus = 1.0;
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
-        WntGradient wnt_gradient;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   HEALTHY,//Mutation State
                                   1,    // generation
-                                  new StochasticWntCellCycleModel(wnt_stimulus));
+                                  new StochasticWntCellCycleModel());
         wnt_cell.InitialiseCellCycleModel();
                                   
         for (unsigned i=0 ; i<num_steps/2 ; i++)
@@ -1288,32 +1283,31 @@ public:
         double wnt_stimulus = 1.0;
         SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
-        WntGradient wnt_gradient;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   APC_ONE_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));
+                                  new WntCellCycleModel());
                                   
         wnt_cell.InitialiseCellCycleModel();
                                   
         MeinekeCryptCell wnt_cell2(TRANSIT, // type
                                   BETA_CATENIN_ONE_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));                          
+                                  new WntCellCycleModel());                          
         
         wnt_cell2.InitialiseCellCycleModel();
                                   
         MeinekeCryptCell wnt_cell3(TRANSIT, // type
                                   APC_TWO_HIT,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus)); 
+                                  new WntCellCycleModel()); 
                                   
         wnt_cell3.InitialiseCellCycleModel();
         
         MeinekeCryptCell wnt_cell4(TRANSIT, // type
                                   LABELLED,//Mutation State
                                   1,    // generation
-                                  new WntCellCycleModel(wnt_stimulus));                               
+                                  new WntCellCycleModel());                               
 
         wnt_cell4.InitialiseCellCycleModel();
                 

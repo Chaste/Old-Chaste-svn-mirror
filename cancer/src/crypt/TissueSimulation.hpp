@@ -10,7 +10,6 @@
 #include "MeinekeCryptCell.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "CancerParameters.hpp"
-#include "WntGradient.hpp"
 #include "RandomCellKiller.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "Crypt.cpp"

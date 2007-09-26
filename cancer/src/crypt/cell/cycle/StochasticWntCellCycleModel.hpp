@@ -45,8 +45,8 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
     /**
      * The standard constructor called in tests
      */
-    StochasticWntCellCycleModel(double wntLevel)
-      :  WntCellCycleModel(wntLevel)
+    StochasticWntCellCycleModel()
+      :  WntCellCycleModel()
     {
     }
     

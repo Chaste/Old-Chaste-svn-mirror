@@ -10,7 +10,6 @@
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-#include "WntGradient.hpp"
 #include "WntCellCycleOdeSystem.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "ColumnDataReader.hpp"
@@ -132,9 +131,7 @@ class TestTissueSimulationWithNutrients : public CxxTest::TestSuite
             }
             else if (cycleType==WNT)
             {
-                WntGradient wnt_gradient(LINEAR);
-                double wnt = wnt_gradient.GetWntLevel(y);
-                p_cell_cycle_model = new WntCellCycleModel(wnt);
+                p_cell_cycle_model = new WntCellCycleModel();
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }

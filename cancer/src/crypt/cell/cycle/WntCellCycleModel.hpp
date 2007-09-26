@@ -35,11 +35,6 @@ private:
     double mDivideTime;
     bool mInSG2MPhase;
     bool mReadyToDivide;
-    double mInitialWntStimulus;
-
-    //temp
-    bool mUseWntGradient;
-    
     
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -55,7 +50,6 @@ private:
         archive & mDivideTime;
         archive & mInSG2MPhase;
         archive & mReadyToDivide;
-        archive & mUseWntGradient; 
     }
        
 protected:    
@@ -63,7 +57,7 @@ protected:
     
 public:
 
-    WntCellCycleModel(double InitialWntStimulus);
+    WntCellCycleModel();
    
     /**
      * This is needed to create an exact copy of the current cell cycle model
@@ -72,7 +66,7 @@ public:
     WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem, 
                       const CryptCellMutationState& rMutationState, 
                       double birthTime, double lastTime,
-                      bool inSG2MPhase, bool readyToDivide, double divideTime, bool useWntGradient=true);
+                      bool inSG2MPhase, bool readyToDivide, double divideTime);
    /**
      * This is needed to create an exact copy of the current cell cycle model
      * (called by archiving functions)

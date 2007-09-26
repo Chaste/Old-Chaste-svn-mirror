@@ -3,7 +3,6 @@
 
 #include <cxxtest/TestSuite.h>
 #include "TissueSimulation.cpp"
-
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
@@ -13,7 +12,6 @@
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-#include "WntGradient.hpp"
 #include "WntCellCycleOdeSystem.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
@@ -78,7 +76,7 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
             }
             else if (cycleType==WNT)
             {
-                p_cell_cycle_model = new WntCellCycleModel(0.0);
+                p_cell_cycle_model = new WntCellCycleModel();
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }
@@ -1059,8 +1057,7 @@ public:
                 mutation_state = APC_TWO_HIT;
             }
                   
-            WntCellCycleModel* p_model = new WntCellCycleModel(0.0);
-            p_model->SetUseWntGradient();
+            WntCellCycleModel* p_model = new WntCellCycleModel();
             
             MeinekeCryptCell cell(cell_type, mutation_state, generation, p_model);
             cell.SetNodeIndex(i);

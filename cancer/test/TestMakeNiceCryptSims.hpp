@@ -15,7 +15,6 @@
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
-#include "WntGradient.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "CancerParameters.hpp"
@@ -78,13 +77,13 @@ class TestNiceCryptSims : public CxxTest::TestSuite
             }
             else if (cycleType==WNT)
             {
-                p_cell_cycle_model = new WntCellCycleModel(0.0);
+                p_cell_cycle_model = new WntCellCycleModel();
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }
             else if (cycleType==STOCHASTIC_WNT)
             {
-                p_cell_cycle_model = new StochasticWntCellCycleModel(0.0);
+                p_cell_cycle_model = new StochasticWntCellCycleModel();
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }
