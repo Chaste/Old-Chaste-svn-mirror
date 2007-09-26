@@ -64,7 +64,7 @@ Crypt<DIM>::~Crypt()
         delete &mrMesh;
     }
     
-    //delete mpVoronoiTessellation;
+    delete mpVoronoiTessellation;
 }
 
 template<unsigned DIM>
@@ -860,6 +860,7 @@ typename Crypt<DIM>::SpringIterator Crypt<DIM>::SpringsEnd()
 template<unsigned DIM>
 void Crypt<DIM>::CreateVoronoiTessellation()
 {
+    delete mpVoronoiTessellation;
     mpVoronoiTessellation = new VoronoiTessellation<DIM>(mrMesh);
 }
 

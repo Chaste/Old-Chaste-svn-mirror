@@ -41,7 +41,9 @@ if single_test_suite:
       os.remove(single_test_suite[:-4] + '.log')
     except OSError:
       pass
-elif test_component in ['', toplevel_dir] or toplevel_dir in COMMAND_LINE_TARGETS:
+elif test_component == toplevel_dir or \
+    toplevel_dir in BUILD_TARGETS or \
+    '.' in BUILD_TARGETS:
   packfiles = []
   if all_tests:
     for packfile in glob.glob('../../test/*TestPack.txt'):
