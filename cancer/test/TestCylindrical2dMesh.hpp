@@ -15,7 +15,7 @@ class TestCylindrical2dMesh : public CxxTest::TestSuite
 {
 public:
 
-    void xTestBasicFunctions()
+    void TestBasicFunctions()
     {   
         // Test IsThisIndexInList
         Cylindrical2dMesh mesh(1.0);
@@ -39,7 +39,7 @@ public:
     }
 
 
-    void xTestCreateMirrorCellsANDAlignmentTester() throw (Exception)
+    void TestCreateMirrorCellsANDAlignmentTester() throw (Exception)
     {   
     	// note that elements are not created (and boundary elements are not changed)
         // this just creates a set of new nodes.
@@ -112,7 +112,7 @@ public:
 //        }
     }
     
-    void xTestReconstructCylindricalMesh() throw (Exception)
+    void TestReconstructCylindricalMesh() throw (Exception)
     {   
     	// this takes in a new mesh created using the mirror function above
         // and a ReMesh call, then removes nodes, elements and boundary elements.
@@ -238,7 +238,7 @@ public:
         //Output2DMeshToFile(p_mesh, "node_positions.dat");
     }
     
-    void xTestCylindricalReMesh() throw (Exception)
+    void TestCylindricalReMesh() throw (Exception)
     {
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -263,7 +263,7 @@ public:
     }
 
 
-    void xTestCylindricalReMeshAfterDelete() throw (Exception)
+    void TestCylindricalReMeshAfterDelete() throw (Exception)
     {
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -301,7 +301,7 @@ public:
 
    }
     
-    void xTestCylindricalReMeshOnSmallMesh() throw (Exception)
+    void TestCylindricalReMeshOnSmallMesh() throw (Exception)
     {
         unsigned cells_across = 3;
         unsigned cells_up = 3;
@@ -322,7 +322,7 @@ public:
         //Output2DMeshToFile(p_mesh, "node_positions.dat");
     }
     
-    void xTestGetVectorBetweenCyclindricalPoints() throw (Exception)
+    void TestGetVectorBetweenCyclindricalPoints() throw (Exception)
     {
         unsigned cells_across = 3;
         unsigned cells_up = 3;
@@ -367,7 +367,7 @@ public:
         TS_ASSERT_DELTA(norm_2(vector), sqrt(2.0), 1e-7);
     }
     
-    void xTestSetNodeLocationForCylindricalMesh() throw (Exception)
+    void TestSetNodeLocationForCylindricalMesh() throw (Exception)
     {        
         unsigned cells_across = 3;
         unsigned cells_up = 3;
@@ -435,7 +435,7 @@ public:
         
     }
     
-    void xTestAddNodeAndReMesh() throw (Exception)
+    void TestAddNodeAndReMesh() throw (Exception)
     {
         unsigned cells_across = 3;
         unsigned cells_up = 3;
@@ -477,7 +477,7 @@ public:
         TS_ASSERT_DELTA(p_mesh->GetWidth(1u), sqrt(3), 1e-6);
     }    
 
-    void xTestHaloNodeInsertionAndRemoval() throw (Exception)
+    void TestHaloNodeInsertionAndRemoval() throw (Exception)
     {
         unsigned cells_across = 5;
         unsigned cells_up = 3;
@@ -531,7 +531,7 @@ public:
         
     }
 
-    void xTestHaloNodeReMesh() throw (Exception)
+    void TestHaloNodeReMesh() throw (Exception)
     {
         // This test checks that a Halo node remesh can handle a mesh of uneven height.
         
@@ -576,7 +576,7 @@ public:
     }
     
     
-    void xTestArchiving() throw (Exception)
+    void TestArchiving() throw (Exception)
     {
         std::string dirname = "archive";
         OutputFileHandler handler(dirname, false);
