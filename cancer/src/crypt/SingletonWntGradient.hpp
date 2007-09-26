@@ -24,16 +24,20 @@ private:
     double mConstantWntValueForTesting;
     bool mUseConstantWntValueForTesting;
     
-//    friend class boost::serialization::access;
-//    template<class Archive>
-//    void serialize(Archive & archive, const unsigned int version)
-//    {
-//        archive & mGradientType;
-//        archive & mpCancerParams;
-//        mpCancerParams = CancerParameters::Instance();
-//        archive & mpCrypt;
-//        archive & mTypeSet;
-//    }
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        
+        mpCancerParams = CancerParameters::Instance();
+        archive & *mpCancerParams;
+        archive & mpCancerParams;
+        archive & mGradientType;
+        archive & mpCrypt;
+        archive & mTypeSet;
+        archive & mConstantWntValueForTesting;
+        archive & mUseConstantWntValueForTesting;
+    }
 protected:
     SingletonWntGradient();
     

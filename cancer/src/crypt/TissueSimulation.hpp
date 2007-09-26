@@ -14,6 +14,7 @@
 #include "TrianglesMeshReader.cpp"
 #include "Crypt.cpp"
 #include "CryptVoronoiDataWriter.hpp"
+#include "SingletonWntGradient.hpp"
 #include <vector>
 
 
@@ -350,7 +351,15 @@ inline void save_construct_data(
     const Crypt<DIM> * p_crypt = &(t->rGetCrypt());
     ar & p_crypt;
     
-    //std::cout<<"Tissue simulation save crypt\n"<<std::flush;
+    bool archive_wnt;
+    archive_wnt=SingletonWntGradient::Instance()->IsGradientSetUp();
+    ar & archive_wnt;
+    if (archive_wnt)
+    {
+        SingletonWntGradient* p_wnt_gradient = SingletonWntGradient::Instance();
+        ar & *p_wnt_gradient;
+        ar & p_wnt_gradient;
+    }
 }
 
 /**
@@ -364,8 +373,14 @@ inline void load_construct_data(
     Crypt<DIM>* p_crypt;
 
     ar >> p_crypt;
-    //std::cout<<"Tissue simulation load crypt\n"<<std::flush;
-
+    bool archive_wnt;
+    ar & archive_wnt;
+    if (archive_wnt)
+    {
+        SingletonWntGradient* p_wnt_gradient = SingletonWntGradient::Instance();
+        ar & *p_wnt_gradient;
+        ar & p_wnt_gradient;
+    }
     // invoke inplace constructor to initialize instance
     ::new(t)TissueSimulation<DIM>(*p_crypt, true);
 }

@@ -105,61 +105,60 @@ public:
         
         SingletonWntGradient::Destroy();
     }
-//    
-//    void TestArchiveWntGradient()
-//    {
-//        CancerParameters::Instance()->Reset();
-//
-//        OutputFileHandler handler("archive",false);
-//        std::string archive_filename;
-//        archive_filename = handler.GetTestOutputDirectory() + "wnt_grad.arch";
-//        
-//        // Create an ouput archive
-//        {
-//            WntGradientType this_type = LINEAR;
-//            
-//            WntGradient* const p_wnt_gradient = new WntGradient(this_type);
-//            
-//            std::ofstream ofs(archive_filename.c_str());
-//            boost::archive::text_oarchive output_arch(ofs);
-//            
-//            output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
-//            output_arch << p_wnt_gradient;
-//            
-//            CancerParameters *inst1 = CancerParameters::Instance();
-//            TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
-//            
-//            delete p_wnt_gradient;
-//        }
-//        
-//        {
-//            WntGradient* p_wnt;
-//            
-//            CancerParameters *inst1 = CancerParameters::Instance();
-//            
-//            inst1->SetSG2MDuration(101.0);
-//            
-//            // Create an input archive
-//            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-//            boost::archive::text_iarchive input_arch(ifs);
-//            
-//            // restore from the archive
-//            input_arch >> *inst1;
-//            input_arch >> p_wnt;
-//            
-//            CancerParameters *inst2 = CancerParameters::Instance();
-//            TS_ASSERT_EQUALS(inst1, inst2);
-//            
-//            // Check
-//            TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
-//            double height = 21.0;
-//            double wnt_level = p_wnt->GetWntLevel(height);
-//            
-//            TS_ASSERT_DELTA(wnt_level, 1.0-height/inst1->GetCryptLength(), 1e-9);
-//        }
-//    }
-//    
-//    
+    
+    void TestArchiveWntGradient()
+    {
+        CancerParameters::Instance()->Reset();
+
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "wnt_grad.arch";
+        
+        // Create an ouput archive
+        {
+            
+            SingletonWntGradient::Instance()->SetType(LINEAR);
+            
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            //output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
+            output_arch << static_cast<const SingletonWntGradient&>(*SingletonWntGradient::Instance());
+            
+            //CancerParameters *inst1 = CancerParameters::Instance();
+            //TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
+            SingletonWntGradient::Destroy();
+            
+        }
+        
+        {
+            
+            
+            //CancerParameters *inst1 = CancerParameters::Instance();
+            SingletonWntGradient* p_wnt=SingletonWntGradient::Instance();
+            //inst1->SetSG2MDuration(101.0);
+            
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            // restore from the archive
+            //input_arch >> *inst1;
+            input_arch >> *p_wnt;
+            
+           
+            double height = 21.0;
+            double wnt_level = p_wnt->GetWntLevel(height);
+            
+            TS_ASSERT_DELTA(wnt_level, 1.0-height/CancerParameters::Instance()->GetCryptLength(), 1e-9);
+            SingletonWntGradient::Destroy();
+ 
+        
+        }
+        
+    }
+    
+    
     void TestSingletonWntGradient()
     {
         CancerParameters::Instance()->Reset();
