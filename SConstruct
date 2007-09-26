@@ -36,6 +36,9 @@ Export('build')
 # Specify test_summary=0 to scons to *NOT* generate a summary html page
 test_summary = ARGUMENTS.get('test_summary', 1)
 
+# Used by the automated build system
+run_infrastructure_tests = ARGUMENTS.get('do_inf_tests', 1)
+
 # Specifying extra run-time flags
 run_time_flags = ARGUMENTS.get('run_time_flags', '')
 
@@ -160,6 +163,10 @@ env.Replace(AR = build.tools['ar'])
 env.Replace(CPPPATH = cpppath)
 env['buildsig'] = build.GetSignature()
 
+env.Default('.')
+#for comp in components:
+#    env.Default(comp)
+
 # Create Builders for generating test .cpp files, and running test executables
 test = Builder(action = 'cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURCES')
 #runtests = Builder(action = 'python/TestRunner.py $SOURCE $TARGET ' +
@@ -189,12 +196,13 @@ del vg_path
 # Export the build environment to SConscript files
 Export('env')
 
-# Check for orphaned test files
-os.system('python/TestRunner.py python/CheckForOrphanedTests.py ' +
-          build.GetTestReportDir() + 'OrphanedTests.log ' + build_type + ' --no-stdout')
-# Check for duplicate file names in multiple directories
-os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
-          build.GetTestReportDir() + 'DuplicateFileNames.log ' + build_type + ' --no-stdout')
+if run_infrastructure_tests:
+    # Check for orphaned test files
+    os.system('python/TestRunner.py python/CheckForOrphanedTests.py ' +
+              build.GetTestReportDir() + 'OrphanedTests.log ' + build_type + ' --no-stdout')
+    # Check for duplicate file names in multiple directories
+    os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
+              build.GetTestReportDir() + 'DuplicateFileNames.log ' + build_type + ' --no-stdout')
 
 build_dir = build.build_dir
 test_depends = [File(build.GetTestReportDir() + 'OrphanedTests.log'),
@@ -220,10 +228,6 @@ for lib in glob.glob('lib/*'):
 for lib in glob.glob('linklib/*'):
     Clean('.', lib)
 
-
-env.Default('.')
-#for comp in components:
-#    env.Default(comp)
 
 # Test summary generation
 if test_summary and not compile_only:

@@ -32,6 +32,12 @@ os.chdir(curdir)
 # file, one per line.
 # Alternatively, a single test suite may have been specified on the command
 # line.
+test_this_comp = False
+for targ in BUILD_TARGETS:
+    if str(targ) in [toplevel_dir, '.', Dir('#').abspath]:
+        test_this_comp = True
+if test_component == toplevel_dir:
+    test_this_comp = True
 testfiles = set()
 if single_test_suite:
   if single_test_suite_dir == toplevel_dir:
@@ -41,9 +47,7 @@ if single_test_suite:
       os.remove(single_test_suite[:-4] + '.log')
     except OSError:
       pass
-elif test_component == toplevel_dir or \
-    toplevel_dir in BUILD_TARGETS or \
-    '.' in BUILD_TARGETS:
+elif test_this_comp:
   packfiles = []
   if all_tests:
     for packfile in glob.glob('../../test/*TestPack.txt'):
