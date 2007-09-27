@@ -2,11 +2,6 @@ TestAbstractIvpOdeSolver.hpp
 TestAbstractOdeSystem.hpp
 TestAbstractAnalyticJacobian.hpp
 TestBackwardEulerIvpOdeSolver.hpp
-TestCellularMechanicsOdeSystems.hpp
-TestIonicModels.hpp
-TestNhsSystemWithImplicitSolver.hpp
-TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestMockEulerIvpOdeSolver.hpp
 TestRungeKuttaFehlbergIvpOdeSolver.hpp
 TestSolvingStiffOdeSystems.hpp
-TestStimulus.hpp

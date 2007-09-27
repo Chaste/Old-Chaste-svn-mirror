@@ -8,3 +8,9 @@ TestMonodomainPde.hpp
 TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 TestPlaneStimulusCellFactory.hpp
 TestPropagationPropertiesCalculator.hpp
+
+TestCellularMechanicsOdeSystems.hpp
+TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
+TestIonicModels.hpp
+TestNhsSystemWithImplicitSolver.hpp
+TestStimulus.hpp

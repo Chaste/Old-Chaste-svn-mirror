@@ -11,8 +11,7 @@
 #include "Ode2.hpp"
 #include "Ode3.hpp"
 #include "TwoDimOdeSystem.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
-#include "InitialStimulus.hpp"
+#include "VanDerPolOde.hpp"
 #include "EulerIvpOdeSolver.hpp"
 
 // Tolerance for tests
@@ -105,29 +104,25 @@ public:
     
     void TestReadSpecificStateVariable()
     {
-        // Create an LR91 ode system
-        InitialStimulus stimulus(0, 0, 0);
-        EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem ode_system(&solver, 0.01, &stimulus);
+        // Create a VanDerPol system
+        VanDerPolOde ode_system;
         
-        // get the calcium state variable number
-        unsigned var_number=ode_system.GetStateVariableNumberByName("CaI");
-        TS_ASSERT_EQUALS(var_number, 3u);
+        // get the velocity state variable number
+        unsigned var_number = ode_system.GetStateVariableNumberByName("v");
+        TS_ASSERT_EQUALS(var_number, 1u);
         
         TS_ASSERT_THROWS_ANYTHING(ode_system.GetStateVariableNumberByName("foo"));
 
-        TS_ASSERT_EQUALS(ode_system.GetStateVariableValueByNumber(var_number), 0.0002);
+        TS_ASSERT_EQUALS(ode_system.GetStateVariableValueByNumber(var_number), 10.0);
         
-        TS_ASSERT_EQUALS(ode_system.GetStateVariableUnitsByNumber(var_number), "mMol");        
+        TS_ASSERT_EQUALS(ode_system.GetStateVariableUnitsByNumber(var_number), "m/s");        
     }
     
     // This test is mainly for coverage purposes.
     void TestDumpState()
     {
-        // Create an LR91 ode system
-        InitialStimulus stimulus(0, 0, 0);
-        EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem ode_system(&solver, 0.01, &stimulus);
+        // Create a VanDerPol system
+        VanDerPolOde ode_system;
         
         // Dump the state variables
         std::string state = ode_system.DumpState("This is a test.");

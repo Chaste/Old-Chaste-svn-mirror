@@ -1,2 +1,0 @@
-TestElectroMechanicCellularModels.hpp
-TestIonicModelsLong.hpp

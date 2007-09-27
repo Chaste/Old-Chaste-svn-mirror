@@ -7,3 +7,6 @@ TestMonodomainNoStimulus.hpp
 TestMonodomainSlab.hpp
 TestSpiralWaveProject.hpp
 TestMonodomainHeartApex.hpp
+
+TestElectroMechanicCellularModels.hpp
+TestIonicModelsLong.hpp

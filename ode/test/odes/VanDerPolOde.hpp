@@ -10,7 +10,14 @@ public :
     VanDerPolOde() : AbstractOdeSystem(2)  // 2 here is the number of unknowns
     {
         mInitialConditions.push_back(10.0);
+        mVariableNames.push_back("x");
+        mVariableUnits.push_back("m");
+        
         mInitialConditions.push_back(10.0);
+        mVariableNames.push_back("v");
+        mVariableUnits.push_back("m/s");
+
+        SetStateVariables(mInitialConditions);
     }
     
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
