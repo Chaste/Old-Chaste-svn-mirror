@@ -52,7 +52,7 @@ public:
         
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
         
-        bidomain_problem.SetMeshFilename("coupled/test/data/memfem_mesh/simple");
+        bidomain_problem.SetMeshFilename("heart/test/data/memfem_mesh/simple");
         
         // set the back face (nodes 468-506) to have phi_e fixed to zero
         std::vector<unsigned> fixed_nodes;

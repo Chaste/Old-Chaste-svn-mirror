@@ -303,7 +303,7 @@ public:
         PointStimulusCellFactory3D cell_factory;
         
         BidomainProblem<3> bidomain_problem( &cell_factory );
-        bidomain_problem.SetMeshFilename("coupled/test/data/memfem_mesh/simple"); // the memfem mesh
+        bidomain_problem.SetMeshFilename("heart/test/data/memfem_mesh/simple"); // the memfem mesh
         
         // set the back face (nodes 468-506) to have phi_e fixed to zero
         std::vector<unsigned> fixed_nodes;

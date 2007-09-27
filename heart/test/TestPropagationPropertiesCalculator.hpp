@@ -14,7 +14,7 @@ public:
 
     void TestConductionVelocity1D(void)
     {
-        ColumnDataReader simulation_data("coupled/test/data/MonoDg01d",
+        ColumnDataReader simulation_data("heart/test/data/MonoDg01d",
                                          "NewMonodomainLR91_1d", false);
         PropagationPropertiesCalculator ppc(&simulation_data);
         double velocity=ppc.CalculateConductionVelocity(5,15,0.1);
