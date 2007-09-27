@@ -28,12 +28,14 @@ SingletonWntGradient* SingletonWntGradient::Instance()
 SingletonWntGradient::SingletonWntGradient()
  :  mpCancerParams(CancerParameters::Instance()),
     mpCrypt(NULL),
+    mGradientType(NONE),
     mTypeSet(false)
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
     
     mUseConstantWntValueForTesting = false;
+    mConstantWntValueForTesting = 0.0;
 }
 
 SingletonWntGradient::~SingletonWntGradient()

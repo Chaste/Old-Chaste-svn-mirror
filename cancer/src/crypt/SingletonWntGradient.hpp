@@ -17,8 +17,8 @@ private:
     static SingletonWntGradient* mpInstance;
 
     CancerParameters* mpCancerParams;
-    WntGradientType mGradientType;
     Crypt<2>* mpCrypt;
+    WntGradientType mGradientType;
     bool mTypeSet; 
     
     double mConstantWntValueForTesting;
