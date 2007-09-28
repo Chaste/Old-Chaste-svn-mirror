@@ -10,27 +10,10 @@
 #include "FixedCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CryptVoronoiDataWriter.hpp"
+#include "CellsGenerator.hpp"
 
 class TestCryptVoronoiDataWriter : public CxxTest::TestSuite
 {    
-private: 
-///\todo: this is identical to SetUpCells in crypt - refactor
-    template<unsigned DIM>
-    std::vector<MeinekeCryptCell> SetUpCells(ConformingTetrahedralMesh<DIM,DIM>* pMesh)
-    {
-        std::vector<MeinekeCryptCell> cells;
-        for(unsigned i=0; i<pMesh->GetNumNodes(); i++)
-        {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
-            double birth_time = 0.0-i;
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-        
-        return cells;
-    }
-    
 public:
     void TestDataWriter()
     {
@@ -45,7 +28,9 @@ public:
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
         
         // create the crypt
-        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(p_mesh);
+        std::vector<MeinekeCryptCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
+        
         Crypt<2> crypt(*p_mesh,cells);
         crypt.SetGhostNodes(ghost_node_indices);
         crypt.CreateVoronoiTessellation();
@@ -80,7 +65,8 @@ public:
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
         
         // create the crypt
-        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(p_mesh);
+        std::vector<MeinekeCryptCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
         Crypt<2> crypt(*p_mesh,cells);
         crypt.SetGhostNodes(ghost_node_indices);

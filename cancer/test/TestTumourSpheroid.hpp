@@ -223,7 +223,6 @@ public :
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
-   
 };
 
 #endif /*TESTTUMOURSPHEROID_HPP_*/

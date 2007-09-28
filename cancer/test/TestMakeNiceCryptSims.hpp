@@ -192,8 +192,8 @@ void TestNiceCryptSimulation() throw (Exception)
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
                 
-        SingletonWntGradient::Instance()->SetType(OFFSET_LINEAR);
-        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetType(OFFSET_LINEAR);
+        WntGradient::Instance()->SetCrypt(crypt);
         
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory(output_directory);
@@ -248,7 +248,7 @@ void TestNiceCryptSimulation() throw (Exception)
         delete p_params;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
 std::vector<unsigned> Label()

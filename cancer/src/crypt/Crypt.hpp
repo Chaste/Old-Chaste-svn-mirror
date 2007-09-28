@@ -92,7 +92,6 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        //std::cout << "Archiving crypt member variables\n" << std::flush;
         archive & mCells;
         archive & mNodeCellMap;
         archive & mIsGhostNode;
@@ -404,7 +403,6 @@ template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, Crypt<DIM> * t, const unsigned int file_version)
 {
-    //std::cout << "Loading construct data\n" << std::flush; 
     // retrieve data from archive required to construct new instance
     ConformingTetrahedralMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;

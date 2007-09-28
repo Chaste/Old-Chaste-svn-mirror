@@ -1,5 +1,5 @@
-#ifndef TESTCRYPTSIMULATION2DPERIODIC_HPP_
-#define TESTCRYPTSIMULATION2DPERIODIC_HPP_
+#ifndef TESTCRYPTSIMULATION2D_HPP_
+#define TESTCRYPTSIMULATION2D_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "TissueSimulation.cpp"
@@ -19,143 +19,14 @@
 #include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
 #include "SloughingCellKiller.hpp"
-#include "SingletonWntGradient.hpp"
+#include "WntGradient.hpp"
 #include "VoronoiTessellation.cpp"
+#include "CellsGenerator.hpp"
 
 
-// Possible types of Cell Cycle Model (just for CreateVectorOfCells method)
-typedef enum CellCycleType_
+
+class TestCryptSimulation2d : public CxxTest::TestSuite
 {
-    FIXED,
-    STOCHASTIC,
-    WNT,
-    TYSONNOVAK
-} CellCycleType;
-
-
-class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
-{
-    void CreateVectorOfCells(std::vector<MeinekeCryptCell>& rCells, 
-                             ConformingTetrahedralMesh<2,2>& rMesh, 
-                             CellCycleType cycleType, 
-                             bool randomBirthTimes,
-                             double y0 = 0.3,
-                             double y1 = 2.0,
-                             double y2 = 3.0,
-                             double y3 = 4.0)
-    {
-        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
-        unsigned num_cells = rMesh.GetNumNodes();
-
-        AbstractCellCycleModel* p_cell_cycle_model = NULL;
-        double typical_transit_cycle_time;
-        double typical_stem_cycle_time;
-        
-        CancerParameters* p_params = CancerParameters::Instance();
-        
-        rCells.reserve(num_cells);
-        
-        for (unsigned i=0; i<num_cells; i++)
-        {
-            CryptCellType cell_type;
-            unsigned generation;
-
-            double y = rMesh.GetNode(i)->GetPoint().rGetLocation()[1];
-            
-            if (cycleType==FIXED)
-            {
-                p_cell_cycle_model = new FixedCellCycleModel();
-                typical_transit_cycle_time = p_params->GetTransitCellCycleTime();
-                typical_stem_cycle_time = p_params->GetStemCellCycleTime();
-            }
-            else if (cycleType==STOCHASTIC)
-            {
-                p_cell_cycle_model = new StochasticCellCycleModel();
-                typical_transit_cycle_time = p_params->GetTransitCellCycleTime();
-                typical_stem_cycle_time = p_params->GetStemCellCycleTime();
-            }
-            else if (cycleType==WNT)
-            {
-                p_cell_cycle_model = new WntCellCycleModel();
-                typical_transit_cycle_time = 16.0;
-                typical_stem_cycle_time = typical_transit_cycle_time;
-            }
-            else if (cycleType==TYSONNOVAK)
-            {
-                p_cell_cycle_model = new TysonNovakCellCycleModel();
-                typical_transit_cycle_time = 1.25;
-                typical_stem_cycle_time = typical_transit_cycle_time;
-            }
-            else
-            {
-                EXCEPTION("Cell Cycle Type is not recognised");   
-            }
-            
-            
-            double birth_time = 0.0;
-            
-            if (y <= y0)
-            {
-                cell_type = STEM;
-                generation = 0;
-                if(randomBirthTimes)
-                {
-                    birth_time = -p_random_num_gen->ranf()*typical_stem_cycle_time; // hours
-                }
-            }
-            else if (y < y1)
-            {
-                cell_type = TRANSIT;
-                generation = 1;
-                if(randomBirthTimes)
-                {
-                    birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
-                }
-            }
-            else if (y < y2)
-            {
-                cell_type = TRANSIT;
-                generation = 2;
-                if(randomBirthTimes)
-                {
-                    birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
-                }
-            }
-            else if (y < y3)
-            {
-                cell_type = TRANSIT;
-                generation = 3;
-                if(randomBirthTimes)
-                {
-                    birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
-                }
-            }
-            else
-            {
-                if(randomBirthTimes)
-                {
-                    birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
-                }
-                if(cycleType==WNT || cycleType==TYSONNOVAK)
-                {
-                    // There are no fully differentiated cells!
-                    cell_type = TRANSIT;
-                    
-                }
-                else
-                {
-                    cell_type = DIFFERENTIATED;
-                }                
-                generation = 4;
-            }
-
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, p_cell_cycle_model);
-            
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            rCells.push_back(cell);
-        }
-    }
 
     /**
      * Compare 2 meshes to see if they are 'the same'.  Doesn't check everything,
@@ -222,7 +93,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, FIXED, true);// true = mature cells
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
         Crypt<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
@@ -289,7 +160,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> regular_cells;
-        CreateVectorOfCells(regular_cells, *p_regular_mesh, FIXED, true);// true = mature cells
+        CellsGenerator<2>::GenerateForCrypt(regular_cells, *p_regular_mesh, FIXED, true);// true = mature cells
 
         Crypt<2> regular_crypt(*p_regular_mesh, regular_cells);               
         regular_crypt.SetGhostNodes(regular_ghost_node_indices);
@@ -385,7 +256,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, FIXED, true);// true = mature cells
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
         Crypt<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
@@ -459,7 +330,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, FIXED, true);// true = mature cells
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
         
         for(unsigned i=0; i< cells.size();i++)
         {
@@ -539,13 +410,13 @@ public:
         
         // Set up cells 
         std::vector<MeinekeCryptCell> cells;                      
-        CreateVectorOfCells(cells, *p_mesh, WNT, false);
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
         
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);  
         
-        SingletonWntGradient::Instance()->SetType(LINEAR);             
-        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetType(LINEAR);             
+        WntGradient::Instance()->SetCrypt(crypt);
         
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DPeriodicWnt");
@@ -571,7 +442,7 @@ public:
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     // A better check that the loaded mesh is the same as that saved
@@ -592,12 +463,12 @@ public:
         p_simulation_time->SetStartTime(0.0);
         std::vector<MeinekeCryptCell> cells;
                 
-        CreateVectorOfCells(cells, *p_mesh, WNT, false);
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
-        SingletonWntGradient::Instance()->SetType(LINEAR);
-        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetType(LINEAR);
+        WntGradient::Instance()->SetCrypt(crypt);
         //wnt_gradient.SetCrypt(crypt);
         
         TissueSimulation<2> simulator(crypt);
@@ -610,10 +481,6 @@ public:
         // The archiver assumes that a Solve has been called and simulation time has been set up properly.
         // In this test it hasn't so we need this to avoid memory leak.
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.1, 100);
-
-        AbstractCellCycleModel* model = crypt.rGetCellAtNodeIndex(0).GetCellCycleModel();
-        WntCellCycleModel* wnt_model = (WntCellCycleModel*)(model);
-        std::cout <<  wnt_model->GetProteinConcentrations()[0] << "\n";
 
         // Save
         simulator.Save();
@@ -632,7 +499,7 @@ public:
         delete p_simulator;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
 
     void TestStandardResultForArchivingTestsBelow() throw (Exception)
@@ -655,15 +522,15 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, FIXED, true);
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
         
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         // We have a Wnt Gradient - but not Wnt dependent cells
         // so that the test runs quickly, but we test archiving of it!
-        SingletonWntGradient::Instance()->SetType(LINEAR);
-        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetType(LINEAR);
+        WntGradient::Instance()->SetCrypt(crypt);
         
         TissueSimulation<2> simulator(crypt);
 
@@ -696,10 +563,10 @@ public:
         
         // test the Wnt gradient result
         MeinekeCryptCell* p_cell = &(crypt.rGetCellAtNodeIndex(28));
-        TS_ASSERT_DELTA(SingletonWntGradient::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
+        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
         p_cell = &(crypt.rGetCellAtNodeIndex(120));
-        TS_ASSERT_DELTA(SingletonWntGradient::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
-        SingletonWntGradient::Destroy();
+        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
+        WntGradient::Destroy();
         
     }
 
@@ -722,13 +589,13 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, FIXED, true);
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
         
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
-        SingletonWntGradient::Instance()->SetType(LINEAR);
-        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetType(LINEAR);
+        WntGradient::Instance()->SetCrypt(crypt);
 
         TissueSimulation<2> simulator(crypt);
 
@@ -751,7 +618,7 @@ public:
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
 
@@ -767,8 +634,8 @@ public:
         // run it from 0.1 to 0.2
         TissueSimulation<2>* p_simulator1;
         
-        SingletonWntGradient::Instance();   // Make sure there is no existing Wnt Gradient before load.
-        SingletonWntGradient::Destroy();
+        WntGradient::Instance();   // Make sure there is no existing Wnt Gradient before load.
+        WntGradient::Destroy();
         
         p_simulator1 = TissueSimulation<2>::Load("Crypt2DPeriodicSaveAndLoad", 0.1);
         
@@ -800,19 +667,19 @@ public:
         TS_ASSERT_DELTA(node_120_location[1], 0.1050 , 1e-4);
         
         // test Wnt Gradient was set up correctly
-        TS_ASSERT_EQUALS(SingletonWntGradient::Instance()->IsGradientSetUp(),true);
+        TS_ASSERT_EQUALS(WntGradient::Instance()->IsGradientSetUp(),true);
         // test the Wnt gradient result
         MeinekeCryptCell* p_cell = &(p_simulator2->rGetCrypt().rGetCellAtNodeIndex(28));
-        TS_ASSERT_DELTA(SingletonWntGradient::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
+        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
         p_cell = &(p_simulator2->rGetCrypt().rGetCellAtNodeIndex(120));
-        TS_ASSERT_DELTA(SingletonWntGradient::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
+        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
         
         delete p_simulator1;
         delete p_simulator2;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
         
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     /* 
@@ -847,7 +714,7 @@ public:
                 
         // Set up cells
         std::vector<MeinekeCryptCell> cells;        
-        CreateVectorOfCells(cells, *p_mesh, WNT, true);
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, true);
         
 //        cells[0].SetBirthTime(-1.0);   // Make cell cycle models do minimum work
 //        cells[1].SetBirthTime(-1.0);
@@ -872,8 +739,8 @@ public:
         cell_iterator->SetBirthTime(-1.0);
         cell_iterator->SetMutationState(BETA_CATENIN_ONE_HIT);
                 
-        SingletonWntGradient::Instance()->SetType(LINEAR);
-        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetType(LINEAR);
+        WntGradient::Instance()->SetCrypt(crypt);
                 
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DWntMatureCells");
@@ -910,7 +777,7 @@ public:
             
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     // This is a strange test -- all cells divide within a quick time, it gives
@@ -935,7 +802,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, TYSONNOVAK, true);
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, TYSONNOVAK, true);
         
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
@@ -1011,7 +878,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, mesh, FIXED, false, 0.0, 3.0, 6.5, 8.0);
+        CellsGenerator<2>::GenerateForCrypt(cells, mesh, FIXED, false, 0.0, 3.0, 6.5, 8.0);
         
         cells[60].SetBirthTime(-50.0);
         
@@ -1119,8 +986,8 @@ public:
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        SingletonWntGradient::Instance()->SetType(LINEAR);
-        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetType(LINEAR);
+        WntGradient::Instance()->SetCrypt(crypt);
         
         TissueSimulation<2> simulator(crypt);
         
@@ -1269,7 +1136,7 @@ public:
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
@@ -1292,7 +1159,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> conf_cells;
-        CreateVectorOfCells(conf_cells, conf_mesh, TYSONNOVAK, true);
+        CellsGenerator<2>::GenerateForCrypt(conf_cells, conf_mesh, TYSONNOVAK, true);
 
         Crypt<2> conf_crypt(conf_mesh, conf_cells);
 
@@ -1328,7 +1195,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> conf_cells;
-        CreateVectorOfCells(conf_cells, conf_mesh, TYSONNOVAK, true);        
+        CellsGenerator<2>::GenerateForCrypt(conf_cells, conf_mesh, TYSONNOVAK, true);        
         Crypt<2> conf_crypt(conf_mesh, conf_cells);
 
         Crypt<2>::Iterator conf_iter = conf_crypt.Begin();
@@ -1374,7 +1241,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cyl_cells;
-        CreateVectorOfCells(cyl_cells, cyl_mesh, TYSONNOVAK, true);        
+        CellsGenerator<2>::GenerateForCrypt(cyl_cells, cyl_mesh, TYSONNOVAK, true);        
         Crypt<2> cyl_crypt(cyl_mesh, cyl_cells);
 
         Crypt<2>::Iterator cyl_iter = cyl_crypt.Begin();
@@ -1408,7 +1275,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cyl_cells;
-        CreateVectorOfCells(cyl_cells, cyl_mesh, TYSONNOVAK, true);        
+        CellsGenerator<2>::GenerateForCrypt(cyl_cells, cyl_mesh, TYSONNOVAK, true);        
         Crypt<2> cyl_crypt(cyl_mesh, cyl_cells);
 
         Crypt<2>::Iterator cyl_iter = cyl_crypt.Begin();
@@ -1449,7 +1316,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, FIXED, true);// true = mature cells
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
         Crypt<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
@@ -1505,7 +1372,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, FIXED, true);
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
               
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
@@ -1548,7 +1415,7 @@ public:
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, FIXED, true);
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
               
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
@@ -1573,4 +1440,4 @@ public:
     }
 };
 
-#endif /*TESTCRYPTSIMULATION2DPERIODIC_HPP_*/
+#endif /*TESTCRYPTSIMULATION2D_HPP_*/

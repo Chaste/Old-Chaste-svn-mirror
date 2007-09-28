@@ -63,30 +63,8 @@ public:
         
         TS_ASSERT_DELTA(tessellation.GetFaceArea(48u),  0.5 * pow(3.0, 0.5), 1e-4);
         TS_ASSERT_DELTA(tessellation.GetFacePerimeter(48u), 2 * pow(3.0, 0.5), 1e-4);
-        
-        
-    }
-    
+    }    
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #endif /*TESTVORONOIAREAONPERIODICMESH_HPP_*/

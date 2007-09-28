@@ -21,6 +21,7 @@
 
 class TestNightlyMeinekeCryptCell: public CxxTest::TestSuite
 {
+
 public:
 
     void TestTysonNovakImmortalStemCell()
@@ -185,7 +186,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
-        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   APC_ONE_HIT,//Mutation State
@@ -249,7 +250,7 @@ public:
         }
         
         SimulationTime::Destroy();
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     /*
@@ -271,7 +272,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 0.0;
-        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   BETA_CATENIN_ONE_HIT,//Mutation State
@@ -334,7 +335,7 @@ public:
         }
         
         SimulationTime::Destroy();
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     /*
@@ -356,7 +357,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 0.0;
-        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   APC_TWO_HIT,//Mutation State
@@ -433,10 +434,8 @@ public:
         }
         
         SimulationTime::Destroy();
-        SingletonWntGradient::Destroy();
-    }
-    
-    
+        WntGradient::Destroy();
+    }    
 };
 
 

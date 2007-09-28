@@ -1,24 +1,34 @@
-#ifndef SINGLETONWNTGRADIENT_HPP_
-#define SINGLETONWNTGRADIENT_HPP_
+#ifndef WNTGRADIENT_HPP_
+#define WNTGRADIENT_HPP_
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
 #include "CancerParameters.hpp"
-#include "WntGradientTypes.hpp"
 #include "Crypt.cpp"
 
 /**
- *  Wnt gradient getter and setters.
+ * Possible types of WntGradient.
  */
-class SingletonWntGradient
+typedef enum WntGradientType_
+{
+    NONE,
+    LINEAR,
+    OFFSET_LINEAR
+} WntGradientType;
+
+
+/**
+ *  Singleton Wnt gradient object
+ */
+class WntGradient
 {
 private:
-    static SingletonWntGradient* mpInstance;
+    static WntGradient* mpInstance;
 
     CancerParameters* mpCancerParams;
-    Crypt<2>* mpCrypt;
     WntGradientType mGradientType;
+    Crypt<2>* mpCrypt;
     bool mTypeSet; 
     
     double mConstantWntValueForTesting;
@@ -39,35 +49,70 @@ private:
         archive & mUseConstantWntValueForTesting;
     }
 protected:
-    SingletonWntGradient();
+    /**
+     *  Protected constuctore. Not to be called, use Instance() instead
+     */
+    WntGradient();
     
 public:
-    static SingletonWntGradient* Instance();
+    /**
+     *  Get an instance of the wnt gradient
+     */
+    static WntGradient* Instance();
     
-    virtual ~SingletonWntGradient();
+    virtual ~WntGradient();
+    
+    /** 
+     *  Destroy the current wnt gradient. Should be called at the end of a 
+     *  simulation.
+     */
     static void Destroy();
+    
+    /**
+     *  Get the wnt level at a given height in the crypt. Note the
+     *  CancerParameters::CryptLength() is used for this
+     */
     double GetWntLevel(double height);
     
+    /**
+     *  Get the wnt level at a given cell in the crypt. The crypt
+     *  must be set for this. Note the CancerParameters::CryptLength() 
+     *  is used for this.
+     */
     virtual double GetWntLevel(MeinekeCryptCell* pCell);
     
+    /**
+     *  Set the crypt. Must be called before GetWntLevel(). This calls 
+     *  crypt.Initialise()
+     */
     void SetCrypt(Crypt<2>& rCrypt);
+    
+    /**
+     *  Set the type of wnt gradient. Must be called before GetWntLevel().
+     */
     void SetType(WntGradientType type);
     
-    
+    /**
+     *  Force the wnt gradrient to return a given value for all cell
+     *  Only for testing.
+     */
     void SetConstantWntValueForTesting(double value)
     {
         mConstantWntValueForTesting = value;
         mUseConstantWntValueForTesting = true;
     }
     
+    /**
+     *  Whether a wnt gradient has been set up (for archiving, mainly)
+     */
     bool IsGradientSetUp();
     
 };
 
-
-// declare identifier for the serializer
-BOOST_CLASS_EXPORT(SingletonWntGradient)
-
+//
+//// declare identifier for the serializer
+//BOOST_CLASS_EXPORT(WntGradient)
+//
 //
 //namespace boost
 //{
@@ -75,22 +120,22 @@ BOOST_CLASS_EXPORT(SingletonWntGradient)
 //{
 ///**
 // * Allow us to not need a default constructor, by specifying how Boost should
-// * instantiate a SingletonWntGradient instance.
+// * instantiate a WntGradient instance.
 // */
 //template<class Archive>
 //inline void save_construct_data(
-//    Archive & ar, const SingletonWntGradient * t, const unsigned int file_version)
+//    Archive & ar, const WntGradient * t, const unsigned int file_version)
 //{
-//    std::cout << "SingletonWntGradient Save Constructor called\n" << std::flush;
+//    std::cout << "WntGradient Save Constructor called\n" << std::flush;
 //}
 //
 ///**
 // * Allow us to not need a default constructor, by specifying how Boost should
-// * instantiate a SingletonWntGradient instance.
+// * instantiate a WntGradient instance.
 // */
 //template<class Archive>
 //inline void load_construct_data(
-//    Archive & ar, SingletonWntGradient * t, const unsigned int file_version)
+//    Archive & ar, WntGradient * t, const unsigned int file_version)
 //{
 //    // It doesn't actually matter what values we pass to our standard
 //    // constructor, provided they are valid parameter values, since the
@@ -98,11 +143,11 @@ BOOST_CLASS_EXPORT(SingletonWntGradient)
 //    // this case.
 //    // Invoke inplace constructor to initialize instance of my_class
 //    WntGradientType type = NONE;
-//    ::new(t)SingletonWntGradient(type);
-//    std::cout << "SingletonWntGradient Load Constructor called\n" << std::flush;
+//    ::new(t)WntGradient(type);
+//    std::cout << "WntGradient Load Constructor called\n" << std::flush;
 //}
 //}
 //} // namespace ...
 //
 
-#endif /*SINGLETONWNTGRADIENT_HPP_*/
+#endif /*WNTGRADIENT_HPP_*/

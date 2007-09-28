@@ -1,6 +1,6 @@
 TestCrypt.hpp
-TestCryptSimulation.hpp
-TestCryptSimulation2DPeriodic.hpp
+TestCryptSimulation1d.hpp
+TestCryptSimulation2d.hpp
 TestCellCycleModels.hpp
 TestCylindrical2dMesh.hpp
 TestGaryWntOdeSystem.hpp

@@ -18,7 +18,7 @@
 #include "SimulationTime.hpp"
 #include "ColumnDataWriter.hpp"
 #include "WntCellCycleModel.hpp"
-#include "SingletonWntGradient.hpp"
+#include "WntGradient.hpp"
 #include "OutputFileHandler.hpp"
 #include "LogFile.hpp"
 #include "VoronoiTessellation.cpp"
@@ -56,10 +56,6 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
     mUseCutoffPoint = false;
     mCutoffPoint = 1e10;
     
-    
-    assert(SimulationTime::Instance()->IsStartTimeSetUp());
-    // start time must have been set to create crypt which includes cell cycle models
-    
     mrCrypt.SetMaxCells(mMaxCells);
     mrCrypt.SetMaxElements(mMaxElements);
 }
@@ -94,7 +90,6 @@ void TissueSimulation<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
 template<unsigned DIM>  
 unsigned TissueSimulation<DIM>::DoCellBirth()
 {
-    //assert (!mNoBirth);
     if (mNoBirth)
     {
         return 0;
@@ -207,39 +202,6 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
             daughter_coords = proposed_new_daughter_coords;
         }
         
-//        if (   (proposed_new_parent_coords(1) <= BottomSurfaceProfile(proposed_new_parent_coords(0)))
-//            && (proposed_new_daughter_coords(1) <= BottomSurfaceProfile(proposed_new_daughter_coords(0))))
-//        {
-//            // the worst case, both parent and daughter would move to below the surface
-//            // move them across and then up onto the surface. This is the only case
-//            // when the cells won't be 0.1 away from each other
-//            parent_coords = proposed_new_parent_coords;
-//            parent_coords(1) = BottomSurfaceProfile(parent_coords(0));
-//
-//            daughter_coords = proposed_new_daughter_coords;
-//            daughter_coords(1) = BottomSurfaceProfile(daughter_coords(0));
-//        }
-//        else if (proposed_new_parent_coords(1) <= BottomSurfaceProfile(proposed_new_parent_coords(0)))
-//        {
-//            // Leave parent, move daughter twice as far
-//            daughter_coords = parent_coords + random_vector;
-//        }
-//        else if (proposed_new_daughter_coords(1) <= BottomSurfaceProfile(proposed_new_daughter_coords(0)))
-//        {
-//            // don't move parent, move daughter in opposite direction (twice as far)
-//            daughter_coords = parent_coords - random_vector;
-//        }
-//        else        
-//        {   
-//            // We are not too close to the bottom of the crypt
-//            // move parent
-//            parent_coords = proposed_new_parent_coords;
-//            daughter_coords = proposed_new_daughter_coords;
-//        }
-        
-        
-        
-
         assert(daughter_coords(1)>=0.0);// to make sure dividing cells stay in the crypt
         assert(parent_coords(1)>=0.0);// to make sure dividing cells stay in the crypt
     }
@@ -257,8 +219,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
         daughter_coords = parent_coords+random_vector;
         parent_coords = parent_coords-random_vector;
     }
-    
-    
+        
     // set the parent to use this location
     ChastePoint<DIM> parent_coords_point(parent_coords);
     mrCrypt.MoveCell(parentCell, parent_coords_point);
@@ -422,8 +383,8 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
         
         if(DIM==2)
         {
-            bool is_wnt_included = SingletonWntGradient::Instance()->IsGradientSetUp();
-            if (!is_wnt_included) SingletonWntGradient::Destroy();
+            bool is_wnt_included = WntGradient::Instance()->IsGradientSetUp();
+            if (!is_wnt_included) WntGradient::Destroy();
             // stem cells are fixed if no wnt, so reset the x-value to the old x-value           
             if((cell.GetCellType()==STEM) && (!is_wnt_included))
             {
@@ -437,7 +398,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
                 new_point.rGetLocation()[1] = BottomSurfaceProfile(new_point.rGetLocation()[0]);
             }
             
-//          // move the cell
+            // move the cell
             mrCrypt.MoveCell(cell_iter, new_point);                    
         }
         else
@@ -643,8 +604,6 @@ std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNode
 
 /**
  * Main Solve method.
- *
- * Once CryptSimulation object has been set up, call this to run simulation
  */
 template<unsigned DIM> 
 void TissueSimulation<DIM>::Solve()

@@ -8,8 +8,7 @@
 
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
-#include "SingletonWntGradient.hpp"
-#include "WntGradientTypes.hpp"
+#include "WntGradient.hpp"
 #include "Crypt.cpp"
 #include "MeinekeCryptCell.hpp"
 #include "WntCellCycleModel.hpp"
@@ -21,7 +20,7 @@ public:
     {
         CancerParameters::Instance()->Reset();
 
-        SingletonWntGradient* p_wnt_gradient = SingletonWntGradient::Instance();
+        WntGradient* p_wnt_gradient = WntGradient::Instance();
         p_wnt_gradient->SetType(NONE);
         
         double height = 5;
@@ -30,14 +29,14 @@ public:
         
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
         
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     void TestLinearWntGradient() throw(Exception)
     {
         CancerParameters::Instance()->Reset();
         
-        SingletonWntGradient* p_wnt_gradient = SingletonWntGradient::Instance();
+        WntGradient* p_wnt_gradient = WntGradient::Instance();
         p_wnt_gradient->SetType(LINEAR);
         
         CancerParameters *params = CancerParameters::Instance();
@@ -62,7 +61,7 @@ public:
         
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
         
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     
@@ -70,7 +69,7 @@ public:
     {
         CancerParameters::Instance()->Reset();
 
-        SingletonWntGradient* p_wnt_gradient = SingletonWntGradient::Instance();
+        WntGradient* p_wnt_gradient = WntGradient::Instance();
         p_wnt_gradient->SetType(OFFSET_LINEAR);
 
         CancerParameters *params = CancerParameters::Instance();
@@ -103,7 +102,7 @@ public:
         wnt_level = p_wnt_gradient->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
         
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     void TestArchiveWntGradient()
@@ -117,25 +116,23 @@ public:
         // Create an ouput archive
         {
             
-            SingletonWntGradient::Instance()->SetType(LINEAR);
+            WntGradient::Instance()->SetType(LINEAR);
             
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
             //output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
-            output_arch << static_cast<const SingletonWntGradient&>(*SingletonWntGradient::Instance());
+            output_arch << static_cast<const WntGradient&>(*WntGradient::Instance());
             
             //CancerParameters *inst1 = CancerParameters::Instance();
             //TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
-            SingletonWntGradient::Destroy();
+            WntGradient::Destroy();
             
         }
         
         {
-            
-            
             //CancerParameters *inst1 = CancerParameters::Instance();
-            SingletonWntGradient* p_wnt=SingletonWntGradient::Instance();
+            WntGradient* p_wnt=WntGradient::Instance();
             //inst1->SetSG2MDuration(101.0);
             
             // Create an input archive
@@ -145,26 +142,22 @@ public:
             // restore from the archive
             //input_arch >> *inst1;
             input_arch >> *p_wnt;
-            
            
             double height = 21.0;
             double wnt_level = p_wnt->GetWntLevel(height);
             
             TS_ASSERT_DELTA(wnt_level, 1.0-height/CancerParameters::Instance()->GetCryptLength(), 1e-9);
-            SingletonWntGradient::Destroy();
- 
-        
+            WntGradient::Destroy();
         }
-        
     }
     
     
-    void TestSingletonWntGradient()
+    void TestSingletonnessOfWntGradient()
     {
         CancerParameters::Instance()->Reset();
         CancerParameters *params = CancerParameters::Instance();
         
-        SingletonWntGradient* p_wnt_gradient = SingletonWntGradient::Instance();
+        WntGradient* p_wnt_gradient = WntGradient::Instance();
         p_wnt_gradient->SetType(NONE);
         
         double height = 5;
@@ -175,9 +168,9 @@ public:
         
         TS_ASSERT_THROWS_ANYTHING(p_wnt_gradient->SetType(NONE));
         
-        SingletonWntGradient::Destroy();   
+        WntGradient::Destroy();   
  
-        p_wnt_gradient = SingletonWntGradient::Instance();
+        p_wnt_gradient = WntGradient::Instance();
         p_wnt_gradient->SetType(LINEAR);
         
         height = 100;
@@ -200,7 +193,7 @@ public:
         
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
         
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     
@@ -236,12 +229,11 @@ public:
         CancerParameters::Instance()->SetCryptLength(1.0);
 
         //wnt_gradient.SetCrypt(crypt);
-        SingletonWntGradient::Instance()->SetType(LINEAR);
-        SingletonWntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetType(LINEAR);
+        WntGradient::Instance()->SetCrypt(crypt);
         
         Crypt<2>::Iterator iter = crypt.Begin();
         
-
         while(iter!=crypt.End())
         {
             const WntCellCycleModel* p_model = (WntCellCycleModel*) iter->GetCellCycleModel();
@@ -264,7 +256,7 @@ public:
             ++iter;
         }
 
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
 };
 

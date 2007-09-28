@@ -43,9 +43,6 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
         mCellTypeCount[i] =0;
     }
         
-    // remove this line when facade is finished 
-    //   - no don't, validate does important stuff like check each non-ghost 
-    //     node has a cell
 	Validate();
 }
 
@@ -65,16 +62,14 @@ Crypt<DIM>::~Crypt()
         delete &mrMesh;
     }
     
-    delete mpVoronoiTessellation;
+    // this line still seems to cause TestCryptSimulation2d::TestMeshSurvivesSaveLoad()
+    // to die. (sometimes)
+    //delete mpVoronoiTessellation;
 }
 
 template<unsigned DIM>
 void Crypt<DIM>::InitialiseCells()
 {
-//    for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
-//    {
-//        cell_iter->InitialiseCellCycleModel();
-//    }
     for(std::list<MeinekeCryptCell>::iterator iter = mCells.begin();
         iter != mCells.end();
         ++iter)

@@ -1,5 +1,5 @@
-#ifndef CRYPTSIMULATION_HPP_
-#define CRYPTSIMULATION_HPP_
+#ifndef CRYPTSIMULATION1D_HPP_
+#define CRYPTSIMULATION1D_HPP_
 
 #include "MeinekeCryptCell.hpp"
 #include <vector>
@@ -23,7 +23,7 @@
  * that the value we use for Meineke lambda is completely different because we have
  * nondimensionalised)
  */
-class CryptSimulation
+class CryptSimulation1d
 {
 private:
     double mDt;
@@ -47,10 +47,10 @@ private:
     
 public:
 
-    CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
-                    std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>());
+    CryptSimulation1d(ConformingTetrahedralMesh<1,1> &rMesh,
+                      std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>());
                     
-    ~CryptSimulation();
+    ~CryptSimulation1d();
     
     void SetDt(double dt);
     void SetEndTime(double endTime);
@@ -62,4 +62,4 @@ public:
     void Solve();
 };
 
-#endif /*CRYPTSIMULATION_HPP_*/
+#endif /*CRYPTSIMULATION1D_HPP_*/

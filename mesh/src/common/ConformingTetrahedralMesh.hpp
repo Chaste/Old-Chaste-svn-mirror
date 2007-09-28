@@ -30,7 +30,7 @@ class ConformingTetrahedralMesh
 {
     friend class Cylindrical2dMesh; // to give it access to the deleted indices etc.
     friend class TestConformingTetrahedralMesh; // to give access to private methods (not variables)
-    friend class TestCryptSimulation2DPeriodic; // to give access to private methods (not variables)
+    friend class TestCryptSimulation2d; // to give access to private methods (not variables)
 public:
     typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::const_iterator ElementIterator;
     typedef typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *>::const_iterator BoundaryElementIterator;

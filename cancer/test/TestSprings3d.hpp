@@ -31,7 +31,7 @@ class TestSprings3d : public CxxTest::TestSuite
    }
    
    void CheckAgainstPreviousRun3D(std::string resultDirectory,std::string resultSet, unsigned maxCells, unsigned maxElements)
-    {
+   {
         std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
         
         ColumnDataReader computed_node_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",

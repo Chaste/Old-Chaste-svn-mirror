@@ -1,4 +1,4 @@
-#include "CryptSimulation.hpp"
+#include "CryptSimulation1d.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
 #include "StochasticCellCycleModel.hpp"
@@ -19,8 +19,8 @@
  *  @param pGen is a RandomNumberGenerator class.  If it's not given then a new one is
  *  constructed and random numbers are reseeded with srandom(0).
  */
-CryptSimulation::CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
-                                 std::vector<MeinekeCryptCell> cells)
+CryptSimulation1d::CryptSimulation1d(ConformingTetrahedralMesh<1,1> &rMesh,
+                                     std::vector<MeinekeCryptCell> cells)
         : mrMesh(rMesh),
         mCells(cells)
 {
@@ -44,25 +44,25 @@ CryptSimulation::CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
 /**
  * Free any memory allocated by the constructor
  */
-CryptSimulation::~CryptSimulation()
+CryptSimulation1d::~CryptSimulation1d()
 {
     SimulationTime::Destroy();
 }
 
-void CryptSimulation::SetDt(double dt)
+void CryptSimulation1d::SetDt(double dt)
 {
     assert(dt>0);
     mDt=dt;
 }
 
-void CryptSimulation::SetEndTime(double endTime)
+void CryptSimulation1d::SetEndTime(double endTime)
 {
     assert(endTime>0);
     mEndTime=endTime;
 }
 
 
-void CryptSimulation::SetOutputDirectory(std::string outputDirectory)
+void CryptSimulation1d::SetOutputDirectory(std::string outputDirectory)
 {
     mOutputDirectory = outputDirectory;
 }
@@ -71,12 +71,12 @@ void CryptSimulation::SetOutputDirectory(std::string outputDirectory)
  *  Call this before Solve() to simulate cell growth after cell division.
  *  (will eventually become SetIncludeCellBirth() and then become the default)
  */
-void CryptSimulation::SetIncludeVariableRestLength()
+void CryptSimulation1d::SetIncludeVariableRestLength()
 {
     mIncludeVariableRestLength = true;
 }
 
-void CryptSimulation::SetMaxCells(unsigned maxCells)
+void CryptSimulation1d::SetMaxCells(unsigned maxCells)
 {
     mMaxCells = maxCells;
 }
@@ -85,7 +85,7 @@ void CryptSimulation::SetMaxCells(unsigned maxCells)
 /**
  *  Get the cells vector
  */
-std::vector<MeinekeCryptCell> CryptSimulation::GetCells()
+std::vector<MeinekeCryptCell> CryptSimulation1d::GetCells()
 {
     assert(mCells.size()>0);
     return mCells;
@@ -95,9 +95,9 @@ std::vector<MeinekeCryptCell> CryptSimulation::GetCells()
 /**
  * Main Solve method.
  *
- * Once CryptSimulation object has been set up, call this to run simulation
+ * Once CryptSimulation1d object has been set up, call this to run simulation
  */
-void CryptSimulation::Solve()
+void CryptSimulation1d::Solve()
 {
     if (mOutputDirectory=="")
     {
@@ -332,7 +332,7 @@ void CryptSimulation::Solve()
     }
 }
 
-unsigned CryptSimulation::AddNodeToElement(Element<1,1>* pElement, double time)
+unsigned CryptSimulation1d::AddNodeToElement(Element<1,1>* pElement, double time)
 {
 
     double displacement;

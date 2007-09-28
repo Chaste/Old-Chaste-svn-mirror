@@ -1,5 +1,5 @@
-#ifndef TESTCRYPTSIMULATION_HPP_
-#define TESTCRYPTSIMULATION_HPP_
+#ifndef TESTCRYPTSIMULATION1D_HPP_
+#define TESTCRYPTSIMULATION1D_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "ConformingTetrahedralMesh.cpp"
@@ -8,7 +8,7 @@
 
 #include <vector>
 #include "OutputFileHandler.hpp"
-#include "CryptSimulation.hpp"
+#include "CryptSimulation1d.hpp"
 
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
@@ -19,7 +19,7 @@
 #include "ColumnDataReader.hpp"
 
 
-class TestCryptSimulation : public CxxTest::TestSuite
+class TestCryptSimulation1d : public CxxTest::TestSuite
 {
     void Make1dCryptMesh(std::string meshFilename, unsigned numNodesInEachDimension, double length)
     {
@@ -108,12 +108,12 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // throws because start time not set on simulation time
-        TS_ASSERT_THROWS_ANYTHING(CryptSimulation bad_simulator(mesh));
+        TS_ASSERT_THROWS_ANYTHING(CryptSimulation1d bad_simulator(mesh));
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        CryptSimulation simulator(mesh);
+        CryptSimulation1d simulator(mesh);
         simulator.SetDt(1.0/120.0); // i.e. 30s: this is the default - just for coverage
         simulator.SetEndTime(0.25);
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
@@ -144,7 +144,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        CryptSimulation simulator(mesh);
+        CryptSimulation1d simulator(mesh);
         simulator.SetOutputDirectory("CryptWithNoBirthAndNoDeath");
         simulator.SetMaxCells(22);
         simulator.SetEndTime(0.25);
@@ -184,7 +184,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        CryptSimulation simulator(mesh);
+        CryptSimulation1d simulator(mesh);
         simulator.SetOutputDirectory("CryptWithDeathButNoBirth");
         simulator.SetMaxCells(23);
         simulator.SetEndTime(0.25);
@@ -272,7 +272,7 @@ public:
         }
         
         
-        CryptSimulation simulator(mesh, cells);
+        CryptSimulation1d simulator(mesh, cells);
         
         simulator.SetOutputDirectory("CryptWithCells");
         simulator.SetMaxCells(50);
@@ -339,7 +339,7 @@ public:
             cells.push_back(cell);
         }
         
-        CryptSimulation simulator(mesh, cells);
+        CryptSimulation1d simulator(mesh, cells);
         
         simulator.SetOutputDirectory("CryptWithCellsAndGrowth");
         simulator.SetMaxCells(50);
@@ -413,7 +413,7 @@ public:
             cells.push_back(cell);
         }
         
-        CryptSimulation simulator(mesh, cells);
+        CryptSimulation1d simulator(mesh, cells);
         
         simulator.SetOutputDirectory("CryptWithTysonNovakCells");
         simulator.SetMaxCells(500);
@@ -493,7 +493,7 @@ public:
         }
         
         
-        CryptSimulation simulator(mesh, cells);
+        CryptSimulation1d simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt1dTestCorrectCellNumbers");
         simulator.SetMaxCells(50);
         simulator.SetEndTime(40);
@@ -538,5 +538,5 @@ public:
     }
 };
 
-#endif /*TESTCRYPTSIMULATION_HPP_*/
+#endif /*TESTCRYPTSIMULATION1D_HPP_*/
 

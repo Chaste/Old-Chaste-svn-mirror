@@ -11,7 +11,7 @@
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
-#include "SingletonWntGradient.hpp"
+#include "WntGradient.hpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>

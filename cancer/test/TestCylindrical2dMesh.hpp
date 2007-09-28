@@ -9,8 +9,6 @@
 #include "HoneycombMeshGenerator.hpp"
 #include "TrianglesMeshWriter.cpp"
 
-
-
 class TestCylindrical2dMesh : public CxxTest::TestSuite
 {
 public:
@@ -136,13 +134,13 @@ public:
         //
         for (unsigned i = 0 ; i<p_mesh->mLeftOriginals.size() ; i++)
         {
-                p_mesh->mLeftOriginals[i]=map.GetNewIndex(p_mesh->mLeftOriginals[i]);
-                p_mesh->mLeftImages[i]=map.GetNewIndex(p_mesh->mLeftImages[i]);
+             p_mesh->mLeftOriginals[i]=map.GetNewIndex(p_mesh->mLeftOriginals[i]);
+             p_mesh->mLeftImages[i]=map.GetNewIndex(p_mesh->mLeftImages[i]);
         }
         for (unsigned i = 0 ; i<p_mesh->mRightOriginals.size() ; i++)
         {
-                p_mesh->mRightOriginals[i]=map.GetNewIndex(p_mesh->mRightOriginals[i]);
-                p_mesh->mRightImages[i]=map.GetNewIndex(p_mesh->mRightImages[i]);
+             p_mesh->mRightOriginals[i]=map.GetNewIndex(p_mesh->mRightOriginals[i]);
+             p_mesh->mRightImages[i]=map.GetNewIndex(p_mesh->mRightImages[i]);
         }
         
         p_mesh->ReconstructCylindricalMesh();
@@ -747,12 +745,7 @@ public:
          * mesh.GetElement(element_index)->RefreshJacobianDeterminant();
          */
     }
-
 };
-
-
-
-
 
 #endif /*TESTCYLINDRICAL2DMESH_HPP_*/
 

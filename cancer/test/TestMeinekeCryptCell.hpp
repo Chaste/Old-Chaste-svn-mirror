@@ -263,7 +263,7 @@ public:
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
         
         // Test a Wnt dependent cell
-        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(0.0);
+        WntGradient::Instance()->SetConstantWntValueForTesting(0.0);
         
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                    HEALTHY,//Mutation State
@@ -275,7 +275,7 @@ public:
         
         TS_ASSERT_EQUALS(wnt_cell.GetCellType(),DIFFERENTIATED);
         
-        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(1.0);
+        WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
 
         // go forward through time        
         for (unsigned i=0 ; i<20 ; i++)
@@ -289,7 +289,7 @@ public:
         TS_ASSERT_EQUALS(wnt_cell.GetCellType(),TRANSIT);
           
         SimulationTime::Destroy();
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     void Test0DBucket()
@@ -766,7 +766,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
-        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   HEALTHY,//Mutation State
                                   1,    // generation
@@ -778,7 +778,7 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
             
-            SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+            WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
             if (time>=5.971+SG2MDuration)
             {
                 TS_ASSERT(wnt_cell.ReadyToDivide()==true);
@@ -791,7 +791,7 @@ public:
         }
         
         p_simulation_time->IncrementTimeOneStep();
-        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
         TS_ASSERT(wnt_cell.GetGeneration()==1);
@@ -830,7 +830,7 @@ public:
         }
         
         SimulationTime::Destroy();
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     /*
@@ -856,7 +856,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
-        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   HEALTHY,//Mutation State
@@ -927,7 +927,7 @@ public:
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     /*
@@ -1281,7 +1281,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
-        SingletonWntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                   APC_ONE_HIT,//Mutation State
@@ -1317,7 +1317,7 @@ public:
         TS_ASSERT_EQUALS(wnt_cell4.ReadyToDivide(),false);
         
         SimulationTime::Destroy();
-        SingletonWntGradient::Destroy();
+        WntGradient::Destroy();
     }
     
     void TestIsLogged()

@@ -1,3 +1,3 @@
-TestCryptSimulation2DPeriodicNightly.hpp
+TestCryptSimulation2dNightly.hpp
 TestLee2003WntSignallingOdeSystem.hpp
 TestNightlyMeinekeCryptCell.hpp

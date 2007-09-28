@@ -14,7 +14,7 @@
 #include "TrianglesMeshReader.cpp"
 #include "Crypt.cpp"
 #include "CryptVoronoiDataWriter.hpp"
-#include "SingletonWntGradient.hpp"
+#include "WntGradient.hpp"
 #include <vector>
 
 
@@ -55,7 +55,6 @@
  * Cells can die - at a time/position specified by cell killers which can be 
  * added to the simulation.
  * 
- * \todo Move the Wnt Gradient code into a MicroEnvironment class?
  * \todo Move the spring calculations into a separate class?
  */
 template<unsigned DIM>  
@@ -63,14 +62,12 @@ class TissueSimulation
 {
     // Allow tests to access private members, in order to test computation of
     // private functions eg. DoCellBirth
-    friend class TestCryptSimulation2DPeriodic;
+    friend class TestCryptSimulation2d;
     friend class TestSprings3d;
 private:
 
-std::set<std::set <MeinekeCryptCell *> > mDivisionPairs;
+    std::set<std::set <MeinekeCryptCell *> > mDivisionPairs;
 
-
-    
 protected:
     /** TimeStep */
     double mDt;
@@ -352,11 +349,11 @@ inline void save_construct_data(
     ar & p_crypt;
     
     bool archive_wnt;
-    archive_wnt=SingletonWntGradient::Instance()->IsGradientSetUp();
+    archive_wnt=WntGradient::Instance()->IsGradientSetUp();
     ar & archive_wnt;
     if (archive_wnt)
     {
-        SingletonWntGradient* p_wnt_gradient = SingletonWntGradient::Instance();
+        WntGradient* p_wnt_gradient = WntGradient::Instance();
         ar & *p_wnt_gradient;
         ar & p_wnt_gradient;
     }
@@ -377,7 +374,7 @@ inline void load_construct_data(
     ar & archive_wnt;
     if (archive_wnt)
     {
-        SingletonWntGradient* p_wnt_gradient = SingletonWntGradient::Instance();
+        WntGradient* p_wnt_gradient = WntGradient::Instance();
         ar & *p_wnt_gradient;
         ar & p_wnt_gradient;
     }

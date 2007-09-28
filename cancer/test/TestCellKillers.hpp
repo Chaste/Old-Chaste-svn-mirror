@@ -25,6 +25,7 @@
 #include "RandomNumberGenerator.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
+#include "CellsGenerator.hpp"
 
 class TestCellKillers : public CxxTest::TestSuite
 {
@@ -43,16 +44,10 @@ public:
         p_simulation_time->SetStartTime(0.0);
         
         std::vector<MeinekeCryptCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
-            double birth_time = 0.0;
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
         
         Crypt<2> crypt(mesh, cells);
+        
         // Get a reference to the cells held in crypt
         std::list<MeinekeCryptCell>& r_cells = crypt.rGetCells();
         
@@ -143,15 +138,7 @@ public:
         p_simulation_time->SetStartTime(0.0);
         
         std::vector<MeinekeCryptCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
-            double birth_time = 0.0;
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-        
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
         Crypt<2> crypt(mesh, cells);
         
         p_params->SetCryptWidth(0.5);

@@ -1,4 +1,4 @@
-#include "SingletonWntGradient.hpp"
+#include "WntGradient.hpp"
 #include "Exception.hpp"
 #include <iostream>
 #include <cassert>
@@ -6,42 +6,40 @@
 
 
 /** Pointer to the single instance */
-SingletonWntGradient* SingletonWntGradient::mpInstance = NULL;
+WntGradient* WntGradient::mpInstance = NULL;
 
 /**
  * Return a pointer to the simulation time object.
  * The first time this is called the simulation time object is created.
  * */
-SingletonWntGradient* SingletonWntGradient::Instance()
+WntGradient* WntGradient::Instance()
 {
     if (mpInstance == NULL)
     {
-        mpInstance = new SingletonWntGradient;
+        mpInstance = new WntGradient;
     }
     return mpInstance;
 }
 
 
 /**
- * @param type the types of SingletonWntGradient defined in WntGradientTypes.hpp
+ * @param type the types of WntGradient defined in WntGradientTypes.hpp
  */
-SingletonWntGradient::SingletonWntGradient()
+WntGradient::WntGradient()
  :  mpCancerParams(CancerParameters::Instance()),
     mpCrypt(NULL),
-    mGradientType(NONE),
     mTypeSet(false)
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
     
     mUseConstantWntValueForTesting = false;
-    mConstantWntValueForTesting = 0.0;
 }
 
-SingletonWntGradient::~SingletonWntGradient()
+WntGradient::~WntGradient()
 {}
 
-void SingletonWntGradient::Destroy()
+void WntGradient::Destroy()
 {
     if (mpInstance)
     {
@@ -51,7 +49,7 @@ void SingletonWntGradient::Destroy()
 }
 
 
-double SingletonWntGradient::GetWntLevel(MeinekeCryptCell* pCell)
+double WntGradient::GetWntLevel(MeinekeCryptCell* pCell)
 {
     if(mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a crypt
     {
@@ -65,13 +63,13 @@ double SingletonWntGradient::GetWntLevel(MeinekeCryptCell* pCell)
     return GetWntLevel(height);
 }
 
-void SingletonWntGradient::SetCrypt(Crypt<2>& rCrypt)
+void WntGradient::SetCrypt(Crypt<2>& rCrypt)
 {
     mpCrypt=&rCrypt;
     rCrypt.InitialiseCells();
 }
 
-void SingletonWntGradient::SetType(WntGradientType type)
+void WntGradient::SetType(WntGradientType type)
 {
     if(mTypeSet==true)
     {
@@ -86,7 +84,7 @@ void SingletonWntGradient::SetType(WntGradientType type)
  * @param height The height of the cell we want the Wnt concentration of
  * @return wnt_level The concentration of Wnt for this cell (dimensionless)
  */
-double SingletonWntGradient::GetWntLevel(double height)
+double WntGradient::GetWntLevel(double height)
 {
     double wnt_level = -1.0;
     
@@ -99,7 +97,6 @@ double SingletonWntGradient::GetWntLevel(double height)
     if (mGradientType==LINEAR)
     {
         double crypt_height = mpCancerParams->GetCryptLength();
-        //std::cout << "Crypt Height = " << crypt_height << " height = " << height << "\n";
         
         if ((height >= -1e-9) && (height < crypt_height))
         {
@@ -115,7 +112,6 @@ double SingletonWntGradient::GetWntLevel(double height)
     if (mGradientType==OFFSET_LINEAR)
     {
         double crypt_height = mpCancerParams->GetCryptLength();
-        //std::cout << "Crypt Height = " << crypt_height << " height = " << height << "\n";
         double top_of_gradient = 1.0/3.0; // of crypt height.
         if ((height >= -1e-9) && (height < top_of_gradient*crypt_height))
         {
@@ -138,7 +134,7 @@ double SingletonWntGradient::GetWntLevel(double height)
  * 
  * @return result  True if the wnt gradient is set up.
  */
-bool SingletonWntGradient::IsGradientSetUp()
+bool WntGradient::IsGradientSetUp()
 {
     bool result = false;
     if (mTypeSet && mpCrypt!=NULL)

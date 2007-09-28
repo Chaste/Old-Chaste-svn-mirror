@@ -16,10 +16,10 @@
 #include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
 #include "Crypt.cpp"
+#include "CellsGenerator.hpp"
 
 class TestCrypt : public CxxTest::TestSuite
 {
-    
 private: 
     // test construction (without ghost nodes), accessors and iterator
     template<unsigned DIM>
@@ -52,7 +52,8 @@ private:
         
         // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
-        std::vector<MeinekeCryptCell> cells = SetUpCells<DIM>(&mesh);
+        std::vector<MeinekeCryptCell> cells;
+        CellsGenerator<DIM>::GenerateBasic(cells, mesh);
 
         // create the crypt
         Crypt<DIM> crypt(mesh,cells);
@@ -116,7 +117,8 @@ public:
         
         // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
-        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
+        std::vector<MeinekeCryptCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
         cells[0].SetNodeIndex(1);
 
 		// fails as no cell or ghost correponding to node 0        
@@ -141,7 +143,8 @@ public:
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
-        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(p_mesh);
+        std::vector<MeinekeCryptCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, *p_mesh);        
 
         // create a crypt, with no ghost nodes at the moment
         Crypt<2> crypt(*p_mesh,cells);
@@ -201,7 +204,8 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
+        std::vector<MeinekeCryptCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
 
         // create a crypt, with no ghost nodes at the moment
         Crypt<2> crypt(mesh, cells);
@@ -267,7 +271,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Set up cells
-        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
+        std::vector<MeinekeCryptCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
         
         cells[27].StartApoptosis();
         
@@ -338,7 +343,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Set up cells
-        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
+        std::vector<MeinekeCryptCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
         cells[27].StartApoptosis();
         
         // create a crypt, with some random ghost nodes
@@ -404,7 +410,8 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
+        std::vector<MeinekeCryptCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
      
         Crypt<2> crypt(mesh,cells);
         
@@ -486,7 +493,8 @@ public:
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
-        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(p_mesh);
+        std::vector<MeinekeCryptCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
         // create a crypt, with no ghost nodes at the moment
         Crypt<2> crypt(*p_mesh,cells);
@@ -528,7 +536,9 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells
-        std::vector<MeinekeCryptCell> cells = SetUpCells<3>(&mesh);
+        std::vector<MeinekeCryptCell> cells;
+        CellsGenerator<3>::GenerateBasic(cells, mesh);
+        
         // create a crypt, with no ghost nodes at the moment
         Crypt<3> crypt(mesh,cells);
         
@@ -604,7 +614,9 @@ public:
         
         // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
-        std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
+        std::vector<MeinekeCryptCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        
         // create the crypt
         Crypt<2> crypt(mesh, cells);
         
@@ -651,7 +663,8 @@ public:
         
             // Set up cells, one for each node. Get each a birth time of -node_index,
             // so the age = node_index            
-            std::vector<MeinekeCryptCell> cells = SetUpCells<2>(&mesh);
+            std::vector<MeinekeCryptCell> cells;
+            CellsGenerator<2>::GenerateBasic(cells, mesh);
             
             // create the crypt
             Crypt<2>* const p_crypt = new Crypt<2>(mesh, cells);

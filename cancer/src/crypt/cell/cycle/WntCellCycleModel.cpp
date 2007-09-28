@@ -1,7 +1,7 @@
 #include "WntCellCycleModel.hpp"
 #include "CryptCellMutationStates.hpp"
 #include "Exception.hpp"
-#include "SingletonWntGradient.hpp"
+#include "WntGradient.hpp"
 #include <iostream>
 #include <cassert>
 #include <cfloat>
@@ -146,7 +146,7 @@ bool WntCellCycleModel::ReadyToDivide()
     assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
     
-    mpOdeSystem->rGetStateVariables()[8] = SingletonWntGradient::Instance()->GetWntLevel(mpCell);
+    mpOdeSystem->rGetStateVariables()[8] = WntGradient::Instance()->GetWntLevel(mpCell);
     
     // Use the cell's current mutation status as another input
     mpOdeSystem->SetMutationState(mpCell->GetMutationState());
@@ -277,7 +277,7 @@ void WntCellCycleModel::Initialise()
 {
     assert(mpOdeSystem==NULL);
     assert(mpCell!=NULL);
-    mpOdeSystem = new WntCellCycleOdeSystem(SingletonWntGradient::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
+    mpOdeSystem = new WntCellCycleOdeSystem(WntGradient::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 }    
 
