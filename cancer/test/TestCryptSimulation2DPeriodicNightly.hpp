@@ -685,8 +685,12 @@ public:
         SingletonWntGradient::Destroy();
     }
     
-   
-    void TestWithMutantCellsUsingDifferentViscosities() throw (Exception)
+    /*
+     * \todo - How is this supposed to test the different viscosities??!!
+     * 
+     * At least run it twice with different viscosities and check nodes are in different locations.
+     */
+    void dontTestWithMutantCellsUsingDifferentViscosities() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -746,8 +750,6 @@ public:
         
         simulator.Solve();
         
-        // test we have the same number of cells and nodes at the end of each time
-        // (if we do then the boundaries are probably working!)
         std::vector<bool> ghost_cells = crypt.rGetGhostNodes();
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
         
