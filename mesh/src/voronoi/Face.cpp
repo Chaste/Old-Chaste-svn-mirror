@@ -85,7 +85,10 @@ double Face<DIM>::GetPerimeter() const
 template <unsigned DIM>
 double Face<DIM>::GetArea() const
 {
+    #define COVERAGE_IGNORE
     assert(DIM==2);
+    #undef COVERAGE_IGNORE
+
     double area_return = 0;
     for(unsigned i=0; i<mVertices.size(); i++)
     {

@@ -110,7 +110,6 @@ public:
     
     void TestSimpleTessellation() throw (Exception)
     {
-        
         // Create conforming tetrahedral mesh which is Delauny
         std::vector<Node<3> *> nodes;
         
@@ -241,8 +240,6 @@ public:
         //  Calculate length of voronoi edge between nodes 4 and 2
         
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(4u, 2u), pow(2.0, -0.5), 1e-7);
-        
-        
     }
     
     void TestTessellation2dComplex() throw (Exception)
@@ -262,7 +259,6 @@ public:
         // Create Voronoi Tesselation
         VoronoiTessellation<2> tessellation(mesh);
 
-        
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 1u), 1.0, 1e-6);
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 2u), 0.5 + pow(3,-0.5)/2.0, 1e-6);
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 3u), 0.5 + pow(3,-0.5)/2.0, 1e-6);
@@ -293,26 +289,25 @@ public:
         VoronoiTessellation<2> tessellation(mesh);
         
         Face<2> original_face = *(tessellation.GetFace(0u));
-        
-        
-        
+
         Face<2>* p_reordered_face = tessellation.mFaces[0];
         
                 
         c_vector<double,2>* p_temp = p_reordered_face->mVertices[0] ;
         
-        std::cout<< "\n Before " << *(p_reordered_face->mVertices[0]);
-        std::cout<< "\n"<< *(original_face.mVertices[0]);
-           std::cout<< "\n Before " << *(p_reordered_face->mVertices[1]);
-        std::cout<< "\n"<< *(original_face.mVertices[1]);
+        //std::cout<< "\n Before " << *(p_reordered_face->mVertices[0]);
+        //std::cout<< "\n"<< *(original_face.mVertices[0]);
+        //std::cout<< "\n Before " << *(p_reordered_face->mVertices[1]);
+        //std::cout<< "\n"<< *(original_face.mVertices[1]);
         
         p_reordered_face->mVertices[0] = p_reordered_face->mVertices[1] ; 
         p_reordered_face->mVertices[1] = p_temp ;
         
-        std::cout<< "\n After " << *(p_reordered_face->mVertices[0]) ;
-        std::cout<< "\n"<< *(original_face.mVertices[0]);
-        std::cout<< "\n After " << *(p_reordered_face->mVertices[1]) ;
-        std::cout<< "\n"<< *(original_face.mVertices[1]);        
+        //std::cout<< "\n After " << *(p_reordered_face->mVertices[0]) ;
+        //std::cout<< "\n"<< *(original_face.mVertices[0]);
+        //std::cout<< "\n After " << *(p_reordered_face->mVertices[1]) ;
+        //std::cout<< "\n"<< *(original_face.mVertices[1]);        
+
         //tessellation.OrderFaceVerticesAntiClockwise(0u); 
         
         TS_ASSERT_EQUALS(*p_reordered_face,original_face);

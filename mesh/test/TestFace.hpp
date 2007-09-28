@@ -19,6 +19,7 @@ public:
         vertex1(0)= -0.2500;      
         vertex1(1)=-0.2500;
         vertex1(2)=1.2500;
+
         //Check that there really is a difference 
         TS_ASSERT_DIFFERS(norm_2(vertex0-vertex1),0.0);
         c_vector<double, 3> vertex2;        
@@ -41,27 +42,33 @@ public:
         vertex6(0)= 2.0;      
         vertex6(1)=2.0;
         vertex6(2)=2.0;
+
         Face<3> face0;
         Face<3> face1;
         face1.mVertices.push_back(&vertex2);
         face1.mVertices.push_back(&vertex3);
         face1.mVertices.push_back(&vertex4);
+
         Face<3> face2;
         face2.mVertices.push_back(&vertex1);
         face2.mVertices.push_back(&vertex5);
         face2.mVertices.push_back(&vertex6);
+
         Face<3> face3;
         face3.mVertices.push_back(&vertex0);
         face3.mVertices.push_back(&vertex5);
         face3.mVertices.push_back(&vertex6);
+
         Face<3> face4;
         face4.mVertices.push_back(&vertex3);
         face4.mVertices.push_back(&vertex4);
         face4.mVertices.push_back(&vertex6);
+
         Face<3> face5;
         face5.mVertices.push_back(&vertex3);
         face5.mVertices.push_back(&vertex4);
         face5.mVertices.push_back(&vertex2);
+
         Face<3> face6;
         face6.mVertices.push_back(&vertex4);
         face6.mVertices.push_back(&vertex3);
@@ -114,18 +121,15 @@ public:
         //Test the reorder Method
         
         Face<2> reordered_face=-face;
-        
-                
         TS_ASSERT_DIFFERS(reordered_face,face);
         
         reordered_face.OrderVerticesAntiClockwise();
         
         TS_ASSERT_EQUALS(reordered_face,face);
-        
-        
+
+        // cover an exception
+        TS_ASSERT_THROWS_ANYTHING(face.ReturnPolarAngle(0,0));
     }
-    
-    
 };
 
 #endif /*TESTFACE_HPP_*/

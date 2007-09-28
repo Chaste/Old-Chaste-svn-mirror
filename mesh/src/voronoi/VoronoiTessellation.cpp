@@ -7,7 +7,9 @@ template<unsigned DIM>
 VoronoiTessellation<DIM>::VoronoiTessellation(ConformingTetrahedralMesh<DIM,DIM>& rMesh)
     : mrMesh(rMesh)
 {
+    #define COVERAGE_IGNORE
     assert(DIM==2 || DIM==3);
+    #undef COVERAGE_IGNORE
 
     if(DIM==2)
     {
@@ -90,7 +92,10 @@ void VoronoiTessellation<DIM>::Initialise(ConformingTetrahedralMesh<2,2>& rMesh)
 template<unsigned DIM>
 void VoronoiTessellation<DIM>::Initialise(ConformingTetrahedralMesh<3,3>& rMesh)
 {
+    #define COVERAGE_IGNORE
     assert(DIM==3);
+    #undef COVERAGE_IGNORE
+
     // loop over each edge
     for (typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edge_iterator = mrMesh.EdgesBegin();
          edge_iterator != mrMesh.EdgesEnd();
@@ -255,14 +260,19 @@ const VoronoiCell& VoronoiTessellation<DIM>::rGetCell(unsigned index) const
 template<unsigned DIM>
 const Face<DIM>* VoronoiTessellation<DIM>::GetFace(unsigned index) const
 {
+    #define COVERAGE_IGNORE
     assert(DIM==2);
+    #undef COVERAGE_IGNORE
+
     return mFaces[index];
 };
 
 template<unsigned DIM>
 double VoronoiTessellation<DIM>::GetEdgeLength(unsigned node_index_1, unsigned node_index_2) const
 {
+    #define COVERAGE_IGNORE
     assert(DIM==2);
+    #undef COVERAGE_IGNORE
     
     std::vector< c_vector<double, DIM>* > vertices_1 = mFaces[node_index_1]->mVertices;
     std::vector< c_vector<double, DIM>* > vertices_2 = mFaces[node_index_2]->mVertices;
@@ -306,6 +316,7 @@ double VoronoiTessellation<DIM>::GetFaceArea(unsigned index) const
         normalised_face.mVertices.push_back( &(normalised_vertices.back()) );
     }
     normalised_face.OrderVerticesAntiClockwise();
+    
     return normalised_face.GetArea();
 };
 
@@ -333,6 +344,7 @@ double VoronoiTessellation<DIM>::GetFacePerimeter(unsigned index) const
         normalised_face.mVertices.push_back( &(normalised_vertices.back()) );
     }
     normalised_face.OrderVerticesAntiClockwise();
+    
     return normalised_face.GetPerimeter();
 };
 

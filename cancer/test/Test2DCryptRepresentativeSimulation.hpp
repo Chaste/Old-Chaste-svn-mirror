@@ -41,7 +41,7 @@ void TestRepresentativeSimulationForProfiling() throw (Exception)
         OutputFileHandler any_old_handler("",false);
         std::string test_output_directory = any_old_handler.GetTestOutputDirectory();
         std::string test_data_directory = "cancer/test/data/" + test_to_profile +"/";
-        std::string command = "cp -R --remove-destination --reply=yes " + test_data_directory +" "+ test_output_directory +"/";     
+        std::string command = "cp -Rf --remove-destination " + test_data_directory +" "+ test_output_directory +"/";     
         int return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value, 0);
         
