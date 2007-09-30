@@ -19,23 +19,23 @@
 
 #include "CellwiseData.hpp"
 
-//
-//class OxygenBasedCellCycleModel : public FixedCellCycleModel
-//{
-//public:
-//    OxygenBasedCellCycleModel() : FixedCellCycleModel()
-//    {
-//    }
-//    
-//    bool ReadyToDivide()
-//    {
-//        double o2 = CellwiseData<2>::Instance()->GetValue(mpCell);
-//        std::cout << o2 << "\n";
-//        
-//        return FixedCellCycleModel::ReadyToDivide();
-//    }
-//};
-//    
+
+class OxygenBasedCellCycleModel : public FixedCellCycleModel
+{
+public:
+    OxygenBasedCellCycleModel() : FixedCellCycleModel()
+    {
+    }
+    
+    bool ReadyToDivide()
+    {
+        double o2 = CellwiseData<2>::Instance()->GetValue(mpCell);
+        std::cout << o2 << "\n";
+        
+        return FixedCellCycleModel::ReadyToDivide();
+    }
+};
+    
 
 class SimpleEllipticPde : public AbstractLinearEllipticPde<2>
 {
@@ -162,9 +162,9 @@ public:
         AbstractCellKiller<2>* p_killer = new RadiusBasedCellKiller(&crypt, centre, simulator.GetDt());
         simulator.AddCellKiller(p_killer);
         
-//        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-//        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
-//        p_data->SetCrypt(crypt);
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
+        p_data->SetCrypt(crypt);
         
         simulator.Solve();
         

@@ -50,12 +50,11 @@ private :
             y.push_back(r_mesh.GetNode(node_index)->rGetLocation()[1]);
             u.push_back(result_elliptic_repl[smasrm_index]);
 
-//            double o2_conc = result_elliptic_repl[smasrm_index];
-//
-//            CellwiseData<DIM>::Instance()->SetValue(o2_conc, r_mesh.GetNode(node_index));
+            double o2_conc = result_elliptic_repl[smasrm_index];
+
+            CellwiseData<DIM>::Instance()->SetValue(o2_conc, r_mesh.GetNode(node_index));
             map_iter++;
         }
-
 
 //todo - using SimpleDataWriter is inefficient
         std::vector<std::vector<double> > data;

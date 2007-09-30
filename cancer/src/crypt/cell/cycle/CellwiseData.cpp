@@ -62,6 +62,19 @@ double CellwiseData<DIM>::GetValue(MeinekeCryptCell* pCell, unsigned variableNum
 template<unsigned DIM>
 void CellwiseData<DIM>::SetValue(double value, Node<DIM>* pNode, unsigned variableNumber)
 {
+    if (mAllocatedMemory==false)
+    {
+        std::cout << "mAllocatedMemory = FALSE" << "\n";
+    }
+    if (mpInstance==NULL)
+    {   
+        std::cout << "mpInstance = NULL" << "\n";
+    } 
+    if (mpCrypt==NULL)
+    {
+        std::cout << "mpCrypt = NULL" << "\n";
+    }
+    
     assert(IsSetUp());
     assert(variableNumber < mNumberOfVariables);
     unsigned vector_index = pNode->GetIndex()*mNumberOfVariables + variableNumber;
