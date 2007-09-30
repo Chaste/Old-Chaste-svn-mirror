@@ -34,6 +34,11 @@ public:
         
         return FixedCellCycleModel::ReadyToDivide();
     }
+    
+    AbstractCellCycleModel* CreateCellCycleModel()
+    {
+        return new OxygenBasedCellCycleModel();
+    }
 };
     
 
@@ -135,7 +140,7 @@ public:
         std::vector<MeinekeCryptCell> cells;
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            MeinekeCryptCell cell(TRANSIT, HEALTHY, 0, new FixedCellCycleModel());
+            MeinekeCryptCell cell(TRANSIT, HEALTHY, 0, new OxygenBasedCellCycleModel());
             double birth_time = -p_gen->ranf()*p_params->GetTransitCellCycleTime();
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
