@@ -20,11 +20,6 @@ StochasticCellCycleModel::StochasticCellCycleModel()
     mBirthTime = p_sim_time->GetDimensionalisedTime();
 }
 
-void StochasticCellCycleModel::SetBirthTime(double birthTime)
-{
-    mBirthTime = birthTime;
-}
-
 void StochasticCellCycleModel::ResetModel()
 {
     mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();

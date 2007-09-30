@@ -19,11 +19,6 @@ FixedCellCycleModel::FixedCellCycleModel()
     mBirthTime = p_sim_time->GetDimensionalisedTime();
 }
 
-void FixedCellCycleModel::SetBirthTime(double birthTime)
-{
-    mBirthTime = birthTime;
-}
-
 void FixedCellCycleModel::ResetModel()
 {
     mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();

@@ -2,16 +2,15 @@
 #include "Exception.hpp"
 #include <iostream>
 #include <cassert>
-#include "CancerParameters.hpp"
 
 
 /** Pointer to the single instance */
 WntGradient* WntGradient::mpInstance = NULL;
 
-/**
+/*
  * Return a pointer to the simulation time object.
- * The first time this is called the simulation time object is created.
- * */
+ * The first time this is called the object is created.
+ */
 WntGradient* WntGradient::Instance()
 {
     if (mpInstance == NULL)
@@ -22,9 +21,6 @@ WntGradient* WntGradient::Instance()
 }
 
 
-/**
- * @param type the types of WntGradient defined in WntGradientTypes.hpp
- */
 WntGradient::WntGradient()
  :  mpCancerParams(CancerParameters::Instance()),
     mpCrypt(NULL),

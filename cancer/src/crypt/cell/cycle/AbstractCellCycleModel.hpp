@@ -58,7 +58,7 @@ public:
      * 
      * @param birthTime the simulation time at this cell's birth.
      */
-    virtual void SetBirthTime(double birthTime)=0;
+    virtual void SetBirthTime(double birthTime);
     
     /**
      * Returns the cell's age...

@@ -1,3 +1,4 @@
+TestCellwiseData.hpp
 TestCrypt.hpp
 TestCryptSimulation1d.hpp
 TestCryptSimulation2d.hpp

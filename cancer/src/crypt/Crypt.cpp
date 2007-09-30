@@ -110,7 +110,7 @@ MeinekeCryptCell& Crypt<DIM>::rGetCellAtNodeIndex(unsigned nodeGlobalIndex)
 }
 
 template<unsigned DIM>
-c_vector<double, DIM> Crypt<DIM>::GetLocationOfCell(const MeinekeCryptCell& rCell)
+Node<DIM>* Crypt<DIM>::GetNodeCorrespondingToCell(const MeinekeCryptCell& rCell)
 {
     // find the node to which this cell corresponds
     std::map<unsigned, MeinekeCryptCell*>::iterator it=mNodeCellMap.begin();
@@ -120,8 +120,17 @@ c_vector<double, DIM> Crypt<DIM>::GetLocationOfCell(const MeinekeCryptCell& rCel
     }
     assert (it != mNodeCellMap.end());
     unsigned node_index = (*it).first;
-    return mrMesh.GetNode(node_index)->rGetLocation();   
+    return mrMesh.GetNode(node_index);   
 }
+
+
+template<unsigned DIM>
+c_vector<double, DIM> Crypt<DIM>::GetLocationOfCell(const MeinekeCryptCell& rCell)
+{
+    return GetNodeCorrespondingToCell(rCell)->rGetLocation();
+}
+
+
 
 template<unsigned DIM>
 ConformingTetrahedralMesh<DIM, DIM>& Crypt<DIM>::rGetMesh()

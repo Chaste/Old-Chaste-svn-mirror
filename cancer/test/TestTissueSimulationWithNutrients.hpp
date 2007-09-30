@@ -17,6 +17,25 @@
 #include "SloughingCellKiller.hpp"
 #include "PetscTools.hpp"
 
+#include "CellwiseData.hpp"
+
+//
+//class OxygenBasedCellCycleModel : public FixedCellCycleModel
+//{
+//public:
+//    OxygenBasedCellCycleModel() : FixedCellCycleModel()
+//    {
+//    }
+//    
+//    bool ReadyToDivide()
+//    {
+//        double o2 = CellwiseData<2>::Instance()->GetValue(mpCell);
+//        std::cout << o2 << "\n";
+//        
+//        return FixedCellCycleModel::ReadyToDivide();
+//    }
+//};
+//    
 
 class SimpleEllipticPde : public AbstractLinearEllipticPde<2>
 {
@@ -60,8 +79,10 @@ public :
             ++cell_iter)
         {
             const c_vector<double,2>& location = cell_iter.GetNode()->rGetLocation();
+
+// o2 = 
+
             double dist_to_centre = norm_2(location - mCentre);
-            
             
             double prob_of_death = 2*mTimeStep - 1*mTimeStep*dist_to_centre;
             if (prob_of_death<=0.0)
@@ -140,6 +161,10 @@ public:
         
         AbstractCellKiller<2>* p_killer = new RadiusBasedCellKiller(&crypt, centre, simulator.GetDt());
         simulator.AddCellKiller(p_killer);
+        
+//        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+//        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
+//        p_data->SetCrypt(crypt);
         
         simulator.Solve();
         

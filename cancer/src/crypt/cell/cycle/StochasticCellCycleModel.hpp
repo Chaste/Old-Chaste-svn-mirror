@@ -34,8 +34,6 @@ public:
     
     virtual void ResetModel();
     
-    virtual void SetBirthTime(double birthTime);
-    
     AbstractCellCycleModel *CreateCellCycleModel();
 };
 

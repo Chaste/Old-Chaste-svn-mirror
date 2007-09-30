@@ -38,7 +38,6 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        
         mpCancerParams = CancerParameters::Instance();
         archive & *mpCancerParams;
         archive & mpCancerParams;
@@ -48,9 +47,10 @@ private:
         archive & mConstantWntValueForTesting;
         archive & mUseConstantWntValueForTesting;
     }
+    
 protected:
     /**
-     *  Protected constuctore. Not to be called, use Instance() instead
+     *  Protected constuctor. Not to be called, use Instance() instead
      */
     WntGradient();
     
@@ -79,7 +79,7 @@ public:
      *  must be set for this. Note the CancerParameters::CryptLength() 
      *  is used for this.
      */
-    virtual double GetWntLevel(MeinekeCryptCell* pCell);
+    double GetWntLevel(MeinekeCryptCell* pCell);
     
     /**
      *  Set the crypt. Must be called before GetWntLevel(). This calls 

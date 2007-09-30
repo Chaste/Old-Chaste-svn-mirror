@@ -193,6 +193,9 @@ public:
     MeinekeCryptCell& rGetCellAtNodeIndex(unsigned);
     
     c_vector<double, DIM> GetLocationOfCell(const MeinekeCryptCell& rCell);
+
+    Node<DIM>* GetNodeCorrespondingToCell(const MeinekeCryptCell& rCell);
+
     
     /**
      * Find out how many cells of each mutation state there are
