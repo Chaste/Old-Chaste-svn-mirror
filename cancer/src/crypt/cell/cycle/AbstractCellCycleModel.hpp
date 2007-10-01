@@ -47,10 +47,9 @@ public:
     
     /**
      * Refreshes the cell's type using cell cycle information.
-     * 
-     * @return CellType
+     * Doesn't do anything in most classes, overidden in others.
      */
-    virtual CryptCellType UpdateCellType();
+    virtual void UpdateCellType() {};
     
     /**
      * Set the cell's time of birth (usually not required as it should be inside

@@ -46,22 +46,28 @@ public:
                            HEALTHY,//Mutation State
                            0,  // generation
                            p_our_fixed_stem_cell_cycle_model);
-                           
-        TS_ASSERT_EQUALS(p_our_fixed_stem_cell_cycle_model->UpdateCellType(),STEM);
+        
+        p_our_fixed_stem_cell_cycle_model->UpdateCellType();
+        
+        TS_ASSERT_EQUALS(stem_cell.GetCellType(),STEM);
         
         FixedCellCycleModel* p_our_fixed_transit_cell_cycle_model = new FixedCellCycleModel;
         MeinekeCryptCell transit_cell(TRANSIT, // type
                            HEALTHY,//Mutation State
                            0,  // generation
                            p_our_fixed_transit_cell_cycle_model);
-        TS_ASSERT_EQUALS(p_our_fixed_transit_cell_cycle_model->UpdateCellType(),TRANSIT);
+                           
+        p_our_fixed_transit_cell_cycle_model->UpdateCellType();
+        TS_ASSERT_EQUALS(transit_cell.GetCellType(),TRANSIT);
         
         FixedCellCycleModel* p_our_fixed_diff_cell_cycle_model = new FixedCellCycleModel;
         MeinekeCryptCell diff_cell(DIFFERENTIATED, // type
                            HEALTHY,//Mutation State
                            0,  // generation
                            p_our_fixed_diff_cell_cycle_model);
-        TS_ASSERT_EQUALS(p_our_fixed_diff_cell_cycle_model->UpdateCellType(),DIFFERENTIATED);
+                           
+        p_our_fixed_diff_cell_cycle_model->UpdateCellType();
+        TS_ASSERT_EQUALS(diff_cell.GetCellType(),DIFFERENTIATED);
         
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
@@ -284,10 +290,9 @@ public:
                            
         stem_cell.InitialiseCellCycleModel();
 
-        CryptCellType test_type = p_cell_model->UpdateCellType();
-
-        TS_ASSERT_EQUALS(test_type,TRANSIT);
-                
+        p_cell_model->UpdateCellType();
+        TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
+        
         for (int i=0; i<num_timesteps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -318,8 +323,7 @@ public:
         TS_ASSERT_DELTA(testResults[7] , 0.5*7.415537855270896e-03 , 1e-5);
         TS_ASSERT_DELTA(testResults[8] , 0.0 , 1e-6);
         
-        test_type = p_cell_model->UpdateCellType();
-        TS_ASSERT_EQUALS(test_type, DIFFERENTIATED);
+        TS_ASSERT_EQUALS(stem_cell.GetCellType(), DIFFERENTIATED);
         
         double diff = 1.0;
         testResults[6] = testResults[6] + diff;
@@ -447,7 +451,8 @@ public:
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();            
+            double time = p_simulation_time->GetDimensionalisedTime();
+            TS_ASSERT_THROWS_ANYTHING(p_cell_model_1->UpdateCellType());
             bool result = p_cell_model_1->ReadyToDivide();
             
             if (time < 7.82+SG2MDuration)

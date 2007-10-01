@@ -1080,11 +1080,11 @@ public:
        /*
         ************************************************************************
         ************************************************************************ 
-        * Test UpdateCellTypes 
+        * Test UpdateCellTypes is being done
         ************************************************************************
         ************************************************************************ 
         */
-        simulator.UpdateCellTypes();        
+        //simulator.UpdateCellTypes();        
         
         for (Crypt<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();

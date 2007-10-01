@@ -239,6 +239,10 @@ public:
         SimulationTime::Destroy();
     }
     
+    /*
+     * ReadyToDivide() now calls UpdateCellType() where appropriate.
+     * (at the moment in Wnt-dependent cells).
+     */
     void TestUpdateCellTypes() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
@@ -252,13 +256,13 @@ public:
                                    0,  // generation
                                    new FixedCellCycleModel());
                                    
-        stem_cell.UpdateCellType();
+        stem_cell.ReadyToDivide();
         
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),STEM);
         
         stem_cell.SetCellType(TRANSIT);
         
-        stem_cell.UpdateCellType();
+        stem_cell.ReadyToDivide();
         
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
         
@@ -269,10 +273,13 @@ public:
                                    HEALTHY,//Mutation State
                                    0,  // generation
                                    new WntCellCycleModel());
-        wnt_cell.InitialiseCellCycleModel();
                                    
-        wnt_cell.UpdateCellType();
+        TS_ASSERT_EQUALS(wnt_cell.GetCellType(),TRANSIT);                           
+                                   
+        wnt_cell.InitialiseCellCycleModel();
+        TS_ASSERT_EQUALS(wnt_cell.GetCellType(),DIFFERENTIATED);
         
+        wnt_cell.ReadyToDivide();        
         TS_ASSERT_EQUALS(wnt_cell.GetCellType(),DIFFERENTIATED);
         
         WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
@@ -284,7 +291,6 @@ public:
         }
 
         wnt_cell.ReadyToDivide();
-        wnt_cell.UpdateCellType();
         
         TS_ASSERT_EQUALS(wnt_cell.GetCellType(),TRANSIT);
           

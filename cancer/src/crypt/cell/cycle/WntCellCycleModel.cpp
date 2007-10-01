@@ -191,7 +191,9 @@ bool WntCellCycleModel::ReadyToDivide()
             }
         }
         mLastTime = current_time;
+        UpdateCellType();
     }
+    
     return mReadyToDivide;
 }
 
@@ -251,20 +253,42 @@ void WntCellCycleModel::SetProteinConcentrationsForTestsOnly(double lastTime, st
     mpOdeSystem->SetStateVariables(proteinConcentrations);
 }
 
-
-CryptCellType WntCellCycleModel::UpdateCellType()
+/**
+ * Updates the current cell type to reflect whether the
+ * beta-catenin level has dropped low enough to make it stop dividing.
+ * This should only be called when the cell cycle model has been 
+ * evaluated to the current time, or it may give misleading results.
+ */
+void WntCellCycleModel::UpdateCellType()
 {
     assert(mpOdeSystem!=NULL);
-    double betaCateninLevel = mpOdeSystem->rGetStateVariables()[6] + mpOdeSystem->rGetStateVariables()[7];
-    //std::cout << "beta-catenin level = " << betaCateninLevel << "\n" << std::flush;        
+    assert(mpCell!=NULL);
+    if (SimulationTime::Instance()->GetDimensionalisedTime() > mLastTime)
+    {
+        EXCEPTION("WntCellCycleModel::UpdateCellType() should only be called when the cell cycle model has been evaluated to the current time\n");   
+    }
+    ChangeCellTypeDueToCurrentBetaCateninLevel();
+}
+
+/**
+ * This carries out the work for ::UpdateCellType();
+ * But does not check the current time so it can be used by the initialise method.
+ */
+void WntCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
+{
+    assert(mpOdeSystem!=NULL);
+    assert(mpCell!=NULL);
+    double beta_catenin_level = mpOdeSystem->rGetStateVariables()[6] + mpOdeSystem->rGetStateVariables()[7];
+    //std::cout << "beta-catenin level = " << beta_catenin_level << "\n" << std::flush;        
     CryptCellType cell_type=TRANSIT;
                 
     // For mitogenic stimulus of 6x10^-4 in Wnt equations
-    if (betaCateninLevel < 0.4127)
+    if (beta_catenin_level < 0.4127)
     {
         cell_type = DIFFERENTIATED;
     }
-    return cell_type;
+    
+    mpCell->SetCellType(cell_type);
 }
 
 double WntCellCycleModel::GetWntSG2MDuration()
@@ -279,5 +303,6 @@ void WntCellCycleModel::Initialise()
     assert(mpCell!=NULL);
     mpOdeSystem = new WntCellCycleOdeSystem(WntGradient::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+    ChangeCellTypeDueToCurrentBetaCateninLevel();   
 }    
 

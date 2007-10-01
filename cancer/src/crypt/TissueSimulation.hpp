@@ -273,14 +273,6 @@ protected:
      */
     virtual void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt);
     
-    /**
-     * Change the state of cells
-     *
-     * At the moment this turns cells to be differentiated
-     * dependent on a protein concentration when using the Wnt model.
-     */
-    void UpdateCellTypes();
-    
     /** 
      *  A method for subclasses to do something at the end of each timestep
      */

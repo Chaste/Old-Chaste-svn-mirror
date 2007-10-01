@@ -51,6 +51,13 @@ private:
         archive & mInSG2MPhase;
         archive & mReadyToDivide;
     }
+    
+    /**
+     * Called by ::Initialise() and ::UpdateCellType() only.
+     * Updates the mpCell::mCellType to match mpOdeSystem's 
+     * beta-catenin levels
+     */
+    void ChangeCellTypeDueToCurrentBetaCateninLevel();
        
 protected:    
     virtual double GetWntSG2MDuration();
@@ -82,7 +89,7 @@ public:
     
     virtual void ResetModel();
     
-    CryptCellType UpdateCellType();
+    void UpdateCellType();    
     
     std::vector< double > GetProteinConcentrations() const;
     
