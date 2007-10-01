@@ -8,7 +8,8 @@
 #include <fstream>
 
 //#include <boost/serialization/access.hpp>
-
+#include "ConformingTetrahedralMesh.cpp"
+#include "CellsGenerator.hpp"
 #include "OutputFileHandler.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
@@ -16,6 +17,7 @@
 #include "CancerParameters.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
+#include "OxygenBasedCellCycleModel.hpp"
 #include "WntGradient.hpp"
 
 // Needs to be included last
@@ -683,6 +685,35 @@ public:
         RandomNumberGenerator::Destroy();
         WntGradient::Destroy();
     }
+    
+    void TestOxygenBasedCellCycleModel(void) throw(Exception)
+    {
+        CancerParameters::Instance()->Reset();
+        int num_timesteps = 500;
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
+        
+        // we need to create a crypt for CellwiseData...        
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);        
+        std::vector<MeinekeCryptCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        Crypt<2> crypt(mesh,cells);
+
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();                
+        p_data->SetNumNodesAndVars(mesh.GetNumNodes(),1);
+        p_data->SetCrypt(crypt);          
+        
+        TS_ASSERT_THROWS_NOTHING(OxygenBasedCellCycleModel model());
+        // TODO: uncomment this and solve the resulting error!
+//      p_model->Initialise();
+        SimulationTime::Destroy();
+        WntGradient::Destroy();
+        CellwiseData<2>::Destroy();
+    }
+    
     
     void TestArchiveFixedCellCycleModels() throw (Exception)
     {
