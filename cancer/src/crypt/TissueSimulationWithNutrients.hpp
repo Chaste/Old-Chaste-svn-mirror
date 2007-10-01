@@ -20,6 +20,8 @@ private :
     {
         ConformingTetrahedralMesh<2,2>& r_mesh = this->mrCrypt.rGetMesh();
 
+        CellwiseData<DIM>::Instance()->ReallocateMemory(r_mesh.GetNumNodes());
+        
         std::set<unsigned> ghost_node_indices = this->mrCrypt.GetGhostNodeIndices();
         r_mesh.FlagElementsNotContainingNodes(ghost_node_indices);
         r_mesh.SetupSmasrmMap();

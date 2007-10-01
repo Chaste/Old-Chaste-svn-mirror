@@ -78,6 +78,11 @@ public:
      *  Is the instance in existence and fully set up
      */
     bool IsSetUp();
+    
+    /**
+     * Reallocate size of mData. Needed because of growth/death.
+     */
+    void ReallocateMemory(unsigned numNodes);
 };
 
 #endif /*CELLWISEDATA_HPP_*/

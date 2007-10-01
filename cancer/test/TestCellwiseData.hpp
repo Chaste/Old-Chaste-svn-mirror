@@ -38,7 +38,7 @@ public:
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
-        
+                
         TS_ASSERT_THROWS_ANYTHING(p_data->SetCrypt(crypt)); 
         
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
@@ -57,10 +57,20 @@ public:
         ++iter;
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter)), 2.23, 1e-12);
         
+        // test ReallocateMemory method - bit rubbish
+        MeinekeCryptCell new_cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+        new_cell.SetBirthTime(-1);
+        c_vector<double,2> new_cell_location;
+        new_cell_location[0] = 0.2;
+        new_cell_location[1] = 0.3;
+        crypt.AddCell(new_cell,new_cell_location); 
+                
+        TS_ASSERT_THROWS_NOTHING(p_data->ReallocateMemory(crypt.rGetMesh().GetNumNodes()));
+                
         p_data->Destroy();
 
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
-
+        
         // 2 variable test
 
         p_data = CellwiseData<2>::Instance();
@@ -83,6 +93,7 @@ public:
         ++iter2;
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 0), 0.0, 1e-12);
     }
+    
 };        
 
 #endif /*TESTCELLWISEDATA_HPP_*/
