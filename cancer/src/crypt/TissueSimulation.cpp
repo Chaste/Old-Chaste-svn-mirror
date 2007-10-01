@@ -409,26 +409,6 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
 }
 
 
-///**
-// * Change the state of cells
-// *
-// * At the moment this turns cells to be differentiated
-// * dependent on a protein concentration when using the Wnt model.
-// */
-//template<unsigned DIM> 
-//void TissueSimulation<DIM>::UpdateCellTypes()
-//{
-//    // Designate cells as proliferating (transit) or
-//    // quiescent (differentiated) according to protein concentrations
-//    for (typename Crypt<DIM>::Iterator cell_iter = mrCrypt.Begin();
-//         cell_iter != mrCrypt.End();
-//         ++cell_iter)
-//    {
-//        cell_iter->UpdateCellType();
-//    }
-//    
-//}
-
 
 /**
  * Set the timestep of the simulation
@@ -679,9 +659,7 @@ void TissueSimulation<DIM>::Solve()
          */
         cell_iter->ReadyToDivide();
     }
-    
-    //UpdateCellTypes();
-    
+        
     // Write initial conditions to file for the visualizer.
     if(DIM==2)
     {
