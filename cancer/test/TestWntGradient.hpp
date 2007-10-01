@@ -121,26 +121,19 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
-            //output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
             output_arch << static_cast<const WntGradient&>(*WntGradient::Instance());
             
-            //CancerParameters *inst1 = CancerParameters::Instance();
-            //TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
             WntGradient::Destroy();
-            
         }
         
         {
-            //CancerParameters *inst1 = CancerParameters::Instance();
             WntGradient* p_wnt=WntGradient::Instance();
-            //inst1->SetSG2MDuration(101.0);
             
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
             // restore from the archive
-            //input_arch >> *inst1;
             input_arch >> *p_wnt;
            
             double height = 21.0;

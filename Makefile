@@ -19,7 +19,7 @@ cancer/src/crypt/cell/cycle/FixedCellCycleModel.o \
 cancer/src/crypt/cell/cycle/WntCellCycleModel.o \
 cancer/src/crypt/cell/MeinekeCryptCell.o \
 cancer/src/odes/WntCellCycleOdeSystem.o \
-cancer/src/crypt/WntGradient.o \
+cancer/src/crypt/cell/cycle/WntGradient.o \
 global/src/OutputFileHandler.o \
 global/src/RandomNumberGenerator.o \
 cancer/src/common/SimulationTime.o \
@@ -38,7 +38,7 @@ CXXFLAGS = -DSPECIAL_SERIAL -O3 ${INCS}
 #On engels in Nottingham
 LDFLAGS =   -L/opt/boost/lib -lboost_serialization-gcc
 
-default:	TestMakeNiceCryptSimsRunner TestCryptSimulation2DPeriodicRunner
+default:	TestMakeNiceCryptSimsRunner TestCryptSimulation2dRunner
 
 FRESH_DIR=`date +%F-%H-%M`
 
@@ -60,10 +60,10 @@ TestMakeNiceCryptSimsRunner: TestMakeNiceCryptSimsRunner.o ${LIBS}
 	cp ../simulationNiceCryptSims.sh .  ;\
 	mv simulationNiceCryptSims.sh simulation.sh
 
-TestCryptSimulation2DPeriodicRunner.cpp:	cancer/test/TestCryptSimulation2DPeriodic.hpp
-	cxxtest/cxxtestgen.py  --error-printer  -o TestCryptSimulation2DPeriodicRunner.cpp cancer/test/TestCryptSimulation2DPeriodic.hpp
+TestCryptSimulation2dRunner.cpp:	cancer/test/TestCryptSimulation2d.hpp
+	cxxtest/cxxtestgen.py  --error-printer  -o TestCryptSimulation2dRunner.cpp cancer/test/TestCryptSimulation2d.hpp
 
-TestCryptSimulation2DPeriodicRunner: TestCryptSimulation2DPeriodicRunner.o ${LIBS}
+TestCryptSimulation2dRunner: TestCryptSimulation2dRunner.o ${LIBS}
 
 # A more useful test to label a cell near the bottom at random and follow mutation's progress.
 

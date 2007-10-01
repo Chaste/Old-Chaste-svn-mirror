@@ -28,16 +28,14 @@
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ConformingTetrahedralMesh
 {
-    friend class Cylindrical2dMesh; // to give it access to the deleted indices etc.
     friend class TestConformingTetrahedralMesh; // to give access to private methods (not variables)
     friend class TestCryptSimulation2d; // to give access to private methods (not variables)
 public:
     typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::const_iterator ElementIterator;
     typedef typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *>::const_iterator BoundaryElementIterator;
     typedef typename std::vector<Node<SPACE_DIM> *>::const_iterator BoundaryNodeIterator;
-private:
-    unsigned mNumCornerNodes;
-   
+
+protected:  // Give access of these variables to subclasses
     std::vector<Element<ELEMENT_DIM, SPACE_DIM> *> mElements;
     std::vector<Node<SPACE_DIM> *> mNodes;
     std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
@@ -50,6 +48,9 @@ private:
     
     std::vector< Node<SPACE_DIM> *> mBoundaryNodes;
     
+private:    
+    unsigned mNumCornerNodes;
+   
     std::map<unsigned, unsigned> mSmasrmIndexMap;
     
     /**
