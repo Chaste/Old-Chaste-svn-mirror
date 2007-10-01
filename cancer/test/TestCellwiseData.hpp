@@ -57,7 +57,7 @@ public:
         ++iter;
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter)), 2.23, 1e-12);
         
-        // test ReallocateMemory method - bit rubbish
+        // test ReallocateMemory method
         MeinekeCryptCell new_cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
         new_cell.SetBirthTime(-1);
         c_vector<double,2> new_cell_location;
@@ -65,7 +65,8 @@ public:
         new_cell_location[1] = 0.3;
         crypt.AddCell(new_cell,new_cell_location); 
                 
-        TS_ASSERT_THROWS_NOTHING(p_data->ReallocateMemory(crypt.rGetMesh().GetNumNodes()));
+        TS_ASSERT_THROWS_NOTHING(p_data->ReallocateMemory());
+        TS_ASSERT_EQUALS(p_data->mData.size(), crypt.rGetMesh().GetNumNodes());
                 
         p_data->Destroy();
 

@@ -105,13 +105,16 @@ bool CellwiseData<DIM>::IsSetUp()
 }
 
 template<unsigned DIM>
-void CellwiseData<DIM>::ReallocateMemory(unsigned numNodes)
+void CellwiseData<DIM>::ReallocateMemory()
 {
-    // assert(mAllocatedMemory==true);
-    if (mData.size() != numNodes*mNumberOfVariables)
+    assert(mAllocatedMemory==true);
+    assert(mpCrypt!=NULL);
+    
+    unsigned num_nodes = mpCrypt->rGetMesh().GetNumNodes();
+    if (mData.size() != num_nodes*mNumberOfVariables)
     {
         mData.clear();
-        mData.resize(numNodes * mNumberOfVariables, 0.0);
+        mData.resize(num_nodes * mNumberOfVariables, 0.0);
     }
 }
 

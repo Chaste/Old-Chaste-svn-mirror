@@ -14,6 +14,7 @@
 template<unsigned DIM>
 class CellwiseData
 {
+    friend class TestCellwiseData;
 private:
     /* the single instance of the singleton object */
     static CellwiseData* mpInstance;
@@ -80,9 +81,10 @@ public:
     bool IsSetUp();
     
     /**
-     * Reallocate size of mData. Needed because of growth/death.
+     *  Reallocate size of mData. Needed because of growth/death. Reallocates
+     *  according to the number of nodes in the mesh in the crypt member variable
      */
-    void ReallocateMemory(unsigned numNodes);
+    void ReallocateMemory();
 };
 
 #endif /*CELLWISEDATA_HPP_*/
