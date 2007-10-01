@@ -16,23 +16,38 @@
 #include "SimulationTime.hpp"
 #include "SloughingCellKiller.hpp"
 #include "PetscTools.hpp"
-
 #include "CellwiseData.hpp"
-
 
 class OxygenBasedCellCycleModel : public FixedCellCycleModel
 {
+private:
+    double mTimeProgressingThroughCellCycle;
+        
 public:
     OxygenBasedCellCycleModel() : FixedCellCycleModel()
     {
+        mTimeProgressingThroughCellCycle = 0.0;
     }
     
     bool ReadyToDivide()
     {
-        double o2 = CellwiseData<2>::Instance()->GetValue(mpCell);
-        std::cout << o2 << "\n";
+        double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell);
         
-        return FixedCellCycleModel::ReadyToDivide();
+        // the std::max is a hack, due to the choice of PDE
+        // (a simple nonlinear PDE would ensure positivity)   
+//        if (oxygen_concentration < 0.0)
+//        {
+//            EXCEPTION("Oxygen concentration has gone negative - check the oxygen PDE");
+//        }
+        mTimeProgressingThroughCellCycle = mTimeProgressingThroughCellCycle + std::max(oxygen_concentration,0.0)*SimulationTime::Instance()->GetTimeStep(); 
+        
+        bool result = false;        
+        if ( mTimeProgressingThroughCellCycle > CancerParameters::Instance()->GetStemCellCycleTime() )
+        {
+            result = true;
+        }
+        
+        return result;
     }
     
     AbstractCellCycleModel* CreateCellCycleModel()
@@ -40,15 +55,15 @@ public:
         return new OxygenBasedCellCycleModel();
     }
 };
-    
 
-class SimpleEllipticPde : public AbstractLinearEllipticPde<2>
+
+class SimpleLinearEllipticPde : public AbstractLinearEllipticPde<2>
 {
 
 public:
     double ComputeLinearSourceTerm(ChastePoint<2> )
     {
-        return -1;
+        return -1.0;
     }
     
     double ComputeNonlinearSourceTerm(ChastePoint<2> , double )
@@ -85,8 +100,8 @@ public :
         {
             const c_vector<double,2>& location = cell_iter.GetNode()->rGetLocation();
 
-// o2 = 
-
+            // double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(&(*cell_iter));
+        
             double dist_to_centre = norm_2(location - mCentre);
             
             double prob_of_death = 2*mTimeStep - 1*mTimeStep*dist_to_centre;
@@ -150,7 +165,7 @@ public:
         Crypt<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
-        SimpleEllipticPde pde;
+        SimpleLinearEllipticPde pde;
 
         TissueSimulationWithNutrients<2> simulator(crypt, &pde);
 
