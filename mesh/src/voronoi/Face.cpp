@@ -152,7 +152,7 @@ void Face<DIM>::OrderVerticesAntiClockwise()
      // Reorder mVertices Anticlockwise
     std::vector< VertexAndAngle > vertices_and_angles;
     
-    c_vector<double,DIM> centre ; 
+    c_vector<double,DIM> centre = zero_vector<double>(DIM); 
     
     for(unsigned j=0; j<mVertices.size(); j++)
     {
