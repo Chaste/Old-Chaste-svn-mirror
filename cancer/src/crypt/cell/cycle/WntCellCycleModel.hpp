@@ -100,9 +100,6 @@ public:
     void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations);
       
     void Initialise();
-
-    //temp
-    void SetUseWntGradient(); 
 };
 
 // declare identifier for the serializer
