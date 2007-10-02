@@ -197,7 +197,7 @@ public:
         // check that the force between nodes is correctly calculated when the spring constant 
         // is proportional to the length of the edge between adjacent cells  
         regular_simulator.SetEdgeBasedSpringConstant(true); 
-        regular_simulator.mrCrypt.CreateVoronoiTessellation();  
+        regular_simulator.mrCrypt.CreateVoronoiTessellation();  // normally done in a simulation loop
         
         
         for(Crypt<2>::SpringIterator spring_iterator=regular_crypt.SpringsBegin();
@@ -764,7 +764,7 @@ public:
         }
         
         c_vector<unsigned,5> cellTypeCount = simulator.GetCellTypeCount();
-        TS_ASSERT_EQUALS(cellTypeCount[0],3u); // see ticket:500
+        TS_ASSERT_EQUALS(cellTypeCount[0],1u);
         TS_ASSERT_EQUALS(cellTypeCount[1],1u);
         TS_ASSERT_EQUALS(cellTypeCount[2],1u);
         TS_ASSERT_EQUALS(cellTypeCount[3],0u);  // No APC two hit, one of all the rest.
@@ -833,7 +833,7 @@ public:
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
         
         TS_ASSERT_EQUALS(number_of_nodes,ghost_cells.size());
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 81u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 75u);
         TS_ASSERT_EQUALS(number_of_nodes, 123u);
 
         delete p_cell_killer;
@@ -1379,9 +1379,9 @@ public:
         TissueSimulation<2> simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DRandomDeathNonPeriodic");
-        simulator.SetEndTime(0.5);
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
+        simulator.SetEndTime(0.6);
+        simulator.SetMaxCells(20);
+        simulator.SetMaxElements(20);
 
         AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&crypt, 0.1);
         simulator.AddCellKiller(p_random_cell_killer);

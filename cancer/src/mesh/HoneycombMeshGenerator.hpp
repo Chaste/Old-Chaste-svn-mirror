@@ -29,12 +29,13 @@ private:
     double mBottom;
     double mTop;
     unsigned mNumCellWidth;
+    unsigned mNumCellLength;
     bool mCylindrical;
        
     //////////////////////////////////////////////////////////////
     // Periodic Honeycomb mesh maker
     /////////////////////////////////////////////////////////////
-    void Make2dPeriodicCryptMesh(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, unsigned ghosts)
+    void Make2dPeriodicCryptMesh(double width, unsigned ghosts)
     {
         OutputFileHandler output_file_handler("");
         
@@ -44,12 +45,16 @@ private:
         out_stream p_elem_file = output_file_handler.OpenOutputFile(mMeshFilename+".ele");
         (*p_elem_file) << std::scientific;
         
+        unsigned numNodesAlongWidth = mNumCellWidth;
+        unsigned numNodesAlongLength = mNumCellLength;
         double horizontal_spacing = width / (double)numNodesAlongWidth;
         double vertical_spacing = (sqrt(3)/2)*horizontal_spacing;
 
+
         // This line needed to define ghost nodes later...
-        mCryptDepth = (double)numNodesAlongLength * (sqrt(3)/2)* width /(double)numNodesAlongWidth;
-        
+        mCryptDepth = (double)(numNodesAlongLength) * vertical_spacing;
+                
+        // Add in the ghost nodes...
         if(!mCylindrical)
         {
             numNodesAlongWidth = numNodesAlongWidth + 2*ghosts;
@@ -77,6 +82,14 @@ private:
         {
             for (unsigned j = 0; j < numNodesAlongWidth; j++)
             {
+                if ( i < ghosts || i >= (ghosts+mNumCellLength))
+                {
+                    mGhostNodeIndices.insert(node);
+                }
+                else if ( !mCylindrical && (j < ghosts || j >= (ghosts+mNumCellWidth)))
+                {
+                    mGhostNodeIndices.insert(node);
+                }
                 unsigned boundary = 0;
                 if ((i==0) || (i==numNodesAlongLength-1))
                 {
@@ -168,27 +181,6 @@ private:
     }
     
     
-    void ComputeGhostNodes()
-    {
-        assert(mpMesh!=NULL);
-        
-        for (unsigned i=0; i<mpMesh->GetNumNodes(); i++)
-        {
-            double x = mpMesh->GetNode(i)->GetPoint().rGetLocation()[0];
-            double y = mpMesh->GetNode(i)->GetPoint().rGetLocation()[1];
-            
-            if (  (x<0)         // Over to the left
-                ||(x>=mCryptWidth) // Over to the right
-                ||(y>mCryptDepth) // Up above
-                ||(y<-1e-6)) // down below
-            {
-                mGhostNodeIndices.insert(i);
-            }
-        }
-    }
-    
- 
-    
 public:
 
     ~HoneycombMeshGenerator()
@@ -215,10 +207,12 @@ public:
     {
         mCylindrical = cylindrical;
         mNumCellWidth = numNodesAlongWidth;
+        mNumCellLength = numNodesAlongLength;
         mCryptWidth = numNodesAlongWidth*widthScaleFactor; //*1 because cells are considered to be size one
+        mGhostNodeIndices.empty();
         
         mMeshFilename = "2D_temporary_periodic_crypt_mesh";
-        Make2dPeriodicCryptMesh(numNodesAlongWidth,numNodesAlongLength,mCryptWidth,ghosts);
+        Make2dPeriodicCryptMesh(mCryptWidth,ghosts);
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
         testoutput_dir = output_file_handler.GetTestOutputDirectory();
@@ -229,7 +223,6 @@ public:
         {
             mpMesh = new ConformingTetrahedralMesh<2,2>;
             mpMesh->ConstructFromMeshReader(mesh_reader);
-            ComputeGhostNodes();
         }
         else
         {   
@@ -237,7 +230,6 @@ public:
             mpMesh->ConstructFromMeshReader(mesh_reader);
             NodeMap map(mpMesh->GetNumNodes());
             mpMesh->ReMesh(map); // This makes the mesh cylindrical
-            ComputeGhostNodes();
         }
                 
         CancerParameters* p_params = CancerParameters::Instance();

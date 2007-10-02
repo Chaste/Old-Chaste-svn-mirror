@@ -40,8 +40,6 @@ public:
  * for loop which loads, runs and saves the simulation. One should be left with
  * the archive after the first save which can be copied to cancer/test/data.
  */
-
-
     void TestLoadArchive() throw (Exception)
     {        
         SimulationTime* p_simulation_time = SimulationTime::Instance();

@@ -126,7 +126,7 @@ public :
 
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
        
-        int num_cells_depth = 1;
+        int num_cells_depth = 2;
         int num_cells_width = 2;
         double crypt_length = num_cells_depth-0.0;
         double crypt_width = num_cells_width-0.0;

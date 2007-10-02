@@ -110,7 +110,7 @@ public:
             }
             ++iter;
         }
-        TS_ASSERT_EQUALS(counter,110u);
+        TS_ASSERT_EQUALS(counter,100u);
 
         // Set up boundary conditions
         FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(*p_mesh, 1.0);

@@ -68,7 +68,7 @@ public:
    
     /**
      * This is needed to create an exact copy of the current cell cycle model
-     * (called by CreateCellCycleModel() and archiving functions)
+     * (called by CreateCellCycleModel())
      */
     WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem, 
                       const CryptCellMutationState& rMutationState, 

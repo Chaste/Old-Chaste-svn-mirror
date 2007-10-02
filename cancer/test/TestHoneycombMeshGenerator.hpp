@@ -41,6 +41,24 @@ private:
     
 public:
 
+    void TestSimpleMesh() throw(Exception)
+    {
+        unsigned cells_across = 2;
+        unsigned cells_up = 2;
+        double crypt_width = 0.5;
+        bool cylindrical = false;
+        unsigned thickness_of_ghost_layer = 1;
+                
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical, crypt_width/cells_across);
+        
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
+        
+        std::set<unsigned> ghosts = generator.GetGhostNodeIndices();
+        TS_ASSERT_EQUALS(ghosts.size(), 12u);
+    }
+
     void TestHoneycombMeshGeneratorCylindricalRelaxed() throw(Exception)
     {
         unsigned num_cells_width = 8;
@@ -82,6 +100,8 @@ public:
         
         // check the ghost nodes
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        TS_ASSERT_EQUALS(ghost_node_indices.size(),2*(ghosts*(num_cells_width)));
+        
         std::set<unsigned> correct_ghost_node_indices;
          
         for (unsigned i=0; i< num_cells_width*ghosts ; i++)
@@ -145,6 +165,8 @@ public:
         
         // check the ghost nodes
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        TS_ASSERT_EQUALS(ghost_node_indices.size(),2*(ghosts*(num_cells_width)));
+        
         std::set<unsigned> correct_ghost_node_indices;
          
         for (unsigned i=0; i< num_cells_width*ghosts ; i++)
@@ -168,9 +190,9 @@ public:
     void TestMonolayerHoneycombMeshGeneratorRelaxed() throw(Exception)
     {
         int num_cells_width = 8;
-        int num_cells_depth = 12;
+        int num_cells_depth = 22;
         double width = 8.0;
-        unsigned ghosts = 4;
+        unsigned ghosts = 2;
         
         HoneycombMeshGenerator generator(num_cells_width,num_cells_depth,ghosts,false);
         
@@ -209,6 +231,8 @@ public:
         
         // check the ghost nodes
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        TS_ASSERT_EQUALS(ghost_node_indices.size(),2*(ghosts*(num_cells_width + 2*ghosts + num_cells_depth)));
+        
         std::set<unsigned> correct_ghost_node_indices;
          
         for (unsigned i=0; i<this_many_ghosts_at_start; i++)
@@ -272,6 +296,8 @@ public:
         
         // check the ghost nodes
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        TS_ASSERT_EQUALS(ghost_node_indices.size(),2*(ghosts*(num_cells_width + 2*ghosts + num_cells_depth)));
+        
         std::set<unsigned> correct_ghost_node_indices;
          
         for (unsigned i=0; i<this_many_ghosts_at_start; i++)
