@@ -8,7 +8,7 @@
  * Constructor.
  *
  * @param oxygenConcentration is a non-dimensional oxygen concentration between 0 and 1.
- * @param mutationState affects the ODE system and is given by CryptCellMutationStates.hpp
+ * @param rIsCancerCell affects the ODE system 
  */
 Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, const bool &rIsCancerCell)
         : AbstractOdeSystem(6)

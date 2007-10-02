@@ -337,8 +337,7 @@ public:
         TS_ASSERT_DELTA(testResults[6] , diff + 0.5*7.415537855270896e-03 , 1e-5);
         TS_ASSERT_DELTA(testResults[5] , 9.999999999999998e-01 , 1e-5);
                 
-        SimulationTime::Destroy();
-        
+        SimulationTime::Destroy();        
         WntGradient::Destroy();
     }
     
@@ -689,26 +688,48 @@ public:
     void TestOxygenBasedCellCycleModel(void) throw(Exception)
     {
         CancerParameters::Instance()->Reset();
-        int num_timesteps = 500;
+                
+        // we need to set up SimulationTime for the Cells
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
-        
-        // we need to create a crypt for CellwiseData...        
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, 500);
+                
+        // create an instance of CellwiseData
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance(); 
+                        
+        // we need to create a crypt for CellwiseData        
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);        
+        mesh.ConstructFromMeshReader(mesh_reader);                
         std::vector<MeinekeCryptCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        cells.clear();
+        cells.reserve(mesh.GetNumNodes());
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            MeinekeCryptCell cell(STEM, HEALTHY, 0, new OxygenBasedCellCycleModel());
+            double birth_time = 0.0-i;
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }                
         Crypt<2> crypt(mesh,cells);
 
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();                
+        // set up CellwiseData                       
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(),1);
-        p_data->SetCrypt(crypt);          
+        p_data->SetCrypt(crypt);
         
+        // set uniform oxygen concentration       
+        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+             cell_iter != crypt.End();
+             ++cell_iter)
+        {
+             p_data->SetValue(1.0, crypt.GetNodeCorrespondingToCell(*cell_iter), 0);
+             // TODO: uncomment this and solve the resulting error!
+             //cell_iter->InitialiseCellCycleModel();                
+        }                
+                  
         TS_ASSERT_THROWS_NOTHING(OxygenBasedCellCycleModel model());
-        // TODO: uncomment this and solve the resulting error!
-//      p_model->Initialise();
+                
         SimulationTime::Destroy();
         WntGradient::Destroy();
         CellwiseData<2>::Destroy();
