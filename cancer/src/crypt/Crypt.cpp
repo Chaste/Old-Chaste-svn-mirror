@@ -62,9 +62,8 @@ Crypt<DIM>::~Crypt()
         delete &mrMesh;
     }
     
-    // this line still seems to cause TestCryptSimulation2d::TestMeshSurvivesSaveLoad()
-    // to die. (sometimes)
-    //delete mpVoronoiTessellation;
+    
+    delete mpVoronoiTessellation;
 }
 
 template<unsigned DIM>

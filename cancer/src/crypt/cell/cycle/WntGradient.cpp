@@ -24,12 +24,13 @@ WntGradient* WntGradient::Instance()
 WntGradient::WntGradient()
  :  mpCancerParams(CancerParameters::Instance()),
     mpCrypt(NULL),
-    mTypeSet(false)
+    mTypeSet(false),
+    mConstantWntValueForTesting(0),
+    mUseConstantWntValueForTesting(false)    
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
-    
-    mUseConstantWntValueForTesting = false;
+
 }
 
 WntGradient::~WntGradient()

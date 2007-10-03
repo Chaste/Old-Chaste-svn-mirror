@@ -35,7 +35,7 @@ public:
         crypt.SetGhostNodes(ghost_node_indices);
         crypt.CreateVoronoiTessellation();
         
-        // put this in brackets just so the writer does out scope, so it's destructor
+        // put this in brackets just so the writer does out scope, so its destructor
         // gets called and the file gets closed
         {        
             CryptVoronoiDataWriter<2> writer(crypt,"TestCryptVoronoiDataWriter","Simple.dat");
@@ -76,7 +76,7 @@ public:
         
         crypt.CreateVoronoiTessellation();
         
-        // put this in brackets just so the writer does out scope, so it's destructor
+        // put this in brackets just so the writer does out scope, so its destructor
         // gets called and the file gets closed
         {        
             CryptVoronoiDataWriter<2> writer(crypt,"TestCryptVoronoiDataWriter","OneCell.dat", true);
