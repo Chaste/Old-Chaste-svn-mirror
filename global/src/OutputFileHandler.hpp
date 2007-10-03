@@ -13,7 +13,7 @@ typedef std::auto_ptr<std::ofstream> out_stream;
  * This file abstracts stuff that needs to be done when creating output files for tests.
  * It defines some helpful functions, so that things that are otherwise repeated in lots
  * of places are just done here.
- */
+ */ 
 class OutputFileHandler
 {
 private:

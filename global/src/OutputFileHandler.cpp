@@ -41,9 +41,9 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
     if (rCleanOutputDirectory && mAmMaster &&
         rDirectory != "" && rDirectory.find("..") == std::string::npos)
     {
-        // Remove the directory itself rather than contents, to avoid
-        // problems with too long command lines
-        system(("rm -rf " + mDirectory).c_str());
+        system("rm -rf /tmp/last_cleaned_directory");
+        system(("mv " + mDirectory + " /tmp/last_cleaned_directory").c_str());
+        //system(("rm -rf " + mDirectory).c_str());
         // Re-create the directory
         mkdir(mDirectory.c_str(), 0775);
     }

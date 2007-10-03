@@ -1,7 +1,5 @@
 # Shell script to create animation following a simulation run
 # It will create both a PoinTS and TRIangles file that can be read by Meshalyzer
-# 
-# Similar to genanim except takes in arguments
 #
 # arguments are:
 #   1. dimension (must be 1,2 or 3)
@@ -21,6 +19,10 @@ fi
 TESTOUTPUT_DIR=${CHASTE_TEST_OUTPUT:-"/tmp/"${USER}"/testoutput/"}
 OUTPUT_DIR=${TESTOUTPUT_DIR}"/anim/"
 
+if [ ! -d $TESTOUTPUT_DIR ]; then
+	echo "$TESTOUTPUT_DIR does not exist" 
+	exit -1
+fi	
 
 # echo "Running chaste2meshalyzer:"
 
