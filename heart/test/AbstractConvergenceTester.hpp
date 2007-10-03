@@ -54,15 +54,24 @@ public:
 };
 
 
-
-
-template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
-class AbstractConvergenceTester
+class AbstractUntemplatedConvergenceTester
 {
-public:    
-    AbstractConvergenceTester()
-    : OdeTimeStep(0.0025),//Justification from 1D test with PdeTimeStep held at 0.01 (allowing two hits at convergence)
-      PdeTimeStep(0.005),//Justification from 1D test with OdeTimeStep held at 0.0025
+public:
+    double OdeTimeStep;
+    double PdeTimeStep;
+    unsigned MeshNum;
+    double KspRtol;
+    double RelativeConvergenceCriterion;
+    double AbsoluteStimulus;
+    bool PopulatedResult;
+    bool FixedResult;
+    bool UseAbsoluteStimulus;
+    bool Converged;
+    bool StimulateRegion;
+    
+    AbstractUntemplatedConvergenceTester()   
+    : OdeTimeStep(0.0025),//Justification from 1D test with this->PdeTimeStep held at 0.01 (allowing two hits at convergence)
+      PdeTimeStep(0.005),//Justification from 1D test with this->OdeTimeStep held at 0.0025
       MeshNum(5u),//Justification from 1D test
       KspRtol(5e-7),//Justification from overlayed 1D time/space convergence plots with varied KSP tolerances
       RelativeConvergenceCriterion(1e-4),
@@ -75,6 +84,18 @@ public:
     {
     }
     
+    virtual void Converge()=0;   
+    
+    virtual ~AbstractUntemplatedConvergenceTester()
+    {
+    }
+    
+};
+
+template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
+class AbstractConvergenceTester : public AbstractUntemplatedConvergenceTester
+{
+public:    
     void Converge()
     {
         
@@ -97,12 +118,12 @@ public:
         {
             CuboidMeshConstructor<DIM> constructor;
 
-            if (MeshNum!=prev_mesh_num)
+            if (this->MeshNum!=prev_mesh_num)
             {
-                mesh_pathname = constructor.Construct(MeshNum);
-                prev_mesh_num = MeshNum;
+                mesh_pathname = constructor.Construct(this->MeshNum);
+                prev_mesh_num = this->MeshNum;
             }                            
-            unsigned mesh_size = (unsigned) pow(2, MeshNum+2); // number of elements in each dimension
+            unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
             unsigned num_cubes=  (unsigned) pow(mesh_size,DIM);
             if (DIM==1)
             {
@@ -118,20 +139,20 @@ public:
             }
             
             AbstractCardiacCellFactory<DIM>* p_cell_factory;
-            if (!StimulateRegion)
+            if (!this->StimulateRegion)
             {
-                if (UseAbsoluteStimulus)
+                if (this->UseAbsoluteStimulus)
                 {
-                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(OdeTimeStep, AbsoluteStimulus, true);
+                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, this->AbsoluteStimulus, true);
                 }
                 else
                 {
-                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(OdeTimeStep, constructor.NumElements);                
+                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, constructor.NumElements);                
                 }
             }
             else
             {
-                p_cell_factory = new QuarterStimulusCellFactory<CELL, DIM>(OdeTimeStep, constructor.GetWidth());
+                p_cell_factory = new QuarterStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, constructor.GetWidth());
             }
             
             CARDIAC_PROBLEM cardiac_problem(p_cell_factory);
@@ -141,11 +162,11 @@ public:
             cardiac_problem.SetOutputFilenamePrefix ("Results");
             
             cardiac_problem.SetEndTime(simulation_time);   // ms
-            cardiac_problem.SetLinearSolverRelativeTolerance(KspRtol);
+            cardiac_problem.SetLinearSolverRelativeTolerance(this->KspRtol);
     
-            cardiac_problem.SetPdeTimeStep(PdeTimeStep);
+            cardiac_problem.SetPdeTimeStep(this->PdeTimeStep);
             
-            assert(fabs(0.04/PdeTimeStep - round(0.04/PdeTimeStep)) <1e-15 );
+            assert(fabs(0.04/this->PdeTimeStep - round(0.04/this->PdeTimeStep)) <1e-15 );
             cardiac_problem.SetPrintingTimeStep(0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
             cardiac_problem.Initialise();
             
@@ -173,7 +194,7 @@ public:
                 }
                 case 2:
                 {
-                    unsigned n= (unsigned) pow (2, MeshNum+2);
+                    unsigned n= (unsigned) pow (2, this->MeshNum+2);
                     first_quadrant_node =   (n+1)*(n/2)+  n/4 ;
                     third_quadrant_node =   (n+1)*(n/2)+3*n/4 ;
                     break;
@@ -182,9 +203,9 @@ public:
                 {
                     const unsigned first_quadrant_nodes_3d[5]={61, 362, 2452, 17960, 137296};
                     const unsigned third_quadrant_nodes_3d[5]={63, 366, 2460, 17976, 137328};
-                    assert(MeshNum<5);
-                    first_quadrant_node = first_quadrant_nodes_3d[MeshNum];
-                    third_quadrant_node = third_quadrant_nodes_3d[MeshNum];
+                    assert(this->PdeTimeStep<5);
+                    first_quadrant_node = first_quadrant_nodes_3d[this->MeshNum];
+                    third_quadrant_node = third_quadrant_nodes_3d[this->MeshNum];
                     break;
                 }
                 
@@ -228,7 +249,7 @@ public:
                 
                 for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
                 {
-                    if (PopulatedResult)
+                    if (this->PopulatedResult)
                     {
                         double abs_error = fabs(transmembrane_potential[data_point]-prev_voltage[data_point]);
                         max_abs_error = (abs_error > max_abs_error) ? abs_error : max_abs_error;
@@ -236,12 +257,12 @@ public:
                         sum_sq_prev_voltage += prev_voltage[data_point] * prev_voltage[data_point];
                     } 
                     
-                    if (!PopulatedResult || !FixedResult)
+                    if (!this->PopulatedResult || !FixedResult)
                     {
                         prev_voltage[data_point] = transmembrane_potential[data_point];
                     }
                 }
-                if (PopulatedResult)
+                if (this->PopulatedResult)
                 {
                     std::cout << "max_abs_error = " << max_abs_error << " log10 = " << log10(max_abs_error) << "\n";
                     std::cout << "l2 error = " << sum_sq_abs_error/sum_sq_prev_voltage << " log10 = " << log10(sum_sq_abs_error/sum_sq_prev_voltage) << "\n";
@@ -249,11 +270,11 @@ public:
                     //Use "set logscale x; set logscale y" to get loglog plots in Gnuplot
                     std::cout << Abscissa() << "\t" << sum_sq_abs_error/sum_sq_prev_voltage <<"\t#Gnuplot raw data\n";
                     // convergence criterion
-                    Converged = sum_sq_abs_error/sum_sq_prev_voltage<RelativeConvergenceCriterion;
+                    this->Converged = sum_sq_abs_error/sum_sq_prev_voltage<this->RelativeConvergenceCriterion;
                 }
-                if (!PopulatedResult)
+                if (!this->PopulatedResult)
                 {
-                    PopulatedResult=true;
+                    this->PopulatedResult=true;
                 }
             }
             
@@ -272,44 +293,34 @@ public:
             }                    
             
             // Get ready for the next test by halving the time step
-            if (!Converged)
+            if (!this->Converged)
             {
                 UpdateConvergenceParameters();
                 file_num++;
             }
         }
-        while (!GiveUpConvergence() && !Converged);
+        while (!GiveUpConvergence() && !this->Converged);
     }
     
     void DisplayRun()
     {
-        unsigned mesh_size = (unsigned) pow(2, MeshNum+2); // number of elements in each dimension
+        unsigned mesh_size = (unsigned) pow(2, this->PdeTimeStep+2); // number of elements in each dimension
         double scaling = mesh_width/(double) mesh_size;
-        std::cout<<"================================================================================"<<std::endl  << std::flush;
-        std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << MeshNum << ")" << std::endl  << std::flush;
-        std::cout<<"Solving with a time step of "<<PdeTimeStep<<" ms"<<std::endl  << std::flush;
-        std::cout<<"Solving with an ode time step of "<<OdeTimeStep<<" ms"<<std::endl  << std::flush;
-        std::cout<<"Solving with a KSP relative tolerance of "<<KspRtol<<std::endl  << std::flush;
-        if (UseAbsoluteStimulus)
+        std::cout<<"================================================================================"<<std::endl;
+        std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << this->MeshNum << ")" << std::endl;
+        std::cout<<"Solving with a time step of "<<this->PdeTimeStep<<" ms"<<std::endl;
+        std::cout<<"Solving with an ode time step of "<<this->OdeTimeStep<<" ms"<<std::endl;
+        std::cout<<"Solving with a KSP relative tolerance of "<<this->KspRtol<<std::endl;
+        std::cout<<"Solving with stimulating a quarter of the mesh? " << this->StimulateRegion;
+        if (this->UseAbsoluteStimulus)
         {
-            std::cout<<"Using absolute stimulus of "<<AbsoluteStimulus<<std::endl  << std::flush;
+            std::cout<<"Using absolute stimulus of "<<this->AbsoluteStimulus<<std::endl;
         }
+        std::cout << std::flush;
         
     }
     
 public:
-    double OdeTimeStep;
-    double PdeTimeStep;
-    unsigned MeshNum;
-    double KspRtol;
-    double RelativeConvergenceCriterion;
-    double AbsoluteStimulus;
-    bool PopulatedResult;
-    bool FixedResult;
-    bool UseAbsoluteStimulus;
-    bool Converged;
-    bool StimulateRegion;
-    
     virtual ~AbstractConvergenceTester() {}
     
     virtual void SetInitialConvergenceParameters()=0;
@@ -318,7 +329,7 @@ public:
     virtual double Abscissa()=0;
     virtual void PopulateStandardResult(double result[])
     {
-        assert(PopulatedResult==false);
+        assert(this->PopulatedResult==false);
     }
 };
 #endif /*ABSTRACTCONVERGENCETESTER_HPP_*/
