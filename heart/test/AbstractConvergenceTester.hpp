@@ -31,7 +31,7 @@ private:
 public:
     QuarterStimulusCellFactory(double timeStep, double mesh_width) : AbstractCardiacCellFactory<DIM>(timeStep)
     {
-        mpStimulus = new InitialStimulus(-10000000, 0.5);
+        mpStimulus = new InitialStimulus(-1000000, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
