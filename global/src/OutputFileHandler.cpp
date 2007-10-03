@@ -41,8 +41,9 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
     if (rCleanOutputDirectory && mAmMaster &&
         rDirectory != "" && rDirectory.find("..") == std::string::npos)
     {
-        system("rm -rf /tmp/last_cleaned_directory");
-        system(("mv " + mDirectory + " /tmp/last_cleaned_directory").c_str());
+        std::string directory_to_move_to = GetTestOutputDirectory("last_cleaned_directory");
+        system(("rm -rf " + directory_to_move_to).c_str());
+        system(("mv " + mDirectory + " " + directory_to_move_to).c_str());
         //system(("rm -rf " + mDirectory).c_str());
         // Re-create the directory
         mkdir(mDirectory.c_str(), 0775);

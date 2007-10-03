@@ -25,10 +25,13 @@ private:
         AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>::AssembleSystem(assembleVector, assembleMatrix, currentSolutionOrGuess, currentTime);
     }
         
+    #define COVERAGE_IGNORE        
     double GetCurrentSolutionOrGuessValue(unsigned nodeIndex, unsigned indexOfUnknown)
     {      
         return AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>::GetCurrentSolutionOrGuessValue(nodeIndex, indexOfUnknown);
     }
+    #undef COVERAGE_IGNORE        
+
 public :
     EllipticFlaggedMeshAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
                                   AbstractLinearEllipticPde<DIM>* pPde,

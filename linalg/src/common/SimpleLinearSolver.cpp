@@ -76,10 +76,12 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNu
     }
     else
     {
+        #define COVERAGE_IGNORE
         if (mNonZerosUsed!=mat_info.nz_used)
         {
             EXCEPTION("SimpleLinearSolver doesn't allow the non-zero pattern of a matrix to change. (I think you changed it).");
         }
+        #undef COVERAGE_IGNORE
     }
     
     // Create solution vector

@@ -271,6 +271,9 @@ public:
     {
         CancerParameters::Instance()->Reset();
         
+        // fails because SimulationTime has not been set up
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel model1);
+        
         // Here we have a system at rest at Wnt = 1.0 - it would normally go into S phase at 5.971.
         // Instead we reduce Wnt linearly over 0<t<1 to zero and the cell doesn't divide.
         SimulationTime *p_simulation_time = SimulationTime::Instance();
