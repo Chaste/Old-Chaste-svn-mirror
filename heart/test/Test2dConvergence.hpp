@@ -35,7 +35,7 @@ public:
      }
     
     
-    
+
      void Test3DStimulus() throw (Exception)
     {
         StimulusConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
@@ -52,6 +52,7 @@ public:
     void Test2DSpace() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
+        tester.StimulateRegion=true;
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u); 

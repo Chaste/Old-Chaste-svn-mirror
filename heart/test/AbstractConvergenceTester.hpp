@@ -20,15 +20,45 @@
 #include "CuboidMeshConstructor.hpp"
 
 const double simulation_time = 8.0; //ms
-// meshes to use for convergence testing.
-// n-dimensional cubes with 2^(mesh_num+2) elements in each dimension
+
+template <class CELL, unsigned DIM>
+class QuarterStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
+{
+private:
+    // define a new stimulus
+    InitialStimulus* mpStimulus;
+    
+public:
+    QuarterStimulusCellFactory(double timeStep, double mesh_width) : AbstractCardiacCellFactory<DIM>(timeStep)
+    {
+        mpStimulus = new InitialStimulus(-10000000, 0.5);
+    }
+    
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    {
+        double x = this->mpMesh->GetNode(node)->GetPoint()[0];
+        if (x<=mesh_width*0.25+1e-10)
+        {
+            return new CELL(this->mpSolver, this->mTimeStep, this->mpStimulus, this->mpZeroStimulus);
+        }
+        else
+        {
+            return new CELL(this->mpSolver, this->mTimeStep, this->mpZeroStimulus, this->mpZeroStimulus);
+        }
+    }
+    
+    ~QuarterStimulusCellFactory(void)
+    {
+        delete mpStimulus;
+    }
+};
+
+
 
 
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
 class AbstractConvergenceTester
 {
-
-
 public:    
     AbstractConvergenceTester()
     : OdeTimeStep(0.0025),//Justification from 1D test with PdeTimeStep held at 0.01 (allowing two hits at convergence)
@@ -40,7 +70,8 @@ public:
       PopulatedResult(false),
       FixedResult(false),
       UseAbsoluteStimulus(false),
-      Converged(false)
+      Converged(false),
+      StimulateRegion(false)
     {
     }
     
@@ -86,14 +117,21 @@ public:
                   assert(constructor.NumElements == num_cubes*6);
             }
             
-            GeneralPlaneStimulusCellFactory<CELL, DIM>* p_cell_factory;
-            if (UseAbsoluteStimulus)
+            AbstractCardiacCellFactory<DIM>* p_cell_factory;
+            if (!StimulateRegion)
             {
-                p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(OdeTimeStep, AbsoluteStimulus, true);
+                if (UseAbsoluteStimulus)
+                {
+                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(OdeTimeStep, AbsoluteStimulus, true);
+                }
+                else
+                {
+                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(OdeTimeStep, constructor.NumElements);                
+                }
             }
             else
             {
-                p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(OdeTimeStep, mesh_size);                
+                p_cell_factory = new QuarterStimulusCellFactory<CELL, DIM>(OdeTimeStep, constructor.GetWidth());
             }
             
             CARDIAC_PROBLEM cardiac_problem(p_cell_factory);
@@ -119,7 +157,8 @@ public:
             }
             catch (Exception e)
             {
-                std::cout<<"Warning - this run threw an exception.  Check convergence results\n";                 
+                std::cout<<"Warning - this run threw an exception.  Check convergence results\n";
+                std::cout<<e.GetMessage() << std::endl;                 
             }
             // Calculate positions of nodes 1/4 and 3/4 through the mesh
             unsigned third_quadrant_node;
@@ -130,8 +169,6 @@ public:
                 {
                     first_quadrant_node = (unsigned) (0.25*constructor.NumElements);
                     third_quadrant_node = (unsigned) (0.75*constructor.NumElements);
-                    assert(cardiac_problem.rGetMesh().GetNode(first_quadrant_node)->rGetLocation()[0]==0.25*mesh_width);
-                    assert(cardiac_problem.rGetMesh().GetNode(third_quadrant_node)->rGetLocation()[0]==0.75*mesh_width);
                     break;
                 }
                 case 2:
@@ -271,6 +308,7 @@ public:
     bool FixedResult;
     bool UseAbsoluteStimulus;
     bool Converged;
+    bool StimulateRegion;
     
     virtual ~AbstractConvergenceTester() {}
     

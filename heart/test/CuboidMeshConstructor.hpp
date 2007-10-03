@@ -54,6 +54,11 @@ public:
         return mesh_pathname;
     }
     
+    double GetWidth()
+    {
+        return mesh_width;
+    }
+    
 };
 
 #endif /*CUBOIDMESHCONSTRUCTOR_HPP_*/

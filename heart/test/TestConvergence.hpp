@@ -24,7 +24,7 @@ class TestConvergence : public CxxTest::TestSuite
 public:
 
     
-    void xTest1DTime() throw(Exception)
+    void Test1DTime() throw(Exception)
     {
         TimeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
         tester.Converge();
@@ -32,7 +32,7 @@ public:
         TS_ASSERT_DELTA(tester.PdeTimeStep, 5.0e-3, 1e-10);
      }
     
-    void xTest1DSpaceWithVariousKsp() throw(Exception)
+    void Test1DSpaceWithVariousKsp() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
         //tester.Converge();
@@ -51,7 +51,7 @@ public:
         
     }
     
-    void xTest1DStimulus() throw (Exception)
+    void Test1DStimulus() throw (Exception)
     {
         StimulusConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
         int i=0;
@@ -64,22 +64,23 @@ public:
         }
      }
     
-    void xTest1DSpace() throw(Exception)
+    void Test1DSpace() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+        //tester.StimulateRegion=true;
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
     }
-//        
-//    void Test1DKsp() throw(Exception)
-//    {
-//        KspConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
-//        tester.Converge();
-//        TS_ASSERT(tester.Converged);
-//        TS_ASSERT_DELTA(tester.KspRtol, 1e-5, 1e-10);
-//    }
-//
+        
+    void Test1DKsp() throw(Exception)
+    {
+        KspConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_DELTA(tester.KspRtol, 1e-5, 1e-10);
+    }
+
     void Test1DOdeForward() throw(Exception)
     {
         OdeConvergenceTester<LuoRudyIModel1991OdeSystem, BidomainProblem<1>, 1> tester;
