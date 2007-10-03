@@ -17,9 +17,9 @@ public:
         assert(this->PopulatedResult==false);
   
         this->MeshNum=FirstMesh;
-        if (DIM==2)
+        if (DIM==2 || DIM==3)
         {
-	  HardCodedResult(standardResult);
+	      HardCodedResult(standardResult);
           ExpectedStimulus = this->AbsoluteStimulus;
         
         } 
@@ -147,7 +147,7 @@ public:
 	}
         
         this->PopulatedResult=true;
-        Increment=-ExpectedStimulus/5;
+        Increment=-ExpectedStimulus/8;
         PlotPoints=8;
         this->AbsoluteStimulus = ExpectedStimulus-PlotPoints*Increment/2;
         
@@ -165,12 +165,13 @@ public:
         {
             case 1:
             {
-                this->AbsoluteStimulus=-10000000*mesh_size/64.0;
+                this->AbsoluteStimulus=-1e7*mesh_size/64.0;
+                //wrt mesh 4 which has 64 elements in 1D
                 break;
             }
             case 2:
             {
-                this->AbsoluteStimulus=-1e6 * mesh_size / 4.0;
+                this->AbsoluteStimulus=-1e7 * mesh_size / 64.0;
 
 
 
@@ -178,7 +179,7 @@ public:
             }
             default:
             {
-                this->AbsoluteStimulus=0.0;
+                this->AbsoluteStimulus=-1e7 * mesh_size / 64.0;
             }
         }
         

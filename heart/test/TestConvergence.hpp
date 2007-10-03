@@ -24,7 +24,7 @@ class TestConvergence : public CxxTest::TestSuite
 public:
 
     
-    void Test1DTime() throw(Exception)
+    void xTest1DTime() throw(Exception)
     {
         TimeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
         tester.Converge();
@@ -80,21 +80,23 @@ public:
 //        TS_ASSERT_DELTA(tester.KspRtol, 1e-5, 1e-10);
 //    }
 //
-//    void Test1DOdeForward() throw(Exception)
-//    {
-//        OdeConvergenceTester<LuoRudyIModel1991OdeSystem, BidomainProblem<1>, 1> tester;
-//        tester.Converge();
-//        TS_ASSERT(tester.Converged);
-//        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);
-//    }
-//    
-//    void Test1DOdeBackward() throw(Exception)
-//    {
-//        OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
-//        tester.Converge();
-//        TS_ASSERT(tester.Converged);
-//        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);
-//    }
+    void Test1DOdeForward() throw(Exception)
+    {
+        OdeConvergenceTester<LuoRudyIModel1991OdeSystem, BidomainProblem<1>, 1> tester;
+        tester.PdeTimeStep=0.01;
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);
+    }
+    
+    void Test1DOdeBackward() throw(Exception)
+    {
+        OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+        tester.PdeTimeStep=0.01;
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);
+    }
  
 };
 

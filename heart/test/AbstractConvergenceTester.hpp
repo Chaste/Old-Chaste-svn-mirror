@@ -31,10 +31,10 @@ class AbstractConvergenceTester
 
 public:    
     AbstractConvergenceTester()
-    : OdeTimeStep(0.0025),
-      PdeTimeStep(0.005),
-      MeshNum(5u),
-      KspRtol(1e-8),
+    : OdeTimeStep(0.0025),//Justification from 1D test with PdeTimeStep held at 0.01 (allowing two hits at convergence)
+      PdeTimeStep(0.005),//Justification from 1D test with OdeTimeStep held at 0.0025
+      MeshNum(5u),//Justification from 1D test
+      KspRtol(5e-7),//Justification from overlayed 1D time/space convergence plots with varied KSP tolerances
       RelativeConvergenceCriterion(1e-4),
       AbsoluteStimulus(-1e7),
       PopulatedResult(false),
@@ -71,6 +71,20 @@ public:
                 mesh_pathname = constructor.Construct(MeshNum);
                 prev_mesh_num = MeshNum;
             }                            
+            unsigned mesh_size = (unsigned) pow(2, MeshNum+2); // number of elements in each dimension
+            unsigned num_cubes=  (unsigned) pow(mesh_size,DIM);
+            if (DIM==1)
+            {
+                  assert(constructor.NumElements == num_cubes);
+            }
+            else if (DIM==2)
+            {
+                  assert(constructor.NumElements == num_cubes*2);
+            }
+            else// (DIM==3)
+            {
+                  assert(constructor.NumElements == num_cubes*6);
+            }
             
             GeneralPlaneStimulusCellFactory<CELL, DIM>* p_cell_factory;
             if (UseAbsoluteStimulus)
@@ -79,7 +93,7 @@ public:
             }
             else
             {
-                p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(OdeTimeStep, constructor.NumElements);                
+                p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(OdeTimeStep, mesh_size);                
             }
             
             CARDIAC_PROBLEM cardiac_problem(p_cell_factory);
@@ -97,21 +111,7 @@ public:
             cardiac_problem.SetPrintingTimeStep(0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
             cardiac_problem.Initialise();
             
-            unsigned mesh_size = (unsigned) pow(2, MeshNum+2); // number of elements in each dimension
-	    unsigned num_cubes=  (unsigned) pow(mesh_size,DIM);
-	    if (DIM==1)
-	    {
-                assert(constructor.NumElements == num_cubes);
-	    }
-	    else if (DIM==2)
-	    {
-                assert(constructor.NumElements == num_cubes*2);
-	    }
-	    else// (DIM==3)
-	    {
-                assert(constructor.NumElements == num_cubes*6);
-	    }
-	    DisplayRun();
+      	    DisplayRun();
             
             try
             {
