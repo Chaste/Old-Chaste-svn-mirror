@@ -493,7 +493,7 @@ public:
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
         
         TS_ASSERT_EQUALS(number_of_cells, 85u);
-        TS_ASSERT_EQUALS(number_of_nodes, 127u);
+        TS_ASSERT_EQUALS(number_of_nodes, 133u);
         
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
@@ -547,7 +547,7 @@ public:
 
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 96u);
-        TS_ASSERT_EQUALS(number_of_nodes, 138u);
+        TS_ASSERT_EQUALS(number_of_nodes, 144u);
         
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
@@ -800,7 +800,7 @@ public:
         CancerParameters::Instance()->Reset();
 
         unsigned cells_across = 7;
-        unsigned cells_up = 12;
+        unsigned cells_up = 11;
         unsigned thickness_of_ghost_layer = 4;
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
@@ -838,7 +838,7 @@ public:
         simulator.Solve();
         
         std::vector<bool> ghost_node_indices_after = crypt.rGetGhostNodes();
-        unsigned num_ghosts=0;
+        unsigned num_ghosts=0;        
         for (unsigned i=0; i < ghost_node_indices_after.size() ; i++)
         {
             if (ghost_node_indices_after[i])
