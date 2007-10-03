@@ -138,7 +138,7 @@ public :
     }
     
     
-    void PleaseFixTestParabolicFlaggedMeshAssembler() throw (Exception)
+    void TestParabolicFlaggedMeshAssembler() throw (Exception)
     {
         if (!PetscTools::IsSequential())
         {
@@ -354,6 +354,55 @@ public :
         VecDestroy(result_flagged);
     }
 
+
+    void TestExtractOnRelevantMesh()
+    {
+        // create a mesh on [0,2]x[0,2] with [0,1]x[0,1] flagged
+        ConformingTetrahedralMesh<2,2> flagged_mesh; 
+        CreateQuadrantFlaggedMesh(flagged_mesh);        
+        flagged_mesh.SetupSmasrmMap();
+
+        std::map<unsigned, unsigned> smasrm_map=flagged_mesh.rGetSmasrmMap();
+
+        std::vector<double> data(flagged_mesh.GetNumNodes());
+        for(unsigned i=0; i<flagged_mesh.GetNumNodes(); i++)
+        {
+            double x = flagged_mesh.GetNode(i)->rGetLocation()[0];
+            double y = flagged_mesh.GetNode(i)->rGetLocation()[1];
+            
+            data[i] = x*y;
+        }
+        Vec initial_cond_everywhere = PetscTools::CreateVec(data);
+
+        // Assembler for fine mesh flagged region
+        FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(flagged_mesh, 1.0);
+        TimeDependentDiffusionEquationWithSourceTermPde<2> pde;
+        DistributedVector::SetProblemSize(flagged_mesh.GetNumNodes());
+        ParabolicFlaggedMeshAssembler<2> flagged_assembler(&flagged_mesh, &pde, &flagged_bcc);
+
+        Vec initial_cond_flagged = flagged_assembler.ExtractOnReleventMesh(initial_cond_everywhere);
+        
+        PetscInt size;
+        VecGetSize(initial_cond_flagged, &size);
+
+        TS_ASSERT_EQUALS((unsigned)size, smasrm_map.size());
+        
+        ReplicatableVector initial_cond_everywhere_repl(initial_cond_everywhere);
+        ReplicatableVector initial_cond_flagged_repl(initial_cond_flagged);
+        
+        for (std::map<unsigned, unsigned>::iterator map_iterator = smasrm_map.begin();
+             map_iterator != smasrm_map.end();
+             map_iterator++)
+        {
+            unsigned node_index = map_iterator->first;
+            unsigned smasrm_index = map_iterator->second;
+        
+            TS_ASSERT_EQUALS( initial_cond_everywhere_repl[node_index], initial_cond_flagged_repl[smasrm_index] );
+        }
+        
+        VecDestroy(initial_cond_everywhere);
+        // initial_cond_flagged deleted by destructor of assembler
+    }
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -749,55 +798,6 @@ public :
         
         VecDestroy(initial_condition_coarse);
         VecDestroy(initial_condition_fine);
-    }
-    
-    void TestExtractOnRelevantMesh()
-    {
-        // create a mesh on [0,2]x[0,2] with [0,1]x[0,1] flagged
-        ConformingTetrahedralMesh<2,2> flagged_mesh; 
-        CreateQuadrantFlaggedMesh(flagged_mesh);        
-        flagged_mesh.SetupSmasrmMap();
-
-        std::map<unsigned, unsigned> smasrm_map=flagged_mesh.rGetSmasrmMap();
-
-        std::vector<double> data(flagged_mesh.GetNumNodes());
-        for(unsigned i=0; i<flagged_mesh.GetNumNodes(); i++)
-        {
-            double x = flagged_mesh.GetNode(i)->rGetLocation()[0];
-            double y = flagged_mesh.GetNode(i)->rGetLocation()[1];
-            
-            data[i] = x*y;
-        }
-        Vec initial_cond_everywhere = PetscTools::CreateVec(data);
-
-        // Assembler for fine mesh flagged region
-        FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(flagged_mesh, 1.0);
-        TimeDependentDiffusionEquationWithSourceTermPde<2> pde;
-        DistributedVector::SetProblemSize(flagged_mesh.GetNumNodes());
-        ParabolicFlaggedMeshAssembler<2> flagged_assembler(&flagged_mesh, &pde, &flagged_bcc);
-
-        Vec initial_cond_flagged = flagged_assembler.ExtractOnReleventMesh(initial_cond_everywhere);
-        
-        PetscInt size;
-        VecGetSize(initial_cond_flagged, &size);
-
-        TS_ASSERT_EQUALS((unsigned)size, smasrm_map.size());
-        
-        ReplicatableVector initial_cond_everywhere_repl(initial_cond_everywhere);
-        ReplicatableVector initial_cond_flagged_repl(initial_cond_flagged);
-        
-        for (std::map<unsigned, unsigned>::iterator map_iterator = smasrm_map.begin();
-             map_iterator != smasrm_map.end();
-             map_iterator++)
-        {
-            unsigned node_index = map_iterator->first;
-            unsigned smasrm_index = map_iterator->second;
-        
-            TS_ASSERT_EQUALS( initial_cond_everywhere_repl[node_index], initial_cond_flagged_repl[smasrm_index] );
-        }
-        
-        VecDestroy(initial_cond_everywhere);
-        // initial_cond_flagged deleted by destructor of assembler
     }
 };
 #endif /*TESTFLAGGEDMESHASSEMBLER_HPP_*/

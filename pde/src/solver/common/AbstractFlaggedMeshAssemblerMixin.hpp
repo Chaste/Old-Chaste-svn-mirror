@@ -79,6 +79,10 @@ protected:
         
         // linear problem - set up the Linear System if necessary, otherwise zero
         // it.  Could optimise the case where smasrm_size is unchanged.
+        
+        //\todo - the linear system is deleted each time (below), so the 
+        // assembleMatrix must be true.
+        assert(assembleMatrix);  
         if (*(this->GetLinearSystem()) != NULL)
         {
             delete *(this->GetLinearSystem());
