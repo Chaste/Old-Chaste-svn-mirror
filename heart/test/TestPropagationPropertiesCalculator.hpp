@@ -12,7 +12,7 @@ class TestPropagationPropertiesCalculator : public CxxTest::TestSuite
 {
 public:
 
-    void TestConductionVelocity1D(void)
+    void TestConductionVelocity1D(void) throw (Exception)
     {
         ColumnDataReader simulation_data("heart/test/data/MonoDg01d",
                                          "NewMonodomainLR91_1d", false);
