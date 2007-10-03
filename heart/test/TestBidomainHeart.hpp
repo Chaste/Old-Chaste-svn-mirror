@@ -170,7 +170,7 @@ public:
      * 
     void xTestPermuteWithMetisBinaries()
     {
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/halfheart");
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/halfheart");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -192,7 +192,7 @@ public:
         PointStimulusHeartCellFactory cell_factory(ode_time_step);
         BidomainProblem<3> bidomain_problem(&cell_factory);
         
-        bidomain_problem.SetMeshFilename("mesh/test/data/halfheart");
+        bidomain_problem.SetMeshFilename("heart/test/data/halfheart");
         bidomain_problem.SetOutputDirectory("BiDg0Heart");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_Heart");
         
@@ -223,7 +223,7 @@ public:
         PointStimulusHeartCellFactoryMetis cell_factory(ode_time_step);
         BidomainProblem<3> bidomain_problem(&cell_factory);
         
-        bidomain_problem.SetMeshFilename("mesh/test/data/halfheart_metis");
+        bidomain_problem.SetMeshFilename("heart/test/data/halfheart_metis");
         bidomain_problem.SetOutputDirectory("BiDg0HeartMetis");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_HeartMetis");
         

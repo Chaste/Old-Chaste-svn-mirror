@@ -15,7 +15,7 @@ public:
     // It's a nightly test because it takes 10 hours to run under MemoryTesting!
     void TestLoadingLargeMesh(void)
     {
-        TrianglesMeshReader<3,3> meshReader("mesh/test/data/heart");
+        TrianglesMeshReader<3,3> meshReader("heart/test/data/heart");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(meshReader);
         

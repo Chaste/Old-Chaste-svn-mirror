@@ -98,7 +98,7 @@ public:
         PointStimulusHeartCellFactory cell_factory(ode_time_step);
         MonodomainProblem<3> monodomain_problem(&cell_factory);
         
-        monodomain_problem.SetMeshFilename("mesh/test/data/heart"); // note that this is the full heart mesh (not fifthheart)
+        monodomain_problem.SetMeshFilename("heart/test/data/heart"); // note that this is the full heart mesh (not fifthheart)
         monodomain_problem.SetOutputDirectory("MonoDg0Heart");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_Heart");
         

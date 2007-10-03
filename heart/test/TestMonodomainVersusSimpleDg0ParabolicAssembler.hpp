@@ -88,7 +88,7 @@ public:
         double pde_timestep = 0.01;
 
         // Create mesh from mesh reader
-        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/heart_FHN_mesh");
+        TrianglesMeshReader<1,1> mesh_reader("heart/test/data/heart_FHN_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         

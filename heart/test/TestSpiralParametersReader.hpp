@@ -15,7 +15,7 @@ public:
     {
         try
         {
-            auto_ptr<SpiralParameters::type> p (SpiralParameters("io/test/data/Baseline.xml"));
+            auto_ptr<SpiralParameters::type> p (SpiralParameters("heart/test/data/Baseline.xml"));
             
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
@@ -39,7 +39,7 @@ public:
     {
         try
         {
-            auto_ptr<const SpiralParameters::type> p (SpiralParameters("io/test/data/Baseline.xml"));
+            auto_ptr<const SpiralParameters::type> p (SpiralParameters("heart/test/data/Baseline.xml"));
             
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);

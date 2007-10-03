@@ -18,7 +18,7 @@ public:
 
     void TestDecimateHeart() throw (Exception)
     {
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/heart");
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/heart");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         

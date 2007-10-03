@@ -119,7 +119,7 @@ public:
         PointStimulusHeartCellFactory cell_factory(ode_time_step);
         MonodomainProblem<3> monodomain_problem(&cell_factory);
         
-        monodomain_problem.SetMeshFilename("mesh/test/data/HeartApex"); // note that this is the full heart mesh (not fifthheart)
+        monodomain_problem.SetMeshFilename("heart/test/data/HeartApex"); // note that this is the full heart mesh (not fifthheart)
         monodomain_problem.SetOutputDirectory("MonoDg0HeartApex");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_HeartApex");
         
