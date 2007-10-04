@@ -5,12 +5,12 @@ AbstractCellCycleModel::~AbstractCellCycleModel()
     //delete mpCell;
 }
 
-void AbstractCellCycleModel::SetCell(MeinekeCryptCell* pCell)
+void AbstractCellCycleModel::SetCell(TissueCell* pCell)
 {
     mpCell=pCell;
 }
 
-MeinekeCryptCell* AbstractCellCycleModel::GetCell()
+TissueCell* AbstractCellCycleModel::GetCell()
 {
     assert(mpCell!=NULL);
     return mpCell;

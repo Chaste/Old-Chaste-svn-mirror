@@ -46,7 +46,7 @@ void WntGradient::Destroy()
 }
 
 
-double WntGradient::GetWntLevel(MeinekeCryptCell* pCell)
+double WntGradient::GetWntLevel(TissueCell* pCell)
 {
     if(mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a crypt
     {

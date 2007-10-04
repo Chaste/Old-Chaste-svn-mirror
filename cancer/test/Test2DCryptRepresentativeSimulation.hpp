@@ -9,7 +9,7 @@
 #include <cmath>
 #include <vector>
 #include "OutputFileHandler.hpp"
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include "WntCellCycleModel.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"

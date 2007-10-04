@@ -44,7 +44,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(FixedCellCycleModel model3);
         
         FixedCellCycleModel* p_our_fixed_stem_cell_cycle_model = new FixedCellCycleModel;
-        MeinekeCryptCell stem_cell(STEM, // type
+        TissueCell stem_cell(STEM, // type
                            HEALTHY,//Mutation State
                            0,  // generation
                            p_our_fixed_stem_cell_cycle_model);
@@ -54,7 +54,7 @@ public:
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),STEM);
         
         FixedCellCycleModel* p_our_fixed_transit_cell_cycle_model = new FixedCellCycleModel;
-        MeinekeCryptCell transit_cell(TRANSIT, // type
+        TissueCell transit_cell(TRANSIT, // type
                            HEALTHY,//Mutation State
                            0,  // generation
                            p_our_fixed_transit_cell_cycle_model);
@@ -63,7 +63,7 @@ public:
         TS_ASSERT_EQUALS(transit_cell.GetCellType(),TRANSIT);
         
         FixedCellCycleModel* p_our_fixed_diff_cell_cycle_model = new FixedCellCycleModel;
-        MeinekeCryptCell diff_cell(DIFFERENTIATED, // type
+        TissueCell diff_cell(DIFFERENTIATED, // type
                            HEALTHY,//Mutation State
                            0,  // generation
                            p_our_fixed_diff_cell_cycle_model);
@@ -120,7 +120,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(StochasticCellCycleModel cell_model3);
         
         StochasticCellCycleModel* p_cell_model = new StochasticCellCycleModel;
-        MeinekeCryptCell cell(TRANSIT, // type
+        TissueCell cell(TRANSIT, // type
                               HEALTHY,//Mutation State
                               0,  // generation
                               p_cell_model);
@@ -288,7 +288,7 @@ public:
 
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
         
-        MeinekeCryptCell stem_cell(STEM, // type
+        TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
                                    p_cell_model);
@@ -358,7 +358,7 @@ public:
 
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
                 
-        MeinekeCryptCell stem_cell(STEM, // type
+        TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
                                    p_cell_model);
@@ -370,7 +370,7 @@ public:
         
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
                 
-        MeinekeCryptCell stem_cell_1(STEM, // type
+        TissueCell stem_cell_1(STEM, // type
                                      APC_ONE_HIT,//Mutation State
                                      0,  // generation
                                      p_cell_model_1);
@@ -429,7 +429,7 @@ public:
         
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
                 
-        MeinekeCryptCell stem_cell(STEM, // type
+        TissueCell stem_cell(STEM, // type
                                    BETA_CATENIN_ONE_HIT,//Mutation State
                                    0,  // generation
                                    p_cell_model);
@@ -443,7 +443,7 @@ public:
         
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
                 
-        MeinekeCryptCell stem_cell_1(STEM, // type
+        TissueCell stem_cell_1(STEM, // type
                                      BETA_CATENIN_ONE_HIT,//Mutation State
                                      0,  // generation
                                      p_cell_model_1);        
@@ -506,7 +506,7 @@ public:
                 
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
         
-        MeinekeCryptCell stem_cell_1(STEM, // type
+        TissueCell stem_cell_1(STEM, // type
                                      APC_TWO_HIT,//Mutation State
                                      0,  // generation
                                      p_cell_model_1);   
@@ -518,7 +518,7 @@ public:
         
         WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
                 
-        MeinekeCryptCell stem_cell_2(STEM, // type
+        TissueCell stem_cell_2(STEM, // type
                                      APC_TWO_HIT,//Mutation State
                                      0,  // generation
                                      p_cell_model_2);   
@@ -579,7 +579,7 @@ public:
                 
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
                 
-        MeinekeCryptCell stem_cell_1(STEM, // type
+        TissueCell stem_cell_1(STEM, // type
                                      HEALTHY,//Mutation State
                                      0,  // generation
                                      p_cell_model_1);   
@@ -591,7 +591,7 @@ public:
         
         WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
                 
-        MeinekeCryptCell stem_cell_2(STEM, // type
+        TissueCell stem_cell_2(STEM, // type
                                      HEALTHY,//Mutation State
                                      0,  // generation
                                      p_cell_model_2);   
@@ -652,7 +652,7 @@ public:
         
         StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel();
                 
-        MeinekeCryptCell stem_cell(STEM, // type
+        TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
                                    p_cell_model);   
@@ -704,12 +704,12 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);                
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         cells.clear();
         cells.reserve(mesh.GetNumNodes());
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new OxygenBasedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, 0, new OxygenBasedCellCycleModel());
             double birth_time = 0.0-i;
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -932,7 +932,7 @@ public:
                        
             WntCellCycleModel* p_cell_model = new WntCellCycleModel();
             
-            MeinekeCryptCell stem_cell(STEM, // type
+            TissueCell stem_cell(STEM, // type
                                        HEALTHY,//Mutation State
                                        0,  // generation
                                        p_cell_model);
@@ -948,7 +948,7 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
-            MeinekeCryptCell* const p_cell = &stem_cell;
+            TissueCell* const p_cell = &stem_cell;
             
             output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
             output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
@@ -965,7 +965,7 @@ public:
             
             inst1->SetSG2MDuration(101.0);
             
-            MeinekeCryptCell* p_cell;
+            TissueCell* p_cell;
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
@@ -1011,7 +1011,7 @@ public:
             
             StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel();                    
                                            
-            MeinekeCryptCell stoc_cell(STEM, // type
+            TissueCell stoc_cell(STEM, // type
                                        HEALTHY,//Mutation State
                                        0,  // generation
                                        p_stoc_model); 
@@ -1019,7 +1019,7 @@ public:
             
             WntCellCycleModel* p_wnt_model = new WntCellCycleModel();
             
-            MeinekeCryptCell wnt_cell(STEM, // type
+            TissueCell wnt_cell(STEM, // type
                                       HEALTHY,//Mutation State
                                       0,  // generation
                                       p_wnt_model); 
@@ -1039,8 +1039,8 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
-            MeinekeCryptCell* const p_wnt_cell = &wnt_cell;
-            MeinekeCryptCell* const p_stoc_cell = &stoc_cell;
+            TissueCell* const p_wnt_cell = &wnt_cell;
+            TissueCell* const p_stoc_cell = &stoc_cell;
             
             output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
             output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
@@ -1058,8 +1058,8 @@ public:
             
             inst1->SetSG2MDuration(101.0);
             
-            MeinekeCryptCell* p_stoc_cell; 
-            MeinekeCryptCell* p_wnt_cell; 
+            TissueCell* p_stoc_cell; 
+            TissueCell* p_wnt_cell; 
                       
             std::vector<double> cell_cycle_influence1;
             cell_cycle_influence1.push_back(1.0);

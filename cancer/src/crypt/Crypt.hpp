@@ -2,7 +2,7 @@
 #define CRYPT_HPP_
 
 #include "ConformingTetrahedralMesh.cpp"
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include "ColumnDataWriter.hpp"
 #include "VoronoiTessellation.cpp"
 
@@ -60,9 +60,9 @@ private:
     bool mDeleteMesh;
     
     /** list of cells */
-    std::list<MeinekeCryptCell> mCells;
+    std::list<TissueCell> mCells;
     /** Map node indices back to cells. */
-    std::map<unsigned, MeinekeCryptCell*> mNodeCellMap;
+    std::map<unsigned, TissueCell*> mNodeCellMap;
     
     /** Records whether a nodes is a ghost node or not */
     std::vector<bool> mIsGhostNode;
@@ -119,10 +119,10 @@ public:
      * (This will change in future so that you don't need cells for ghost nodes.)
      * 
      * @param rMesh a conforming tetrahedral mesh.
-     * @param cells MeinekeCryptCells corresponding to the nodes of the mesh.
+     * @param cells TissueCells corresponding to the nodes of the mesh.
      * @param deleteMesh set to true if you want the crypt to free the mesh memory on destruction
      */
-    Crypt(ConformingTetrahedralMesh<DIM, DIM>&, const std::vector<MeinekeCryptCell>&,
+    Crypt(ConformingTetrahedralMesh<DIM, DIM>&, const std::vector<TissueCell>&,
           bool deleteMesh=false);
           
     /**
@@ -137,9 +137,9 @@ public:
     void InitialiseCells();
     
     ConformingTetrahedralMesh<DIM, DIM>& rGetMesh();
-    std::list<MeinekeCryptCell>& rGetCells();
+    std::list<TissueCell>& rGetCells();
     const ConformingTetrahedralMesh<DIM, DIM>& rGetMesh() const;
-    const std::list<MeinekeCryptCell>& rGetCells() const;
+    const std::list<TissueCell>& rGetCells() const;
     std::vector<bool>& rGetGhostNodes();
 
     std::set<unsigned> GetGhostNodeIndices();
@@ -190,11 +190,11 @@ public:
      *  Currently assumes there is one cell for each node, and they are ordered identically in their vectors. 
      *  An assertion fails if not.
      */
-    MeinekeCryptCell& rGetCellAtNodeIndex(unsigned);
+    TissueCell& rGetCellAtNodeIndex(unsigned);
     
-    c_vector<double, DIM> GetLocationOfCell(const MeinekeCryptCell& rCell);
+    c_vector<double, DIM> GetLocationOfCell(const TissueCell& rCell);
 
-    Node<DIM>* GetNodeCorrespondingToCell(const MeinekeCryptCell& rCell);
+    Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell);
 
     
     /**
@@ -222,9 +222,9 @@ public:
          * Dereference the iterator giving you a *reference* to the current cell.
          * Make sure to use a reference for the result to avoid copying cells unnecessarily.
          */
-        MeinekeCryptCell& operator*();
+        TissueCell& operator*();
         
-        MeinekeCryptCell* operator->();
+        TissueCell* operator->();
         
         /**
          * Get a pointer to the node in the mesh which represents this cell.
@@ -246,7 +246,7 @@ public:
         /**
          * Constructor for a new iterator.
          */
-        Iterator(Crypt& rCrypt, std::list<MeinekeCryptCell>::iterator cellIter);
+        Iterator(Crypt& rCrypt, std::list<TissueCell>::iterator cellIter);
         
     private:
         /**
@@ -258,7 +258,7 @@ public:
         bool IsRealCell();
     
         Crypt& mrCrypt;
-        std::list<MeinekeCryptCell>::iterator mCellIter;
+        std::list<TissueCell>::iterator mCellIter;
         unsigned mNodeIndex;
     };
 
@@ -285,7 +285,7 @@ public:
      * @param newLocation  the position in space at which to put it
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    MeinekeCryptCell*  AddCell(MeinekeCryptCell cell, c_vector<double,DIM> newLocation);
+    TissueCell*  AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
 
     void ReMesh();
 
@@ -341,11 +341,11 @@ public:
         /**
          * Get a *reference* to the cell at end A of the spring.
          */
-        MeinekeCryptCell& rGetCellA();
+        TissueCell& rGetCellA();
         /**
          * Get a *reference* to the cell at end B of the spring.
          */
-        MeinekeCryptCell& rGetCellB();
+        TissueCell& rGetCellB();
         
         bool operator!=(const SpringIterator& other);
         

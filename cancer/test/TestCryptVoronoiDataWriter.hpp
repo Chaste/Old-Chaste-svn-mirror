@@ -28,7 +28,7 @@ public:
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
         
         // create the crypt
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
         Crypt<2> crypt(*p_mesh,cells);
@@ -65,7 +65,7 @@ public:
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
         
         // create the crypt
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
         Crypt<2> crypt(*p_mesh,cells);

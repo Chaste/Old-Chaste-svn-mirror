@@ -152,10 +152,10 @@ public:
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            MeinekeCryptCell cell(TRANSIT, HEALTHY, 0, new OxygenBasedCellCycleModel());
+            TissueCell cell(TRANSIT, HEALTHY, 0, new OxygenBasedCellCycleModel());
             double birth_time = -p_gen->ranf()*p_params->GetTransitCellCycleTime();
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);

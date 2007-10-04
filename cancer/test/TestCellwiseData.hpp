@@ -26,7 +26,7 @@ public:
         
         // Set up cells, one for each node. Get each a birth time of -node_index,
         // so the age = node_index
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
 
         // create a crypt
@@ -58,7 +58,7 @@ public:
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter)), 2.23, 1e-12);
         
         // test ReallocateMemory method
-        MeinekeCryptCell new_cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+        TissueCell new_cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
         new_cell.SetBirthTime(-1);
         c_vector<double,2> new_cell_location;
         new_cell_location[0] = 0.2;

@@ -13,7 +13,7 @@
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
 #include "NodeMap.hpp"
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "ColumnDataReader.hpp"
 #include "SimulationTime.hpp"
@@ -201,11 +201,11 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         CryptCellType cell_type;
         cell_type = STEM;
         
-        MeinekeCryptCell cell(cell_type, HEALTHY, 0u, new FixedCellCycleModel());
+        TissueCell cell(cell_type, HEALTHY, 0u, new FixedCellCycleModel());
         for(unsigned i=0; i< mesh.GetNumNodes(); i++)
         {
             cell.SetNodeIndex(i);
@@ -334,7 +334,7 @@ public:
         ConformingTetrahedralMesh<3,3> mesh3;
         mesh3.ConstructFromMeshReader(mesh_reader);
         
-        std::vector<MeinekeCryptCell> cells2;
+        std::vector<TissueCell> cells2;
         
         for(unsigned i=0; i< mesh.GetNumNodes()-1; i++)
         {
@@ -387,14 +387,14 @@ public:
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
             CryptCellType cell_type;
             unsigned generation;
             cell_type = STEM;
             generation = 0;
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             if ( i == 50u)
             {
@@ -437,14 +437,14 @@ public:
 
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
             CryptCellType cell_type;
             unsigned generation;
             cell_type = STEM;
             generation = 0;
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);    
             cell.SetBirthTime(p_random_num_gen->ranf()*p_params->GetStemCellCycleTime());            
             cells.push_back(cell);
@@ -491,7 +491,7 @@ public:
       
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
                   
         c_vector<double, 3> spheroid_centre;
         spheroid_centre[0] = 0.5*((double) width);
@@ -530,7 +530,7 @@ public:
                 
             cell_type = STEM;
             generation = 0;
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);    
             cell.SetBirthTime(-p_random_num_gen->ranf()*p_params->GetStemCellCycleTime());      
             cells.push_back(cell);

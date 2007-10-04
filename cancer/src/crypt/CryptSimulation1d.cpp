@@ -20,7 +20,7 @@
  *  constructed and random numbers are reseeded with srandom(0).
  */
 CryptSimulation1d::CryptSimulation1d(ConformingTetrahedralMesh<1,1> &rMesh,
-                                     std::vector<MeinekeCryptCell> cells)
+                                     std::vector<TissueCell> cells)
         : mrMesh(rMesh),
         mCells(cells)
 {
@@ -85,7 +85,7 @@ void CryptSimulation1d::SetMaxCells(unsigned maxCells)
 /**
  *  Get the cells vector
  */
-std::vector<MeinekeCryptCell> CryptSimulation1d::GetCells()
+std::vector<TissueCell> CryptSimulation1d::GetCells()
 {
     assert(mCells.size()>0);
     return mCells;
@@ -153,7 +153,7 @@ void CryptSimulation1d::Solve()
                 if (mCells[i].ReadyToDivide())
                 {
                     // Create new cell
-                    MeinekeCryptCell new_cell = mCells[i].Divide();
+                    TissueCell new_cell = mCells[i].Divide();
                     
                     // Add new node to mesh
                     Node<1> *p_our_node = mrMesh.GetNode(i);

@@ -8,7 +8,7 @@ TestCylindrical2dMesh.hpp
 TestGaryWntOdeSystem.hpp
 TestHoneycombMeshGenerator.hpp
 TestIngeWntOdeSystem.hpp
-TestMeinekeCryptCell.hpp
+TestTissueCell.hpp
 TestWntGradient.hpp
 TestCellKillers.hpp
 TestSprings3d.hpp

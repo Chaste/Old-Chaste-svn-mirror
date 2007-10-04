@@ -1,7 +1,7 @@
 #ifndef CRYPTSIMULATION1D_HPP_
 #define CRYPTSIMULATION1D_HPP_
 
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include <vector>
 #include "ConformingTetrahedralMesh.cpp"
 #include "CancerParameters.hpp"
@@ -36,7 +36,7 @@ private:
     
     std::string mOutputDirectory;
     
-    std::vector<MeinekeCryptCell> mCells;
+    std::vector<TissueCell> mCells;
     
     CancerParameters *mpParams;
     SimulationTime *mpSimulationTime;
@@ -48,7 +48,7 @@ private:
 public:
 
     CryptSimulation1d(ConformingTetrahedralMesh<1,1> &rMesh,
-                      std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>());
+                      std::vector<TissueCell> cells = std::vector<TissueCell>());
                     
     ~CryptSimulation1d();
     
@@ -57,7 +57,7 @@ public:
     void SetOutputDirectory(std::string outputDirectory);
     void SetIncludeVariableRestLength();
     void SetMaxCells(unsigned maxCells);
-    std::vector<MeinekeCryptCell> GetCells();
+    std::vector<TissueCell> GetCells();
     
     void Solve();
 };

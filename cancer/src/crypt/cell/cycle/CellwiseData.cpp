@@ -45,7 +45,7 @@ void CellwiseData<DIM>::Destroy()
 }
 
 template<unsigned DIM>
-double CellwiseData<DIM>::GetValue(MeinekeCryptCell* pCell, unsigned variableNumber)
+double CellwiseData<DIM>::GetValue(TissueCell* pCell, unsigned variableNumber)
 {
     assert(IsSetUp());
     assert(mpCrypt!=NULL);

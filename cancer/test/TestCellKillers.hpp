@@ -12,7 +12,7 @@
 #include <vector>
 #include "OutputFileHandler.hpp"
 #include "TissueSimulation.hpp"
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
@@ -43,13 +43,13 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
         Crypt<2> crypt(mesh, cells);
         
         // Get a reference to the cells held in crypt
-        std::list<MeinekeCryptCell>& r_cells = crypt.rGetCells();
+        std::list<TissueCell>& r_cells = crypt.rGetCells();
         
         // bad probabilities passed in
         TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&crypt, -0.1));
@@ -74,7 +74,7 @@ public:
         std::set< double > old_locations;
         
         bool apoptosis_cell_found=false;
-        std::list<MeinekeCryptCell>::iterator cell_it = r_cells.begin();
+        std::list<TissueCell>::iterator cell_it = r_cells.begin();
         ++cell_it;
         while (cell_it != r_cells.end() && !apoptosis_cell_found)
         {
@@ -93,7 +93,7 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         
         // store 'locations' of cells which are not dead
-        for (std::list<MeinekeCryptCell>::iterator it = r_cells.begin();
+        for (std::list<TissueCell>::iterator it = r_cells.begin();
              it != r_cells.end(); ++it)
         {
             if (!it->IsDead())
@@ -109,7 +109,7 @@ public:
         
         // check that dead cells are removed from the mesh
         std::set< double > new_locations;
-        for (std::list<MeinekeCryptCell>::iterator it = r_cells.begin();
+        for (std::list<TissueCell>::iterator it = r_cells.begin();
              it != r_cells.end(); ++it)
         {
             TS_ASSERT(!it->IsDead());
@@ -137,7 +137,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         Crypt<2> crypt(mesh, cells);
         
@@ -195,10 +195,10 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
             double birth_time = 0.0;
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);

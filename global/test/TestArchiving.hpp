@@ -42,7 +42,7 @@ public:
 };
 //BOOST_CLASS_EXPORT(ChildClass)
 
-class ParentClass   // this is an abstract of a MeinekeCryptCell.
+class ParentClass   // this is an abstract of a TissueCell.
 {
 public:
     unsigned mTag;
@@ -222,7 +222,7 @@ public:
     void TestArchivingLinkedChildAndParent() throw (Exception) 
     {
         // This test is an abstraction of archiving a cyclically linked parent-child pair. 
-        // The parent represents a MeinekeCryptCell and the child represents an AbstractCellCycleModel
+        // The parent represents a TissueCell and the child represents an AbstractCellCycleModel
         
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
@@ -275,8 +275,8 @@ public:
     {
         // This test is an abstraction of archiving a set of sets of pointers and a list of objects. 
         // The set of pointers represents mDivisionPairs in TissueSimulation, which is a set of 
-        // sets of pointers to MeinekeCryptCells (phew). The list of objects represents the list of 
-        // MeinekeCryptCells in Crypt.
+        // sets of pointers to TissueCells (phew). The list of objects represents the list of 
+        // TissueCells in Crypt.
         //
         // Note that the list.push_back method uses the copy constructor. This is why we iterate 
         // through the list to generate the pointers to populate the set. 

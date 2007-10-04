@@ -1,10 +1,10 @@
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include "MeinekeCryptCellTypes.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 
 
-MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
+TissueCell::TissueCell(CryptCellType cellType,
                                    CryptCellMutationState mutationState,
                                    unsigned generation,
                                    AbstractCellCycleModel *pCellCycleModel)
@@ -12,7 +12,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
 {
     if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
     {
-        EXCEPTION("MeinekeCryptCell is setting up a cell cycle model but SimulationTime has not been set up");
+        EXCEPTION("TissueCell is setting up a cell cycle model but SimulationTime has not been set up");
     }
     if(pCellCycleModel==NULL)
     {
@@ -32,7 +32,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
     mpCellCycleModel->SetCell(this);
 }
 
-void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
+void TissueCell::CommonCopy(const TissueCell &other_cell)
 {
     // Copy 'easy' data members
     mGeneration = other_cell.mGeneration;
@@ -57,12 +57,12 @@ void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
     mpCellCycleModel->AbstractCellCycleModel::SetCell(this);
 }
 
-MeinekeCryptCell::MeinekeCryptCell(const MeinekeCryptCell &other_cell)
+TissueCell::TissueCell(const TissueCell &other_cell)
 {
     CommonCopy(other_cell);
 }
 
-MeinekeCryptCell& MeinekeCryptCell::operator=(const MeinekeCryptCell &other_cell)
+TissueCell& TissueCell::operator=(const TissueCell &other_cell)
 {
     // In case this is self-assignment, don't delete the cell cycle model...
     AbstractCellCycleModel* temp = mpCellCycleModel;
@@ -72,18 +72,18 @@ MeinekeCryptCell& MeinekeCryptCell::operator=(const MeinekeCryptCell &other_cell
     return *this;
 }
 
-MeinekeCryptCell::~MeinekeCryptCell()
+TissueCell::~TissueCell()
 {
     delete mpCellCycleModel;
 }
 
 
-void MeinekeCryptCell::SetBirthTime(double birthTime)
+void TissueCell::SetBirthTime(double birthTime)
 {
     mpCellCycleModel->SetBirthTime(birthTime);
 }
 
-void MeinekeCryptCell::SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel)
+void TissueCell::SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel)
 {
     if (mpCellCycleModel != pCellCycleModel)
     {
@@ -93,12 +93,12 @@ void MeinekeCryptCell::SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel
     mpCellCycleModel->SetCell(this);
 }
 
-AbstractCellCycleModel* MeinekeCryptCell::GetCellCycleModel() const
+AbstractCellCycleModel* TissueCell::GetCellCycleModel() const
 {
     return mpCellCycleModel;
 }
 
-void MeinekeCryptCell::InitialiseCellCycleModel()
+void TissueCell::InitialiseCellCycleModel()
 {
     mpCellCycleModel->Initialise();
 }
@@ -108,65 +108,65 @@ void MeinekeCryptCell::InitialiseCellCycleModel()
  * 
  * @param index Index of the node
  */
-void MeinekeCryptCell::SetNodeIndex(unsigned index)
+void TissueCell::SetNodeIndex(unsigned index)
 {
     mNodeIndex = index;
 }
 
-unsigned MeinekeCryptCell::GetNodeIndex() const
+unsigned TissueCell::GetNodeIndex() const
 {
     return mNodeIndex;
 }
 
-double MeinekeCryptCell::GetAge() const
+double TissueCell::GetAge() const
 {
     return mpCellCycleModel->GetAge();
 }
 
-double MeinekeCryptCell::GetBirthTime() const
+double TissueCell::GetBirthTime() const
 {
     return mpCellCycleModel->GetBirthTime();
 }
 
-unsigned MeinekeCryptCell::GetGeneration() const
+unsigned TissueCell::GetGeneration() const
 {
     return mGeneration;
 }
 
-CryptCellType MeinekeCryptCell::GetCellType() const
+CryptCellType TissueCell::GetCellType() const
 {
     return mCellType;
 }
 
-CryptCellMutationState MeinekeCryptCell::GetMutationState() const
+CryptCellMutationState TissueCell::GetMutationState() const
 {
     return mMutationState;
 }
 
-void MeinekeCryptCell::SetCellType(CryptCellType cellType)
+void TissueCell::SetCellType(CryptCellType cellType)
 {
     mCellType = cellType;
 }
 
-void MeinekeCryptCell::SetMutationState(CryptCellMutationState mutationState)
+void TissueCell::SetMutationState(CryptCellMutationState mutationState)
 {
     mMutationState = mutationState;
 }
 
-void MeinekeCryptCell::SetLogged()
+void TissueCell::SetLogged()
 {
     mIsLogged = true;
 }
 
-bool MeinekeCryptCell::IsLogged()
+bool TissueCell::IsLogged()
 {
     return mIsLogged;
 }
 /**
- * The MeinekeCryptCell ready to divide method
+ * The TissueCell ready to divide method
  *
  */
-bool MeinekeCryptCell::ReadyToDivide()
+bool TissueCell::ReadyToDivide()
 {
     assert(!IsDead());
     if (mUndergoingApoptosis)
@@ -180,7 +180,7 @@ bool MeinekeCryptCell::ReadyToDivide()
 }
 
 
-void MeinekeCryptCell::StartApoptosis()
+void TissueCell::StartApoptosis()
 {
     assert(!IsDead());
     
@@ -198,12 +198,12 @@ void MeinekeCryptCell::StartApoptosis()
 }
 
 
-bool MeinekeCryptCell::HasApoptosisBegun() const
+bool TissueCell::HasApoptosisBegun() const
 {
     return mUndergoingApoptosis;
 }
 
-double MeinekeCryptCell::TimeUntilDeath() const
+double TissueCell::TimeUntilDeath() const
 {
     if (!mUndergoingApoptosis)
     {
@@ -213,20 +213,20 @@ double MeinekeCryptCell::TimeUntilDeath() const
     return mDeathTime - p_simulation_time->GetDimensionalisedTime();
 }
 
-bool MeinekeCryptCell::IsDead() const
+bool TissueCell::IsDead() const
 {
     SimulationTime *p_simulation_time = SimulationTime::Instance();
 
     return ( mIsDead || ( (mUndergoingApoptosis) && (p_simulation_time->GetDimensionalisedTime() >= mDeathTime)) );
 }
 
-void MeinekeCryptCell::Kill()
+void TissueCell::Kill()
 {
     mIsDead = true;
 }
 
 
-MeinekeCryptCell MeinekeCryptCell::Divide()
+TissueCell TissueCell::Divide()
 {
     assert(!IsDead());
     
@@ -242,7 +242,7 @@ MeinekeCryptCell MeinekeCryptCell::Divide()
         {
             mGeneration++;
             mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            return MeinekeCryptCell(TRANSIT, mMutationState, mGeneration,
+            return TissueCell(TRANSIT, mMutationState, mGeneration,
                                     mpCellCycleModel->CreateCellCycleModel());
         }
         else
@@ -250,14 +250,14 @@ MeinekeCryptCell MeinekeCryptCell::Divide()
             mGeneration++;
             mCellType = DIFFERENTIATED;
             mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            return MeinekeCryptCell(DIFFERENTIATED, mMutationState, mGeneration,
+            return TissueCell(DIFFERENTIATED, mMutationState, mGeneration,
                                     mpCellCycleModel->CreateCellCycleModel());
         }
     }
     else
     {
         mpCellCycleModel->ResetModel();// Cell goes back to age zero
-        return MeinekeCryptCell(TRANSIT, mMutationState, 1,
+        return TissueCell(TRANSIT, mMutationState, 1,
                                 mpCellCycleModel->CreateCellCycleModel());
     }
     

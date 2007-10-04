@@ -102,20 +102,20 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
-        MeinekeCryptCell& cell = *cell_iter;
+        TissueCell& cell = *cell_iter;
 
         // check if this cell is ready to divide - if so create a new cell etc.
         if (cell.ReadyToDivide())
         {
             // Create new cell
-            MeinekeCryptCell new_cell = cell.Divide();
+            TissueCell new_cell = cell.Divide();
             // std::cout << "Cell division at node " << cell.GetNodeIndex() << "\n";
         
             // Add a new node to the mesh
             c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
             
-            MeinekeCryptCell *p_new_cell=mrCrypt.AddCell(new_cell, new_location);
-            std::set<MeinekeCryptCell*> new_cell_pair;
+            TissueCell *p_new_cell=mrCrypt.AddCell(new_cell, new_location);
+            std::set<TissueCell*> new_cell_pair;
             new_cell_pair.insert(&cell); //Parent cell
             new_cell_pair.insert(p_new_cell); //New cell (the clue's in the name)
             
@@ -314,7 +314,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     if (ageA<1.0 && ageB<1.0 )
     {
         // Spring Rest Length Increases to normal rest length from ???? to normal rest length, 1.0, over 1 hour
-        std::set<MeinekeCryptCell *> cell_pair;
+        std::set<TissueCell *> cell_pair;
         cell_pair.insert(&(mrCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex)));
         cell_pair.insert(&(mrCrypt.rGetCellAtNodeIndex(nodeBGlobalIndex)));
         unsigned count=mDivisionPairs.count(cell_pair);
@@ -376,7 +376,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
-        MeinekeCryptCell& cell = *cell_iter;
+        TissueCell& cell = *cell_iter;
         unsigned index = cell.GetNodeIndex();
         
         ChastePoint<DIM> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);

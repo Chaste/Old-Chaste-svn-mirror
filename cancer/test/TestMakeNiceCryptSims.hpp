@@ -9,7 +9,7 @@
 #include <cmath>
 #include <vector>
 #include "OutputFileHandler.hpp"
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include "WntCellCycleModel.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
@@ -49,7 +49,7 @@ void TestNiceCryptSimulation() throw (Exception)
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC_WNT, true);
               
         Crypt<2> crypt(*p_mesh, cells);

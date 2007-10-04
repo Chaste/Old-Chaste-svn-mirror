@@ -1,7 +1,7 @@
 #ifndef ABSTRACTCELLKILLER_HPP_
 #define ABSTRACTCELLKILLER_HPP_
 
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "Crypt.cpp"
 

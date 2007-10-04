@@ -3,7 +3,7 @@
 
 #include "ConformingTetrahedralMesh.cpp"
 #include <vector>
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
@@ -34,14 +34,14 @@ template<unsigned DIM>
 class CellsGenerator
 {
 public :
-    static void GenerateBasic(std::vector<MeinekeCryptCell>& rCells, 
+    static void GenerateBasic(std::vector<TissueCell>& rCells, 
                                ConformingTetrahedralMesh<DIM,DIM>& rMesh)
     {
         rCells.clear();
         rCells.reserve(rMesh.GetNumNodes());
         for(unsigned i=0; i<rMesh.GetNumNodes(); i++)
         {
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
             double birth_time = 0.0-i;
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -49,7 +49,7 @@ public :
         }
     }
 
-    static void GenerateForCrypt(std::vector<MeinekeCryptCell>& rCells, 
+    static void GenerateForCrypt(std::vector<TissueCell>& rCells, 
                                  ConformingTetrahedralMesh<2,2>& rMesh, 
                                  CellCycleType cycleType,
                                  bool randomBirthTimes,
@@ -170,7 +170,7 @@ public :
                 generation = 4;
             }
 
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, p_cell_cycle_model);
+            TissueCell cell(cell_type, HEALTHY, generation, p_cell_cycle_model);
             
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);

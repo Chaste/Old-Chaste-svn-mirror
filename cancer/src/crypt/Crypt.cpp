@@ -11,7 +11,7 @@
 // also check cell.GetNodeIndices() is in the mesh, and covers the mesh, etc.
 template<unsigned DIM>
 Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
-                  const std::vector<MeinekeCryptCell>& rCells,
+                  const std::vector<TissueCell>& rCells,
                   bool deleteMesh)
              : mrMesh(rMesh),
                mCells(rCells.begin(), rCells.end())
@@ -28,7 +28,7 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
     assert( mCells.size() <= mrMesh.GetNumNodes() );
 
     // Set up the node map
-    for (std::list<MeinekeCryptCell>::iterator it = mCells.begin();
+    for (std::list<TissueCell>::iterator it = mCells.begin();
          it != mCells.end();
          ++it)
     {
@@ -69,7 +69,7 @@ Crypt<DIM>::~Crypt()
 template<unsigned DIM>
 void Crypt<DIM>::InitialiseCells()
 {
-    for(std::list<MeinekeCryptCell>::iterator iter = mCells.begin();
+    for(std::list<TissueCell>::iterator iter = mCells.begin();
         iter != mCells.end();
         ++iter)
     {
@@ -103,16 +103,16 @@ void Crypt<DIM>::Validate()
 }
 
 template<unsigned DIM>
-MeinekeCryptCell& Crypt<DIM>::rGetCellAtNodeIndex(unsigned nodeGlobalIndex)
+TissueCell& Crypt<DIM>::rGetCellAtNodeIndex(unsigned nodeGlobalIndex)
 {
     return *(mNodeCellMap[nodeGlobalIndex]);
 }
 
 template<unsigned DIM>
-Node<DIM>* Crypt<DIM>::GetNodeCorrespondingToCell(const MeinekeCryptCell& rCell)
+Node<DIM>* Crypt<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
 {
     // find the node to which this cell corresponds
-    std::map<unsigned, MeinekeCryptCell*>::iterator it=mNodeCellMap.begin();
+    std::map<unsigned, TissueCell*>::iterator it=mNodeCellMap.begin();
     while (it != mNodeCellMap.end() && (*it).second != &rCell)
     {
         it++;
@@ -124,7 +124,7 @@ Node<DIM>* Crypt<DIM>::GetNodeCorrespondingToCell(const MeinekeCryptCell& rCell)
 
 
 template<unsigned DIM>
-c_vector<double, DIM> Crypt<DIM>::GetLocationOfCell(const MeinekeCryptCell& rCell)
+c_vector<double, DIM> Crypt<DIM>::GetLocationOfCell(const TissueCell& rCell)
 {
     return GetNodeCorrespondingToCell(rCell)->rGetLocation();
 }
@@ -138,7 +138,7 @@ ConformingTetrahedralMesh<DIM, DIM>& Crypt<DIM>::rGetMesh()
 }
 
 template<unsigned DIM>
-std::list<MeinekeCryptCell>& Crypt<DIM>::rGetCells()
+std::list<TissueCell>& Crypt<DIM>::rGetCells()
 {
     return mCells;
 }
@@ -150,7 +150,7 @@ const ConformingTetrahedralMesh<DIM, DIM>& Crypt<DIM>::rGetMesh() const
 }
 
 template<unsigned DIM>
-const std::list<MeinekeCryptCell>& Crypt<DIM>::rGetCells() const
+const std::list<TissueCell>& Crypt<DIM>::rGetCells() const
 {
     return mCells;
 }
@@ -201,7 +201,7 @@ template<unsigned DIM>
 unsigned Crypt<DIM>::RemoveDeadCells()
 {
     unsigned num_removed = 0;
-    for (std::list<MeinekeCryptCell>::iterator it = mCells.begin();
+    for (std::list<TissueCell>::iterator it = mCells.begin();
          it != mCells.end();
          ++it)
     {
@@ -301,7 +301,7 @@ void Crypt<DIM>::MoveCell(Iterator iter, ChastePoint<DIM>& rNewLocation)
 }
 
 template<unsigned DIM>  
-MeinekeCryptCell* Crypt<DIM>::AddCell(MeinekeCryptCell newCell, c_vector<double,DIM> newLocation)
+TissueCell* Crypt<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
 {
     Node<DIM>* p_new_node = new Node<DIM>(mrMesh.GetNumNodes(), newLocation, false);   // never on boundary
               
@@ -310,7 +310,7 @@ MeinekeCryptCell* Crypt<DIM>::AddCell(MeinekeCryptCell newCell, c_vector<double,
     newCell.SetNodeIndex(new_node_index);
     mCells.push_back(newCell);
     
-    MeinekeCryptCell *p_created_cell=&(mCells.back());
+    TissueCell *p_created_cell=&(mCells.back());
     mNodeCellMap[new_node_index] = p_created_cell;
     
     // Update size of IsGhostNode if necessary
@@ -347,7 +347,7 @@ void Crypt<DIM>::ReMesh()
 
         // Fix up the mappings between cells and nodes
         mNodeCellMap.clear();
-        for (std::list<MeinekeCryptCell>::iterator it = mCells.begin();
+        for (std::list<TissueCell>::iterator it = mCells.begin();
              it != mCells.end();
              ++it)
         {
@@ -379,7 +379,7 @@ unsigned Crypt<DIM>::GetNumRealCells()
 //                             iterator class                               // 
 //////////////////////////////////////////////////////////////////////////////
 template<unsigned DIM>
-MeinekeCryptCell& Crypt<DIM>::Iterator::operator*()
+TissueCell& Crypt<DIM>::Iterator::operator*()
 {
     assert((*this) != mrCrypt.End());
     return *mCellIter;
@@ -387,7 +387,7 @@ MeinekeCryptCell& Crypt<DIM>::Iterator::operator*()
 
 
 template<unsigned DIM>
-MeinekeCryptCell* Crypt<DIM>::Iterator::operator->()
+TissueCell* Crypt<DIM>::Iterator::operator->()
 {
     assert((*this) != mrCrypt.End());
     return &(*mCellIter);
@@ -437,7 +437,7 @@ bool Crypt<DIM>::Iterator::IsRealCell()
 }
 
 template<unsigned DIM>
-Crypt<DIM>::Iterator::Iterator(Crypt& rCrypt, std::list<MeinekeCryptCell>::iterator cellIter)
+Crypt<DIM>::Iterator::Iterator(Crypt& rCrypt, std::list<TissueCell>::iterator cellIter)
     : mrCrypt(rCrypt),
       mCellIter(cellIter)
 {
@@ -627,7 +627,7 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
 /// \todo remove this if - facade eventually shouldn't be able to have empty cells vector
         else if (mCells.size()>0)
         {
-            MeinekeCryptCell* p_cell = mNodeCellMap[index];
+            TissueCell* p_cell = mNodeCellMap[index];
             
             CryptCellType type = p_cell->GetCellType();
             CryptCellMutationState mutation = p_cell->GetMutationState();
@@ -788,7 +788,7 @@ Node<DIM>* Crypt<DIM>::SpringIterator::GetNodeB()
 }
 
 template<unsigned DIM>
-MeinekeCryptCell& Crypt<DIM>::SpringIterator::rGetCellA()
+TissueCell& Crypt<DIM>::SpringIterator::rGetCellA()
 {
     assert((*this) != mrCrypt.SpringsEnd());
     return mrCrypt.rGetCellAtNodeIndex(mEdgeIter.GetNodeA()->GetIndex());
@@ -796,7 +796,7 @@ MeinekeCryptCell& Crypt<DIM>::SpringIterator::rGetCellA()
 
 
 template<unsigned DIM>
-MeinekeCryptCell& Crypt<DIM>::SpringIterator::rGetCellB()
+TissueCell& Crypt<DIM>::SpringIterator::rGetCellB()
 {
     assert((*this) != mrCrypt.SpringsEnd());
     return mrCrypt.rGetCellAtNodeIndex(mEdgeIter.GetNodeB()->GetIndex());
@@ -880,18 +880,18 @@ template<unsigned DIM>
 void Crypt<DIM>::CheckCryptCellPointers()
 {
     bool res=true;
-    for (std::list<MeinekeCryptCell>::iterator it=mCells.begin();
+    for (std::list<TissueCell>::iterator it=mCells.begin();
         it!=mCells.end();
         ++it)
     {
-        MeinekeCryptCell* p_cell=&(*it);
+        TissueCell* p_cell=&(*it);
         assert(p_cell);
         AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
         assert(p_model);
         // Check cell exists in crypt
         unsigned node_index = p_cell->GetNodeIndex();
         std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
-        MeinekeCryptCell& r_cell = rGetCellAtNodeIndex(node_index);
+        TissueCell& r_cell = rGetCellAtNodeIndex(node_index);
         if (&r_cell != p_cell)
         {
             std::cout << "  Mismatch with crypt" << std::endl << std::flush;

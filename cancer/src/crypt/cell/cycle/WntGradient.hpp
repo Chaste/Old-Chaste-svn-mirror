@@ -79,7 +79,7 @@ public:
      *  must be set for this. Note the CancerParameters::CryptLength() 
      *  is used for this.
      */
-    double GetWntLevel(MeinekeCryptCell* pCell);
+    double GetWntLevel(TissueCell* pCell);
     
     /**
      *  Set the crypt. Must be called before GetWntLevel(). This calls 

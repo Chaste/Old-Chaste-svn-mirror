@@ -47,7 +47,7 @@ public:
         return mProbabilityOfDeath;
     }
     
-    void TestAndLabelSingleCellForApoptosis(MeinekeCryptCell& cell)
+    void TestAndLabelSingleCellForApoptosis(TissueCell& cell)
     {
         if (!cell.HasApoptosisBegun() &&
             RandomNumberGenerator::Instance()->ranf() < mProbabilityOfDeath)

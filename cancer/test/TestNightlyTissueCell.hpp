@@ -1,5 +1,5 @@
-#ifndef TESTMEINEKECRYPTCELL_HPP_
-#define TESTMEINEKECRYPTCELL_HPP_
+#ifndef TESTTISSUECELL_HPP_
+#define TESTTISSUECELL_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
@@ -10,7 +10,7 @@
 #include "OutputFileHandler.hpp"
 #include "MeinekeCryptCellTypes.hpp"
 #include "CryptCellMutationStates.hpp"
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
@@ -19,7 +19,7 @@
 #include "SimulationTime.hpp"
 #include <iostream>
 
-class TestNightlyMeinekeCryptCell: public CxxTest::TestSuite
+class TestNightlyTissueCell: public CxxTest::TestSuite
 {
 
 public:
@@ -36,21 +36,21 @@ public:
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
         
-        MeinekeCryptCell stem_cell(STEM, // type
+        TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
                                    new TysonNovakCellCycleModel());
                                    
                                    
-        std::vector<MeinekeCryptCell> cells;
-        std::vector<MeinekeCryptCell> newly_born;
+        std::vector<TissueCell> cells;
+        std::vector<TissueCell> newly_born;
         std::vector<unsigned> stem_cells(time_steps);
         std::vector<unsigned> transit_cells(time_steps);
         std::vector<unsigned> differentiated_cells(time_steps);
         std::vector<double> times(time_steps);
         
         cells.push_back(stem_cell);
-        std::vector<MeinekeCryptCell>::iterator cell_iterator;
+        std::vector<TissueCell>::iterator cell_iterator;
         
         unsigned i=0;
         unsigned divisions=0;
@@ -67,7 +67,7 @@ public:
                 //std::cout << "Cell Cycle Model called" << std::endl;
                 if (cell_iterator->ReadyToDivide())
                 {
-                    MeinekeCryptCell new_cell = cell_iterator->Divide();
+                    TissueCell new_cell = cell_iterator->Divide();
                     divisions++;
                     //std::cout << "Division of stem cell at time = " << times[i] << std::endl;
                 }
@@ -92,21 +92,21 @@ public:
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
         
-        MeinekeCryptCell stem_cell(STEM, // type
+        TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    0,  // generation
                                    new TysonNovakCellCycleModel());
                                    
                                    
-        std::vector<MeinekeCryptCell> cells;
-        std::vector<MeinekeCryptCell> newly_born;
+        std::vector<TissueCell> cells;
+        std::vector<TissueCell> newly_born;
         std::vector<unsigned> stem_cells(time_steps);
         std::vector<unsigned> transit_cells(time_steps);
         std::vector<unsigned> differentiated_cells(time_steps);
         std::vector<double> times(time_steps);
         
         cells.push_back(stem_cell);
-        std::vector<MeinekeCryptCell>::iterator cell_iterator;
+        std::vector<TissueCell>::iterator cell_iterator;
         
         unsigned i=0;
         while (p_simulation_time->GetDimensionalisedTime()< end_time)
@@ -168,7 +168,7 @@ public:
     }
     
     /*
-     * We are checking that the MeinekeCryptCells work with the Wnt cell cycle models here
+     * We are checking that the TissueCells work with the Wnt cell cycle models here
      * That division of wnt cells and stuff works OK.
      * 
      * It checks that the cell division thing works nicely too.
@@ -188,7 +188,7 @@ public:
         double wnt_stimulus = 1.0;
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
-        MeinekeCryptCell wnt_cell(TRANSIT, // type
+        TissueCell wnt_cell(TRANSIT, // type
                                   APC_ONE_HIT,//Mutation State
                                   1,    // generation
                                   new WntCellCycleModel());
@@ -215,7 +215,7 @@ public:
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
         TS_ASSERT(wnt_cell.GetGeneration()==1);
         
-        MeinekeCryptCell wnt_cell2 = wnt_cell.Divide();
+        TissueCell wnt_cell2 = wnt_cell.Divide();
         
         TS_ASSERT(wnt_cell.GetGeneration()==2);
         TS_ASSERT(wnt_cell2.GetGeneration()==2);
@@ -254,7 +254,7 @@ public:
     }
     
     /*
-     * We are checking that the MeinekeCryptCells work with the Wnt cell cycle models here
+     * We are checking that the TissueCells work with the Wnt cell cycle models here
      * That division of wnt cells and stuff works OK.
      * 
      * It checks that the cell division thing works nicely too.
@@ -274,7 +274,7 @@ public:
         double wnt_stimulus = 0.0;
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
-        MeinekeCryptCell wnt_cell(TRANSIT, // type
+        TissueCell wnt_cell(TRANSIT, // type
                                   BETA_CATENIN_ONE_HIT,//Mutation State
                                   1,    // generation
                                   new WntCellCycleModel());
@@ -301,7 +301,7 @@ public:
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
         TS_ASSERT(wnt_cell.GetGeneration()==1);
         
-        MeinekeCryptCell wnt_cell2 = wnt_cell.Divide();
+        TissueCell wnt_cell2 = wnt_cell.Divide();
         
         TS_ASSERT(wnt_cell.GetGeneration()==2);
         TS_ASSERT(wnt_cell2.GetGeneration()==2);
@@ -339,7 +339,7 @@ public:
     }
     
     /*
-     * We are checking that the MeinekeCryptCells work with the Wnt cell cycle models here
+     * We are checking that the TissueCells work with the Wnt cell cycle models here
      * That division of wnt cells and stuff works OK.
      * 
      * It checks that the cell division thing works nicely too.
@@ -359,7 +359,7 @@ public:
         double wnt_stimulus = 0.0;
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
-        MeinekeCryptCell wnt_cell(TRANSIT, // type
+        TissueCell wnt_cell(TRANSIT, // type
                                   APC_TWO_HIT,//Mutation State
                                   1,    // generation
                                   new WntCellCycleModel());
@@ -400,7 +400,7 @@ public:
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
         TS_ASSERT(wnt_cell.GetGeneration()==1);
         
-        MeinekeCryptCell wnt_cell2 = wnt_cell.Divide();
+        TissueCell wnt_cell2 = wnt_cell.Divide();
         
         TS_ASSERT(wnt_cell.GetGeneration()==2);
         TS_ASSERT(wnt_cell2.GetGeneration()==2);
@@ -440,4 +440,4 @@ public:
 
 
 
-#endif /*TESTMEINEKECRYPTCELL_HPP_*/
+#endif /*TESTTISSUECELL_HPP_*/

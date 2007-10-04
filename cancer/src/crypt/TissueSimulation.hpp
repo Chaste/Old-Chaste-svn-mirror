@@ -7,7 +7,7 @@
 #include <boost/serialization/string.hpp>
 
 #include "ColumnDataWriter.hpp"
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "CancerParameters.hpp"
 #include "RandomCellKiller.hpp"
@@ -40,9 +40,9 @@
  * nondimensionalised)
  *
  * The TissueSimulation currently only accepts a crypt (facade class) which is 
- * formed from a mesh, whose nodes are associated with MeinekeCryptCells 
+ * formed from a mesh, whose nodes are associated with TissueCells 
  * or are ghost nodes. The TissueSimulation then accesses only the 
- * MeinekeCryptCells via an iterator in the crypt facade class.
+ * TissueCells via an iterator in the crypt facade class.
  * 
  * The mesh should be surrounded by at least one layer of ghost nodes.  These are 
  * nodes which do not correspond to a cell, but are necessary for remeshing (because 
@@ -66,7 +66,7 @@ class TissueSimulation
     friend class TestSprings3d;
 private:
 
-    std::set<std::set <MeinekeCryptCell *> > mDivisionPairs;
+    std::set<std::set <TissueCell *> > mDivisionPairs;
 
 protected:
     /** TimeStep */
@@ -139,24 +139,24 @@ protected:
     void CheckDivisionPairPointers()
     {
         bool res = true;
-        for (std::set<std::set<MeinekeCryptCell*> >::iterator it1 = mDivisionPairs.begin();
+        for (std::set<std::set<TissueCell*> >::iterator it1 = mDivisionPairs.begin();
              it1 != mDivisionPairs.end();
              ++it1)
         {
-            const std::set<MeinekeCryptCell*>& r_pair = *it1;
+            const std::set<TissueCell*>& r_pair = *it1;
             assert(r_pair.size() == 2);
-            for (std::set<MeinekeCryptCell*>::iterator it2 = r_pair.begin();
+            for (std::set<TissueCell*>::iterator it2 = r_pair.begin();
                  it2 != r_pair.end();
                  ++it2)
             {
-                MeinekeCryptCell* p_cell = *it2;
+                TissueCell* p_cell = *it2;
                 assert(p_cell);
                 AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
                 assert(p_model);
                 // Check cell exists in crypt
                 unsigned node_index = p_cell->GetNodeIndex();
                 std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
-                MeinekeCryptCell& r_cell = mrCrypt.rGetCellAtNodeIndex(node_index);
+                TissueCell& r_cell = mrCrypt.rGetCellAtNodeIndex(node_index);
                 if (&r_cell != p_cell)
                 {
                     std::cout << "  Mismatch with crypt" << std::endl << std::flush;

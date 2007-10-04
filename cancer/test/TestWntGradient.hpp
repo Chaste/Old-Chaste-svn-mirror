@@ -10,7 +10,7 @@
 #include "CancerParameters.hpp"
 #include "WntGradient.hpp"
 #include "Crypt.cpp"
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include "WntCellCycleModel.hpp"
 
 class TestWntGradient : public CxxTest::TestSuite
@@ -203,11 +203,11 @@ public:
         
         std::vector<WntCellCycleModel*> models;
         
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             WntCellCycleModel* p_model = new WntCellCycleModel();
-            MeinekeCryptCell cell(STEM, HEALTHY, 0, p_model);
+            TissueCell cell(STEM, HEALTHY, 0, p_model);
             double birth_time = 0.0-i;
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);

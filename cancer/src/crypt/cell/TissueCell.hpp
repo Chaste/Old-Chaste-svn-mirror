@@ -1,5 +1,5 @@
-#ifndef MEINEKECRYPTCELL_HPP_
-#define MEINEKECRYPTCELL_HPP_
+#ifndef TISSUECELL_HPP_
+#define TISSUECELL_HPP_
 
 #include <boost/serialization/access.hpp>
 
@@ -13,7 +13,7 @@ const unsigned MAX_TRANSIT_GENS = 4; // NOT USED ANYWHERE USEFUL AT PRESENT
 
 class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
 
-class MeinekeCryptCell
+class TissueCell
 {
 
 private:
@@ -51,7 +51,7 @@ protected:
     /**
      * Contains code common to both the copy constructor and operator=.
      */
-    void CommonCopy(const MeinekeCryptCell &other_cell);
+    void CommonCopy(const TissueCell &other_cell);
     
     
     
@@ -66,22 +66,22 @@ public:
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
      */  
      
-    MeinekeCryptCell(CryptCellType cellType,
+    TissueCell(CryptCellType cellType,
                      CryptCellMutationState mutationState,
                      unsigned generation,
                      AbstractCellCycleModel *pCellCycleModel);
     /**
      * Destructor, which frees the memory allocated for our cell cycle model.
      */
-    ~MeinekeCryptCell();
+    ~TissueCell();
     
-    MeinekeCryptCell(const MeinekeCryptCell &other_cell);
+    TissueCell(const TissueCell &other_cell);
     
     /**
      * Copy all the attributes of one cell to another
      * (used for periodic boundaries - does not copy node or position information)
      */
-    MeinekeCryptCell& operator=(const MeinekeCryptCell &other_cell);
+    TissueCell& operator=(const TissueCell &other_cell);
     
     void SetBirthTime(double birthTime);
     
@@ -120,7 +120,7 @@ public:
         * Divide this cell to produce a daughter cell.
         * ReadyToDivide must have been called with the given simulationTime, and returned true.
         */
-    MeinekeCryptCell Divide();
+    TissueCell Divide();
     
     void SetLogged();
     bool IsLogged();
@@ -136,7 +136,7 @@ namespace serialization
  */
 template<class Archive>
 inline void save_construct_data(
-    Archive & ar, const MeinekeCryptCell * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const TissueCell * t, const BOOST_PFTO unsigned int file_version)
 {
     // save data required to construct instance
     const CryptCellType cell_type = t->GetCellType();
@@ -154,7 +154,7 @@ inline void save_construct_data(
  */
 template<class Archive>
 inline void load_construct_data(
-    Archive & ar, MeinekeCryptCell * t, const unsigned int file_version)
+    Archive & ar, TissueCell * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
     CryptCellType cell_type;
@@ -166,10 +166,10 @@ inline void load_construct_data(
     ar >> generation;
     ar >> p_cell_cycle_model;
     // invoke inplace constructor to initialize instance
-    ::new(t)MeinekeCryptCell(cell_type, mutation_state, generation,
+    ::new(t)TissueCell(cell_type, mutation_state, generation,
                              p_cell_cycle_model);
 }
 }
 } // namespace ...
 
-#endif /*MEINEKECRYPTCELL_HPP_*/
+#endif /*TISSUECELL_HPP_*/

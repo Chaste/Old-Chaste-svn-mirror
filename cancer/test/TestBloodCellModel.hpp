@@ -92,7 +92,7 @@ private:
              cell_iter != mrCrypt.End();
              ++cell_iter)
         {
-            MeinekeCryptCell& cell = *cell_iter;
+            TissueCell& cell = *cell_iter;
             unsigned index = cell.GetNodeIndex();
             
             ChastePoint<2> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
@@ -172,11 +172,11 @@ private:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
     
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
 
         for(unsigned j=0; j<p_mesh->GetNumNodes(); j++)
         {
-            MeinekeCryptCell cell(DIFFERENTIATED, HEALTHY, 0, new FixedCellCycleModel());
+            TissueCell cell(DIFFERENTIATED, HEALTHY, 0, new FixedCellCycleModel());
             double birth_time = -10;
             cell.SetNodeIndex(j);
             cell.SetBirthTime(birth_time);

@@ -7,13 +7,13 @@
 
 #include "MeinekeCryptCellTypes.hpp"
 #include "SimulationTime.hpp"
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include <vector>
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
-class MeinekeCryptCell; // Circular definition (cells need to know about cycle models and vice-versa).
+class TissueCell; // Circular definition (cells need to know about cycle models and vice-versa).
 
 class AbstractCellCycleModel
 {
@@ -27,10 +27,10 @@ private:
         SimulationTime* p_time = SimulationTime::Instance();
         archive & *p_time;
         // DO NOT archive & mpCell; -- The CellCycleModel is only ever archived from the Cell 
-        // which knows this and it is handled in the load_construct of MeinekeCryptCell.
+        // which knows this and it is handled in the load_construct of TissueCell.
     }
 protected:
-    MeinekeCryptCell* mpCell;
+    TissueCell* mpCell;
     double mBirthTime; // Time to start model from
     
 public:
@@ -39,11 +39,11 @@ public:
      */
     virtual ~AbstractCellCycleModel();
     
-    virtual void SetCell(MeinekeCryptCell* pCell);
+    virtual void SetCell(TissueCell* pCell);
     
     virtual void Initialise() {}
     
-    MeinekeCryptCell* GetCell();
+    TissueCell* GetCell();
     
     /**
      * Refreshes the cell's type using cell cycle information.
@@ -88,10 +88,10 @@ public:
      * NB It should create an instance which is identical to the host instance.
      * 
      * This method is called in 2 circumstances:
-     *  - By the copy constructor and operator= of MeinekeCryptCell to create a copy of the cell cycle model
+     *  - By the copy constructor and operator= of TissueCell to create a copy of the cell cycle model
      *    when copying a cell. The CreateCellCycleModel just needs to create any instance of the right class,
      *    as operator= on the cell cycle model is then called to ensure the model is copied properly.
-     *  - By MeinekeCryptCell.Divide to create a cell cycle model for the daughter cell. CreateCellCycleModel
+     *  - By TissueCell.Divide to create a cell cycle model for the daughter cell. CreateCellCycleModel
      *    must thus produce a cell cycle model in a suitable state for a newly-born cell spawned from the
      *    'current' cell. Note that the parent cell cycle model should be Reset() just before CreateCellCycleModel is
      *    called to copy its state. 

@@ -10,7 +10,7 @@
 #include "OutputFileHandler.hpp"
 #include "CryptSimulation1d.hpp"
 
-#include "MeinekeCryptCell.hpp"
+#include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
@@ -241,7 +241,7 @@ public:
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumNodes();
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
             CryptCellType cell_type;
@@ -265,7 +265,7 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel);
+            TissueCell cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel);
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -309,7 +309,7 @@ public:
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
             CryptCellType cell_type;
@@ -333,7 +333,7 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -383,7 +383,7 @@ public:
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
             CryptCellType cell_type;
@@ -407,7 +407,7 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new TysonNovakCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, generation, new TysonNovakCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -468,7 +468,7 @@ public:
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
-        std::vector<MeinekeCryptCell> cells;
+        std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
             CryptCellType cell_type;
@@ -486,7 +486,7 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -502,7 +502,7 @@ public:
         
         simulator.Solve();
         
-        std::vector<MeinekeCryptCell> cells_after_simulation = simulator.GetCells();
+        std::vector<TissueCell> cells_after_simulation = simulator.GetCells();
         //Warning - there are 6 live cells and one dead one sloughed off still in existance.
         //n.b. throughout the simulation 2 cells are sloughed off but one place is reused
         TS_ASSERT_EQUALS((int) cells_after_simulation.size(),7);
@@ -510,7 +510,7 @@ public:
         {
             if (!mesh.GetNode(index)->IsDeleted())
             {
-                MeinekeCryptCell cell = cells_after_simulation[index];
+                TissueCell cell = cells_after_simulation[index];
                 double x = mesh.GetNode(index)->GetPoint()[0];
                 if (fabs(x)<1e-2)
                 {

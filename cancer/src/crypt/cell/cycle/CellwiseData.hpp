@@ -55,7 +55,7 @@ public:
      *  Get the value for particular cell and given variable number (defaults
      *  to zero)
      */
-    double GetValue(MeinekeCryptCell* pCell, unsigned variableNumber=0);
+    double GetValue(TissueCell* pCell, unsigned variableNumber=0);
     
     /**
      *  Set the value for particular node and given variable number (defaults
