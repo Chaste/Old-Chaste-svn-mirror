@@ -253,17 +253,5 @@ void OxygenBasedCellCycleModel::Initialise()
     mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(oxygen_concentration, false);
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());  
 }    
-
-void OxygenBasedCellCycleModel::Update()
-{
-    assert(mpOdeSystem!=NULL);
-    assert(mpCell!=NULL);
-    
-    double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell,0);
-    // Once MeinekeCryptCell has been re-factored, the new daughter TumourCell class
-    // can have a GetIsCancerCell() method. Hard-code it for the time being.    
-    mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(oxygen_concentration, false);
-    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());  
-}    
-
+ 
 

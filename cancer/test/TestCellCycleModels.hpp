@@ -689,65 +689,38 @@ public:
     }
     
     void TestOxygenBasedCellCycleModel(void) throw(Exception)
-    {
+    {        
         TS_ASSERT_THROWS_NOTHING(OxygenBasedCellCycleModel model());
         
         CancerParameters::Instance()->Reset();
-                
-        // we need to set up SimulationTime for the Cells
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        
+        // fails because SimulationTime has not been set up
+        TS_ASSERT_THROWS_ANYTHING(OxygenBasedCellCycleModel model);
+        
+        SimulationTime *p_simulation_time = SimulationTime::Instance();        
+        double end_time = 10.0; 
+        int num_timesteps = 1000*(int)end_time;
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, 500);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
                 
-        // create an instance of CellwiseData
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance(); 
-                        
-        // we need to create a tissue for CellwiseData        
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);                
-        std::vector<TissueCell> cells;
-        cells.clear();
-        cells.reserve(mesh.GetNumNodes());
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            TissueCell cell(STEM, HEALTHY, 0, new OxygenBasedCellCycleModel());
-            double birth_time = 0.0-i;
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }                
-        Tissue<2> tissue(mesh,cells);
+        std::vector<double> oxygen_concentration;
+        oxygen_concentration.push_back(1.0);
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
-        // set up CellwiseData                       
-        p_data->SetNumNodesAndVars(mesh.GetNumNodes(),1);
-        p_data->SetTissue(tissue);
+        OxygenBasedCellCycleModel* p_cell_model = new OxygenBasedCellCycleModel();
         
-        // set uniform oxygen concentration       
-        for (Tissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
-             ++cell_iter)
-        {
-            const OxygenBasedCellCycleModel* p_model = (OxygenBasedCellCycleModel*) cell_iter->GetCellCycleModel();
-            std::vector<double> proteins = p_model->GetProteinConcentrations();
+        TissueCell cell(STEM, // type
+                                   HEALTHY,//Mutation State
+                                   0,  // generation
+                                   p_cell_model);
+                           
+        cell.InitialiseCellCycleModel();
         
-            // check the oxygen concentration is set up to be zero by default
-            TS_ASSERT_DELTA(proteins[5],0.0,1e-5);
-            
-            // change the oxygen concentration
-            p_data->SetValue(1.0, tissue.GetNodeCorrespondingToCell(*cell_iter), 0);
-            
-            // feed it in to the cell cycle model
-            cell_iter->UpdateCellCycleModel();     
-            
-            std::vector<double> new_proteins = p_model->GetProteinConcentrations(); 
-            
-            // check the oxygen concentration is correctly updated
-            TS_ASSERT_DELTA(new_proteins[5],1.0,1e-5);
-        }                
-                
+        // check oxygen concentration is correct in cell cycle model
+        TS_ASSERT_DELTA(p_cell_model->GetProteinConcentrations()[5], 1.0, 1e-5);
+        TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);        
+
         SimulationTime::Destroy();
-        WntGradient::Destroy();
         CellwiseData<2>::Destroy();
     }
     

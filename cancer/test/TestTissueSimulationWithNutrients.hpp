@@ -18,13 +18,13 @@
 #include "PetscTools.hpp"
 #include "CellwiseData.hpp"
 
-class OxygenBasedCellCycleModel : public FixedCellCycleModel
+class SimpleOxygenBasedCellCycleModel : public FixedCellCycleModel
 {
 private:
     double mTimeProgressingThroughCellCycle;
         
 public:
-    OxygenBasedCellCycleModel() : FixedCellCycleModel()
+    SimpleOxygenBasedCellCycleModel() : FixedCellCycleModel()
     {
         mTimeProgressingThroughCellCycle = 0.0;
     }
@@ -52,7 +52,7 @@ public:
     
     AbstractCellCycleModel* CreateCellCycleModel()
     {
-        return new OxygenBasedCellCycleModel();
+        return new SimpleOxygenBasedCellCycleModel();
     }
 };
 
@@ -155,7 +155,7 @@ public:
         std::vector<TissueCell> cells;
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(TRANSIT, HEALTHY, 0, new OxygenBasedCellCycleModel());
+            TissueCell cell(TRANSIT, HEALTHY, 0, new SimpleOxygenBasedCellCycleModel());
             double birth_time = -p_gen->ranf()*p_params->GetTransitCellCycleTime();
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -193,6 +193,7 @@ public:
         delete p_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        CellwiseData<2>::Destroy();
     }
 
 };

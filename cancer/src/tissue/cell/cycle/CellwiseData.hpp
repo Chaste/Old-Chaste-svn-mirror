@@ -29,7 +29,11 @@ private:
     unsigned mNumberOfVariables;
 
     /*< store of the data */
-    std::vector<double> mData;
+    std::vector<double> mData;  
+      
+    std::vector<double> mConstantDataForTesting;
+    bool mUseConstantDataForTesting;    
+    
     
 protected:
     /**
@@ -75,6 +79,15 @@ public:
      */
     void SetNumNodesAndVars(unsigned numNodes, unsigned numVars);
     
+    /**
+     *  Force the data to return given values for all cells (only for testing)
+     */
+    void SetConstantDataForTesting(std::vector<double> values)
+    {        
+        mConstantDataForTesting = values;
+        mUseConstantDataForTesting = true;
+    }
+        
     /**
      *  Is the instance in existence and fully set up
      */

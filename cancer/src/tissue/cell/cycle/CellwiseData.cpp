@@ -24,7 +24,9 @@ CellwiseData<DIM>* CellwiseData<DIM>::Instance()
 template<unsigned DIM>
 CellwiseData<DIM>::CellwiseData()
  :  mpTissue(NULL),
-    mAllocatedMemory(false)
+    mAllocatedMemory(false),    
+    mConstantDataForTesting(0),
+    mUseConstantDataForTesting(false) 
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
@@ -47,6 +49,11 @@ void CellwiseData<DIM>::Destroy()
 template<unsigned DIM>
 double CellwiseData<DIM>::GetValue(TissueCell* pCell, unsigned variableNumber)
 {
+    if(mUseConstantDataForTesting)  // to test a cell and cell cycle models without a tissue
+    {
+        return mConstantDataForTesting[variableNumber];
+    }
+    
     assert(IsSetUp());
     assert(mpTissue!=NULL);
     assert(mAllocatedMemory);
