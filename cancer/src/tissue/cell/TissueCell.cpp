@@ -1,11 +1,11 @@
 #include "TissueCell.hpp"
-#include "MeinekeCryptCellTypes.hpp"
+#include "CellTypes.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 
 
-TissueCell::TissueCell(CryptCellType cellType,
-                                   CryptCellMutationState mutationState,
+TissueCell::TissueCell(CellType cellType,
+                                   CellMutationState mutationState,
                                    unsigned generation,
                                    AbstractCellCycleModel *pCellCycleModel)
         : mpCellCycleModel(pCellCycleModel)
@@ -133,22 +133,22 @@ unsigned TissueCell::GetGeneration() const
     return mGeneration;
 }
 
-CryptCellType TissueCell::GetCellType() const
+CellType TissueCell::GetCellType() const
 {
     return mCellType;
 }
 
-CryptCellMutationState TissueCell::GetMutationState() const
+CellMutationState TissueCell::GetMutationState() const
 {
     return mMutationState;
 }
 
-void TissueCell::SetCellType(CryptCellType cellType)
+void TissueCell::SetCellType(CellType cellType)
 {
     mCellType = cellType;
 }
 
-void TissueCell::SetMutationState(CryptCellMutationState mutationState)
+void TissueCell::SetMutationState(CellMutationState mutationState)
 {
     mMutationState = mutationState;
 }

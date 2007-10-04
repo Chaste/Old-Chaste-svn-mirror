@@ -5,7 +5,7 @@
 #include <boost/serialization/is_abstract.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "MeinekeCryptCellTypes.hpp"
+#include "CellTypes.hpp"
 #include "SimulationTime.hpp"
 #include "TissueCell.hpp"
 #include <vector>

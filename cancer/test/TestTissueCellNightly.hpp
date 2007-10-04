@@ -8,8 +8,8 @@
 #include <fstream>
 
 #include "OutputFileHandler.hpp"
-#include "MeinekeCryptCellTypes.hpp"
-#include "CryptCellMutationStates.hpp"
+#include "CellTypes.hpp"
+#include "CellMutationStates.hpp"
 #include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
@@ -366,7 +366,7 @@ public:
         
         wnt_cell.InitialiseCellCycleModel();
                                           
-        CryptCellMutationState this_state = wnt_cell.GetMutationState();
+        CellMutationState this_state = wnt_cell.GetMutationState();
         
         TS_ASSERT(this_state==APC_TWO_HIT);
         

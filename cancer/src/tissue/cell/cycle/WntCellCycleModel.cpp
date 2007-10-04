@@ -1,5 +1,5 @@
 #include "WntCellCycleModel.hpp"
-#include "CryptCellMutationStates.hpp"
+#include "CellMutationStates.hpp"
 #include "Exception.hpp"
 #include "WntGradient.hpp"
 #include <iostream>
@@ -40,7 +40,7 @@ WntCellCycleModel::WntCellCycleModel()
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
  */
 WntCellCycleModel::WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
-                                     const CryptCellMutationState& rMutationState, 
+                                     const CellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime)
         : AbstractCellCycleModel()
@@ -77,7 +77,7 @@ WntCellCycleModel::WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,//c
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
  */
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                                     const CryptCellMutationState& rMutationState, 
+                                     const CellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime)
         : AbstractCellCycleModel()
@@ -280,7 +280,7 @@ void WntCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
     assert(mpCell!=NULL);
     double beta_catenin_level = mpOdeSystem->rGetStateVariables()[6] + mpOdeSystem->rGetStateVariables()[7];
     //std::cout << "beta-catenin level = " << beta_catenin_level << "\n" << std::flush;        
-    CryptCellType cell_type=TRANSIT;
+    CellType cell_type=TRANSIT;
                 
     // For mitogenic stimulus of 6x10^-4 in Wnt equations
     if (beta_catenin_level < 0.4127)

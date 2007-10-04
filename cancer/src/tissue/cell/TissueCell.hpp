@@ -4,8 +4,8 @@
 #include <boost/serialization/access.hpp>
 
 #include "Element.hpp"
-#include "MeinekeCryptCellTypes.hpp"
-#include "CryptCellMutationStates.hpp"
+#include "CellTypes.hpp"
+#include "CellMutationStates.hpp"
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
 
@@ -39,8 +39,8 @@ private:
     
 protected:
     unsigned mGeneration;
-    CryptCellType mCellType;
-    CryptCellMutationState mMutationState;
+    CellType mCellType;
+    CellMutationState mMutationState;
     AbstractCellCycleModel *mpCellCycleModel;
     unsigned mNodeIndex;
     bool mUndergoingApoptosis;
@@ -66,8 +66,8 @@ public:
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
      */  
      
-    TissueCell(CryptCellType cellType,
-               CryptCellMutationState mutationState,
+    TissueCell(CellType cellType,
+               CellMutationState mutationState,
                unsigned generation,
                AbstractCellCycleModel *pCellCycleModel);
     /**
@@ -100,10 +100,10 @@ public:
     double GetBirthTime() const;
     unsigned GetGeneration() const;
     
-    CryptCellType GetCellType() const;
-    CryptCellMutationState GetMutationState() const;
-    void SetCellType(CryptCellType cellType);
-    void SetMutationState(CryptCellMutationState mutationState);
+    CellType GetCellType() const;
+    CellMutationState GetMutationState() const;
+    void SetCellType(CellType cellType);
+    void SetMutationState(CellMutationState mutationState);
     
     /**
      * Determine if this cell will be ready to divide at the given simulation time.
@@ -139,8 +139,8 @@ inline void save_construct_data(
     Archive & ar, const TissueCell * t, const BOOST_PFTO unsigned int file_version)
 {
     // save data required to construct instance
-    const CryptCellType cell_type = t->GetCellType();
-    const CryptCellMutationState mutation_state = t->GetMutationState();
+    const CellType cell_type = t->GetCellType();
+    const CellMutationState mutation_state = t->GetMutationState();
     const unsigned generation = t->GetGeneration();
     const AbstractCellCycleModel * const p_cell_cycle_model = t->GetCellCycleModel();
     ar << cell_type;
@@ -157,8 +157,8 @@ inline void load_construct_data(
     Archive & ar, TissueCell * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
-    CryptCellType cell_type;
-    CryptCellMutationState mutation_state;
+    CellType cell_type;
+    CellMutationState mutation_state;
     unsigned generation;
     AbstractCellCycleModel *p_cell_cycle_model;
     ar >> cell_type;

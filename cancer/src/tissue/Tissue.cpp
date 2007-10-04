@@ -629,8 +629,8 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
         {
             TissueCell* p_cell = mNodeCellMap[index];
             
-            CryptCellType type = p_cell->GetCellType();
-            CryptCellMutationState mutation = p_cell->GetMutationState();
+            CellType type = p_cell->GetCellType();
+            CellMutationState mutation = p_cell->GetMutationState();
             
             // Set colours dependent on Stem, Transit, Differentiate
             if (type == STEM)

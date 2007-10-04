@@ -5,7 +5,7 @@
 #include "Exception.hpp"
 #include "ColumnDataWriter.hpp"
 
-#include "MeinekeCryptCellTypes.hpp"
+#include "CellTypes.hpp"
 
 #include <cmath>
 #include <ctime>
@@ -291,7 +291,7 @@ void CryptSimulation1d::Solve()
             {
                 if (mCells.size() > 0)
                 {
-                    CryptCellType type  = mCells[index].GetCellType();
+                    CellType type  = mCells[index].GetCellType();
                     if (type == STEM)
                     {
                         tabulated_writer.PutVariable(type_var_ids[cell], 0);

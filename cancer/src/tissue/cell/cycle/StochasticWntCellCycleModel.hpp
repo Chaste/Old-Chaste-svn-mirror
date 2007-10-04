@@ -55,7 +55,7 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
      * sometimes needed. Should only be called by the cell itself when it wants to divide.
      */
     StochasticWntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,
-                                CryptCellMutationState mutationState,
+                                CellMutationState mutationState,
                                 double birthTime, double lastTime,
                                 bool inSG2MPhase, bool readyToDivide, double divideTime)
       : WntCellCycleModel(pParentOdeSystem, mutationState, birthTime, lastTime, 
@@ -68,7 +68,7 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
      * sometimes needed. Should only be called by the archiver.
      */
     StochasticWntCellCycleModel(std::vector<double> proteinConcentrations, 
-                                CryptCellMutationState mutationState,
+                                CellMutationState mutationState,
                                 double birthTime, double lastTime,
                                 bool inSG2MPhase, bool readyToDivide, double divideTime)
       : WntCellCycleModel(proteinConcentrations, mutationState, birthTime, lastTime, 
@@ -131,7 +131,7 @@ inline void load_construct_data(
         state_vars.push_back(0.0);
     }   
 
-    CryptCellMutationState mutation_state = HEALTHY;
+    CellMutationState mutation_state = HEALTHY;
 
     ::new(t)StochasticWntCellCycleModel(state_vars, mutation_state,0.0, 0.0, false, false, 0.0);
 }

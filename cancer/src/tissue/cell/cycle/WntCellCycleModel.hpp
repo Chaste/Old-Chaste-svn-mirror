@@ -71,7 +71,7 @@ public:
      * (called by CreateCellCycleModel())
      */
     WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem, 
-                      const CryptCellMutationState& rMutationState, 
+                      const CellMutationState& rMutationState, 
                       double birthTime, double lastTime,
                       bool inSG2MPhase, bool readyToDivide, double divideTime);
    /**
@@ -79,7 +79,7 @@ public:
      * (called by archiving functions)
      */
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
-                      const CryptCellMutationState& rMutationState, 
+                      const CellMutationState& rMutationState, 
                       double birthTime, double lastTime,
                       bool inSG2MPhase, bool readyToDivide, double divideTime); 
                           
@@ -141,7 +141,7 @@ inline void load_construct_data(
         state_vars.push_back(0.0);
     }
 
-    CryptCellMutationState mutation_state = HEALTHY;
+    CellMutationState mutation_state = HEALTHY;
     ::new(t)WntCellCycleModel(state_vars, mutation_state, 0.0, 0.0, false, false, 0.0);
 }
 }
