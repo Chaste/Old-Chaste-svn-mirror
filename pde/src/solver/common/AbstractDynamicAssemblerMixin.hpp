@@ -119,7 +119,7 @@ public:
             
             //Note that the AbstractFlaggedMeshAssembler::AssembleSystem makes a new linear system for 
             //every iteration.  Since this is currently the case we have to re-assemble every time.
-            //mMatrixIsAssembled = true;
+            mMatrixIsAssembled = true;
             
             stepper.AdvanceOneTimeStep();
             // Avoid memory leaks

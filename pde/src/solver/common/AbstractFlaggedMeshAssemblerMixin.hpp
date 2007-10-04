@@ -30,6 +30,7 @@ protected:
      */
     void AssembleSystem(bool assembleVector, bool assembleMatrix, Vec currentSolutionOrGuess=NULL, double currentTime=0.0)
     {
+        assembleMatrix=true;
         // Only works for linear problems.
         assert(!this->ProblemIsNonlinear());
         // Only works for PROBLEM_DIM==1 at present.  WP4 should fix this.

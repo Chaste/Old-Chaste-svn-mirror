@@ -301,6 +301,7 @@ protected:
         if(assembleMatrix)
         {
             assemble_event = ASSEMBLE_SYSTEM;
+            //std::cout << "*";
         }
         else
         {

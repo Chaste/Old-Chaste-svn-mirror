@@ -19,7 +19,8 @@
 #include "BackwardEulerFoxModel2002Modified.hpp"
 
 // Path to the parameter file
-const std::string parameter_file = "io/test/data/Baseline.xml";
+const std::string parameter_file = "heart/test/data/Baseline.xml";
+
 
 
 // User-modifiable parameters.  Real values will be read from a config file.
