@@ -93,6 +93,8 @@ public:
     
     void InitialiseCellCycleModel();
     
+    void UpdateCellCycleModel();
+    
     void SetNodeIndex(unsigned index);
     unsigned GetNodeIndex() const;
     

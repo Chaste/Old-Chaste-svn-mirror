@@ -52,6 +52,12 @@ public:
     virtual void UpdateCellType() {};
     
     /**
+     * Refreshes the cell cycle model using external information.
+     * Doesn't do anything in most classes, overidden in others.
+     */
+    virtual void Update() {};
+    
+    /**
      * Set the cell's time of birth (usually not required as it should be inside
      * the indivdual cell-cycle-model-constructor, but useful for tests)
      * 

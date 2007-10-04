@@ -103,6 +103,11 @@ void TissueCell::InitialiseCellCycleModel()
     mpCellCycleModel->Initialise();
 }
 
+void TissueCell::UpdateCellCycleModel()
+{
+    mpCellCycleModel->Update();
+}
+
 /**
  * Set the node at which this cell is positioned.
  * 

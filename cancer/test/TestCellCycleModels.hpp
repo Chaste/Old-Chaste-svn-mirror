@@ -690,6 +690,8 @@ public:
     
     void TestOxygenBasedCellCycleModel(void) throw(Exception)
     {
+        TS_ASSERT_THROWS_NOTHING(OxygenBasedCellCycleModel model());
+        
         CancerParameters::Instance()->Reset();
                 
         // we need to set up SimulationTime for the Cells
@@ -726,12 +728,23 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-             p_data->SetValue(1.0, tissue.GetNodeCorrespondingToCell(*cell_iter), 0);
-             // TODO: uncomment this and solve the resulting error!
-             //cell_iter->InitialiseCellCycleModel();                
+            const OxygenBasedCellCycleModel* p_model = (OxygenBasedCellCycleModel*) cell_iter->GetCellCycleModel();
+            std::vector<double> proteins = p_model->GetProteinConcentrations();
+        
+            // check the oxygen concentration is set up to be zero by default
+            TS_ASSERT_DELTA(proteins[5],0.0,1e-5);
+            
+            // change the oxygen concentration
+            p_data->SetValue(1.0, tissue.GetNodeCorrespondingToCell(*cell_iter), 0);
+            
+            // feed it in to the cell cycle model
+            cell_iter->UpdateCellCycleModel();     
+            
+            std::vector<double> new_proteins = p_model->GetProteinConcentrations(); 
+            
+            // check the oxygen concentration is correctly updated
+            TS_ASSERT_DELTA(new_proteins[5],1.0,1e-5);
         }                
-                  
-        TS_ASSERT_THROWS_NOTHING(OxygenBasedCellCycleModel model());
                 
         SimulationTime::Destroy();
         WntGradient::Destroy();

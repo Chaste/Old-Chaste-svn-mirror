@@ -86,6 +86,8 @@ public:
     void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations);
       
     void Initialise();
+    
+    void Update();
 
 };
 
