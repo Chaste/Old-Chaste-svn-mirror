@@ -25,8 +25,8 @@ private :
     double mTimeStep;
 
 public :
-    RadiusBasedCellKiller(Tissue<2>* pCrypt, c_vector<double,2> centre, double timeStep)
-        : AbstractCellKiller<2>(pCrypt),
+    RadiusBasedCellKiller(Tissue<2>* pTissue, c_vector<double,2> centre, double timeStep)
+        : AbstractCellKiller<2>(pTissue),
           mCentre(centre),
           mTimeStep(timeStep)
     {
@@ -94,10 +94,10 @@ public :
             cells.push_back(cell);
         }
                 
-        Tissue<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
+        Tissue<2> tissue(*p_mesh, cells);
+        tissue.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        TissueSimulation<2> simulator(tissue);
 
         simulator.SetOutputDirectory("2dSpheroid");
         simulator.SetEndTime(5.0);
@@ -109,7 +109,7 @@ public :
         centre(0) = (double)num_cells_width/2.0;
         centre(1) = (double)num_cells_depth/2.0;
         
-        AbstractCellKiller<2>* p_killer = new RadiusBasedCellKiller(&crypt, centre, simulator.GetDt());
+        AbstractCellKiller<2>* p_killer = new RadiusBasedCellKiller(&tissue, centre, simulator.GetDt());
         simulator.AddCellKiller(p_killer);
         
         simulator.Solve();
@@ -152,10 +152,10 @@ public :
             cells.push_back(cell);
         }
                 
-        Tissue<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
+        Tissue<2> tissue(*p_mesh, cells);
+        tissue.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        TissueSimulation<2> simulator(tissue);
 
         simulator.SetOutputDirectory("2dSpheroidApoptosis");
         simulator.SetEndTime(1.0);
@@ -163,8 +163,8 @@ public :
         simulator.SetMaxElements(100);
         
         CancerParameters::Instance()->SetApoptosisTime(2.0);
-        crypt.rGetCellAtNodeIndex(14).StartApoptosis();
-        crypt.rGetCellAtNodeIndex(15).StartApoptosis();
+        tissue.rGetCellAtNodeIndex(14).StartApoptosis();
+        tissue.rGetCellAtNodeIndex(15).StartApoptosis();
         simulator.SetNoBirth(true);
                         
         simulator.Solve();
@@ -178,10 +178,10 @@ public :
          * a and c (and b and d) move to a distance of 0.5 apart.
          */
         
-        c_vector<double, 2> a_location = crypt.rGetMesh().GetNode(14)->rGetLocation();
-        c_vector<double, 2> b_location = crypt.rGetMesh().GetNode(15)->rGetLocation();
-        c_vector<double, 2> c_location = crypt.rGetMesh().GetNode(20)->rGetLocation();
-        c_vector<double, 2> d_location = crypt.rGetMesh().GetNode(21)->rGetLocation();
+        c_vector<double, 2> a_location = tissue.rGetMesh().GetNode(14)->rGetLocation();
+        c_vector<double, 2> b_location = tissue.rGetMesh().GetNode(15)->rGetLocation();
+        c_vector<double, 2> c_location = tissue.rGetMesh().GetNode(20)->rGetLocation();
+        c_vector<double, 2> d_location = tissue.rGetMesh().GetNode(21)->rGetLocation();
         
         double a_b_separation = sqrt((a_location[0]-b_location[0])*(a_location[0]-b_location[0]) +
                                 (a_location[1]-b_location[1])*(a_location[1]-b_location[1]));
@@ -197,10 +197,10 @@ public :
         simulator.SetEndTime(1.99);
         simulator.Solve();
         
-        a_location = crypt.rGetMesh().GetNode(14)->rGetLocation();
-        b_location = crypt.rGetMesh().GetNode(15)->rGetLocation();
-        c_location = crypt.rGetMesh().GetNode(20)->rGetLocation();
-        d_location = crypt.rGetMesh().GetNode(21)->rGetLocation();
+        a_location = tissue.rGetMesh().GetNode(14)->rGetLocation();
+        b_location = tissue.rGetMesh().GetNode(15)->rGetLocation();
+        c_location = tissue.rGetMesh().GetNode(20)->rGetLocation();
+        d_location = tissue.rGetMesh().GetNode(21)->rGetLocation();
         
         a_b_separation = sqrt((a_location[0]-b_location[0])*(a_location[0]-b_location[0]) +
                          (a_location[1]-b_location[1])*(a_location[1]-b_location[1]));
@@ -212,12 +212,12 @@ public :
         TS_ASSERT_DELTA(a_b_separation , 0.01, 1e-1);
         TS_ASSERT_DELTA(a_c_separation , 0.5, 1e-1);
         //TS_ASSERT_DELTA(c_d_separation , 1.0, 1e-1); no longer attached by a spring
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 4u);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 4u);
         
         simulator.SetEndTime(2.01);
         simulator.Solve();
         
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 2u);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 2u);
         
         
         SimulationTime::Destroy();

@@ -58,7 +58,7 @@ protected:
     
 public:
     /**
-     * Create a new Meineke crypt cell.
+     * Create a new tissue cell.
      * @param cellType  the type of cell this is
      * @param mutationState the mutation state of the cell
      * @param generation  its generation
@@ -67,9 +67,9 @@ public:
      */  
      
     TissueCell(CryptCellType cellType,
-                     CryptCellMutationState mutationState,
-                     unsigned generation,
-                     AbstractCellCycleModel *pCellCycleModel);
+               CryptCellMutationState mutationState,
+               unsigned generation,
+               AbstractCellCycleModel *pCellCycleModel);
     /**
      * Destructor, which frees the memory allocated for our cell cycle model.
      */

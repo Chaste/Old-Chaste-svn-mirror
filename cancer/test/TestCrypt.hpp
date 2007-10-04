@@ -1,5 +1,5 @@
-#ifndef TESTCRYPT_HPP_
-#define TESTCRYPT_HPP_
+#ifndef TESTTISSUE_HPP_
+#define TESTTISSUE_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
@@ -18,7 +18,7 @@
 #include "Tissue.cpp"
 #include "CellsGenerator.hpp"
 
-class TestCrypt : public CxxTest::TestSuite
+class TestTissue : public CxxTest::TestSuite
 {
 private: 
     // test construction (without ghost nodes), accessors and iterator
@@ -39,7 +39,7 @@ private:
     }
     
     template<unsigned DIM>
-    void TestSimpleCrypt(std::string meshFilename)
+    void TestSimpleTissue(std::string meshFilename)
     {
         // set up the simulation time object so the cells can be created
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -55,15 +55,15 @@ private:
         std::vector<TissueCell> cells;
         CellsGenerator<DIM>::GenerateBasic(cells, mesh);
 
-        // create the crypt
-        Tissue<DIM> crypt(mesh,cells);
+        // create the tissue
+        Tissue<DIM> tissue(mesh,cells);
         
-        TS_ASSERT_EQUALS(crypt.rGetMesh().GetNumNodes(), mesh.GetNumNodes());
-        TS_ASSERT_EQUALS(crypt.rGetCells().size(),cells.size());
+        TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(), mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(),cells.size());
         
         unsigned counter = 0;
-        for (typename Tissue<DIM>::Iterator cell_iter = crypt.Begin();
-             cell_iter != crypt.End();
+        for (typename Tissue<DIM>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
              ++cell_iter)
         {
             // test operator* and that cells are in sync
@@ -88,7 +88,7 @@ private:
             counter++;
         }
         
-        TS_ASSERT_EQUALS(counter, crypt.GetNumRealCells());
+        TS_ASSERT_EQUALS(counter, tissue.GetNumRealCells());
         
         SimulationTime::Destroy();
     }
@@ -97,11 +97,11 @@ private:
 public:
 
     // test construction, accessors and Iterator
-    void TestSimpleCrypt1d2d3d() throw(Exception)
+    void TestSimpleTissue1d2d3d() throw(Exception)
     {
-        TestSimpleCrypt<1>("mesh/test/data/1D_0_to_1_10_elements");
-        TestSimpleCrypt<2>("mesh/test/data/square_4_elements");
-        TestSimpleCrypt<3>("mesh/test/data/cube_136_elements");
+        TestSimpleTissue<1>("mesh/test/data/1D_0_to_1_10_elements");
+        TestSimpleTissue<2>("mesh/test/data/square_4_elements");
+        TestSimpleTissue<3>("mesh/test/data/cube_136_elements");
     }
     
     void TestValidate()
@@ -122,14 +122,14 @@ public:
         cells[0].SetNodeIndex(1);
 
 		// fails as no cell or ghost correponding to node 0        
-        TS_ASSERT_THROWS_ANYTHING(Tissue<2> crypt2(mesh, cells));
+        TS_ASSERT_THROWS_ANYTHING(Tissue<2> tissue2(mesh, cells));
 
         SimulationTime::Destroy();
     }
     
     
     // test with ghost nodes, incl the Iterator doesn't loop over ghost nodes
-    void TestCryptWithGhostNodes() throw(Exception)
+    void TestTissueWithGhostNodes() throw(Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);        
@@ -146,13 +146,13 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);        
 
-        // create a crypt, with no ghost nodes at the moment
-        Tissue<2> crypt(*p_mesh,cells);
+        // create a tissue, with no ghost nodes at the moment
+        Tissue<2> tissue(*p_mesh,cells);
 
         // iterator should loop over all nodes
         unsigned counter = 0;
-        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
-             cell_iter != crypt.End();
+        for (Tissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
              ++cell_iter)
         {
             counter++;
@@ -160,7 +160,7 @@ public:
         TS_ASSERT_EQUALS(counter, p_mesh->GetNumNodes());
         
         // set ghost nodes
-        crypt.SetGhostNodes(ghost_node_indices);
+        tissue.SetGhostNodes(ghost_node_indices);
         std::vector<bool> is_ghost_node(p_mesh->GetNumNodes(), false);
         for(std::set<unsigned>::iterator it = ghost_node_indices.begin();
             it != ghost_node_indices.end();
@@ -169,16 +169,16 @@ public:
             is_ghost_node[*it] = true;
         }
         
-        TS_ASSERT_EQUALS(crypt.rGetGhostNodes(), is_ghost_node);
+        TS_ASSERT_EQUALS(tissue.rGetGhostNodes(), is_ghost_node);
         
         // test the GetGhostNodeIndices method
-        std::set<unsigned> ghost_node_indices2 = crypt.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices2 = tissue.GetGhostNodeIndices();
         TS_ASSERT_EQUALS(ghost_node_indices, ghost_node_indices2);
         
         // check the iterator doesn't loop over ghost nodes
         counter = 0;
-        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
-             cell_iter != crypt.End();
+        for (Tissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
              ++cell_iter)
         {
             unsigned node_index = cell_iter->GetNodeIndex();
@@ -186,7 +186,7 @@ public:
             counter++;
         }
         
-        TS_ASSERT_EQUALS(counter, crypt.GetNumRealCells());
+        TS_ASSERT_EQUALS(counter, tissue.GetNumRealCells());
         
         // check counter = num_nodes - num_ghost_nodes
         TS_ASSERT_EQUALS(counter + ghost_node_indices.size(), p_mesh->GetNumNodes());
@@ -207,20 +207,20 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
 
-        // create a crypt, with no ghost nodes at the moment
-        Tissue<2> crypt(mesh, cells);
+        // create a tissue, with no ghost nodes at the moment
+        Tissue<2> tissue(mesh, cells);
 
         //////////////////
         // test move cell
         //////////////////
         
         // move node 0 by a small amount
-        Tissue<2>::Iterator cell_iter = crypt.Begin();
+        Tissue<2>::Iterator cell_iter = tissue.Begin();
         c_vector<double,2> new_location = cell_iter.rGetLocation();
         new_location[0] += 1e-2;
         new_location[1] += 1e-2;
         ChastePoint<2> new_location_point(new_location);
-        crypt.MoveCell(cell_iter, new_location_point);
+        tissue.MoveCell(cell_iter, new_location_point);
         
         TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[0], new_location[0], 1e-12);
         TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[1], new_location[1], 1e-12);
@@ -229,7 +229,7 @@ public:
         // test add cell
         //////////////////
         unsigned old_num_nodes = mesh.GetNumNodes();
-        unsigned old_num_cells = crypt.rGetCells().size();
+        unsigned old_num_cells = tissue.rGetCells().size();
 
         // create a new cell, DON'T set the node index, set birth time=-1
         TissueCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
@@ -238,23 +238,23 @@ public:
         new_cell_location[0] = 2;
         new_cell_location[1] = 2;
         
-        crypt.AddCell(cell,new_cell_location); 
+        tissue.AddCell(cell,new_cell_location); 
 
-        // crypt should have updated mesh and cells
+        // tissue should have updated mesh and cells
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), old_num_nodes+1);
-        TS_ASSERT_EQUALS(crypt.rGetCells().size(), old_num_cells+1);
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), old_num_nodes+1);
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), old_num_cells+1);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), old_num_nodes+1);
 
-        // same test via crypt class
-        TS_ASSERT_EQUALS(crypt.rGetMesh().GetNumNodes(), old_num_nodes+1);
-        TS_ASSERT_EQUALS(crypt.rGetCells().size(), old_num_cells+1);
+        // same test via tissue class
+        TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(), old_num_nodes+1);
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), old_num_cells+1);
         
         // check the location of the new node
         TS_ASSERT_DELTA(mesh.GetNode(old_num_nodes)->rGetLocation()[0], 2.0, 1e-12);
         TS_ASSERT_DELTA(mesh.GetNode(old_num_nodes)->rGetLocation()[1], 2.0, 1e-12);
 
         // check the index of the new cell
-        TissueCell& new_cell = crypt.rGetCells().back();
+        TissueCell& new_cell = tissue.rGetCells().back();
         TS_ASSERT_EQUALS(new_cell.GetNodeIndex(), old_num_nodes);
         
         SimulationTime::Destroy();
@@ -276,8 +276,8 @@ public:
         
         cells[27].StartApoptosis();
         
-        // create a crypt, with some random ghost nodes
-        Tissue<2> crypt(mesh,cells);
+        // create a tissue, with some random ghost nodes
+        Tissue<2> tissue(mesh,cells);
 
         // set ghost nodes (using alternative constructor)
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
@@ -286,44 +286,44 @@ public:
             is_ghost_node[i] = true;
         }
         is_ghost_node[80]=true;
-        crypt.SetGhostNodes(is_ghost_node);
+        tissue.SetGhostNodes(is_ghost_node);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
-        TS_ASSERT_EQUALS(crypt.rGetCells().size(), 81u);
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 81u);
 
         // num real cells should be num_nodes (81) - num_ghosts (11) = 70
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 70u);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 70u);
 
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
         p_simulation_time->IncrementTimeOneStep();
-        unsigned num_removed = crypt.RemoveDeadCells();
+        unsigned num_removed = tissue.RemoveDeadCells();
         
         TS_ASSERT_EQUALS(num_removed, 1u);
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 80u);
-        TS_ASSERT_EQUALS(crypt.rGetCells().size(), 80u);
-        TS_ASSERT_DIFFERS(crypt.rGetCells().size(), cells.size()); // Crypt now copies cells
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 80u);
+        TS_ASSERT_DIFFERS(tissue.rGetCells().size(), cells.size()); // Tissue now copies cells
         
         // num real cells should be num_nodes (81) - num_ghosts (11) - One deleted node = 69
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 69u);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 69u);
         
-        TS_ASSERT_EQUALS(crypt.rGetGhostNodes().size(), mesh.GetNumAllNodes()); 
+        TS_ASSERT_EQUALS(tissue.rGetGhostNodes().size(), mesh.GetNumAllNodes()); 
 
-        crypt.ReMesh();
+        tissue.ReMesh();
 
         // num real cells should be num_new_nodes (80) - num_ghosts (11)
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 69u);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 69u);
 
         // test size of ghost nodes vector is correct - mesh.GetNumNodes() ?
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh.GetNumAllNodes()); 
-        TS_ASSERT_EQUALS(crypt.rGetGhostNodes().size(), mesh.GetNumNodes()); 
+        TS_ASSERT_EQUALS(tissue.rGetGhostNodes().size(), mesh.GetNumNodes()); 
         
         // nodes 0-9 should not been renumbered so are still ghost nodes.
         // the ghost node at node 80 is now at 79 as node 27 was deleted..
-        for(unsigned i=0; i<crypt.rGetGhostNodes().size(); i++)
+        for(unsigned i=0; i<tissue.rGetGhostNodes().size(); i++)
         {
             // true (ie should be a ghost) if i<10 or i==79, else false
-            TS_ASSERT_EQUALS(crypt.rGetGhostNodes()[i], ((i<10)||(i==79))); 
+            TS_ASSERT_EQUALS(tissue.rGetGhostNodes()[i], ((i<10)||(i==79))); 
         }
         
         // finally, check the cells node indices have updated..
@@ -347,8 +347,8 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         cells[27].StartApoptosis();
         
-        // create a crypt, with some random ghost nodes
-        Tissue<2> crypt(mesh,cells);
+        // create a tissue, with some random ghost nodes
+        Tissue<2> tissue(mesh,cells);
 
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
         for(unsigned i=0; i<10; i++)
@@ -357,9 +357,9 @@ public:
         }
         is_ghost_node[80]=true;
         
-        crypt.SetGhostNodes(is_ghost_node);
+        tissue.SetGhostNodes(is_ghost_node);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
-        TS_ASSERT_EQUALS(crypt.rGetCells().size(), 81u);
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 81u);
         
         TissueCell new_cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
         new_cell.SetBirthTime(0);
@@ -367,21 +367,21 @@ public:
         c_vector<double,2> new_location;
         new_location[0] = 0.3433453454443;
         new_location[0] = 0.3435346344234;
-        crypt.AddCell(new_cell, new_location);
+        tissue.AddCell(new_cell, new_location);
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 82u);
-        TS_ASSERT_EQUALS(crypt.rGetCells().size(), 82u);
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 71u);
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 82u);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 71u);
 
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
         p_simulation_time->IncrementTimeOneStep();
 
-        unsigned num_removed = crypt.RemoveDeadCells();
+        unsigned num_removed = tissue.RemoveDeadCells();
         TS_ASSERT_EQUALS(num_removed, 1u);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
-        TS_ASSERT_EQUALS(crypt.rGetCells().size(), 81u);
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 70u);
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 81u);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 70u);
 
         TissueCell new_cell2(STEM, HEALTHY, 0, new FixedCellCycleModel());
         new_cell2.SetBirthTime(0);
@@ -389,11 +389,11 @@ public:
         c_vector<double,2> new_location2;
         new_location2[0] = 0.6433453454443;
         new_location2[0] = 0.6435346344234;
-        crypt.AddCell(new_cell2, new_location2);
+        tissue.AddCell(new_cell2, new_location2);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 82u);
-        TS_ASSERT_EQUALS(crypt.rGetCells().size(), 82u);
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 71u);
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 82u);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 71u);
         
         SimulationTime::Destroy();
     }
@@ -413,20 +413,20 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
      
-        Tissue<2> crypt(mesh,cells);
+        Tissue<2> tissue(mesh,cells);
         
-        std::string output_directory = "TestCryptWriters";
+        std::string output_directory = "TestTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
         ColumnDataWriter tabulated_node_writer(output_directory, "tab_node_results");
         ColumnDataWriter tabulated_element_writer(output_directory, "tab_elem_results", false);
 
-        TS_ASSERT_THROWS_NOTHING(crypt.SetupTabulatedWriters(tabulated_node_writer, tabulated_element_writer));
+        TS_ASSERT_THROWS_NOTHING(tissue.SetupTabulatedWriters(tabulated_node_writer, tabulated_element_writer));
                 
         out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
         out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
         out_stream p_cell_types_file = output_file_handler.OpenOutputFile("results.vizelements");
         
-        crypt.WriteResultsToFiles(tabulated_node_writer,
+        tissue.WriteResultsToFiles(tabulated_node_writer,
                                   tabulated_element_writer,
                                   *p_node_file,
                                   *p_element_file,
@@ -440,18 +440,18 @@ public:
         // compare output with saved files of what they should look like                           
         std::string results_dir = output_file_handler.GetTestOutputDirectory();
 
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.vizelements  cancer/test/data/TestCryptWriters/results.vizelements").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.viznodes     cancer/test/data/TestCryptWriters/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.vizelements  cancer/test/data/TestTissueWriters/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.viznodes     cancer/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
 
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_node_results.dat cancer/test/data/TestCryptWriters/tab_node_results.dat").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_elem_results.dat cancer/test/data/TestCryptWriters/tab_elem_results.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_node_results.dat cancer/test/data/TestTissueWriters/tab_node_results.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_elem_results.dat cancer/test/data/TestTissueWriters/tab_elem_results.dat").c_str()), 0);
         
         /*
          * Test the GetCellTypeCount function
          * There should only be healthy cells
          */
-        c_vector<unsigned,5> cellTypes = crypt.GetCellTypeCount();
-        TS_ASSERT_EQUALS(cellTypes[0], crypt.GetNumRealCells());
+        c_vector<unsigned,5> cellTypes = tissue.GetCellTypeCount();
+        TS_ASSERT_EQUALS(cellTypes[0], tissue.GetNumRealCells());
         for (unsigned i=1; i<5 ; i++)
         {
             TS_ASSERT_EQUALS(cellTypes[i], 0u);
@@ -479,7 +479,7 @@ public:
             expected_node_pairs.insert(node_pair);
         }
         
-        // set up simple crypt with honeycomb mesh
+        // set up simple tissue with honeycomb mesh
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);        
         
@@ -496,16 +496,16 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
-        // create a crypt, with no ghost nodes at the moment
-        Tissue<2> crypt(*p_mesh,cells);
+        // create a tissue, with no ghost nodes at the moment
+        Tissue<2> tissue(*p_mesh,cells);
         // set ghost nodes
-        crypt.SetGhostNodes(ghost_node_indices);
+        tissue.SetGhostNodes(ghost_node_indices);
                 
         // check that we can iterate over the set of springs
         std::set< std::set< unsigned > > springs_visited;
         
-        for (Tissue<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
-             spring_iterator!=crypt.SpringsEnd();
+        for (Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+             spring_iterator!=tissue.SpringsEnd();
              ++spring_iterator)
         {
             std::set<unsigned> node_pair;
@@ -539,8 +539,8 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<3>::GenerateBasic(cells, mesh);
         
-        // create a crypt, with no ghost nodes at the moment
-        Tissue<3> crypt(mesh,cells);
+        // create a tissue, with no ghost nodes at the moment
+        Tissue<3> tissue(mesh,cells);
         
         // make nodes 0-10 ghost nodes
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(),false);
@@ -549,14 +549,14 @@ public:
             is_ghost_node[i] = true;
         }
         // set ghost nodes
-        crypt.SetGhostNodes(is_ghost_node);
+        tissue.SetGhostNodes(is_ghost_node);
 
                 
         // check that we can iterate over the set of springs
         std::set< std::set< unsigned > > springs_visited;
         
-        for (Tissue<3>::SpringIterator spring_iterator=crypt.SpringsBegin();
-             spring_iterator!=crypt.SpringsEnd();
+        for (Tissue<3>::SpringIterator spring_iterator=tissue.SpringsBegin();
+             spring_iterator!=tissue.SpringsEnd();
              ++spring_iterator)
         {
             std::set<unsigned> node_pair;
@@ -617,38 +617,38 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
-        // create the crypt
-        Tissue<2> crypt(mesh, cells);
+        // create the tissue
+        Tissue<2> tissue(mesh, cells);
         
                 
         // loop over nodes
-        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
-             cell_iter != crypt.End();
+        for (Tissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
              ++cell_iter)
         {
             // record node location
             c_vector<double , 2> node_location = cell_iter.GetNode()->rGetLocation();
             //std::cout << "node_location[0]" << node_location[0] << "\n";
             // get cell at each node
-            TissueCell& r_cell = crypt.rGetCellAtNodeIndex(cell_iter.GetNode()->GetIndex());      
+            TissueCell& r_cell = tissue.rGetCellAtNodeIndex(cell_iter.GetNode()->GetIndex());      
             // test GetLocationOfCell()
-            TS_ASSERT_DELTA(node_location[0] , crypt.GetLocationOfCell(r_cell)[0] , 1e-9);
-            TS_ASSERT_DELTA(node_location[1] , crypt.GetLocationOfCell(r_cell)[1] , 1e-9);
+            TS_ASSERT_DELTA(node_location[0] , tissue.GetLocationOfCell(r_cell)[0] , 1e-9);
+            TS_ASSERT_DELTA(node_location[1] , tissue.GetLocationOfCell(r_cell)[1] , 1e-9);
         }// end loop
         SimulationTime::Destroy(); 
     }
     
-    // At the moment the crypt cannot be properly archived since the mesh cannot be. This test
+    // At the moment the tissue cannot be properly archived since the mesh cannot be. This test
     // just checks that the cells are correctly archived.
-    void TestArchivingCrypt() throw (Exception)
+    void TestArchivingTissue() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
         
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "crypt.arch";
+        archive_filename = handler.GetTestOutputDirectory() + "tissue.arch";
         
-        // Archive a crypt 
+        // Archive a tissue 
         {
             // need to set up time 
             unsigned num_steps=10;
@@ -666,13 +666,13 @@ public:
             std::vector<TissueCell> cells;
             CellsGenerator<2>::GenerateBasic(cells, mesh);
             
-            // create the crypt
-            Tissue<2>* const p_crypt = new Tissue<2>(mesh, cells);
+            // create the tissue
+            Tissue<2>* const p_tissue = new Tissue<2>(mesh, cells);
         
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // loop over them to run to time 0.0;
-            for(Tissue<2>::Iterator cell_iter = p_crypt->Begin();
-             cell_iter != p_crypt->End();
+            for(Tissue<2>::Iterator cell_iter = p_tissue->Begin();
+             cell_iter != p_tissue->End();
              ++cell_iter)
             {                
                 cell_iter->ReadyToDivide();
@@ -682,14 +682,14 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
-            // write the crypt to the archive
+            // write the tissue to the archive
             output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
-            output_arch << p_crypt;
+            output_arch << p_tissue;
             SimulationTime::Destroy();
-            delete p_crypt;
+            delete p_tissue;
         }
         
-        // Restore crypt
+        // Restore tissue
         {
             // need to set up time 
             unsigned num_steps=10;
@@ -698,25 +698,25 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
             p_simulation_time->IncrementTimeOneStep();
             
-            Tissue<2>* p_crypt;
+            Tissue<2>* p_tissue;
                                                    
-            // restore the crypt
+            // restore the tissue
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             input_arch >> *p_simulation_time;
             
-            // WARNING! This is here because the loading of a crypt is only ever called
+            // WARNING! This is here because the loading of a tissue is only ever called
             // by TissueSimulation::Load() which has a line like this:
             Tissue<2>::meshPathname = "mesh/test/data/square_4_elements";
             // this horribleness will go away when ticket:412 (proper mesh archiving) is done.
             
-            input_arch >> p_crypt;
+            input_arch >> p_tissue;
             
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // this checks that individual cells and their models are archived.
             unsigned counter = 0u;
-            for(Tissue<2>::Iterator cell_iter = p_crypt->Begin();
-             cell_iter != p_crypt->End();
+            for(Tissue<2>::Iterator cell_iter = p_tissue->Begin();
+             cell_iter != p_tissue->End();
              ++cell_iter)
             {
                 TS_ASSERT_DELTA(cell_iter->GetAge(),(double)(counter),1e-7);
@@ -726,13 +726,13 @@ public:
             // check the simulation time has been restored (through the cell)
             TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.0);
             
-            // check the crypt has been restored
-            TS_ASSERT_EQUALS(p_crypt->rGetCells().size(),5u);            
+            // check the tissue has been restored
+            TS_ASSERT_EQUALS(p_tissue->rGetCells().size(),5u);            
 
             // This won't pass because of the mesh not being archived 
-            // TS_ASSERT_EQUALS(crypt.rGetMesh().GetNumNodes(),5u);            
+            // TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(),5u);            
             
-            delete p_crypt;
+            delete p_tissue;
             SimulationTime::Destroy();
         }
     }
@@ -740,4 +740,4 @@ public:
 
 
 
-#endif /*TESTCRYPT_HPP_*/
+#endif /*TESTTISSUE_HPP_*/

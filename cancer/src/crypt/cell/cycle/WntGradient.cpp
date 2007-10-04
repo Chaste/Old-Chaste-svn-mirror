@@ -23,7 +23,7 @@ WntGradient* WntGradient::Instance()
 
 WntGradient::WntGradient()
  :  mpCancerParams(CancerParameters::Instance()),
-    mpCrypt(NULL),
+    mpTissue(NULL),
     mTypeSet(false),
     mConstantWntValueForTesting(0),
     mUseConstantWntValueForTesting(false)    
@@ -48,22 +48,22 @@ void WntGradient::Destroy()
 
 double WntGradient::GetWntLevel(TissueCell* pCell)
 {
-    if(mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a crypt
+    if(mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a tissue
     {
         return mConstantWntValueForTesting;
     }
 
-    assert(mpCrypt!=NULL);
+    assert(mpTissue!=NULL);
     assert(mTypeSet);
     assert(pCell!=NULL);
-    double height=(mpCrypt->GetLocationOfCell(*pCell))(1);// y-coord.
+    double height=(mpTissue->GetLocationOfCell(*pCell))(1);// y-coord.
     return GetWntLevel(height);
 }
 
-void WntGradient::SetCrypt(Tissue<2>& rCrypt)
+void WntGradient::SetTissue(Tissue<2>& rTissue)
 {
-    mpCrypt=&rCrypt;
-    rCrypt.InitialiseCells();
+    mpTissue=&rTissue;
+    rTissue.InitialiseCells();
 }
 
 void WntGradient::SetType(WntGradientType type)
@@ -134,7 +134,7 @@ double WntGradient::GetWntLevel(double height)
 bool WntGradient::IsGradientSetUp()
 {
     bool result = false;
-    if (mTypeSet && mpCrypt!=NULL)
+    if (mTypeSet && mpTissue!=NULL)
     {
         result = true;
     }

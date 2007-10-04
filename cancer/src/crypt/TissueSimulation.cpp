@@ -62,7 +62,7 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, bool deleteTissue)
 
 /**
  * Free any memory allocated by the constructor.
- * This frees the crypt and cell killers, if they were created by de-serialization.
+ * This frees the tissue and cell killers, if they were created by de-serialization.
  */
 template<unsigned DIM> 
 TissueSimulation<DIM>::~TissueSimulation()
@@ -134,7 +134,7 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
     unsigned num_deaths_this_step=0;
         
     // this labels cells as dead or apoptosing. It does not actually remove the cells, 
-    // crypt.RemoveDeadCells() needs to be called for this.
+    // tissue.RemoveDeadCells() needs to be called for this.
     for(unsigned killer_index = 0; killer_index<mCellKillers.size(); killer_index++)
     {
         mCellKillers[killer_index]->TestAndLabelCellsForApoptosisOrDeath();
@@ -182,7 +182,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
         if (   (proposed_new_parent_coords(1) >= BottomSurfaceProfile(proposed_new_parent_coords(0)))
             && (proposed_new_daughter_coords(1) >= BottomSurfaceProfile(proposed_new_daughter_coords(0))))
         {
-             // We are not too close to the bottom of the crypt
+             // We are not too close to the bottom of the tissue
             // move parent
             parent_coords = proposed_new_parent_coords;
             daughter_coords = proposed_new_daughter_coords;
@@ -202,8 +202,8 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
             daughter_coords = proposed_new_daughter_coords;
         }
         
-        assert(daughter_coords(1)>=0.0);// to make sure dividing cells stay in the crypt
-        assert(parent_coords(1)>=0.0);// to make sure dividing cells stay in the crypt
+        assert(daughter_coords(1)>=0.0);// to make sure dividing cells stay in the tissue
+        assert(parent_coords(1)>=0.0);// to make sure dividing cells stay in the tissue
     }
     else if(DIM==3)
     {
@@ -766,7 +766,7 @@ void TissueSimulation<DIM>::Solve()
 
 
 /**
- * Saves the whole crypt simulation for restarting later.
+ * Saves the whole tissue simulation for restarting later.
  *
  * Puts it in the folder mOutputDirectory/archive/
  * and the file "2dCrypt_at_time_<SIMULATION TIME>.arch"
@@ -812,7 +812,7 @@ void TissueSimulation<DIM>::Save()
 }
 
 /**
- * Loads a saved crypt simulation to run further.
+ * Loads a saved tissue simulation to run further.
  *
  * @param rArchiveDirectory the name of the simulation to load
  * (specified originally by simulator.SetOutputDirectory("wherever"); )

@@ -85,8 +85,8 @@ private :
     double mTimeStep;
 
 public :
-    RadiusBasedCellKiller(Tissue<2>* pCrypt, c_vector<double,2> centre, double timeStep)
-        : AbstractCellKiller<2>(pCrypt),
+    RadiusBasedCellKiller(Tissue<2>* ptissue, c_vector<double,2> centre, double timeStep)
+        : AbstractCellKiller<2>(ptissue),
           mCentre(centre),
           mTimeStep(timeStep)
     {
@@ -162,12 +162,12 @@ public:
             cells.push_back(cell);
         }
                 
-        Tissue<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
+        Tissue<2> tissue(*p_mesh, cells);
+        tissue.SetGhostNodes(ghost_node_indices);
         
         SimpleLinearEllipticPde pde;
 
-        TissueSimulationWithNutrients<2> simulator(crypt, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, &pde);
 
         simulator.SetOutputDirectory("TissueSimulationWithOxygen");
         simulator.SetEndTime(0.5);
@@ -179,12 +179,12 @@ public:
         centre(0) = (double)num_cells_width/2.0;
         centre(1) = (double)num_cells_depth/2.0;
         
-        AbstractCellKiller<2>* p_killer = new RadiusBasedCellKiller(&crypt, centre, simulator.GetDt());
+        AbstractCellKiller<2>* p_killer = new RadiusBasedCellKiller(&tissue, centre, simulator.GetDt());
         simulator.AddCellKiller(p_killer);
         
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
-        p_data->SetTissue(crypt);
+        p_data->SetTissue(tissue);
         
         simulator.Solve();
         

@@ -46,16 +46,16 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
-        Tissue<2> crypt(mesh, cells);
+        Tissue<2> tissue(mesh, cells);
         
-        // Get a reference to the cells held in crypt
-        std::list<TissueCell>& r_cells = crypt.rGetCells();
+        // Get a reference to the cells held in tissue
+        std::list<TissueCell>& r_cells = tissue.rGetCells();
         
         // bad probabilities passed in
-        TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&crypt, -0.1));
-        TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&crypt,  1.1));
+        TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&tissue, -0.1));
+        TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&tissue,  1.1));
         
-        RandomCellKiller<2> random_cell_killer(&crypt, 0.05);
+        RandomCellKiller<2> random_cell_killer(&tissue, 0.05);
        
         // check that a single cell reaches apoptosis
         unsigned max_tries=0;
@@ -105,7 +105,7 @@ public:
         }
         
         // remove dead cells...
-        crypt.RemoveDeadCells();
+        tissue.RemoveDeadCells();
         
         // check that dead cells are removed from the mesh
         std::set< double > new_locations;
@@ -139,16 +139,16 @@ public:
         
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
-        Tissue<2> crypt(mesh, cells);
+        Tissue<2> tissue(mesh, cells);
         
         p_params->SetCryptWidth(0.5);
         p_params->SetCryptLength(0.5);
 
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller sloughing_cell_killer(&tissue, true);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
-        for(Tissue<2>::Iterator iter = crypt.Begin();
-            iter!=crypt.End();
+        for(Tissue<2>::Iterator iter = tissue.Begin();
+            iter!=tissue.End();
             ++iter)
         {
             double x = iter.rGetLocation()[0];
@@ -164,10 +164,10 @@ public:
             }
         }
   
-        crypt.RemoveDeadCells();
+        tissue.RemoveDeadCells();
 
-        for(Tissue<2>::Iterator iter = crypt.Begin();
-            iter!=crypt.End();
+        for(Tissue<2>::Iterator iter = tissue.Begin();
+            iter!=tissue.End();
             ++iter)
         {
             double x = iter.rGetLocation()[0];
@@ -205,16 +205,16 @@ public:
             cells.push_back(cell);
         }
         
-        Tissue<2> crypt(mesh, cells);
+        Tissue<2> tissue(mesh, cells);
         
         p_params->SetCryptWidth(0.5);
         p_params->SetCryptLength(0.5);
 
-        SloughingCellKiller sloughing_cell_killer(&crypt);
+        SloughingCellKiller sloughing_cell_killer(&tissue);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
-        for(Tissue<2>::Iterator iter = crypt.Begin();
-            iter!=crypt.End();
+        for(Tissue<2>::Iterator iter = tissue.Begin();
+            iter!=tissue.End();
             ++iter)
         {
             double y = iter.rGetLocation()[1];
@@ -228,10 +228,10 @@ public:
             }
         }
         
-        crypt.RemoveDeadCells();
+        tissue.RemoveDeadCells();
 
-        for(Tissue<2>::Iterator iter = crypt.Begin();
-            iter!=crypt.End();
+        for(Tissue<2>::Iterator iter = tissue.Begin();
+            iter!=tissue.End();
             ++iter)
         {
             double y = iter.rGetLocation()[1];

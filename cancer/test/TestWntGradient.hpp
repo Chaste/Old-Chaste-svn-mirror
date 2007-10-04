@@ -221,9 +221,8 @@ public:
         
         CancerParameters::Instance()->SetCryptLength(1.0);
 
-        //wnt_gradient.SetCrypt(crypt);
         WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetTissue(crypt);
         
         Tissue<2>::Iterator iter = crypt.Begin();
         

@@ -28,7 +28,7 @@ private:
 
     CancerParameters* mpCancerParams;
     WntGradientType mGradientType;
-    Tissue<2>* mpCrypt;
+    Tissue<2>* mpTissue;
     bool mTypeSet; 
     
     double mConstantWntValueForTesting;
@@ -42,7 +42,7 @@ private:
         archive & *mpCancerParams;
         archive & mpCancerParams;
         archive & mGradientType;
-        archive & mpCrypt;
+        archive & mpTissue;
         archive & mTypeSet;
         archive & mConstantWntValueForTesting;
         archive & mUseConstantWntValueForTesting;
@@ -85,7 +85,7 @@ public:
      *  Set the crypt. Must be called before GetWntLevel(). This calls 
      *  crypt.Initialise()
      */
-    void SetCrypt(Tissue<2>& rCrypt);
+    void SetTissue(Tissue<2>& rTissue);
     
     /**
      *  Set the type of wnt gradient. Must be called before GetWntLevel().

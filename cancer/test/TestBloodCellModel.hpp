@@ -132,8 +132,8 @@ private:
     }
     
 public:
-    BloodCellModel(Tissue<2>& rCrypt, double bottom, double top)
-        : TissueSimulation<2>(rCrypt)
+    BloodCellModel(Tissue<2>& rTissue, double bottom, double top)
+        : TissueSimulation<2>(rTissue)
     {
         assert(bottom < top);
         mBottom = bottom;
@@ -183,8 +183,8 @@ private:
             cells.push_back(cell);
         }
     
-        Tissue<2> crypt(*p_mesh,cells);
-        crypt.SetGhostNodes(ghost_node_indices);
+        Tissue<2> tissue(*p_mesh,cells);
+        tissue.SetGhostNodes(ghost_node_indices);
         
         double vessel_width  = 20;
         CancerParameters* p_params = CancerParameters::Instance();
@@ -193,8 +193,8 @@ private:
 
 
         RandomNumberGenerator* rng = RandomNumberGenerator::Instance();
-        for(Tissue<2>::Iterator iter = crypt.Begin(); 
-            iter != crypt.End();
+        for(Tissue<2>::Iterator iter = tissue.Begin(); 
+            iter != tissue.End();
             ++iter)
         {
             // completely random
@@ -207,12 +207,12 @@ private:
 
             ChastePoint<2> new_location(x,y);
             
-            crypt.MoveCell(iter, new_location);
+            tissue.MoveCell(iter, new_location);
         }
     
-        crypt.ReMesh();
+        tissue.ReMesh();
  
-        BloodCellModel blood_cell_model(crypt, 0, vesselHeight);
+        BloodCellModel blood_cell_model(tissue, 0, vesselHeight);
 
         blood_cell_model.SetOutputDirectory(outputDirectory);
         blood_cell_model.SetEndTime(5);

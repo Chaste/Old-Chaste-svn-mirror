@@ -1,5 +1,5 @@
-#ifndef CRYPT_CPP
-#define CRYPT_CPP
+#ifndef TISSUE_CPP
+#define TISSUE_CPP
 
 #include "Tissue.hpp"
 #include "CancerParameters.hpp"
@@ -441,7 +441,7 @@ Tissue<DIM>::Iterator::Iterator(Tissue& rTissue, std::list<TissueCell>::iterator
     : mrTissue(rTissue),
       mCellIter(cellIter)
 {
-    // Make sure the crypt isn't empty
+    // Make sure the tissue isn't empty
     assert(mrTissue.rGetCells().size() > 0);
     if (mCellIter != mrTissue.rGetCells().end())
     {
@@ -888,13 +888,13 @@ void Tissue<DIM>::CheckTissueCellPointers()
         assert(p_cell);
         AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
         assert(p_model);
-        // Check cell exists in crypt
+        // Check cell exists in tissue
         unsigned node_index = p_cell->GetNodeIndex();
         std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
         TissueCell& r_cell = rGetCellAtNodeIndex(node_index);
         if (&r_cell != p_cell)
         {
-            std::cout << "  Mismatch with crypt" << std::endl << std::flush;
+            std::cout << "  Mismatch with tissue" << std::endl << std::flush;
             res = false;
         }
         // Check model links back to cell
@@ -908,5 +908,5 @@ void Tissue<DIM>::CheckTissueCellPointers()
 }
 #undef COVERAGE_IGNORE
 
-#endif //CRYPT_CPP
+#endif //TISSUE_CPP
 

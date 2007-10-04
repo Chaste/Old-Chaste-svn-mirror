@@ -37,8 +37,8 @@ private :
     unsigned mNumber;
 
 public :
-    SingleCellCellKiller(Tissue<2>* pCrypt, unsigned number)
-        : AbstractCellKiller<2>(pCrypt),
+    SingleCellCellKiller(Tissue<2>* pTissue, unsigned number)
+        : AbstractCellKiller<2>(pTissue),
           mNumber(number)
     {
     }
@@ -527,7 +527,7 @@ public:
         crypt.SetGhostNodes(ghost_node_indices);
         
         WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetTissue(crypt);
 
         TissueSimulation<2> simulator(crypt);
         
@@ -606,7 +606,7 @@ public:
         crypt.SetGhostNodes(ghost_node_indices);
 
         WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetTissue(crypt);
 
         TissueSimulation<2> simulator(crypt);
         

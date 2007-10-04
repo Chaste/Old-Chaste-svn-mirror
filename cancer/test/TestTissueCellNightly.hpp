@@ -1,5 +1,5 @@
-#ifndef TESTTISSUECELL_HPP_
-#define TESTTISSUECELL_HPP_
+#ifndef TESTTISSUECELLNIGHTLY_HPP_
+#define TESTTISSUECELLNIGHTLY_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
@@ -440,4 +440,4 @@ public:
 
 
 
-#endif /*TESTTISSUECELL_HPP_*/
+#endif /*TESTTISSUECELLNIGHTLY_HPP_*/

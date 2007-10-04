@@ -416,7 +416,7 @@ public:
         crypt.SetGhostNodes(ghost_node_indices);  
         
         WntGradient::Instance()->SetType(LINEAR);             
-        WntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetTissue(crypt);
         
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DPeriodicWnt");
@@ -468,8 +468,7 @@ public:
         crypt.SetGhostNodes(ghost_node_indices);
         
         WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetCrypt(crypt);
-        //wnt_gradient.SetCrypt(crypt);
+        WntGradient::Instance()->SetTissue(crypt);
         
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DMeshArchive");
@@ -530,7 +529,7 @@ public:
         // We have a Wnt Gradient - but not Wnt dependent cells
         // so that the test runs quickly, but we test archiving of it!
         WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetTissue(crypt);
         
         TissueSimulation<2> simulator(crypt);
 
@@ -595,7 +594,7 @@ public:
         crypt.SetGhostNodes(ghost_node_indices);
         
         WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetTissue(crypt);
 
         TissueSimulation<2> simulator(crypt);
 
@@ -740,7 +739,7 @@ public:
         cell_iterator->SetMutationState(BETA_CATENIN_ONE_HIT);
                 
         WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetTissue(crypt);
                 
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DWntMatureCells");
@@ -987,7 +986,7 @@ public:
         crypt.SetGhostNodes(ghost_node_indices);
 
         WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetTissue(crypt);
         
         TissueSimulation<2> simulator(crypt);
         

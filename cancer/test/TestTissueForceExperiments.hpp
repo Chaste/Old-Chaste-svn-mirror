@@ -37,9 +37,9 @@ private :
     double mMaxHeight;
     
 public :
-    TissueSimulationForForceExperiments(Tissue<2>& rCrypt,
+    TissueSimulationForForceExperiments(Tissue<2>& rTissue,
                                         bool fixXNotY)
-        : TissueSimulation<2>(rCrypt),
+        : TissueSimulation<2>(rTissue),
           mFixXNotY(fixXNotY)
     {   
         // this class is hardcoded for a particular honeycomb mesh! check num nodes is 
@@ -73,7 +73,7 @@ public :
 //
 // could be removed
 //
-// need to overload appropriate method in Crypt...
+// need to overload appropriate method in Tissue...
 //////////    
 //    /*
 //     *  Overloaded CalcForceBetweenNodes
@@ -295,8 +295,8 @@ private :
     bool mFirst;
     
 public :
-    TissueSimulationForForceExperimentsShearing(Tissue<2>& rCrypt, double shear)
-        : TissueSimulation<2>(rCrypt),
+    TissueSimulationForForceExperimentsShearing(Tissue<2>& rTissue, double shear)
+        : TissueSimulation<2>(rTissue),
           mShear(shear)
     {   
         mFirst = true;
@@ -473,9 +473,9 @@ public :
 class TestTissueForceExperiments : public CxxTest::TestSuite
 {
 private:
-    void ApplyRandomDisplacements(Tissue<2>& rCrypt)
+    void ApplyRandomDisplacements(Tissue<2>& rTissue)
     {
-        ConformingTetrahedralMesh<2,2>& r_mesh = rCrypt.rGetMesh();
+        ConformingTetrahedralMesh<2,2>& r_mesh = rTissue.rGetMesh();
         
         double max_disp = 0.1;
         
@@ -494,7 +494,7 @@ private:
             r_mesh.GetNode(i)->rGetModifiableLocation()[1] += v;
         }
         
-        rCrypt.ReMesh();
+        rTissue.ReMesh();
     }            
 
 
@@ -588,18 +588,18 @@ public:
                 cells.push_back(cell);
             }
 
-            Tissue<2> crypt(*p_mesh,cells);
-            crypt.SetGhostNodes(ghost_node_indices);
+            Tissue<2> tissue(*p_mesh,cells);
+            tissue.SetGhostNodes(ghost_node_indices);
 
             // apply a random displacement to each node. doesn't fix the
             // meineke remeshing of a stretched mesh issue..
-            //ApplyRandomDisplacements(crypt);
+            //ApplyRandomDisplacements(tissue);
             
-	        TissueSimulationForForceExperiments simulator(crypt, fix_X_not_Y);
+	        TissueSimulationForForceExperiments simulator(tissue, fix_X_not_Y);
 
             simulator.SetOutputDirectory(output_directory);
             simulator.SetEndTime(run_time);
-            crypt.ReMesh();
+            tissue.ReMesh();
 
             simulator.Solve();
             double width = p_mesh->GetNode(327)->rGetLocation()[0] - p_mesh->GetNode(317)->rGetLocation()[0];	
@@ -616,9 +616,9 @@ public:
             
 	        areas.push_back( width );
 
-            crypt.ReMesh();
+            tissue.ReMesh();
 
-            std::vector<bool> is_ghost_node = crypt.rGetGhostNodes();
+            std::vector<bool> is_ghost_node = tissue.rGetGhostNodes();
             ghost_node_indices.clear();
             for(unsigned j=0; j<is_ghost_node.size(); j++)
             {
@@ -712,14 +712,14 @@ public:
                 cells.push_back(cell);
             }
         
-            Tissue<2> crypt(*p_mesh,cells);
-            crypt.SetGhostNodes(ghost_node_indices);
+            Tissue<2> tissue(*p_mesh,cells);
+            tissue.SetGhostNodes(ghost_node_indices);
 
-            TissueSimulationForForceExperimentsShearing simulator(crypt, disp);
+            TissueSimulationForForceExperimentsShearing simulator(tissue, disp);
 
             simulator.SetOutputDirectory(output_directory);
             simulator.SetEndTime(run_time);
-            crypt.ReMesh();
+            tissue.ReMesh();
 
             simulator.Solve();
 
@@ -729,9 +729,9 @@ public:
             
             std::cout << " -> " << shear << " " << force[1] << "\n";
  
-            crypt.ReMesh();
+            tissue.ReMesh();
 
-            std::vector<bool> is_ghost_node = crypt.rGetGhostNodes();
+            std::vector<bool> is_ghost_node = tissue.rGetGhostNodes();
             ghost_node_indices.clear();
             for(unsigned j=0; j<is_ghost_node.size(); j++)
             {

@@ -1,5 +1,5 @@
-#ifndef CRYPT_HPP_
-#define CRYPT_HPP_
+#ifndef TISSUE_HPP_
+#define TISSUE_HPP_
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "TissueCell.hpp"
@@ -55,7 +55,7 @@ private:
     
     /**
      * Whether to delete the mesh when we are destroyed.
-     * Needed if this crypt has been de-serialized.
+     * Needed if this tissue has been de-serialized.
      */
     bool mDeleteMesh;
     
@@ -113,14 +113,14 @@ public:
     static std::string meshPathname;
     
     /**
-     * Create a new crypt facade from a mesh and collection of cells.
+     * Create a new tissue facade from a mesh and collection of cells.
      * 
      * At present there must be precisely 1 cell for each node of the mesh.
      * (This will change in future so that you don't need cells for ghost nodes.)
      * 
      * @param rMesh a conforming tetrahedral mesh.
      * @param cells TissueCells corresponding to the nodes of the mesh.
-     * @param deleteMesh set to true if you want the crypt to free the mesh memory on destruction
+     * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
     Tissue(ConformingTetrahedralMesh<DIM, DIM>&, const std::vector<TissueCell>&,
           bool deleteMesh=false);
@@ -175,7 +175,7 @@ public:
      * and therefore a ReMesh(map) must be called before
      * any element information is used.
      * 
-     * Note also that after calling this method the crypt will be in an inconsistent state until a
+     * Note also that after calling this method the tissue will be in an inconsistent state until a
      * ReMesh is performed!  So don't try iterating over cells or anything like that.
      * \todo weaken the data invariant in this class so it doesn't require an exact correspondance
      *  between nodes and cells.
@@ -210,7 +210,7 @@ public:
     c_vector<unsigned,5> GetCellTypeCount();
     
     /**
-     * Iterator class allows one to iterate over cells in the crypt.
+     * Iterator class allows one to iterate over cells in the tissue.
      * Dereferencing the iterator will give you the current cell.
      * There are also methods to get the node in the mesh representing this cell,
      * and the location of that node.
@@ -263,12 +263,12 @@ public:
     };
 
     /**
-     * @return iterator pointing to the first cell in the crypt
+     * @return iterator pointing to the first cell in the tissue
      */
     Iterator Begin();
     
     /**
-     * @return iterator pointing to one past the last cell in the crypt
+     * @return iterator pointing to one past the last cell in the tissue
      */
     Iterator End();
     
@@ -280,7 +280,7 @@ public:
     void MoveCell(Iterator iter, ChastePoint<DIM>& rNewLocation);
     
     /**
-     * Add a new cell to the crypt.
+     * Add a new cell to the tissue.
      * @param cell  the cell to add
      * @param newLocation  the position in space at which to put it
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
@@ -369,12 +369,12 @@ public:
     };
 
     /**
-     * @return iterator pointing to the first spring in the crypt
+     * @return iterator pointing to the first spring in the tissue
      */
     SpringIterator SpringsBegin();
     
     /**
-     * @return iterator pointing to one past the last spring in the crypt
+     * @return iterator pointing to one past the last spring in the tissue
      */
     SpringIterator SpringsEnd();
 };
@@ -422,4 +422,4 @@ inline void load_construct_data(
 }
 } // namespace ...
 
-#endif /*CRYPT_HPP_*/
+#endif /*TISSUE_HPP_*/

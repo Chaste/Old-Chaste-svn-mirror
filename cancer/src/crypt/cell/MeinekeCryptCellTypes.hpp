@@ -2,7 +2,7 @@
 #define MEINEKECRYPTCELLTYPES_HPP_
 
 /**
- * Possible types of Meineke crypt cells.
+ * Possible types of TissueCell.
  */
 typedef enum CryptCellType_
 {

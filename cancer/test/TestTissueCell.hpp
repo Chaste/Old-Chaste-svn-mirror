@@ -396,7 +396,7 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         
         
-        //  Creating different types of Meineke crypt cells with different cell cycle models at SImulationTime = 6 hours.
+        //  Creating different types of cells with different cell cycle models at SimulationTime = 6 hours.
         TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    0,    // generation
@@ -1202,7 +1202,7 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "cell.arch";
         
-        // Archive a Meineke Crypt cell
+        // Archive a cell
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
@@ -1231,7 +1231,7 @@ public:
             SimulationTime::Destroy();
         }
         
-        // Restore Meineke Crypt Cell
+        // Restore cell
         {
             // need to set up time to initialise a cell
             SimulationTime* p_simulation_time = SimulationTime::Instance();

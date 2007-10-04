@@ -30,9 +30,7 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width)
   : ConformingTetrahedralMesh<2, 2>(),
     mWidth(width)    
 {
-    
     assert(width > 0.0);
-    
 }
 
 

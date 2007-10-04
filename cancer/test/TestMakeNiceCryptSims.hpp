@@ -56,7 +56,7 @@ void TestNiceCryptSimulation() throw (Exception)
         crypt.SetGhostNodes(ghost_node_indices);
                 
         WntGradient::Instance()->SetType(OFFSET_LINEAR);
-        WntGradient::Instance()->SetCrypt(crypt);
+        WntGradient::Instance()->SetTissue(crypt);
         
         TissueSimulation<2> simulator(crypt);
         simulator.SetOutputDirectory(output_directory);

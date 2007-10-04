@@ -2,7 +2,7 @@
 #define CRYPTCELLMUTATIONSTATES_HPP_
 
 /**
- * Possible types of Meineke crypt cells.
+ * Possible types mutation state for TissueCells.
  */
 typedef enum CryptCellMutationState_
 {
