@@ -1,6 +1,5 @@
 TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 TestCellwiseData.hpp
-TestCrypt.hpp
 TestCryptSimulation1d.hpp
 TestCryptSimulation2d.hpp
 TestCellCycleModels.hpp
@@ -8,12 +7,13 @@ TestCylindrical2dMesh.hpp
 TestGaryWntOdeSystem.hpp
 TestHoneycombMeshGenerator.hpp
 TestIngeWntOdeSystem.hpp
-TestTissueCell.hpp
 TestWntGradient.hpp
 TestCellKillers.hpp
 TestSprings3d.hpp
 TestPdeOnFlaggedMesh.hpp
 TestSprings3d.hpp
+TestTissue.hpp
+TestTissueCell.hpp
 TestTissueSimulationWithNutrients.hpp
 TestTumourSpheroid.hpp
 TestTysonNovak2001OdeSystem.hpp

@@ -1,58 +1,58 @@
-#ifndef TESTWNTCELLCYCLEODESYSTEM_HPP_
-#define TESTWNTCELLCYCLEODESYSTEM_HPP_
+#ifndef TESTINGEWNTSWATCELLCYCLEODESYSTEM_HPP_
+#define TESTINGEWNTSWATCELLCYCLEODESYSTEM_HPP_
 
 #include <stdio.h>
 #include <time.h>
 #include <cxxtest/TestSuite.h>
-#include "WntCellCycleOdeSystem.hpp"
+#include "IngeWntSwatCellCycleOdeSystem.hpp"
 #include <vector>
 #include <iostream>
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "ColumnDataWriter.hpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "CellMutationStates.hpp"
 
 
-class TestWntCellCycleOdeSystem : public CxxTest::TestSuite
+class TestIngeWntSwatCellCycleOdeSystem : public CxxTest::TestSuite
 {
 public:
 
-    void TestWntCellCycleEquations()
+    void TestIngeWntSwatCellCycleEquations()
     {
         double wnt_level = 0.0;
-        WntCellCycleOdeSystem wnt_cell_cycle_system(wnt_level);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system(wnt_level);
         
         double time = 0.0;
         std::vector<double> initial_conditions = wnt_cell_cycle_system.GetInitialConditions();
-        
+        TS_ASSERT_EQUALS(initial_conditions.size(), 22u);
         std::vector<double> derivs(initial_conditions.size());
-        wnt_cell_cycle_system.EvaluateYDerivatives(time, initial_conditions, derivs);
-        TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.0074,1e-4);
+                
+        TS_ASSERT_DELTA(initial_conditions[16]+initial_conditions[17],0.0074,1e-4);
         
+        wnt_cell_cycle_system.EvaluateYDerivatives(time, initial_conditions, derivs);
         // Test derivatives are correct at t=0 for these initial conditions
-        // (figures from MatLab code)
+        // Swat's
         TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
         TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
-        TS_ASSERT_DELTA(derivs[2],-9.370533804903016e-03, 1e-5);
+        TS_ASSERT_DELTA(derivs[2],-8.250533804903016e-03, 1e-5); // changes due to new beta-catenin levels...
         TS_ASSERT_DELTA(derivs[3],-7.449833887043188e-03, 1e-5);
         TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[5],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
+        // Inge's
+        for (unsigned i=5; i<initial_conditions.size() ; i++)
+        {
+            TS_ASSERT_DELTA(derivs[i],0.0, 1e-5);
+        }
         
         /**
          * And the same for a high Wnt level
          */
         wnt_level = 1.0;
-        WntCellCycleOdeSystem wnt_cell_cycle_system2(wnt_level,LABELLED);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system2(wnt_level,LABELLED);
         initial_conditions = wnt_cell_cycle_system2.GetInitialConditions();
+        TS_ASSERT_DELTA(initial_conditions[16]+initial_conditions[17],0.6002,1e-4);
+        
         //std::cout << "mutation 0 beta-cat = " << initial_conditions[6] << "\n";
-        
-        TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.6002,1e-4);
-        
         wnt_cell_cycle_system2.EvaluateYDerivatives(time, initial_conditions, derivs);
         
         // Test derivatives are correct at t=0 for these initial conditions
@@ -73,10 +73,10 @@ public:
          */
         CellMutationState mutation = APC_ONE_HIT;
         wnt_level = 1.0;
-        WntCellCycleOdeSystem wnt_cell_cycle_system3(wnt_level,mutation);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system3(wnt_level,mutation);
         initial_conditions = wnt_cell_cycle_system3.GetInitialConditions();
         //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
-        TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.750207,1e-6);
+        TS_ASSERT_DELTA(initial_conditions[16]+initial_conditions[17],0.750207,1e-4);
         
         wnt_cell_cycle_system3.EvaluateYDerivatives(time, initial_conditions, derivs);
         
@@ -98,10 +98,10 @@ public:
         */
         mutation = BETA_CATENIN_ONE_HIT;
         wnt_level = 1.0;
-        WntCellCycleOdeSystem wnt_cell_cycle_system4(wnt_level,mutation);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system4(wnt_level,mutation);
         initial_conditions = wnt_cell_cycle_system4.GetInitialConditions();
         //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
-        TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.8001,1e-4);
+        TS_ASSERT_DELTA(initial_conditions[16]+initial_conditions[17],0.8001,1e-4);
         
         wnt_cell_cycle_system4.EvaluateYDerivatives(time, initial_conditions, derivs);
         
@@ -123,11 +123,11 @@ public:
         */
         mutation = APC_TWO_HIT;
         wnt_level = 1.0;
-        WntCellCycleOdeSystem wnt_cell_cycle_system5(wnt_level,mutation);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system5(wnt_level,mutation);
         initial_conditions = wnt_cell_cycle_system5.GetInitialConditions();
         //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
         
-        TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],1.0,1e-6);
+        TS_ASSERT_DELTA(initial_conditions[16]+initial_conditions[17],1.0,1e-6);
         
         wnt_cell_cycle_system5.EvaluateYDerivatives(time, initial_conditions, derivs);
         
@@ -144,10 +144,10 @@ public:
         TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
     }
     
-    void TestWntCellCycleSolver() throw(Exception)
+    void TestIngeWntSwatCellCycleSolver() throw(Exception)
     {
         double wnt_level = 1.0;
-        WntCellCycleOdeSystem wnt_system(wnt_level,LABELLED);
+        IngeWntSwatCellCycleOdeSystem wnt_system(wnt_level,LABELLED);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
@@ -178,48 +178,6 @@ public:
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "2. Runge-Kutta-Fehlberg Elapsed time = " << elapsed_time << "\n";
         
-//        WntCellCycleOdeSystem wnt_system_2(wnt_level);
-//        initial_conditions = wnt_system.GetInitialConditions();
-//
-//        h_value = 0.001;
-//
-//        start_time = std::clock();
-//        solutions = back_solver.Solve(&wnt_system_2, initial_conditions, 0.0, 100.0, h_value, h_value);
-//        end_time = std::clock();
-//        elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-//        std::cout <<  "1. BackwardEuler Elapsed time = " << elapsed_time << "\n";
-
-
-        int my_rank;
-        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-        if (my_rank==0) // if master process
-        {
-        
-            int step_per_row = 1;
-            ColumnDataWriter writer("WntCellCycle","WntCellCycle");
-            int time_var_id = writer.DefineUnlimitedDimension("Time","s");
-            
-            std::vector<int> var_ids;
-            for (unsigned i=0; i<wnt_system.rGetVariableNames().size(); i++)
-            {
-                var_ids.push_back(writer.DefineVariable(wnt_system.rGetVariableNames()[i],
-                                                        wnt_system.rGetVariableUnits()[i]));
-            }
-            writer.EndDefineMode();
-            
-            for (unsigned i = 0; i < solutions.rGetSolutions().size(); i+=step_per_row)
-            {
-                writer.PutVariable(time_var_id, solutions.rGetTimes()[i]);
-                for (unsigned j=0; j<var_ids.size(); j++)
-                {
-                    writer.PutVariable(var_ids[j], solutions.rGetSolutions()[i][j]);
-                }
-                writer.AdvanceAlongUnlimitedDimension();
-            }
-            writer.Close();
-        }
-        MPI_Barrier(PETSC_COMM_WORLD);
-        
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
         // Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
@@ -235,10 +193,10 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],1.00, 1e-3);
     }
     
-    void TestWntCellCycleSolverWithAPCSingleHit() throw(Exception)
+    void TestIngeWntSwatCellCycleSolverWithAPCSingleHit() throw(Exception)
     {
         double wnt_level = 1.0;
-        WntCellCycleOdeSystem wnt_system(wnt_level,APC_ONE_HIT);
+        IngeWntSwatCellCycleOdeSystem wnt_system(wnt_level,APC_ONE_HIT);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
@@ -270,10 +228,10 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],1.00, 1e-3);
     }
     
-    void TestWntCellCycleSolverWithBetaCateninHit() throw(Exception)
+    void TestIngeWntSwatCellCycleSolverWithBetaCateninHit() throw(Exception)
     {
         double wnt_level = 0.0;
-        WntCellCycleOdeSystem wnt_system(wnt_level,BETA_CATENIN_ONE_HIT);
+        IngeWntSwatCellCycleOdeSystem wnt_system(wnt_level,BETA_CATENIN_ONE_HIT);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
@@ -294,36 +252,6 @@ public:
         //elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         //std::cout <<  "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
         
-//        int my_rank;
-//        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-//        if (my_rank==0) // if master process
-//        {
-//
-//            int step_per_row = 1;
-//            ColumnDataWriter writer("WntCellCycleBetaCatHit","WntCellCycleBetaCatHit");
-//            int time_var_id = writer.DefineUnlimitedDimension("Time","s");
-//
-//            std::vector<int> var_ids;
-//            for (unsigned i=0; i<wnt_system.rGetVariableNames().size(); i++)
-//            {
-//                var_ids.push_back(writer.DefineVariable(wnt_system.rGetVariableNames()[i],
-//                                                    wnt_system.rGetVariableUnits()[i]));
-//            }
-//            writer.EndDefineMode();
-//
-//            for (unsigned i = 0; i < solutions.rGetSolutions().size(); i+=step_per_row)
-//            {
-//                writer.PutVariable(time_var_id, solutions.rGetTimes()[i]);
-//                for (unsigned j=0; j<var_ids.size(); j++)
-//                {
-//                    writer.PutVariable(var_ids[j], solutions.rGetSolutions()[i][j]);
-//                }
-//                writer.AdvanceAlongUnlimitedDimension();
-//            }
-//            writer.Close();
-//        }
-//        MPI_Barrier(PETSC_COMM_WORLD);
-
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
         // Tests the simulation is ending at the right time...(going into S phase at 7.81 hours)
@@ -340,10 +268,10 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],0.00, 1e-3);
     }
     
-    void TestWntCellCycleSolverWithAPCDoubleHit() throw(Exception)
+    void TestIngeWntSwatCellCycleSolverWithAPCDoubleHit() throw(Exception)
     {
         double wnt_level = 0.0;
-        WntCellCycleOdeSystem wnt_system(wnt_level,APC_TWO_HIT);
+        IngeWntSwatCellCycleOdeSystem wnt_system(wnt_level,APC_TWO_HIT);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
@@ -359,36 +287,6 @@ public:
         
         solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
         
-//        int my_rank;
-//        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-//        if (my_rank==0) // if master process
-//        {
-//
-//            int step_per_row = 1;
-//            ColumnDataWriter writer("WntCellCycleAPC2Hit","WntCellCycleAPC2Hit");
-//            int time_var_id = writer.DefineUnlimitedDimension("Time","s");
-//
-//            std::vector<int> var_ids;
-//            for (unsigned i=0; i<wnt_system.rGetVariableNames().size(); i++)
-//            {
-//                var_ids.push_back(writer.DefineVariable(wnt_system.rGetVariableNames()[i],
-//                                                    wnt_system.rGetVariableUnits()[i]));
-//            }
-//            writer.EndDefineMode();
-//
-//            for (unsigned i = 0; i < solutions.rGetSolutions().size(); i+=step_per_row)
-//            {
-//                writer.PutVariable(time_var_id, solutions.rGetTimes()[i]);
-//                for (unsigned j=0; j<var_ids.size(); j++)
-//                {
-//                    writer.PutVariable(var_ids[j], solutions.rGetSolutions()[i][j]);
-//                }
-//                writer.AdvanceAlongUnlimitedDimension();
-//            }
-//            writer.Close();
-//        }
-//        MPI_Barrier(PETSC_COMM_WORLD);
-
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
         // Tests the simulation is ending at the right time...(going into S phase at 3.94 hours)
@@ -407,4 +305,4 @@ public:
     
 };
 
-#endif /*TESTWNTCELLCYCLEODESYSTEM_HPP_*/
+#endif /*TESTINGEWNTSWATCELLCYCLEODESYSTEM_HPP_*/

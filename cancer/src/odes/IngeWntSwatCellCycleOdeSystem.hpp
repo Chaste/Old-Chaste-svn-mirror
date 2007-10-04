@@ -1,5 +1,5 @@
-#ifndef _WNTCELLCYCLEODESYSTEM_HPP_
-#define _WNTCELLCYCLEODESYSTEM_HPP_
+#ifndef _INGEWNTSWATCELLCYCLEODESYSTEM_HPP_
+#define _INGEWNTSWATCELLCYCLEODESYSTEM_HPP_
 
 #include <vector>
 #include <cmath>
@@ -7,8 +7,9 @@
 #include "CellMutationStates.hpp"
 
 /**
- * Represents the Mirams et al. (2007-with any luck) system of ODEs.
- * Based on Swat et al. (2004) and a simple Wnt model.
+ * Represents the van Leeuwen et al. (2007) system of ODEs
+ * coupled to the Swat et al. Cell cycle model equations.
+ * doi:10.1016/j.jtbi.2007.01.019
  *
  * The variables are
  *
@@ -17,13 +18,11 @@
  2. i = CycD (inactive)
  3. j = CycD (active)
  4. p = pRb-p
- 5. c = destruction complex (Active)
- 6. b1 = Beta-Catenin (from 1st allele)
- 7. b2 = Beta-Catenin (from 1st allele)
+ * + 16 of Inge's Wnt ODES
  8. WntLevel
  *
  */
-class WntCellCycleOdeSystem : public AbstractOdeSystem
+class IngeWntSwatCellCycleOdeSystem : public AbstractOdeSystem
 {
 private:
     // Constants for the Swat et al. (2004) Model
@@ -45,21 +44,46 @@ private:
     double mphi_i;
     double mphi_j;
     double mphi_p;
-    double ma2d;
-    double ma3d;
-    double ma4d;
-    double ma5d;
     double mk16d;
     double mk61d;
     double mPhiE2F1;    
+    
+    // Inge's Constants 
+    double mSa;
+    double mSca;
+    double mSc;
+    double mSct;
+    double mSd;
+    double mSt;
+    double mSx;
+    double mSy;
+    double mDa;
+    double mDca;
+    double mDc;
+    double mDct;
+    double mDd;
+    double mDdx;
+    double mDt;
+    double mDu;
+    double mDx;
+    double mDy;
+    double mKc;
+    double mKd;
+    double mKt;
+    double mPc;
+    double mPu;
+    double mXiD;
+    double mXiDx;
+    double mXiX;
+    double mXiC;
     CellMutationState mMutationState;
         
 public:
     // Constructor
-    WntCellCycleOdeSystem(double WntStimulus = 0.0, const CellMutationState& rMutationState = HEALTHY);
+    IngeWntSwatCellCycleOdeSystem(double WntStimulus = 0.0, const CellMutationState& rMutationState = HEALTHY);
     
     // Destructor
-    ~WntCellCycleOdeSystem();
+    ~IngeWntSwatCellCycleOdeSystem();
     
     void Init(); //Sets up the parameter values
     
@@ -68,7 +92,7 @@ public:
     /** 
      * Called by the archive function on the wnt cell cycle model.
      * @return mMutationState the mutation state of the cell defined by 
-     * CellMutationStates.hpp
+     * CryptCellMutationStates.hpp
      */
     CellMutationState& rGetMutationState()
     {
@@ -85,5 +109,8 @@ public:
         return (fabs(rY[1]-1.0) < 1.0e-2 && dy[1] > 0.0);
     }
     
+    void SetUseHypothesisTwo(bool hypothesisTwo);
+
+    
 };
-#endif //_WNTCELLCYCLEODESYSTEM_HPP_
+#endif //_INGEWNTSWATCELLCYCLEODESYSTEM_HPP_
