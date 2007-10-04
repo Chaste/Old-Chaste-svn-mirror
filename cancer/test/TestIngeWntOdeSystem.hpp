@@ -11,7 +11,7 @@
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "ColumnDataWriter.hpp"
-#include "CryptCellMutationStates.hpp"
+#include "CellMutationStates.hpp"
 
 
 class TestIngeWntOdeSystem : public CxxTest::TestSuite
@@ -106,7 +106,7 @@ public:
         /**
          * A test for the APC +/- mutation
          */
-        CryptCellMutationState mutation = HEALTHY;
+        CellMutationState mutation = HEALTHY;
         WntLevel = 0.0;
         IngeWntOdeSystem wnt_ode_system3(WntLevel,mutation);
         initial_conditions = wnt_ode_system3.GetInitialConditions();

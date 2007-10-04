@@ -930,7 +930,7 @@ public:
         for (unsigned i=0; i<num_cells; i++)
         {
             double birth_time;
-            CryptCellType cell_type;
+            CellType cell_type;
             unsigned generation;
             double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
             if (y == 0.0)
@@ -964,7 +964,7 @@ public:
                 birth_time = -2.0;  //hours
             }
             
-            CryptCellMutationState mutation_state;
+            CellMutationState mutation_state;
             if(i!=60)
             {
                 mutation_state = HEALTHY;
@@ -1088,7 +1088,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            CryptCellType cell_type;
+            CellType cell_type;
             cell_type = cell_iter->GetCellType();
             if (!cell_type==STEM)
             {

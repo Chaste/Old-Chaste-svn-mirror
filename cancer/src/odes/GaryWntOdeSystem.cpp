@@ -1,5 +1,5 @@
 #include "GaryWntOdeSystem.hpp"
-#include "CryptCellMutationStates.hpp"
+#include "CellMutationStates.hpp"
 
 #include <cmath>
 #include <cassert>
@@ -9,9 +9,9 @@
  * Constructor.
  *
  * @param WntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
- * @param mutationState affects the ODE system and is given by CryptCellMutationStates.hpp
+ * @param mutationState affects the ODE system and is given by CellMutationStates.hpp
  */
-GaryWntOdeSystem::GaryWntOdeSystem(double WntLevel, const CryptCellMutationState& rMutationState)
+GaryWntOdeSystem::GaryWntOdeSystem(double WntLevel, const CellMutationState& rMutationState)
         : AbstractOdeSystem(4)
 {
     /*
@@ -54,7 +54,7 @@ GaryWntOdeSystem::GaryWntOdeSystem(double WntLevel, const CryptCellMutationState
     }
     else
     {
-        // can't get here until new mutation states are added to CryptCellMutationState
+        // can't get here until new mutation states are added to CellMutationState
         #define COVERAGE_IGNORE
         assert(0);
         #undef COVERAGE_IGNORE
@@ -81,7 +81,7 @@ GaryWntOdeSystem::GaryWntOdeSystem(double WntLevel, const CryptCellMutationState
  * This should be called by the relevant cell cycle model before any solving
  * of the ODE system (as it is used to evaluate the Y derivatives).
  */
-void GaryWntOdeSystem::SetMutationState(const CryptCellMutationState& rMutationState)
+void GaryWntOdeSystem::SetMutationState(const CellMutationState& rMutationState)
 {
     mMutationState = rMutationState;
 }
@@ -193,7 +193,7 @@ void GaryWntOdeSystem::EvaluateYDerivatives(double time, const std::vector<doubl
     }
     else
     {
-        // can't get here until new mutation states are added to CryptCellMutationState
+        // can't get here until new mutation states are added to CellMutationState
         #define COVERAGE_IGNORE
         assert(0);
         #undef COVERAGE_IGNORE

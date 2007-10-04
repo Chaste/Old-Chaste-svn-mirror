@@ -12,7 +12,7 @@
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "ColumnDataWriter.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "CryptCellMutationStates.hpp"
+#include "CellMutationStates.hpp"
 
 
 class TestWntCellCycleOdeSystem : public CxxTest::TestSuite
@@ -67,7 +67,7 @@ public:
          * A test for the case mutation = 1
          * (An APC +/- mutation)
          */
-        CryptCellMutationState mutation = APC_ONE_HIT;
+        CellMutationState mutation = APC_ONE_HIT;
         wnt_level = 1.0;
         WntCellCycleOdeSystem wnt_cell_cycle_system3(wnt_level,mutation);
         initial_conditions = wnt_cell_cycle_system3.GetInitialConditions();

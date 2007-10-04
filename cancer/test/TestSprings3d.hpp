@@ -202,7 +202,7 @@ public:
         p_simulation_time->SetStartTime(0.0);
         
         std::vector<TissueCell> cells;
-        CryptCellType cell_type;
+        CellType cell_type;
         cell_type = STEM;
         
         TissueCell cell(cell_type, HEALTHY, 0u, new FixedCellCycleModel());
@@ -390,7 +390,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CryptCellType cell_type;
+            CellType cell_type;
             unsigned generation;
             cell_type = STEM;
             generation = 0;
@@ -440,7 +440,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CryptCellType cell_type;
+            CellType cell_type;
             unsigned generation;
             cell_type = STEM;
             generation = 0;
@@ -502,7 +502,7 @@ public:
 
         for (unsigned i=0; i<num_cells; i++)
         {
-            CryptCellType cell_type;
+            CellType cell_type;
             unsigned generation;
             
             c_vector<double, 3> node_location = mesh.GetNode(i)->rGetLocation();

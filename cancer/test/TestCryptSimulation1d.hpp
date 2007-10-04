@@ -215,7 +215,7 @@ public:
     
         
     
-    // Create a chain of meineke cells (1 stem, 14 transit cells and 8 differentiated)
+    // Create a chain of cells (1 stem, 14 transit cells and 8 differentiated)
     // and pass into the simulation class
     void Test1DChainWithMeinekeCells() throw (Exception)
     {
@@ -244,7 +244,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CryptCellType cell_type;
+            CellType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)
@@ -285,7 +285,7 @@ public:
     }
     
     
-    // same as Test1DChainWithBirthVariableRestLength but with Meineke cells.
+    // same as Test1DChainWithBirthVariableRestLength but with cells.
     // (see comment for Test1DChainWithBirthVariableRestLength).
     void Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
     {
@@ -312,7 +312,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CryptCellType cell_type;
+            CellType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)
@@ -386,7 +386,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CryptCellType cell_type;
+            CellType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)
@@ -471,7 +471,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CryptCellType cell_type;
+            CellType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)
@@ -514,17 +514,17 @@ public:
                 double x = mesh.GetNode(index)->GetPoint()[0];
                 if (fabs(x)<1e-2)
                 {
-                    CryptCellType type  = cell.GetCellType();
+                    CellType type  = cell.GetCellType();
                     TS_ASSERT(type==STEM);
                 }
                 else if ((fabs(x-1)<1e-2)||(fabs(x-2)<1e-2))
                 {
-                    CryptCellType type  = cell.GetCellType();
+                    CellType type  = cell.GetCellType();
                     TS_ASSERT(type==TRANSIT);
                 }
                 else if ((fabs(x-3)<1e-2)||(fabs(x-4)<1e-2)||(fabs(x-5)<1e-2))
                 {
-                    CryptCellType type  = cell.GetCellType();
+                    CellType type  = cell.GetCellType();
                     TS_ASSERT(type==DIFFERENTIATED);
                 }
                 else

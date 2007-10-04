@@ -8,8 +8,8 @@
 #include <fstream>
 
 #include "OutputFileHandler.hpp"
-#include "MeinekeCryptCellTypes.hpp"
-#include "CryptCellMutationStates.hpp"
+#include "CellTypes.hpp"
+#include "CellMutationStates.hpp"
 #include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
@@ -393,8 +393,7 @@ public:
         
         RandomNumberGenerator::Instance();
         
-        p_simulation_time->IncrementTimeOneStep();
-        
+        p_simulation_time->IncrementTimeOneStep();        
         
         //  Creating different types of cells with different cell cycle models at SimulationTime = 6 hours.
         TissueCell stem_cell(STEM, // type
@@ -699,7 +698,7 @@ public:
             cell_iterator = cells.begin();
             while (cell_iterator < cells.end())
             {
-                CryptCellMutationState this_cell_state;
+                CellMutationState this_cell_state;
                 this_cell_state = cell_iterator->GetMutationState();
                 TS_ASSERT(this_cell_state==HEALTHY);
                 if (cell_iterator->ReadyToDivide())
@@ -1231,6 +1230,7 @@ public:
             SimulationTime::Destroy();
         }
         
+        // Restore TissueCell
         // Restore cell
         {
             // need to set up time to initialise a cell

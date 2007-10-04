@@ -10,7 +10,7 @@
 class TestGaryWntOdeSystem : public CxxTest::TestSuite
 {
 private:
-    void CheckDerivativesZero(CryptCellMutationState mutation, double wnt_level, double total_beta_cat)
+    void CheckDerivativesZero(CellMutationState mutation, double wnt_level, double total_beta_cat)
     {
         double time = 0.0;
         GaryWntOdeSystem wnt_ode_system(wnt_level,mutation);

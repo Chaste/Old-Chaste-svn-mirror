@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 #include "AbstractOdeSystem.hpp"
-#include "CryptCellMutationStates.hpp"
+#include "CellMutationStates.hpp"
 
 /**
  * Represents the van Leeuwen et al. (2007) system of ODEs.
@@ -44,20 +44,20 @@ private:
     double mXiDx;
     double mXiX;
     double mXiC;
-    CryptCellMutationState mMutationState;
+    CellMutationState mMutationState;
     
 public:
     // Constructor
-    IngeWntOdeSystem(double WntStimulus = 0.0, const CryptCellMutationState& rMutationState = HEALTHY);
+    IngeWntOdeSystem(double WntStimulus = 0.0, const CellMutationState& rMutationState = HEALTHY);
     
     // Destructor
     ~IngeWntOdeSystem();
     
     void Init(); //Sets up the parameter values
     
-    void SetMutationState(const CryptCellMutationState &rMutationState);
+    void SetMutationState(const CellMutationState &rMutationState);
     
-    CryptCellMutationState& rGetMutationState();
+    CellMutationState& rGetMutationState();
 
     
     // Compute the RHS of the WntCellCycle system of ODEs

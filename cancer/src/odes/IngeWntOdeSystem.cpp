@@ -1,5 +1,5 @@
 #include "IngeWntOdeSystem.hpp"
-#include "CryptCellMutationStates.hpp"
+#include "CellMutationStates.hpp"
 
 #include <cmath>
 #include <cassert>
@@ -10,9 +10,9 @@
  * Constructor.
  *
  * @param WntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
- * @param mutationState affects the ODE system and is given by CryptCellMutationStates.hpp
+ * @param mutationState affects the ODE system and is given by CellMutationStates.hpp
  */
-IngeWntOdeSystem::IngeWntOdeSystem(double wntLevel, const CryptCellMutationState& rMutationState)
+IngeWntOdeSystem::IngeWntOdeSystem(double wntLevel, const CellMutationState& rMutationState)
         : AbstractOdeSystem(17),
           mMutationState(rMutationState)
         
@@ -146,7 +146,7 @@ IngeWntOdeSystem::IngeWntOdeSystem(double wntLevel, const CryptCellMutationState
  * This should be called by the relevant cell cycle model before any solving
  * of the ODE system (as it is used to evaluate the Y derivatives).
  */
-void IngeWntOdeSystem::SetMutationState(const CryptCellMutationState& rMutationState)
+void IngeWntOdeSystem::SetMutationState(const CellMutationState& rMutationState)
 {
     mMutationState = rMutationState;
 }
@@ -154,9 +154,9 @@ void IngeWntOdeSystem::SetMutationState(const CryptCellMutationState& rMutationS
 /** 
  * Called by the archive function on the wnt cell cycle model.
  * @return mMutationState the mutation state of the cell defined by 
- * CryptCellMutationStates.hpp
+ * CellMutationStates.hpp
  */
-CryptCellMutationState& IngeWntOdeSystem::rGetMutationState()
+CellMutationState& IngeWntOdeSystem::rGetMutationState()
 {
     return mMutationState;
 }

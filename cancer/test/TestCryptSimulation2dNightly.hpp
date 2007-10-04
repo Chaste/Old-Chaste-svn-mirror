@@ -367,7 +367,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CryptCellType cell_type;
+            CellType cell_type;
             unsigned generation;
             double birth_time;
             
@@ -414,7 +414,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            CryptCellType type = cell_iter->GetCellType();
+            CellType type = cell_iter->GetCellType();
                 
             if (type==STEM)
             {
@@ -584,7 +584,7 @@ public:
                 
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
-            CryptCellMutationState mutation_state;
+            CellMutationState mutation_state;
 
             double x = p_mesh->GetNode(i)->GetPoint().rGetLocation()[0];
             double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];

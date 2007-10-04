@@ -72,7 +72,7 @@ public :
         
         for (unsigned i=0; i<num_cells; i++)
         {
-            CryptCellType cell_type;
+            CellType cell_type;
             unsigned generation;
 
             double y = rMesh.GetNode(i)->GetPoint().rGetLocation()[1];
