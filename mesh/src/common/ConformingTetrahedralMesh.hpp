@@ -435,12 +435,13 @@ public:
     };
 
     /**
-     * @return iterator pointing to the first spring in the tissue
+     * @return iterator pointing to the first edge (ie connection between 2 nodes) of the mesh
      */
     EdgeIterator EdgesBegin();
     
     /**
-     * @return iterator pointing to one past the last spring in the tissue
+     * @return iterator pointing to one past the last edge (ie connection between 2 nodes) 
+     * of the mesh
      */
     EdgeIterator EdgesEnd();
 

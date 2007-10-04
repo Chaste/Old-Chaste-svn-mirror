@@ -1284,24 +1284,24 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsi
     
     for (unsigned node_index=0; node_index<=width; node_index++)
     {
-        Node<1>* p_node = new Node<1>(node_index, node_index==0 || node_index==width, node_index);
+        Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, node_index==0 || node_index==width, node_index);
         mNodes.push_back(p_node); // create node
         if (node_index==0) // create left boundary node and boundary element
         {
             mBoundaryNodes.push_back(p_node);
-            mBoundaryElements.push_back(new BoundaryElement<0,1>(0, p_node) );
+            mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(0, p_node) );
         }
         if (node_index==width) // create right boundary node and boundary element
         {
             mBoundaryNodes.push_back(p_node);
-            mBoundaryElements.push_back(new BoundaryElement<0,1>(1, p_node) );
+            mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(1, p_node) );
         }
         if (node_index>0) // create element
         {
-            std::vector<Node<1>*> nodes;
+            std::vector<Node<SPACE_DIM>*> nodes;
             nodes.push_back(mNodes[node_index-1]);
             nodes.push_back(mNodes[node_index]);
-            mElements.push_back(new Element<1,1>(node_index-1, nodes) );
+            mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(node_index-1, nodes) );
         }
     }
 }
@@ -1323,7 +1323,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
             {
                 is_boundary=true;
             }
-            Node<2>* p_node = new Node<2>(node_index++, is_boundary, i, j);
+            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index++, is_boundary, i, j);
             mNodes.push_back(p_node);
             if(is_boundary)
             {
@@ -1510,7 +1510,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned
                     is_boundary=true;
                 }
                 
-                Node<3>* p_node = new Node<3>(node_index++, is_boundary, i, j, k);
+                Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index++, is_boundary, i, j, k);
 
                 mNodes.push_back(p_node);
                 if(is_boundary)
@@ -1526,17 +1526,17 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned
     unsigned elem_index=0;
     unsigned belem_index=0;
     unsigned element_nodes[4][6][4] = {{{0, 1, 5, 7}, {0, 1, 3, 7},
-                                    {0, 2, 3, 7}, {0, 2, 6, 7},
-                                    {0, 4, 6, 7}, {0, 4, 5, 7}},
-                                    {{1, 0, 2, 6}, {1, 0, 4, 6},
-                                    {1, 5, 4, 6}, {1, 5, 7, 6},
-                                    {1, 3, 2, 6}, {1, 3, 7, 6}},
-                                    {{2, 0, 1, 5}, {2, 0, 4, 5},
-                                    {2, 3, 1, 5}, {2, 3, 7, 5},
-                                    {2, 6, 4, 5}, {2, 6, 7, 5}},
-                                    {{3, 1, 0, 4}, {3, 1, 5, 4},
-                                    {3, 2, 0, 4}, {3, 2, 6, 4},
-                                    {3, 7, 5, 4}, {3, 7, 6, 4}}};     
+                                  	    {0, 2, 3, 7}, {0, 2, 6, 7},
+                               	        {0, 4, 6, 7}, {0, 4, 5, 7}},
+                                  	   {{1, 0, 2, 6}, {1, 0, 4, 6},
+                                        {1, 5, 4, 6}, {1, 5, 7, 6},
+                                   	    {1, 3, 2, 6}, {1, 3, 7, 6}},
+	                                   {{2, 0, 1, 5}, {2, 0, 4, 5},
+                                        {2, 3, 1, 5}, {2, 3, 7, 5},
+                                        {2, 6, 4, 5}, {2, 6, 7, 5}},
+                                       {{3, 1, 0, 4}, {3, 1, 5, 4},
+                                        {3, 2, 0, 4}, {3, 2, 6, 4},
+                                        {3, 7, 5, 4}, {3, 7, 6, 4}}};     
                                     
     std::vector<Node<SPACE_DIM>*> tetrahedra_nodes;
     
@@ -1621,9 +1621,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned
                                     {
                                         tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[0][m][n]]]);
                                     } 
-                               }
+                                }
                             }
-                        
                         }
                                     
                         else
@@ -1715,7 +1714,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned
                     triangle_nodes.push_back(mNodes[global_node_indices[7]]);
                     mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                 }
-                
             }//i
         }//j
     }//k
