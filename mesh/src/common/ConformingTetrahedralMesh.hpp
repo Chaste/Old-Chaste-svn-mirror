@@ -435,12 +435,12 @@ public:
     };
 
     /**
-     * @return iterator pointing to the first spring in the crypt
+     * @return iterator pointing to the first spring in the tissue
      */
     EdgeIterator EdgesBegin();
     
     /**
-     * @return iterator pointing to one past the last spring in the crypt
+     * @return iterator pointing to one past the last spring in the tissue
      */
     EdgeIterator EdgesEnd();
 
