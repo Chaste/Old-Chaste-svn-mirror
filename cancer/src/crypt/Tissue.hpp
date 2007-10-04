@@ -45,7 +45,7 @@ ElementWriterIdsT;
  * only ever deals with real cells.
  */
 template<unsigned DIM>
-class Crypt
+class Tissue
 {
 private:
     
@@ -98,7 +98,7 @@ private:
         archive & mMaxCells;
         archive & mMaxElements;
         
-        //CheckCryptCellPointers();
+        //CheckTissueCellPointers();
         
         // The Voronoi stuff can't be archived yet
         //archive & mpVoronoiTessellation
@@ -106,7 +106,7 @@ private:
     }
     
     /// For debugging
-    void CheckCryptCellPointers();
+    void CheckTissueCellPointers();
     
 public:
     /** Hack until meshes are fully archived using boost::serialization */
@@ -122,7 +122,7 @@ public:
      * @param cells TissueCells corresponding to the nodes of the mesh.
      * @param deleteMesh set to true if you want the crypt to free the mesh memory on destruction
      */
-    Crypt(ConformingTetrahedralMesh<DIM, DIM>&, const std::vector<TissueCell>&,
+    Tissue(ConformingTetrahedralMesh<DIM, DIM>&, const std::vector<TissueCell>&,
           bool deleteMesh=false);
           
     /**
@@ -130,9 +130,9 @@ public:
      * 
      * @param rMesh a conforming tetrahedral mesh.
      */
-    Crypt(ConformingTetrahedralMesh<DIM, DIM>&);
+    Tissue(ConformingTetrahedralMesh<DIM, DIM>&);
     
-    ~Crypt();
+    ~Tissue();
     
     void InitialiseCells();
     
@@ -246,7 +246,7 @@ public:
         /**
          * Constructor for a new iterator.
          */
-        Iterator(Crypt& rCrypt, std::list<TissueCell>::iterator cellIter);
+        Iterator(Tissue& rTissue, std::list<TissueCell>::iterator cellIter);
         
     private:
         /**
@@ -257,7 +257,7 @@ public:
          */
         bool IsRealCell();
     
-        Crypt& mrCrypt;
+        Tissue& mrTissue;
         std::list<TissueCell>::iterator mCellIter;
         unsigned mNodeIndex;
     };
@@ -357,13 +357,13 @@ public:
         /**
          * Constructor for a new iterator.
          */
-        SpringIterator(Crypt& rCrypt, typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edgeIter);
+        SpringIterator(Tissue& rTissue, typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edgeIter);
         
     private:
         /** Keep track of what edges have been visited */
         std::set<std::set<unsigned> > mSpringsVisited;
     
-        Crypt& mrCrypt;
+        Tissue& mrTissue;
         
         typename ConformingTetrahedralMesh<DIM, DIM>::EdgeIterator mEdgeIter;
     };
@@ -380,18 +380,18 @@ public:
 };
 
 template<unsigned DIM>
-std::string Crypt<DIM>::meshPathname = "";
+std::string Tissue<DIM>::meshPathname = "";
 
 namespace boost
 {
 namespace serialization
 {
 /**
- * Serialize information required to construct a Crypt facade.
+ * Serialize information required to construct a Tissue facade.
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
-    Archive & ar, const Crypt<DIM> * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const Tissue<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     //std::cout << "Saving construct data\n" << std::flush;
     // save data required to construct instance
@@ -400,24 +400,24 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise Crypt.
+ * De-serialize constructor parameters and initialise Tissue.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
-    Archive & ar, Crypt<DIM> * t, const unsigned int file_version)
+    Archive & ar, Tissue<DIM> * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
     ConformingTetrahedralMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
     // Re-initialise the mesh
     p_mesh->Clear();
-    TrianglesMeshReader<DIM,DIM> mesh_reader(Crypt<DIM>::meshPathname);
+    TrianglesMeshReader<DIM,DIM> mesh_reader(Tissue<DIM>::meshPathname);
     p_mesh->ConstructFromMeshReader(mesh_reader);
     // Needed for cylindrical meshes at present; should be safe in any case.
     NodeMap map(p_mesh->GetNumNodes());
     p_mesh->ReMesh(map);
     // invoke inplace constructor to initialize instance
-    ::new(t)Crypt<DIM>(*p_mesh);
+    ::new(t)Tissue<DIM>(*p_mesh);
 }
 }
 } // namespace ...

@@ -1,7 +1,7 @@
 #ifndef CRYPT_CPP
 #define CRYPT_CPP
 
-#include "Crypt.hpp"
+#include "Tissue.hpp"
 #include "CancerParameters.hpp"
 #include "VoronoiTessellation.cpp"
 
@@ -10,7 +10,7 @@
 // *cannot* be cells, making it more difficult to construct the cells.
 // also check cell.GetNodeIndices() is in the mesh, and covers the mesh, etc.
 template<unsigned DIM>
-Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
+Tissue<DIM>::Tissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
                   const std::vector<TissueCell>& rCells,
                   bool deleteMesh)
              : mrMesh(rMesh),
@@ -47,7 +47,7 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
 }
 
 template<unsigned DIM>
-Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh)
+Tissue<DIM>::Tissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh)
              : mrMesh(rMesh)
 {
     mpVoronoiTessellation = NULL;
@@ -55,7 +55,7 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh)
 }
 
 template<unsigned DIM>
-Crypt<DIM>::~Crypt()
+Tissue<DIM>::~Tissue()
 {
     if (mDeleteMesh)
     {
@@ -67,7 +67,7 @@ Crypt<DIM>::~Crypt()
 }
 
 template<unsigned DIM>
-void Crypt<DIM>::InitialiseCells()
+void Tissue<DIM>::InitialiseCells()
 {
     for(std::list<TissueCell>::iterator iter = mCells.begin();
         iter != mCells.end();
@@ -82,7 +82,7 @@ void Crypt<DIM>::InitialiseCells()
 // (for the time being, we are allowing ghost nodes to also have cells 
 // associated with it, although this isn't very clean)
 template<unsigned DIM>
-void Crypt<DIM>::Validate()
+void Tissue<DIM>::Validate()
 {
 	std::vector<bool> validated_node = mIsGhostNode; 
 	for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
@@ -103,13 +103,13 @@ void Crypt<DIM>::Validate()
 }
 
 template<unsigned DIM>
-TissueCell& Crypt<DIM>::rGetCellAtNodeIndex(unsigned nodeGlobalIndex)
+TissueCell& Tissue<DIM>::rGetCellAtNodeIndex(unsigned nodeGlobalIndex)
 {
     return *(mNodeCellMap[nodeGlobalIndex]);
 }
 
 template<unsigned DIM>
-Node<DIM>* Crypt<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
+Node<DIM>* Tissue<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
 {
     // find the node to which this cell corresponds
     std::map<unsigned, TissueCell*>::iterator it=mNodeCellMap.begin();
@@ -124,7 +124,7 @@ Node<DIM>* Crypt<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
 
 
 template<unsigned DIM>
-c_vector<double, DIM> Crypt<DIM>::GetLocationOfCell(const TissueCell& rCell)
+c_vector<double, DIM> Tissue<DIM>::GetLocationOfCell(const TissueCell& rCell)
 {
     return GetNodeCorrespondingToCell(rCell)->rGetLocation();
 }
@@ -132,37 +132,37 @@ c_vector<double, DIM> Crypt<DIM>::GetLocationOfCell(const TissueCell& rCell)
 
 
 template<unsigned DIM>
-ConformingTetrahedralMesh<DIM, DIM>& Crypt<DIM>::rGetMesh()
+ConformingTetrahedralMesh<DIM, DIM>& Tissue<DIM>::rGetMesh()
 {
     return mrMesh;
 }
 
 template<unsigned DIM>
-std::list<TissueCell>& Crypt<DIM>::rGetCells()
+std::list<TissueCell>& Tissue<DIM>::rGetCells()
 {
     return mCells;
 }
 
 template<unsigned DIM>
-const ConformingTetrahedralMesh<DIM, DIM>& Crypt<DIM>::rGetMesh() const
+const ConformingTetrahedralMesh<DIM, DIM>& Tissue<DIM>::rGetMesh() const
 {
     return mrMesh;
 }
 
 template<unsigned DIM>
-const std::list<TissueCell>& Crypt<DIM>::rGetCells() const
+const std::list<TissueCell>& Tissue<DIM>::rGetCells() const
 {
     return mCells;
 }
 
 template<unsigned DIM>
-std::vector<bool>& Crypt<DIM>::rGetGhostNodes()
+std::vector<bool>& Tissue<DIM>::rGetGhostNodes()
 {
     return mIsGhostNode;
 }
 
 template<unsigned DIM>
-std::set<unsigned> Crypt<DIM>::GetGhostNodeIndices()
+std::set<unsigned> Tissue<DIM>::GetGhostNodeIndices()
 {
     std::set<unsigned> ghost_node_indices;
     for (unsigned i=0; i<mIsGhostNode.size(); i++)
@@ -176,13 +176,13 @@ std::set<unsigned> Crypt<DIM>::GetGhostNodeIndices()
 }
 
 template<unsigned DIM>
-void Crypt<DIM>::SetGhostNodes(const std::vector<bool>& rGhostNodes)
+void Tissue<DIM>::SetGhostNodes(const std::vector<bool>& rGhostNodes)
 {
     mIsGhostNode = rGhostNodes;
 }
 
 template<unsigned DIM> 
-void Crypt<DIM>::SetGhostNodes(const std::set<unsigned>& ghostNodeIndices)
+void Tissue<DIM>::SetGhostNodes(const std::set<unsigned>& ghostNodeIndices)
 {
     // reinitialise all to false..
     mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
@@ -198,7 +198,7 @@ void Crypt<DIM>::SetGhostNodes(const std::set<unsigned>& ghostNodeIndices)
 
 
 template<unsigned DIM>
-unsigned Crypt<DIM>::RemoveDeadCells()
+unsigned Tissue<DIM>::RemoveDeadCells()
 {
     unsigned num_removed = 0;
     for (std::list<TissueCell>::iterator it = mCells.begin();
@@ -217,7 +217,7 @@ unsigned Crypt<DIM>::RemoveDeadCells()
 }
 
 template<unsigned DIM>
-void Crypt<DIM>::UpdateGhostPositions(double dt)
+void Tissue<DIM>::UpdateGhostPositions(double dt)
 {
     std::vector<c_vector<double, DIM> > drdt(mrMesh.GetNumAllNodes());
     for (unsigned i=0; i<drdt.size(); i++)
@@ -274,7 +274,7 @@ void Crypt<DIM>::UpdateGhostPositions(double dt)
  * @return The force exerted on Node A by Node B.
  */
 template<unsigned DIM> 
-c_vector<double, DIM> Crypt<DIM>::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
+c_vector<double, DIM> Tissue<DIM>::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
 {
     assert(rNodeAGlobalIndex!=rNodeBGlobalIndex);
     c_vector<double, DIM> unit_difference;
@@ -294,14 +294,14 @@ c_vector<double, DIM> Crypt<DIM>::CalculateForceBetweenNodes(const unsigned& rNo
 }
 
 template<unsigned DIM>
-void Crypt<DIM>::MoveCell(Iterator iter, ChastePoint<DIM>& rNewLocation)
+void Tissue<DIM>::MoveCell(Iterator iter, ChastePoint<DIM>& rNewLocation)
 {
     unsigned index = iter.GetNode()->GetIndex();
     mrMesh.SetNode(index, rNewLocation, false);
 }
 
 template<unsigned DIM>  
-TissueCell* Crypt<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
+TissueCell* Tissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
 {
     Node<DIM>* p_new_node = new Node<DIM>(mrMesh.GetNumNodes(), newLocation, false);   // never on boundary
               
@@ -324,7 +324,7 @@ TissueCell* Crypt<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLoca
 
 
 template<unsigned DIM>
-void Crypt<DIM>::ReMesh()
+void Tissue<DIM>::ReMesh()
 {
     NodeMap map(mrMesh.GetNumAllNodes());
     mrMesh.ReMesh(map);
@@ -364,7 +364,7 @@ void Crypt<DIM>::ReMesh()
 }
 
 template<unsigned DIM>
-unsigned Crypt<DIM>::GetNumRealCells()
+unsigned Tissue<DIM>::GetNumRealCells()
 {
 	unsigned counter = 0;
 	for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
@@ -379,89 +379,89 @@ unsigned Crypt<DIM>::GetNumRealCells()
 //                             iterator class                               // 
 //////////////////////////////////////////////////////////////////////////////
 template<unsigned DIM>
-TissueCell& Crypt<DIM>::Iterator::operator*()
+TissueCell& Tissue<DIM>::Iterator::operator*()
 {
-    assert((*this) != mrCrypt.End());
+    assert((*this) != mrTissue.End());
     return *mCellIter;
 }
 
 
 template<unsigned DIM>
-TissueCell* Crypt<DIM>::Iterator::operator->()
+TissueCell* Tissue<DIM>::Iterator::operator->()
 {
-    assert((*this) != mrCrypt.End());
+    assert((*this) != mrTissue.End());
     return &(*mCellIter);
 }
 
 
 template<unsigned DIM>
-Node<DIM>* Crypt<DIM>::Iterator::GetNode()
+Node<DIM>* Tissue<DIM>::Iterator::GetNode()
 {
-    assert((*this) != mrCrypt.End());
-    return mrCrypt.rGetMesh().GetNode(mNodeIndex);
+    assert((*this) != mrTissue.End());
+    return mrTissue.rGetMesh().GetNode(mNodeIndex);
 }
 
 template<unsigned DIM>
-const c_vector<double, DIM>& Crypt<DIM>::Iterator::rGetLocation()
+const c_vector<double, DIM>& Tissue<DIM>::Iterator::rGetLocation()
 {
     return GetNode()->rGetLocation();
 }
 
 template<unsigned DIM>
-bool Crypt<DIM>::Iterator::operator!=(const Crypt<DIM>::Iterator& other)
+bool Tissue<DIM>::Iterator::operator!=(const Tissue<DIM>::Iterator& other)
 {
     return mCellIter != other.mCellIter;   
 }
 
 template<unsigned DIM>
-typename Crypt<DIM>::Iterator& Crypt<DIM>::Iterator::operator++()
+typename Tissue<DIM>::Iterator& Tissue<DIM>::Iterator::operator++()
 {
     do
     {
         ++mCellIter;
-        if((*this) != mrCrypt.End())
+        if((*this) != mrTissue.End())
         {
             mNodeIndex = mCellIter->GetNodeIndex();
         }
     }
-    while ((*this) != mrCrypt.End() && !IsRealCell());
+    while ((*this) != mrTissue.End() && !IsRealCell());
   
     return (*this);
 }
 
 template<unsigned DIM>
-bool Crypt<DIM>::Iterator::IsRealCell()
+bool Tissue<DIM>::Iterator::IsRealCell()
 {
-    assert(mrCrypt.rGetGhostNodes().size() == mrCrypt.rGetMesh().GetNumAllNodes() );
-    return !(mrCrypt.rGetGhostNodes()[mNodeIndex] || GetNode()->IsDeleted() || (*this)->IsDead());
+    assert(mrTissue.rGetGhostNodes().size() == mrTissue.rGetMesh().GetNumAllNodes() );
+    return !(mrTissue.rGetGhostNodes()[mNodeIndex] || GetNode()->IsDeleted() || (*this)->IsDead());
 }
 
 template<unsigned DIM>
-Crypt<DIM>::Iterator::Iterator(Crypt& rCrypt, std::list<TissueCell>::iterator cellIter)
-    : mrCrypt(rCrypt),
+Tissue<DIM>::Iterator::Iterator(Tissue& rTissue, std::list<TissueCell>::iterator cellIter)
+    : mrTissue(rTissue),
       mCellIter(cellIter)
 {
     // Make sure the crypt isn't empty
-    assert(mrCrypt.rGetCells().size() > 0);
-    if (mCellIter != mrCrypt.rGetCells().end())
+    assert(mrTissue.rGetCells().size() > 0);
+    if (mCellIter != mrTissue.rGetCells().end())
     {
         mNodeIndex = cellIter->GetNodeIndex();
     }
     // Make sure we start at a real cell
-    if (mCellIter == mrCrypt.rGetCells().begin() && !IsRealCell())
+    if (mCellIter == mrTissue.rGetCells().begin() && !IsRealCell())
     {
         ++(*this);
     }
 }
 
 template<unsigned DIM>
-typename Crypt<DIM>::Iterator Crypt<DIM>::Begin()
+typename Tissue<DIM>::Iterator Tissue<DIM>::Begin()
 {
     return Iterator(*this, mCells.begin());
 }
 
 template<unsigned DIM>
-typename Crypt<DIM>::Iterator Crypt<DIM>::End()
+typename Tissue<DIM>::Iterator Tissue<DIM>::End()
 {
     return Iterator(*this, mCells.end());
 }
@@ -471,7 +471,7 @@ typename Crypt<DIM>::Iterator Crypt<DIM>::End()
 //                             output methods                               // 
 //////////////////////////////////////////////////////////////////////////////
 template<unsigned DIM>  
-void Crypt<DIM>::SetMaxCells(unsigned maxCells)
+void Tissue<DIM>::SetMaxCells(unsigned maxCells)
 {
     mMaxCells = maxCells;
     if (maxCells<mrMesh.GetNumAllNodes())
@@ -487,7 +487,7 @@ void Crypt<DIM>::SetMaxCells(unsigned maxCells)
  * default value is set to 10x the initial mesh value by the constructor.
  */
 template<unsigned DIM> 
-void Crypt<DIM>::SetMaxElements(unsigned maxElements)
+void Tissue<DIM>::SetMaxElements(unsigned maxElements)
 {
     mMaxElements = maxElements;
     if (maxElements<mrMesh.GetNumAllElements())
@@ -499,7 +499,7 @@ void Crypt<DIM>::SetMaxElements(unsigned maxElements)
 }
 
 template<unsigned DIM>  
-void Crypt<DIM>::SetupTabulatedWriters(ColumnDataWriter& rNodeWriter, ColumnDataWriter& rElementWriter)
+void Tissue<DIM>::SetupTabulatedWriters(ColumnDataWriter& rNodeWriter, ColumnDataWriter& rElementWriter)
 {   
     // set up node writer
     mNodeVarIds.time = rNodeWriter.DefineUnlimitedDimension("Time","hours");
@@ -563,13 +563,13 @@ void Crypt<DIM>::SetupTabulatedWriters(ColumnDataWriter& rNodeWriter, ColumnData
 
 
 template<unsigned DIM> 
-c_vector<unsigned,5> Crypt<DIM>::GetCellTypeCount()
+c_vector<unsigned,5> Tissue<DIM>::GetCellTypeCount()
 {
     return mCellTypeCount;
 }
 
 template<unsigned DIM>  
-void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
+void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                                      ColumnDataWriter& rElementWriter,
                                      std::ofstream& rNodeFile, 
                                      std::ofstream& rElementFile,
@@ -776,71 +776,71 @@ void Crypt<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
 //                          spring iterator class                           // 
 //////////////////////////////////////////////////////////////////////////////
 template<unsigned DIM>
-Node<DIM>* Crypt<DIM>::SpringIterator::GetNodeA()
+Node<DIM>* Tissue<DIM>::SpringIterator::GetNodeA()
 {
     return mEdgeIter.GetNodeA();
 }
 
 template<unsigned DIM>
-Node<DIM>* Crypt<DIM>::SpringIterator::GetNodeB()
+Node<DIM>* Tissue<DIM>::SpringIterator::GetNodeB()
 {
     return mEdgeIter.GetNodeB();
 }
 
 template<unsigned DIM>
-TissueCell& Crypt<DIM>::SpringIterator::rGetCellA()
+TissueCell& Tissue<DIM>::SpringIterator::rGetCellA()
 {
-    assert((*this) != mrCrypt.SpringsEnd());
-    return mrCrypt.rGetCellAtNodeIndex(mEdgeIter.GetNodeA()->GetIndex());
+    assert((*this) != mrTissue.SpringsEnd());
+    return mrTissue.rGetCellAtNodeIndex(mEdgeIter.GetNodeA()->GetIndex());
 }
 
 
 template<unsigned DIM>
-TissueCell& Crypt<DIM>::SpringIterator::rGetCellB()
+TissueCell& Tissue<DIM>::SpringIterator::rGetCellB()
 {
-    assert((*this) != mrCrypt.SpringsEnd());
-    return mrCrypt.rGetCellAtNodeIndex(mEdgeIter.GetNodeB()->GetIndex());
+    assert((*this) != mrTissue.SpringsEnd());
+    return mrTissue.rGetCellAtNodeIndex(mEdgeIter.GetNodeB()->GetIndex());
 }
 
 
 template<unsigned DIM>
-bool Crypt<DIM>::SpringIterator::operator!=(const Crypt<DIM>::SpringIterator& other)
+bool Tissue<DIM>::SpringIterator::operator!=(const Tissue<DIM>::SpringIterator& other)
 {
     return (mEdgeIter != other.mEdgeIter);
 }
 
 template<unsigned DIM>
-typename Crypt<DIM>::SpringIterator& Crypt<DIM>::SpringIterator::operator++()
+typename Tissue<DIM>::SpringIterator& Tissue<DIM>::SpringIterator::operator++()
 {
     bool edge_is_ghost = false;
     
     do
     {
         ++mEdgeIter;
-        if(*this !=mrCrypt.SpringsEnd())
+        if(*this !=mrTissue.SpringsEnd())
         {
-            bool a_is_ghost = mrCrypt.mIsGhostNode[mEdgeIter.GetNodeA()->GetIndex()];
-            bool b_is_ghost = mrCrypt.mIsGhostNode[mEdgeIter.GetNodeB()->GetIndex()];
+            bool a_is_ghost = mrTissue.mIsGhostNode[mEdgeIter.GetNodeA()->GetIndex()];
+            bool b_is_ghost = mrTissue.mIsGhostNode[mEdgeIter.GetNodeB()->GetIndex()];
 
             edge_is_ghost = (a_is_ghost || b_is_ghost);
         }
     }
-    while( *this!=mrCrypt.SpringsEnd() && edge_is_ghost ); 
+    while( *this!=mrTissue.SpringsEnd() && edge_is_ghost ); 
 
     return (*this);
 }
 
 
 template<unsigned DIM>
-Crypt<DIM>::SpringIterator::SpringIterator(Crypt& rCrypt,
+Tissue<DIM>::SpringIterator::SpringIterator(Tissue& rTissue,
                                            typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edgeIter)
-    : mrCrypt(rCrypt),
+    : mrTissue(rTissue),
       mEdgeIter(edgeIter)
 {
-    if(mEdgeIter!=mrCrypt.mrMesh.EdgesEnd())
+    if(mEdgeIter!=mrTissue.mrMesh.EdgesEnd())
     {
-        bool a_is_ghost = mrCrypt.mIsGhostNode[mEdgeIter.GetNodeA()->GetIndex()];
-        bool b_is_ghost = mrCrypt.mIsGhostNode[mEdgeIter.GetNodeB()->GetIndex()];
+        bool a_is_ghost = mrTissue.mIsGhostNode[mEdgeIter.GetNodeA()->GetIndex()];
+        bool b_is_ghost = mrTissue.mIsGhostNode[mEdgeIter.GetNodeB()->GetIndex()];
 
         if(a_is_ghost || b_is_ghost)
         {
@@ -850,26 +850,26 @@ Crypt<DIM>::SpringIterator::SpringIterator(Crypt& rCrypt,
 }
 
 template<unsigned DIM>
-typename Crypt<DIM>::SpringIterator Crypt<DIM>::SpringsBegin()
+typename Tissue<DIM>::SpringIterator Tissue<DIM>::SpringsBegin()
 {
     return SpringIterator(*this, mrMesh.EdgesBegin());
 }
 
 template<unsigned DIM>
-typename Crypt<DIM>::SpringIterator Crypt<DIM>::SpringsEnd()
+typename Tissue<DIM>::SpringIterator Tissue<DIM>::SpringsEnd()
 {
     return SpringIterator(*this, mrMesh.EdgesEnd());
 }
 
 template<unsigned DIM>
-void Crypt<DIM>::CreateVoronoiTessellation()
+void Tissue<DIM>::CreateVoronoiTessellation()
 {
     delete mpVoronoiTessellation;
     mpVoronoiTessellation = new VoronoiTessellation<DIM>(mrMesh);
 }
 
 template<unsigned DIM>
-VoronoiTessellation<DIM>& Crypt<DIM>::rGetVoronoiTessellation()
+VoronoiTessellation<DIM>& Tissue<DIM>::rGetVoronoiTessellation()
 {
     assert(mpVoronoiTessellation!=NULL);
     return *mpVoronoiTessellation;
@@ -877,7 +877,7 @@ VoronoiTessellation<DIM>& Crypt<DIM>::rGetVoronoiTessellation()
 
 #define COVERAGE_IGNORE
 template<unsigned DIM>
-void Crypt<DIM>::CheckCryptCellPointers()
+void Tissue<DIM>::CheckTissueCellPointers()
 {
     bool res=true;
     for (std::list<TissueCell>::iterator it=mCells.begin();

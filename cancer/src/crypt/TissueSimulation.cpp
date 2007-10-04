@@ -24,11 +24,11 @@
 #include "VoronoiTessellation.cpp"
 
 template<unsigned DIM> 
-TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
-  :  mrCrypt(rCrypt)
+TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, bool deleteTissue)
+  :  mrTissue(rTissue)
 {
     srandom(0);
-    mDeleteCrypt = deleteCrypt;
+    mDeleteTissue = deleteTissue;
     mpParams = CancerParameters::Instance();
     mpRandomGenerator = RandomNumberGenerator::Instance();
     
@@ -40,8 +40,8 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
     mReMesh = true;
     mOutputCellTypes = false ;
     mNoBirth = false;
-    mMaxCells = 10*mrCrypt.rGetMesh().GetNumNodes();
-    mMaxElements = 10*mrCrypt.rGetMesh().GetNumElements();
+    mMaxCells = 10*mrTissue.rGetMesh().GetNumNodes();
+    mMaxElements = 10*mrTissue.rGetMesh().GetNumElements();
     mNumBirths = 0;
     mNumDeaths = 0;
     mUseNonFlatBottomSurface = false;
@@ -56,8 +56,8 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
     mUseCutoffPoint = false;
     mCutoffPoint = 1e10;
     
-    mrCrypt.SetMaxCells(mMaxCells);
-    mrCrypt.SetMaxElements(mMaxElements);
+    mrTissue.SetMaxCells(mMaxCells);
+    mrTissue.SetMaxElements(mMaxElements);
 }
 
 /**
@@ -67,9 +67,9 @@ TissueSimulation<DIM>::TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt)
 template<unsigned DIM> 
 TissueSimulation<DIM>::~TissueSimulation()
 {
-    if (mDeleteCrypt)
+    if (mDeleteTissue)
     {
-        delete &mrCrypt;
+        delete &mrTissue;
         for (typename std::vector<AbstractCellKiller<DIM>*>::iterator it=mCellKillers.begin();
              it != mCellKillers.end();
              ++it)
@@ -83,7 +83,7 @@ template<unsigned DIM>
 void TissueSimulation<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
 {
     assert(DIM==2); // this is 2d specific
-    rSetupFile << "MeshWidth\t" << mrCrypt.rGetMesh().GetWidth(0u);// get furthest distance between nodes in the x-direction
+    rSetupFile << "MeshWidth\t" << mrTissue.rGetMesh().GetWidth(0u);// get furthest distance between nodes in the x-direction
     rSetupFile.close();
 }
 
@@ -98,8 +98,8 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
     unsigned num_births_this_step = 0;
 
     // Iterate over all cells, seeing if each one can be divided
-    for (typename Crypt<DIM>::Iterator cell_iter = mrCrypt.Begin();
-         cell_iter != mrCrypt.End();
+    for (typename Tissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+         cell_iter != mrTissue.End();
          ++cell_iter)
     {
         TissueCell& cell = *cell_iter;
@@ -114,7 +114,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
             // Add a new node to the mesh
             c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
             
-            TissueCell *p_new_cell=mrCrypt.AddCell(new_cell, new_location);
+            TissueCell *p_new_cell=mrTissue.AddCell(new_cell, new_location);
             std::set<TissueCell*> new_cell_pair;
             new_cell_pair.insert(&cell); //Parent cell
             new_cell_pair.insert(p_new_cell); //New cell (the clue's in the name)
@@ -140,7 +140,7 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
         mCellKillers[killer_index]->TestAndLabelCellsForApoptosisOrDeath();
     }
     
-    num_deaths_this_step += mrCrypt.RemoveDeadCells(); 
+    num_deaths_this_step += mrTissue.RemoveDeadCells(); 
     
     return num_deaths_this_step;
 }
@@ -148,7 +148,7 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
 
 
 template<unsigned DIM> 
-c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename Crypt<DIM>::Iterator parentCell)
+c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename Tissue<DIM>::Iterator parentCell)
 {
     double separation = CancerParameters::Instance()->GetDivisionSeparation();
     c_vector<double, DIM> parent_coords = parentCell.rGetLocation();
@@ -222,7 +222,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
         
     // set the parent to use this location
     ChastePoint<DIM> parent_coords_point(parent_coords);
-    mrCrypt.MoveCell(parentCell, parent_coords_point);
+    mrTissue.MoveCell(parentCell, parent_coords_point);
     return daughter_coords;
 }
 
@@ -231,14 +231,14 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 template<unsigned DIM>  
 std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOfEachNode()
 {
-    std::vector<c_vector<double, DIM> > drdt(mrCrypt.rGetMesh().GetNumAllNodes());
+    std::vector<c_vector<double, DIM> > drdt(mrTissue.rGetMesh().GetNumAllNodes());
     for (unsigned i=0; i<drdt.size(); i++)
     {
         drdt[i]=zero_vector<double>(DIM);
     }
 
-    for(typename Crypt<DIM>::SpringIterator spring_iterator=mrCrypt.SpringsBegin();
-        spring_iterator!=mrCrypt.SpringsEnd();
+    for(typename Tissue<DIM>::SpringIterator spring_iterator=mrTissue.SpringsBegin();
+        spring_iterator!=mrTissue.SpringsEnd();
         ++spring_iterator)
     {
         unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
@@ -286,11 +286,11 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
 {
     assert(nodeAGlobalIndex!=nodeBGlobalIndex);
     c_vector<double, DIM> unit_difference;
-    c_vector<double, DIM> node_a_location = mrCrypt.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
-    c_vector<double, DIM> node_b_location = mrCrypt.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_a_location = mrTissue.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_b_location = mrTissue.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
     
     // there is reason not to substract one position from the other (cyclidrical meshes). clever gary
-    unit_difference = mrCrypt.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
+    unit_difference = mrTissue.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
     
     double distance_between_nodes = norm_2(unit_difference);
     
@@ -308,15 +308,15 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     
     double rest_length = 1.0;
         
-    double ageA = mrCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
-    double ageB = mrCrypt.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
+    double ageA = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
+    double ageB = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
     
     if (ageA<1.0 && ageB<1.0 )
     {
         // Spring Rest Length Increases to normal rest length from ???? to normal rest length, 1.0, over 1 hour
         std::set<TissueCell *> cell_pair;
-        cell_pair.insert(&(mrCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex)));
-        cell_pair.insert(&(mrCrypt.rGetCellAtNodeIndex(nodeBGlobalIndex)));
+        cell_pair.insert(&(mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex)));
+        cell_pair.insert(&(mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex)));
         unsigned count=mDivisionPairs.count(cell_pair);
         if (count==1)
         {   
@@ -336,14 +336,14 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     double a_rest_length=rest_length*0.5;
     double b_rest_length=a_rest_length;    
     
-    if (mrCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex).HasApoptosisBegun())
+    if (mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).HasApoptosisBegun())
     {
-        double time_until_death_a = mrCrypt.rGetCellAtNodeIndex(nodeAGlobalIndex).TimeUntilDeath();
+        double time_until_death_a = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).TimeUntilDeath();
         a_rest_length = a_rest_length*(time_until_death_a)/(CancerParameters::Instance()->GetApoptosisTime());
     }
-    if (mrCrypt.rGetCellAtNodeIndex(nodeBGlobalIndex).HasApoptosisBegun())
+    if (mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).HasApoptosisBegun())
     {
-        double time_until_death_b = mrCrypt.rGetCellAtNodeIndex(nodeBGlobalIndex).TimeUntilDeath();
+        double time_until_death_b = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).TimeUntilDeath();
         b_rest_length = b_rest_length*(time_until_death_b)/(CancerParameters::Instance()->GetApoptosisTime());
     }
     
@@ -355,7 +355,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     
     if (mUseEdgeBasedSpringConstant)
     {
-        VoronoiTessellation<DIM>& tess = mrCrypt.rGetVoronoiTessellation();
+        VoronoiTessellation<DIM>& tess = mrTissue.rGetVoronoiTessellation();
         
         multiplication_factor = tess.GetEdgeLength(nodeAGlobalIndex,nodeBGlobalIndex)*sqrt(3);
     }
@@ -369,17 +369,17 @@ template<unsigned DIM>
 void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt)
 {
     // update ghost positions first because they do not affect the real cells
-    mrCrypt.UpdateGhostPositions(mDt);
+    mrTissue.UpdateGhostPositions(mDt);
 
     // Iterate over all cells to update their positions.
-    for (typename Crypt<DIM>::Iterator cell_iter = mrCrypt.Begin();
-         cell_iter != mrCrypt.End();
+    for (typename Tissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+         cell_iter != mrTissue.End();
          ++cell_iter)
     {
         TissueCell& cell = *cell_iter;
         unsigned index = cell.GetNodeIndex();
         
-        ChastePoint<DIM> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+        ChastePoint<DIM> new_point(mrTissue.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
         
         if(DIM==2)
         {
@@ -388,8 +388,8 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
             // stem cells are fixed if no wnt, so reset the x-value to the old x-value           
             if((cell.GetCellType()==STEM) && (!is_wnt_included))
             {
-                new_point.rGetLocation()[0] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[0];
-                new_point.rGetLocation()[1] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[1];
+                new_point.rGetLocation()[0] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[0];
+                new_point.rGetLocation()[1] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[1];
             }
             
             // for all cells - move up if below the bottom surface
@@ -399,11 +399,11 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
             }
             
             // move the cell
-            mrCrypt.MoveCell(cell_iter, new_point);                    
+            mrTissue.MoveCell(cell_iter, new_point);                    
         }
         else
         {   // 1D or 3D
-            mrCrypt.MoveCell(cell_iter, new_point);    
+            mrTissue.MoveCell(cell_iter, new_point);    
         }
     }
 }
@@ -459,11 +459,11 @@ template<unsigned DIM>
 void TissueSimulation<DIM>::SetMaxCells(unsigned maxCells)
 {
     mMaxCells = maxCells;
-    if (maxCells<mrCrypt.rGetMesh().GetNumAllNodes())
+    if (maxCells<mrTissue.rGetMesh().GetNumAllNodes())
     {
         EXCEPTION("mMaxCells is less than the number of cells in the mesh.");
     }
-    mrCrypt.SetMaxCells(maxCells);
+    mrTissue.SetMaxCells(maxCells);
 }
 
 /**
@@ -474,24 +474,24 @@ template<unsigned DIM>
 void TissueSimulation<DIM>::SetMaxElements(unsigned maxElements)
 {
     mMaxElements = maxElements;
-    if (maxElements<mrCrypt.rGetMesh().GetNumAllElements())
+    if (maxElements<mrTissue.rGetMesh().GetNumAllElements())
     {
         EXCEPTION("mMaxElements is less than the number of elements in the mesh.");
     }
-    mrCrypt.SetMaxElements(maxElements);
+    mrTissue.SetMaxElements(maxElements);
 }
 
 
 template<unsigned DIM> 
-Crypt<DIM>& TissueSimulation<DIM>::rGetCrypt()
+Tissue<DIM>& TissueSimulation<DIM>::rGetTissue()
 {
-    return mrCrypt;
+    return mrTissue;
 }
 
 template<unsigned DIM> 
-const Crypt<DIM>& TissueSimulation<DIM>::rGetCrypt() const
+const Tissue<DIM>& TissueSimulation<DIM>::rGetTissue() const
 {
-    return mrCrypt;
+    return mrTissue;
 }
 
 
@@ -577,7 +577,7 @@ std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNode
     std::vector<double> location;
     for(unsigned i=0; i<DIM; i++)
     {
-        location.push_back( mrCrypt.rGetMesh().GetNode(rNodeIndex)->rGetLocation()[i] );
+        location.push_back( mrTissue.rGetMesh().GetNode(rNodeIndex)->rGetLocation()[i] );
     }
     return location;
 }
@@ -626,7 +626,7 @@ void TissueSimulation<DIM>::Solve()
     ColumnDataWriter tabulated_node_writer(results_directory+"/tab_results", "tabulated_node_results",true);
     ColumnDataWriter tabulated_element_writer(results_directory+"/tab_results", "tabulated_element_results",false);
     
-    mrCrypt.SetupTabulatedWriters(tabulated_node_writer, tabulated_element_writer);//, element_writer_ids);
+    mrTissue.SetupTabulatedWriters(tabulated_node_writer, tabulated_element_writer);//, element_writer_ids);
     
     // This keeps track of when tabulated results were last output
     unsigned tabulated_output_counter = 0;
@@ -650,8 +650,8 @@ void TissueSimulation<DIM>::Solve()
      * TODO:For some strange reason this seems to take about 3 minutes for a realistic Wnt-Crypt.
      * Not sure why - when the same code was evaluated in a test it seemed almost instant.
      */
-    for (typename Crypt<DIM>::Iterator cell_iter = mrCrypt.Begin();
-         cell_iter != mrCrypt.End();
+    for (typename Tissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+         cell_iter != mrTissue.End();
          ++cell_iter)
     {
         /* We don't use the result; this call is just to force the cells 
@@ -666,7 +666,7 @@ void TissueSimulation<DIM>::Solve()
         WriteVisualizerSetupFile(*p_setup_file);
     }
     
-    mrCrypt.WriteResultsToFiles(tabulated_node_writer, 
+    mrTissue.WriteResultsToFiles(tabulated_node_writer, 
                                 tabulated_element_writer,
                                 *p_node_file, *p_element_file, *p_cell_types_file,
                                 false,
@@ -676,7 +676,7 @@ void TissueSimulation<DIM>::Solve()
     CryptVoronoiDataWriter<DIM>* p_voronoi_data_writer = NULL;
     if(mWriteVoronoiData)
     {
-        p_voronoi_data_writer = new CryptVoronoiDataWriter<DIM>(mrCrypt,
+        p_voronoi_data_writer = new CryptVoronoiDataWriter<DIM>(mrTissue,
                                                                 mOutputDirectory,
                                                                 "VoronoiAreaAndPerimeter.dat",
                                                                 mFollowLoggedCell);
@@ -709,12 +709,12 @@ void TissueSimulation<DIM>::Solve()
         if(mReMesh)
         {
             LOG(1, "\tRemeshing..\n");
-            mrCrypt.ReMesh();
+            mrTissue.ReMesh();
         }
 
         if (mCreateVoronoiTessellation)
         {
-            mrCrypt.CreateVoronoiTessellation();
+            mrTissue.CreateVoronoiTessellation();
         }
 
         //  calculate node velocities
@@ -727,7 +727,7 @@ void TissueSimulation<DIM>::Solve()
         p_simulation_time->IncrementTimeOneStep();
         
         // Write results to file
-        mrCrypt.WriteResultsToFiles(tabulated_node_writer, 
+        mrTissue.WriteResultsToFiles(tabulated_node_writer, 
                                     tabulated_element_writer, 
                                     *p_node_file, *p_element_file, *p_cell_types_file,
                                     tabulated_output_counter%80==0,
@@ -747,7 +747,7 @@ void TissueSimulation<DIM>::Solve()
     // Write end state to tabulated files (not visualizer - this
     // is taken care of in the main loop).
     // Doesn't need to count cell types again as it is done in the last loop
-    mrCrypt.WriteResultsToFiles(tabulated_node_writer, 
+    mrTissue.WriteResultsToFiles(tabulated_node_writer, 
                                 tabulated_element_writer, 
                                 *p_node_file, *p_element_file, *p_cell_types_file,
                                 true,
@@ -793,13 +793,13 @@ void TissueSimulation<DIM>::Save()
     
     if(mReMesh)
     {
-        mrCrypt.ReMesh();
+        mrTissue.ReMesh();
     }
 
     
     // the false is so the directory isn't cleaned
     TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);
-    mesh_writer.WriteFilesUsingMesh(mrCrypt.rGetMesh());
+    mesh_writer.WriteFilesUsingMesh(mrTissue.rGetMesh());
     
     std::ofstream ofs(archive_filename.c_str());
     boost::archive::text_oarchive output_arch(ofs);
@@ -833,7 +833,7 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
     
     std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/2dCrypt_at_time_"+time_stamp.str() +".arch";
     std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str();
-    Crypt<DIM>::meshPathname = mesh_filename;
+    Tissue<DIM>::meshPathname = mesh_filename;
     
     // Create an input archive
     std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -847,12 +847,12 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
 
     input_arch >> p_sim;
 
-    if (p_sim->rGetCrypt().rGetMesh().GetNumNodes()!=p_sim->rGetCrypt().rGetCells().size())
+    if (p_sim->rGetTissue().rGetMesh().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size())
     {
         #define COVERAGE_IGNORE
         std::stringstream string_stream;
-        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetCrypt().rGetMesh().GetNumNodes()
-                      << ") is not equal to the number of cells (" << p_sim->rGetCrypt().rGetCells().size() 
+        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().rGetMesh().GetNumNodes()
+                      << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size() 
                       << ")";
         EXCEPTION(string_stream.str());
         #undef COVERAGE_IGNORE
@@ -867,7 +867,7 @@ double TissueSimulation<DIM>::BottomSurfaceProfile(double x)
 {
     if(mUseNonFlatBottomSurface)
     {
-        double crypt_width = mrCrypt.rGetMesh().GetWidth(0u);
+        double crypt_width = mrTissue.rGetMesh().GetWidth(0u);
         double frequency = floor(crypt_width/4.0)+1.0;
         
         return 0.05*(sin(2*frequency*M_PI*x/crypt_width)+1);
@@ -898,7 +898,7 @@ void TissueSimulation<DIM>::UseNonFlatBottomSurface()
 template<unsigned DIM>
 c_vector<unsigned,5> TissueSimulation<DIM>::GetCellTypeCount()
 {
-    return mrCrypt.GetCellTypeCount();
+    return mrTissue.GetCellTypeCount();
 }
 
 #endif //_TISSUESIMULATION_CPP_

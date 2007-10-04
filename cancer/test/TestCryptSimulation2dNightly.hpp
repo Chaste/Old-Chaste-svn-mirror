@@ -20,7 +20,7 @@
 #include "ColumnDataReader.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
-#include "Crypt.cpp"
+#include "Tissue.cpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "CellsGenerator.hpp"
@@ -37,7 +37,7 @@ private :
     unsigned mNumber;
 
 public :
-    SingleCellCellKiller(Crypt<2>* pCrypt, unsigned number)
+    SingleCellCellKiller(Tissue<2>* pCrypt, unsigned number)
         : AbstractCellKiller<2>(pCrypt),
           mNumber(number)
     {
@@ -45,14 +45,14 @@ public :
     
     virtual void TestAndLabelCellsForApoptosisOrDeath()
     {
-        if(mpCrypt->GetNumRealCells()==0)
+        if(mpTissue->GetNumRealCells()==0)
         {
             return;
         }
         
-        Crypt<2>::Iterator cell_iter = mpCrypt->Begin();
+        Tissue<2>::Iterator cell_iter = mpTissue->Begin();
        
-        for(unsigned i=0; ( (i<mNumber) && (cell_iter!=mpCrypt->End()) ); i++)
+        for(unsigned i=0; ( (i<mNumber) && (cell_iter!=mpTissue->End()) ); i++)
         {
             ++cell_iter;
         }
@@ -192,7 +192,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, mesh, FIXED, false, 0.0, 3.0, 6.5, 8.0);
         
-        Crypt<2> crypt(mesh, cells);
+        Tissue<2> crypt(mesh, cells);
         TissueSimulation<2> simulator(crypt);    
                 
         // destroy the simulation time class because of failed solve
@@ -258,7 +258,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
                 
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);
@@ -304,7 +304,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true,-1.0);
                 
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         // set the first cell to be logged
@@ -390,7 +390,7 @@ public:
             cells.push_back(cell);
         }
 
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);
@@ -410,7 +410,7 @@ public:
         unsigned num_transit = 0;
         unsigned num_differentiated = 0;
         
-        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -472,7 +472,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
                
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);
@@ -523,7 +523,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, true);
         
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         WntGradient::Instance()->SetType(LINEAR);
@@ -602,7 +602,7 @@ public:
             cells[i].SetMutationState(mutation_state);
         }
         
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         WntGradient::Instance()->SetType(LINEAR);
@@ -629,7 +629,7 @@ public:
         
         unsigned number_of_cells = 0;
         unsigned number_of_mutant_cells = 0;
-        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -672,7 +672,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
               
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);
@@ -717,7 +717,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
               
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);
@@ -758,7 +758,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
               
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);
@@ -814,7 +814,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
               
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);
@@ -885,7 +885,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true,-1.0);
                 
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);

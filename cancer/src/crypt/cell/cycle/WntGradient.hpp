@@ -5,7 +5,7 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "CancerParameters.hpp"
-#include "Crypt.cpp"
+#include "Tissue.cpp"
 
 /**
  * Possible types of WntGradient.
@@ -28,7 +28,7 @@ private:
 
     CancerParameters* mpCancerParams;
     WntGradientType mGradientType;
-    Crypt<2>* mpCrypt;
+    Tissue<2>* mpCrypt;
     bool mTypeSet; 
     
     double mConstantWntValueForTesting;
@@ -85,7 +85,7 @@ public:
      *  Set the crypt. Must be called before GetWntLevel(). This calls 
      *  crypt.Initialise()
      */
-    void SetCrypt(Crypt<2>& rCrypt);
+    void SetCrypt(Tissue<2>& rCrypt);
     
     /**
      *  Set the type of wnt gradient. Must be called before GetWntLevel().

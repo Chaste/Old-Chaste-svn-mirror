@@ -33,7 +33,7 @@ private:
     }
     
 public:
-    SloughingCellKiller(Crypt<2>* pCrypt, bool sloughSides=false)
+    SloughingCellKiller(Tissue<2>* pCrypt, bool sloughSides=false)
         : AbstractCellKiller<2>(pCrypt),
           mSloughSides(sloughSides)
     {
@@ -63,8 +63,8 @@ public:
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath()
     {
-        for (Crypt<2>::Iterator cell_iter = this->mpCrypt->Begin();
-             cell_iter != this->mpCrypt->End();
+        for (Tissue<2>::Iterator cell_iter = this->mpTissue->Begin();
+             cell_iter != this->mpTissue->End();
              ++cell_iter)
         {
             double x = cell_iter.rGetLocation()[0];
@@ -94,7 +94,7 @@ inline void save_construct_data(
     Archive & ar, const SloughingCellKiller * t, const BOOST_PFTO unsigned int file_version)
 {
     // save data required to construct instance
-    const Crypt<2>* const p_crypt = t->GetCrypt();
+    const Tissue<2>* const p_crypt = t->GetTissue();
     ar << p_crypt;
     bool slough_sides = t->GetSloughSides();
     ar << slough_sides;
@@ -108,7 +108,7 @@ inline void load_construct_data(
     Archive & ar, SloughingCellKiller * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
-    Crypt<2>* p_crypt;
+    Tissue<2>* p_crypt;
     ar >> p_crypt;
     bool slough_sides;
     ar >> slough_sides;

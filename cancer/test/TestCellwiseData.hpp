@@ -5,7 +5,7 @@
 
 #include <cmath>
 #include <vector>
-#include "Crypt.cpp"
+#include "Tissue.cpp"
 #include "CellwiseData.cpp"
 #include "CellsGenerator.hpp"
 
@@ -30,7 +30,7 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, mesh);
 
         // create a crypt
-        Crypt<2> crypt(mesh,cells);
+        Tissue<2> crypt(mesh,cells);
 
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
         
@@ -39,18 +39,18 @@ public:
         
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
                 
-        TS_ASSERT_THROWS_ANYTHING(p_data->SetCrypt(crypt)); 
+        TS_ASSERT_THROWS_ANYTHING(p_data->SetTissue(crypt)); 
         
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
 
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
 
-        p_data->SetCrypt(crypt);     
+        p_data->SetTissue(crypt);     
 
         TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
         
         p_data->SetValue(1.23, mesh.GetNode(0));
-        Crypt<2>::Iterator iter = crypt.Begin();
+        Tissue<2>::Iterator iter = crypt.Begin();
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter)), 1.23, 1e-12);
 
         p_data->SetValue(2.23, mesh.GetNode(1));
@@ -77,13 +77,13 @@ public:
         p_data = CellwiseData<2>::Instance();
         
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 2);
-        p_data->SetCrypt(crypt);     
+        p_data->SetTissue(crypt);     
         TS_ASSERT_THROWS_ANYTHING(p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1));
 
         TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
         
         p_data->SetValue(3.23, mesh.GetNode(0), 1);
-        Crypt<2>::Iterator iter2 = crypt.Begin();
+        Tissue<2>::Iterator iter2 = crypt.Begin();
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 1), 3.23, 1e-12);
 
         p_data->SetValue(4.23, mesh.GetNode(1), 1);

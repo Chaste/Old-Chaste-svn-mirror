@@ -9,7 +9,7 @@
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
 #include "WntGradient.hpp"
-#include "Crypt.cpp"
+#include "Tissue.cpp"
 #include "TissueCell.hpp"
 #include "WntCellCycleModel.hpp"
 
@@ -217,7 +217,7 @@ public:
         }
         
         // create the crypt
-        Crypt<2> crypt(mesh,cells);
+        Tissue<2> crypt(mesh,cells);
         
         CancerParameters::Instance()->SetCryptLength(1.0);
 
@@ -225,7 +225,7 @@ public:
         WntGradient::Instance()->SetType(LINEAR);
         WntGradient::Instance()->SetCrypt(crypt);
         
-        Crypt<2>::Iterator iter = crypt.Begin();
+        Tissue<2>::Iterator iter = crypt.Begin();
         
         while(iter!=crypt.End())
         {

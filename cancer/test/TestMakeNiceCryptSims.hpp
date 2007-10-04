@@ -52,7 +52,7 @@ void TestNiceCryptSimulation() throw (Exception)
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC_WNT, true);
               
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
                 
         WntGradient::Instance()->SetType(OFFSET_LINEAR);
@@ -70,7 +70,7 @@ void TestNiceCryptSimulation() throw (Exception)
         simulator.SetMaxCells(1000);
         simulator.SetMaxElements(2000);
 
-        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetCrypt(),0.01);
+        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetTissue(),0.01);
         simulator.AddCellKiller(p_cell_killer);
         
         // UNUSUAL SET UP HERE /////////////////////////////////////
@@ -93,7 +93,7 @@ void TestNiceCryptSimulation() throw (Exception)
         // set a cell to be labelled (probably a stemish cell)
         for (unsigned i=0; i<label_these.size() ; i++)
         {
-            simulator.rGetCrypt().rGetCellAtNodeIndex(label_these[i]).SetMutationState(LABELLED);
+            simulator.rGetTissue().rGetCellAtNodeIndex(label_these[i]).SetMutationState(LABELLED);
         }
         
         simulator.Save();

@@ -15,7 +15,7 @@
 #include "WntCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
-#include "Crypt.cpp"
+#include "Tissue.cpp"
 #include "CellsGenerator.hpp"
 
 class TestCrypt : public CxxTest::TestSuite
@@ -56,13 +56,13 @@ private:
         CellsGenerator<DIM>::GenerateBasic(cells, mesh);
 
         // create the crypt
-        Crypt<DIM> crypt(mesh,cells);
+        Tissue<DIM> crypt(mesh,cells);
         
         TS_ASSERT_EQUALS(crypt.rGetMesh().GetNumNodes(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS(crypt.rGetCells().size(),cells.size());
         
         unsigned counter = 0;
-        for (typename Crypt<DIM>::Iterator cell_iter = crypt.Begin();
+        for (typename Tissue<DIM>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -122,7 +122,7 @@ public:
         cells[0].SetNodeIndex(1);
 
 		// fails as no cell or ghost correponding to node 0        
-        TS_ASSERT_THROWS_ANYTHING(Crypt<2> crypt2(mesh, cells));
+        TS_ASSERT_THROWS_ANYTHING(Tissue<2> crypt2(mesh, cells));
 
         SimulationTime::Destroy();
     }
@@ -147,11 +147,11 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);        
 
         // create a crypt, with no ghost nodes at the moment
-        Crypt<2> crypt(*p_mesh,cells);
+        Tissue<2> crypt(*p_mesh,cells);
 
         // iterator should loop over all nodes
         unsigned counter = 0;
-        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -177,7 +177,7 @@ public:
         
         // check the iterator doesn't loop over ghost nodes
         counter = 0;
-        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -208,14 +208,14 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, mesh);
 
         // create a crypt, with no ghost nodes at the moment
-        Crypt<2> crypt(mesh, cells);
+        Tissue<2> crypt(mesh, cells);
 
         //////////////////
         // test move cell
         //////////////////
         
         // move node 0 by a small amount
-        Crypt<2>::Iterator cell_iter = crypt.Begin();
+        Tissue<2>::Iterator cell_iter = crypt.Begin();
         c_vector<double,2> new_location = cell_iter.rGetLocation();
         new_location[0] += 1e-2;
         new_location[1] += 1e-2;
@@ -277,7 +277,7 @@ public:
         cells[27].StartApoptosis();
         
         // create a crypt, with some random ghost nodes
-        Crypt<2> crypt(mesh,cells);
+        Tissue<2> crypt(mesh,cells);
 
         // set ghost nodes (using alternative constructor)
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
@@ -348,7 +348,7 @@ public:
         cells[27].StartApoptosis();
         
         // create a crypt, with some random ghost nodes
-        Crypt<2> crypt(mesh,cells);
+        Tissue<2> crypt(mesh,cells);
 
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
         for(unsigned i=0; i<10; i++)
@@ -413,7 +413,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
      
-        Crypt<2> crypt(mesh,cells);
+        Tissue<2> crypt(mesh,cells);
         
         std::string output_directory = "TestCryptWriters";
         OutputFileHandler output_file_handler(output_directory, false);
@@ -497,14 +497,14 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
         // create a crypt, with no ghost nodes at the moment
-        Crypt<2> crypt(*p_mesh,cells);
+        Tissue<2> crypt(*p_mesh,cells);
         // set ghost nodes
         crypt.SetGhostNodes(ghost_node_indices);
                 
         // check that we can iterate over the set of springs
         std::set< std::set< unsigned > > springs_visited;
         
-        for (Crypt<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
+        for (Tissue<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
              spring_iterator!=crypt.SpringsEnd();
              ++spring_iterator)
         {
@@ -540,7 +540,7 @@ public:
         CellsGenerator<3>::GenerateBasic(cells, mesh);
         
         // create a crypt, with no ghost nodes at the moment
-        Crypt<3> crypt(mesh,cells);
+        Tissue<3> crypt(mesh,cells);
         
         // make nodes 0-10 ghost nodes
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(),false);
@@ -555,7 +555,7 @@ public:
         // check that we can iterate over the set of springs
         std::set< std::set< unsigned > > springs_visited;
         
-        for (Crypt<3>::SpringIterator spring_iterator=crypt.SpringsBegin();
+        for (Tissue<3>::SpringIterator spring_iterator=crypt.SpringsBegin();
              spring_iterator!=crypt.SpringsEnd();
              ++spring_iterator)
         {
@@ -618,11 +618,11 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
         // create the crypt
-        Crypt<2> crypt(mesh, cells);
+        Tissue<2> crypt(mesh, cells);
         
                 
         // loop over nodes
-        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -667,11 +667,11 @@ public:
             CellsGenerator<2>::GenerateBasic(cells, mesh);
             
             // create the crypt
-            Crypt<2>* const p_crypt = new Crypt<2>(mesh, cells);
+            Tissue<2>* const p_crypt = new Tissue<2>(mesh, cells);
         
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // loop over them to run to time 0.0;
-            for(Crypt<2>::Iterator cell_iter = p_crypt->Begin();
+            for(Tissue<2>::Iterator cell_iter = p_crypt->Begin();
              cell_iter != p_crypt->End();
              ++cell_iter)
             {                
@@ -698,7 +698,7 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
             p_simulation_time->IncrementTimeOneStep();
             
-            Crypt<2>* p_crypt;
+            Tissue<2>* p_crypt;
                                                    
             // restore the crypt
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -707,7 +707,7 @@ public:
             
             // WARNING! This is here because the loading of a crypt is only ever called
             // by TissueSimulation::Load() which has a line like this:
-            Crypt<2>::meshPathname = "mesh/test/data/square_4_elements";
+            Tissue<2>::meshPathname = "mesh/test/data/square_4_elements";
             // this horribleness will go away when ticket:412 (proper mesh archiving) is done.
             
             input_arch >> p_crypt;
@@ -715,7 +715,7 @@ public:
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // this checks that individual cells and their models are archived.
             unsigned counter = 0u;
-            for(Crypt<2>::Iterator cell_iter = p_crypt->Begin();
+            for(Tissue<2>::Iterator cell_iter = p_crypt->Begin();
              cell_iter != p_crypt->End();
              ++cell_iter)
             {

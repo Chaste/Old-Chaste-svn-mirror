@@ -1,7 +1,7 @@
 #ifndef CRYPTVORONOIDATAWRITER_HPP_
 #define CRYPTVORONOIDATAWRITER_HPP_
 
-#include "Crypt.cpp"
+#include "Tissue.cpp"
 #include "OutputFileHandler.hpp"
 
 /**
@@ -29,13 +29,13 @@ template<unsigned DIM>
 class CryptVoronoiDataWriter
 {
 private:
-    Crypt<DIM>& mrCrypt;
+    Tissue<DIM>& mrCrypt;
     out_stream mOutStream;
     bool mFollowLoggedCell;
     
     
 public:
-    CryptVoronoiDataWriter(Crypt<DIM>& rCrypt, std::string directory, std::string filename, bool followLoggedCell = false)
+    CryptVoronoiDataWriter(Tissue<DIM>& rCrypt, std::string directory, std::string filename, bool followLoggedCell = false)
         :mrCrypt(rCrypt),
          mFollowLoggedCell(followLoggedCell)
     {
@@ -55,7 +55,7 @@ public:
     void WriteData()
     {
         (*mOutStream)<< SimulationTime::Instance()->GetDimensionalisedTime() << " ";
-        for (typename Crypt<DIM>::Iterator cell_iter = mrCrypt.Begin();
+        for (typename Tissue<DIM>::Iterator cell_iter = mrCrypt.Begin();
              cell_iter != mrCrypt.End();
              ++cell_iter)
         {

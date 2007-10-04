@@ -12,7 +12,7 @@
 #include "CancerParameters.hpp"
 #include "RandomCellKiller.hpp"
 #include "TrianglesMeshReader.cpp"
-#include "Crypt.cpp"
+#include "Tissue.cpp"
 #include "CryptVoronoiDataWriter.hpp"
 #include "WntGradient.hpp"
 #include <vector>
@@ -39,15 +39,15 @@
  * that the value we use for Meineke lambda is completely different because we have
  * nondimensionalised)
  *
- * The TissueSimulation currently only accepts a crypt (facade class) which is 
+ * The TissueSimulation currently only accepts a tissue (facade class) which is 
  * formed from a mesh, whose nodes are associated with TissueCells 
  * or are ghost nodes. The TissueSimulation then accesses only the 
- * TissueCells via an iterator in the crypt facade class.
+ * TissueCells via an iterator in the tissue facade class.
  * 
  * The mesh should be surrounded by at least one layer of ghost nodes.  These are 
  * nodes which do not correspond to a cell, but are necessary for remeshing (because 
  * the remesher tries to create a convex hull of the set of nodes) and visualising 
- * purposes. The crypt class deals with ghost nodes. SetGhostNodes() should have been called
+ * purposes. The tissue class deals with ghost nodes. SetGhostNodes() should have been called
  * on it.
  * 
  * Cells can divide (at a time governed by their cell cycle models)
@@ -76,9 +76,9 @@ protected:
     double mEndTime;
 
     /** Facade encapsulating cells in the tissue being simulated */
-    Crypt<DIM>& mrCrypt;
+    Tissue<DIM>& mrTissue;
     /** Whether to delete the facade in our destructor */
-    bool mDeleteCrypt;
+    bool mDeleteTissue;
     
     /** Whether to run the simulation with no birth (defaults to false). */
     bool mNoBirth;
@@ -153,13 +153,13 @@ protected:
                 assert(p_cell);
                 AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
                 assert(p_model);
-                // Check cell exists in crypt
+                // Check cell exists in tissue
                 unsigned node_index = p_cell->GetNodeIndex();
                 std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
-                TissueCell& r_cell = mrCrypt.rGetCellAtNodeIndex(node_index);
+                TissueCell& r_cell = mrTissue.rGetCellAtNodeIndex(node_index);
                 if (&r_cell != p_cell)
                 {
-                    std::cout << "  Mismatch with crypt" << std::endl << std::flush;
+                    std::cout << "  Mismatch with tissue" << std::endl << std::flush;
                     res = false;
                 }
                 // Check model links back to cell
@@ -235,7 +235,7 @@ protected:
      * @return daughter_coords The coordinates for the daughter cell.
      * 
      */
-    c_vector<double, DIM> CalculateDividingCellCentreLocations(typename Crypt<DIM>::Iterator parentCell);
+    c_vector<double, DIM> CalculateDividingCellCentreLocations(typename Tissue<DIM>::Iterator parentCell);
     
     /**
      * During a simulation time step, process any cell sloughing or death
@@ -286,10 +286,10 @@ public:
     /** 
      *  Constructor
      * 
-     *  @param rCrypt A crypt facade class (contains a mesh and cells)
-     *  @param deleteCrypt whether to delete the crypt on destruction to free up memory.
+     *  @param rTissue A tissue facade class (contains a mesh and cells)
+     *  @param deleteTissue whether to delete the tissue on destruction to free up memory.
      */
-    TissueSimulation(Crypt<DIM>& rCrypt, bool deleteCrypt=false);
+    TissueSimulation(Tissue<DIM>& rTissue, bool deleteTissue=false);
     
     /**
      * Free any memory allocated by the constructor
@@ -318,8 +318,8 @@ public:
     void Save();
     static TissueSimulation<DIM>* Load(const std::string& rArchiveDirectory, const double& rTimeStamp);
 
-    Crypt<DIM>& rGetCrypt();
-    const Crypt<DIM>& rGetCrypt() const;
+    Tissue<DIM>& rGetTissue();
+    const Tissue<DIM>& rGetTissue() const;
     
     double BottomSurfaceProfile(double x);
 };
@@ -337,8 +337,8 @@ inline void save_construct_data(
     Archive & ar, const TissueSimulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // save data required to construct instance
-    const Crypt<DIM> * p_crypt = &(t->rGetCrypt());
-    ar & p_crypt;
+    const Tissue<DIM> * p_tissue = &(t->rGetTissue());
+    ar & p_tissue;
     
     bool archive_wnt;
     archive_wnt=WntGradient::Instance()->IsGradientSetUp();
@@ -352,16 +352,16 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise Crypt.
+ * De-serialize constructor parameters and initialise Tissue.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, TissueSimulation<DIM> * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
-    Crypt<DIM>* p_crypt;
+    Tissue<DIM>* p_tissue;
 
-    ar >> p_crypt;
+    ar >> p_tissue;
     bool archive_wnt;
     ar & archive_wnt;
     if (archive_wnt)
@@ -371,7 +371,7 @@ inline void load_construct_data(
         ar & p_wnt_gradient;
     }
     // invoke inplace constructor to initialize instance
-    ::new(t)TissueSimulation<DIM>(*p_crypt, true);
+    ::new(t)TissueSimulation<DIM>(*p_tissue, true);
 }
 }
 } // namespace ...

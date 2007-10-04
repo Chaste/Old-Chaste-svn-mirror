@@ -2,7 +2,7 @@
 #define CELLWISEDATA_HPP_
 
 #include "CancerParameters.hpp"
-#include "Crypt.cpp"
+#include "Tissue.cpp"
 #include <vector>
 
 /**
@@ -19,8 +19,8 @@ private:
     /* the single instance of the singleton object */
     static CellwiseData* mpInstance;
 
-    /* a reference to a crypt so a cell's node can be found */
-    Crypt<DIM>* mpCrypt;
+    /* a reference to a Tissue so a cell's node can be found */
+    Tissue<DIM>* mpTissue;
 
     /*< allocated memory for mData object */
     bool mAllocatedMemory;
@@ -64,10 +64,10 @@ public:
     void SetValue(double value, Node<DIM>* pNode, unsigned variableNumber=0);
     
     /**
-     *  Set the crypt. Must be called before GetValue(). This calls 
-     *  crypt.Initialise()
+     *  Set the Tissue. Must be called before GetValue(). This calls 
+     *  Tissue.Initialise()
      */
-    void SetCrypt(Crypt<DIM>& rCrypt);
+    void SetTissue(Tissue<DIM>& rTissue);
     
     /**
      *  Set the number of variables to be stored per cell. The constructor
@@ -82,7 +82,7 @@ public:
     
     /**
      *  Reallocate size of mData. Needed because of growth/death. Reallocates
-     *  according to the number of nodes in the mesh in the crypt member variable
+     *  according to the number of nodes in the mesh in the Tissue member variable
      */
     void ReallocateMemory();
 };

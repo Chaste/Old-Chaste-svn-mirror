@@ -3,7 +3,7 @@
 
 #include "TissueCell.hpp"
 #include "ConformingTetrahedralMesh.cpp"
-#include "Crypt.cpp"
+#include "Tissue.cpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
@@ -15,8 +15,8 @@ public:
     virtual ~AbstractCellKiller()
     {}
     
-    AbstractCellKiller(Crypt<SPACE_DIM>* pCrypt)
-        : mpCrypt(pCrypt)
+    AbstractCellKiller(Tissue<SPACE_DIM>* pTissue)
+        : mpTissue(pTissue)
     {
     }
 
@@ -27,20 +27,20 @@ public:
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath()=0;
         
-    const Crypt<SPACE_DIM>* GetCrypt() const
+    const Tissue<SPACE_DIM>* GetTissue() const
     {
-        return mpCrypt;
+        return mpTissue;
     }
     
 protected:
-    Crypt<SPACE_DIM>* mpCrypt;
+    Tissue<SPACE_DIM>* mpTissue;
     
 private:
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        //archive & mpCrypt; // done in load_construct_data of subclasses
+        //archive & mpTissue; // done in load_construct_data of subclasses
     }
     
 };

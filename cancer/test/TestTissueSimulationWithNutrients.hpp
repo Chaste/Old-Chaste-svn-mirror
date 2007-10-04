@@ -85,7 +85,7 @@ private :
     double mTimeStep;
 
 public :
-    RadiusBasedCellKiller(Crypt<2>* pCrypt, c_vector<double,2> centre, double timeStep)
+    RadiusBasedCellKiller(Tissue<2>* pCrypt, c_vector<double,2> centre, double timeStep)
         : AbstractCellKiller<2>(pCrypt),
           mCentre(centre),
           mTimeStep(timeStep)
@@ -94,8 +94,8 @@ public :
     
     virtual void TestAndLabelCellsForApoptosisOrDeath()
     {
-        for(Crypt<2>::Iterator cell_iter = mpCrypt->Begin();
-            cell_iter != mpCrypt->End();
+        for(Tissue<2>::Iterator cell_iter = mpTissue->Begin();
+            cell_iter != mpTissue->End();
             ++cell_iter)
         {
             const c_vector<double,2>& location = cell_iter.GetNode()->rGetLocation();
@@ -162,7 +162,7 @@ public:
             cells.push_back(cell);
         }
                 
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         SimpleLinearEllipticPde pde;
@@ -184,7 +184,7 @@ public:
         
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
-        p_data->SetCrypt(crypt);
+        p_data->SetTissue(crypt);
         
         simulator.Solve();
         

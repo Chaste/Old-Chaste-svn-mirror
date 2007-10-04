@@ -700,7 +700,7 @@ public:
         // create an instance of CellwiseData
         CellwiseData<2>* p_data = CellwiseData<2>::Instance(); 
                         
-        // we need to create a crypt for CellwiseData        
+        // we need to create a tissue for CellwiseData        
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);                
@@ -715,18 +715,18 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }                
-        Crypt<2> crypt(mesh,cells);
+        Tissue<2> tissue(mesh,cells);
 
         // set up CellwiseData                       
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(),1);
-        p_data->SetCrypt(crypt);
+        p_data->SetTissue(tissue);
         
         // set uniform oxygen concentration       
-        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
-             cell_iter != crypt.End();
+        for (Tissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
              ++cell_iter)
         {
-             p_data->SetValue(1.0, crypt.GetNodeCorrespondingToCell(*cell_iter), 0);
+             p_data->SetValue(1.0, tissue.GetNodeCorrespondingToCell(*cell_iter), 0);
              // TODO: uncomment this and solve the resulting error!
              //cell_iter->InitialiseCellCycleModel();                
         }                

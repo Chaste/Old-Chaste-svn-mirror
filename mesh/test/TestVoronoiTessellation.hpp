@@ -333,7 +333,7 @@ public:
 //        // Call a function to label a cell
 //        TissueSimulation<2>* p_simulator = TissueSimulation<2>::Load(test_to_profile,load_time);
 //        unsigned label_this = Label();
-//        p_simulator->rGetCrypt().rGetCellAtNodeIndex(label_this).SetMutationState(LABELLED);
+//        p_simulator->rGetTissue().rGetCellAtNodeIndex(label_this).SetMutationState(LABELLED);
 //        p_simulator->Save();
 //        
 //        // write out to file which cell it was

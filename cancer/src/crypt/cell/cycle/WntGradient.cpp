@@ -60,7 +60,7 @@ double WntGradient::GetWntLevel(TissueCell* pCell)
     return GetWntLevel(height);
 }
 
-void WntGradient::SetCrypt(Crypt<2>& rCrypt)
+void WntGradient::SetCrypt(Tissue<2>& rCrypt)
 {
     mpCrypt=&rCrypt;
     rCrypt.InitialiseCells();

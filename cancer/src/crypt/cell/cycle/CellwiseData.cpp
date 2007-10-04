@@ -23,7 +23,7 @@ CellwiseData<DIM>* CellwiseData<DIM>::Instance()
 
 template<unsigned DIM>
 CellwiseData<DIM>::CellwiseData()
- :  mpCrypt(NULL),
+ :  mpTissue(NULL),
     mAllocatedMemory(false)
 {
     // Make sure there's only one instance - enforces correct serialization
@@ -48,12 +48,12 @@ template<unsigned DIM>
 double CellwiseData<DIM>::GetValue(TissueCell* pCell, unsigned variableNumber)
 {
     assert(IsSetUp());
-    assert(mpCrypt!=NULL);
+    assert(mpTissue!=NULL);
     assert(mAllocatedMemory);
     assert(variableNumber < mNumberOfVariables);
     assert(pCell!=NULL);
 
-    unsigned node_index = mpCrypt->GetNodeCorrespondingToCell(*pCell)->GetIndex();
+    unsigned node_index = mpTissue->GetNodeCorrespondingToCell(*pCell)->GetIndex();
     unsigned vector_index = node_index*mNumberOfVariables + variableNumber;
     
     return mData[vector_index];
@@ -69,23 +69,23 @@ void CellwiseData<DIM>::SetValue(double value, Node<DIM>* pNode, unsigned variab
 }
 
 template<unsigned DIM>
-void CellwiseData<DIM>::SetCrypt(Crypt<DIM>& rCrypt)
+void CellwiseData<DIM>::SetTissue(Tissue<DIM>& rTissue)
 {
     if(mAllocatedMemory == false)
     {
-        EXCEPTION("SetCrypt must be called after SetNumNodesAndVars()");
+        EXCEPTION("SetTissue must be called after SetNumNodesAndVars()");
     }
 
-    mpCrypt=&rCrypt;
-    rCrypt.InitialiseCells();
+    mpTissue=&rTissue;
+    rTissue.InitialiseCells();
 }
 
 template<unsigned DIM>
 void CellwiseData<DIM>::SetNumNodesAndVars(unsigned numNodes, unsigned numberOfVariables)
 {
-    if(mpCrypt!=NULL)
+    if(mpTissue!=NULL)
     {
-        EXCEPTION("SetNumNodesAndVars() must be called before setting the crypt (and after a Destroy)");
+        EXCEPTION("SetNumNodesAndVars() must be called before setting the Tissue (and after a Destroy)");
     }
     
     assert(numberOfVariables>0);
@@ -101,16 +101,16 @@ void CellwiseData<DIM>::SetNumNodesAndVars(unsigned numNodes, unsigned numberOfV
 template<unsigned DIM>
 bool CellwiseData<DIM>::IsSetUp()
 {
-    return ((mAllocatedMemory) && (mpInstance!=NULL) && (mpCrypt!=NULL));   
+    return ((mAllocatedMemory) && (mpInstance!=NULL) && (mpTissue!=NULL));   
 }
 
 template<unsigned DIM>
 void CellwiseData<DIM>::ReallocateMemory()
 {
     assert(mAllocatedMemory==true);
-    assert(mpCrypt!=NULL);
+    assert(mpTissue!=NULL);
     
-    unsigned num_nodes = mpCrypt->rGetMesh().GetNumNodes();
+    unsigned num_nodes = mpTissue->rGetMesh().GetNumNodes();
     if (mData.size() != num_nodes*mNumberOfVariables)
     {
         mData.clear();

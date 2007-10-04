@@ -32,8 +32,8 @@ private:
     }
     
 public:
-    RandomCellKiller(Crypt<SPACE_DIM>* pCrypt, double probabilityOfDeath)
-        : AbstractCellKiller<SPACE_DIM>(pCrypt),
+    RandomCellKiller(Tissue<SPACE_DIM>* pTissue, double probabilityOfDeath)
+        : AbstractCellKiller<SPACE_DIM>(pTissue),
           mProbabilityOfDeath(probabilityOfDeath)
     {
         if((mProbabilityOfDeath<0) || (mProbabilityOfDeath>1))
@@ -62,8 +62,8 @@ public:
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath()
     {
-        for (typename Crypt<SPACE_DIM>::Iterator cell_iter = this->mpCrypt->Begin();
-             cell_iter != this->mpCrypt->End();
+        for (typename Tissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
+             cell_iter != this->mpTissue->End();
              ++cell_iter)
         {
             TestAndLabelSingleCellForApoptosis(*cell_iter);
@@ -87,26 +87,26 @@ inline void save_construct_data(
     Archive & ar, const RandomCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // save data required to construct instance
-    const Crypt<DIM>* const p_crypt = t->GetCrypt();
-    ar << p_crypt;
+    const Tissue<DIM>* const p_tissue = t->GetTissue();
+    ar << p_tissue;
     double prob = t->GetDeathProbability();
     ar << prob;
 }
 
 /**
- * De-serialize constructor parameters and initialise Crypt.
+ * De-serialize constructor parameters and initialise Tissue.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, RandomCellKiller<DIM> * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
-    Crypt<DIM>* p_crypt;
-    ar >> p_crypt;
+    Tissue<DIM>* p_tissue;
+    ar >> p_tissue;
     double prob;
     ar >> prob;
     // invoke inplace constructor to initialize instance
-    ::new(t)RandomCellKiller<DIM>(p_crypt, prob);
+    ::new(t)RandomCellKiller<DIM>(p_tissue, prob);
 }
 }
 } // namespace ...

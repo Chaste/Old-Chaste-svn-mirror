@@ -95,7 +95,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        Crypt<2> crypt(*p_mesh, cells);               
+        Tissue<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);
@@ -162,7 +162,7 @@ public:
         std::vector<TissueCell> regular_cells;
         CellsGenerator<2>::GenerateForCrypt(regular_cells, *p_regular_mesh, FIXED, true);// true = mature cells
 
-        Crypt<2> regular_crypt(*p_regular_mesh, regular_cells);               
+        Tissue<2> regular_crypt(*p_regular_mesh, regular_cells);               
         regular_crypt.SetGhostNodes(regular_ghost_node_indices);
 
         TissueSimulation<2> regular_simulator(regular_crypt);
@@ -183,7 +183,7 @@ public:
         // check that the force between nodes is correctly calculated when the spring constant is constant (!)
         regular_simulator.SetEdgeBasedSpringConstant(false);
                       
-        for(Crypt<2>::SpringIterator spring_iterator=regular_crypt.SpringsBegin();
+        for(Tissue<2>::SpringIterator spring_iterator=regular_crypt.SpringsBegin();
         spring_iterator!=regular_crypt.SpringsEnd();
         ++spring_iterator)
         {
@@ -197,10 +197,10 @@ public:
         // check that the force between nodes is correctly calculated when the spring constant 
         // is proportional to the length of the edge between adjacent cells  
         regular_simulator.SetEdgeBasedSpringConstant(true); 
-        regular_simulator.mrCrypt.CreateVoronoiTessellation();  // normally done in a simulation loop
+        regular_simulator.mrTissue.CreateVoronoiTessellation();  // normally done in a simulation loop
         
         
-        for(Crypt<2>::SpringIterator spring_iterator=regular_crypt.SpringsBegin();
+        for(Tissue<2>::SpringIterator spring_iterator=regular_crypt.SpringsBegin();
         spring_iterator!=regular_crypt.SpringsEnd();
         ++spring_iterator)
         {
@@ -219,11 +219,11 @@ public:
         c_vector<double,2> shift;
         shift[0] = 0.01;
         shift[1] = 0.0;                 
-        ChastePoint<2> new_point(regular_simulator.rGetCrypt().rGetMesh().GetNode(21u)->rGetLocation() + shift);
-        regular_simulator.rGetCrypt().rGetMesh().SetNode(21u, new_point, false);
+        ChastePoint<2> new_point(regular_simulator.rGetTissue().rGetMesh().GetNode(21u)->rGetLocation() + shift);
+        regular_simulator.rGetTissue().rGetMesh().SetNode(21u, new_point, false);
         
         // check that the new force between nodes is correctly calculated
-        regular_simulator.mrCrypt.CreateVoronoiTessellation();  
+        regular_simulator.mrTissue.CreateVoronoiTessellation();  
         c_vector<double, 2> new_force = regular_simulator.CalculateForceBetweenNodes(20u,21u);
         
         // force calculation: shift is along x-axis so we should have
@@ -258,7 +258,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        Crypt<2> crypt(*p_mesh, cells);               
+        Tissue<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);
@@ -280,7 +280,7 @@ public:
         // check that the force between nodes is correctly calculated when the spring constant is constant (!)
         simulator.SetEdgeBasedSpringConstant(false);
                       
-        for(Crypt<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
+        for(Tissue<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
         spring_iterator!=crypt.SpringsEnd();
         ++spring_iterator)
         {
@@ -294,8 +294,8 @@ public:
         // check that the force between nodes is correctly calculated when the spring constant 
         // is proportional to the length of the edge between adjacenet cells  
         simulator.SetEdgeBasedSpringConstant(true); 
-        simulator.mrCrypt.CreateVoronoiTessellation();  
-        for(Crypt<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
+        simulator.mrTissue.CreateVoronoiTessellation();  
+        for(Tissue<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
         spring_iterator!=crypt.SpringsEnd();
         ++spring_iterator)
         {
@@ -338,7 +338,7 @@ public:
         }
         
         
-        Crypt<2> crypt(*p_mesh, cells);               
+        Tissue<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);
@@ -371,7 +371,7 @@ public:
         simulator.Solve();
         
         //All fully diffs has sloughed off
-        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -412,7 +412,7 @@ public:
         std::vector<TissueCell> cells;                      
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
         
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);  
         
         WntGradient::Instance()->SetType(LINEAR);             
@@ -464,7 +464,7 @@ public:
         std::vector<TissueCell> cells;
                 
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         WntGradient::Instance()->SetType(LINEAR);
@@ -494,7 +494,7 @@ public:
         Cylindrical2dMesh* p_mesh2=generator2.GetCylindricalMesh();
         
         // Compare
-        CompareMeshes(p_mesh2, &(p_simulator->rGetCrypt().rGetMesh()));
+        CompareMeshes(p_mesh2, &(p_simulator->rGetTissue().rGetMesh()));
         
         delete p_simulator;
         SimulationTime::Destroy();
@@ -524,7 +524,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
         
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         // We have a Wnt Gradient - but not Wnt dependent cells
@@ -591,7 +591,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
         
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         WntGradient::Instance()->SetType(LINEAR);
@@ -645,13 +645,13 @@ public:
         // save that then reload
         // and run from 0.2 to 0.25.
         NodeMap map(0) ;
-        p_simulator1->rGetCrypt().rGetMesh().ReMesh(map);
+        p_simulator1->rGetTissue().rGetMesh().ReMesh(map);
         p_simulator1->Save();
         
         TissueSimulation<2>* p_simulator2 = TissueSimulation<2>::Load("Crypt2DPeriodicSaveAndLoad", 0.2);
         
-        CompareMeshes(&(p_simulator1->rGetCrypt().rGetMesh()),
-                      &(p_simulator2->rGetCrypt().rGetMesh()));
+        CompareMeshes(&(p_simulator1->rGetTissue().rGetMesh()),
+                      &(p_simulator2->rGetTissue().rGetMesh()));
         
         p_simulator2->SetEndTime(0.25);
         p_simulator2->Solve();
@@ -669,9 +669,9 @@ public:
         // test Wnt Gradient was set up correctly
         TS_ASSERT_EQUALS(WntGradient::Instance()->IsGradientSetUp(),true);
         // test the Wnt gradient result
-        TissueCell* p_cell = &(p_simulator2->rGetCrypt().rGetCellAtNodeIndex(28));
+        TissueCell* p_cell = &(p_simulator2->rGetTissue().rGetCellAtNodeIndex(28));
         TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
-        p_cell = &(p_simulator2->rGetCrypt().rGetCellAtNodeIndex(120));
+        p_cell = &(p_simulator2->rGetTissue().rGetCellAtNodeIndex(120));
         TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
         
         delete p_simulator1;
@@ -724,10 +724,10 @@ public:
 //        cells[3].SetBirthTime(-1.0);
 //        cells[3].SetMutationState(BETA_CATENIN_ONE_HIT);
 
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
-        Crypt<2>::Iterator cell_iterator = crypt.Begin();
+        Tissue<2>::Iterator cell_iterator = crypt.Begin();
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
@@ -756,7 +756,7 @@ public:
         simulator.Solve();
         
         // Check that nothing has moved below y=0
-        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -804,7 +804,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, TYSONNOVAK, true);
         
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         TissueSimulation<2> simulator(crypt); 
@@ -820,10 +820,10 @@ public:
         
         // Test that labelling a few cells doesn't make any difference to the simulation
         // and therefore log them in the visualizer files for the next test to check.
-        simulator.rGetCrypt().rGetCellAtNodeIndex(57).SetMutationState(LABELLED);
-        simulator.rGetCrypt().rGetCellAtNodeIndex(56).SetMutationState(APC_ONE_HIT);
-        simulator.rGetCrypt().rGetCellAtNodeIndex(51).SetMutationState(APC_TWO_HIT);
-        simulator.rGetCrypt().rGetCellAtNodeIndex(63).SetMutationState(BETA_CATENIN_ONE_HIT);
+        simulator.rGetTissue().rGetCellAtNodeIndex(57).SetMutationState(LABELLED);
+        simulator.rGetTissue().rGetCellAtNodeIndex(56).SetMutationState(APC_ONE_HIT);
+        simulator.rGetTissue().rGetCellAtNodeIndex(51).SetMutationState(APC_TWO_HIT);
+        simulator.rGetTissue().rGetCellAtNodeIndex(63).SetMutationState(BETA_CATENIN_ONE_HIT);
         simulator.SetOutputCellTypes(true);             
         simulator.Solve();
         
@@ -882,7 +882,7 @@ public:
         
         cells[60].SetBirthTime(-50.0);
         
-        Crypt<2> crypt(mesh, cells);
+        Tissue<2> crypt(mesh, cells);
         
         TissueSimulation<2> simulator(crypt);
         
@@ -983,7 +983,7 @@ public:
             cells.push_back(cell);
         }
         
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         WntGradient::Instance()->SetType(LINEAR);
@@ -1085,7 +1085,7 @@ public:
         ************************************************************************ 
         */    
         
-        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -1160,9 +1160,9 @@ public:
         std::vector<TissueCell> conf_cells;
         CellsGenerator<2>::GenerateForCrypt(conf_cells, conf_mesh, TYSONNOVAK, true);
 
-        Crypt<2> conf_crypt(conf_mesh, conf_cells);
+        Tissue<2> conf_crypt(conf_mesh, conf_cells);
 
-        Crypt<2>::Iterator conf_iter = conf_crypt.Begin();
+        Tissue<2>::Iterator conf_iter = conf_crypt.Begin();
 
         TissueSimulation<2> simulator(conf_crypt);
                      
@@ -1195,9 +1195,9 @@ public:
         // Set up cells
         std::vector<TissueCell> conf_cells;
         CellsGenerator<2>::GenerateForCrypt(conf_cells, conf_mesh, TYSONNOVAK, true);        
-        Crypt<2> conf_crypt(conf_mesh, conf_cells);
+        Tissue<2> conf_crypt(conf_mesh, conf_cells);
 
-        Crypt<2>::Iterator conf_iter = conf_crypt.Begin();
+        Tissue<2>::Iterator conf_iter = conf_crypt.Begin();
 
         TissueSimulation<2> simulator(conf_crypt);
         
@@ -1241,9 +1241,9 @@ public:
         // Set up cells
         std::vector<TissueCell> cyl_cells;
         CellsGenerator<2>::GenerateForCrypt(cyl_cells, cyl_mesh, TYSONNOVAK, true);        
-        Crypt<2> cyl_crypt(cyl_mesh, cyl_cells);
+        Tissue<2> cyl_crypt(cyl_mesh, cyl_cells);
 
-        Crypt<2>::Iterator cyl_iter = cyl_crypt.Begin();
+        Tissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
         TissueSimulation<2> simulator(cyl_crypt);                
         c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(cyl_iter);
@@ -1275,9 +1275,9 @@ public:
         // Set up cells
         std::vector<TissueCell> cyl_cells;
         CellsGenerator<2>::GenerateForCrypt(cyl_cells, cyl_mesh, TYSONNOVAK, true);        
-        Crypt<2> cyl_crypt(cyl_mesh, cyl_cells);
+        Tissue<2> cyl_crypt(cyl_mesh, cyl_cells);
 
-        Crypt<2>::Iterator cyl_iter = cyl_crypt.Begin();
+        Tissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
         TissueSimulation<2> simulator(cyl_crypt);                
         c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(cyl_iter);
@@ -1317,7 +1317,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        Crypt<2> crypt(*p_mesh, cells);               
+        Tissue<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);
@@ -1373,7 +1373,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
               
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);
@@ -1416,7 +1416,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
               
-        Crypt<2> crypt(*p_mesh, cells);
+        Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(crypt);

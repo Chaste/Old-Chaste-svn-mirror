@@ -108,7 +108,7 @@ OxygenBasedCellCycleModel::~OxygenBasedCellCycleModel()
  * Cells are given a new birth time and cell cycle proteins are reset.
  * Note that the wnt pathway proteins maintain their current values.
  *
- * Should only be called by the MeinekeCryptCell Divide() method.
+ * Should only be called by the TissueCell Divide() method.
  *
  */
 

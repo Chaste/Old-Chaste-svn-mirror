@@ -46,7 +46,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
-        Crypt<2> crypt(mesh, cells);
+        Tissue<2> crypt(mesh, cells);
         
         // Get a reference to the cells held in crypt
         std::list<TissueCell>& r_cells = crypt.rGetCells();
@@ -139,7 +139,7 @@ public:
         
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
-        Crypt<2> crypt(mesh, cells);
+        Tissue<2> crypt(mesh, cells);
         
         p_params->SetCryptWidth(0.5);
         p_params->SetCryptLength(0.5);
@@ -147,7 +147,7 @@ public:
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
-        for(Crypt<2>::Iterator iter = crypt.Begin();
+        for(Tissue<2>::Iterator iter = crypt.Begin();
             iter!=crypt.End();
             ++iter)
         {
@@ -166,7 +166,7 @@ public:
   
         crypt.RemoveDeadCells();
 
-        for(Crypt<2>::Iterator iter = crypt.Begin();
+        for(Tissue<2>::Iterator iter = crypt.Begin();
             iter!=crypt.End();
             ++iter)
         {
@@ -205,7 +205,7 @@ public:
             cells.push_back(cell);
         }
         
-        Crypt<2> crypt(mesh, cells);
+        Tissue<2> crypt(mesh, cells);
         
         p_params->SetCryptWidth(0.5);
         p_params->SetCryptLength(0.5);
@@ -213,7 +213,7 @@ public:
         SloughingCellKiller sloughing_cell_killer(&crypt);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
-        for(Crypt<2>::Iterator iter = crypt.Begin();
+        for(Tissue<2>::Iterator iter = crypt.Begin();
             iter!=crypt.End();
             ++iter)
         {
@@ -230,7 +230,7 @@ public:
         
         crypt.RemoveDeadCells();
 
-        for(Crypt<2>::Iterator iter = crypt.Begin();
+        for(Tissue<2>::Iterator iter = crypt.Begin();
             iter!=crypt.End();
             ++iter)
         {

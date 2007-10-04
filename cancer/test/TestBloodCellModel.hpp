@@ -35,8 +35,8 @@ private:
 
         double average_flow_rate = 0;
 
-        for(Crypt<2>::Iterator iter = mrCrypt.Begin(); 
-            iter != mrCrypt.End();
+        for(Tissue<2>::Iterator iter = mrTissue.Begin(); 
+            iter != mrTissue.End();
             ++iter)
         {
             // body force
@@ -74,7 +74,7 @@ private:
             average_flow_rate += drdt[iter->GetNodeIndex()](0);
         } 
         
-        average_flow_rate /= mrCrypt.GetNumRealCells();
+        average_flow_rate /= mrTissue.GetNumRealCells();
         
         std::cout << SimulationTime::Instance()->GetDimensionalisedTime() << ": " << average_flow_rate <<"\n";  
         
@@ -85,17 +85,17 @@ private:
     void UpdateNodePositions(const std::vector< c_vector<double, 2> >& rDrDt)
     {
         // update ghost positions first because they do not affect the real cells
-        mrCrypt.UpdateGhostPositions(mDt);
+        mrTissue.UpdateGhostPositions(mDt);
     
         // Iterate over all cells to update their positions.
-        for (Crypt<2>::Iterator cell_iter = mrCrypt.Begin();
-             cell_iter != mrCrypt.End();
+        for (Tissue<2>::Iterator cell_iter = mrTissue.Begin();
+             cell_iter != mrTissue.End();
              ++cell_iter)
         {
             TissueCell& cell = *cell_iter;
             unsigned index = cell.GetNodeIndex();
             
-            ChastePoint<2> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+            ChastePoint<2> new_point(mrTissue.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
                 
             // for all cells - move up if below the bottom surface
             if (new_point.rGetLocation()[1] < mBottom)
@@ -108,7 +108,7 @@ private:
                 new_point.rGetLocation()[1] = mTop;
             }
             
-            mrCrypt.MoveCell(cell_iter, new_point);                    
+            mrTissue.MoveCell(cell_iter, new_point);                    
         }
     }
     
@@ -132,15 +132,15 @@ private:
     }
     
 public:
-    BloodCellModel(Crypt<2>& rCrypt, double bottom, double top)
+    BloodCellModel(Tissue<2>& rCrypt, double bottom, double top)
         : TissueSimulation<2>(rCrypt)
     {
         assert(bottom < top);
         mBottom = bottom;
         mTop = top;
          
-        for(Crypt<2>::Iterator iter = mrCrypt.Begin(); 
-            iter != mrCrypt.End();
+        for(Tissue<2>::Iterator iter = mrTissue.Begin(); 
+            iter != mrTissue.End();
             ++iter)
         {
             double y = iter.rGetLocation()[1];
@@ -183,7 +183,7 @@ private:
             cells.push_back(cell);
         }
     
-        Crypt<2> crypt(*p_mesh,cells);
+        Tissue<2> crypt(*p_mesh,cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         double vessel_width  = 20;
@@ -193,7 +193,7 @@ private:
 
 
         RandomNumberGenerator* rng = RandomNumberGenerator::Instance();
-        for(Crypt<2>::Iterator iter = crypt.Begin(); 
+        for(Tissue<2>::Iterator iter = crypt.Begin(); 
             iter != crypt.End();
             ++iter)
         {

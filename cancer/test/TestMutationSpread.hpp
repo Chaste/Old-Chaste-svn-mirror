@@ -52,7 +52,7 @@ public:
         // Call a function to label a cell
         TissueSimulation<2>* p_simulator = TissueSimulation<2>::Load(test_to_profile,load_time);
         unsigned label_this = Label();
-        p_simulator->rGetCrypt().rGetCellAtNodeIndex(label_this).SetMutationState(LABELLED);
+        p_simulator->rGetTissue().rGetCellAtNodeIndex(label_this).SetMutationState(LABELLED);
         p_simulator->Save();
         
         // write out to file which cell it was
@@ -80,7 +80,7 @@ public:
             
             // if labelled population has been swept away then stop.
             if (cell_type_count[1] == 0u
-              ||cell_type_count[1] == p_simulator->rGetCrypt().GetNumRealCells())
+              ||cell_type_count[1] == p_simulator->rGetTissue().GetNumRealCells())
             {
                 (*file) << "Finished simulation\n"<<std::flush;
                 exit_now = true;   

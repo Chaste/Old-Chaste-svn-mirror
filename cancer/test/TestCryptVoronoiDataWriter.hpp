@@ -31,7 +31,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
-        Crypt<2> crypt(*p_mesh,cells);
+        Tissue<2> crypt(*p_mesh,cells);
         crypt.SetGhostNodes(ghost_node_indices);
         crypt.CreateVoronoiTessellation();
         
@@ -68,7 +68,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
-        Crypt<2> crypt(*p_mesh,cells);
+        Tissue<2> crypt(*p_mesh,cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         // flag a cell

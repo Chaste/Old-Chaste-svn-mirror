@@ -18,11 +18,11 @@ private :
 
     void PostSolve()
     {
-        ConformingTetrahedralMesh<2,2>& r_mesh = this->mrCrypt.rGetMesh();
+        ConformingTetrahedralMesh<2,2>& r_mesh = this->mrTissue.rGetMesh();
 
         CellwiseData<DIM>::Instance()->ReallocateMemory();
         
-        std::set<unsigned> ghost_node_indices = this->mrCrypt.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = this->mrTissue.GetGhostNodeIndices();
         r_mesh.FlagElementsNotContainingNodes(ghost_node_indices);
         r_mesh.SetupSmasrmMap();
         
@@ -76,8 +76,8 @@ private :
 
 
 public:
-    TissueSimulationWithNutrients(Crypt<DIM>& rCrypt, AbstractLinearEllipticPde<DIM>* pPde, bool deleteCrypt=false)
-        : TissueSimulation<DIM>(rCrypt, deleteCrypt),
+    TissueSimulationWithNutrients(Tissue<DIM>& rTissue, AbstractLinearEllipticPde<DIM>* pPde, bool deleteTissue=false)
+        : TissueSimulation<DIM>(rTissue, deleteTissue),
           mpPde(pPde)
     {
     }

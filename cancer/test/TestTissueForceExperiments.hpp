@@ -37,21 +37,21 @@ private :
     double mMaxHeight;
     
 public :
-    TissueSimulationForForceExperiments(Crypt<2>& rCrypt,
+    TissueSimulationForForceExperiments(Tissue<2>& rCrypt,
                                         bool fixXNotY)
         : TissueSimulation<2>(rCrypt),
           mFixXNotY(fixXNotY)
     {   
         // this class is hardcoded for a particular honeycomb mesh! check num nodes is 
         // as expected  
-        assert(mrCrypt.rGetMesh().GetNumNodes()==360);
+        assert(mrTissue.rGetMesh().GetNumNodes()==360);
         
         // calc max value in the fixed direction.
         unsigned x_or_y = mFixXNotY ? 0 : 1;
 
         double max = 0;
-        for(Crypt<2>::Iterator iter = rGetCrypt().Begin();
-            iter != rGetCrypt().End();
+        for(Tissue<2>::Iterator iter = rGetTissue().Begin();
+            iter != rGetTissue().End();
             ++iter)
         {
             double val = iter.rGetLocation()[x_or_y];
@@ -89,23 +89,23 @@ public :
 //    {
 //        assert(nodeAGlobalIndex!=nodeBGlobalIndex);
 //        c_vector<double,2> unit_difference;
-//        c_vector<double,2> node_a_location = mrCrypt.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
-//        c_vector<double,2> node_b_location = mrCrypt.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
+//        c_vector<double,2> node_a_location = mrTissue.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
+//        c_vector<double,2> node_b_location = mrTissue.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
 //        
 //        // there is reason not to substract one position from the other (cyclidrical meshes). clever gary
-//        unit_difference = mrCrypt.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
+//        unit_difference = mrTissue.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
 //        double distance_between_nodes = norm_2(unit_difference);
 //        unit_difference /= distance_between_nodes;
 //        
 //        
 //        double rest_length = 1.0;
 //
-//        if(!mrCrypt.rGetGhostNodes()[nodeAGlobalIndex] && mrCrypt.rGetGhostNodes()[nodeBGlobalIndex])
+//        if(!mrTissue.rGetGhostNodes()[nodeAGlobalIndex] && mrTissue.rGetGhostNodes()[nodeBGlobalIndex])
 //        {
 //            assert(0);
 //            rest_length = 2;
 //        }
-//        if(mrCrypt.rGetGhostNodes()[nodeAGlobalIndex] && !mrCrypt.rGetGhostNodes()[nodeBGlobalIndex])
+//        if(mrTissue.rGetGhostNodes()[nodeAGlobalIndex] && !mrTissue.rGetGhostNodes()[nodeBGlobalIndex])
 //        {
 //            assert(0);
 //            rest_length = 2;
@@ -126,16 +126,16 @@ public :
      */
     void UpdateNodePositions(const std::vector<c_vector<double,2> >& rDrDt)
     {
-        mrCrypt.UpdateGhostPositions(mDt);
+        mrTissue.UpdateGhostPositions(mDt);
 
-        for (Crypt<2>::Iterator cell_iter = mrCrypt.Begin();
-             cell_iter != mrCrypt.End();
+        for (Tissue<2>::Iterator cell_iter = mrTissue.Begin();
+             cell_iter != mrTissue.End();
              ++cell_iter)
         {
             TissueCell& cell = *cell_iter;
             unsigned index = cell.GetNodeIndex();
             
-            ChastePoint<2> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+            ChastePoint<2> new_point(mrTissue.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
             
             if(mFixXNotY)
             { 
@@ -155,14 +155,14 @@ public :
                 if(index>=57 && index<=327 && ((index-27)%30==0) )
                 {
                     new_point.rGetLocation()[0] = mMaxHeight;
-                    new_point.rGetLocation()[1] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[1];
+                    new_point.rGetLocation()[1] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[1];
                 }
               
                 // left hand side
                 if(index>=32 && index<=302 && ((index-2)%30==0) )
                 {
                     new_point.rGetLocation()[0] = 0;
-                    new_point.rGetLocation()[1] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[1];
+                    new_point.rGetLocation()[1] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[1];
                 }
             }
             else
@@ -182,7 +182,7 @@ public :
                 if(index>=317 && index<=327)
                 {
                     // comment this first line out to allow slip on top surface
-                    new_point.rGetLocation()[0] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[0];
+                    new_point.rGetLocation()[0] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[0];
                     new_point.rGetLocation()[1] = mMaxHeight;
                 }
                 
@@ -190,12 +190,12 @@ public :
                 if(index>=32 && index<=42)
                 {
                     // comment this first line out to allow slip on bottom surface
-                    new_point.rGetLocation()[0] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[0];
+                    new_point.rGetLocation()[0] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[0];
                     new_point.rGetLocation()[1] = 0;
                 }
             }
             
-            mrCrypt.MoveCell(cell_iter, new_point);
+            mrTissue.MoveCell(cell_iter, new_point);
         }
     }
 
@@ -211,9 +211,9 @@ public :
         c_vector<double,2> total_force = zero_vector<double>(2);
 
         std::set<std::set<unsigned> > node_pairs_checked;
-        for (unsigned elem_index = 0; elem_index<mrCrypt.rGetMesh().GetNumAllElements(); elem_index++)
+        for (unsigned elem_index = 0; elem_index<mrTissue.rGetMesh().GetNumAllElements(); elem_index++)
         {
-            Element<2,2>* p_element = mrCrypt.rGetMesh().GetElement(elem_index);
+            Element<2,2>* p_element = mrTissue.rGetMesh().GetElement(elem_index);
             if (!p_element->IsDeleted())
             {
                 for (unsigned k=0; k<2+1; k++)
@@ -230,8 +230,8 @@ public :
                         unsigned nodeA_global_index = p_element->GetNode(nodeA)->GetIndex();
                         unsigned nodeB_global_index = p_element->GetNode(nodeB)->GetIndex();
                         
-                        if(    mrCrypt.rGetGhostNodes()[nodeA_global_index] 
-                            || mrCrypt.rGetGhostNodes()[nodeB_global_index] )
+                        if(    mrTissue.rGetGhostNodes()[nodeA_global_index] 
+                            || mrTissue.rGetGhostNodes()[nodeB_global_index] )
                         {
                             break;
                         }
@@ -270,7 +270,7 @@ public :
                             if(!is_force_already_calculated)
                             {
                                 c_vector<double,2> force = CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),p_element->GetNodeGlobalIndex(nodeB));
-                                if ((!mrCrypt.rGetGhostNodes()[nodeA_global_index]) && (!mrCrypt.rGetGhostNodes()[nodeB_global_index]))
+                                if ((!mrTissue.rGetGhostNodes()[nodeA_global_index]) && (!mrTissue.rGetGhostNodes()[nodeB_global_index]))
                                 {
                                     for(unsigned i=0; i<2; i++)
                                     {
@@ -295,18 +295,18 @@ private :
     bool mFirst;
     
 public :
-    TissueSimulationForForceExperimentsShearing(Crypt<2>& rCrypt, double shear)
+    TissueSimulationForForceExperimentsShearing(Tissue<2>& rCrypt, double shear)
         : TissueSimulation<2>(rCrypt),
           mShear(shear)
     {   
         mFirst = true;
         // this class is hardcoded for a particular honeycomb mesh! check num nodes is 
         // as expected  
-        assert(mrCrypt.rGetMesh().GetNumNodes()==360);
+        assert(mrTissue.rGetMesh().GetNumNodes()==360);
         
         double max = 0;
-        for(Crypt<2>::Iterator iter = rGetCrypt().Begin();
-            iter != rGetCrypt().End();
+        for(Tissue<2>::Iterator iter = rGetTissue().Begin();
+            iter != rGetTissue().End();
             ++iter)
         {
             double val = iter.rGetLocation()[1];
@@ -335,16 +335,16 @@ public :
             mFirst = false;
         }
         
-        mrCrypt.UpdateGhostPositions(mDt);
+        mrTissue.UpdateGhostPositions(mDt);
 
-        for (Crypt<2>::Iterator cell_iter = mrCrypt.Begin();
-             cell_iter != mrCrypt.End();
+        for (Tissue<2>::Iterator cell_iter = mrTissue.Begin();
+             cell_iter != mrTissue.End();
              ++cell_iter)
         {
             TissueCell& cell = *cell_iter;
             unsigned index = cell.GetNodeIndex();
             
-            ChastePoint<2> new_point(mrCrypt.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+            ChastePoint<2> new_point(mrTissue.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
             
             // all nodes must stay in y>0
             if(new_point.rGetLocation()[1] < 0)
@@ -363,7 +363,7 @@ public :
             if(index>=330 && index<=344)
             {
                 // comment this first line out to allow slip on top surface
-                new_point.rGetLocation()[0] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[0] + disp;
+                new_point.rGetLocation()[0] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[0] + disp;
                 new_point.rGetLocation()[1] = mMaxHeight;
             }
             
@@ -373,11 +373,11 @@ public :
             if(index>=30 && index<=44)
             {
                 // comment this first line out to allow slip on bottom surface
-                new_point.rGetLocation()[0] = mrCrypt.rGetMesh().GetNode(index)->rGetLocation()[0];
+                new_point.rGetLocation()[0] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[0];
                 new_point.rGetLocation()[1] = 0;
             }
             
-            mrCrypt.MoveCell(cell_iter, new_point);
+            mrTissue.MoveCell(cell_iter, new_point);
         }
     }
 
@@ -393,9 +393,9 @@ public :
         c_vector<double,2> total_force = zero_vector<double>(2);
 
         std::set<std::set<unsigned> > node_pairs_checked;
-        for (unsigned elem_index = 0; elem_index<mrCrypt.rGetMesh().GetNumAllElements(); elem_index++)
+        for (unsigned elem_index = 0; elem_index<mrTissue.rGetMesh().GetNumAllElements(); elem_index++)
         {
-            Element<2,2>* p_element = mrCrypt.rGetMesh().GetElement(elem_index);
+            Element<2,2>* p_element = mrTissue.rGetMesh().GetElement(elem_index);
             if (!p_element->IsDeleted())
             {
                 for (unsigned k=0; k<2+1; k++)
@@ -412,8 +412,8 @@ public :
                         unsigned nodeA_global_index = p_element->GetNode(nodeA)->GetIndex();
                         unsigned nodeB_global_index = p_element->GetNode(nodeB)->GetIndex();
                         
-                        if(    mrCrypt.rGetGhostNodes()[nodeA_global_index] 
-                            || mrCrypt.rGetGhostNodes()[nodeB_global_index] )
+                        if(    mrTissue.rGetGhostNodes()[nodeA_global_index] 
+                            || mrTissue.rGetGhostNodes()[nodeB_global_index] )
                         {
                             break;
                         }
@@ -452,7 +452,7 @@ public :
                             if(!is_force_already_calculated)
                             {
                                 c_vector<double,2> force = CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),p_element->GetNodeGlobalIndex(nodeB));
-                                if ((!mrCrypt.rGetGhostNodes()[nodeA_global_index]) && (!mrCrypt.rGetGhostNodes()[nodeB_global_index]))
+                                if ((!mrTissue.rGetGhostNodes()[nodeA_global_index]) && (!mrTissue.rGetGhostNodes()[nodeB_global_index]))
                                 {
                                     for(unsigned i=0; i<2; i++)
                                     {
@@ -473,7 +473,7 @@ public :
 class TestTissueForceExperiments : public CxxTest::TestSuite
 {
 private:
-    void ApplyRandomDisplacements(Crypt<2>& rCrypt)
+    void ApplyRandomDisplacements(Tissue<2>& rCrypt)
     {
         ConformingTetrahedralMesh<2,2>& r_mesh = rCrypt.rGetMesh();
         
@@ -588,7 +588,7 @@ public:
                 cells.push_back(cell);
             }
 
-            Crypt<2> crypt(*p_mesh,cells);
+            Tissue<2> crypt(*p_mesh,cells);
             crypt.SetGhostNodes(ghost_node_indices);
 
             // apply a random displacement to each node. doesn't fix the
@@ -712,7 +712,7 @@ public:
                 cells.push_back(cell);
             }
         
-            Crypt<2> crypt(*p_mesh,cells);
+            Tissue<2> crypt(*p_mesh,cells);
             crypt.SetGhostNodes(ghost_node_indices);
 
             TissueSimulationForForceExperimentsShearing simulator(crypt, disp);
