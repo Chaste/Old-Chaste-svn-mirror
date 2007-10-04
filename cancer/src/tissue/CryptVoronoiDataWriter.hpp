@@ -44,6 +44,7 @@ public:
         #undef COVERAGE_IGNORE
         OutputFileHandler output_file_handler(directory,false);
         mOutStream = output_file_handler.OpenOutputFile(filename);
+        (*mOutStream)<< std::setprecision(8);
         
     }
 

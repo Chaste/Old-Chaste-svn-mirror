@@ -43,9 +43,11 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
     {
         std::string directory_to_move_to = GetTestOutputDirectory("last_cleaned_directory");
         system(("rm -rf " + directory_to_move_to).c_str());
+        // Re-create the special directory
+        mkdir(directory_to_move_to.c_str(), 0775);
         system(("mv " + mDirectory + " " + directory_to_move_to).c_str());
         //system(("rm -rf " + mDirectory).c_str());
-        // Re-create the directory
+        // Re-create the output directory
         mkdir(mDirectory.c_str(), 0775);
     }
 }
