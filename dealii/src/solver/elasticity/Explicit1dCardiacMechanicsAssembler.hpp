@@ -3,6 +3,14 @@
 
 #include "Abstract1dCardiacMechanicsAssembler.hpp"
 
+/**
+ *  An Explicit 1d cardiac mechanics assembler.
+ *  
+ *  See Abstract1dCardiacMechanicsAssembler
+ * 
+ *  This class takes in the current active tension at each quad point and uses that
+ *  to compute the stress there.
+ */
 class Explicit1dCardiacMechanicsAssembler : public Abstract1dCardiacMechanicsAssembler
 {
 protected :
@@ -100,7 +108,7 @@ private:
             double active_tension = mActiveTension[mCurrentQuadPointGlobalIndex];
             mLambda[mCurrentQuadPointGlobalIndex] = F; 
 
-            // Compute T(C), dTdE(C)...
+            // Compute T(C), dTdE(C), using the active tension
             double E = 0.5*(C-1);
             T = mLaw.GetT(E) + active_tension/C; 
             dTdE = mLaw.GetDTdE(E) - 2*active_tension/(C*C);

@@ -36,13 +36,52 @@ struct ElementAndWeights
 };
 
 
+
+/**
+ *  AbstractCardiacElectroMechanicsProblem
+ * 
+ *  Main class for solved full electro-mechanical problems. Currently subclasses just
+ *  define which meshes to use and which assembler to use.
+ * 
+ *  Solves a monodomain problem (diffusion plus cell models) on a (fine) electrics (chaste) 
+ *  mesh,and a mechanics problem (finite elasticity plus NHS cell models) on a coarse (dealii)
+ *  mesh. Variable timesteps to implemented soon. An explicit (unstable) or implicit (Jon
+ *  Whiteley's algorithm) can be used. 
+ * 
+ *  The explicit algorithm:
+ *  
+ *  Store the position in the electrics mesh of each quad point in the mechanics mesh
+ *  For every time: 
+ *    Solve the monodomain problem (ie integrate ODEs, solve PDE)
+ *    Get intracellular [Ca] at each electrics node and interpolate on each mechanics quad point
+ *    Set [Ca], current fibre stretch and stretch rate at each mechanics quad point
+ *    Integrate NHS models (one for each quad point) explicity
+ *    Get active tension at each quad point and set on the mechanics assembler
+ *    Solve static finite elasticity (using active tension as a constant 'source')
+ *  end
+ * 
+ *  TODO: alter monodomain equation for the deformation   
+ * 
+ *  The implicit algorithm:
+ *  
+ *  Store the position in the electrics mesh of each quad point in the mechanics mesh
+ *  For every time: 
+ *    Solve the monodomain problem (ie integrate ODEs, solve PDE)
+ *    Get intracellular [Ca] at each electrics node and interpolate on each mechanics quad point
+ *    Set [Ca] on each NHS model (one for each point) 
+ *    Solve static finite elasticity problem implicity
+ *       - guess solution
+ *       - this gives the fibre stretch and stretch rate to be set on NHS models
+ *       - integrate NHS models implicity for active tension
+ *       - use this active tension in computing the stress for that guess of the deformation
+ *  end   
+ */ 
 template<unsigned DIM>
 class AbstractCardiacElectroMechanicsProblem
 {
 protected :
     /*< The cardiac problem class */
     MonodomainProblem<DIM>* mpMonodomainProblem;
-    
     /*< The mechanics assembler */
     AbstractCardiacMechanicsAssembler<DIM>* mpCardiacMechAssembler;  
 
@@ -57,9 +96,9 @@ protected :
     Triangulation<DIM>*                 mpMechanicsMesh;
 
     /** 
-     *  The (electrics-mesh) element numbers and saying which element each 
+     *  The (electrics-mesh) element numbers saying which element each 
      *  (mechanics-mesh) gauss point is in, and the weight of that gauss point 
-     *  for that particular element is.
+     *  for that particular element.
      */
     std::vector<ElementAndWeights<DIM> > mElementAndWeightsForQuadPoints;
 
@@ -68,52 +107,98 @@ protected :
 
     /*< Output directory, relative to TEST_OUTPUT */
     std::string mOutputDirectory;
+    std::string mDeformationOutputDirectory;
     /*< Whether to write any output */
     bool mWriteOutput;
     /*< when to write output */    
     const static int WRITE_EVERY_NTH_TIME = 1; 
     
+    /*< A pure method constructing the mechanics assembler */
     virtual void ConstructMechanicsAssembler()=0;
+    /*< A pure method to be implemented in the concrete class constructing the meshes */
     virtual void ConstructMeshes()=0;
 
 public :
+    /**
+     *  Constructor
+     *  @param pCellFactory Pointer to a cell factory for the MonodomainProblem class
+     *  @param endTime end time, with start time assumed to be 0.
+     *  @param timeStep Time step.
+     *  @param useExplicitMethod Whether to use an explicit or implicit method
+     *  @param outputDirectory. Defaults to "", in which case no output is written
+     */
     AbstractCardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
                                            double endTime,
                                            double timeStep,
                                            bool useExplicitMethod,
                                            std::string outputDirectory = "")
     {
+        // create the monodomain problem. Note the we use this to set up the cells,
+        // get an initial condition (voltage) vector, and get an assembler. We won't
+        // ever call solve on the MonodomainProblem
         assert(pCellFactory != NULL);
         mpMonodomainProblem = new MonodomainProblem<DIM>(pCellFactory);
-        
+
+        // save time infomation        
         assert(endTime > 0);
         mEndTime = endTime;
         mTimeStep = timeStep;
         
         // check whether output is required
         mWriteOutput = (outputDirectory!="");
-        mOutputDirectory = outputDirectory;
+        if(mWriteOutput)
+        {
+            mOutputDirectory = outputDirectory;
+            mDeformationOutputDirectory = mOutputDirectory + "/deformation";
+        }
                 
         mUseExplicitMethod = useExplicitMethod;
+        
+        // initialise all the pointers
+        mpElectricsMesh = NULL;
+        mpMechanicsMesh = NULL;
         mpCardiacMechAssembler = NULL;
     }   
     
+    virtual ~AbstractCardiacElectroMechanicsProblem()
+    {
+        delete mpMonodomainProblem;
+        delete mpCardiacMechAssembler;
+        delete mpElectricsMesh;
+        delete mpMechanicsMesh;
+    }
+    
+    
+    /**
+     *  Initialise the class. Calls ConstructMeshes() and ConstructMechanicsAssembler() on
+     *  the concrete classes. Initialises the MonodomainProblem and sets up the electrics 
+     *  mesh to mechanics mesh data.
+     */
     void Initialise()
     {
+        assert(mpElectricsMesh==NULL);
+        assert(mpMechanicsMesh==NULL);
+        assert(mpCardiacMechAssembler==NULL);
+        
+        // construct the two meshes
         ConstructMeshes();     
-                        
+
+        // initialise monodomain problem                        
         mpMonodomainProblem->SetMesh(mpElectricsMesh);
         mpMonodomainProblem->Initialise();
 
+        // construct mechanics assembler 
         ConstructMechanicsAssembler();
 
         // find the element nums and weights for each gauss point in the mechanics mesh
         mElementAndWeightsForQuadPoints.resize(mpCardiacMechAssembler->GetTotalNumQuadPoints());
 
+        // get the quad point positions in the mechanics assembler
         std::vector<std::vector<double> > quad_point_posns
            = FiniteElasticityTools<DIM>::GetQuadPointPositions(*mpMechanicsMesh, mpCardiacMechAssembler->GetNumQuadPointsInEachDimension());
 
-        
+        // find the electrics element and weight for each quad point in the mechanics mesh,
+        // and store
         for(unsigned i=0; i<quad_point_posns.size(); i++)
         {
             ChastePoint<DIM> point;
@@ -121,10 +206,7 @@ public :
             for(unsigned j=0;j<DIM;j++)
             {
                 point.rGetLocation()[j]=quad_point_posns[i][j];
-                std::cout << point[j] << " ";
             }
-            
-            std::cout << "\n";
             
             unsigned elem_index = mpElectricsMesh->GetContainingElementIndex(point);
             c_vector<double,DIM+1> weight = mpElectricsMesh->GetElement(elem_index)->CalculateInterpolationWeights(point);
@@ -139,6 +221,7 @@ public :
      */    
     void Solve()
     {
+        // initialise the meshes and mechanics assembler
         if(mpCardiacMechAssembler==NULL)
         {
             Initialise();
@@ -146,17 +229,16 @@ public :
         
         // get an electrics assembler from the problem. Note that we don't call
         // Solve() on the CardiacProblem class, we do the looping here.
-        AbstractDynamicAssemblerMixin<DIM,DIM,1>* mpElectricsAssembler 
+        AbstractDynamicAssemblerMixin<DIM,DIM,1>* p_electrics_assembler 
            = mpMonodomainProblem->CreateAssembler();
 
         // set up initial voltage etc
         Vec voltage;        
         Vec initial_voltage = mpMonodomainProblem->CreateInitialCondition();
 
-        // create stores of lambda, lambda_dot and old lambda
+        // Create stores of lambda, lambda_dot and old lambda
+        // Note: these are only needed if an explicit method is used
         unsigned num_quad_points = mpCardiacMechAssembler->GetTotalNumQuadPoints();
-
-        // these are only needed if explicit
         std::vector<double> lambda;
         std::vector<double> old_lambda;
         std::vector<double> dlambda_dt;
@@ -164,7 +246,7 @@ public :
         EulerIvpOdeSolver euler_solver;
 
         // this is the active tension if explicit and the calcium conc if implicit
-        std::vector<double> forcing_quantity(num_quad_points,0.0);
+        std::vector<double> forcing_quantity(num_quad_points, 0.0);
         
         // initial cellmechanics systems, lambda, etc, if required
         if(mUseExplicitMethod)
@@ -180,7 +262,7 @@ public :
         // write initial positions
         if(mWriteOutput)
         {
-            OutputFileHandler output_file_handler(mOutputDirectory, true);
+            OutputFileHandler output_file_handler(mDeformationOutputDirectory, true);
             out_stream p_file = output_file_handler.OpenOutputFile("results_", mech_writer_counter, ".dat");
             std::vector<Vector<double> >& deformed_position = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->rGetDeformedPosition();
             for(unsigned i=0; i<deformed_position[0].size(); i++)
@@ -202,9 +284,9 @@ public :
             std::cout << "**Time = " << stepper.GetTime() << "\n" << std::flush;
             
             // solve the electrics
-            mpElectricsAssembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), mTimeStep);
-            mpElectricsAssembler->SetInitialCondition( initial_voltage );
-            voltage = mpElectricsAssembler->Solve();
+            p_electrics_assembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), mTimeStep);
+            p_electrics_assembler->SetInitialCondition( initial_voltage );
+            voltage = p_electrics_assembler->Solve();
 
             VecDestroy(initial_voltage);
             initial_voltage = voltage;
@@ -243,7 +325,7 @@ public :
             // NOTE: HERE WE SHOULD REALLY CHECK WHETHER THE CELL MODELS HAVE Ca_Trop
             // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS.. (esp for implicit)
             
-            // set the active tensions
+            // set the active tensions if explicit, or the [Ca] if implicit
             mpCardiacMechAssembler->SetForcingQuantity(forcing_quantity);
 
             // solve the mechanics
@@ -264,14 +346,14 @@ public :
             // write
             if(mWriteOutput && (counter++)%WRITE_EVERY_NTH_TIME==0)
             {            
-                OutputFileHandler output_file_handler(mOutputDirectory, false);
+                OutputFileHandler output_file_handler(mDeformationOutputDirectory, false);
                 out_stream p_file = output_file_handler.OpenOutputFile("results_", mech_writer_counter, ".dat");
                 std::vector<Vector<double> >& deformed_position = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->rGetDeformedPosition();
                 for(unsigned i=0; i<deformed_position[0].size(); i++)
                 {
                     for(unsigned j=0; j<DIM; j++)
                     {
-                        (*p_file) << deformed_position[0](i) << " ";
+                        (*p_file) << deformed_position[j](i) << " ";
                     }
                     (*p_file) << "\n";
                 }
@@ -282,7 +364,7 @@ public :
             stepper.AdvanceOneTimeStep();
         }
         
-        delete mpElectricsAssembler;
+        delete p_electrics_assembler;
     }
 };
 

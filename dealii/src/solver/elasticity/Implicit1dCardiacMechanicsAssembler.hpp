@@ -6,8 +6,19 @@
 #include "Abstract1dCardiacMechanicsAssembler.hpp"
 #include "NhsSystemWithImplicitSolver.hpp"
 
-///\todo: quantitive test?, doxy, test of analytic jacobian
+///\todo: 
+// more doxy
+// test of analytic jacobian
 
+
+/**
+ *  An Implicit 1d cardiac mechanics assembler.
+ *  
+ *  See Abstract1dCardiacMechanicsAssembler
+ * 
+ *  This class takes in the current [Ca]_i at each quad point and solves the elasticity
+ *  equations implicit, which involves solving the NHS cell models implicitly.
+ */
 class Implicit1dCardiacMechanicsAssembler : public Abstract1dCardiacMechanicsAssembler
 {
 private:
@@ -194,8 +205,6 @@ private:
                                                 * F   
                                                 * fe_values.shape_grad(i,q_point)[0]
                                                 * fe_values.JxW(q_point);
-                        
-                         
                     }
                 }
                 

@@ -5,6 +5,12 @@
 #include "CardiacMechanicsAssembler.cpp"
 #include "FiniteElasticityTools.hpp"
 
+
+/**
+ *  Solve a full cardiac electro-mechanics problem in 2d or 3d.
+ * 
+ *  See documentation for AbstractCardiacElectroMechanicsProblem
+ */
 template<unsigned DIM>
 class CardiacElectroMechanicsProblem : public AbstractCardiacElectroMechanicsProblem<DIM>
 {
@@ -17,7 +23,7 @@ public:
      *  @useExplicit Whether to use an explicit or implicit mechanics solver
      *  @outputDirectory. Output directory. Omit if no output is required.
      * 
-     *  The meshes are currently hardcoded in here.
+     *  See documentation for AbstractCardiacElectroMechanicsProblem
      */
     CardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
                                    double endTime,

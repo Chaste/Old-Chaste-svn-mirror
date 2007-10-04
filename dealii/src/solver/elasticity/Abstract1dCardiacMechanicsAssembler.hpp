@@ -5,6 +5,20 @@
 #include "AbstractCardiacMechanicsAssembler.hpp"
 #include "PoleZero3dIn1dLaw.hpp"
 
+/*  
+ *  A 1d CardiacElectroMechanics assembler
+ * 
+ *  Note 1d incompressible mechanics doesn't any sense, so we can't just
+ *  use CardiacMechanicsAssembler<1>. This is a 1d cardiac mechanics 
+ *  assembler, which uses a particular material law that takes uni-axial 
+ *  deformation in 3d and returns the corresponding 1d stress, is used. An
+ *  implicit or explicit version can be used. It cannot inherit from 
+ *  FiniteElasticityAssmebler<1>, which wouldn't compile, so some
+ *  functionality is reimplemented. Concrete classes have to implement
+ *  AssembleOnElement, and Solve(t0,t1,dt),SetForcingTerm from
+ *  AbstractCardiacMechanicsAssembler. The boundary conditions are that
+ *  the node at 0 is fixed.
+ */
 class Abstract1dCardiacMechanicsAssembler : public AbstractElasticityAssembler<1>, public AbstractCardiacMechanicsAssembler<1>
 {
 protected :

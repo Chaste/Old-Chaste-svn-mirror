@@ -6,6 +6,18 @@
 #include "Implicit1dCardiacMechanicsAssembler.hpp"
 
 
+
+/**
+ *  A 1d CardiacElectroMechanics assembler
+ * 
+ *  Note 1d incompressible mechanics doesn't any sense, we can't just
+ *  use CardiacMechanicsAssembler<1>. Instead a special 1d cardiac mechanics 
+ *  assembler, which uses a particular material law that takes uni-axial 
+ *  deformation in 3d and returns the corresponding 1d stress, is used. An
+ *  implicit or explicit version can be used.
+ * 
+ *  See also AbstractCardiacElectroMechanicsProblem
+ */
 class CardiacElectroMechanicsProblem1d : public AbstractCardiacElectroMechanicsProblem<1>
 {
 public:

@@ -4,7 +4,10 @@
 #include <vector>
 #include "AbstractDealiiAssembler.hpp" // just to include some dealii classes
 
-
+/**
+ *  Defines an interface and provides quad point information, for use
+ *  by AbstractCardiacElectroMechanicsProblem
+ */
 template<unsigned DIM>
 class AbstractCardiacMechanicsAssembler
 {
@@ -85,8 +88,16 @@ public :
         return mLambda;
     }       
 
+    /**
+     *  Solve between given times. A static explicit assembler will ignore
+     *  the times
+     */
     virtual void Solve(double currentTime, double nextTime, double timestep)=0;
 
+    /**
+     *  Set the appropriate forcing quantity, by gauss point (active tension
+     *  if explicit, [Ca]_i if implicit
+     */
     virtual void SetForcingQuantity(std::vector<double>& forcingQuantity)=0;
 };
 
