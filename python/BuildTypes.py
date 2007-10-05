@@ -698,6 +698,12 @@ def GetBuildType(buildType):
       obj.UseDealii(True)
     elif extra == 'debug':
       obj.dealii_debugging = True
+    elif extra == 'warn':
+      try:
+        obj._cc_flags.remove('-Werror')
+        obj.build_dir += '_warn'
+      except ValueError:
+        pass
     else:
       # Assume it's a test pack
       obj.AddTestPacks(extra)
