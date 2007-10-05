@@ -100,8 +100,7 @@ public:
     {
         Make1dCryptMesh("1D_crypt_mesh", 22, 21);
         
-        OutputFileHandler output_file_handler("");
-        std::string testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
         
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
@@ -129,9 +128,7 @@ public:
         CancerParameters::Instance()->Reset();
         
         Make1dCryptMesh("1D_crypt_mesh", 22, 21);
-        std::string testoutput_dir;
-        OutputFileHandler output_file_handler("");
-        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
         
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
@@ -169,9 +166,7 @@ public:
         CancerParameters::Instance()->Reset();
 
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
-        std::string testoutput_dir;
-        OutputFileHandler output_file_handler("");
-        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
         
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
@@ -228,9 +223,7 @@ public:
         p_params->SetCryptLength(crypt_length);
         
         Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
-        std::string testoutput_dir;
-        OutputFileHandler output_file_handler("");
-        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
         
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
@@ -297,9 +290,7 @@ public:
         p_params->SetCryptLength(crypt_length);
         
         Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
-        std::string testoutput_dir;
-        OutputFileHandler output_file_handler("");
-        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -365,9 +356,7 @@ public:
         p_params->SetCryptLength(crypt_length);
         
         Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
-        std::string testoutput_dir;
-        OutputFileHandler output_file_handler("");
-        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -455,9 +444,7 @@ public:
         p_params->SetCryptLength(crypt_length);
         
         Make1dCryptMesh("1D_crypt_mesh", 6, crypt_length);
-        std::string testoutput_dir;
-        OutputFileHandler output_file_handler("");
-        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
         
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;

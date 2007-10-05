@@ -586,10 +586,10 @@ public:
     {
         std::string dirname = "archive";
         OutputFileHandler handler(dirname, false);
-        std::string archive_filename = handler.GetTestOutputDirectory() + "cylindrical_mesh_base.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cylindrical_mesh_base.arch";
         
         std::string mesh_filename = "cylindrical_mesh";
-        std::string mesh_pathname = handler.GetTestOutputDirectory() + mesh_filename;
+        std::string mesh_pathname = handler.GetOutputDirectoryFullPath() + mesh_filename;
         
         // Set up a mesh
         unsigned cells_across = 5;

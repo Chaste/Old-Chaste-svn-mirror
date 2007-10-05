@@ -438,7 +438,7 @@ public:
         p_element_file->close();                          
 
         // compare output with saved files of what they should look like                           
-        std::string results_dir = output_file_handler.GetTestOutputDirectory();
+        std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.vizelements  cancer/test/data/TestTissueWriters/results.vizelements").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.viznodes     cancer/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
@@ -646,7 +646,7 @@ public:
         
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "tissue.arch";
+        archive_filename = handler.GetChasteTestOutputDirectory() + "tissue.arch";
         
         // Archive a tissue 
         {

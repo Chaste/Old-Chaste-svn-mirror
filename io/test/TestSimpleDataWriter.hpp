@@ -52,8 +52,7 @@ public:
     
         // do the testing now so that to also check the directory wasn't cleaned
         // in the second write       
-        OutputFileHandler handler("SimpleDataWriter",false);
-        std::string results_dir = handler.GetTestOutputDirectory();
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "SimpleDataWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "std_vecs1.dat  io/test/data/good_std_vec1.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "std_vecs2.dat  io/test/data/good_std_vec2.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "std_vecs3.dat  io/test/data/good_std_vec3.dat").c_str()), 0);

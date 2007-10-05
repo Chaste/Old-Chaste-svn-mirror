@@ -1038,7 +1038,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     //system("cat /tmp/chaste/testoutput/temp.node");
     
     
-    std::string full_name = handler.GetTestOutputDirectory("")+"temp.";
+    std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
     std::string binary_name;
     if (SPACE_DIM==2)
     {
@@ -1149,18 +1149,18 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
     metis_file->close();
     
     
-    std::string convert_command   = "./bin/mesh2nodal "+handler.GetTestOutputDirectory("")
+    std::string convert_command   = "./bin/mesh2nodal "+handler.GetOutputDirectoryFullPath("")
                                     + "metis.mesh"
                                     + " > /dev/null";
     system(convert_command.c_str());
     
-    std::string permute_command   = "./bin/onmetis "+handler.GetTestOutputDirectory("")
+    std::string permute_command   = "./bin/onmetis "+handler.GetOutputDirectoryFullPath("")
                                     + "metis.mesh.ngraph"
                                     + " > /dev/null";
     system(permute_command.c_str());
     
     //Read the permutation back into a std::vector
-    std::string perm_file_name   = handler.GetTestOutputDirectory("")
+    std::string perm_file_name   = handler.GetOutputDirectoryFullPath("")
                                    + "metis.mesh.ngraph.iperm";
     std::ifstream perm_file(perm_file_name.c_str());
     std::vector<unsigned> perm;

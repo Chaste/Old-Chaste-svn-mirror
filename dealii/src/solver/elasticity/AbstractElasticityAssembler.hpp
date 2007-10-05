@@ -36,7 +36,7 @@ public:
         {
             mWriteOutput = true;
             OutputFileHandler output_file_handler(outputDirectory, true); // clean the directory
-            mOutputDirectoryFullPath = output_file_handler.GetTestOutputDirectory(outputDirectory);
+            mOutputDirectoryFullPath = output_file_handler.GetChasteTestOutputDirectory(outputDirectory);
         }
         else
         {

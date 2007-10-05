@@ -35,7 +35,7 @@ ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
     if (make_absolute)
     {
         OutputFileHandler output_file_handler(directory, false);
-        directory = output_file_handler.GetTestOutputDirectory();
+        directory = output_file_handler.GetOutputDirectoryFullPath();
     }
     else
     {

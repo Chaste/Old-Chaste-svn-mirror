@@ -46,7 +46,7 @@ public:
 
         // work out where the previous test wrote its files
         OutputFileHandler handler("TestCryptVoronoiDataWriter",false);
-        std::string results_file = handler.GetTestOutputDirectory() + "Simple.dat";
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "Simple.dat";
         //TS_ASSERT_EQUALS(system(("ndiff -relerr 1e-5 " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/Simple.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/Simple.dat").c_str()), 0);
         
@@ -88,7 +88,7 @@ public:
 
         // work out where the previous test wrote its files
         OutputFileHandler handler("TestCryptVoronoiDataWriter",false);
-        std::string results_file = handler.GetTestOutputDirectory() + "OneCell.dat";
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "OneCell.dat";
         TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/OneCell.dat").c_str()), 0);
         
         SimulationTime::Destroy();

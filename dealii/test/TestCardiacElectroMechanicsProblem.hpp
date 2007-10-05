@@ -12,6 +12,9 @@
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
 public:
+    void Test
+
+
     void Test_1D_CompareExplicitVsImplicit() throw(Exception)
     {
         double time_step = 0.01;
@@ -28,7 +31,7 @@ public:
         for(unsigned i=0; i<500; i++)
         {
             OutputFileHandler handler("ExplicitCardiacElectroMech/deformation/",false);
-            std::string full_path1 = handler.GetTestOutputDirectory();
+            std::string full_path1 = handler.GetChasteTestOutputDirectory();
             
             // a bit nasty: we want to ready the second column of the last row (turns
             // out that this is where the x value for the 2nd node (ie the X=1) node is,
@@ -46,7 +49,7 @@ public:
             system(("rm -f " + temp_file1).c_str());
 
             OutputFileHandler handler2("ImplicitCardiacElectroMech/deformation/",false);
-            std::string full_path2 = handler2.GetTestOutputDirectory();
+            std::string full_path2 = handler2.GetChasteTestOutputDirectory();
             
             std::stringstream file2;
             file2 << full_path2 << "/solution_" << i << ".nodes";

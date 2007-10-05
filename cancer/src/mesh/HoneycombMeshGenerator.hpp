@@ -213,11 +213,11 @@ public:
         
         mMeshFilename = "2D_temporary_periodic_crypt_mesh";
         Make2dPeriodicCryptMesh(mCryptWidth,ghosts);
-        std::string testoutput_dir;
+        std::string output_dir;
         OutputFileHandler output_file_handler("");
-        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        output_dir = output_file_handler.GetOutputDirectoryFullPath();
         
-        TrianglesMeshReader<2,2> mesh_reader(testoutput_dir+ mMeshFilename);
+        TrianglesMeshReader<2,2> mesh_reader(output_dir+ mMeshFilename);
         
         if (!mCylindrical)
         {

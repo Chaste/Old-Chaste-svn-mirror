@@ -362,10 +362,7 @@ public :
                 // write deformed position                    
                 mech_writer_counter++;
                 dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->WriteOutput(mech_writer_counter);
-            }
 
-            if (mWriteOutput)
-            {
                 mpMonodomainProblem->mpWriter->AdvanceAlongUnlimitedDimension();
                 mpMonodomainProblem->WriteOneStep(stepper.GetTime(), voltage);
             }
@@ -375,6 +372,7 @@ public :
             counter++;
         }
         
+        mpMonodomainProblem->mpWriter->Close();
         delete p_electrics_assembler;
     }
 };

@@ -14,13 +14,13 @@ public:
     void TestHandler(void)
     {
         OutputFileHandler handler("");
-        TS_ASSERT(handler.GetTestOutputDirectory("").length() > 0);
+        TS_ASSERT(handler.GetOutputDirectoryFullPath("").length() > 0);
         
         std::string dir = "testhandler";
         OutputFileHandler handler2(dir);
-        std::string full_dir = handler2.GetTestOutputDirectory(dir);
+        std::string full_dir = handler2.GetOutputDirectoryFullPath(dir);
         TS_ASSERT_EQUALS(full_dir.substr(full_dir.length()-dir.length()-1), dir+"/");
-        TS_ASSERT_EQUALS(full_dir, handler2.GetTestOutputDirectory());
+        TS_ASSERT_EQUALS(full_dir, handler2.GetOutputDirectoryFullPath());
         
         out_stream p_file_stream;
         TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file",
@@ -43,13 +43,13 @@ public:
         
         setenv("CHASTE_TEST_OUTPUT", "", 1/*Overwrite*/);
         
-        handler3.GetTestOutputDirectory("whatever");
+        handler3.GetOutputDirectoryFullPath("whatever");
         
         rmdir("whatever");
         
         setenv("CHASTE_TEST_OUTPUT", "somewhere_without_trailing_forward_slash", 1/*Overwrite*/);
         
-        handler3.GetTestOutputDirectory("whatever");
+        handler3.GetOutputDirectoryFullPath("whatever");
         
         rmdir("somewhere_without_trailing_forward_slash/whatever");
         rmdir("somewhere_without_trailing_forward_slash");

@@ -88,7 +88,7 @@ public:
     {
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "cancer_params.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "cancer_params.arch";
         
         // Create an ouput archive
         {

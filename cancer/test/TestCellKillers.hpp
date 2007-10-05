@@ -247,7 +247,7 @@ public:
     
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "random_killer.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "random_killer.arch";
 
         {
             // Create an ouput archive
@@ -284,7 +284,7 @@ public:
     {
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "sloughing_killer.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "sloughing_killer.arch";
 
         CancerParameters *p_params = CancerParameters::Instance();
        

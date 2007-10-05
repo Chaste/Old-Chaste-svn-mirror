@@ -24,7 +24,7 @@ public:
     /**
      * Create an OutputFileHandler that will create output files in the given directory.
      * The directory name should be relative to the place where Chaste test output is
-     * stored.  If the user needs to know where this is, use the GetTestOutputDirectory
+     * stored.  If the user needs to know where this is, use the GetChasteTestOutputDirectory
      * method.
      * 
      * Will check that the directory exists and create it if needed.
@@ -34,6 +34,15 @@ public:
      */
     OutputFileHandler(const std::string &rDirectory,
                       bool rCleanOutputDirectory = true);
+                      
+    /**
+     *  Static method for getting the test output directory (the directory where 
+     *  chaste stores test out, which is the environment variable CHASTE_TESTOUTPUT
+     *  
+     *  Static so an output file handler does not have to be created if the test output
+     *  directory is wanted for, say, reading a file
+     */                       
+    static std::string GetChasteTestOutputDirectory();                      
                       
     /**
      * Check that the desired output directory exists and is writable by us.
@@ -46,14 +55,14 @@ public:
      * 
      * @param directory  pathname of the output directory, relative to where Chaste
      *         output will be stored (user shouldn't care about this).
-     * @return  full pathname to the output directory
+     * @return full pathname to the output directory
      */
-    std::string GetTestOutputDirectory(std::string directory);
+    std::string GetOutputDirectoryFullPath(std::string directory);
     /**
      * Return the full pathname to the directory this object will create files
      * in.
      */
-    std::string GetTestOutputDirectory();
+    std::string GetOutputDirectoryFullPath();
     
     /**
      * Open an output file in our directory, and check it was opened successfully.

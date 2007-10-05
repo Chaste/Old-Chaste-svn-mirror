@@ -166,7 +166,7 @@ public:
     {
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "simple_vars.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "simple_vars.arch";
         
         // Create an ouput archive
         {
@@ -226,7 +226,7 @@ public:
         
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "linked_classes.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "linked_classes.arch";
         
         // Save
         {
@@ -286,7 +286,7 @@ public:
         
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "pointer_set.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "pointer_set.arch";
         
         // Save
         {

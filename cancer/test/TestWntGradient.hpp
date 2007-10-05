@@ -111,7 +111,7 @@ public:
 
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "wnt_grad.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_grad.arch";
         
         // Create an ouput archive
         {

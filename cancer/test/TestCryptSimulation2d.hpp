@@ -771,7 +771,7 @@ public:
         
         // check writing of voronoi data
         OutputFileHandler handler("Crypt2DWntMatureCells",false);
-        std::string results_file = handler.GetTestOutputDirectory() + "VoronoiAreaAndPerimeter.dat";
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "VoronoiAreaAndPerimeter.dat";
         TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat").c_str()), 0);
             
         SimulationTime::Destroy();
@@ -849,7 +849,7 @@ public:
     {
         // work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DPeriodicTysonNovak",false);
-        std::string results_dir = handler.GetTestOutputDirectory() + "results_from_time_0/vis_results";
+        std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.vizelements cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizelements").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.viznodes cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.viznodes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.vizsetup cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizsetup").c_str()), 0);

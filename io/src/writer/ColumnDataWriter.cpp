@@ -55,7 +55,7 @@ ColumnDataWriter::~ColumnDataWriter()
  */
 std::string ColumnDataWriter::GetOutputDirectory(void)
 {
-    return mOutputFileHandler.GetTestOutputDirectory();
+    return mOutputFileHandler.GetOutputDirectoryFullPath();
 }
 
 /**

@@ -788,7 +788,7 @@ void TissueSimulation<DIM>::Save()
     // archive directory. Note the false is so the handler doesn't clean
     // the directory
     OutputFileHandler handler(archive_directory, false);
-    std::string archive_filename = handler.GetTestOutputDirectory() + "2dCrypt_at_time_"+time_stamp.str()+".arch";
+    std::string archive_filename = handler.GetOutputDirectoryFullPath() + "2dCrypt_at_time_"+time_stamp.str()+".arch";
     std::string mesh_filename = std::string("mesh_") + time_stamp.str();
     
     if(mReMesh)
@@ -828,8 +828,7 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
     
     SimulationTime *p_simulation_time = SimulationTime::Instance();
     
-    OutputFileHandler any_old_handler("",false);
-    std::string test_output_directory = any_old_handler.GetTestOutputDirectory();
+    std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
     
     std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/2dCrypt_at_time_"+time_stamp.str() +".arch";
     std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str();

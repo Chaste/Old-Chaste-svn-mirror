@@ -728,7 +728,7 @@ public:
         
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "fixed.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "fixed.arch";
         
         // Create an ouput archive
         {
@@ -780,7 +780,7 @@ public:
 
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "stoch_cycle.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "stoch_cycle.arch";
         
         double random_number_test = 0;
         
@@ -849,7 +849,7 @@ public:
 
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "tyson_novak.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "tyson_novak.arch";
         
         // Create an ouput archive
         {
@@ -904,7 +904,7 @@ public:
 
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "wnt_cell_cycle.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_cell_cycle.arch";
         WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
 
         // Create an ouput archive
@@ -983,7 +983,7 @@ public:
         //(i.e. at time 5.971 here so the model has to be archived BEFORE that.
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "stochastic_wnt_cell_cycle.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "stochastic_wnt_cell_cycle.arch";
         WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
         
         // Create an ouput archive

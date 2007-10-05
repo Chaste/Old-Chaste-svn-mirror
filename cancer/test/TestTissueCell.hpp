@@ -1199,7 +1199,7 @@ public:
         
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "cell.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "cell.arch";
         
         // Archive a cell
         {

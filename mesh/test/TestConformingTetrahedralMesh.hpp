@@ -1908,7 +1908,7 @@ public:
     {
         OutputFileHandler handler("archive", false);    // do not clean folder
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "conf_mesh.arch";
+        archive_filename = handler.GetChasteTestOutputDirectory() + "conf_mesh.arch";
         
         // Create an ouput archive
         {

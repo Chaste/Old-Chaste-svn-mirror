@@ -56,8 +56,7 @@ public:
         (*LogFile::Instance()) << "..and one final bit\n";
         LogFile::Close();
         
-        OutputFileHandler handler("TestLogFile",false);
-        std::string results_dir = handler.GetTestOutputDirectory();
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log2.txt  global/test/data/good_log2.txt").c_str()), 0);
     }
         
@@ -79,8 +78,7 @@ public:
         p_log_file->Set(1, "TestLogFile","log3.txt");
         (*p_log_file) << "data";
 
-        OutputFileHandler handler("TestLogFile",false);
-        std::string results_dir = handler.GetTestOutputDirectory();
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log.txt  global/test/data/good_log.txt").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log3.txt  global/test/data/good_log.txt").c_str()), 0);
         
@@ -101,9 +99,7 @@ public:
         LOG(1, "Level 1 info, will be written. i = " << i << "\n"); 
         LOG(2, "Level 2 info, WONT be written. i = " << i << "\n"); 
 
-
-        OutputFileHandler handler("TestLogFile",false);
-        std::string results_dir = handler.GetTestOutputDirectory();
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
         
         // this should fail if optimised.
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log4.txt  global/test/data/good_log4.txt").c_str()), 0);

@@ -35,13 +35,13 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
         // Not using PETSc, so we're definitely the only process
         mAmMaster = true;
     }
-    mDirectory = GetTestOutputDirectory(rDirectory);
+    mDirectory = GetOutputDirectoryFullPath(rDirectory);
     
     // Clean the output dir?
     if (rCleanOutputDirectory && mAmMaster &&
         rDirectory != "" && rDirectory.find("..") == std::string::npos)
     {
-        std::string directory_to_move_to = GetTestOutputDirectory("last_cleaned_directory");
+        std::string directory_to_move_to = GetOutputDirectoryFullPath("last_cleaned_directory");
         system(("rm -rf " + directory_to_move_to).c_str());
         // Re-create the special directory
         mkdir(directory_to_move_to.c_str(), 0775);
@@ -52,8 +52,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
     }
 }
 
-
-std::string OutputFileHandler::GetTestOutputDirectory(std::string directory)
+std::string OutputFileHandler::GetChasteTestOutputDirectory()
 {
     char *chaste_test_output = getenv("CHASTE_TEST_OUTPUT");
     std::string directory_root;
@@ -71,6 +70,13 @@ std::string OutputFileHandler::GetTestOutputDirectory(std::string directory)
             directory_root = directory_root + "/";
         }
     }
+    return directory_root;
+}
+    
+
+std::string OutputFileHandler::GetOutputDirectoryFullPath(std::string directory)
+{
+    std::string directory_root = GetChasteTestOutputDirectory();
     directory = directory_root + directory;
     // Make sure it exists (ish)
     if (mAmMaster)
@@ -87,7 +93,7 @@ std::string OutputFileHandler::GetTestOutputDirectory(std::string directory)
 }
 
 
-std::string OutputFileHandler::GetTestOutputDirectory()
+std::string OutputFileHandler::GetOutputDirectoryFullPath()
 {
     return mDirectory;
 }

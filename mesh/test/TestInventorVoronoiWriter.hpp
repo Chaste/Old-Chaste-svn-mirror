@@ -38,8 +38,7 @@ public:
         inventor_writer.Write(tessellation);
         
         // then compare against known good file
-        OutputFileHandler handler("InventorWriter",false);
-        std::string results_dir = handler.GetTestOutputDirectory();
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "InventorWriter/";
         std::cout<< "/n TEST DIREC "<<results_dir;
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/SimpleTet.iv mesh/test/data/InventorWriter/SimpleTet.iv").c_str()), 0);
         
@@ -62,8 +61,7 @@ public:
         inventor_writer.Write(tessellation);
         
         // then compare against known good file
-        OutputFileHandler handler("InventorWriter",false);
-        std::string results_dir = handler.GetTestOutputDirectory();
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "InventorWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/Complex.iv mesh/test/data/InventorWriter/Complex.iv").c_str()), 0);
         
     }
@@ -93,8 +91,7 @@ public:
         inventor_writer.ScaleAndWrite(tessellation,2.0/3.0);
 
         // then compare against known good file
-        OutputFileHandler handler("InventorWriter",false);
-        std::string results_dir = handler.GetTestOutputDirectory();
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "InventorWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/ScaledSimpleTet.iv mesh/test/data/InventorWriter/ScaledSimpleTet.iv").c_str()), 0);
     }
 
@@ -114,8 +111,7 @@ public:
         inventor_writer.ScaleAndWrite(tessellation,0.5);
         
         // then compare against known good file
-        OutputFileHandler handler("InventorWriter",false);
-        std::string results_dir = handler.GetTestOutputDirectory();
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "InventorWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/ScaledComplex.iv mesh/test/data/InventorWriter/ScaledComplex.iv").c_str()), 0);
     }
 

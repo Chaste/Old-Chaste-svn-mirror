@@ -124,7 +124,7 @@ public:
             (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1]<<"\t"<<node_loc[2]<<"\n";
         }
         node_file->close();
-        std::string full_name = handler.GetTestOutputDirectory("")+"temp.";
+        std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
         std::string command   = "./bin/tetgen -e " + full_name + "node";
         system(command.c_str());
         
@@ -204,7 +204,7 @@ public:
         TS_ASSERT_EQUALS(new_index,mesh.GetNumNodes());
         
         node_file->close();
-        std::string full_name = handler.GetTestOutputDirectory("")+"temp.";
+        std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
         std::string command   = "./bin/triangle -e " + full_name + "node";
         system(command.c_str());
         

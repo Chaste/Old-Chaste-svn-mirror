@@ -323,7 +323,7 @@ public:
         
         // check writing of voronoi data
         OutputFileHandler handler("Monolayer",false);
-        std::string results_file = handler.GetTestOutputDirectory() + "VoronoiAreaAndPerimeter.dat";
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "VoronoiAreaAndPerimeter.dat";
         TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/Monolayer/VoronoiAreaAndPerimeter.dat").c_str()), 0);
      
         SimulationTime::Destroy();

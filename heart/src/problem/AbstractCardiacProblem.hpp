@@ -31,7 +31,7 @@ private:
     bool mWriteInfo;
     bool mPrintOutput;
  
-    AbstractCardiacPde<SPACE_DIM> *mpCardiacPde;
+    AbstractCardiacPde<SPACE_DIM>* mpCardiacPde;
     
     /** data is not written if output directory or output file prefix are not set*/
     std::string  mOutputDirectory, mOutputFilenamePrefix;
@@ -64,8 +64,12 @@ protected:
     unsigned mTimeColumnId;
     unsigned mNodeColumnId;
 
-public: // AbstractCardiacElectroMechanicsWriter hack.
-    ParallelColumnDataWriter *mpWriter;
+public: 
+    // This (and things in MonodomainProblem) being public are hacks for 
+    // AbstractCardiacElectroMechanicsWriter to work.
+    // TODO AbstractCardiacElectroMechanicsWriter should be a friend, but not sure
+    // how to get friends to work when both friends are templated and abstract.
+    ParallelColumnDataWriter* mpWriter;
 
 public:    
     /**
@@ -274,12 +278,12 @@ public:
         mpMesh = pMesh;
     }
     
-    void SetOutputDirectory(const std::string &rOutputDirectory)
+    void SetOutputDirectory(const std::string& rOutputDirectory)
     {
         mOutputDirectory = rOutputDirectory;
     }
     
-    void SetOutputFilenamePrefix(const std::string &rOutputFilenamePrefix)
+    void SetOutputFilenamePrefix(const std::string& rOutputFilenamePrefix)
     {
         mOutputFilenamePrefix = rOutputFilenamePrefix;
     }

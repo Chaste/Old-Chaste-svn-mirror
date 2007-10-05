@@ -50,8 +50,7 @@ public:
         
         // The archive needs to be copied from cancer/test/data/<test_to_profile>
         // to the testoutput directory to continue running the simulation.     
-        OutputFileHandler any_old_handler("",false);
-        std::string test_output_directory = any_old_handler.GetTestOutputDirectory();
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string test_data_directory = "cancer/test/data/" + test_to_profile +"/";
         std::string command = "cp -Rf --remove-destination " + test_data_directory +" "+ test_output_directory +"/";     
         int return_value = system(command.c_str());

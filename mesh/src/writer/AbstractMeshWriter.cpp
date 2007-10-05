@@ -9,7 +9,7 @@
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::string AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetOutputDirectory(void)
 {
-    return mpOutputFileHandler->GetTestOutputDirectory();
+    return mpOutputFileHandler->GetOutputDirectoryFullPath();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

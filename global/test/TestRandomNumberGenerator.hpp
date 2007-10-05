@@ -56,7 +56,7 @@ public:
     {
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "random_number.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "random_number.arch";
         
         std::vector<double> generated_numbers;
         
