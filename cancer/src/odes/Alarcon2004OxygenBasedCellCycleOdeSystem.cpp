@@ -26,8 +26,10 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
     */
     Init(); // set up parameters
     
-    mMutationState = rMutationState;   
+    assert(rMutationState == ALARCON_NORMAL || rMutationState == ALARCON_CANCER);
        
+    mMutationState = rMutationState;
+    
     // parameter values taken from the Alarcon et al. (2004) paper        
     if (mMutationState == ALARCON_NORMAL)    // normal cells
     {
@@ -36,19 +38,13 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
         mxThreshold = 0.004;
         myThreshold = 0.2;
     }
-    else if (rMutationState == ALARCON_CANCER) // cancer cells
+    else // cancer cells
     {
         ma1 = 0.04;
         mc1 = 0.007;
         mxThreshold = 0.04; // should this be 0.004??
         myThreshold = 0.05;
-    }    
-    else
-    {
-        #define COVERAGE_IGNORE
-        assert(0);
-        #undef COVERAGE_IGNORE
-    }
+    }  
         
     mVariableNames.push_back("Cdh1_APC_complexes");
     mVariableUnits.push_back("non_dim");
@@ -143,21 +139,17 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time,
     dx = ((1 + mb3*u)*(1-x))/(mJ3 + 1 - x) - (mb4*mass*x*y)/(mJ4 + x);    
     dy = ma4 -(ma1 + ma2*x + ma3*z)*y;
     
+    assert(mMutationState == ALARCON_NORMAL || mMutationState == ALARCON_CANCER);
+    
     // parameter values taken from the Alarcon et al. (2004) paper        
     if (mMutationState == ALARCON_NORMAL)    // normal cells
     {
         dz = mc1*(1 - mass/mMstar) - mc2*oxygen_concentration*z/(mB + oxygen_concentration);
     }
-    else if (mMutationState == ALARCON_CANCER) // cancer cells
+    else // cancer cells
     {
         dz = mc1 - mc2*oxygen_concentration*z/(mB + oxygen_concentration);   
-    }    
-    else
-    {
-        #define COVERAGE_IGNORE
-        assert(0);
-        #undef COVERAGE_IGNORE
-    }
+    } 
         
     dmass = mEta*mass*(1 - mass/mMstar);        
     du = md1 - (md2 + md1*y)*u;
