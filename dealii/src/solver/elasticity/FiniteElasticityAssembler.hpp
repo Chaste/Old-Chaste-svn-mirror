@@ -91,11 +91,6 @@ protected:
     /*< The dealii finite element object */
     FESystem<DIM>        mFeSystem;
     
-    /*< Full path of output directory, including chaste testoutput */
-    std::string          mOutputDirectoryFullPath;
-    /*< Whether to write any output or not */
-    bool                 mWriteOutput;
-    
     /** The derivative of stress (ie second derivative of the strain energy).
      *  dTdE[M][N][P][Q] = d(T^{MN})/d(E_{PQ}) */
     FourthOrderTensor<DIM> dTdE;
@@ -187,7 +182,6 @@ protected:
     void DistributeDofs();
     
     
-    
 public:
     /**
      *  Constructor
@@ -257,18 +251,6 @@ public:
      *  difference between the two jacobians. 
      */
     void CompareJacobians(double tol=1e-8);
-
-    /**
-     *  Output current deformed position to file (or the undeformed mesh, if the 
-     *  second parameter is set to false)
-     *  @counter A number to suffix the file. The output file will be 
-     *   <out_dir>/finiteelas_solution_<counter.[nodes/elem/undefnodes/undefelem]
-     *  @writeDeformed whether to write the deformed position or the undeformed
-     *   position, defaults to deformed
-     */
-    void WriteOutput(unsigned counter, bool writeDeformed=true);
-
-    void SetWriteOutput(bool writeOutput);
 };
 
 

@@ -31,8 +31,8 @@ private:
 
 
 public:
-    Implicit1dCardiacMechanicsAssembler(Triangulation<1>* pMesh)
-        :  Abstract1dCardiacMechanicsAssembler(pMesh)
+    Implicit1dCardiacMechanicsAssembler(Triangulation<1>* pMesh, std::string outputDir="")
+        :  Abstract1dCardiacMechanicsAssembler(pMesh, outputDir)
     {
         mCellMechSystems.resize(mTotalQuadPoints);
         mLambdaLastTimeStep.resize(mTotalQuadPoints, 1.0);

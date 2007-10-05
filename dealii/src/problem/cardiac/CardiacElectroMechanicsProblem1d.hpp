@@ -54,15 +54,15 @@ public:
     }
     
     
-    void ConstructMechanicsAssembler()
+    void ConstructMechanicsAssembler(std::string mechanicsOutputDir)
     {
         if(mUseExplicitMethod)
         {
-            mpCardiacMechAssembler = new Explicit1dCardiacMechanicsAssembler(mpMechanicsMesh);
+            mpCardiacMechAssembler = new Explicit1dCardiacMechanicsAssembler(mpMechanicsMesh, mechanicsOutputDir);
         }
         else
         {
-            mpCardiacMechAssembler = new Implicit1dCardiacMechanicsAssembler(mpMechanicsMesh);
+            mpCardiacMechAssembler = new Implicit1dCardiacMechanicsAssembler(mpMechanicsMesh, mechanicsOutputDir);
         }
     }
 };

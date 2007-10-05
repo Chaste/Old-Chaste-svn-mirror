@@ -7,6 +7,7 @@
 #include "NhsCellularMechanicsOdeSystem.hpp"
 #include "FiniteElasticityTools.hpp"
 #include "AbstractElasticityAssembler.hpp"
+#include "TrianglesMeshWriter.cpp"
 
 /* todos:
  * 
@@ -113,8 +114,12 @@ protected :
     /*< when to write output */    
     const static int WRITE_EVERY_NTH_TIME = 1; 
     
-    /*< A pure method constructing the mechanics assembler */
-    virtual void ConstructMechanicsAssembler()=0;
+    /**
+     *  A pure method constructing the mechanics assembler 
+     *  @param mechanicsOutputDir The output directory the assembler
+     *  should be created with.
+     *  */
+    virtual void ConstructMechanicsAssembler(std::string mechanicsOutputDir)=0;
     /*< A pure method to be implemented in the concrete class constructing the meshes */
     virtual void ConstructMeshes()=0;
 
@@ -150,6 +155,12 @@ public :
         {
             mOutputDirectory = outputDirectory;
             mDeformationOutputDirectory = mOutputDirectory + "/deformation";
+            mpMonodomainProblem->SetOutputDirectory(mOutputDirectory + "/electrics");
+            mpMonodomainProblem->SetOutputFilenamePrefix("voltage");
+        }
+        else
+        {
+            mDeformationOutputDirectory = ""; // not really necessary but a bit safer, as passed in ConstructMechanicsAssembler
         }
                 
         mUseExplicitMethod = useExplicitMethod;
@@ -188,7 +199,7 @@ public :
         mpMonodomainProblem->Initialise();
 
         // construct mechanics assembler 
-        ConstructMechanicsAssembler();
+        ConstructMechanicsAssembler(mDeformationOutputDirectory);
 
         // find the element nums and weights for each gauss point in the mechanics mesh
         mElementAndWeightsForQuadPoints.resize(mpCardiacMechAssembler->GetTotalNumQuadPoints());
@@ -213,6 +224,12 @@ public :
             
             mElementAndWeightsForQuadPoints[i].ElementNum = elem_index;
             mElementAndWeightsForQuadPoints[i].Weights = weight;
+        }
+        
+        if(mWriteOutput)
+        {
+            TrianglesMeshWriter<DIM,DIM> mesh_writer(mOutputDirectory,"electrics_mesh",false);
+            mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
         }
     }
 
@@ -257,28 +274,25 @@ public :
             cellmech_systems.resize(num_quad_points);
         }
 
-        unsigned mech_writer_counter = 0;
-
-        // write initial positions
-        if(mWriteOutput)
-        {
-            OutputFileHandler output_file_handler(mDeformationOutputDirectory, true);
-            out_stream p_file = output_file_handler.OpenOutputFile("results_", mech_writer_counter, ".dat");
-            std::vector<Vector<double> >& deformed_position = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->rGetDeformedPosition();
-            for(unsigned i=0; i<deformed_position[0].size(); i++)
-            {
-                for(unsigned j=0; j<DIM; j++)
-                {
-                    (*p_file) << deformed_position[j](i) << " ";
-                }
-                (*p_file) << "\n";
-            }
-        }
+        // write the initial position
+        // NOTE: small architecture issue here. All concrete assembler (at the moment) are
+        // AbstractElasticityAssembler assemblers (naturally) as well as AbstractCardiacMech
+        // assemblers, but the compiler doesn't know that here, hence the cast
+        
 
 
         unsigned counter = 0;
 
         TimeStepper stepper(0.0, mEndTime, mTimeStep);
+
+        unsigned mech_writer_counter = 0;
+        if (mWriteOutput)
+        {
+            dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->WriteOutput(mech_writer_counter);
+            mpMonodomainProblem->InitialiseWriter();
+            mpMonodomainProblem->WriteOneStep(stepper.GetTime(), initial_voltage);
+        }
+
         while ( !stepper.IsTimeAtEnd() )
         {
             std::cout << "**Time = " << stepper.GetTime() << "\n" << std::flush;
@@ -343,25 +357,22 @@ public :
                 }
             }
 
-            // write
-            if(mWriteOutput && (counter++)%WRITE_EVERY_NTH_TIME==0)
-            {            
-                OutputFileHandler output_file_handler(mDeformationOutputDirectory, false);
-                out_stream p_file = output_file_handler.OpenOutputFile("results_", mech_writer_counter, ".dat");
-                std::vector<Vector<double> >& deformed_position = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->rGetDeformedPosition();
-                for(unsigned i=0; i<deformed_position[0].size(); i++)
-                {
-                    for(unsigned j=0; j<DIM; j++)
-                    {
-                        (*p_file) << deformed_position[j](i) << " ";
-                    }
-                    (*p_file) << "\n";
-                }
+            if(mWriteOutput && (counter%WRITE_EVERY_NTH_TIME==0))
+            {
+                // write deformed position                    
                 mech_writer_counter++;
-            }                        
+                dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->WriteOutput(mech_writer_counter);
+            }
+
+            if (mWriteOutput)
+            {
+                mpMonodomainProblem->mpWriter->AdvanceAlongUnlimitedDimension();
+                mpMonodomainProblem->WriteOneStep(stepper.GetTime(), voltage);
+            }
             
             // update the current time
             stepper.AdvanceOneTimeStep();
+            counter++;
         }
         
         delete p_electrics_assembler;

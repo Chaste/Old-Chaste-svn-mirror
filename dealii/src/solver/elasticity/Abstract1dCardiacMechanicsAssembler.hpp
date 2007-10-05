@@ -45,8 +45,8 @@ protected :
     }
 
 public:
-    Abstract1dCardiacMechanicsAssembler(Triangulation<1>* pMesh)
-        : AbstractElasticityAssembler<1>(pMesh),
+    Abstract1dCardiacMechanicsAssembler(Triangulation<1>* pMesh, std::string outputDir="")
+        : AbstractElasticityAssembler<1>(pMesh,outputDir),
           AbstractCardiacMechanicsAssembler<1>(pMesh),
           mFe(1)
     {

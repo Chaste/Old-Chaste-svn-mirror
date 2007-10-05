@@ -17,7 +17,7 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
                                                           unsigned degreeOfBasesForPosition,
                                                           unsigned degreeOfBasesForPressure
                                                          )  :
-        AbstractElasticityAssembler<DIM>(pMesh),
+        AbstractElasticityAssembler<DIM>(pMesh, outputDirectory),
         // DIM bases for position, 1 for pressure
         mFeSystem(FE_Q<DIM>(degreeOfBasesForPosition), DIM, FE_Q<DIM>(1), degreeOfBasesForPressure),
         mBodyForce(bodyForce),
@@ -48,17 +48,6 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
     if (density <= 0.0)
     {
         EXCEPTION("Density must be strictly positive");
-    }
-    
-    if (outputDirectory!="")
-    {
-        mWriteOutput = true;
-        OutputFileHandler output_file_handler(outputDirectory);
-        mOutputDirectoryFullPath = output_file_handler.GetTestOutputDirectory(outputDirectory);
-    }
-    else
-    {
-        mWriteOutput = false;
     }
     
     // check the mesh has a region on the surface which has been set to
@@ -502,7 +491,7 @@ template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::WriteStresses(unsigned counter)
 {
     // only write output if the flag mWriteOutput has been set
-    if (!mWriteOutput)
+    if (!this->mWriteOutput)
     {
         return;
     }
@@ -783,90 +772,6 @@ void FiniteElasticityAssembler<DIM>::CompareJacobians(double tol)
     }
 }
 
-template<unsigned DIM>
-void FiniteElasticityAssembler<DIM>::WriteOutput(unsigned counter, bool writeDeformed)
-{
-    // only write output if the flag mWriteOutput has been set
-    if (!mWriteOutput)
-    {
-        return;
-    }
-    
-    
-    /////////////////////////////////////////////////////////////////////
-    // create an node file, by looping over vertices and writing
-    //   vertex_index x y [z]
-    /////////////////////////////////////////////////////////////////////
-    std::stringstream ss_nodes;
-    std::stringstream ss_elem;
-    ss_nodes << mOutputDirectoryFullPath << "/finiteelas_solution_" << counter;
-    ss_elem  << mOutputDirectoryFullPath << "/finiteelas_solution_" << counter;;
-    if(writeDeformed)
-    {
-        ss_nodes << ".nodes";
-        ss_elem  << ".elem";
-    }
-    else
-    {
-        ss_nodes << ".undefnodes";
-        ss_elem  << ".undefelem";
-    }
-    std::string nodes_filename = ss_nodes.str();
-    std::ofstream nodes_output(nodes_filename.c_str());
-
-    std::vector<Vector<double> >& r_deformed_position = this->rGetDeformedPosition();
-    std::vector<Vector<double> >& r_undeformed_position = this->rGetUndeformedPosition();
-
-    // loop over nodes in the mesh using the vertex iter
-    // NOTE: we don't print out every all of 
-    // r_deformed_position[i](index) because for some values of index, 
-    // it will correspond to a non-active node.
-    TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
-    while (!vertex_iter.ReachedEnd())
-    {
-        unsigned index = vertex_iter.GetVertexGlobalIndex();
-        
-        nodes_output << index << " "; 
-        for (unsigned i=0; i<DIM; i++)
-        {
-            if(writeDeformed)
-            {
-                nodes_output << r_deformed_position[i](index) << " ";
-            }
-            else
-            {
-                nodes_output << r_undeformed_position[i](index) << " ";
-            }   
-        }
-        nodes_output << "\n";
-        vertex_iter.Next();
-    } 
-    nodes_output.close();
-     
-    /////////////////////////////////////////////////////////////////////
-    // create an element file, by looping over elements and writing
-    //   node1 node2  .... nodeN tumour
-    // where node_i is the vertex index and tumour = 0 or 1 indicating
-    // whether in grwoing region or not
-    /////////////////////////////////////////////////////////////////////
-    std::string elem_filename = ss_elem.str();
-    std::ofstream elem_output(elem_filename.c_str());
-
-    for( typename Triangulation<DIM>::active_cell_iterator element_iter = this->mpMesh->begin_active();
-         element_iter!=this->mpMesh->end();
-         element_iter++)
-    {
-        // loop over all vertices..
-        for (unsigned i=0; i<GeometryInfo<DIM>::vertices_per_cell; i++)
-        {
-            elem_output << element_iter->vertex_index(i) << " ";
-        }
-        unsigned material_id = element_iter->material_id();
-        elem_output << material_id << "\n";
-    }
-
-    elem_output.close();   
-}
 
 
 
@@ -878,10 +783,7 @@ void FiniteElasticityAssembler<DIM>::Solve()
         EXCEPTION("No material laws have been set");
     }
     
-    if(mWriteOutput)
-    {
-        WriteOutput(0);
-    }
+    this->WriteOutput(0);
     
     // if nothing has been solved for yet, form an initial guess which is
     // the zero deformation solution (other the current solution is the best
@@ -921,7 +823,7 @@ void FiniteElasticityAssembler<DIM>::Solve()
         
         std::cout << "Norm of residual is " << norm_resid << "\n";
 
-        WriteOutput(counter);
+        this->WriteOutput(counter);
         mNumNewtonIterations = counter;
         
         counter++;
@@ -940,18 +842,10 @@ void FiniteElasticityAssembler<DIM>::Solve()
     mADeformedHasBeenSolved = true;
 }
 
-
-
 template<unsigned DIM>
 unsigned FiniteElasticityAssembler<DIM>::GetNumNewtonIterations()
 {
     return mNumNewtonIterations;
-}
-
-template<unsigned DIM>
-void FiniteElasticityAssembler<DIM>::SetWriteOutput(bool writeOutput)
-{
-    mWriteOutput = writeOutput;
 }
 
 

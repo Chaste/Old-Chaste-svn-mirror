@@ -17,8 +17,8 @@ protected :
     std::vector<double> mActiveTension;
 
 public:
-    Explicit1dCardiacMechanicsAssembler(Triangulation<1>* pMesh)
-        : Abstract1dCardiacMechanicsAssembler(pMesh)
+    Explicit1dCardiacMechanicsAssembler(Triangulation<1>* pMesh, std::string outputDir="")
+        : Abstract1dCardiacMechanicsAssembler(pMesh, outputDir)
     {
         assert(mTotalQuadPoints > 0);
         mActiveTension.resize(mTotalQuadPoints, 1.0);

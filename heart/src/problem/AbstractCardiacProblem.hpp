@@ -60,10 +60,12 @@ protected:
      */
     virtual AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
 
-    ParallelColumnDataWriter *mpWriter;
     unsigned mVoltageColumnId;
     unsigned mTimeColumnId;
     unsigned mNodeColumnId;
+
+public: // AbstractCardiacElectroMechanicsWriter hack.
+    ParallelColumnDataWriter *mpWriter;
 
 public:    
     /**
@@ -337,9 +339,7 @@ public:
         if (mPrintOutput)
         {
             EventHandler::BeginEvent(WRITE_OUTPUT);
-            mpWriter = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
-            DefineWriterColumns();
-            mpWriter->EndDefineMode();
+            InitialiseWriter();
             WriteOneStep(stepper.GetTime(), initial_condition);
             EventHandler::EndEvent(WRITE_OUTPUT);
         }
@@ -454,6 +454,13 @@ public:
         DistributedVector::Stripe transmembrane(voltageVec, 0);
         mpWriter->PutVectorStripe(mVoltageColumnId, transmembrane);
     }
+    
+    void InitialiseWriter()
+    {
+        mpWriter = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
+        DefineWriterColumns();
+        mpWriter->EndDefineMode();
+    }        
 };
 
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/
