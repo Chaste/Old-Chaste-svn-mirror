@@ -8,6 +8,7 @@
 #include "FiniteElasticityTools.hpp"
 #include "AbstractElasticityAssembler.hpp"
 #include "TrianglesMeshWriter.cpp"
+#include "LogFile.hpp"
 
 /* todos:
  * 
@@ -80,6 +81,8 @@ struct ElementAndWeights
 template<unsigned DIM>
 class AbstractCardiacElectroMechanicsProblem
 {
+friend class TestCardiacElectroMechanicsProblem;
+
 protected :
     /*< The cardiac problem class */
     MonodomainProblem<DIM>* mpMonodomainProblem;
@@ -169,6 +172,23 @@ public :
         mpElectricsMesh = NULL;
         mpMechanicsMesh = NULL;
         mpCardiacMechAssembler = NULL;
+        
+        // Create the Logfile (note we have to do this after the output dir has been 
+        // created, else the log file might get cleaned away
+        std::string log_dir = mOutputDirectory; // just the TESTOUTPUT dir if mOutputDir="";
+        LogFile::Instance()->Set(1, mOutputDirectory);
+        LOG(1, DIM << "d CardiacElectroMechanics Simulation:");
+        LOG(1, "End time = " << mEndTime << ", timestep = " << mTimeStep <<  "\n");
+        LOG(1, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
+        
+        if(mUseExplicitMethod)
+        {
+            LOG(1, "Solving with explicit method..");
+        }
+        else
+        {
+            LOG(1, "Solving with implicit method..");
+        }        
     }   
     
     virtual ~AbstractCardiacElectroMechanicsProblem()
@@ -177,6 +197,8 @@ public :
         delete mpCardiacMechAssembler;
         delete mpElectricsMesh;
         delete mpMechanicsMesh;
+        
+        LogFile::Close();
     }
     
     
@@ -187,6 +209,8 @@ public :
      */
     void Initialise()
     {
+        LOG(1, "Initialising meshes and cardiac mechanics assembler..");
+        
         assert(mpElectricsMesh==NULL);
         assert(mpMechanicsMesh==NULL);
         assert(mpCardiacMechAssembler==NULL);
@@ -273,14 +297,13 @@ public :
             dlambda_dt.resize(num_quad_points, 0.0);
             cellmech_systems.resize(num_quad_points);
         }
+            
 
         // write the initial position
         // NOTE: small architecture issue here. All concrete assembler (at the moment) are
         // AbstractElasticityAssembler assemblers (naturally) as well as AbstractCardiacMech
         // assemblers, but the compiler doesn't know that here, hence the cast
         
-
-
         unsigned counter = 0;
 
         TimeStepper stepper(0.0, mEndTime, mTimeStep);
@@ -293,14 +316,21 @@ public :
             mpMonodomainProblem->WriteOneStep(stepper.GetTime(), initial_voltage);
         }
 
-        while (0)// !stepper.IsTimeAtEnd() )
+        while (!stepper.IsTimeAtEnd())
         {
-            std::cout << "**Time = " << stepper.GetTime() << "\n" << std::flush;
+            LOG(1, "Current time = " << stepper.GetTime());
             
             // solve the electrics
             p_electrics_assembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), mTimeStep);
             p_electrics_assembler->SetInitialCondition( initial_voltage );
+            
+            LOG(1, "  Solving electrics");
             voltage = p_electrics_assembler->Solve();
+            
+            PetscReal min_voltage, max_voltage;
+            VecMax(voltage,PETSC_NULL,&max_voltage); //the second param is where the index would be returned
+            VecMin(voltage,PETSC_NULL,&min_voltage);
+            LOG(1, "  minimun and maximum voltage is " << min_voltage <<", "<<max_voltage);
 
             VecDestroy(initial_voltage);
             initial_voltage = voltage;
@@ -309,6 +339,8 @@ public :
             // electrics element the quad point is in. Then: 
             //   Explicit: Set Ca_I on the nhs systems and solve them to get the active tension
             //   Implicit: Set Ca_I on the mechanics solver
+
+            LOG(1, "  Interpolating Ca_I\n  (and solving NHS models if explicit)");
             for(unsigned i=0; i<mElementAndWeightsForQuadPoints.size(); i++)
             {
                 double interpolated_Ca_I = 0;
@@ -326,6 +358,7 @@ public :
                     // explicit: forcing quantity on the assembler is the active tension
                     cellmech_systems[i].SetLambdaAndDerivative(lambda[i], dlambda_dt[i]);
                     cellmech_systems[i].SetIntracellularCalciumConcentration(interpolated_Ca_I);
+        
                     euler_solver.SolveAndUpdateStateVariable(&cellmech_systems[i], stepper.GetTime(), stepper.GetNextTime(), mTimeStep);
                     forcing_quantity[i] = cellmech_systems[i].GetActiveTension();
                 }
@@ -336,6 +369,15 @@ public :
                 }
             }
 
+            if(mUseExplicitMethod)
+            {
+                LOG(1, "  Setting active tension. max value = " << Max(forcing_quantity));
+            }
+            else
+            {
+                LOG(1, "  Setting Ca_I. max value = " << Max(forcing_quantity));
+            }
+
             // NOTE: HERE WE SHOULD REALLY CHECK WHETHER THE CELL MODELS HAVE Ca_Trop
             // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS.. (esp for implicit)
             
@@ -343,12 +385,14 @@ public :
             mpCardiacMechAssembler->SetForcingQuantity(forcing_quantity);
 
             // solve the mechanics
+            LOG(1, "  Solving mechanics");
             mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), stepper.GetNextTime()-stepper.GetTime());
 
             // if explicit store the new lambda and update lam
             if(mUseExplicitMethod)
             {
                 // update lambda and dlambda_dt;
+                LOG(1, "  Updating lambda");
                 old_lambda = lambda;
                 lambda = mpCardiacMechAssembler->rGetLambda();
                 for(unsigned i=0; i<dlambda_dt.size(); i++)
@@ -359,6 +403,7 @@ public :
 
             if(mWriteOutput && (counter%WRITE_EVERY_NTH_TIME==0))
             {
+                LOG(1, "  Writing output");
                 // write deformed position                    
                 mech_writer_counter++;
                 dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->WriteOutput(mech_writer_counter);
@@ -366,6 +411,8 @@ public :
                 mpMonodomainProblem->mpWriter->AdvanceAlongUnlimitedDimension();
                 mpMonodomainProblem->WriteOneStep(stepper.GetTime(), voltage);
             }
+            
+            //// TODO: Update the monodomain equations for the deformation
             
             // update the current time
             stepper.AdvanceOneTimeStep();
@@ -390,7 +437,7 @@ public :
                                       + mesh_full_path + " "        // arg 2 is mesh prefix
                                       + mOutputDirectory + "/electrics/"
                                       + "voltage "                  // arg 3 is the results folder and prefix,
-                                      // relative to the testoutput folder.
+                                                                    // relative to the testoutput folder.
                                       + "last_simulation";          // arg 4 is the output prefix, relative to
                                                                     // anim folder.                
                 system(chaste_2_meshalyzer.c_str());
@@ -401,6 +448,19 @@ public :
         }
 
         delete p_electrics_assembler;
+    }
+    
+    
+    
+    // short helper function - the max of a std::vec. this is in the wrong place
+    double Max(std::vector<double>& vec)
+    {
+        double max = -1e200; 
+        for(unsigned i=0; i<vec.size(); i++)
+        {
+            if(vec[i]>max) max=vec[i];
+        }
+        return max;
     }
 };
 

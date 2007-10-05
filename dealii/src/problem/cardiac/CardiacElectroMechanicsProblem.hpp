@@ -4,6 +4,7 @@
 #include "MooneyRivlinMaterialLaw.hpp"
 #include "CardiacMechanicsAssembler.cpp"
 #include "FiniteElasticityTools.hpp"
+#include "LogFile.hpp"
 
 
 /**
@@ -16,7 +17,7 @@ class CardiacElectroMechanicsProblem : public AbstractCardiacElectroMechanicsPro
 {
 private:
     unsigned mNumElementsPerDimInElectricsMesh;
-    unsigned mNumElementsPerDimInElectricsMesh;
+    unsigned mNumElementsPerDimInMechanicsMesh;
 
 public:
     /** 
@@ -43,10 +44,10 @@ public:
                                                        outputDirectory)
     {
         assert(numElementsPerDimInElectricsMesh > 8);
-        numElementsPerDimInElectricsMesh
-        numElementsPerDimInElectricsMesh = numElementsPerDimInElectricsMesh;
-        numElementsPerDimInElectricsMesh = numElementsPerDimInElectricsMesh
-        
+        assert(numElementsPerDimInMechanicsMesh > 4);
+
+        mNumElementsPerDimInElectricsMesh = numElementsPerDimInElectricsMesh;
+        mNumElementsPerDimInMechanicsMesh = numElementsPerDimInMechanicsMesh;
     }
     
 
@@ -55,7 +56,7 @@ public:
         // create electrics mesh
         this->mpElectricsMesh = new ConformingTetrahedralMesh<DIM,DIM>();
 
-        unsigned num_elem = 40;
+        unsigned num_elem = 40; //mNumElementsPerDimInElectricsMesh;
         this->mpElectricsMesh->ConstructRectangularMesh(num_elem,num_elem);
         this->mpElectricsMesh->Scale(1.0/num_elem,1.0/num_elem);
 
@@ -64,9 +65,7 @@ public:
         GridGenerator::hyper_cube(*(this->mpMechanicsMesh), 0.0, 1.0);
         this->mpMechanicsMesh->refine_global(3);
         
-        std::cout << "numnodes = " << this->mpElectricsMesh->GetNumNodes() << ", " << this->mpMechanicsMesh->n_vertices() << "\n";
-        
-        //assert(this->mpMechanicsMesh->n_vertices()<=this->mpElectricsMesh->GetNumNodes());
+        LOG(1, "Num nodes in electrical and mechanical meshes are: " << this->mpElectricsMesh->GetNumNodes() << ", " << this->mpMechanicsMesh->n_vertices() << "\n");
     }
 
     

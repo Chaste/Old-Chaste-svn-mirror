@@ -3,6 +3,7 @@
 
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
+#include "LogFile.hpp"
 
 template<unsigned DIM>
 class PlaneStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
@@ -16,12 +17,14 @@ public:
     {
         // set the new stimulus
         mpStimulus = new InitialStimulus(-600, 0.5);
+        LOG(1, "Defined a PlaneStimulusCellFactory<"<<DIM<<"> with InitialStimulus(-600, 0.5)\n");
     }
     
     PlaneStimulusCellFactory(double timeStep, double stimulusMagnitude) : AbstractCardiacCellFactory<DIM>(timeStep)
     {
         // set the new stimulus
         mpStimulus = new InitialStimulus(stimulusMagnitude, 0.5);
+        LOG(1, "Defined a PlaneStimulusCellFactory<"<<DIM<<"> with InitialStimulus("<<stimulusMagnitude<<",0.5)\n");
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)

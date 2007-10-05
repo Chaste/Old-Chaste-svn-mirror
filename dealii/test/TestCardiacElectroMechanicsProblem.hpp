@@ -12,24 +12,20 @@
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
 public:
-//    void TestFindingGuassPoints()
-//    {
-//    }
-
     void Test_1D_CompareExplicitVsImplicit() throw(Exception)
     {
         double time_step = 0.01;
         PlaneStimulusCellFactory<1> cell_factory(time_step, -1000*1000);
 
         // instabilities appear at about 6.8
-        CardiacElectroMechanicsProblem1d explicit_problem(&cell_factory, 5, time_step, true,  "ExplicitCardiacElectroMech");
+        CardiacElectroMechanicsProblem1d explicit_problem(&cell_factory, 0.5, time_step, true,  "ExplicitCardiacElectroMech");
         explicit_problem.Solve();
 
-        CardiacElectroMechanicsProblem1d implicit_problem(&cell_factory, 5, time_step, false, "ImplicitCardiacElectroMech");
+        CardiacElectroMechanicsProblem1d implicit_problem(&cell_factory, 0.5, time_step, false, "ImplicitCardiacElectroMech");
         implicit_problem.Solve();
           
         // Get the length of the fibre in both simulations and compare 
-        for(unsigned i=0; i<500; i++)
+        for(unsigned i=0; i<50; i++)
         {
             std::string full_path1 = OutputFileHandler::GetChasteTestOutputDirectory() + 
                                      "ExplicitCardiacElectroMech/deformation/";
@@ -82,12 +78,12 @@ public:
         }
     }
     
-    void Test_2D() throw(Exception)
+    void xTest_2D() throw(Exception)
     {
         double time_step = 0.01;
         PlaneStimulusCellFactory<2> cell_factory(time_step, -600*1000);
 
-        CardiacElectroMechanicsProblem<2> problem(&cell_factory, 5, time_step, true,  "CardiacElectroMech2d");
+        CardiacElectroMechanicsProblem<2> problem(&cell_factory, 0.5, time_step, true, 40, 16, "CardiacElectroMech2d");
         problem.Solve();
     }
 };

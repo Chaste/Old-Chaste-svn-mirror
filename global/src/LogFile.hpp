@@ -100,7 +100,7 @@ public:
 
 #ifndef NDEBUG
     // define the log macro
-    #define LOG(level, message) assert(level>0); if(level <= LogFile::Level()) { (*LogFile::Instance()) << message; }
+    #define LOG(level, message) assert(level>0); if(level <= LogFile::Level()) { (*LogFile::Instance()) << message << "\n"; }
 #else
     // do nothing
     #define LOG(level, message) 
