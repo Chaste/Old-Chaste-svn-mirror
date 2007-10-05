@@ -11,6 +11,8 @@ typedef enum CellMutationState_
     APC_TWO_HIT,			// APC -/-
     BETA_CATENIN_ONE_HIT,	// Beta-catenin with a change at residue 45
     LABELLED,               // To paint a different colour but not actually mutant
+    ALARCON_NORMAL,         // for use in Alarcon2004OxygenBasedCellCycleOdeSystem
+    ALARCON_CANCER          // for use in Alarcon2004OxygenBasedCellCycleOdeSystem
 } CellMutationState;
 
 

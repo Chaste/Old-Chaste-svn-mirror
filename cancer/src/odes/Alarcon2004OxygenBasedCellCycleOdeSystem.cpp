@@ -1,4 +1,5 @@
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
+#include "CellMutationStates.hpp"
 
 #include <cmath>
 #include <cassert>
@@ -10,7 +11,7 @@
  * @param oxygenConcentration is a non-dimensional oxygen concentration between 0 and 1.
  * @param rIsCancerCell affects the ODE system 
  */
-Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, const bool &rIsCancerCell)
+Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, const CellMutationState& rMutationState)
         : AbstractOdeSystem(6)
 {
     /*
@@ -25,24 +26,32 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
     */
     Init(); // set up parameters
     
-    mIsCancerCell = rIsCancerCell;
-
-    // parameter values taken from the Alarcon et al. (2004) paper
-    if (mIsCancerCell)
-    {           
-        ma1 = 0.04;
-        mc1 = 0.007;
-        mxThreshold = 0.04; // should this be 0.004??
-        myThreshold = 0.05;
-    }
-    else
+    assert(rMutationState == ALARCON_NORMAL || rMutationState == ALARCON_CANCER);
+    
+    mMutationState = rMutationState;   
+       
+    // parameter values taken from the Alarcon et al. (2004) paper        
+    if (mMutationState == ALARCON_NORMAL)    // normal cells
     {
         ma1 = 0.05;
         mc1 = 0.1;
         mxThreshold = 0.004;
         myThreshold = 0.2;
-    }  
-
+    }
+    else if (mMutationState == ALARCON_CANCER) // cancer cells
+    {
+        ma1 = 0.04;
+        mc1 = 0.007;
+        mxThreshold = 0.04; // should this be 0.004??
+        myThreshold = 0.05;
+    }    
+    else
+    {
+        #define COVERAGE_IGNORE
+        assert(0);
+        #undef COVERAGE_IGNORE
+    }
+    
     mVariableNames.push_back("Cdh1_APC_complexes");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(0.9);
@@ -72,9 +81,9 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
  * This should be called by the relevant cell cycle model before any solving
  * of the ODE system (as it is used to evaluate the Y derivatives).
  */
-void Alarcon2004OxygenBasedCellCycleOdeSystem::SetIsCancerCell(const bool& rIsCancerCell)
+void Alarcon2004OxygenBasedCellCycleOdeSystem::SetMutationState(const CellMutationState& rMutationState)
 {
-    mIsCancerCell = rIsCancerCell;
+    mMutationState = rMutationState;
 }
 
 /**
@@ -133,21 +142,26 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time,
      % 5. u = RBNP
     */
 
-    dx = ((1 + mb3*u)*(1-x))/(mJ3 + 1 - x) - (mb4*mass*x*y)/(mJ4 + x);
-    
+    dx = ((1 + mb3*u)*(1-x))/(mJ3 + 1 - x) - (mb4*mass*x*y)/(mJ4 + x);    
     dy = ma4 -(ma1 + ma2*x + ma3*z)*y;
     
-    if (mIsCancerCell)
+    // parameter values taken from the Alarcon et al. (2004) paper        
+    if (mMutationState == ALARCON_NORMAL)    // normal cells
+    {
+        dz = mc1*(1 - mass/mMstar) - mc2*oxygen_concentration*z/(mB + oxygen_concentration);
+    }
+    else if (mMutationState == ALARCON_CANCER) // cancer cells
     {
         dz = mc1 - mc2*oxygen_concentration*z/(mB + oxygen_concentration);   
-    }
+    }    
     else
     {
-        dz = mc1*(1 - mass/mMstar) - mc2*oxygen_concentration*z/(mB + oxygen_concentration);   
+        #define COVERAGE_IGNORE
+        assert(0);
+        #undef COVERAGE_IGNORE
     }
-    
-    dmass = mEta*mass*(1 - mass/mMstar);
         
+    dmass = mEta*mass*(1 - mass/mMstar);        
     du = md1 - (md2 + md1*y)*u;
 
     rDY[0] = dx;

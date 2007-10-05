@@ -4,6 +4,7 @@
 #include <vector>
 #include <cmath>
 #include "AbstractOdeSystem.hpp"
+#include "CellMutationStates.hpp"
 
 /**
  * Represents the Alarcon et al. (2004) system of ODEs (see ticket #461).
@@ -40,28 +41,29 @@ private:
     double mB;
     double mxThreshold;
     double myThreshold;
-    bool mIsCancerCell;
+    CellMutationState mMutationState;
  
         
 public:
     // Constructor
-    Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, const bool &rIsCancerCell);  
+    Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, const CellMutationState& rMutationState);  
     
     // Destructor
     ~Alarcon2004OxygenBasedCellCycleOdeSystem();
     
     void Init(); // sets up the parameter values
     
-    void SetIsCancerCell(const bool &rIsCancerCell);
+    void SetMutationState(const CellMutationState &rMutationState);
     
-//    /** 
-//     * Called by the archive function on the Alarcon et al. (2004) model.
-//     * @return IsCancerCell whether the cell is a 'cancer cell' (in the sense of the Alarcon et al. (2004) model)
-//     */
-//    bool& rGetIsCancerCell()
-//    {
-//        return mIsCancerCell;
-//    }
+    /** 
+     * Called by the archive function on the cell cycle model.
+     * @return mMutationState the mutation state of the cell defined by 
+     * CellMutationStates.hpp
+     */
+    CellMutationState& rGetMutationState()
+    {
+        return mMutationState;
+    }
     
     // Compute the RHS of the Alarcon et al. (2004) system of ODEs
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);

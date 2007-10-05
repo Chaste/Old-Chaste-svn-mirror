@@ -38,14 +38,14 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel()
  */
 
 OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(Alarcon2004OxygenBasedCellCycleOdeSystem* pParentOdeSystem, 
-                              const bool& rIsCancerCell, double birthTime, 
+                              const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime)
         : AbstractCellCycleModel()
 {
     if (pParentOdeSystem !=NULL)
     {
         std::vector<double> parent_protein_concs = pParentOdeSystem->rGetStateVariables();
-        mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(parent_protein_concs[5], rIsCancerCell);
+        mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(parent_protein_concs[5], rMutationState);
         
         // Set the model to be the same as the parent cell.
         mpOdeSystem->rGetStateVariables() = parent_protein_concs;
@@ -75,11 +75,11 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(Alarcon2004OxygenBasedCellC
  */
 
 OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
-                              const bool& rIsCancerCell, double birthTime, 
+                              const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime)
         : AbstractCellCycleModel()
 {
-    mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(rParentProteinConcentrations[5], rIsCancerCell);
+    mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(rParentProteinConcentrations[5], rMutationState);
     
     // Set the model to be the same as the parent cell.
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
@@ -106,7 +106,7 @@ OxygenBasedCellCycleModel::~OxygenBasedCellCycleModel()
 /**
  * Resets the oxygen-based model to the start of the cell cycle (this model does not cycle naturally)
  * Cells are given a new birth time and cell cycle proteins are reset.
- * Note that the wnt pathway proteins maintain their current values.
+ * Note that the oxygen concentration maintains its current value.
  *
  * Should only be called by the TissueCell Divide() method.
  *
@@ -119,6 +119,7 @@ void OxygenBasedCellCycleModel::ResetModel()
     // This model needs the protein concentrations and phase resetting to G0/G1.
     assert(mReadyToDivide);
     mLastTime = mDivideTime;
+    
     mBirthTime = mDivideTime;
     // Keep the oxygen concentration the same but reset everything else
     std::vector<double> init_conds = mpOdeSystem->GetInitialConditions();
@@ -143,10 +144,9 @@ bool OxygenBasedCellCycleModel::ReadyToDivide()
     
     // Danger Will Robinson! DIM currently hard-coded to 2
     mpOdeSystem->rGetStateVariables()[5] = CellwiseData<2>::Instance()->GetValue(mpCell,0);
-            
-    // Once MeinekeCryptCell has been re-factored, the new daughter TumourCell class
-    // can have a GetIsCancerCell() method. Hard-code it for the time being.    
-    mpOdeSystem->SetIsCancerCell(false);
+     
+    // Use the cell's current mutation status as another input
+    mpOdeSystem->SetMutationState(mpCell->GetMutationState());
     
     double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
     
@@ -205,13 +205,9 @@ AbstractCellCycleModel* OxygenBasedCellCycleModel::CreateCellCycleModel()
     assert(mpCell!=NULL);
     // calls a cheeky version of the constructor which makes the new cell 
     // cycle model the same as the old one - not a dividing copy at this time.
-    // unless the parent cell has just divided.
-    
-    // Once MeinekeCryptCell has been re-factored, the new daughter TumourCell class
-    // can have a GetIsCancerCell() method. Hard-code it for the time being.
-    return new OxygenBasedCellCycleModel(mpOdeSystem, 
-                                         false, mBirthTime, mLastTime, 
-                                         mReadyToDivide, mDivideTime);
+    // unless the parent cell has just divided.        
+    return new OxygenBasedCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), 
+                                         mBirthTime, mLastTime, mReadyToDivide, mDivideTime);
 }
 
 /**
@@ -245,12 +241,8 @@ void OxygenBasedCellCycleModel::SetProteinConcentrationsForTestsOnly(double last
 void OxygenBasedCellCycleModel::Initialise()
 {
     assert(mpOdeSystem==NULL);
-    assert(mpCell!=NULL);
-    
-    double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell,0);
-    // Once MeinekeCryptCell has been re-factored, the new daughter TumourCell class
-    // can have a GetIsCancerCell() method. Hard-code it for the time being.
-    mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(oxygen_concentration, false);
+    assert(mpCell!=NULL);    
+    mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<2>::Instance()->GetValue(mpCell,0), mpCell->GetMutationState());
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());  
 }    
  

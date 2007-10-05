@@ -709,10 +709,7 @@ public:
 
         OxygenBasedCellCycleModel* p_cell_model = new OxygenBasedCellCycleModel();
         
-        TissueCell cell(STEM, // type
-                                   HEALTHY,//Mutation State
-                                   0,  // generation
-                                   p_cell_model);
+        TissueCell cell(STEM, ALARCON_NORMAL, 0, p_cell_model);
                            
         cell.InitialiseCellCycleModel();
         

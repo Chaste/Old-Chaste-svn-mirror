@@ -59,14 +59,14 @@ public:
      * (called by CreateCellCycleModel())
      */
     OxygenBasedCellCycleModel(Alarcon2004OxygenBasedCellCycleOdeSystem* pParentOdeSystem, 
-                              const bool& rIsCancerCell, double birthTime, 
+                              const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime);
    /**
      * This is needed to create an exact copy of the current cell cycle model
      * (called by archiving functions)
      */
     OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
-                              const bool& rIsCancerCell, double birthTime, 
+                              const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime); 
                           
     virtual ~OxygenBasedCellCycleModel();
@@ -74,9 +74,7 @@ public:
     virtual bool ReadyToDivide();
     
     virtual void ResetModel();
-    
-    // void UpdateOxygenConcentration();    
-    
+        
     std::vector< double > GetProteinConcentrations() const;
     
     AbstractCellCycleModel *CreateCellCycleModel();
@@ -119,8 +117,7 @@ inline void load_construct_data(
     // constructor, provided they are valid parameter values, since the
     // state loaded later from the archive will overwrite their effect in
     // this case.
-    // Invoke inplace constructor to initialize instance of my_class
-   
+    // Invoke inplace constructor to initialize instance of my_class   
     
     std::vector<double> state_vars;
     for (unsigned i=0 ; i<6 ; i++)
@@ -128,7 +125,7 @@ inline void load_construct_data(
         state_vars.push_back(0.0);
     }
              
-    ::new(t)OxygenBasedCellCycleModel(state_vars, false, 0.0, 0.0, false, 0.0);
+    ::new(t)OxygenBasedCellCycleModel(state_vars, ALARCON_NORMAL, 0.0, 0.0, false, 0.0);
 }
 }
 } // namespace ...
