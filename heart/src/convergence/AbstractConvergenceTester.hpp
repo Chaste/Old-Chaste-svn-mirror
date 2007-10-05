@@ -18,6 +18,7 @@
 #include "ColumnDataReader.hpp"
 #include "GeneralPlaneStimulusCellFactory.hpp"
 #include "CuboidMeshConstructor.hpp"
+#include "OutputFileHandler.hpp"
 
 const double simulation_time = 8.0; //ms
 
@@ -311,7 +312,7 @@ public:
         std::cout<<"Solving with a time step of "<<this->PdeTimeStep<<" ms"<<std::endl;
         std::cout<<"Solving with an ode time step of "<<this->OdeTimeStep<<" ms"<<std::endl;
         std::cout<<"Solving with a KSP relative tolerance of "<<this->KspRtol<<std::endl;
-        std::cout<<"Solving with stimulating a quarter of the mesh? " << this->StimulateRegion;
+        std::cout<<"Solving with stimulating a quarter of the mesh? " << this->StimulateRegion<<std::endl;
         if (this->UseAbsoluteStimulus)
         {
             std::cout<<"Using absolute stimulus of "<<this->AbsoluteStimulus<<std::endl;

@@ -1,3 +1,2 @@
 TestBidomainCompareWithMemfem.hpp
 TestPerformance.hpp
-Test2dConvergence.hpp
