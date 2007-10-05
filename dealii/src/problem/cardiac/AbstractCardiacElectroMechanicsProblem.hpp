@@ -293,7 +293,7 @@ public :
             mpMonodomainProblem->WriteOneStep(stepper.GetTime(), initial_voltage);
         }
 
-        while ( !stepper.IsTimeAtEnd() )
+        while (0)// !stepper.IsTimeAtEnd() )
         {
             std::cout << "**Time = " << stepper.GetTime() << "\n" << std::flush;
             
@@ -371,8 +371,35 @@ public :
             stepper.AdvanceOneTimeStep();
             counter++;
         }
-        
-        mpMonodomainProblem->mpWriter->Close();
+
+
+        if (mWriteOutput)
+        {
+            if(mpMonodomainProblem->mpWriter->AmMaster()) // ie only if master process and results files were written
+            {
+                // call shell script which converts the data to meshalyzer format
+                std::string chaste_2_meshalyzer;
+                std::stringstream space_dim;
+                space_dim << DIM;
+                
+                std::string mesh_full_path =   OutputFileHandler::GetChasteTestOutputDirectory()
+                                             + mOutputDirectory + "/electrics_mesh";
+                
+                chaste_2_meshalyzer = "anim/chaste2meshalyzer "     // the executable.
+                                      + space_dim.str() + " "       // argument 1 is the dimension.
+                                      + mesh_full_path + " "        // arg 2 is mesh prefix
+                                      + mOutputDirectory + "/electrics/"
+                                      + "voltage "                  // arg 3 is the results folder and prefix,
+                                      // relative to the testoutput folder.
+                                      + "last_simulation";          // arg 4 is the output prefix, relative to
+                                                                    // anim folder.                
+                system(chaste_2_meshalyzer.c_str());
+            }
+
+            mpMonodomainProblem->mpWriter->Close();
+            delete mpMonodomainProblem->mpWriter;
+        }
+
         delete p_electrics_assembler;
     }
 };

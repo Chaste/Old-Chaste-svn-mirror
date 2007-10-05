@@ -646,7 +646,7 @@ public:
         
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
-        archive_filename = handler.GetChasteTestOutputDirectory() + "tissue.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "tissue.arch";
         
         // Archive a tissue 
         {

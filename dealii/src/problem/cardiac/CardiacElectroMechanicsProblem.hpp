@@ -14,6 +14,10 @@
 template<unsigned DIM>
 class CardiacElectroMechanicsProblem : public AbstractCardiacElectroMechanicsProblem<DIM>
 {
+private:
+    unsigned mNumElementsPerDimInElectricsMesh;
+    unsigned mNumElementsPerDimInElectricsMesh;
+
 public:
     /** 
      *  Constructor
@@ -29,6 +33,8 @@ public:
                                    double endTime,
                                    double timeStep,
                                    bool useExplicitMethod,
+                                   unsigned numElementsPerDimInElectricsMesh,
+                                   unsigned numElementsPerDimInMechanicsMesh,
                                    std::string outputDirectory = "")
         :  AbstractCardiacElectroMechanicsProblem<DIM>(pCellFactory,
                                                        endTime,
@@ -36,7 +42,13 @@ public:
                                                        useExplicitMethod,
                                                        outputDirectory)
     {
+        assert(numElementsPerDimInElectricsMesh > 8);
+        numElementsPerDimInElectricsMesh
+        numElementsPerDimInElectricsMesh = numElementsPerDimInElectricsMesh;
+        numElementsPerDimInElectricsMesh = numElementsPerDimInElectricsMesh
+        
     }
+    
 
     void ConstructMeshes()
     {        

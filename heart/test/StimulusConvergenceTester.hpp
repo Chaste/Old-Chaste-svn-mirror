@@ -103,7 +103,7 @@ public:
         }
         
         OutputFileHandler results_handler("Convergence", false);
-        ColumnDataReader results_reader(results_handler.GetChasteTestOutputDirectory(), "Results", false);
+        ColumnDataReader results_reader(results_handler.GetOutputDirectoryFullPath(), "Results", false);
         
         
         // Write out the time series for the node at first and third quadrant

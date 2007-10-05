@@ -12,8 +12,9 @@
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
 public:
-    void Test
-
+//    void TestFindingGuassPoints()
+//    {
+//    }
 
     void Test_1D_CompareExplicitVsImplicit() throw(Exception)
     {
@@ -30,8 +31,8 @@ public:
         // Get the length of the fibre in both simulations and compare 
         for(unsigned i=0; i<500; i++)
         {
-            OutputFileHandler handler("ExplicitCardiacElectroMech/deformation/",false);
-            std::string full_path1 = handler.GetChasteTestOutputDirectory();
+            std::string full_path1 = OutputFileHandler::GetChasteTestOutputDirectory() + 
+                                     "ExplicitCardiacElectroMech/deformation/";
             
             // a bit nasty: we want to ready the second column of the last row (turns
             // out that this is where the x value for the 2nd node (ie the X=1) node is,
@@ -48,8 +49,8 @@ public:
             ifs1 >> length_of_fibre1;                 // the second entry is the length
             system(("rm -f " + temp_file1).c_str());
 
-            OutputFileHandler handler2("ImplicitCardiacElectroMech/deformation/",false);
-            std::string full_path2 = handler2.GetChasteTestOutputDirectory();
+            std::string full_path2 = OutputFileHandler::GetChasteTestOutputDirectory() +
+                                     "ImplicitCardiacElectroMech/deformation/";
             
             std::stringstream file2;
             file2 << full_path2 << "/solution_" << i << ".nodes";

@@ -48,7 +48,7 @@ public:
         mesh_filename = file_name_stream.str();
         TrianglesMeshWriter<DIM,DIM> mesh_writer(mesh_dir, mesh_filename, false);           
         mesh_writer.WriteFilesUsingMesh(mesh);
-        mesh_pathname = output_file_handler.GetChasteTestOutputDirectory()
+        mesh_pathname = output_file_handler.GetOutputDirectoryFullPath()
                                     + mesh_filename;
                                     
         return mesh_pathname;
