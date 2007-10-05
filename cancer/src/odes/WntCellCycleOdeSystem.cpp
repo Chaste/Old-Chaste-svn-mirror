@@ -61,9 +61,7 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutation
     else
     {
         // can't get here until new mutation states are added to CellMutationState
-        #define COVERAGE_IGNORE
-        assert(0);
-        #undef COVERAGE_IGNORE
+        NEVER_REACHED;
     }
     
     mVariableNames.push_back("pRb");
@@ -261,9 +259,7 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     else
     {
         // can't get here until new mutation states are added to CellMutationState
-        #define COVERAGE_IGNORE
-        assert(0);
-        #undef COVERAGE_IGNORE
+        NEVER_REACHED;
     }
     
     // Now the cell cycle stuff...

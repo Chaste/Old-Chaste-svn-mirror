@@ -190,7 +190,7 @@ class AnotherCoupledNonlinearAssembler : public AbstractNonlinearAssembler<2,2,2
     // not used
     virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2> &rSurfaceElement, c_vector<double,2> &rPhi, ChastePoint<2> &rX)
     {
-        assert(0);
+        NEVER_REACHED;
         return zero_vector<double>(2*2);
     }
     

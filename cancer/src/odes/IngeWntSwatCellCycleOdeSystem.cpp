@@ -62,9 +62,7 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(double wntLevel, co
             break;
         }
         default:
-        #define COVERAGE_IGNORE
-            assert(0);  // this can't happen if all mutation states are catered for.
-        #undef COVERAGE_IGNORE
+            NEVER_REACHED;  // this can't happen if all mutation states are catered for.
     }
     
     mVariableNames.push_back("pRb");
@@ -355,9 +353,8 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
             break;
         }
         default:
-        #define COVERAGE_IGNORE
-            assert(0);  // this can't happen if all mutation states are catered for.
-        #undef COVERAGE_IGNORE
+            // this can't happen if all mutation states are catered for.
+            NEVER_REACHED;
     }
 
     

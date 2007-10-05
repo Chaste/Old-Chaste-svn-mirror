@@ -308,9 +308,7 @@ void CryptSimulation1d::Solve()
                     {
                         // should be impossible to get here, until cancer cells
                         // are implemented
-#define COVERAGE_IGNORE
-                        assert(0);
-#undef COVERAGE_IGNORE
+                        NEVER_REACHED;
                     }
                 }
                 else

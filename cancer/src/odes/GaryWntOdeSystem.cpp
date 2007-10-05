@@ -55,9 +55,7 @@ GaryWntOdeSystem::GaryWntOdeSystem(double WntLevel, const CellMutationState& rMu
     else
     {
         // can't get here until new mutation states are added to CellMutationState
-        #define COVERAGE_IGNORE
-        assert(0);
-        #undef COVERAGE_IGNORE
+        NEVER_REACHED;
     }
     
     mVariableNames.push_back("APC");
@@ -194,9 +192,7 @@ void GaryWntOdeSystem::EvaluateYDerivatives(double time, const std::vector<doubl
     else
     {
         // can't get here until new mutation states are added to CellMutationState
-        #define COVERAGE_IGNORE
-        assert(0);
-        #undef COVERAGE_IGNORE
+        NEVER_REACHED;
     }
    
     double factor = mPhiE2F1*60.0;  // Convert non-dimensional d/dt s to d/dt in hours.

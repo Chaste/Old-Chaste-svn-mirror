@@ -60,7 +60,7 @@ public:
      */
     double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> )
     {
-        assert(0);
+        NEVER_REACHED;
         return 0.0;
     }
     
@@ -70,7 +70,7 @@ public:
      */
     double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> , double )
     {
-        assert(0);
+        NEVER_REACHED;
         return 0.0;
     }
 #undef COVERAGE_IGNORE

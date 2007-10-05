@@ -283,7 +283,6 @@ public:
     {
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
-            //if(index_of_unknown==1) assert(0);
             this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
             PetscInt irows, icols;
             double value;

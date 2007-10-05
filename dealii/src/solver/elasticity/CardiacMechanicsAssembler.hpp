@@ -7,7 +7,7 @@
 template<unsigned DIM>
 class CardiacMechanicsAssembler : public FiniteElasticityAssembler<DIM>, public AbstractCardiacMechanicsAssembler<DIM>
 {
-private:
+protected:
     bool mAllocatedMaterialLawMemory;
 
     /**
@@ -53,7 +53,7 @@ public:
     CardiacMechanicsAssembler(Triangulation<DIM>* pMesh, 
                               std::string outputDirectory,
                               AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL);
-    ~CardiacMechanicsAssembler();
+    virtual ~CardiacMechanicsAssembler();
     
         
     /**
@@ -89,7 +89,7 @@ public:
      *  so these values should be in the order given by looping over cells and then looping
      *  over quad points
      */
-    void SetForcingQuantity(std::vector<double>& activeTension);
+    virtual void SetForcingQuantity(std::vector<double>& activeTension);
 };
 
 #endif /*CARDIACMECHANICSASSEMBLER_HPP_*/

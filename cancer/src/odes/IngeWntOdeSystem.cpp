@@ -53,9 +53,8 @@ IngeWntOdeSystem::IngeWntOdeSystem(double wntLevel, const CellMutationState& rMu
             break;
         }
         default:
-        #define COVERAGE_IGNORE
-            assert(0);  // this can't happen if all mutation states are catered for.
-        #undef COVERAGE_IGNORE
+            // this can't happen if all mutation states are catered for.
+            NEVER_REACHED;
     }
     
     double steady_D = ((1.0-sigma_D)*mSd*mSx)/((1.0-sigma_D)*mSd*d_d_hat + d_x_hat*(d_d_hat + d_d_x_hat));
@@ -269,9 +268,8 @@ void IngeWntOdeSystem::EvaluateYDerivatives(double time, const std::vector<doubl
             break;
         }
         default:
-        #define COVERAGE_IGNORE
-            assert(0);  // this can't happen if all mutation states are catered for.
-        #undef COVERAGE_IGNORE
+            // this can't happen if all mutation states are catered for.
+            NEVER_REACHED;    
     }
       
     rDY[0] = (1.0-sigma_D)*mSd*X - (d_d_hat + d_d_x_hat)*D;

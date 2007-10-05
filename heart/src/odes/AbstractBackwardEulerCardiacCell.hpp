@@ -100,7 +100,7 @@ private:
      */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
     {
-        assert(0);
+        NEVER_REACHED;
     }
 #undef COVERAGE_IGNORE
     

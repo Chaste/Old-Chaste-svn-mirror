@@ -38,7 +38,7 @@ public:
         }
         else
         {
-            assert(0);
+            NEVER_REACHED;
             return NULL;
         }
     }

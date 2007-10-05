@@ -3,6 +3,7 @@
 
 #include "MooneyRivlinMaterialLaw.hpp"
 #include "CardiacMechanicsAssembler.cpp"
+#include "ImplicitCardiacMechanicsAssembler.hpp"
 #include "FiniteElasticityTools.hpp"
 #include "LogFile.hpp"
 
@@ -53,18 +54,21 @@ public:
 
     void ConstructMeshes()
     {        
+        double width = 0.1;
+        
         // create electrics mesh
         this->mpElectricsMesh = new ConformingTetrahedralMesh<DIM,DIM>();
 
-        unsigned num_elem = 40; //mNumElementsPerDimInElectricsMesh;
+        unsigned num_elem = 16; //mNumElementsPerDimInElectricsMesh;
         this->mpElectricsMesh->ConstructRectangularMesh(num_elem,num_elem);
-        this->mpElectricsMesh->Scale(1.0/num_elem,1.0/num_elem);
+        this->mpElectricsMesh->Scale(width/num_elem,width/num_elem);
 
         // create mechanics mesh
         this->mpMechanicsMesh = new Triangulation<DIM>();
-        GridGenerator::hyper_cube(*(this->mpMechanicsMesh), 0.0, 1.0);
-        this->mpMechanicsMesh->refine_global(3);
+        GridGenerator::hyper_cube(*(this->mpMechanicsMesh), 0.0, width);
+        this->mpMechanicsMesh->refine_global(4);
         
+        LOG(1, "Width of meshes is " << width);
         LOG(1, "Num nodes in electrical and mechanical meshes are: " << this->mpElectricsMesh->GetNumNodes() << ", " << this->mpMechanicsMesh->n_vertices() << "\n");
     }
 
@@ -74,15 +78,14 @@ public:
         Point<DIM> zero;
         FiniteElasticityTools<DIM>::FixFacesContainingPoint(*(this->mpMechanicsMesh), zero);
         
-        MooneyRivlinMaterialLaw<DIM>* p_law = new MooneyRivlinMaterialLaw<DIM>(2.0);
+        MooneyRivlinMaterialLaw<DIM>* p_law = new MooneyRivlinMaterialLaw<DIM>(20.0);
         if(this->mUseExplicitMethod)
         {
             this->mpCardiacMechAssembler = new CardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir,p_law);
         }
         else
         {
-            assert(0); // not done yet..
-            //this->mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh);
+            this->mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir,p_law);
         }
     }
 };
