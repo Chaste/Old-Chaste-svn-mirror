@@ -24,9 +24,10 @@ private:
     double mTimeProgressingThroughCellCycle;
         
 public:
-    SimpleOxygenBasedCellCycleModel() : FixedCellCycleModel()
+    SimpleOxygenBasedCellCycleModel() 
+        : FixedCellCycleModel(),
+          mTimeProgressingThroughCellCycle(0.0)
     {
-        mTimeProgressingThroughCellCycle = 0.0;
     }
     
     bool ReadyToDivide()
@@ -63,7 +64,7 @@ class SimpleLinearEllipticPde : public AbstractLinearEllipticPde<2>
 public:
     double ComputeLinearSourceTerm(ChastePoint<2> )
     {
-        return -1.0;
+        return -0.01; //-1.0;
     }
     
     double ComputeNonlinearSourceTerm(ChastePoint<2> , double )
@@ -98,13 +99,10 @@ public :
             cell_iter != mpTissue->End();
             ++cell_iter)
         {
-            const c_vector<double,2>& location = cell_iter.GetNode()->rGetLocation();
-
-            // double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(&(*cell_iter));
-        
-            double dist_to_centre = norm_2(location - mCentre);
-            
+            const c_vector<double,2>& location = cell_iter.GetNode()->rGetLocation();       
+            double dist_to_centre = norm_2(location - mCentre);            
             double prob_of_death = 2*mTimeStep - 1*mTimeStep*dist_to_centre;
+            
             if (prob_of_death<=0.0)
             {
                 prob_of_death=0.0;
@@ -115,6 +113,51 @@ public :
             {
                 cell_iter->StartApoptosis();
             }    
+        }
+    }
+};
+
+
+class SimpleOxygenBasedCellKiller : public AbstractCellKiller<2>
+{
+private :
+    double mHypoxicDuration;
+    double mHypoxicConcentration; // this constant should eventually be in CancerParameters
+
+public :
+    SimpleOxygenBasedCellKiller(Tissue<2>* ptissue)
+        : AbstractCellKiller<2>(ptissue),
+          mHypoxicDuration(0.0),
+          mHypoxicConcentration(0.1)
+    {
+    }
+    
+    virtual void TestAndLabelCellsForApoptosisOrDeath()
+    {                
+        for(Tissue<2>::Iterator cell_iter = mpTissue->Begin();
+            cell_iter != mpTissue->End();
+            ++cell_iter)
+        {
+            double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(&(*cell_iter));
+            
+            if ( oxygen_concentration < mHypoxicConcentration )
+            {
+                mHypoxicDuration = mHypoxicDuration + SimulationTime::Instance()->GetTimeStep();    
+                
+                // a little bit of stochasticity
+                double prob_of_death = 1 - std::max(oxygen_concentration,0.0); 
+                
+                // magic number - say it takes 2 hours of acute hypoxia before apoptosis is initiated 
+                // (this constant should eventually be in CancerParameters)
+                if (!cell_iter->HasApoptosisBegun() && mHypoxicDuration > 0.2 && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
+                {                     
+                    cell_iter->StartApoptosis();
+                }
+            }
+            else
+            {
+                mHypoxicDuration = 0.0;
+            }
         }
     }
 };
@@ -179,15 +222,21 @@ public:
         centre(0) = (double)num_cells_width/2.0;
         centre(1) = (double)num_cells_depth/2.0;
         
-        AbstractCellKiller<2>* p_killer = new RadiusBasedCellKiller(&tissue, centre, simulator.GetDt());
+        AbstractCellKiller<2>* p_killer = new SimpleOxygenBasedCellKiller(&tissue);
         simulator.AddCellKiller(p_killer);
         
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
         p_data->SetTissue(tissue);
         
+        double start_time = std::clock();
+        
         simulator.Solve();
         
+        double end_time = std::clock();
+        double elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
+        std::cout <<  "Time to perform simulation was = " << elapsed_time << "\n";
+                
         // add get methods etc and test
         
         delete p_killer;

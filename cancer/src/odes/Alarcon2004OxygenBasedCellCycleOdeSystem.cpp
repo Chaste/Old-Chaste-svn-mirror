@@ -26,8 +26,6 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
     */
     Init(); // set up parameters
     
-    assert(rMutationState == ALARCON_NORMAL || rMutationState == ALARCON_CANCER);
-    
     mMutationState = rMutationState;   
        
     // parameter values taken from the Alarcon et al. (2004) paper        
@@ -38,7 +36,7 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
         mxThreshold = 0.004;
         myThreshold = 0.2;
     }
-    else if (mMutationState == ALARCON_CANCER) // cancer cells
+    else if (rMutationState == ALARCON_CANCER) // cancer cells
     {
         ma1 = 0.04;
         mc1 = 0.007;
@@ -51,7 +49,7 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
         assert(0);
         #undef COVERAGE_IGNORE
     }
-    
+        
     mVariableNames.push_back("Cdh1_APC_complexes");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(0.9);
