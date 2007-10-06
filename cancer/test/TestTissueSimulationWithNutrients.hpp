@@ -8,15 +8,10 @@
 #include <cmath>
 #include <vector>
 #include "FixedCellCycleModel.hpp"
-#include "StochasticCellCycleModel.hpp"
-#include "WntCellCycleModel.hpp"
-#include "WntCellCycleOdeSystem.hpp"
-#include "TysonNovakCellCycleModel.hpp"
 #include "ColumnDataReader.hpp"
 #include "SimulationTime.hpp"
-#include "SloughingCellKiller.hpp"
+#include "OxygenBasedCellKiller.hpp"
 #include "PetscTools.hpp"
-#include "CellwiseData.hpp"
 
 class SimpleOxygenBasedCellCycleModel : public FixedCellCycleModel
 {
@@ -43,7 +38,7 @@ public:
         mTimeProgressingThroughCellCycle = mTimeProgressingThroughCellCycle + std::max(oxygen_concentration,0.0)*SimulationTime::Instance()->GetTimeStep(); 
         
         bool result = false;        
-        if ( mTimeProgressingThroughCellCycle > CancerParameters::Instance()->GetStemCellCycleTime() )
+        if ( mTimeProgressingThroughCellCycle > CancerParameters::Instance()->GetHepaOneCellCycleTime() )
         {
             result = true;
         }
@@ -117,51 +112,6 @@ public :
     }
 };
 
-
-class SimpleOxygenBasedCellKiller : public AbstractCellKiller<2>
-{
-private :
-    double mHypoxicDuration;
-    double mHypoxicConcentration; // this constant should eventually be in CancerParameters
-
-public :
-    SimpleOxygenBasedCellKiller(Tissue<2>* ptissue)
-        : AbstractCellKiller<2>(ptissue),
-          mHypoxicDuration(0.0),
-          mHypoxicConcentration(0.1)
-    {
-    }
-    
-    virtual void TestAndLabelCellsForApoptosisOrDeath()
-    {                
-        for(Tissue<2>::Iterator cell_iter = mpTissue->Begin();
-            cell_iter != mpTissue->End();
-            ++cell_iter)
-        {
-            double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(&(*cell_iter));
-            
-            if ( oxygen_concentration < mHypoxicConcentration )
-            {
-                mHypoxicDuration = mHypoxicDuration + SimulationTime::Instance()->GetTimeStep();    
-                
-                // a little bit of stochasticity
-                double prob_of_death = 1 - std::max(oxygen_concentration,0.0); 
-                
-                // magic number - say it takes 2 hours of acute hypoxia before apoptosis is initiated 
-                // (this constant should eventually be in CancerParameters)
-                if (!cell_iter->HasApoptosisBegun() && mHypoxicDuration > 0.2 && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
-                {                     
-                    cell_iter->StartApoptosis();
-                }
-            }
-            else
-            {
-                mHypoxicDuration = 0.0;
-            }
-        }
-    }
-};
-
 class TestTissueSimulationWithNutrients : public CxxTest::TestSuite
 {
 public:
@@ -222,7 +172,7 @@ public:
         centre(0) = (double)num_cells_width/2.0;
         centre(1) = (double)num_cells_depth/2.0;
         
-        AbstractCellKiller<2>* p_killer = new SimpleOxygenBasedCellKiller(&tissue);
+        AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);
         
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();

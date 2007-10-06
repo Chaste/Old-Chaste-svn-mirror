@@ -16,6 +16,7 @@ public:
     
     double GetStemCellCycleTime();
     double GetTransitCellCycleTime();
+    double GetHepaOneCellCycleTime();
     double GetSG2MDuration();
     unsigned GetMaxTransitGenerations();
     double GetCryptLength();
@@ -29,6 +30,7 @@ public:
     
     void SetStemCellCycleTime(double);
     void SetTransitCellCycleTime(double);
+    void SetHepaOneCellCycleTime(double);
     void SetSG2MDuration(double);
     void SetMaxTransitGenerations(unsigned);
     void SetCryptLength(double);
@@ -63,8 +65,13 @@ private:
      * May be used as a mean time for stochastic cell cycle models.
      * Should probably be non-dimensionalised with stem cell cycle time (ticket:204)
      */
-    double mTransitCellCycleTime;
-    
+    double mTransitCellCycleTime;    
+    /**
+     * HEPA-1 cell cycle time. 
+     * For use in monolayer/spheroid simulations.
+     * May be used as a mean time for stochastic cell cycle models.
+     */
+    double mHepaOneCellCycleTime;    
     /**
      * S-G2-M Phase Duration.
      * Used by the Wnt signalling model which only models the G1 phase.
@@ -130,6 +137,7 @@ private:
     {
         archive & mStemCellCycleTime;
         archive & mTransitCellCycleTime;
+        archive & mHepaOneCellCycleTime;
         archive & mSG2MDuration;
         archive & mMaxTransitGenerations;
         archive & mCryptLength;

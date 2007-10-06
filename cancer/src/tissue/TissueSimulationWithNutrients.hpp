@@ -9,7 +9,6 @@
 #include "AbstractLinearEllipticPde.hpp"
 #include "CellwiseData.cpp"
 
-
 template<unsigned DIM>
 class TissueSimulationWithNutrients : public TissueSimulation<DIM>
 {

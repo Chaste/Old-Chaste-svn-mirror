@@ -23,6 +23,7 @@ void CancerParameters::Reset()
 {   
     /* mStemCellCycleTime has units of hours
      * mTransitCellCycleTime has units of hours
+     * mHepaOneCellCycleTime has units of hours
      * mSG2MDuration has units of hours
      * mMaxTransitGenerations has no units
      * mCryptLength  has units of cell size at equilibrium rest length
@@ -33,6 +34,7 @@ void CancerParameters::Reset()
     // Default parameter values
     mStemCellCycleTime = 24.0;
     mTransitCellCycleTime = 12.0;
+    mHepaOneCellCycleTime = 18.0; // Taken from Owen et al (2004)
     mSG2MDuration = 10.0;	// This is a guess for Wnt Model
     mMaxTransitGenerations = 3u;
     mCryptWidth = 10.0;
@@ -58,6 +60,10 @@ double CancerParameters::GetStemCellCycleTime()
 double CancerParameters::GetTransitCellCycleTime()
 {
     return mTransitCellCycleTime;
+}
+double CancerParameters::GetHepaOneCellCycleTime()
+{
+    return mHepaOneCellCycleTime;
 }
 double CancerParameters::GetSG2MDuration()
 {
@@ -112,6 +118,11 @@ void CancerParameters::SetTransitCellCycleTime(double transitCellCycleTime)
 {
     assert(transitCellCycleTime > 0.0);
     mTransitCellCycleTime = transitCellCycleTime;
+}
+void CancerParameters::SetHepaOneCellCycleTime(double hepaOneCellCycleTime)
+{
+    assert(hepaOneCellCycleTime > 0.0);
+    mHepaOneCellCycleTime = hepaOneCellCycleTime;
 }
 void CancerParameters::SetSG2MDuration(double SG2MDuration)
 {

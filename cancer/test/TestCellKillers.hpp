@@ -25,6 +25,7 @@
 #include "RandomNumberGenerator.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
+#include "OxygenBasedCellKiller.hpp"
 #include "CellsGenerator.hpp"
 
 class TestCellKillers : public CxxTest::TestSuite

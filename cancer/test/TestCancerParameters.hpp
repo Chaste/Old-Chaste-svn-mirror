@@ -21,6 +21,7 @@ private:
         TS_ASSERT_DELTA(inst->GetSG2MDuration(), 10.0 , 1e-12);
         TS_ASSERT_DELTA(inst->GetStemCellCycleTime(), 24.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetTransitCellCycleTime(), 12.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetHepaOneCellCycleTime(), 18.0, 1e-12);
         TS_ASSERT_EQUALS(inst->GetMaxTransitGenerations(), 3u);
         TS_ASSERT_DELTA(inst->GetCryptLength(), 22.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetCryptWidth(), 10.0, 1e-12);
@@ -44,6 +45,7 @@ public:
         inst->SetSG2MDuration(11.0);
         inst->SetStemCellCycleTime(35.0);
         inst->SetTransitCellCycleTime(45.0);
+        inst->SetHepaOneCellCycleTime(10.0);
         inst->SetMaxTransitGenerations(666u);
         inst->SetCryptLength(100.0);
         inst->SetSpringStiffness(20.0);
@@ -64,6 +66,7 @@ public:
         inst1->SetSG2MDuration(11.0);
         inst1->SetStemCellCycleTime(35.0);
         inst1->SetTransitCellCycleTime(45.0);
+        inst1->SetHepaOneCellCycleTime(10.0);
         inst1->SetMaxTransitGenerations(666u);
         inst1->SetCryptLength(100.0);
         inst1->SetSpringStiffness(20.0);
@@ -76,6 +79,7 @@ public:
         TS_ASSERT_DELTA(inst2->GetSG2MDuration(), 11.0 , 1e-12);
         TS_ASSERT_DELTA(inst2->GetStemCellCycleTime(), 35.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetTransitCellCycleTime(), 45.0, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetHepaOneCellCycleTime(), 10.0, 1e-12);
         TS_ASSERT_EQUALS(inst2->GetMaxTransitGenerations(), 666u);
         TS_ASSERT_DELTA(inst2->GetCryptLength(), 100.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetSpringStiffness(), 20.0, 1e-12);
@@ -97,6 +101,7 @@ public:
             inst1->SetSG2MDuration(11.0);
             inst1->SetStemCellCycleTime(35.0);
             inst1->SetTransitCellCycleTime(45.0);
+            inst1->SetHepaOneCellCycleTime(10.0);
             inst1->SetMaxTransitGenerations(666u);
             inst1->SetCryptLength(100.0);
             inst1->SetSpringStiffness(20.0);
@@ -117,6 +122,7 @@ public:
             inst1->SetSG2MDuration(10.0);
             inst1->SetStemCellCycleTime(24.0);
             inst1->SetTransitCellCycleTime(12.0);
+            inst1->SetHepaOneCellCycleTime(18.0);
             inst1->SetMaxTransitGenerations(3u);
             inst1->SetCryptLength(22.0);
             inst1->SetApoptosisTime(0.25);
@@ -135,6 +141,7 @@ public:
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 11.0 , 1e-12);
             TS_ASSERT_DELTA(inst1->GetStemCellCycleTime(), 35.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetTransitCellCycleTime(), 45.0, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetHepaOneCellCycleTime(), 10.0, 1e-12);
             TS_ASSERT_EQUALS(inst1->GetMaxTransitGenerations(), 666u);
             TS_ASSERT_DELTA(inst1->GetCryptLength(), 100.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetSpringStiffness(), 20.0, 1e-12);
