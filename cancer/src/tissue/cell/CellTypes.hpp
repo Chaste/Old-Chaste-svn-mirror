@@ -8,7 +8,8 @@ typedef enum CellType_
 {
     STEM,
     TRANSIT,
-    DIFFERENTIATED
+    DIFFERENTIATED,
+    HEPA_ONE
 } CellType;
 
 

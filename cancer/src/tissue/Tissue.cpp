@@ -632,7 +632,7 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
             CellType type = p_cell->GetCellType();
             CellMutationState mutation = p_cell->GetMutationState();
             
-            // Set colours dependent on Stem, Transit, Differentiate
+            // Set colours dependent on Stem, Transit, Differentiate, HepaOne
             if (type == STEM)
             {
                 colour = 0;
@@ -647,9 +647,9 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
             }
             
             // Override colours for mutant or labelled cells.
-            if (mutation != HEALTHY)
+            if (mutation != HEALTHY && mutation != ALARCON_NORMAL)
             {
-                if (mutation == LABELLED)
+                if (mutation == LABELLED || mutation == ALARCON_CANCER)
                 {
                     colour = 5;
                     if (OutputCellTypes)
@@ -682,7 +682,7 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                     }  
                 }
             }
-            else // its healthy
+            else // its healthy, or normal in the sense of the Alarcon model
             {
                 if (OutputCellTypes)
                 {

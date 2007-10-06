@@ -42,6 +42,9 @@ bool StochasticCellCycleModel::ReadyToDivide()
         case TRANSIT:
             ready = (timeSinceBirth >= p_gen->NormalRandomDeviate(p_params->GetTransitCellCycleTime(), 1.0));
             break;
+        case HEPA_ONE:
+            ready = (timeSinceBirth >= p_gen->NormalRandomDeviate(p_params->GetHepaOneCellCycleTime(), 1.0));
+            break;
         default:
             ready = false;
             break;

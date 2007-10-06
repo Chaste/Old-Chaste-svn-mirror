@@ -71,6 +71,14 @@ public:
         p_our_fixed_diff_cell_cycle_model->UpdateCellType();
         TS_ASSERT_EQUALS(diff_cell.GetCellType(),DIFFERENTIATED);
         
+        FixedCellCycleModel* p_our_fixed_hepa_one_cell_cycle_model = new FixedCellCycleModel;
+        TissueCell hepa_one_cell(HEPA_ONE, // type
+                           HEALTHY,//Mutation State
+                           0,  // generation
+                           p_our_fixed_hepa_one_cell_cycle_model);
+        
+        p_our_fixed_hepa_one_cell_cycle_model->UpdateCellType();
+        
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -96,11 +104,21 @@ public:
             }
             // Test a DIFFERENTIATED cell
             TS_ASSERT(!p_our_fixed_diff_cell_cycle_model->ReadyToDivide());
+            // Test a HEPA_ONE cell
+            if (time<p_params->GetHepaOneCellCycleTime())
+            {
+                TS_ASSERT(!p_our_fixed_hepa_one_cell_cycle_model->ReadyToDivide());
+            }
+            else
+            {
+                TS_ASSERT(p_our_fixed_hepa_one_cell_cycle_model->ReadyToDivide());
+            }
         }
         
         TS_ASSERT_DELTA(p_our_fixed_stem_cell_cycle_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
         TS_ASSERT_DELTA(p_our_fixed_transit_cell_cycle_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
         TS_ASSERT_DELTA(p_our_fixed_diff_cell_cycle_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
+        TS_ASSERT_DELTA(p_our_fixed_hepa_one_cell_cycle_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
         SimulationTime::Destroy();
     }
     
@@ -709,7 +727,7 @@ public:
 
         OxygenBasedCellCycleModel* p_cell_model = new OxygenBasedCellCycleModel();
         
-        TissueCell cell(STEM, ALARCON_NORMAL, 0, p_cell_model);
+        TissueCell cell(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model);
                            
         cell.InitialiseCellCycleModel();
         

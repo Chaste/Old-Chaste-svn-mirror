@@ -40,6 +40,9 @@ bool FixedCellCycleModel::ReadyToDivide()
         case TRANSIT:
             ready = timeSinceBirth >= p_params->GetTransitCellCycleTime();
             break;
+        case HEPA_ONE:
+            ready = timeSinceBirth >= p_params->GetHepaOneCellCycleTime();
+            break;
         default:
             ready = false;
             break;

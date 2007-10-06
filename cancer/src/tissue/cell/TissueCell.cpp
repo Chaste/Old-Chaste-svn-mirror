@@ -236,29 +236,38 @@ TissueCell TissueCell::Divide()
     
     CancerParameters *p_params = CancerParameters::Instance();
     //std::cout<< "Divide time" << mpSimulationTime->GetDimensionalisedTime() << "\n" ;
-    if (mCellType != STEM)
+    if (mCellType != HEPA_ONE)
     {
-        if (mGeneration < p_params->GetMaxTransitGenerations())
+        if (mCellType != STEM)
         {
-            mGeneration++;
-            mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            return TissueCell(TRANSIT, mMutationState, mGeneration,
-                                    mpCellCycleModel->CreateCellCycleModel());
+            if (mGeneration < p_params->GetMaxTransitGenerations())
+            {
+                mGeneration++;
+                mpCellCycleModel->ResetModel();// Cell goes back to age zero
+                return TissueCell(TRANSIT, mMutationState, mGeneration,
+                                        mpCellCycleModel->CreateCellCycleModel());
+            }
+            else
+            {
+                mGeneration++;
+                mCellType = DIFFERENTIATED;
+                mpCellCycleModel->ResetModel();// Cell goes back to age zero
+                return TissueCell(DIFFERENTIATED, mMutationState, mGeneration,
+                                        mpCellCycleModel->CreateCellCycleModel());
+            }
         }
         else
         {
-            mGeneration++;
-            mCellType = DIFFERENTIATED;
             mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            return TissueCell(DIFFERENTIATED, mMutationState, mGeneration,
+            return TissueCell(TRANSIT, mMutationState, 1,
                                     mpCellCycleModel->CreateCellCycleModel());
         }
     }
     else
     {
         mpCellCycleModel->ResetModel();// Cell goes back to age zero
-        return TissueCell(TRANSIT, mMutationState, 1,
-                                mpCellCycleModel->CreateCellCycleModel());
+        return TissueCell(HEPA_ONE, mMutationState, 1,
+                                    mpCellCycleModel->CreateCellCycleModel());
     }
     
 }
