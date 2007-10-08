@@ -5,7 +5,7 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "AbstractCellCycleModel.hpp"
+#include "AbstractOdeBasedCellCycleModel.hpp"
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
@@ -22,32 +22,25 @@
  * Note that this class uses C++'s default copying semantics, and so doesn't implement a copy constructor
  * or operator=.
  */
-class OxygenBasedCellCycleModel : public AbstractCellCycleModel
+class OxygenBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
-    //friend class StochasticWntCellCycleModel;// to allow access to private constructor below.
     friend class boost::serialization::access;   
     
 public:
     Alarcon2004OxygenBasedCellCycleOdeSystem* mpOdeSystem;
 private:
     static RungeKutta4IvpOdeSolver msSolver;
-    double mLastTime;
-    double mDivideTime;
-    bool mReadyToDivide;
     
 //    template<class Archive>
 //    void serialize(Archive & archive, const unsigned int version)
 //    {
 //        assert(mpOdeSystem!=NULL); 
-//        archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
+//        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
 //        // reference can be read or written into once mpOdeSystem has been set up
 //        // mpOdeSystem isn't set up by the first constructor, but is by the second
 //        // which is now utilised by the load_construct at the bottom of this file.
 //        archive & mpOdeSystem->rGetStateVariables();   
 //        archive & mpOdeSystem->rGetIsCancerCell(); 
-//        archive & mLastTime;
-//        archive & mDivideTime;
-//        archive & mReadyToDivide;
 //    }
         
 public:
@@ -78,8 +71,6 @@ public:
     std::vector< double > GetProteinConcentrations() const;
     
     AbstractCellCycleModel *CreateCellCycleModel();
-    
-    void SetBirthTime(double birthTime);
     
     void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations);
       

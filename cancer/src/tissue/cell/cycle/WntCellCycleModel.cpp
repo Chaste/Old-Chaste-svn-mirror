@@ -17,7 +17,7 @@ RungeKutta4IvpOdeSolver WntCellCycleModel::msSolver;
  *
  */
 WntCellCycleModel::WntCellCycleModel()
-        : AbstractCellCycleModel(),
+        : AbstractOdeBasedCellCycleModel(),
           mpOdeSystem(NULL)
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
@@ -30,7 +30,6 @@ WntCellCycleModel::WntCellCycleModel()
     mInSG2MPhase = false;
     mReadyToDivide = false;
     mDivideTime = DBL_MAX;
-
 }
 
 /**
@@ -43,7 +42,7 @@ WntCellCycleModel::WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,//c
                                      const CellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime)
-        : AbstractCellCycleModel()
+        : AbstractOdeBasedCellCycleModel()
 {
     if (pParentOdeSystem !=NULL)
     {
@@ -80,7 +79,7 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
                                      const CellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime)
-        : AbstractCellCycleModel()
+        : AbstractOdeBasedCellCycleModel()
 {
     mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState);// wnt pathway is reset in a couple of lines.
     // Set the model to be the same as the parent cell.
@@ -223,19 +222,6 @@ AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
     return new WntCellCycleModel(mpOdeSystem, 
                                  mpCell->GetMutationState(), mBirthTime, mLastTime, 
                                  mInSG2MPhase, mReadyToDivide, mDivideTime);
-}
-
-/**
- * Returns a new WntCellCycleModel created with the correct initial conditions.
- *
- * Should only be used in tests
- *
- * @param birthTime the simulation time when the cell was born
- */
-void WntCellCycleModel::SetBirthTime(double birthTime)
-{
-    mLastTime = birthTime;
-    mBirthTime = birthTime;
 }
 
 /**

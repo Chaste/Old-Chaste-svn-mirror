@@ -5,7 +5,7 @@
 BackwardEulerIvpOdeSolver TysonNovakCellCycleModel::msSolver(6);
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
-    : AbstractCellCycleModel(),
+    : AbstractOdeBasedCellCycleModel(),
       mOdeSystem()
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
@@ -27,7 +27,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
  * @param birthTime the SimulationTime when the cell divided (birth time of parent cell)
  */
 TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime)
-    : AbstractCellCycleModel(),
+    : AbstractOdeBasedCellCycleModel(),
       mOdeSystem()
 {
     if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
@@ -47,9 +47,13 @@ TysonNovakCellCycleModel::~TysonNovakCellCycleModel()
 }
 
 void TysonNovakCellCycleModel::ResetModel()
-{	// This model should cycle itself and nothing needs to be reset.
+{	
+    // This model needs the protein concentrations and phase resetting to G0/G1.
+    assert(mReadyToDivide);
+    // This model should cycle itself and nothing needs to be reset.
     // but at the moment we are resetting to initial conditions because it
     // breaks after a while and will not converge.
+    std::cout << "Resetting model\n" << std::flush;
     mBirthTime = mDivideTime;
     mLastTime = mDivideTime;
     
@@ -64,21 +68,7 @@ void TysonNovakCellCycleModel::ResetModel()
         mOdeSystem.SetStateVariables(mOdeSystem.GetInitialConditions());
     }
 
-    mReadyToDivide=false;
-}
-
-/**
- * Returns a new TysonNovakCellCycleModel created with the correct initial conditions.
- *
- * Should only be used in tests
- *
- * @param birthTime the simulation time when the cell was born
- */
-void TysonNovakCellCycleModel::SetBirthTime(double birthTime)
-{
-    mLastTime = birthTime;
-    mBirthTime = birthTime;
-    mDivideTime = birthTime;
+    mReadyToDivide = false;
 }
 
 bool TysonNovakCellCycleModel::ReadyToDivide()

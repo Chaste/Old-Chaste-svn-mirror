@@ -13,9 +13,8 @@ RungeKutta4IvpOdeSolver OxygenBasedCellCycleModel::msSolver;
  * generate a default one for us.
  *
  */
-
 OxygenBasedCellCycleModel::OxygenBasedCellCycleModel()
-        : AbstractCellCycleModel(),
+        : AbstractOdeBasedCellCycleModel(),
           mpOdeSystem(NULL)
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
@@ -27,7 +26,6 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel()
     mLastTime = mBirthTime;
     mReadyToDivide = false;
     mDivideTime = DBL_MAX;
-
 }
 
 /**
@@ -40,7 +38,7 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel()
 OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(Alarcon2004OxygenBasedCellCycleOdeSystem* pParentOdeSystem, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime)
-        : AbstractCellCycleModel()
+        : AbstractOdeBasedCellCycleModel()
 {
     if (pParentOdeSystem !=NULL)
     {
@@ -77,7 +75,7 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(Alarcon2004OxygenBasedCellC
 OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime)
-        : AbstractCellCycleModel()
+        : AbstractOdeBasedCellCycleModel()
 {
     mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(rParentProteinConcentrations[5], rMutationState);
     
@@ -196,7 +194,7 @@ std::vector<double>  OxygenBasedCellCycleModel::GetProteinConcentrations() const
 }
 
 /**
- * Returns a new WntCellCycleModel created with the correct initial conditions.
+ * Returns a new OxygenBasedCellCycleModel created with the correct initial conditions.
  *
  * Should be called just after the parent cell cycle model has been .Reset().
  */
@@ -208,19 +206,6 @@ AbstractCellCycleModel* OxygenBasedCellCycleModel::CreateCellCycleModel()
     // unless the parent cell has just divided.        
     return new OxygenBasedCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), 
                                          mBirthTime, mLastTime, mReadyToDivide, mDivideTime);
-}
-
-/**
- * Returns a new OxygenBasedCellCycleModel created with the correct initial conditions.
- *
- * Should only be used in tests
- *
- * @param birthTime the simulation time when the cell was born
- */
-void OxygenBasedCellCycleModel::SetBirthTime(double birthTime)
-{
-    mLastTime = birthTime;
-    mBirthTime = birthTime;
 }
 
 /**

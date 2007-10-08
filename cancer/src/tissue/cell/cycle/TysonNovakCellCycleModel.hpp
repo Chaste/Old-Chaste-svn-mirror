@@ -3,7 +3,7 @@
 
 #include <boost/serialization/vector.hpp>
 
-#include "AbstractCellCycleModel.hpp"
+#include "AbstractOdeBasedCellCycleModel.hpp"
 #include "TysonNovak2001OdeSystem.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "CancerParameters.hpp"
@@ -18,14 +18,11 @@
  * Note that this class uses C++'s default copying semantics, and so doesn't implement a copy constructor
  * or operator=.
  */
-class TysonNovakCellCycleModel : public AbstractCellCycleModel
+class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
 private:
     TysonNovak2001OdeSystem mOdeSystem;
     static BackwardEulerIvpOdeSolver msSolver;
-    double mLastTime;
-    double mDivideTime;
-    bool mReadyToDivide;
     
     TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime);
     
@@ -33,12 +30,8 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        
+        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
         archive & mOdeSystem.rGetStateVariables();
-        archive & mLastTime;
-        archive & mDivideTime;
-        archive & mReadyToDivide;
     }
     
 public:
@@ -47,11 +40,9 @@ public:
     
     ~TysonNovakCellCycleModel();
     
-    virtual bool ReadyToDivide();
+    bool ReadyToDivide();
     
-    virtual void ResetModel();
-    
-    virtual void SetBirthTime(double birthTime);
+    void ResetModel();
     
     std::vector< double > GetProteinConcentrations();
     

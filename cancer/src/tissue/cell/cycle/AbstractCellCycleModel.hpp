@@ -56,6 +56,8 @@ public:
      * the indivdual cell-cycle-model-constructor, but useful for tests)
      * 
      * @param birthTime the simulation time at this cell's birth.
+     * 
+     * (This function is overridden in AbstractOdeBasedCellCycleModel).
      */
     virtual void SetBirthTime(double birthTime);
     
