@@ -18,11 +18,6 @@ template <unsigned SPACE_DIM>
 class OxygenBasedCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
 private: 
-    // these constants should eventually be in CancerParameters   
-    double mHypoxicDuration;
-    double mHypoxicConcentration; 
-    
-    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -33,52 +28,35 @@ private:
     
 public:
     OxygenBasedCellKiller(Tissue<SPACE_DIM>* pTissue)
-        : AbstractCellKiller<SPACE_DIM>(pTissue),
-          mHypoxicDuration(0.0),
-          mHypoxicConcentration(0.1)
+        : AbstractCellKiller<SPACE_DIM>(pTissue)
     {
-    }
-
-    double GetHypoxicDuration() const
-    {
-        return mHypoxicDuration;
-    }
-     
-    double GetHypoxicConcentration() const
-    {
-        return mHypoxicConcentration;
     }
     
-    void TestAndLabelSingleCellForApoptosis(TissueCell& cell)
+    void TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
     {        
-        if (cell.GetCellType()!=HEPA_ONE)
+        if (rCell.GetCellType()!=HEPA_ONE)
         {
             EXCEPTION("OxygenBasedCellKiller is trying to kill a cell that is not of type HEPA_ONE");
         }    
-        double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(&cell);
         
-        // the oxygen concentration had better not be negative
-        assert(oxygen_concentration >= 0.0);        
-            
-        if ( oxygen_concentration < mHypoxicConcentration )
+        double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(&rCell);
+        
+//      TODO: change this line to something like
+        // if ( oxygen_concentration < CancerParameters::Instance()->GetHypoxicConcentration() )   
+		if ( oxygen_concentration < 0.2 )
         {
-            mHypoxicDuration = mHypoxicDuration + SimulationTime::Instance()->GetTimeStep();    
+        	double hypoxic_duration = rCell.GetHypoxicDuration();
             
             // a little bit of stochasticity here
-            double prob_of_death = 1 - 0.5*(oxygen_concentration/mHypoxicConcentration); 
+            double prob_of_death = 1 - 0.5*(oxygen_concentration/0.2); 
             
-            // magic number - say it takes 2 hours of acute hypoxia before apoptosis is initiated 
-            // (this constant should eventually be in CancerParameters)
-            if (!cell.HasApoptosisBegun() && mHypoxicDuration > 0.2 && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
+//      TODO: change this line to something like
+		// if (!cell.HasApoptosisBegun() && hypoxic_duration > CancerParameters::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
+            if (!rCell.HasApoptosisBegun() && hypoxic_duration > 1.0 && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
             {                     
-                cell.StartApoptosis();
+                rCell.StartApoptosis();
             }
-        }
-        else
-        {
-            mHypoxicDuration = 0.0;
-        } 
-            
+        }           
     }
     
     /**
@@ -115,10 +93,6 @@ inline void save_construct_data(
     // save data required to construct instance
     const Tissue<DIM>* const p_tissue = t->GetTissue();
     ar << p_tissue;
-    double dur = t->GetHypoxicDuration();    
-    ar << dur;
-    double conc = t-> GetHypoxicConcentration(); 
-    ar << conc;
 }
 
 /**
@@ -131,10 +105,6 @@ inline void load_construct_data(
     // retrieve data from archive required to construct new instance
     Tissue<DIM>* p_tissue;
     ar >> p_tissue;
-    double dur;
-    ar >> dur;
-    double conc;
-    ar >> conc;
     // invoke inplace constructor to initialize instance
     ::new(t)OxygenBasedCellKiller<DIM>(p_tissue);
 }

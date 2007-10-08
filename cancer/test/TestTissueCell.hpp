@@ -103,8 +103,7 @@ public:
         p_simulation_time->IncrementTimeOneStep();//t=18
         p_simulation_time->IncrementTimeOneStep();//t=24
         TS_ASSERT(!stem_cell.ReadyToDivide());
-        
-        
+                
         p_simulation_time->IncrementTimeOneStep();//t=30
         TS_ASSERT(stem_cell.ReadyToDivide());
         
@@ -1035,7 +1034,7 @@ public:
         TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),false);
         TS_ASSERT_EQUALS(cell.IsDead(),false);
         TS_ASSERT_THROWS_ANYTHING(cell.TimeUntilDeath());
-        
+                        
         p_simulation_time->IncrementTimeOneStep();//t=0.2
         
         cell.StartApoptosis();
@@ -1218,6 +1217,10 @@ public:
             
             stem_cell.SetNodeIndex(3);
             
+            TS_ASSERT_DELTA(stem_cell.GetHypoxicDuration(), 0.0, 1e-5);
+            stem_cell.SetHypoxicDuration(15.3);            
+            TS_ASSERT_DELTA(stem_cell.GetHypoxicDuration(), 15.3, 1e-5);
+            
             // Create an ouput archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -1258,6 +1261,7 @@ public:
             TS_ASSERT_EQUALS(p_stem_cell->GetAge(), 0.5);
             TS_ASSERT_EQUALS(p_stem_cell->GetGeneration(), 0u);
             TS_ASSERT_EQUALS(p_stem_cell->GetCellType(), STEM);
+            TS_ASSERT_DELTA(p_stem_cell->GetHypoxicDuration(), 15.3, 1e-5);
             
             AbstractCellCycleModel* p_model = p_stem_cell->GetCellCycleModel();
             

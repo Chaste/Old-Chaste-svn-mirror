@@ -31,6 +31,7 @@ private :
         // Assembler for fine mesh flagged region. use bbc from before
         EllipticFlaggedMeshAssembler<2> elliptic_assembler(&r_mesh, mpPde, &flagged_bcc);
         
+        // Solve the nutrient PDE
         Vec result_elliptic_restricted = elliptic_assembler.Solve();
         ReplicatableVector result_elliptic_repl(result_elliptic_restricted);
 
@@ -71,6 +72,31 @@ private :
         counter++;
         
         VecDestroy(result_elliptic_restricted); // for the time being, while this is completely decoupled
+        
+        // update cells' hypoxic durations using their current oxygen concentration        
+        for( typename Tissue<2>::Iterator cell_iter = this->mrTissue.Begin();
+            cell_iter != this->mrTissue.End();
+            ++cell_iter)
+        {               
+        	double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(&(*cell_iter));
+        	
+            // the oxygen concentration had better not be negative
+        	assert(oxygen_concentration >= 0.0);
+        	
+//          TODO: change this line to something like
+        	// if ( oxygen_concentration < CancerParameters::Instance()->GetHypoxicConcentration() )    	
+        	if ( oxygen_concentration < 0.2 )
+        	{
+        		// add timestep to the hypoxic duration, since PostSolve() is called at the end of every timestep 
+        		double curr_hyp_dur = cell_iter->GetHypoxicDuration();        		
+            	cell_iter->SetHypoxicDuration(curr_hyp_dur + SimulationTime::Instance()->GetTimeStep());
+        	}  
+        	else // reset mHypoxicDuration
+        	{
+            	cell_iter->SetHypoxicDuration(0.0);
+        	}          	   
+        }        
+        
     }
 
 

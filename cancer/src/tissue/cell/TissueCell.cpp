@@ -30,6 +30,7 @@ TissueCell::TissueCell(CellType cellType,
     mNodeIndex = (unsigned)(-1); // initialise to a silly value for archiving (avoid memory check error)
     mIsLogged = false;
     mpCellCycleModel->SetCell(this);
+    mHypoxicDuration = 0.0;
 }
 
 void TissueCell::CommonCopy(const TissueCell &other_cell)
@@ -55,6 +56,8 @@ void TissueCell::CommonCopy(const TissueCell &other_cell)
     // note: we call the base class version because we want to do model.mpCell=*this
     // only, as the model is fully set up (from the above line) already.
     mpCellCycleModel->AbstractCellCycleModel::SetCell(this);
+    
+    mHypoxicDuration = other_cell.mHypoxicDuration;
 }
 
 TissueCell::TissueCell(const TissueCell &other_cell)
@@ -162,6 +165,17 @@ bool TissueCell::IsLogged()
 {
     return mIsLogged;
 }
+
+void TissueCell::SetHypoxicDuration(double hypoxicDuration)
+{
+	mHypoxicDuration = hypoxicDuration;
+}
+
+double TissueCell::GetHypoxicDuration() const
+{
+	return mHypoxicDuration;
+}
+
 /**
  * The TissueCell ready to divide method
  *

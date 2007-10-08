@@ -35,6 +35,7 @@ private:
         archive & mUndergoingApoptosis;
         archive & mDeathTime;
         archive & mNodeIndex;
+        archive & mHypoxicDuration;
     }
     
 protected:
@@ -47,6 +48,7 @@ protected:
     double mDeathTime;
     bool mIsDead;
     bool mIsLogged;
+    double mHypoxicDuration;
 
     /**
      * Contains code common to both the copy constructor and operator=.
@@ -126,6 +128,9 @@ public:
     
     void SetLogged();
     bool IsLogged();
+    
+    void SetHypoxicDuration(double hypoxicDuration);
+    double GetHypoxicDuration() const;
 };
 
 
