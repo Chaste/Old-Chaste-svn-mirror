@@ -83,7 +83,9 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(double wntLevel, co
     
     mVariableNames.push_back("pRb_p");
     mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(1.000000000000000e-04);    double steady_D = ((1.0-sigma_D)*mSd*mSx)/((1.0-sigma_D)*mSd*d_d_hat + d_x_hat*(d_d_hat + d_d_x_hat));
+    mInitialConditions.push_back(1.000000000000000e-04);    
+    
+    double steady_D = ((1.0-sigma_D)*mSd*mSx)/((1.0-sigma_D)*mSd*d_d_hat + d_x_hat*(d_d_hat + d_d_x_hat));
     
     mVariableNames.push_back("D");  //  Destruction complex (APC/Axin/GSK3B)
     mVariableUnits.push_back("nM");
@@ -147,8 +149,6 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(double wntLevel, co
     mVariableNames.push_back("Cct");//  Cc-T closed beta-catenin/TCF
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(mSct*mSt*steady_Cc/(mDt*mDct));
-    
-    std::cout << "Resting beta-cat/TCF = " << mSct*mSt*steady_Co/(mDt*mDct)+mSct*mSt*steady_Cc/(mDt*mDct) << "\n" << std::flush;
     
     mVariableNames.push_back("Mot");//  Mo-T open form mutant beta-catenin/TCF
     mVariableUnits.push_back("nM");
@@ -364,8 +364,8 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     dx1 = e/(mKm1d+e)*mJ11d/(mJ11d+r)*mJ61d/(mJ61d+p) - mk16d*r*j+mk61d*p-mphi_r*r;
     // de
     dx2 = mkpd+mk2d*(mad*mad+e*e)/(1+e*e)*mJ12d/(mJ12d+r)*mJ62d/(mJ62d+p) - e;
-    // di - changed to include Ct - transcriptional beta-catenin
-    dx3 = mk3d*(Ct) + mk23d*e*mJ13d/(mJ13d+r)*mJ63d/(mJ63d+p) + mk43d*j - mk34d*i*j/(1+j) - mphi_i*i;
+    // di - changed to include Ct+Mt - transcriptional beta-catenin
+    dx3 = mk3d*(Ct+Mt) + mk23d*e*mJ13d/(mJ13d+r)*mJ63d/(mJ63d+p) + mk43d*j - mk34d*i*j/(1+j) - mphi_i*i;
     // dj
     dx4 = mk34d*i*j/(1+j) - (mk43d+mphi_j)*j;
     // dp

@@ -393,6 +393,13 @@ public:
                                      0,  // generation
                                      p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
+        
+        // Wnt cells not set up to deal with unknown mutations...
+        TissueCell cell(STEM, // type
+                        ALARCON_NORMAL,//Mutation State
+                        0,  // generation
+                        new WntCellCycleModel());
+        TS_ASSERT_THROWS_ANYTHING(cell.InitialiseCellCycleModel());
                 
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 4.804 hrs and then finish dividing

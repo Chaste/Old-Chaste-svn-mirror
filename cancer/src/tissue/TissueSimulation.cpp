@@ -330,7 +330,6 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
             mDivisionPairs.erase(cell_pair);
             //\todo some of the pairs aren't accessible at this stage(if we lose them due to a remesh
         }
-       
     }
     
     double a_rest_length=rest_length*0.5;
