@@ -14,8 +14,7 @@ RungeKutta4IvpOdeSolver OxygenBasedCellCycleModel::msSolver;
  *
  */
 OxygenBasedCellCycleModel::OxygenBasedCellCycleModel()
-        : AbstractOdeBasedCellCycleModel(),
-          mpOdeSystem(NULL)
+        : AbstractOdeBasedCellCycleModel()
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -26,6 +25,7 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel()
     mLastTime = mBirthTime;
     mReadyToDivide = false;
     mDivideTime = DBL_MAX;
+    mpOdeSystem = NULL;
 }
 
 /**
@@ -34,8 +34,7 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel()
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see OxygenBasedCellCycleModel)
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
  */
-
-OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(Alarcon2004OxygenBasedCellCycleOdeSystem* pParentOdeSystem, 
+OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime)
         : AbstractOdeBasedCellCycleModel()
@@ -71,7 +70,6 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(Alarcon2004OxygenBasedCellC
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see OxygenBasedCellCycleModel)
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
  */
-
 OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime)
@@ -109,7 +107,6 @@ OxygenBasedCellCycleModel::~OxygenBasedCellCycleModel()
  * Should only be called by the TissueCell Divide() method.
  *
  */
-
 void OxygenBasedCellCycleModel::ResetModel()
 {	
     assert(mpOdeSystem!=NULL);
@@ -134,7 +131,6 @@ void OxygenBasedCellCycleModel::ResetModel()
  * This method sets one of the ODE system variables to represent the 
  * oxygen concentration and gives the ODE system the mutation state of this cell.
  */
-
 bool OxygenBasedCellCycleModel::ReadyToDivide()
 {
     assert(mpOdeSystem!=NULL);
@@ -144,7 +140,7 @@ bool OxygenBasedCellCycleModel::ReadyToDivide()
     mpOdeSystem->rGetStateVariables()[5] = CellwiseData<2>::Instance()->GetValue(mpCell,0);
      
     // Use the cell's current mutation status as another input
-    mpOdeSystem->SetMutationState(mpCell->GetMutationState());
+    static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
     
     double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
     
@@ -183,17 +179,6 @@ bool OxygenBasedCellCycleModel::ReadyToDivide()
 
 
 /**
- * Returns the protein concentrations at the current time (useful for tests)
- *
- * NB: Will copy the vector - you can't use this to modify the concentrations.
- */
-std::vector<double>  OxygenBasedCellCycleModel::GetProteinConcentrations() const
-{
-    assert(mpOdeSystem!=NULL);
-    return mpOdeSystem->rGetStateVariables();
-}
-
-/**
  * Returns a new OxygenBasedCellCycleModel created with the correct initial conditions.
  *
  * Should be called just after the parent cell cycle model has been .Reset().
@@ -208,20 +193,6 @@ AbstractCellCycleModel* OxygenBasedCellCycleModel::CreateCellCycleModel()
                                          mBirthTime, mLastTime, mReadyToDivide, mDivideTime);
 }
 
-/**
- * Sets the protein concentrations and time when the model was last evaluated - should only be called by tests
- *
- * @param lastTime the SimulationTime at which the protein concentrations apply
- * @param proteinConcentrations a standard vector of doubles of protein concentrations
- *
- */
-void OxygenBasedCellCycleModel::SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations)
-{
-    assert(mpOdeSystem!=NULL);
-    assert(proteinConcentrations.size()==mpOdeSystem->rGetStateVariables().size());
-    mLastTime = lastTime;
-    mpOdeSystem->SetStateVariables(proteinConcentrations);
-}
 
 void OxygenBasedCellCycleModel::Initialise()
 {
@@ -231,4 +202,3 @@ void OxygenBasedCellCycleModel::Initialise()
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());  
 }    
  
-

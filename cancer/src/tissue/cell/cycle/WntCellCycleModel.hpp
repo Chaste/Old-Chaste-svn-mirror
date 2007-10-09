@@ -36,8 +36,7 @@ private:
         // reference can be read or written into once mpOdeSystem has been set up
         // mpOdeSystem isn't set up by the first constructor, but is by the second
         // which is now utilised by the load_construct at the bottom of this file.
-        archive & mpOdeSystem->rGetStateVariables();   
-        archive & mpOdeSystem->rGetMutationState(); 
+        archive & static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->rGetMutationState(); 
         archive & mInSG2MPhase;
     }
     
@@ -52,7 +51,6 @@ private:
        
 protected:   
      
-    WntCellCycleOdeSystem* mpOdeSystem;
     /** Is the cell in S->G2->M phase of cell cycle (if so don't run ODEs)*/
     bool mInSG2MPhase;    
     
@@ -64,7 +62,7 @@ public:
      * This is needed to create an exact copy of the current cell cycle model
      * (called by CreateCellCycleModel())
      */
-    WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem, 
+    WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                       const CellMutationState& rMutationState, 
                       double birthTime, double lastTime,
                       bool inSG2MPhase, bool readyToDivide, double divideTime);
@@ -85,12 +83,8 @@ public:
     
     void UpdateCellType();    
     
-    std::vector< double > GetProteinConcentrations() const;
-    
     AbstractCellCycleModel *CreateCellCycleModel();
     
-    void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations);
-      
     void Initialise();
 };
 

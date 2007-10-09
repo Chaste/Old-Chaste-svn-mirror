@@ -26,22 +26,17 @@ class OxygenBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
     friend class boost::serialization::access;   
     
-public:
-    Alarcon2004OxygenBasedCellCycleOdeSystem* mpOdeSystem;
 private:
     static RungeKutta4IvpOdeSolver msSolver;
     
-//    template<class Archive>
-//    void serialize(Archive & archive, const unsigned int version)
-//    {
-//        assert(mpOdeSystem!=NULL); 
-//        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
-//        // reference can be read or written into once mpOdeSystem has been set up
-//        // mpOdeSystem isn't set up by the first constructor, but is by the second
-//        // which is now utilised by the load_construct at the bottom of this file.
-//        archive & mpOdeSystem->rGetStateVariables();   
-//        archive & mpOdeSystem->rGetIsCancerCell(); 
-//    }
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
+        // The following function doesn't exist at the moment, 
+        // but if it did the line should look like this!
+//        //archive & static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->rGetIsCancerCell(); 
+    }
         
 public:
 
@@ -51,7 +46,7 @@ public:
      * This is needed to create an exact copy of the current cell cycle model
      * (called by CreateCellCycleModel())
      */
-    OxygenBasedCellCycleModel(Alarcon2004OxygenBasedCellCycleOdeSystem* pParentOdeSystem, 
+    OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime);
    /**
@@ -67,13 +62,9 @@ public:
     virtual bool ReadyToDivide();
     
     virtual void ResetModel();
-        
-    std::vector< double > GetProteinConcentrations() const;
     
     AbstractCellCycleModel *CreateCellCycleModel();
     
-    void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations);
-      
     void Initialise();    
 
 };
@@ -115,7 +106,6 @@ inline void load_construct_data(
     {
         state_vars.push_back(0.0);
     }
-             
     ::new(t)OxygenBasedCellCycleModel(state_vars, ALARCON_NORMAL, 0.0, 0.0, false, 0.0);
 }
 }

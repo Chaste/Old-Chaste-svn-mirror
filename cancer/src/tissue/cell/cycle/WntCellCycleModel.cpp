@@ -17,8 +17,7 @@ RungeKutta4IvpOdeSolver WntCellCycleModel::msSolver;
  *
  */
 WntCellCycleModel::WntCellCycleModel()
-        : AbstractOdeBasedCellCycleModel(),
-          mpOdeSystem(NULL)
+        : AbstractOdeBasedCellCycleModel()
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -30,6 +29,7 @@ WntCellCycleModel::WntCellCycleModel()
     mInSG2MPhase = false;
     mReadyToDivide = false;
     mDivideTime = DBL_MAX;
+    mpOdeSystem = NULL;
 }
 
 /**
@@ -38,7 +38,7 @@ WntCellCycleModel::WntCellCycleModel()
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
  */
-WntCellCycleModel::WntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
+WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime)
@@ -148,7 +148,7 @@ bool WntCellCycleModel::ReadyToDivide()
     mpOdeSystem->rGetStateVariables()[8] = WntGradient::Instance()->GetWntLevel(mpCell);
     
     // Use the cell's current mutation status as another input
-    mpOdeSystem->SetMutationState(mpCell->GetMutationState());
+    static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
     
     double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
     
@@ -197,16 +197,7 @@ bool WntCellCycleModel::ReadyToDivide()
 }
 
 
-/**
- * Returns the protein concentrations at the current time (useful for tests)
- *
- * NB: Will copy the vector - you can't use this to modify the concentrations.
- */
-std::vector<double>  WntCellCycleModel::GetProteinConcentrations() const
-{
-    assert(mpOdeSystem!=NULL);
-    return mpOdeSystem->rGetStateVariables();
-}
+
 
 /**
  * Returns a new WntCellCycleModel created with the correct initial conditions.
@@ -222,21 +213,6 @@ AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
     return new WntCellCycleModel(mpOdeSystem, 
                                  mpCell->GetMutationState(), mBirthTime, mLastTime, 
                                  mInSG2MPhase, mReadyToDivide, mDivideTime);
-}
-
-/**
- * Sets the protein concentrations and time when the model was last evaluated - should only be called by tests
- *
- * @param lastTime the SimulationTime at which the protein concentrations apply
- * @param proteinConcentrations a standard vector of doubles of protein concentrations
- *
- */
-void WntCellCycleModel::SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations)
-{
-    assert(mpOdeSystem!=NULL);
-    assert(proteinConcentrations.size()==mpOdeSystem->rGetStateVariables().size());
-    mLastTime = lastTime;
-    mpOdeSystem->SetStateVariables(proteinConcentrations);
 }
 
 /**

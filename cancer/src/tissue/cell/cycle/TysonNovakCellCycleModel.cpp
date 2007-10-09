@@ -106,12 +106,6 @@ bool TysonNovakCellCycleModel::ReadyToDivide()
     return mReadyToDivide;
 }
 
-std::vector<double> TysonNovakCellCycleModel::GetProteinConcentrations()
-{
-    return mpOdeSystem->rGetStateVariables();
-}
-
-
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
 {
     return new TysonNovakCellCycleModel(mpOdeSystem->rGetStateVariables(), mDivideTime);

@@ -21,8 +21,6 @@
 class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
 private:
-    TysonNovak2001OdeSystem* mpOdeSystem;
-
     static BackwardEulerIvpOdeSolver msSolver;
     
     TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime);
@@ -32,7 +30,6 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
-        archive & mpOdeSystem->rGetStateVariables();
     }
     
 public:
@@ -44,8 +41,6 @@ public:
     bool ReadyToDivide();
     
     void ResetModel();
-    
-    std::vector< double > GetProteinConcentrations();
     
     AbstractCellCycleModel *CreateCellCycleModel();
     

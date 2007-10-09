@@ -10,7 +10,6 @@
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
-
 class StochasticWntCellCycleModel : public WntCellCycleModel
 {
   private:
@@ -53,7 +52,7 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
      * This is needed because a wnt model which is not to be run from the current time is 
      * sometimes needed. Should only be called by the cell itself when it wants to divide.
      */
-    StochasticWntCellCycleModel(WntCellCycleOdeSystem* pParentOdeSystem,
+    StochasticWntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
                                 CellMutationState mutationState,
                                 double birthTime, double lastTime,
                                 bool inSG2MPhase, bool readyToDivide, double divideTime)

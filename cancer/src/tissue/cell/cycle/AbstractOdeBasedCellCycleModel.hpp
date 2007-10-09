@@ -6,10 +6,16 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractCellCycleModel.hpp"
+#include "AbstractOdeSystem.hpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
+/**
+ * This class contains all the things common to standard cell cycle 
+ * ODE models for intracellular protein concentrations. Along the lines
+ * of Tyson & Novak etc... 
+ */
 class AbstractOdeBasedCellCycleModel : public AbstractCellCycleModel
 {
 private:
@@ -18,12 +24,16 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
+        assert(mpOdeSystem!=NULL);
+        archive & mpOdeSystem->rGetStateVariables();
         archive & mLastTime;
         archive & mDivideTime;
         archive & mReadyToDivide;
     }
     
 protected:
+    /** The system of ODEs for the cell cycle model */
+    AbstractOdeSystem* mpOdeSystem;
     /** The last time the cell cycle ODEs were evaluated.*/
     double mLastTime;
     /** The time at which the cell should divide - Set this to DBL_MAX in constructor.*/
@@ -40,11 +50,37 @@ public:
      */
     void SetBirthTime(double birthTime)
     {
+        AbstractCellCycleModel::SetBirthTime(birthTime);
         mLastTime = birthTime;
-        mBirthTime = birthTime;
         mDivideTime = birthTime;
     }
-
+    
+    /**
+     * Returns the protein concentrations at the current time (useful for tests)
+     *
+     * NB: Will copy the vector - you can't use this to modify the concentrations.
+     */
+    std::vector<double> GetProteinConcentrations() const
+    {
+        assert(mpOdeSystem!=NULL);
+        return mpOdeSystem->rGetStateVariables();
+    }
+    
+    /**
+     * Sets the protein concentrations and time when the model was last evaluated - should only be called by tests
+     *
+     * @param lastTime the SimulationTime at which the protein concentrations apply
+     * @param proteinConcentrations a standard vector of doubles of protein concentrations
+     *
+     */
+    void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations)
+    {
+        assert(mpOdeSystem!=NULL);
+        assert(proteinConcentrations.size()==mpOdeSystem->rGetStateVariables().size());
+        mLastTime = lastTime;
+        mpOdeSystem->SetStateVariables(proteinConcentrations);
+    }
+    
 };
 
 BOOST_IS_ABSTRACT(AbstractOdeBasedCellCycleModel)
