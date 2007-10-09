@@ -413,10 +413,14 @@ public:
         simulator.Solve();
         
         cells = simulator.GetCells();
-        // check we have had loads of birth
-        // N.B. that if this test is run for longer it will fail 
-        // because they get too squashed in (T&N is too quick).
-        TS_ASSERT_EQUALS(cells.size() , num_cells+65u);
+        /* check we have had loads of birth
+         * N.B. that if this test is run for longer it will fail 
+         * because they get too squashed in (T&N is too quick).
+         * 
+         * T&N divides in time = 1.25. So should roughly double the number of cells 
+         * in this time frame...
+         */
+        TS_ASSERT_EQUALS(cells.size() , num_cells + 23u);
         
         p_params->SetStemCellCycleTime(temp_stem);
         p_params->SetTransitCellCycleTime(temp_transit);

@@ -24,15 +24,10 @@
  */
 class WntCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
-    friend class StochasticWntCellCycleModel;// to allow access to private constructor below.
-    friend class boost::serialization::access;   
-    
-public:
-    WntCellCycleOdeSystem* mpOdeSystem;
 private:
     static RungeKutta4IvpOdeSolver msSolver;
-    bool mInSG2MPhase;
     
+    friend class boost::serialization::access;   
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -52,9 +47,14 @@ private:
      * beta-catenin levels
      */
     void ChangeCellTypeDueToCurrentBetaCateninLevel();
-       
-protected:    
+    
     virtual double GetWntSG2MDuration();
+       
+protected:   
+     
+    WntCellCycleOdeSystem* mpOdeSystem;
+    /** Is the cell in S->G2->M phase of cell cycle (if so don't run ODEs)*/
+    bool mInSG2MPhase;    
     
 public:
 

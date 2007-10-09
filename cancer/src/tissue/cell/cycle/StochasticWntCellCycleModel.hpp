@@ -22,7 +22,6 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
         archive & boost::serialization::base_object<WntCellCycleModel>(*this);
     }
     
-  protected:
     /**
      * This is a function which overrides that in WntCellCycleModel and 
      * introduces the stochastic element of this class. 
@@ -41,7 +40,7 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
     }
     
   public:
-    
+  
     /**
      * The standard constructor called in tests
      */
@@ -62,7 +61,7 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
                           inSG2MPhase, readyToDivide, divideTime)
     {
     }
-    
+
     /**
      * This is needed because a wnt model which is not to be run from the current time is 
      * sometimes needed. Should only be called by the archiver.
@@ -74,7 +73,8 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
       : WntCellCycleModel(proteinConcentrations, mutationState, birthTime, lastTime, 
                           inSG2MPhase, readyToDivide, divideTime)
     {
-    }    
+    }
+    
     /**
      * Returns a new StochasticWntCellCycleModel created with the correct initial conditions.
      *
@@ -89,13 +89,11 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
         return new StochasticWntCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), mBirthTime, mLastTime, mInSG2MPhase, mReadyToDivide,mDivideTime);
     }
     
-    
 };
 
 
 // declare identifier for the serializer
 BOOST_CLASS_EXPORT(StochasticWntCellCycleModel)
-
 
 namespace boost
 {
@@ -113,7 +111,7 @@ inline void save_construct_data(
 
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a WntCellCycleModel instance.
+ * instantiate a StochasticWntCellCycleModel instance.
  */
 template<class Archive>
 inline void load_construct_data(

@@ -5,8 +5,7 @@
 BackwardEulerIvpOdeSolver TysonNovakCellCycleModel::msSolver(6);
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
-    : AbstractOdeBasedCellCycleModel(),
-      mOdeSystem()
+    : AbstractOdeBasedCellCycleModel()
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -17,7 +16,8 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
     mBirthTime = mLastTime;
     mDivideTime = mBirthTime;
     mReadyToDivide = false;
-    mOdeSystem.SetStateVariables(mOdeSystem.GetInitialConditions());
+    mpOdeSystem = new TysonNovak2001OdeSystem;
+    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 }
 
 /**
@@ -27,8 +27,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
  * @param birthTime the SimulationTime when the cell divided (birth time of parent cell)
  */
 TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime)
-    : AbstractOdeBasedCellCycleModel(),
-      mOdeSystem()
+    : AbstractOdeBasedCellCycleModel()
 {
     if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
     {
@@ -38,22 +37,23 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentPro
     mBirthTime = divideTime;
     mDivideTime = divideTime;
     mReadyToDivide = false;
-    
-    mOdeSystem.SetStateVariables(parentProteinConcentrations);
+    mpOdeSystem = new TysonNovak2001OdeSystem;
+    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 }
 
 TysonNovakCellCycleModel::~TysonNovakCellCycleModel()
 {
+    delete mpOdeSystem;
 }
 
 void TysonNovakCellCycleModel::ResetModel()
 {	
+    assert(mpOdeSystem!=NULL);
     // This model needs the protein concentrations and phase resetting to G0/G1.
     assert(mReadyToDivide);
     // This model should cycle itself and nothing needs to be reset.
     // but at the moment we are resetting to initial conditions because it
     // breaks after a while and will not converge.
-    std::cout << "Resetting model\n" << std::flush;
     mBirthTime = mDivideTime;
     mLastTime = mDivideTime;
     
@@ -61,11 +61,11 @@ void TysonNovakCellCycleModel::ResetModel()
     // Halve the mass of the cell
     if (false)
     {
-        mOdeSystem.rGetStateVariables()[5] = mOdeSystem.rGetStateVariables()[5]/2.0;
+        mpOdeSystem->rGetStateVariables()[5] = mpOdeSystem->rGetStateVariables()[5]/2.0;
     }
     else
     {
-        mOdeSystem.SetStateVariables(mOdeSystem.GetInitialConditions());
+        mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
     }
 
     mReadyToDivide = false;
@@ -81,14 +81,14 @@ bool TysonNovakCellCycleModel::ReadyToDivide()
         {
             double dt = 0.1/60.0;
             
-            msSolver.SolveAndUpdateStateVariable(&mOdeSystem,mLastTime,current_time,dt);
+            msSolver.SolveAndUpdateStateVariable(mpOdeSystem,mLastTime,current_time,dt);
             
             for (unsigned i=0 ; i<6 ; i++)
             {
-                if (mOdeSystem.rGetStateVariables()[i]<0)
+                if (mpOdeSystem->rGetStateVariables()[i]<0)
                 {
 #define COVERAGE_IGNORE
-                    std::cout << "Protein["<< i <<"] = "<< mOdeSystem.rGetStateVariables()[i] << "\n";
+                    std::cout << "Protein["<< i <<"] = "<< mpOdeSystem->rGetStateVariables()[i] << "\n";
                     EXCEPTION("A protein concentration has gone negative\nCHASTE predicts that the TysonNovakCellCycleModel numerical method is probably unstable.");
 #undef COVERAGE_IGNORE
                 }
@@ -108,12 +108,12 @@ bool TysonNovakCellCycleModel::ReadyToDivide()
 
 std::vector<double> TysonNovakCellCycleModel::GetProteinConcentrations()
 {
-    return mOdeSystem.rGetStateVariables();
+    return mpOdeSystem->rGetStateVariables();
 }
 
 
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
 {
-    return new TysonNovakCellCycleModel(mOdeSystem.rGetStateVariables(), mDivideTime);
+    return new TysonNovakCellCycleModel(mpOdeSystem->rGetStateVariables(), mDivideTime);
 }
 
