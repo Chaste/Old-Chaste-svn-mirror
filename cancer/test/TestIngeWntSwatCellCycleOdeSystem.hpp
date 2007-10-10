@@ -51,6 +51,8 @@ public:
         TS_ASSERT_DELTA(initial_conditions[20], 2.235636835087720e+00, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[21], 1.000000000000000e+00, 1e-7);
         
+        wnt_cell_cycle_system.SetMutationState(HEALTHY);    // for coverage.
+        wnt_cell_cycle_system.SetUseHypothesisTwo(false);   // for coverage.
         wnt_cell_cycle_system.EvaluateYDerivatives(time, initial_conditions, derivs);
         // Test derivatives are correct at t=0 for these initial conditions
         // Swat's
@@ -62,6 +64,63 @@ public:
         
         // Inge's
         for (unsigned i=5; i<initial_conditions.size() ; i++)
+        {
+            TS_ASSERT_DELTA(derivs[i],0.0, 1e-9);
+        }
+    }
+    
+    void TestIngeWntSwatCellCycleEquationsHighWntHypothesisTwo()
+    {
+        double wnt_level = 1.0;
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system(wnt_level);
+        
+        double time = 0.0;
+        
+        wnt_cell_cycle_system.SetUseHypothesisTwo(true);   // for coverage.
+        std::vector<double> initial_conditions = wnt_cell_cycle_system.GetInitialConditions();
+        TS_ASSERT_EQUALS(initial_conditions.size(), 22u);
+        std::vector<double> derivs(initial_conditions.size());
+        // test ICs are being set up properly (quite intricate equations themselves!)
+        TS_ASSERT_DELTA(initial_conditions[0], 7.357000000000000e-01, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[1], 1.713000000000000e-01, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[2], 6.900000000000001e-02, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[3], 3.333333333333334e-03, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[4], 1.000000000000000e-04, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[5], 1.428571428571428e-01, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[6], 2.857142857142857e-02, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[7], 2.120643654085212e-01, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[8], 1.439678172957394e+01, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[9], 0, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[10], 0, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[11], 0, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[12], 1.000000000000000e+01, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[13], 1.028341552112424e+02, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[14], 0, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[15], 2.500000000000000e+01, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[16], 1.439678172957394e+01, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[17], 0, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[18], 0, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[19], 0, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[20], 2.235636835087720e+00, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[21], 1.000000000000000e+00, 1e-7);
+        
+
+        wnt_cell_cycle_system.EvaluateYDerivatives(time, initial_conditions, derivs);
+        // Test derivatives are correct at t=0 for these initial conditions
+        // Swat's
+        TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
+        TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
+        TS_ASSERT_DELTA(derivs[2],5.676110199115955e+00, 1e-5); // changes due to new beta-catenin levels...
+        TS_ASSERT_DELTA(derivs[3],-7.449833887043188e-03, 1e-5);
+        TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
+        
+        // Inge's
+        TS_ASSERT_DELTA(derivs[5],0.0, 1e-9);
+        TS_ASSERT_DELTA(derivs[6],0.0, 1e-9);
+        TS_ASSERT_DELTA(derivs[7],0.0, 1e-9);
+        TS_ASSERT_DELTA(derivs[8],-3.357508823927512e+02, 1e-9);
+        TS_ASSERT_DELTA(derivs[9],3.357508823927473e+02, 1e-9);
+        for (unsigned i=10 ; i<derivs.size() ; i++)
         {
             TS_ASSERT_DELTA(derivs[i],0.0, 1e-9);
         }
