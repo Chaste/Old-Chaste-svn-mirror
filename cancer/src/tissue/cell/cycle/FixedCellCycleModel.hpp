@@ -19,13 +19,17 @@ private:
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
     }
 public:
+
+    /**
+     * Default constructor - mBirthTime now set in AbstractCellCycleModel().
+     */
+    FixedCellCycleModel() {};
+
     virtual bool ReadyToDivide();
     
     virtual void ResetModel();
     
-    AbstractCellCycleModel *CreateCellCycleModel();
-    
-    FixedCellCycleModel();
+    AbstractCellCycleModel *CreateCellCycleModel(); 
 };
 
 // declare identifier for the serializer

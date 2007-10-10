@@ -28,7 +28,10 @@ private:
     }
     
 public:
-    StochasticCellCycleModel();
+    /**
+     * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class
+     */
+    StochasticCellCycleModel() {};
     
     virtual bool ReadyToDivide();
     

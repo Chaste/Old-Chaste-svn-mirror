@@ -7,17 +7,6 @@
 RungeKutta4IvpOdeSolver OxygenBasedCellCycleModel::msSolver;
 
 /**
- * Model constructor.
- *
- * Note that since we provide our own constructor, the compiler will *not*
- * generate a default one for us.
- *
- */
-OxygenBasedCellCycleModel::OxygenBasedCellCycleModel()
-{
-}
-
-/**
  * A private constructor for daughter cells called by the CreateCellCycleModel function
  * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
  *

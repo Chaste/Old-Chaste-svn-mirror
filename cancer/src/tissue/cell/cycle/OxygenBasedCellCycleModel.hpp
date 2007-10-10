@@ -42,19 +42,16 @@ private:
         
 public:
 
-    OxygenBasedCellCycleModel();
-   
     /**
-     * This is needed to create an exact copy of the current cell cycle model
-     * (called by CreateCellCycleModel())
+     * Default constructor, variables are set by abstract classes.
      */
+    OxygenBasedCellCycleModel() {};
+   
+
     OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime);
-   /**
-     * This is needed to create an exact copy of the current cell cycle model
-     * (called by archiving functions)
-     */
+
     OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime); 

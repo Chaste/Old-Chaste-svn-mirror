@@ -58,18 +58,11 @@ public:
 
     WntCellCycleModel();
    
-    /**
-     * This is needed to create an exact copy of the current cell cycle model
-     * (called by CreateCellCycleModel())
-     */
     WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                       const CellMutationState& rMutationState, 
                       double birthTime, double lastTime,
                       bool inSG2MPhase, bool readyToDivide, double divideTime);
-   /**
-     * This is needed to create an exact copy of the current cell cycle model
-     * (called by archiving functions)
-     */
+
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                       const CellMutationState& rMutationState, 
                       double birthTime, double lastTime,

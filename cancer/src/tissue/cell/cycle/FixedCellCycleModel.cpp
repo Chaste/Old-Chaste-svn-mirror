@@ -9,16 +9,6 @@ AbstractCellCycleModel *FixedCellCycleModel::CreateCellCycleModel()
     return new FixedCellCycleModel();
 }
 
-FixedCellCycleModel::FixedCellCycleModel()
-{
-    SimulationTime* p_sim_time = SimulationTime::Instance();
-    if (p_sim_time->IsStartTimeSetUp()==false)
-    {
-        EXCEPTION("FixedCellCycleModel is being created but SimulationTime has not been set up");
-    }
-    mBirthTime = p_sim_time->GetDimensionalisedTime();
-}
-
 void FixedCellCycleModel::ResetModel()
 {
     mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
