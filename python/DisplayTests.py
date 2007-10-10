@@ -686,7 +686,7 @@ def _getTestStatus(test_set_dir, build, summary=False):
       testsuite_status[testsuite] = d['status']
       if not summary:
         runtime[testsuite] = d['runtime']
-  overall_status, colour = _overallStatus(testsuite_status.values(),
+  overall_status, colour = _overallStatus(testsuite_status,
                                           build)
 
   # Check for build failure
@@ -699,14 +699,15 @@ def _getTestStatus(test_set_dir, build, summary=False):
 
 def _overallStatus(statuses, build):
   """
-  Given a list of the status of each test suite, and the type of build
-  performed, return the overall status.
-  Return value is a pair, the first item of which is a string given
+  Given a dict mapping test suite name to its status,
+  and the type of build performed, return the overall status.
+  Return value is a pair, the first item of which is a string giving
   the number of failing test suites, and the second a colour name.
   """
   total = len(statuses)
   failed, warnings = 0, 0
-  for status in statuses:
+  components = set()
+  for testsuite, status in statuses.iteritems():
     try:
       colour = build.StatusColour(status)
     except AttributeError:
@@ -717,6 +718,11 @@ def _overallStatus(statuses, build):
         colour = 'red'
     if colour == 'red':
       failed += 1
+      try:
+        component = testsuite.split('-')[0]
+        components.add(component)
+      except IndexError:
+        pass
     elif colour == 'orange':
       warnings += 1
   if failed > 0:
@@ -724,6 +730,8 @@ def _overallStatus(statuses, build):
       warnstr = " (with %d warnings)" % warnings
     else:
       warnstr = ""
+    if components:
+      warnstr += " (" + ','.join(components) + ")"
     result = "Failed %d out of %d test suites%s" % (failed, total, warnstr)
     colour = "red"
   elif warnings > 0:
