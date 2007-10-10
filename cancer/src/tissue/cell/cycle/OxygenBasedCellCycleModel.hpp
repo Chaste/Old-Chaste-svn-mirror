@@ -32,10 +32,12 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
+        assert(mpOdeSystem!=NULL); 
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
-        // The following function doesn't exist at the moment, 
-        // but if it did the line should look like this!
-//        //archive & static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->rGetIsCancerCell(); 
+        // reference can be read or written into once mpOdeSystem has been set up
+        // mpOdeSystem isn't set up by the first constructor, but is by the second
+        // which is now utilised by the load_construct at the bottom of this file.
+        archive & static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->rGetMutationState(); 
     }
         
 public:

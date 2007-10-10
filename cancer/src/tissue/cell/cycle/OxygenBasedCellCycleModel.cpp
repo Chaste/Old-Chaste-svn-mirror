@@ -144,7 +144,7 @@ bool OxygenBasedCellCycleModel::ReadyToDivide()
     if (current_time>mLastTime)
     {
         // feed this time step's oxygen concentration into the solver as a constant over this timestep.
-        double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
+        double dt = 0.001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
         msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, current_time, dt);
 
         // the exception for oxygen concentration < 0 is currently handled elsewhere            

@@ -1117,6 +1117,84 @@ public:
         RandomNumberGenerator::Destroy();
         WntGradient::Destroy();
     }    
+    
+    // NB - to archive a cell cycle model it has to be archived via the cell that owns it.
+    void TestArchiveOxygenBasedCellCycleModels()
+    {
+        CancerParameters::Instance()->Reset();
+
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "oxygen_based_cell_cycle.arch";
+
+        std::vector<double> oxygen_concentration;
+        oxygen_concentration.push_back(1.0);
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+
+        // Create an ouput archive
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(560.0, 2);
+            
+            OxygenBasedCellCycleModel* p_cell_model = new OxygenBasedCellCycleModel();
+            
+            TissueCell cell(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model);
+            cell.InitialiseCellCycleModel();  
+            
+            cell.GetCellCycleModel()->SetBirthTime(-1.0);
+            
+            p_simulation_time->IncrementTimeOneStep();            
+            TS_ASSERT_EQUALS(cell.GetCellCycleModel()->ReadyToDivide(),false);
+            p_simulation_time->IncrementTimeOneStep();
+            TS_ASSERT_EQUALS(cell.GetCellCycleModel()->ReadyToDivide(),true);
+            
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            TissueCell* const p_cell = &cell;
+            
+            output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
+            output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
+            output_arch << p_cell;
+            SimulationTime::Destroy();            
+        }
+        
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            
+            CancerParameters *inst1 = CancerParameters::Instance();
+            
+            inst1->SetSG2MDuration(1.0);
+            
+            TissueCell* p_cell;
+            
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            // restore from the archive
+            input_arch >> *p_simulation_time;
+            input_arch >> *inst1;
+            input_arch >> p_cell;
+            
+            // Check            
+            AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
+            TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());            
+                 
+            TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),true);
+            TS_ASSERT_DELTA(p_cell_model->GetBirthTime(),-1.0,1e-12);
+            TS_ASSERT_DELTA(p_cell_model->GetAge(),561.0,1e-12);
+            TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
+            SimulationTime::Destroy();
+            delete p_cell;
+        }
+
+        CellwiseData<2>::Destroy();
+    }    
+    
 };
 
 #endif /*TESTCELLCYCLEMODELS_HPP_*/
