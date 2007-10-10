@@ -33,6 +33,12 @@ build = BuildTypes.GetBuildType(build_type)
 build.SetRevision(ARGUMENTS.get('revision', ''))
 Export('build')
 
+# Whether to use static or shared libraries
+static_libs = ARGUMENTS.get('static', 0)
+if build.is_profile:
+    static_libs = 1
+Export('static_libs')
+
 # Specify test_summary=0 to scons to *NOT* generate a summary html page
 test_summary = ARGUMENTS.get('test_summary', 1)
 

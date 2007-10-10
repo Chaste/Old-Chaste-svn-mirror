@@ -62,7 +62,7 @@ libpaths = []
 incpaths = []
 libraries = []
 
-def do_petsc(version, optimised):
+def do_petsc(version, optimised, profile=False):
     """Determine PETSc include and library paths.
 
     The locations vary depending on the version of PETSc, and possibly
@@ -74,6 +74,7 @@ def do_petsc(version, optimised):
 
     Set optimised to True to use optimised builds of the libraries rather
     than debug builds.
+    Set profile to True to use profile builds of PETSc.
     """
     if version == '2_3' and conf.petsc_2_3_path is None:
         # Use 2.2 instead
@@ -96,12 +97,15 @@ def do_petsc(version, optimised):
         incpaths.append(os.path.join(petsc_base, 'bmake', conf.petsc_build_name))
     else:
         petsc_base = os.path.abspath(conf.petsc_2_3_path)
-        if optimised:
-            libpath = os.path.join(petsc_base, 'lib', conf.petsc_build_name_optimized)
-            incpaths.append(os.path.join(petsc_base, 'bmake', conf.petsc_build_name_optimized))
+        if profile:
+            optimised = False
+            build_name = conf.petsc_build_name_profile
+        elif optimised:
+            build_name = conf.petsc_build_name_optimized
         else:
-            libpath = os.path.join(petsc_base, 'lib', conf.petsc_build_name)
-            incpaths.append(os.path.join(petsc_base, 'bmake', conf.petsc_build_name))
+            build_name = conf.petsc_build_name
+        libpath = os.path.join(petsc_base, 'lib', build_name)
+        incpaths.append(os.path.join(petsc_base, 'bmake', build_name))
     incpaths.append(os.path.join(petsc_base, 'include'))
     libpaths.append(libpath)
     libraries.extend(['petscts', 'petscsnes', 'petscksp', 'petscdm', 
@@ -142,7 +146,7 @@ def configure(build):
         do_metis()
         libraries.extend(['blas', 'lapack']) # Use versions provided with Deal.II
     else:
-        do_petsc('2_3', build.is_optimised)
+        do_petsc('2_3', build.is_optimised, build.is_profile)
         libraries.extend(conf.blas_lapack)
     if build.CompilerType() == 'intel':
         intel_path = os.path.abspath(conf.intel_path)

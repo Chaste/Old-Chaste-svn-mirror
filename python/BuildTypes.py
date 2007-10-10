@@ -31,6 +31,7 @@ class BuildType(object):
     self.using_dealii = False
     self.dealii_debugging = False
     self.is_optimised = False
+    self.is_profile = False
     # Where test output will go
     import socket
     machine_fqdn = socket.getfqdn()
@@ -322,6 +323,7 @@ class Profile(GccDebug):
     self._link_flags.append('-pg')
     self._test_packs = ['Profile']
     self.build_dir = 'profile'
+    self.is_profile = True
   
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test with a profiler and rename gmon.out"
@@ -338,6 +340,7 @@ class GoogleProfile(GccDebug):
     self._link_flags.append('-lprofiler')
     self._test_packs = ['Profile']
     self.build_dir = 'google_profile'
+    self.is_profile = True
  
   def ParseGraphFilename(self, filename):
     "Remove the string 'Runner.gif' from the end of a filename, thus returning test_suite name"

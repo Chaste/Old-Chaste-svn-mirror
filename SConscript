@@ -103,8 +103,16 @@ all_libs = ['test'+toplevel_dir] + chaste_libs + other_libs
 
 
 # Build and install the library for this component
-env.SharedLibrary(toplevel_dir, files)
-#env.Install('#lib', 'lib'+toplevel_dir+'.so')
+if static_libs:
+    lib = env.Library(toplevel_dir, files)
+    lib = env.Install('#lib', lib)
+    libpath = '#lib'
+    # Remove any shared lib hanging around
+    shlib = File('#lib/lib'+toplevel_dir+'.so').abspath
+    env.Execute(Delete(shlib))
+else:
+    lib = env.SharedLibrary(toplevel_dir, files)
+    libpath = '#linklib'
 
 # Build the test library for this component
 env.Library('test'+toplevel_dir, testsource)
@@ -113,7 +121,7 @@ env.Library('test'+toplevel_dir, testsource)
 # Make test output depend on shared libraries, so if implementation changes
 # then tests are re-run.  Choose which line according to taste.
 #lib_deps = map(lambda lib: '#lib/lib%s.so' % lib, chaste_libs) # all libs
-lib_deps = '#lib/lib%s.so' % toplevel_dir # only this lib
+lib_deps = lib # only this lib
 #linklib_deps = map(lambda lib: '#linklib/lib%s.so' % lib, chaste_libs)
 
 # Collect a list of test log files to use as dependencies for the test
@@ -126,7 +134,7 @@ for testfile in testfiles:
     runner_cpp = env.Test(prefix+'Runner.cpp', 'test/' + testfile) 
     env.Program(prefix+'Runner', runner_cpp,
                 LIBS = all_libs,
-                LIBPATH = ['#linklib', '.'] + other_libpaths)
+                LIBPATH = [libpath, '.'] + other_libpaths)
     if not compile_only:
         log_file = env.File(prefix+'.log')
         env.Depends(log_file, lib_deps)
