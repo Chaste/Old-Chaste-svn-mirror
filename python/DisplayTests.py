@@ -8,6 +8,13 @@ import time
 import itertools
 import re
 
+# Compatability with Python 2.3
+try:
+  set = set
+except NameError:
+  import sets
+  set = sets.Set
+
 _standalone = False
 
 #####################################################################
