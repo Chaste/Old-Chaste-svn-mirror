@@ -1,8 +1,20 @@
 #include "AbstractOdeBasedCellCycleModel.hpp"
 
+AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(double lastTime)
+        : mpOdeSystem(NULL),
+          mLastTime(lastTime),
+          mDivideTime(lastTime),
+          mReadyToDivide(false)
+{
+    AbstractCellCycleModel::SetBirthTime(lastTime);
+}
+
 AbstractOdeBasedCellCycleModel::~AbstractOdeBasedCellCycleModel()
 {
-    delete mpOdeSystem;   
+    if (mpOdeSystem!=NULL)
+    {
+        delete mpOdeSystem;   
+    }
 }
 
 void AbstractOdeBasedCellCycleModel::SetBirthTime(double birthTime)

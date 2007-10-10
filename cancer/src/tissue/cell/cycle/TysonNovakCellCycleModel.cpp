@@ -6,15 +6,6 @@ BackwardEulerIvpOdeSolver TysonNovakCellCycleModel::msSolver(6);
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 {
-    SimulationTime* p_sim_time = SimulationTime::Instance();
-    if (p_sim_time->IsStartTimeSetUp()==false)
-    {
-        EXCEPTION("TysonNovakCellCycleModel is being created but SimulationTime has not been set up");
-    }
-    mLastTime = p_sim_time->GetDimensionalisedTime();
-    mBirthTime = mLastTime;
-    mDivideTime = mBirthTime;
-    mReadyToDivide = false;
     mpOdeSystem = new TysonNovak2001OdeSystem;
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 }
@@ -26,15 +17,8 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
  * @param birthTime the SimulationTime when the cell divided (birth time of parent cell)
  */
 TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime)
+ : AbstractOdeBasedCellCycleModel(divideTime)
 {
-    if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
-    {
-        EXCEPTION("TysonNovakCellCycleModel is being created but SimulationTime has not been set up");
-    }
-    mLastTime = divideTime;
-    mBirthTime = divideTime;
-    mDivideTime = divideTime;
-    mReadyToDivide = false;
     mpOdeSystem = new TysonNovak2001OdeSystem;
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 }

@@ -15,27 +15,24 @@ RungeKutta4IvpOdeSolver OxygenBasedCellCycleModel::msSolver;
  */
 OxygenBasedCellCycleModel::OxygenBasedCellCycleModel()
 {
-    SimulationTime* p_sim_time = SimulationTime::Instance();
-    if (p_sim_time->IsStartTimeSetUp()==false)
-    {
-        EXCEPTION("OxygenBasedCellCycleModel is being created but SimulationTime has not been set up");
-    }
-    mBirthTime = p_sim_time->GetDimensionalisedTime();
-    mLastTime = mBirthTime;
-    mReadyToDivide = false;
-    mDivideTime = DBL_MAX;
-    mpOdeSystem = NULL;
 }
 
 /**
- * A private constructor for daughter cells called only by the CreateCellCycleModel function
+ * A private constructor for daughter cells called by the CreateCellCycleModel function
+ * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
  *
- * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see OxygenBasedCellCycleModel)
+ * @param pParentOdeSystem  to copy the state of.
+ * @param rMutationState the mutation state of the cell (used by ODEs)
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
+ * @param lastTime last time the cell cycle model was evaluated
+ * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
+ * @param readyToDivide 
+ * @param divideTime If in the future this is the time at which the cell is going to divide
  */
 OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime)
+    : AbstractOdeBasedCellCycleModel(lastTime)// these values overwritten below
 {
     if (pParentOdeSystem !=NULL)
     {
@@ -57,7 +54,6 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(AbstractOdeSystem* pParentO
         #undef COVERAGE_IGNORE
     }
     mBirthTime = birthTime;
-    mLastTime = lastTime;
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
 }
@@ -65,12 +61,18 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(AbstractOdeSystem* pParentO
 /**
  * A private constructor for archiving
  *
- * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see OxygenBasedCellCycleModel)
+ * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
+ * @param rMutationState the mutation state of the cell (used by ODEs)
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
+ * @param lastTime last time the cell cycle model was evaluated
+ * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
+ * @param readyToDivide 
+ * @param divideTime If in the future this is the time at which the cell is going to divide
  */
 OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime)
+    : AbstractOdeBasedCellCycleModel(lastTime)// these values overwritten below
 {
     mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(rParentProteinConcentrations[5], rMutationState);
     
@@ -85,7 +87,6 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(const std::vector<double>& 
         #undef COVERAGE_IGNORE
     }
     mBirthTime = birthTime;
-    mLastTime = lastTime;
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
 }

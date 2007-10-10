@@ -27,15 +27,10 @@ class TestCellCycleModels : public CxxTest::TestSuite
 {
 public:
     void TestFixedCellCycleModel(void) throw(Exception)
-    {
-        // Make cell cycle models protest if simulation time is not set up
-        TS_ASSERT_THROWS_ANYTHING(FixedCellCycleModel model1);
-        
+    {   
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        
-        TS_ASSERT_THROWS_ANYTHING(FixedCellCycleModel model2);
         
         unsigned num_steps = 100;
         p_simulation_time->SetStartTime(0.0);
@@ -124,8 +119,6 @@ public:
     
     void TestStochasticCellCycleModel(void) throw(Exception)
     {
-        TS_ASSERT_THROWS_ANYTHING(StochasticCellCycleModel cell_model1);
-        
         RandomNumberGenerator::Instance();
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();

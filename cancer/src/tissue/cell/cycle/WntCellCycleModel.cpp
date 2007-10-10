@@ -9,38 +9,33 @@
 RungeKutta4IvpOdeSolver WntCellCycleModel::msSolver;
 
 /**
- * Model constructor - an initial wnt stimulus must be provided to set up the
- * wnt pathway in an equilibrium state.
+ * Model constructor
  *
  * Note that since we provide our own constructor, the compiler will *not*
- * generate a default one for us.
- *
+ * generate a default one for us. *
  */
 WntCellCycleModel::WntCellCycleModel()
 {
-    SimulationTime* p_sim_time = SimulationTime::Instance();
-    if (p_sim_time->IsStartTimeSetUp()==false)
-    {
-        EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
-    }
-    mBirthTime = p_sim_time->GetDimensionalisedTime();
-    mLastTime = mBirthTime;
     mInSG2MPhase = false;
-    mReadyToDivide = false;
-    mDivideTime = DBL_MAX;
-    mpOdeSystem = NULL;
 }
 
 /**
- * A private constructor for daughter cells called only by the CreateCellCycleModel function
+ * A private constructor for daughter cells called by the CreateCellCycleModel function
+ * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
  *
- * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
+ * @param pParentOdeSystem  to copy the state of.
+ * @param rMutationState the mutation state of the cell (used by ODEs)
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
+ * @param lastTime last time the cell cycle model was evaluated
+ * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
+ * @param readyToDivide 
+ * @param divideTime If in the future this is the time at which the cell is going to divide
  */
 WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime)
+   : AbstractOdeBasedCellCycleModel(lastTime) 
 {
     if (pParentOdeSystem !=NULL)
     {
@@ -61,7 +56,6 @@ WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const
         #undef COVERAGE_IGNORE
     }
     mBirthTime = birthTime;
-    mLastTime = lastTime;
     mInSG2MPhase = inSG2MPhase;
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
@@ -71,12 +65,18 @@ WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const
  * A private constructor for archiving
  *
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
+ * @param rMutationState the mutation state of the cell (used by ODEs)
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
+ * @param lastTime last time the cell cycle model was evaluated
+ * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
+ * @param readyToDivide 
+ * @param divideTime If in the future this is the time at which the cell is going to divide
  */
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime)
+    : AbstractOdeBasedCellCycleModel(lastTime) 
 {
     mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState);// wnt pathway is reset in a couple of lines.
     // Set the model to be the same as the parent cell.
@@ -90,7 +90,6 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
         #undef COVERAGE_IGNORE
     }
     mBirthTime = birthTime;
-    mLastTime = lastTime;
     mInSG2MPhase = inSG2MPhase;
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
@@ -101,8 +100,7 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
  * Cells are given a new birth time and cell cycle proteins are reset.
  * Note that the wnt pathway proteins maintain their current values.
  *
- * Should only be called by the TissueCell Divide() method.
- *
+ * Should only be called by the TissueCell::Divide() method.
  */
 void WntCellCycleModel::ResetModel()
 {	
@@ -187,9 +185,6 @@ bool WntCellCycleModel::ReadyToDivide()
     
     return mReadyToDivide;
 }
-
-
-
 
 /**
  * Returns a new WntCellCycleModel created with the correct initial conditions.

@@ -34,6 +34,15 @@ protected:
     double mBirthTime; // Time to start model from
     
 public:
+
+    /**
+     * Sets up a new AbstractCellCycleModel, gives it a birth time of the 
+     * current simulation time (this is overwritten by some subclasses) 
+     */
+    AbstractCellCycleModel()
+        : mpCell(NULL),
+          mBirthTime(SimulationTime::Instance()->GetDimensionalisedTime()) {};
+
     /**
      * Base class with virtual methods needs a virtual destructor.
      */
@@ -41,7 +50,7 @@ public:
     
     virtual void SetCell(TissueCell* pCell);
     
-    virtual void Initialise() {}
+    virtual void Initialise() {};
     
     TissueCell* GetCell();
     

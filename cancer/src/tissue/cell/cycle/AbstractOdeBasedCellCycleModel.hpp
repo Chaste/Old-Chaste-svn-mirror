@@ -44,9 +44,16 @@ protected:
 public:
 
     /**
-     * This destructor deletes mpOdeSystem. Note that some cell cycle models
-     * must call Initialise() to set up the ODE system before calling this
-     * destructor method, or a seg fault could result.
+     * Creates an AbstractOdeBasedCellCycleModel, calls SetBirthTime on the 
+     * AbstractCellCycleModel to make sure that can be set 'back in time' for
+     * cells which did not divide at the current time.
+     * 
+     * @param lastTime  The birth time of the cell / last time model was evaluated (defaults to the current SimulationTime)
+     */
+    AbstractOdeBasedCellCycleModel(double lastTime = SimulationTime::Instance()->GetDimensionalisedTime());
+
+    /**
+     * This destructor deletes the mpOdeSystem. 
      */
     virtual ~AbstractOdeBasedCellCycleModel();
     
