@@ -17,7 +17,6 @@ RungeKutta4IvpOdeSolver WntCellCycleModel::msSolver;
  *
  */
 WntCellCycleModel::WntCellCycleModel()
-        : AbstractOdeBasedCellCycleModel()
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -42,7 +41,6 @@ WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const
                                      const CellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime)
-        : AbstractOdeBasedCellCycleModel()
 {
     if (pParentOdeSystem !=NULL)
     {
@@ -79,7 +77,6 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
                                      const CellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime)
-        : AbstractOdeBasedCellCycleModel()
 {
     mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState);// wnt pathway is reset in a couple of lines.
     // Set the model to be the same as the parent cell.

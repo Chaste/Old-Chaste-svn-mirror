@@ -42,6 +42,7 @@ protected:
     bool mReadyToDivide;
     
 public:
+    
     /**
      * This overrides the AbstractCellCycleModel::SetBirthTime(double birthTime)
      * because an ODE based cell cycle model has more to reset...

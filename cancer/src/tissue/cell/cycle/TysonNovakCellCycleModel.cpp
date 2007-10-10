@@ -5,7 +5,6 @@
 BackwardEulerIvpOdeSolver TysonNovakCellCycleModel::msSolver(6);
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
-    : AbstractOdeBasedCellCycleModel()
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -27,7 +26,6 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
  * @param birthTime the SimulationTime when the cell divided (birth time of parent cell)
  */
 TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime)
-    : AbstractOdeBasedCellCycleModel()
 {
     if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
     {

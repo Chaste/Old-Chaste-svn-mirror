@@ -14,7 +14,6 @@ RungeKutta4IvpOdeSolver OxygenBasedCellCycleModel::msSolver;
  *
  */
 OxygenBasedCellCycleModel::OxygenBasedCellCycleModel()
-        : AbstractOdeBasedCellCycleModel()
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     if (p_sim_time->IsStartTimeSetUp()==false)
@@ -37,7 +36,6 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel()
 OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime)
-        : AbstractOdeBasedCellCycleModel()
 {
     if (pParentOdeSystem !=NULL)
     {
@@ -73,7 +71,6 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(AbstractOdeSystem* pParentO
 OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime)
-        : AbstractOdeBasedCellCycleModel()
 {
     mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(rParentProteinConcentrations[5], rMutationState);
     
