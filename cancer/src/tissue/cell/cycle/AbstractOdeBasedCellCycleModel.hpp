@@ -48,23 +48,14 @@ public:
      * 
      * @param birthTime the simulation time when the cell was born
      */
-    void SetBirthTime(double birthTime)
-    {
-        AbstractCellCycleModel::SetBirthTime(birthTime);
-        mLastTime = birthTime;
-        mDivideTime = birthTime;
-    }
+    void SetBirthTime(double birthTime);
     
     /**
      * Returns the protein concentrations at the current time (useful for tests)
      *
      * NB: Will copy the vector - you can't use this to modify the concentrations.
      */
-    std::vector<double> GetProteinConcentrations() const
-    {
-        assert(mpOdeSystem!=NULL);
-        return mpOdeSystem->rGetStateVariables();
-    }
+    std::vector<double> GetProteinConcentrations() const;
     
     /**
      * Sets the protein concentrations and time when the model was last evaluated - should only be called by tests
@@ -73,13 +64,7 @@ public:
      * @param proteinConcentrations a standard vector of doubles of protein concentrations
      *
      */
-    void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations)
-    {
-        assert(mpOdeSystem!=NULL);
-        assert(proteinConcentrations.size()==mpOdeSystem->rGetStateVariables().size());
-        mLastTime = lastTime;
-        mpOdeSystem->SetStateVariables(proteinConcentrations);
-    }
+    void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations);
     
 };
 
