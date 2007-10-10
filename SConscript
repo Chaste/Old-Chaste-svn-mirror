@@ -25,6 +25,22 @@ for dirpath, dirnames, filenames in os.walk('src'):
   for filename in filenames:
     if filename[-4:] == '.cpp':
       files.append(os.path.join(dirpath, filename))
+
+# Look for source files that tests depend on under test/.
+# We also need to add any subfolders to the CPPPATH, so they are searched
+# for #includes.
+testsource = []
+test_cpppath = []
+for dirpath, dirnames, filenames in os.walk('test'):
+    for dirname in dirnames[:]:
+        if dirname in ['.svn', 'data']:
+            dirnames.remove(dirname)
+        else:
+            test_cpppath.append(os.path.join(dirpath, dirname))
+    for filename in filenames:
+        if filename[-4:] == '.cpp':
+            testsource.append(os.path.join(dirpath, filename))
+
 os.chdir(curdir)
 
 # Look for files containing a test suite
@@ -72,21 +88,6 @@ elif test_this_comp:
     except IOError:
       pass
 
-
-# Look for source files that tests depend on under test/.
-# We also need to add any subfolders to the CPPPATH, so they are searched
-# for #includes.
-testsource = []
-test_cpppath = []
-for dirpath, dirnames, filenames in os.walk('../../test'):
-    for dirname in dirnames[:]:
-        if dirname in ['.svn', 'data']:
-            dirnames.remove(dirname)
-        else:
-            test_cpppath.append(os.path.join(dirpath, dirname))
-    for filename in filenames:
-        if filename[-4:] == '.cpp':
-            testsource.append(os.path.join(dirpath, filename))
 
 #print test_cpppath, testsource
 #print files, testfiles, testsource
