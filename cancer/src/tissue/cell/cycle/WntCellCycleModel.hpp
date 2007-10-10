@@ -75,8 +75,6 @@ public:
                       double birthTime, double lastTime,
                       bool inSG2MPhase, bool readyToDivide, double divideTime); 
                           
-    virtual ~WntCellCycleModel();
-    
     virtual bool ReadyToDivide();
     
     virtual void ResetModel();

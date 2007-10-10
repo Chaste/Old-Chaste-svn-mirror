@@ -39,11 +39,6 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentPro
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 }
 
-TysonNovakCellCycleModel::~TysonNovakCellCycleModel()
-{
-    delete mpOdeSystem;
-}
-
 void TysonNovakCellCycleModel::ResetModel()
 {	
     assert(mpOdeSystem!=NULL);

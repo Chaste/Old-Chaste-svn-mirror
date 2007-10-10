@@ -193,8 +193,6 @@ public:
     {
         CancerParameters::Instance()->Reset();
         
-        TS_ASSERT_THROWS_ANYTHING(TysonNovakCellCycleModel bad_cell_model);
-        
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         int num_timesteps = 100;
         p_simulation_time->SetStartTime(0.0);
@@ -205,7 +203,6 @@ public:
         std::vector<double> some_proteins(1); // not used except in next line
         TysonNovakCellCycleModel cell_model_1;
         SimulationTime::Destroy();
-        TS_ASSERT_THROWS_ANYTHING(TysonNovakCellCycleModel* p_another_cell_model = static_cast<TysonNovakCellCycleModel*>(cell_model_1.CreateCellCycleModel());delete p_another_cell_model;)
         
         p_simulation_time = SimulationTime::Instance();
         
@@ -288,9 +285,6 @@ public:
     void TestWntCellCycleModelForVaryingWntStimulus(void) throw(Exception)
     {
         CancerParameters::Instance()->Reset();
-        
-        // fails because SimulationTime has not been set up
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel model1);
         
         // Here we have a system at rest at Wnt = 1.0 - it would normally go into S phase at 5.971.
         // Instead we reduce Wnt linearly over 0<t<1 to zero and the cell doesn't divide.
@@ -715,13 +709,8 @@ public:
     
     void TestOxygenBasedCellCycleModel(void) throw(Exception)
     {        
-        TS_ASSERT_THROWS_NOTHING(OxygenBasedCellCycleModel model());
-        
         CancerParameters::Instance()->Reset();
-        
-        // fails because SimulationTime has not been set up
-        TS_ASSERT_THROWS_ANYTHING(OxygenBasedCellCycleModel model);
-        
+                
         SimulationTime *p_simulation_time = SimulationTime::Instance();        
         double end_time = 10.0; 
         int num_timesteps = 1000*(int)end_time;

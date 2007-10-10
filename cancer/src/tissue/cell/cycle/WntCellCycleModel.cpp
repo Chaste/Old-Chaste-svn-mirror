@@ -96,11 +96,6 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
     mDivideTime = divideTime;
 }
 
-WntCellCycleModel::~WntCellCycleModel()
-{
-    delete mpOdeSystem;
-}
-
 /**
  * Resets the Wnt Model to the start of the cell cycle (this model does not cycle naturally)
  * Cells are given a new birth time and cell cycle proteins are reset.

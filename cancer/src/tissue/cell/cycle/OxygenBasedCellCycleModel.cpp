@@ -90,12 +90,6 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(const std::vector<double>& 
     mDivideTime = divideTime;
 }
 
-
-OxygenBasedCellCycleModel::~OxygenBasedCellCycleModel()
-{
-    delete mpOdeSystem;
-}
-
 /**
  * Resets the oxygen-based model to the start of the cell cycle (this model does not cycle naturally)
  * Cells are given a new birth time and cell cycle proteins are reset.

@@ -36,8 +36,6 @@ public:
 
     TysonNovakCellCycleModel();
     
-    ~TysonNovakCellCycleModel();
-    
     bool ReadyToDivide();
     
     void ResetModel();

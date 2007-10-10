@@ -59,8 +59,6 @@ public:
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool readyToDivide, double divideTime); 
                           
-    virtual ~OxygenBasedCellCycleModel();
-    
     virtual bool ReadyToDivide();
     
     virtual void ResetModel();
