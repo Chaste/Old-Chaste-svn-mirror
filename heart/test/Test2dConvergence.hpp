@@ -12,7 +12,7 @@
 
 #include "BackwardEulerLuoRudyIModel1991.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "TimeConvergenceTester.hpp"
+#include "PdeConvergenceTester.hpp"
 #include "SpaceConvergenceTester.hpp"
 #include "KspConvergenceTester.hpp"
 #include "OdeConvergenceTester.hpp"

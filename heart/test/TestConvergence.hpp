@@ -12,7 +12,7 @@
 
 #include "BackwardEulerLuoRudyIModel1991.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "TimeConvergenceTester.hpp"
+#include "PdeConvergenceTester.hpp"
 #include "SpaceConvergenceTester.hpp"
 #include "StimulusConvergenceTester.hpp"
 #include "KspConvergenceTester.hpp"
@@ -38,7 +38,7 @@ public:
     void ConvergeInVarious(bool stimulateRegion)
     {
        {
-            TimeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+            PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
             RunConvergenceTester(&tester, stimulateRegion);           
             TS_ASSERT_DELTA(tester.PdeTimeStep, 5.0e-3, 1e-10);
         }

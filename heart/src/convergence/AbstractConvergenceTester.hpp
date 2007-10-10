@@ -125,19 +125,6 @@ public:
                 prev_mesh_num = this->MeshNum;
             }                            
             unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
-            unsigned num_cubes=  (unsigned) pow(mesh_size,DIM);
-            if (DIM==1)
-            {
-                  assert(constructor.NumElements == num_cubes);
-            }
-            else if (DIM==2)
-            {
-                  assert(constructor.NumElements == num_cubes*2);
-            }
-            else// (DIM==3)
-            {
-                  assert(constructor.NumElements == num_cubes*6);
-            }
             
             AbstractCardiacCellFactory<DIM>* p_cell_factory;
             if (!this->StimulateRegion)
@@ -148,7 +135,7 @@ public:
                 }
                 else
                 {
-                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, constructor.NumElements);                
+                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, mesh_size);                
                 }
             }
             else

@@ -1,10 +1,10 @@
-#ifndef TIMECONVERGENCETESTER_HPP_
-#define TIMECONVERGENCETESTER_HPP_
+#ifndef PDECONVERGENCETESTER_HPP_
+#define PDECONVERGENCETESTER_HPP_
 
 #include "AbstractConvergenceTester.hpp"
 
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
-class TimeConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PROBLEM, DIM>
+class PdeConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PROBLEM, DIM>
 {
 public:
     void SetInitialConvergenceParameters()
@@ -25,4 +25,4 @@ public:
         return this->PdeTimeStep;
     }
 };
-#endif /*TIMECONVERGENCETESTER_HPP_*/
+#endif /*PDECONVERGENCETESTER_HPP_*/

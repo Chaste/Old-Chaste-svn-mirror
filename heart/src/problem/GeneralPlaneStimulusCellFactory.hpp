@@ -37,11 +37,6 @@ public:
                     //Justification: Triangles go quarter size with each refinement, but there are twice as many nodes on 
                     break;
                 }
-                case 3:
-                {
-                    assert(0);
-                    break;
-                }
                 default:
                     assert(0);
             }
