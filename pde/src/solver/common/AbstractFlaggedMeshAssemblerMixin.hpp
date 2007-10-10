@@ -183,11 +183,8 @@ protected:
         {
             this->rGetMesh().SetupSmasrmMap();
         }
+        assert(!mIcWasAllocated); // would need to vec destroy old mInitialCondition were this assertion to fail
         
-        if (mIcWasAllocated)
-        {
-            VecDestroy(mInitialConditionOnFlagged);
-        }
         mInitialConditionOnFlagged = PetscTools::CreateVec(this->rGetMesh().rGetSmasrmMap().size());
         mIcWasAllocated=true;
         ReplicatableVector large_vec_repl(largeVec);

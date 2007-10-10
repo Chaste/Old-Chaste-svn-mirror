@@ -28,7 +28,7 @@ public:
             }
             case 2:
             {
-                return this->MeshNum>5;
+                return this->MeshNum>6;
                 break;
             }
             case 3:
