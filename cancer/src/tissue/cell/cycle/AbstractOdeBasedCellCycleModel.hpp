@@ -42,6 +42,13 @@ protected:
     bool mReadyToDivide;
     
 public:
+
+    /**
+     * This destructor deletes mpOdeSystem. Note that some cell cycle models
+     * must call Initialise() to set up the ODE system before calling this
+     * destructor method, or a seg fault could result.
+     */
+    virtual ~AbstractOdeBasedCellCycleModel();
     
     /**
      * This overrides the AbstractCellCycleModel::SetBirthTime(double birthTime)
@@ -67,10 +74,7 @@ public:
      */
     void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations);
     
-    virtual ~AbstractOdeBasedCellCycleModel()
-    {
-        delete mpOdeSystem;   
-    }
+
 };
 
 BOOST_IS_ABSTRACT(AbstractOdeBasedCellCycleModel)

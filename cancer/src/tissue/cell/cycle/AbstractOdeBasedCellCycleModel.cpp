@@ -1,5 +1,10 @@
 #include "AbstractOdeBasedCellCycleModel.hpp"
 
+AbstractOdeBasedCellCycleModel::~AbstractOdeBasedCellCycleModel()
+{
+    delete mpOdeSystem;   
+}
+
 void AbstractOdeBasedCellCycleModel::SetBirthTime(double birthTime)
 {
     AbstractCellCycleModel::SetBirthTime(birthTime);
