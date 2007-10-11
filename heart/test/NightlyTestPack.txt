@@ -5,6 +5,8 @@ TestConvergence.hpp
 TestMonodomainDg0AssemblerLong.hpp
 TestMonodomainNoStimulus.hpp
 TestMonodomainSlab.hpp
+TestPerformance.hpp
+TestPerformanceOfAssembly.hpp
 TestSpiralWaveProject.hpp
 TestMonodomainHeartApex.hpp
 TestElectroMechanicCellularModels.hpp
