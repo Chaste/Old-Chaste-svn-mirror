@@ -117,18 +117,18 @@ bool OxygenBasedCellCycleModel::ReadyToDivide()
     assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
     
-    // Danger Will Robinson! DIM currently hard-coded to 2
-    mpOdeSystem->rGetStateVariables()[5] = CellwiseData<2>::Instance()->GetValue(mpCell,0);
-     
-    // Use the cell's current mutation status as another input
-    static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
-    
     double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
     
     if (current_time>mLastTime)
     {
-        // feed this time step's oxygen concentration into the solver as a constant over this timestep.
         double dt = 0.001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
+        
+        // feed this time step's oxygen concentration into the solver as a constant over this timestep.
+        // Danger Will Robinson! DIM currently hard-coded to 2
+        mpOdeSystem->rGetStateVariables()[5] = CellwiseData<2>::Instance()->GetValue(mpCell,0);
+        // Use the cell's current mutation status as another input
+        static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
+    
         msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, current_time, dt);
 
         // the exception for oxygen concentration < 0 is currently handled elsewhere            
@@ -150,7 +150,6 @@ bool OxygenBasedCellCycleModel::ReadyToDivide()
             // Need to test that the simulation is ending at the right time
             double time_entering_S_phase = msSolver.GetStoppingTime();
             mDivideTime = time_entering_S_phase + CancerParameters::Instance()->GetSG2MDuration();
-
         }
         mLastTime = current_time;
     }

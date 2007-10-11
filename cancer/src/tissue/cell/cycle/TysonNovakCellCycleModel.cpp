@@ -63,11 +63,11 @@ bool TysonNovakCellCycleModel::ReadyToDivide()
             for (unsigned i=0 ; i<6 ; i++)
             {
                 if (mpOdeSystem->rGetStateVariables()[i]<0)
-                {
-#define COVERAGE_IGNORE
+                {   
+                    #define COVERAGE_IGNORE
                     std::cout << "Protein["<< i <<"] = "<< mpOdeSystem->rGetStateVariables()[i] << "\n";
                     EXCEPTION("A protein concentration has gone negative\nCHASTE predicts that the TysonNovakCellCycleModel numerical method is probably unstable.");
-#undef COVERAGE_IGNORE
+                    #undef COVERAGE_IGNORE
                 }
             }
             

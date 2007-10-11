@@ -135,20 +135,19 @@ bool WntCellCycleModel::ReadyToDivide()
     assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
     
-    mpOdeSystem->rGetStateVariables()[8] = WntGradient::Instance()->GetWntLevel(mpCell);
-    
-    // Use the cell's current mutation status as another input
-    static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
-    
     double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
     
     if (current_time>mLastTime)
     {
         if (!mInSG2MPhase)
         {	// WE ARE IN G0 or G1 PHASE - running cell cycle ODEs
-            // feed this time step's Wnt stimulus into the solver as a constant over this timestep.
             double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
-            
+
+            // feed this time step's Wnt stimulus into the solver as a constant over this timestep.
+            mpOdeSystem->rGetStateVariables()[8] = WntGradient::Instance()->GetWntLevel(mpCell);
+            // Use the cell's current mutation status as another input
+            static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
+    
             msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, current_time, dt);
 
             for (unsigned i=0 ; i<mpOdeSystem->GetNumberOfStateVariables() ; i++)
@@ -170,6 +169,8 @@ bool WntCellCycleModel::ReadyToDivide()
 
                 mInSG2MPhase = true;
             }
+            mLastTime = current_time;   // This is the last time the ODEs were evaluated.
+            UpdateCellType();
         }
         else
         {	
@@ -179,8 +180,6 @@ bool WntCellCycleModel::ReadyToDivide()
                 mReadyToDivide = true;
             }
         }
-        mLastTime = current_time;
-        UpdateCellType();
     }
     
     return mReadyToDivide;
