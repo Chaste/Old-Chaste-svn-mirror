@@ -286,6 +286,7 @@ public:
                 UpdateConvergenceParameters();
                 file_num++;
             }
+            delete p_cell_factory;
         }
         while (!GiveUpConvergence() && !this->Converged);
     }
