@@ -33,8 +33,7 @@ public:
             }
             case 3:
             {
-                assert(0);
-                return true;//To keep Intel compiler happy
+                return this->MeshNum>4;
                 break;
             }
             default:

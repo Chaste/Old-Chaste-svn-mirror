@@ -293,14 +293,16 @@ public:
     
     void DisplayRun()
     {
-        unsigned mesh_size = (unsigned) pow(2, this->PdeTimeStep+2); // number of elements in each dimension
+        unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2);// number of elements in each dimension
         double scaling = mesh_width/(double) mesh_size;
+        
         std::cout<<"================================================================================"<<std::endl;
         std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << this->MeshNum << ")" << std::endl;
         std::cout<<"Solving with a time step of "<<this->PdeTimeStep<<" ms"<<std::endl;
         std::cout<<"Solving with an ode time step of "<<this->OdeTimeStep<<" ms"<<std::endl;
         std::cout<<"Solving with a KSP relative tolerance of "<<this->KspRtol<<std::endl;
         std::cout<<"Solving with stimulating a quarter of the mesh? " << this->StimulateRegion<<std::endl;
+        system("date");//To keep track of what Nightly things are doing
         if (this->UseAbsoluteStimulus)
         {
             std::cout<<"Using absolute stimulus of "<<this->AbsoluteStimulus<<std::endl;

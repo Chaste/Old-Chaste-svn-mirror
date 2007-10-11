@@ -38,7 +38,7 @@ public:
                     break;
                 }
                 default:
-                    assert(0);
+                    mpStimulus = new InitialStimulus(-1e7*meshSize/64.0, 0.5);
             }
         }
     }

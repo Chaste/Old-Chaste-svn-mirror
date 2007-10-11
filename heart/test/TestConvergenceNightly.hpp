@@ -1,0 +1,63 @@
+#ifndef TESTCONVERGENCENIGHTLY_HPP_
+#define TESTCONVERGENCENIGHTLY_HPP_
+
+#include <cxxtest/TestSuite.h>
+#include "BidomainProblem.hpp"
+#include "MonodomainProblem.hpp"
+#include <petscvec.h>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <math.h>
+
+#include "BackwardEulerLuoRudyIModel1991.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "PdeConvergenceTester.hpp"
+#include "SpaceConvergenceTester.hpp"
+//#include "KspConvergenceTester.hpp"
+#include "OdeConvergenceTester.hpp"
+//#include "StimulusConvergenceTester.hpp"
+
+class TestConvergenceNightly : public CxxTest::TestSuite
+{   
+public:
+    //Current test takes about an hour.
+    void xTest2DSpace() throw(Exception)
+    {
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
+    }
+    //This is much briefer (20mins?)
+    void Test2DSpaceWithSymmLq() throw(Exception)
+    {
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
+        PetscOptionsSetValue("-options_table", "");
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
+        tester.KspRtol=5e-8;
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
+    }
+    
+    
+    //Currently takes about 3 minutes to do mesh0 and mesh1
+    void Test3DSpaceWithSymmLq() throw(Exception)
+    {
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
+        PetscOptionsSetValue("-options_table", "");
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
+        tester.KspRtol=5e-8;
+        tester.RelativeConvergenceCriterion=4e-2;//Just to prove the thing works
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 1u); ///Just to prove the thing works
+    }
+
+
+};
+
+#endif /*TESTCONVERGENCENIGHTLY_HPP_*/
