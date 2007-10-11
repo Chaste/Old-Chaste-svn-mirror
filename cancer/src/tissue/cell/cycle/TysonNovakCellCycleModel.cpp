@@ -25,14 +25,13 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentPro
 
 void TysonNovakCellCycleModel::ResetModel()
 {	
+    AbstractOdeBasedCellCycleModel::ResetModel();
+    
     assert(mpOdeSystem!=NULL);
     // This model needs the protein concentrations and phase resetting to G0/G1.
-    assert(mReadyToDivide);
     // This model should cycle itself and nothing needs to be reset.
     // but at the moment we are resetting to initial conditions because it
     // breaks after a while and will not converge.
-    mBirthTime = mDivideTime;
-    mLastTime = mDivideTime;
     
     //\TODO:Figure out why this goes unstable after a while...
     // Halve the mass of the cell
@@ -44,47 +43,27 @@ void TysonNovakCellCycleModel::ResetModel()
     {
         mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
     }
-
-    mReadyToDivide = false;
+    
 }
 
-bool TysonNovakCellCycleModel::ReadyToDivide()
-{
-    double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
-    
-    if (!mReadyToDivide)
-    {
-        if (current_time>mLastTime)
-        {
-            double dt = 0.1/60.0;
-            
-            msSolver.SolveAndUpdateStateVariable(mpOdeSystem,mLastTime,current_time,dt);
-            
-            for (unsigned i=0 ; i<6 ; i++)
-            {
-                if (mpOdeSystem->rGetStateVariables()[i]<0)
-                {   
-                    #define COVERAGE_IGNORE
-                    std::cout << "Protein["<< i <<"] = "<< mpOdeSystem->rGetStateVariables()[i] << "\n";
-                    EXCEPTION("A protein concentration has gone negative\nCHASTE predicts that the TysonNovakCellCycleModel numerical method is probably unstable.");
-                    #undef COVERAGE_IGNORE
-                }
-            }
-            
-            mLastTime = current_time;
-            mReadyToDivide = msSolver.StoppingEventOccured();
-            if (mReadyToDivide)
-            {
-                mDivideTime = msSolver.GetStoppingTime();
-            }
-        }
-    }
-    
-    return mReadyToDivide;
-}
 
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
 {
     return new TysonNovakCellCycleModel(mpOdeSystem->rGetStateVariables(), mDivideTime);
+}
+
+bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)
+{
+    double dt = 0.1/60.0;
+    
+    msSolver.SolveAndUpdateStateVariable(mpOdeSystem,mLastTime,currentTime,dt);
+    
+    return msSolver.StoppingEventOccured();
+}
+
+double  TysonNovakCellCycleModel::GetDivideTime()
+{
+    assert(msSolver.StoppingEventOccured());
+    return msSolver.GetStoppingTime();
 }
 

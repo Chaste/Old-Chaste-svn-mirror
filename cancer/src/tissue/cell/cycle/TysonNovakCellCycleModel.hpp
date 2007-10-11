@@ -36,11 +36,13 @@ public:
 
     TysonNovakCellCycleModel();
     
-    bool ReadyToDivide();
-    
     void ResetModel();
     
     AbstractCellCycleModel *CreateCellCycleModel();
+    
+    bool SolveOdeToTime(double currentTime);
+    
+    double GetDivideTime();
     
 };
 

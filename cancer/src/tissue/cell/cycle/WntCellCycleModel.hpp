@@ -37,7 +37,6 @@ private:
         // mpOdeSystem isn't set up by the first constructor, but is by the second
         // which is now utilised by the load_construct at the bottom of this file.
         archive & static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->rGetMutationState(); 
-        archive & mInSG2MPhase;
     }
     
     /**
@@ -47,16 +46,20 @@ private:
      */
     void ChangeCellTypeDueToCurrentBetaCateninLevel();
     
+    /**
+     * Introduces the delay after ODEs have been solved.
+     * Overriden in subclass StochasticWntCellCycleModel::GetWntSG2MDuration()
+     */
     virtual double GetWntSG2MDuration();
        
 protected:   
-     
-    /** Is the cell in S->G2->M phase of cell cycle (if so don't run ODEs)*/
-    bool mInSG2MPhase;    
     
 public:
 
-    WntCellCycleModel();
+    /**
+     * Default constructor.
+     */
+    WntCellCycleModel() {};
    
     WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                       const CellMutationState& rMutationState, 
@@ -64,12 +67,8 @@ public:
                       bool inSG2MPhase, bool readyToDivide, double divideTime);
 
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
-                      const CellMutationState& rMutationState, 
-                      double birthTime, double lastTime,
-                      bool inSG2MPhase, bool readyToDivide, double divideTime); 
+                      const CellMutationState& rMutationState); 
                           
-    virtual bool ReadyToDivide();
-    
     virtual void ResetModel();
     
     void UpdateCellType();    
@@ -77,6 +76,11 @@ public:
     AbstractCellCycleModel *CreateCellCycleModel();
     
     void Initialise();
+    
+    bool SolveOdeToTime(double currentTime);
+    
+    double GetDivideTime();
+    
 };
 
 // declare identifier for the serializer
@@ -119,7 +123,7 @@ inline void load_construct_data(
     }
 
     CellMutationState mutation_state = HEALTHY;
-    ::new(t)WntCellCycleModel(state_vars, mutation_state, 0.0, 0.0, false, false, 0.0);
+    ::new(t)WntCellCycleModel(state_vars, mutation_state);
 }
 }
 } // namespace ...

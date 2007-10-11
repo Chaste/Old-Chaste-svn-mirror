@@ -29,6 +29,7 @@ private:
         archive & mLastTime;
         archive & mDivideTime;
         archive & mReadyToDivide;
+        archive & mFinishedRunningOdes;
     }
     
 protected:
@@ -40,6 +41,8 @@ protected:
     double mDivideTime;
     /** Whether the cell is ready to divide or not */
     bool mReadyToDivide;
+    /** Whether the cell cycle model is currently in a delay (not solving ODEs).*/
+    bool mFinishedRunningOdes;
     
 public:
 
@@ -56,6 +59,28 @@ public:
      * This destructor deletes the mpOdeSystem. 
      */
     virtual ~AbstractOdeBasedCellCycleModel();
+    
+    /**
+     * ReadyToDivide() is called by a cell on its model to establish progress through the cell cycle.
+     * 
+     * @return true if the cell is ready to divide.
+     */
+    bool ReadyToDivide();
+    
+    /**
+     * This method must be implemented by each subclass - solves the ODEs to a given time and 
+     * 
+     * @return Whether a stopping event occurred.
+     */    
+    virtual bool SolveOdeToTime(double currentTime) = 0;
+    
+    /**
+     * This method must be implemented by each subclass
+     * 
+     * When the ODEs have reached a stopping event it returns the time at which 
+     * the cell should divide, so a delay can be added in for S-G2-M phases if necessary.
+     */
+    virtual double GetDivideTime() = 0;
     
     /**
      * This overrides the AbstractCellCycleModel::SetBirthTime(double birthTime)
@@ -81,6 +106,12 @@ public:
      */
     void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations);
     
+    /**
+     * For a naturally cycling model this does not need to be overridden in the 
+     * subclasses. But most models should override this function and then 
+     * call AbstractOdeBasedCellCycleModel::ResetModel() from inside their version. 
+     */
+    virtual void ResetModel();
     
 };
 

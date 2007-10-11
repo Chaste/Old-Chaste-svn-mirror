@@ -66,11 +66,8 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
      * sometimes needed. Should only be called by the archiver.
      */
     StochasticWntCellCycleModel(std::vector<double> proteinConcentrations, 
-                                CellMutationState mutationState,
-                                double birthTime, double lastTime,
-                                bool inSG2MPhase, bool readyToDivide, double divideTime)
-      : WntCellCycleModel(proteinConcentrations, mutationState, birthTime, lastTime, 
-                          inSG2MPhase, readyToDivide, divideTime)
+                                CellMutationState mutationState)
+      : WntCellCycleModel(proteinConcentrations, mutationState)
     {
     }
     
@@ -85,7 +82,7 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
         assert(mpCell!=NULL);
         // calls a cheeky version of the constructor which makes the new cell cycle model
         // the same age as the old one - not a copy at this time.
-        return new StochasticWntCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), mBirthTime, mLastTime, mInSG2MPhase, mReadyToDivide,mDivideTime);
+        return new StochasticWntCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), mBirthTime, mLastTime, mFinishedRunningOdes, mReadyToDivide,mDivideTime);
     }
     
 };
@@ -130,7 +127,7 @@ inline void load_construct_data(
 
     CellMutationState mutation_state = HEALTHY;
 
-    ::new(t)StochasticWntCellCycleModel(state_vars, mutation_state,0.0, 0.0, false, false, 0.0);
+    ::new(t)StochasticWntCellCycleModel(state_vars, mutation_state);
 }
 }
 } // namespace ...

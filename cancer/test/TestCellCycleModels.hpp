@@ -44,7 +44,6 @@ public:
                            0,  // generation
                            p_our_fixed_stem_cell_cycle_model);
         
-        p_our_fixed_stem_cell_cycle_model->UpdateCellType();
         
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),STEM);
         
@@ -54,7 +53,6 @@ public:
                            0,  // generation
                            p_our_fixed_transit_cell_cycle_model);
                            
-        p_our_fixed_transit_cell_cycle_model->UpdateCellType();
         TS_ASSERT_EQUALS(transit_cell.GetCellType(),TRANSIT);
         
         FixedCellCycleModel* p_our_fixed_diff_cell_cycle_model = new FixedCellCycleModel;
@@ -63,7 +61,6 @@ public:
                            0,  // generation
                            p_our_fixed_diff_cell_cycle_model);
                            
-        p_our_fixed_diff_cell_cycle_model->UpdateCellType();
         TS_ASSERT_EQUALS(diff_cell.GetCellType(),DIFFERENTIATED);
         
         FixedCellCycleModel* p_our_fixed_hepa_one_cell_cycle_model = new FixedCellCycleModel;
@@ -71,9 +68,7 @@ public:
                            HEALTHY,//Mutation State
                            0,  // generation
                            p_our_fixed_hepa_one_cell_cycle_model);
-        
-        p_our_fixed_hepa_one_cell_cycle_model->UpdateCellType();
-        
+                
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -190,27 +185,22 @@ public:
         int num_timesteps = 100;
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
-        
-        // cover another exception: create a cell model, delete the time, then
-        // try to create another cell model
-        std::vector<double> some_proteins(1); // not used except in next line
-        TysonNovakCellCycleModel cell_model_1;
-        SimulationTime::Destroy();
-        
-        p_simulation_time = SimulationTime::Instance();
-        
+                
         double standard_divide_time = 75.19/60.0;
         
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
-        TysonNovakCellCycleModel cell_model;
-        
+        TysonNovakCellCycleModel* p_cell_model = new TysonNovakCellCycleModel;
+        //coverage
+        p_cell_model->SetBirthTime(p_simulation_time->GetDimensionalisedTime());           
+        TissueCell cell(STEM, // type
+                                   HEALTHY,//Mutation State
+                                   0,  // generation
+                                   p_cell_model);
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
 
-            bool result = cell_model.ReadyToDivide();
+            bool result = p_cell_model->ReadyToDivide();
 
             if (time>standard_divide_time)
             {
@@ -222,7 +212,7 @@ public:
             }
         }
         
-        std::vector<double> proteins = cell_model.GetProteinConcentrations();
+        std::vector<double> proteins = p_cell_model->GetProteinConcentrations();
         
         TS_ASSERT(proteins.size()==6);
         
@@ -234,15 +224,20 @@ public:
         TS_ASSERT_DELTA(proteins[5],0.95328206604519, 1e-2);
         
         //double divide_time = p_simulation_time->GetDimensionalisedTime();
-        cell_model.ResetModel();
-        TysonNovakCellCycleModel *p_cell_model2 = static_cast <TysonNovakCellCycleModel*> (cell_model.CreateCellCycleModel());
+        p_cell_model->ResetModel();
+        TysonNovakCellCycleModel *p_cell_model2 = static_cast <TysonNovakCellCycleModel*> (p_cell_model->CreateCellCycleModel());
+        
+        TissueCell stem_cell_2(STEM, // type
+                                     APC_ONE_HIT,//Mutation State
+                                     0,  // generation
+                                     p_cell_model2);
         
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
 
-            bool result = cell_model.ReadyToDivide();
+            bool result = p_cell_model->ReadyToDivide();
             bool result2 = p_cell_model2->ReadyToDivide();
 
             if (time> 2.0* standard_divide_time)
@@ -257,9 +252,9 @@ public:
             }
         }
         
-        proteins = cell_model.GetProteinConcentrations();
+        proteins = p_cell_model->GetProteinConcentrations();
         
-        TS_ASSERT(proteins.size()==6);
+        TS_ASSERT_EQUALS(proteins.size(),6u);
         
         TS_ASSERT_DELTA(proteins[0],0.10000000000000, 1e-2);
         TS_ASSERT_DELTA(proteins[1],0.98913684535843, 1e-2);
@@ -268,10 +263,6 @@ public:
         TS_ASSERT_DELTA(proteins[4],0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(proteins[5],0.95328206604519, 1e-2);
         
-        //coverage
-        cell_model.SetBirthTime(1.0);
-        
-        delete p_cell_model2;
         SimulationTime::Destroy();
     }
     
@@ -300,7 +291,7 @@ public:
                            
         stem_cell.InitialiseCellCycleModel();
 
-        p_cell_model->UpdateCellType();
+//        p_cell_model->UpdateCellType();
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
         
         for (int i=0; i<num_timesteps; i++)
@@ -863,30 +854,36 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(100.0, 1);
-            TysonNovakCellCycleModel model;
+            TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel;
             p_simulation_time->IncrementTimeOneStep();
             
-            TS_ASSERT_EQUALS(model.ReadyToDivide(),true);
+            TissueCell cell(TRANSIT, // type
+                            HEALTHY,//Mutation State
+                            0,  // generation
+                            p_model);
+            cell.InitialiseCellCycleModel();  
             
-            model.SetBirthTime(-1.0);
+            TS_ASSERT_EQUALS(p_model->ReadyToDivide(),true);
+            
+            p_model->SetBirthTime(-1.0);
             
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
+            TissueCell* const p_cell = &cell;
+            
             output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
-            output_arch << static_cast<const TysonNovakCellCycleModel&>(model);
+            output_arch << p_cell;
             
             SimulationTime::Destroy();
         }
-        
+                
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
             
-            TysonNovakCellCycleModel model;
-            model.SetBirthTime(-2.0);
-            
+            TissueCell* p_cell;            
             
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -894,12 +891,14 @@ public:
             
             // restore from the archive
             input_arch >> *p_simulation_time;
-            input_arch >> model;
+            input_arch >> p_cell;
+            
+            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
             
             // Check
-            TS_ASSERT_EQUALS(model.ReadyToDivide(),true);
-            TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
-            TS_ASSERT_DELTA(model.GetAge(),101.0,1e-12);
+            TS_ASSERT_EQUALS(p_model->ReadyToDivide(),true);
+            TS_ASSERT_DELTA(p_model->GetBirthTime(),-1.0,1e-12);
+            TS_ASSERT_DELTA(p_model->GetAge(),101.0,1e-12);
             SimulationTime::Destroy();
         }
     }
@@ -1123,8 +1122,10 @@ public:
             
             TissueCell cell(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model);
             cell.InitialiseCellCycleModel();  
-            
-            cell.GetCellCycleModel()->SetBirthTime(-1.0);
+            // cell cycle should take 557 hours (??) + 10 for SG2M
+            // \todo check that alarcon model is converted into hours not minutes!
+            // So with a birth time of -10 should divide at 557 hours.
+            cell.GetCellCycleModel()->SetBirthTime(-10.0);
             
             p_simulation_time->IncrementTimeOneStep();            
             TS_ASSERT_EQUALS(cell.GetCellCycleModel()->ReadyToDivide(),false);
@@ -1167,8 +1168,8 @@ public:
             TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());            
                  
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),true);
-            TS_ASSERT_DELTA(p_cell_model->GetBirthTime(),-1.0,1e-12);
-            TS_ASSERT_DELTA(p_cell_model->GetAge(),561.0,1e-12);
+            TS_ASSERT_DELTA(p_cell_model->GetBirthTime(),-10.0,1e-12);
+            TS_ASSERT_DELTA(p_cell_model->GetAge(),570.0,1e-12);
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
             SimulationTime::Destroy();
             delete p_cell;

@@ -50,20 +50,22 @@ public:
 
     OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                               const CellMutationState& rMutationState, double birthTime, 
-                              double lastTime, bool readyToDivide, double divideTime);
+                              double lastTime, 
+                              bool inSG2MPhase, bool readyToDivide, double divideTime);
 
     OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
-                              const CellMutationState& rMutationState, double birthTime, 
-                              double lastTime, bool readyToDivide, double divideTime); 
+                              const CellMutationState& rMutationState); 
                           
-    virtual bool ReadyToDivide();
-    
     virtual void ResetModel();
     
     AbstractCellCycleModel *CreateCellCycleModel();
     
     void Initialise();    
-
+    
+    bool SolveOdeToTime(double currentTime);
+    
+    double GetDivideTime();
+    
 };
 
 // declare identifier for the serializer
@@ -103,7 +105,7 @@ inline void load_construct_data(
     {
         state_vars.push_back(0.0);
     }
-    ::new(t)OxygenBasedCellCycleModel(state_vars, ALARCON_NORMAL, 0.0, 0.0, false, 0.0);
+    ::new(t)OxygenBasedCellCycleModel(state_vars, ALARCON_NORMAL);
 }
 }
 } // namespace ...
