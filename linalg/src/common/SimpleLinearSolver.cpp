@@ -1,6 +1,7 @@
 #include "SimpleLinearSolver.hpp"
 #include "Exception.hpp"
 #include "PetscException.hpp"
+#include "EventHandler.hpp"
 
 /**
  * \todo Document class + exceptional behaviour.
@@ -95,7 +96,9 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNu
     }
     
     try {
+        EventHandler::BeginEvent(SOLVE_LINEAR_SYSTEM);
         PETSCEXCEPT(KSPSolve(mSimpleSolver, rhsVector, lhs_vector));
+        EventHandler::EndEvent(SOLVE_LINEAR_SYSTEM);
     
         // Check that solver converged and throw if not
         KSPConvergedReason reason;

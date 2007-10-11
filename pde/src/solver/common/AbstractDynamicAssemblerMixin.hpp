@@ -6,7 +6,6 @@
 
 #include "AbstractAssembler.hpp"
 #include "TimeStepper.hpp"
-#include "EventHandler.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractDynamicAssemblerMixin : virtual public AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
@@ -113,9 +112,7 @@ public:
             mDt = stepper.GetNextTimeStep();
             mDtInverse = 1.0/mDt;
             
-            EventHandler::BeginEvent(SOLVE_LINEAR_SYSTEM);
             next_solution = this->StaticSolve(current_solution, stepper.GetTime(), !mMatrixIsAssembled);
-            EventHandler::EndEvent(SOLVE_LINEAR_SYSTEM);
             
             //Note that the AbstractFlaggedMeshAssembler::AssembleSystem makes a new linear system for 
             //every iteration.  Since this is currently the case we have to re-assemble every time.

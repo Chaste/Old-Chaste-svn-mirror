@@ -4,6 +4,7 @@
 #include <cassert>
 #include <petsc.h>
 #include <time.h>
+#include <iostream>
 
 typedef enum EventType_
 {
@@ -29,11 +30,13 @@ public:
     static void BeginEvent(EventType event)
     {
         mCpuTime[event]-= (double) (clock()/1000); // clock() is always gives a multiple of 1000
+        //std::cout << "Begining " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
     
     static void EndEvent(EventType event)
     {
         mCpuTime[event]+= (double) (clock()/1000);
+        //std::cout << "Ending " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
     
     
