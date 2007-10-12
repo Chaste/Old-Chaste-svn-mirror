@@ -57,7 +57,7 @@ WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const
  * @param rMutationState the mutation state of the cell (used by ODEs)
  */
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                                     const CellMutationState& rMutationState) 
+                                     const CellMutationState& rMutationState)
 {
     mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState);// wnt pathway is reset in a couple of lines.
     // Set the model to be the same as the parent cell.

@@ -5,21 +5,23 @@ INCS = -I. -Icxxtest -Ipde/src -Ipde/src/problem -Ipde/src/common -Ipde/src/solv
 -Iode/src -Icancer/src/common -Icancer/src/mesh -Iode/src/problem -Iode/src/common -Iode/src/solver -Icancer/src/odes -Iode/src/problem/cardiac -Iglobal/src -Ilinalg/src \
 -Ilinalg/src/common -Icoupled/src -Icoupled/src/problem -Icoupled/src/common -Icoupled/src/solver -Icoupled/src/problem/cancer \
 -Icoupled/src/problem/elasticity -Icoupled/src/problem/cardiac -Icoupled/src/solver/cancer -Icoupled/src/solver/elasticity \
--Icoupled/src/solver/cardiac -Icancer/src -Icancer/src/crypt -Icancer/src/crypt/cell -Icancer/src/crypt/killers -Icancer/src/crypt/cell/cycle
+-Icoupled/src/solver/cardiac -Icancer/src -Icancer/src/tissue -Icancer/src/tissue/cell -Icancer/src/tissue/killers -Icancer/src/tissue/cell/cycle
 
 INCS += -I/opt/boost/include/boost-1_33_1
 
 LIBS=global/src/Exception.o  \
 global/src/LogFile.o \
 cancer/src/common/CancerParameters.o \
-cancer/src/crypt/cell/cycle/AbstractCellCycleModel.o \
-cancer/src/crypt/cell/cycle/TysonNovakCellCycleModel.o \
-cancer/src/crypt/cell/cycle/StochasticCellCycleModel.o \
-cancer/src/crypt/cell/cycle/FixedCellCycleModel.o \
-cancer/src/crypt/cell/cycle/WntCellCycleModel.o \
-cancer/src/crypt/cell/MeinekeCryptCell.o \
+cancer/src/tissue/cell/cycle/AbstractCellCycleModel.o \
+cancer/src/tissue/cell/cycle/AbstractOdeBasedCellCycleModel.o \
+cancer/src/tissue/cell/cycle/TysonNovakCellCycleModel.o \
+cancer/src/tissue/cell/cycle/SimpleWntCellCycleModel.o \
+cancer/src/tissue/cell/cycle/StochasticCellCycleModel.o \
+cancer/src/tissue/cell/cycle/FixedCellCycleModel.o \
+cancer/src/tissue/cell/cycle/WntCellCycleModel.o \
+cancer/src/tissue/cell/TissueCell.o \
 cancer/src/odes/WntCellCycleOdeSystem.o \
-cancer/src/crypt/cell/cycle/WntGradient.o \
+cancer/src/tissue/cell/cycle/WntGradient.o \
 global/src/OutputFileHandler.o \
 global/src/RandomNumberGenerator.o \
 cancer/src/common/SimulationTime.o \

@@ -6,6 +6,7 @@
 #include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
+#include "SimpleWntCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
@@ -21,6 +22,7 @@ typedef enum CellCycleType_
 {
     FIXED,
     STOCHASTIC,
+    SIMPLE_WNT,
     WNT,
     STOCHASTIC_WNT,
     TYSONNOVAK
@@ -86,6 +88,12 @@ public :
             else if (cycleType==STOCHASTIC)
             {
                 p_cell_cycle_model = new StochasticCellCycleModel();
+                typical_transit_cycle_time = p_params->GetTransitCellCycleTime();
+                typical_stem_cycle_time = p_params->GetStemCellCycleTime();
+            }
+            else if (cycleType==SIMPLE_WNT)
+            {
+                p_cell_cycle_model = new SimpleWntCellCycleModel();
                 typical_transit_cycle_time = p_params->GetTransitCellCycleTime();
                 typical_stem_cycle_time = p_params->GetStemCellCycleTime();
             }

@@ -16,8 +16,7 @@ void FixedCellCycleModel::ResetModel()
 
 bool FixedCellCycleModel::ReadyToDivide()
 {
-    //assert(cellCycleInfluences.size()==0); NOT Needed - we just ignore them
-    bool ready;
+    bool ready = false;
     
     CancerParameters *p_params = CancerParameters::Instance();
     double timeSinceBirth = GetAge();
