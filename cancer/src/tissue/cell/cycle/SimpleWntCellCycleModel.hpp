@@ -32,7 +32,7 @@ public:
      * 
      * Sets up the mCycleTime randomly
      */
-    SimpleWntCellCycleModel::SimpleWntCellCycleModel()
+    SimpleWntCellCycleModel()
     : mCycleTime(RandomNumberGenerator::Instance()->
                     NormalRandomDeviate(CancerParameters::Instance()->
                                         GetTransitCellCycleTime(), 1.0)) {};
