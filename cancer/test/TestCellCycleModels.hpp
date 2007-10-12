@@ -1023,7 +1023,7 @@ public:
     }
     
     // NB - to archive a cell cycle model it has to be archived via the cell that owns it.
-    void TestArchiveWntCellCycleModels()
+    void TestArchiveWntCellCycleModel()
     {
         CancerParameters::Instance()->Reset();
 
@@ -1092,6 +1092,90 @@ public:
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(),-1.0,1e-12);
             TS_ASSERT_DELTA(p_cell_model->GetAge(),17.0,1e-12);
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
+            SimulationTime::Destroy();
+            delete p_cell;
+        }
+
+        WntGradient::Destroy();
+    }   
+    
+    // NB - to archive a cell cycle model it has to be archived via the cell that owns it.
+    void TestArchiveSimpleWntCellCycleModel()
+    {
+        CancerParameters::Instance()->Reset();
+
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "simple_wnt_cell_cycle.arch";
+        WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
+
+        // Create an ouput archive
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(15, 30);
+                       
+            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel();
+            
+            TissueCell stem_cell(STEM, // type
+                                       HEALTHY,//Mutation State
+                                       0,  // generation
+                                       p_cell_model);
+                                       
+            p_cell_model->SetBirthTime(-1.0);
+            // cell divides at t=11.0676, so this loop takes it up to time = 10, age = 11.
+            for (unsigned i=0 ; i<20 ; i++)
+            {
+                p_simulation_time->IncrementTimeOneStep();            
+                TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(),false);
+            }
+                        
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            TissueCell* const p_cell = &stem_cell;
+            
+            output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
+            output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
+            output_arch << p_cell;
+            
+            p_simulation_time->IncrementTimeOneStep();
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(),true);
+            
+            
+            SimulationTime::Destroy();
+        }
+        
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            
+            CancerParameters *inst1 = CancerParameters::Instance();
+            
+            inst1->SetSG2MDuration(101.0);
+            
+            TissueCell* p_cell;
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            // restore from the archive
+            input_arch >> *p_simulation_time;
+            input_arch >> *inst1;
+            input_arch >> p_cell;
+            
+            // Check            
+            AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
+            TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());            
+                 
+            TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),false);
+            p_simulation_time->IncrementTimeOneStep();
+            TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),true);
+            
+            TS_ASSERT_DELTA(p_cell_model->GetBirthTime(), -1.0, 1e-12);
+            TS_ASSERT_DELTA(p_cell_model->GetAge(), 11.5, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 10.0, 1e-12);
             SimulationTime::Destroy();
             delete p_cell;
         }
