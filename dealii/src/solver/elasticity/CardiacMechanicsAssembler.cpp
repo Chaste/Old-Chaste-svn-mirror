@@ -55,8 +55,6 @@ void CardiacMechanicsAssembler<DIM>::Solve(double currentTime, double nextTime, 
 {
     // do nothing with the times (as explicit) and call Solve on the base class
     FiniteElasticityAssembler<DIM>::Solve();
-
-    this->AssembleSystem(true,false);
 }
 
 
@@ -411,7 +409,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 //// implementation of old (wrong) equation, where T = .. + T_a invF_{0M} invF_{0N}
 //// Note T is now directly altered, so no need to add anything new to elementRhs
 //                        ///////////////////////////////////////////////////////////
-//                        // The extra part of the elmTempVarement stiffness matrix 
+//                        // The extra part of the element stiffness matrix 
 //                        // arising from the active tension part of the stress
 //                        ///////////////////////////////////////////////////////////
 //                        elementRhs(i) +=   active_tension

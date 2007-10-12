@@ -125,7 +125,11 @@ protected :
     virtual void ConstructMechanicsAssembler(std::string mechanicsOutputDir)=0;
     /*< A pure method to be implemented in the concrete class constructing the meshes */
     virtual void ConstructMeshes()=0;
-
+    
+    virtual void PostSolve(double currentTime)
+    {
+    }
+    
 public :
     /**
      *  Constructor
@@ -411,6 +415,8 @@ public :
                 mpMonodomainProblem->mpWriter->AdvanceAlongUnlimitedDimension();
                 mpMonodomainProblem->WriteOneStep(stepper.GetTime(), voltage);
             }
+            
+            PostSolve(stepper.GetTime());
             
             //// TODO: Update the monodomain equations for the deformation
             

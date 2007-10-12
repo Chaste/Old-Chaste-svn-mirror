@@ -12,82 +12,68 @@
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
 public:
-    void xTest_1D_CompareExplicitVsImplicit() throw(Exception)
+    void Test1dCompareExplicitVsImplicit() throw(Exception)
     {
         double time_step = 0.01;
         PlaneStimulusCellFactory<1> cell_factory(time_step, -1000*1000);
 
-        // instabilities appear at about 6.8
-        CardiacElectroMechanicsProblem1d explicit_problem(&cell_factory, 0.5, time_step, true,  "ExplicitCardiacElectroMech");
-        explicit_problem.Solve();
-
-        CardiacElectroMechanicsProblem1d implicit_problem(&cell_factory, 0.5, time_step, false, "ImplicitCardiacElectroMech");
-        implicit_problem.Solve();
-          
-        // Get the length of the fibre in both simulations and compare 
-        for(unsigned i=0; i<50; i++)
+        // put these inside braces so that there destructor gets called and all output
+        // files get closed
         {
-            std::string full_path1 = OutputFileHandler::GetChasteTestOutputDirectory() + 
-                                     "ExplicitCardiacElectroMech/deformation/";
-            
-            // a bit nasty: we want to ready the second column of the last row (turns
-            // out that this is where the x value for the 2nd node (ie the X=1) node is,
-            // so we copy the last row (using tail) to a temp file, and read that in.
-            // There's probably a much nicer way. 
-            std::stringstream file1;
-            file1 << full_path1 << "/solution_" << i << ".nodes";
-            std::string temp_file1 = full_path1 + "/temp.txt";
-            system(("tail -1 " + file1.str() + " > " + temp_file1).c_str());
+            // instabilities appear at about 6.8
+            CardiacElectroMechanicsProblem1d explicit_problem(&cell_factory, 0.5, time_step, true,  "ExplicitCardiacElectroMech");
+            explicit_problem.Solve();
 
-            std::ifstream ifs1(temp_file1.c_str());
-            double unused, length_of_fibre1;
-            ifs1 >> unused;
-            ifs1 >> length_of_fibre1;                 // the second entry is the length
-            system(("rm -f " + temp_file1).c_str());
+            CardiacElectroMechanicsProblem1d implicit_problem(&cell_factory, 0.5, time_step, false, "ImplicitCardiacElectroMech");
+            implicit_problem.Solve();
+        }
 
-            std::string full_path2 = OutputFileHandler::GetChasteTestOutputDirectory() +
-                                     "ImplicitCardiacElectroMech/deformation/";
-            
-            std::stringstream file2;
-            file2 << full_path2 << "/solution_" << i << ".nodes";
+        std::string file1 = OutputFileHandler::GetChasteTestOutputDirectory() + 
+                            "ExplicitCardiacElectroMech/length.txt";
 
-            std::string temp_file2 = full_path2 + "/temp.txt";
-            system(("tail -1 " + file2.str() + " > " + temp_file2).c_str());
+        std::string file2 = OutputFileHandler::GetChasteTestOutputDirectory() + 
+                            "ImplicitCardiacElectroMech/length.txt";
+        
+        std::ifstream ifs1(file1.c_str());
+        std::ifstream ifs2(file2.c_str());
+        
+        double length1;
+        double length2;
+        
+        ifs1 >> length1;
+        ifs2 >> length2;
 
-            std::ifstream ifs2(temp_file2.c_str());
-            double length_of_fibre2;
-            ifs2 >> unused;
-            ifs2 >> length_of_fibre2;                // the second entry is the length
-            system(("rm -f " + temp_file2).c_str());
-            
-            if(fabs(length_of_fibre1-1.0)>0.01)
-            {
-                // must be an error in the read, fibre should be near 1.0 in length
-                std::cout << length_of_fibre1;
-                TS_FAIL("Probable error in length of fibre");
-            }
-            
-            TS_ASSERT_DELTA(length_of_fibre1, length_of_fibre2, fabs(length_of_fibre1*1e-5));
+        double counter = 0;
+        
+        TS_ASSERT(!ifs1.eof());
+        TS_ASSERT(!ifs2.eof());
+        
+        while(!ifs1.eof())
+        {
+            std::cout << length1 << " " << length2 << "\n";
+            TS_ASSERT_DELTA(length1, length2,  fabs(length1*1e-5));
+            ifs1 >> length1;
+            ifs2 >> length2;
             
             // hardcoded test
-            if(i==450)
+            if(counter==450)
             {
-                std::cout << "LENGTH = " << length_of_fibre2 << "\n";
-                TS_ASSERT_DELTA(length_of_fibre2, 0.999378, 1e-5);
+                TS_ASSERT_DELTA(length2, 0.999378, 1e-5);
             }
+            counter++;
         }
     }
     
-    void Test_2D() throw(Exception)
+    void xTest2dCompareExplicitVsImplicit() throw(Exception)
     {
         double time_step = 0.01;
         PlaneStimulusCellFactory<2> cell_factory(time_step, -1000*1000);
 
-        CardiacElectroMechanicsProblem<2> explicit_problem(&cell_factory, 0.5, time_step, true, 40, 16, "CardiacElectroMech2dExplicit");
-        explicit_problem.Solve();
+        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 100, time_step, false, 40, 16, "CardiacElectroMech2dImplicit");
+        implicit_problem.Solve();
 
-//        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 10, time_step, false, 40, 16, "CardiacElectroMech2dImplicit");
-//        implicit_problem.Solve();
+        CardiacElectroMechanicsProblem<2> explicit_problem(&cell_factory, 100, time_step, true, 40, 16, "CardiacElectroMech2dExplicit");
+        explicit_problem.Solve();
     }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEM_HPP_*/

@@ -100,7 +100,7 @@ public:
         std::vector<double> active_tension(implicit_assembler.GetTotalNumQuadPoints());
         for(unsigned i=0; i<active_tension.size(); i++)
         {
-            active_tension[i] = implicit_assembler.mCellMechSystems[i].GetActiveTensionAtNextTime();
+            active_tension[i] = implicit_assembler.mCellMechSystems[i].GetActiveTension();
         }
 
         CardiacMechanicsAssembler<2> explicit_assembler(&mesh,"",&material_law);

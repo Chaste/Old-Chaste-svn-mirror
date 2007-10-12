@@ -20,6 +20,42 @@
  */
 class CardiacElectroMechanicsProblem1d : public AbstractCardiacElectroMechanicsProblem<1>
 {
+private:
+    out_stream mpFibreLengthFile;
+
+    /** Overloaded PostSolve() writing the length of the fibre at each time to a 
+     *  file.
+     */
+    void PostSolve(double currentTime)
+    {
+        if(!(this->mWriteOutput))
+        {
+            return;
+        }
+        
+        std::vector<Vector<double> >& r_deformed_solution
+         = dynamic_cast<AbstractElasticityAssembler<1>*>
+           (this->mpCardiacMechAssembler)->rGetDeformedPosition();
+
+        assert(r_deformed_solution.size()==1);
+        
+        double length = -1;
+        for(unsigned i=0; i<r_deformed_solution[0].size(); i++)
+        {
+            if(r_deformed_solution[0](i)>length)
+            {
+                length = r_deformed_solution[0](i);
+            }
+        }
+        
+        // verify we found something
+        assert(length>0);
+
+        mpFibreLengthFile->precision(8);
+        (*mpFibreLengthFile) << currentTime << " " << length << "\n";
+    }            
+        
+
 public:
     CardiacElectroMechanicsProblem1d(AbstractCardiacCellFactory<1>* pCellFactory,
                                      double endTime,
@@ -32,6 +68,19 @@ public:
                                                      useExplicitMethod,
                                                      outputDirectory)
     {
+        if(this->mWriteOutput)
+        {
+            OutputFileHandler output_file_handler(this->mOutputDirectory, false);
+            mpFibreLengthFile = output_file_handler.OpenOutputFile("length.txt");
+        }
+    }
+    
+    ~CardiacElectroMechanicsProblem1d()
+    {
+        if(this->mWriteOutput)
+        {
+            mpFibreLengthFile->close();
+        }
     }
     
     void ConstructMeshes()

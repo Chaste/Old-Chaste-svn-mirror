@@ -5,7 +5,6 @@
 #include "NhsSystemWithImplicitSolver.hpp"
 #include <cfloat>
 
-#define DEBUG_PRINT(mess) // std::cout<<mess<<"\n"<<std::flush;
 
 template<unsigned DIM> 
 class ImplicitCardiacMechanicsAssembler : public CardiacMechanicsAssembler<DIM>
@@ -82,7 +81,7 @@ public:
 
         for(unsigned i=0; i<mCellMechSystems.size(); i++)
         {
-             //mCellMechSystems[i].UpdateStateVariables();
+             mCellMechSystems[i].UpdateStateVariables();
              mLambdaLastTimeStep[i] = mCellMechSystems[i].GetLambda();
         }
     }
