@@ -158,6 +158,8 @@ private:
             double active_tension_at_dlamdt_plus_h = mCellMechSystems[mCurrentQuadPointGlobalIndex].GetActiveTensionAtNextTime();        
 
             // get proper active tension
+            // NOTE - must do this last!! As if this turns out to be the correct solution,
+            // the state vars will be updated!
             mCellMechSystems[mCurrentQuadPointGlobalIndex].SetLambdaAndDerivative(lam, dlam_dt);
             mCellMechSystems[mCurrentQuadPointGlobalIndex].SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
             double active_tension = mCellMechSystems[mCurrentQuadPointGlobalIndex].GetActiveTensionAtNextTime();        

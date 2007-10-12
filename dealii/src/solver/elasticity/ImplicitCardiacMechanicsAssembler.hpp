@@ -2,17 +2,23 @@
 #define IMPLICITCARDIACMECHANICSASSEMBLER_HPP_
 
 #include "CardiacMechanicsAssembler.cpp"
+#include "NhsSystemWithImplicitSolver.hpp"
+#include <cfloat>
+
+#define DEBUG_PRINT(mess) // std::cout<<mess<<"\n"<<std::flush;
 
 template<unsigned DIM> 
 class ImplicitCardiacMechanicsAssembler : public CardiacMechanicsAssembler<DIM>
 {
+friend class TestImplicitCardiacMechanicsAssembler;
+    
 private:
     std::vector<NhsSystemWithImplicitSolver> mCellMechSystems; 
     std::vector<double> mLambdaLastTimeStep;
-    
+
     double mCurrentTime;
     double mNextTime;
-    double mDt;                           
+    double mDt;
 
 public:
     /**
@@ -26,10 +32,18 @@ public:
     ImplicitCardiacMechanicsAssembler(Triangulation<DIM>* pMesh, 
                                       std::string outputDirectory,
                                       AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL)
-        : CardiacMechanicsAssembler<DIM>(pMesh, outputDirectory, pMaterialLaw)
+        : CardiacMechanicsAssembler<DIM>(pMesh, outputDirectory, pMaterialLaw),
+          mCurrentTime(DBL_MAX),
+          mNextTime(DBL_MAX),
+          mDt(DBL_MAX)
     {
         mCellMechSystems.resize(this->mTotalQuadPoints);
-        mLambdaLastTimeStep.resize(this->mTotalQuadPoints, 1.0);
+        mLambdaLastTimeStep.resize(this->mTotalQuadPoints, 1.0);        
+
+        // we don't need this active tension in the implicit method. clear to
+        // free memory and more importantly to force an error if someone accidentally 
+        // uses it in this class
+        this->mActiveTension.resize(mCellMechSystems.size());
     }
 
     ~ImplicitCardiacMechanicsAssembler()
@@ -55,38 +69,51 @@ public:
      */
     void Solve(double currentTime, double nextTime, double timestep)
     {
+        this->mActiveTension.clear();
+        
         assert(currentTime < nextTime);
         mCurrentTime = currentTime;
         mNextTime = nextTime;
         mDt = timestep;
         
         CardiacMechanicsAssembler<DIM>::Solve(currentTime,nextTime,timestep);
-    
+
+        this->AssembleSystem(true,false);
+
         for(unsigned i=0; i<mCellMechSystems.size(); i++)
         {
-             mCellMechSystems[i].UpdateStateVariables();
+             //mCellMechSystems[i].UpdateStateVariables();
              mLambdaLastTimeStep[i] = mCellMechSystems[i].GetLambda();
         }
     }
     
+//    double GetActiveTensionAtCurrentQuadPoint(double lam)
+//    {
+//        double dlam_dt = (lam-mLambdaLastTimeStep[this->mCurrentQuadPointGlobalIndex])/(mNextTime-mCurrentTime);
+//
+//        NhsSystemWithImplicitSolver& system = mCellMechSystems[this->mCurrentQuadPointGlobalIndex];
+//
+//        system.SetLambdaAndDerivative(lam, dlam_dt);
+//
+//        assert(mCurrentTime != DBL_MAX);
+//        assert(mNextTime != DBL_MAX);
+//        assert(mDt != DBL_MAX);
+//  
+//        system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+//        return system.GetActiveTensionAtNextTime();
+//    }
+    
+    void SetFibreSheetMatrix(Tensor<2,DIM> fibreSheetMat)
+    {
+        EXCEPTION("ImplicitCardiacMechanicsAssembler can't do different fibre directions yet");
+    }
+
 private:
 
     /**
      *  AssembleOnElement
-     *  
-     *  Differs FiniteElasticityAssembler::AssembleOnElement in a few ways:  
-     *   1. The active tension at a quad point is used, and the stretch at the quad point is set.
-     *   
-     *   2. The extra term in the stress (see below) arising from the active tension is incorporated 
-     *      into the formulation. It is added to the stress (the variable 'T'), and dTdE is amended 
-     *      as well. The fibre direction is taken into account using a rotation matrix.
      * 
-     *   3. Since the body force and Neumann tractions will be zero, the corresponding loops
-     *      have been removed. 
-     * 
-     *  The active tension term in the stress is T_a/C_fibre[0][0], when C_fibre = P^T C P,
-     *  where P is a rotation matrix rotating the axes onto the fibre-sheet axes.
-     *      
+     *  FILL IN     
      */
     void AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter,
                            Vector<double>&       elementRhs,
@@ -95,6 +122,11 @@ private:
                            bool                  assembleJacobian
                           )
     {
+        // check these have been set
+        assert(mCurrentTime != DBL_MAX);
+        assert(mNextTime != DBL_MAX);
+        assert(mDt != DBL_MAX);
+        
         // if mCurrentQuadPointGlobalIndex is greater than the total num of quad points something
         // very bad has happened. 
         assert(this->mCurrentQuadPointGlobalIndex <= this->mTotalQuadPoints);
@@ -211,43 +243,58 @@ private:
             // store the stretch in the fibre direction
             this->mLambda[this->mCurrentQuadPointGlobalIndex] = sqrt(C_fibre[0][0]);
     
-            
-            ////////////////////////////////////////
-            // implicit stuff
+
             double lam = sqrt(C_fibre[0][0]);
             double dlam_dt = (lam-mLambdaLastTimeStep[this->mCurrentQuadPointGlobalIndex])/(mNextTime-mCurrentTime);
 
-            // get active tension for (lam+h,dlamdt)
-            double h1 = std::max(1e-8, lam/100);
-            mCellMechSystems[this->mCurrentQuadPointGlobalIndex].SetLambdaAndDerivative(lam+h1, dlam_dt);
-            mCellMechSystems[this->mCurrentQuadPointGlobalIndex].SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-            double active_tension_at_lam_plus_h = mCellMechSystems[this->mCurrentQuadPointGlobalIndex].GetActiveTensionAtNextTime();        
-
-            // get active tension for (lam,dlamdt+h)
-            double h2 = std::max(1e-8, dlam_dt/100);
-            mCellMechSystems[this->mCurrentQuadPointGlobalIndex].SetLambdaAndDerivative(lam, dlam_dt+h2);
-            mCellMechSystems[this->mCurrentQuadPointGlobalIndex].SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-            double active_tension_at_dlamdt_plus_h = mCellMechSystems[this->mCurrentQuadPointGlobalIndex].GetActiveTensionAtNextTime();        
+            NhsSystemWithImplicitSolver& system = mCellMechSystems[this->mCurrentQuadPointGlobalIndex];
 
             // get proper active tension
-            mCellMechSystems[this->mCurrentQuadPointGlobalIndex].SetLambdaAndDerivative(lam, dlam_dt);
-            mCellMechSystems[this->mCurrentQuadPointGlobalIndex].SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-            double active_tension = mCellMechSystems[this->mCurrentQuadPointGlobalIndex].GetActiveTensionAtNextTime();        
+            // see NOTE below
+            system.SetLambdaAndDerivative(lam, dlam_dt);
+            system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+            double active_tension = system.GetActiveTensionAtNextTime();        
 
-            double d_act_tension_dlam = (active_tension_at_lam_plus_h - active_tension)/h1;
-            double d_act_tension_d_dlamdt = (active_tension_at_dlamdt_plus_h - active_tension)/h2;
-            // end implicit stuff
-            ////////////////////////////////////////
+            // compute the derivative of the active tension wrt lam and dlam_dt
+            double d_act_tension_dlam;
+            double d_act_tension_d_dlamdt;
+
+            if(assembleJacobian)
+            {
+                // get active tension for (lam+h,dlamdt)
+                double h1 = std::max(1e-6, lam/100);
+                system.SetLambdaAndDerivative(lam+h1, dlam_dt);
+                system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+                double active_tension_at_lam_plus_h = system.GetActiveTensionAtNextTime();        
+
+                // get active tension for (lam,dlamdt+h)
+                double h2 = std::max(1e-6, dlam_dt/100);
+                system.SetLambdaAndDerivative(lam, dlam_dt+h2);
+                system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+                double active_tension_at_dlamdt_plus_h = system.GetActiveTensionAtNextTime();        
+
+                d_act_tension_dlam = (active_tension_at_lam_plus_h - active_tension)/h1;
+                d_act_tension_d_dlamdt = (active_tension_at_dlamdt_plus_h - active_tension)/h2;
+            }
+
+            // NOTE - have to get the active tension again, this must be done last!! 
+            // As if this turns out to be the correct solution, the state vars will be updated!
+            // TODO: sort out this inefficiency
+            system.SetLambdaAndDerivative(lam, dlam_dt);
+            system.SetActiveTensionInitialGuess(active_tension);
+            system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+            assert( fabs(system.GetActiveTensionAtNextTime()-active_tension)<1e-8);        
 
             //this->mDTdE_fibre.Zero();
     
             // compute the transformed tension. The material law should law be a cardiac-
             // specific law which assumes the x-axes in the fibre, the z-axes the sheet normal
             p_material_law->ComputeStressAndStressDerivative(C_fibre,inv_C_fibre,p,T_fibre,this->mDTdE_fibre,assembleJacobian);
-    
+
             // amend the stress and dTdE using the active tension
             T_fibre[0][0] += active_tension/C_fibre[0][0];
             this->mDTdE_fibre(0,0,0,0) -= 2*active_tension/(C_fibre[0][0]*C_fibre[0][0]);  
+
             
             // transform T back to real coordinates
             // Note we explicitly do the multiplication as can't multiply
@@ -326,11 +373,28 @@ private:
                                                                   * F[component_i][M]
                                                                   * fe_values.shape_grad(i,q_point)[N]
                                                                   * fe_values.JxW(q_point);
-assert(0); // more to be added to matrix
                                         }
                                     }
                                 }
                             }
+                            
+                            // extra bit to the matrix coming from differentiating
+                            // Ta wrt U_I (Ta is dependent of new nodal positions 
+                            // U_I as Ta is dependent on x through lam=C00 and lam_dot
+                            // We don't have to use the term coming from differentiated
+                            // the (1/C00) bit, that is accounted for in dTdE
+                            elementMatrix(i,j) +=   (
+                                                       d_act_tension_dlam
+                                                     +
+                                                       d_act_tension_d_dlamdt/mDt
+                                                    )
+                                                    * (F[component_j][0]/lam)
+                                                    * (fe_values.shape_grad(j,q_point)[0]/C[0][0])
+                                                    * F[component_i][0]
+                                                    * fe_values.shape_grad(i,q_point)[0]
+                                                    * fe_values.JxW(q_point);
+                                    
+
                         }
                         else if ((component_i<this->PRESSURE_COMPONENT_INDEX) &&(component_j==this->PRESSURE_COMPONENT_INDEX) )
                         {

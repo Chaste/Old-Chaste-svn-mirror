@@ -1,6 +1,7 @@
 TestAbstractDealiiAssembler.hpp
 TestAbstractGrowingTumourSourceModel.hpp
 TestCardiacMechanicsAssembler.hpp
+TestImplicitCardiacMechanicsAssembler.hpp
 TestConcentrationBasedTumourSourceModel.hpp
 TestFiniteElasticityAssembler.hpp
 TestFourthOrderTensor.hpp

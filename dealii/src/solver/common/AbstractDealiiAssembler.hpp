@@ -317,7 +317,7 @@ protected:
     void TakeNewtonStep()
     {
         // compute Jacobian
-        AssembleSystem(false, true);
+        AssembleSystem(true, true);
         
         // solve the linear system
         SolverControl  solver_control(200000, 1e-6, false, true);

@@ -55,6 +55,8 @@ void CardiacMechanicsAssembler<DIM>::Solve(double currentTime, double nextTime, 
 {
     // do nothing with the times (as explicit) and call Solve on the base class
     FiniteElasticityAssembler<DIM>::Solve();
+
+    this->AssembleSystem(true,false);
 }
 
 
@@ -172,7 +174,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         const std::vector< Tensor<1,DIM> >& grad_u_p = local_solution_gradients[q_point];
         
         double p = local_solution_values[q_point](this->PRESSURE_COMPONENT_INDEX);
-        
+
         static Tensor<2,DIM> F;
         static Tensor<2,DIM> C;
         static Tensor<2,DIM> inv_C;
@@ -198,8 +200,6 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
          *  The cardiac-specific code
          ************************************/
 
-        // get the active tension at this quad point
-        double active_tension = mActiveTension[this->mCurrentQuadPointGlobalIndex];
 
         static Tensor<2,DIM> C_fibre;          // C when transformed to fibre-sheet axes
         static Tensor<2,DIM> inv_C_fibre;      // C^{-1} transformed to fibre-sheet axes
@@ -211,6 +211,10 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 
         // store the stretch in the fibre direction
         this->mLambda[this->mCurrentQuadPointGlobalIndex] = sqrt(C_fibre[0][0]);
+
+        // get the active tension at this quad point
+        double active_tension = mActiveTension[this->mCurrentQuadPointGlobalIndex];
+
 
         //mDTdE_fibre.Zero();
 
@@ -243,10 +247,10 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                 }
             }
         }            
+
+
         
 //        // transform dTdE back to real coords (ie dT_{albe}dE_{gam de} to dT_{MN}dE_{PQ})
-/////\todo: make efficient
-/////\todo: introduce FourthOrderTensor
 //        for(unsigned M=0; M<DIM; M++) 
 //        {
 //            for(unsigned N=0; N<DIM; N++)
@@ -321,8 +325,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                     for (unsigned Q=0; Q<DIM; Q++)
                                     {
                                         elementMatrix(i,j) +=   0.5
-                                                             //* dTdE_real(M,N,P,Q)
-                                                             * this->dTdE(M,N,P,Q)
+                                                              * this->dTdE(M,N,P,Q)
                                                               * (
                                                                   fe_values.shape_grad(j,q_point)[Q]
                                                                   * F[component_j][P]
@@ -408,7 +411,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 //// implementation of old (wrong) equation, where T = .. + T_a invF_{0M} invF_{0N}
 //// Note T is now directly altered, so no need to add anything new to elementRhs
 //                        ///////////////////////////////////////////////////////////
-//                        // The extra part of the element stiffness matrix 
+//                        // The extra part of the elmTempVarement stiffness matrix 
 //                        // arising from the active tension part of the stress
 //                        ///////////////////////////////////////////////////////////
 //                        elementRhs(i) +=   active_tension

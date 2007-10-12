@@ -45,7 +45,7 @@ public:
     }
 
     /**
-     *  Get the deformed position. rGetDeformedPosition()[i][j] is the x_i value at node j
+     *  Get the deformed position. rGetDeformedPosition()[i](j) is the x_i value at node j
      */
     std::vector<Vector<double> >& rGetDeformedPosition()
     {

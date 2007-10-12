@@ -7,8 +7,15 @@
 template<unsigned DIM>
 class CardiacMechanicsAssembler : public FiniteElasticityAssembler<DIM>, public AbstractCardiacMechanicsAssembler<DIM>
 {
+friend class TestImplicitCardiacMechanicsAssembler;
+
 protected:
     bool mAllocatedMaterialLawMemory;
+
+//    virtual double GetActiveTensionAtCurrentQuadPoint(double lam)
+//    {
+//        return mActiveTension[this->mCurrentQuadPointGlobalIndex];
+//    }
 
     /**
      *  Storage space for dTdE when T and E are in the rotated fibre-sheet frame
@@ -61,7 +68,7 @@ public:
      * 
      *  This is really a temporary method until the fibre-sheet direction can be read in
      */
-    void SetFibreSheetMatrix(Tensor<2,DIM> fibreSheetMat)
+    virtual void SetFibreSheetMatrix(Tensor<2,DIM> fibreSheetMat)
     {
         // check orthogonal
         Tensor<2,DIM> P_times_transP = fibreSheetMat * transpose(fibreSheetMat);

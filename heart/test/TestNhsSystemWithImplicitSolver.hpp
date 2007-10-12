@@ -161,6 +161,79 @@ public:
 //                            fabs(system_with_solver.rGetStateVariables()[i]*1e-2));
 //        }
 //    }
+    
+    // test that checks SolveDoNotUpdate does not do anything permanent on the class,
+    // by checking by doing things repeatedly, and changing the order, makes no
+    // difference
+    void TestSolveDoesNotUpdate()
+    {
+        NhsSystemWithImplicitSolver system;
+        
+        double Ca_I = GetSampleCaIValue();
+        system.SetIntracellularCalciumConcentration(Ca_I);
+        
+        // get initial active tension
+        double init_Ta = system.GetActiveTension();
+
+        system.SetLambdaAndDerivative(0.6, 0.1);
+        system.SolveDoNotUpdate(0, 1, 0.01); 
+
+        double Ta1 = system.GetActiveTensionAtNextTime();
+        
+        system.SetLambdaAndDerivative(0.6, 0.2);
+        system.SolveDoNotUpdate(0, 1, 0.01); 
+
+        double Ta2 = system.GetActiveTensionAtNextTime();
+        
+        // note that lam/end time etc must be large enough for there
+        // to be non-zero Ta at the next time
+        TS_ASSERT_DIFFERS(init_Ta, Ta1);
+        TS_ASSERT_DIFFERS(init_Ta, Ta2);
+
+        system.SetLambdaAndDerivative(0.6, 0.2);
+        system.SolveDoNotUpdate(0, 1, 0.01); 
+
+        double should_be_Ta2 = system.GetActiveTensionAtNextTime();
+        
+        system.SetLambdaAndDerivative(0.6, 0.1);
+        system.SolveDoNotUpdate(0, 1, 0.01); 
+
+        double should_be_Ta1 = system.GetActiveTensionAtNextTime();
+
+        TS_ASSERT_EQUALS(Ta1, should_be_Ta1);
+        TS_ASSERT_EQUALS(Ta2, should_be_Ta2);
+
+        system.SetLambdaAndDerivative(0.6, 0.1);
+        system.SolveDoNotUpdate(0, 1, 0.01); 
+
+        double should_also_be_Ta1 = system.GetActiveTensionAtNextTime();
+        
+        system.SetLambdaAndDerivative(0.6, 0.2);
+        system.SolveDoNotUpdate(0, 1, 0.01); 
+
+        double should_also_be_Ta2 = system.GetActiveTensionAtNextTime();
+
+        TS_ASSERT_EQUALS(Ta1, should_also_be_Ta1);
+        TS_ASSERT_EQUALS(Ta2, should_also_be_Ta2);
+    }
+
+    void TestGetActiveTension()
+    {
+        NhsSystemWithImplicitSolver system;
+        
+        double Ca_I = GetSampleCaIValue();
+        system.SetIntracellularCalciumConcentration(Ca_I);
+        system.SetLambdaAndDerivative(0.6, 0.1);
+        system.SolveDoNotUpdate(0, 1, 0.01); 
+        
+        double Ta_at_next_time_before_update = system.GetActiveTensionAtNextTime();
+
+        system.UpdateStateVariables();
+
+        double Ta = system.GetActiveTension();
+        
+        TS_ASSERT_DELTA(Ta, Ta_at_next_time_before_update, 1e-12);
+    }
 };
 
 #endif /*TESTNHSSYSTEMWITHIMPLICITSOLVER_HPP_*/
