@@ -129,9 +129,14 @@ public:
             AbstractCardiacCellFactory<DIM>* p_cell_factory;
             if (!this->StimulateRegion)
             {
+                //\todo The UseAbsoluteStimulus is temporary, while we are sorting out 
+                //3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
+          
                 if (this->UseAbsoluteStimulus)
                 {
+                    #define COVERAGE_IGNORE
                     p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, this->AbsoluteStimulus, true);
+                    #undef COVERAGE_IGNORE                
                 }
                 else
                 {
@@ -166,8 +171,11 @@ public:
             }
             catch (Exception e)
             {
+                #define COVERAGE_IGNORE
+                //\todo Cover this
                 std::cout<<"Warning - this run threw an exception.  Check convergence results\n";
                 std::cout<<e.GetMessage() << std::endl;                 
+                #undef COVERAGE_IGNORE
             }
             // Calculate positions of nodes 1/4 and 3/4 through the mesh
             unsigned third_quadrant_node;
@@ -303,9 +311,13 @@ public:
         std::cout<<"Solving with a KSP relative tolerance of "<<this->KspRtol<<std::endl;
         std::cout<<"Solving with stimulating a quarter of the mesh? " << this->StimulateRegion<<std::endl;
         system("date");//To keep track of what Nightly things are doing
+        //\todo The UseAbsoluteStimulus is temporary, while we are sorting out 
+        //3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
         if (this->UseAbsoluteStimulus)
         {
+            #define COVERAGE_IGNORE
             std::cout<<"Using absolute stimulus of "<<this->AbsoluteStimulus<<std::endl;
+            #undef COVERAGE_IGNORE                
         }
         std::cout << std::flush;
         

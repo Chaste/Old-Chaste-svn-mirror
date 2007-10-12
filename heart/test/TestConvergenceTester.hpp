@@ -29,11 +29,22 @@ public:
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.OdeTimeStep, 0.0025); 
     }
+    
     void Test1DPdeTime() throw(Exception)
     {
         PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1> tester;
         tester.MeshNum=1;
         tester.RelativeConvergenceCriterion=7e-4;
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.01); 
+    }
+    void Test1DPdeTimePlane() throw(Exception)
+    {
+        PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1> tester;
+        tester.MeshNum=1;
+        tester.StimulateRegion=true;
+        tester.RelativeConvergenceCriterion=5e-4;
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.01); 
@@ -55,7 +66,7 @@ public:
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.OdeTimeStep, 0.0025); 
     }
-
+    
 };
 
 #endif /*TESTCONVERGENCETESTER_HPP_*/
