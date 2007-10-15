@@ -112,7 +112,7 @@ void OxygenBasedCellCycleModel::Initialise()
  
 bool OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
 {
-    double dt = 0.001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
+    double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
     
     // feed this time step's oxygen concentration into the solver as a constant over this timestep.
     // Danger Will Robinson! DIM currently hard-coded to 2

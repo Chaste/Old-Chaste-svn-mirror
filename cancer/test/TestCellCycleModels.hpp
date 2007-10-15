@@ -1311,15 +1311,12 @@ public:
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(560.0, 2);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 2);
             
             OxygenBasedCellCycleModel* p_cell_model = new OxygenBasedCellCycleModel();
             
             TissueCell cell(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model);
             cell.InitialiseCellCycleModel();  
-            // cell cycle should take 557 hours (??) + 10 for SG2M
-            // \todo check that alarcon model is converted into hours not minutes!
-            // So with a birth time of -10 should divide at 557 hours.
             cell.GetCellCycleModel()->SetBirthTime(-10.0);
             
             p_simulation_time->IncrementTimeOneStep();            
@@ -1364,7 +1361,7 @@ public:
                  
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),true);
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(),-10.0,1e-12);
-            TS_ASSERT_DELTA(p_cell_model->GetAge(),570.0,1e-12);
+            TS_ASSERT_DELTA(p_cell_model->GetAge(),20.0,1e-12);
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
             SimulationTime::Destroy();
             delete p_cell;

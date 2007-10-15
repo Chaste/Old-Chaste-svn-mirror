@@ -154,11 +154,12 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time,
     dmass = mEta*mass*(1 - mass/mMstar);        
     du = md1 - (md2 + md1*y)*u;
 
-    rDY[0] = dx;
-    rDY[1] = dy;
-    rDY[2] = dz;
-    rDY[3] = dmass;
-    rDY[4] = du;
+    // rescale time to be in hours
+    rDY[0] = 60.0*dx;
+    rDY[1] = 60.0*dy;
+    rDY[2] = 60.0*dz;
+    rDY[3] = 60.0*dmass;
+    rDY[4] = 60.0*du;
     rDY[5] = 0.0; // do not change the oxygen concentration
 }
 

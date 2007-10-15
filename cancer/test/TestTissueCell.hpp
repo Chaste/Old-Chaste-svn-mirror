@@ -139,6 +139,33 @@ public:
         TS_ASSERT(grandaughter_cell.ReadyToDivide());
         TS_ASSERT(daughter_cell.ReadyToDivide());
         
+        // test the Divide() method for a HEPA-1 cell        
+        TissueCell hepa_one_cell(HEPA_ONE, // type
+                           HEALTHY,//Mutation State
+                           0,  // generation
+                           new FixedCellCycleModel());      
+
+        hepa_one_cell.SetBirthTime(54.0);
+        p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(94.0, 4);   
+        p_simulation_time->IncrementTimeOneStep();//t=64
+        TS_ASSERT(!hepa_one_cell.ReadyToDivide());
+        p_simulation_time->IncrementTimeOneStep();//t=74
+        TS_ASSERT(hepa_one_cell.ReadyToDivide());
+        
+         // create transit progeny of stem
+        TissueCell hepa_one_daughter_cell = hepa_one_cell.Divide();
+        
+        TS_ASSERT(!hepa_one_cell.ReadyToDivide());
+        
+        TS_ASSERT(hepa_one_daughter_cell.GetGeneration() == 1);
+        TS_ASSERT(hepa_one_daughter_cell.GetCellType() == HEPA_ONE);
+        TS_ASSERT_DELTA(hepa_one_daughter_cell.GetAge(), 0 , 1e-9);
+        
+        p_simulation_time->IncrementTimeOneStep();//t=84
+        TS_ASSERT(!hepa_one_daughter_cell.ReadyToDivide());
+        p_simulation_time->IncrementTimeOneStep();//t=94
+        TS_ASSERT(hepa_one_daughter_cell.ReadyToDivide());
+                
         SimulationTime::Destroy();
     }
     
