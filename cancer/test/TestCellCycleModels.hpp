@@ -1019,6 +1019,7 @@ public:
             TS_ASSERT_DELTA(p_model->GetBirthTime(),-1.0,1e-12);
             TS_ASSERT_DELTA(p_model->GetAge(),101.0,1e-12);
             SimulationTime::Destroy();
+            delete p_cell;
         }
     }
     
