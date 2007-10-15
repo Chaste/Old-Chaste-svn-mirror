@@ -9,7 +9,7 @@ AbstractCellCycleModel::~AbstractCellCycleModel()
 
 void AbstractCellCycleModel::SetCell(TissueCell* pCell)
 {
-    mpCell=pCell;
+    mpCell = pCell;
 }
 
 TissueCell* AbstractCellCycleModel::GetCell()

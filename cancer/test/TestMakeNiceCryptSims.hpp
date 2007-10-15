@@ -50,7 +50,7 @@ void TestNiceCryptSimulation() throw (Exception)
         
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC_WNT, true);
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, SIMPLE_WNT, true);
               
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);

@@ -115,7 +115,7 @@ public:
     
     void TestStochasticCellCycleModel(void) throw(Exception)
     {
-        RandomNumberGenerator::Instance();
+        RandomNumberGenerator::Instance()->Reseed(0);
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
 
@@ -126,51 +126,41 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(StochasticCellCycleModel cell_model3);
         
-        StochasticCellCycleModel* p_cell_model = new StochasticCellCycleModel;
-        TissueCell cell(TRANSIT, // type
+        StochasticCellCycleModel* p_stem_model = new StochasticCellCycleModel;
+        StochasticCellCycleModel* p_transit_model = new StochasticCellCycleModel;
+        
+        TissueCell stem_cell(STEM, // type
                               HEALTHY,//Mutation State
                               0,  // generation
-                              p_cell_model);
+                              p_stem_model);
         
+        TissueCell transit_cell(TRANSIT, // type
+                              HEALTHY,//Mutation State
+                              0,  // generation
+                              p_transit_model);        
+                              
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
          
             // Test STEM cells
-            cell.SetCellType(STEM);
             if (time<p_params->GetStemCellCycleTime())
             {
-                TS_ASSERT(!p_cell_model->ReadyToDivide());
+                TS_ASSERT_EQUALS(p_stem_model->ReadyToDivide(), false);
             }
             else
             {
-                TS_ASSERT(p_cell_model->ReadyToDivide());
+                TS_ASSERT_EQUALS(p_stem_model->ReadyToDivide(), true);
             }
-            // Test Transit cells - new random number each time they are asked to divide...
-            // shouldn't it be done so that they are given a random time when created?
-            // Otherwise division time depends upon how often they are asked!
-            cell.SetCellType(TRANSIT);
-            const unsigned TESTS = 100;
-            unsigned ready_count = 0;
-            for (unsigned i=0; i<TESTS; i++)
+            // Test Transit cells
+            if (time < 11.0676) // this is first random normal deviate of transit cell cycle time.
             {
-                if (p_cell_model->ReadyToDivide())
-                {
-                    ready_count++;
-                }
+                TS_ASSERT_EQUALS(p_transit_model->ReadyToDivide(),false);
             }
-            if (time < 9.0)
+            else
             {
-                TS_ASSERT(ready_count==0)
-            }
-            if (time > 15.0)
-            {
-                TS_ASSERT(ready_count==100)
-            }
-            if (time>11.75 && time < 12.25)
-            {
-                TS_ASSERT(ready_count==54)
+                TS_ASSERT_EQUALS(p_transit_model->ReadyToDivide(),true);
             }
         }
         RandomNumberGenerator::Destroy();
@@ -196,6 +186,7 @@ public:
                                    HEALTHY,//Mutation State
                                    0,  // generation
                                    p_cell_model);
+                                   
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();

@@ -6,38 +6,52 @@
 
 AbstractCellCycleModel *StochasticCellCycleModel::CreateCellCycleModel()
 {
-    return new StochasticCellCycleModel();
+    return new StochasticCellCycleModel(mDivisionAge);  // use a private constructor that doesn't reset mDivisionAge.
 }
-
 
 void StochasticCellCycleModel::ResetModel()
 {
     mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
+    SetDivisionAge();
 }
 
-bool StochasticCellCycleModel::ReadyToDivide()
+void StochasticCellCycleModel::SetCell(TissueCell* pCell)
 {
+    AbstractCellCycleModel::SetCell(pCell);
+    SetDivisionAge();
+}
+
+void StochasticCellCycleModel::SetDivisionAge()
+{
+    assert(mpCell!=NULL);
+    
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
     CancerParameters* p_params = CancerParameters::Instance(); 
-    
-    bool ready;
-    
-    double timeSinceBirth = GetAge();
     
     switch (mpCell->GetCellType())
     {
         case STEM:
-            ready = (timeSinceBirth >= p_params->GetStemCellCycleTime());
+            mDivisionAge = p_params->GetStemCellCycleTime();
             break;
         case TRANSIT:
-            ready = (timeSinceBirth >= p_gen->NormalRandomDeviate(p_params->GetTransitCellCycleTime(), 1.0));
+            mDivisionAge = p_gen->NormalRandomDeviate(p_params->GetTransitCellCycleTime(), 1.0);
             break;
-        case HEPA_ONE:
-            ready = (timeSinceBirth >= p_gen->NormalRandomDeviate(p_params->GetHepaOneCellCycleTime(), 1.0));
+        case DIFFERENTIATED:
+            mDivisionAge = DBL_MAX;
             break;
         default:
-            ready = false;
-            break;
+            NEVER_REACHED;
+    }
+}
+
+
+bool StochasticCellCycleModel::ReadyToDivide()
+{
+    bool ready = false;
+    
+    if (GetAge()>=mDivisionAge)
+    {
+        ready = true;
     }
     
     return ready;

@@ -533,7 +533,7 @@ public:
         TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
         TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
         
-        RandomNumberGenerator::Instance();
+        RandomNumberGenerator::Instance()->Reseed(0);
         
         const double end_time = 70.0;
         //const int time_steps = 70;
@@ -557,15 +557,14 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(70.0, 70);
             
             TissueCell stem_cell(STEM, // type
-                                       HEALTHY,//Mutation State
-                                       0,  // generation
-                                       new StochasticCellCycleModel);
+                                 HEALTHY,//Mutation State
+                                 0,  // generation
+                                 new StochasticCellCycleModel);
             cells.push_back(stem_cell);
             // produce the offspring of the cells
             std::vector<TissueCell>::iterator cell_iterator = cells.begin();
             
-            
-            
+                       
             while (p_simulation_time->GetDimensionalisedTime()< end_time)
             {
                 p_simulation_time->IncrementTimeOneStep();

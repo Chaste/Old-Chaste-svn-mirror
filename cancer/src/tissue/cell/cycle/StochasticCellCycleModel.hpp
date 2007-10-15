@@ -25,19 +25,43 @@ private:
         archive & *p_params;
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
+        archive & mDivisionAge;
     }
+    
+    /** What time this cell would like to divide (assigned randomly when model is given a cell) */
+    double mDivisionAge;
+    
+    /** Private constructor for creating an identical daughter cell */
+    StochasticCellCycleModel(double divisionAge)
+        :mDivisionAge(divisionAge) {};
+    
+    /**
+     * Private function that should only be called by Reset() and SetCell()
+     * this introduces the stochastic element of the model.
+     */
+    void SetDivisionAge();
     
 public:
     /**
-     * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class
+     * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
+     * mDivisionAge is set very high, it is set for the individual cells when SetCell() is called
      */
-    StochasticCellCycleModel() {};
+    StochasticCellCycleModel()
+        : mDivisionAge(DBL_MAX) {};
     
-    virtual bool ReadyToDivide();
+    /** 
+     * Overridden SetCellMethod - also assigns a DivisionAge based on the cell type.
+     * 
+     * @param pCell the cell which owns this model.
+     */
+    void SetCell(TissueCell* pCell);
     
-    virtual void ResetModel();
+    bool ReadyToDivide();
+    
+    void ResetModel();
     
     AbstractCellCycleModel *CreateCellCycleModel();
+    
 };
 
 // declare identifier for the serializer
