@@ -124,101 +124,7 @@ public:
         RandomNumberGenerator::Destroy();  
         SimulationTime::Destroy();
     }
-    
-    void TestOxygenBasedCellKiller(void) throw(Exception)
-    {        
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        
-        // read in mesh
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        SimulationTime *p_simulation_time = SimulationTime::Instance();       
-        // set SimulationTime so that the time step is not too small 
-        double end_time = 1.0; 
-        int num_timesteps = 100*(int)end_time;
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
-                
-        std::vector<TissueCell> cells;
-        
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
-        Tissue<2> tissue(mesh, cells);
-                
-        // reset cell types to HEPA_ONE        
-        for(Tissue<2>::Iterator cell_iter = tissue.Begin();
-            cell_iter != tissue.End();
-            ++cell_iter)
-        {
-            cell_iter->SetCellType(HEPA_ONE); 
-        }
-        
-        TS_ASSERT_THROWS_NOTHING(OxygenBasedCellKiller<2> oxygen_based_cell_killer(&tissue));
-        
-        OxygenBasedCellKiller<2> oxygen_based_cell_killer(&tissue);
-        
-        // before we can do anything with the cell killer, we need to set up CellwiseData
-        std::vector<double> oxygen_concentration;
-        
-        // set the oxygen concentration to be zero 
-        oxygen_concentration.push_back(0.0);
-        CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
-        
-        // Get a reference to the cells held in tissue
-        std::list<TissueCell>& r_cells = tissue.rGetCells();
-
-        TS_ASSERT_THROWS_NOTHING(oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin()));
            
-        // check that a single cell reaches apoptosis 
-        r_cells.begin()->SetHypoxicDuration(1.5);         
-        
-        unsigned max_tries=0;
-        while (!r_cells.begin()->HasApoptosisBegun() && max_tries<99)
-        {
-            oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
-            max_tries++;
-        }
-        std::cout << max_tries << "\n";
-        TS_ASSERT_DIFFERS(max_tries, 99u);
-        TS_ASSERT_DIFFERS(max_tries, 0u);        
-        
-        // increment time to a time after death         
-        p_simulation_time->IncrementTimeOneStep();        
-        
-        // store 'locations' of cells which are not dead
-        std::set< double > old_locations;
-        for (std::list<TissueCell>::iterator it = r_cells.begin();
-             it != r_cells.end(); ++it)
-        {
-            if (!it->IsDead())
-            {
-                Node<2>* p_node = mesh.GetNode(it->GetNodeIndex());
-                c_vector< double, 2 > location = p_node->rGetLocation();
-                old_locations.insert(location[0]+location[1]*1000);
-            }
-        }
-        
-        // remove the dead cell
-        tissue.RemoveDeadCells();
-        
-        // check that dead cells are removed from the mesh
-        std::set< double > new_locations;
-        for (std::list<TissueCell>::iterator it = r_cells.begin();
-             it != r_cells.end(); ++it)
-        {
-            TS_ASSERT(!it->IsDead());
-            Node<2>* p_node = mesh.GetNode(it->GetNodeIndex());
-            c_vector< double, 2 > location = p_node->rGetLocation();
-            new_locations.insert(location[0]+location[1]*1000);
-        }
-        
-        TS_ASSERT(new_locations == old_locations);
-        RandomNumberGenerator::Destroy();  
-        SimulationTime::Destroy();        
-        CellwiseData<2>::Destroy();
-    }      
 
     void TestSloughingCellKillerTopAndSides(void) throw(Exception)
     {
@@ -338,6 +244,106 @@ public:
         SimulationTime::Destroy();
     }   
     
+    
+    void TestOxygenBasedCellKiller(void) throw(Exception)
+    {        
+        CancerParameters::Instance()->Reset();   
+        
+        // read in a mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        SimulationTime *p_simulation_time = SimulationTime::Instance();       
+        // set SimulationTime so that the time step is not too small 
+        double end_time = 1.0; 
+        int num_timesteps = 100*(int)end_time;
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
+                
+        std::vector<TissueCell> cells;
+        
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        Tissue<2> tissue(mesh, cells);
+        
+        // before we can do anything with the cell killer, we need to set up CellwiseData
+        std::vector<double> oxygen_concentration;
+        
+        // set the oxygen concentration to be zero 
+        oxygen_concentration.push_back(0.0);
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+        
+        OxygenBasedCellKiller<2> bad_cell_killer(&tissue);
+        
+        // Get a reference to the cells held in tissue
+        std::list<TissueCell>& r_cells = tissue.rGetCells();
+
+        // this should throw an exception since the cells are not of type HEPA_ONE
+        TS_ASSERT_THROWS_ANYTHING(bad_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin()));
+        
+        // reset cell types to HEPA_ONE        
+        for(Tissue<2>::Iterator cell_iter = tissue.Begin();
+            cell_iter != tissue.End();
+            ++cell_iter)
+        {
+            cell_iter->SetCellType(HEPA_ONE); 
+        }
+        
+        TS_ASSERT_THROWS_NOTHING(OxygenBasedCellKiller<2> oxygen_based_cell_killer(&tissue));
+        
+        OxygenBasedCellKiller<2> oxygen_based_cell_killer(&tissue);
+        
+        TS_ASSERT_THROWS_NOTHING(oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin()));
+           
+        // check that a single cell reaches apoptosis 
+        r_cells.begin()->SetHypoxicDuration(1.5);         
+        
+        unsigned max_tries=0;
+        while (!r_cells.begin()->HasApoptosisBegun() && max_tries<99)
+        {
+            oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
+            max_tries++;
+        }
+        TS_ASSERT_DIFFERS(max_tries, 99u);
+        TS_ASSERT_DIFFERS(max_tries, 0u);        
+        
+        // increment time to a time after death         
+        p_simulation_time->IncrementTimeOneStep();        
+        
+        // store 'locations' of cells which are not dead
+        std::set< double > old_locations;
+        for (std::list<TissueCell>::iterator it = r_cells.begin();
+             it != r_cells.end(); ++it)
+        {
+            if (!it->IsDead())
+            {
+                Node<2>* p_node = mesh.GetNode(it->GetNodeIndex());
+                c_vector< double, 2 > location = p_node->rGetLocation();
+                old_locations.insert(location[0]+location[1]*1000);
+            }
+        }
+        
+        // remove the dead cell
+        tissue.RemoveDeadCells();
+        
+        // check that dead cells are removed from the mesh
+        std::set< double > new_locations;
+        for (std::list<TissueCell>::iterator it = r_cells.begin();
+             it != r_cells.end(); ++it)
+        {
+            TS_ASSERT(!it->IsDead());
+            Node<2>* p_node = mesh.GetNode(it->GetNodeIndex());
+            c_vector< double, 2 > location = p_node->rGetLocation();
+            new_locations.insert(location[0]+location[1]*1000);
+        }
+        
+        TS_ASSERT(new_locations == old_locations);
+        RandomNumberGenerator::Destroy();  
+        SimulationTime::Destroy();        
+        CellwiseData<2>::Destroy();
+    }      
+    
+    
     void TestArchivingOfRandomCellKiller() throw (Exception)
     {
         CancerParameters::Instance()->Reset();    
@@ -425,6 +431,50 @@ public:
             delete p_cell_killer;
         }  
     }
+    
+    
+    void TestArchivingOfOxygenBasedCellKiller() throw (Exception)
+    {   
+        //CancerParameters::Instance()->Reset();  
+                
+        OutputFileHandler handler("archive", false);    // don't erase contents of folder
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "oxygen_based_killer.arch";
+
+        {
+            // Create an ouput archive
+            OxygenBasedCellKiller<2> cell_killer(NULL);
+         
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Serialize via pointer
+            OxygenBasedCellKiller<2> * const p_cell_killer = &cell_killer;  
+            
+            p_cell_killer->SetHypoxicConcentration(0.3);
+                      
+            output_arch << p_cell_killer;
+
+            TS_ASSERT_DELTA(p_cell_killer->GetHypoxicConcentration(), 0.3, 1e-5);
+       }
+
+       {
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            OxygenBasedCellKiller<2>* p_cell_killer;
+    
+            // restore from the archive
+            input_arch >> p_cell_killer;
+           
+            TS_ASSERT_DELTA(p_cell_killer->GetHypoxicConcentration(), 0.3, 1e-5);
+
+            delete p_cell_killer;
+        }
+    
+    }    
+    
 };
 
 #endif /*TESTCELLKILLERS_HPP_*/
