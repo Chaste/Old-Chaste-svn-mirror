@@ -6,8 +6,6 @@
 #include <cassert>
 #include <cfloat>
 
-RungeKutta4IvpOdeSolver WntCellCycleModel::msSolver;
-
 /**
  * A private constructor for daughter cells called by the CreateCellCycleModel function
  * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
@@ -24,7 +22,7 @@ WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const
                                      const CellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime)
-   : AbstractOdeBasedCellCycleModel(lastTime) 
+   : AbstractWntOdeBasedCellCycleModel(lastTime) 
 {
     if (pParentOdeSystem !=NULL)
     {
@@ -65,28 +63,6 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
 }
 
 /**
- * Resets the Wnt Model to the start of the cell cycle (this model does not cycle naturally)
- * Cells are given a new birth time and cell cycle proteins are reset.
- * Note that the wnt pathway proteins maintain their current values.
- *
- * Should only be called by the TissueCell::Divide() method.
- */
-void WntCellCycleModel::ResetModel()
-{	
-    AbstractOdeBasedCellCycleModel::ResetModel();
-    
-    assert(mpOdeSystem!=NULL);    
-    // This model needs the protein concentrations and phase resetting to G0/G1.
-    // Keep the Wnt pathway in the same state but reset the cell cycle part
-    // Cell cycle is proteins 0 to 4 (first 5 ODEs)
-    std::vector<double> init_conds = mpOdeSystem->GetInitialConditions();
-    for (unsigned i = 0 ; i<5 ; i++)
-    {
-        mpOdeSystem->rGetStateVariables()[i] = init_conds[i];
-    }
-}
-
-/**
  * Returns a new WntCellCycleModel created with the correct initial conditions.
  *
  * Should be called just after the parent cell cycle model has been .Reset().
@@ -100,24 +76,6 @@ AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
     return new WntCellCycleModel(mpOdeSystem, 
                                  mpCell->GetMutationState(), mBirthTime, mLastTime, 
                                  mFinishedRunningOdes, mReadyToDivide, mDivideTime);
-}
-
-/**
- * Updates the current cell type to reflect whether the
- * beta-catenin level has dropped low enough to make it stop dividing.
- * This should only be called when the cell cycle model has been 
- * evaluated to the current time, or it may give misleading results.
- */
-void WntCellCycleModel::UpdateCellType()
-{
-    assert(mpOdeSystem!=NULL);
-    assert(mpCell!=NULL);
-    if (SimulationTime::Instance()->GetDimensionalisedTime() > mLastTime)
-    {
-        //std::cout << "Sim time = " << SimulationTime::Instance()->GetDimensionalisedTime() << "\t Last time = " << mLastTime << "\n";
-        EXCEPTION("WntCellCycleModel::UpdateCellType() should only be called when the cell cycle model has been evaluated to the current time\n");   
-    }
-    ChangeCellTypeDueToCurrentBetaCateninLevel();
 }
 
 /**
@@ -167,16 +125,4 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
     return msSolver.StoppingEventOccured();
 }
     
-    
-double WntCellCycleModel::GetDivideTime()
-{
-    assert(msSolver.StoppingEventOccured());
-    return msSolver.GetStoppingTime() + GetWntSG2MDuration();
-}
-    
-double WntCellCycleModel::GetWntSG2MDuration()
-{   
-    // overridden in subclass StochasticWntCellCycleModel
-    return CancerParameters::Instance()->GetSG2MDuration();
-}
 

@@ -5,12 +5,8 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "AbstractOdeBasedCellCycleModel.hpp"
+#include "AbstractWntOdeBasedCellCycleModel.hpp"
 #include "WntCellCycleOdeSystem.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
-#include "BackwardEulerIvpOdeSolver.hpp"
-#include "CancerParameters.hpp"
-#include "SimulationTime.hpp"
 #include "WntGradient.hpp"
 
 // Needs to be included last
@@ -22,17 +18,15 @@
  * Note that this class uses C++'s default copying semantics, and so doesn't implement a copy constructor
  * or operator=.
  */
-class WntCellCycleModel : public AbstractOdeBasedCellCycleModel
+class WntCellCycleModel : public AbstractWntOdeBasedCellCycleModel
 {
 private:
-    static RungeKutta4IvpOdeSolver msSolver;
-    
     friend class boost::serialization::access;   
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
         assert(mpOdeSystem!=NULL); 
-        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
+        archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
         // reference can be read or written into once mpOdeSystem has been set up
         // mpOdeSystem isn't set up by the first constructor, but is by the second
         // which is now utilised by the load_construct at the bottom of this file.
@@ -46,12 +40,6 @@ private:
      */
     void ChangeCellTypeDueToCurrentBetaCateninLevel();
     
-    /**
-     * Introduces the delay after ODEs have been solved.
-     * Overriden in subclass StochasticWntCellCycleModel::GetWntSG2MDuration()
-     */
-    virtual double GetWntSG2MDuration();
-       
 protected:   
     
 public:
@@ -68,19 +56,14 @@ public:
 
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                       const CellMutationState& rMutationState); 
-                          
-    virtual void ResetModel();
-    
-    void UpdateCellType();    
-    
+            
     AbstractCellCycleModel *CreateCellCycleModel();
     
     void Initialise();
     
     bool SolveOdeToTime(double currentTime);
     
-    double GetDivideTime();
-    
+  
 };
 
 // declare identifier for the serializer
