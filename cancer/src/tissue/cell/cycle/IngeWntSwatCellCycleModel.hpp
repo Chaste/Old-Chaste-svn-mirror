@@ -1,12 +1,12 @@
-#ifndef WNTCELLCYCLEMODEL_HPP_
-#define WNTCELLCYCLEMODEL_HPP_
+#ifndef INGEWNTSWATCELLCYCLEMODEL_HPP_
+#define INGEWNTSWATCELLCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractOdeBasedCellCycleModel.hpp"
-#include "WntCellCycleOdeSystem.hpp"
+#include "IngeWntSwatCellCycleOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "CancerParameters.hpp"
@@ -22,7 +22,7 @@
  * Note that this class uses C++'s default copying semantics, and so doesn't implement a copy constructor
  * or operator=.
  */
-class WntCellCycleModel : public AbstractOdeBasedCellCycleModel
+class IngeWntSwatCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
 private:
     static RungeKutta4IvpOdeSolver msSolver;
@@ -36,7 +36,7 @@ private:
         // reference can be read or written into once mpOdeSystem has been set up
         // mpOdeSystem isn't set up by the first constructor, but is by the second
         // which is now utilised by the load_construct at the bottom of this file.
-        archive & static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->rGetMutationState(); 
+        archive & static_cast<IngeWntSwatCellCycleOdeSystem*>(mpOdeSystem)->rGetMutationState(); 
     }
     
     /**
@@ -59,14 +59,14 @@ public:
     /**
      * Default constructor.
      */
-    WntCellCycleModel() {};
+    IngeWntSwatCellCycleModel() {};
    
-    WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
+    IngeWntSwatCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                       const CellMutationState& rMutationState, 
                       double birthTime, double lastTime,
                       bool inSG2MPhase, bool readyToDivide, double divideTime);
 
-    WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
+    IngeWntSwatCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                       const CellMutationState& rMutationState); 
                           
     virtual void ResetModel();
@@ -84,7 +84,7 @@ public:
 };
 
 // declare identifier for the serializer
-BOOST_CLASS_EXPORT(WntCellCycleModel)
+BOOST_CLASS_EXPORT(IngeWntSwatCellCycleModel)
 
 
 namespace boost
@@ -93,21 +93,21 @@ namespace serialization
 {
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a WntCellCycleModel instance.
+ * instantiate a IngeWntSwatCellCycleModel instance.
  */
 template<class Archive>
 inline void save_construct_data(
-    Archive & ar, const WntCellCycleModel * t, const unsigned int file_version)
+    Archive & ar, const IngeWntSwatCellCycleModel * t, const unsigned int file_version)
 {
 }
 
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a WntCellCycleModel instance.
+ * instantiate a IngeWntSwatCellCycleModel instance.
  */
 template<class Archive>
 inline void load_construct_data(
-    Archive & ar, WntCellCycleModel * t, const unsigned int file_version)
+    Archive & ar, IngeWntSwatCellCycleModel * t, const unsigned int file_version)
 {
     // It doesn't actually matter what values we pass to our standard
     // constructor, provided they are valid parameter values, since the
@@ -123,9 +123,10 @@ inline void load_construct_data(
     }
 
     CellMutationState mutation_state = HEALTHY;
-    ::new(t)WntCellCycleModel(state_vars, mutation_state);
+    ::new(t)IngeWntSwatCellCycleModel(state_vars, mutation_state);
 }
 }
 } // namespace ...
 
-#endif /*WNTCELLCYCLEMODEL_HPP_*/
+#endif /*INGEWNTSWATCELLCYCLEMODEL_HPP_*/
+
