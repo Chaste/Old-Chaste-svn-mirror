@@ -52,14 +52,13 @@ public:
     }
 };
 
-
 class SimpleLinearEllipticPde : public AbstractLinearEllipticPde<2>
 {
 
 public:
     double ComputeLinearSourceTerm(ChastePoint<2> )
     {
-        return -0.01; //-1.0;
+        return -0.1; //-1.0;
     }
     
     double ComputeNonlinearSourceTerm(ChastePoint<2> , double )
@@ -70,45 +69,6 @@ public:
     c_matrix<double,2,2> ComputeDiffusionTerm(ChastePoint<2> )
     {
         return identity_matrix<double>(2);
-    }
-};
-
-
-class RadiusBasedCellKiller : public AbstractCellKiller<2>
-{
-private :
-    c_vector<double,2> mCentre;
-    double mTimeStep;
-
-public :
-    RadiusBasedCellKiller(Tissue<2>* ptissue, c_vector<double,2> centre, double timeStep)
-        : AbstractCellKiller<2>(ptissue),
-          mCentre(centre),
-          mTimeStep(timeStep)
-    {
-    }
-    
-    virtual void TestAndLabelCellsForApoptosisOrDeath()
-    {
-        for(Tissue<2>::Iterator cell_iter = mpTissue->Begin();
-            cell_iter != mpTissue->End();
-            ++cell_iter)
-        {
-            const c_vector<double,2>& location = cell_iter.GetNode()->rGetLocation();       
-            double dist_to_centre = norm_2(location - mCentre);            
-            double prob_of_death = 2*mTimeStep - 1*mTimeStep*dist_to_centre;
-            
-            if (prob_of_death<=0.0)
-            {
-                prob_of_death=0.0;
-            }
-            
-            if (!cell_iter->HasApoptosisBegun() &&
-                RandomNumberGenerator::Instance()->ranf() < prob_of_death)
-            {
-                cell_iter->StartApoptosis();
-            }    
-        }
     }
 };
 
@@ -131,16 +91,11 @@ public:
        
         int num_cells_depth = 10;
         int num_cells_width = 10;
-        double crypt_length = num_cells_depth-1.0;
-        double crypt_width = num_cells_width-1.0;
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
-        
+                
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
@@ -161,16 +116,15 @@ public:
         SimpleLinearEllipticPde pde;
 
         TissueSimulationWithNutrients<2> simulator(tissue, &pde);
-
         simulator.SetOutputDirectory("TissueSimulationWithOxygen");
-        simulator.SetEndTime(0.5);
+        simulator.SetEndTime(0.2);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
         //simulator.UseCutoffPoint(1.5);
-        
-        c_vector<double,2> centre(2);
-        centre(0) = (double)num_cells_width/2.0;
-        centre(1) = (double)num_cells_depth/2.0;
+//        
+//        c_vector<double,2> centre(2);
+//        centre(0) = (double)num_cells_width/2.0;
+//        centre(1) = (double)num_cells_depth/2.0;
         
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);

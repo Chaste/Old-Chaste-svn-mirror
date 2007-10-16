@@ -85,7 +85,7 @@ private :
         	
 //          TODO: change this line to something like
         	// if ( oxygen_concentration < CancerParameters::Instance()->GetHypoxicConcentration() )    	
-        	if ( oxygen_concentration < 0.2 )
+        	if ( oxygen_concentration < 0.6 )
         	{
         		// add timestep to the hypoxic duration, since PostSolve() is called at the end of every timestep 
         		double curr_hyp_dur = cell_iter->GetHypoxicDuration();        		
