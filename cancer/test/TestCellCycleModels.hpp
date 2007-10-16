@@ -881,32 +881,47 @@ public:
     void TestOxygenBasedCellCycleModel() throw(Exception)
     {        
         CancerParameters::Instance()->Reset();
-                
-        SimulationTime *p_simulation_time = SimulationTime::Instance();        
-        double end_time = 10.0; 
-        int num_timesteps = 1000*(int)end_time;
+       
+        // set up SimulationTime         
+        SimulationTime *p_simulation_time = SimulationTime::Instance();   
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
-                
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20.0, 2);
+        
+        // set up oxygen_concentration        
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);
         CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
+        // create model
         OxygenBasedCellCycleModel* p_cell_model = new OxygenBasedCellCycleModel();
         
-        TissueCell cell(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model);
-                           
+        // create cell 
+        TissueCell cell(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model);                           
         cell.InitialiseCellCycleModel();
         
         // check oxygen concentration is correct in cell cycle model
         TS_ASSERT_DELTA(p_cell_model->GetProteinConcentrations()[5], 1.0, 1e-5);
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);        
+        
+        // divide a cell    
+        OxygenBasedCellCycleModel *p_cell_model2 = static_cast <OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
+        
+        TissueCell cell2(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model2);
+        
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),false)
+        TS_ASSERT_EQUALS(p_cell_model2->ReadyToDivide(),false);
+        
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),true)
+        TS_ASSERT_EQUALS(p_cell_model2->ReadyToDivide(),true);
+        
+        TS_ASSERT_THROWS_NOTHING(p_cell_model->ResetModel());     
 
         SimulationTime::Destroy();
         CellwiseData<2>::Destroy();
     }
-    
-    
+        
     void TestArchiveFixedCellCycleModels() throw (Exception)
     {
         CancerParameters::Instance()->Reset();

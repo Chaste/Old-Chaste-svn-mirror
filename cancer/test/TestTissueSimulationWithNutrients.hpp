@@ -121,10 +121,6 @@ public:
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
         //simulator.UseCutoffPoint(1.5);
-//        
-//        c_vector<double,2> centre(2);
-//        centre(0) = (double)num_cells_width/2.0;
-//        centre(1) = (double)num_cells_depth/2.0;
         
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);
