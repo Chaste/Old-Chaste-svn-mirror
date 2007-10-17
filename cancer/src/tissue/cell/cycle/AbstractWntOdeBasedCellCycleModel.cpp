@@ -17,7 +17,6 @@ double AbstractWntOdeBasedCellCycleModel::GetWntSG2MDuration()
 }
 
 // PUBLIC FUNCTIONS
-
 void AbstractWntOdeBasedCellCycleModel::ResetModel()
 {   
     AbstractOdeBasedCellCycleModel::ResetModel();
@@ -29,10 +28,9 @@ void AbstractWntOdeBasedCellCycleModel::ResetModel()
     std::vector<double> init_conds = mpOdeSystem->GetInitialConditions();
     for (unsigned i = 0 ; i<5 ; i++)
     {
-        mpOdeSystem->rGetStateVariables()[i] = init_conds[i];
+       mpOdeSystem->rGetStateVariables()[i] = init_conds[i];
     }
 }
-
 
 void AbstractWntOdeBasedCellCycleModel::UpdateCellType()
 {
@@ -43,6 +41,9 @@ void AbstractWntOdeBasedCellCycleModel::UpdateCellType()
         EXCEPTION("WntCellCycleModel::UpdateCellType() should only be called when the cell cycle model has been evaluated to the current time\n");   
     }
     ChangeCellTypeDueToCurrentBetaCateninLevel();
-}
+}  
+
+
+
 
 

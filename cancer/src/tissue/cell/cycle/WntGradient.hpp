@@ -96,11 +96,7 @@ public:
      *  Force the wnt gradrient to return a given value for all cell
      *  Only for testing.
      */
-    void SetConstantWntValueForTesting(double value)
-    {
-        mConstantWntValueForTesting = value;
-        mUseConstantWntValueForTesting = true;
-    }
+    void SetConstantWntValueForTesting(double value);
     
     /**
      *  Whether a wnt gradient has been set up (for archiving, mainly)

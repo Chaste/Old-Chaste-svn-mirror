@@ -24,7 +24,23 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(double wntLevel, co
     % 2. i = CycD (inactive)
     % 3. j = CycD (active)
     % 4. p = pRb-p
-    % + 17 of Inge's ODEs!
+    % 5. D = APC destruction complex
+    % 6. X = Axin
+    % 7. Cu = Beta Cat marked for ubiquitination
+    % 8. Co = Open form Beta Cat
+    % 9. Cc = Closed form Beta Cat
+    % 10. Mo = Open form Mutant Beta Cat
+    % 11. Mc = Closed form Mutant Beta Cat
+    % 12. A = Free Adhesion molecules
+    % 13. Ca = BetaCat/Adhesion
+    % 14. Ma = Mutant BetaCat/Adhesion
+    % 15. T = free TCF
+    % 16. Cot = Open BetaCat/TCF
+    % 17. Cct = Closed BetaCat/TCF
+    % 18. Mot = Open Mutant BetaCat/TCF
+    % 19. Mct = Closed Mutant BetaCat/TCF
+    % 20. Y = Wnt Target protein
+    % 21. Wnt level
     */
     Init(); //Set up parameters
     

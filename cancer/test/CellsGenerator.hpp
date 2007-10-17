@@ -8,6 +8,7 @@
 #include "StochasticCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
+#include "IngeWntSwatCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
@@ -24,6 +25,7 @@ typedef enum CellCycleType_
     STOCHASTIC,
     SIMPLE_WNT,
     WNT,
+    INGE_WNT_SWAT,
     STOCHASTIC_WNT,
     TYSONNOVAK
 } CellCycleType;
@@ -100,6 +102,12 @@ public :
             else if (cycleType==WNT)
             {
                 p_cell_cycle_model = new WntCellCycleModel();
+                typical_transit_cycle_time = 16.0;
+                typical_stem_cycle_time = typical_transit_cycle_time;
+            }
+            else if (cycleType==INGE_WNT_SWAT)
+            {
+                p_cell_cycle_model = new IngeWntSwatCellCycleModel();
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }

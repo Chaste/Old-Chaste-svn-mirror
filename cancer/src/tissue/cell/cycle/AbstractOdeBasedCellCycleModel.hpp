@@ -62,10 +62,11 @@ public:
     
     /**
      * ReadyToDivide() is called by a cell on its model to establish progress through the cell cycle.
+     * Can be overridden if something special should happen in the subclass.
      * 
      * @return true if the cell is ready to divide.
      */
-    bool ReadyToDivide();
+    virtual bool ReadyToDivide();
     
     /**
      * This method must be implemented by each subclass - solves the ODEs to a given time and 

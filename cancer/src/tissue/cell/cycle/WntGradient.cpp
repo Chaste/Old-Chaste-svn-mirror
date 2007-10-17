@@ -141,3 +141,12 @@ bool WntGradient::IsGradientSetUp()
     return result;   
 }
 
+void WntGradient::SetConstantWntValueForTesting(double value)
+{
+    if (value < 0)
+    {
+        EXCEPTION("WntGradient::SetConstantWntValueForTesting - Wnt value for testing should be non-negative.\n");   
+    }
+    mConstantWntValueForTesting = value;
+    mUseConstantWntValueForTesting = true;
+}

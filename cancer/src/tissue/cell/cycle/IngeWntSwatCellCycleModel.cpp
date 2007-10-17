@@ -128,5 +128,10 @@ bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
     return msSolver.StoppingEventOccured();
 }
     
+    
+double IngeWntSwatCellCycleModel::GetMembraneBoundBetaCateninLevel()
+{
+    return mpOdeSystem->rGetStateVariables()[13] + mpOdeSystem->rGetStateVariables()[14];   
+}
 
 

@@ -64,6 +64,11 @@ public:
     void Initialise();
     
     bool SolveOdeToTime(double currentTime);
+    
+    /**
+     * @return the level of membrane bound beta-catenin. To be used in cell-cell adhesion calculations.
+     */
+    double GetMembraneBoundBetaCateninLevel();
 };
 
 // declare identifier for the serializer

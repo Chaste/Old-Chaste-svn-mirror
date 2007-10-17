@@ -7,7 +7,6 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <fstream>
 
-//#include <boost/serialization/access.hpp>
 #include "ConformingTetrahedralMesh.cpp"
 #include "CellsGenerator.hpp"
 #include "OutputFileHandler.hpp"
@@ -21,9 +20,6 @@
 #include "WntCellCycleModel.hpp"
 #include "OxygenBasedCellCycleModel.hpp"
 #include "WntGradient.hpp"
-
-// Needs to be included last
-#include <boost/serialization/export.hpp>
 
 class TestCellCycleModels : public CxxTest::TestSuite
 {
@@ -305,34 +301,34 @@ public:
             TS_ASSERT(result==false)
         }
         
-        std::vector<double> testResults = p_cell_model->GetProteinConcentrations();
-        TS_ASSERT_DELTA(testResults[0] , 7.330036281693106e-01 , 1e-5);
-        TS_ASSERT_DELTA(testResults[1] , 1.715690244022676e-01 , 1e-5);
-        TS_ASSERT_DELTA(testResults[2] , 6.127460817296076e-02 , 1e-5);
-        TS_ASSERT_DELTA(testResults[3] , 1.549402358669023e-07 , 1e-5);
-        TS_ASSERT_DELTA(testResults[4] , 4.579067802591843e-08 , 1e-5);
-        TS_ASSERT_DELTA(testResults[5] , 9.999999999999998e-01 , 1e-5);
-        TS_ASSERT_DELTA(testResults[6] , 0.5*7.415537855270896e-03 , 1e-5);
-        TS_ASSERT_DELTA(testResults[7] , 0.5*7.415537855270896e-03 , 1e-5);
-        TS_ASSERT_DELTA(testResults[8] , 0.0 , 1e-6);
+        std::vector<double> test_results = p_cell_model->GetProteinConcentrations();
+        TS_ASSERT_DELTA(test_results[0] , 7.330036281693106e-01 , 1e-5);
+        TS_ASSERT_DELTA(test_results[1] , 1.715690244022676e-01 , 1e-5);
+        TS_ASSERT_DELTA(test_results[2] , 6.127460817296076e-02 , 1e-5);
+        TS_ASSERT_DELTA(test_results[3] , 1.549402358669023e-07 , 1e-5);
+        TS_ASSERT_DELTA(test_results[4] , 4.579067802591843e-08 , 1e-5);
+        TS_ASSERT_DELTA(test_results[5] , 9.999999999999998e-01 , 1e-5);
+        TS_ASSERT_DELTA(test_results[6] , 0.5*7.415537855270896e-03 , 1e-5);
+        TS_ASSERT_DELTA(test_results[7] , 0.5*7.415537855270896e-03 , 1e-5);
+        TS_ASSERT_DELTA(test_results[8] , 0.0 , 1e-6);
         
         TS_ASSERT_EQUALS(stem_cell.GetCellType(), DIFFERENTIATED);
         
         double diff = 1.0;
-        testResults[6] = testResults[6] + diff;
+        test_results[6] = test_results[6] + diff;
         
-        p_cell_model->SetProteinConcentrationsForTestsOnly(1.0, testResults);
+        p_cell_model->SetProteinConcentrationsForTestsOnly(1.0, test_results);
         
-        testResults = p_cell_model->GetProteinConcentrations();
+        test_results = p_cell_model->GetProteinConcentrations();
         
-        TS_ASSERT_DELTA(testResults[6] , diff + 0.5*7.415537855270896e-03 , 1e-5);
-        TS_ASSERT_DELTA(testResults[5] , 9.999999999999998e-01 , 1e-5);
+        TS_ASSERT_DELTA(test_results[6] , diff + 0.5*7.415537855270896e-03 , 1e-5);
+        TS_ASSERT_DELTA(test_results[5] , 9.999999999999998e-01 , 1e-5);
                 
         SimulationTime::Destroy();        
         WntGradient::Destroy();
     }
     
-    void TestIngeWntSwatCellCycleModelForVaryingWntStimulus() throw(Exception)
+    void TestIngeWntSwatCellCycleModel() throw(Exception)
     {
         CancerParameters::Instance()->Reset();
         
@@ -340,7 +336,7 @@ public:
         // Instead we reduce Wnt linearly over 0<t<1 to zero and the cell doesn't divide.
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         
-        double end_time = 10.0; //hours
+        double end_time = 30.0; //hours
         int num_timesteps = 1000*(int)end_time;
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);// 15.971 hours to go into S phase
@@ -358,16 +354,93 @@ public:
         stem_cell.InitialiseCellCycleModel();
 
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
+        WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
+        for (int i=0; i<2*num_timesteps/3; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            bool result = stem_cell.ReadyToDivide();
+            if (SimulationTime::Instance()->GetDimensionalisedTime()
+                    >=  6.1877 + CancerParameters::Instance()->GetSG2MDuration())
+            {
+                TS_ASSERT_EQUALS(result, true);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(result, false);
+            }
+        }
+        TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 20.0, 1e-4);
+        TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
         
-        for (int i=0; i<num_timesteps; i++)
+        std::vector<double> test_results = p_cell_model->GetProteinConcentrations();
+
+        TS_ASSERT_DELTA(test_results[0] , 2.937528298476724e-01, 1e-3);
+        TS_ASSERT_DELTA(test_results[1] , 1.000000000000000e+00, 1e-2);
+        TS_ASSERT_DELTA(test_results[2] , 2.400571020059542e+00, 1e-3);
+        TS_ASSERT_DELTA(test_results[3] , 1.392891502782046e+00, 1e-3);
+        TS_ASSERT_DELTA(test_results[4] , 1.358708742498684e-01, 1e-3);
+        TS_ASSERT_DELTA(test_results[5] , 1.428571428571429e-01, 1e-4);
+        TS_ASSERT_DELTA(test_results[6] , 2.857142857142857e-02, 1e-4);
+        TS_ASSERT_DELTA(test_results[7] , 2.120643654085205e-01, 1e-4);
+        TS_ASSERT_DELTA(test_results[8] , 1.439678172957377e+01, 1e-3);
+        TS_ASSERT_DELTA(test_results[9] ,                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[10],                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[11],                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[12], 1.000000000000002e+01, 1e-4);
+        TS_ASSERT_DELTA(test_results[13], 1.028341552112414e+02, 1e-2);
+        TS_ASSERT_DELTA(test_results[14],                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[15], 2.499999999999999e+01, 1e-4);
+        TS_ASSERT_DELTA(test_results[16], 1.439678172957377e+01, 1e-3);
+        TS_ASSERT_DELTA(test_results[17],                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[18],                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[19],                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[20], 2.235636835087684e+00, 1e-4);
+        TS_ASSERT_DELTA(test_results[21], 1.000000000000000e+00, 1e-4);
+        
+        // Acts as if it was divided at time = 16.1877... which is OK 
+        // (cell cycle model dictates division time, not when the cell is manually
+        // divided)
+        TissueCell daughter_cell = stem_cell.Divide();
+        AbstractCellCycleModel* p_cell_model2 = daughter_cell.GetCellCycleModel();
+        
+        TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(p_cell_model2->ReadyToDivide(), false);
+        
+        // Check first 5 protein levels have been reset and the rest are the same.
+        test_results = p_cell_model->GetProteinConcentrations();
+        TS_ASSERT_DELTA(test_results[0] , 2.631865125420296e-01, 1e-3);
+        TS_ASSERT_DELTA(test_results[1] , 2.678271949808561e-01, 1e-3);
+        TS_ASSERT_DELTA(test_results[2] , 2.389956081120099e+00, 1e-3);
+        TS_ASSERT_DELTA(test_results[3] , 1.390258620103223e+00, 1e-3);
+        TS_ASSERT_DELTA(test_results[4] , 1.218603203963113e-01, 1e-3);
+        TS_ASSERT_DELTA(test_results[5] , 1.428571428571429e-01, 1e-4);
+        TS_ASSERT_DELTA(test_results[6] , 2.857142857142857e-02, 1e-4);
+        TS_ASSERT_DELTA(test_results[7] , 2.120643654085205e-01, 1e-4);
+        TS_ASSERT_DELTA(test_results[8] , 1.439678172957377e+01, 1e-3);
+        TS_ASSERT_DELTA(test_results[9] ,                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[10],                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[11],                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[12], 1.000000000000002e+01, 1e-4);
+        TS_ASSERT_DELTA(test_results[13], 1.028341552112414e+02, 1e-2);
+        TS_ASSERT_DELTA(test_results[14],                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[15], 2.499999999999999e+01, 1e-4);
+        TS_ASSERT_DELTA(test_results[16], 1.439678172957377e+01, 1e-3);
+        TS_ASSERT_DELTA(test_results[17],                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[18],                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[19],                     0, 1e-4);
+        TS_ASSERT_DELTA(test_results[20], 2.235636835087684e+00, 1e-4);
+        TS_ASSERT_DELTA(test_results[21], 1.000000000000000e+00, 1e-4);
+        
+        for (int i=0; i<num_timesteps/3; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();            
             bool result = p_cell_model->ReadyToDivide();
+            bool result2 = p_cell_model2->ReadyToDivide();
             
-            if (time <= 1.0)
+            if (time <= 21.0)
             {
-                wnt_level = 1.0-time;
+                wnt_level = 21.0 - time;
             }
             else
             {
@@ -375,35 +448,40 @@ public:
             }
             WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
             
-            TS_ASSERT(result==false)
+            TS_ASSERT_EQUALS(result, false);
+            TS_ASSERT_EQUALS(result2, false);
         }
+        TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 30.0, 1e-4);
         
-        std::vector<double> testResults = p_cell_model->GetProteinConcentrations();
+        test_results = p_cell_model->GetProteinConcentrations();       
         
-        TS_ASSERT_DELTA(testResults[0] , 6.372472531753484e-01, 1e-4);
-        TS_ASSERT_DELTA(testResults[1] , 1.803910244928005e-01, 1e-4);
-        TS_ASSERT_DELTA(testResults[2] , 8.485677420307770e-01, 1e-4);
-        TS_ASSERT_DELTA(testResults[3] , 4.742140169611091e-02, 1e-4);
-        TS_ASSERT_DELTA(testResults[4] , 1.026774845590067e-02, 1e-4);
-        TS_ASSERT_DELTA(testResults[5] , 6.666666669036209e-01, 1e-4);
-        TS_ASSERT_DELTA(testResults[6] , 6.666666667281826e-02, 1e-4);
-        TS_ASSERT_DELTA(testResults[7] , 4.851726874408689e-01, 1e-4);
-        TS_ASSERT_DELTA(testResults[8] , 2.857453767416173e+00, 1e-3);
-        TS_ASSERT_DELTA(testResults[9] ,                     0, 1e-4);
-        TS_ASSERT_DELTA(testResults[10],                     0, 1e-4);
-        TS_ASSERT_DELTA(testResults[11],                     0, 1e-4);
-        TS_ASSERT_DELTA(testResults[12], 1.111535470086418e+01, 1e-4);
-        TS_ASSERT_DELTA(testResults[13], 2.269132335469249e+01, 1e-2);
-        TS_ASSERT_DELTA(testResults[14],                     0, 1e-4);
-        TS_ASSERT_DELTA(testResults[15], 2.605888526087510e+01, 1e-4);
-        TS_ASSERT_DELTA(testResults[16], 2.978701679691013e+00, 1e-3);
-        TS_ASSERT_DELTA(testResults[17],                     0, 1e-4);
-        TS_ASSERT_DELTA(testResults[18],                     0, 1e-4);
-        TS_ASSERT_DELTA(testResults[19],                     0, 1e-4);
-        TS_ASSERT_DELTA(testResults[20], 6.031638195638305e-01, 1e-4);
-        TS_ASSERT_DELTA(testResults[21], 0.000000000000000e+00, 1e-4);
+        TS_ASSERT_DELTA(test_results[0] , 0.3636, 1e-3);
+        TS_ASSERT_DELTA(test_results[1] , 0.9900, 1e-2);
+        TS_ASSERT_DELTA(test_results[2] , 1.4996, 1e-3);
+        TS_ASSERT_DELTA(test_results[3] , 0.8180, 1e-4);
+        TS_ASSERT_DELTA(test_results[4] , 0.1000, 1e-4);
+        TS_ASSERT_DELTA(test_results[5] , 0.6666, 1e-4);
+        TS_ASSERT_DELTA(test_results[6] , 0.0666, 1e-4);
+        TS_ASSERT_DELTA(test_results[7] , 0.7311, 1e-3);
+        TS_ASSERT_DELTA(test_results[8] , 6.0481, 1e-3);
+        TS_ASSERT_DELTA(test_results[9] , 0, 1e-4);
+        TS_ASSERT_DELTA(test_results[10], 0, 1e-4);
+        TS_ASSERT_DELTA(test_results[11], 0, 1e-4);
+        TS_ASSERT_DELTA(test_results[12], 17.5432, 1e-4);
+        TS_ASSERT_DELTA(test_results[13], 75.8316, 1e-2);
+        TS_ASSERT_DELTA(test_results[14], 0, 1e-4);
+        TS_ASSERT_DELTA(test_results[15], 29.5727, 1e-4);
+        TS_ASSERT_DELTA(test_results[16], 7.1564, 1e-3);
+        TS_ASSERT_DELTA(test_results[17], 0, 1e-4);
+        TS_ASSERT_DELTA(test_results[18], 0, 1e-4);
+        TS_ASSERT_DELTA(test_results[19], 0, 1e-4);
+        TS_ASSERT_DELTA(test_results[20], 1.6047, 1e-4);
+        TS_ASSERT_DELTA(test_results[21], 0.0000, 1e-4);
         
         TS_ASSERT_EQUALS(stem_cell.GetCellType(), DIFFERENTIATED);
+        // membrane_beta_cat = Ca + Ma
+        double membrane_beta_cat = test_results[13]+test_results[14];
+        TS_ASSERT_DELTA(p_cell_model->GetMembraneBoundBetaCateninLevel(), membrane_beta_cat, 1e-4);
         
         SimulationTime::Destroy();        
         WntGradient::Destroy();
@@ -1175,6 +1253,83 @@ public:
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),true);
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(),-1.0,1e-12);
             TS_ASSERT_DELTA(p_cell_model->GetAge(),17.0,1e-12);
+            TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
+            SimulationTime::Destroy();
+            delete p_cell;
+        }
+
+        WntGradient::Destroy();
+    }   
+    
+    // NB - to archive a cell cycle model it has to be archived via the cell that owns it.
+    void TestArchiveIngeWntSwatCellCycleModel()
+    {
+        CancerParameters::Instance()->Reset();
+
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "inge_wnt_swat_cell_cycle.arch";
+        WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
+
+        // Create an ouput archive
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(17, 2);
+                       
+            IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel();
+            
+            TissueCell stem_cell(STEM, // type
+                                       HEALTHY,//Mutation State
+                                       0,  // generation
+                                       p_cell_model);
+            stem_cell.InitialiseCellCycleModel();  
+            
+            p_simulation_time->IncrementTimeOneStep();            
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(),false);
+            p_simulation_time->IncrementTimeOneStep();
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(),true);
+
+            stem_cell.GetCellCycleModel()->SetBirthTime(-1.0);
+            
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            TissueCell* const p_cell = &stem_cell;
+            
+            output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
+            output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
+            output_arch << p_cell;
+            SimulationTime::Destroy();
+        }
+        
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            
+            CancerParameters *inst1 = CancerParameters::Instance();
+            
+            inst1->SetSG2MDuration(101.0);
+            
+            TissueCell* p_cell;
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            // restore from the archive
+            input_arch >> *p_simulation_time;
+            input_arch >> *inst1;
+            input_arch >> p_cell;
+            
+            // Check
+            
+            AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
+            TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());            
+                 
+            TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),true);
+            TS_ASSERT_DELTA(p_cell_model->GetBirthTime(),-1.0,1e-12);
+            TS_ASSERT_DELTA(p_cell_model->GetAge(),18.0,1e-12);
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
             SimulationTime::Destroy();
             delete p_cell;

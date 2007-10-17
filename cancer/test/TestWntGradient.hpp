@@ -186,6 +186,8 @@ public:
         
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
         
+        TS_ASSERT_THROWS_ANYTHING(p_wnt_gradient->SetConstantWntValueForTesting(-10));
+        
         WntGradient::Destroy();
     }
     
