@@ -5,6 +5,7 @@ import os
 petsc_2_2_path = '../../../petsc-2.2.1/'
 petsc_2_3_path = '../../../petsc-2.3.2-p6/'
 petsc_build_name = 'linux-gnu'
+petsc_build_name_profile = 'linux-gnu'
 petsc_build_name_optimized = 'linux-gnu-opt'
 dealii_path = '../../../deal.II/'
 metis_path = '../../../metis-4.0/'
