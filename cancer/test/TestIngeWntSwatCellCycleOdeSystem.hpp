@@ -90,22 +90,21 @@ public:
         TS_ASSERT_DELTA(initial_conditions[5], 1.428571428571428e-01, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[6], 2.857142857142857e-02, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[7], 2.120643654085212e-01, 1e-7);
-        TS_ASSERT_DELTA(initial_conditions[8], 1.439678172957394e+01, 1e-7);
-        TS_ASSERT_DELTA(initial_conditions[9], 0, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[8], 9.391557285347905e-01, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[9], 1.345762600103915e+01, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[10], 0, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[11], 0, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[12], 1.000000000000000e+01, 1e-7);
-        TS_ASSERT_DELTA(initial_conditions[13], 1.028341552112424e+02, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[13], 6.708255203819932e+00, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[14], 0, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[15], 2.500000000000000e+01, 1e-7);
-        TS_ASSERT_DELTA(initial_conditions[16], 1.439678172957394e+01, 1e-7);
-        TS_ASSERT_DELTA(initial_conditions[17], 0, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[16], 9.391557285347906e-01, 1e-7);
+        TS_ASSERT_DELTA(initial_conditions[17], 1.345762600103915e+01, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[18], 0, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[19], 0, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[20], 2.235636835087720e+00, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[21], 1.000000000000000e+00, 1e-7);
-        
-
+       
         wnt_cell_cycle_system.EvaluateYDerivatives(time, initial_conditions, derivs);
         // Test derivatives are correct at t=0 for these initial conditions
         // Swat's
