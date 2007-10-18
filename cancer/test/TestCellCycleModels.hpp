@@ -481,11 +481,23 @@ public:
         TS_ASSERT_DELTA(test_results[19], 0, 1e-4);
         TS_ASSERT_DELTA(test_results[20], 1.6047, 1e-4);
         TS_ASSERT_DELTA(test_results[21], 0.0000, 1e-4);
-        
+
         TS_ASSERT_EQUALS(stem_cell.GetCellType(), DIFFERENTIATED);
+
         // membrane_beta_cat = Ca + Ma
         double membrane_beta_cat = test_results[13]+test_results[14];
+
+        // cytoplasmic_beta_cat = Cu + Co + Cc + Mo + Mc
+        double cytoplasm_beta_cat = test_results[7] + test_results[8]
+                          + test_results[9] + test_results[10]+test_results[11];
+
+        // nuclear_beta_cat = Cot + Cct + Mot + Mct
+        double nuclear_beta_cat = test_results[16] + test_results[17]
+                                    + test_results[18] + test_results[19];
+
         TS_ASSERT_DELTA(p_cell_model->GetMembraneBoundBetaCateninLevel(), membrane_beta_cat, 1e-4);
+        TS_ASSERT_DELTA(p_cell_model->GetCytoplasmicBetaCateninLevel(), cytoplasm_beta_cat, 1e-4);
+        TS_ASSERT_DELTA(p_cell_model->GetNuclearBetaCateninLevel(), nuclear_beta_cat, 1e-4);
         
         SimulationTime::Destroy();        
         WntGradient::Destroy();

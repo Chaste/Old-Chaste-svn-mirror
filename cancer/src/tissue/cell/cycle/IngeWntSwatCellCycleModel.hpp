@@ -69,6 +69,17 @@ public:
      * @return the level of membrane bound beta-catenin. To be used in cell-cell adhesion calculations.
      */
     double GetMembraneBoundBetaCateninLevel();
+    
+    /**
+     * @return the level of cytoplasmic beta-catenin (including ubiquitinated - awaiting degradation)
+     */
+    double GetCytoplasmicBetaCateninLevel();
+    
+    /**
+     * @return the level of nuclear beta-catenin. To be used in transcription
+     */
+    double GetNuclearBetaCateninLevel();
+    
 };
 
 // declare identifier for the serializer

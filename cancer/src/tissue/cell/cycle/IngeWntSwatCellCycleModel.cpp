@@ -134,4 +134,17 @@ double IngeWntSwatCellCycleModel::GetMembraneBoundBetaCateninLevel()
     return mpOdeSystem->rGetStateVariables()[13] + mpOdeSystem->rGetStateVariables()[14];   
 }
 
+double IngeWntSwatCellCycleModel::GetCytoplasmicBetaCateninLevel()
+{
+    return mpOdeSystem->rGetStateVariables()[7] + mpOdeSystem->rGetStateVariables()[8]
+        + mpOdeSystem->rGetStateVariables()[9] + mpOdeSystem->rGetStateVariables()[10]
+        + mpOdeSystem->rGetStateVariables()[11];
+}
+
+double IngeWntSwatCellCycleModel::GetNuclearBetaCateninLevel()
+{
+    return mpOdeSystem->rGetStateVariables()[16] + mpOdeSystem->rGetStateVariables()[17]
+        +  mpOdeSystem->rGetStateVariables()[18] + mpOdeSystem->rGetStateVariables()[19];   
+}
+
 
