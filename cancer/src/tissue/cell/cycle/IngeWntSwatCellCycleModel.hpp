@@ -102,14 +102,12 @@ inline void load_construct_data(
     // state loaded later from the archive will overwrite their effect in
     // this case.
     // Invoke inplace constructor to initialize instance of my_class
-   
     
     std::vector<double> state_vars;
-    for (unsigned i=0 ; i<9 ; i++)
+    for (unsigned i=0 ; i<22 ; i++)
     {
         state_vars.push_back(0.0);
     }
-
     CellMutationState mutation_state = HEALTHY;
     ::new(t)IngeWntSwatCellCycleModel(state_vars, mutation_state);
 }
