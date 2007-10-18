@@ -650,15 +650,14 @@ def _getTestSummary(test_set_dir, build):
     overall_status, colour = _getTestStatus(test_set_dir, build, True)
   return overall_status, colour
 
-_buildFailedRegexp = re.compile('scons: building terminated because of errors.')
 def _checkBuildFailure(test_set_dir, overall_status, colour):
   """Check whether the build failed, and return a new status if it did."""
   import re
   try:
     log = file(os.path.join(test_set_dir, 'build.log'), 'r')
     for line in log:
-      m = _buildFailedRegexp.match(line)
-      if m:
+      if line.startswith('scons: building terminated because of errors.') or \
+         line.startswith('  File "SConstruct", line '):
         overall_status = 'Build failed.  ' + overall_status
         colour = 'red'
         break
