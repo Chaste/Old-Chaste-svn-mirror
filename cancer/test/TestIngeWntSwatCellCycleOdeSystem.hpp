@@ -21,7 +21,10 @@ public:
     void TestIngeWntSwatCellCycleEquationsHighWnt()
     {
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system(wnt_level);
+        
+        TS_ASSERT_THROWS_ANYTHING(IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system(3,wnt_level));
+        
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system(1,wnt_level);
         
         double time = 0.0;
         std::vector<double> initial_conditions = wnt_cell_cycle_system.GetInitialConditions();
@@ -52,7 +55,6 @@ public:
         TS_ASSERT_DELTA(initial_conditions[21], 1.000000000000000e+00, 1e-7);
         
         wnt_cell_cycle_system.SetMutationState(HEALTHY);    // for coverage.
-        wnt_cell_cycle_system.SetUseHypothesisTwo(false);   // for coverage.
         wnt_cell_cycle_system.EvaluateYDerivatives(time, initial_conditions, derivs);
         // Test derivatives are correct at t=0 for these initial conditions
         // Swat's
@@ -72,11 +74,10 @@ public:
     void TestIngeWntSwatCellCycleEquationsHighWntHypothesisTwo()
     {
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system(wnt_level);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system(2,wnt_level);
         
         double time = 0.0;
         
-        wnt_cell_cycle_system.SetUseHypothesisTwo(true);   // for coverage.
         std::vector<double> initial_conditions = wnt_cell_cycle_system.GetInitialConditions();
         TS_ASSERT_EQUALS(initial_conditions.size(), 22u);
         std::vector<double> derivs(initial_conditions.size());
@@ -115,12 +116,7 @@ public:
         TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
         
         // Inge's
-        TS_ASSERT_DELTA(derivs[5],0.0, 1e-9);
-        TS_ASSERT_DELTA(derivs[6],0.0, 1e-9);
-        TS_ASSERT_DELTA(derivs[7],0.0, 1e-9);
-        TS_ASSERT_DELTA(derivs[8],-3.357508823927512e+02, 1e-9);
-        TS_ASSERT_DELTA(derivs[9],3.357508823927473e+02, 1e-9);
-        for (unsigned i=10 ; i<derivs.size() ; i++)
+        for (unsigned i=5 ; i<derivs.size() ; i++)
         {
             TS_ASSERT_DELTA(derivs[i],0.0, 1e-9);
         }
@@ -133,7 +129,7 @@ public:
          */
         double time = 0.0;
         double wnt_level = 0.0;
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system2(wnt_level,LABELLED);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system2(1, wnt_level,LABELLED);
         std::vector<double> initial_conditions = wnt_cell_cycle_system2.GetInitialConditions();
         std::vector<double> derivs(initial_conditions.size());
         // test ICs are being set up properly (quite intricate equations themselves!)
@@ -185,7 +181,7 @@ public:
         double time = 0.0;
         CellMutationState mutation = APC_ONE_HIT;
         double wnt_level = 0.5;
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system3(wnt_level,mutation);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system3(1, wnt_level,mutation);
         std::vector<double> initial_conditions = wnt_cell_cycle_system3.GetInitialConditions();
         //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
         std::vector<double> derivs(initial_conditions.size());
@@ -237,7 +233,7 @@ public:
         double time = 0.0;
         CellMutationState mutation = BETA_CATENIN_ONE_HIT;
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system4(wnt_level,mutation);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system4(1, wnt_level,mutation);
         std::vector<double> initial_conditions = wnt_cell_cycle_system4.GetInitialConditions();
         //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
         std::vector<double> derivs(initial_conditions.size());
@@ -294,7 +290,7 @@ public:
         double time = 0.0;
         CellMutationState mutation = APC_TWO_HIT;
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system5(wnt_level,mutation);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system5(1, wnt_level,mutation);
         std::vector<double> initial_conditions = wnt_cell_cycle_system5.GetInitialConditions();
         //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
 
@@ -341,7 +337,7 @@ public:
     void TestIngeWntSwatCellCycleSolver() throw(Exception)
     {
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_system(wnt_level,LABELLED);
+        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level,LABELLED);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
@@ -395,7 +391,7 @@ public:
     void TestIngeWntSwatCellCycleSolverWithAPCSingleHit() throw(Exception)
     {
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_system(wnt_level,APC_ONE_HIT);
+        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level,APC_ONE_HIT);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
@@ -440,7 +436,7 @@ public:
     void TestIngeWntSwatCellCycleSolverWithBetaCateninHit() throw(Exception)
     {
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_system(wnt_level,BETA_CATENIN_ONE_HIT);
+        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level,BETA_CATENIN_ONE_HIT);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
@@ -485,7 +481,7 @@ public:
     void TestIngeWntSwatCellCycleSolverWithAPCDoubleHit() throw(Exception)
     {
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_system(wnt_level,APC_TWO_HIT);
+        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level,APC_TWO_HIT);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         

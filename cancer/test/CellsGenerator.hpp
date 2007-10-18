@@ -25,7 +25,8 @@ typedef enum CellCycleType_
     STOCHASTIC,
     SIMPLE_WNT,
     WNT,
-    INGE_WNT_SWAT,
+    INGE_WNT_SWAT_HYPOTHESIS_ONE,
+    INGE_WNT_SWAT_HYPOTHESIS_TWO,
     STOCHASTIC_WNT,
     TYSONNOVAK
 } CellCycleType;
@@ -105,9 +106,15 @@ public :
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }
-            else if (cycleType==INGE_WNT_SWAT)
+            else if (cycleType==INGE_WNT_SWAT_HYPOTHESIS_ONE)
             {
-                p_cell_cycle_model = new IngeWntSwatCellCycleModel();
+                p_cell_cycle_model = new IngeWntSwatCellCycleModel(1u);
+                typical_transit_cycle_time = 16.0;
+                typical_stem_cycle_time = typical_transit_cycle_time;
+            }
+            else if (cycleType==INGE_WNT_SWAT_HYPOTHESIS_TWO)
+            {
+                p_cell_cycle_model = new IngeWntSwatCellCycleModel(2u);
                 typical_transit_cycle_time = 16.0;
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }

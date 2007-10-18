@@ -40,6 +40,8 @@ private:
      * beta-catenin levels
      */
     void ChangeCellTypeDueToCurrentBetaCateninLevel();
+    
+    unsigned mHypothesis;
 
 protected:   
 
@@ -49,14 +51,23 @@ public:
     /**
      * Default constructor.
      */
-    IngeWntSwatCellCycleModel() {};
+    IngeWntSwatCellCycleModel(unsigned hypothesis)
+       : mHypothesis(hypothesis) 
+    {
+        if ( ! (mHypothesis==1u || mHypothesis==2u) )
+        {
+            EXCEPTION("Model must be set up with argument(hypothesis) = 1u or 2u");
+        }
+    };
    
-    IngeWntSwatCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
+    IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
+                      AbstractOdeSystem* pParentOdeSystem, 
                       const CellMutationState& rMutationState, 
                       double birthTime, double lastTime,
                       bool inSG2MPhase, bool readyToDivide, double divideTime);
 
-    IngeWntSwatCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
+    IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
+                      const std::vector<double>& rParentProteinConcentrations, 
                       const CellMutationState& rMutationState); 
                           
     AbstractCellCycleModel *CreateCellCycleModel();
@@ -80,6 +91,8 @@ public:
      */
     double GetNuclearBetaCateninLevel();
     
+    unsigned GetHypothesis() const; // this function promises not to change the object.
+    
 };
 
 // declare identifier for the serializer
@@ -98,6 +111,8 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const IngeWntSwatCellCycleModel * t, const unsigned int file_version)
 {
+    const unsigned hypothesis = t->GetHypothesis();
+    ar & hypothesis;
 }
 
 /**
@@ -120,7 +135,9 @@ inline void load_construct_data(
         state_vars.push_back(0.0);
     }
     CellMutationState mutation_state = HEALTHY;
-    ::new(t)IngeWntSwatCellCycleModel(state_vars, mutation_state);
+    unsigned hypothesis;
+    ar & hypothesis;
+    ::new(t)IngeWntSwatCellCycleModel(hypothesis, state_vars, mutation_state);
 }
 }
 } // namespace ...

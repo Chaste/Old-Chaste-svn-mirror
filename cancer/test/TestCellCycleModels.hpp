@@ -344,7 +344,12 @@ public:
         double wnt_level = 1.0;
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel();
+        // cover exception
+        TS_ASSERT_THROWS_ANYTHING(IngeWntSwatCellCycleModel model(0));
+
+        IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1);
+        
+        TS_ASSERT_EQUALS(p_cell_model->GetHypothesis(), 1u);
         
         TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
@@ -1298,12 +1303,12 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(17, 2);
                        
-            IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel();
+            IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1);
             
             TissueCell stem_cell(STEM, // type
-                                       HEALTHY,//Mutation State
-                                       0,  // generation
-                                       p_cell_model);
+                                 HEALTHY,//Mutation State
+                                 0,  // generation
+                                 p_cell_model);
             stem_cell.InitialiseCellCycleModel();  
             
             p_simulation_time->IncrementTimeOneStep();            

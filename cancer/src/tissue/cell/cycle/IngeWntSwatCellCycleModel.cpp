@@ -10,6 +10,7 @@
  * A private constructor for daughter cells called by the CreateCellCycleModel function
  * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
  *
+ * @param rHypothesis  which hypothesis to use (supply one or two)
  * @param pParentOdeSystem  to copy the state of.
  * @param rMutationState the mutation state of the cell (used by ODEs)
  * @param birthTime the simulation time when the cell divided (birth time of parent cell)
@@ -18,7 +19,8 @@
  * @param readyToDivide 
  * @param divideTime If in the future this is the time at which the cell is going to divide
  */
-IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
+IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
+                                     AbstractOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
                                      bool inSG2MPhase, bool readyToDivide, double divideTime)
@@ -27,7 +29,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(AbstractOdeSystem* pParentO
     if (pParentOdeSystem !=NULL)
     {
         std::vector<double> parent_protein_concs = pParentOdeSystem->rGetStateVariables();
-        mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(parent_protein_concs[8], rMutationState);// wnt pathway is reset in a couple of lines.
+        mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, parent_protein_concs[8], rMutationState);// wnt pathway is reset in a couple of lines.
         // Set the model to be the same as the parent cell.
         mpOdeSystem->rGetStateVariables() = parent_protein_concs;
     }
@@ -54,10 +56,11 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(AbstractOdeSystem* pParentO
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see IngeWntSwatCellCycleOdeSystem)
  * @param rMutationState the mutation state of the cell (used by ODEs)
  */
-IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
+IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
+                                     const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState)
 {
-    mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rParentProteinConcentrations[21], rMutationState);// wnt pathway is reset in a couple of lines.
+    mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, rParentProteinConcentrations[21], rMutationState);// wnt pathway is reset in a couple of lines.
     // Set the model to be the same as the parent cell.
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }
@@ -73,7 +76,8 @@ AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateCellCycleModel()
     // calls a cheeky version of the constructor which makes the new cell 
     // cycle model the same as the old one - not a dividing copy at this time.
     // unless the parent cell has just divided.
-    return new IngeWntSwatCellCycleModel(mpOdeSystem, 
+    return new IngeWntSwatCellCycleModel(mHypothesis,
+                                 mpOdeSystem, 
                                  mpCell->GetMutationState(), mBirthTime, mLastTime, 
                                  mFinishedRunningOdes, mReadyToDivide, mDivideTime);
 }
@@ -106,7 +110,7 @@ void IngeWntSwatCellCycleModel::Initialise()
 {
     assert(mpOdeSystem==NULL);
     assert(mpCell!=NULL);
-    mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(WntGradient::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
+    mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(mHypothesis, WntGradient::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
     ChangeCellTypeDueToCurrentBetaCateninLevel();   
 }    
@@ -147,4 +151,7 @@ double IngeWntSwatCellCycleModel::GetNuclearBetaCateninLevel()
         +  mpOdeSystem->rGetStateVariables()[18] + mpOdeSystem->rGetStateVariables()[19];   
 }
 
-
+unsigned IngeWntSwatCellCycleModel::GetHypothesis() const
+{
+    return mHypothesis;   
+}

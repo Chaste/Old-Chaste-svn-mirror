@@ -92,10 +92,11 @@ private:
     double mXiX;
     double mXiC;
     CellMutationState mMutationState;
+    unsigned mHypothesis;
         
 public:
     // Constructor
-    IngeWntSwatCellCycleOdeSystem(double WntStimulus = 0.0, const CellMutationState& rMutationState = HEALTHY);
+    IngeWntSwatCellCycleOdeSystem(unsigned hypothesis, double WntStimulus = 0.0, const CellMutationState& rMutationState = HEALTHY);
     
     // Destructor
     ~IngeWntSwatCellCycleOdeSystem();
@@ -123,9 +124,6 @@ public:
         EvaluateYDerivatives(time, rY, dy);
         return (fabs(rY[1]-1.0) < 1.0e-2 && dy[1] > 0.0);
     }
-    
-    void SetUseHypothesisTwo(bool hypothesisTwo);
-
-    
+        
 };
 #endif //_INGEWNTSWATCELLCYCLEODESYSTEM_HPP_

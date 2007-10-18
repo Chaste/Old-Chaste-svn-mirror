@@ -12,9 +12,14 @@
  * @param WntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
  * @param mutationState affects the ODE system and is given by CryptCellMutationStates.hpp
  */
-IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(double wntLevel, const CellMutationState& rMutationState)
+IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis, double wntLevel, const CellMutationState& rMutationState)
         : AbstractOdeSystem(22)
 {
+    if (hypothesis!=1u && hypothesis!=2u)
+    {
+        EXCEPTION("You must set up this cell cycle ode system with hypothesis one or two.");
+    }
+    mHypothesis = hypothesis;
     mMutationState = rMutationState;
     /*
      * State variables
@@ -286,7 +291,14 @@ void IngeWntSwatCellCycleOdeSystem::Init()
     mXiD = 5;   //  h^-1
     mXiDx = 5;  //  h^-1
     mXiX = 200; //  h^-1
-    mXiC = 0.0; //  h^-1 (FOR HYPOTHESIS ONE)
+    if (mHypothesis=1)
+    {
+        mXiC = 0.0; //  h^-1 (FOR HYPOTHESIS ONE)
+    }
+    else
+    {
+        mXiC = 5000.0;   //  h^-1 (FOR HYPOTHESIS TWO) 
+    }
 }
 
 /**
@@ -422,17 +434,4 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     rDY[20] = (mSy*(Ct+Mt))/(Ct + Mt + mKt) - mDy*Y;
     rDY[21] = 0.0;  // don't interfere with Wnt stimulus.
 }
-
-
-void IngeWntSwatCellCycleOdeSystem::SetUseHypothesisTwo(bool hypothesisTwo)
-{
-    if (hypothesisTwo)
-    {
-        mXiC = 5000.0;  // hypothesis two
-    }
-    else
-    {
-        mXiC = 0.0;     // hypothesis one
-    }
-}   
 
