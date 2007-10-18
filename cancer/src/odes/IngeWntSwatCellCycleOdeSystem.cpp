@@ -291,7 +291,7 @@ void IngeWntSwatCellCycleOdeSystem::Init()
     mXiD = 5;   //  h^-1
     mXiDx = 5;  //  h^-1
     mXiX = 200; //  h^-1
-    if (mHypothesis=1)
+    if (mHypothesis==1)
     {
         mXiC = 0.0; //  h^-1 (FOR HYPOTHESIS ONE)
     }
