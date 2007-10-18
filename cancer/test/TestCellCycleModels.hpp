@@ -350,6 +350,10 @@ public:
                                    HEALTHY,//Mutation State
                                    0,  // generation
                                    p_cell_model);
+                                   
+        // Coverage of cell cycle model copying without an ODE system set up
+        TissueCell stem_cell2 = stem_cell;
+        TS_ASSERT_EQUALS(stem_cell2.GetMutationState(), HEALTHY);
                            
         stem_cell.InitialiseCellCycleModel();
 
@@ -974,7 +978,12 @@ public:
         OxygenBasedCellCycleModel* p_cell_model = new OxygenBasedCellCycleModel();
         
         // create cell 
-        TissueCell cell(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model);                           
+        TissueCell cell(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model);    
+        
+        // Coverage of cell cycle model copying without an ODE system set up
+        TissueCell stem_cell2 = cell;
+        TS_ASSERT_EQUALS(stem_cell2.GetMutationState(), ALARCON_NORMAL);
+                               
         cell.InitialiseCellCycleModel();
         
         // check oxygen concentration is correct in cell cycle model
