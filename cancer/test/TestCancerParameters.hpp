@@ -9,8 +9,6 @@
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
 
-
-
 class TestCancerParameters : public CxxTest::TestSuite
 {
 private:
@@ -19,6 +17,9 @@ private:
         CancerParameters *inst = CancerParameters::Instance();
         
         TS_ASSERT_DELTA(inst->GetSG2MDuration(), 10.0 , 1e-12);
+        TS_ASSERT_DELTA(inst->GetSDuration(), 5.0 , 1e-12);
+        TS_ASSERT_DELTA(inst->GetG2Duration(), 4.0 , 1e-12);
+        TS_ASSERT_DELTA(inst->GetMDuration(), 1.0 , 1e-12);
         TS_ASSERT_DELTA(inst->GetStemCellCycleTime(), 24.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetTransitCellCycleTime(), 12.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetHepaOneCellCycleTime(), 18.0, 1e-12);
@@ -42,7 +43,9 @@ public:
     {
         CancerParameters* inst = CancerParameters::Instance();
         
-        inst->SetSG2MDuration(11.0);
+        inst->SetSDuration(11.0);
+        inst->SetG2Duration(11.0);
+        inst->SetMDuration(11.0);
         inst->SetStemCellCycleTime(35.0);
         inst->SetTransitCellCycleTime(45.0);
         inst->SetHepaOneCellCycleTime(10.0);
@@ -63,7 +66,9 @@ public:
     {
         CancerParameters *inst1 = CancerParameters::Instance();
         
-        inst1->SetSG2MDuration(11.0);
+        inst1->SetSDuration(4.0);
+        inst1->SetG2Duration(3.0);
+        inst1->SetMDuration(2.0);
         inst1->SetStemCellCycleTime(35.0);
         inst1->SetTransitCellCycleTime(45.0);
         inst1->SetHepaOneCellCycleTime(10.0);
@@ -76,7 +81,10 @@ public:
         
         CancerParameters *inst2 = CancerParameters::Instance();
         
-        TS_ASSERT_DELTA(inst2->GetSG2MDuration(), 11.0 , 1e-12);
+        TS_ASSERT_DELTA(inst2->GetSG2MDuration(), 9.0 , 1e-12);
+        TS_ASSERT_DELTA(inst2->GetSDuration(), 4.0 , 1e-12);
+        TS_ASSERT_DELTA(inst2->GetG2Duration(), 3.0 , 1e-12);
+        TS_ASSERT_DELTA(inst2->GetMDuration(), 2.0 , 1e-12);
         TS_ASSERT_DELTA(inst2->GetStemCellCycleTime(), 35.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetTransitCellCycleTime(), 45.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetHepaOneCellCycleTime(), 10.0, 1e-12);
@@ -98,7 +106,9 @@ public:
         {
             CancerParameters *inst1 = CancerParameters::Instance();
             // Mess up the cancer parameters
-            inst1->SetSG2MDuration(11.0);
+            inst1->SetSDuration(4.0);
+            inst1->SetG2Duration(3.0);
+            inst1->SetMDuration(2.0);
             inst1->SetStemCellCycleTime(35.0);
             inst1->SetTransitCellCycleTime(45.0);
             inst1->SetHepaOneCellCycleTime(10.0);
@@ -119,7 +129,9 @@ public:
         {
             CancerParameters *inst1 = CancerParameters::Instance();
             // restore to nice parameters
-            inst1->SetSG2MDuration(10.0);
+            inst1->SetSDuration(5.0);
+            inst1->SetG2Duration(4.0);
+            inst1->SetMDuration(1.0);
             inst1->SetStemCellCycleTime(24.0);
             inst1->SetTransitCellCycleTime(12.0);
             inst1->SetHepaOneCellCycleTime(18.0);
@@ -138,7 +150,10 @@ public:
             // restore messed up parameters from the archive
             input_arch >> *inst1;
             // check they are messed up.
-            TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 11.0 , 1e-12);
+            TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 9.0 , 1e-12);
+            TS_ASSERT_DELTA(inst1->GetSDuration(), 4.0 , 1e-12);
+            TS_ASSERT_DELTA(inst1->GetG2Duration(), 3.0 , 1e-12);
+            TS_ASSERT_DELTA(inst1->GetMDuration(), 2.0 , 1e-12);        
             TS_ASSERT_DELTA(inst1->GetStemCellCycleTime(), 35.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetTransitCellCycleTime(), 45.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetHepaOneCellCycleTime(), 10.0, 1e-12);

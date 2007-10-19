@@ -311,7 +311,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     double ageA = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
     double ageB = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
     
-    if (ageA<1.0 && ageB<1.0 )
+    if (ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
     {
         // Spring Rest Length Increases to normal rest length from ???? to normal rest length, 1.0, over 1 hour
         std::set<TissueCell *> cell_pair;
@@ -321,10 +321,10 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
         if (count==1)
         {   
             double lambda=CancerParameters::Instance()->GetDivisionRestingSpringLength();
-            rest_length=(lambda+(1.0-lambda)*ageA);           
+            rest_length=(lambda+(1.0-lambda)*(ageA/(CancerParameters::Instance()->GetMDuration())));           
         }
         
-        if (ageA+ SimulationTime::Instance()->GetTimeStep() >= 1.0)
+        if (ageA+ SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
         {
             //This spring is about to go out of scope
             mDivisionPairs.erase(cell_pair);

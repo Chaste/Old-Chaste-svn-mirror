@@ -1129,7 +1129,7 @@ public:
             
             CancerParameters *inst1 = CancerParameters::Instance();
             
-            inst1->SetSG2MDuration(101.0);
+            inst1->SetSDuration(101.0);
             
             // restore from the archive
             input_arch >> *p_simulation_time;
@@ -1259,7 +1259,7 @@ public:
             
             CancerParameters *inst1 = CancerParameters::Instance();
             
-            inst1->SetSG2MDuration(101.0);
+            inst1->SetSDuration(101.0);
             
             TissueCell* p_cell;
             // Create an input archive
@@ -1336,7 +1336,7 @@ public:
             
             CancerParameters *inst1 = CancerParameters::Instance();
             
-            inst1->SetSG2MDuration(101.0);
+            inst1->SetSDuration(101.0);
             
             TissueCell* p_cell;
             // Create an input archive
@@ -1418,7 +1418,7 @@ public:
             
             CancerParameters *inst1 = CancerParameters::Instance();
             
-            inst1->SetSG2MDuration(101.0);
+            inst1->SetSDuration(101.0);
             
             TissueCell* p_cell;
             // Create an input archive
@@ -1513,7 +1513,7 @@ public:
             
             CancerParameters *inst1 = CancerParameters::Instance();
             
-            inst1->SetSG2MDuration(101.0);
+            inst1->SetSDuration(101.0);
             
             TissueCell* p_stoc_cell; 
             TissueCell* p_wnt_cell; 
@@ -1615,7 +1615,7 @@ public:
             
             CancerParameters *inst1 = CancerParameters::Instance();
             
-            inst1->SetSG2MDuration(1.0);
+            inst1->SetSDuration(101.0);
             
             TissueCell* p_cell;
             

@@ -19,23 +19,28 @@ CancerParameters::CancerParameters()
     Reset();
 }    
 
+/**
+ * mStemCellCycleTime has units of hours
+ * mTransitCellCycleTime has units of hours
+ * mHepaOneCellCycleTime has units of hours
+ * mSG2MDuration has units of hours
+ * mSDuration has units of hours
+ * mG2Duration has units of hours
+ * mMDuration has units of hours
+ * mMaxTransitGenerations has no units
+ * mCryptLength  has units of cell size at equilibrium rest length
+ * mNaturalSpringLength has units of cell length at equilibrium rest length.
+ * This is set to 1 and should be left unchanged in all simulations.
+ */
 void CancerParameters::Reset()
 {   
-    /* mStemCellCycleTime has units of hours
-     * mTransitCellCycleTime has units of hours
-     * mHepaOneCellCycleTime has units of hours
-     * mSG2MDuration has units of hours
-     * mMaxTransitGenerations has no units
-     * mCryptLength  has units of cell size at equilibrium rest length
-     * mNaturalSpringLength has units of cell length at equilibrium rest length.
-     * This is set to 1 and should be left unchanged in all simulations.
-     */
-
     // Default parameter values
     mStemCellCycleTime = 24.0;
     mTransitCellCycleTime = 12.0;
     mHepaOneCellCycleTime = 18.0; // Taken from Owen et al (2004)
-    mSG2MDuration = 10.0;	// This is a guess for Wnt Model
+    mSDuration = 5.0;      // apparently between 5-6 hours normally.
+    mG2Duration = 4.0;     // apparently 3-4 hours normally.
+    mMDuration = 1.0;   // This is Meineke's approximation for cell division time.    
     mMaxTransitGenerations = 3u;
     mCryptWidth = 10.0;
     mCryptLength = 22.0;        // This is MOUSE (small intestine)
@@ -67,7 +72,19 @@ double CancerParameters::GetHepaOneCellCycleTime()
 }
 double CancerParameters::GetSG2MDuration()
 {
-    return mSG2MDuration;
+    return mSDuration + mG2Duration + mMDuration;
+}
+double CancerParameters::GetSDuration()
+{
+    return mSDuration;
+}
+double CancerParameters::GetG2Duration()
+{
+    return mG2Duration;
+}
+double CancerParameters::GetMDuration()
+{
+    return mMDuration;
 }
 unsigned CancerParameters::GetMaxTransitGenerations()
 {
@@ -124,10 +141,20 @@ void CancerParameters::SetHepaOneCellCycleTime(double hepaOneCellCycleTime)
     assert(hepaOneCellCycleTime > 0.0);
     mHepaOneCellCycleTime = hepaOneCellCycleTime;
 }
-void CancerParameters::SetSG2MDuration(double SG2MDuration)
+void CancerParameters::SetSDuration(double SDuration)
 {
-    assert(SG2MDuration > 0.0);
-    mSG2MDuration = SG2MDuration;
+    assert(SDuration > 0.0);
+    mSDuration = SDuration;
+}
+void CancerParameters::SetG2Duration(double G2Duration)
+{
+    assert(G2Duration > 0.0);
+    mG2Duration = G2Duration;
+}
+void CancerParameters::SetMDuration(double MDuration)
+{
+    assert(MDuration > 0.0);
+    mMDuration = MDuration;
 }
 void CancerParameters::SetMaxTransitGenerations(unsigned maxTransitGens)
 {

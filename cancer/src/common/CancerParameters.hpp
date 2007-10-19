@@ -17,7 +17,10 @@ public:
     double GetStemCellCycleTime();
     double GetTransitCellCycleTime();
     double GetHepaOneCellCycleTime();
-    double GetSG2MDuration();
+    double GetSG2MDuration();    
+    double GetSDuration();
+    double GetG2Duration();
+    double GetMDuration();    
     unsigned GetMaxTransitGenerations();
     double GetCryptLength();
     double GetCryptWidth();
@@ -30,8 +33,10 @@ public:
     
     void SetStemCellCycleTime(double);
     void SetTransitCellCycleTime(double);
-    void SetHepaOneCellCycleTime(double);
-    void SetSG2MDuration(double);
+    void SetHepaOneCellCycleTime(double);    
+    void SetSDuration(double);
+    void SetG2Duration(double);
+    void SetMDuration(double);    
     void SetMaxTransitGenerations(unsigned);
     void SetCryptLength(double);
     void SetCryptWidth(double);
@@ -71,12 +76,24 @@ private:
      * For use in monolayer/spheroid simulations.
      * May be used as a mean time for stochastic cell cycle models.
      */
-    double mHepaOneCellCycleTime;    
+    double mHepaOneCellCycleTime;  
+      
     /**
-     * S-G2-M Phase Duration.
-     * Used by the Wnt signalling model which only models the G1 phase.
+     * S Phase Duration, currently for all cell cycle models except T&N.
      */
-    double mSG2MDuration;
+    double mSDuration;
+    
+    /**
+     * G2 Phase Duration.
+     * Used by the cell cycle models.
+     */
+    double mG2Duration;
+    
+    /**
+     * M Phase Duration.
+     * Used by the cell cycle models, and the mDivisionPairs methods.
+     */
+    double mMDuration;
     
     /**
      * How many generations a transit cell lives for before becoming fully differentiated.
@@ -138,7 +155,11 @@ private:
         archive & mStemCellCycleTime;
         archive & mTransitCellCycleTime;
         archive & mHepaOneCellCycleTime;
-        archive & mSG2MDuration;
+       
+        archive & mSDuration;
+        archive & mG2Duration;
+        archive & mMDuration;     
+                  
         archive & mMaxTransitGenerations;
         archive & mCryptLength;
         archive & mCryptWidth;
