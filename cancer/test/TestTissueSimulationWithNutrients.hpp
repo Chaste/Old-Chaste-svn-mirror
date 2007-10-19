@@ -38,7 +38,8 @@ public:
         mTimeProgressingThroughCellCycle = mTimeProgressingThroughCellCycle + std::max(oxygen_concentration,0.0)*SimulationTime::Instance()->GetTimeStep(); 
         
         bool result = false;        
-        if ( mTimeProgressingThroughCellCycle > CancerParameters::Instance()->GetHepaOneCellCycleTime() )
+        if ( mTimeProgressingThroughCellCycle > CancerParameters::Instance()->GetHepaOneCellG1Duration() + 
+                                                        CancerParameters::Instance()->GetSG2MDuration() )
         {
             result = true;
         }
@@ -104,7 +105,8 @@ public:
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(HEPA_ONE, HEALTHY, 0, new SimpleOxygenBasedCellCycleModel());
-            double birth_time = -p_gen->ranf()*p_params->GetTransitCellCycleTime();
+            double birth_time = -p_gen->ranf()*(p_params->GetTransitCellG1Duration()
+                                               +p_params->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

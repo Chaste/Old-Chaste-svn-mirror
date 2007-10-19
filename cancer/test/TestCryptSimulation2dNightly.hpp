@@ -343,8 +343,9 @@ public:
         
         // check the stem cell cycle time is still 24 hrs, otherwise
         // this test might not pass
-        TS_ASSERT_DELTA(p_params->GetStemCellCycleTime(), 24, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetTransitCellCycleTime(), 12, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10, 1e-12);
         
         int num_cells_width = 7;
         int num_cells_depth = 5;

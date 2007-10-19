@@ -88,7 +88,8 @@ public :
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(TRANSIT, HEALTHY, 0, new FixedCellCycleModel());
-            double birth_time = -p_gen->ranf()*p_params->GetTransitCellCycleTime();
+            double birth_time = -p_gen->ranf()*(p_params->GetTransitCellG1Duration()
+                                               +p_params->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -146,7 +147,8 @@ public :
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(TRANSIT, HEALTHY, 0, new FixedCellCycleModel());
-            double birth_time = -p_gen->ranf()*p_params->GetTransitCellCycleTime();
+            double birth_time = -p_gen->ranf()*(p_params->GetTransitCellG1Duration()
+                                               +p_params->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

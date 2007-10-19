@@ -31,10 +31,10 @@ void StochasticCellCycleModel::SetDivisionAge()
     switch (mpCell->GetCellType())
     {
         case STEM:
-            mDivisionAge = p_params->GetStemCellCycleTime();
+            mDivisionAge = p_params->GetStemCellG1Duration() + p_params->GetSG2MDuration();
             break;
         case TRANSIT:
-            mDivisionAge = p_gen->NormalRandomDeviate(p_params->GetTransitCellCycleTime(), 1.0);
+            mDivisionAge = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration() + p_params->GetSG2MDuration(), 1.0);
             break;
         case DIFFERENTIATED:
             mDivisionAge = DBL_MAX;

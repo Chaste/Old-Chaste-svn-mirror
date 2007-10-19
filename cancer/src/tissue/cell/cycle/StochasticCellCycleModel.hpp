@@ -9,7 +9,10 @@
  *  Stochastic cell model
  *
  *  Cell cycle time is deterministic for stem cells and stochastic (normally
- *  distributed with mean CancerParameters::TransitCellCycleTime and variance 1)
+ *  distributed with mean 
+ *  CancerParameters::TransitCellG1Duration + SG2MDuration 
+ *  and 
+ *  variance = 1)
  */
 class StochasticCellCycleModel : public AbstractCellCycleModel
 {

@@ -85,20 +85,26 @@ public :
             if (cycleType==FIXED)
             {
                 p_cell_cycle_model = new FixedCellCycleModel();
-                typical_transit_cycle_time = p_params->GetTransitCellCycleTime();
-                typical_stem_cycle_time = p_params->GetStemCellCycleTime();
+                typical_transit_cycle_time = p_params->GetTransitCellG1Duration()
+                                            + p_params->GetSG2MDuration();
+                typical_stem_cycle_time = p_params->GetStemCellG1Duration()
+                                            + p_params->GetSG2MDuration();
             }
             else if (cycleType==STOCHASTIC)
             {
                 p_cell_cycle_model = new StochasticCellCycleModel();
-                typical_transit_cycle_time = p_params->GetTransitCellCycleTime();
-                typical_stem_cycle_time = p_params->GetStemCellCycleTime();
+                typical_transit_cycle_time = p_params->GetTransitCellG1Duration()
+                                                + p_params->GetSG2MDuration();
+                typical_stem_cycle_time = p_params->GetStemCellG1Duration()
+                                            + p_params->GetSG2MDuration();
             }
             else if (cycleType==SIMPLE_WNT)
             {
                 p_cell_cycle_model = new SimpleWntCellCycleModel();
-                typical_transit_cycle_time = p_params->GetTransitCellCycleTime();
-                typical_stem_cycle_time = p_params->GetStemCellCycleTime();
+                typical_transit_cycle_time = p_params->GetTransitCellG1Duration()
+                                               + p_params->GetSG2MDuration();
+                typical_stem_cycle_time = p_params->GetStemCellG1Duration()
+                                            + p_params->GetSG2MDuration();
             }
             else if (cycleType==WNT)
             {

@@ -14,7 +14,8 @@ void SimpleWntCellCycleModel::ResetModel()
     mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
     mCycleTime = RandomNumberGenerator::Instance()->
                         NormalRandomDeviate(
-                            CancerParameters::Instance()->GetTransitCellCycleTime(), 
+                            CancerParameters::Instance()->GetTransitCellG1Duration()
+                                +  CancerParameters::Instance()->GetSG2MDuration() , 
                             1.0);   // (mean and s.d.)
 }
 

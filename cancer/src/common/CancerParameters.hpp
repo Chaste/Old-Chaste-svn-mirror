@@ -14,9 +14,9 @@ public:
      */
     static CancerParameters* Instance();
     
-    double GetStemCellCycleTime();
-    double GetTransitCellCycleTime();
-    double GetHepaOneCellCycleTime();
+    double GetStemCellG1Duration();
+    double GetTransitCellG1Duration();
+    double GetHepaOneCellG1Duration();
     double GetSG2MDuration();    
     double GetSDuration();
     double GetG2Duration();
@@ -31,9 +31,9 @@ public:
     double GetDivisionRestingSpringLength();
     double GetDivisionSeparation();
     
-    void SetStemCellCycleTime(double);
-    void SetTransitCellCycleTime(double);
-    void SetHepaOneCellCycleTime(double);    
+    void SetStemCellG1Duration(double);
+    void SetTransitCellG1Duration(double);
+    void SetHepaOneCellG1Duration(double);    
     void SetSDuration(double);
     void SetG2Duration(double);
     void SetMDuration(double);    
@@ -64,19 +64,19 @@ private:
     /**
      * Stem cell cycle time, used to non-dimensionalise the problem
      */
-    double mStemCellCycleTime;
+    double mStemCellG1Duration;
     /**
      * Transit cell cycle time.
      * May be used as a mean time for stochastic cell cycle models.
      * Should probably be non-dimensionalised with stem cell cycle time (ticket:204)
      */
-    double mTransitCellCycleTime;    
+    double mTransitCellG1Duration;    
     /**
      * HEPA-1 cell cycle time. 
      * For use in monolayer/spheroid simulations.
      * May be used as a mean time for stochastic cell cycle models.
      */
-    double mHepaOneCellCycleTime;  
+    double mHepaOneCellG1Duration;  
       
     /**
      * S Phase Duration, currently for all cell cycle models except T&N.
@@ -152,14 +152,12 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & mStemCellCycleTime;
-        archive & mTransitCellCycleTime;
-        archive & mHepaOneCellCycleTime;
-       
+        archive & mStemCellG1Duration;
+        archive & mTransitCellG1Duration;
+        archive & mHepaOneCellG1Duration;       
         archive & mSDuration;
         archive & mG2Duration;
-        archive & mMDuration;     
-                  
+        archive & mMDuration;                       
         archive & mMaxTransitGenerations;
         archive & mCryptLength;
         archive & mCryptWidth;

@@ -9,7 +9,8 @@
  *  Fixed cell cycle model
  *
  *  Cell cycle time is deterministic for stem and transit cells (with values
- *  CancerParameters::StemCellCycleTime and CancerParameters::TransitCellCycleTime)
+ *  CancerParameters::StemCellG1Duration + SG2MDuration 
+ * and CancerParameters::TransitCellG1Duration + SG2MDuration)
  */
 class SimpleWntCellCycleModel : public AbstractCellCycleModel
 {
@@ -34,8 +35,9 @@ public:
      */
     SimpleWntCellCycleModel()
     : mCycleTime(RandomNumberGenerator::Instance()->
-                    NormalRandomDeviate(CancerParameters::Instance()->
-                                        GetTransitCellCycleTime(), 1.0)) {};
+                    NormalRandomDeviate(
+                      CancerParameters::Instance()->GetTransitCellG1Duration()
+                        + CancerParameters::Instance()->GetSG2MDuration(), 1.0)) {};
 
     virtual bool ReadyToDivide();
     

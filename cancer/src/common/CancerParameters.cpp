@@ -20,10 +20,9 @@ CancerParameters::CancerParameters()
 }    
 
 /**
- * mStemCellCycleTime has units of hours
- * mTransitCellCycleTime has units of hours
- * mHepaOneCellCycleTime has units of hours
- * mSG2MDuration has units of hours
+ * mStemCellG1Duration has units of hours
+ * mTransitCellG1Duration has units of hours
+ * mHepaOneCellG1Duration has units of hours
  * mSDuration has units of hours
  * mG2Duration has units of hours
  * mMDuration has units of hours
@@ -35,9 +34,9 @@ CancerParameters::CancerParameters()
 void CancerParameters::Reset()
 {   
     // Default parameter values
-    mStemCellCycleTime = 24.0;
-    mTransitCellCycleTime = 12.0;
-    mHepaOneCellCycleTime = 18.0; // Taken from Owen et al (2004)
+    mStemCellG1Duration = 14.0;
+    mTransitCellG1Duration = 2.0;
+    mHepaOneCellG1Duration = 8.0; // Taken from Owen et al (2004)
     mSDuration = 5.0;      // apparently between 5-6 hours normally.
     mG2Duration = 4.0;     // apparently 3-4 hours normally.
     mMDuration = 1.0;   // This is Meineke's approximation for cell division time.    
@@ -58,17 +57,17 @@ void CancerParameters::Reset()
 // Getter methods
 ///////////////////////////////////////////////////////////////////////
 
-double CancerParameters::GetStemCellCycleTime()
+double CancerParameters::GetStemCellG1Duration()
 {
-    return mStemCellCycleTime;
+    return mStemCellG1Duration;
 }
-double CancerParameters::GetTransitCellCycleTime()
+double CancerParameters::GetTransitCellG1Duration()
 {
-    return mTransitCellCycleTime;
+    return mTransitCellG1Duration;
 }
-double CancerParameters::GetHepaOneCellCycleTime()
+double CancerParameters::GetHepaOneCellG1Duration()
 {
-    return mHepaOneCellCycleTime;
+    return mHepaOneCellG1Duration;
 }
 double CancerParameters::GetSG2MDuration()
 {
@@ -126,20 +125,20 @@ double CancerParameters::GetDivisionSeparation()
 // Setter methods
 ///////////////////////////////////////////////////////////////////////
 
-void CancerParameters::SetStemCellCycleTime(double stemCellCycleTime)
+void CancerParameters::SetStemCellG1Duration(double stemCellG1Duration)
 {
-    assert(stemCellCycleTime > 0.0);
-    mStemCellCycleTime = stemCellCycleTime;
+    assert(stemCellG1Duration > 0.0);
+    mStemCellG1Duration = stemCellG1Duration;
 }
-void CancerParameters::SetTransitCellCycleTime(double transitCellCycleTime)
+void CancerParameters::SetTransitCellG1Duration(double transitCellG1Duration)
 {
-    assert(transitCellCycleTime > 0.0);
-    mTransitCellCycleTime = transitCellCycleTime;
+    assert(transitCellG1Duration > 0.0);
+    mTransitCellG1Duration = transitCellG1Duration;
 }
-void CancerParameters::SetHepaOneCellCycleTime(double hepaOneCellCycleTime)
+void CancerParameters::SetHepaOneCellG1Duration(double hepaOneCellG1Duration)
 {
-    assert(hepaOneCellCycleTime > 0.0);
-    mHepaOneCellCycleTime = hepaOneCellCycleTime;
+    assert(hepaOneCellG1Duration > 0.0);
+    mHepaOneCellG1Duration = hepaOneCellG1Duration;
 }
 void CancerParameters::SetSDuration(double SDuration)
 {

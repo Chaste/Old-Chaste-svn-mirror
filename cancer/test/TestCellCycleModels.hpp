@@ -32,7 +32,9 @@ public:
         
         unsigned num_steps = 100;
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*p_params->GetStemCellCycleTime(), num_steps);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
+            2.0*(p_params->GetStemCellG1Duration()
+                  +p_params->GetSG2MDuration()     ), num_steps);
         
         TS_ASSERT_THROWS_NOTHING(FixedCellCycleModel model3);
         
@@ -73,7 +75,7 @@ public:
             double time = p_simulation_time->GetDimensionalisedTime();
 
             // Test STEM cells
-            if (time<p_params->GetStemCellCycleTime())
+            if (time<p_params->GetStemCellG1Duration() + p_params->GetSG2MDuration())
             {
                 TS_ASSERT(!p_our_fixed_stem_cell_cycle_model->ReadyToDivide());
             }
@@ -82,7 +84,7 @@ public:
                 TS_ASSERT(p_our_fixed_stem_cell_cycle_model->ReadyToDivide());
             }
             // Test a Transit Cell
-            if (time<p_params->GetTransitCellCycleTime())
+            if (time<p_params->GetTransitCellG1Duration() + p_params->GetSG2MDuration())
             {
                 TS_ASSERT(!p_our_fixed_transit_cell_cycle_model->ReadyToDivide());
             }
@@ -93,7 +95,7 @@ public:
             // Test a DIFFERENTIATED cell
             TS_ASSERT(!p_our_fixed_diff_cell_cycle_model->ReadyToDivide());
             // Test a HEPA_ONE cell
-            if (time<p_params->GetHepaOneCellCycleTime())
+            if (time<p_params->GetHepaOneCellG1Duration() + p_params->GetSG2MDuration())
             {
                 TS_ASSERT(!p_our_fixed_hepa_one_cell_cycle_model->ReadyToDivide());
             }
@@ -119,7 +121,8 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();        
         unsigned num_steps = 100;
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*p_params->GetStemCellCycleTime(), num_steps);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
+            2.0*(p_params->GetStemCellG1Duration() + p_params->GetSG2MDuration()), num_steps);
         
         TS_ASSERT_THROWS_NOTHING(StochasticCellCycleModel cell_model3);
         
@@ -142,7 +145,7 @@ public:
             double time = p_simulation_time->GetDimensionalisedTime();
          
             // Test STEM cells
-            if (time<p_params->GetStemCellCycleTime())
+            if (time<p_params->GetStemCellG1Duration()+ p_params->GetSG2MDuration())
             {
                 TS_ASSERT_EQUALS(p_stem_model->ReadyToDivide(), false);
             }

@@ -87,8 +87,9 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         
         // this test needs particular cell cycle times
-        TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
-        TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
+        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
         
         p_simulation_time->IncrementTimeOneStep();//t=6
         
@@ -178,12 +179,14 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
         CancerParameters *p_params = CancerParameters::Instance();
         
-        // If the value of GetStemCellCycleTime() changes in p_params the simulation time
+        // If the value of GetStemCellG1Duration() changes in p_params the simulation time
         // step and end time will need to be changed accordingly so that
         // IncrementTimeOneStep() gets the cell to correct division times
         
-        TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
-        TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
+        // this test needs particular cell cycle times
+        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
         
         // SimulationTime returns 0 hours
         p_simulation_time->IncrementTimeOneStep();
@@ -414,8 +417,9 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         
         // this test needs particular cell cycle times
-        TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
-        TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
+        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
         
         RandomNumberGenerator::Instance();
         
@@ -497,8 +501,9 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         
         // this test needs particular cell cycle times
-        TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
-        TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
+        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
         
         RandomNumberGenerator::Instance();
         
@@ -557,8 +562,9 @@ public:
         p_params->Reset();
         
         // this test needs particular cell cycle times
-        TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
-        TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
+        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
         
         RandomNumberGenerator::Instance()->Reseed(0);
         
@@ -648,7 +654,7 @@ public:
         TS_ASSERT_DELTA(differentiated_cell_mean, 8.0, 1.0);
         
         
-        TS_ASSERT_DELTA(p_params->GetTransitCellCycleTime(), 12.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
         
         RandomNumberGenerator::Destroy();
     }

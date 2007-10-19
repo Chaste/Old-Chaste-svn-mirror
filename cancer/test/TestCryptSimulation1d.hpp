@@ -244,13 +244,15 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -p_rand_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
+                                                  + p_params->GetSG2MDuration()); //hours - doesn't matter for stem cell;
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
-                birth_time = -p_rand_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
+                                                    + p_params->GetSG2MDuration()); //hours
             }
             else
             {
@@ -310,13 +312,15 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -p_rand_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
+                                                  + p_params->GetSG2MDuration()); //hours - doesn't matter for stem cell;
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
-                birth_time = -p_rand_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
+                                                   + p_params->GetSG2MDuration()); //hours
             }
             else
             {
@@ -365,10 +369,13 @@ public:
         p_simulation_time->SetStartTime(0.0);
         
         // For Tyson-Novak Cells
-        double temp_stem = p_params->GetStemCellCycleTime();
-        double temp_transit = p_params->GetTransitCellCycleTime();
-        p_params->SetStemCellCycleTime(0.15);
-        p_params->SetTransitCellCycleTime(0.15);
+        double temp_stem = p_params->GetStemCellG1Duration()+p_params->GetSG2MDuration();
+        double temp_transit = p_params->GetTransitCellG1Duration()+p_params->GetSG2MDuration();
+        p_params->SetStemCellG1Duration(0.12);
+        p_params->SetTransitCellG1Duration(0.12);
+        p_params->SetSDuration(0.01);
+        p_params->SetG2Duration(0.01);
+        p_params->SetMDuration(0.01);
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
@@ -382,13 +389,15 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -p_rand_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
+                                                  + p_params->GetSG2MDuration()); //hours - doesn't matter for stem cell;
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
-                birth_time = -p_rand_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
+                                                    + p_params->GetSG2MDuration()); //hours
             }
             else
             {
@@ -422,8 +431,8 @@ public:
          */
         TS_ASSERT_EQUALS(cells.size() , num_cells + 23u);
         
-        p_params->SetStemCellCycleTime(temp_stem);
-        p_params->SetTransitCellCycleTime(temp_transit);
+        p_params->SetStemCellG1Duration(temp_stem - 10.0);
+        p_params->SetTransitCellG1Duration(temp_transit - 10.0);
     }
     
     
@@ -440,9 +449,9 @@ public:
         
         // check the stem cell cycle time is still 24 hrs, otherwise
         // this test might not pass
-        TS_ASSERT_DELTA(p_params->GetStemCellCycleTime(), 24, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetTransitCellCycleTime(), 12, 1e-12);
-        
+        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
         
         double crypt_length = 5.0;
         p_params->SetCryptLength(crypt_length);

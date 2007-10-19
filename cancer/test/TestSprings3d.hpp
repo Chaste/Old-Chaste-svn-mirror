@@ -446,7 +446,8 @@ public:
             generation = 0;
             TissueCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);    
-            cell.SetBirthTime(p_random_num_gen->ranf()*p_params->GetStemCellCycleTime());            
+            cell.SetBirthTime(p_random_num_gen->ranf()*
+                                (p_params->GetStemCellG1Duration() + p_params->GetSG2MDuration())  );            
             cells.push_back(cell);
         } 
         
@@ -532,7 +533,8 @@ public:
             generation = 0;
             TissueCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);    
-            cell.SetBirthTime(-p_random_num_gen->ranf()*p_params->GetStemCellCycleTime());      
+            cell.SetBirthTime(-p_random_num_gen->ranf()*(  p_params->GetStemCellG1Duration() +
+                                                           p_params->GetSG2MDuration()  ));      
             cells.push_back(cell);
         } 
                     
