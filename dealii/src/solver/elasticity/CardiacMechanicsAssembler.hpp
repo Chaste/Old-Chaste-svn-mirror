@@ -12,11 +12,6 @@ friend class TestImplicitCardiacMechanicsAssembler;
 protected:
     bool mAllocatedMaterialLawMemory;
 
-//    virtual double GetActiveTensionAtCurrentQuadPoint(double lam)
-//    {
-//        return mActiveTension[this->mCurrentQuadPointGlobalIndex];
-//    }
-
     /**
      *  Storage space for dTdE when T and E are in the rotated fibre-sheet frame
      */

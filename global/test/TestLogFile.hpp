@@ -3,6 +3,7 @@
 
 #include <cxxtest/TestSuite.h>
 #include "LogFile.hpp"
+#include <fstream>
 
 class TestLogFile : public CxxTest::TestSuite
 {
@@ -101,10 +102,51 @@ public:
 
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
         
-        // this should fail if optimised.
+        // this may fail if optimised
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log4.txt  global/test/data/good_log4.txt").c_str()), 0);
 
         LogFile::Close();
+    }
+
+
+    void TestHeaderAndElapsedTime()
+    {
+        LogFile* p_log_file = LogFile::Instance();
+        p_log_file->Set(1, "TestLogFile", "log5.txt");
+        
+        p_log_file->WriteHeader("Complete human");
+        
+        // for(unsigned i=0; i<1e9; i++);
+        p_log_file->WriteElapsedTime(" -> ");
+        
+        LogFile::Close();
+    
+        // the file will be different on different occasions (as the date is printed),
+        // so we test by reading it in
+        std::ifstream ifs((OutputFileHandler::GetChasteTestOutputDirectory()+"TestLogFile/log5.txt").c_str());
+        if(ifs.is_open())
+        {
+            std::string line;
+            // get the second line
+            getline(ifs,line);
+            getline(ifs,line);
+
+            // the date will change but the beginning of the line won't
+            std::string expected_beginning_of_line = "CHASTE Complete human simulation, on";
+            TS_ASSERT_EQUALS(line.substr(0,expected_beginning_of_line.size()),expected_beginning_of_line);
+
+            // get the fourth line
+            getline(ifs,line);
+            getline(ifs,line);
+
+            // hopefully it took less than one second to do a tiny bit of writing..
+            std::string expected_line = " -> Elapsed time is: 0h 0m 0s";
+            TS_ASSERT_EQUALS(line ,expected_line);
+        }
+        else
+        {
+            TS_FAIL("log file not written?");
+        }
     }
 };
 #endif /*TESTLOGFILE_HPP_*/

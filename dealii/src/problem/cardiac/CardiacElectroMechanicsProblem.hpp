@@ -78,14 +78,13 @@ public:
         Point<DIM> zero;
         FiniteElasticityTools<DIM>::FixFacesContainingPoint(*(this->mpMechanicsMesh), zero);
         
-        MooneyRivlinMaterialLaw<DIM>* p_law = new MooneyRivlinMaterialLaw<DIM>(20.0);
         if(this->mUseExplicitMethod)
         {
-            this->mpCardiacMechAssembler = new CardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir,p_law);
+            this->mpCardiacMechAssembler = new CardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir);
         }
         else
         {
-            this->mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir,p_law);
+            this->mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir);
         }
     }
 };

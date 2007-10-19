@@ -124,7 +124,8 @@ public:
         // explicit assembler find it's own solution, the explicit solution can be compared 
         // to the implicit solution with the below code. With 
         // FiniteElasticityAssembler::NEWTON_ABS_TOL = 1e-13 and AbstractDealiiAssembler->gmres
-        // tol = 1e-6 the results are that close visually. 2e-15 and 1e-8 is much better.
+        // tol = 1e-6 the results are not that close visually. 2e-15 and 1e-8 is much 
+        // better.
         //
         // std::vector<Vector<double> >& r_impl_solution = implicit_assembler.rGetDeformedPosition();
         // std::vector<Vector<double> >& r_expl_solution = explicit_assembler.rGetDeformedPosition();

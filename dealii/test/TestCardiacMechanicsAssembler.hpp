@@ -41,11 +41,11 @@ public :
         
         // specify this material law so the test continues to pass when the default
         // material law is changed.
-        MooneyRivlinMaterialLaw<2> material_law(0.02);
+        //MooneyRivlinMaterialLaw<2> material_law(0.02);
 
         CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, 
-                                                            "CardiacMech/SpecifiedActiveTensionStretching",
-                                                            &material_law);
+                                                            "CardiacMech/SpecifiedActiveTensionStretching");//,
+                                           //                 &material_law);
 
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.0);
         
@@ -56,7 +56,10 @@ public :
 
         cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
-        TS_ASSERT_THROWS_NOTHING( cardiac_mech_assembler.CompareJacobians(2e-6) );
+        // tol for the default pole-zero law
+        TS_ASSERT_THROWS_NOTHING( cardiac_mech_assembler.CompareJacobians(2e-4) );
+        // tol for mooney-riv(0.02)
+        //TS_ASSERT_THROWS_NOTHING( cardiac_mech_assembler.CompareJacobians(2e-6) );
     }
 
     
@@ -332,6 +335,29 @@ public :
 
         // hardcoded test
         TS_ASSERT_DELTA(lambda[34], 0.7773, 1e-4);
+    }
+    
+    void TestWithPoleZeroLaw() throw(Exception)
+    {
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
+        mesh.refine_global(3);
+        
+        Point<2> zero;
+        FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
+
+        CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, "CardiacMech/PoleZeroConstActiveTension");
+        
+        TS_ASSERT_EQUALS(cardiac_mech_assembler.GetNumQuadPointsPerElement(), 9u);
+        TS_ASSERT_EQUALS(cardiac_mech_assembler.GetTotalNumQuadPoints(), mesh.n_active_cells()*9u);
+                        
+        std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.1);
+        cardiac_mech_assembler.SetForcingQuantity(active_tension);
+
+        // just test it run ok
+        cardiac_mech_assembler.Solve(0,1,1); // the times are unused as explicit
+
+        TS_ASSERT_EQUALS(cardiac_mech_assembler.GetNumNewtonIterations(), 3u);
     }
 };
 #endif /*TESTCARDIACMECHANICSASSEMBLER_HPP_*/

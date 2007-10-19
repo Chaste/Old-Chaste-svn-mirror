@@ -1,4 +1,5 @@
 #include "LogFile.hpp"
+#include <cmath>
 
 LogFile* LogFile::mpInstance = NULL;
 
@@ -6,6 +7,7 @@ LogFile::LogFile()
 {
     mFileSet = false;
     mLevel = 0;
+    mInitTime = time(NULL);
 }
 
 
@@ -13,7 +15,7 @@ LogFile* LogFile::Instance()
 {
     if (mpInstance == NULL)
     {
-            mpInstance = new LogFile; // default construtor which doesn't write
+        mpInstance = new LogFile; // default construtor which doesn't write
     }
     return mpInstance;
 }
@@ -65,6 +67,23 @@ void LogFile::Close()
     }
 }
 
+void LogFile::WriteHeader(std::string simulationType)
+{
+    *this << "\nCHASTE " << simulationType << " simulation, on " << ctime(&mInitTime) << "\n";
+}
+
+void LogFile::WriteElapsedTime(std::string pre)
+{
+    double fsecs = difftime(time(NULL),mInitTime);
+    long total_secs = static_cast<long>(floor(fsecs+0.5));
+    int total_mins = total_secs/60; 
+    
+    int secs = total_secs%60;
+    int mins = total_mins%60;
+    int hrs = total_mins/60;
+    
+    *this << pre << "Elapsed time is: " <<  hrs << "h " << mins << "m " << secs << "s\n";
+}
 
 bool LogFile::IsFileSet()
 {

@@ -8,12 +8,24 @@
 #include "PolynomialMaterialLaw3d.hpp"
 #include "PoleZeroMaterialLaw.hpp"
 #include "PoleZero3dIn1dLaw.hpp"
+#include "NashHunterPoleZeroLaw.hpp"
 #include <cassert>
 
 
 class TestMaterialLaws : public CxxTest::TestSuite
 {
 public:
+//    template<unsigned DIM>
+//    void TestdTdEDerivatives(AbstractMaterialLaw<DIM>& rMaterialLaw)
+//    {
+//        double h = 0.01;
+//        for(unsigned M=0; M<DIM; M++)
+//        {
+//            
+//            
+//        }
+//    }
+
     void TestMooneyRivlinLaw()
     {
         TS_ASSERT_THROWS_ANYTHING(MooneyRivlinMaterialLaw<2> bad_mr_law(-3.0));
@@ -306,7 +318,7 @@ public:
         
         double I1 =   C[0][0]+C[1][1]+C[2][2];
         double I2 =   C[0][0]*C[1][1] + C[1][1]*C[2][2] + C[2][2]*C[0][0]
-                      - C[0][1]*C[1][0] - C[1][2]*C[2][1] - C[2][0]*C[0][2];
+                    - C[0][1]*C[1][0] - C[1][2]*C[2][1] - C[2][0]*C[0][2];
                       
                       
         double true_dWdI1    = 2*c20*(I1-3) +   c11*(I2-3);
@@ -471,23 +483,24 @@ public:
         C[1][1] = 0.5;
         invC = invert(C);
 
-        // C such that E_MN < 0, p=0 => T=0, dTdE=0;
-        pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
-
-        for(unsigned M=0; M<2; M++)
-        {
-            for(unsigned N=0; N<2; N++)
-            {
-                TS_ASSERT_DELTA(T[M][N], 0.0, 1e-9);
-                for(unsigned P=0; P<2; P++)
-                {
-                    for(unsigned Q=0; Q<2; Q++)
-                    {
-                        TS_ASSERT_DELTA(dTdE(M,N,P,Q), 0.0, 1e-9);
-                    }
-                }
-            }
-        }
+//// currently been changed on that pole-zero law DOESN'T return T=0 if E<0
+//        // C such that E_MN < 0, p=0 => T=0, dTdE=0;
+//        pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
+//
+//        for(unsigned M=0; M<2; M++)
+//        {
+//            for(unsigned N=0; N<2; N++)
+//            {
+//                TS_ASSERT_DELTA(T[M][N], 0.0, 1e-9);
+//                for(unsigned P=0; P<2; P++)
+//                {
+//                    for(unsigned Q=0; Q<2; Q++)
+//                    {
+//                        TS_ASSERT_DELTA(dTdE(M,N,P,Q), 0.0, 1e-9);
+//                    }
+//                }
+//            }
+//        }
 
         // non-trivial deformation, (checking all components have such that E_MN < a_MN)
         C[0][0] = 2;
@@ -657,7 +670,106 @@ public:
 
         TS_ASSERT_DELTA( law.GetT(-0.1), -0.5023, 1e-3 );
         TS_ASSERT_DELTA( law.GetT(-0.2), -2.2589, 1e-3 );
-    }    
+    }
+    
+    void TestNashHunterPoleZeroLaw3d() throw(Exception)
+    {
+        NashHunterPoleZeroLaw<3> law;
+        
+        Tensor<2,3> C;
+        Tensor<2,3> invC;
+        C[0][0] = 1.2;
+        C[0][1] = C[1][0] = 0.1;
+        C[0][2] = C[2][0] = 0.3;
+        C[1][1] = 1.1;
+        C[1][2] = C[1][2] = -0.1;
+        C[2][2] = 1.3;
+        invC = invert(C);
+
+        SymmetricTensor<2,3> T;
+        FourthOrderTensor<3> dTdE;
+
+        law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
+
+        // hard-coded test to test nothing changes (and stresses are of
+        // the correct magnitude, which is dependent on whether the params
+        // have been entered a Pa or KPa)
+        TS_ASSERT_DELTA(T[0][0],2.0902,1e-3);
+    }
+
+    void TestNashHunterPoleZeroLaw2d() throw(Exception)
+    {
+        NashHunterPoleZeroLaw<2> law;
+        
+        Tensor<2,2> C;
+        Tensor<2,2> invC;
+        C[0][0] = 1.2;
+        C[0][1] = C[1][0] = 0.1;
+        C[1][1] = 1.1;
+        invC = invert(C);
+
+        SymmetricTensor<2,2> T;
+        FourthOrderTensor<2> dTdE;
+
+        law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
+
+        // hard-coded test to test nothing changes (and stresses are of
+        // the correct magnitude, which is dependent on whether the params
+        // have been entered a Pa or KPa)
+        TS_ASSERT_DELTA(T[0][0],2.0902,1e-3);
+    }
+
+
+    void TestDerivateInPoleZeroLaw2d() throw(Exception)
+    {
+        NashHunterPoleZeroLaw<2> law;
+        
+        //PoleZeroMaterialLaw<2> law(k,a,b);
+        
+        Tensor<2,2> C;
+        Tensor<2,2> invC;
+        C[0][0] = 1.1;
+        C[0][1] = C[1][0] = 0.1;
+        C[1][1] = 0.9;
+        invC = invert(C);
+
+        SymmetricTensor<2,2> T_base;
+        FourthOrderTensor<2> dTdE;
+        
+        law.ComputeStressAndStressDerivative(C,invC,0.0,T_base,dTdE,false);
+
+        double h=0.0001;
+
+        for(unsigned M=0; M<2; M++)
+        {
+            Tensor<2,2> C;
+            Tensor<2,2> invC;
+
+            C[0][0] = 1.1;
+            C[0][1] = C[1][0] = 0.1;
+            C[1][1] = 0.9;
+                
+            C[M][M] += h;     // just change C00 and C11. Can't see how to compute numerical
+                              // derivative of wrt C01,C10, given the C has to be passed in symmetric
+            invC = invert(C);
+
+            SymmetricTensor<2,2> T;
+        
+            law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
+
+            for(unsigned P=0; P<2; P++)
+            {
+                for(unsigned Q=0; Q<2; Q++)
+                {
+                    double dtdc = (T[P][Q]-T_base[P][Q])/h;
+                    //std::cout << P << Q << M << M << " " << dTdE(P,Q,M,M) << "\n"; 
+                    TS_ASSERT_DELTA(2*dtdc, dTdE(P,Q,M,M), dTdE(P,Q,M,M)*1e-3);
+                }
+            }
+                        
+            C[M][M] -= h;
+        }
+    }
 };
 
 #endif /*TESTMATERIALLAWS_HPP_*/

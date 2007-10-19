@@ -3,6 +3,7 @@
 
 #include "CardiacMechanicsAssembler.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
+#include "NashHunterPoleZeroLaw.hpp"
 
 template<unsigned DIM>
 CardiacMechanicsAssembler<DIM>::CardiacMechanicsAssembler(Triangulation<DIM>* pMesh,
@@ -16,7 +17,7 @@ CardiacMechanicsAssembler<DIM>::CardiacMechanicsAssembler(Triangulation<DIM>* pM
     if(pMaterialLaw==NULL)
     {
         this->mMaterialLaws.resize(1);
-        this->mMaterialLaws[0] = new MooneyRivlinMaterialLaw<DIM>(0.02);
+        this->mMaterialLaws[0] = new NashHunterPoleZeroLaw<DIM>;
         this->mHeterogeneous = false; // as FiniteElasticityAssembler would have set this to be true as NULL passed in to construtor
         mAllocatedMaterialLawMemory = true;
     }

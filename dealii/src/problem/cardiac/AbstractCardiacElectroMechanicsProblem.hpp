@@ -181,6 +181,7 @@ public :
         // created, else the log file might get cleaned away
         std::string log_dir = mOutputDirectory; // just the TESTOUTPUT dir if mOutputDir="";
         LogFile::Instance()->Set(1, mOutputDirectory);
+        LogFile::Instance()->WriteHeader("Cardiac electromechanics");
         LOG(1, DIM << "d CardiacElectroMechanics Simulation:");
         LOG(1, "End time = " << mEndTime << ", timestep = " << mTimeStep <<  "\n");
         LOG(1, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
@@ -423,6 +424,9 @@ public :
             // update the current time
             stepper.AdvanceOneTimeStep();
             counter++;
+
+            // write the total elapsed time..
+            LogFile::Instance()->WriteElapsedTime(" ");
         }
 
 

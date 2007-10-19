@@ -11,9 +11,13 @@
  *  can be written to (without being passed around in the code).
  * 
  *  Usage (in test):
+ *  
+ *  // begining of test
  *  LogFile* p_log = LogFile::Instance();
  *  p_log->Set(level, "dir","file");
- *  // run simulatiom
+ *  p_log->WriteHeader("type_of_sim"); // optional
+ * 
+ *  // at end of simulation
  *  LogFile::Close();
  * 
  *  Here 'level' is a number between 0 and LogFile::MaxLoggingLevel, with zero
@@ -21,6 +25,7 @@
  * 
  *  Usage (in source) - use the macro 'LOG'
  *  LOG(1, "Info to be written to the log file\n" << "More info\n");
+ *  LogFile::Instance()->WriteElapsedTime(); // optional
  * 
  *  This checks whether the given level (here '1') is greater or equal to the given
  *  logging level, in which case it writes to the current log file. If there is
@@ -38,9 +43,13 @@ private:
     bool mFileSet;
     /** the file to be written to */
     out_stream mpOutStream;
-    
+
+    time_t mInitTime;
+
+    /** the level of logging required for this particular log file */
     unsigned mLevel;
 
+    /** the max level of logging */
     static const unsigned mMaxLoggingLevel = 2;
 
     /**
@@ -60,17 +69,33 @@ public:
      *  Set the logging level, the directory (relative to TEST_OUTPUT) and the file 
      *  the log should be written to (file defaults to "log.txt").
      *  
-     *  The level should be a number between 0 and LogFile
+     *  The level should be a number between 0 and LogFile::MaxLoggingLevel() (which is the 
+     *  same as LogFile::mMaxLoggingLevel)
      * 
      *  Note: we intentionally do NOT check or throw an exception if a file has already
      *  been set (ie Close() wasn't called the last time a log was used).
      *  
      *  The directory is never cleaned.
      */
-    void Set(unsigned level, std::string directory, std::string fileName="log.txt");    
+    void Set(unsigned level, std::string directory, std::string fileName="log.txt");
 
     /** Get the maximum allowed logging level */
     static unsigned MaxLoggingLevel();
+
+    /** 
+     *  Write a header in the log file, stating the (given) type of simulation and the 
+     *  date and time
+     *  
+     *  @simulationType The type of simulation, eg "Bidomain" or "Crypt" or 
+     *  "Cardiac Electromechanics". Defaults to empty
+     */
+    void WriteHeader(std::string simulationType="");
+    
+    /** 
+     *  Write the elapsed time since the simulation began (since the log file was created) 
+     *  @param pre a string (eg spacings) to write before the elapsed time line
+     */
+    void WriteElapsedTime(std::string pre="");
 
     /**
      *  Close the currently open file, and delete the single LogFile instance

@@ -15,6 +15,8 @@
  * 
  *  Reference: S.A. Niederer, N.P. Smith, P.J. Hunter, "New developments in a strongly
  *  coupled cardiac electro-mechanical model" Europace 7, S118-S127
+ * 
+ *  THE ACTIVE TENSION IS RETURNED IN KILOPASCALS!!
  */
 class NhsCellularMechanicsOdeSystem  : public AbstractOdeSystem
 {

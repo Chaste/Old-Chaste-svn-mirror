@@ -12,7 +12,7 @@
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
 public:
-    void Test1dCompareExplicitVsImplicit() throw(Exception)
+    void xTest1dCompareExplicitVsImplicit() throw(Exception)
     {
         double time_step = 0.01;
         PlaneStimulusCellFactory<1> cell_factory(time_step, -1000*1000);
@@ -64,7 +64,7 @@ public:
         }
     }
     
-    void xTest2dCompareExplicitVsImplicit() throw(Exception)
+    void Test2dCompareExplicitVsImplicit() throw(Exception)
     {
         double time_step = 0.01;
         PlaneStimulusCellFactory<2> cell_factory(time_step, -1000*1000);
