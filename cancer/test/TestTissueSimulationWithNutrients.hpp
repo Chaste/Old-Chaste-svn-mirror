@@ -59,7 +59,7 @@ class SimpleLinearEllipticPde : public AbstractLinearEllipticPde<2>
 public:
     double ComputeLinearSourceTerm(ChastePoint<2> )
     {
-        return -0.1; //-1.0;
+        return -0.2; //-1.0;
     }
     
     double ComputeNonlinearSourceTerm(ChastePoint<2> , double )

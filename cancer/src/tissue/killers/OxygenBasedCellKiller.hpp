@@ -10,10 +10,18 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
-/**
- *  Kills cells based on the local oxygen concentration.
- *  TODO: need to check whether this takes into account current times or timesteps.
+/** 
+ *  Kills cells that have experienced a continuous period of hypoxia.
+ * 
+ *  The non-dimensionalised oxygen concentration at which cells become 
+ *  hypoxic is optionally passed into the constructor. 
+ * 
+ *  Note that TestAndLabelSingleCellForApoptosis() is stochastic, and that 
+ *  this does take into account current times or timesteps, so if more 
+ *  timesteps are used, and TestAndLabelCellsForApoptosis() is called 
+ *  at each timestep, more cells will die.
  */
+
 template <unsigned SPACE_DIM>
 class OxygenBasedCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
@@ -35,6 +43,22 @@ public:
     {
     }
     
+    void SetHypoxicConcentration(double hypoxicConcentration)
+    {
+        mHypoxicConcentration = hypoxicConcentration;    
+    }
+   
+    double GetHypoxicConcentration() const
+    {
+        return mHypoxicConcentration;
+    }
+    
+    /**
+     *  Starts apoptosis if the cell has has been hypoxic for longer than 
+     *  some critical period, and  it is currently hypoxic, and a random number 
+     *  is less than some probability of death (which scales linearly with the 
+     *  local oxygen concentration).
+     */  
     void TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
     {        
         if (rCell.GetCellType()!=HEPA_ONE)
@@ -59,9 +83,8 @@ public:
     }
     
     /**
-     * Loops over cells and starts apoptosis if the cell has been hypoxic 
-     * for longer than some critical period, and if it is currently hypoxic,
-     * with a bit of stochasticity also thrown in for good measure
+     * Loops over cells and starts apoptosis if the cell satisfies certain
+     * conditions 
      */
      virtual void TestAndLabelCellsForApoptosisOrDeath()
     {      
@@ -71,17 +94,7 @@ public:
         {               
             TestAndLabelSingleCellForApoptosis(*cell_iter);
         }
-    }   
-    
-    double GetHypoxicConcentration() const
-    {
-        return mHypoxicConcentration;
-    }
-    
-    void SetHypoxicConcentration(double hypoxicConcentration)
-    {
-        mHypoxicConcentration = hypoxicConcentration;    
-    }
+    }     
 };
 
 #include "TemplatedExport.hpp"
