@@ -91,7 +91,7 @@ public:
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
-        double h_value=0.0001;
+        double h_value = 1e-4;
         
         RungeKutta4IvpOdeSolver rk4_solver;
         RungeKuttaFehlbergIvpOdeSolver rkf_solver;
@@ -108,15 +108,15 @@ public:
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
         
-//        h_value = 0.0001;
-//        
-//        initial_conditions = alarcon_system.GetInitialConditions();
-//        start_time = std::clock();
-//        solutions = rkf_solver.Solve(&alarcon_system, initial_conditions, 0.0, 10.0, h_value, 1e-4);
-//        end_time = std::clock();
-//        elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-//        std::cout <<  "2. Runge-Kutta-Fehlberg Elapsed time = " << elapsed_time << "\n";
-//        
+        h_value = 1e-1;
+        
+        initial_conditions = alarcon_system.GetInitialConditions();
+        start_time = std::clock();
+        solutions = rkf_solver.Solve(&alarcon_system, initial_conditions, 0.0, 10.0, h_value, 1e-4);
+        end_time = std::clock();
+        elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
+        std::cout <<  "2. Runge-Kutta-Fehlberg Elapsed time = " << elapsed_time << "\n";
+        
 //        int my_rank;
 //        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
 //        if (my_rank==0) // if master process
@@ -146,17 +146,20 @@ public:
 //            writer.Close();
 //        }
 //        MPI_Barrier(PETSC_COMM_WORLD);
-//        // test solutions are OK for a small time increase
-//        int end = solutions.rGetSolutions().size() - 1;
-//        // tests the simulation is ending at the right time
-//        TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 9.286356375 , 1e-1);
-//        // proper values found using MatLab ode15s - shocking tolerances though
-//        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 0.004000000000000, 1e-3);
-//        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 0.379221366479055, 1e-3);
-//        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 0.190488726735972, 1e-3);
-//        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3], 9.962110289977730, 1e-3);
-//        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4], 0.096476600742599, 1e-3);
-//        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5], 1.000000000000000, 1e-3);
+
+        // test solutions are OK for a small time increase
+        int end = solutions.rGetSolutions().size() - 1;
+        
+        // tests the simulation is ending at the right time
+        TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 9.286356375 , 1e-2);
+        
+        // proper values found using MatLab ode15s - shocking tolerances though
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 0.004000000000000, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 0.379221366479055, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 0.190488726735972, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3], 9.962110289977730, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4], 0.096476600742599, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5], 1.000000000000000, 1e-3);
     }            
             
 };

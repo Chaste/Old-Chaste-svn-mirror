@@ -222,6 +222,9 @@ void RungeKuttaFehlbergIvpOdeSolver::AdjustStepSize(double& rCurrentStepSize,
     
     if (rCurrentStepSize < rMinTimeStep)
     {
+        std::cout << "rCurrentStepSize = " << rCurrentStepSize << "\n" << std::flush;
+        std::cout << "rMinTimeStep = " << rMinTimeStep << "\n" << std::flush;
+                
         EXCEPTION("RKF45 Solver: Ode needs a smaller timestep than the set minimum\n");   
     }
     
@@ -254,7 +257,7 @@ OdeSolution RungeKuttaFehlbergIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     OdeSolution solutions;
     //solutions.SetNumberOfTimeSteps((unsigned)(10.0*(startTime-endTime)/timeStep));
     bool return_solution = true;
-    InternalSolve(solutions, pOdeSystem, rYValues, working_memory, startTime, endTime, timeStep, 1e-4, tolerance, return_solution);
+    InternalSolve(solutions, pOdeSystem, rYValues, working_memory, startTime, endTime, timeStep, 1e-5, tolerance, return_solution);
     return solutions;
 }
 
