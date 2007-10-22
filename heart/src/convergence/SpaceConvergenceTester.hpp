@@ -47,6 +47,17 @@ public:
         unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
         return mesh_width/(double) mesh_size;
     }
+    
+    int GetMeshNum()
+    {
+        return (int) this->MeshNum; //unsigned -> int is just cosmetic here.  (The test looks prettier).
+    }
+    double GetSpaceStep()
+    {
+        unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2);// number of elements in each dimension
+        double scaling = mesh_width/(double) mesh_size;
+        return scaling;
+    }
 };
 
 #endif /*SPACECONVERGENCETESTER_HPP_*/

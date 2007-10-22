@@ -33,6 +33,7 @@ public:
         tester.MeshNum=1;
         tester.Converge();
         TS_ASSERT(tester.Converged);
+        TS_ASSERT(tester.IsConverged());
         TS_ASSERT_EQUALS(tester.OdeTimeStep, 0.0025); 
     }
     
@@ -60,8 +61,11 @@ public:
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1> tester;
         tester.RelativeConvergenceCriterion=2e-2;
         tester.Converge();
-        TS_ASSERT(tester.Converged);
-        TS_ASSERT_EQUALS(tester.MeshNum, 2u); 
+        TS_ASSERT(tester.IsConverged());
+        TS_ASSERT_EQUALS(tester.GetMeshNum(), 2); 
+        TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0125, 1e-8); 
+        //TS_ASSERT_EQUALS(tester.GetMeshNum(), 5); 
+        //TS_ASSERT_DELTA(tester.GetSpaceStep(), 1.5625e-3, 1e-8); 
     }
     void Test2DOdeTime() throw(Exception)
     {

@@ -334,5 +334,10 @@ public:
     {
         assert(this->PopulatedResult==false);
     }
+    
+    bool IsConverged()
+    {
+        return Converged;
+    }
 };
 #endif /*ABSTRACTCONVERGENCETESTER_HPP_*/
