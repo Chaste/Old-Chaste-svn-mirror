@@ -1,6 +1,6 @@
 #include "PetscException.hpp"
 
-
+       
 //Positive codes mean that there's an error
 //Zero means success
 //Negative codes should never happen, but we'll throw anyway
@@ -42,39 +42,16 @@ void KspException(PetscInt kspError,
                   const char* funct,
                   const char* file)
 {
-    std::string err_string;
     if (kspError < 0)
     {
-        switch (kspError)
-        {
-            case KSP_DIVERGED_ITS:
-                err_string = "KSP_DIVERGED_ITS";
-                
-                break;
-            case KSP_DIVERGED_DTOL:
-                err_string = "KSP_DIVERGED_DTOL";
-                
-                break;
-            case KSP_DIVERGED_BREAKDOWN:
-                err_string = "KSP_DIVERGED_BREAKDOWN";
-                
-                break;
-            case KSP_DIVERGED_BREAKDOWN_BICG:
-                err_string = "KSP_DIVERGED_BREAKDOWN_BICG";
-                
-                break;
-            case KSP_DIVERGED_NONSYMMETRIC:
-                err_string = "KSP_DIVERGED_NONSYMMETRIC";
-                
-                break;
-            case KSP_DIVERGED_INDEFINITE_PC:
-                err_string = "KSP_DIVERGED_INDEFINITE_PC";
-                
-                break;
-            default:
-                err_string = "Unknown KSP error code";
-        }
-        
+        std::string err_string;
+
+        // The code for the last known error (-10) is hardcoded in PETSc, 
+        // in future releases it might change. It is defined in
+        // src/ksp/ksp/interface/dlregisksp.c
+        if (kspError >= -10 ) err_string = KSPConvergedReasons[kspError];
+        else err_string = "Unknown KSP error code";             
+                 
         err_string+= " in function '";
         err_string+= funct;
         err_string+= "' on line " ;
