@@ -2,8 +2,9 @@
 #define TESTMAKENICECRYPTSIMS_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "TissueSimulation.cpp"
-
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include "CryptSimulation2d.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
@@ -58,7 +59,7 @@ void TestNiceCryptSimulation() throw (Exception)
         WntGradient::Instance()->SetType(OFFSET_LINEAR);
         WntGradient::Instance()->SetTissue(crypt);
         
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory(output_directory);
         
         // Set simulation to output cell types
@@ -100,7 +101,7 @@ void TestNiceCryptSimulation() throw (Exception)
         
         for (double t=time_of_each_run; t<end_of_simulation+0.5; t += time_of_each_run)
         {
-            TissueSimulation<2>* p_simulator = TissueSimulation<2>::Load("NiceCryptSim",t);
+            CryptSimulation2d* p_simulator = CryptSimulation2d::Load("NiceCryptSim",t);
             p_simulator->SetEndTime(t+time_of_each_run);
             p_simulator->Solve();
             p_simulator->Save();

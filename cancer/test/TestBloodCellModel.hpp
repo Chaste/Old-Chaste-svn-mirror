@@ -2,7 +2,7 @@
 #define BLOODCELLMODEL_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "TissueSimulation.cpp"
+#include "CryptSimulation2d.hpp"
 #include <cmath>
 #include <vector>
 #include "FixedCellCycleModel.hpp"
@@ -13,8 +13,7 @@
 #include "HoneycombMeshGenerator.hpp"
 
 
-
-class BloodCellModel : public TissueSimulation<2>
+class BloodCellModel : public CryptSimulation2d
 {
 private:
     static const double mCellRadius = 0.5;

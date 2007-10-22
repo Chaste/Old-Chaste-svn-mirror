@@ -2,8 +2,9 @@
 #define TESTMUTATIONSPREAD_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "TissueSimulation.cpp"
-
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include "CryptSimulation2d.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
@@ -50,7 +51,7 @@ public:
         
         
         // Call a function to label a cell
-        TissueSimulation<2>* p_simulator = TissueSimulation<2>::Load(test_to_profile,load_time);
+        CryptSimulation2d* p_simulator = CryptSimulation2d::Load(test_to_profile,load_time);
         unsigned label_this = Label();
         p_simulator->rGetTissue().rGetCellAtNodeIndex(label_this).SetMutationState(LABELLED);
         p_simulator->Save();
@@ -66,7 +67,7 @@ public:
         // run the simulator
         for (double t=load_time; t<end_of_simulation+0.5; t += time_of_each_run)
         {
-            TissueSimulation<2>* p_simulator = TissueSimulation<2>::Load(test_to_profile,t);
+            CryptSimulation2d* p_simulator = CryptSimulation2d::Load(test_to_profile,t);
             p_simulator->SetEndTime(t+time_of_each_run);
             p_simulator->Solve();
             p_simulator->Save();

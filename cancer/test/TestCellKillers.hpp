@@ -8,10 +8,8 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
-
 #include <vector>
 #include "OutputFileHandler.hpp"
-#include "TissueSimulation.hpp"
 #include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"

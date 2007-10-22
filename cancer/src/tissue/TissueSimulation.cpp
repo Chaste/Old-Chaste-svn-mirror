@@ -44,7 +44,7 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, bool deleteTissue)
     mMaxElements = 10*mrTissue.rGetMesh().GetNumElements();
     mNumBirths = 0;
     mNumDeaths = 0;
-    mUseNonFlatBottomSurface = false;
+//    mUseNonFlatBottomSurface = false;
     mUseEdgeBasedSpringConstant = false;
     mWriteVoronoiData = false;
     mCreateVoronoiTessellation = false;
@@ -176,34 +176,8 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
         random_vector(0) = 0.5*separation*cos(random_angle);
         random_vector(1) = 0.5*separation*sin(random_angle);
         
-        c_vector<double, 2> proposed_new_parent_coords = parent_coords-random_vector;
-        c_vector<double, 2> proposed_new_daughter_coords = parent_coords+random_vector;
-        
-        if (   (proposed_new_parent_coords(1) >= BottomSurfaceProfile(proposed_new_parent_coords(0)))
-            && (proposed_new_daughter_coords(1) >= BottomSurfaceProfile(proposed_new_daughter_coords(0))))
-        {
-             // We are not too close to the bottom of the tissue
-            // move parent
-            parent_coords = proposed_new_parent_coords;
-            daughter_coords = proposed_new_daughter_coords;
-        }
-        else
-        {
-            proposed_new_daughter_coords = parent_coords+2.0*random_vector;
-            while (proposed_new_daughter_coords(1) < BottomSurfaceProfile(proposed_new_daughter_coords(0)))
-            {
-                random_angle = RandomNumberGenerator::Instance()->ranf();
-                random_angle *= 2.0*M_PI;
-                
-                random_vector(0) = separation*cos(random_angle);
-                random_vector(1) = separation*sin(random_angle);
-                proposed_new_daughter_coords = parent_coords+random_vector;
-            }
-            daughter_coords = proposed_new_daughter_coords;
-        }
-        
-        assert(daughter_coords(1)>=0.0);// to make sure dividing cells stay in the tissue
-        assert(parent_coords(1)>=0.0);// to make sure dividing cells stay in the tissue
+        parent_coords = parent_coords-random_vector;
+        daughter_coords = parent_coords+random_vector;        
     }
     else if(DIM==3)
     {
@@ -389,12 +363,6 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
             {
                 new_point.rGetLocation()[0] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[0];
                 new_point.rGetLocation()[1] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[1];
-            }
-            
-            // for all cells - move up if below the bottom surface
-            if (new_point.rGetLocation()[1] < BottomSurfaceProfile(new_point.rGetLocation()[0]) )
-            {
-                new_point.rGetLocation()[1] = BottomSurfaceProfile(new_point.rGetLocation()[0]);
             }
             
             // move the cell
@@ -768,7 +736,7 @@ void TissueSimulation<DIM>::Solve()
  * Saves the whole tissue simulation for restarting later.
  *
  * Puts it in the folder mOutputDirectory/archive/
- * and the file "2dCrypt_at_time_<SIMULATION TIME>.arch"
+ * and the file "tissue_sim_at_time_<SIMULATION TIME>.arch"
  *
  * First archives simulation time then the simulation itself.
  */
@@ -787,7 +755,7 @@ void TissueSimulation<DIM>::Save()
     // archive directory. Note the false is so the handler doesn't clean
     // the directory
     OutputFileHandler handler(archive_directory, false);
-    std::string archive_filename = handler.GetOutputDirectoryFullPath() + "2dCrypt_at_time_"+time_stamp.str()+".arch";
+    std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue_sim_at_time_"+time_stamp.str()+".arch";
     std::string mesh_filename = std::string("mesh_") + time_stamp.str();
     
     if(mReMesh)
@@ -829,7 +797,7 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
     
     std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
     
-    std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/2dCrypt_at_time_"+time_stamp.str() +".arch";
+    std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/tissue_sim_at_time_"+time_stamp.str() +".arch";
     std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str();
     Tissue<DIM>::meshPathname = mesh_filename;
     
@@ -857,30 +825,6 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
     }
     
     return p_sim;
-}
-
-
-template<unsigned DIM> 
-double TissueSimulation<DIM>::BottomSurfaceProfile(double x)
-{
-    if(mUseNonFlatBottomSurface)
-    {
-        double crypt_width = mrTissue.rGetMesh().GetWidth(0u);
-        double frequency = floor(crypt_width/4.0)+1.0;
-        
-        return 0.05*(sin(2*frequency*M_PI*x/crypt_width)+1);
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-template<unsigned DIM>
-void TissueSimulation<DIM>::UseNonFlatBottomSurface()
-{
-    assert(DIM==2);
-    mUseNonFlatBottomSurface = true;
 }
 
 /**

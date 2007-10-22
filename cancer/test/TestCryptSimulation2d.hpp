@@ -2,7 +2,9 @@
 #define TESTCRYPTSIMULATION2D_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "TissueSimulation.cpp"
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include "CryptSimulation2d.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
@@ -98,7 +100,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         simulator.SetEndTime(0.1);
         TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(10));
@@ -165,7 +167,7 @@ public:
         Tissue<2> regular_crypt(*p_regular_mesh, regular_cells);               
         regular_crypt.SetGhostNodes(regular_ghost_node_indices);
 
-        TissueSimulation<2> regular_simulator(regular_crypt);
+        CryptSimulation2d regular_simulator(regular_crypt);
         
         regular_simulator.SetEndTime(1.0);
         TS_ASSERT_THROWS_ANYTHING(regular_simulator.SetMaxCells(10));
@@ -261,7 +263,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         simulator.SetEndTime(1.0);
         TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(10));
@@ -341,7 +343,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true); 
         simulator.AddCellKiller(p_sloughing_cell_killer); 
@@ -364,8 +366,7 @@ public:
         //Find the height of the current crypt
         double height_after_relaxation=p_mesh->GetWidth(1);
          
-        TS_ASSERT_LESS_THAN(height_after_division, height_after_relaxation);
-        
+        TS_ASSERT_LESS_THAN(height_after_division, height_after_relaxation);        
 
         simulator.SetEndTime(2.0);
         simulator.Solve();
@@ -418,7 +419,7 @@ public:
         WntGradient::Instance()->SetType(LINEAR);             
         WntGradient::Instance()->SetTissue(crypt);
         
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DPeriodicWnt");
         
         // Set length of simulation here
@@ -470,7 +471,7 @@ public:
         WntGradient::Instance()->SetType(LINEAR);
         WntGradient::Instance()->SetTissue(crypt);
         
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DMeshArchive");
         simulator.SetEndTime(0.1);
         simulator.SetMaxCells(500);
@@ -485,8 +486,8 @@ public:
         simulator.Save();
         
         // Load
-        TissueSimulation<2>* p_simulator;
-        p_simulator = TissueSimulation<2>::Load("Crypt2DMeshArchive", 0.0);
+        CryptSimulation2d* p_simulator;
+        p_simulator = CryptSimulation2d::Load("Crypt2DMeshArchive", 0.0);
 
         // Create an identical mesh for comparison purposes
         HoneycombMeshGenerator generator2(cells_across, cells_up, thickness_of_ghost_layer);
@@ -531,7 +532,7 @@ public:
         WntGradient::Instance()->SetType(LINEAR);
         WntGradient::Instance()->SetTissue(crypt);
         
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
 
         simulator.SetOutputDirectory("Crypt2DPeriodicStandardResult");
         
@@ -596,7 +597,7 @@ public:
         WntGradient::Instance()->SetType(LINEAR);
         WntGradient::Instance()->SetTissue(crypt);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
 
         simulator.SetOutputDirectory("Crypt2DPeriodicSaveAndLoad");
         
@@ -631,12 +632,12 @@ public:
 
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 0.2
-        TissueSimulation<2>* p_simulator1;
+        CryptSimulation2d* p_simulator1;
         
         WntGradient::Instance();   // Make sure there is no existing Wnt Gradient before load.
         WntGradient::Destroy();
         
-        p_simulator1 = TissueSimulation<2>::Load("Crypt2DPeriodicSaveAndLoad", 0.1);
+        p_simulator1 = CryptSimulation2d::Load("Crypt2DPeriodicSaveAndLoad", 0.1);
         
         p_simulator1->SetEndTime(0.2);
         p_simulator1->Solve();
@@ -647,14 +648,13 @@ public:
         p_simulator1->rGetTissue().rGetMesh().ReMesh(map);
         p_simulator1->Save();
         
-        TissueSimulation<2>* p_simulator2 = TissueSimulation<2>::Load("Crypt2DPeriodicSaveAndLoad", 0.2);
+        CryptSimulation2d* p_simulator2 = CryptSimulation2d::Load("Crypt2DPeriodicSaveAndLoad", 0.2);
         
         CompareMeshes(&(p_simulator1->rGetTissue().rGetMesh()),
                       &(p_simulator2->rGetTissue().rGetMesh()));
         
         p_simulator2->SetEndTime(0.25);
-        p_simulator2->Solve();
-        
+        p_simulator2->Solve();        
         
         // These cells just divided and have been gradually moving apart.
         // These results are from time 0.25 in the StandardResult test above.
@@ -741,7 +741,7 @@ public:
         WntGradient::Instance()->SetType(LINEAR);
         WntGradient::Instance()->SetTissue(crypt);
                 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DWntMatureCells");
         // If you want to visualize this use the 'notcylindrical' option
         // (it is too small for it to figure out what's happening on its own).
@@ -806,7 +806,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
-        TissueSimulation<2> simulator(crypt); 
+        CryptSimulation2d simulator(crypt); 
                
         AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&crypt);
         simulator.AddCellKiller(p_cell_killer);
@@ -883,7 +883,7 @@ public:
         
         Tissue<2> crypt(mesh, cells);
         
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
@@ -988,7 +988,7 @@ public:
         WntGradient::Instance()->SetType(LINEAR);
         WntGradient::Instance()->SetTissue(crypt);
         
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(400);
@@ -1056,9 +1056,7 @@ public:
         
         force_on_spring = simulator.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
         TS_ASSERT_DELTA(force_on_spring[0], 0.5*p_params->GetSpringStiffness(), 1e-4);
-        TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
-        
-        
+        TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);        
 
        /*
         ************************************************************************
@@ -1163,7 +1161,7 @@ public:
 
         Tissue<2>::Iterator conf_iter = conf_crypt.Begin();
 
-        TissueSimulation<2> simulator(conf_crypt);
+        CryptSimulation2d simulator(conf_crypt);
                      
         c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(conf_iter);
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
@@ -1198,7 +1196,7 @@ public:
 
         Tissue<2>::Iterator conf_iter = conf_crypt.Begin();
 
-        TissueSimulation<2> simulator(conf_crypt);
+        CryptSimulation2d simulator(conf_crypt);
         
         // repeat two times for coverage
         // need vector from parent to daughter to have both +ve and -ve y component
@@ -1223,8 +1221,7 @@ public:
 
     void TestCalculateDividingCellCentreLocationsCylindricalMesh() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
-        
+        CancerParameters::Instance()->Reset();        
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -1244,7 +1241,7 @@ public:
 
         Tissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
-        TissueSimulation<2> simulator(cyl_crypt);                
+        CryptSimulation2d simulator(cyl_crypt);                
         c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(cyl_iter);
         c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
@@ -1257,8 +1254,7 @@ public:
 
     void TestCalculateDividingCellCentreLocationsCylindricalMeshStemCell() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
-        
+        CancerParameters::Instance()->Reset();        
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -1278,7 +1274,7 @@ public:
 
         Tissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
-        TissueSimulation<2> simulator(cyl_crypt);                
+        CryptSimulation2d simulator(cyl_crypt);                
         c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(cyl_iter);
         c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
@@ -1319,7 +1315,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
 
         simulator.SetOutputDirectory(output_directory);
         simulator.SetEndTime(2.0); // long enough for a cell to be born were SetNoBirth not called
@@ -1375,7 +1371,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DRandomDeathNonPeriodic");
         simulator.SetEndTime(0.6);
@@ -1418,7 +1414,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DNonFlatBottomSurface");
         simulator.SetEndTime(0.5);

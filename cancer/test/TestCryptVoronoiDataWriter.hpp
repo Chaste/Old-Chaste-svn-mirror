@@ -2,8 +2,6 @@
 #define TESTCRYPTVORONOIDATAWRITER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "TissueSimulation.cpp"
-
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
 #include <vector>

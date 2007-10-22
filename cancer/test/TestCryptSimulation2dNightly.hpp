@@ -2,8 +2,9 @@
 #define TESTCRYPTSIMULATION2DNIGHTLY_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "TissueSimulation.cpp"
-
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include "CryptSimulation2d.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
@@ -193,7 +194,7 @@ public:
         CellsGenerator<2>::GenerateForCrypt(cells, mesh, FIXED, false, 0.0, 3.0, 6.5, 8.0);
         
         Tissue<2> crypt(mesh, cells);
-        TissueSimulation<2> simulator(crypt);    
+        CryptSimulation2d simulator(crypt);    
                 
         // destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
@@ -261,7 +262,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
                 
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(12.0);
@@ -310,7 +311,7 @@ public:
         // set the first cell to be logged
         crypt.Begin()->SetLogged();
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
 
         simulator.SetOutputDirectory("Monolayer");
         simulator.SetEndTime(1);
@@ -394,7 +395,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DSpringsCorrectCellNumbers");
         simulator.SetEndTime(40); //hours
@@ -476,7 +477,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DPeriodicNightly");
         simulator.SetEndTime(12.0);
@@ -530,7 +531,7 @@ public:
         WntGradient::Instance()->SetType(LINEAR);
         WntGradient::Instance()->SetTissue(crypt);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DPeriodicWntNightly");
         
@@ -609,7 +610,7 @@ public:
         WntGradient::Instance()->SetType(LINEAR);
         WntGradient::Instance()->SetTissue(crypt);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DPeriodicMutant");        
         simulator.SetEndTime(12.0);
@@ -676,7 +677,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DRandomDeathPeriodic");
         simulator.SetEndTime(4.6);
@@ -721,7 +722,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DSloughingDeathNonPeriodic");
         simulator.SetEndTime(4.0);
@@ -762,7 +763,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DSloughingDeathPeriodic");
         simulator.SetEndTime(4.0);
@@ -818,7 +819,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         simulator.SetOutputDirectory("CryptWithMultipleCellKillers");
 
@@ -889,7 +890,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        TissueSimulation<2> simulator(crypt);
+        CryptSimulation2d simulator(crypt);
 
         simulator.SetOutputDirectory("MonolayerCutoffPointNoGhosts");
         simulator.SetEndTime(12.0);

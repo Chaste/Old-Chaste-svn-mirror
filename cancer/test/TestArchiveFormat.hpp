@@ -3,7 +3,7 @@
 
 
 #include <cxxtest/TestSuite.h>
-#include "TissueSimulation.cpp"
+#include "CryptSimulation2d.hpp"
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
@@ -56,7 +56,7 @@ public:
         int return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value, 0);
         
-        TissueSimulation<2>* p_simulator = TissueSimulation<2>::Load(test_to_profile,t);
+        CryptSimulation2d* p_simulator = CryptSimulation2d::Load(test_to_profile,t);
         delete p_simulator;
                 
         SimulationTime::Destroy();

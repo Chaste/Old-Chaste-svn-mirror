@@ -117,9 +117,6 @@ protected:
     /** List of cell killers */
     std::vector<AbstractCellKiller<DIM>*> mCellKillers;
     
-    /** Whether to use a flat bottom surface or the wavy bottom surface (2d only) */
-    bool mUseNonFlatBottomSurface;
-    
     /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
     bool mUseEdgeBasedSpringConstant;
     
@@ -198,7 +195,6 @@ protected:
         archive & mNumBirths;
         archive & mNumDeaths;
         archive & mCellKillers;
-        archive & mUseNonFlatBottomSurface;
         archive & mUseCutoffPoint;
         archive & mCutoffPoint;
         archive & mOutputCellTypes;
@@ -235,7 +231,7 @@ protected:
      * @return daughter_coords The coordinates for the daughter cell.
      * 
      */
-    c_vector<double, DIM> CalculateDividingCellCentreLocations(typename Tissue<DIM>::Iterator parentCell);
+    virtual c_vector<double, DIM> CalculateDividingCellCentreLocations(typename Tissue<DIM>::Iterator parentCell);
     
     /**
      * During a simulation time step, process any cell sloughing or death
@@ -308,8 +304,7 @@ public:
     void SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant);
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
-    std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
-    void UseNonFlatBottomSurface();
+    std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);    
     void UseCutoffPoint(double cutoffPoint);
     c_vector<unsigned,5> GetCellTypeCount();
 
@@ -321,7 +316,6 @@ public:
     Tissue<DIM>& rGetTissue();
     const Tissue<DIM>& rGetTissue() const;
     
-    double BottomSurfaceProfile(double x);
 };
 
 
