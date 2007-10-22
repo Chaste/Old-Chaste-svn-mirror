@@ -120,7 +120,7 @@ public:
     void SetNoRefinement();
     
     /* Inherited
-        virtual void Solve();
+        virtual void StaticSolve(bool writeOutput=true);
         DoFHandler<DIM>& rGetDofHandler();
         void ComputeNumericalJacobian();
         void CompareJacobians();

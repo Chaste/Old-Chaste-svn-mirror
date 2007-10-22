@@ -94,7 +94,7 @@ public:
         }
         
         // solve the static fe problem...
-        finite_elasticity.Solve();
+        finite_elasticity.StaticSolve();
         
         // update again..
         source_model.Run(0,1,&finite_elasticity);

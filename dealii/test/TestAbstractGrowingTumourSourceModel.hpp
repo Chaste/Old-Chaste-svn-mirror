@@ -125,7 +125,7 @@ public:
         //////////////////////////////////////////////////////////////////////////
         // solve the static system and update again
         //////////////////////////////////////////////////////////////////////////
-        finite_elasticity.Solve();
+        finite_elasticity.StaticSolve();
         constant_model.UpdateEvaluationPointsNewPosition(finite_elasticity.rGetDeformedPosition());
         
         // evaluation point 0: equivalent to x=y=0, on fixed boundary,

@@ -12,7 +12,7 @@
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
 public:
-    void xTest1dCompareExplicitVsImplicit() throw(Exception)
+    void Test1dCompareExplicitVsImplicit() throw(Exception)
     {
         double time_step = 0.01;
         PlaneStimulusCellFactory<1> cell_factory(time_step, -1000*1000);
@@ -69,10 +69,10 @@ public:
         double time_step = 0.01;
         PlaneStimulusCellFactory<2> cell_factory(time_step, -1000*1000);
 
-        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 100, time_step, false, 40, 16, "CardiacElectroMech2dImplicit");
+        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 1, time_step, false, 40, 16, "CardiacElectroMech2dImplicit");
         implicit_problem.Solve();
 
-        CardiacElectroMechanicsProblem<2> explicit_problem(&cell_factory, 100, time_step, true, 40, 16, "CardiacElectroMech2dExplicit");
+        CardiacElectroMechanicsProblem<2> explicit_problem(&cell_factory, 1, time_step, true, 40, 16, "CardiacElectroMech2dExplicit");
         explicit_problem.Solve();
     }
 };

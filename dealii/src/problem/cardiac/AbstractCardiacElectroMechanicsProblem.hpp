@@ -181,7 +181,7 @@ public :
         // created, else the log file might get cleaned away
         std::string log_dir = mOutputDirectory; // just the TESTOUTPUT dir if mOutputDir="";
         LogFile::Instance()->Set(1, mOutputDirectory);
-        LogFile::Instance()->WriteHeader("Cardiac electromechanics");
+        LogFile::Instance()->WriteHeader("Electromechanics");
         LOG(1, DIM << "d CardiacElectroMechanics Simulation:");
         LOG(1, "End time = " << mEndTime << ", timestep = " << mTimeStep <<  "\n");
         LOG(1, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
@@ -323,7 +323,7 @@ public :
 
         while (!stepper.IsTimeAtEnd())
         {
-            LOG(1, "Current time = " << stepper.GetTime());
+            LOG(1, "\nCurrent time = " << stepper.GetTime());
             
             // solve the electrics
             p_electrics_assembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), mTimeStep);
@@ -426,7 +426,7 @@ public :
             counter++;
 
             // write the total elapsed time..
-            LogFile::Instance()->WriteElapsedTime(" ");
+            LogFile::Instance()->WriteElapsedTime("  ");
         }
 
 

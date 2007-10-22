@@ -143,7 +143,7 @@ public :
                                                        1.0,
                                                        "");
                                                        
-        finite_elasticity.Solve();
+        finite_elasticity.StaticSolve();
         
         TS_ASSERT_EQUALS(finite_elasticity.GetNumNewtonIterations(), 0u);
         
@@ -194,11 +194,11 @@ public :
                                                        body_force,
                                                        1.0,
                                                        "finite_elas/simple2d");                                                       
-        finite_elasticity.Solve();
+        finite_elasticity.StaticSolve();
 
 
-        // solve again and check that no newton iterations were needed.
-        finite_elasticity.Solve();
+        // Solve again and check that no newton iterations were needed.
+        finite_elasticity.StaticSolve();
         TS_ASSERT_EQUALS(finite_elasticity.GetNumNewtonIterations(), 0u);
 
         

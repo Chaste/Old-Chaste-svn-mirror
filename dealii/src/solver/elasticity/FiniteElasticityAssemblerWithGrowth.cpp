@@ -832,8 +832,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         ////////////////////////////////////////////////////////
         // solve the (quasi-static) finite elasticity problem
         ////////////////////////////////////////////////////////
-        this->mWriteOutput = false;
-        this->Solve();
+        this->StaticSolve(false);
         
         ////////////////////////////////////////////////////////
         // update the new position at the evaluation points

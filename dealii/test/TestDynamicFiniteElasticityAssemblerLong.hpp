@@ -140,7 +140,7 @@ public :
                                                        density,
                                                        "finite_elas/test_dymamic_v_static"
                                                       );
-        finite_elasticity.Solve();
+        finite_elasticity.StaticSolve();
         
         Vector<double>& dynamic_solution = dynamic_finite_elasticity.rGetCurrentSolution();
         Vector<double>& static_solution = finite_elasticity.rGetCurrentSolution();

@@ -55,7 +55,7 @@ template<unsigned DIM>
 void CardiacMechanicsAssembler<DIM>::Solve(double currentTime, double nextTime, double timestep)
 {
     // do nothing with the times (as explicit) and call Solve on the base class
-    FiniteElasticityAssembler<DIM>::Solve();
+    FiniteElasticityAssembler<DIM>::StaticSolve(false);
 }
 
 

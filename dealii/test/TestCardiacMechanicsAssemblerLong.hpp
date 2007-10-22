@@ -57,7 +57,7 @@ public :
 
         cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
-        cardiac_mech_assembler.Solve(0,1,1);
+        cardiac_mech_assembler.StaticSolve();
         
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 1 is a corner node, 

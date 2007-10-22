@@ -80,7 +80,7 @@ public :
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.0);
         cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
-        cardiac_mech_assembler.Solve(0,1,1); // the times are unused as explicit
+        cardiac_mech_assembler.StaticSolve(); // the times are unused as explicit
         
         TS_ASSERT_EQUALS(cardiac_mech_assembler.GetNumNewtonIterations(), 0u);
     }
@@ -109,7 +109,7 @@ public :
 
         cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
-        cardiac_mech_assembler.Solve(0,1,1); // the times are unused as explicit
+        cardiac_mech_assembler.StaticSolve(); 
         
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 1 is the bottom-right corner node, 
@@ -164,8 +164,8 @@ public :
         SetUpLinearActiveTension<2>(mesh, -0.025, active_tension); // doesn't converge if -0.1
         cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
-        cardiac_mech_assembler.Solve(0,1,1); // the times are unused as explicit
-
+        cardiac_mech_assembler.StaticSolve(); 
+        
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 1 is the bottom-right corner node, 
         // and the deformation is reasonably large
@@ -238,8 +238,8 @@ public :
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.05);
         cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
-        cardiac_mech_assembler.Solve(0,1,1); // the times are unused as explicit
-
+        cardiac_mech_assembler.StaticSolve(); 
+        
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 2 is the top-right corner node, 
         // and the deformation is reasonably large
@@ -306,7 +306,7 @@ public :
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.05);
         cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
-        cardiac_mech_assembler.Solve(0,1,1); // the times are unused as explicit
+        cardiac_mech_assembler.StaticSolve(); 
 
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 2 is the top-right corner node, 
@@ -355,7 +355,7 @@ public :
         cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
         // just test it run ok
-        cardiac_mech_assembler.Solve(0,1,1); // the times are unused as explicit
+        cardiac_mech_assembler.StaticSolve(); 
 
         TS_ASSERT_EQUALS(cardiac_mech_assembler.GetNumNewtonIterations(), 3u);
     }

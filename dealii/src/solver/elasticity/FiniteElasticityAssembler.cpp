@@ -776,14 +776,17 @@ void FiniteElasticityAssembler<DIM>::CompareJacobians(double tol)
 
 
 template<unsigned DIM>
-void FiniteElasticityAssembler<DIM>::Solve()
+void FiniteElasticityAssembler<DIM>::StaticSolve(bool writeOutput)
 {
     if (mMaterialLaws.size()==0)
     {
         EXCEPTION("No material laws have been set");
     }
     
-    this->WriteOutput(0);
+    if(writeOutput)
+    {
+        this->WriteOutput(0);
+    }
     
     // if nothing has been solved for yet, form an initial guess which is
     // the zero deformation solution (other the current solution is the best
@@ -823,7 +826,11 @@ void FiniteElasticityAssembler<DIM>::Solve()
         
         std::cout << "Norm of residual is " << norm_resid << "\n";
 
-        this->WriteOutput(counter);
+        if(writeOutput)
+        {
+            this->WriteOutput(counter);
+        }
+
         mNumNewtonIterations = counter;
         
         counter++;

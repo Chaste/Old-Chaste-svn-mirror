@@ -43,7 +43,7 @@ public :
                                                        "finite_elas/simple2d");
                                                        
                                                        
-        finite_elasticity.Solve();
+        finite_elasticity.StaticSolve();
         
         // get deformed position
         std::vector<Vector<double> >& deformed_position
@@ -62,7 +62,7 @@ public :
                                                            body_force,
                                                            1.0,
                                                            "finite_elas/simple2d");
-        finite_elasticity_ref.Solve();
+        finite_elasticity_ref.StaticSolve();
         
         // get deformed position
         std::vector<Vector<double> >& deformed_position_ref
@@ -105,7 +105,7 @@ public :
                                                        body_force,
                                                        1.0,
                                                        "finite_elas/simple3d");
-        finite_elasticity.Solve();
+        finite_elasticity.StaticSolve();
         
         // get undeformed position
         std::vector<Vector<double> >& undeformed_position
@@ -254,7 +254,7 @@ public :
         finite_elasticity.SetBoundaryValues(boundary_values);
         
 
-        finite_elasticity.Solve();
+        finite_elasticity.StaticSolve();
         
         // get deformed position
         std::vector<Vector<double> >& deformed_position
@@ -347,7 +347,7 @@ public :
                                                        "finite_elas/heterogeneous2d");
                                                                                                               
         finite_elasticity.SetMaterialLawsForHeterogeneousProblem(material_laws, material_ids);                
-        finite_elasticity.Solve();
+        finite_elasticity.StaticSolve();
         
         // get undeformed position
         std::vector<Vector<double> >& undeformed_position

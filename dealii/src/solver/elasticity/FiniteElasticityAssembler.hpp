@@ -236,8 +236,11 @@ public:
                                                 
     /**
      *  Solve the static finite elasticity problem
+     *  
+     *  @param whether to write output (which will be the solution at the end of every
+     *  Newton iteration) to the output directory (if one exists). Defaults to true.
      */
-    virtual void Solve();
+    virtual void StaticSolve(bool writeOutput=true);
 
     /**
      *  Get the number of newton iterations that had been required to solve the problem
