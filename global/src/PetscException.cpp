@@ -46,6 +46,31 @@ void KspException(PetscInt kspError,
     {
         std::string err_string;
 
+  #if (PETSC_VERSION_MINOR == 2) //Old API
+        switch (kspError) 
+        { 
+            case KSP_DIVERGED_ITS: 
+                err_string = "KSP_DIVERGED_ITS"; 
+                break; 
+            case KSP_DIVERGED_DTOL: 
+                err_string = "KSP_DIVERGED_DTOL"; 
+                break; 
+            case KSP_DIVERGED_BREAKDOWN: 
+                err_string = "KSP_DIVERGED_BREAKDOWN"; 
+                break; 
+            case KSP_DIVERGED_BREAKDOWN_BICG: 
+                err_string = "KSP_DIVERGED_BREAKDOWN_BICG"; 
+                break; 
+            case KSP_DIVERGED_NONSYMMETRIC: 
+                err_string = "KSP_DIVERGED_NONSYMMETRIC"; 
+                break; 
+            case KSP_DIVERGED_INDEFINITE_PC: 
+                err_string = "KSP_DIVERGED_INDEFINITE_PC"; 
+                break; 
+            default: 
+                err_string = "Unknown KSP error code"; 
+          }                
+  #else
         // This array contains the strings describing KSP 
         // convergence/divergence reasons. It is exported by
         // libpetscksp.a      
@@ -56,6 +81,7 @@ void KspException(PetscInt kspError,
         // src/ksp/ksp/interface/dlregisksp.c         
         if (kspError >= -10 ) err_string = KSPConvergedReasons[kspError];
         else err_string = "Unknown KSP error code";             
+  #endif
                  
         err_string+= " in function '";
         err_string+= funct;
