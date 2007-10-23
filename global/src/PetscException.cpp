@@ -46,9 +46,14 @@ void KspException(PetscInt kspError,
     {
         std::string err_string;
 
+        // This array contains the strings describing KSP 
+        // convergence/divergence reasons. It is exported by
+        // libpetscksp.a      
+        extern const char **KSPConvergedReasons;
+
         // The code for the last known error (-10) is hardcoded in PETSc, 
         // in future releases it might change. It is defined in
-        // src/ksp/ksp/interface/dlregisksp.c
+        // src/ksp/ksp/interface/dlregisksp.c         
         if (kspError >= -10 ) err_string = KSPConvergedReasons[kspError];
         else err_string = "Unknown KSP error code";             
                  
