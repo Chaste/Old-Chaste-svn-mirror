@@ -2,6 +2,8 @@
 #define TESTREPRESENTATIVESIMULATION_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include "CryptSimulation2d.hpp"
 
 #include "ConformingTetrahedralMesh.cpp"

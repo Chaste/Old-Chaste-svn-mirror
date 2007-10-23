@@ -2,6 +2,8 @@
 #define BLOODCELLMODEL_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include "CryptSimulation2d.hpp"
 #include <cmath>
 #include <vector>
@@ -23,7 +25,7 @@ private:
     
     std::vector<c_vector<double,2> > CalculateVelocitiesOfEachNode()
     {
-        std::vector<c_vector<double,2> > drdt = TissueSimulation<2>::CalculateVelocitiesOfEachNode();
+        std::vector<c_vector<double,2> > drdt = CryptSimulation2d::CalculateVelocitiesOfEachNode();
         
         double damping = CancerParameters::Instance()->GetDampingConstantNormal();
         double stiffness = CancerParameters::Instance()->GetSpringStiffness();
@@ -132,7 +134,7 @@ private:
     
 public:
     BloodCellModel(Tissue<2>& rTissue, double bottom, double top)
-        : TissueSimulation<2>(rTissue)
+        : CryptSimulation2d(rTissue)
     {
         assert(bottom < top);
         mBottom = bottom;
