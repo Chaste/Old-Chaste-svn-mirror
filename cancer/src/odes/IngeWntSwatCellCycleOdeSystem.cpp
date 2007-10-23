@@ -83,7 +83,8 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
             break;
         }
         default:
-            NEVER_REACHED;  // this can't happen if all mutation states are catered for.
+            // this can't happen if all mutation states are catered for.
+            NEVER_REACHED;  
     }
     
     mVariableNames.push_back("pRb");
