@@ -28,29 +28,29 @@ private:
         archive & *p_params;
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
-        archive & mDivisionAge;
+        archive & mG1Duration;
     }
     
-    /** What time this cell would like to divide (assigned randomly when model is given a cell) */
-    double mDivisionAge;
+    /** Duration of G1 phase */
+    double mG1Duration;
     
     /** Private constructor for creating an identical daughter cell */
-    StochasticCellCycleModel(double divisionAge)
-        :mDivisionAge(divisionAge) {};
+    StochasticCellCycleModel(double g1Duration)
+        :mG1Duration(g1Duration) {};
     
     /**
      * Private function that should only be called by Reset() and SetCell()
      * this introduces the stochastic element of the model.
      */
-    void SetDivisionAge();
+    void SetG1Duration();
     
 public:
     /**
      * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
-     * mDivisionAge is set very high, it is set for the individual cells when SetCell() is called
+     * mG1Duration is set very high, it is set for the individual cells when SetCell() is called
      */
     StochasticCellCycleModel()
-        : mDivisionAge(DBL_MAX) {};
+        : mG1Duration(DBL_MAX) {};
     
     /** 
      * Overridden SetCellMethod - also assigns a DivisionAge based on the cell type.

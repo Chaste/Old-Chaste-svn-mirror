@@ -453,6 +453,8 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         p_simulation_time->IncrementTimeOneStep();
         
+        TS_ASSERT(!stochastic_stem_cell.ReadyToDivide());
+        
         // SimulationTime = 18 hours
         
         TS_ASSERT(transit_cell.ReadyToDivide());
@@ -462,7 +464,7 @@ public:
         // SimulationTime = 24 hours
         
         TS_ASSERT(!stem_cell.ReadyToDivide());
-        TS_ASSERT(!stochastic_stem_cell.ReadyToDivide());
+        TS_ASSERT(stochastic_stem_cell.ReadyToDivide());
         
         p_simulation_time->IncrementTimeOneStep();
         
@@ -528,20 +530,11 @@ public:
         // this now re-sets the age of the cell to 0.0 so more time added in underneath
         transit_cell.SetCellCycleModel(cell_cycle_model);
         TS_ASSERT_EQUALS(transit_cell.GetCellCycleModel(), cell_cycle_model);
-        for (int i=0; i<1199; i++)
+        for (int i=0; i<1399; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
         }
-        int ready_count=0;
-        for (int i=0; i<100; i++)
-        {
-            //std::cout << "time = " << time << " transit cell age = " << transit_cell.GetAge() << "\n";
-            if (transit_cell.ReadyToDivide())
-            {
-                ready_count++;
-            }
-        }
-        TS_ASSERT(ready_count>0);
+        TS_ASSERT(transit_cell.ReadyToDivide());
         
         // Ensure transit cell divides
         while (!transit_cell.ReadyToDivide())
@@ -569,9 +562,7 @@ public:
         RandomNumberGenerator::Instance()->Reseed(0);
         
         const double end_time = 70.0;
-        //const int time_steps = 70;
         const int number_of_simulations = 1000;
-        //const double time_step= end_time/(double) time_steps;
         
         std::vector<TissueCell> cells;
         std::vector<TissueCell> newly_born;
@@ -650,8 +641,8 @@ public:
         differentiated_cell_mean=differentiated_cell_mean/(double) number_of_simulations;
         
         TS_ASSERT_DELTA(stem_cell_mean, 1.0, 1e-12);
-        TS_ASSERT_DELTA(transit_cell_mean, 2.0, 1.0);
-        TS_ASSERT_DELTA(differentiated_cell_mean, 8.0, 1.0);
+        TS_ASSERT_DELTA(transit_cell_mean, 6.84, 1.0);
+        TS_ASSERT_DELTA(differentiated_cell_mean, 16.0, 1.0);
         
         
         TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
