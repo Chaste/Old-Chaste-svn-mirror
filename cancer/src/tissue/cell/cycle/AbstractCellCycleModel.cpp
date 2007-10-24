@@ -33,3 +33,9 @@ double AbstractCellCycleModel::GetAge()
     return SimulationTime::Instance()->GetDimensionalisedTime() - mBirthTime;
 }
 
+CellCyclePhase AbstractCellCycleModel::GetCurrentCellCyclePhase()
+{
+    return mCurrentCellCyclePhase;
+}
+
+

@@ -18,19 +18,37 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
+        archive & mG1Duration;
     }
+    
+    double mG1Duration;
+    
+    /** Private constructor for creating an identical daughter cell */
+    FixedCellCycleModel(double g1Duration)
+        :mG1Duration(g1Duration) {};
+    
 public:
 
     /**
      * Default constructor - mBirthTime now set in AbstractCellCycleModel().
      */
-    FixedCellCycleModel() {};
+    FixedCellCycleModel() :
+        mG1Duration(DBL_MAX) {};
+    
+    /** 
+     * Overridden SetCellMethod - also assigns a G1 duration based on the cell type.
+     * 
+     * @param pCell the cell which owns this model.
+     */
+    void SetCell(TissueCell* pCell);
 
     virtual bool ReadyToDivide();
     
     virtual void ResetModel();
     
     AbstractCellCycleModel *CreateCellCycleModel(); 
+    
+    void SetG1Duration();
 };
 
 // declare identifier for the serializer

@@ -6,6 +6,7 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "CellTypes.hpp"
+#include "CellCyclePhases.hpp"
 #include "SimulationTime.hpp"
 #include "TissueCell.hpp"
 #include <vector>
@@ -32,7 +33,8 @@ private:
 protected:
     TissueCell* mpCell;
     double mBirthTime; // Time to start model from
-    
+    CellCyclePhase mCurrentCellCyclePhase;
+        
 public:
 
     /**
@@ -41,7 +43,8 @@ public:
      */
     AbstractCellCycleModel()
         : mpCell(NULL),
-          mBirthTime(SimulationTime::Instance()->GetDimensionalisedTime()) {};
+          mBirthTime(SimulationTime::Instance()->GetDimensionalisedTime()),
+          mCurrentCellCyclePhase(M) {};
 
     /**
      * Base class with virtual methods needs a virtual destructor.
@@ -102,6 +105,11 @@ public:
      *    called to copy its state. 
      */
     virtual AbstractCellCycleModel *CreateCellCycleModel()=0;
+    
+    /*
+     * @return the current cell cycle phase
+     */
+    CellCyclePhase GetCurrentCellCyclePhase();
     
 };
 
