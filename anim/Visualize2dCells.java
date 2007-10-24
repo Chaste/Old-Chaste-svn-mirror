@@ -63,6 +63,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     
     public static Scrollbar delay_slider = new Scrollbar(Scrollbar.HORIZONTAL, delay, 1, 1, 100);
     public static Scrollbar time_slider = new Scrollbar(Scrollbar.HORIZONTAL, timeStep, 1, 0, 2);
+    public static JPanel colour_bar = new JPanel();
     //public static Checkbox output, springs, fibre, cells, ghost_nodes;
     public static Checkbox output=new Checkbox("Output");
     public static Checkbox springs=new Checkbox("Springs");
@@ -87,6 +88,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         canvas.addMouseMotionListener(canvas);
         addButtons(frame);
         addTimeSlider(frame);
+        addColourBar(frame);
         JPanel canvasPanel = new JPanel();
         canvasPanel.add(canvas);
         frame.add(canvasPanel, BorderLayout.CENTER);
@@ -168,7 +170,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         else if (cb == nutrient)
         {
             drawNutrient = state;
-            System.out.println("Drawing nutrient = "+drawNutrient);    
+            System.out.println("Drawing nutrient = "+drawNutrient); 
         }
         canvas.drawBufferedImage();
         canvas.repaint();
@@ -290,6 +292,46 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         southPanel.add(checkPanel);
         frame.add(southPanel,BorderLayout.SOUTH);
     }
+    
+    
+    public void addColourBar(Frame frame) 
+    {
+        //String[] flintstones = {"Fred", "Wilma", "Pebbles"};
+        String[] labels = {"0.9-1", "0.8-0.9", "0.7-0.8", "0.6-0.7", "0.5-0.6", "0.4-0.5", "0.3-0.4", "0.2-0.3", "0.1-0.2", "0.0-0.1"};
+        
+        
+        int panelHeight = (int) (0.8 * frame.getHeight());
+        int panelWidth = 120;
+        
+        int num_blocks = 10;
+        
+        int blockHeight = panelHeight/num_blocks;
+        
+        colour_bar.setVisible(false);
+        colour_bar.setPreferredSize(new Dimension(panelWidth,panelHeight));
+        colour_bar.setLayout(new GridLayout(10,2));
+       
+        for (int i=num_blocks-1;i>=0;i--)
+        {       
+            JPanel colour_block = new JPanel();
+            colour_block.setPreferredSize(new Dimension(panelWidth/2,panelHeight/num_blocks));
+            
+            //Calculate colour                    
+            colour_block.setBackground(new Color(121-8*i,126-8*i,200-8*i));
+            //colourBlock.setBackground(Color.black);
+            
+            Label colour_label = new Label(labels[9-i]);        
+        
+            colour_bar.add(colour_block);
+            colour_bar.add(colour_label);      
+        }
+                
+        JPanel eastPanel = new JPanel(new GridLayout(1,1));
+        
+        eastPanel.add(colour_bar);
+        frame.add(eastPanel,BorderLayout.EAST);
+    }
+    
 
     public static void main(String args[]) 
     {
@@ -801,6 +843,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         int num_ticks = 10;
         
         vis.time_slider.setValue(vis.timeStep);
+        vis.colour_bar.setVisible(vis.drawNutrient);
             
         if (g2==null)
         {
@@ -874,7 +917,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         			nutrient_conc[node_index] = Double.valueOf(st.nextToken());
         			
         			line_nut = in_nut_file.readLine();
-        			row++;
+        			row++;                
         		}
         	}
         	catch (Exception e) 
@@ -882,7 +925,6 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         		System.out.println("Error occured. Exception message: "+e.getMessage());
         	}
         }
-    
         
         g2.setColor(Color.black);
         Shape original_clip=g2.getClip();
@@ -1400,7 +1442,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         }
         else
         {
-            int r = (int)(121 - 20*conc); 
+            int r = (int)(121 - 80*conc); 
             if (r<0) 
             {
             	r=0;
@@ -1409,7 +1451,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
             { 
             	r=255;
             }
-            int g = (int)(126 - 20*conc); 
+            int g = (int)(126 - 80*conc); 
             if (g<0) 
             {
             	g=0;
@@ -1418,7 +1460,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
             {
             	g=255;
             }
-            int b = (int)(200 - 20*conc); 
+            int b = (int)(200 - 80*conc); 
             if (b<0) 
             {
             	b=0; 
