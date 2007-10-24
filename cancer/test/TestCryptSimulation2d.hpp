@@ -549,7 +549,7 @@ public:
         
         // These cells just divided and have been gradually moving apart.
         // These results are from time 0.25, which is also tested below
-        // after a save and a load. (To check archiving of mDivisionPairs)
+        // after a save and a load. (See #420, #479.)
         std::vector<double> node_28_location = simulator.GetNodeLocation(28);
         TS_ASSERT_DELTA(node_28_location[0], 4.2123 , 1e-4);
         TS_ASSERT_DELTA(node_28_location[1], 0.0 , 1e-4);

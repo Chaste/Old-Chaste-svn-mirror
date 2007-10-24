@@ -3,7 +3,6 @@
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp> // for archiving std::vector
-#include <boost/serialization/set.hpp> // for archiving std::set
 #include <boost/serialization/string.hpp>
 
 #include "ColumnDataWriter.hpp"
@@ -64,9 +63,6 @@ class TissueSimulation
     // private functions eg. DoCellBirth
     friend class TestCryptSimulation2d;
     friend class TestSprings3d;
-private:
-
-    std::set<std::set <TissueCell *> > mDivisionPairs;
 
 protected:
     /** TimeStep */
@@ -129,48 +125,6 @@ protected:
     /** Whether to follow only the logged cell if writing voronoi data */
     bool mFollowLoggedCell;
     
-#define COVERAGE_IGNORE
-    /**
-     * A helpful method for debugging.
-     */
-    void CheckDivisionPairPointers()
-    {
-        bool res = true;
-        for (std::set<std::set<TissueCell*> >::iterator it1 = mDivisionPairs.begin();
-             it1 != mDivisionPairs.end();
-             ++it1)
-        {
-            const std::set<TissueCell*>& r_pair = *it1;
-            assert(r_pair.size() == 2);
-            for (std::set<TissueCell*>::iterator it2 = r_pair.begin();
-                 it2 != r_pair.end();
-                 ++it2)
-            {
-                TissueCell* p_cell = *it2;
-                assert(p_cell);
-                AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
-                assert(p_model);
-                // Check cell exists in tissue
-                unsigned node_index = p_cell->GetNodeIndex();
-                std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
-                TissueCell& r_cell = mrTissue.rGetCellAtNodeIndex(node_index);
-                if (&r_cell != p_cell)
-                {
-                    std::cout << "  Mismatch with tissue" << std::endl << std::flush;
-                    res = false;
-                }
-                // Check model links back to cell
-                if (p_model->GetCell() != p_cell)
-                {
-                    std::cout << "  Mismatch with cycle model" << std::endl << std::flush;
-                    res = false;
-                }
-            }
-        }
-        assert(res);
-    }
-#undef COVERAGE_IGNORE
-    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -198,8 +152,6 @@ protected:
         archive & mUseCutoffPoint;
         archive & mCutoffPoint;
         archive & mOutputCellTypes;
-        archive & mDivisionPairs;
-        //CheckDivisionPairPointers();
         archive & mUseEdgeBasedSpringConstant;
         archive & mCreateVoronoiTessellation;
         archive & mWriteVoronoiData;

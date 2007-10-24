@@ -114,11 +114,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
             c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
             
             TissueCell *p_new_cell=mrTissue.AddCell(new_cell, new_location);
-            std::set<TissueCell*> new_cell_pair;
-            new_cell_pair.insert(&cell); //Parent cell
-            new_cell_pair.insert(p_new_cell); //New cell (the clue's in the name)
-            
-            mDivisionPairs.insert(new_cell_pair);
+            mrTissue.MarkSpring(cell, *p_new_cell);
             num_births_this_step++;
         } // if (ready to divide)
     } // cell iteration loop
@@ -287,11 +283,9 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     if (ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
     {
         // Spring Rest Length Increases to normal rest length from ???? to normal rest length, 1.0, over 1 hour
-        std::set<TissueCell *> cell_pair;
-        cell_pair.insert(&(mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex)));
-        cell_pair.insert(&(mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex)));
-        unsigned count=mDivisionPairs.count(cell_pair);
-        if (count==1)
+        TissueCell& r_cell_A = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex);
+        TissueCell& r_cell_B = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex);
+        if (mrTissue.IsMarkedSpring(r_cell_A, r_cell_B))
         {   
             double lambda=CancerParameters::Instance()->GetDivisionRestingSpringLength();
             rest_length=(lambda+(1.0-lambda)*(ageA/(CancerParameters::Instance()->GetMDuration())));           
@@ -299,9 +293,8 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
         
         if (ageA+ SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
         {
-            //This spring is about to go out of scope
-            mDivisionPairs.erase(cell_pair);
-            //\todo some of the pairs aren't accessible at this stage(if we lose them due to a remesh
+            // This spring is about to go out of scope
+            mrTissue.UnmarkSpring(r_cell_A, r_cell_B);
         }
     }
     

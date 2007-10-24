@@ -12,6 +12,7 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
+#include <boost/serialization/set.hpp>
 
 /**
  * Structure encapsulating variable identifiers for the node datawriter
@@ -85,7 +86,7 @@ private:
      * Currently used to track cells in the process of dividing
      * (which are represented as 2 cells joined by a shorter spring).
      */
-    std::set<std::set<const TissueCell*> > mMarkedSprings;
+    std::set<std::set<TissueCell*> > mMarkedSprings;
     
     friend class boost::serialization::access;
     /**
@@ -110,10 +111,9 @@ private:
         // The Voronoi stuff can't be archived yet
         //archive & mpVoronoiTessellation
         delete mpVoronoiTessellation;
+        
+        archive & mMarkedSprings;
     }
-    
-    /// For debugging
-    void CheckTissueCellPointers();
     
 public:
     /** Hack until meshes are fully archived using boost::serialization */
@@ -385,22 +385,24 @@ public:
      */
     SpringIterator SpringsEnd();
     
+    /// For debugging
+    void CheckTissueCellPointers();
     
     /**
      * Test whether the spring between 2 cells is marked.
      */
-    bool IsMarkedSpring(const TissueCell&, const TissueCell&);
+    bool IsMarkedSpring(TissueCell&, TissueCell&);
     /**
      * Mark the spring between the given cells.
      */
-    void MarkSpring(const TissueCell&, const TissueCell&);
+    void MarkSpring(TissueCell&, TissueCell&);
     /**
      * Stop marking the spring between the given cells.
      */
-    void UnmarkSpring(const TissueCell&, const TissueCell&);
+    void UnmarkSpring(TissueCell&, TissueCell&);
 private:
     /** Helper method used by the spring marking routines */
-    std::set<const TissueCell*> CreateCellPair(const TissueCell&, const TissueCell&);
+    std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
 };
 
 template<unsigned DIM>

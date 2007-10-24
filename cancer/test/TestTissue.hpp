@@ -677,6 +677,8 @@ public:
             {                
                 cell_iter->ReadyToDivide();
             }
+            
+            p_tissue->MarkSpring(p_tissue->rGetCellAtNodeIndex(0), p_tissue->rGetCellAtNodeIndex(1));
         
             // create an output archive
             std::ofstream ofs(archive_filename.c_str());
@@ -722,6 +724,9 @@ public:
                 TS_ASSERT_DELTA(cell_iter->GetAge(),(double)(counter),1e-7);
                 counter++;
             }
+            
+            // check the marked spring
+            TS_ASSERT(p_tissue->IsMarkedSpring(p_tissue->rGetCellAtNodeIndex(0), p_tissue->rGetCellAtNodeIndex(1)));
                         
             // check the simulation time has been restored (through the cell)
             TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.0);
@@ -775,6 +780,7 @@ public:
         
         // check springs with non-deleted cells are still marked
         TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
+        tissue.CheckTissueCellPointers();
                
         // move cell 2
         Tissue<2>::Iterator it=tissue.Begin();
@@ -786,6 +792,8 @@ public:
         
         // remesh
         tissue.ReMesh();
+        
+        tissue.CheckTissueCellPointers();
         
         // check there is no marked spring between nodes 1 & 2
         TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
