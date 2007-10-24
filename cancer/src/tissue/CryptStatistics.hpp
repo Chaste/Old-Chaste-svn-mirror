@@ -43,57 +43,59 @@ private:
         return (dist < widthOfSection);
     }
     
+
+    /**
+     *  Method computing the perpendicular distance from the cell to the line from (xBottom,0) to 
+     *  (xTop,yTop), taking into account periodicity, and returning if the distance is within the 
+     *  specified width to the section (defaults to 1.0). Done by considering the two possible lines
+     *  and checking if cells are within range.
+     */  
     bool CellIsInSectionPeriodic(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=1.0)
     {
         bool is_in_section=false;
         
         c_vector<double,2> intercept;
-        double crypt_width =CancerParameters::Instance()->GetCryptWidth();
+        double crypt_width = CancerParameters::Instance()->GetCryptWidth();
 
         double m; // gradient of line
         double offset;
         
         if(xBottom<xTop)
         {
-           offset=-crypt_width;    
+            offset = -crypt_width;    
         }
         else
         {
-            offset=crypt_width;
+            offset = crypt_width;
         }
         
         m = (yTop)/(xTop-xBottom+offset); // gradient of line
         
-        //1st Line        
+        // 1st Line        
         intercept[0] = (m*m*xBottom + cellPosition[0] + m*cellPosition[1])/(1+m*m);
         intercept[1] = m*(intercept[0] - xBottom);
         
         c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
         double dist = norm_2(vec_from_A_to_B);
 
-
         if(dist < widthOfSection)
         {
             is_in_section=true;
         }
-        
 
-        //2nd Line        
+        // 2nd Line        
         intercept[0] = (m*m*(xBottom-offset) + cellPosition[0] + m*cellPosition[1])/(1+m*m);
         intercept[1] = m*(intercept[0] - (xBottom-offset));
         
         vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
         dist = norm_2(vec_from_A_to_B);
 
-
         if(dist < widthOfSection)
         {
             is_in_section=true;
         }
 
-
         return is_in_section;
-        
     }
     
     
@@ -109,11 +111,24 @@ public :
     {
     }
     
-    
-    std::vector<TissueCell*> GetCryptSection(double xBottom, double xTop, double yTop)
+    /**
+     *  Get all cells within a cell width of the section defined as the line between points (xBottom,0)
+     *  and (xTop,yTop)
+     * 
+     *  Periodicity can be taken into account (if xTop and xBottom are more than half a crypt 
+     *  width apart then a more realistic section will be across the periodic boundary), using the 
+     *  final parameter. This obviously requires the mesh to be cylindrical.
+     */
+    std::vector<TissueCell*> GetCryptSection(double xBottom, double xTop, double yTop, bool periodic=false)
     {
         assert(yTop>0.0);
         std::list<std::pair<TissueCell*, double> > cells_list; // the second entry is the y value (needed for sorting)
+        
+        if (fabs(xTop-xBottom)<0.5*CancerParameters::Instance()->GetCryptWidth())
+        {
+            // the periodic version isn't needed, ignore even if periodic was set to true
+            periodic = false;
+        }    
         
         // loop over cells and add to the store if they are within a cell's radius of the
         // specified line  
@@ -121,11 +136,23 @@ public :
              cell_iter != mrCrypt.End();
              ++cell_iter)
         {
-            if(CellIsInSection(xBottom, xTop, yTop, cell_iter.rGetLocation()))
+            if(periodic)
             {
-                // set up a pair, equal to (cell,y_val) and insert
-                std::pair<TissueCell*, double> pair(&(*cell_iter), cell_iter.rGetLocation()[1]);
-                cells_list.push_back(pair);
+                if(CellIsInSectionPeriodic(xBottom, xTop, yTop, cell_iter.rGetLocation()))
+                {
+                    // set up a pair, equal to (cell,y_val) and insert
+                    std::pair<TissueCell*, double> pair(&(*cell_iter), cell_iter.rGetLocation()[1]);
+                    cells_list.push_back(pair);
+                }
+            }
+            else
+            {
+                if(CellIsInSection(xBottom, xTop, yTop, cell_iter.rGetLocation()))
+                {
+                    // set up a pair, equal to (cell,y_val) and insert
+                    std::pair<TissueCell*, double> pair(&(*cell_iter), cell_iter.rGetLocation()[1]);
+                    cells_list.push_back(pair);
+                }
             }
         }
 
@@ -145,51 +172,16 @@ public :
     }
     
     /** 
-     * If xTop and xBottom are more than half a crypt width apart then a more realistic section
-     * will be across the periodic boundary.
+     *  Get all cells with a cell width of the line defined by the points (xBottom,0)
+     *  and (xTop,yTop), taking into account periodicity
      * 
+     *  If xTop and xBottom are more than half a crypt width apart then a more realistic section
+     *  will be across the periodic boundary.
      */
     std::vector<TissueCell*> GetCryptSectionPeriodic(double xBottom, double xTop, double yTop)
     {
-        assert(yTop>0.0);
-        
-        if (fabs(xTop-xBottom)<0.5*CancerParameters::Instance()->GetCryptWidth())
-        {
-            return GetCryptSection(xBottom,xTop,yTop);
-        }       
-                
-        std::list<std::pair<TissueCell*, double> > cells_list; // the second entry is the y value (needed for sorting)
-        
-        // loop over cells and add to the store if they are within a cell's radius of the
-        // specified line  
-        
-        for (Tissue<2>::Iterator cell_iter = mrCrypt.Begin();
-             cell_iter != mrCrypt.End();
-             ++cell_iter)
-        {
-            if(CellIsInSectionPeriodic(xBottom, xTop, yTop, cell_iter.rGetLocation()))
-            {
-                // set up a pair, equal to (cell,y_val) and insert
-                std::pair<TissueCell*, double> pair(&(*cell_iter), cell_iter.rGetLocation()[1]);
-                cells_list.push_back(pair);
-            }
-        }
-
-        // sort the list
-        cells_list.sort(CellsHeightComparison);
-
-        // copy to a vector
-        std::vector<TissueCell*> ordered_cells;
-        for(std::list<std::pair<TissueCell*, double> >::iterator iter = cells_list.begin();
-            iter!=cells_list.end();
-            iter++)
-        {
-            ordered_cells.push_back(iter->first);
-        }
-    
-        return ordered_cells;
+        return GetCryptSection(xBottom,xTop,yTop,true);
     }
-    
 };
 
 
