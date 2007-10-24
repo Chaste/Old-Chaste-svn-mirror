@@ -736,6 +736,60 @@ public:
             SimulationTime::Destroy();
         }
     }
+    
+    void TestSpringMarking()
+    {
+        // set up the simulation time object so the cells can be created
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // create a small tissue
+        std::vector<Node<2> *> nodes;
+        nodes.push_back(new Node<2>(0, false, 0, 0.5));
+        nodes.push_back(new Node<2>(1, false, 1, 0));
+        nodes.push_back(new Node<2>(2, false, 1, 1));
+        nodes.push_back(new Node<2>(3, false, 2, 0.5));
+        nodes.push_back(new Node<2>(4, false, 2, 1.5));
+        
+        ConformingTetrahedralMesh<2,2> mesh(nodes);
+        
+        std::vector<TissueCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        
+        Tissue<2> tissue(mesh, cells);
+        
+        // mark some springs
+        tissue.MarkSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2));
+        tissue.MarkSpring(tissue.rGetCellAtNodeIndex(3), tissue.rGetCellAtNodeIndex(4));
+               
+        // check if springs are marked
+        TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
+        TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(3), tissue.rGetCellAtNodeIndex(4)));
+        
+        TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(4)));
+        TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(0), tissue.rGetCellAtNodeIndex(2)));
+        
+        // delete cell 4
+        tissue.rGetCellAtNodeIndex(4).Kill();
+        tissue.RemoveDeadCells();      
+        
+        // check springs with non-deleted cells are still marked
+        TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
+               
+        // move cell 2
+        Tissue<2>::Iterator it=tissue.Begin();
+        ++it;
+        ++it;
+        TS_ASSERT_EQUALS(it->GetNodeIndex(), 2u);
+        ChastePoint<2> new_location(1,10);
+        tissue.MoveCell(it, new_location);
+        
+        // remesh
+        tissue.ReMesh();
+        
+        // check there is no marked spring between nodes 1 & 2
+        TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
+    }
 };
 
 

@@ -80,6 +80,13 @@ private:
     /** used by tabulated writers */
     ElementWriterIdsT mElemVarIds;
     
+    /**
+     * Special springs that we want to keep track of for some reason.
+     * Currently used to track cells in the process of dividing
+     * (which are represented as 2 cells joined by a shorter spring).
+     */
+    std::set<std::set<const TissueCell*> > mMarkedSprings;
+    
     friend class boost::serialization::access;
     /**
      * Serialize the facade.
@@ -377,6 +384,23 @@ public:
      * @return iterator pointing to one past the last spring in the tissue
      */
     SpringIterator SpringsEnd();
+    
+    
+    /**
+     * Test whether the spring between 2 cells is marked.
+     */
+    bool IsMarkedSpring(const TissueCell&, const TissueCell&);
+    /**
+     * Mark the spring between the given cells.
+     */
+    void MarkSpring(const TissueCell&, const TissueCell&);
+    /**
+     * Stop marking the spring between the given cells.
+     */
+    void UnmarkSpring(const TissueCell&, const TissueCell&);
+private:
+    /** Helper method used by the spring marking routines */
+    std::set<const TissueCell*> CreateCellPair(const TissueCell&, const TissueCell&);
 };
 
 template<unsigned DIM>

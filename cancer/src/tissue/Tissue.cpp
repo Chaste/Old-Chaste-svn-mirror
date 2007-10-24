@@ -207,6 +207,35 @@ unsigned Tissue<DIM>::RemoveDeadCells()
     {
         if (it->IsDead())
         {
+            // Check if this cell is in a marked spring
+            std::vector<const std::set<const TissueCell*>*> pairs_to_remove; // Pairs that must be purged
+            for (std::set<std::set<const TissueCell*> >::iterator it1 = mMarkedSprings.begin();
+                 it1 != mMarkedSprings.end();
+                 ++it1)
+            {
+                const std::set<const TissueCell*>& r_pair = *it1;
+                for (std::set<const TissueCell*>::iterator it2 = r_pair.begin();
+                     it2 != r_pair.end();
+                     ++it2)
+                {
+                    const TissueCell* p_cell = *it2;
+                    if (p_cell == &(*it))
+                    {
+                        // Remember to purge this spring
+                        pairs_to_remove.push_back(&r_pair);
+                        break;
+                    }
+                }
+            }
+            // Purge any marked springs that contained this cell
+            for (std::vector<const std::set<const TissueCell*>* >::iterator pair_it = pairs_to_remove.begin();
+                 pair_it != pairs_to_remove.end();
+                 ++pair_it)
+            {
+                mMarkedSprings.erase(**pair_it);
+            }
+            
+            // Remove the node from the mesh
             num_removed++;
             mrMesh.DeleteNodePriorToReMesh(it->GetNodeIndex());
             it = mCells.erase(it);
@@ -359,6 +388,49 @@ void Tissue<DIM>::ReMesh()
             mNodeCellMap[new_node_index] = &(*it);
         }
     }
+    
+    // Purge any marked springs that are no longer springs
+    std::vector<const std::set<const TissueCell*>*> springs_to_remove;
+    for (std::set<std::set<const TissueCell*> >::iterator spring_it = mMarkedSprings.begin();
+         spring_it != mMarkedSprings.end();
+         ++spring_it)
+    {
+        const std::set<const TissueCell*>& r_pair = *spring_it;
+        assert(r_pair.size() == 2);
+        const TissueCell* p_cell_1 = *(r_pair.begin());
+        const TissueCell* p_cell_2 = *(++r_pair.begin());
+        Node<DIM>* p_node_1 = GetNodeCorrespondingToCell(*p_cell_1);
+        Node<DIM>* p_node_2 = GetNodeCorrespondingToCell(*p_cell_2);
+        
+        bool joined = false;
+        // For each element containing node1, if it also contains node2 then the cells are joined
+        std::set<unsigned> node2_elements = p_node_2->rGetContainingElementIndices();
+        for (typename Node<DIM>::ContainingElementIterator elt_it = p_node_1->ContainingElementsBegin();
+             elt_it != p_node_1->ContainingElementsEnd();
+             ++elt_it)
+        {
+            unsigned elt_index = *elt_it;
+            if (node2_elements.find(elt_index) != node2_elements.end())
+            {
+                joined = true;
+                break;
+            }
+        }
+        
+        // If no longer joined, remove this spring from the set
+        if (!joined)
+        {
+            springs_to_remove.push_back(&r_pair);
+        }
+    }
+    // Remove any springs necessary
+    for (std::vector<const std::set<const TissueCell*>* >::iterator spring_it = springs_to_remove.begin();
+         spring_it != springs_to_remove.end();
+         ++spring_it)
+    {
+        mMarkedSprings.erase(**spring_it);
+    }
+    
     
     Validate();
 }
@@ -907,6 +979,36 @@ void Tissue<DIM>::CheckTissueCellPointers()
     assert(res);
 }
 #undef COVERAGE_IGNORE
+
+template<unsigned DIM>
+std::set<const TissueCell*> Tissue<DIM>::CreateCellPair(const TissueCell& rCell1, const TissueCell& rCell2)
+{
+    std::set<const TissueCell *> cell_pair;
+    cell_pair.insert(&rCell1);
+    cell_pair.insert(&rCell2);
+    return cell_pair;
+}
+
+template<unsigned DIM>
+bool Tissue<DIM>::IsMarkedSpring(const TissueCell& rCell1, const TissueCell& rCell2)
+{
+    std::set<const TissueCell *> cell_pair = CreateCellPair(rCell1, rCell2);
+    return mMarkedSprings.find(cell_pair) != mMarkedSprings.end();
+}
+
+template<unsigned DIM>
+void Tissue<DIM>::MarkSpring(const TissueCell& rCell1, const TissueCell& rCell2)
+{
+    std::set<const TissueCell *> cell_pair = CreateCellPair(rCell1, rCell2);
+    mMarkedSprings.insert(cell_pair);
+}
+
+template<unsigned DIM>
+void Tissue<DIM>::UnmarkSpring(const TissueCell& rCell1, const TissueCell& rCell2)
+{
+    std::set<const TissueCell *> cell_pair = CreateCellPair(rCell1, rCell2);
+    mMarkedSprings.erase(cell_pair);
+}
 
 #endif //TISSUE_CPP
 
