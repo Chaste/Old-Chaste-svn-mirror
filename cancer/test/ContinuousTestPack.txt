@@ -21,3 +21,4 @@ TestCancerParameters.hpp
 TestSimulationTime.hpp
 TestCryptVoronoiDataWriter.hpp
 TestVoronoiAreaOnPeriodicMesh.hpp
+TestCryptStatistics.hpp
