@@ -353,25 +353,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
         unsigned index = cell.GetNodeIndex();
         
         ChastePoint<DIM> new_point(mrTissue.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
-        
-        if(DIM==2)
-        {
-            bool is_wnt_included = WntGradient::Instance()->IsGradientSetUp();
-            if (!is_wnt_included) WntGradient::Destroy();
-            // stem cells are fixed if no wnt, so reset the x-value to the old x-value           
-            if((cell.GetCellType()==STEM) && (!is_wnt_included))
-            {
-                new_point.rGetLocation()[0] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[0];
-                new_point.rGetLocation()[1] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[1];
-            }
-            
-            // move the cell
-            mrTissue.MoveCell(cell_iter, new_point);                    
-        }
-        else
-        {   // 1D or 3D
-            mrTissue.MoveCell(cell_iter, new_point);    
-        }
+        mrTissue.MoveCell(cell_iter, new_point);    
     }
 }
 
