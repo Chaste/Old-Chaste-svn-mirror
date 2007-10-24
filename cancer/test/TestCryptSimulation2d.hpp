@@ -1391,15 +1391,11 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void TestUsingNonFlatBottomSurfaceNonPeriodic()
+    void TestUsingJiggledBottomSurface()
     {
         CancerParameters::Instance()->Reset();
         
-        unsigned cells_across = 20;
-        unsigned cells_up = 4;
-        unsigned thickness_of_ghost_layer = 2;
-        double crypt_width = 20.0;
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        HoneycombMeshGenerator generator(4, 4, 0, true, 1.0);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
@@ -1416,19 +1412,24 @@ public:
 
         CryptSimulation2d simulator(crypt);
         
-        simulator.SetOutputDirectory("Crypt2DNonFlatBottomSurface");
-        simulator.SetEndTime(0.5);
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
+        simulator.SetOutputDirectory("Crypt2DJiggledBottomCells");
+        simulator.SetEndTime(0.01);
+        simulator.UseJiggledBottomCells();  
 
-        simulator.UseNonFlatBottomSurface();
+        // move the first cell (which should be on y=0) down a bit
+        Tissue<2>::Iterator cell_iter = crypt.Begin();
+        assert(cell_iter.rGetLocation()[1] == 0.0);
 
+        // move the cell (can't use the iterator for this as it is const)
+        crypt.rGetMesh().GetNode(0)->rGetModifiableLocation()[1] = -0.1;
+        assert(cell_iter.rGetLocation()[1] < 0.0);
+        
         simulator.Solve();
-        
-        double frequency = floor(crypt_width/4.0)+1.0;
-        TS_ASSERT_DELTA(p_mesh->GetNode(48)->rGetLocation()[0],8.0, 1e-4);
-        TS_ASSERT_DELTA(p_mesh->GetNode(48)->rGetLocation()[1],  0.05*(sin(2.0*frequency*M_PI*8.0/crypt_width) + 1.0 ), 1e-4);
-        
+
+        // the cell should have been pulled up, but not above y=0. However it should
+        // then been moved to above y=0 by the jiggling
+        TS_ASSERT_LESS_THAN(0.0, cell_iter.rGetLocation()[1]);
+    
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

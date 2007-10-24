@@ -84,7 +84,7 @@ void TestNiceCryptSimulation() throw (Exception)
         p_params->SetSpringStiffness(30.0); //normally 15.0;
         // 0.3/30 = 0.01 (i.e. Meineke's values)
         
-        simulator.UseNonFlatBottomSurface();
+        simulator.UseJiggledBottomCells();
         
         // END OF UNUSUAL SET UP! //////////////////////////////////
         

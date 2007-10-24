@@ -44,7 +44,6 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, bool deleteTissue)
     mMaxElements = 10*mrTissue.rGetMesh().GetNumElements();
     mNumBirths = 0;
     mNumDeaths = 0;
-//    mUseNonFlatBottomSurface = false;
     mUseEdgeBasedSpringConstant = false;
     mWriteVoronoiData = false;
     mCreateVoronoiTessellation = false;

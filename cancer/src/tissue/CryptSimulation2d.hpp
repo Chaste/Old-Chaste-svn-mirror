@@ -14,6 +14,7 @@ class CryptSimulation2d : public TissueSimulation<2>
     // Allow tests to access private members, in order to test computation of
     // private functions eg. DoCellBirth
     friend class TestCryptSimulation2d;    
+
 private :
     friend class boost::serialization::access;
     template<class Archive>
@@ -22,11 +23,11 @@ private :
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>      
         archive & boost::serialization::base_object<TissueSimulation<2> >(*this);
-        archive & mUseNonFlatBottomSurface;   
+        archive & mUseJiggledBottomCells;   
     }
     
-    /** Whether to use a flat bottom surface or the wavy bottom surface (2d only) */
-    bool mUseNonFlatBottomSurface;
+    /** Whether to use a flat bottom surface or to jiggle the cells on the bottom surface */
+    bool mUseJiggledBottomCells;
     
     /**
      * Calculates the new locations of a dividing cell's cell centres.
@@ -61,8 +62,8 @@ private :
         c_vector<double, 2> proposed_new_parent_coords = parent_coords-random_vector;
         c_vector<double, 2> proposed_new_daughter_coords = parent_coords+random_vector;
         
-        if (   (proposed_new_parent_coords(1) >= BottomSurfaceProfile(proposed_new_parent_coords(0)))
-            && (proposed_new_daughter_coords(1) >= BottomSurfaceProfile(proposed_new_daughter_coords(0))))
+        if (   (proposed_new_parent_coords(1) >= 0.0)
+            && (proposed_new_daughter_coords(1) >= 0.0))
         {
              // We are not too close to the bottom of the tissue
             // move parent
@@ -72,7 +73,7 @@ private :
         else
         {
             proposed_new_daughter_coords = parent_coords+2.0*random_vector;
-            while (proposed_new_daughter_coords(1) < BottomSurfaceProfile(proposed_new_daughter_coords(0)))
+            while (proposed_new_daughter_coords(1) < 0.0)
             {
                 random_angle = RandomNumberGenerator::Instance()->ranf();
                 random_angle *= 2.0*M_PI;
@@ -124,10 +125,22 @@ private :
             }
             
             // for all cells - move up if below the bottom surface
-            if (new_point.rGetLocation()[1] < BottomSurfaceProfile(new_point.rGetLocation()[0]) )
+            if (new_point.rGetLocation()[1] < 0.0) 
             {
-                new_point.rGetLocation()[1] = BottomSurfaceProfile(new_point.rGetLocation()[0]);
-            }
+                new_point.rGetLocation()[1] = 0.0; 
+                if (mUseJiggledBottomCells)
+                {
+                   /*  
+                    * Here we give the cell a push upwards so that it doesn't  
+                    * get stuck on y=0 for ever (ticket:422). 
+                    *  
+                    * Note that all stem cells may get moved to same height and  
+                    * random numbers try to ensure we aren't left with the same  
+                    * problem at a different height! 
+                    */ 
+                    new_point.rGetLocation()[1] = 0.05*mpRandomGenerator->ranf();
+                } 
+            } 
             
             // move the cell
             mrTissue.MoveCell(cell_iter, new_point);         
@@ -144,39 +157,14 @@ public :
      */
     CryptSimulation2d(Tissue<2>& rTissue, bool deleteTissue=false)
         : TissueSimulation<2>(rTissue, deleteTissue),
-          mUseNonFlatBottomSurface(false)
+          mUseJiggledBottomCells(false)
     {
     }
     
-    bool IsNonFlatBottomSurface()
-    {
-        bool result = false;
-        
-        if (mUseNonFlatBottomSurface)
-        {
-            result = true;
-        }
-        return result;
-    }   
     
-    double BottomSurfaceProfile(double x)
-    {
-        if (mUseNonFlatBottomSurface)
-        {
-            double crypt_width = mrTissue.rGetMesh().GetWidth(0u);
-            double frequency = floor(crypt_width/4.0)+1.0;
-            
-            return 0.05*(sin(2*frequency*M_PI*x/crypt_width)+1);
-        }
-        else
-        {
-            return 0;
-        }    
-    }
-    
-    void UseNonFlatBottomSurface()
+    void UseJiggledBottomCells()
     {            
-        mUseNonFlatBottomSurface = true;                
+        mUseJiggledBottomCells = true;                
     }
     
     /**
