@@ -69,6 +69,34 @@ public:
                               expected_indices_vertical[i]);
         }
         
+        std::vector< TissueCell* > test_section_periodic=crypt_statistics.GetCryptSectionPeriodic(0.5,2.5,sqrt(3));
+        
+        //Test the cells are correct
+        TS_ASSERT_EQUALS(test_section_periodic.size(), 6u);
+        
+        unsigned expected_indices_periodic[6]={0,1,3,5,6,8};
+        
+        for(unsigned i=0; i<test_section_periodic.size(); i++)
+        {
+            TissueCell* cell = test_section_periodic[i];
+            TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(), 
+                              expected_indices_periodic[i]);
+        }
+        
+             
+        std::vector< TissueCell* > test_section_periodic_2=crypt_statistics.GetCryptSectionPeriodic(2.5,0.5,sqrt(3));
+        
+        //Test the cells are correct
+        TS_ASSERT_EQUALS(test_section_periodic_2.size(), 6u);
+        
+        unsigned expected_indices_periodic_2[6]={0,2,3,5,6,7};
+        
+        for(unsigned i=0; i<test_section_periodic_2.size(); i++)
+        {
+            TissueCell* cell = test_section_periodic_2[i];
+            TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(), 
+                              expected_indices_periodic_2[i]);
+        }
         
         SimulationTime::Destroy();
     }
