@@ -212,7 +212,7 @@ protected:
      * 
      * @return The force exerted on Node A by Node B.
      */
-    virtual c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex,unsigned nodeBGlobalIndex);
+    c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex,unsigned nodeBGlobalIndex);
     
     /**
      * Moves each node to a new position for this timestep

@@ -232,7 +232,7 @@ public:
         // new_edge_length = (5/6 + shift[0])*tan(0.5*arctan(5*sqrt(3)/(5 + 12*shift[0]))),
         // force^2 = mu^2 * (new_edge_length*sqrt(3))^2 * (1 - 5/6 - shift[0])^2
         TS_ASSERT_DELTA(new_force[0]*new_force[0] + new_force[1]*new_force[1], 3.83479824,1e-3);
-    
+        
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();    
     }
@@ -1433,6 +1433,39 @@ public:
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
+    
+    void TestSpringConstantsForMutantCells()
+    {
+        // set up the simulation time object so the cells can be created
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // create a small tissue
+        std::vector<Node<2> *> nodes;
+        nodes.push_back(new Node<2>(0, false, 0, 0));
+        nodes.push_back(new Node<2>(1, false, 0, 2));
+        nodes.push_back(new Node<2>(2, false, 2, 2));
+        nodes.push_back(new Node<2>(3, false, 2, 0));
+        
+        ConformingTetrahedralMesh<2,2> mesh(nodes);
+        
+        std::vector<TissueCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        
+        Tissue<2> tissue(mesh, cells);
+        
+        // set cells mutation states
+        tissue.rGetCellAtNodeIndex(0).SetMutationState(HEALTHY);
+        tissue.rGetCellAtNodeIndex(1).SetMutationState(LABELLED);
+        tissue.rGetCellAtNodeIndex(2).SetMutationState(APC_TWO_HIT);
+        tissue.rGetCellAtNodeIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
+        
+        TS_ASSERT_DELTA( norm_2(tissue.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(tissue.CalculateForceBetweenNodes(1,2)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(tissue.CalculateForceBetweenNodes(2,3)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(tissue.CalculateForceBetweenNodes(3,0)), 15.0, 1e-10);
+    }
+
 };
 
 #endif /*TESTCRYPTSIMULATION2D_HPP_*/
