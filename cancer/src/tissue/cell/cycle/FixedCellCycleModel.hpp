@@ -2,6 +2,7 @@
 #define FIXEDCELLCYCLEMODEL_HPP_
 
 #include "AbstractCellCycleModel.hpp"
+#include "CancerParameters.hpp"
 
 /**
  *  Fixed cell cycle model
@@ -18,14 +19,22 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        archive & mG1Duration;
+        // Make sure the singletons we use are archived
+        CancerParameters* p_params = CancerParameters::Instance();
+        archive & *p_params;
+        
+        archive & mG1Duration;        
     }
+
+    virtual void SetG1Duration();
     
-    double mG1Duration;
-    
-    /** Private constructor for creating an identical daughter cell */
+protected:    
+
+    /** Protected constructor for creating an identical daughter cell */
     FixedCellCycleModel(double g1Duration)
         :mG1Duration(g1Duration) {};
+        
+    double mG1Duration;
     
 public:
 
@@ -48,7 +57,6 @@ public:
     
     AbstractCellCycleModel *CreateCellCycleModel(); 
     
-    void SetG1Duration();
 };
 
 // declare identifier for the serializer

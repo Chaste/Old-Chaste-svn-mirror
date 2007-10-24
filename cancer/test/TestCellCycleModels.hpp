@@ -23,6 +23,38 @@
 
 class TestCellCycleModels : public CxxTest::TestSuite
 {
+private:
+    void CheckCellCyclePhasesAreUpdated(AbstractCellCycleModel* pModel, double g1Duration)
+    {   
+        double time = SimulationTime::Instance()->GetDimensionalisedTime();
+        CancerParameters* p_params = CancerParameters::Instance();
+        
+        if (time < p_params->GetMDuration())
+        {   // if in M phase
+            TS_ASSERT(!pModel->ReadyToDivide());
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),M);
+        }
+        else if (time < p_params->GetMDuration() + g1Duration)
+        {   // if in G1 phase
+            TS_ASSERT(!pModel->ReadyToDivide());
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ONE);
+        }
+        else if (time < p_params->GetMDuration() + g1Duration + p_params->GetSDuration())
+        {   // if in S phase
+            TS_ASSERT(!pModel->ReadyToDivide());
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),S);
+        }
+        else if (time < p_params->GetMDuration() + g1Duration + p_params->GetSDuration() + p_params->GetG2Duration() )
+        {   // if in G2 phase
+            TS_ASSERT(!pModel->ReadyToDivide());
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_TWO);
+        }
+        else
+        {
+            TS_ASSERT(pModel->ReadyToDivide());
+        }
+    }
+                
 public:
     void TestFixedCellCycleModel(void) throw(Exception)
     {   
@@ -73,89 +105,14 @@ public:
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
 
-            // Test STEM cells
-            if (time < p_params->GetMDuration())
-            {   // if in M phase
-                TS_ASSERT(!p_stem_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),M);
-            }
-            else if (time < p_params->GetMDuration() + p_params->GetStemCellG1Duration())
-            {   // if in G1 phase
-                TS_ASSERT(!p_stem_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),G_ONE);
-            }
-            else if (time < p_params->GetMDuration() + p_params->GetStemCellG1Duration() + p_params->GetSDuration())
-            {   // if in S phase
-                TS_ASSERT(!p_stem_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),S);
-            }
-            else if (time < p_params->GetMDuration() + p_params->GetStemCellG1Duration() + p_params->GetSDuration() + p_params->GetG2Duration() )
-            {   // if in G2 phase
-                TS_ASSERT(!p_stem_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),G_TWO);
-            }
-            else
-            {
-                TS_ASSERT(p_stem_model->ReadyToDivide());
-            }
-            
-            // Test a Transit Cell
-            if (time < p_params->GetMDuration())
-            {   // if in M phase
-                TS_ASSERT(!p_transit_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_transit_model->GetCurrentCellCyclePhase(),M);
-            }
-            else if (time < p_params->GetMDuration() + p_params->GetTransitCellG1Duration())
-            {   // if in G1 phase
-                TS_ASSERT(!p_transit_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_transit_model->GetCurrentCellCyclePhase(),G_ONE);
-            }
-            else if (time < p_params->GetMDuration() + p_params->GetTransitCellG1Duration() + p_params->GetSDuration())
-            {   // if in S phase
-                TS_ASSERT(!p_transit_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_transit_model->GetCurrentCellCyclePhase(),S);
-            }
-            else if (time < p_params->GetMDuration() + p_params->GetTransitCellG1Duration() + p_params->GetSDuration() + p_params->GetG2Duration() )
-            {   // if in G2 phase
-                TS_ASSERT(!p_transit_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_transit_model->GetCurrentCellCyclePhase(),G_TWO);
-            }
-            else
-            {
-                TS_ASSERT(p_transit_model->ReadyToDivide());
-            }
-            
+            CheckCellCyclePhasesAreUpdated(p_stem_model, p_params->GetStemCellG1Duration());
+            CheckCellCyclePhasesAreUpdated(p_transit_model, p_params->GetTransitCellG1Duration());
+            CheckCellCyclePhasesAreUpdated(p_hepa_one_model, p_params->GetHepaOneCellG1Duration());
+             
             // Test a DIFFERENTIATED cell
             TS_ASSERT(!p_diff_model->ReadyToDivide());
-            TS_ASSERT_EQUALS(p_diff_model->GetCurrentCellCyclePhase(),G_ZERO);
-            
-            // Test a HEPA_ONE cell
-            if (time < p_params->GetMDuration())
-            {   // if in M phase
-                TS_ASSERT(!p_hepa_one_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),M);
-            }
-            else if (time < p_params->GetMDuration() + p_params->GetHepaOneCellG1Duration())
-            {   // if in G1 phase
-                TS_ASSERT(!p_hepa_one_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),G_ONE);
-            }
-            else if (time < p_params->GetMDuration() + p_params->GetHepaOneCellG1Duration() + p_params->GetSDuration())
-            {   // if in S phase
-                TS_ASSERT(!p_hepa_one_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),S);
-            }
-            else if (time < p_params->GetMDuration() + p_params->GetHepaOneCellG1Duration() + p_params->GetSDuration() + p_params->GetG2Duration() )
-            {   // if in G2 phase
-                TS_ASSERT(!p_hepa_one_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),G_TWO);
-            }
-            else
-            {
-                TS_ASSERT(p_hepa_one_model->ReadyToDivide());
-            }
+            TS_ASSERT_EQUALS(p_diff_model->GetCurrentCellCyclePhase(),G_ZERO);            
         }
         
         TS_ASSERT_DELTA(p_stem_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
@@ -184,115 +141,25 @@ public:
         StochasticCellCycleModel* p_hepa_one_model = new StochasticCellCycleModel;
         StochasticCellCycleModel* p_diff_model = new StochasticCellCycleModel;
                 
-        TissueCell stem_cell(STEM, // type
-                             HEALTHY,//Mutation State
-                             0,  // generation
-                             p_stem_model);
-                
-        TissueCell transit_cell(TRANSIT, // type
-                                HEALTHY,//Mutation State
-                                0,  // generation
-                                p_transit_model);     
-                              
-        TissueCell diff_cell(DIFFERENTIATED, // type
-                             HEALTHY,//Mutation State
-                             0,  // generation
-                             p_diff_model);                                                 
-        
-        TissueCell hepa_one_cell(HEPA_ONE, // type
-                                 HEALTHY,//Mutation State
-                                 0,  // generation
-                                 p_hepa_one_model);   
-                              
-                              
-        // The numbers for the G1 durations below are taken from the first three 
-        // random numbers generated                      
+        TissueCell stem_cell(STEM, HEALTHY, 0, p_stem_model);                
+        TissueCell transit_cell(TRANSIT, HEALTHY, 0, p_transit_model);
+        TissueCell diff_cell(DIFFERENTIATED, HEALTHY, 0, p_diff_model); 
+        TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, 0, p_hepa_one_model);  
+                          
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            double time = p_simulation_time->GetDimensionalisedTime();
             
-            // Test STEM cells
-            if (time < p_params->GetMDuration())
-            {   // if in M phase
-                TS_ASSERT(!p_stem_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),M);
-            }
-            else if (time < p_params->GetMDuration() + 4.36075 )
-            {   // if in G1 phase
-                TS_ASSERT(!p_stem_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),G_ONE);
-            }
-            else if (time < p_params->GetMDuration() + 4.36075 + p_params->GetSDuration())
-            {   // if in S phase
-                TS_ASSERT(!p_stem_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),S);
-            }
-            else if (time < p_params->GetMDuration() + 4.36075 + p_params->GetSDuration() + p_params->GetG2Duration() )
-            {   // if in G2 phase
-                TS_ASSERT(!p_stem_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),G_TWO);
-            }
-            else
-            {
-                TS_ASSERT(p_stem_model->ReadyToDivide());
-            }
-            
-            // Test a Transit Cell
-            if (time < p_params->GetMDuration())
-            {   // if in M phase
-                TS_ASSERT(!p_transit_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_transit_model->GetCurrentCellCyclePhase(),M);
-            }
-            else if (time < p_params->GetMDuration() + 1.78877)
-            {   // if in G1 phase
-                TS_ASSERT(!p_transit_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_transit_model->GetCurrentCellCyclePhase(),G_ONE);
-            }
-            else if (time < p_params->GetMDuration() + 1.78877 + p_params->GetSDuration())
-            {   // if in S phase
-                TS_ASSERT(!p_transit_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_transit_model->GetCurrentCellCyclePhase(),S);
-            }
-            else if (time < p_params->GetMDuration() + 1.78877 + p_params->GetSDuration() + p_params->GetG2Duration() )
-            {   // if in G2 phase
-                TS_ASSERT(!p_transit_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_transit_model->GetCurrentCellCyclePhase(),G_TWO);
-            }
-            else
-            {
-                TS_ASSERT(p_transit_model->ReadyToDivide());
-            }
-            
+            // The numbers for the G1 durations below are taken from the first three 
+            // random numbers generated    
+            CheckCellCyclePhasesAreUpdated(p_stem_model, 4.36075);
+            CheckCellCyclePhasesAreUpdated(p_transit_model, 1.78877);
+            CheckCellCyclePhasesAreUpdated(p_hepa_one_model, 4.1324);
+             
             // Test a DIFFERENTIATED cell
             TS_ASSERT(!p_diff_model->ReadyToDivide());
-            TS_ASSERT_EQUALS(p_diff_model->GetCurrentCellCyclePhase(),G_ZERO);
+            TS_ASSERT_EQUALS(p_diff_model->GetCurrentCellCyclePhase(),G_ZERO);  
             
-            // Test a HEPA_ONE cell
-            if (time < p_params->GetMDuration())
-            {   // if in M phase
-                TS_ASSERT(!p_hepa_one_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),M);
-            }
-            else if (time < p_params->GetMDuration() + 4.1324)
-            {   // if in G1 phase
-                TS_ASSERT(!p_hepa_one_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),G_ONE);
-            }
-            else if (time < p_params->GetMDuration() + 4.1324 + p_params->GetSDuration())
-            {   // if in S phase
-                TS_ASSERT(!p_hepa_one_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),S);
-            }
-            else if (time < p_params->GetMDuration() + 4.1324 + p_params->GetSDuration() + p_params->GetG2Duration() )
-            {   // if in G2 phase
-                TS_ASSERT(!p_hepa_one_model->ReadyToDivide());
-                TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),G_TWO);
-            }
-            else
-            {
-                TS_ASSERT(p_hepa_one_model->ReadyToDivide());
-            }            
         }
         RandomNumberGenerator::Destroy();
         SimulationTime::Destroy();

@@ -51,6 +51,9 @@ bool AbstractOdeBasedCellCycleModel::ReadyToDivide()
     
     double current_time = SimulationTime::Instance()->GetDimensionalisedTime();
     
+//    we want to start solving the ODEs at the end of M phase - could possibly 
+//    hijack mLastTime to do this
+    
     if (current_time>mLastTime)
     {
         if (!mFinishedRunningOdes)
@@ -68,9 +71,15 @@ bool AbstractOdeBasedCellCycleModel::ReadyToDivide()
                 }
             }
             
+//            mCurrentCellCyclePhase = G_ONE;
+            
             if (mFinishedRunningOdes)
             {
+//              mCurrentCellCyclePhase = S;  
                 mDivideTime = GetDivideTime();
+//              need to do some clever business here - instead of a divide time, we should
+//              get back the separate pahse durations for S and G2
+//              (need to do this in each concrete instance)
                 if (current_time >= mDivideTime)
                 {
                     mReadyToDivide = true;
