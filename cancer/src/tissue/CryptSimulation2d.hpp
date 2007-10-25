@@ -71,7 +71,7 @@ private :
             daughter_coords = proposed_new_daughter_coords;
         }
         else
-        {
+        {   
             proposed_new_daughter_coords = parent_coords+2.0*random_vector;
             while (proposed_new_daughter_coords(1) < 0.0)
             {
@@ -104,7 +104,6 @@ private :
     {
         // update ghost positions first because they do not affect the real cells
         mrTissue.UpdateGhostPositions(mDt);
-    
         // Iterate over all cells to update their positions.
         for (Tissue<2>::Iterator cell_iter = mrTissue.Begin();
              cell_iter != mrTissue.End();
@@ -143,7 +142,9 @@ private :
             } 
             
             // move the cell
-            mrTissue.MoveCell(cell_iter, new_point);         
+            assert(new_point[1]>=0.0);
+            mrTissue.MoveCell(cell_iter, new_point); 
+                    
         }
     }       
 

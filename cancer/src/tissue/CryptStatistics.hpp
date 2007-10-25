@@ -2,6 +2,7 @@
 #define CRYPTSTATISTICS_HPP_
 
 #include "Tissue.cpp"
+#include "RandomNumberGenerator.hpp"
 
 /** This global function is to allow the list of cells in to be compared in
  *  terms of their y-value and std::list.sort() to be called
@@ -20,7 +21,7 @@ private:
      *  Method computing the perpendicular distance from the cell to the line from (xBottom,0) to (xTop,yTop), 
      *  and returning if the distance is within the specified width to the section (defaults to 1.0)
      */  
-    bool CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=1.0)
+    bool CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=0.5)
     {
         c_vector<double,2> intercept;
 
@@ -40,7 +41,7 @@ private:
         c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
         double dist = norm_2(vec_from_A_to_B);
    
-        return (dist < widthOfSection);
+        return (dist <= widthOfSection);
     }
     
 
@@ -111,6 +112,7 @@ public :
     {
     }
     
+    
     /**
      *  Get all cells within a cell width of the section defined as the line between points (xBottom,0)
      *  and (xTop,yTop)
@@ -118,8 +120,18 @@ public :
      *  Periodicity can be taken into account (if xTop and xBottom are more than half a crypt 
      *  width apart then a more realistic section will be across the periodic boundary), using the 
      *  final parameter. This obviously requires the mesh to be cylindrical.
+     * 
+     * @param xBottom    (defaults to a random number U[0,crypt_width])
+     * @param xTop  (defaults to a random number U[0,crypt_width])
+     * @param yTop  (defaults to crypt_length +2, to get the cells near the top)
+     * @param periodic  (defaults to false)
+     * 
+     * @return  an ordered list of pointes to TissueCells from the bottom to the top of the crypt.
      */
-    std::vector<TissueCell*> GetCryptSection(double xBottom, double xTop, double yTop, bool periodic=false)
+     std::vector<TissueCell*> GetCryptSection(double xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
+                                             double xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
+                                             double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0, 
+                                             bool periodic = false)
     {
         assert(yTop>0.0);
         std::list<std::pair<TissueCell*, double> > cells_list; // the second entry is the y value (needed for sorting)
@@ -178,10 +190,44 @@ public :
      *  If xTop and xBottom are more than half a crypt width apart then a more realistic section
      *  will be across the periodic boundary.
      */
-    std::vector<TissueCell*> GetCryptSectionPeriodic(double xBottom, double xTop, double yTop)
-    {
+    std::vector<TissueCell*> GetCryptSectionPeriodic(double xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
+                                             double xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
+                                             double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0, 
+                                             bool periodic = false)
+     {
         return GetCryptSection(xBottom,xTop,yTop,true);
+     }
+     
+    void LabelSPhaseCells()
+    {
+     
+        for (Tissue<2>::Iterator cell_iter = mrCrypt.Begin();
+             cell_iter != mrCrypt.End();
+             ++cell_iter)
+        {
+            if ((*cell_iter).GetCellCycleModel()->GetCurrentCellCyclePhase()== S)
+            {
+                (*cell_iter).SetMutationState(LABELLED);
+            }
+        } 
+     
     }
+    
+    std::vector<bool> GetWhetherCryptSectionCellsAreLabelled(double xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
+                                             double xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
+                                             double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0, 
+                                             bool periodic = false)
+    {
+    
+        std::vector<bool> crypt_section_labelled ;
+        
+        //std::vector<TissueCell*> GetCryptSectionPeriodic(xBottom,xTop,yTop,periodic);
+        
+        return crypt_section_labelled;
+    
+    }
+    
+    
 };
 
 

@@ -475,8 +475,6 @@ void Cylindrical2dMesh::DeleteHaloNodes()
 /**
  * This OVERRIDDEN method evaluates the (surface) distance between two points in a 2D Cylindrical geometry.
  * 
- * locations should lie between [-mWidth/4, 5*mWidth/4) 
- * 
  * @param rLocation1 the x and y co-ordinates of point 1
  * @param rLocation2 the x and y co-ordinates of point 2
  * 
@@ -486,12 +484,13 @@ c_vector<double, 2> Cylindrical2dMesh::GetVectorFromAtoB(const c_vector<double, 
 {
     assert(mWidth>0.0);
     
-    assert(-mWidth/4<=rLocation1[0]);  // 1st point is not in cylinder
-    assert(-mWidth/4<=rLocation2[0]);  // 2nd point is not in cylinder
-    assert(5*mWidth/4>=rLocation1[0]);  // 1st point is not in cylinder
-    assert(5*mWidth/4>=rLocation2[0]);  // 2nd point is not in cylinder
+    c_vector<double, 2> location1 = rLocation1;
+    c_vector<double, 2> location2 = rLocation2;
     
-    c_vector<double, 2> vector = rLocation2 - rLocation1;
+    location1[0] = fmod(location1[0], mWidth);
+    location2[0] = fmod(location2[0], mWidth);
+    
+    c_vector<double, 2> vector = location2 - location1;
             
     // handle the cylindrical condition here
     // if the points are more than halfway around the cylinder apart

@@ -102,9 +102,16 @@ private:
                         boundary = 1;
                     }
                 }
+                
+                                
                 double x = x0 + horizontal_spacing*((double)j + 0.25*(1.0+ pow(-1,i+1)));
                 
                 double y = y0 + vertical_spacing*(double)i;
+                // Avoif floating point errors which upset CryptSimulation2d
+                if ( (y<0.0) && (y>-1e-12) )
+                {
+                    y=0.0;
+                }
                 
                 (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << boundary << std::endl;
             }

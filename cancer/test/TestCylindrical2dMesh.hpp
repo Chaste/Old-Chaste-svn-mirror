@@ -371,6 +371,16 @@ public:
         TS_ASSERT_DELTA(vector[0], 0.0, 1e-7);
         TS_ASSERT_DELTA(vector[1], +1.0, 1e-7);
         
+        // some tests where the location[0] is not between -0.25*crypt_width and 1.25*crypt_width
+        
+        location1[0] = -2.5;
+        location1[1] = 0;
+        location2[0] = 4.5;
+        location2[1] = 1;
+        vector = p_mesh->GetVectorFromAtoB(location1, location2);
+        TS_ASSERT_DELTA(vector[0], +1.0, 1e-7);
+        TS_ASSERT_DELTA(vector[1], +1.0, 1e-7);
+        
     }
     
     void TestSetNodeLocationForCylindricalMesh() throw (Exception)
