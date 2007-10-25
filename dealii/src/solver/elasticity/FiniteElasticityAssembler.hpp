@@ -112,9 +112,6 @@ protected:
     /*< just set to be DIM, ie if DIM==2 the spatial indices are 0 and 1, the pressure index is 2 */
     const unsigned       PRESSURE_COMPONENT_INDEX;
     
-    /*< Number of newton iterations needed to solve the problem, for interest and testing */
-    unsigned mNumNewtonIterations;
-    
     /*< Map from degree of freedom index to boundary value on that degree of freedom */
     std::map<unsigned,double> mBoundaryValues;
     /*< Storage for a numerical approximation of the Jacobian (mainly used in testing) */
@@ -242,10 +239,6 @@ public:
      */
     virtual void StaticSolve(bool writeOutput=true);
 
-    /**
-     *  Get the number of newton iterations that had been required to solve the problem
-     */
-    unsigned GetNumNewtonIterations();
     
     /**
      *  Verify that the analytic jacobian is the same as the numerical jacobian

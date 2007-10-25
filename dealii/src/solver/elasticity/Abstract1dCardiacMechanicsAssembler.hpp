@@ -24,7 +24,6 @@ class Abstract1dCardiacMechanicsAssembler : public AbstractElasticityAssembler<1
 protected :
     FE_Q<1> mFe;
     double mDensity;
-    unsigned mNumNewtonIterations;
 
     unsigned mEndNodeDof;
     PoleZero3dIn1dLaw mLaw;
@@ -89,7 +88,7 @@ public:
         double norm_resid = this->CalculateResidualNorm();
         std::cout << "\nNorm of residual is " << norm_resid << "\n";
         
-        mNumNewtonIterations = 0;
+        this->mNumNewtonIterations = 0;
         unsigned counter = 1;
     
         // use the larger of the tolerances formed from the absolute or
@@ -114,7 +113,7 @@ public:
             std::cout << "Norm of residual is " << norm_resid << "\n";
             
             //WriteOutput(counter);
-            mNumNewtonIterations = counter;
+            this->mNumNewtonIterations = counter;
             
             counter++;
             if (counter==20)

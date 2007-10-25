@@ -6,9 +6,12 @@
 #include "OutputFileHandler.hpp"
 #include <cassert>
 
+
+
 template <unsigned DIM> 
 class AbstractElasticityAssembler : public AbstractDealiiAssembler<DIM>
 {
+
 private:
     /*< Data structure containing the deformed position, by vertex index, in easily
      * accessable form. Only created if asked for */
@@ -17,12 +20,16 @@ private:
     /*< Data structure containing the undeformed position, by vertex index, in easily
      * accessable form. Only created if asked for */
     std::vector<Vector<double> > mUndeformedPosition;
+    
 
 protected:
     /*< Whether to write any output or not */
     bool mWriteOutput;
     /*< Full path of output directory, including chaste testoutput */
     std::string mOutputDirectoryFullPath;
+
+    /*< Number of newton iterations needed to solve the problem, for interest and testing */
+    unsigned mNumNewtonIterations;
 
 public:
     /** Constructor
@@ -42,6 +49,8 @@ public:
         {
             mWriteOutput = false;
         }
+
+        mNumNewtonIterations = UNSIGNED_UNSET;
     }
 
     /**
@@ -213,6 +222,15 @@ public:
         // on
         assert(!writeOutput || (writeOutput && (mOutputDirectoryFullPath!="")));
         mWriteOutput = writeOutput;
+    }
+    
+    /**
+     *  Get the number of newton iterations that had been required to solve the problem
+     */
+    unsigned GetNumNewtonIterations()
+    {
+        assert(mNumNewtonIterations!=UNSIGNED_UNSET);
+        return mNumNewtonIterations;
     }
 };
 #endif /*ABSTRACTELASTICITYASSEMBLER_HPP_*/

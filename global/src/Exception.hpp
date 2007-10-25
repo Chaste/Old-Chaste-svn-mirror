@@ -5,6 +5,11 @@
 #include <string>
 #include <sstream>
 
+#include <cfloat>
+const unsigned UNSIGNED_UNSET=UINT_MAX;
+const int INT_UNSET=INT_MAX;
+const double DOUBLE_UNSET=DBL_MAX;
+
 /**
  * Exception class.
  * All exceptions thrown by this code are currently instances of this class.

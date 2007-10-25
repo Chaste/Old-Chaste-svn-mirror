@@ -92,9 +92,6 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
                                              ZeroFunction<DIM>(DIM+1),  // note the "+1" here! - number of components
                                              mBoundaryValues,
                                              component_mask);
-                                             
-    mNumNewtonIterations = 0;
-    
     mADeformedHasBeenSolved = false;
 }
 
@@ -801,7 +798,7 @@ void FiniteElasticityAssembler<DIM>::StaticSolve(bool writeOutput)
     double norm_resid = this->CalculateResidualNorm();
     std::cout << "\nNorm of residual is " << norm_resid << "\n";
     
-    mNumNewtonIterations = 0;
+    this->mNumNewtonIterations = 0;
     unsigned counter = 1;
     
     // use the larger of the tolerances formed from the absolute or
@@ -831,7 +828,7 @@ void FiniteElasticityAssembler<DIM>::StaticSolve(bool writeOutput)
             this->WriteOutput(counter);
         }
 
-        mNumNewtonIterations = counter;
+        this->mNumNewtonIterations = counter;
         
         counter++;
         if (counter==20)
@@ -849,11 +846,7 @@ void FiniteElasticityAssembler<DIM>::StaticSolve(bool writeOutput)
     mADeformedHasBeenSolved = true;
 }
 
-template<unsigned DIM>
-unsigned FiniteElasticityAssembler<DIM>::GetNumNewtonIterations()
-{
-    return mNumNewtonIterations;
-}
+
 
 
 #undef COVERAGE_IGNORE

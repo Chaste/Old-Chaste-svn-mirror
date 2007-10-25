@@ -392,6 +392,9 @@ public :
             // solve the mechanics
             LOG(1, "  Solving mechanics");
             mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), stepper.GetNextTime()-stepper.GetTime());
+            
+            unsigned num_iters = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->GetNumNewtonIterations();
+            LOG(1, "    Number of newton iterations = " << num_iters);
 
             // if explicit store the new lambda and update lam
             if(mUseExplicitMethod)
