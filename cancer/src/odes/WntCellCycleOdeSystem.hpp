@@ -82,6 +82,8 @@ public:
     {
         std::vector<double> dy(rY.size());
         EvaluateYDerivatives(time, rY, dy);
+        assert(!isnan(rY[1]));
+        assert(!isnan(dy[1]));
         return (fabs(rY[1]-1.0) < 1.0e-2 && dy[1] > 0.0);
     }
     

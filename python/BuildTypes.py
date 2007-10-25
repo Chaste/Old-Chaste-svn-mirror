@@ -32,6 +32,7 @@ class BuildType(object):
     self.dealii_debugging = False
     self.is_optimised = False
     self.is_profile = False
+    self.is_production = False
     # Where test output will go
     import socket
     machine_fqdn = socket.getfqdn()
@@ -653,9 +654,19 @@ class IntelP4(Intel):
   """
   def __init__(self, *args, **kwargs):
     Intel.__init__(self, *args, **kwargs)
-    self._cc_flags.extend(['-xN', '-O3', '-ip', '-ipo0', '-ipo_obj', '-static'])
-    self._link_flags.extend(['-ipo', '-lsvml', '-L/opt/intel_cc_80/lib', '-static'])
+# -xN = P4 + SSE2 while -xW = P4 (suitable for AMD CPUs)   
+#    self._cc_flags.extend(['-xN', '-O3', '-ip', '-ipo0', '-ipo_obj', '-static'])
+#    self._link_flags.extend(['-ipo', '-lsvml', '-L/opt/intel_cc_80/lib', '-static'])
+    self._cc_flags.extend(['-xW', '-O3', '-ip', '-ipo0'])
+    self._link_flags.extend(['-ipo'])
     self.build_dir = 'intel_p4'
+
+class IntelProduction(IntelP4):
+  "Intel Production version optimised for Pentium 4."
+  def __init__(self, *args, **kwargs):
+    IntelP4.__init__(self, *args, **kwargs)
+    self.build_dir = 'intel_production'
+    self.is_production = True
 
 class StyleCheck(GccDebug):
     """Check the code against Effective C++ style guidelines."""

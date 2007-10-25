@@ -62,7 +62,7 @@ libpaths = []
 incpaths = []
 libraries = []
 
-def do_petsc(version, optimised, profile=False):
+def do_petsc(version, optimised, profile=False, production=False):
     """Determine PETSc include and library paths.
 
     The locations vary depending on the version of PETSc, and possibly
@@ -97,7 +97,9 @@ def do_petsc(version, optimised, profile=False):
         incpaths.append(os.path.join(petsc_base, 'bmake', conf.petsc_build_name))
     else:
         petsc_base = os.path.abspath(conf.petsc_2_3_path)
-        if profile:
+        if production:
+            build_name = conf.petsc_build_name_production
+        elif profile:
             optimised = False
             build_name = conf.petsc_build_name_profile
         elif optimised:
@@ -146,8 +148,11 @@ def configure(build):
         do_metis()
         libraries.extend(['blas', 'lapack']) # Use versions provided with Deal.II
     else:
-        do_petsc('2_3', build.is_optimised, build.is_profile)
-        libraries.extend(conf.blas_lapack)
+        do_petsc('2_3', build.is_optimised, build.is_profile, build.is_production)
+        if build.is_production:
+            libraries.extend(conf.blas_lapack_production)
+        else:
+            libraries.extend(conf.blas_lapack)
     if build.CompilerType() == 'intel':
         intel_path = os.path.abspath(conf.intel_path)
         libpaths.append(os.path.join(intel_path, 'lib'))
