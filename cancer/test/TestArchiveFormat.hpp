@@ -48,7 +48,7 @@ public:
         p_simulation_time->SetStartTime(0.0);
 
         std::string test_to_profile = "NiceCryptSim";
-        double t = 350;   // this is the folder and time that the stored results were archived (needed to know foldernames)
+        double t = 400;   // this is the folder and time that the stored results were archived (needed to know foldernames)
         
         // The archive needs to be copied from cancer/test/data/<test_to_profile>
         // to the testoutput directory to continue running the simulation.     
