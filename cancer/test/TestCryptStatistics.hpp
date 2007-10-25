@@ -233,7 +233,6 @@ public:
         
         // TEST CryptStatistics::GetWhetherCryptSectionCellsAreLabelled
         
-        //std::vector<bool> labelled = crypt_statistics.GetWhetherCryptSectionCellsAreLabelled(2.5,0.5,sqrt(3));
         
         // set cells which are not in the crypt section to be in state APC_ONE_HIT, so that we can
         // see the section
@@ -260,10 +259,10 @@ public:
         simulator.Solve();
         
         std::vector<bool> labelled = crypt_statistics.GetWhetherCryptSectionCellsAreLabelled(8.0,8.0);
-        
+        // Test that the vector of booleans corresponds with the a visualisation of the data- Only the third cell had been labelled
         for (unsigned vector_index=0; vector_index<labelled.size(); vector_index++)
         {
-            if (vector_index==3u)
+            if (vector_index==2u)
             {
                 TS_ASSERT(labelled[vector_index]);
             }
@@ -272,6 +271,8 @@ public:
                 TS_ASSERT(!labelled[vector_index]);
             }
         }
+        
+        
         
         delete p_cell_killer;
         delete p_params;

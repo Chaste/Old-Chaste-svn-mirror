@@ -212,16 +212,43 @@ public :
         } 
      
     }
-    
+    /**
+     *  Get all cells within a cell width of the section defined as the line between points (xBottom,0)
+     *  and (xTop,yTop). If a patricular cell is labelled then the boolean true is returned.
+     * 
+     *  Periodicity can be taken into account (if xTop and xBottom are more than half a crypt 
+     *  width apart then a more realistic section will be across the periodic boundary), using the 
+     *  final parameter. This obviously requires the mesh to be cylindrical.
+     * 
+     * @param xBottom    (defaults to a random number U[0,crypt_width])
+     * @param xTop  (defaults to a random number U[0,crypt_width])
+     * @param yTop  (defaults to crypt_length +2, to get the cells near the top)
+     * @param periodic  (defaults to false)
+     * 
+     * @return  a standard vector of booleans which states whether a labelled cell is present at a corresponing position.
+     */
     std::vector<bool> GetWhetherCryptSectionCellsAreLabelled(double xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0, 
                                              bool periodic = false)
     {
     
-        std::vector<bool> crypt_section_labelled ;
         
-        //std::vector<TissueCell*> GetCryptSectionPeriodic(xBottom,xTop,yTop,periodic);
+        std::vector<TissueCell*> crypt_section = GetCryptSectionPeriodic(xBottom,xTop,yTop,periodic);
+        std::vector<bool> crypt_section_labelled(crypt_section.size()) ;
+        
+        for (unsigned vector_index=0; vector_index<crypt_section.size(); vector_index++)
+        {
+            if (crypt_section[vector_index]->GetMutationState() == LABELLED)
+            {
+                crypt_section_labelled[vector_index]=true;
+            }
+            else
+            {   
+                crypt_section_labelled[vector_index]=false;
+            }
+        }
+        
         
         return crypt_section_labelled;
     
