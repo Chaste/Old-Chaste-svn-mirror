@@ -168,28 +168,14 @@ public:
         regular_crypt.SetGhostNodes(regular_ghost_node_indices);
 
         CryptSimulation2d regular_simulator(regular_crypt);
-        
-        regular_simulator.SetEndTime(1.0);
-        TS_ASSERT_THROWS_ANYTHING(regular_simulator.SetMaxCells(10));
-        regular_simulator.SetMaxCells(500);
-        TS_ASSERT_THROWS_ANYTHING(regular_simulator.SetMaxElements(10));
-        regular_simulator.SetMaxElements(1000);
-        
-        // These are for coverage and use the defaults
-        regular_simulator.SetDt(1.0/120.0);
-        regular_simulator.SetReMeshRule(true);
-        regular_simulator.SetNoBirth(false);
-        regular_simulator.SetOutputDirectory("Crypt2DEdgeBasedSpring");
-        regular_simulator.SetOutputCellTypes(true);
-        
+               
         // check that the force between nodes is correctly calculated when the spring constant is constant (!)
         regular_simulator.SetEdgeBasedSpringConstant(false);
                       
         for(Tissue<2>::SpringIterator spring_iterator=regular_crypt.SpringsBegin();
-        spring_iterator!=regular_crypt.SpringsEnd();
-        ++spring_iterator)
-        {
-            
+            spring_iterator!=regular_crypt.SpringsEnd();
+            ++spring_iterator)
+        {        
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
             c_vector<double, 2> force = regular_simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
@@ -203,8 +189,8 @@ public:
         
         
         for(Tissue<2>::SpringIterator spring_iterator=regular_crypt.SpringsBegin();
-        spring_iterator!=regular_crypt.SpringsEnd();
-        ++spring_iterator)
+            spring_iterator!=regular_crypt.SpringsEnd();
+            ++spring_iterator)
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
@@ -237,6 +223,10 @@ public:
         RandomNumberGenerator::Destroy();    
     }
     
+
+    
+    
+    
     void TestEdgeBasedSpringsOnPeriodicMesh() throw (Exception)
     {     
         // Test on a periodic mesh
@@ -264,22 +254,8 @@ public:
         crypt.SetGhostNodes(ghost_node_indices);
 
         CryptSimulation2d simulator(crypt);
-        
-        simulator.SetEndTime(1.0);
-        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(10));
-        simulator.SetMaxCells(500);
-        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(10));
-        simulator.SetMaxElements(1000);
-        
-        // These are for coverage and use the defaults
-        simulator.SetDt(1.0/120.0);
-        simulator.SetReMeshRule(true);
-        simulator.SetNoBirth(false);
-        simulator.SetOutputDirectory("Crypt2DCylindricalWithEdgeSprings");
-        simulator.SetOutputCellTypes(true);
-        
-
-        // check that the force between nodes is correctly calculated when the spring constant is constant (!)
+       
+         // check that the force between nodes is correctly calculated when the spring constant is constant (!)
         simulator.SetEdgeBasedSpringConstant(false);
                       
         for(Tissue<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
@@ -311,6 +287,124 @@ public:
         RandomNumberGenerator::Destroy();                
     }
     
+    
+    void TestAreaBasedVisocity() throw (Exception)
+    {        
+        CancerParameters::Instance()->Reset();
+
+        // Set up the simulation time
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,10);
+                
+        unsigned cells_across = 3;
+        unsigned cells_up = 3;
+        unsigned thickness_of_ghost_layer = 2;
+       
+        // Test a non-periodic mesh        
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        
+        // scale the mesh in one direction
+        p_mesh->Scale(1.0,1.2);
+        
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
+        
+        // Set up cells
+        std::vector<TissueCell> cells;
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
+
+        Tissue<2> crypt(*p_mesh, cells);               
+        crypt.SetGhostNodes(ghost_node_indices);
+
+        CryptSimulation2d simulator(crypt);
+                             
+        std::vector<c_vector<double,2> > velocities = simulator.CalculateVelocitiesOfEachNode();
+        std::vector<double> norm_vel;
+        
+        for(unsigned i=0; i<velocities.size(); i++)
+        {
+            //check if this is a real cell
+            if(ghost_node_indices.find(i)==ghost_node_indices.end())
+            {
+                norm_vel.push_back(norm_2(velocities[i]));
+            }  
+        }
+
+        // now check that the velocities scale correctly when the viscosity is area-dependent
+        simulator.SetAreaBasedViscosity(true);
+        
+        simulator.mrTissue.CreateVoronoiTessellation();  // normally done in a simulation loop
+        
+        velocities = simulator.CalculateVelocitiesOfEachNode();
+        
+        std::vector<double> norm_vel_area;
+        
+        for(unsigned i=0; i<velocities.size(); i++)
+        {
+            //check if this is a real cell
+            if(ghost_node_indices.find(i)==ghost_node_indices.end())
+            {
+                norm_vel_area.push_back(norm_2(velocities[i]));
+            }  
+        }
+                
+        TS_ASSERT(norm_vel.size() > 0);
+        
+        // note that d0 and d1 are hardcoded in TissueSimulation::CalculateVelocitiesOfEachNode()  
+        for(unsigned i=0; i<norm_vel.size(); i++)
+        {
+            TS_ASSERT_DELTA(norm_vel_area[i], norm_vel[i]/(0.1 +  1.2*0.9), 1e-3);            
+        }
+        
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();    
+    }   
+        
+    void TestAreaBasedVisocityOnAPeriodicMesh() throw (Exception)
+    {        
+        CancerParameters::Instance()->Reset();
+
+        // Set up the simulation time
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,10);
+                
+        unsigned cells_across = 3;
+        unsigned cells_up = 3;
+        unsigned thickness_of_ghost_layer = 2;
+        
+        double scale_factor = 1.2;
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, scale_factor);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
+        
+        // Set up cells
+        std::vector<TissueCell> cells;
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
+
+        Tissue<2> crypt(*p_mesh, cells);               
+        crypt.SetGhostNodes(ghost_node_indices);
+
+        CryptSimulation2d simulator(crypt);
+    
+        // seems quite difficult to test this on a periodic mesh, so just check the areas 
+        // of all the cells are correct 
+        simulator.mrTissue.CreateVoronoiTessellation();
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            //check if this is a real cell
+            if(ghost_node_indices.find(i)==ghost_node_indices.end())
+            {
+                double area = simulator.mrTissue.rGetVoronoiTessellation().GetFaceArea(i);
+                TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);
+            }
+        }        
+        
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();    
+    }    
     
     void Test2DCylindricalMultipleDivisions() throw (Exception)
     {   

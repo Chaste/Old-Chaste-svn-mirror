@@ -308,7 +308,7 @@ public:
         
     }
     
-    void TestLr91WithVoltageDropVariousTimeStepRatios()
+    void TestLr91WithVoltageDropVariousTimeStepRatios() throw (Exception)
     {
         TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(1));
         TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(2));

@@ -198,17 +198,17 @@ public:
      * @param numNodesAlongLength  The number of cells you want along crypt axis
      * @param ghosts The thickness of ghost nodes to put around the edge (defaults to 3)
      * @param cylindrical whether the mesh should be cylindrically periodic (defaults to true)
-     * @param widthScaleFactor  The scale factor for the width (circumference) of the cells
+     * @param scaleFactor  The scale factor for the width (circumference) of the cells
      * 
      * Note: this class creates a cancer params instance and sets the crypt width and length
      * accordingly in the parameters class.
      */
-    HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=3, bool cylindrical = true, double widthScaleFactor = 1.0)
+    HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=3, bool cylindrical = true, double scaleFactor = 1.0)
     {
         mCylindrical = cylindrical;
         mNumCellWidth = numNodesAlongWidth;
         mNumCellLength = numNodesAlongLength;
-        mCryptWidth = numNodesAlongWidth*widthScaleFactor; //*1 because cells are considered to be size one
+        mCryptWidth = numNodesAlongWidth*scaleFactor; //*1 because cells are considered to be size one
         mGhostNodeIndices.empty();
         
         mMeshFilename = "2D_temporary_periodic_crypt_mesh";

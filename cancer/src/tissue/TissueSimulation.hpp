@@ -116,6 +116,18 @@ protected:
     /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
     bool mUseEdgeBasedSpringConstant;
     
+    /** Whether to use a viscosity that is linear in the cell area, rather than constant */
+    bool mUseAreaBasedViscosity;
+
+    /** Whether to use different stiffnesses depending on whether either cell is a mutant */
+    bool mUseMutantSprings;
+    /** Multiplier for spring stiffness if mutant */
+    double mMutantMutantMultiplier;
+    /** Multiplier for spring stiffness if mutant */
+    double mNormalMutantMultiplier;
+
+
+    
     /** Whether to do a voronoi tessellation every time step */
     bool mCreateVoronoiTessellation;
 
@@ -153,6 +165,10 @@ protected:
         archive & mCutoffPoint;
         archive & mOutputCellTypes;
         archive & mUseEdgeBasedSpringConstant;
+        archive & mUseAreaBasedViscosity;
+        archive & mUseMutantSprings;
+        archive & mMutantMutantMultiplier;
+        archive & mNormalMutantMultiplier;
         archive & mCreateVoronoiTessellation;
         archive & mWriteVoronoiData;
         archive & mFollowLoggedCell;
@@ -254,7 +270,8 @@ public:
     void SetNoBirth(bool nobirth);
     void SetOutputCellTypes(bool outputCellTypes);
     void SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant);
-    void SetMutantSprings(bool useMutantSprings, double mutantMutantMultiplier, double normalMutantMultiplier);
+    void SetAreaBasedViscosity(bool useAreaBasedViscosity);
+    void SetMutantSprings(bool useMutantSprings, double mutantMutantMultiplier, double normalMutantMultiplier);    
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);    
@@ -268,11 +285,6 @@ public:
 
     Tissue<DIM>& rGetTissue();
     const Tissue<DIM>& rGetTissue() const;
-    
-private:
-    bool mUseMutantSprings;
-    double mMutantMutantMultiplier;
-    double mNormalMutantMultiplier;
 };
 
 

@@ -45,7 +45,8 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, bool deleteTissue)
     mNumBirths = 0;
     mNumDeaths = 0;
     mUseEdgeBasedSpringConstant = false;
-    mUseMutantSprings = false;
+    mUseAreaBasedViscosity = false;
+	mUseMutantSprings = false;
     mWriteVoronoiData = false;
     mCreateVoronoiTessellation = false;
     mFollowLoggedCell = false;
@@ -109,7 +110,6 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
         {
             // Create new cell
             TissueCell new_cell = cell.Divide();
-            // std::cout << "Cell division at node " << cell.GetNodeIndex() << "\n";
         
             // Add a new node to the mesh
             c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
@@ -216,29 +216,65 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
 
         c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
          
-        double damping_constantA = mpParams->GetDampingConstantNormal();
-        double damping_constantB = mpParams->GetDampingConstantNormal();
+        double damping_constantA;
+        double damping_constantB;
         
+        if (mUseAreaBasedViscosity)
+        {
+            assert(DIM==2);
+            double rest_length = 1.0;
+            double d0 = 0.1;
+            // this number is such that d0+A*d1=1, where A is the area of a equilibrium
+            // cell (=sqrt(3)/4 = a third of the area of a hexagon with edges of size 1)
+            double d1 = 1.8/(sqrt(3)*rest_length*rest_length); 
+
+            VoronoiTessellation<DIM>& tess = mrTissue.rGetVoronoiTessellation();
         
-        if(   (spring_iterator.rGetCellA().GetMutationState()==HEALTHY)
-           || (spring_iterator.rGetCellA().GetMutationState()==APC_ONE_HIT))
+            double area_cell_A = tess.GetFaceArea(nodeA_global_index);
+            double area_cell_B = tess.GetFaceArea(nodeB_global_index);
+            
+            // the areas should be order 1, this is just to avoid getting infinite areas
+            // if an area based viscosity option is chosen without ghost nodes.
+            assert(area_cell_A < 1000);
+            assert(area_cell_B < 1000);
+            
+            damping_constantA = (d0 + area_cell_A*d1)*mpParams->GetDampingConstantNormal();
+            damping_constantB = (d0 + area_cell_B*d1)*mpParams->GetDampingConstantNormal();
+        }
+        else
         {
             damping_constantA = mpParams->GetDampingConstantNormal();
-        }
-        else
-        {
-            damping_constantA = mpParams->GetDampingConstantMutant();
-        }
-        
-        if(   (spring_iterator.rGetCellB().GetMutationState()==HEALTHY)
-           || (spring_iterator.rGetCellB().GetMutationState()==APC_ONE_HIT))
-        {
             damping_constantB = mpParams->GetDampingConstantNormal();
         }
-        else
+
+        if(   (spring_iterator.rGetCellA().GetMutationState()!=HEALTHY)
+           && (spring_iterator.rGetCellA().GetMutationState()!=APC_ONE_HIT))
         {
-            damping_constantB = mpParams->GetDampingConstantMutant();
-        }    
+            // needs refactoring - this if isn't actually needed
+            if (mUseAreaBasedViscosity)
+            {
+                damping_constantA *= (mpParams->GetDampingConstantMutant()/mpParams->GetDampingConstantNormal());
+            }
+            else
+            {
+                damping_constantA = mpParams->GetDampingConstantMutant();
+            }
+        }
+
+
+        if(   (spring_iterator.rGetCellB().GetMutationState()!=HEALTHY)
+           && (spring_iterator.rGetCellB().GetMutationState()!=APC_ONE_HIT))
+        {
+            // needs refactoring - this if isn't actually needed
+            if (mUseAreaBasedViscosity)
+            {
+                damping_constantB *= (mpParams->GetDampingConstantMutant()/mpParams->GetDampingConstantNormal());
+            }
+            else
+            {
+                damping_constantB = mpParams->GetDampingConstantMutant();
+            }
+        }       
        
         // these cannot be ghost nodes anymore..
         // the both apply forces on each other
@@ -359,6 +395,89 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     return multiplication_factor * mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 
+//
+//
+//
+//
+//
+//template<unsigned DIM> 
+//c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex)
+//{
+//    assert(nodeAGlobalIndex!=nodeBGlobalIndex);
+//    c_vector<double, DIM> unit_difference;
+//    c_vector<double, DIM> node_a_location = mrTissue.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
+//    c_vector<double, DIM> node_b_location = mrTissue.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
+//    
+//    // there is reason not to substract one position from the other (cyclidrical meshes). clever gary
+//    unit_difference = mrTissue.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
+//    
+//    double distance_between_nodes = norm_2(unit_difference);
+//    
+//    unit_difference /= distance_between_nodes;
+//    
+//    if(mUseCutoffPoint)
+//    {
+//        if( distance_between_nodes >= mCutoffPoint )
+//        {
+//            return zero_vector<double>(DIM);
+//            //c_vector<double,DIM>() is not guaranteed to be fresh memory
+//            // ie return zero force;
+//        }
+//    }
+//    
+//    double rest_length = 1.0;
+//        
+//    double ageA = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
+//    double ageB = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
+//    
+//    if (ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
+//    {
+//        // Spring Rest Length Increases to normal rest length from ???? to normal rest length, 1.0, over 1 hour
+//        TissueCell& r_cell_A = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex);
+//        TissueCell& r_cell_B = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex);
+//        if (mrTissue.IsMarkedSpring(r_cell_A, r_cell_B))
+//        {   
+//            double lambda=CancerParameters::Instance()->GetDivisionRestingSpringLength();
+//            rest_length=(lambda+(1.0-lambda)*(ageA/(CancerParameters::Instance()->GetMDuration())));           
+//        }
+//        
+//        if (ageA+ SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
+//        {
+//            // This spring is about to go out of scope
+//            mrTissue.UnmarkSpring(r_cell_A, r_cell_B);
+//        }
+//    }
+//    
+//    double a_rest_length=rest_length*0.5;
+//    double b_rest_length=a_rest_length;    
+//    
+//    if (mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).HasApoptosisBegun())
+//    {
+//        double time_until_death_a = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).TimeUntilDeath();
+//        a_rest_length = a_rest_length*(time_until_death_a)/(CancerParameters::Instance()->GetApoptosisTime());
+//    }
+//    if (mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).HasApoptosisBegun())
+//    {
+//        double time_until_death_b = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).TimeUntilDeath();
+//        b_rest_length = b_rest_length*(time_until_death_b)/(CancerParameters::Instance()->GetApoptosisTime());
+//    }
+//    
+//    rest_length = a_rest_length + b_rest_length;
+//    
+//    assert(rest_length<=1.0+1e-12);
+//    
+//    double multiplication_factor = 1.0;
+//    
+//    if (mUseEdgeBasedSpringConstant)
+//    {
+//        VoronoiTessellation<DIM>& tess = mrTissue.rGetVoronoiTessellation();
+//        
+//        multiplication_factor = tess.GetEdgeLength(nodeAGlobalIndex,nodeBGlobalIndex)*sqrt(3);
+//    }
+//    
+//    return multiplication_factor * mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+//}
+//
 
 
 template<unsigned DIM> 
@@ -520,6 +639,18 @@ void TissueSimulation<DIM>::SetEdgeBasedSpringConstant(bool useEdgeBasedSpringCo
 }
 
 /**
+ * Use an area based viscosity
+ */
+template<unsigned DIM> 
+void TissueSimulation<DIM>::SetAreaBasedViscosity(bool useAreaBasedViscosity)
+{
+    assert(DIM == 2);
+    mUseAreaBasedViscosity = useAreaBasedViscosity;
+    mCreateVoronoiTessellation = useAreaBasedViscosity;
+}
+
+
+/**
  * Use Different spring strengths depending on two cells:
  * Normal-normal, Normal-mutant, mutant-mutant
  */
@@ -530,6 +661,7 @@ void TissueSimulation<DIM>::SetMutantSprings(bool useMutantSprings, double mutan
     mMutantMutantMultiplier = mutantMutantMultiplier;
     mNormalMutantMultiplier = normalMutantMultiplier;
 }
+
 
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell)
