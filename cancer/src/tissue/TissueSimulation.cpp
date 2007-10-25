@@ -379,6 +379,16 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
         double beta_cat_cell_1 = r_cell_A.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
         double beta_cat_cell_2 = r_cell_B.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
         multiplication_factor*= beta_cat_cell_1*beta_cat_cell_2;
+        
+        // Probably need to create a tesselation in the time loop if (mUseBCatSprings)
+        // then need to find  beta_cat_on_cell_edge_1 
+        //          = beta_cat_cell_1 * Edge_length_between_two_nodes / Cell_perimeter_1
+        // and also for 2.
+        //      (Edge_length and Cell_perimeter can be found through VoronoiTesselation
+        // Get min_BCat = min{ beta_cat_on_cell_edge_1,  beta_cat_on_cell_edge_2 }
+        // multiplication_factor = C_0 * min_BCat;
+        // Assume C_0 = 1 / BCat_steady_state.
+        
     }
     
     
