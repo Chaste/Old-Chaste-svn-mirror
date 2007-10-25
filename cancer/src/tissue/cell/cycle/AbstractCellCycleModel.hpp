@@ -106,6 +106,12 @@ public:
      */
     virtual AbstractCellCycleModel *CreateCellCycleModel()=0;
     
+    /**
+     * @return the level of membrane bound beta-catenin. However in most Cell Cycle models this does not exist.
+     * We have a "work-around" such that we throw an error if we try and acess it for any other cell type. 
+     */
+    virtual double GetMembraneBoundBetaCateninLevel();
+    
     /*
      * @return the current cell cycle phase
      */

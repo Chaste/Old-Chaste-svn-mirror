@@ -45,8 +45,9 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, bool deleteTissue)
     mNumBirths = 0;
     mNumDeaths = 0;
     mUseEdgeBasedSpringConstant = false;
-    mUseAreaBasedViscosity = false;
-	mUseMutantSprings = false;
+	mUseAreaBasedViscosity = false;
+    mUseMutantSprings = false;
+    mUseBCatSprings = false;
     mWriteVoronoiData = false;
     mCreateVoronoiTessellation = false;
     mFollowLoggedCell = false;
@@ -372,6 +373,16 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
         }
                     
     }
+    
+    if (mUseBCatSprings)
+    {
+        double beta_cat_cell_1 = r_cell_A.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
+        double beta_cat_cell_2 = r_cell_B.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
+        multiplication_factor*= beta_cat_cell_1*beta_cat_cell_2;
+    }
+    
+    
+    
     return multiplication_factor * mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 
@@ -559,6 +570,14 @@ void TissueSimulation<DIM>::SetMutantSprings(bool useMutantSprings, double mutan
     mNormalMutantMultiplier = normalMutantMultiplier;
 }
 
+/**
+ * Use the amount of B-Catenin on an edge to find spring constant.
+ */
+template<unsigned DIM> 
+void TissueSimulation<DIM>::SetBCatSprings(bool useBCatSprings)
+{
+    mUseBCatSprings = useBCatSprings;
+}
 
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell)

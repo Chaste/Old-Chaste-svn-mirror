@@ -38,4 +38,8 @@ CellCyclePhase AbstractCellCycleModel::GetCurrentCellCyclePhase()
     return mCurrentCellCyclePhase;
 }
 
-
+double AbstractCellCycleModel::GetMembraneBoundBetaCateninLevel()
+{
+    NEVER_REACHED;
+    return 0.0;
+}

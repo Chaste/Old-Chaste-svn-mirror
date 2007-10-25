@@ -1574,6 +1574,51 @@ public:
         TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(1,2)), 45.0, 1e-10);
         TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(2,3)), 60.0, 1e-10);
         TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(3,0)), 45.0, 1e-10);
+        
+        SimulationTime::Destroy();
+    }
+    
+    void TestSpringConstantsForIngeBCatCells()
+    {
+        // set up the simulation time object so the cells can be created
+        CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
+        // There is no limit on transit cells in Wnt simulation
+        p_params->SetMaxTransitGenerations(1000);
+        
+        unsigned cells_across = 6;
+        unsigned cells_up = 12;
+        unsigned thickness_of_ghost_layer = 0;
+        
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, 1.1);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Set up cells 
+        std::vector<TissueCell> cells;                      
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_TWO, false);
+        
+        
+        Tissue<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);  
+        
+        WntGradient::Instance()->SetType(LINEAR);  
+        WntGradient::Instance()->SetTissue(crypt);
+        
+        TissueSimulation<2> tissue_simulation(crypt);
+        
+        
+        
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(20,21)), 1.50, 1e-10);
+        
+        tissue_simulation.SetBCatSprings(true);
+        // Note this is just a crap test to check that you get some dependency on BCat of both cells
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(20,21)), 1.5*8.59312*8.59312, 1e-3);
+        
+        SimulationTime::Destroy();
     }
 
 };

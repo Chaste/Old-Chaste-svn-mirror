@@ -48,6 +48,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
     mFinishedRunningOdes = inSG2MPhase;
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
+    mHypothesis = rHypothesis;
 }
 
 /**
@@ -60,6 +61,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
                                      const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState)
 {
+    mHypothesis = rHypothesis;
     mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, rParentProteinConcentrations[21], rMutationState);// wnt pathway is reset in a couple of lines.
     // Set the model to be the same as the parent cell.
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
@@ -135,6 +137,7 @@ bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
     
 double IngeWntSwatCellCycleModel::GetMembraneBoundBetaCateninLevel()
 {
+    //std::cout << "inside get bcat " << mpOdeSystem->rGetStateVariables()[13] << " , " <<  mpOdeSystem->rGetStateVariables()[14] << " both " << mpOdeSystem->rGetStateVariables()[13] + mpOdeSystem->rGetStateVariables()[14] << std::endl << std::flush;
     return mpOdeSystem->rGetStateVariables()[13] + mpOdeSystem->rGetStateVariables()[14];   
 }
 

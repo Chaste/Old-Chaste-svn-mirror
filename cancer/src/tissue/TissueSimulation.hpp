@@ -272,6 +272,7 @@ public:
     void SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant);
     void SetAreaBasedViscosity(bool useAreaBasedViscosity);
     void SetMutantSprings(bool useMutantSprings, double mutantMutantMultiplier, double normalMutantMultiplier);    
+    void SetBCatSprings(bool useBCatSprings);
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);    
@@ -285,6 +286,7 @@ public:
 
     Tissue<DIM>& rGetTissue();
     const Tissue<DIM>& rGetTissue() const;
+    bool mUseBCatSprings;
 };
 
 
