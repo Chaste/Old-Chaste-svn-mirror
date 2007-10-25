@@ -1454,16 +1454,32 @@ public:
         
         Tissue<2> tissue(mesh, cells);
         
+        TissueSimulation<2> tissue_simulation(tissue);
+        
         // set cells mutation states
         tissue.rGetCellAtNodeIndex(0).SetMutationState(HEALTHY);
         tissue.rGetCellAtNodeIndex(1).SetMutationState(LABELLED);
         tissue.rGetCellAtNodeIndex(2).SetMutationState(APC_TWO_HIT);
         tissue.rGetCellAtNodeIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
         
-        TS_ASSERT_DELTA( norm_2(tissue.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(tissue.CalculateForceBetweenNodes(1,2)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(tissue.CalculateForceBetweenNodes(2,3)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(tissue.CalculateForceBetweenNodes(3,0)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(1,2)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(2,3)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(3,0)), 15.0, 1e-10);
+        
+        tissue_simulation.SetMutantSprings(true);
+        
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(1,2)), 22.5, 1e-10);
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(2,3)), 30.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(3,0)), 22.5, 1e-10);
+        
+         tissue_simulation.SetMutantSprings(true, 4.0, 3.0);
+        
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(1,2)), 45.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(2,3)), 60.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(3,0)), 45.0, 1e-10);
     }
 
 };

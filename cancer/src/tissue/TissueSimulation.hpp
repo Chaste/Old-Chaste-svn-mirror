@@ -254,6 +254,7 @@ public:
     void SetNoBirth(bool nobirth);
     void SetOutputCellTypes(bool outputCellTypes);
     void SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant);
+    void SetMutantSprings(bool useMutantSprings, double mutantMutantMultiplier, double normalMutantMultiplier);
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);    
@@ -268,6 +269,10 @@ public:
     Tissue<DIM>& rGetTissue();
     const Tissue<DIM>& rGetTissue() const;
     
+private:
+    bool mUseMutantSprings;
+    double mMutantMutantMultiplier;
+    double mNormalMutantMultiplier;
 };
 
 

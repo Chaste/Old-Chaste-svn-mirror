@@ -45,6 +45,7 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, bool deleteTissue)
     mNumBirths = 0;
     mNumDeaths = 0;
     mUseEdgeBasedSpringConstant = false;
+    mUseMutantSprings = false;
     mWriteVoronoiData = false;
     mCreateVoronoiTessellation = false;
     mFollowLoggedCell = false;
@@ -280,11 +281,12 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     double ageA = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
     double ageB = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
     
+    TissueCell& r_cell_A = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex);
+    TissueCell& r_cell_B = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex);
+    
     if (ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
     {
         // Spring Rest Length Increases to normal rest length from ???? to normal rest length, 1.0, over 1 hour
-        TissueCell& r_cell_A = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex);
-        TissueCell& r_cell_B = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex);
         if (mrTissue.IsMarkedSpring(r_cell_A, r_cell_B))
         {   
             double lambda=CancerParameters::Instance()->GetDivisionRestingSpringLength();
@@ -325,6 +327,35 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
         multiplication_factor = tess.GetEdgeLength(nodeAGlobalIndex,nodeBGlobalIndex)*sqrt(3);
     }
     
+    if (mUseMutantSprings)
+    {
+        unsigned number_of_mutants=0;
+        
+        if (r_cell_A.GetMutationState() == APC_TWO_HIT || r_cell_A.GetMutationState() == BETA_CATENIN_ONE_HIT)
+        {   // if cell A is mutant
+            number_of_mutants++;
+        }
+        
+        if (r_cell_B.GetMutationState() == APC_TWO_HIT || r_cell_B.GetMutationState() == BETA_CATENIN_ONE_HIT)
+        {   // if cell B is mutant
+            number_of_mutants++;
+        }
+        
+        switch  (number_of_mutants)
+        {
+            case 1u:
+            {
+                multiplication_factor*= mNormalMutantMultiplier;
+                break;
+            }
+            case 2u:
+            {
+                multiplication_factor*= mMutantMutantMultiplier;
+                break;
+            }
+        }
+                    
+    }
     return multiplication_factor * mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 
@@ -486,6 +517,18 @@ void TissueSimulation<DIM>::SetEdgeBasedSpringConstant(bool useEdgeBasedSpringCo
     assert(DIM == 2);
     mUseEdgeBasedSpringConstant = useEdgeBasedSpringConstant;
     mCreateVoronoiTessellation = useEdgeBasedSpringConstant;
+}
+
+/**
+ * Use Different spring strengths depending on two cells:
+ * Normal-normal, Normal-mutant, mutant-mutant
+ */
+template<unsigned DIM> 
+void TissueSimulation<DIM>::SetMutantSprings(bool useMutantSprings, double mutantMutantMultiplier=2, double normalMutantMultiplier=1.5)
+{
+    mUseMutantSprings = useMutantSprings;
+    mMutantMutantMultiplier = mutantMutantMultiplier;
+    mNormalMutantMultiplier = normalMutantMultiplier;
 }
 
 template<unsigned DIM> 

@@ -172,6 +172,10 @@ public:
      */
     void UpdateGhostPositions(double dt);
     
+    
+    /***
+     * This method is used to calculate the force between GHOST nodes.
+     */
     c_vector<double, DIM> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
 	    
 	/** 
