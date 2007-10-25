@@ -61,7 +61,7 @@ public :
 class TestTumourSpheroid : public CxxTest::TestSuite
 {  
 public :
-    void dontTest2dSpheroid() throw (Exception)
+    void Test2dSpheroid() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -101,7 +101,7 @@ public :
         TissueSimulation<2> simulator(tissue);
 
         simulator.SetOutputDirectory("2dSpheroid");
-        simulator.SetEndTime(5.0);
+        simulator.SetEndTime(1.0);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
         //simulator.UseCutoffPoint(1.5);
@@ -113,7 +113,7 @@ public :
         AbstractCellKiller<2>* p_killer = new RadiusBasedCellKiller(&tissue, centre, simulator.GetDt());
         simulator.AddCellKiller(p_killer);
         
-        simulator.Solve();
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         
         delete p_killer;
         SimulationTime::Destroy();
