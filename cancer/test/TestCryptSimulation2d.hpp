@@ -1615,9 +1615,12 @@ public:
         TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(20,21)), 1.50, 1e-10);
         
         tissue_simulation.SetBCatSprings(true);
-        // Note this is just a crap test to check that you get some dependency on BCat of both cells
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(20,21)), 1.5*8.59312*8.59312, 1e-3);
+        tissue_simulation.mrTissue.CreateVoronoiTessellation();  // normally done in a simulation loop
         
+        // Note this is just a crap test to check that you get some dependency on BCat of both cells
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(20,21)), 1.5*8.59312/18.14, 1e-5);
+        p_params->SetBetaCatSpringScaler(20/6.0);
+        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(20,21)), 1.5*8.59312/20.0, 1e-5);
         SimulationTime::Destroy();
     }
 

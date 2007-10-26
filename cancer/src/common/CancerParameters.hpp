@@ -27,6 +27,7 @@ public:
     double GetSpringStiffness();
     double GetDampingConstantNormal();
     double GetDampingConstantMutant();
+    double GetBetaCatSpringScaler();
     double GetApoptosisTime();
     double GetDivisionRestingSpringLength();
     double GetDivisionSeparation();
@@ -43,6 +44,7 @@ public:
     void SetSpringStiffness(double);
     void SetDampingConstantNormal(double);
     void SetDampingConstantMutant(double);
+    void SetBetaCatSpringScaler(double);
     void SetApoptosisTime(double);
     void SetDivisionRestingSpringLength(double);
     void SetDivisionSeparation(double);
@@ -128,6 +130,11 @@ private:
     double mDampingConstantMutant;
     
     /**
+     * Scaling factor for beta catenin to spring strength
+     */
+    double mBetaCatSpringScaler;
+    
+    /**
      * The time it takes to fully undergo apoptosis
      */
     double mApoptosisTime;
@@ -164,6 +171,7 @@ private:
         archive & mSpringStiffness;
         archive & mDampingConstantNormal;
         archive & mDampingConstantMutant;
+        archive & mBetaCatSpringScaler;
         archive & mApoptosisTime;
     }
 };

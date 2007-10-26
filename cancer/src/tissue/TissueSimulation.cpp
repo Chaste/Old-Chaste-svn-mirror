@@ -380,17 +380,22 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(unsigned
     {
         double beta_cat_cell_1 = r_cell_A.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
         double beta_cat_cell_2 = r_cell_B.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
-        multiplication_factor*= beta_cat_cell_1*beta_cat_cell_2;
         
-        // Probably need to create a tesselation in the time loop if (mUseBCatSprings)
-        // then need to find  beta_cat_on_cell_edge_1 
-        //          = beta_cat_cell_1 * Edge_length_between_two_nodes / Cell_perimeter_1
-        // and also for 2.
-        //      (Edge_length and Cell_perimeter can be found through VoronoiTesselation
-        // Get min_BCat = min{ beta_cat_on_cell_edge_1,  beta_cat_on_cell_edge_2 }
-        // multiplication_factor = C_0 * min_BCat;
-        // Assume C_0 = 1 / BCat_steady_state.
         
+        VoronoiTessellation<DIM>& tess = mrTissue.rGetVoronoiTessellation();
+        
+        double perim_cell_1 = tess.GetFacePerimeter(nodeAGlobalIndex);
+        double perim_cell_2 = tess.GetFacePerimeter(nodeBGlobalIndex);
+        double edge_length_between_1_and_2 = tess.GetEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex);
+        
+        
+        double beta_cat_on_cell_1_edge = beta_cat_cell_1 *  edge_length_between_1_and_2 / perim_cell_1;
+        double beta_cat_on_cell_2_edge = beta_cat_cell_2 *  edge_length_between_1_and_2 / perim_cell_2;
+        
+        double min_beta_Cat_of_two_cells = std::min(beta_cat_on_cell_1_edge, beta_cat_on_cell_2_edge);
+        
+        double beta_cat_scaling_factor = CancerParameters::Instance()->GetBetaCatSpringScaler();
+        multiplication_factor*= min_beta_Cat_of_two_cells / beta_cat_scaling_factor;
     }
     
     
@@ -589,6 +594,7 @@ template<unsigned DIM>
 void TissueSimulation<DIM>::SetBCatSprings(bool useBCatSprings)
 {
     mUseBCatSprings = useBCatSprings;
+    mCreateVoronoiTessellation = useBCatSprings;
 }
 
 template<unsigned DIM> 

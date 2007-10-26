@@ -46,6 +46,8 @@ void CancerParameters::Reset()
     mSpringStiffness = 15.0;  //This is mu in Meineke
     mDampingConstantNormal = 1.0;  //This is nu in Meineke
     mDampingConstantMutant = 2.0;
+    mBetaCatSpringScaler = 18.14 / 6.0;  //This scales the spring constant with the amount of beta-catenin 
+                                         //(divided by 6 as a cell normally is a hexagon.)
     mApoptosisTime = 0.25;  // Cell takes 15 min to fully undergo apoptosis
     mDivisionRestingSpringLength=0.5;
     mDivisionSeparation=0.3;    
@@ -108,6 +110,10 @@ double CancerParameters::GetDampingConstantNormal()
 double CancerParameters::GetDampingConstantMutant()
 {
     return mDampingConstantMutant;
+}
+double CancerParameters::GetBetaCatSpringScaler()
+{
+    return mBetaCatSpringScaler;
 }
 double CancerParameters::GetApoptosisTime()
 {
@@ -183,6 +189,11 @@ void CancerParameters::SetDampingConstantMutant(double dampingConstantMutant)
 {
     assert(dampingConstantMutant > 0.0);
     mDampingConstantMutant = dampingConstantMutant;
+}
+void CancerParameters::SetBetaCatSpringScaler(double betaCatSpringScaler)
+{
+    assert(betaCatSpringScaler > 0.0);
+    mBetaCatSpringScaler = betaCatSpringScaler;
 }
 void CancerParameters::SetApoptosisTime(double apoptosisTime)
 {

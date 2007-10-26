@@ -29,6 +29,7 @@ private:
         TS_ASSERT_DELTA(inst->GetSpringStiffness(), 15.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetDampingConstantNormal(), 1.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetDampingConstantMutant(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetBetaCatSpringScaler(), 18.14 / 6.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetApoptosisTime(), 0.25, 1e-12);
     }
 
@@ -54,6 +55,7 @@ public:
         inst->SetSpringStiffness(20.0);
         inst->SetDampingConstantNormal(2.0);
         inst->SetDampingConstantMutant(3.0);
+        inst->SetBetaCatSpringScaler(10.0);
         inst->SetApoptosisTime(0.3);
         
         inst->Reset();
@@ -77,6 +79,7 @@ public:
         inst1->SetSpringStiffness(20.0);
         inst1->SetDampingConstantNormal(2.0);
         inst1->SetDampingConstantMutant(3.0);
+        inst1->SetBetaCatSpringScaler(10.0);
         inst1->SetApoptosisTime(0.3);
         
         CancerParameters *inst2 = CancerParameters::Instance();
@@ -93,6 +96,7 @@ public:
         TS_ASSERT_DELTA(inst2->GetSpringStiffness(), 20.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetDampingConstantNormal(), 2.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetDampingConstantMutant(), 3.0, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetBetaCatSpringScaler(), 10.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetApoptosisTime(), 0.3, 1e-12);
     }
     
@@ -117,6 +121,7 @@ public:
             inst1->SetSpringStiffness(20.0);
             inst1->SetDampingConstantNormal(2.0);
             inst1->SetDampingConstantMutant(3.0);
+            inst1->SetBetaCatSpringScaler(10.0);
             inst1->SetApoptosisTime(0.3);
 
             std::ofstream ofs(archive_filename.c_str());
@@ -141,6 +146,7 @@ public:
             inst1->SetSpringStiffness(30.0);
             inst1->SetDampingConstantNormal(1.0);
             inst1->SetDampingConstantMutant(2.0);
+            inst1->SetBetaCatSpringScaler(10.0);
 
             
             // Create an input archive
@@ -162,6 +168,7 @@ public:
             TS_ASSERT_DELTA(inst1->GetSpringStiffness(), 20.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetDampingConstantNormal(), 2.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetDampingConstantMutant(), 3.0, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetBetaCatSpringScaler(), 10.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetApoptosisTime(), 0.3, 1e-12);
         }
     }
