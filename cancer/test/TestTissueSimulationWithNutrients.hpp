@@ -29,12 +29,10 @@ public:
     {
         double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell);
         
-        // the std::max is a hack, due to the choice of PDE
-        // (a simple nonlinear PDE would ensure positivity)   
-//        if (oxygen_concentration < 0.0)
-//        {
-//            EXCEPTION("Oxygen concentration has gone negative - check the oxygen PDE");
-//        }
+        if (oxygen_concentration < 0.0)
+        {
+            EXCEPTION("Oxygen concentration has gone negative - check the oxygen PDE");
+        }
         mTimeProgressingThroughCellCycle = mTimeProgressingThroughCellCycle + std::max(oxygen_concentration,0.0)*SimulationTime::Instance()->GetTimeStep(); 
         
         bool result = false;        
@@ -53,23 +51,33 @@ public:
     }
 };
 
-class SimpleLinearEllipticPde : public AbstractLinearEllipticPde<2>
+class OxygenPde : public AbstractNonlinearEllipticPde<2>
 {
-
 public:
+
     double ComputeLinearSourceTerm(ChastePoint<2> )
-    {
-        return -0.2; //-1.0;
-    }
-    
-    double ComputeNonlinearSourceTerm(ChastePoint<2> , double )
     {
         return 0.0;
     }
     
-    c_matrix<double,2,2> ComputeDiffusionTerm(ChastePoint<2> )
+    double ComputeNonlinearSourceTerm(ChastePoint<2> , double u)
+    {
+        return -u;
+    }
+    
+    c_matrix<double,2,2> ComputeDiffusionTerm(ChastePoint<2> , double u)
     {
         return identity_matrix<double>(2);
+    }
+    
+    c_matrix<double,2,2> ComputeDiffusionTermPrime(ChastePoint<2> , double u)
+    {
+        return zero_matrix<double>(2);
+    }
+    
+    double ComputeNonlinearSourceTermPrime(ChastePoint<2> , double u)
+    {
+        return -1.0;
     }
 };
 
@@ -93,9 +101,8 @@ public:
         int num_cells_depth = 10;
         int num_cells_width = 10;
         
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
                 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -113,16 +120,15 @@ public:
         }
                 
         Tissue<2> tissue(*p_mesh, cells);
-        tissue.SetGhostNodes(ghost_node_indices);
         
-        SimpleLinearEllipticPde pde;
+        OxygenPde pde;
 
         TissueSimulationWithNutrients<2> simulator(tissue, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithOxygen");
-        simulator.SetEndTime(0.2);
+        simulator.SetEndTime(0.1);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
-        //simulator.UseCutoffPoint(1.5);
+        simulator.UseCutoffPoint(1.5);
         
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);

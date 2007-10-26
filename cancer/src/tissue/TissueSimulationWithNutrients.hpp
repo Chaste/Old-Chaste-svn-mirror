@@ -2,18 +2,18 @@
 #define TISSUESIMULATIONWITHNUTRIENTS_HPP_
 
 #include "TissueSimulation.cpp"
-#include "EllipticFlaggedMeshAssembler.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "FlaggedMeshBoundaryConditionsContainer.hpp"
+#include "BoundaryConditionsContainer.hpp"
 #include "SimpleDataWriter.hpp"
-#include "AbstractLinearEllipticPde.hpp"
+#include "AbstractNonlinearEllipticPde.hpp"
 #include "CellwiseData.cpp"
+#include "SimpleNonlinearEllipticAssembler.hpp"
 
 template<unsigned DIM>
 class TissueSimulationWithNutrients : public TissueSimulation<DIM>
 {
 private :
-    AbstractLinearEllipticPde<DIM>* mpPde;
+    AbstractNonlinearEllipticPde<DIM>* mpPde;
 
     void PostSolve()
     {
@@ -22,45 +22,58 @@ private :
         CellwiseData<DIM>::Instance()->ReallocateMemory();
         
         std::set<unsigned> ghost_node_indices = this->mrTissue.GetGhostNodeIndices();
-        r_mesh.FlagElementsNotContainingNodes(ghost_node_indices);
-        r_mesh.SetupSmasrmMap();
+        
+        // we shouldn't have any ghost nodes
+        assert(ghost_node_indices.size()==0);
         
         // Set up boundary conditions
-        FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(r_mesh, 1.0);
+        BoundaryConditionsContainer<2,2,1> bcc;
+        ConstBoundaryCondition<2>* p_boundary_condition;
+        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
+        while (node_iter != r_mesh.GetBoundaryNodeIteratorEnd())
+        {
+            p_boundary_condition = new ConstBoundaryCondition<2>(1.0);
+            bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
+            node_iter++;
+        }
         
-        // Assembler for fine mesh flagged region. use bbc from before
-        EllipticFlaggedMeshAssembler<2> elliptic_assembler(&r_mesh, mpPde, &flagged_bcc);
+        // Set up assembler
+        SimpleNonlinearEllipticAssembler<2,2> assembler(&r_mesh, mpPde, &bcc);
+                
+        // Set up initial guess
+        // TODO: probably better to use previous solution as initial guess, 
+        // especially when solving a proper nonlinear problem
+        Vec initial_guess = assembler.CreateConstantInitialGuess(1.0);
         
         // Solve the nutrient PDE
-        Vec result_elliptic_restricted = elliptic_assembler.Solve();
-        ReplicatableVector result_elliptic_repl(result_elliptic_restricted);
+        Vec result = assembler.Solve(initial_guess);
+        
+        ReplicatableVector result_repl(result);
 
         std::map<unsigned, unsigned>& map = r_mesh.rGetSmasrmMap();
         std::map<unsigned, unsigned>::iterator map_iter = map.begin();
 
-		std::vector<double> global_index;
+		std::vector<double> global_indices;
         std::vector<double> x;
         std::vector<double> y;
         std::vector<double> u;
         
-        while (map_iter!=map.end())
+        for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
         {
-            unsigned node_index = map_iter->first;
-            unsigned smasrm_index = map_iter->second;
-            global_index.push_back((double) node_index);
-            x.push_back(r_mesh.GetNode(node_index)->rGetLocation()[0]);
-            y.push_back(r_mesh.GetNode(node_index)->rGetLocation()[1]);
-            u.push_back(result_elliptic_repl[smasrm_index]);
+            // TODO: don't need this anymore since there'are no ghost nodes,
+            // but we'd need to change the visualizer before we take this out
+            global_indices.push_back((double) i);
+            x.push_back(r_mesh.GetNode(i)->rGetLocation()[0]);
+            y.push_back(r_mesh.GetNode(i)->rGetLocation()[1]);
+            u.push_back(result_repl[i]);
 
-            double o2_conc = result_elliptic_repl[smasrm_index];
-
-            CellwiseData<DIM>::Instance()->SetValue(o2_conc, r_mesh.GetNode(node_index));
-            map_iter++;
+            double oxygen_conc = result_repl[i];
+            CellwiseData<DIM>::Instance()->SetValue(oxygen_conc, r_mesh.GetNode(i));
         }
 
-//todo - using SimpleDataWriter is inefficient
+        // TODO: using SimpleDataWriter is inefficient
         std::vector<std::vector<double> > data;
-        data.push_back(global_index);
+        data.push_back(global_indices);
         data.push_back(x);
         data.push_back(y);
         data.push_back(u);
@@ -71,7 +84,7 @@ private :
         SimpleDataWriter writer(this->mOutputDirectory+"/nutrients/", string_stream.str(), data, false);
         counter++;
         
-        VecDestroy(result_elliptic_restricted); // for the time being, while this is completely decoupled
+        VecDestroy(result);
         
         // update cells' hypoxic durations using their current oxygen concentration        
         for( typename Tissue<2>::Iterator cell_iter = this->mrTissue.Begin();
@@ -101,7 +114,7 @@ private :
 
 
 public:
-    TissueSimulationWithNutrients(Tissue<DIM>& rTissue, AbstractLinearEllipticPde<DIM>* pPde, bool deleteTissue=false)
+    TissueSimulationWithNutrients(Tissue<DIM>& rTissue, AbstractNonlinearEllipticPde<DIM>* pPde, bool deleteTissue=false)
         : TissueSimulation<DIM>(rTissue, deleteTissue),
           mpPde(pPde)
     {

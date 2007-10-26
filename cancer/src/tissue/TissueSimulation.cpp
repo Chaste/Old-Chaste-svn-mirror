@@ -222,7 +222,9 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
         
         if (mUseAreaBasedViscosity)
         {
+            #define COVERAGE_IGNORE
             assert(DIM==2);
+            #undef COVERAGE_IGNORE
             double rest_length = 1.0;
             double d0 = 0.1;
             // this number is such that d0+A*d1=1, where A is the area of a equilibrium
