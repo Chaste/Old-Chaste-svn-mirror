@@ -71,6 +71,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(FixedCellCycleModel model3);
         
         FixedCellCycleModel* p_stem_model = new FixedCellCycleModel;
+        TS_ASSERT(!p_stem_model->UsesBetaCat());
         TissueCell stem_cell(STEM, // type
                              HEALTHY,//Mutation State
                              0,  // generation
@@ -349,7 +350,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(IngeWntSwatCellCycleModel model(0));
 
         IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1);
-        
+        TS_ASSERT(p_cell_model->UsesBetaCat());
         TS_ASSERT_EQUALS(p_cell_model->GetHypothesis(), 1u);
         
         TissueCell stem_cell(STEM, // type

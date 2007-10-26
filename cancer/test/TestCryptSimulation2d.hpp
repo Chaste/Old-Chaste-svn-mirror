@@ -1610,8 +1610,6 @@ public:
         
         TissueSimulation<2> tissue_simulation(crypt);
         
-        
-        
         TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(20,21)), 1.50, 1e-10);
         
         tissue_simulation.SetBCatSprings(true);
@@ -1621,9 +1619,48 @@ public:
         TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(20,21)), 1.5*8.59312/18.14, 1e-5);
         p_params->SetBetaCatSpringScaler(20/6.0);
         TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(20,21)), 1.5*8.59312/20.0, 1e-5);
+        
         SimulationTime::Destroy();
+        WntGradient::Destroy(); 
     }
+    
+    void TestWriteBetaCatenin() throw (Exception)
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
+        
+        
+        HoneycombMeshGenerator generator(4, 4, 1);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Set up cells 
+        std::vector<TissueCell> cells;                      
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_ONE, false);
+        
+        Tissue<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);  
+        
+        WntGradient::Instance()->SetType(LINEAR);             
+        WntGradient::Instance()->SetTissue(crypt);
+        
+        CryptSimulation2d simulator(crypt);
+        simulator.SetOutputDirectory("CryptBetaCatenin");
+        simulator.SetEndTime(0.1);
+        
+        simulator.Solve();
 
+        // check writing of beta-catenin data
+        OutputFileHandler handler("CryptBetaCatenin",false);
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "/betacatenin/betacatenin_0.dat";
+        TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/CryptBetaCatenin/betacatenin_0.dat").c_str()), 0);    
+
+        SimulationTime::Destroy();
+        WntGradient::Destroy();
+    }        
 };
 
 #endif /*TESTCRYPTSIMULATION2D_HPP_*/

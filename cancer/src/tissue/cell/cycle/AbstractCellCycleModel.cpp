@@ -43,3 +43,20 @@ double AbstractCellCycleModel::GetMembraneBoundBetaCateninLevel()
     NEVER_REACHED;
     return 0.0;
 }
+
+double AbstractCellCycleModel::GetCytoplasmicBetaCateninLevel()
+{
+    NEVER_REACHED;
+    return 0.0;
+}
+
+double AbstractCellCycleModel::GetNuclearBetaCateninLevel()
+{
+    NEVER_REACHED;
+    return 0.0;
+}
+
+bool AbstractCellCycleModel::UsesBetaCat()
+{
+    return false;
+}

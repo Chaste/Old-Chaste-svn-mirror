@@ -5,6 +5,7 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "TissueSimulation.cpp"
+#include "SimpleDataWriter.hpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
@@ -146,7 +147,55 @@ private :
             mrTissue.MoveCell(cell_iter, new_point); 
                     
         }
-    }       
+    }
+    
+    void WriteBetaCatenin()
+    {
+        std::vector<double> global_indices;
+        std::vector<double> x;
+        std::vector<double> y;
+        std::vector<double> b_cat_membrane;
+        std::vector<double> b_cat_cytoplasm;
+        std::vector<double> b_cat_nuclear;
+        
+        for (Tissue<2>::Iterator cell_iter = mrTissue.Begin();
+               cell_iter != mrTissue.End();
+               ++cell_iter)
+        {
+            // TODO: don't need this anymore since there'are no ghost nodes,
+            // but we'd need to change the visualizer before we take this out
+            global_indices.push_back((double) cell_iter.GetNode()->GetIndex());
+            x.push_back(cell_iter.rGetLocation()[0]);
+            y.push_back(cell_iter.rGetLocation()[1]);
+            b_cat_membrane.push_back(cell_iter->GetCellCycleModel()->GetMembraneBoundBetaCateninLevel());
+            b_cat_cytoplasm.push_back(cell_iter->GetCellCycleModel()->GetCytoplasmicBetaCateninLevel());
+            b_cat_nuclear.push_back(cell_iter->GetCellCycleModel()->GetNuclearBetaCateninLevel());
+        }
+
+        // TODO: using SimpleDataWriter is inefficient
+        std::vector<std::vector<double> > data;
+        data.push_back(global_indices);
+        data.push_back(x);
+        data.push_back(y);
+        data.push_back(b_cat_membrane);
+        data.push_back(b_cat_cytoplasm);
+        data.push_back(b_cat_nuclear);
+        
+        static unsigned counter = 0;
+        std::stringstream string_stream;
+        string_stream << "betacatenin_" << counter << ".dat";
+        SimpleDataWriter writer(this->mOutputDirectory+"/betacatenin/", string_stream.str(), data, false);
+        counter++;
+    }
+       
+    void PostSolve()
+    {
+        if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
+            && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
+        {
+            WriteBetaCatenin();
+        }
+    }
 
 public :            
 

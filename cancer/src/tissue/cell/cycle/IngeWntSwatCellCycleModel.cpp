@@ -137,7 +137,6 @@ bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
     
 double IngeWntSwatCellCycleModel::GetMembraneBoundBetaCateninLevel()
 {
-    //std::cout << "inside get bcat " << mpOdeSystem->rGetStateVariables()[13] << " , " <<  mpOdeSystem->rGetStateVariables()[14] << " both " << mpOdeSystem->rGetStateVariables()[13] + mpOdeSystem->rGetStateVariables()[14] << std::endl << std::flush;
     return mpOdeSystem->rGetStateVariables()[13] + mpOdeSystem->rGetStateVariables()[14];   
 }
 
@@ -157,4 +156,9 @@ double IngeWntSwatCellCycleModel::GetNuclearBetaCateninLevel()
 unsigned IngeWntSwatCellCycleModel::GetHypothesis() const
 {
     return mHypothesis;   
+}
+
+bool IngeWntSwatCellCycleModel::UsesBetaCat()
+{
+    return true;
 }
