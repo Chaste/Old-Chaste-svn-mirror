@@ -4,7 +4,6 @@
 #include "FixedCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
 
-
 /**
  *  Stochastic cell model
  *  

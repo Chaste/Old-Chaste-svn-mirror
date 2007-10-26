@@ -12,44 +12,7 @@
 #include "SimulationTime.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "PetscTools.hpp"
-
-class SimpleOxygenBasedCellCycleModel : public FixedCellCycleModel
-{
-private:
-    double mTimeProgressingThroughCellCycle;
-        
-public:
-    SimpleOxygenBasedCellCycleModel() 
-        : FixedCellCycleModel(),
-          mTimeProgressingThroughCellCycle(0.0)
-    {
-    }
-    
-    bool ReadyToDivide()
-    {
-        double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell);
-        
-        if (oxygen_concentration < 0.0)
-        {
-            EXCEPTION("Oxygen concentration has gone negative - check the oxygen PDE");
-        }
-        mTimeProgressingThroughCellCycle = mTimeProgressingThroughCellCycle + std::max(oxygen_concentration,0.0)*SimulationTime::Instance()->GetTimeStep(); 
-        
-        bool result = false;        
-        if ( mTimeProgressingThroughCellCycle > CancerParameters::Instance()->GetHepaOneCellG1Duration() + 
-                                                        CancerParameters::Instance()->GetSG2MDuration() )
-        {
-            result = true;
-        }
-        
-        return result;
-    }
-    
-    AbstractCellCycleModel* CreateCellCycleModel()
-    {
-        return new SimpleOxygenBasedCellCycleModel();
-    }
-};
+#include "SimpleOxygenBasedCellCycleModel.hpp"
 
 class OxygenPde : public AbstractNonlinearEllipticPde<2>
 {

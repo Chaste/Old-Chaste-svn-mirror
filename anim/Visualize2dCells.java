@@ -948,7 +948,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         	nutrient_conc[j] = 0.0;
         }        
         if (vis.drawNutrient)
-        {
+        {   
         	try
         	{
         		File nutrient_file = new File(vis.nutrient_file+"/nutrients_"+vis.timeStep+".dat");
@@ -988,7 +988,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         	nuc_beta_cat_conc[j] = 0.0;
         }        
         if (vis.drawBetaCatenin)
-        {
+        {         
         	try
         	{
         		File beta_catenin_file = new File(vis.beta_catenin_file+"/betacatenin_"+vis.timeStep+".dat");
@@ -1107,10 +1107,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
             }            
 
             if (vis.drawNutrient)
-            {           
-            	vis.drawCells = false;
-            	vis.drawCircles = false;
-            	
+            {                   
                 int clipx[]=new int[3];
                 int clipy[]=new int[3];
                 for (int node=0;node<3;node++)
@@ -1165,10 +1162,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
             }            
             
             if (vis.drawBetaCatenin)
-            {           
-            	vis.drawCells = false;
-            	vis.drawCircles = false;
-            	
+            {                   
                 int clipx[]=new int[3];
                 int clipy[]=new int[3];
                 for (int node=0;node<3;node++)
@@ -1259,8 +1253,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                     }
                     g2.setColor(Color.black);
                 }
-            } 
-            
+            }
         }
         
 
@@ -1278,8 +1271,6 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         	{
         		SetNodeColour(i);
         	}
-        	
-
         	if (!vis.drawNutrient)
         	{
         		g2.fillOval(p.x - node_radius, p.y - node_radius, 2 * node_radius, 2 * node_radius);
