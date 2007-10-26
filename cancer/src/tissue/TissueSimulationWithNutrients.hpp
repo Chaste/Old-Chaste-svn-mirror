@@ -13,6 +13,8 @@ template<unsigned DIM>
 class TissueSimulationWithNutrients : public TissueSimulation<DIM>
 {
 private :
+    Vec mOxygenSolution;
+
     AbstractNonlinearEllipticPde<DIM>* mpPde;
 
     void PostSolve()
@@ -43,12 +45,23 @@ private :
         // Set up initial guess
         // TODO: probably better to use previous solution as initial guess, 
         // especially when solving a proper nonlinear problem
-        Vec initial_guess = assembler.CreateConstantInitialGuess(1.0);
+        //Vec initial_guess = assembler.CreateConstantInitialGuess(1.0);
         
         // Solve the nutrient PDE
-        Vec result = assembler.Solve(initial_guess);
+        Vec initial_guess;
+        if(mOxygenSolution)
+        {
+            VecDuplicate(mOxygenSolution, &initial_guess);
+            VecCopy(mOxygenSolution, initial_guess);
+        }
+        else
+        {
+            initial_guess = assembler.CreateConstantInitialGuess(1.0);
+        }
         
-        ReplicatableVector result_repl(result);
+        mOxygenSolution = assembler.Solve(initial_guess);
+        
+        ReplicatableVector result_repl(mOxygenSolution);
 
         std::map<unsigned, unsigned>& map = r_mesh.rGetSmasrmMap();
         std::map<unsigned, unsigned>::iterator map_iter = map.begin();
@@ -84,7 +97,8 @@ private :
         SimpleDataWriter writer(this->mOutputDirectory+"/nutrients/", string_stream.str(), data, false);
         counter++;
         
-        VecDestroy(result);
+        VecDestroy(initial_guess);
+       // VecDestroy(result);
         
         // update cells' hypoxic durations using their current oxygen concentration        
         for( typename Tissue<2>::Iterator cell_iter = this->mrTissue.Begin();
@@ -116,8 +130,17 @@ private :
 public:
     TissueSimulationWithNutrients(Tissue<DIM>& rTissue, AbstractNonlinearEllipticPde<DIM>* pPde, bool deleteTissue=false)
         : TissueSimulation<DIM>(rTissue, deleteTissue),
+          mOxygenSolution(NULL),
           mpPde(pPde)
     {
+    }
+    
+    ~TissueSimulationWithNutrients()
+    {
+        if(mOxygenSolution)
+        {
+            VecDestroy(mOxygenSolution);
+        }
     }
 };
 #endif /*TISSUESIMULATIONWITHNUTRIENTS_HPP_*/
