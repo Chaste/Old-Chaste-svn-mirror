@@ -66,7 +66,7 @@ public :
         assert(DIM==2);
         RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
         unsigned num_cells = rMesh.GetNumNodes();
-
+        
         AbstractCellCycleModel* p_cell_cycle_model = NULL;
         double typical_transit_cycle_time;
         double typical_stem_cycle_time;
