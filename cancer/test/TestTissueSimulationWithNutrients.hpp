@@ -56,31 +56,37 @@ public:
             return;
         }
         
+        // instantiate singleton objects
+        
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
 
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-       
-        int num_cells_depth = 10;
-        int num_cells_width = 10;
         
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-                
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
+       
+        // set up mesh                   
+        int num_cells_depth = 10;
+        int num_cells_width = 10;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+              
+        std::cout << "no. nodes = " << p_mesh->GetNumNodes() << "\n" << std::flush; // trace
         
-        // Set up cells
+        // set up cells
         std::vector<TissueCell> cells;
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(HEPA_ONE, HEALTHY, 0, new SimpleOxygenBasedCellCycleModel());
-            double birth_time = -p_gen->ranf()*(p_params->GetTransitCellG1Duration()
+            double birth_time = -p_gen->ranf()*(p_params->GetHepaOneCellG1Duration()
                                                +p_params->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
+        
+        std::cout << "no. cells = " <<cells.size() << "\n" << std::flush; // trace
                 
         Tissue<2> tissue(*p_mesh, cells);
         

@@ -6,8 +6,8 @@
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDataWriter.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
-#include "CellwiseData.cpp"
 #include "SimpleNonlinearEllipticAssembler.hpp"
+#include "CellwiseData.hpp"
 
 template<unsigned DIM>
 class TissueSimulationWithNutrients : public TissueSimulation<DIM>
@@ -27,8 +27,8 @@ private :
         
         // we shouldn't have any ghost nodes
         assert(ghost_node_indices.size()==0);
-        
-        // Set up boundary conditions
+                
+        // set up boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         ConstBoundaryCondition<2>* p_boundary_condition;
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
@@ -36,36 +36,23 @@ private :
         {
             p_boundary_condition = new ConstBoundaryCondition<2>(1.0);
             bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
-            node_iter++;
+            node_iter++;            
         }
-        
-        // Set up assembler
+                
+        // set up assembler
         SimpleNonlinearEllipticAssembler<2,2> assembler(&r_mesh, mpPde, &bcc);
                 
-        // Set up initial guess
-        // TODO: probably better to use previous solution as initial guess, 
-        // especially when solving a proper nonlinear problem
-        //Vec initial_guess = assembler.CreateConstantInitialGuess(1.0);
-        
-        // Solve the nutrient PDE
+        // we cannot use the exact previous solution as initial guess as the size may be different
+        // (due to cell birth/death) - could we just add in the necessary number of 1.0's say? 
         Vec initial_guess;
-        if(mOxygenSolution)
-        {
-            VecDuplicate(mOxygenSolution, &initial_guess);
-            VecCopy(mOxygenSolution, initial_guess);
-        }
-        else
-        {
-            initial_guess = assembler.CreateConstantInitialGuess(1.0);
-        }
         
-        mOxygenSolution = assembler.Solve(initial_guess);
+        initial_guess = assembler.CreateConstantInitialGuess(1.0);        
         
+        // solve the nutrient PDE
+        mOxygenSolution = assembler.Solve(initial_guess);        
         ReplicatableVector result_repl(mOxygenSolution);
-
-        std::map<unsigned, unsigned>& map = r_mesh.rGetSmasrmMap();
-        std::map<unsigned, unsigned>::iterator map_iter = map.begin();
-
+                
+        // save results to file
 		std::vector<double> global_indices;
         std::vector<double> x;
         std::vector<double> y;
@@ -73,8 +60,9 @@ private :
         
         for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
         {
-            // TODO: don't need this anymore since there'are no ghost nodes,
-            // but we'd need to change the visualizer before we take this out
+            // we don't need to save the global node indices any more, 
+            // since there are no ghost nodes, but we'd need to change 
+            // the visualizer before we can take this out
             global_indices.push_back((double) i);
             x.push_back(r_mesh.GetNode(i)->rGetLocation()[0]);
             y.push_back(r_mesh.GetNode(i)->rGetLocation()[1]);
@@ -98,7 +86,6 @@ private :
         counter++;
         
         VecDestroy(initial_guess);
-       // VecDestroy(result);
         
         // update cells' hypoxic durations using their current oxygen concentration        
         for( typename Tissue<2>::Iterator cell_iter = this->mrTissue.Begin();

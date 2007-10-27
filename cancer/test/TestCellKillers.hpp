@@ -25,7 +25,6 @@
 #include "SloughingCellKiller.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "CellsGenerator.hpp"
-#include "CellwiseData.cpp"
 
 class TestCellKillers : public CxxTest::TestSuite
 {

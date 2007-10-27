@@ -12,6 +12,7 @@
 #include "OutputFileHandler.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
+#include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "IngeWntSwatCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
@@ -164,6 +165,62 @@ public:
         }
         RandomNumberGenerator::Destroy();
         SimulationTime::Destroy();
+    }
+    
+    void TestSimpleOxygenBasedCellCycleModel(void) throw(Exception)
+    {           
+        CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
+       
+        // set up SimulationTime         
+        SimulationTime *p_simulation_time = SimulationTime::Instance();   
+                
+        unsigned num_steps = 100;
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
+            2.0*(p_params->GetHepaOneCellG1Duration()
+                  +p_params->GetSG2MDuration()     ), num_steps);
+        
+        // set up constant oxygen_concentration     
+        std::vector<double> oxygen_concentration;
+        oxygen_concentration.push_back(1.0);
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+
+        TS_ASSERT_THROWS_NOTHING(SimpleOxygenBasedCellCycleModel model);
+        
+        // create cell cycle model
+        SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
+        
+        // create cell 
+        TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, 0, p_model);    
+        
+        // check that the cell cycle phase and ready to divide
+        // are updated correctly        
+        TS_ASSERT_EQUALS(p_model->ReadyToDivide(),false);        
+        TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),M);
+                
+        for (unsigned i = 0 ; i< num_steps ; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            
+            // note that we need to pass in the current G1 duration            
+            CheckCellCyclePhasesAreUpdated(p_model, p_model->GetG1Duration());         
+        }
+        
+        TS_ASSERT_DELTA(p_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
+        TS_ASSERT_EQUALS(p_model->ReadyToDivide(),true);  
+
+        // check that cell division correctly resets the cell cycle phase
+        SimpleOxygenBasedCellCycleModel *p_model2 = static_cast <SimpleOxygenBasedCellCycleModel*> (p_model->CreateCellCycleModel());
+        
+        TissueCell hepa_one_cell2(HEPA_ONE, HEALTHY, 0, p_model2);
+        TS_ASSERT_EQUALS(p_model2->ReadyToDivide(), false);        
+        TS_ASSERT_EQUALS(p_model2->GetCurrentCellCyclePhase(), M);
+        
+        TS_ASSERT_THROWS_NOTHING(p_model->ResetModel());     
+
+        SimulationTime::Destroy();
+        CellwiseData<2>::Destroy();
     }
     
     
@@ -1149,6 +1206,64 @@ public:
         }
     }
     
+    void TestArchiveSimpleOxygenBasedCycleModels() throw (Exception)
+    {
+        CancerParameters::Instance()->Reset();
+
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "oxygen_based_cell_cycle.arch";
+
+        std::vector<double> oxygen_concentration;
+        oxygen_concentration.push_back(1.0);
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+                        
+        // Create an ouput archive
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+            
+            SimpleOxygenBasedCellCycleModel model;
+            
+            p_simulation_time->IncrementTimeOneStep();
+            
+            model.SetBirthTime(-1.0);
+            
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);            
+                        
+            output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
+            output_arch << static_cast<const SimpleOxygenBasedCellCycleModel&>(model);
+            
+            SimulationTime::Destroy();     
+        }
+        
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            
+            SimpleOxygenBasedCellCycleModel model;
+            model.SetBirthTime(-2.0);            
+            
+            // create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            // restore from the archive
+            input_arch >> *p_simulation_time;
+            input_arch >> model;
+            
+            // check that archiiving worked correctly
+            TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
+            TS_ASSERT_DELTA(model.GetAge(),1.5,1e-12);
+            TS_ASSERT_EQUALS(model.GetCurrentCellCyclePhase(),M);            
+            
+            SimulationTime::Destroy();
+        }
+    }
+    
     void TestArchiveTysonNovakCellCycleModels()
     {
         CancerParameters::Instance()->Reset();
@@ -1570,13 +1685,13 @@ public:
     }    
     
     // NB - to archive a cell cycle model it has to be archived via the cell that owns it.
-    void TestArchiveAlarcon2004OxygenBasedCellCycleModel()
+    void TestArchiveAlarcon2004OxygenBasedCellCycleModels()
     {
         CancerParameters::Instance()->Reset();
 
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "oxygen_based_cell_cycle.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "alarcon_cell_cycle.arch";
 
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);

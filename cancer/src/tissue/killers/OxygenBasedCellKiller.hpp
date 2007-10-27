@@ -5,7 +5,7 @@
 #include "ConformingTetrahedralMesh.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "SimulationTime.hpp"
-#include "CellwiseData.hpp"
+#include "CellwiseData.cpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

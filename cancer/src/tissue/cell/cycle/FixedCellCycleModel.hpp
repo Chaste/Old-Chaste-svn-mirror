@@ -25,8 +25,6 @@ private:
         
         archive & mG1Duration;        
     }
-
-    virtual void SetG1Duration();
     
 protected:    
 
@@ -35,6 +33,8 @@ protected:
         :mG1Duration(g1Duration) {};
         
     double mG1Duration;
+    
+    virtual void SetG1Duration();
     
 public:
 

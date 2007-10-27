@@ -3,6 +3,7 @@
 
 #include "AbstractCellCycleModel.hpp"
 #include "CancerParameters.hpp"
+#include "CellwiseData.hpp"
 
 /**
  *  Simple oxygen-based cell cycle model
@@ -14,6 +15,18 @@ class SimpleOxygenBasedCellCycleModel : public FixedCellCycleModel
 {
 private:
 
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
+        // Make sure the singletons we use are archived
+        CancerParameters* p_params = CancerParameters::Instance();
+        archive & *p_params;
+        archive & mTimeSpentInG1Phase;
+        archive & mG1Duration;   
+    }
+    
     /** Private constructor for creating an identical daughter cell */
     SimpleOxygenBasedCellCycleModel(double g1Duration)
         : FixedCellCycleModel(g1Duration) {};
@@ -24,20 +37,35 @@ private:
 public:
     SimpleOxygenBasedCellCycleModel() 
         : FixedCellCycleModel(),
-          mTimeSpentInG1Phase(0.0),
-          mG1Duration(CancerParameters::Instance()->GetHepaOneCellG1Duration())
-    {    
+          mTimeSpentInG1Phase(0.0)
+    {   
+    }
+    
+    double GetG1Duration()
+    {
+        return mG1Duration;
     }
     
     bool ReadyToDivide()
     {
         CancerParameters *p_params = CancerParameters::Instance();
         
+        // This is rather messy - we want to set the G1 duration at the 
+        // earliest opportunity, which will be the first time 
+        // ReadyToDivide is called.
+        if (mG1Duration==DBL_MAX)
+        {   
+            SetG1Duration();
+        }
+        
         bool ready = false;
         
-        // get cell's oxygen concentration, which must be positive
+        // get cell's oxygen concentration
         double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell);
-        assert(oxygen_concentration>=0);
+        
+        // we want the oxygen concentration to be positive,
+        // to within numerical tolerances (hence the -1e-8)
+        assert(oxygen_concentration>=-1e-8);
                         
         double time_since_birth = GetAge();
                
