@@ -1,10 +1,10 @@
-#include "OxygenBasedCellCycleModel.hpp"
+#include "Alarcon2004OxygenBasedCellCycleModel.hpp"
 #include "Exception.hpp"
 #include <iostream>
 #include <cassert>
 #include <cfloat>
 
-RungeKutta4IvpOdeSolver OxygenBasedCellCycleModel::msSolver;
+RungeKutta4IvpOdeSolver Alarcon2004OxygenBasedCellCycleModel::msSolver;
 
 /**
  * A private constructor for daughter cells called by the CreateCellCycleModel function
@@ -18,7 +18,7 @@ RungeKutta4IvpOdeSolver OxygenBasedCellCycleModel::msSolver;
  * @param readyToDivide 
  * @param divideTime If in the future this is the time at which the cell is going to divide
  */
-OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
+Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool inSG2MPhase, 
                               bool readyToDivide, double divideTime)
@@ -40,7 +40,7 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(AbstractOdeSystem* pParentO
     if (p_sim_time->IsStartTimeSetUp()==false)
     {
         #define COVERAGE_IGNORE
-        EXCEPTION("OxygenBasedCellCycleModel is being created but SimulationTime has not been set up");
+        EXCEPTION("Alarcon2004OxygenBasedCellCycleModel is being created but SimulationTime has not been set up");
         #undef COVERAGE_IGNORE
     }
     mBirthTime = birthTime;
@@ -55,7 +55,7 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(AbstractOdeSystem* pParentO
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
  * @param rMutationState the mutation state of the cell (used by ODEs)
  */
-OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
+Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                               const CellMutationState& rMutationState)
 {
     mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(rParentProteinConcentrations[5], rMutationState);
@@ -72,7 +72,7 @@ OxygenBasedCellCycleModel::OxygenBasedCellCycleModel(const std::vector<double>& 
  * Should only be called by the TissueCell Divide() method.
  *
  */
-void OxygenBasedCellCycleModel::ResetModel()
+void Alarcon2004OxygenBasedCellCycleModel::ResetModel()
 {	
     AbstractOdeBasedCellCycleModel::ResetModel();
     assert(mpOdeSystem!=NULL);
@@ -87,22 +87,22 @@ void OxygenBasedCellCycleModel::ResetModel()
 }
 
 /**
- * Returns a new OxygenBasedCellCycleModel created with the correct initial conditions.
+ * Returns a new Alarcon2004OxygenBasedCellCycleModel created with the correct initial conditions.
  *
  * Should be called just after the parent cell cycle model has been .Reset().
  */
-AbstractCellCycleModel* OxygenBasedCellCycleModel::CreateCellCycleModel()
+AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateCellCycleModel()
 {
     assert(mpCell!=NULL);
     // calls a cheeky version of the constructor which makes the new cell 
     // cycle model the same as the old one - not a dividing copy at this time.
     // unless the parent cell has just divided.        
-    return new OxygenBasedCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), 
+    return new Alarcon2004OxygenBasedCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), 
                                          mBirthTime, mLastTime, mFinishedRunningOdes, mReadyToDivide, mDivideTime);
 }
 
 
-void OxygenBasedCellCycleModel::Initialise()
+void Alarcon2004OxygenBasedCellCycleModel::Initialise()
 {
     assert(mpOdeSystem==NULL);
     assert(mpCell!=NULL);    
@@ -110,7 +110,7 @@ void OxygenBasedCellCycleModel::Initialise()
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());  
 }    
  
-bool OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
+bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
 {
     double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
     
@@ -125,7 +125,7 @@ bool OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
 }
  
  
-double OxygenBasedCellCycleModel::GetDivideTime()
+double Alarcon2004OxygenBasedCellCycleModel::GetDivideTime()
 {
     assert(msSolver.StoppingEventOccured());
     return msSolver.GetStoppingTime() + CancerParameters::Instance()->GetSG2MDuration();

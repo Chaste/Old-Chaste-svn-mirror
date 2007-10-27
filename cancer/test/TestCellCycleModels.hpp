@@ -18,7 +18,7 @@
 #include "CancerParameters.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-#include "OxygenBasedCellCycleModel.hpp"
+#include "Alarcon2004OxygenBasedCellCycleModel.hpp"
 #include "WntGradient.hpp"
 
 class TestCellCycleModels : public CxxTest::TestSuite
@@ -979,7 +979,7 @@ public:
         WntGradient::Destroy();
     }
     
-    void TestOxygenBasedCellCycleModel() throw(Exception)
+    void TestAlarcon2004OxygenBasedCellCycleModel() throw(Exception)
     {        
         CancerParameters::Instance()->Reset();
        
@@ -994,7 +994,7 @@ public:
         CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
         // create model
-        OxygenBasedCellCycleModel* p_cell_model = new OxygenBasedCellCycleModel();
+        Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
         
         // create cell 
         TissueCell cell(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model);    
@@ -1010,7 +1010,7 @@ public:
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);        
         
         // divide a cell    
-        OxygenBasedCellCycleModel *p_cell_model2 = static_cast <OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
+        Alarcon2004OxygenBasedCellCycleModel *p_cell_model2 = static_cast <Alarcon2004OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
         
         TissueCell cell2(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model2);
         
@@ -1570,7 +1570,7 @@ public:
     }    
     
     // NB - to archive a cell cycle model it has to be archived via the cell that owns it.
-    void TestArchiveOxygenBasedCellCycleModels()
+    void TestArchiveAlarcon2004OxygenBasedCellCycleModel()
     {
         CancerParameters::Instance()->Reset();
 
@@ -1588,7 +1588,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 2);
             
-            OxygenBasedCellCycleModel* p_cell_model = new OxygenBasedCellCycleModel();
+            Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
             
             TissueCell cell(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model);
             cell.InitialiseCellCycleModel();  

@@ -1,5 +1,5 @@
-#ifndef OXYGENBASEDCELLCYCLEMODEL_HPP_
-#define OXYGENBASEDCELLCYCLEMODEL_HPP_
+#ifndef ALARCON2004OXYGENBASEDCELLCYCLEMODEL_HPP_
+#define ALARCON2004OXYGENBASEDCELLCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
@@ -26,7 +26,7 @@
  * SolveOdeToTime() and GetDivideTime() methods involve instances of 
  * CellwiseData<2>. 
  */
-class OxygenBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
+class Alarcon2004OxygenBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
     friend class boost::serialization::access;   
     
@@ -49,15 +49,15 @@ public:
     /**
      * Default constructor, variables are set by abstract classes.
      */
-    OxygenBasedCellCycleModel() {};
+    Alarcon2004OxygenBasedCellCycleModel() {};
    
 
-    OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
+    Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, 
                               bool inSG2MPhase, bool readyToDivide, double divideTime);
 
-    OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
+    Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                               const CellMutationState& rMutationState); 
                           
     virtual void ResetModel();
@@ -73,7 +73,7 @@ public:
 };
 
 // declare identifier for the serializer
-BOOST_CLASS_EXPORT(OxygenBasedCellCycleModel)
+BOOST_CLASS_EXPORT(Alarcon2004OxygenBasedCellCycleModel)
 
 
 namespace boost
@@ -82,21 +82,21 @@ namespace serialization
 {
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a OxygenBasedCellCycleModel instance.
+ * instantiate a Alarcon2004OxygenBasedCellCycleModel instance.
  */
 template<class Archive>
 inline void save_construct_data(
-    Archive & ar, const OxygenBasedCellCycleModel * t, const unsigned int file_version)
+    Archive & ar, const Alarcon2004OxygenBasedCellCycleModel * t, const unsigned int file_version)
 {
 }
 
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a OxygenBasedCellCycleModel instance.
+ * instantiate a Alarcon2004OxygenBasedCellCycleModel instance.
  */
 template<class Archive>
 inline void load_construct_data(
-    Archive & ar, OxygenBasedCellCycleModel * t, const unsigned int file_version)
+    Archive & ar, Alarcon2004OxygenBasedCellCycleModel * t, const unsigned int file_version)
 {
     // It doesn't actually matter what values we pass to our standard
     // constructor, provided they are valid parameter values, since the
@@ -109,9 +109,9 @@ inline void load_construct_data(
     {
         state_vars.push_back(0.0);
     }
-    ::new(t)OxygenBasedCellCycleModel(state_vars, ALARCON_NORMAL);
+    ::new(t)Alarcon2004OxygenBasedCellCycleModel(state_vars, ALARCON_NORMAL);
 }
 }
 } // namespace ...
 
-#endif /*OXYGENBASEDCELLCYCLEMODEL_HPP_*/
+#endif /*ALARCON2004OXYGENBASEDCELLCYCLEMODEL_HPP_*/
