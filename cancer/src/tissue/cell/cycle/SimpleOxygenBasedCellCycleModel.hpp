@@ -3,7 +3,7 @@
 
 #include "AbstractCellCycleModel.hpp"
 #include "CancerParameters.hpp"
-#include "CellwiseData.hpp"
+#include "CellwiseData.cpp"
 
 /**
  *  Simple oxygen-based cell cycle model

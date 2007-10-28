@@ -1,3 +1,5 @@
+#ifndef _CELLWISEDATA_CPP_
+#define _CELLWISEDATA_CPP_
 
 #include "CellwiseData.hpp"
 #include "Exception.hpp"
@@ -125,3 +127,4 @@ void CellwiseData<DIM>::ReallocateMemory()
     }
 }
 
+#endif // _CELLWISEDATA_CPP_

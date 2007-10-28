@@ -7,7 +7,7 @@
 #include "SimpleDataWriter.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
 #include "SimpleNonlinearEllipticAssembler.hpp"
-#include "CellwiseData.hpp"
+#include "CellwiseData.cpp"
 
 template<unsigned DIM>
 class TissueSimulationWithNutrients : public TissueSimulation<DIM>
