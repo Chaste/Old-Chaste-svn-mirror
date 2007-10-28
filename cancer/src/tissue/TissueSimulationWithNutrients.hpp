@@ -46,7 +46,17 @@ private :
         // (due to cell birth/death) - could we just add in the necessary number of 1.0's say? 
         Vec initial_guess;
         
-        initial_guess = assembler.CreateConstantInitialGuess(1.0);        
+//        if(mOxygenSolution)
+//        {
+//            VecDuplicate(mOxygenSolution, &initial_guess);
+//            VecCopy(mOxygenSolution, initial_guess);
+//        }
+//        else
+//        {
+//            initial_guess = assembler.CreateConstantInitialGuess(1.0);
+//        }
+        
+        initial_guess = assembler.CreateConstantInitialGuess(1.0);
         
         // solve the nutrient PDE
         mOxygenSolution = assembler.Solve(initial_guess);        

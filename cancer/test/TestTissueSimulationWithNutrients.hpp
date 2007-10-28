@@ -71,8 +71,6 @@ public:
         int num_cells_width = 10;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-              
-        std::cout << "no. nodes = " << p_mesh->GetNumNodes() << "\n" << std::flush; // trace
         
         // set up cells
         std::vector<TissueCell> cells;
@@ -85,8 +83,6 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
-        
-        std::cout << "no. cells = " <<cells.size() << "\n" << std::flush; // trace
                 
         Tissue<2> tissue(*p_mesh, cells);
         

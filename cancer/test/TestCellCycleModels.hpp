@@ -178,7 +178,7 @@ public:
         unsigned num_steps = 100;
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
-            2.0*(p_params->GetHepaOneCellG1Duration()
+            4.0*(p_params->GetHepaOneCellG1Duration()
                   +p_params->GetSG2MDuration()     ), num_steps);
         
         // set up constant oxygen_concentration     
@@ -189,35 +189,40 @@ public:
         TS_ASSERT_THROWS_NOTHING(SimpleOxygenBasedCellCycleModel model);
         
         // create cell cycle model
-        SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
+        SimpleOxygenBasedCellCycleModel* p_hepa_one_model = new SimpleOxygenBasedCellCycleModel();
+        SimpleOxygenBasedCellCycleModel* p_diff_model = new SimpleOxygenBasedCellCycleModel();
         
         // create cell 
-        TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, 0, p_model);    
+        TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, 0, p_hepa_one_model);    
+        TissueCell diff_cell(DIFFERENTIATED, HEALTHY, 0, p_diff_model);
         
         // check that the cell cycle phase and ready to divide
         // are updated correctly        
-        TS_ASSERT_EQUALS(p_model->ReadyToDivide(),false);        
-        TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),M);
+        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),false);        
+        TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),M);
+        
+        TS_ASSERT_EQUALS(p_diff_model->ReadyToDivide(),false);
+        TS_ASSERT_EQUALS(p_diff_model->GetCurrentCellCyclePhase(),G_ZERO);
                 
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             
-            // note that we need to pass in the current G1 duration            
-            CheckCellCyclePhasesAreUpdated(p_model, p_model->GetG1Duration());         
+            // note that we need to pass in the updated G1 duration            
+            CheckCellCyclePhasesAreUpdated(p_hepa_one_model, p_hepa_one_model->GetG1Duration());         
         }
         
-        TS_ASSERT_DELTA(p_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
-        TS_ASSERT_EQUALS(p_model->ReadyToDivide(),true);  
+        TS_ASSERT_DELTA(p_hepa_one_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
+        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),true);  
 
         // check that cell division correctly resets the cell cycle phase
-        SimpleOxygenBasedCellCycleModel *p_model2 = static_cast <SimpleOxygenBasedCellCycleModel*> (p_model->CreateCellCycleModel());
+        SimpleOxygenBasedCellCycleModel *p_hepa_one_model2 = static_cast <SimpleOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateCellCycleModel());
         
-        TissueCell hepa_one_cell2(HEPA_ONE, HEALTHY, 0, p_model2);
-        TS_ASSERT_EQUALS(p_model2->ReadyToDivide(), false);        
-        TS_ASSERT_EQUALS(p_model2->GetCurrentCellCyclePhase(), M);
+        TissueCell hepa_one_cell2(HEPA_ONE, HEALTHY, 0, p_hepa_one_model2);
+        TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);        
+        TS_ASSERT_EQUALS(p_hepa_one_model2->GetCurrentCellCyclePhase(), M);
         
-        TS_ASSERT_THROWS_NOTHING(p_model->ResetModel());     
+        TS_ASSERT_THROWS_NOTHING(p_hepa_one_model->ResetModel());     
 
         SimulationTime::Destroy();
         CellwiseData<2>::Destroy();
