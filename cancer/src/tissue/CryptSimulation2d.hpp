@@ -229,6 +229,38 @@ public :
      */
     void Save()
     {
+        SimulationTime* p_sim_time = SimulationTime::Instance();
+        assert(p_sim_time->IsStartTimeSetUp());
+        
+        std::string archive_directory = mOutputDirectory + "/archive/";
+        
+        std::ostringstream time_stamp;
+        time_stamp << p_sim_time->GetDimensionalisedTime();
+        
+        // create an output file handler in order to get the full path of the
+        // archive directory. Note the false is so the handler doesn't clean
+        // the directory
+        OutputFileHandler handler(archive_directory, false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "2dCrypt_at_time_"+time_stamp.str()+".arch";
+        std::string mesh_filename = std::string("mesh_") + time_stamp.str();
+        
+        if(mReMesh)
+        {
+            mrTissue.ReMesh();
+        }
+        
+        // the false is so the directory isn't cleaned
+        TrianglesMeshWriter<2,2> mesh_writer(archive_directory, mesh_filename, false);
+        mesh_writer.WriteFilesUsingMesh(mrTissue.rGetMesh());
+        
+        std::ofstream ofs(archive_filename.c_str());
+        boost::archive::text_oarchive output_arch(ofs);
+        
+        // cast to const.
+        const SimulationTime* p_simulation_time = SimulationTime::Instance();
+        output_arch << *p_simulation_time;
+        CryptSimulation2d * p_sim = this;
+        output_arch & p_sim;
         TissueSimulation<2>::Save();
     }
     
@@ -244,7 +276,42 @@ public :
      */
     static CryptSimulation2d* Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
     {
-        return (CryptSimulation2d*)TissueSimulation<2>::Load(rArchiveDirectory, rTimeStamp);
+        // Find the right archive and mesh to load 
+        std::ostringstream time_stamp; 
+        time_stamp << rTimeStamp; 
+         
+        SimulationTime *p_simulation_time = SimulationTime::Instance(); 
+         
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory(); 
+         
+        std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/2dCrypt_at_time_"+time_stamp.str() +".arch"; 
+        std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str(); 
+        Tissue<2>::meshPathname = mesh_filename; 
+         
+        // Create an input archive 
+        std::ifstream ifs(archive_filename.c_str(), std::ios::binary); 
+        boost::archive::text_iarchive input_arch(ifs); 
+             
+        // Read the archive 
+        assert(p_simulation_time->IsStartTimeSetUp()); 
+        input_arch >> *p_simulation_time; 
+        
+        CryptSimulation2d* p_sim; 
+        
+        input_arch >> p_sim; 
+         
+        if (p_sim->rGetTissue().rGetMesh().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size()) 
+        { 
+            #define COVERAGE_IGNORE 
+            std::stringstream string_stream; 
+            string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().rGetMesh().GetNumNodes() 
+                          << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size()  
+                          << ")"; 
+            EXCEPTION(string_stream.str()); 
+            #undef COVERAGE_IGNORE 
+        } 
+          
+        return p_sim;         
     }       
 };
 
