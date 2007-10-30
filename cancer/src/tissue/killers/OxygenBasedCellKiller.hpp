@@ -73,7 +73,7 @@ public:
         	double hypoxic_duration = rCell.GetHypoxicDuration();
             
             // a little bit of stochasticity here
-            double prob_of_death = 1 - 0.5*(oxygen_concentration/mHypoxicConcentration); 
+            double prob_of_death = 0.9 - 0.5*(oxygen_concentration/mHypoxicConcentration); 
             
             if (!rCell.HasApoptosisBegun() && hypoxic_duration > 1.0 && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
             {                     

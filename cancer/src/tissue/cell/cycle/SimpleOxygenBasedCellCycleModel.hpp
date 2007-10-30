@@ -65,7 +65,7 @@ public:
         
         // we want the oxygen concentration to be positive,
         // to within numerical tolerances (hence the -1e-8)
-        assert(oxygen_concentration>=-1e-8);
+//        assert(oxygen_concentration >= -1e-8);
                         
         double time_since_birth = GetAge();
                
@@ -83,7 +83,7 @@ public:
             {
                 mCurrentCellCyclePhase = G_ONE;
                  
-                mG1Duration = mG1Duration + (1-oxygen_concentration)*SimulationTime::Instance()->GetTimeStep();
+                mG1Duration = mG1Duration + (1-std::max(oxygen_concentration,0.0))*SimulationTime::Instance()->GetTimeStep();
                 mTimeSpentInG1Phase = mTimeSpentInG1Phase + SimulationTime::Instance()->GetTimeStep();  
             }
             else if ( time_since_birth < p_params->GetMDuration() + mG1Duration + p_params->GetSDuration() )
