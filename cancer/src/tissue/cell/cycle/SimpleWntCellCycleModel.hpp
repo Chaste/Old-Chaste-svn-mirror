@@ -1,49 +1,49 @@
 #ifndef SIMPLEWNTCELLCYCLEMODEL_HPP_
 #define SIMPLEWNTCELLCYCLEMODEL_HPP_
 
-#include "AbstractCellCycleModel.hpp"
+#include "FixedCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
-#include "CancerParameters.hpp"
 
 /**
- *  Fixed cell cycle model
+ *  Simple Wnt-dependent cell cycle model
  *
- *  Cell cycle time is deterministic for stem and transit cells (with values
- *  CancerParameters::StemCellG1Duration + SG2MDuration 
- * and CancerParameters::TransitCellG1Duration + SG2MDuration)
  */
-class SimpleWntCellCycleModel : public AbstractCellCycleModel
+class SimpleWntCellCycleModel : public FixedCellCycleModel
 {
 private:
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        archive & mCycleTime;
+        archive & boost::serialization::base_object<FixedCellCycleModel>(*this);
+       
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        archive & *p_gen;
     }
-
-    /** How long this cell cycle will take, set by constructor or ResetModel() */
-    double mCycleTime;
+    
+    /** Private constructor for creating an identical daughter cell */
+    SimpleWntCellCycleModel(double g1Duration)
+        : FixedCellCycleModel(g1Duration) {};
+        
+    /**
+     * Private function that should only be called by Reset() and SetCell()
+     * this introduces the stochastic element of the model.
+     */    
+    void SetG1Duration();
     
 public:
 
     /**
-     * Default constructor - mBirthTime now set in AbstractCellCycleModel().
-     * 
-     * Sets up the mCycleTime randomly
+     * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
+     * mG1Duration is set very high, it is set for the individual cells when SetCell() is called
      */
     SimpleWntCellCycleModel()
-    : mCycleTime(RandomNumberGenerator::Instance()->
-                    NormalRandomDeviate(
-                      CancerParameters::Instance()->GetTransitCellG1Duration()
-                        + CancerParameters::Instance()->GetSG2MDuration(), 1.0)) {};
-
+        : FixedCellCycleModel() {};
+    
     virtual bool ReadyToDivide();
-    
-    virtual void ResetModel();
-    
+        
     AbstractCellCycleModel *CreateCellCycleModel(); 
+        
 };
 
 // declare identifier for the serializer

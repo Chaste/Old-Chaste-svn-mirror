@@ -51,8 +51,10 @@ bool FixedCellCycleModel::ReadyToDivide()
     bool ready = false;
     
     CancerParameters *p_params = CancerParameters::Instance();
+    
     double time_since_birth = GetAge();
     assert(time_since_birth>=0);
+    
     if (mpCell->GetCellType()==DIFFERENTIATED)
     {
         mCurrentCellCyclePhase = G_ZERO;   
