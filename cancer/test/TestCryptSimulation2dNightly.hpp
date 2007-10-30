@@ -557,11 +557,10 @@ public:
         WntGradient::Destroy();
     }
     
-    /*
-     * \todo - How is this supposed to test the different viscosities??!!
-     * 
-     * At least run it twice with different viscosities and check nodes are in different locations.
-     */
+
+    // this test is dontTest-ed out and not run every night as it doesn't really test
+    // anything. it does show how to set up a mutant simulation. Mutant viscosities 
+    // are tested elsewhere directly. 
     void dontTestWithMutantCellsUsingDifferentViscosities() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -641,11 +640,6 @@ public:
                 number_of_mutant_cells++;
             }
         }
-        
-        TS_ASSERT_EQUALS(number_of_cells, 93u);
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), number_of_cells);
-        TS_ASSERT_EQUALS(number_of_nodes, 135u);
-        TS_ASSERT_EQUALS(number_of_mutant_cells, 6u);
         
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
@@ -897,7 +891,7 @@ public:
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
 
-        simulator.UseCutoffPoint( sqrt(2) ); // root2 is a sensible choice
+        simulator.rGetMeinekeSystem().UseCutoffPoint( sqrt(2) ); // root2 is a sensible choice
         
         simulator.Solve();
         

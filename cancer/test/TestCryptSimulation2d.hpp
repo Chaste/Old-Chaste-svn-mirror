@@ -141,7 +141,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    
+// -> TestMeineke2001SpringSystem.hpp    
     void TestEdgeLengthBasedSpring() throw (Exception)
     {        
         CancerParameters::Instance()->Reset();
@@ -156,63 +156,62 @@ public:
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 3;
        
-        HoneycombMeshGenerator regular_generator(cells_across, cells_up,thickness_of_ghost_layer, false,crypt_width/cells_across);
-        ConformingTetrahedralMesh<2,2>* p_regular_mesh=regular_generator.GetMesh();
-        std::set<unsigned> regular_ghost_node_indices = regular_generator.GetGhostNodeIndices();      
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false,crypt_width/cells_across);
+        ConformingTetrahedralMesh<2,2>* p_mesh =generator.GetMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
         
         // Set up cells
-        std::vector<TissueCell> regular_cells;
-        CellsGenerator<2>::GenerateForCrypt(regular_cells, *p_regular_mesh, FIXED, true);// true = mature cells
+        std::vector<TissueCell> cells;
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        Tissue<2> regular_crypt(*p_regular_mesh, regular_cells);               
-        regular_crypt.SetGhostNodes(regular_ghost_node_indices);
+        Tissue<2> tissue(*p_mesh, cells);               
+        tissue.SetGhostNodes(ghost_node_indices);
 
-        CryptSimulation2d regular_simulator(regular_crypt);
+        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
                
         // check that the force between nodes is correctly calculated when the spring constant is constant (!)
-        regular_simulator.SetEdgeBasedSpringConstant(false);
+        meineke_spring_system.SetEdgeBasedSpringConstant(false);
                       
-        for(Tissue<2>::SpringIterator spring_iterator=regular_crypt.SpringsBegin();
-            spring_iterator!=regular_crypt.SpringsEnd();
+        for(Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+            spring_iterator!=tissue.SpringsEnd();
             ++spring_iterator)
         {        
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
-            c_vector<double, 2> force = regular_simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
+            c_vector<double, 2> force = meineke_spring_system.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],6.25,1e-3);
         }
         
         // check that the force between nodes is correctly calculated when the spring constant 
         // is proportional to the length of the edge between adjacent cells  
-        regular_simulator.SetEdgeBasedSpringConstant(true); 
-        regular_simulator.mrTissue.CreateVoronoiTessellation();  // normally done in a simulation loop
+        meineke_spring_system.SetEdgeBasedSpringConstant(true); 
+        tissue.CreateVoronoiTessellation();  // normally done in a simulation loop
         
         
-        for(Tissue<2>::SpringIterator spring_iterator=regular_crypt.SpringsBegin();
-            spring_iterator!=regular_crypt.SpringsEnd();
+        for(Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+            spring_iterator!=tissue.SpringsEnd();
             ++spring_iterator)
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
-            c_vector<double, 2> force = regular_simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
+            c_vector<double, 2> force = meineke_spring_system.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
         }
         
         // choose two interior neighbour nodes
-        c_vector<double, 2> force = regular_simulator.CalculateForceBetweenNodes(20u,21u);
-        
+        c_vector<double, 2> force = meineke_spring_system.CalculateForceBetweenNodes(20u,21u);
         TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
         
         // now move node 21 a bit and check that the force calculation changes correctly
         c_vector<double,2> shift;
         shift[0] = 0.01;
         shift[1] = 0.0;                 
-        ChastePoint<2> new_point(regular_simulator.rGetTissue().rGetMesh().GetNode(21u)->rGetLocation() + shift);
-        regular_simulator.rGetTissue().rGetMesh().SetNode(21u, new_point, false);
+        ChastePoint<2> new_point(p_mesh->GetNode(21u)->rGetLocation() + shift);
+        p_mesh->SetNode(21u, new_point, false);
         
         // check that the new force between nodes is correctly calculated
-        regular_simulator.mrTissue.CreateVoronoiTessellation();  
-        c_vector<double, 2> new_force = regular_simulator.CalculateForceBetweenNodes(20u,21u);
+        tissue.CreateVoronoiTessellation();  
+        c_vector<double, 2> new_force = meineke_spring_system.CalculateForceBetweenNodes(20u,21u);
         
         // force calculation: shift is along x-axis so we should have
         // new_edge_length = (5/6 + shift[0])*tan(0.5*arctan(5*sqrt(3)/(5 + 12*shift[0]))),
@@ -225,8 +224,7 @@ public:
     
 
     
-    
-    
+// -> TestMeineke2001SpringSystem.hpp      
     void TestEdgeBasedSpringsOnPeriodicMesh() throw (Exception)
     {     
         // Test on a periodic mesh
@@ -250,36 +248,36 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        Tissue<2> crypt(*p_mesh, cells);               
-        crypt.SetGhostNodes(ghost_node_indices);
+        Tissue<2> tissue(*p_mesh, cells);               
+        tissue.SetGhostNodes(ghost_node_indices);
 
-        CryptSimulation2d simulator(crypt);
+        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
        
          // check that the force between nodes is correctly calculated when the spring constant is constant (!)
-        simulator.SetEdgeBasedSpringConstant(false);
+        meineke_spring_system.SetEdgeBasedSpringConstant(false);
                       
-        for(Tissue<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
-        spring_iterator!=crypt.SpringsEnd();
-        ++spring_iterator)
+        for(Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+            spring_iterator!=tissue.SpringsEnd();
+            ++spring_iterator)
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
-            c_vector<double, 2> force = simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
+            c_vector<double, 2> force = meineke_spring_system.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
                         
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],6.25,1e-3);
         }
         
         // check that the force between nodes is correctly calculated when the spring constant 
         // is proportional to the length of the edge between adjacenet cells  
-        simulator.SetEdgeBasedSpringConstant(true); 
-        simulator.mrTissue.CreateVoronoiTessellation();  
-        for(Tissue<2>::SpringIterator spring_iterator=crypt.SpringsBegin();
-        spring_iterator!=crypt.SpringsEnd();
-        ++spring_iterator)
+        meineke_spring_system.SetEdgeBasedSpringConstant(true); 
+        tissue.CreateVoronoiTessellation();  
+        for(Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+            spring_iterator!=tissue.SpringsEnd();
+            ++spring_iterator)
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
-            c_vector<double, 2> force = simulator.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
+            c_vector<double, 2> force = meineke_spring_system.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
         }              
             
@@ -317,9 +315,11 @@ public:
         Tissue<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
-        CryptSimulation2d simulator(crypt);
+        crypt.CreateVoronoiTessellation();  // normally done in a simulation loop
+
+        Meineke2001SpringSystem<2> meineke_spring_system(crypt);
                              
-        std::vector<c_vector<double,2> > velocities = simulator.CalculateVelocitiesOfEachNode();
+        std::vector<c_vector<double,2> > velocities = meineke_spring_system.CalculateVelocitiesOfEachNode();
         std::vector<double> norm_vel;
         
         for(unsigned i=0; i<velocities.size(); i++)
@@ -332,11 +332,9 @@ public:
         }
 
         // now check that the velocities scale correctly when the viscosity is area-dependent
-        simulator.SetAreaBasedViscosity(true);
+        meineke_spring_system.SetAreaBasedViscosity(true);
         
-        simulator.mrTissue.CreateVoronoiTessellation();  // normally done in a simulation loop
-        
-        velocities = simulator.CalculateVelocitiesOfEachNode();
+        velocities = meineke_spring_system.CalculateVelocitiesOfEachNode();
         
         std::vector<double> norm_vel_area;
         
@@ -351,7 +349,7 @@ public:
                 
         TS_ASSERT(norm_vel.size() > 0);
         
-        // note that d0 and d1 are hardcoded in TissueSimulation::CalculateVelocitiesOfEachNode()  
+        // note that d0 and d1 are hardcoded in TissueSimulation::mpMechanicsSystem->CalculateVelocitiesOfEachNode()  
         for(unsigned i=0; i<norm_vel.size(); i++)
         {
             TS_ASSERT_DELTA(norm_vel_area[i], norm_vel[i]/(0.1 +  1.2*0.9), 1e-3);            
@@ -384,20 +382,20 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        Tissue<2> crypt(*p_mesh, cells);               
-        crypt.SetGhostNodes(ghost_node_indices);
+        Tissue<2> tissue(*p_mesh, cells);               
+        tissue.SetGhostNodes(ghost_node_indices);
 
-        CryptSimulation2d simulator(crypt);
+        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
     
         // seems quite difficult to test this on a periodic mesh, so just check the areas 
         // of all the cells are correct 
-        simulator.mrTissue.CreateVoronoiTessellation();
+        tissue.CreateVoronoiTessellation();
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             //check if this is a real cell
             if(ghost_node_indices.find(i)==ghost_node_indices.end())
             {
-                double area = simulator.mrTissue.rGetVoronoiTessellation().GetFaceArea(i);
+                double area = tissue.rGetVoronoiTessellation().GetFaceArea(i);
                 TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);
             }
         }        
@@ -950,7 +948,7 @@ public:
     }
    
     
-    void TestPrivateFunctionsOf2DCryptSimulation() throw (Exception)
+    void TestAddCellKiller() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -993,7 +991,10 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    
+
+// void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
+//   -> 2 tests, one in TestMeineke2001SpringSystem.hpp, one here called
+//      TestUpdatePositionsAndUpdateCellTypes()    
     void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
@@ -1076,13 +1077,15 @@ public:
             cells.push_back(cell);
         }
         
-        Tissue<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
+        Tissue<2> tissue(*p_mesh, cells);          // this should be crypt for the version of the test which stays here..
+        tissue.SetGhostNodes(ghost_node_indices);
 
         WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetTissue(crypt);
+        WntGradient::Instance()->SetTissue(tissue);
         
-        CryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(tissue);
+//AND also
+        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
         
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(400);
@@ -1095,9 +1098,7 @@ public:
         ************************************************************************ 
         */
                 
-        std::vector<c_vector<double, 2> > velocities_on_each_node(p_mesh->GetNumAllNodes());
-        
-        velocities_on_each_node = simulator.CalculateVelocitiesOfEachNode();
+        std::vector<c_vector<double, 2> > velocities_on_each_node = meineke_spring_system.CalculateVelocitiesOfEachNode();
  
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
@@ -1118,7 +1119,7 @@ public:
         new_point.rGetLocation()[1] = old_point[1];
   
         p_mesh->SetNode(59, new_point, false);
-        velocities_on_each_node = simulator.CalculateVelocitiesOfEachNode();
+        velocities_on_each_node = meineke_spring_system.CalculateVelocitiesOfEachNode();
         
         TS_ASSERT_DELTA(velocities_on_each_node[60][0], 0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantMutant(), 1e-4);
         TS_ASSERT_DELTA(velocities_on_each_node[60][1], 0.0, 1e-4);
@@ -1148,7 +1149,7 @@ public:
         unsigned elem_index = p_mesh->GetContainingElementIndex(new_point2,false);
         Element<2,2>* p_element = p_mesh->GetElement(elem_index);
         
-        force_on_spring = simulator.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
+        force_on_spring = meineke_spring_system.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
         TS_ASSERT_DELTA(force_on_spring[0], 0.5*p_params->GetSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);        
 
@@ -1176,8 +1177,8 @@ public:
         ************************************************************************ 
         */    
         
-        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
-             cell_iter != crypt.End();
+        for (Tissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
              ++cell_iter)
         {
             CellType cell_type;
@@ -1208,13 +1209,11 @@ public:
          */
         double dist = norm_2( p_mesh->GetVectorFromAtoB(p_element->GetNode(0)->rGetLocation(), p_element->GetNode(1)->rGetLocation()) );   
 
-        simulator.UseCutoffPoint(dist-0.1);
+        meineke_spring_system.UseCutoffPoint(dist-0.1);
         
-        force_on_spring = simulator.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
+        force_on_spring = meineke_spring_system.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
         TS_ASSERT_DELTA(force_on_spring[0], 0.0, 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
-        //\todo The above test is not guaranteed repeatible.  It appears to 
-        //give different answers on different runs
         
         //Here's a double check that the geometry is the same:
         TS_ASSERT_DELTA(dist, 0.7607, 1e-4);
@@ -1223,7 +1222,6 @@ public:
         TS_ASSERT_DELTA(p_element->GetNode(1)->rGetLocation()[0], 5.0375, 1e-4);
         TS_ASSERT_DELTA(p_element->GetNode(1)->rGetLocation()[1], 0.8660, 1e-4);
                 
-
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
         WntGradient::Destroy();
@@ -1528,6 +1526,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
+// -> TestMeineke2001SpringSystem.hpp 
     void TestSpringConstantsForMutantCells()
     {
         // set up the simulation time object so the cells can be created
@@ -1548,7 +1547,7 @@ public:
         
         Tissue<2> tissue(mesh, cells);
         
-        TissueSimulation<2> tissue_simulation(tissue);
+        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
         
         // set cells mutation states
         tissue.rGetCellAtNodeIndex(0).SetMutationState(HEALTHY);
@@ -1556,28 +1555,31 @@ public:
         tissue.rGetCellAtNodeIndex(2).SetMutationState(APC_TWO_HIT);
         tissue.rGetCellAtNodeIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
         
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(1,2)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(2,3)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(3,0)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(1,2)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(2,3)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(3,0)), 15.0, 1e-10);
         
-        tissue_simulation.SetMutantSprings(true);
+        meineke_spring_system.SetMutantSprings(true);
         
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(1,2)), 22.5, 1e-10);
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(2,3)), 30.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(3,0)), 22.5, 1e-10);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(1,2)), 22.5, 1e-10);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(2,3)), 30.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(3,0)), 22.5, 1e-10);
         
-         tissue_simulation.SetMutantSprings(true, 4.0, 3.0);
+        meineke_spring_system.SetMutantSprings(true, 4.0, 3.0);
         
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(1,2)), 45.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(2,3)), 60.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(3,0)), 45.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(1,2)), 45.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(2,3)), 60.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(3,0)), 45.0, 1e-10);
         
         SimulationTime::Destroy();
     }
     
+
+
+// -> TestMeineke2001SpringSystem.hpp 
     void TestSpringConstantsForIngeBCatCells()
     {
         // set up the simulation time object so the cells can be created
@@ -1608,17 +1610,17 @@ public:
         WntGradient::Instance()->SetType(LINEAR);  
         WntGradient::Instance()->SetTissue(crypt);
         
-        TissueSimulation<2> tissue_simulation(crypt);
+        Meineke2001SpringSystem<2> meineke_spring_system(crypt);
         
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(20,21)), 1.50, 1e-10);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(20,21)), 1.50, 1e-10);
         
-        tissue_simulation.SetBCatSprings(true);
-        tissue_simulation.mrTissue.CreateVoronoiTessellation();  // normally done in a simulation loop
+        meineke_spring_system.SetBCatSprings(true);
+        crypt.CreateVoronoiTessellation();  // normally done in a simulation loop
         
         // Note this is just a crap test to check that you get some dependency on BCat of both cells
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(20,21)), 1.5*8.59312/18.14, 1e-5);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(20,21)), 1.5*8.59312/18.14, 1e-5);
         p_params->SetBetaCatSpringScaler(20/6.0);
-        TS_ASSERT_DELTA( norm_2(tissue_simulation.CalculateForceBetweenNodes(20,21)), 1.5*8.59312/20.0, 1e-5);
+        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(20,21)), 1.5*8.59312/20.0, 1e-5);
         
         SimulationTime::Destroy();
         WntGradient::Destroy(); 

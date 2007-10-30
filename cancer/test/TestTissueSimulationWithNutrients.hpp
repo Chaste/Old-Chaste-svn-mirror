@@ -140,7 +140,7 @@ public:
         simulator.SetEndTime(0.1);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
-        simulator.UseCutoffPoint(1.5);
+        simulator.rGetMeinekeSystem().UseCutoffPoint(1.5);
         
         // set up cell killer and pass into simulation
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
@@ -221,7 +221,7 @@ public:
         simulator.SetEndTime(0.01);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
-        simulator.UseCutoffPoint(1.5);
+        simulator.rGetMeinekeSystem().UseCutoffPoint(1.5);
         
         // set up cell killer and pass into simulation
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);

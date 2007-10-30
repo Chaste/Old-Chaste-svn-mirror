@@ -16,6 +16,7 @@
 #include "WntGradient.hpp"
 #include <vector>
 
+#include "Meineke2001SpringSystem.hpp"
 
 /**
  * Run a 2D or 3D tissue simulation, currently based on the Meineke Paper 
@@ -98,11 +99,6 @@ protected:
     
     /** The singleton RandomNumberGenerator */
     RandomNumberGenerator *mpRandomGenerator;
-    
-    /** Whether to have zero force if the cells are far enough apart */
-    bool mUseCutoffPoint;
-    /** Have zero force if the cells are this distance apart (and mUseCutoffPoint==true) */
-    double mCutoffPoint;
 
     /** Counts the number of births during the simulation */
     unsigned mNumBirths;
@@ -113,30 +109,77 @@ protected:
     /** List of cell killers */
     std::vector<AbstractCellKiller<DIM>*> mCellKillers;
     
-    /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
-    bool mUseEdgeBasedSpringConstant;
+    /** The mechanics used to determine the new location of the cells */
+    //// this will eventually become:
+    // AbstractDiscreteTissueMechanicsSystem<DIM>* mpMechanicsSystem;
+    Meineke2001SpringSystem<DIM>* mpMechanicsSystem;
+public:
+    /** Get access to the spring system, so the user can set options. THIS WILL
+     *  HAVE TO BE REMOVED WHEN mpMechanicsSystem BECOMES 
+     *  AbstractDiscreteTissueMechanicsSystem. The user will then have to define the 
+     *  system outside (with whichever options) and pass it in to this class
+     */
+    Meineke2001SpringSystem<DIM>& rGetMeinekeSystem()
+    {
+        return *mpMechanicsSystem;
+    }
+
+
+private:
+
+//// -> AbstractDiscreteTissueMechanicsSystem    
+//    /** Whether to have zero force if the cells are far enough apart */
+//    bool mUseCutoffPoint;
+//    /** Have zero force if the cells are this distance apart (and mUseCutoffPoint==true) */
+//    double mCutoffPoint;
+//
+//    /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
+//    bool mUseEdgeBasedSpringConstant;
+//    
+//    /** Whether to use a viscosity that is linear in the cell area, rather than constant */
+//    bool mUseAreaBasedViscosity;
+//
+//    /** Whether to use different stiffnesses depending on whether either cell is a mutant */
+//    bool mUseMutantSprings;
+//    /** Multiplier for spring stiffness if mutant */
+//    double mMutantMutantMultiplier;
+//    /** Multiplier for spring stiffness if mutant */
+//    double mNormalMutantMultiplier;
+//    /** Use springs which are dependent on beta-catenin levels */
+//    bool mUseBCatSprings; 
+
+    /**
+     * Calculates the forces on each node
+     *
+     * @return drdt the force components on each node
+     */
+//    virtual std::vector<c_vector<double, DIM> > CalculateVelocitiesOfEachNode();
     
-    /** Whether to use a viscosity that is linear in the cell area, rather than constant */
-    bool mUseAreaBasedViscosity;
+    /**
+     * Calculates the force between two nodes.
+     * 
+     * Note that this assumes they are connected and is called by CalculateVelocitiesOfEachNode()
+     * 
+     * @param NodeAGlobalIndex
+     * @param NodeBGlobalIndex
+     * 
+     * @return The force exerted on Node A by Node B.
+     */
+//    c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex,unsigned nodeBGlobalIndex);
 
-    /** Whether to use different stiffnesses depending on whether either cell is a mutant */
-    bool mUseMutantSprings;
-    /** Multiplier for spring stiffness if mutant */
-    double mMutantMutantMultiplier;
-    /** Multiplier for spring stiffness if mutant */
-    double mNormalMutantMultiplier;
-
-
-    
+//// ->   AbstractDiscreteTissueMechanicsSystem::NeedsTessellation();
     /** Whether to do a voronoi tessellation every time step */
-    bool mCreateVoronoiTessellation;
+//    bool mCreateVoronoiTessellation;
+
+
+
 
     /** Whether to print out cell area and perimeter info */
     bool mWriteVoronoiData;
     
     /** Whether to follow only the logged cell if writing voronoi data */
     bool mFollowLoggedCell;
-    
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -151,6 +194,7 @@ protected:
                 
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
+        archive & mpMechanicsSystem;
         archive & mDt;
         archive & mEndTime;
         archive & mNoBirth;
@@ -161,15 +205,15 @@ protected:
         archive & mNumBirths;
         archive & mNumDeaths;
         archive & mCellKillers;
-        archive & mUseCutoffPoint;
-        archive & mCutoffPoint;
+//        archive & mUseCutoffPoint;
+//        archive & mCutoffPoint;
         archive & mOutputCellTypes;
-        archive & mUseEdgeBasedSpringConstant;
-        archive & mUseAreaBasedViscosity;
-        archive & mUseMutantSprings;
-        archive & mMutantMutantMultiplier;
-        archive & mNormalMutantMultiplier;
-        archive & mCreateVoronoiTessellation;
+//        archive & mUseEdgeBasedSpringConstant;
+//        archive & mUseAreaBasedViscosity;
+//        archive & mUseMutantSprings;
+//        archive & mMutantMutantMultiplier;
+//        archive & mNormalMutantMultiplier;
+//        archive & mCreateVoronoiTessellation;
         archive & mWriteVoronoiData;
         archive & mFollowLoggedCell;
     }
@@ -211,24 +255,6 @@ protected:
      */ 
     unsigned DoCellRemoval();
    
-    /**
-     * Calculates the forces on each node
-     *
-     * @return drdt the force components on each node
-     */
-    virtual std::vector<c_vector<double, DIM> > CalculateVelocitiesOfEachNode();
-    
-    /**
-     * Calculates the force between two nodes.
-     * 
-     * Note that this assumes they are connected and is called by CalculateVelocitiesOfEachNode()
-     * 
-     * @param NodeAGlobalIndex
-     * @param NodeBGlobalIndex
-     * 
-     * @return The force exerted on Node A by Node B.
-     */
-    c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex,unsigned nodeBGlobalIndex);
     
     /**
      * Moves each node to a new position for this timestep
@@ -266,17 +292,15 @@ public:
     void SetOutputDirectory(std::string outputDirectory);
     void SetMaxCells(unsigned maxCells);
     void SetMaxElements(unsigned maxElements);
-    void SetReMeshRule(bool remesh);
     void SetNoBirth(bool nobirth);
     void SetOutputCellTypes(bool outputCellTypes);
-    void SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant);
-    void SetAreaBasedViscosity(bool useAreaBasedViscosity);
-    void SetMutantSprings(bool useMutantSprings, double mutantMutantMultiplier, double normalMutantMultiplier);    
-    void SetBCatSprings(bool useBCatSprings);
+
+    void SetReMeshRule(bool remesh); 
+
+
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);    
-    void UseCutoffPoint(double cutoffPoint);
     c_vector<unsigned,5> GetCellTypeCount();
 
     void Solve();
@@ -286,7 +310,6 @@ public:
 
     Tissue<DIM>& rGetTissue();
     const Tissue<DIM>& rGetTissue() const;
-    bool mUseBCatSprings;
 };
 
 

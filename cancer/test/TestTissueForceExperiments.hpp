@@ -269,7 +269,7 @@ public :
                             
                             if(!is_force_already_calculated)
                             {
-                                c_vector<double,2> force = CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),p_element->GetNodeGlobalIndex(nodeB));
+                                c_vector<double,2> force = rGetMeinekeSystem().CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),p_element->GetNodeGlobalIndex(nodeB));
                                 if ((!mrTissue.rGetGhostNodes()[nodeA_global_index]) && (!mrTissue.rGetGhostNodes()[nodeB_global_index]))
                                 {
                                     for(unsigned i=0; i<2; i++)
@@ -451,7 +451,7 @@ public :
                             
                             if(!is_force_already_calculated)
                             {
-                                c_vector<double,2> force = CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),p_element->GetNodeGlobalIndex(nodeB));
+                                c_vector<double,2> force = rGetMeinekeSystem().CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),p_element->GetNodeGlobalIndex(nodeB));
                                 if ((!mrTissue.rGetGhostNodes()[nodeA_global_index]) && (!mrTissue.rGetGhostNodes()[nodeB_global_index]))
                                 {
                                     for(unsigned i=0; i<2; i++)

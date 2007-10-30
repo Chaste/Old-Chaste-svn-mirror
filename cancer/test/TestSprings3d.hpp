@@ -20,173 +20,19 @@
 
 class TestSprings3d : public CxxTest::TestSuite
 {
-   ConformingTetrahedralMesh<3,3> Make3dMesh(unsigned width=3, unsigned height=3, unsigned depth=3)
-   {
-       ConformingTetrahedralMesh<3,3> mesh;
-       mesh.ConstructCuboid(width,height,depth,true);
-       TrianglesMeshWriter<3,3> mesh_writer("","3dSpringMesh");
-       mesh_writer.WriteFilesUsingMesh(mesh);
+    ConformingTetrahedralMesh<3,3> Make3dMesh(unsigned width=3, unsigned height=3, unsigned depth=3)
+    {
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructCuboid(width,height,depth,true);
+        TrianglesMeshWriter<3,3> mesh_writer("","3dSpringMesh");
+        mesh_writer.WriteFilesUsingMesh(mesh);
 
-       return mesh;
-   }
-   
-   void CheckAgainstPreviousRun3D(std::string resultDirectory,std::string resultSet, unsigned maxCells, unsigned maxElements)
-   {
-        std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
-        
-        ColumnDataReader computed_node_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",
-                                                                  "tabulated_node_results",
-                                                                  true);
-                                                                  
-        ColumnDataReader expected_node_results = ColumnDataReader("cancer/test/data/" + resultDirectory+"Results",
-                                                                  "tabulated_node_results",
-                                                                  false);
-        ColumnDataReader computed_element_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",
-                                                    "tabulated_element_results",
-                                                    true);
-                                                    
-        ColumnDataReader expected_element_results = ColumnDataReader("cancer/test/data/" + resultDirectory+"Results",
-                                                    "tabulated_element_results",
-                                                    false);
-                                                    
-        for (unsigned cell=0; cell<maxCells; cell++)
-        {
-            std::stringstream cell_type_var_name;
-            std::stringstream cell_x_position_var_name;
-            std::stringstream cell_y_position_var_name;
-            std::stringstream cell_z_position_var_name;
-            cell_type_var_name << "cell_type_" << cell;
-            cell_x_position_var_name << "cell_x_position_" << cell;
-            cell_y_position_var_name << "cell_y_position_" << cell;
-            cell_z_position_var_name << "cell_z_position_" << cell;
-            
-            // Vector of Cell Types
-            std::vector<double> expected_cell_types = expected_node_results.GetValues(cell_type_var_name.str());
-            std::vector<double> computed_cell_types = computed_node_results.GetValues(cell_type_var_name.str());
-            
-            //Vector of Cell Positions
-            std::vector<double> expected_cell_x_positions = expected_node_results.GetValues(cell_x_position_var_name.str());
-            std::vector<double> computed_cell_x_positions = computed_node_results.GetValues(cell_x_position_var_name.str());
-            
-            
-            std::vector<double> expected_cell_y_positions = expected_node_results.GetValues(cell_y_position_var_name.str());
-            std::vector<double> computed_cell_y_positions = computed_node_results.GetValues(cell_y_position_var_name.str());
-            
-            std::vector<double> expected_cell_z_positions = expected_node_results.GetValues(cell_z_position_var_name.str());
-            std::vector<double> computed_cell_z_positions = computed_node_results.GetValues(cell_z_position_var_name.str());
-            
-            //Comparing expected and computed vector length
-            TS_ASSERT_EQUALS(expected_cell_types.size(), computed_cell_types.size());
-            TS_ASSERT_EQUALS(expected_cell_x_positions.size(), computed_cell_x_positions.size());
-            TS_ASSERT_EQUALS(expected_cell_y_positions.size(), computed_cell_y_positions.size());
-            TS_ASSERT_EQUALS(expected_cell_z_positions.size(), computed_cell_z_positions.size());
-            
-            //Walkthrough of the expected and computed vectors
-            for (unsigned time_step = 0; time_step < expected_cell_types.size(); time_step++)
-            {
-                TS_ASSERT_EQUALS(expected_cell_types[time_step], computed_cell_types[time_step]);
-                TS_ASSERT_DELTA(expected_cell_x_positions[time_step], computed_cell_x_positions[time_step],1e-6);
-                TS_ASSERT_DELTA(expected_cell_y_positions[time_step], computed_cell_y_positions[time_step],1e-6);
-                TS_ASSERT_DELTA(expected_cell_z_positions[time_step], computed_cell_z_positions[time_step],1e-6);
-            }
-        }
-        
-        for (unsigned element=0; element<maxElements; element++)
-        {
-            std::stringstream nodeA_var_name;
-            std::stringstream nodeB_var_name;
-            std::stringstream nodeC_var_name;
-            std::stringstream nodeD_var_name;
-            
-            nodeA_var_name << "nodeA_" << element;
-            nodeB_var_name << "nodeB_" << element;
-            nodeC_var_name << "nodeC_" << element;
-            nodeD_var_name << "nodeD_" << element;
-            
-            // Vector of Node A indexes
-            std::vector<double> expected_NodeA_numbers = expected_element_results.GetValues(nodeA_var_name.str());
-            std::vector<double> computed_NodeA_numbers = computed_element_results.GetValues(nodeA_var_name.str());
-            
-            // Vector of Node B indexes
-            std::vector<double> expected_NodeB_numbers = expected_element_results.GetValues(nodeB_var_name.str());
-            std::vector<double> computed_NodeB_numbers = computed_element_results.GetValues(nodeB_var_name.str());
-            
-            // Vector of Node C indexes
-            std::vector<double> expected_NodeC_numbers = expected_element_results.GetValues(nodeC_var_name.str());
-            std::vector<double> computed_NodeC_numbers = computed_element_results.GetValues(nodeC_var_name.str());
-            
-            // Vector of Node D indexes
-            std::vector<double> expected_NodeD_numbers = expected_element_results.GetValues(nodeD_var_name.str());
-            std::vector<double> computed_NodeD_numbers = computed_element_results.GetValues(nodeD_var_name.str());
-            
-            TS_ASSERT_EQUALS(expected_NodeA_numbers.size(), computed_NodeA_numbers.size());
-            TS_ASSERT_EQUALS(expected_NodeB_numbers.size(), computed_NodeB_numbers.size());
-            TS_ASSERT_EQUALS(expected_NodeC_numbers.size(), computed_NodeC_numbers.size());
-            TS_ASSERT_EQUALS(expected_NodeD_numbers.size(), computed_NodeD_numbers.size());
-            
-            for (unsigned time_step = 0; time_step < expected_NodeA_numbers.size(); time_step++)
-            {
-                TS_ASSERT_EQUALS(expected_NodeA_numbers[time_step], computed_NodeA_numbers[time_step]);
-                TS_ASSERT_EQUALS(expected_NodeB_numbers[time_step], computed_NodeB_numbers[time_step]);
-                TS_ASSERT_EQUALS(expected_NodeC_numbers[time_step], computed_NodeC_numbers[time_step]);
-                TS_ASSERT_EQUALS(expected_NodeD_numbers[time_step], computed_NodeD_numbers[time_step]);
-            }
-        }
-    }
-    
-
-   
+        return mesh;
+    }   
 
 public:
 
-//   void Test3dSpringMesh() throw (Exception)
-//   {
-//
-//        ConformingTetrahedralMesh<3,3> mesh = Make3dMesh();
-//        
-////        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
-////        ConformingTetrahedralMesh<3,3> mesh;
-////        mesh.ConstructFromMeshReader(mesh_reader);
-////        
-//        
-//        {
-//            TrianglesMeshWriter<3,3> mesh_writer("","3dSpringMeshStart");
-//            mesh_writer.WriteFilesUsingMesh(mesh);
-//
-//        }
-//        
-//        
-//        
-//        for (unsigned i=0 ; i<2 ; i++)
-//        {
-////            std::cout << "step = " << i << std::endl;
-//            std::vector<std::vector<double> > forces = CalculateForcesOnEachNode(mesh);
-//            UpdateNodePositions(forces,mesh);
-//            
-////            NodeMap map(mesh.GetNumAllNodes());
-////            mesh.ReMesh(map);
-//
-////            std::ostringstream time_stamp;
-////            time_stamp << i;
-////            TrianglesMeshWriter<3,3> mesh_writer("","3dSpringMesh"+time_stamp.str());
-////            mesh_writer.WriteFilesUsingMesh(mesh);
-//        }
-//        
-//        
-//        
-//        TrianglesMeshWriter<3,3> mesh_writer("","3dSpringMeshEnd");
-//        mesh_writer.WriteFilesUsingMesh(mesh);
-//        
-//        /*
-//         * Use the command:
-//         * 
-//         * tetview 3dSpringMesh
-//         * 
-//         * to visualize final output.
-//         */
-//        
-//   }
-
+// split and move part of this to TestMeineke2001SpringSystem
     void TestOne3dElement() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
@@ -219,9 +65,9 @@ public:
         simulator.SetMaxElements(40);
 
         // Test forces on springs
-        unsigned nodeA = 0, nodeB = 1 ;
+        unsigned nodeA = 0, nodeB = 1;
         Element<3,3>* p_element = mesh.GetElement(0);
-        c_vector<double, 3> force = simulator.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),p_element->GetNodeGlobalIndex(nodeB));
+        c_vector<double, 3> force = simulator.rGetMeinekeSystem().CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),p_element->GetNodeGlobalIndex(nodeB));
         for(unsigned i=0; i < 3;i++)
         {
             TS_ASSERT_DELTA(force[i],0.0,1e-6);
@@ -230,7 +76,7 @@ public:
         //  Test forces on nodes        
         for (unsigned i=0 ; i<1 ; i++)
         {
-            std::vector<c_vector<double,3> > velocities = simulator.CalculateVelocitiesOfEachNode();
+            std::vector<c_vector<double,3> > velocities = simulator.rGetMeinekeSystem().CalculateVelocitiesOfEachNode();
             simulator.UpdateNodePositions(velocities);
             
             for (unsigned j=0; j<4; j++)
@@ -239,9 +85,9 @@ public:
                 {
                     TS_ASSERT_DELTA(velocities[j](k),0.0,1e-6);
                 }
-            }
-            
+            }            
         }
+
         TrianglesMeshWriter<3,3> mesh_writer("","3dSpringTetrahedronMeshEnd");
         mesh_writer.WriteFilesUsingMesh(mesh);    
         
@@ -265,7 +111,7 @@ public:
             mesh.SetNode(i, new_point, false);            
         }
                
-        std::vector<c_vector<double,3> > new_velocities = simulator.CalculateVelocitiesOfEachNode();
+        std::vector<c_vector<double,3> > new_velocities = simulator.rGetMeinekeSystem().CalculateVelocitiesOfEachNode();
         simulator.UpdateNodePositions(new_velocities);
         for (unsigned j=0; j<4; j++)
         {
@@ -306,14 +152,14 @@ public:
          */
         unsigned nodeA2 = 0, nodeB2 = 1 ;
         Element<3,3>* p_element2 = mesh2.GetElement(0);
-        c_vector<double,3> force2 = simulator2.CalculateForceBetweenNodes(p_element2->GetNodeGlobalIndex(nodeA2),p_element2->GetNodeGlobalIndex(nodeB2));
+        c_vector<double,3> force2 = simulator2.rGetMeinekeSystem().CalculateForceBetweenNodes(p_element2->GetNodeGlobalIndex(nodeA2),p_element2->GetNodeGlobalIndex(nodeB2));
         
         for(unsigned i=0; i < 3;i++)
         {
             TS_ASSERT_DELTA(fabs(force2[i]),p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
         }
         
-        std::vector<c_vector<double,3> > new_velocities2 = simulator2.CalculateVelocitiesOfEachNode();
+        std::vector<c_vector<double,3> > new_velocities2 = simulator2.rGetMeinekeSystem().CalculateVelocitiesOfEachNode();
         
         for(unsigned k=0;k<3;k++)
         {

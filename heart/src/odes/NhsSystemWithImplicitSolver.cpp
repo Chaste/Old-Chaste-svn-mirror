@@ -2,7 +2,8 @@
 #include "NhsSystemWithImplicitSolver.hpp"
 #include "TimeStepper.hpp"
 #include <cmath>
-
+#include "LogFile.hpp"
+#include <iostream>
 /*
  *=========================== PRIVATE METHODS ==============================
  */
@@ -20,6 +21,7 @@ void NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension()
     // solve using Newton's method, no damping. Stop if num iterations
     // reaches 15 (very conservative)
     unsigned counter = 0;
+    std::vector<double> old_residuals(15);
     while ((fabs(residual)>mTolerance) && (counter++<15))
     {
         // numerically approximate the jacobian
@@ -29,8 +31,24 @@ void NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension()
         
         current_active_tension -= residual/jac;
         residual = CalcActiveTensionResidual(current_active_tension);
+        old_residuals.push_back(residual);
     } 
-    assert(counter<15);
+    //assert(counter<15);
+    if(counter >= 15) // not sure what to do here, after having got a case where resid stagnated on +/- 5.500502e-10
+    {
+        LOG(1, "\nWARNING in NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension(), counter="<<counter<<",resids=");
+        for (unsigned i=0; i<old_residuals.size(); i++)
+        {
+            LOG(1,old_residuals[i]);
+        }
+        LOG(1,"Final residual = " << residual);
+        if(residual > 100*mTolerance)
+        {   
+            LOG(1,"Residual > 100*mTol, throwing\n");         
+            EXCEPTION("NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension() failed to converge");
+        }
+    }
+    
     
     // save the active tension initial guess for next time round
     mActiveTensionInitialGuess = current_active_tension;

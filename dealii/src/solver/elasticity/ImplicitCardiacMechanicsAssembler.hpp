@@ -251,8 +251,21 @@ private:
             // get proper active tension
             // see NOTE below
             system.SetLambdaAndDerivative(lam, dlam_dt);
-            system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-            double active_tension = system.GetActiveTensionAtNextTime();        
+
+            double active_tension;        
+            try
+            {
+                (*LogFile::Instance()) << ".";
+                system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+                active_tension = system.GetActiveTensionAtNextTime();        
+            }
+            catch (Exception& e)
+            {
+                LOG(1, "\nCAUGHT EXCEPTION!!\n");
+                active_tension = 1e10;
+                if(assembleJacobian) EXCEPTION("Failed");
+            }  
+
 
             // compute the derivative of the active tension wrt lam and dlam_dt
             double d_act_tension_dlam;
@@ -263,12 +276,14 @@ private:
                 // get active tension for (lam+h,dlamdt)
                 double h1 = std::max(1e-6, lam/100);
                 system.SetLambdaAndDerivative(lam+h1, dlam_dt);
+                (*LogFile::Instance()) << "*";
                 system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
                 double active_tension_at_lam_plus_h = system.GetActiveTensionAtNextTime();        
 
                 // get active tension for (lam,dlamdt+h)
                 double h2 = std::max(1e-6, dlam_dt/100);
                 system.SetLambdaAndDerivative(lam, dlam_dt+h2);
+                (*LogFile::Instance()) << "^";
                 system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
                 double active_tension_at_dlamdt_plus_h = system.GetActiveTensionAtNextTime();        
 
@@ -281,8 +296,18 @@ private:
             // TODO: sort out this inefficiency
             system.SetLambdaAndDerivative(lam, dlam_dt);
             system.SetActiveTensionInitialGuess(active_tension);
-            system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-            assert( fabs(system.GetActiveTensionAtNextTime()-active_tension)<1e-8);        
+            
+            try
+            {
+                system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+                assert( fabs(system.GetActiveTensionAtNextTime()-active_tension)<1e-8);
+            }
+            catch (Exception& e)
+            {        
+                LOG(1, "WARNING!\n");
+                active_tension = 1e10;
+                // should have done something abouve..
+            }
 
             //this->mDTdE_fibre.Zero();
     
