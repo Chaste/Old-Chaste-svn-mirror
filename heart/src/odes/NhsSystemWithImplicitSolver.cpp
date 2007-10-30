@@ -36,6 +36,7 @@ void NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension()
     //assert(counter<15);
     if(counter >= 15) // not sure what to do here, after having got a case where resid stagnated on +/- 5.500502e-10
     {
+        #define COVERAGE_IGNORE
         LOG(1, "\nWARNING in NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension(), counter="<<counter<<",resids=");
         for (unsigned i=0; i<old_residuals.size(); i++)
         {
@@ -44,9 +45,10 @@ void NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension()
         LOG(1,"Final residual = " << residual);
         if(residual > 100*mTolerance)
         {   
-            LOG(1,"Residual > 100*mTol, throwing\n");         
+            LOG(1,"Residual > 100*mTol, throwing exception\n");         
             EXCEPTION("NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension() failed to converge");
         }
+        #undef COVERAGE_IGNORE
     }
     
     
