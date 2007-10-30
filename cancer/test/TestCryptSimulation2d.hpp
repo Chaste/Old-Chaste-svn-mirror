@@ -29,7 +29,6 @@
 
 class TestCryptSimulation2d : public CxxTest::TestSuite
 {
-
     /**
      * Compare 2 meshes to see if they are 'the same'.  Doesn't check everything,
      * but is fairly thorough.  Used for testing serialization.
@@ -77,6 +76,67 @@ class TestCryptSimulation2d : public CxxTest::TestSuite
     }
 
 public:
+
+    void TestUpdatePositions() throw (Exception)
+    {
+        CancerParameters::Instance()->Reset();
+        SimulationTime::Instance()->SetStartTime(0.0);
+        
+        HoneycombMeshGenerator generator(3, 3, 1, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+                
+        std::vector<TissueCell> cells;
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
+        
+        Tissue<2> tissue(*p_mesh, cells);          
+        tissue.SetGhostNodes(ghost_node_indices);
+
+        CryptSimulation2d simulator(tissue);
+        
+        simulator.SetMaxCells(400);
+        simulator.SetMaxElements(400);
+
+        std::vector<c_vector<double, 2> > old_posns(p_mesh->GetNumNodes());
+        std::vector<c_vector<double, 2> > velocities_on_each_node(p_mesh->GetNumNodes());
+
+        // make some velocities up.. 
+        for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
+        {
+            old_posns[i][0] = p_mesh->GetNode(i)->rGetLocation()[0];
+            old_posns[i][1] = p_mesh->GetNode(i)->rGetLocation()[1];
+
+            velocities_on_each_node[i][0] = i*0.01;
+            velocities_on_each_node[i][1] = 2*i*0.01;
+       }
+        
+        simulator.SetDt(0.01);
+        simulator.UpdateNodePositions(velocities_on_each_node);
+        
+        for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
+        {
+            std::set<unsigned>::iterator iter = ghost_node_indices.find(i);
+            bool is_a_ghost_node = (iter!=ghost_node_indices.end());
+            Node<2>* p_node = p_mesh->GetNode(i);
+            if (!is_a_ghost_node)
+            {
+                if(old_posns[i][1]==0) // stem
+                {
+                    // no wnt so shouldn't have been moved
+                    TS_ASSERT_DELTA(p_node->rGetLocation()[0], old_posns[i][0], 1e-9);
+                    TS_ASSERT_DELTA(p_node->rGetLocation()[1], old_posns[i][1], 1e-9);
+                }
+                else
+                {
+                    TS_ASSERT_DELTA(p_node->rGetLocation()[0], old_posns[i][0] +   i*0.01*0.01, 1e-9);
+                    TS_ASSERT_DELTA(p_node->rGetLocation()[1], old_posns[i][1] + 2*i*0.01*0.01, 1e-9);
+                }
+            }
+        }
+
+        SimulationTime::Destroy();
+    }
+
     void Test2DCylindrical() throw (Exception)
     {        
         CancerParameters::Instance()->Reset();
@@ -85,12 +145,11 @@ public:
         unsigned cells_up = 12;
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 0;
+ 
+        SimulationTime::Instance()->SetStartTime(0.0);
         
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
@@ -141,268 +200,6 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-// -> TestMeineke2001SpringSystem.hpp    
-    void TestEdgeLengthBasedSpring() throw (Exception)
-    {        
-        CancerParameters::Instance()->Reset();
-
-        // Set up the simulation time
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,10u);
-                
-        unsigned cells_across = 6;
-        unsigned cells_up = 12;
-        double crypt_width = 5.0;
-        unsigned thickness_of_ghost_layer = 3;
-       
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false,crypt_width/cells_across);
-        ConformingTetrahedralMesh<2,2>* p_mesh =generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
-        
-        // Set up cells
-        std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
-
-        Tissue<2> tissue(*p_mesh, cells);               
-        tissue.SetGhostNodes(ghost_node_indices);
-
-        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
-               
-        // check that the force between nodes is correctly calculated when the spring constant is constant (!)
-        meineke_spring_system.SetEdgeBasedSpringConstant(false);
-                      
-        for(Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
-            spring_iterator!=tissue.SpringsEnd();
-            ++spring_iterator)
-        {        
-            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
-            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
-            c_vector<double, 2> force = meineke_spring_system.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
-            TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],6.25,1e-3);
-        }
-        
-        // check that the force between nodes is correctly calculated when the spring constant 
-        // is proportional to the length of the edge between adjacent cells  
-        meineke_spring_system.SetEdgeBasedSpringConstant(true); 
-        tissue.CreateVoronoiTessellation();  // normally done in a simulation loop
-        
-        
-        for(Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
-            spring_iterator!=tissue.SpringsEnd();
-            ++spring_iterator)
-        {
-            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
-            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
-            c_vector<double, 2> force = meineke_spring_system.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
-            TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
-        }
-        
-        // choose two interior neighbour nodes
-        c_vector<double, 2> force = meineke_spring_system.CalculateForceBetweenNodes(20u,21u);
-        TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
-        
-        // now move node 21 a bit and check that the force calculation changes correctly
-        c_vector<double,2> shift;
-        shift[0] = 0.01;
-        shift[1] = 0.0;                 
-        ChastePoint<2> new_point(p_mesh->GetNode(21u)->rGetLocation() + shift);
-        p_mesh->SetNode(21u, new_point, false);
-        
-        // check that the new force between nodes is correctly calculated
-        tissue.CreateVoronoiTessellation();  
-        c_vector<double, 2> new_force = meineke_spring_system.CalculateForceBetweenNodes(20u,21u);
-        
-        // force calculation: shift is along x-axis so we should have
-        // new_edge_length = (5/6 + shift[0])*tan(0.5*arctan(5*sqrt(3)/(5 + 12*shift[0]))),
-        // force^2 = mu^2 * (new_edge_length*sqrt(3))^2 * (1 - 5/6 - shift[0])^2
-        TS_ASSERT_DELTA(new_force[0]*new_force[0] + new_force[1]*new_force[1], 3.83479824,1e-3);
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();    
-    }
-    
-
-    
-// -> TestMeineke2001SpringSystem.hpp      
-    void TestEdgeBasedSpringsOnPeriodicMesh() throw (Exception)
-    {     
-        // Test on a periodic mesh
-        CancerParameters::Instance()->Reset();
-
-        // Set up the simulation time
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,10u);
-                
-        unsigned cells_across = 6;
-        unsigned cells_up = 12;
-        double crypt_width = 5.0;
-        unsigned thickness_of_ghost_layer = 3;
-       
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        // Set up cells
-        std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
-
-        Tissue<2> tissue(*p_mesh, cells);               
-        tissue.SetGhostNodes(ghost_node_indices);
-
-        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
-       
-         // check that the force between nodes is correctly calculated when the spring constant is constant (!)
-        meineke_spring_system.SetEdgeBasedSpringConstant(false);
-                      
-        for(Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
-            spring_iterator!=tissue.SpringsEnd();
-            ++spring_iterator)
-        {
-            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
-            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
-            c_vector<double, 2> force = meineke_spring_system.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
-                        
-            TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],6.25,1e-3);
-        }
-        
-        // check that the force between nodes is correctly calculated when the spring constant 
-        // is proportional to the length of the edge between adjacenet cells  
-        meineke_spring_system.SetEdgeBasedSpringConstant(true); 
-        tissue.CreateVoronoiTessellation();  
-        for(Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
-            spring_iterator!=tissue.SpringsEnd();
-            ++spring_iterator)
-        {
-            unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
-            unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
-            c_vector<double, 2> force = meineke_spring_system.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
-            TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
-        }              
-            
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();                
-    }
-    
-    
-    void TestAreaBasedVisocity() throw (Exception)
-    {        
-        CancerParameters::Instance()->Reset();
-
-        // Set up the simulation time
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,10);
-                
-        unsigned cells_across = 3;
-        unsigned cells_up = 3;
-        unsigned thickness_of_ghost_layer = 2;
-       
-        // Test a non-periodic mesh        
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
-        
-        // scale the mesh in one direction
-        p_mesh->Scale(1.0,1.2);
-        
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
-        
-        // Set up cells
-        std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
-
-        Tissue<2> crypt(*p_mesh, cells);               
-        crypt.SetGhostNodes(ghost_node_indices);
-
-        crypt.CreateVoronoiTessellation();  // normally done in a simulation loop
-
-        Meineke2001SpringSystem<2> meineke_spring_system(crypt);
-                             
-        std::vector<c_vector<double,2> > velocities = meineke_spring_system.CalculateVelocitiesOfEachNode();
-        std::vector<double> norm_vel;
-        
-        for(unsigned i=0; i<velocities.size(); i++)
-        {
-            //check if this is a real cell
-            if(ghost_node_indices.find(i)==ghost_node_indices.end())
-            {
-                norm_vel.push_back(norm_2(velocities[i]));
-            }  
-        }
-
-        // now check that the velocities scale correctly when the viscosity is area-dependent
-        meineke_spring_system.SetAreaBasedViscosity(true);
-        
-        velocities = meineke_spring_system.CalculateVelocitiesOfEachNode();
-        
-        std::vector<double> norm_vel_area;
-        
-        for(unsigned i=0; i<velocities.size(); i++)
-        {
-            //check if this is a real cell
-            if(ghost_node_indices.find(i)==ghost_node_indices.end())
-            {
-                norm_vel_area.push_back(norm_2(velocities[i]));
-            }  
-        }
-                
-        TS_ASSERT(norm_vel.size() > 0);
-        
-        // note that d0 and d1 are hardcoded in TissueSimulation::mpMechanicsSystem->CalculateVelocitiesOfEachNode()  
-        for(unsigned i=0; i<norm_vel.size(); i++)
-        {
-            TS_ASSERT_DELTA(norm_vel_area[i], norm_vel[i]/(0.1 +  1.2*0.9), 1e-3);            
-        }
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();    
-    }   
-        
-    void TestAreaBasedVisocityOnAPeriodicMesh() throw (Exception)
-    {        
-        CancerParameters::Instance()->Reset();
-
-        // Set up the simulation time
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,10);
-                
-        unsigned cells_across = 3;
-        unsigned cells_up = 3;
-        unsigned thickness_of_ghost_layer = 2;
-        
-        double scale_factor = 1.2;
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, scale_factor);
-        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
-        
-        // Set up cells
-        std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
-
-        Tissue<2> tissue(*p_mesh, cells);               
-        tissue.SetGhostNodes(ghost_node_indices);
-
-        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
-    
-        // seems quite difficult to test this on a periodic mesh, so just check the areas 
-        // of all the cells are correct 
-        tissue.CreateVoronoiTessellation();
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            //check if this is a real cell
-            if(ghost_node_indices.find(i)==ghost_node_indices.end())
-            {
-                double area = tissue.rGetVoronoiTessellation().GetFaceArea(i);
-                TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);
-            }
-        }        
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();    
-    }    
     
     void Test2DCylindricalMultipleDivisions() throw (Exception)
     {   
@@ -419,7 +216,7 @@ public:
         p_simulation_time->SetStartTime(0.0);
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
@@ -430,8 +227,7 @@ public:
         {
             cells[i].SetBirthTime(-11.5);
         }
-        
-        
+              
         Tissue<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
@@ -442,19 +238,15 @@ public:
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
-        
-        // These are for coverage and use the defaults
-        simulator.SetDt(1.0/120.0);
-        simulator.SetReMeshRule(true);
-        simulator.SetNoBirth(false);
-        simulator.SetOutputDirectory("Crypt2DCylindricalMultipleDivisions");
-        
+        simulator.SetOutputDirectory("Crypt2DCylindricalMultipleDivisions");        
         simulator.SetEndTime(0.6);
         simulator.Solve();
+        
         //Find the height of the current crypt
         double height_after_division=p_mesh->GetWidth(1);
         simulator.SetEndTime(0.8);
         simulator.Solve();
+        
         //Find the height of the current crypt
         double height_after_relaxation=p_mesh->GetWidth(1);
          
@@ -495,7 +287,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
         
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -548,7 +340,7 @@ public:
         unsigned thickness_of_ghost_layer = 4;
         
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
         // Set up a simulation
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
@@ -606,7 +398,7 @@ public:
         unsigned thickness_of_ghost_layer = 4;
         
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -673,7 +465,7 @@ public:
         unsigned thickness_of_ghost_layer = 4;
         
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -806,14 +598,14 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;        
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, true);
-        
-//        cells[0].SetBirthTime(-1.0);   // Make cell cycle models do minimum work
-//        cells[1].SetBirthTime(-1.0);
-//        cells[1].SetMutationState(LABELLED);
-//        cells[2].SetBirthTime(-1.0);
-//        cells[2].SetMutationState(APC_ONE_HIT);
-//        cells[3].SetBirthTime(-1.0);
-//        cells[3].SetMutationState(BETA_CATENIN_ONE_HIT);
+
+        // cells[0].SetBirthTime(-1.0);   // Make cell cycle models do minimum work
+        // cells[1].SetBirthTime(-1.0);
+        // cells[1].SetMutationState(LABELLED);
+        // cells[2].SetBirthTime(-1.0);
+        // cells[2].SetMutationState(APC_ONE_HIT);
+        // cells[3].SetBirthTime(-1.0);
+        // cells[3].SetMutationState(BETA_CATENIN_ONE_HIT);
 
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
@@ -842,6 +634,7 @@ public:
         simulator.SetMaxElements(1000);
         simulator.SetEndTime(0.01);
         simulator.SetOutputCellTypes(true);   
+        
         // cover the write voronoi data method
         simulator.SetWriteVoronoiData(true, false);     
         simulator.Solve();
@@ -885,7 +678,7 @@ public:
         unsigned thickness_of_ghost_layer = 4;
         
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -989,242 +782,6 @@ public:
         delete p_sloughing_cell_killer;       
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
-    }
-    
-
-// void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
-//   -> 2 tests, one in TestMeineke2001SpringSystem.hpp, one here called
-//      TestUpdatePositionsAndUpdateCellTypes()    
-    void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
-    {
-        CancerParameters::Instance()->Reset();
-        /*
-         ************************************************************************
-         ************************************************************************ 
-         *     Set up a simulation class to run the individual tests on.
-         ************************************************************************
-         ************************************************************************ 
-         */
-        unsigned cells_across = 7;
-        unsigned cells_up = 5;
-        unsigned thickness_of_ghost_layer = 3;
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer,false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        unsigned num_cells = p_mesh->GetNumAllNodes();
-        
-        CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerator::Instance();
-                
-        // Set up cells by iterating through the mesh nodes
-        std::vector<TissueCell> cells;
-        for (unsigned i=0; i<num_cells; i++)
-        {
-            double birth_time;
-            CellType cell_type;
-            unsigned generation;
-            double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
-            if (y == 0.0)
-            {
-                cell_type = STEM;
-                generation = 0;
-                birth_time = -2.0; //hours - doesn't matter for stem cell;
-            }
-            else if (y < 3)
-            {
-                cell_type = TRANSIT;
-                generation = 1;
-                birth_time = -2.0; //hours
-            }
-            else if (y < 6.5)
-            {
-                cell_type = TRANSIT;
-                generation = 2;
-                birth_time = -2.0;  //hours
-            }
-            else if (y < 8)
-            {
-                cell_type = TRANSIT;
-                generation = 3;
-                birth_time = -2.0;  //hours
-            }
-            else
-            {
-                cell_type = DIFFERENTIATED;
-                generation = 4;
-                birth_time = -2.0;  //hours
-            }
-            
-            CellMutationState mutation_state;
-            if(i!=60)
-            {
-                mutation_state = HEALTHY;
-            }
-            else
-            {
-                mutation_state = APC_TWO_HIT;
-            }
-                  
-            WntCellCycleModel* p_model = new WntCellCycleModel();
-            
-            TissueCell cell(cell_type, mutation_state, generation, p_model);
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-        
-        Tissue<2> tissue(*p_mesh, cells);          // this should be crypt for the version of the test which stays here..
-        tissue.SetGhostNodes(ghost_node_indices);
-
-        WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetTissue(tissue);
-        
-        CryptSimulation2d simulator(tissue);
-//AND also
-        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
-        
-        simulator.SetMaxCells(400);
-        simulator.SetMaxElements(400);
-
-       /*
-        ************************************************************************
-        ************************************************************************ 
-        *  Test Calculate Velocities on each node
-        ************************************************************************
-        ************************************************************************ 
-        */
-                
-        std::vector<c_vector<double, 2> > velocities_on_each_node = meineke_spring_system.CalculateVelocitiesOfEachNode();
- 
-        for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
-        {
-            std::set<unsigned>::iterator iter = ghost_node_indices.find(i);
-            bool is_a_ghost_node = (iter!=ghost_node_indices.end());
-
-            if (!is_a_ghost_node)
-            {
-                TS_ASSERT_DELTA(velocities_on_each_node[i][0], 0.0, 1e-4);
-                TS_ASSERT_DELTA(velocities_on_each_node[i][1], 0.0, 1e-4);
-            }
-        }
-        
-        // Move a node along the x-axis and calculate the force exerted on a neighbour
-        c_vector<double,2> old_point = p_mesh->GetNode(59)->rGetLocation();
-        ChastePoint<2> new_point;
-        new_point.rGetLocation()[0] = old_point[0]+0.5;
-        new_point.rGetLocation()[1] = old_point[1];
-  
-        p_mesh->SetNode(59, new_point, false);
-        velocities_on_each_node = meineke_spring_system.CalculateVelocitiesOfEachNode();
-        
-        TS_ASSERT_DELTA(velocities_on_each_node[60][0], 0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantMutant(), 1e-4);
-        TS_ASSERT_DELTA(velocities_on_each_node[60][1], 0.0, 1e-4);
-
-        TS_ASSERT_DELTA(velocities_on_each_node[59][0], (-3+4.0/sqrt(7))*p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal(), 1e-4);
-        TS_ASSERT_DELTA(velocities_on_each_node[59][1], 0.0, 1e-4);
-
-        TS_ASSERT_DELTA(velocities_on_each_node[58][0], 0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal(), 1e-4);
-        TS_ASSERT_DELTA(velocities_on_each_node[58][1], 0.0, 1e-4);
-        
-        
-       /*
-        ************************************************************************
-        ************************************************************************ 
-        *  Test Calculate force on a spring
-        ************************************************************************
-        ************************************************************************ 
-        */
-        
-        c_vector<double,2> force_on_spring ; // between nodes 59 and 60
-        
-        // Find one of the elements that nodes 59 and 60 live on
-        ChastePoint<2> new_point2;
-        new_point2.rGetLocation()[0] = new_point[0] + 0.01;
-        new_point2.rGetLocation()[1] = new_point[1] + 0.01 ;
-        
-        unsigned elem_index = p_mesh->GetContainingElementIndex(new_point2,false);
-        Element<2,2>* p_element = p_mesh->GetElement(elem_index);
-        
-        force_on_spring = meineke_spring_system.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
-        TS_ASSERT_DELTA(force_on_spring[0], 0.5*p_params->GetSpringStiffness(), 1e-4);
-        TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);        
-
-       /*
-        ************************************************************************
-        ************************************************************************ 
-        *  Test UpdateNodePositions
-        ************************************************************************
-        ************************************************************************ 
-        */
-        
-        ChastePoint<2> point_of_node60 = p_mesh->GetNode(60)->rGetLocation();
-        
-        simulator.SetDt(0.01);
-        simulator.UpdateNodePositions(velocities_on_each_node);
-        
-        TS_ASSERT_DELTA(p_mesh->GetNode(60)->rGetLocation()[0],point_of_node60.rGetLocation()[0]+force_on_spring[0]/p_params->GetDampingConstantMutant() *0.01, 1e-4);
-        TS_ASSERT_DELTA(p_mesh->GetNode(60)->rGetLocation()[1],point_of_node60.rGetLocation()[1], 1e-4);
-        
-       /*
-        ************************************************************************
-        ************************************************************************ 
-        * Test UpdateCellTypes is being done
-        ************************************************************************
-        ************************************************************************ 
-        */    
-        
-        for (Tissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
-             ++cell_iter)
-        {
-            CellType cell_type;
-            cell_type = cell_iter->GetCellType();
-            if (!cell_type==STEM)
-            {
-                //std::cout << "Cell type = " << cell_type << std::endl;
-                WntCellCycleModel *p_this_model = static_cast<WntCellCycleModel*>(cell_iter->GetCellCycleModel());
-                double beta_cat_level = p_this_model->GetProteinConcentrations()[6]+ p_this_model->GetProteinConcentrations()[7];
-                //std::cout << "Cell " << i << ", beta-cat = " << beta_cat_level << std::endl;
-                if (beta_cat_level > 0.4127)
-                {
-                    TS_ASSERT_EQUALS(cell_type,TRANSIT);
-                }
-                else
-                {
-                    TS_ASSERT_EQUALS(cell_type,DIFFERENTIATED);
-                }
-            }  
-        }
-        
-        /*
-         ******************************************
-         ******************************************
-         *  test force with cutoff point
-         ******************************************
-         ******************************************
-         */
-        double dist = norm_2( p_mesh->GetVectorFromAtoB(p_element->GetNode(0)->rGetLocation(), p_element->GetNode(1)->rGetLocation()) );   
-
-        meineke_spring_system.UseCutoffPoint(dist-0.1);
-        
-        force_on_spring = meineke_spring_system.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
-        TS_ASSERT_DELTA(force_on_spring[0], 0.0, 1e-4);
-        TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
-        
-        //Here's a double check that the geometry is the same:
-        TS_ASSERT_DELTA(dist, 0.7607, 1e-4);
-        TS_ASSERT_DELTA(p_element->GetNode(0)->rGetLocation()[0], 4.2767, 1e-4);
-        TS_ASSERT_DELTA(p_element->GetNode(0)->rGetLocation()[1], 0.8660, 1e-4);
-        TS_ASSERT_DELTA(p_element->GetNode(1)->rGetLocation()[0], 5.0375, 1e-4);
-        TS_ASSERT_DELTA(p_element->GetNode(1)->rGetLocation()[1], 0.8660, 1e-4);
-                
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-        WntGradient::Destroy();
     }
     
     void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
@@ -1397,7 +954,7 @@ public:
         p_simulation_time->SetStartTime(0.0);
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
@@ -1450,7 +1007,7 @@ public:
         unsigned thickness_of_ghost_layer = 1;
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -1488,7 +1045,7 @@ public:
         CancerParameters::Instance()->Reset();
         
         HoneycombMeshGenerator generator(4, 4, 0, true, 1.0);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -1525,115 +1082,14 @@ public:
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
-    
-// -> TestMeineke2001SpringSystem.hpp 
-    void TestSpringConstantsForMutantCells()
-    {
-        // set up the simulation time object so the cells can be created
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        // create a small tissue
-        std::vector<Node<2> *> nodes;
-        nodes.push_back(new Node<2>(0, false, 0, 0));
-        nodes.push_back(new Node<2>(1, false, 0, 2));
-        nodes.push_back(new Node<2>(2, false, 2, 2));
-        nodes.push_back(new Node<2>(3, false, 2, 0));
-        
-        ConformingTetrahedralMesh<2,2> mesh(nodes);
-        
-        std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
-        
-        Tissue<2> tissue(mesh, cells);
-        
-        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
-        
-        // set cells mutation states
-        tissue.rGetCellAtNodeIndex(0).SetMutationState(HEALTHY);
-        tissue.rGetCellAtNodeIndex(1).SetMutationState(LABELLED);
-        tissue.rGetCellAtNodeIndex(2).SetMutationState(APC_TWO_HIT);
-        tissue.rGetCellAtNodeIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
-        
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(1,2)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(2,3)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(3,0)), 15.0, 1e-10);
-        
-        meineke_spring_system.SetMutantSprings(true);
-        
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(1,2)), 22.5, 1e-10);
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(2,3)), 30.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(3,0)), 22.5, 1e-10);
-        
-        meineke_spring_system.SetMutantSprings(true, 4.0, 3.0);
-        
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(0,1)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(1,2)), 45.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(2,3)), 60.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(3,0)), 45.0, 1e-10);
-        
-        SimulationTime::Destroy();
-    }
-    
-
-
-// -> TestMeineke2001SpringSystem.hpp 
-    void TestSpringConstantsForIngeBCatCells()
-    {
-        // set up the simulation time object so the cells can be created
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        // There is no limit on transit cells in Wnt simulation
-        p_params->SetMaxTransitGenerations(1000);
-        
-        unsigned cells_across = 6;
-        unsigned cells_up = 12;
-        unsigned thickness_of_ghost_layer = 0;
-        
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, 1.1);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        // Set up cells 
-        std::vector<TissueCell> cells;                      
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_TWO, false);
-        
-        
-        Tissue<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);  
-        
-        WntGradient::Instance()->SetType(LINEAR);  
-        WntGradient::Instance()->SetTissue(crypt);
-        
-        Meineke2001SpringSystem<2> meineke_spring_system(crypt);
-        
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(20,21)), 1.50, 1e-10);
-        
-        meineke_spring_system.SetBCatSprings(true);
-        crypt.CreateVoronoiTessellation();  // normally done in a simulation loop
-        
-        // Note this is just a crap test to check that you get some dependency on BCat of both cells
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(20,21)), 1.5*8.59312/18.14, 1e-5);
-        p_params->SetBetaCatSpringScaler(20/6.0);
-        TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(20,21)), 1.5*8.59312/20.0, 1e-5);
-        
-        SimulationTime::Destroy();
-        WntGradient::Destroy(); 
-    }
-    
+   
     void TestWriteBetaCatenin() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
         
-        
         HoneycombMeshGenerator generator(4, 4, 1);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();

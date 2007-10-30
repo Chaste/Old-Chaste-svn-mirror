@@ -469,9 +469,7 @@ public:
 
             delete p_cell_killer;
         }
-    
     }    
-    
 };
 
 #endif /*TESTCELLKILLERS_HPP_*/

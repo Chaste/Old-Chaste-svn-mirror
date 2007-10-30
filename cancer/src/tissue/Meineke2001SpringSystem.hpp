@@ -21,13 +21,30 @@
 //    }
 //};
 
+/**
+ *  Meineke2001System
+ * 
+ *  A Mechanics system for discrete tissue models based on linear springs between connected 
+ *  cells and remeshing every timestep to determine connectivity. The rest length between
+ *  two newly born cells grows linearly as the cells age to maturity
+ * 
+ *  NOTES:
+ *  There is nothing here saying remeshing is needed every timestep, at the moment
+ *  the caller must know this..
+ * 
+ *  Extra options which are not Meineke are possible (and perhaps should later be moved
+ *  to subclasses). These include: using a cutoff point, edge-length based stiffness, area
+ *  based viscosity, mutant based stiffness, mutant based viscosity, beta-cat based 
+ *  stiffness
+ */
 template<unsigned DIM>
 class Meineke2001SpringSystem  //: public AbstractDiscreteTissueMechanicsSystem<DIM>
 {
     // Allow tests to access private members, in order to test computation of
     // private functions
     friend class TestCryptSimulation2d;
-    friend class TestSprings3d;
+    friend class TestMeineke2001SpringSystem;
+    friend class TestTissueSimulation3d;
     friend class TissueSimulationForForceExperiments;
     friend class TissueSimulationForForceExperimentsShearing;
 
@@ -121,7 +138,7 @@ private :
                 rest_length=(lambda+(1.0-lambda)*(ageA/(CancerParameters::Instance()->GetMDuration())));           
             }
             
-            if (ageA+ SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
+            if (ageA+SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
             {
                 // This spring is about to go out of scope
                 mrTissue.UnmarkSpring(r_cell_A, r_cell_B);
@@ -242,7 +259,10 @@ public :
     /**
      * Calculates the forces on each node
      *
-     * @return drdt the force components on each node
+     * @return drdt the velocity components on each node. Of size NUM_NODES x DIM
+     * 
+     * Note - a loop over cells is used, so if there are ghost nodes the velocity
+     * of these nodes will be returned as zero.
      */
     std::vector<c_vector<double, DIM> > CalculateVelocitiesOfEachNode()
     {

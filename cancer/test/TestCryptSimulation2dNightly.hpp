@@ -561,7 +561,7 @@ public:
     // this test is dontTest-ed out and not run every night as it doesn't really test
     // anything. it does show how to set up a mutant simulation. Mutant viscosities 
     // are tested elsewhere directly. 
-    void dontTestWithMutantCellsUsingDifferentViscosities() throw (Exception)
+    void dontRunTestWithMutantCellsUsingDifferentViscosities() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();

@@ -8,9 +8,8 @@ TestHoneycombMeshGenerator.hpp
 TestIngeWntSwatCellCycleOdeSystem.hpp
 TestWntGradient.hpp
 TestCellKillers.hpp
-TestSprings3d.hpp
 TestPdeOnFlaggedMesh.hpp
-TestSprings3d.hpp
+TestTissueSimulation3d.hpp
 TestTissue.hpp
 TestTissueCell.hpp
 TestTissueSimulationWithNutrients.hpp
@@ -21,3 +20,4 @@ TestCancerParameters.hpp
 TestSimulationTime.hpp
 TestCryptVoronoiDataWriter.hpp
 TestVoronoiAreaOnPeriodicMesh.hpp
+TestMeineke2001SpringSystem.hpp

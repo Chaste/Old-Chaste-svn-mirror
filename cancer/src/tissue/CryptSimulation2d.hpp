@@ -105,6 +105,7 @@ private :
     {
         // update ghost positions first because they do not affect the real cells
         mrTissue.UpdateGhostPositions(mDt);
+        
         // Iterate over all cells to update their positions.
         for (Tissue<2>::Iterator cell_iter = mrTissue.Begin();
              cell_iter != mrTissue.End();
@@ -117,6 +118,7 @@ private :
                         
             bool is_wnt_included = WntGradient::Instance()->IsGradientSetUp();
             if (!is_wnt_included) WntGradient::Destroy();
+            
             // stem cells are fixed if no wnt, so reset the x-value to the old x-value           
             if ((cell.GetCellType()==STEM) && (!is_wnt_included))
             {

@@ -63,7 +63,7 @@ class TissueSimulation
     // Allow tests to access private members, in order to test computation of
     // private functions eg. DoCellBirth
     friend class TestCryptSimulation2d;
-    friend class TestSprings3d;
+    friend class TestTissueSimulation3d;
 
 protected:
     /** TimeStep */
@@ -113,6 +113,7 @@ protected:
     //// this will eventually become:
     // AbstractDiscreteTissueMechanicsSystem<DIM>* mpMechanicsSystem;
     Meineke2001SpringSystem<DIM>* mpMechanicsSystem;
+
 public:
     /** Get access to the spring system, so the user can set options. THIS WILL
      *  HAVE TO BE REMOVED WHEN mpMechanicsSystem BECOMES 
@@ -125,53 +126,7 @@ public:
     }
 
 
-private:
-
-//// -> AbstractDiscreteTissueMechanicsSystem    
-//    /** Whether to have zero force if the cells are far enough apart */
-//    bool mUseCutoffPoint;
-//    /** Have zero force if the cells are this distance apart (and mUseCutoffPoint==true) */
-//    double mCutoffPoint;
-//
-//    /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
-//    bool mUseEdgeBasedSpringConstant;
-//    
-//    /** Whether to use a viscosity that is linear in the cell area, rather than constant */
-//    bool mUseAreaBasedViscosity;
-//
-//    /** Whether to use different stiffnesses depending on whether either cell is a mutant */
-//    bool mUseMutantSprings;
-//    /** Multiplier for spring stiffness if mutant */
-//    double mMutantMutantMultiplier;
-//    /** Multiplier for spring stiffness if mutant */
-//    double mNormalMutantMultiplier;
-//    /** Use springs which are dependent on beta-catenin levels */
-//    bool mUseBCatSprings; 
-
-    /**
-     * Calculates the forces on each node
-     *
-     * @return drdt the force components on each node
-     */
-//    virtual std::vector<c_vector<double, DIM> > CalculateVelocitiesOfEachNode();
-    
-    /**
-     * Calculates the force between two nodes.
-     * 
-     * Note that this assumes they are connected and is called by CalculateVelocitiesOfEachNode()
-     * 
-     * @param NodeAGlobalIndex
-     * @param NodeBGlobalIndex
-     * 
-     * @return The force exerted on Node A by Node B.
-     */
-//    c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex,unsigned nodeBGlobalIndex);
-
-//// ->   AbstractDiscreteTissueMechanicsSystem::NeedsTessellation();
-    /** Whether to do a voronoi tessellation every time step */
-//    bool mCreateVoronoiTessellation;
-
-
+protected:
 
 
     /** Whether to print out cell area and perimeter info */
@@ -205,15 +160,7 @@ private:
         archive & mNumBirths;
         archive & mNumDeaths;
         archive & mCellKillers;
-//        archive & mUseCutoffPoint;
-//        archive & mCutoffPoint;
         archive & mOutputCellTypes;
-//        archive & mUseEdgeBasedSpringConstant;
-//        archive & mUseAreaBasedViscosity;
-//        archive & mUseMutantSprings;
-//        archive & mMutantMutantMultiplier;
-//        archive & mNormalMutantMultiplier;
-//        archive & mCreateVoronoiTessellation;
         archive & mWriteVoronoiData;
         archive & mFollowLoggedCell;
     }
@@ -296,7 +243,6 @@ public:
     void SetOutputCellTypes(bool outputCellTypes);
 
     void SetReMeshRule(bool remesh); 
-
 
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
