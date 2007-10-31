@@ -3,6 +3,7 @@
 
 #include "TrianglesMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
+#include "PetscTools.hpp"
 
 const double mesh_width = 0.2; // cm
 
@@ -33,8 +34,6 @@ public:
         const std::string mesh_dir = "ConvergenceMesh";
         OutputFileHandler output_file_handler(mesh_dir);
         
-        std::string mesh_pathname;
-        std::string mesh_filename;
         // create the mesh
         unsigned mesh_size = (unsigned) pow(2, meshNum+2); // number of elements in each dimension
         double scaling = mesh_width/(double) mesh_size;
@@ -45,11 +44,17 @@ public:
         NumNodes = mesh.GetNumNodes();
         std::stringstream file_name_stream;
         file_name_stream<< "cube_" << DIM << "D_2mm_"<< NumElements <<"_elements";
-        mesh_filename = file_name_stream.str();
-        TrianglesMeshWriter<DIM,DIM> mesh_writer(mesh_dir, mesh_filename, false);           
-        mesh_writer.WriteFilesUsingMesh(mesh);
-        mesh_pathname = output_file_handler.GetOutputDirectoryFullPath()
-                                    + mesh_filename;
+        std::string mesh_filename = file_name_stream.str();
+        
+        if (output_file_handler.IsMaster())
+        {
+            TrianglesMeshWriter<DIM,DIM> mesh_writer(mesh_dir, mesh_filename, false);           
+            mesh_writer.WriteFilesUsingMesh(mesh);
+        }
+        PetscTools::Barrier();
+        
+        std::string mesh_pathname = output_file_handler.GetOutputDirectoryFullPath()
+                                  + mesh_filename;
                                     
         return mesh_pathname;
     }

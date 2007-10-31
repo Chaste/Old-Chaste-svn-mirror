@@ -23,12 +23,6 @@ class TestConvergenceTester : public CxxTest::TestSuite
 public:
     void Test1DOdeTime() throw(Exception)
     {
-         if (!PetscTools::IsSequential())
-        {
-            TS_FAIL("This test does not pass in parallel yet.");
-            MPI_Abort(PETSC_COMM_WORLD,0);
-            exit(0);
-        }
         OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
         tester.MeshNum=1;
         tester.Converge();
