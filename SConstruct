@@ -169,9 +169,11 @@ env.Replace(AR = build.tools['ar'])
 env.Replace(CPPPATH = cpppath)
 env['buildsig'] = build.GetSignature()
 
-env.Default('.')
-#for comp in components:
-#    env.Default(comp)
+
+if not single_test_suite:
+    # Default is to build everything
+    Default('.')
+
 
 # Create Builders for generating test .cpp files, and running test executables
 test = Builder(action = 'cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURCES')
