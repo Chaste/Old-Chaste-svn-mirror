@@ -28,11 +28,6 @@ public:
         return x[0];
     }
     
-    double ComputeNonlinearSourceTerm(ChastePoint<2>, double )
-    {
-        return 0.0;
-    }
-    
     c_matrix<double,2,2> ComputeDiffusionTerm(ChastePoint<2> x)
     {
         return identity_matrix<double>(2);

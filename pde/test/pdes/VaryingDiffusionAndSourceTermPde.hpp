@@ -30,11 +30,6 @@ public:
         return pow(DistanceFromOrigin(x),3);
     }
     
-    double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> , double )
-    {
-        return 0.0;
-    }
-    
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> x)
     {
         return pow(DistanceFromOrigin(x),2)*identity_matrix<double>(SPACE_DIM);

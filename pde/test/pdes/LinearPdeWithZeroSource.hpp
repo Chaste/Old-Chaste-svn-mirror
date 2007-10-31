@@ -16,11 +16,6 @@ public:
         return 0.0;
     }
     
-    double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> x, double u)
-    {
-        return 0.0;
-    }
-    
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> x)
     {
         return identity_matrix<double>(SPACE_DIM);

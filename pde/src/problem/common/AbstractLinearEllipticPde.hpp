@@ -40,13 +40,6 @@ public:
      * @param x The point in space at which the Linear Source Term is computed.
      */
     virtual double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> x)=0;
-    
-    /**
-    * Compute Nonlinear Source Term.
-    * @param x The point in space at which the Nonlinear Source Term is computed.
-    */
-    virtual double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> x,
-                                              double u)=0;
                                               
     /**
      * Compute Diffusion Term.
@@ -59,11 +52,7 @@ public:
     // - The following is defined in AbstractLinearParabolicPde, which inherits this class
     // - Compute the coefficient c(x) of du/dt
     //virtual double ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM> x)=0;
-    
-    virtual double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double u)
-    {
-        return ComputeNonlinearSourceTerm(node.GetPoint(), u);
-    }
+ 
     
     virtual double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& node)
     {

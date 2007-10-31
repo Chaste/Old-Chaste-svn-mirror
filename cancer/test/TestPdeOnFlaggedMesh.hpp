@@ -32,11 +32,6 @@ public:
         return -1;
     }
     
-    double ComputeNonlinearSourceTerm(ChastePoint<2> , double )
-    {
-        return 0.0;
-    }
-    
     c_matrix<double,2,2> ComputeDiffusionTerm(ChastePoint<2> )
     {
         return identity_matrix<double>(2);
@@ -114,73 +109,7 @@ public:
 
         // Set up boundary conditions
         FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(*p_mesh, 1.0);
-        
-/* NOTE: the following code solves a diffusion equation for the O2 concentration. 
- * 
- * However, 
- *   - the solution did not tend to the solution of the static problem as t became large,
- *   - for dt = 0.001 the solution was complete wrong, whereas for 0.1 it looked ok (very bad)
- *   - for dudt coeff = 1 the solution was wrong
- * 
- * These are all probably due to bad scaling leading to what is too coarse a mesh
- */ 
-        
-//        ////////////////////////////////////////////////////////
-//        // solve with diffusion equation
-//        ////////////////////////////////////////////////////////
-//        
-//        // Instantiate PDE object
-//        SimpleDiffusionPde pde;
-//        
-//        // Initial condition, u=1
-//        double value = 1.0 ;
-//        // include PetscTools.hpp for this
-//        Vec initial_condition = PetscTools::CreateVec(p_mesh->GetNumNodes(),value);
-//
-//        DistributedVector::SetProblemSize(p_mesh->GetNumNodes());
-//
-//        // Set up boundary conditions
-//        FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(*p_mesh, 1.0);
-//
-//        // Assembler for fine mesh flagged region
-//        ParabolicFlaggedMeshAssembler<2> diffusion_assembler(p_mesh, &pde, &flagged_bcc);
-//        diffusion_assembler.SetTimes(0, 1, 0.1);
-//        diffusion_assembler.SetInitialCondition(initial_condition);
-//        
-//        Vec result_diffusion_restricted = diffusion_assembler.Solve();
-//        ReplicatableVector result_diffusion_repl(result_diffusion_restricted);
-//
-//        std::map<unsigned, unsigned>& map = diffusion_assembler.rGetSmasrmIndexMap();
-//        std::map<unsigned, unsigned>::iterator map_iter = map.begin();
-//
-//        std::vector<double> x1;
-//        std::vector<double> y1;
-//        std::vector<double> u1;
-//
-//        while (map_iter!=map.end())
-//        {
-//            unsigned node_index = map_iter->first;
-//            unsigned smasrm_index = map_iter->second;
-//
-//            x1.push_back(p_mesh->GetNode(node_index)->rGetLocation()[0]);
-//            y1.push_back(p_mesh->GetNode(node_index)->rGetLocation()[1]);
-//            u1.push_back(result_diffusion_repl[smasrm_index]);
-//
-//
-//            // check the node isn't a ghost node
-//            TS_ASSERT_EQUALS( ghost_node_indices.find(node_index), ghost_node_indices.end() );
-//            
-//            map_iter++;
-//        }
-//        
-//        std::vector<std::vector<double> > data1;
-//        data1.push_back(x1);
-//        data1.push_back(y1);
-//        data1.push_back(u1);
-//        
-//        SimpleDataWriter writer1("temp", "diffusion", data1);
-//        
-//        VecDestroy(initial_condition);        
+               
         
         ////////////////////////////////////////////////////////
         // solve with elliptic equation

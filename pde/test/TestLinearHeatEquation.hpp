@@ -21,16 +21,11 @@ public:
         ChastePoint<1> zero1(0);
         ChastePoint<2> zero2(0,0);
         ChastePoint<3> zero3(0,0,0);
-        double u = 2.0;
         
         LinearHeatEquationPde<1> heat_equation1;
         LinearHeatEquationPde<2> heat_equation2;
         LinearHeatEquationPde<3> heat_equation3;
-        
-        TS_ASSERT_DELTA(heat_equation1.ComputeNonlinearSourceTerm(zero1,u),0.0,1e-12);
-        TS_ASSERT_DELTA(heat_equation2.ComputeNonlinearSourceTerm(zero2,u),0.0,1e-12);
-        TS_ASSERT_DELTA(heat_equation3.ComputeNonlinearSourceTerm(zero3,u),0.0,1e-12);
-        
+                
         // diffusion matrices should be equal to identity
         c_matrix<double,1,1> diff1 = heat_equation1.ComputeDiffusionTerm(zero1);
         c_matrix<double,2,2> diff2 = heat_equation2.ComputeDiffusionTerm(zero2);

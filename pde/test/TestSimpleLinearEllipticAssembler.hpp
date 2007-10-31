@@ -133,12 +133,8 @@ public:
         // Instantiate PDE object
         LinearHeatEquationPde<1> pde;
         
-        // test ComputeNonlinearSourceTermAtNode() on the pde (for coverage)
-        double value1 = pde.ComputeNonlinearSourceTermAtNode(*(mesh.GetNode(0)),3.2);
-        double value2 = pde.ComputeNonlinearSourceTerm(mesh.GetNode(0)->GetPoint(),3.2);
-        TS_ASSERT_DELTA(value1, value2, 1e-10);
-        value1 = pde.ComputeLinearSourceTermAtNode(*(mesh.GetNode(0)));
-        value2 = pde.ComputeLinearSourceTerm(mesh.GetNode(0)->GetPoint());
+        double value1 = pde.ComputeLinearSourceTermAtNode(*(mesh.GetNode(0)));
+        double value2 = pde.ComputeLinearSourceTerm(mesh.GetNode(0)->GetPoint());
         TS_ASSERT_DELTA(value1, value2, 1e-10);
         
         // Boundary conditions

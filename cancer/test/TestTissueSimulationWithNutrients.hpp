@@ -21,17 +21,16 @@
 class SimplePdeForTesting : public AbstractNonlinearEllipticPde<2>
 {
 public:
-
     double ComputeLinearSourceTerm(ChastePoint<2> )
     {
         return -0.1;
     }
-    
-    double ComputeNonlinearSourceTerm(ChastePoint<2> , double u)
+
+    double ComputeNonlinearSourceTerm(ChastePoint<2> , double )
     {
         return 0.0;
     }
-    
+
     c_matrix<double,2,2> ComputeDiffusionTerm(ChastePoint<2> , double u)
     {
         return identity_matrix<double>(2);

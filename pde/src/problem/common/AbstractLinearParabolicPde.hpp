@@ -21,13 +21,22 @@ public:
      */
     virtual double ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM> x)=0;
     
+    
+    /**
+    * Compute Nonlinear Source Term.
+    * @param x The point in space at which the Nonlinear Source Term is computed.
+    */
+    virtual double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> x,
+                                              double u)=0;
+
+    virtual double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double u)
+    {
+        return ComputeNonlinearSourceTerm(node.GetPoint(), u);
+    }
+
     // The methods below are pure methods inherited from AbstractLinearEllipticPde:
     //virtual double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> x)=0;
-    //virtual double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> x,
-    //                                          double u)=0;
     //virtual MatrixDouble ComputeDiffusionTerm(ChastePoint<SPACE_DIM> x)=0;
-    
-    
 };
 
 #endif //_ABSTRACTLINEARPARABOLICPDE_HPP_
