@@ -11,22 +11,22 @@ AbstractCellCycleModel *FixedCellCycleModel::CreateCellCycleModel()
 
 void FixedCellCycleModel::ResetModel()
 {
-    mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
+	mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
     SetG1Duration();
 }
 
 void FixedCellCycleModel::SetCell(TissueCell* pCell)
 {
     AbstractCellCycleModel::SetCell(pCell);
-    SetG1Duration();
+    // This method should only be called once per cell cycle model - when it is created so G1Duration can be set here.
+    SetG1Duration();	
 }
 
 void FixedCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
-    
     CancerParameters* p_params = CancerParameters::Instance(); 
-    
+	    
     switch (mpCell->GetCellType())
     {
         case STEM:
@@ -48,6 +48,7 @@ void FixedCellCycleModel::SetG1Duration()
 
 bool FixedCellCycleModel::ReadyToDivide()
 {
+	assert(mpCell != NULL);
     bool ready = false;
     
     CancerParameters *p_params = CancerParameters::Instance();

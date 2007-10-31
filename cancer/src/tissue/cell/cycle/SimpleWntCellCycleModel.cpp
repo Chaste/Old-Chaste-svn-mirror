@@ -10,7 +10,8 @@ AbstractCellCycleModel *SimpleWntCellCycleModel::CreateCellCycleModel()
     return new SimpleWntCellCycleModel(mG1Duration);  
 }
 
-/* The G1 duration is taken from a normal distribution, whose mean is
+/** 
+ * The G1 duration is taken from a normal distribution, whose mean is
  * the G1 duration given in CancerParameters for the cell type, and 
  * whose standard deviataion is 1. 
  */  
@@ -23,8 +24,8 @@ void SimpleWntCellCycleModel::SetG1Duration()
     
     switch (mpCell->GetCellType())
     {
-        case STEM:
-            mG1Duration = p_gen->NormalRandomDeviate(p_params->GetStemCellG1Duration(),1.0);            
+        case STEM:	// STEM cells should behave just like transit cells in a Wnt simulation...
+            mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(),1.0);            
             break;
         case TRANSIT:
             mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(),1.0);
@@ -39,7 +40,6 @@ void SimpleWntCellCycleModel::SetG1Duration()
             NEVER_REACHED;
     }
     
-    std::cout << "\n G1 duration = " << mG1Duration << "\n" << std::flush;
 }
 
 bool SimpleWntCellCycleModel::ReadyToDivide()

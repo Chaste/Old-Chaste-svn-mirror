@@ -66,12 +66,15 @@ public:
      * @param generation  its generation
      * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
+     * @param archiving  whether this constructor is being called by the archiver - do things slightly differently!
      */  
      
     TissueCell(CellType cellType,
                CellMutationState mutationState,
                unsigned generation,
-               AbstractCellCycleModel *pCellCycleModel);
+               AbstractCellCycleModel *pCellCycleModel,
+               bool archiving = false);
+               
     /**
      * Destructor, which frees the memory allocated for our cell cycle model.
      */
@@ -172,9 +175,10 @@ inline void load_construct_data(
     ar >> mutation_state;
     ar >> generation;
     ar >> p_cell_cycle_model;
+    bool archiving = true;
     // invoke inplace constructor to initialize instance
     ::new(t)TissueCell(cell_type, mutation_state, generation,
-                             p_cell_cycle_model);
+                             p_cell_cycle_model, archiving);
 }
 }
 } // namespace ...

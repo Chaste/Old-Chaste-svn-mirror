@@ -8,6 +8,7 @@
 #include "CellTypes.hpp"
 #include "CellCyclePhases.hpp"
 #include "SimulationTime.hpp"
+#include "CancerParameters.hpp"
 #include "TissueCell.hpp"
 #include <vector>
 
@@ -24,12 +25,19 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & mBirthTime;
-        // Make sure the simulation time gets saved too
+        // Make sure the simulation and cancer parameters get saved too
         SimulationTime* p_time = SimulationTime::Instance();
         archive & *p_time;
+        archive & p_time;
+        CancerParameters* p_params = CancerParameters::Instance();
+        archive & *p_params;
+        archive & p_params;
+        
         // DO NOT archive & mpCell; -- The CellCycleModel is only ever archived from the Cell 
         // which knows this and it is handled in the load_construct of TissueCell.
+        archive & mCurrentCellCyclePhase;
     }
+    
 protected:
     TissueCell* mpCell;
     double mBirthTime; // Time to start model from

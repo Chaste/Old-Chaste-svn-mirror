@@ -12,7 +12,7 @@ AbstractCellCycleModel *StochasticCellCycleModel::CreateCellCycleModel()
 void StochasticCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
-    
+     
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance(); 
     
     switch (mpCell->GetCellType())
@@ -32,4 +32,5 @@ void StochasticCellCycleModel::SetG1Duration()
         default:
             NEVER_REACHED;
     }
+    //mIsG1DurationSet = true;
 }

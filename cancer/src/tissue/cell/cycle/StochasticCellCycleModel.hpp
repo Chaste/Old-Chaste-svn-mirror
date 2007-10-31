@@ -20,9 +20,10 @@ private:
         
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
+        archive & p_gen;
     }
     
-    /** Private constructor for creating an identical daughter cell */
+    /** Constructor for creating an identical daughter cell */
     StochasticCellCycleModel(double g1Duration)
         : FixedCellCycleModel(g1Duration) {};
     

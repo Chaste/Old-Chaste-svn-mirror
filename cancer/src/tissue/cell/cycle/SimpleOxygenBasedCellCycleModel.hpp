@@ -20,9 +20,6 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        // Make sure the singletons we use are archived
-        CancerParameters* p_params = CancerParameters::Instance();
-        archive & *p_params;
         archive & mTimeSpentInG1Phase;
         archive & mG1Duration;   
     }

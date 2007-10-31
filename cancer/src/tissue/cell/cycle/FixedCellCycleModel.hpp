@@ -19,19 +19,20 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        // Make sure the singletons we use are archived
-        CancerParameters* p_params = CancerParameters::Instance();
-        archive & *p_params;
-        
-        archive & mG1Duration;        
+    	archive & mG1Duration;
     }
+    
     
 protected:    
 
     /** Protected constructor for creating an identical daughter cell */
     FixedCellCycleModel(double g1Duration)
         :mG1Duration(g1Duration) {};
-        
+    
+    /**
+     * The duration of the G1 phase of the cell cycle. This is set once a cell
+     * cycle model has been told what cell it belongs to.
+     */    
     double mG1Duration;
     
     virtual void SetG1Duration();

@@ -7,7 +7,8 @@
 TissueCell::TissueCell(CellType cellType,
                                    CellMutationState mutationState,
                                    unsigned generation,
-                                   AbstractCellCycleModel *pCellCycleModel)
+                                   AbstractCellCycleModel *pCellCycleModel,
+                                   bool archiving)
         : mpCellCycleModel(pCellCycleModel)
 {
     if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
@@ -29,7 +30,15 @@ TissueCell::TissueCell(CellType cellType,
     mDeathTime = DBL_MAX; // this has to be initialised for archiving...
     mNodeIndex = (unsigned)(-1); // initialise to a silly value for archiving (avoid memory check error)
     mIsLogged = false;
-    mpCellCycleModel->SetCell(this);
+    if (archiving)
+    {	// If we are called by the archiver ONLY set the cell (as in abstract class)
+    	// don't reset the cell cycle variables as the standard set cell might.
+    	mpCellCycleModel->AbstractCellCycleModel::SetCell(this);
+    }
+    else
+    {
+    	mpCellCycleModel->SetCell(this);
+    }
     mHypoxicDuration = 0.0;
 }
 

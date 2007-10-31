@@ -19,6 +19,10 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<WntCellCycleModel>(*this);
+        
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        archive & *p_gen;
+        archive & p_gen;
     }
     
     /**
