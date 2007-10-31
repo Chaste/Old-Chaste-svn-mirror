@@ -323,11 +323,7 @@ double BackwardEulerLuoRudyIModel1991::GetIIonic()
     double fast_sodium_current_i_Na = fast_sodium_current_g_Na*pow(fast_sodium_current_m_gate_m, 3.0)*fast_sodium_current_h_gate_h*fast_sodium_current_j_gate_j*(membrane_V-fast_sodium_current_E_Na);
     double slow_inward_current_E_si = 7.7-13.0287*log(intracellular_calcium_concentration_Cai);
 
-
-
     double slow_inward_current_i_si = 0.09*slow_inward_current_d_gate_d*slow_inward_current_f_gate_f*(membrane_V-slow_inward_current_E_si);
-    assert( !isnan(slow_inward_current_E_si));
-
     
     double time_dependent_potassium_current_g_K = 0.282*sqrt(ionic_concentrations_Ko/5.4);
     double time_dependent_potassium_current_Xi_gate_Xi;
@@ -344,6 +340,7 @@ double BackwardEulerLuoRudyIModel1991::GetIIonic()
         time_dependent_potassium_current_Xi_gate_Xi = 1.0;
         #undef COVERAGE_IGNORE
     }
+
     double time_dependent_potassium_current_E_K = ((membrane_R*membrane_T)/membrane_F)*log((ionic_concentrations_Ko+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nao)/(ionic_concentrations_Ki+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nai));
     double time_dependent_potassium_current_i_K = time_dependent_potassium_current_g_K*time_dependent_potassium_current_X_gate_X*time_dependent_potassium_current_Xi_gate_Xi*(membrane_V-time_dependent_potassium_current_E_K);
     
@@ -360,12 +357,6 @@ double BackwardEulerLuoRudyIModel1991::GetIIonic()
     
     double i_ionic = fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b;
 
-    assert( !isnan(fast_sodium_current_i_Na));
-    assert( !isnan(slow_inward_current_i_si));
-    assert( !isnan(time_dependent_potassium_current_i_K));
-    assert( !isnan(time_independent_potassium_current_i_K1));
-    assert( !isnan(plateau_potassium_current_i_Kp));
-    assert( !isnan(background_current_i_b));
     assert( !isnan(i_ionic));
     return i_ionic;
 }

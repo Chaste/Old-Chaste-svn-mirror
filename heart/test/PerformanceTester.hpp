@@ -87,7 +87,6 @@ public:
 
         try
         {
-            std::cout << "trying..." << std::flush;
             cardiac_problem.Solve();
         }
         catch (Exception e)
