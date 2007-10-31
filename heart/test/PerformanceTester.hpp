@@ -1,5 +1,5 @@
-#ifndef ABSTRACTCONVERGENCETESTER_HPP_
-#define ABSTRACTCONVERGENCETESTER_HPP_
+#ifndef PERFORMANCETESTER_HPP_
+#define PERFORMANCETESTER_HPP_
 
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
@@ -68,7 +68,8 @@ public:
             prev_mesh_num = MeshNum;
         }
         
-        GeneralPlaneStimulusCellFactory<CELL, DIM> cell_factory(OdeTimeStep, mNumElements);
+        unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2);
+        GeneralPlaneStimulusCellFactory<CELL, DIM> cell_factory(OdeTimeStep, mesh_size);
         CARDIAC_PROBLEM cardiac_problem(&cell_factory);
         
         cardiac_problem.SetMeshFilename(mesh_pathname);
@@ -131,4 +132,4 @@ private:
     unsigned mNumElements;
 
 };
-#endif /*ABSTRACTCONVERGENCETESTER_HPP_*/
+#endif /*PERFORMANCETESTER_HPP_*/

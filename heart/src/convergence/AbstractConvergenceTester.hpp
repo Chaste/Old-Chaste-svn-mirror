@@ -165,6 +165,9 @@ public:
             
       	    DisplayRun();
             
+            //// use this to get some info printed out
+            //cardiac_problem.SetWriteInfo();
+            
             try
             {
                 cardiac_problem.Solve();

@@ -30,7 +30,6 @@ public:
         TS_ASSERT_EQUALS(tester.MeshNum, 6u); 
     }
 
-
 };
 
 #endif /*TEST2DCONVERGENCE_HPP_*/
