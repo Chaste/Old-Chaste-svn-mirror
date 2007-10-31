@@ -75,6 +75,7 @@ for gcda_file in gcda_files:
 
 # Now find all our source files
 src_dirs = glob.glob('*/src')
+src_dirs.remove('dealii/src')
 src_files = []
 for src_dir in src_dirs:
     for dirpath, dirnames, filenames in os.walk(src_dir):
