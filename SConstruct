@@ -97,7 +97,8 @@ comp_deps = {'cancer': ['ode', 'mesh', 'linalg', 'io', 'global'],
              'linalg': ['global'],
              'ode': ['linalg', 'io', 'global'],
              'io': ['global'],
-             'global': []}
+             'global': [],
+             'core': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global']}
 components = ['cancer', 'heart', 'pde', 'ode',
                'mesh', 'linalg', 'io', 'global']
 if build.using_dealii:
@@ -220,6 +221,14 @@ for toplevel_dir in components:
     if not os.path.exists(bld_dir):
         os.mkdir(bld_dir)
     test_depends.append(SConscript('SConscript', src_dir=toplevel_dir, build_dir=bld_dir,
+                                   duplicate=0))
+
+# Any user projects?
+for project in glob.glob('projects/[_a-zA-z]*'):
+    bld_dir = os.path.join(project, 'build', build_dir)
+    if not os.path.exists(bld_dir):
+        os.mkdir(bld_dir)
+    test_depends.append(SConscript('SConscript', src_dir=project, build_dir=bld_dir,
                                    duplicate=0))
 
 
