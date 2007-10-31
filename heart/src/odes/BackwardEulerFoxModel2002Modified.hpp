@@ -86,7 +86,7 @@ public:
     {
     }
 
-    void VerifyGatingVariables() {}
+    void VerifyStateVariables() {}
 
     double GetIIonic()
     {

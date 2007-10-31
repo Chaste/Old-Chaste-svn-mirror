@@ -77,7 +77,7 @@ public:
      *  Check that none of the gating variables have gone out of range. Throws an
      *  Exception if any have.
      */
-    void VerifyGatingVariables();
+    void VerifyStateVariables();
 
     double GetIntracellularCalciumConcentration();
 };

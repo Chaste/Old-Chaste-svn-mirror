@@ -30,6 +30,12 @@ private:
     /*< Another parameter, which is a function of the above */
     double fast_sodium_current_E_Na;
 
+    /** 
+     *  Range-checking on the current values of the state variables. Make sure
+     *  all gating variables have are within zero and one, and all concentrations
+     *  are positive
+     */
+    void VerifyStateVariables();
     
 public:
     // Constructor

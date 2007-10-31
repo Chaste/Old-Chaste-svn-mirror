@@ -91,7 +91,7 @@ public:
      *  Check that none of the gating variables have gone out of range. Throws an
      *  Exception if any have.
      */
-    virtual void VerifyGatingVariables()=0;
+    virtual void VerifyStateVariables()=0;
     
 private:
 #define COVERAGE_IGNORE
@@ -175,7 +175,7 @@ OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::Compute(double tStart, doubl
         solutions.rGetTimes().push_back(curr_time+mDt);
         
         // check gating variables are still in range
-        VerifyGatingVariables();
+        VerifyStateVariables();
     }
     
     return solutions;
@@ -201,7 +201,7 @@ void AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double tStart,
         ComputeOneStepExceptVoltage(curr_time);
         
         // check gating variables are still in range
-        VerifyGatingVariables();
+        VerifyStateVariables();
     }
 }
 

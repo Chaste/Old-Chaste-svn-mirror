@@ -23,7 +23,6 @@ template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
 class PerformanceTester
 {
 private:
-
     void ConstructHyperCube(ConformingTetrahedralMesh<1,1> &rMesh, unsigned width)
     {
         rMesh.ConstructLinearMesh(width);
@@ -51,7 +50,6 @@ public:
     
     void Run()
     {
-        
         // Create the meshes on which the test will be based
         const std::string mesh_dir = "ConvergenceMesh";
         OutputFileHandler output_file_handler(mesh_dir);
@@ -89,6 +87,7 @@ public:
 
         try
         {
+            std::cout << "trying..." << std::flush;
             cardiac_problem.Solve();
         }
         catch (Exception e)
@@ -129,8 +128,6 @@ public:
 private:
     unsigned mNumNodes;
     unsigned mNumElements;
-    
-//    virtual ~AbstractConvergenceTester() {}
 
 };
 #endif /*ABSTRACTCONVERGENCETESTER_HPP_*/

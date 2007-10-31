@@ -17,8 +17,6 @@
 class TestPerformance : public CxxTest::TestSuite
 {   
 public:
-
-    
     void TestPerf() throw(Exception)
     {
         // write headings
@@ -31,12 +29,12 @@ public:
         tester.SimTime=4.0;
         tester.Run();
         EventHandler::Report();
-        
+
         // vary simulation time
         tester.SimTime=0.0025;
         tester.Run();
         EventHandler::Report();
-        
+
         tester.SimTime=8.0;
         tester.Run();
         EventHandler::Report();
@@ -56,11 +54,11 @@ public:
         // vary ode time step
         tester.OdeTimeStep=0.0025/2;
         tester.Run();
-        EventHandler::Report();        
- 
+        EventHandler::Report();       
+
         tester.OdeTimeStep=0.0025/4;
         tester.Run();
-        EventHandler::Report();        
+        EventHandler::Report();
 
         tester.OdeTimeStep=0.0025;
         
@@ -82,9 +80,7 @@ public:
         
         tester.MeshNum++;
         tester.Run();
-        EventHandler::Report();      
-        
-        
+        EventHandler::Report();        
     }
 };
 

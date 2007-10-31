@@ -88,43 +88,7 @@ void LuoRudyIModel1991OdeSystem::EvaluateYDerivatives(double time,
     double slow_inward_current_f_gate_f = rY[6];
     double time_dependent_potassium_current_X_gate_X = rY[7];
     
-    /*
-     * Compute the LuoRudyIModel1991OdeSystem model
-     */
-//#ifndef NDEBUG
-    #define COVERAGE_IGNORE
-    if (!(0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0))
-    {
-        EXCEPTION(DumpState("h gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize"));
-    }
-    
-    if (!(0.0<=fast_sodium_current_j_gate_j && fast_sodium_current_j_gate_j<=1.0))
-    {
-        EXCEPTION(DumpState("j gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize"));
-    }
-    
-    if (!(0.0<=fast_sodium_current_m_gate_m && fast_sodium_current_m_gate_m<=1.0))
-    {
-        EXCEPTION(DumpState("m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize"));
-    }
-    
-    if (!(0.0<=slow_inward_current_d_gate_d && slow_inward_current_d_gate_d<=1.0))
-    {
-        EXCEPTION(DumpState("d gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
-    }
-    
-    if (!(0.0<=slow_inward_current_f_gate_f && slow_inward_current_f_gate_f<=1.0))
-    {
-        EXCEPTION(DumpState("f gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
-    }
-    
-    if (!(0.0<=time_dependent_potassium_current_X_gate_X && time_dependent_potassium_current_X_gate_X<=1.0))
-    {
-        EXCEPTION(DumpState("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize"));
-    }
-    #undef COVERAGE_IGNORE
-//#endif
-    
+    VerifyStateVariables();    
     
     double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);
     
@@ -274,9 +238,9 @@ double LuoRudyIModel1991OdeSystem::GetIIonic()
     }
     else
     {
-#define COVERAGE_IGNORE
+        #define COVERAGE_IGNORE
         time_dependent_potassium_current_Xi_gate_Xi = 1.0;
-#undef COVERAGE_IGNORE
+        #undef COVERAGE_IGNORE
     }
     double time_dependent_potassium_current_E_K = ((membrane_R*membrane_T)/membrane_F)*log((ionic_concentrations_Ko+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nao)/(ionic_concentrations_Ki+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nai));
     double time_dependent_potassium_current_i_K = time_dependent_potassium_current_g_K*time_dependent_potassium_current_X_gate_X*time_dependent_potassium_current_Xi_gate_Xi*(membrane_V-time_dependent_potassium_current_E_K);
@@ -293,6 +257,59 @@ double LuoRudyIModel1991OdeSystem::GetIIonic()
     double plateau_potassium_current_i_Kp = plateau_potassium_current_g_Kp*plateau_potassium_current_Kp*(membrane_V-plateau_potassium_current_E_Kp);
     
     double i_ionic = fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b;
+    
+    assert(!isnan(i_ionic));
     return i_ionic;
 }
 
+void LuoRudyIModel1991OdeSystem::VerifyStateVariables()
+{
+//#ifndef NDEBUG
+    const std::vector<double>& rY = rGetStateVariables();
+ 
+    const double fast_sodium_current_h_gate_h = rY[0];            // gating
+    const double fast_sodium_current_j_gate_j = rY[1];            // gating
+    const double fast_sodium_current_m_gate_m = rY[2];            // gating
+    const double intracellular_calcium_concentration_Cai = rY[3]; // concentration
+    const double slow_inward_current_d_gate_d = rY[5];            // gating
+    const double slow_inward_current_f_gate_f = rY[6];            // gating
+    const double time_dependent_potassium_current_X_gate_X = rY[7]; // gating
+
+    #define COVERAGE_IGNORE
+    if (!(0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0))
+    {
+        EXCEPTION(DumpState("h gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize"));
+    }
+    
+    if (!(0.0<=fast_sodium_current_j_gate_j && fast_sodium_current_j_gate_j<=1.0))
+    {
+        EXCEPTION(DumpState("j gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize"));
+    }
+    
+    if (!(0.0<=fast_sodium_current_m_gate_m && fast_sodium_current_m_gate_m<=1.0))
+    {
+        EXCEPTION(DumpState("m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize"));
+    }
+
+    if (!(0.0<intracellular_calcium_concentration_Cai))
+    {
+        EXCEPTION(DumpState("intracellular_calcium_concentration_Cai has become non-positive, ie gone out of range. Check model parameters, for example spatial stepsize"));
+    }
+    
+    if (!(0.0<=slow_inward_current_d_gate_d && slow_inward_current_d_gate_d<=1.0))
+    {
+        EXCEPTION(DumpState("d gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
+    }
+    
+    if (!(0.0<=slow_inward_current_f_gate_f && slow_inward_current_f_gate_f<=1.0))
+    {
+        EXCEPTION(DumpState("f gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
+    }
+    
+    if (!(0.0<=time_dependent_potassium_current_X_gate_X && time_dependent_potassium_current_X_gate_X<=1.0))
+    {
+        EXCEPTION(DumpState("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize"));
+    }
+    #undef COVERAGE_IGNORE
+//#endif
+}
