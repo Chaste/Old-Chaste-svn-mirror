@@ -1,13 +1,6 @@
 import glob
 import os
 
-# Compatability with Python 2.3
-try:
-  set = set
-except NameError:
-  import sets
-  set = sets.Set
-
 Import("*")
 
 # Note that this script is executed from within the build/<something>/ folder
@@ -20,26 +13,12 @@ toplevel_dir = os.path.basename(os.path.dirname(os.path.dirname(curdir)))
 
 # Look for .cpp files within the src folder
 os.chdir('../..') # This is so .o files are built in `toplevel_dir'/build/<something>/
-files = []
-for dirpath, dirnames, filenames in os.walk('src'):
-  for filename in filenames:
-    if filename[-4:] == '.cpp':
-      files.append(os.path.join(dirpath, filename))
+files, _ = SConsTools.FindSourceFiles('src')
 
 # Look for source files that tests depend on under test/.
 # We also need to add any subfolders to the CPPPATH, so they are searched
 # for #includes.
-testsource = []
-test_cpppath = []
-for dirpath, dirnames, filenames in os.walk('test'):
-    for dirname in dirnames[:]:
-        if dirname in ['.svn', 'data']:
-            dirnames.remove(dirname)
-        else:
-            test_cpppath.append(os.path.join(dirpath, dirname))
-    for filename in filenames:
-        if filename[-4:] == '.cpp':
-            testsource.append(os.path.join(dirpath, filename))
+testsource, test_cpppath = SConsTools.FindSourceFiles('test', ignoreDirs=['data'])
 
 os.chdir(curdir)
 

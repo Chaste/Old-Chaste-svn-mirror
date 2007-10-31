@@ -19,13 +19,23 @@ Help("""
 import sys
 import os
 import glob
-import socket 
+import socket
 
 sys.path.append('python')
 import BuildTypes
+import SConsTools
+Export('SConsTools')
 
 sys.path.append('python/hostconfig')
 import hostconfig
+
+# Compatability with Python 2.3
+try:
+  set = set
+except NameError:
+  import sets
+  set = sets.Set
+Export('set')
 
 # The type of build to perform (see python/BuildTypes.py for options)
 build_type = ARGUMENTS.get('build', 'default')
