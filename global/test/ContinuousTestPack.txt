@@ -8,6 +8,7 @@ TestOutputFileHandler.hpp
 TestPetscEvents.hpp
 TestPetSCSetup.hpp
 TestPetscTools.hpp
+TestPetscTools2.hpp
 TestRandomNumberGenerator.hpp
 TestReplicatableVector.hpp
 TestStaticPolymorphism.hpp

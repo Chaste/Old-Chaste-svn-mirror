@@ -5,7 +5,9 @@
 #include <string>
 #include <fstream>
 #include <unistd.h> //For rmdir()
+#include <petsc.h>
 #include "OutputFileHandler.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestOutputFileHandler : public CxxTest::TestSuite
 {
@@ -55,6 +57,26 @@ public:
         rmdir("somewhere_without_trailing_forward_slash");
         
         setenv("CHASTE_TEST_OUTPUT", chaste_test_output, 1/*Overwrite*/);
+    }
+    
+    void TestIsMaster(void)
+    {
+        // get an output file handler
+        OutputFileHandler handler("");
+        
+        PetscTruth is_there;
+        PetscInitialized(&is_there);
+        TS_ASSERT(is_there);
+        PetscInt my_rank;
+        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+        if (my_rank==0)
+        {
+            TS_ASSERT(handler.IsMaster());
+        }
+        else
+        {
+            TS_ASSERT(!handler.IsMaster());
+        }
     }
 };
 

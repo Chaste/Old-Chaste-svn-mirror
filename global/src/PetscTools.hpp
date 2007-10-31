@@ -26,6 +26,20 @@ public :
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
         return (num_procs==1);
     }
+    
+    /**
+     * If MPI is set up, perform a barrier synchronisation.
+     * If not, it's a noop.
+     */
+    static void Barrier()
+    {
+        PetscTruth is_there;
+        PetscInitialized(&is_there);
+        if (is_there)
+        {
+            PetscBarrier(PETSC_NULL);
+        }
+    }
  
     /**
      *  Create a vector of the specified size. SetFromOptions is called.

@@ -86,6 +86,10 @@ public:
                               unsigned number,
                               std::string fileFormat,
                               std::ios_base::openmode mode=std::ios::out | std::ios::trunc);
+    /**
+     * Returns true if this process is the master, or if running without Petsc i.e. in serial
+     */                          
+    bool IsMaster();
                               
 };
 

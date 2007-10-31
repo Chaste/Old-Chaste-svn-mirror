@@ -1,2 +1,3 @@
 TestDistributedVector.hpp
 TestReplicatableVector.hpp
+TestPetscTools.hpp

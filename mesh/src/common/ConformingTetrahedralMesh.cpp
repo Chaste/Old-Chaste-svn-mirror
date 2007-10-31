@@ -3,6 +3,10 @@
 
 #include "ConformingTetrahedralMesh.hpp"
 
+#ifndef SPECIAL_SERIAL
+#include "PetscTools.hpp"
+#endif //SPECIAL_SERIAL
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh()
 {}
@@ -1007,63 +1011,70 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     map.Resize(GetNumAllNodes());
     
     OutputFileHandler handler("");
-    out_stream node_file=handler.OpenOutputFile("temp.node");
+    std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
     
-    (*node_file)<<GetNumNodes()<<"\t" << SPACE_DIM << "\t0\t0\n";
-    
-    unsigned new_index = 0;
-    
-    for (unsigned i=0; i<GetNumAllNodes(); i++)
+    // Only the master process should do IO and call the mesher
+    if (handler.IsMaster())
     {
-        if (mNodes[i]->IsDeleted())
+        out_stream node_file=handler.OpenOutputFile("temp.node");
+        
+        (*node_file)<<GetNumNodes()<<"\t" << SPACE_DIM << "\t0\t0\n";
+        
+        unsigned new_index = 0;
+        
+        for (unsigned i=0; i<GetNumAllNodes(); i++)
         {
-            map.SetDeleted(i);
+            if (mNodes[i]->IsDeleted())
+            {
+                map.SetDeleted(i);
+            }
+            else
+            {
+                map.SetNewIndex(i,new_index);
+                new_index++;
+                const c_vector<double, SPACE_DIM> node_loc = mNodes[i]->rGetLocation();
+                (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1];
+                if (SPACE_DIM ==3)
+                {
+                    (*node_file)<<"\t"<<node_loc[2];
+                }
+                (*node_file)<<"\n";
+            }
+        }
+        
+        node_file->close();
+        
+        //system("cat /tmp/chaste/testoutput/temp.node");
+        
+        std::string binary_name;
+        if (SPACE_DIM==2)
+        {
+            binary_name="triangle";
         }
         else
         {
-            map.SetNewIndex(i,new_index);
-            new_index++;
-            const c_vector<double, SPACE_DIM> node_loc = mNodes[i]->rGetLocation();
-            (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1];
-            if (SPACE_DIM ==3)
-            {
-                (*node_file)<<"\t"<<node_loc[2];
-            }
-            (*node_file)<<"\n";
+            binary_name="tetgen";
+        }
+        std::string command =   "./bin/"+ binary_name +" -e "
+                              + full_name + "node"
+                              + " > /dev/null";
+        int return_value = system(command.c_str());
+        
+        if (return_value != 0)
+        {
+            // try remeshing again, this time without sending the output to /dev/null 
+            // (just so the error message is displayed in std output)
+            std::string command = "./bin/"+ binary_name +" -e " + full_name + "node";
+            system(command.c_str());
+            EXCEPTION("The triangle/tetgen mesher did not suceed in remeshing.");
         }
     }
-    
-    node_file->close();
-    
-    //system("cat /tmp/chaste/testoutput/temp.node");
-    
-    
-    std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
-    std::string binary_name;
-    if (SPACE_DIM==2)
-    {
-        binary_name="triangle";
-    }
-    else
-    {
-        binary_name="tetgen";
-    }
-    std::string command =   "./bin/"+ binary_name +" -e "
-                          + full_name + "node"
-                          + " > /dev/null";
-    int return_value = system(command.c_str());
-    
-    if (return_value != 0)
-    {
-        // try remeshing again, this time without sending the output to /dev/null 
-        // (just so the error message is displayed in std output)
-        std::string command = "./bin/"+ binary_name +" -e " + full_name + "node";
-        system(command.c_str());
-        EXCEPTION("The triangle/tetgen mesher did not suceed in remeshing.");
-    } 
+    // Wait for the new mesh to be available
+#ifndef SPECIAL_SERIAL
+    PetscTools::Barrier();
+#endif //SPECIAL_SERIAL
     
     // clear all current data
-    
     Clear();
     
     //Read the new mesh back from file
@@ -1125,39 +1136,49 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
     
     //Open a file for the elements
     OutputFileHandler handler("");
-    out_stream metis_file=handler.OpenOutputFile("metis.mesh");
     
-    (*metis_file)<<GetNumElements()<<"\t";
-    if (ELEMENT_DIM==2)
+    // Only the master process should do IO and call METIS
+    if (handler.IsMaster())
     {
-        (*metis_file)<<1<<"\n"; //1 is Metis speak for triangles
-    }
-    else
-    {
-        (*metis_file)<<2<<"\n"; //2 is Metis speak for tetrahedra
-    }
-    
-    for (unsigned i=0; i<(unsigned)GetNumElements(); i++)
-    {
-        for (unsigned j=0; j<ELEMENT_DIM+1; j++)
+        out_stream metis_file=handler.OpenOutputFile("metis.mesh");
+        
+        (*metis_file)<<GetNumElements()<<"\t";
+        if (ELEMENT_DIM==2)
         {
-            //Note the +1 since Metis wants meshes indexed from 1
-            (*metis_file)<<mElements[i]->GetNode(j)->GetIndex() + 1<<"\t";
+            (*metis_file)<<1<<"\n"; //1 is Metis speak for triangles
         }
-        (*metis_file)<<"\n";
+        else
+        {
+            (*metis_file)<<2<<"\n"; //2 is Metis speak for tetrahedra
+        }
+        
+        for (unsigned i=0; i<(unsigned)GetNumElements(); i++)
+        {
+            for (unsigned j=0; j<ELEMENT_DIM+1; j++)
+            {
+                //Note the +1 since Metis wants meshes indexed from 1
+                (*metis_file)<<mElements[i]->GetNode(j)->GetIndex() + 1<<"\t";
+            }
+            (*metis_file)<<"\n";
+        }
+        metis_file->close();
+        
+        
+        std::string convert_command   = "./bin/mesh2nodal "+handler.GetOutputDirectoryFullPath("")
+                                        + "metis.mesh"
+                                        + " > /dev/null";
+        system(convert_command.c_str());
+        
+        std::string permute_command   = "./bin/onmetis "+handler.GetOutputDirectoryFullPath("")
+                                        + "metis.mesh.ngraph"
+                                        + " > /dev/null";
+        system(permute_command.c_str());
     }
-    metis_file->close();
     
-    
-    std::string convert_command   = "./bin/mesh2nodal "+handler.GetOutputDirectoryFullPath("")
-                                    + "metis.mesh"
-                                    + " > /dev/null";
-    system(convert_command.c_str());
-    
-    std::string permute_command   = "./bin/onmetis "+handler.GetOutputDirectoryFullPath("")
-                                    + "metis.mesh.ngraph"
-                                    + " > /dev/null";
-    system(permute_command.c_str());
+    // Wait for the permutation to be available
+#ifndef SPECIAL_SERIAL
+    PetscTools::Barrier();
+#endif //SPECIAL_SERIAL
     
     //Read the permutation back into a std::vector
     std::string perm_file_name   = handler.GetOutputDirectoryFullPath("")

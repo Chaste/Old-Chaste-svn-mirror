@@ -67,6 +67,13 @@ public:
         
     }
     
+    void TestBarrier()
+    {
+        // Testing the barrier method is kind of tricky, since we really want
+        // to also check if it works when PETSc isn't set up.  So see TestPetscTools2.hpp!
+        PetscTools::Barrier();
+    }
+    
     void TestReplicateError()
     {
         DistributedVector::SetProblemSize(1);

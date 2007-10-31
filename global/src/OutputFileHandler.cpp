@@ -120,3 +120,8 @@ out_stream OutputFileHandler::OpenOutputFile(std::string fileName,
     string_stream << fileName << number << fileFormat;
     return OpenOutputFile(string_stream.str(), mode);
 }                                              
+
+bool OutputFileHandler::IsMaster()
+{
+    return mAmMaster;
+}
