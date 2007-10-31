@@ -84,7 +84,9 @@ public:
         cardiac_problem.SetPrintingTimeStep(PrintingTimeStep);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
         cardiac_problem.Initialise();
 
-
+        //// use this to get some info printed out
+        //cardiac_problem.SetWriteInfo();
+        
         try
         {
             cardiac_problem.Solve();
