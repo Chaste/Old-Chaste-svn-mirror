@@ -73,7 +73,7 @@ TestCryptSimulation2dRunner: TestCryptSimulation2dRunner.o ${LIBS}
 
 # A more useful test to label a cell near the bottom at random and follow mutation's progress.
 
-TestMutationSpreadRunner.cpp:	cancer/test/TestMutationSpread.hpp
+TestMutationSpreadRunner.cpp:	projects/GaryM/test/TestMutationSpread.hpp
 	cxxtest/cxxtestgen.py  --error-printer -o TestMutationSpreadRunner.cpp cancer/test/TestMutationSpread.hpp
 
 TestMutationSpreadRunner: TestMutationSpreadRunner.o ${LIBS}

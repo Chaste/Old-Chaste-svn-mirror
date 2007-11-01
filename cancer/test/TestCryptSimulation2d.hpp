@@ -26,7 +26,6 @@
 #include "CellsGenerator.hpp"
 
 
-
 class TestCryptSimulation2d : public CxxTest::TestSuite
 {
     /**
