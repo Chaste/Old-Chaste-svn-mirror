@@ -1,8 +1,7 @@
 #ifndef FIXEDCELLCYCLEMODEL_HPP_
 #define FIXEDCELLCYCLEMODEL_HPP_
 
-#include "AbstractCellCycleModel.hpp"
-#include "CancerParameters.hpp"
+#include "AbstractSimpleCellCycleModel.hpp"
 
 /**
  *  Fixed cell cycle model
@@ -11,50 +10,31 @@
  *  CancerParameters::StemCellG1Duration + SG2MDuration 
  *  and CancerParameters::TransitCellG1Duration + SG2MDuration)
  */
-class FixedCellCycleModel : public AbstractCellCycleModel
+class FixedCellCycleModel : public AbstractSimpleCellCycleModel
 {
 private:
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-    	archive & mG1Duration;
+        archive & boost::serialization::base_object<AbstractSimpleCellCycleModel>(*this);
     }
     
+    /**
+     * Private constructor for identical cells.
+     */
+    FixedCellCycleModel(double g1Duration):
+    	AbstractSimpleCellCycleModel(g1Duration) {};
     
 protected:    
-
-    /** Protected constructor for creating an identical daughter cell */
-    FixedCellCycleModel(double g1Duration)
-        :mG1Duration(g1Duration) {};
-    
-    /**
-     * The duration of the G1 phase of the cell cycle. This is set once a cell
-     * cycle model has been told what cell it belongs to.
-     */    
-    double mG1Duration;
-    
-    virtual void SetG1Duration();
     
 public:
 
     /**
-     * Default constructor - mBirthTime now set in AbstractCellCycleModel().
+     * Default constructor - mBirthTime now set in AbstractCellCycleModel()
+     * 						 mG1Duration now set in AbstractSimpleCellCycleModel()
      */
-    FixedCellCycleModel() :
-        mG1Duration(DBL_MAX) {};
-    
-    /** 
-     * Overridden SetCellMethod - also assigns a G1 duration based on the cell type.
-     * 
-     * @param pCell the cell which owns this model.
-     */
-    void SetCell(TissueCell* pCell);
-
-    virtual bool ReadyToDivide();
-    
-    virtual void ResetModel();
+    FixedCellCycleModel() {};
     
     AbstractCellCycleModel *CreateCellCycleModel(); 
     

@@ -17,6 +17,10 @@
 
 class TissueCell; // Circular definition (cells need to know about cycle models and vice-versa).
 
+/**
+ * The AbstractCellCycleModel contains basic information to all cell cycle models
+ * it handles assignment of birth time, cell cycle phase and a TissueCell. 
+ */
 class AbstractCellCycleModel
 {
 private:
