@@ -13,7 +13,6 @@ TestTissueSimulation3d.hpp
 TestTissue.hpp
 TestTissueCell.hpp
 TestTissueSimulationWithNutrients.hpp
-TestTumourSpheroid.hpp
 TestTysonNovak2001OdeSystem.hpp
 TestWntCellCycleOdeSystem.hpp
 TestCancerParameters.hpp

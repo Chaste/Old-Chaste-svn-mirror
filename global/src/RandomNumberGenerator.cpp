@@ -123,6 +123,11 @@ double RandomNumberGenerator::StandardNormalRandomDeviate(void)
             5.654656E-2,5.95313E-2,6.308489E-2,6.737503E-2,7.264544E-2,7.926471E-2,
             8.781922E-2,9.930398E-2,0.11556,0.1404344,0.1836142,0.2790016,0.7010474
         };
+
+    // this code does not have to be covered, being written by someone else and containing
+    // goto's anyway..
+    #define COVERAGE_IGNORE
+
     static long i;
     static double snorm,u,s,ustar,aa,w,y,tt;
     u = ranf();
@@ -193,4 +198,5 @@ S160:
     if (ustar >= u) goto S150;
     u = ranf();
     goto S140;
+    #undef COVERAGE_IGNORE
 }
