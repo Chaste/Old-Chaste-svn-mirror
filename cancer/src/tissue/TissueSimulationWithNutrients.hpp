@@ -8,6 +8,7 @@
 #include "AbstractNonlinearEllipticPde.hpp"
 #include "SimpleNonlinearEllipticAssembler.hpp"
 #include "CellwiseData.cpp"
+#include "PetscTools.hpp"
 
 template<unsigned DIM>
 class TissueSimulationWithNutrients : public TissueSimulation<DIM>
@@ -17,9 +18,10 @@ class TissueSimulationWithNutrients : public TissueSimulation<DIM>
     friend class TestTissueSimulationWithNutrients;
     
 private :
+    
     Vec mOxygenSolution;
 
-    AbstractNonlinearEllipticPde<DIM>* mpPde;
+    AbstractNonlinearEllipticPde<DIM>* mpPde;    
 
     void PostSolve()
     {
@@ -50,18 +52,74 @@ private :
         // (due to cell birth/death) - could we just add in the necessary number of 1.0's say? 
         Vec initial_guess;
         
-//        if(mOxygenSolution)
-//        {
-//            VecDuplicate(mOxygenSolution, &initial_guess);
-//            VecCopy(mOxygenSolution, initial_guess);
-//        }
-//        else
-//        {
-//            initial_guess = assembler.CreateConstantInitialGuess(1.0);
-//        }
-        
-        initial_guess = assembler.CreateConstantInitialGuess(1.0);
-        
+        // If we have a previous solution, then use 
+        // this as the basis for the initial guess 
+        if (mOxygenSolution)
+        {
+            // get the size of the previous solution
+            PetscInt isize;
+            VecGetSize(mOxygenSolution, &isize);
+            unsigned size_of_previous_solution = isize;  
+            
+            if (size_of_previous_solution != r_mesh.GetNumNodes() )
+            {
+                initial_guess = assembler.CreateConstantInitialGuess(1.0); 
+            }  
+            
+//            // if it's too small, then add the necessary number of extra entries
+//            if (size_of_previous_solution < r_mesh.GetNumNodes() )
+//            {
+//                std::cout << "Need to add entries to previous solution...\n" << std::flush;
+//                std::cout << "Previous solution size =" << size_of_previous_solution << "\n" << std::flush;
+//                std::cout << "Current solution size =" << r_mesh.GetNumNodes() << "\n" << std::flush;
+//                
+//                ReplicatableVector previous_solution(mOxygenSolution);
+//                std::vector<double> correctly_sized_guess;
+//                
+//                // use the previous solution
+//                for (unsigned i=0; i<size_of_previous_solution; i++)
+//                {
+//                    correctly_sized_guess.push_back(previous_solution[i]);
+//                }
+//                // and add the the necessary number of entries
+//                for (unsigned i=size_of_previous_solution; i<r_mesh.GetNumNodes(); i++)
+//                {
+//                    correctly_sized_guess.push_back(1.0);
+//                }
+//                initial_guess = PetscTools::CreateVec(correctly_sized_guess);
+//            }
+//            else if (size_of_previous_solution > r_mesh.GetNumNodes() )
+//            {
+//                std::cout << "Need to remove entries from previous solution...\n" << std::flush;
+//                std::cout << "Previous solution size =" << size_of_previous_solution << "\n" << std::flush;
+//                std::cout << "Current solution size =" << r_mesh.GetNumNodes() << "\n" << std::flush;
+//                
+//                ReplicatableVector previous_solution(mOxygenSolution);
+//                std::vector<double> correctly_sized_guess;
+//                
+//                // use the previous solution
+//                for (unsigned i=0; i<size_of_previous_solution; i++)
+//                {
+//                    correctly_sized_guess.push_back(previous_solution[i]);
+//                }
+//                // and remove the the necessary number of entries
+//                for (unsigned i=size_of_previous_solution; i<r_mesh.GetNumNodes(); i++)
+//                {
+//                    correctly_sized_guess.pop_back();
+//                }
+//                initial_guess = PetscTools::CreateVec(correctly_sized_guess);
+//            }
+            else
+            {
+                VecDuplicate(mOxygenSolution, &initial_guess);
+                VecCopy(mOxygenSolution, initial_guess);
+            }
+        }
+        else
+        {
+            initial_guess = assembler.CreateConstantInitialGuess(1.0);            
+        }
+                
         // solve the nutrient PDE
         mOxygenSolution = assembler.Solve(initial_guess);        
         ReplicatableVector result_repl(mOxygenSolution);
@@ -143,5 +201,26 @@ public:
             VecDestroy(mOxygenSolution);
         }
     }
+    
+    /*
+     * Records the final size of the mesh, for use in the visualizer
+     */    
+    void WriteFinalMeshSizeForVisualizer()
+    {
+        double time_now = SimulationTime::Instance()->GetDimensionalisedTime();
+        std::ostringstream time_string;
+        time_string << time_now;
+            
+        std::string results_directory = (this)->mOutputDirectory +"/results_from_time_" + time_string.str();
+        
+        OutputFileHandler output_file_handler(results_directory+"/vis_results/",false);
+        out_stream p_setup_file = output_file_handler.OpenOutputFile("results.vizsetup");
+        
+        *p_setup_file << "FinalMeshSize\t" << std::max((this)->mrTissue.rGetMesh().GetWidth(0u),(this)->mrTissue.rGetMesh().GetWidth(1u));
+        p_setup_file->close();
+    }
+    
+    
+    
 };
 #endif /*TISSUESIMULATIONWITHNUTRIENTS_HPP_*/

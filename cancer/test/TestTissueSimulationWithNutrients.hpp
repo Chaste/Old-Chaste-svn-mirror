@@ -15,7 +15,6 @@
 #include "ColumnDataReader.hpp"
 #include "SimulationTime.hpp"
 #include "OxygenBasedCellKiller.hpp"
-#include "PetscTools.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 
 class SimplePdeForTesting : public AbstractNonlinearEllipticPde<2>
@@ -58,7 +57,7 @@ public:
     
     double ComputeNonlinearSourceTerm(ChastePoint<2> , double u)
     {
-        return -u;
+        return -0.1*u;
     }
     
     c_matrix<double,2,2> ComputeDiffusionTerm(ChastePoint<2> , double u)
@@ -136,7 +135,7 @@ public:
         // set up tissue simulation
         TissueSimulationWithNutrients<2> simulator(tissue, &pde);
         simulator.SetOutputDirectory("TestPostSolve");
-        simulator.SetEndTime(0.1);
+        simulator.SetEndTime(1.0);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
         simulator.rGetMeinekeSystem().UseCutoffPoint(1.5);
@@ -179,14 +178,14 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
 
-        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        //RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
               
         // set up mesh
-        int num_cells_depth = 10;
-        int num_cells_width = 10;
+        int num_cells_depth = 5;
+        int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
                     
@@ -196,8 +195,8 @@ public:
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(HEPA_ONE, HEALTHY, 0, new SimpleOxygenBasedCellCycleModel());
-            double birth_time = -p_gen->ranf()*(p_params->GetHepaOneCellG1Duration()
-                                               +p_params->GetSG2MDuration());
+            double birth_time = -( (double) i/p_mesh->GetNumNodes() )*(p_params->GetHepaOneCellG1Duration()
+                                                                       +p_params->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -208,7 +207,7 @@ public:
         
         // set up cellwisedata and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
+        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         p_data->SetTissue(tissue);
         
         // set up PDE
@@ -226,10 +225,17 @@ public:
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);
                
-        // run tissue simulation and print out time taken    
-        double start_time = std::clock();
+        double start_time = std::clock();       
+        
+        // run tissue simulation 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        
+        // record final mesh size for visualizer
+        TS_ASSERT_THROWS_NOTHING(simulator.WriteFinalMeshSizeForVisualizer());
+                        
         double end_time = std::clock();
+        
+        // print out time taken to run tissue simulation    
         double elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "Time taken to perform simulation was = " << elapsed_time << "\n";
                         
@@ -239,6 +245,22 @@ public:
         RandomNumberGenerator::Destroy();
         CellwiseData<2>::Destroy();
     }
+    
+    /*
+     * This test compares the visualizer output from the previous test with a known file.
+     * 
+     * Note - if the previous test is changed we need to update the file this test refers to. 
+     */
+    void TestWriteFinalMeshSizeForVisualizerMethod() throw (Exception)
+    {
+        // work out where the previous test wrote its files
+        OutputFileHandler handler("TissueSimulationWithOxygen",false);
+        std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results";
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.vizelements cancer/test/data/TissueSimulationWithOxygen_vis/previous_results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.viznodes cancer/test/data/TissueSimulationWithOxygen_vis/previous_results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.vizsetup cancer/test/data/TissueSimulationWithOxygen_vis/previous_results.vizsetup").c_str()), 0);
+    }
+    
 
 };
 #endif /*TESTTISSUESIMULATIONWITHNUTRIENTS_HPP_*/

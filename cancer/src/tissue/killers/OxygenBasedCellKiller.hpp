@@ -37,7 +37,7 @@ private:
     }
     
 public:
-    OxygenBasedCellKiller(Tissue<SPACE_DIM>* pTissue, double concentration=0.6)
+    OxygenBasedCellKiller(Tissue<SPACE_DIM>* pTissue, double concentration=0.4)
         : AbstractCellKiller<SPACE_DIM>(pTissue),
           mHypoxicConcentration(concentration)
     {
