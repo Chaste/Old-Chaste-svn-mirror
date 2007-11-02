@@ -38,6 +38,7 @@ CellCyclePhase AbstractCellCycleModel::GetCurrentCellCyclePhase()
     return mCurrentCellCyclePhase;
 }
 
+#define COVERAGE_IGNORE
 double AbstractCellCycleModel::GetMembraneBoundBetaCateninLevel()
 {
     NEVER_REACHED;
@@ -55,6 +56,7 @@ double AbstractCellCycleModel::GetNuclearBetaCateninLevel()
     NEVER_REACHED;
     return 0.0;
 }
+#undef COVERAGE_IGNORE
 
 bool AbstractCellCycleModel::UsesBetaCat()
 {

@@ -58,6 +58,7 @@ TestMakeNiceCryptSimsRunner: TestMakeNiceCryptSimsRunner.o ${LIBS}
 	echo "Making new experiment in ${FRESH_DIR} " ;\
 	echo "Do scp -r -C ${FRESH_DIR} pmxgm@deimos.nottingham.ac.uk:" ;\
 	echo "Then qsub simulation.sh on deimos";\
+	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
 	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
 	cp TestMakeNiceCryptSimsRunner ${FRESH_DIR} ;\
 	cd ${FRESH_DIR}/bin ;\
@@ -81,6 +82,7 @@ TestMutationSpreadRunner: TestMutationSpreadRunner.o ${LIBS}
 	echo "Making new experiment in ${FRESH_DIR} " ;\
 	echo "Do scp -r -C ${FRESH_DIR} pmxgm@deimos.nottingham.ac.uk:" ;\
 	echo "Then qsub simulation.sh on deimos";\
+	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
 	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
 # Need to copy across the starting state of the simulation
 	mkdir ${FRESH_DIR}/NiceCryptSim; mkdir ${FRESH_DIR}/NiceCryptSim/archive ;\

@@ -1,8 +1,9 @@
 TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 TestCellwiseData.hpp
+TestCellCycleModelsOde.hpp
+TestCellCycleModelsSimple.hpp
 TestCryptSimulation1d.hpp
 TestCryptSimulation2d.hpp
-TestCellCycleModels.hpp
 TestCylindrical2dMesh.hpp
 TestHoneycombMeshGenerator.hpp
 TestIngeWntSwatCellCycleOdeSystem.hpp
