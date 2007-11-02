@@ -23,6 +23,9 @@ class Test2dConvergence : public CxxTest::TestSuite
 public:
     void Test2DSpace() throw(Exception)
     {
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
+        PetscOptionsSetValue("-options_table", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
         tester.StimulateRegion=true;
         tester.Converge();
