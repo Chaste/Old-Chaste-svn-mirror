@@ -35,7 +35,7 @@ void TestRepresentativeSimulationForProfiling() throw (Exception)
         p_simulation_time->SetStartTime(0.0);
 
         std::string test_to_profile = "NiceCryptSim";
-        double t = 400;   // this is the folder and time that the stored results were archived (needed to know foldernames)
+        double t = 150;   // this is the folder and time that the stored results were archived (needed to know foldernames)
         double run_for = 10; // run for 10 hours.
         
         // The archive needs to be copied from cancer/test/data/<test_to_profile>
