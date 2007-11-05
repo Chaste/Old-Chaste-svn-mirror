@@ -766,8 +766,6 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
             {   // For any type of cell set the colour to this if it is undergoing apoptosis.
                 colour = 6;   
             }
-            
-            
         }
         
         if (!mrMesh.GetNode(index)->IsDeleted())

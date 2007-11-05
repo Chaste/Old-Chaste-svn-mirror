@@ -23,6 +23,7 @@
 #include "RandomNumberGenerator.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
+#include "RadialSloughingCellKiller.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "CellsGenerator.hpp"
 
@@ -242,6 +243,73 @@ public:
     }   
     
     
+    void TestRadialSloughingCellKiller(void) throw(Exception)
+    {        
+        // read in mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.Translate(-0.5,-0.5);
+        
+        // get centre of mesh (we know it's at the origin, really)
+        c_vector<double,2> centre(2);
+        centre[0] = 0.0;
+        centre[1] = 0.0;         
+        for (unsigned i=0; i< mesh.GetNumNodes(); i++)
+        {
+            centre += mesh.GetNode(i)->rGetLocation();    
+        }
+        centre = centre/mesh.GetNumNodes();
+        
+        // choose radius of death (!)
+        double radius = 0.4;
+        
+        // set up simulation time       
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // set up cells
+        std::vector<TissueCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        Tissue<2> tissue(mesh, cells);        
+
+		// set up cell killer
+        RadialSloughingCellKiller radial_cell_killer(&tissue, centre, radius);
+        radial_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
+
+		// check that cells are being labelled for death correctly 
+        for(Tissue<2>::Iterator cell_iter = tissue.Begin();
+            cell_iter!=tissue.End();
+            ++cell_iter)
+        {
+            double r = norm_2(cell_iter.rGetLocation() - centre);
+            
+            if( r > radius )
+            {
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), false);
+            }
+        }
+  
+  		// now get rid of dead cells
+        tissue.RemoveDeadCells();
+
+		// check that we are correctly left with cells inside the circle of death
+        for(Tissue<2>::Iterator cell_iter = tissue.Begin();
+            cell_iter!=tissue.End();
+            ++cell_iter)
+        {
+            double r = norm_2(cell_iter.rGetLocation() - centre);            
+            TS_ASSERT_LESS_THAN_EQUALS(r, radius);
+        }
+
+		// tidy up
+        SimulationTime::Destroy();
+    }  
+    
     void TestOxygenBasedCellKiller(void) throw(Exception)
     {        
         CancerParameters::Instance()->Reset();   
@@ -425,6 +493,58 @@ public:
             TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);
             TS_ASSERT_DELTA(p_cell_killer->GetCryptLength(), 10.0, 1e-9);
             TS_ASSERT_DELTA(p_cell_killer->GetCryptWidth(), 5.0, 1e-9);
+            delete p_cell_killer;
+        }  
+    }
+    
+    
+    void TestArchivingOfRadialSloughingCellKiller() throw (Exception)
+    {
+        OutputFileHandler handler("archive", false);    // don't erase contents of folder
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "radial_killer.arch";
+       
+       	c_vector<double,2> centre(2);
+        centre[0] = 0.1;
+        centre[1] = 0.2;         
+                
+        double radius = 0.4;
+
+        {
+            // Create an ouput archive
+            RadialSloughingCellKiller cell_killer(NULL, centre, radius);
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Serialize via pointer
+            RadialSloughingCellKiller * const p_cell_killer = &cell_killer;
+            output_arch << p_cell_killer;
+
+            TS_ASSERT_DELTA(p_cell_killer->GetCentre()[0], 0.1, 1e-9);
+            TS_ASSERT_DELTA(p_cell_killer->GetCentre()[1], 0.2, 1e-9);
+            TS_ASSERT_DELTA(p_cell_killer->GetRadius(), 0.4, 1e-9);
+        }
+
+		// change centre and radius prior to restoring the cell killer
+		centre[0] = 0.0;
+        centre[1] = 0.0; 
+        radius = 0.0;
+        
+        {
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+           
+            RadialSloughingCellKiller* p_cell_killer;
+
+            // restore from the archive
+            input_arch >> p_cell_killer;
+           
+            // test we have restored the sloughing properties correctly.
+            TS_ASSERT_DELTA(p_cell_killer->GetCentre()[0], 0.1, 1e-9);
+            TS_ASSERT_DELTA(p_cell_killer->GetCentre()[1], 0.2, 1e-9);
+            TS_ASSERT_DELTA(p_cell_killer->GetRadius(), 0.4, 1e-9);
             delete p_cell_killer;
         }  
     }
