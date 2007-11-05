@@ -105,6 +105,47 @@ public:
         WntGradient::Destroy();
     }
     
+    
+    void TestRadialWntGradient() throw(Exception)
+    {
+        CancerParameters::Instance()->Reset();
+
+        WntGradient* p_wnt_gradient = WntGradient::Instance();
+        p_wnt_gradient->SetType(RADIAL);
+
+        CancerParameters *params = CancerParameters::Instance();
+        
+        double height = 100;
+        double wnt_level = 0.0;
+        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        
+        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
+        
+        height = -1e-12;
+        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        TS_ASSERT_DELTA(wnt_level, 1.0, 1e-9);        
+        
+        height = 21.0;
+        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        
+        TS_ASSERT_DELTA(wnt_level, 0.0 , 1e-9);
+        
+        params->SetCryptLength(10.0);
+        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
+        // under a third of the way up the crypt.
+        params->SetCryptLength(22.0);
+        height = 7.0;
+        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        TS_ASSERT_DELTA(wnt_level , 1.0 - height/((1.0/3.0)*params->GetCryptLength()) , 1e-9);
+        // more than a third of the way up the crypt.
+        height = 10.0;
+        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
+        
+        WntGradient::Destroy();
+    }
+    
     void TestArchiveWntGradient()
     {
         CancerParameters::Instance()->Reset();

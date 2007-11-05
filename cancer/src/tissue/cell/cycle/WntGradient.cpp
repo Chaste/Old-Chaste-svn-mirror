@@ -56,7 +56,17 @@ double WntGradient::GetWntLevel(TissueCell* pCell)
     assert(mpTissue!=NULL);
     assert(mTypeSet);
     assert(pCell!=NULL);
-    double height=(mpTissue->GetLocationOfCell(*pCell))(1);// y-coord.
+    
+    double height;
+    
+    if (mGradientType==RADIAL)
+    {
+    	height=norm_2(mpTissue->GetLocationOfCell(*pCell));// distance from origin
+    }
+    else
+    {
+    	height=(mpTissue->GetLocationOfCell(*pCell))(1);// y-coord.
+    }
     return GetWntLevel(height);
 }
 
@@ -108,7 +118,7 @@ double WntGradient::GetWntLevel(double height)
     }
     
     // An offset Wnt gradient - reaches zero at 2/3 of way up crypt
-    if (mGradientType==OFFSET_LINEAR)
+    if (mGradientType==OFFSET_LINEAR || mGradientType==RADIAL)
     {
         double crypt_height = mpCancerParams->GetCryptLength();
         double top_of_gradient = 1.0/3.0; // of crypt height.
