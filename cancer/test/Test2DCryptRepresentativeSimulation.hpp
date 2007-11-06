@@ -38,6 +38,9 @@ void TestRepresentativeSimulationForProfiling() throw (Exception)
         double t = 150;   // this is the folder and time that the stored results were archived (needed to know foldernames)
         double run_for = 10; // run for 10 hours.
         
+        // create a new clean directory...
+        OutputFileHandler file_handler(test_to_profile,true);   
+        
         // The archive needs to be copied from cancer/test/data/<test_to_profile>
         // to the testoutput directory to continue running the simulation.     
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
