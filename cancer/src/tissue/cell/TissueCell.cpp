@@ -40,6 +40,7 @@ TissueCell::TissueCell(CellType cellType,
     	mpCellCycleModel->SetCell(this);
     }
     mHypoxicDuration = 0.0;
+    mSymmetricDivision = false;
 }
 
 void TissueCell::CommonCopy(const TissueCell &other_cell)
@@ -67,6 +68,7 @@ void TissueCell::CommonCopy(const TissueCell &other_cell)
     mpCellCycleModel->AbstractCellCycleModel::SetCell(this);
     
     mHypoxicDuration = other_cell.mHypoxicDuration;
+    mSymmetricDivision = other_cell.mSymmetricDivision;
 }
 
 TissueCell::TissueCell(const TissueCell &other_cell)
@@ -165,6 +167,16 @@ void TissueCell::SetMutationState(CellMutationState mutationState)
     mMutationState = mutationState;
 }
 
+void TissueCell::SetSymmetricDivision()
+{
+    mSymmetricDivision = true;
+}
+
+bool TissueCell::DividesSymmetrically()
+{ 
+	return mSymmetricDivision;
+}
+
 void TissueCell::SetLogged()
 {
     mIsLogged = true;
@@ -259,6 +271,7 @@ TissueCell TissueCell::Divide()
     
     CancerParameters *p_params = CancerParameters::Instance();
     //std::cout<< "Divide time" << mpSimulationTime->GetDimensionalisedTime() << "\n" ;
+    
     if (mCellType != HEPA_ONE)
     {
         if (mCellType != STEM)
@@ -281,9 +294,18 @@ TissueCell TissueCell::Divide()
         }
         else
         {
-            mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            return TissueCell(TRANSIT, mMutationState, 1,
+        	if (mSymmetricDivision)
+        	{
+        		mpCellCycleModel->ResetModel();// Cell goes back to age zero
+            	return TissueCell(STEM, mMutationState, 1,
                                     mpCellCycleModel->CreateCellCycleModel());
+        	}
+        	else
+        	{
+            	mpCellCycleModel->ResetModel();// Cell goes back to age zero
+            	return TissueCell(TRANSIT, mMutationState, 1,
+                                    mpCellCycleModel->CreateCellCycleModel());
+        	}
         }
     }
     else

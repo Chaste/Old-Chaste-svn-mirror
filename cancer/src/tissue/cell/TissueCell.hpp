@@ -36,6 +36,7 @@ private:
         archive & mDeathTime;
         archive & mNodeIndex;
         archive & mHypoxicDuration;
+        archive & mSymmetricDivision;
     }
     
 protected:
@@ -49,6 +50,7 @@ protected:
     bool mIsDead;
     bool mIsLogged;
     double mHypoxicDuration;
+    bool mSymmetricDivision;
 
     /**
      * Contains code common to both the copy constructor and operator=.
@@ -111,6 +113,8 @@ public:
     CellMutationState GetMutationState() const;
     void SetCellType(CellType cellType);
     void SetMutationState(CellMutationState mutationState);
+    void SetSymmetricDivision();
+    bool DividesSymmetrically();
     
     /**
      * Determine if this cell will be ready to divide at the given simulation time.

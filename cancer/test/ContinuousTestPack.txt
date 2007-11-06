@@ -2,6 +2,7 @@ TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 TestCellwiseData.hpp
 TestCellCycleModelsOde.hpp
 TestCellCycleModelsSimple.hpp
+TestCryptProjectionModel.hpp
 TestCryptSimulation1d.hpp
 TestCryptSimulation2d.hpp
 TestCylindrical2dMesh.hpp
