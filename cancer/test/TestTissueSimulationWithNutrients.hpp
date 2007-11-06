@@ -195,7 +195,7 @@ public:
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(HEPA_ONE, HEALTHY, 0, new SimpleOxygenBasedCellCycleModel());
-            double birth_time = -( (double) i/p_mesh->GetNumNodes() )*(p_params->GetHepaOneCellG1Duration()
+            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*(p_params->GetHepaOneCellG1Duration()
                                                                        +p_params->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -216,7 +216,7 @@ public:
         // set up tissue simulation
         TissueSimulationWithNutrients<2> simulator(tissue, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithOxygen");
-        simulator.SetEndTime(0.01);
+        simulator.SetEndTime(0.5);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
         simulator.rGetMeinekeSystem().UseCutoffPoint(1.5);

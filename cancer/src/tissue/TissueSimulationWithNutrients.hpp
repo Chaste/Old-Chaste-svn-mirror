@@ -55,7 +55,7 @@ private :
         // If we have a previous solution, then use 
         // this as the basis for the initial guess 
         if (mOxygenSolution)
-        {
+        {        	
             // get the size of the previous solution
             PetscInt isize;
             VecGetSize(mOxygenSolution, &isize);
@@ -117,7 +117,7 @@ private :
         }
         else
         {
-            initial_guess = assembler.CreateConstantInitialGuess(1.0);            
+            initial_guess = assembler.CreateConstantInitialGuess(1.0);        
         }
                 
         // solve the nutrient PDE
