@@ -212,6 +212,8 @@ public :
         } 
      
     }
+    
+    
     /**
      *  Get all cells within a cell width of the section defined as the line between points (xBottom,0)
      *  and (xTop,yTop). If a patricular cell is labelled then the boolean true is returned.

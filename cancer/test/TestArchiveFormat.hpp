@@ -31,16 +31,16 @@ class TestArchiveFormat : public CxxTest::TestSuite
 {
 public:
 /**
- * This test is required because Test2DCryptRepresentativeSimulationn loads an archive
+ * This test is required because Test2DCryptRepresentativeSimulation loads an archive
  * stored in cancer/test/data. When the archiving of TissueSimulation and associate classes
  * the stored archive needs to be update. This test checks that the archive can be loaded,
  * and will seg fault if not.
  * It does nothing more, so it runs quickly and can be in the continuous test pack.
  * 
  * 
- * When the archive file changes, re-run TestMakeNiceCryptSims, having commented out the
- * for loop which loads, runs and saves the simulation. One should be left with
- * the archive after the first save which can be copied to cancer/test/data.
+ * When the archive file changes, re-run TestGenerateSteadyStateCrypt.hpp
+ * One should be left with archives which can 
+ * be copied to cancer/test/data.
  */
     void TestLoadArchive() throw (Exception)
     {        
@@ -48,7 +48,10 @@ public:
         p_simulation_time->SetStartTime(0.0);
 
         std::string test_to_profile = "NiceCryptSim";
-        double t = 400;   // this is the folder and time that the stored results were archived (needed to know foldernames)
+        double t = 150;   // this is the folder and time that the stored results were archived (needed to know foldernames)
+        
+        // Open a new directory...
+        OutputFileHandler file_handler(test_to_profile,true);   
         
         // The archive needs to be copied from cancer/test/data/<test_to_profile>
         // to the testoutput directory to continue running the simulation.     

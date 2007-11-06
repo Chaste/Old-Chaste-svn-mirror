@@ -29,6 +29,7 @@
 class TestGenerateSteadyStateCrypt : public CxxTest::TestSuite
 {
 public:
+
     /*
      * This test can be used to generate steady state crypts for use
      * as the starting points of other simulations.

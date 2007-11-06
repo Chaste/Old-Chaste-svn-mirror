@@ -44,28 +44,28 @@ CXXFLAGS = -DSPECIAL_SERIAL -O3 ${INCS}
 #On engels in Nottingham
 LDFLAGS =   -L/opt/boost/lib -lboost_serialization-gcc
 
-default:	TestMakeNiceCryptSimsRunner TestCryptSimulation2dRunner
+default:	TestGenerateSteadyStateCryptRunner TestCryptSimulation2dRunner
 
 FRESH_DIR=`date +%F-%H-%M`
 
 # This test generates the archives which are used in the profiling test Test2DCryptRepresentativeSimulation.hpp
 
-TestMakeNiceCryptSimsRunner.cpp:	cancer/test/TestMakeNiceCryptSims.hpp
-	cxxtest/cxxtestgen.py  --error-printer -o TestMakeNiceCryptSimsRunner.cpp cancer/test/TestMakeNiceCryptSims.hpp
+TestGenerateSteadyStateCryptRunner.cpp:	cancer/test/TestGenerateSteadyStateCrypt.hpp
+	cxxtest/cxxtestgen.py  --error-printer -o TestGenerateSteadyStateCryptRunner.cpp cancer/test/TestGenerateSteadyStateCrypt.hpp
 
-TestMakeNiceCryptSimsRunner: TestMakeNiceCryptSimsRunner.o ${LIBS}
-	g++ TestMakeNiceCryptSimsRunner.o ${LIBS} -o TestMakeNiceCryptSimsRunner ${LDFLAGS};\
+TestGenerateSteadyStateCryptRunner: TestGenerateSteadyStateCryptRunner.o ${LIBS}
+	g++ TestGenerateSteadyStateCryptRunner.o ${LIBS} -o TestGenerateSteadyStateCryptRunner ${LDFLAGS};\
 	echo "Making new experiment in ${FRESH_DIR} " ;\
 	echo "Do scp -r -C ${FRESH_DIR} pmxgm@deimos.nottingham.ac.uk:" ;\
 	echo "Then qsub simulation.sh on deimos";\
 	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
 	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
-	cp TestMakeNiceCryptSimsRunner ${FRESH_DIR} ;\
+	cp TestGenerateSteadyStateCryptRunner ${FRESH_DIR} ;\
 	cd ${FRESH_DIR}/bin ;\
 	cp ../../bin/triangle triangle ;\
 	cd .. ;\
-	cp ../simulationNiceCryptSims.sh .  ;\
-	mv simulationNiceCryptSims.sh simulation.sh
+	cp ../simulationGenerateSteadyStateCrypt.sh .  ;\
+	mv simulationGenerateSteadyStateCrypt.sh simulation.sh
 
 TestCryptSimulation2dRunner.cpp:	cancer/test/TestCryptSimulation2d.hpp
 	cxxtest/cxxtestgen.py  --error-printer  -o TestCryptSimulation2dRunner.cpp cancer/test/TestCryptSimulation2d.hpp
