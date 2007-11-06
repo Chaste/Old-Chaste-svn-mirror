@@ -24,12 +24,12 @@ void CryptProjectionCellCycleModel::SetG1Duration()
         case TRANSIT:
             mG1Duration = 1 + 2*p_gen->ranf(); // U[1,3] according to Meineke
             break;
-        case HEPA_ONE:
-            mG1Duration = 1 + 4*p_gen->ranf(); // U[1,5] according to Meineke
-            break;
-        case DIFFERENTIATED:
-            mG1Duration = DBL_MAX;
-            break;
+//        case HEPA_ONE:
+//            mG1Duration = 1 + 4*p_gen->ranf(); // U[1,5] according to Meineke
+//            break;
+//        case DIFFERENTIATED:
+//            mG1Duration = DBL_MAX;
+//            break;
         default:
             NEVER_REACHED;
     }
@@ -53,15 +53,15 @@ bool CryptProjectionCellCycleModel::ReadyToDivide()
         case LABELLED:
             wnt_division_threshold = 0.5;
             break;
-        case APC_ONE_HIT:
-            wnt_division_threshold = 0.4;
-            break;
-        case BETA_CATENIN_ONE_HIT:
-            wnt_division_threshold = 0.1;
-            break;
-        case APC_TWO_HIT:
-            wnt_division_threshold = 0.0;
-            break;
+//        case APC_ONE_HIT:
+//            wnt_division_threshold = 0.4;
+//            break;
+//        case BETA_CATENIN_ONE_HIT:
+//            wnt_division_threshold = 0.1;
+//            break;
+//        case APC_TWO_HIT:
+//            wnt_division_threshold = 0.0;
+//            break;
         default:
             NEVER_REACHED;
     }
