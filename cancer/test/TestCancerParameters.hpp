@@ -31,6 +31,7 @@ private:
         TS_ASSERT_DELTA(inst->GetDampingConstantMutant(), 2.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetBetaCatSpringScaler(), 18.14 / 6.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetApoptosisTime(), 0.25, 1e-12);
+        TS_ASSERT_DELTA(inst->GetHepaOneCellHypoxicConcentration(), 0.4, 1e-12);
     }
 
 public:
@@ -57,6 +58,7 @@ public:
         inst->SetDampingConstantMutant(3.0);
         inst->SetBetaCatSpringScaler(10.0);
         inst->SetApoptosisTime(0.3);
+        inst->SetHepaOneCellHypoxicConcentration(0.3);
         
         inst->Reset();
 
@@ -81,6 +83,7 @@ public:
         inst1->SetDampingConstantMutant(3.0);
         inst1->SetBetaCatSpringScaler(10.0);
         inst1->SetApoptosisTime(0.3);
+        inst1->SetHepaOneCellHypoxicConcentration(0.3);
         
         CancerParameters *inst2 = CancerParameters::Instance();
         
@@ -98,6 +101,7 @@ public:
         TS_ASSERT_DELTA(inst2->GetDampingConstantMutant(), 3.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetBetaCatSpringScaler(), 10.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetApoptosisTime(), 0.3, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetHepaOneCellHypoxicConcentration(), 0.3, 1e-12);
     }
     
     void TestArchiveCancerParameters()
@@ -123,6 +127,7 @@ public:
             inst1->SetDampingConstantMutant(3.0);
             inst1->SetBetaCatSpringScaler(10.0);
             inst1->SetApoptosisTime(0.3);
+			inst1->SetHepaOneCellHypoxicConcentration(0.3);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -147,7 +152,7 @@ public:
             inst1->SetDampingConstantNormal(1.0);
             inst1->SetDampingConstantMutant(2.0);
             inst1->SetBetaCatSpringScaler(10.0);
-
+			inst1->SetHepaOneCellHypoxicConcentration(0.4);
             
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -170,6 +175,7 @@ public:
             TS_ASSERT_DELTA(inst1->GetDampingConstantMutant(), 3.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetBetaCatSpringScaler(), 10.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetApoptosisTime(), 0.3, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetHepaOneCellHypoxicConcentration(), 0.3, 1e-12);
         }
     }
     

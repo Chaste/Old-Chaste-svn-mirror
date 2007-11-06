@@ -31,6 +31,7 @@ public:
     double GetApoptosisTime();
     double GetDivisionRestingSpringLength();
     double GetDivisionSeparation();
+    double GetHepaOneCellHypoxicConcentration();
     
     void SetStemCellG1Duration(double);
     void SetTransitCellG1Duration(double);
@@ -48,6 +49,7 @@ public:
     void SetApoptosisTime(double);
     void SetDivisionRestingSpringLength(double);
     void SetDivisionSeparation(double);
+    void SetHepaOneCellHypoxicConcentration(double);
       
     /** 
      *  Reset all parameters to their defaults
@@ -149,6 +151,11 @@ private:
      * mDivisionSeparation because of pressure from neighbouring springs)
      */
     double mDivisionRestingSpringLength;
+    
+    /**
+     * Non-dimensionalized ozygen concentration below which HEPA-1 are hypoxic 
+     */
+    double mHepaOneCellHypoxicConcentration;
       
     friend class boost::serialization::access;
     /**
@@ -173,6 +180,7 @@ private:
         archive & mDampingConstantMutant;
         archive & mBetaCatSpringScaler;
         archive & mApoptosisTime;
+        archive & mHepaOneCellHypoxicConcentration;
     }
 };
 

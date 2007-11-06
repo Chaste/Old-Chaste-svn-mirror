@@ -3,6 +3,7 @@
 
 #include "AbstractCellKiller.hpp"
 #include "ConformingTetrahedralMesh.hpp"
+#include "CancerParameters.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "SimulationTime.hpp"
 #include "CellwiseData.cpp"
@@ -36,7 +37,7 @@ private:
     }
     
 public:
-    OxygenBasedCellKiller(Tissue<SPACE_DIM>* pTissue, double concentration=0.4)
+    OxygenBasedCellKiller(Tissue<SPACE_DIM>* pTissue, double concentration=CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration())
         : AbstractCellKiller<SPACE_DIM>(pTissue),
           mHypoxicConcentration(concentration)
     {

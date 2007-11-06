@@ -22,7 +22,7 @@ class SimplePdeForTesting : public AbstractNonlinearEllipticPde<2>
 public:
     double ComputeLinearSourceTerm(ChastePoint<2> )
     {
-        return -0.1;
+        return -1.0;
     }
 
     double ComputeNonlinearSourceTerm(ChastePoint<2> , double )
@@ -81,12 +81,17 @@ class TestTissueSimulationWithNutrients : public CxxTest::TestSuite
 public:
 
     /* 
-     * Test the PostSolve method using the problem del squared C = 0.1
+     * A two-part test for the PostSolve() method.
+     * 
+     * Firstly, test the PDE solver using the problem del squared C = 0.1 
      * on the unit disc, with boundary condition C=1 on r=1, which has 
-     * analytic solution C = 1-0.025*(1-r^2).
+     * analytic solution C = 1-0.125*(1-r^2).
+     * 
+     * Secondly, test that cells' hypoxic durations are correctly updated when a 
+     * nutrient distribution is prescribed.
      */
-    void TestPostSolveMethod() throw(Exception)
-    {
+	void TestPostSolveMethod() throw(Exception)
+	{
         if (!PetscTools::IsSequential())
         {
             TS_TRACE("This test does not pass in parallel yet.");
@@ -96,12 +101,17 @@ public:
         // instantiate singleton objects
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
+        
+        // change the hypoxic concentration, just for this test
+        p_params->SetHepaOneCellHypoxicConcentration(0.9);
 
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        // since we are not calling Solve(), we need to set up 
+        // the simulation time manually
+	    SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-       
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0/120.0, 1);   
        
         // set up mesh
         ConformingTetrahedralMesh<2,2>* p_mesh = new ConformingTetrahedralMesh<2,2>;
@@ -134,8 +144,8 @@ public:
         
         // set up tissue simulation
         TissueSimulationWithNutrients<2> simulator(tissue, &pde);
-        simulator.SetOutputDirectory("TestPostSolve");
-        simulator.SetEndTime(1.0);
+        simulator.SetOutputDirectory("TestPostSolveMethod");
+        simulator.SetEndTime(1.0/120.0);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
         simulator.rGetMeinekeSystem().UseCutoffPoint(1.5);
@@ -144,8 +154,7 @@ public:
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);
         
-        // solve PDE             
-        simulator.PostSolve();        
+        simulator.PostSolve();                
         
         // check the correct solution was obtained           
         for (Tissue<2>::Iterator cell_iter = tissue.Begin();
@@ -153,9 +162,20 @@ public:
              ++cell_iter)
         {   
             double radius = norm_2(tissue.GetLocationOfCell(*cell_iter));
-            double analytic_solution = 1 - 0.025*(1 - pow(radius,2.0));
+            double analytic_solution = 1 - 0.25*(1 - pow(radius,2.0));
             
+            // First part of test - check that PDE solver is working correctly
             TS_ASSERT_DELTA(p_data->GetValue(&(*cell_iter)), analytic_solution, 1e-2);
+            
+            // Second part of test - check that each cell's hypoxic duration is correctly updated
+            if ( p_data->GetValue(&(*cell_iter)) >= p_params->GetHepaOneCellHypoxicConcentration() )
+            {
+            	TS_ASSERT_DELTA(cell_iter->GetHypoxicDuration(), 0.0, 1e-5);
+            }
+            else
+            {
+            	TS_ASSERT_DELTA(cell_iter->GetHypoxicDuration(), 1.0/120.0, 1e-5);	
+            } 
         }     
         
         // tidy up
@@ -164,8 +184,8 @@ public:
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
         CellwiseData<2>::Destroy();
-    }
-
+	}
+        
     void TestWithOxygen() throw(Exception)
     {
         if (!PetscTools::IsSequential())
@@ -177,8 +197,6 @@ public:
         // instantiate singleton objects
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
-
-        //RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -205,7 +223,7 @@ public:
         // set up tissue        
         Tissue<2> tissue(*p_mesh, cells);
         
-        // set up cellwisedata and associate it with the tissue
+        // set up Cellwiseata and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         p_data->SetTissue(tissue);
@@ -260,7 +278,6 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.viznodes cancer/test/data/TissueSimulationWithOxygen_vis/previous_results.viznodes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.vizsetup cancer/test/data/TissueSimulationWithOxygen_vis/previous_results.vizsetup").c_str()), 0);
     }
-    
 
 };
 #endif /*TESTTISSUESIMULATIONWITHNUTRIENTS_HPP_*/

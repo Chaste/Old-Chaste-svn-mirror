@@ -21,8 +21,8 @@ private :
     
     Vec mOxygenSolution;
 
-    AbstractNonlinearEllipticPde<DIM>* mpPde;    
-
+    AbstractNonlinearEllipticPde<DIM>* mpPde;  
+        
     void PostSolve()
     {
         ConformingTetrahedralMesh<2,2>& r_mesh = this->mrTissue.rGetMesh();
@@ -158,8 +158,9 @@ private :
         counter++;
         
         VecDestroy(initial_guess);
-        
-        // update cells' hypoxic durations using their current oxygen concentration        
+                
+        // update each cell's hypoxic duration according to 
+        // its current oxygen concentration        
         for( typename Tissue<2>::Iterator cell_iter = this->mrTissue.Begin();
             cell_iter != this->mrTissue.End();
             ++cell_iter)
@@ -168,17 +169,16 @@ private :
         	
             // the oxygen concentration had better not be negative
 //        	assert(oxygen_concentration >= -1e-8);
-        	
-//          TODO: change this line to something like
-        	// if ( oxygen_concentration < CancerParameters::Instance()->GetHypoxicConcentration() )    	
-        	if ( oxygen_concentration < 0.6 )
+        	  	
+        	if ( oxygen_concentration < CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration() )
         	{
         		// add timestep to the hypoxic duration, since PostSolve() is called at the end of every timestep 
         		double curr_hyp_dur = cell_iter->GetHypoxicDuration();        		
             	cell_iter->SetHypoxicDuration(curr_hyp_dur + SimulationTime::Instance()->GetTimeStep());
         	}  
-        	else // reset mHypoxicDuration
+        	else 
         	{
+        		// reset the cell's hypoxic duration
             	cell_iter->SetHypoxicDuration(0.0);
         	}          	   
         }        

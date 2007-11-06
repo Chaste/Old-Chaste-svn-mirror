@@ -27,8 +27,9 @@ CancerParameters::CancerParameters()
  * mG2Duration has units of hours
  * mMDuration has units of hours
  * mMaxTransitGenerations has no units
- * mCryptLength  has units of cell size at equilibrium rest length
- * mNaturalSpringLength has units of cell length at equilibrium rest length.
+ * mHepaOneCellHypoxicConcentration has no units
+ * mCryptLength has units of cell size at equilibrium rest length
+ * mNaturalSpringLength has units of cell length at equilibrium rest length. * 
  * This is set to 1 and should be left unchanged in all simulations.
  */
 void CancerParameters::Reset()
@@ -49,8 +50,9 @@ void CancerParameters::Reset()
     mBetaCatSpringScaler = 18.14 / 6.0;  //This scales the spring constant with the amount of beta-catenin 
                                          //(divided by 6 as a cell normally is a hexagon.)
     mApoptosisTime = 0.25;  // Cell takes 15 min to fully undergo apoptosis
-    mDivisionRestingSpringLength=0.5;
-    mDivisionSeparation=0.3;    
+    mDivisionRestingSpringLength = 0.5;
+    mDivisionSeparation = 0.3;    
+    mHepaOneCellHypoxicConcentration = 0.4;
     // Calculated parameters
     // This was used in non-dimensional case
 }
@@ -127,6 +129,11 @@ double CancerParameters::GetDivisionSeparation()
 {
     return mDivisionSeparation;
 }
+double CancerParameters::GetHepaOneCellHypoxicConcentration()
+{
+	return mHepaOneCellHypoxicConcentration;
+}
+
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
 ///////////////////////////////////////////////////////////////////////
@@ -205,11 +212,17 @@ void CancerParameters::SetDivisionRestingSpringLength(double divisionRestingSpri
     assert(divisionRestingSpringLength<=1.0);
     assert(divisionRestingSpringLength>=0.0);
     
-    mDivisionRestingSpringLength=divisionRestingSpringLength;
+    mDivisionRestingSpringLength = divisionRestingSpringLength;
 }
 void CancerParameters::SetDivisionSeparation(double divisionSeparation)
 {
     assert(divisionSeparation<=1.0);
     assert(divisionSeparation>=0.0);
-    mDivisionSeparation=divisionSeparation;
+    mDivisionSeparation = divisionSeparation;
+}
+void CancerParameters::SetHepaOneCellHypoxicConcentration(double hepaOneCellHypoxicConcentration)
+{
+	assert(hepaOneCellHypoxicConcentration<=1.0);
+	assert(hepaOneCellHypoxicConcentration>=0.0);
+	mHepaOneCellHypoxicConcentration = hepaOneCellHypoxicConcentration;
 }
