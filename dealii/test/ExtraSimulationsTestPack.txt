@@ -1,2 +1,3 @@
 TestExperimentalGrowthSimulations.hpp
+TestCardiacElectroMechanicsProblem.hpp
 Test1dCardiacMechanicsAssemblers.hpp
