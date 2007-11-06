@@ -34,6 +34,12 @@ protected:
      */
     std::vector<double> mActiveTension;
 
+    /** A scale factor by which (dimensional) material parameters are scaled (which requires
+     *  the relevant forcing terms, in this case active tension to be scaled likewise). Defaults
+     *  to 1
+     */
+    double mScaleFactor;
+
     
     /** Overloaded method for assembling system, which takes into account the active tensions */
     void AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter,
@@ -63,35 +69,23 @@ public:
      * 
      *  This is really a temporary method until the fibre-sheet direction can be read in
      */
-    virtual void SetFibreSheetMatrix(Tensor<2,DIM> fibreSheetMat)
-    {
-        // check orthogonal
-        Tensor<2,DIM> P_times_transP = fibreSheetMat * transpose(fibreSheetMat);
-        for(unsigned i=0; i<DIM; i++)
-        {
-            for(unsigned j=0; j<DIM; j++)
-            {
-                double expected = i==j ? 1.0 : 0.0;
-                if (fabs(P_times_transP[i][j] - expected) > 1e-9)
-                {
-                    EXCEPTION("Fibre-sheet matrix passed in does not seem to be orthogonal");
-                }
-            }
-        }
-        
-        mFibreSheetMat = fibreSheetMat;
-        mTransFibreSheetMat = transpose(mFibreSheetMat);
-    }
+    virtual void SetFibreSheetMatrix(Tensor<2,DIM> fibreSheetMat);
     
     virtual void Solve(double currentTime, double nextTime, double timestep);
 
-    
     /** 
      *  Set the current active tensions, by quadrature point. Quad points don't have indices,
      *  so these values should be in the order given by looping over cells and then looping
      *  over quad points
      */
     virtual void SetForcingQuantity(std::vector<double>& activeTension);
+    
+    /** 
+     *  Set a scale factor by which (dimensional) material parameters are scaled. For
+     *  this assembler the active tension to be scaled likewise when it is used. A scale 
+     *  factor may be used/needed to improve GMRES convergence.
+     */
+    void SetScaling(double scaleFactor);
 };
 
 #endif /*CARDIACMECHANICSASSEMBLER_HPP_*/

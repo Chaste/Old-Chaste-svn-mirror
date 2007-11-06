@@ -35,7 +35,6 @@ public:
                                    double endTime,
                                    double timeStep,
                                    bool useExplicitMethod,
-                                   unsigned numElementsPerDimInElectricsMesh,
                                    unsigned numElementsPerDimInMechanicsMesh,
                                    std::string outputDirectory = "")
         :  AbstractCardiacElectroMechanicsProblem<DIM>(pCellFactory,
@@ -44,29 +43,34 @@ public:
                                                        useExplicitMethod,
                                                        outputDirectory)
     {
-        assert(numElementsPerDimInElectricsMesh > 8);
-        assert(numElementsPerDimInMechanicsMesh > 4);
-
-        mNumElementsPerDimInElectricsMesh = numElementsPerDimInElectricsMesh;
+        //mNumElementsPerDimInElectricsMesh = numElementsPerDimInElectricsMesh;
         mNumElementsPerDimInMechanicsMesh = numElementsPerDimInMechanicsMesh;
     }
     
 
     void ConstructMeshes()
     {        
-        double width = 0.1;
+        double width = 1;
         
         // create electrics mesh
         this->mpElectricsMesh = new ConformingTetrahedralMesh<DIM,DIM>();
 
-        unsigned num_elem = 16; //mNumElementsPerDimInElectricsMesh;
+        unsigned num_elem = 96; //mNumElementsPerDimInElectricsMesh;
         this->mpElectricsMesh->ConstructRectangularMesh(num_elem,num_elem);
         this->mpElectricsMesh->Scale(width/num_elem,width/num_elem);
 
         // create mechanics mesh
         this->mpMechanicsMesh = new Triangulation<DIM>();
-        GridGenerator::hyper_cube(*(this->mpMechanicsMesh), 0.0, width);
-        this->mpMechanicsMesh->refine_global(4);
+        Point<2> zero;
+        Point<2> opposite_corner;
+        opposite_corner[0] = width;
+        opposite_corner[1] = width;
+        
+        std::vector<unsigned> repetitions;
+        repetitions.push_back(mNumElementsPerDimInMechanicsMesh);
+        repetitions.push_back(mNumElementsPerDimInMechanicsMesh);
+        
+        GridGenerator::subdivided_hyper_rectangle(*(this->mpMechanicsMesh), repetitions, zero, opposite_corner);
         
         LOG(1, "Width of meshes is " << width);
         LOG(1, "Num nodes in electrical and mechanical meshes are: " << this->mpElectricsMesh->GetNumNodes() << ", " << this->mpMechanicsMesh->n_vertices() << "\n");
@@ -76,15 +80,17 @@ public:
     void ConstructMechanicsAssembler(std::string mechanicsOutputDir)
     {
         Point<DIM> zero;
-        FiniteElasticityTools<DIM>::FixFacesContainingPoint(*(this->mpMechanicsMesh), zero);
-        
+        FiniteElasticityTools<DIM>::SetFixedBoundary(*(this->mpMechanicsMesh), 0, 0.0); 
+               
         if(this->mUseExplicitMethod)
         {
             this->mpCardiacMechAssembler = new CardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir);
         }
         else
         {
-            this->mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir);
+            ImplicitCardiacMechanicsAssembler<DIM>* p_assembler = new ImplicitCardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir);
+            p_assembler->SetScaling(10);
+            this->mpCardiacMechAssembler = p_assembler;
         }
     }
 };

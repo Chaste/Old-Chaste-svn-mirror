@@ -27,7 +27,7 @@
 template<unsigned DIM>
 class PoleZeroMaterialLaw : public AbstractIncompressibleMaterialLaw<DIM>
 {
-friend class TestMateriawLaws;
+friend class TestMaterialLaws;
 
 private :
     std::vector<std::vector<double> > mK;
@@ -179,6 +179,19 @@ public :
     {
         return 0.0;
     }
+    
+    /** Scale the dimensional material parameters (ie the K's) */
+    void ScaleMaterialParameters(double scaleFactor)
+    {
+        assert(scaleFactor > 0.0);
+        for(unsigned i=0; i<mK.size(); i++)
+        {
+            for(unsigned j=0; j<mK[i].size(); j++)
+            {
+                mK[i][j] /= scaleFactor;
+            }
+        }
+    }    
 };
 
 

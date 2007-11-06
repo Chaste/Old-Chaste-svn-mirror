@@ -138,6 +138,40 @@ public:
         //     }
         // }
     }
+
+    void TestImplicitLawScalingWithNashHunter()
+    {
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
+        mesh.refine_global(4);
+        
+        Point<2> zero;
+        FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
+
+        ImplicitCardiacMechanicsAssembler<2> implicit_assembler(&mesh,"");
+
+        std::vector<double> calcium_conc(implicit_assembler.GetTotalNumQuadPoints(), 1);
+        implicit_assembler.SetForcingQuantity(calcium_conc);
+        implicit_assembler.Solve(0,0.01,0.01);
+
+        ImplicitCardiacMechanicsAssembler<2> implicit_assembler_with_scaling(&mesh,"");
+
+        implicit_assembler_with_scaling.SetForcingQuantity(calcium_conc);
+        implicit_assembler_with_scaling.SetScaling(10);      // best scaling, assuming k_i=kPa and Precondition 
+        implicit_assembler_with_scaling.Solve(0,0.01,0.01);
+        
+        std::vector<Vector<double> >& position1
+            = implicit_assembler.rGetDeformedPosition();
+        
+        std::vector<Vector<double> >& position2
+            = implicit_assembler_with_scaling.rGetDeformedPosition();
+        
+        for(unsigned i=0; i<position1[0].size(); i++)
+        {
+            TS_ASSERT_DELTA(position1[0](i), position2[0](i), 6e-5);
+            TS_ASSERT_DELTA(position1[1](i), position2[1](i), 6e-5);
+        }
+    }
 };
 
 #endif /*TESTIMPLICITCARDIACMECHANICSASSEMBLER_HPP_*/

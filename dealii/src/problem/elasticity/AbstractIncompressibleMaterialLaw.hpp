@@ -173,6 +173,19 @@ public :
     
     virtual ~AbstractIncompressibleMaterialLaw()
     {}
+    
+    /** 
+     *  Set a scale factor by which (dimensional) material parameters are scaled. This method
+     *  can be optionally implemented in the child class; if no implementation is made an
+     *  exception is thrown. A scale factor may be used/needed to improve GMRES convergence.
+     *  Note that is a material law is scaled like this any dimensionally equivalent terms
+     *  (eg gravity, tractions, active tensions) must also be scaled. Also, computed pressure
+     *  will come out scaled.
+     */
+    virtual void ScaleMaterialParameters(double scaleFactor)
+    {
+        EXCEPTION("[the material law you are using]::ScaleMaterialParameters() has not be implemented\n");
+    }
 };
 
 

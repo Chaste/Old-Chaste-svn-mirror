@@ -105,6 +105,14 @@ public :
         mC1 = c1;
         mC2 = c2;
     }
+    
+    /** Scale the dimensional material parameters */
+    void ScaleMaterialParameters(double scaleFactor)
+    {
+        assert(scaleFactor > 0.0);
+        mC1 /= scaleFactor;
+        mC2 /= scaleFactor;
+    }  
 };
 
 

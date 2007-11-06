@@ -15,17 +15,6 @@
 class TestMaterialLaws : public CxxTest::TestSuite
 {
 public:
-//    template<unsigned DIM>
-//    void TestdTdEDerivatives(AbstractMaterialLaw<DIM>& rMaterialLaw)
-//    {
-//        double h = 0.01;
-//        for(unsigned M=0; M<DIM; M++)
-//        {
-//            
-//            
-//        }
-//    }
-
     void TestMooneyRivlinLaw()
     {
         TS_ASSERT_THROWS_ANYTHING(MooneyRivlinMaterialLaw<2> bad_mr_law(-3.0));
@@ -185,6 +174,10 @@ public:
                 }
             }
         }
+        
+        ml_law_3d.ScaleMaterialParameters(10);
+        TS_ASSERT_DELTA(ml_law_3d.GetC1(), c1/10, 1e-12);
+        TS_ASSERT_DELTA(ml_law_3d.GetC2(), c2/10, 1e-12);
     }
     
     
@@ -652,6 +645,12 @@ public:
         TS_ASSERT_DELTA(dTdE(1,0,1,0), dtde10, 1e-9);
         TS_ASSERT_DELTA(dTdE(1,1,1,1), dtde11, 1e-9);
         TS_ASSERT_DELTA(dTdE(2,2,2,2), dtde22, 1e-9);
+
+
+        pole_zero_law.ScaleMaterialParameters(10);
+        TS_ASSERT_DELTA(pole_zero_law.mK[0][0], 0.1, 1e-12);
+        TS_ASSERT_DELTA(pole_zero_law.mA[0][0], 4, 1e-12);
+        TS_ASSERT_DELTA(pole_zero_law.mB[0][0], 7, 1e-12);
     }
     
     void TestPoleZero3dIn1dLaw() throw(Exception)

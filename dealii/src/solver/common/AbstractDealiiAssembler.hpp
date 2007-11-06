@@ -4,6 +4,7 @@
 #include <grid/grid_out.h>
 #include <grid/grid_in.h>
 #include <grid/tria.h>
+#include <time.h>
 #include <dofs/dof_handler.h>
 #include <grid/grid_generator.h>
 
@@ -46,6 +47,7 @@
 #include "Exception.hpp"
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
+
 
 /**
  *  Abstract assembler with common functionality for most assemblers.
@@ -300,7 +302,7 @@ protected:
      */
     double CalculateResidualNorm()
     {
-        return mRhsVector.norm_sqr()/mDofHandler.n_dofs();
+        return sqrt(mRhsVector.norm_sqr())/mDofHandler.n_dofs();
     }
     
     /**
@@ -318,19 +320,32 @@ protected:
     {
         // compute Jacobian
         AssembleSystem(true, true);
-        
+
+        time_t start_time = std::clock();
+        Precondition();
+
+        // DEAL.II doesn't seem to allow you to set an relative tolerance,
+        // so we do so explicitly by working out what the corresponding 
+        // absolute tolerance for our chosen relative tol should be
+        double rel_tol = 1e-4;
+        double norm_rhs_vec = CalculateResidualNorm()*mDofHandler.n_dofs(); // have verified this is what deal.ii uses too
+        double abs_tol = rel_tol * norm_rhs_vec;
+
         // solve the linear system
-        SolverControl  solver_control(200000, 1e-6, false, true);
+        SolverControl  solver_control(200000, abs_tol, false, true);
         PrimitiveVectorMemory<> vector_memory;
         
         Vector<double> update;
         update.reinit(mDofHandler.n_dofs());
         
-        SolverGMRES<>::AdditionalData gmres_additional_data(200);
+        SolverGMRES<>::AdditionalData gmres_additional_data(1000); //1000 is massive!! seems to be needed for cardiac
         SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);
-        
+
         gmres.solve(mSystemMatrix, update, mRhsVector, PreconditionIdentity());
-    
+        time_t  end_time = std::clock();
+        double elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
+        std::cout <<  "\nlinear sys solution time = " << elapsed_time << "s\n" << std::flush;
+
         // deal with hanging nodes - form a continuous solutions
         mHangingNodeConstraints.distribute(update);
         
@@ -573,6 +588,32 @@ public :
     
     virtual ~AbstractDealiiAssembler()
     {}
+    
+    void Precondition()
+    {
+        for(unsigned i=0;i<mSystemMatrix.m();i++)
+        {
+            double max_val = 0;
+            for(unsigned j=0;j<mSystemMatrix.n();j++)
+            {
+                if(fabs(mSystemMatrix.el(i,j)) > max_val)
+                {
+                    max_val = fabs(mSystemMatrix.el(i,j));
+                }
+            }
+            
+            if(fabs(max_val)<1e-10)
+            {
+                EXCEPTION("Found wholly zero row");
+            }
+
+            for(unsigned j=0;j<mSystemMatrix.n();j++)
+            {
+                mSystemMatrix.set(i,j,mSystemMatrix.el(i,j)/max_val);
+            }
+            mRhsVector(i) /= max_val;
+        }  
+    }
 };
 
 #endif /*ABSTRACTDEALIIASSEMBLER_HPP_*/

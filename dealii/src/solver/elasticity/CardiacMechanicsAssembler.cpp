@@ -31,7 +31,7 @@ CardiacMechanicsAssembler<DIM>::CardiacMechanicsAssembler(Triangulation<DIM>* pM
         }
     }
     mTransFibreSheetMat = transpose(mFibreSheetMat);
-            
+    mScaleFactor = 1.0;
 }
 
 template<unsigned DIM>
@@ -58,6 +58,39 @@ void CardiacMechanicsAssembler<DIM>::Solve(double currentTime, double nextTime, 
     FiniteElasticityAssembler<DIM>::StaticSolve(false);
 }
 
+template<unsigned DIM>
+void CardiacMechanicsAssembler<DIM>::SetScaling(double scaleFactor)
+{
+    assert(mScaleFactor > 0.0);
+    mScaleFactor = scaleFactor;
+    for(unsigned i=0; i<this->mMaterialLaws.size(); i++)
+    {
+        std::cout << "setting scaling on " << i << "\n";
+        this->mMaterialLaws[i]->ScaleMaterialParameters(mScaleFactor);
+    }
+}
+
+
+template<unsigned DIM>
+void CardiacMechanicsAssembler<DIM>::SetFibreSheetMatrix(Tensor<2,DIM> fibreSheetMat)
+{
+    // check orthogonal
+    Tensor<2,DIM> P_times_transP = fibreSheetMat * transpose(fibreSheetMat);
+    for(unsigned i=0; i<DIM; i++)
+    {
+        for(unsigned j=0; j<DIM; j++)
+        {
+            double expected = i==j ? 1.0 : 0.0;
+            if (fabs(P_times_transP[i][j] - expected) > 1e-9)
+            {
+                EXCEPTION("Fibre-sheet matrix passed in does not seem to be orthogonal");
+            }
+        }
+    }
+    
+    mFibreSheetMat = fibreSheetMat;
+    mTransFibreSheetMat = transpose(mFibreSheetMat);
+}
 
 
 /*************************************
@@ -212,7 +245,7 @@ void CardiacMechanicsAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         this->mLambda[this->mCurrentQuadPointGlobalIndex] = sqrt(C_fibre[0][0]);
 
         // get the active tension at this quad point
-        double active_tension = mActiveTension[this->mCurrentQuadPointGlobalIndex];
+        double active_tension = mActiveTension[this->mCurrentQuadPointGlobalIndex]/mScaleFactor;
 
 
         //mDTdE_fibre.Zero();

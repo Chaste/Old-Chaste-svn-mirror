@@ -39,13 +39,7 @@ public :
         Point<2> zero;
         FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
         
-        // specify this material law so the test continues to pass when the default
-        // material law is changed.
-        //MooneyRivlinMaterialLaw<2> material_law(0.02);
-
-        CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, 
-                                                            "CardiacMech/SpecifiedActiveTensionStretching");//,
-                                           //                 &material_law);
+        CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, "CardiacMech/SpecifiedActiveTensionStretching");
 
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.0);
         
@@ -97,14 +91,14 @@ public :
         
         // specify this material law so the test continues to pass when the default
         // material law is changed.
-        MooneyRivlinMaterialLaw<2> material_law(0.02);
+        MooneyRivlinMaterialLaw<2> material_law(2);
 
         CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, 
                                                             "CardiacMech/SpecifiedActiveTensionCompression",
                                                             &material_law);
 
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.0);
-        SetUpLinearActiveTension<2>(mesh, 0.05, active_tension); 
+        SetUpLinearActiveTension<2>(mesh, 5, active_tension); 
         
 
         cardiac_mech_assembler.SetForcingQuantity(active_tension);
@@ -115,7 +109,7 @@ public :
         // a hardcoded test here. Node that 1 is the bottom-right corner node, 
         // and the deformation is reasonably large
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](1), 0.9994, 1e-3);
-        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), 0.1035, 1e-3);
+        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), 0.1154, 1e-3);
         
         std::vector<double>& lambda = cardiac_mech_assembler.rGetLambda();
         std::vector<std::vector<double> > quad_points 
@@ -140,7 +134,7 @@ public :
         }
         
         // hardcoded test
-        TS_ASSERT_DELTA(lambda[34], 0.9694, 1e-4);
+        TS_ASSERT_DELTA(lambda[34], 0.9665, 1e-4);
     }
 
     void TestSpecifiedActiveTensionStretching() throw(Exception)
@@ -154,14 +148,14 @@ public :
         
         // specify this material law so the test continues to pass when the default
         // material law is changed.
-        MooneyRivlinMaterialLaw<2> material_law(0.02);
+        MooneyRivlinMaterialLaw<2> material_law(2);
 
         CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, 
                                                            "CardiacMech/SpecifiedActiveTensionStretching",
                                                             &material_law);
 
         std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.0);
-        SetUpLinearActiveTension<2>(mesh, -0.025, active_tension); // doesn't converge if -0.1
+        SetUpLinearActiveTension<2>(mesh, -2.5, active_tension); // doesn't converge if -0.1
         cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
         cardiac_mech_assembler.StaticSolve(); 
@@ -170,7 +164,7 @@ public :
         // a hardcoded test here. Node that 1 is the bottom-right corner node, 
         // and the deformation is reasonably large
         TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](1),  0.9895, 1e-3);
-        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), -0.0653, 1e-3);
+        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), -0.0694, 1e-3);
         
         std::vector<double>& lambda = cardiac_mech_assembler.rGetLambda();
         std::vector<std::vector<double> > quad_points 
@@ -196,7 +190,7 @@ public :
         }
 
         // hardcoded test
-        TS_ASSERT_DELTA(lambda[34], 1.0169, 1e-4);
+        TS_ASSERT_DELTA(lambda[34], 1.0179, 1e-4);
     }
 
 
@@ -215,7 +209,7 @@ public :
         
         // specify this material law so the test continues to pass when the default
         // material law is changed.
-        MooneyRivlinMaterialLaw<2> material_law(0.02);
+        MooneyRivlinMaterialLaw<2> material_law(2);
 
         CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, 
                                                            "CardiacMech/SpecifiedActiveTensionComp90Deg",
@@ -235,7 +229,7 @@ public :
 
 
         // constant active tension this time
-        std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.05);
+        std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 5);
         cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
         cardiac_mech_assembler.StaticSolve(); 
@@ -266,7 +260,7 @@ public :
         }
 
         // hardcoded test
-        TS_ASSERT_DELTA(lambda[34], 0.7924, 1e-4);
+        TS_ASSERT_DELTA(lambda[34], 0.7925, 1e-4);
     }
 
 
@@ -286,7 +280,7 @@ public :
         
         // specify this material law so the test continues to pass when the default
         // material law is changed.
-        MooneyRivlinMaterialLaw<2> material_law(0.02);
+        MooneyRivlinMaterialLaw<2> material_law(2);
 
         CardiacMechanicsAssembler<2> cardiac_mech_assembler(&mesh, 
                                                            "CardiacMech/SpecifiedActiveTensionComp45Deg",
@@ -303,7 +297,7 @@ public :
 
 
         // constant active tension this time
-        std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 0.05);
+        std::vector<double> active_tension(cardiac_mech_assembler.GetTotalNumQuadPoints(), 5);
         cardiac_mech_assembler.SetForcingQuantity(active_tension);
 
         cardiac_mech_assembler.StaticSolve(); 
@@ -358,6 +352,40 @@ public :
         cardiac_mech_assembler.StaticSolve(); 
 
         TS_ASSERT_EQUALS(cardiac_mech_assembler.GetNumNewtonIterations(), 3u);
+    }
+
+    void TestWithScalingOfNashHunterPoleZeroLaw()
+    {
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
+        mesh.refine_global(3);
+        
+        Point<2> zero;
+        FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
+        
+        CardiacMechanicsAssembler<2> assembler(&mesh,"");
+
+        std::vector<double> active_tension(assembler.GetTotalNumQuadPoints(), 0.1);
+        assembler.SetForcingQuantity(active_tension);
+        assembler.Solve(0,0.01,0.01);
+
+        CardiacMechanicsAssembler<2> assembler_with_scaling(&mesh,"");
+
+        assembler_with_scaling.SetForcingQuantity(active_tension);
+        assembler_with_scaling.SetScaling(0.5); 
+        assembler_with_scaling.Solve(0,0.01,0.01);
+        
+        std::vector<Vector<double> >& position1
+            = assembler.rGetDeformedPosition();
+        
+        std::vector<Vector<double> >& position2
+            = assembler_with_scaling.rGetDeformedPosition();
+        
+        for(unsigned i=0; i<position1[0].size(); i++)
+        {
+            TS_ASSERT_DELTA(position1[0](i), position2[0](i), 1.1e-5);
+            TS_ASSERT_DELTA(position1[1](i), position2[1](i), 1.1e-5);
+        }
     }
 };
 #endif /*TESTCARDIACMECHANICSASSEMBLER_HPP_*/

@@ -38,8 +38,8 @@ const unsigned FIXED_BOUNDARY = 10;
 const unsigned NEUMANN_BOUNDARY = 11;
 const unsigned DIRICHLET_BOUNDARY = 12;
 
-const double NEWTON_ABS_TOL = 1e-13;
-const double NEWTON_REL_TOL = 1e-7;
+const double NEWTON_ABS_TOL = 1e-8;
+const double NEWTON_REL_TOL = 1e-6;
 
 #include "AbstractIncompressibleMaterialLaw.hpp"
 #include "OutputFileHandler.hpp"

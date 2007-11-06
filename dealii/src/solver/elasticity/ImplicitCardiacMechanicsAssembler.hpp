@@ -3,6 +3,7 @@
 
 #include "CardiacMechanicsAssembler.cpp"
 #include "NhsSystemWithImplicitSolver.hpp"
+#include "LogFile.hpp"
 #include <cfloat>
 
 
@@ -18,7 +19,7 @@ private:
     double mCurrentTime;
     double mNextTime;
     double mDt;
-
+    
 public:
     /**
      *  Constructor
@@ -85,28 +86,12 @@ public:
              mLambdaLastTimeStep[i] = mCellMechSystems[i].GetLambda();
         }
     }
-    
-//    double GetActiveTensionAtCurrentQuadPoint(double lam)
-//    {
-//        double dlam_dt = (lam-mLambdaLastTimeStep[this->mCurrentQuadPointGlobalIndex])/(mNextTime-mCurrentTime);
-//
-//        NhsSystemWithImplicitSolver& system = mCellMechSystems[this->mCurrentQuadPointGlobalIndex];
-//
-//        system.SetLambdaAndDerivative(lam, dlam_dt);
-//
-//        assert(mCurrentTime != DBL_MAX);
-//        assert(mNextTime != DBL_MAX);
-//        assert(mDt != DBL_MAX);
-//  
-//        system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-//        return system.GetActiveTensionAtNextTime();
-//    }
-    
+
     void SetFibreSheetMatrix(Tensor<2,DIM> fibreSheetMat)
     {
         EXCEPTION("ImplicitCardiacMechanicsAssembler can't do different fibre directions yet");
     }
-
+    
 private:
 
     /**
@@ -255,9 +240,8 @@ private:
             double active_tension;        
             try
             {
-                (*LogFile::Instance()) << ".";
                 system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-                active_tension = system.GetActiveTensionAtNextTime();        
+                active_tension = system.GetActiveTensionAtNextTime()/this->mScaleFactor;        
             }
             catch (Exception& e)
             {
@@ -276,16 +260,14 @@ private:
                 // get active tension for (lam+h,dlamdt)
                 double h1 = std::max(1e-6, lam/100);
                 system.SetLambdaAndDerivative(lam+h1, dlam_dt);
-                (*LogFile::Instance()) << "*";
                 system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-                double active_tension_at_lam_plus_h = system.GetActiveTensionAtNextTime();        
+                double active_tension_at_lam_plus_h = system.GetActiveTensionAtNextTime()/this->mScaleFactor;        
 
                 // get active tension for (lam,dlamdt+h)
                 double h2 = std::max(1e-6, dlam_dt/100);
                 system.SetLambdaAndDerivative(lam, dlam_dt+h2);
-                (*LogFile::Instance()) << "^";
                 system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-                double active_tension_at_dlamdt_plus_h = system.GetActiveTensionAtNextTime();        
+                double active_tension_at_dlamdt_plus_h = system.GetActiveTensionAtNextTime()/this->mScaleFactor;        
 
                 d_act_tension_dlam = (active_tension_at_lam_plus_h - active_tension)/h1;
                 d_act_tension_d_dlamdt = (active_tension_at_dlamdt_plus_h - active_tension)/h2;
@@ -300,7 +282,7 @@ private:
             try
             {
                 system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
-                assert( fabs(system.GetActiveTensionAtNextTime()-active_tension)<1e-8);
+                assert( fabs(system.GetActiveTensionAtNextTime()/this->mScaleFactor-active_tension)<1e-8);
             }
             catch (Exception& e)
             {        
