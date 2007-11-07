@@ -112,13 +112,15 @@ template<unsigned DIM>
 Node<DIM>* Tissue<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
 {
     // find the node to which this cell corresponds
-    std::map<unsigned, TissueCell*>::iterator it=mNodeCellMap.begin();
-    while (it != mNodeCellMap.end() && (*it).second != &rCell)
-    {
-        it++;
-    }
-    assert (it != mNodeCellMap.end());
-    unsigned node_index = (*it).first;
+//    std::map<unsigned, TissueCell*>::iterator it=mNodeCellMap.begin();
+//    while (it != mNodeCellMap.end() && (*it).second != &rCell)
+//    {
+//        it++;
+//    }
+//    assert (it != mNodeCellMap.end());
+//    unsigned node_index = (*it).first;
+//    assert (node_index == rCell.GetNodeIndex());
+    unsigned node_index = rCell.GetNodeIndex();
     return mrMesh.GetNode(node_index);   
 }
 
@@ -453,7 +455,7 @@ unsigned Tissue<DIM>::GetNumRealCells()
 template<unsigned DIM>
 TissueCell& Tissue<DIM>::Iterator::operator*()
 {
-    assert((*this) != mrTissue.End());
+    assert(!IsAtEnd());
     return *mCellIter;
 }
 
@@ -461,7 +463,7 @@ TissueCell& Tissue<DIM>::Iterator::operator*()
 template<unsigned DIM>
 TissueCell* Tissue<DIM>::Iterator::operator->()
 {
-    assert((*this) != mrTissue.End());
+    assert(!IsAtEnd());
     return &(*mCellIter);
 }
 
@@ -469,7 +471,7 @@ TissueCell* Tissue<DIM>::Iterator::operator->()
 template<unsigned DIM>
 Node<DIM>* Tissue<DIM>::Iterator::GetNode()
 {
-    assert((*this) != mrTissue.End());
+    assert(!IsAtEnd());
     return mrTissue.rGetMesh().GetNode(mNodeIndex);
 }
 
@@ -491,12 +493,12 @@ typename Tissue<DIM>::Iterator& Tissue<DIM>::Iterator::operator++()
     do
     {
         ++mCellIter;
-        if((*this) != mrTissue.End())
+        if (!IsAtEnd())
         {
             mNodeIndex = mCellIter->GetNodeIndex();
         }
     }
-    while ((*this) != mrTissue.End() && !IsRealCell());
+    while (!IsAtEnd() && !IsRealCell());
   
     return (*this);
 }
@@ -509,13 +511,19 @@ bool Tissue<DIM>::Iterator::IsRealCell()
 }
 
 template<unsigned DIM>
+bool Tissue<DIM>::Iterator::IsAtEnd()
+{
+    return mCellIter == mrTissue.rGetCells().end();
+}
+
+template<unsigned DIM>
 Tissue<DIM>::Iterator::Iterator(Tissue& rTissue, std::list<TissueCell>::iterator cellIter)
     : mrTissue(rTissue),
       mCellIter(cellIter)
 {
     // Make sure the tissue isn't empty
     assert(mrTissue.rGetCells().size() > 0);
-    if (mCellIter != mrTissue.rGetCells().end())
+    if (!IsAtEnd())
     {
         mNodeIndex = cellIter->GetNodeIndex();
     }

@@ -233,26 +233,26 @@ public:
          * Dereference the iterator giving you a *reference* to the current cell.
          * Make sure to use a reference for the result to avoid copying cells unnecessarily.
          */
-        TissueCell& operator*();
+        inline TissueCell& operator*();
         
-        TissueCell* operator->();
+        inline TissueCell* operator->();
         
         /**
          * Get a pointer to the node in the mesh which represents this cell.
          */
-        Node<DIM>* GetNode();
+        inline Node<DIM>* GetNode();
         
         /**
          * Get the location in space of this cell.
          */
-        const c_vector<double, DIM>& rGetLocation();
+        inline const c_vector<double, DIM>& rGetLocation();
         
-        bool operator!=(const Iterator& other);
+        inline bool operator!=(const Iterator& other);
         
         /**
          * Prefix increment operator.
          */
-        Iterator& operator++();
+        inline Iterator& operator++();
         
         /**
          * Constructor for a new iterator.
@@ -266,7 +266,12 @@ public:
          * 
          * Real cells are not ghosts or deleted.
          */
-        bool IsRealCell();
+        inline bool IsRealCell();
+
+	/**
+	 * Private helper function saying whether we're at the end of the cells.
+	 */
+	inline bool IsAtEnd();
     
         Tissue& mrTissue;
         std::list<TissueCell>::iterator mCellIter;
