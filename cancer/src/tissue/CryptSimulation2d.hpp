@@ -164,7 +164,7 @@ private :
                cell_iter != mrTissue.End();
                ++cell_iter)
         {
-            // TODO: don't need this anymore since there'are no ghost nodes,
+            // \todo: don't need this anymore since there'are no ghost nodes,
             // but we'd need to change the visualizer before we take this out
             global_indices.push_back((double) cell_iter.GetNode()->GetIndex());
             x.push_back(cell_iter.rGetLocation()[0]);
@@ -174,7 +174,7 @@ private :
             b_cat_nuclear.push_back(cell_iter->GetCellCycleModel()->GetNuclearBetaCateninLevel());
         }
 
-        // TODO: using SimpleDataWriter is inefficient
+        // \todo: using SimpleDataWriter is inefficient
         std::vector<std::vector<double> > data;
         data.push_back(global_indices);
         data.push_back(x);
@@ -227,80 +227,42 @@ public :
      *
      * First archives simulation time then the simulation itself.
      * 
-     * Note that this method has to be implemented in this class (not sure why.. )
+     * Note that this method has to be implemented in this class,
+     * so you save the right sort of simulation to the archive.
+     * Not really sure why this is needed, but...
      */
     void Save()
     {
-        SimulationTime* p_sim_time = SimulationTime::Instance();
-        assert(p_sim_time->IsStartTimeSetUp());
-        
-        std::string archive_directory = mOutputDirectory + "/archive/";
-        
-        std::ostringstream time_stamp;
-        time_stamp << p_sim_time->GetDimensionalisedTime();
-        
-        // create an output file handler in order to get the full path of the
-        // archive directory. Note the false is so the handler doesn't clean
-        // the directory
-        OutputFileHandler handler(archive_directory, false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "2dCrypt_at_time_"+time_stamp.str()+".arch";
-        std::string mesh_filename = std::string("mesh_") + time_stamp.str();
-        
-        if(mReMesh)
-        {
-            mrTissue.ReMesh();
-        }
-        
-        // the false is so the directory isn't cleaned
-        TrianglesMeshWriter<2,2> mesh_writer(archive_directory, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(mrTissue.rGetMesh());
-        
-        std::ofstream ofs(archive_filename.c_str());
-        boost::archive::text_oarchive output_arch(ofs);
-        
-        // cast to const.
-        const SimulationTime* p_simulation_time = SimulationTime::Instance();
-        output_arch << *p_simulation_time;
-        CryptSimulation2d * p_sim = this;
-        output_arch & p_sim;
-        TissueSimulation<2>::Save();
+        CommonSave(this);
     }
-    
+
     /**
      * Loads a saved tissue simulation to run further.
      *
      * @param rArchiveDirectory the name of the simulation to load
-     * (specified originally by simulator.SetOutputDirectory("wherever"); )
+     * (specified originally by simulation.SetOutputDirectory("wherever"); )
      * @param rTimeStamp the time at which to load the simulation (this must
-     * be one of the times at which the simulation.Save() was called) 
+     * be one of the times at which simulation.Save() was called) 
      * 
-     * Note that this method has to be implemented in this class (not sure why.. )
+     * Note that this method has to be implemented in this class, since it's a static method.
      */
     static CryptSimulation2d* Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
     {
-        // Find the right archive and mesh to load 
-        std::ostringstream time_stamp; 
-        time_stamp << rTimeStamp; 
-         
-        SimulationTime *p_simulation_time = SimulationTime::Instance(); 
-         
-        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory(); 
-         
-        std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/2dCrypt_at_time_"+time_stamp.str() +".arch"; 
-        std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str(); 
-        Tissue<2>::meshPathname = mesh_filename; 
-         
-        // Create an input archive 
-        std::ifstream ifs(archive_filename.c_str(), std::ios::binary); 
-        boost::archive::text_iarchive input_arch(ifs); 
-             
-        // Read the archive 
-        assert(p_simulation_time->IsStartTimeSetUp()); 
-        input_arch >> *p_simulation_time; 
-        
+	std::string archive_filename =
+            TissueSimulation<2>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
+	//std::cout << "Crypt.Load(): from " << archive_filename <<  std::endl << std::flush;
+
+        // Create an input archive
+        std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+        boost::archive::text_iarchive input_arch(ifs);
+	//std::cout << "Crypt.Load(): opened archive\n" << std::flush;
+
+	TissueSimulation<2>::CommonLoad(input_arch);
+	//std::cout << "Crypt.Load(): loaded time\n" << std::flush;
+
         CryptSimulation2d* p_sim; 
-        
-        input_arch >> p_sim; 
+        input_arch >> p_sim;
+	//std::cout << "Crypt.Load(): loaded sim\n" << std::flush;
          
         if (p_sim->rGetTissue().rGetMesh().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size()) 
         { 
@@ -331,6 +293,7 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const CryptSimulation2d * t, const BOOST_PFTO unsigned int file_version)
 {
+    //std::cout << "Save Crypt construct data\n" << std::flush;
     // save data required to construct instance
     const Tissue<2> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
@@ -347,12 +310,13 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise Tissue.
+ * De-serialize constructor parameters and initialise Crypt.
  */
 template<class Archive>
 inline void load_construct_data(
     Archive & ar, CryptSimulation2d * t, const unsigned int file_version)
 {
+    //std::cout << "load Crypt construct data\n" << std::flush;
     // retrieve data from archive required to construct new instance
     Tissue<2>* p_tissue;
 

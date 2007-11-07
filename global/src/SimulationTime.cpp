@@ -63,7 +63,7 @@ void SimulationTime::SetStartTime(double startTime)
  *  -- see GetDimensionalisedTime.
  * @return time step
  */
-double SimulationTime::GetTimeStep()
+double SimulationTime::GetTimeStep() const
 {
     assert(mStartTimeSet);
     assert(mEndTimeAndNumberOfTimeStepsSet);
@@ -87,7 +87,7 @@ void SimulationTime::IncrementTimeOneStep()
  * Get the number of time steps that have elapsed.
  * @return number of time steps
  */
-unsigned SimulationTime::GetTimeStepsElapsed()
+unsigned SimulationTime::GetTimeStepsElapsed() const
 {
     assert(mEndTimeAndNumberOfTimeStepsSet);
     return mTimeStepsElapsed;
@@ -98,15 +98,13 @@ unsigned SimulationTime::GetTimeStepsElapsed()
  * Should not have rounding errors.
  * @return simulation time
  */
-double SimulationTime::GetDimensionalisedTime()
+double SimulationTime::GetDimensionalisedTime() const
 {
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
     // IMPORTANT NOTE: if this assertion fails, it may be because Destroy   //
     // wasn't called in the previous test                                   //
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
     assert(mStartTimeSet);
-    
-    //std::cout << "Current Time = " << mCurrentDimensionalisedTime << "\n" << std::flush;
     
     return mCurrentDimensionalisedTime;
 }
@@ -165,17 +163,17 @@ void SimulationTime::ResetEndTimeAndNumberOfTimeSteps(const double& rEndTime, co
 /**
  * Allows lower classes to check whether the simulation time class has been set up before using it
  */
-bool SimulationTime::IsStartTimeSetUp()
+bool SimulationTime::IsStartTimeSetUp() const
 {
     return mStartTimeSet;
 }
 
-bool SimulationTime::IsFinished()
+bool SimulationTime::IsFinished() const
 {
     return(mCurrentDimensionalisedTime>=mEndTime);
 }
 
-unsigned SimulationTime::GetTotalNumberOfTimeSteps()
+unsigned SimulationTime::GetTotalNumberOfTimeSteps() const
 {
     return mTotalTimeStepsInSimulation;
 }

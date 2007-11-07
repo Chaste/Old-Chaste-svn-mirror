@@ -550,82 +550,90 @@ void TissueSimulation<DIM>::Solve()
  * Saves the whole tissue simulation for restarting later.
  *
  * Puts it in the folder mOutputDirectory/archive/
- * and the file "tissue_sim_at_time_<SIMULATION TIME>.arch"
+ * and the file "tissue_sim_at_time_<SIMULATION TIME>.arch".
+ * The mesh is written to files in the same folder.
  *
  * First archives simulation time then the simulation itself.
  */
-template<unsigned DIM> 
+template<unsigned DIM>
 void TissueSimulation<DIM>::Save()
 {
-    SimulationTime* p_sim_time = SimulationTime::Instance();
+    CommonSave(this);
+}
+
+/**
+ * The function that does the actual work.  Templated over the type
+ * of simulation that's actually being saved, since normal inheritance
+ * doesn't seem to work for this - we get segfaults on loading.
+ * Not sure why this is so, but...
+ *
+ * @param pSim = this, but with the type explicit
+ */
+template<unsigned DIM>
+template<class SIM>
+void TissueSimulation<DIM>::CommonSave(SIM* pSim)
+{
+    //std::cout << "Tissue.Save()\n" << std::flush;
+    // Get the simulation time as a string
+    const SimulationTime* p_sim_time = SimulationTime::Instance();
     assert(p_sim_time->IsStartTimeSetUp());
-    
-    std::string archive_directory = mOutputDirectory + "/archive/";
-    
     std::ostringstream time_stamp;
     time_stamp << p_sim_time->GetDimensionalisedTime();
     
-    // create an output file handler in order to get the full path of the
-    // archive directory. Note the false is so the handler doesn't clean
-    // the directory
+    // Create an output file handler in order to get the full path of the
+    // archive directory.  Note the false is so the handler doesn't clean
+    // the directory.
+    std::string archive_directory = mOutputDirectory + "/archive/";
     OutputFileHandler handler(archive_directory, false);
     std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue_sim_at_time_"+time_stamp.str()+".arch";
     std::string mesh_filename = std::string("mesh_") + time_stamp.str();
     
+    // Write the mesh to file.  Remesh first to ensure it's in a good state.
     if(mReMesh)
     {
         mrTissue.ReMesh();
     }
-
     
     // the false is so the directory isn't cleaned
     TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);
     mesh_writer.WriteFilesUsingMesh(mrTissue.rGetMesh());
     
+    // Create a new archive
     std::ofstream ofs(archive_filename.c_str());
     boost::archive::text_oarchive output_arch(ofs);
     
-    // cast to const.
-    const SimulationTime* p_simulation_time = SimulationTime::Instance();
-    output_arch << *p_simulation_time;
-    TissueSimulation<DIM> * p_sim = this;
-    output_arch & p_sim;
+    // Save the simulation.  We save the time directly first to maintain its
+    // singleton-ness on load.
+    output_arch << *p_sim_time;
+    //TissueSimulation<DIM> * p_sim = this;
+    output_arch & pSim; // const-ness would be a pain here
 }
 
 /**
  * Loads a saved tissue simulation to run further.
  *
  * @param rArchiveDirectory the name of the simulation to load
- * (specified originally by simulator.SetOutputDirectory("wherever"); )
+ * (specified originally by simulation.SetOutputDirectory("wherever"); )
  * @param rTimeStamp the time at which to load the simulation (this must
- * be one of the times at which the simulation.Save() was called)
+ * be one of the times at which simulation.Save() was called)
  */
 template<unsigned DIM> 
 TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
 {
-    // Find the right archive and mesh to load
-    std::ostringstream time_stamp;
-    time_stamp << rTimeStamp;
-    
-    SimulationTime *p_simulation_time = SimulationTime::Instance();
-    
-    std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-    
-    std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/tissue_sim_at_time_"+time_stamp.str() +".arch";
-    std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str();
-    Tissue<DIM>::meshPathname = mesh_filename;
-    
+    //std::cout << "Tissue.Load()" << std::endl << std::flush;
+    std::string archive_filename = TissueSimulation<DIM>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
+
     // Create an input archive
     std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
     boost::archive::text_iarchive input_arch(ifs);
+    //std::cout << "Tissue.Load(): loading from " << archive_filename << std::endl << std::flush;
+
+    TissueSimulation<DIM>::CommonLoad(input_arch);
+    //std::cout << "Tissue.Load(): loaded time" << std::endl << std::flush;
         
-    // Read the archive
-    assert(p_simulation_time->IsStartTimeSetUp());
-    input_arch >> *p_simulation_time;
-
     TissueSimulation<DIM>* p_sim;
-
     input_arch >> p_sim;
+    //std::cout << "Tissue.Load(): loaded sim" << std::endl << std::flush;
 
     if (p_sim->rGetTissue().rGetMesh().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size())
     {
@@ -639,6 +647,42 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
     }
     
     return p_sim;
+}
+
+/**
+ * Find the right archive (and mesh) to load.  The files are contained within
+ * the 'archive' folder in rArchiveDirectory, with the archive itself called
+ * 'tissue_sim_at_time_`rTimeStamp`.arch'.  The path to this file is returned.
+ *
+ * The path to the mesh is stored as Tissue<DIM>::meshPathname for use by the
+ * Tissue de-serialization routines.
+ */
+template<unsigned DIM>
+std::string TissueSimulation<DIM>::GetArchivePathname(const std::string& rArchiveDirectory, const double& rTimeStamp)
+{
+    // Find the right archive and mesh to load
+    std::ostringstream time_stamp;
+    time_stamp << rTimeStamp;
+    
+    std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+    
+    std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/tissue_sim_at_time_"+time_stamp.str() +".arch";
+    std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str();
+    Tissue<DIM>::meshPathname = mesh_filename;
+    return archive_filename;
+}
+
+/**
+ * Load any data from the archive that isn't the simulation class itself.
+ * At present this is just the simulation time.
+ */
+template<unsigned DIM>
+void TissueSimulation<DIM>::CommonLoad(boost::archive::text_iarchive& rInputArch)
+{
+    // Load simulation time
+    SimulationTime *p_simulation_time = SimulationTime::Instance();
+    assert(p_simulation_time->IsStartTimeSetUp());
+    rInputArch >> *p_simulation_time;
 }
 
 /**

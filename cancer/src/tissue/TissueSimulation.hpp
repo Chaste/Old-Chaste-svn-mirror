@@ -251,11 +251,19 @@ public:
 
     void Solve();
     
-    void Save();
-    static TissueSimulation<DIM>* Load(const std::string& rArchiveDirectory, const double& rTimeStamp);
-
     Tissue<DIM>& rGetTissue();
     const Tissue<DIM>& rGetTissue() const;
+
+    // Serialization methods
+    virtual void Save();
+    static TissueSimulation<DIM>* Load(const std::string& rArchiveDirectory,
+                                       const double& rTimeStamp);
+protected:
+    static std::string GetArchivePathname(const std::string& rArchiveDirectory,
+                                          const double& rTimeStamp);
+    static void CommonLoad(boost::archive::text_iarchive& rInputArch);
+    template<class SIM>
+    void CommonSave(SIM* pSim);
 };
 
 
@@ -265,23 +273,24 @@ namespace serialization
 {
 /**
  * Serialize information required to construct a TissueSimulation.
+ *
+ * \todo Shouldn't saving the Wnt gradient happen *before* saving the Tissue?
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
     Archive & ar, const TissueSimulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
+    //std::cout << "Save TissueSim construct data\n" << std::flush;
     // save data required to construct instance
     const Tissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     
-    bool archive_wnt;
-    archive_wnt=WntGradient::Instance()->IsGradientSetUp();
+    bool archive_wnt = WntGradient::Instance()->IsGradientSetUp();
     ar & archive_wnt;
     if (archive_wnt)
     {
         WntGradient* p_wnt_gradient = WntGradient::Instance();
         ar & *p_wnt_gradient;
-        ar & p_wnt_gradient;
     }
 }
 
@@ -292,17 +301,17 @@ template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, TissueSimulation<DIM> * t, const unsigned int file_version)
 {
+    //std::cout << "Load TissueSim construct data\n" << std::flush;
     // retrieve data from archive required to construct new instance
     Tissue<DIM>* p_tissue;
-
     ar >> p_tissue;
+
     bool archive_wnt;
     ar & archive_wnt;
     if (archive_wnt)
     {
         WntGradient* p_wnt_gradient = WntGradient::Instance();
         ar & *p_wnt_gradient;
-        ar & p_wnt_gradient;
     }
     // invoke inplace constructor to initialize instance
     ::new(t)TissueSimulation<DIM>(*p_tissue, true);

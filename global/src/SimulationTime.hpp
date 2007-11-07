@@ -6,8 +6,8 @@
 #include "Exception.hpp"
 
 /**
- * Simulation time object stores the simulation time, uses the
- * singleton pattern
+ * Simulation time object stores the simulation time.
+ * It uses the singleton pattern to provide a globally consistent time.
  */
 class SimulationTime
 {
@@ -15,14 +15,14 @@ public:
     static SimulationTime* Instance();
     void SetEndTimeAndNumberOfTimeSteps(double, unsigned);
     void ResetEndTimeAndNumberOfTimeSteps(const double&, const unsigned&);
-    double GetTimeStep();
+    double GetTimeStep() const;
     void IncrementTimeOneStep();
-    unsigned GetTimeStepsElapsed();
-    double GetDimensionalisedTime();
+    unsigned GetTimeStepsElapsed() const;
+    double GetDimensionalisedTime() const;
     static void Destroy();
-    bool IsStartTimeSetUp();
-    bool IsFinished();
-    unsigned GetTotalNumberOfTimeSteps();
+    bool IsStartTimeSetUp() const;
+    bool IsFinished() const;
+    unsigned GetTotalNumberOfTimeSteps() const;
     void SetStartTime(double currentTime);
 protected:
     SimulationTime();
