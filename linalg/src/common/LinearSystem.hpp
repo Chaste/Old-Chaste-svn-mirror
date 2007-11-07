@@ -1,10 +1,10 @@
 #ifndef _LINEARSYSTEM_HPP_
 #define _LINEARSYSTEM_HPP_
 
+#include "UblasCustomFunctions.hpp"
 #include <petscvec.h>
 #include <petscmat.h>
 #include <petscksp.h>
-#include "UblasCustomFunctions.hpp"
 
 class AbstractLinearSolver;
 

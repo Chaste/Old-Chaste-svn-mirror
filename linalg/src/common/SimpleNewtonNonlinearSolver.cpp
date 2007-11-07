@@ -1,6 +1,6 @@
+#include "SimpleNewtonNonlinearSolver.hpp"
 #include <iostream>
 #include <cassert>
-#include "SimpleNewtonNonlinearSolver.hpp"
 #include "Exception.hpp"
 
 SimpleNewtonNonlinearSolver::SimpleNewtonNonlinearSolver(double linearSolverRelativeTolerance)

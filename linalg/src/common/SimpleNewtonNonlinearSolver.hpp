@@ -1,9 +1,9 @@
 #ifndef SIMPLENEWTONNONLINEARSOLVER_HPP_
 #define SIMPLENEWTONNONLINEARSOLVER_HPP_
 
+#include "LinearSystem.hpp"
 #include "AbstractNonlinearSolver.hpp"
 #include "SimpleLinearSolver.hpp"
-#include "LinearSystem.hpp"
 #include <vector>
 
 class SimpleNewtonNonlinearSolver : public AbstractNonlinearSolver
