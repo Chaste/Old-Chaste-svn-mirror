@@ -38,7 +38,7 @@ private:
     bool mMatrixIsConstant;
     KSP mSimpleSolver;
     double mNonZerosUsed; //Yes, it really is stored as a double.
-    
+    //double mMatrixNorm; //Temporary for debugging
 };
 
 #endif // _SIMPLELINEARSOLVER_H_

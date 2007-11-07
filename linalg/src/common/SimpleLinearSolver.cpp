@@ -24,10 +24,11 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNu
     //Double check that the non-zero pattern hasn't changed
     MatInfo mat_info;
     MatGetInfo(lhsMatrix, MAT_GLOBAL_SUM, &mat_info);
- 
+    
     if (!mLinearSystemKnown)
     {
         mNonZerosUsed=mat_info.nz_used;
+        //MatNorm(lhsMatrix, NORM_FROBENIUS, &mMatrixNorm);
         PC prec; //Type of pre-conditioner
         
         KSPCreate(PETSC_COMM_WORLD, &mSimpleSolver);
@@ -82,6 +83,19 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNu
         {
             EXCEPTION("SimpleLinearSolver doesn't allow the non-zero pattern of a matrix to change. (I think you changed it).");
         }
+//        if (mMatrixIsConstant)
+//        {
+//            double lhs_norm_now;
+//            MatNorm(lhsMatrix, NORM_FROBENIUS, &lhs_norm_now);
+//                 std::cout<<"mMatrixNorm\t"<<mMatrixNorm<<"\tlhs_norm_now\t"<<lhs_norm_now<<"\n";
+//            if (lhs_norm_now != mMatrixNorm)
+//            {
+//                 std::cout<<"mMatrixNorm\t"<<mMatrixNorm<<"\tlhs_norm_now\t"<<lhs_norm_now<<"\n";
+//                 
+//                 EXCEPTION("The matrix (which you said would be constant) is not constant.");
+//            }
+//        }
+        
         #undef COVERAGE_IGNORE
     }
     

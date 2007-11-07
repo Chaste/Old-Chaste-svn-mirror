@@ -137,7 +137,7 @@ public :
         VecDestroy(initial_condition);
     }
     
-    //Ticket 485
+    //Ticket 487
     void PleaseFixTestParabolicFlaggedMeshAssembler() throw (Exception)
     {
         if (!PetscTools::IsSequential())
