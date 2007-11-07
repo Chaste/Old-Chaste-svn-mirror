@@ -4,6 +4,7 @@
 #include <petscvec.h>
 #include <petscmat.h>
 #include <petscksp.h>
+#include "UblasCustomFunctions.hpp"
 
 class AbstractLinearSolver;
 
@@ -44,7 +45,7 @@ public:
     void SetMatrixElement(PetscInt row, PetscInt col, double value);
     void AddToMatrixElement(PetscInt row, PetscInt col, double value);
     void AddToMatrixElements(PetscInt m, PetscInt idxm[], PetscInt n, PetscInt idxn[], double v[]);
-    
+
     void AssembleFinalLinearSystem();         // Call before solve
     void AssembleIntermediateLinearSystem();  // Should be called before AddToMatrixElement
     void AssembleFinalLhsMatrix();
@@ -73,6 +74,34 @@ public:
     double GetMatrixElement(PetscInt row, PetscInt col);
     double GetRhsVectorElement(PetscInt row);
     //void WriteLinearSystem(std::string matrixFile, std::string rhsVectorFile);
+    
+      
+    template<unsigned MAT_SIZE>
+    void AddMultipleValues(PetscInt* matrixColIndices, c_matrix<double, MAT_SIZE, MAT_SIZE>& smallMatrix)
+    {
+        PetscInt matrix_row_indices[MAT_SIZE];
+        PetscInt num_rows_owned=0; 
+        unsigned num_values_owned=0;
+        
+        double values[MAT_SIZE*MAT_SIZE];
+        for (unsigned row = 0 ; row<MAT_SIZE; row++)
+        {
+            PetscInt global_row = matrixColIndices[row];
+            if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
+            {
+                matrix_row_indices[num_rows_owned++] = global_row ;
+                for (unsigned col=0; col<MAT_SIZE; col++)
+                {
+                    values[num_values_owned++] = smallMatrix(row,col);
+                }
+            }
+        }
+        
+        
+        AddToMatrixElements(num_rows_owned, matrix_row_indices, MAT_SIZE, matrixColIndices, values);
+        
+    };
+    
     
 };
 

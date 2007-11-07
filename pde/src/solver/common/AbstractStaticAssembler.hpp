@@ -119,10 +119,10 @@ protected:
                                     *n = (*n) + 1;                                                            
                                 }
 
-                                //v[n_elem++] = a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+l);
-                                unsigned x = PROBLEM_DIM*i+k;
-                                unsigned y = PROBLEM_DIM*j+l;        
-                                v[x*num_elem_nodes*PROBLEM_DIM + y] = a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+l);
+                                unsigned small_mat_row = PROBLEM_DIM*i+k;
+                                unsigned small_mat_col = PROBLEM_DIM*j+l;
+                                unsigned small_mat_num_cols = PROBLEM_DIM*(ELEMENT_DIM+1);        
+                                v[small_mat_row*small_mat_num_cols + small_mat_col] = a_elem(small_mat_row, small_mat_col);
   
                                 //std::cout << PROBLEM_DIM*node1+k << " " << PROBLEM_DIM*node2+l << " : " << a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+l) << std::endl;
                             //mpLinearSystem->AddToMatrixElement( PROBLEM_DIM*node1+k,

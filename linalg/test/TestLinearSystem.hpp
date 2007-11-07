@@ -9,6 +9,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
 
+
 class TestLinearSystem : public CxxTest::TestSuite
 {
 public:
@@ -301,6 +302,47 @@ public:
         VecDestroy(good_guess);
         VecDestroy(bad_guess);
         
+    }
+    
+    void TestAddMultipleValues( void )
+    {
+        
+        LinearSystem syst = LinearSystem(3);
+        
+        c_matrix<double, 2, 2> small_matrix;
+        
+        small_matrix(0,0) = 1;
+        small_matrix(0,1) = 2;
+        small_matrix(1,0) = 3;
+        small_matrix(1,1) = 4;
+        
+        PetscInt large_matrix_indices[2]={0,2};
+        
+        syst.AddMultipleValues(large_matrix_indices, small_matrix);
+        
+        syst.AssembleFinalLhsMatrix();
+    
+        PetscInt lo, hi;    
+        syst.GetOwnershipRange(lo, hi);
+        
+        if (lo <=0 && 0<hi)
+        {
+            TS_ASSERT_EQUALS(syst.GetMatrixElement(0,0), 1);
+            TS_ASSERT_EQUALS(syst.GetMatrixElement(0,1), 0);
+            TS_ASSERT_EQUALS(syst.GetMatrixElement(0,2), 2);
+        }
+        if (lo <=1 && 1<hi)
+        {
+            TS_ASSERT_EQUALS(syst.GetMatrixElement(1,0), 0);
+            TS_ASSERT_EQUALS(syst.GetMatrixElement(1,1), 0);
+            TS_ASSERT_EQUALS(syst.GetMatrixElement(1,2), 0);
+        }
+        if (lo <=2 && 2<hi)
+        {    
+            TS_ASSERT_EQUALS(syst.GetMatrixElement(2,0), 3);
+            TS_ASSERT_EQUALS(syst.GetMatrixElement(2,1), 0);
+            TS_ASSERT_EQUALS(syst.GetMatrixElement(2,2), 4);        
+        }
     }
     
 };
