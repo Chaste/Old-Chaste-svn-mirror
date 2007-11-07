@@ -228,6 +228,14 @@ public:
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         p_data->SetTissue(tissue);
         
+        // since values are first passed in to CellwiseData before it is updated in PostSolve(),
+        // we need to pass it some initial conditions to avoid memory errors
+        // (note: it would really make more sense to put the PDE solver stuff in a PreSolve method)  
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+			p_data->SetValue(1.0, p_mesh->GetNode(i));
+		}
+        
         // set up PDE
         SimpleOxygenPde pde;
         
