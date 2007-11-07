@@ -115,8 +115,19 @@ public :
         MatSetSizes(rMat,numLocalRows,numLocalColumns,numRows,numColumns);
         #endif
     
-        MatSetType(rMat, matType);
-        // MatMPIAIJSetPreallocation(rMat, 16, PETSC_NULL, 0, PETSC_NULL); // based on 2d uniprocessor performance work (LM)
+        MatSetType(rMat, matType);        
+        
+        if (strcmp(matType,MATMPIAIJ)==0)
+        {
+            //  18 is an upper bound for the numbers of elements per row,
+            // based on a maximum of 9 elements containing the same node
+            MatMPIAIJSetPreallocation(rMat, 18, PETSC_NULL, 18, PETSC_NULL);
+        }
+        else if (strcmp(matType,MATSEQAIJ)==0)
+        {
+            MatSeqAIJSetPreallocation(rMat, 18, PETSC_NULL);
+        }
+        
         MatSetFromOptions(rMat);
     }
     

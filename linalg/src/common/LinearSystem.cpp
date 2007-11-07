@@ -5,7 +5,7 @@
 #include "LinearSystem.hpp"
 #include "AbstractLinearSolver.hpp"
 #include "PetscException.hpp"
-//#include <iostream>
+#include <iostream>
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
 #include <cassert>
@@ -130,6 +130,12 @@ void LinearSystem::AddToMatrixElement(PetscInt row, PetscInt col, double value)
     }
 }
 
+void LinearSystem::AddToMatrixElements(PetscInt m, PetscInt idxm[], PetscInt n, PetscInt idxn[], double v[])
+{
+    MatSetValues(mLhsMatrix, m, idxm, n, idxn, v, ADD_VALUES);
+}
+
+
 void LinearSystem::AssembleFinalLinearSystem()
 {
     AssembleFinalLhsMatrix();
@@ -178,6 +184,11 @@ void LinearSystem::AddToRhsVectorElement(PetscInt row, double value)
     {
         VecSetValues(mRhsVector, 1, &row, &value, ADD_VALUES);
     }
+}
+
+void LinearSystem::AddToRhsVectorElements(PetscInt m_rhs, PetscInt idx_rhs[], double rhs[])
+{
+    VecSetValues(mRhsVector, m_rhs, idx_rhs, rhs, ADD_VALUES);
 }
 
 void LinearSystem::DisplayMatrix()
