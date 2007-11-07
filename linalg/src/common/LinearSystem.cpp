@@ -130,11 +130,6 @@ void LinearSystem::AddToMatrixElement(PetscInt row, PetscInt col, double value)
     }
 }
 
-void LinearSystem::AddToMatrixElements(PetscInt m, PetscInt idxm[], PetscInt n, PetscInt idxn[], double v[])
-{
-    MatSetValues(mLhsMatrix, m, idxm, n, idxn, v, ADD_VALUES);
-}
-
 
 void LinearSystem::AssembleFinalLinearSystem()
 {

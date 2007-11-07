@@ -316,7 +316,7 @@ public:
         small_matrix(1,0) = 3;
         small_matrix(1,1) = 4;
         
-        PetscInt large_matrix_indices[2]={0,2};
+        unsigned large_matrix_indices[2]={0,2};
         
         syst.AddMultipleValues(large_matrix_indices, small_matrix);
         

@@ -44,7 +44,6 @@ public:
 //    bool IsRhsVectorEqualTo(Vec testVector);
     void SetMatrixElement(PetscInt row, PetscInt col, double value);
     void AddToMatrixElement(PetscInt row, PetscInt col, double value);
-    void AddToMatrixElements(PetscInt m, PetscInt idxm[], PetscInt n, PetscInt idxn[], double v[]);
 
     void AssembleFinalLinearSystem();         // Call before solve
     void AssembleIntermediateLinearSystem();  // Should be called before AddToMatrixElement
@@ -75,9 +74,18 @@ public:
     double GetRhsVectorElement(PetscInt row);
     //void WriteLinearSystem(std::string matrixFile, std::string rhsVectorFile);
     
+    
+    /***
+     * Add multiple values to a the linear system
+     * @param matrixRowAndColIndices mapping from index of the ublas matrix (see param below)
+     *  to index of the Petsc matrix of this linear system
+     * @param smallMatrix Ublas matrix containing the values to be added
+     * 
+     * N.B. Values which are not local (ie the row is not owned) will be skipped.
+     */
       
     template<unsigned MAT_SIZE>
-    void AddMultipleValues(PetscInt* matrixColIndices, c_matrix<double, MAT_SIZE, MAT_SIZE>& smallMatrix)
+    void AddMultipleValues(unsigned* matrixRowAndColIndices, c_matrix<double, MAT_SIZE, MAT_SIZE>& smallMatrix)
     {
         PetscInt matrix_row_indices[MAT_SIZE];
         PetscInt num_rows_owned=0; 
@@ -86,7 +94,7 @@ public:
         double values[MAT_SIZE*MAT_SIZE];
         for (unsigned row = 0 ; row<MAT_SIZE; row++)
         {
-            PetscInt global_row = matrixColIndices[row];
+            PetscInt global_row = matrixRowAndColIndices[row];
             if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
             {
                 matrix_row_indices[num_rows_owned++] = global_row ;
@@ -98,7 +106,14 @@ public:
         }
         
         
-        AddToMatrixElements(num_rows_owned, matrix_row_indices, MAT_SIZE, matrixColIndices, values);
+    
+        MatSetValues(mLhsMatrix,
+                     num_rows_owned,
+                     matrix_row_indices,
+                     MAT_SIZE,
+                     (PetscInt*) matrixRowAndColIndices,
+                     values,
+                     ADD_VALUES);
         
     };
     

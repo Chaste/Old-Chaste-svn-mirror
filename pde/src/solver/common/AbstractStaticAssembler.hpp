@@ -460,46 +460,14 @@ protected:
             
             if (element.GetOwnership() == true)
             {
-//                const PetscInt max_size = PROBLEM_DIM*(ELEMENT_DIM+1);    
-//                PetscInt m, n, m_rhs; 
-//                PetscInt idxn[max_size], idxm[max_size], idx_rhs[max_size];
-//                double v[max_size*max_size], rhs[max_size];                                         
-//                
-//                AssembleOnElementPetscFormat(element, &m, idxm, &n, idxn, v, &m_rhs, idx_rhs, rhs,  assembleVector, assembleMatrix, num_elem_nodes);                
-//
-//                if (assembleMatrix) mpLinearSystem->AddToMatrixElements(m, idxm, m, idxn, v);
-//
-//                if (assembleVector) mpLinearSystem->AddToRhsVectorElements(m, idx_rhs, rhs);              
-
-
-/* DEBUGGING
-//                for (PetscInt i=0; i<m; i++){
-//                    std::cout << idxm[i] << " ";                                      
-//                }
-//                std::cout << std::endl;
-//
-//                for (PetscInt i=0; i<n; i++){
-//                    std::cout << idxn[i] << " ";                                      
-//                }
-//                std::cout << std::endl;
-//
-//                for (PetscInt i=0; i<m; i++){
-//                    for (PetscInt j=0; j<n; j++){
-//                        std::cout << v[i*n + j] << " ";                                      
-//                    }
-//                    std::cout << std::endl;
-//                }
-//                std::cout << std::endl;
-*/                
-
                 AssembleOnElement(element, a_elem, b_elem, assembleVector, assembleMatrix);
                 
-                for (unsigned i=0; i<num_elem_nodes; i++)
+                if (assembleMatrix)
                 {
+                    for (unsigned i=0; i<num_elem_nodes; i++)
+                    {
                     unsigned node1 = element.GetNodeGlobalIndex(i);
                     
-                    if (assembleMatrix)
-                    {
                         for (unsigned j=0; j<num_elem_nodes; j++)
                         {
                             unsigned node2 = element.GetNodeGlobalIndex(j);
@@ -508,11 +476,6 @@ protected:
                             {
                                 for (unsigned m=0; m<PROBLEM_DIM; m++)
                                 {
-                                    // the following expands to, for (eg) the case of two unknowns:
-                                    // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2,   a_elem(2*i,   2*j));
-                                    // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2,   a_elem(2*i+1, 2*j));
-                                    // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2+1, a_elem(2*i,   2*j+1));
-                                    // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2+1, a_elem(2*i+1, 2*j+1));
                                     mpLinearSystem->AddToMatrixElement( PROBLEM_DIM*node1+k,
                                                                         PROBLEM_DIM*node2+m,
                                                                         a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m) );
@@ -520,18 +483,21 @@ protected:
                             }
                         }
                     }
-                    
-                    if (assembleVector)
+                }
+                
+                if (assembleVector)
+                {
+                    for (unsigned i=0; i<num_elem_nodes; i++)
                     {
+                        unsigned node1 = element.GetNodeGlobalIndex(i);
                         for (unsigned k=0; k<PROBLEM_DIM; k++)
                         {
                             mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
                         }
                     }
                 }
-                
-                
             }
+                
             iter++;
         }
         

@@ -245,6 +245,15 @@ public:
         return mFlag;
     }
     
+    
+    /***
+     * Place in the pIndices array, the global indices (within the stiffness matrix)
+     * of the degrees of freedom associated with this element.
+     * 
+     * @param problemDim the problem dimension e.g. 2 for Bidomain.
+     * @param pIndices where to store results: an unsigned array with ELEMENT_DIM+1 entries.
+     * 
+     */
     void GetStiffnessMatrixGlobalIndices(unsigned problemDim, unsigned* pIndices)
     {
         
