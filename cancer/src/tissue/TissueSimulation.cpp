@@ -499,7 +499,7 @@ void TissueSimulation<DIM>::Solve()
         }
 
         //  calculate node velocities
-        std::vector<c_vector<double, DIM> > drdt = mpMechanicsSystem->CalculateVelocitiesOfEachNode();
+        std::vector<c_vector<double, DIM> >& drdt = mpMechanicsSystem->rCalculateVelocitiesOfEachNode();
 
         // update node positions
         UpdateNodePositions(drdt);

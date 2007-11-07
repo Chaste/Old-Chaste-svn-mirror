@@ -8,6 +8,7 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
+#include <ctime>
 #include <vector>
 #include "OutputFileHandler.hpp"
 #include "TissueCell.hpp"
@@ -72,6 +73,18 @@ class TestCryptSimulation2d : public CxxTest::TestSuite
                 TS_ASSERT_EQUALS(p_elt->GetNodeGlobalIndex(i), p_elt2->GetNodeGlobalIndex(i));
             }
         }
+    }
+    
+    double mLastStartTime;
+    void setUp()
+    {
+        mLastStartTime = std::clock();
+    }
+    void tearDown()
+    {
+        double time = std::clock();
+        double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
+        std::cout << "Elapsed time: " << elapsed_time << std::endl;
     }
 
 public:
@@ -1106,7 +1119,7 @@ public:
         
         CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("CryptBetaCatenin");
-        simulator.SetEndTime(0.1);
+        simulator.SetEndTime(0.01);
         
         simulator.Solve();
 

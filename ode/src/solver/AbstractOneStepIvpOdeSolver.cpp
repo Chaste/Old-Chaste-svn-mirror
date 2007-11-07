@@ -31,12 +31,12 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     solutions.rGetSolutions().push_back(rYValues);
     solutions.rGetTimes().push_back(startTime);
     
-    std::vector<double> working_memory(rYValues.size());
+    mWorkingMemory.resize(rYValues.size());
     
     // Solve the ODE system
     while ( !stepper.IsTimeAtEnd() && !mStoppingEventOccured )
     {
-        InternalSolve(pOdeSystem, rYValues, working_memory, stepper.GetTime(), stepper.GetNextTime(), timeStep);
+        InternalSolve(pOdeSystem, rYValues, mWorkingMemory, stepper.GetTime(), stepper.GetNextTime(), timeStep);
         stepper.AdvanceOneTimeStep();
         // write current solution into solutions
         solutions.rGetSolutions().push_back(rYValues);
@@ -51,7 +51,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
         }
     }
     
-    // stepper.EstiamteTimeSteps may have been an overestimate...
+    // stepper.EstimateTimeSteps may have been an overestimate...
     solutions.SetNumberOfTimeSteps(stepper.GetTimeStepsElapsed());
     return solutions;
 }
@@ -72,10 +72,10 @@ void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
         EXCEPTION("(Solve without sampling) Stopping event is true for initial condition");
     }
     
-    // Allocate working memory
-    std::vector<double> working_memory(rYValues.size());
+    // Perhaps resize working memory
+    mWorkingMemory.resize(rYValues.size());
     // And solve...
-    InternalSolve(pOdeSystem, rYValues, working_memory, startTime, endTime, timeStep);
+    InternalSolve(pOdeSystem, rYValues, mWorkingMemory, startTime, endTime, timeStep);
 }
 
 

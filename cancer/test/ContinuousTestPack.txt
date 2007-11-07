@@ -1,5 +1,4 @@
 TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
-TestArchiveFormat.hpp
 TestCellwiseData.hpp
 TestCellCycleModelsOde.hpp
 TestCellCycleModelsSimple.hpp

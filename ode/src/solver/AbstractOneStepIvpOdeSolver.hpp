@@ -9,6 +9,12 @@
 
 class AbstractOneStepIvpOdeSolver : public AbstractIvpOdeSolver
 {
+private:
+    /**
+     * Working memory
+     */
+    std::vector<double> mWorkingMemory;
+    
 protected:
     /**
      * Method that actually performs the solving on behalf of the public Solve methods.

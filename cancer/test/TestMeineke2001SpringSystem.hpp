@@ -66,7 +66,7 @@ public:
          ************************************************************************ 
          */
                 
-        std::vector<c_vector<double, 2> > velocities_on_each_node = meineke_spring_system.CalculateVelocitiesOfEachNode();
+        std::vector<c_vector<double, 2> >& velocities_on_each_node = meineke_spring_system.rCalculateVelocitiesOfEachNode();
  
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
@@ -87,7 +87,7 @@ public:
         new_point.rGetLocation()[1] = old_point[1];
   
         p_mesh->SetNode(59, new_point, false);
-        velocities_on_each_node = meineke_spring_system.CalculateVelocitiesOfEachNode();
+        velocities_on_each_node = meineke_spring_system.rCalculateVelocitiesOfEachNode();
         
         TS_ASSERT_DELTA(velocities_on_each_node[60][0], 0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantMutant(), 1e-4);
         TS_ASSERT_DELTA(velocities_on_each_node[60][1], 0.0, 1e-4);
@@ -313,7 +313,7 @@ public:
 
         Meineke2001SpringSystem<2> meineke_spring_system(crypt);
                              
-        std::vector<c_vector<double,2> > velocities = meineke_spring_system.CalculateVelocitiesOfEachNode();
+        std::vector<c_vector<double,2> >& velocities = meineke_spring_system.rCalculateVelocitiesOfEachNode();
         std::vector<double> norm_vel;
         
         for(unsigned i=0; i<velocities.size(); i++)
@@ -328,7 +328,7 @@ public:
         // now check that the velocities scale correctly when the viscosity is area-dependent
         meineke_spring_system.SetAreaBasedViscosity(true);
         
-        velocities = meineke_spring_system.CalculateVelocitiesOfEachNode();
+        velocities = meineke_spring_system.rCalculateVelocitiesOfEachNode();
         
         std::vector<double> norm_vel_area;
         
@@ -343,7 +343,7 @@ public:
                 
         TS_ASSERT(norm_vel.size() > 0);
         
-        // note that d0 and d1 are hardcoded in TissueSimulation::mpMechanicsSystem->CalculateVelocitiesOfEachNode()  
+        // note that d0 and d1 are hardcoded in TissueSimulation::mpMechanicsSystem->rCalculateVelocitiesOfEachNode()  
         for(unsigned i=0; i<norm_vel.size(); i++)
         {
             TS_ASSERT_DELTA(norm_vel_area[i], norm_vel[i]/(0.1 +  1.2*0.9), 1e-3);            
@@ -523,7 +523,7 @@ public:
         //  Test forces on nodes        
         for (unsigned i=0 ; i<1 ; i++)
         {
-            std::vector<c_vector<double,3> > velocities = meineke_spring_system.CalculateVelocitiesOfEachNode();
+            std::vector<c_vector<double,3> >& velocities = meineke_spring_system.rCalculateVelocitiesOfEachNode();
             
             for (unsigned j=0; j<4; j++)
             {
@@ -550,7 +550,7 @@ public:
             mesh.SetNode(i, new_point, false);            
         }
                
-        std::vector<c_vector<double,3> > new_velocities = meineke_spring_system.CalculateVelocitiesOfEachNode();
+        std::vector<c_vector<double,3> >& new_velocities = meineke_spring_system.rCalculateVelocitiesOfEachNode();
         
         for (unsigned j=0; j<4; j++)
         {
@@ -584,7 +584,7 @@ public:
             TS_ASSERT_DELTA(fabs(force2[i]),p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
         }
         
-        new_velocities = meineke_spring_system2.CalculateVelocitiesOfEachNode();
+        new_velocities = meineke_spring_system2.rCalculateVelocitiesOfEachNode();
         
         for(unsigned i=0; i<3; i++)
         {

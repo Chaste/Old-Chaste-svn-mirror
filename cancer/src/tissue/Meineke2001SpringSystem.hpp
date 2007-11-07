@@ -10,7 +10,7 @@
 //class AbstractDiscreteTissueMechanicsSystem
 //{
 //public : 
-//    virtual std::vector<c_vector<double, DIM> > CalculateVelocitiesOfEachNode()=0;
+//    virtual std::vector<c_vector<double, DIM> > rCalculateVelocitiesOfEachNode()=0;
 //    virtual ~AbstractDiscreteTissueMechanicsSystem()
 //    {
 //    }
@@ -50,6 +50,11 @@ class Meineke2001SpringSystem  //: public AbstractDiscreteTissueMechanicsSystem<
 
 private :
     Tissue<DIM>& mrTissue;
+    
+    /**
+     * Node velocities
+     */
+    std::vector<c_vector<double, DIM> > mDrDt;
 
     friend class boost::serialization::access;
     template<class Archive>
@@ -91,7 +96,7 @@ private :
     /**
      * Calculates the force between two nodes.
      * 
-     * Note that this assumes they are connected and is called by CalculateVelocitiesOfEachNode()
+     * Note that this assumes they are connected and is called by rCalculateVelocitiesOfEachNode()
      * 
      * @param NodeAGlobalIndex
      * @param NodeBGlobalIndex
@@ -259,17 +264,17 @@ public :
     /**
      * Calculates the forces on each node
      *
-     * @return drdt the velocity components on each node. Of size NUM_NODES x DIM
+     * @return the velocity components on each node. Of size NUM_NODES x DIM
      * 
      * Note - a loop over cells is used, so if there are ghost nodes the velocity
      * of these nodes will be returned as zero.
      */
-    std::vector<c_vector<double, DIM> > CalculateVelocitiesOfEachNode()
+    std::vector<c_vector<double, DIM> >& rCalculateVelocitiesOfEachNode()
     {
-        std::vector<c_vector<double, DIM> > drdt(mrTissue.rGetMesh().GetNumAllNodes());
-        for (unsigned i=0; i<drdt.size(); i++)
+        mDrDt.resize(mrTissue.rGetMesh().GetNumAllNodes());
+        for (unsigned i=0; i<mDrDt.size(); i++)
         {
-            drdt[i]=zero_vector<double>(DIM);
+            mDrDt[i]=zero_vector<double>(DIM);
         }
     
         for(typename Tissue<DIM>::SpringIterator spring_iterator=mrTissue.SpringsBegin();
@@ -329,11 +334,11 @@ public :
             }       
            
             // these cannot be ghost nodes anymore - they both apply forces on each other
-            drdt[nodeB_global_index] -= force / damping_constantB;
-            drdt[nodeA_global_index] += force / damping_constantA;
+            mDrDt[nodeB_global_index] -= force / damping_constantB;
+            mDrDt[nodeA_global_index] += force / damping_constantA;
         }
         
-        return drdt;
+        return mDrDt;
     }
     
 

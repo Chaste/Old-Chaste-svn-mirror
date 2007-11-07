@@ -78,14 +78,22 @@ public:
     // Compute the RHS of the WntCellCycle system of ODEs
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
     
+    /**
+     * This also contains a calculation of dY[1], copied from EvaluateYDerivatives.
+     * Ensure they do not get out of sync!
+     */
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
     {
-        std::vector<double> dy(rY.size());
-        EvaluateYDerivatives(time, rY, dy);
+        double r = rY[0];
+        double e = rY[1];
+        double p = rY[4];
+        double dY1 = mkpd+mk2d*(mad*mad+e*e)/(1+e*e)*mJ12d/(mJ12d+r)*mJ62d/(mJ62d+p) - e;
+        double factor = mPhiE2F1*60.0;  // Convert non-dimensional d/dt s to d/dt in hours.
+        dY1 = dY1*factor;
+
         assert(!isnan(rY[1]));
-        assert(!isnan(dy[1]));
-        return (fabs(rY[1]-1.0) < 1.0e-2 && dy[1] > 0.0);
+        assert(!isnan(dY1));
+        return (fabs(rY[1]-1.0) < 1.0e-2 && dY1 > 0.0);
     }
-    
 };
 #endif //_WNTCELLCYCLEODESYSTEM_HPP_
