@@ -30,24 +30,34 @@
 class TestArchiveFormat : public CxxTest::TestSuite
 {
 public:
-/**
- * This test is required because Test2DCryptRepresentativeSimulation loads an archive
- * stored in cancer/test/data. When the archiving of TissueSimulation and associate classes
- * the stored archive needs to be update. This test checks that the archive can be loaded,
- * and will seg fault if not.
- * It does nothing more, so it runs quickly and can be in the continuous test pack.
- * 
- * 
- * When the archive file changes, re-run TestGenerateSteadyStateCrypt.hpp
- * One should be left with archives which can 
- * be copied to cancer/test/data.
- */
+
+    /**
+     * This test is required because Test2DCryptRepresentativeSimulation loads 
+     * an archive stored in cancer/test/data. When the archiving of 
+     * TissueSimulation and associate classes is updated the stored archive 
+     * needs to be updated. This test checks that the archive can be loaded,
+     * and will seg fault if not. It does nothing more, so it runs quickly 
+     * and can be in the continuous test pack.
+     * 
+     * IF THIS TEST FAILS:
+     * - You have probably changed an archiving funciton somewhere
+     * - You need to remake cancer/test/data/<test below>/archive/
+     * - To do this re-run TestGenerateSteadyStateCrypt.hpp
+     * - Archives produced can be copied to :
+     *   cancer/test/data/<test below>/archive/
+     * 
+     * (it is a long test, currently just < 5hours, and could be 
+     * run overnight - please do this rather than just moving it 
+     * to the failing test pack(!) because these files are now 
+     * the basis of some proper simulations for
+     * the papers that are on the way...) 
+     */
     void TestLoadArchive() throw (Exception)
     {        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
 
-        std::string test_to_profile = "NiceCryptSim";
+        std::string test_to_profile = "SteadyStateCrypt";
         double t = 150;   // this is the folder and time that the stored results were archived (needed to know foldernames)
         
         // Open a new directory...
@@ -62,6 +72,7 @@ public:
         TS_ASSERT_EQUALS(return_value, 0);
         
         CryptSimulation2d* p_simulator = CryptSimulation2d::Load(test_to_profile,t);
+        p_simulator->SetEndTime(t + 1);
         delete p_simulator;
                 
         SimulationTime::Destroy();

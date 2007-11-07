@@ -45,7 +45,7 @@ public:
         CancerParameters* p_params = CancerParameters::Instance();
         std::string output_directory = "SteadyStateCrypt";
         
-        double end_of_simulation = 500.0; // hours
+        double end_of_simulation = 150.0; // hours
         double time_of_each_run = 50.0; // for each run
         
         unsigned cells_across = 13;

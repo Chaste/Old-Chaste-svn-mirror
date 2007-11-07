@@ -34,7 +34,7 @@ void TestRepresentativeSimulationForProfiling() throw (Exception)
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
 
-        std::string test_to_load = "NiceCryptSim";
+        std::string test_to_load = "SteadyStateCrypt";
         std::string test_to_profile = "CryptProfiling";
         double t = 150;   // this is the folder and time that the stored results were archived (needed to know foldernames)
         double run_for = 10; // run for 10 hours.
@@ -45,7 +45,7 @@ void TestRepresentativeSimulationForProfiling() throw (Exception)
         // The archive needs to be copied from cancer/test/data/<test_to_profile>
         // to the testoutput directory to continue running the simulation.     
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string test_data_directory = "cancer/test/data/" + test_to_profile +"/";
+        std::string test_data_directory = "cancer/test/data/" + test_to_load +"/";
         std::string command = "cp -Rf --remove-destination " + test_data_directory +"* "+ test_output_directory +"/" + test_to_profile + "/";     
         int return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value, 0);
