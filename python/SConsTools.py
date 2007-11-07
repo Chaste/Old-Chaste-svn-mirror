@@ -36,6 +36,6 @@ def FindSourceFiles(rootDir, ignoreDirs=[]):
                 source_dirs.append(os.path.join(dirpath, dirname))
         for filename in filenames:
             filepath = os.path.join(dirpath, filename)
-            if filename[-4:] == '.cpp':# and not IsTemplateCpp(filepath):
+            if filename[-4:] == '.cpp' and not IsTemplateCpp(filepath):
                 source_files.append(filepath)
     return source_files, source_dirs
