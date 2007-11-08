@@ -30,7 +30,7 @@ def index(req):
   output.append("""\
   <h1>Chaste Tests</h1>
   <p>
-  This is the funky new interface to Chaste's testing suite.
+  This is the funky interface to Chaste's testing suite.
   </p>
   <ul>""")
   tests_types = os.listdir(_tests_dir)

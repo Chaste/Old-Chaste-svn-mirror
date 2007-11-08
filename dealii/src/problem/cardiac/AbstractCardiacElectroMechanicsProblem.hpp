@@ -114,6 +114,8 @@ protected :
     std::string mDeformationOutputDirectory;
     /*< Whether to write any output */
     bool mWriteOutput;
+    /** Whether to not write out voltages */
+    bool mNoElectricsOutput;
     /*< when to write output */    
     const static int WRITE_EVERY_NTH_TIME = 1; 
     
@@ -169,6 +171,7 @@ public :
         {
             mDeformationOutputDirectory = ""; // not really necessary but a bit safer, as passed in ConstructMechanicsAssembler
         }
+        mNoElectricsOutput = false;
                 
         mUseExplicitMethod = useExplicitMethod;
         
@@ -317,8 +320,12 @@ public :
         if (mWriteOutput)
         {
             dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->WriteOutput(mech_writer_counter);
-            mpMonodomainProblem->InitialiseWriter();
-            mpMonodomainProblem->WriteOneStep(stepper.GetTime(), initial_voltage);
+
+            if(!mNoElectricsOutput)
+            {
+                mpMonodomainProblem->InitialiseWriter();
+                mpMonodomainProblem->WriteOneStep(stepper.GetTime(), initial_voltage);
+            }
         }
 
         while (!stepper.IsTimeAtEnd())
@@ -416,8 +423,11 @@ public :
                 mech_writer_counter++;
                 dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->WriteOutput(mech_writer_counter);
 
-                mpMonodomainProblem->mpWriter->AdvanceAlongUnlimitedDimension();
-                mpMonodomainProblem->WriteOneStep(stepper.GetTime(), voltage);
+                if(!mNoElectricsOutput)
+                {
+                    mpMonodomainProblem->mpWriter->AdvanceAlongUnlimitedDimension();
+                    mpMonodomainProblem->WriteOneStep(stepper.GetTime(), voltage);
+                }
             }
             
             PostSolve(stepper.GetTime());
@@ -435,7 +445,7 @@ public :
 
         if (mWriteOutput)
         {
-            if(mpMonodomainProblem->mpWriter->AmMaster()) // ie only if master process and results files were written
+            if((!mNoElectricsOutput) && (mpMonodomainProblem->mpWriter->AmMaster())) // ie only if master process and results files were written
             {
                 // call shell script which converts the data to meshalyzer format
                 std::string chaste_2_meshalyzer;
@@ -474,6 +484,12 @@ public :
             if(vec[i]>max) max=vec[i];
         }
         return max;
+    }
+    
+    /** Call to not write out voltages */
+    void SetNoElectricsOutput()
+    {
+        mNoElectricsOutput = true;
     }
 };
 

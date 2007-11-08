@@ -70,12 +70,13 @@ public:
         PlaneStimulusCellFactory<2> cell_factory(time_step, -1000*1000);
 
         unsigned num_nodes_per_dim = 1;
-        for(unsigned i=0; i<6; i++)
+        for(unsigned i=0; i<1; i++)
         {
             std::stringstream name;
             name << "CardiacElectroMech2dImplicit" << "_" << i;
             
             CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 100, time_step, false, num_nodes_per_dim, name.str());
+            implicit_problem.SetNoElectricsOutput();
             implicit_problem.Solve();
             
             num_nodes_per_dim *=2;
