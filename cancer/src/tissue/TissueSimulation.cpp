@@ -51,7 +51,10 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, bool deleteTissue)
     mrTissue.SetMaxCells(mMaxCells);
     mrTissue.SetMaxElements(mMaxElements);
     
-    mpMechanicsSystem = new Meineke2001SpringSystem<DIM>(mrTissue);
+    if (!deleteTissue)
+    {
+	mpMechanicsSystem = new Meineke2001SpringSystem<DIM>(mrTissue);
+    }
 }
 
 /**

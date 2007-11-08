@@ -53,7 +53,7 @@ public:
      * the papers that are on the way...) 
      */
     void TestLoadArchive() throw (Exception)
-    {        
+    {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
 
@@ -74,7 +74,7 @@ public:
         CryptSimulation2d* p_simulator = CryptSimulation2d::Load(test_to_profile,t);
         p_simulator->SetEndTime(t + 1);
         delete p_simulator;
-                
+        
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

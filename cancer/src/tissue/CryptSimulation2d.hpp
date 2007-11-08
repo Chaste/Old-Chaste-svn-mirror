@@ -319,8 +319,8 @@ inline void load_construct_data(
     //std::cout << "load Crypt construct data\n" << std::flush;
     // retrieve data from archive required to construct new instance
     Tissue<2>* p_tissue;
-
     ar >> p_tissue;
+
     bool archive_wnt;
     ar & archive_wnt;
     if (archive_wnt)
