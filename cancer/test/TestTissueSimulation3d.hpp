@@ -179,7 +179,7 @@ public:
     }
     
  
-    void TestGhostNodesSpheroidSimulation3D() throw (Exception)
+    void TestGhostNodesSpheroidSimulation3DandSave() throw (Exception)
     {
         double start_time = std::clock();
         
@@ -295,6 +295,8 @@ public:
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        
+        delete p_simulator;
     }
 };
 
