@@ -341,7 +341,7 @@ protected:
         Vector<double> update;
         update.reinit(mDofHandler.n_dofs());
         
-        SolverGMRES<>::AdditionalData gmres_additional_data(50); //1000 is massive!! seems to be needed for cardiac
+        SolverGMRES<>::AdditionalData gmres_additional_data(1000); //1000 is massive!! seems to be needed for cardiac
         SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);
 
         gmres.solve(mSystemMatrix, update, mRhsVector, PreconditionIdentity());
