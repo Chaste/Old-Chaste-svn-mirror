@@ -21,6 +21,7 @@ cancer/src/tissue/cell/cycle/FixedCellCycleModel.o \
 cancer/src/tissue/cell/cycle/WntCellCycleModel.o \
 cancer/src/tissue/cell/cycle/IngeWntSwatCellCycleModel.o \
 cancer/src/tissue/cell/TissueCell.o \
+cancer/src/tissue/CryptStatistics.o \
 cancer/src/odes/WntCellCycleOdeSystem.o \
 cancer/src/odes/IngeWntSwatCellCycleOdeSystem.o \
 cancer/src/odes/TysonNovak2001OdeSystem.o \
@@ -66,11 +67,36 @@ TestGenerateSteadyStateCryptRunner: TestGenerateSteadyStateCryptRunner.o ${LIBS}
 	cd .. ;\
 	cp ../simulationGenerateSteadyStateCrypt.sh .  ;\
 	mv simulationGenerateSteadyStateCrypt.sh simulation.sh
-
+	
 TestCryptSimulation2dRunner.cpp:	cancer/test/TestCryptSimulation2d.hpp
 	cxxtest/cxxtestgen.py  --error-printer  -o TestCryptSimulation2dRunner.cpp cancer/test/TestCryptSimulation2d.hpp
 
 TestCryptSimulation2dRunner: TestCryptSimulation2dRunner.o ${LIBS}
+	
+# This runs the test which generates MeinekeLabellingExperiment data.
+
+TestMeinekeLabellingExperimentsRunner.cpp:	projects/GaryM/test/TestMeinekeLabellingExperiments.hpp
+	cxxtest/cxxtestgen.py  --error-printer -o TestMeinekeLabellingExperimentsRunner.cpp projects/GaryM/test/TestMeinekeLabellingExperiments.hpp
+
+TestMeinekeLabellingExperimentsRunner: TestMeinekeLabellingExperimentsRunner.o ${LIBS}
+	g++ TestMeinekeLabellingExperimentsRunner.o ${LIBS} -o TestMeinekeLabellingExperimentsRunner ${LDFLAGS};\
+	echo "Making new experiment in ${FRESH_DIR} " ;\
+	echo "Do scp -r -C ${FRESH_DIR} pmxgm@deimos.nottingham.ac.uk:" ;\
+	echo "Then qsub simulation.sh on deimos";\
+	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
+	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
+	# Need to copy across the starting state of the simulation
+	mkdir ${FRESH_DIR}/MeinekeLabellingExperiment; mkdir ${FRESH_DIR}/MeinekeLabellingExperiment/archive ;\
+	cd ${FRESH_DIR}/MeinekeLabellingExperiment/archive ;\
+	cp ../../../projects/GaryM/test/data/SteadyStateMeinekeStochastic/archive/* . ;\
+	cd ../.. ;\
+	# Finished copying archives across.
+	cp TestMeinekeLabellingExperimentsRunner ${FRESH_DIR} ;\
+	cd ${FRESH_DIR}/bin ;\
+	cp ../../bin/triangle triangle ;\
+	cd .. ;\
+	cp ../simulationMeinekeLabellingExperiments.sh .  ;\
+	mv simulationMeinekeLabellingExperiments.sh simulation.sh
 
 # A more useful test to label a cell near the bottom at random and follow mutation's progress.
 

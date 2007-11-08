@@ -204,6 +204,8 @@ public:
         {
             (*cell_iter).SetMutationState(HEALTHY);
         } 
+        
+        
         crypt_statistics.LabelSPhaseCells();
 
         // Iterate over cells checking for correct labels
@@ -224,13 +226,29 @@ public:
             }
                         
         } 
-        TS_ASSERT_EQUALS(counter,15u);       
+        TS_ASSERT_EQUALS(counter,15u);   
+        
+        // TEST crypt_statistics::LabelAllCellsAsHealthy
+        // Check this function sets all cells back to be HEALTHY cells.
+        crypt_statistics.LabelAllCellsAsHealthy();
+        // Iterate over cells checking for correct labels
+        counter = 0;
+        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
+             cell_iter != crypt.End();
+             ++cell_iter)
+        {
+            TS_ASSERT_EQUALS((*cell_iter).GetMutationState(),HEALTHY);
+            counter++;
+        }
+        
+        TS_ASSERT_EQUALS(counter,simulator.rGetTissue().GetNumRealCells());
+        
+        crypt_statistics.LabelSPhaseCells();
         
         simulator.SetEndTime(2*time_of_each_run);
         simulator.Solve();
         
         // TEST CryptStatistics::GetWhetherCryptSectionCellsAreLabelled
-        
         
         // set cells which are not in the crypt section to be in state APC_ONE_HIT, so that we can
         // see the section

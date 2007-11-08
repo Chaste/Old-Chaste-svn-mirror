@@ -21,28 +21,8 @@ private:
      *  Method computing the perpendicular distance from the cell to the line from (xBottom,0) to (xTop,yTop), 
      *  and returning if the distance is within the specified width to the section (defaults to 1.0)
      */  
-    bool CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=0.5)
-    {
-        c_vector<double,2> intercept;
+    bool CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=0.5);
 
-        if(xBottom==xTop)
-        {
-            intercept[0] = xTop;
-            intercept[1] = cellPosition[1];
-        }
-        else
-        {
-            double m = (yTop)/(xTop-xBottom); // gradient of line
-    
-            intercept[0] = (m*m*xBottom + cellPosition[0] + m*cellPosition[1])/(1+m*m);
-            intercept[1] = m*(intercept[0] - xBottom);
-        }
-        
-        c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
-        double dist = norm_2(vec_from_A_to_B);
-   
-        return (dist <= widthOfSection);
-    }
     
 
     /**
@@ -51,54 +31,8 @@ private:
      *  specified width to the section (defaults to 1.0). Done by considering the two possible lines
      *  and checking if cells are within range.
      */  
-    bool CellIsInSectionPeriodic(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=1.0)
-    {
-        bool is_in_section=false;
-        
-        c_vector<double,2> intercept;
-        double crypt_width = CancerParameters::Instance()->GetCryptWidth();
+    bool CellIsInSectionPeriodic(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=1.0);
 
-        double m; // gradient of line
-        double offset;
-        
-        if(xBottom<xTop)
-        {
-            offset = -crypt_width;    
-        }
-        else
-        {
-            offset = crypt_width;
-        }
-        
-        m = (yTop)/(xTop-xBottom+offset); // gradient of line
-        
-        // 1st Line        
-        intercept[0] = (m*m*xBottom + cellPosition[0] + m*cellPosition[1])/(1+m*m);
-        intercept[1] = m*(intercept[0] - xBottom);
-        
-        c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
-        double dist = norm_2(vec_from_A_to_B);
-
-        if(dist < widthOfSection)
-        {
-            is_in_section=true;
-        }
-
-        // 2nd Line        
-        intercept[0] = (m*m*(xBottom-offset) + cellPosition[0] + m*cellPosition[1])/(1+m*m);
-        intercept[1] = m*(intercept[0] - (xBottom-offset));
-        
-        vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
-        dist = norm_2(vec_from_A_to_B);
-
-        if(dist < widthOfSection)
-        {
-            is_in_section=true;
-        }
-
-        return is_in_section;
-    }
-    
     
 public :            
 
@@ -108,9 +42,7 @@ public :
      *  @param rCrypt The crypt
      */
     CryptStatistics(Tissue<2>& rCrypt)
-        : mrCrypt(rCrypt)
-    {
-    }
+        : mrCrypt(rCrypt) {};
     
     
     /**
@@ -131,57 +63,8 @@ public :
      std::vector<TissueCell*> GetCryptSection(double xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0, 
-                                             bool periodic = false)
-    {
-        assert(yTop>0.0);
-        std::list<std::pair<TissueCell*, double> > cells_list; // the second entry is the y value (needed for sorting)
-        
-        if (fabs(xTop-xBottom)<0.5*CancerParameters::Instance()->GetCryptWidth())
-        {
-            // the periodic version isn't needed, ignore even if periodic was set to true
-            periodic = false;
-        }    
-        
-        // loop over cells and add to the store if they are within a cell's radius of the
-        // specified line  
-        for (Tissue<2>::Iterator cell_iter = mrCrypt.Begin();
-             cell_iter != mrCrypt.End();
-             ++cell_iter)
-        {
-            if(periodic)
-            {
-                if(CellIsInSectionPeriodic(xBottom, xTop, yTop, cell_iter.rGetLocation()))
-                {
-                    // set up a pair, equal to (cell,y_val) and insert
-                    std::pair<TissueCell*, double> pair(&(*cell_iter), cell_iter.rGetLocation()[1]);
-                    cells_list.push_back(pair);
-                }
-            }
-            else
-            {
-                if(CellIsInSection(xBottom, xTop, yTop, cell_iter.rGetLocation()))
-                {
-                    // set up a pair, equal to (cell,y_val) and insert
-                    std::pair<TissueCell*, double> pair(&(*cell_iter), cell_iter.rGetLocation()[1]);
-                    cells_list.push_back(pair);
-                }
-            }
-        }
-
-        // sort the list
-        cells_list.sort(CellsHeightComparison);
-
-        // copy to a vector
-        std::vector<TissueCell*> ordered_cells;
-        for(std::list<std::pair<TissueCell*, double> >::iterator iter = cells_list.begin();
-            iter!=cells_list.end();
-            iter++)
-        {
-            ordered_cells.push_back(iter->first);
-        }
-    
-        return ordered_cells;
-    }
+                                             bool periodic = false);
+   
     
     /** 
      *  Get all cells with a cell width of the line defined by the points (xBottom,0)
@@ -193,25 +76,21 @@ public :
     std::vector<TissueCell*> GetCryptSectionPeriodic(double xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0, 
-                                             bool periodic = false)
-     {
-        return GetCryptSection(xBottom,xTop,yTop,true);
-     }
-     
-    void LabelSPhaseCells()
-    {
-     
-        for (Tissue<2>::Iterator cell_iter = mrCrypt.Begin();
-             cell_iter != mrCrypt.End();
-             ++cell_iter)
-        {
-            if ((*cell_iter).GetCellCycleModel()->GetCurrentCellCyclePhase()== S)
-            {
-                (*cell_iter).SetMutationState(LABELLED);
-            }
-        } 
-     
-    }
+                                             bool periodic = false);
+    
+    /**
+     * To recreate the Meineke labelling experiments
+     * 
+     * Cells which are in S phase have their mutation state changed 
+     * from 'HEALTHY' to 'LABELLED'.
+     */ 
+    void LabelSPhaseCells();
+    
+    /**
+     * Sets all the cells in the crypt to have a mutation
+     * state of 'HEALTHY'
+     */
+    void LabelAllCellsAsHealthy();
     
     
     /**
@@ -232,30 +111,7 @@ public :
     std::vector<bool> GetWhetherCryptSectionCellsAreLabelled(double xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0, 
-                                             bool periodic = false)
-    {
-    
-        
-        std::vector<TissueCell*> crypt_section = GetCryptSectionPeriodic(xBottom,xTop,yTop,periodic);
-        std::vector<bool> crypt_section_labelled(crypt_section.size()) ;
-        
-        for (unsigned vector_index=0; vector_index<crypt_section.size(); vector_index++)
-        {
-            if (crypt_section[vector_index]->GetMutationState() == LABELLED)
-            {
-                crypt_section_labelled[vector_index]=true;
-            }
-            else
-            {   
-                crypt_section_labelled[vector_index]=false;
-            }
-        }
-        
-        
-        return crypt_section_labelled;
-    
-    }
-    
+                                             bool periodic = false);
     
 };
 
