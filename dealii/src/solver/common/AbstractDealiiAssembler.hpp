@@ -47,7 +47,8 @@
 #include "Exception.hpp"
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
-
+#include "Timer.hpp"
+//#include "LinearSystem.hpp"
 
 /**
  *  Abstract assembler with common functionality for most assemblers.
@@ -319,10 +320,12 @@ protected:
     void TakeNewtonStep()
     {
         // compute Jacobian
+        Timer::Reset();
         AssembleSystem(true, true);
-
-        time_t start_time = std::clock();
+        Timer::PrintAndReset("AssembleSystem");
+        
         Precondition();
+        Timer::PrintAndReset("Precondition");
 
         // DEAL.II doesn't seem to allow you to set an relative tolerance,
         // so we do so explicitly by working out what the corresponding 
@@ -338,13 +341,49 @@ protected:
         Vector<double> update;
         update.reinit(mDofHandler.n_dofs());
         
-        SolverGMRES<>::AdditionalData gmres_additional_data(1000); //1000 is massive!! seems to be needed for cardiac
+        SolverGMRES<>::AdditionalData gmres_additional_data(50); //1000 is massive!! seems to be needed for cardiac
         SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);
 
         gmres.solve(mSystemMatrix, update, mRhsVector, PreconditionIdentity());
-        time_t  end_time = std::clock();
-        double elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-        std::cout <<  "\nlinear sys solution time = " << elapsed_time << "s\n" << std::flush;
+        Timer::PrintAndReset("Dealii solve");
+
+//        assert(mRhsVector.size()>0);
+//        LinearSystem lin_sys(mRhsVector.size());
+//        for(unsigned i=0;i<mSystemMatrix.m();i++)
+//        {
+//            for(unsigned j=0;j<mSystemMatrix.n();j++)
+//            {
+//                if(fabs(mSystemMatrix.el(i,j)) > 1e-12)
+//                {
+//                    lin_sys.SetMatrixElement(i,j,mSystemMatrix.el(i,j));
+//                }
+//            }           
+//            lin_sys.SetRhsVectorElement(i,mRhsVector(i));
+//        }
+//        lin_sys.AssembleFinalLinearSystem();
+//        Timer::PrintAndReset("Copy");
+            
+//        KSP solver;
+//        PC  prec;
+//        Vec X;
+//        VecDuplicate(lin_sys.rGetRhsVector(),&X);
+//        
+//        KSPCreate(MPI_COMM_SELF,&solver);
+//        KSPSetOperators(solver,lin_sys.rGetLhsMatrix(),lin_sys.rGetLhsMatrix(),SAME_NONZERO_PATTERN);
+//        KSPSetTolerances(solver, rel_tol, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+//            
+//        KSPSetType(solver,KSPGMRES);
+//        KSPGMRESSetRestart(solver,50);
+//    
+//        KSPGetPC(solver,&prec);
+//        PCSetType(prec,PCNONE);
+//    
+//        KSPSetFromOptions(solver);
+//        KSPSetUp(solver);
+//    
+//        KSPSolve(solver,lin_sys.rGetRhsVector(),X);
+//        Timer::PrintAndReset("Chaste LinearSystem solve");
+
 
         // deal with hanging nodes - form a continuous solutions
         mHangingNodeConstraints.distribute(update);
