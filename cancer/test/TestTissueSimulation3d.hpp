@@ -127,8 +127,6 @@ public:
         SimulationTime::Destroy();
     } 
     
-
- 
     void TestSolveMethodSpheroidSimulation3D() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -263,10 +261,17 @@ public:
         // Set to re-mesh
         simulator.SetReMeshRule(true);
         simulator.SetEndTime(0.1);
-
-        // TODO: make sure th right number of new cells are born                        
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         
+        simulator.Solve();
+        
+        // should save via a pointer.
+        TissueSimulation<3>* p_simulator = &simulator;
+        p_simulator->Save();
+        
+        // These lines generate result to test in the following Test. 
+//        unsigned num_real_cells = p_simulator->rGetTissue().GetNumRealCells();
+//        std::cout << "Num real cells = " << num_real_cells << "/" << num_cells << "\n" << std::flush;
+ 
         TrianglesMeshWriter<3,3> mesh_writer2("TestGhostNodesSpheroidSimulation3D","EndMesh",false); 
         mesh_writer2.WriteFilesUsingMesh(mesh);
         SimulationTime::Destroy();
@@ -275,6 +280,21 @@ public:
         double end_time = std::clock();
         double elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "Time of simulation " << elapsed_time << "\n" << std::flush; 
+    }
+    
+    void TestLoadOf3DSimulation() throw (Exception)
+    {
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        TissueSimulation<3>* p_simulator = TissueSimulation<3>::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
+        unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
+        
+        TS_ASSERT_EQUALS(num_cells, 8u);      
+        TS_ASSERT_DELTA(p_simulation_time->GetDimensionalisedTime(), 0.1, 1e-9);  
+        
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
 };
 
