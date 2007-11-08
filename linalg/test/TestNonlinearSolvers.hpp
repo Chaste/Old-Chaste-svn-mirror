@@ -1,11 +1,9 @@
 #ifndef _TESTNONLINEARSOLVERS_HPP_
 #define _TESTNONLINEARSOLVERS_HPP_
 
-#include "SimplePetscNonlinearSolver.hpp"
-#include "SimpleNewtonNonlinearSolver.hpp"
 #include <cxxtest/TestSuite.h>
-#include <petsc.h>
-#include <petsc.h>
+#include "SimpleNewtonNonlinearSolver.hpp"
+#include "SimplePetscNonlinearSolver.hpp"
 #include <iostream>
 #include <cmath>
 #include "ReplicatableVector.hpp"
