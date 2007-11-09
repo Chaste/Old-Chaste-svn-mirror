@@ -17,7 +17,6 @@
 #include "FixedCellCycleModel.hpp"
 #include "ColumnDataReader.hpp"
 #include "SimulationTime.hpp"
-#include "WntGradient.hpp"
 
 class TestTissueSimulation3d : public CxxTest::TestSuite
 {
