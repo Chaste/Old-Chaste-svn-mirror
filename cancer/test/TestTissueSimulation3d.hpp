@@ -17,6 +17,7 @@
 #include "FixedCellCycleModel.hpp"
 #include "ColumnDataReader.hpp"
 #include "SimulationTime.hpp"
+#include "WntGradient.hpp"
 
 class TestTissueSimulation3d : public CxxTest::TestSuite
 {
@@ -263,10 +264,7 @@ public:
         simulator.SetEndTime(0.1);
         
         simulator.Solve();
-        
-        // should save via a pointer.
-        TissueSimulation<3>* p_simulator = &simulator;
-        p_simulator->Save();
+        simulator.Save();
         
         // These lines generate result to test in the following Test. 
 //        unsigned num_real_cells = p_simulator->rGetTissue().GetNumRealCells();
