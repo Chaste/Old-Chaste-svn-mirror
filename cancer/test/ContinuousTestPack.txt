@@ -5,7 +5,6 @@ TestCellKillers.hpp
 TestCellwiseData.hpp
 TestCellCycleModelsOde.hpp
 TestCellCycleModelsSimple.hpp
-TestCryptProjectionModel.hpp
 TestCryptSimulation1d.hpp
 TestCryptSimulation2d.hpp
 TestCryptStatistics.hpp
