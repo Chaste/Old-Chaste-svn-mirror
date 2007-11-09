@@ -21,7 +21,6 @@ cancer/src/tissue/cell/cycle/FixedCellCycleModel.o \
 cancer/src/tissue/cell/cycle/WntCellCycleModel.o \
 cancer/src/tissue/cell/cycle/IngeWntSwatCellCycleModel.o \
 cancer/src/tissue/cell/TissueCell.o \
-cancer/src/tissue/CryptStatistics.o \
 cancer/src/odes/WntCellCycleOdeSystem.o \
 cancer/src/odes/IngeWntSwatCellCycleOdeSystem.o \
 cancer/src/odes/TysonNovak2001OdeSystem.o \
