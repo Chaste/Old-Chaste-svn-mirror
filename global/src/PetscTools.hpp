@@ -123,10 +123,6 @@ public :
             // based on a maximum of 9 elements containing the same node
             MatMPIAIJSetPreallocation(rMat, 18, PETSC_NULL, 18, PETSC_NULL);
         }
-        else if (strcmp(matType,MATSEQAIJ)==0)
-        {
-            MatSeqAIJSetPreallocation(rMat, 18, PETSC_NULL);
-        }
         
         MatSetFromOptions(rMat);
     }

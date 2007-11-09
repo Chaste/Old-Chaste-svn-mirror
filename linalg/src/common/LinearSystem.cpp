@@ -181,11 +181,6 @@ void LinearSystem::AddToRhsVectorElement(PetscInt row, double value)
     }
 }
 
-void LinearSystem::AddToRhsVectorElements(PetscInt m_rhs, PetscInt idx_rhs[], double rhs[])
-{
-    VecSetValues(mRhsVector, m_rhs, idx_rhs, rhs, ADD_VALUES);
-}
-
 void LinearSystem::DisplayMatrix()
 {
     MatView(mLhsMatrix,PETSC_VIEWER_STDOUT_WORLD);

@@ -61,7 +61,6 @@ public:
     Vec Solve(AbstractLinearSolver *pSolver, Vec lhsGuess=NULL);
     void SetRhsVectorElement(PetscInt row, double value);
     void AddToRhsVectorElement(PetscInt row, double value);
-    void AddToRhsVectorElements(PetscInt m_rhs, PetscInt idx_rhs[], double rhs[]);
     unsigned GetSize();
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
     Vec& rGetRhsVector();
