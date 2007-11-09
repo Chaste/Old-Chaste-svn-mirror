@@ -9,7 +9,7 @@
 #include <cmath>
 #include <vector>
 #include "Tissue.cpp"
-#include "CryptStatistics.hpp"
+#include "CryptStatistics.cpp"
 #include "CryptSimulation2d.hpp"
 #include "OutputFileHandler.hpp"
 #include "TissueCell.hpp"

@@ -1,3 +1,6 @@
+#ifndef CRYPTSTATISTICS_CPP_
+#define CRYPTSTATISTICS_CPP_
+
 #include "CryptStatistics.hpp"
 
 /*
@@ -184,3 +187,5 @@ std::vector<bool> CryptStatistics::GetWhetherCryptSectionCellsAreLabelled(double
     return crypt_section_labelled;
 }
 
+
+#endif /*CRYPTSTATISTICS_CPP_*/
