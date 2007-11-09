@@ -84,21 +84,23 @@ public:
      * N.B. Values which are not local (ie the row is not owned) will be skipped.
      */
       
-    template<unsigned MAT_SIZE>
-    void AddMultipleValues(unsigned* matrixRowAndColIndices, c_matrix<double, MAT_SIZE, MAT_SIZE>& smallMatrix)
+
+    
+    template<unsigned MATRIX_SIZE>
+    void AddMultipleValues(unsigned* matrixRowAndColIndices, c_matrix<double, MATRIX_SIZE, MATRIX_SIZE>& smallMatrix)
     {
-        PetscInt matrix_row_indices[MAT_SIZE];
+        PetscInt matrix_row_indices[MATRIX_SIZE];
         PetscInt num_rows_owned=0; 
         unsigned num_values_owned=0;
         
-        double values[MAT_SIZE*MAT_SIZE];
-        for (unsigned row = 0 ; row<MAT_SIZE; row++)
+        double values[MATRIX_SIZE*MATRIX_SIZE];
+        for (unsigned row = 0 ; row<MATRIX_SIZE; row++)
         {
             PetscInt global_row = matrixRowAndColIndices[row];
             if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
             {
                 matrix_row_indices[num_rows_owned++] = global_row ;
-                for (unsigned col=0; col<MAT_SIZE; col++)
+                for (unsigned col=0; col<MATRIX_SIZE; col++)
                 {
                     values[num_values_owned++] = smallMatrix(row,col);
                 }
@@ -110,7 +112,7 @@ public:
         MatSetValues(mLhsMatrix,
                      num_rows_owned,
                      matrix_row_indices,
-                     MAT_SIZE,
+                     MATRIX_SIZE,
                      (PetscInt*) matrixRowAndColIndices,
                      values,
                      ADD_VALUES);
