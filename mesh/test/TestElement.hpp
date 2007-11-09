@@ -860,7 +860,7 @@ public:
 
     void TestGetStiffnessMatrixGlobalIndices ( void )
     {
-        const unsigned PROBLEM_DIM = 2;
+        unsigned PROBLEM_DIM = 1;
         
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;       
@@ -868,14 +868,19 @@ public:
             
         Element<2,2>* p_element = mesh.GetElement(2);
         
-        unsigned indices[6];
+        unsigned indices_1[3];
         // Element 2 in the mesh has global node indices: 1,2,4
-        // and PROBLEM_DIM = 2 hence:
-        unsigned expected_indices[]={2u,3u,4u,5u,8u,9u};
+        unsigned expected_indices_1[]={1u,2u,4u};
+        p_element->GetStiffnessMatrixGlobalIndices(PROBLEM_DIM,indices_1);
+        TS_ASSERT_SAME_DATA(indices_1, expected_indices_1, 3*sizeof(unsigned));    
         
-        p_element->GetStiffnessMatrixGlobalIndices(PROBLEM_DIM,indices);
+        PROBLEM_DIM=2;
+        unsigned indices_2[6];
+        unsigned expected_indices_2[]={2u,3u,4u,5u,8u,9u};
+        
+        p_element->GetStiffnessMatrixGlobalIndices(PROBLEM_DIM,indices_2);
                 
-        TS_ASSERT_SAME_DATA(indices, expected_indices, 6*sizeof(unsigned));        
+        TS_ASSERT_SAME_DATA(indices_2, expected_indices_2, 6*sizeof(unsigned));        
     }
     
 };

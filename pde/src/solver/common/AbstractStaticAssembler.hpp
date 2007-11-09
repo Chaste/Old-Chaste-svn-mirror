@@ -464,25 +464,9 @@ protected:
                 
                 if (assembleMatrix)
                 {
-                    for (unsigned i=0; i<num_elem_nodes; i++)
-                    {
-                    unsigned node1 = element.GetNodeGlobalIndex(i);
-                    
-                        for (unsigned j=0; j<num_elem_nodes; j++)
-                        {
-                            unsigned node2 = element.GetNodeGlobalIndex(j);
-                            
-                            for (unsigned k=0; k<PROBLEM_DIM; k++)
-                            {
-                                for (unsigned m=0; m<PROBLEM_DIM; m++)
-                                {
-                                    mpLinearSystem->AddToMatrixElement( PROBLEM_DIM*node1+k,
-                                                                        PROBLEM_DIM*node2+m,
-                                                                        a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m) );
-                                }
-                            }
-                        }
-                    }
+                    unsigned p_indices[PROBLEM_DIM*(ELEMENT_DIM+1)];
+                    element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
+                    mpLinearSystem->AddMultipleValues(p_indices, a_elem);
                 }
                 
                 if (assembleVector)

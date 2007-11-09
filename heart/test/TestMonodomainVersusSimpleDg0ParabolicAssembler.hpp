@@ -81,7 +81,7 @@ public:
 class TestMonodomainVersusSimpleDg0ParabolicAssembler : public CxxTest::TestSuite
 {
 public:
-    void TestMonodomainDg0AssemblerWithFischer1DAgainstSimpleDg0Assembler()
+    void xTestMonodomainDg0AssemblerWithFischer1DAgainstSimpleDg0Assembler()
     {
         double t_start = 0;
         double t_final = 1;

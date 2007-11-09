@@ -261,8 +261,9 @@ public:
         {
             unsigned node = GetNodeGlobalIndex(local_index);
             
-            for (unsigned problem_index=0; problem_index<ELEMENT_DIM+1; problem_index++)
+            for (unsigned problem_index=0; problem_index<problemDim; problem_index++)
             {
+                //std::cout << local_index*problemDim + problem_index << std::endl;
                 pIndices[local_index*problemDim + problem_index] = node*problemDim + problem_index;            
             }   
         } 
