@@ -86,7 +86,7 @@ public:
 
     
     template<unsigned MATRIX_SIZE>
-    void AddMultipleValues(unsigned* matrixRowAndColIndices, c_matrix<double, MATRIX_SIZE, MATRIX_SIZE>& smallMatrix)
+    void AddLhsMultipleValues(unsigned* matrixRowAndColIndices, c_matrix<double, MATRIX_SIZE, MATRIX_SIZE>& smallMatrix)
     {
         PetscInt matrix_row_indices[MATRIX_SIZE];
         PetscInt num_rows_owned=0; 
@@ -116,6 +116,34 @@ public:
                      values,
                      ADD_VALUES);
         
+    };
+
+
+
+    template<unsigned VECTOR_SIZE>
+    void AddRhsMultipleValues(unsigned* VectorIndices, c_vector<double, VECTOR_SIZE>& smallVector)
+    {
+        PetscInt indices_owned[VECTOR_SIZE];
+        PetscInt num_indices_owned=0; 
+        
+        double values[VECTOR_SIZE];
+        for (unsigned row = 0 ; row<VECTOR_SIZE; row++)
+        {
+            PetscInt global_row = VectorIndices[row];
+            if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
+            {
+                indices_owned[num_indices_owned] = global_row ;
+                values[num_indices_owned] = smallVector(row);
+                num_indices_owned++;
+            }
+        }
+        
+        VecSetValues(mRhsVector,
+                     num_indices_owned,
+                     indices_owned,
+                     values,
+                     ADD_VALUES);
+   
     };
     
     

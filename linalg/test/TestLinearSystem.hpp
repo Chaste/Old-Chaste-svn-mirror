@@ -318,7 +318,7 @@ public:
         
         unsigned large_matrix_indices[2]={0,2};
         
-        syst.AddMultipleValues(large_matrix_indices, small_matrix);
+        syst.AddLhsMultipleValues(large_matrix_indices, small_matrix);
         
         syst.AssembleFinalLhsMatrix();
     

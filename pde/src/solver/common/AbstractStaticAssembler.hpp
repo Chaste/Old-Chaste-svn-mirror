@@ -443,10 +443,7 @@ protected:
         // Get an iterator over the elements of the mesh
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
             iter = this->mpMesh->GetElementIteratorBegin();
-        
-        // Assume all elements have the same number of nodes...
-        const unsigned num_elem_nodes = (*iter)->GetNumNodes();
-        
+              
         c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1)> a_elem;
         c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> b_elem;
         
@@ -461,24 +458,26 @@ protected:
             if (element.GetOwnership() == true)
             {
                 AssembleOnElement(element, a_elem, b_elem, assembleVector, assembleMatrix);
-                
+                    
+                unsigned p_indices[PROBLEM_DIM*(ELEMENT_DIM+1)];                
+                element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
+                    
                 if (assembleMatrix)
                 {
-                    unsigned p_indices[PROBLEM_DIM*(ELEMENT_DIM+1)];
-                    element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
-                    mpLinearSystem->AddMultipleValues(p_indices, a_elem);
+                    mpLinearSystem->AddLhsMultipleValues(p_indices, a_elem);
                 }
                 
                 if (assembleVector)
                 {
-                    for (unsigned i=0; i<num_elem_nodes; i++)
-                    {
-                        unsigned node1 = element.GetNodeGlobalIndex(i);
-                        for (unsigned k=0; k<PROBLEM_DIM; k++)
-                        {
-                            mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
-                        }
-                    }
+                    mpLinearSystem->AddRhsMultipleValues(p_indices, b_elem);
+//                    for (unsigned i=0; i<num_elem_nodes; i++)
+//                    {
+//                        unsigned node1 = element.GetNodeGlobalIndex(i);
+//                        for (unsigned k=0; k<PROBLEM_DIM; k++)
+//                        {
+//                            mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
+//                        }
+//                    }
                 }
             }
                 
