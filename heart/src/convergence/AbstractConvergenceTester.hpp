@@ -212,8 +212,11 @@ public:
                     assert(0);
             }
             
+            #ifndef NDEBUG
             Node<DIM>* fqn = cardiac_problem.rGetMesh().GetNode(first_quadrant_node);
             Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);
+            #endif
+            
             assert(fqn->rGetLocation()[0]==0.25*mesh_width);
             assert(tqn->rGetLocation()[0]==0.75*mesh_width);
             for (unsigned coord=1; coord<DIM; coord++)

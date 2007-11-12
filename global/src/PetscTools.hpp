@@ -102,8 +102,14 @@ public :
     /**
      *  Set up a matrix - set the size using the given parameters, the type (default MATMPIAIJ). The
      *  number of local rows and columns is by default PETSC_DECIDE. SetFromOptions is called.
+     * 
+     *  @param maxColsPerRow The maximum number of non zeros per row. This value is problem dependend. An upper bound is (3^ELEMENT_DIM) * PROBLEM_DIM. The default value (3D bidomain problem) should be big enough for any of the problems being solved. 
      */
-    static void SetupMat(Mat& rMat, int numRows, int numColumns, MatType matType=MATMPIAIJ, int numLocalRows=PETSC_DECIDE, int numLocalColumns=PETSC_DECIDE)
+    static void SetupMat(Mat& rMat, int numRows, int numColumns, 
+                         MatType matType=MATMPIAIJ, 
+                         int numLocalRows=PETSC_DECIDE, 
+                         int numLocalColumns=PETSC_DECIDE,
+                         int maxColsPerRow=54)
     {
         assert(numRows>0);
         assert(numColumns>0);
@@ -119,10 +125,8 @@ public :
         
         if (strcmp(matType,MATMPIAIJ)==0)
         {
-            //  18 is an upper bound for the numbers of elements per row,
-            // based on a maximum of 9 elements containing the same node
-            MatMPIAIJSetPreallocation(rMat, 18, PETSC_NULL, 18, PETSC_NULL);
-        }
+            MatMPIAIJSetPreallocation(rMat, maxColsPerRow, PETSC_NULL, (PetscInt) (maxColsPerRow*0.5), PETSC_NULL);
+        } 
         
         MatSetFromOptions(rMat);
     }
