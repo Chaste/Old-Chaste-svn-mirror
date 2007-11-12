@@ -1,7 +1,12 @@
-#ifndef CRYPTSTATISTICS_CPP_
-#define CRYPTSTATISTICS_CPP_
-
 #include "CryptStatistics.hpp"
+
+/** This global function is to allow the list of cells in to be compared in
+ *  terms of their y-value and std::list.sort() to be called
+ */
+bool CellsHeightComparison(const std::pair<TissueCell*, double> lhs, const std::pair<TissueCell*, double> rhs)
+{
+    return lhs.second < rhs.second;
+}
 
 /*
  * PRIVATE FUNCTIONS -----------------------------------------------------------------
@@ -187,5 +192,3 @@ std::vector<bool> CryptStatistics::GetWhetherCryptSectionCellsAreLabelled(double
     return crypt_section_labelled;
 }
 
-
-#endif /*CRYPTSTATISTICS_CPP_*/

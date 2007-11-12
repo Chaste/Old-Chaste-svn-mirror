@@ -10,6 +10,7 @@ INCS = -I. -Icxxtest \
 INCS += -I/opt/boost/include/boost-1_33_1
 
 LIBS=cancer/src/common/CancerParameters.o \
+cancer/src/tissue/CryptStatistics.o \
 cancer/src/tissue/cell/cycle/AbstractCellCycleModel.o \
 cancer/src/tissue/cell/cycle/AbstractSimpleCellCycleModel.o \
 cancer/src/tissue/cell/cycle/AbstractOdeBasedCellCycleModel.o \
