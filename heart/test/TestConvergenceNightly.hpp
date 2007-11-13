@@ -34,7 +34,7 @@ public:
     }
     
     //This is much briefer (20mins?)
-    void Test2DSpaceWithSymmLq() throw(Exception)
+    void xTest2DSpaceWithSymmLq() throw(Exception)
     {
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
@@ -51,14 +51,14 @@ public:
     
     
     //Currently takes about 3 minutes to do mesh0 and mesh1
-    void xTest3DSpaceWithSymmLq() throw(Exception)
+    void Test3DSpaceWithSymmLq() throw(Exception)
     {
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
         tester.KspRtol=5e-8;
-        tester.RelativeConvergenceCriterion=4e-2;//Just to prove the thing works
+        //tester.RelativeConvergenceCriterion=4e-2;//Just to prove the thing works
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 1u); ///Just to prove the thing works
