@@ -320,7 +320,8 @@ class Profile(GccDebug):
   """
   def __init__(self, *args, **kwargs):
     GccDebug.__init__(self, *args, **kwargs)
-    self._cc_flags.extend(['-O3', '-pg'])
+    "Don't set -O3 since we don't want inlining when profiling"
+    self._cc_flags.extend(['-O2', '-pg']) 
     self._link_flags.append('-pg')
     self._test_packs = ['Profile']
     self.build_dir = 'profile'
