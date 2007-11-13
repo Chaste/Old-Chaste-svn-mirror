@@ -9,7 +9,7 @@ bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
 	bool ready = false;
     
     // get cell's oxygen concentration
-    double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell);
+    double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell,0);
     
     // we want the oxygen concentration to be positive,
     // to within numerical tolerances (hence the -1e-8)

@@ -16,6 +16,7 @@
 #include "SimulationTime.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
+#include "Meineke2001SpringSystem.hpp" 
 
 class SimplePdeForTesting : public AbstractNonlinearEllipticPde<2>
 {
@@ -142,13 +143,15 @@ public:
         // set up PDE
         SimplePdeForTesting pde;
         
+        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue); 
+        p_spring_system->UseCutoffPoint(1.5); 
+              
         // set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde); 
         simulator.SetOutputDirectory("TestPostSolveMethod");
         simulator.SetEndTime(1.0/120.0);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
-        simulator.rGetMeinekeSystem().UseCutoffPoint(1.5);
         
         // set up cell killer and pass into simulation
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
@@ -239,13 +242,15 @@ public:
         // set up PDE
         SimpleOxygenPde pde;
         
+        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue); 
+        p_spring_system->UseCutoffPoint(1.5); 
+                  
         // set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde); 
         simulator.SetOutputDirectory("TissueSimulationWithOxygen");
         simulator.SetEndTime(0.5);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
-        simulator.rGetMeinekeSystem().UseCutoffPoint(1.5);
         
         // set up cell killer and pass into simulation
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);

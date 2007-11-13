@@ -2,8 +2,10 @@
 #define MEINEKE2001SPRINGSYSTEM_HPP_
 
 #include <boost/serialization/access.hpp>
-#include "Tissue.cpp"
+#include <boost/serialization/base_object.hpp>
 
+#include "Tissue.cpp"
+#include "AbstractDiscreteTissueMechanicsSystem.hpp"
 
 //// An abstract class for later..
 //template<unsigned DIM>
@@ -38,7 +40,7 @@
  *  stiffness
  */
 template<unsigned DIM>
-class Meineke2001SpringSystem  //: public AbstractDiscreteTissueMechanicsSystem<DIM>
+class Meineke2001SpringSystem  : public AbstractDiscreteTissueMechanicsSystem<DIM>
 {
     // Allow tests to access private members, in order to test computation of
     // private functions
@@ -49,7 +51,6 @@ class Meineke2001SpringSystem  //: public AbstractDiscreteTissueMechanicsSystem<
     friend class TissueSimulationForForceExperimentsShearing;
 
 private :
-    Tissue<DIM>& mrTissue;
     
     /**
      * Node velocities
@@ -62,6 +63,8 @@ private :
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
+        archive & boost::serialization::base_object<AbstractDiscreteTissueMechanicsSystem<DIM> >(*this);
+        
         archive & mUseCutoffPoint;
         archive & mCutoffPoint;
         archive & mUseEdgeBasedSpringConstant;
@@ -74,6 +77,7 @@ private :
 
     /** Whether to have zero force if the cells are far enough apart */
     bool mUseCutoffPoint;
+    
     /** Have zero force if the cells are this distance apart (and mUseCutoffPoint==true) */
     double mCutoffPoint;
 
@@ -85,10 +89,13 @@ private :
 
     /** Whether to use different stiffnesses depending on whether either cell is a mutant */
     bool mUseMutantSprings;
+    
     /** Multiplier for spring stiffness if mutant */
     double mMutantMutantMultiplier;
+    
     /** Multiplier for spring stiffness if mutant */
     double mNormalMutantMultiplier;
+    
     /** Use springs which are dependent on beta-catenin levels */
     bool mUseBCatSprings; 
 
@@ -107,11 +114,11 @@ private :
     {
         assert(nodeAGlobalIndex!=nodeBGlobalIndex);
         c_vector<double, DIM> unit_difference;
-        c_vector<double, DIM> node_a_location = mrTissue.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
-        c_vector<double, DIM> node_b_location = mrTissue.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
+        c_vector<double, DIM> node_a_location = this->mrTissue.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
+        c_vector<double, DIM> node_b_location = this->mrTissue.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
         
         // there is reason not to substract one position from the other (cyclidrical meshes). clever gary
-        unit_difference = mrTissue.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
+        unit_difference = this->mrTissue.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
         
         double distance_between_nodes = norm_2(unit_difference);
         
@@ -128,16 +135,16 @@ private :
         
         double rest_length = 1.0;
             
-        double ageA = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
-        double ageB = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
+        double ageA = this->mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
+        double ageB = this->mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
         
-        TissueCell& r_cell_A = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex);
-        TissueCell& r_cell_B = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex);
+        TissueCell& r_cell_A = this->mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex);
+        TissueCell& r_cell_B = this->mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex);
         
         if (ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
         {
             // Spring Rest Length Increases to normal rest length from ???? to normal rest length, 1.0, over 1 hour
-            if (mrTissue.IsMarkedSpring(r_cell_A, r_cell_B))
+            if (this->mrTissue.IsMarkedSpring(r_cell_A, r_cell_B))
             {   
                 double lambda=CancerParameters::Instance()->GetDivisionRestingSpringLength();
                 rest_length=(lambda+(1.0-lambda)*(ageA/(CancerParameters::Instance()->GetMDuration())));           
@@ -146,21 +153,21 @@ private :
             if (ageA+SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
             {
                 // This spring is about to go out of scope
-                mrTissue.UnmarkSpring(r_cell_A, r_cell_B);
+                this->mrTissue.UnmarkSpring(r_cell_A, r_cell_B);
             }
         }
         
         double a_rest_length=rest_length*0.5;
         double b_rest_length=a_rest_length;    
         
-        if (mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).HasApoptosisBegun())
+        if (this->mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).HasApoptosisBegun())
         {
-            double time_until_death_a = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).TimeUntilDeath();
+            double time_until_death_a = this->mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).TimeUntilDeath();
             a_rest_length = a_rest_length*(time_until_death_a)/(CancerParameters::Instance()->GetApoptosisTime());
         }
-        if (mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).HasApoptosisBegun())
+        if (this->mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).HasApoptosisBegun())
         {
-            double time_until_death_b = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).TimeUntilDeath();
+            double time_until_death_b = this->mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).TimeUntilDeath();
             b_rest_length = b_rest_length*(time_until_death_b)/(CancerParameters::Instance()->GetApoptosisTime());
         }
         
@@ -172,7 +179,7 @@ private :
         
         if (mUseEdgeBasedSpringConstant)
         {
-            VoronoiTessellation<DIM>& tess = mrTissue.rGetVoronoiTessellation();
+            VoronoiTessellation<DIM>& tess = this->mrTissue.rGetVoronoiTessellation();
             
             multiplication_factor = tess.GetEdgeLength(nodeAGlobalIndex,nodeBGlobalIndex)*sqrt(3);
         }
@@ -213,7 +220,7 @@ private :
             double beta_cat_cell_1 = r_cell_A.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
             double beta_cat_cell_2 = r_cell_B.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
             
-            VoronoiTessellation<DIM>& tess = mrTissue.rGetVoronoiTessellation();
+            VoronoiTessellation<DIM>& tess = this->mrTissue.rGetVoronoiTessellation();
             
             double perim_cell_1 = tess.GetFacePerimeter(nodeAGlobalIndex);
             double perim_cell_2 = tess.GetFacePerimeter(nodeBGlobalIndex);
@@ -234,7 +241,7 @@ private :
 
 public :
     Meineke2001SpringSystem(Tissue<DIM>& rTissue)
-        : mrTissue(rTissue)
+        : AbstractDiscreteTissueMechanicsSystem<DIM>(rTissue)
     {
         // area-based viscosity
         mUseAreaBasedViscosity = false;
@@ -256,7 +263,7 @@ public :
         mCutoffPoint = 1e10;
     }
 
-    bool NeedsTessellation()
+    bool NeedsVoronoiTessellation()
     {
         return (mUseAreaBasedViscosity || mUseEdgeBasedSpringConstant);
     }
@@ -271,14 +278,14 @@ public :
      */
     std::vector<c_vector<double, DIM> >& rCalculateVelocitiesOfEachNode()
     {
-        mDrDt.resize(mrTissue.rGetMesh().GetNumAllNodes());
+        mDrDt.resize(this->mrTissue.rGetMesh().GetNumAllNodes());
         for (unsigned i=0; i<mDrDt.size(); i++)
         {
             mDrDt[i]=zero_vector<double>(DIM);
         }
     
-        for(typename Tissue<DIM>::SpringIterator spring_iterator=mrTissue.SpringsBegin();
-            spring_iterator!=mrTissue.SpringsEnd();
+        for(typename Tissue<DIM>::SpringIterator spring_iterator=this->mrTissue.SpringsBegin();
+            spring_iterator!=this->mrTissue.SpringsEnd();
             ++spring_iterator)
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
@@ -304,7 +311,7 @@ public :
                 // cell (=sqrt(3)/4 = a third of the area of a hexagon with edges of size 1)
                 double d1 = 1.8/(sqrt(3)*rest_length*rest_length); 
     
-                VoronoiTessellation<DIM>& tess = mrTissue.rGetVoronoiTessellation();
+                VoronoiTessellation<DIM>& tess = this->mrTissue.rGetVoronoiTessellation();
             
                 double area_cell_A = tess.GetFaceArea(nodeA_global_index);
                 double area_cell_B = tess.GetFaceArea(nodeB_global_index);
@@ -397,7 +404,7 @@ public :
      */
     const Tissue<DIM>& rGetTissue() const
     {
-        return mrTissue;
+        return this->mrTissue;
     }
 };
 

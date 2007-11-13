@@ -124,14 +124,11 @@ Node<DIM>* Tissue<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
     return mrMesh.GetNode(node_index);   
 }
 
-
 template<unsigned DIM>
 c_vector<double, DIM> Tissue<DIM>::GetLocationOfCell(const TissueCell& rCell)
 {
     return GetNodeCorrespondingToCell(rCell)->rGetLocation();
 }
-
-
 
 template<unsigned DIM>
 ConformingTetrahedralMesh<DIM, DIM>& Tissue<DIM>::rGetMesh()
@@ -197,7 +194,6 @@ void Tissue<DIM>::SetGhostNodes(const std::set<unsigned>& ghostNodeIndices)
         iter++;
     }
 }
-
 
 template<unsigned DIM>
 unsigned Tissue<DIM>::RemoveDeadCells()
@@ -353,7 +349,6 @@ TissueCell* Tissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLoc
     return p_created_cell;
 }
 
-
 template<unsigned DIM>
 void Tissue<DIM>::ReMesh()
 {
@@ -459,14 +454,12 @@ TissueCell& Tissue<DIM>::Iterator::operator*()
     return *mCellIter;
 }
 
-
 template<unsigned DIM>
 TissueCell* Tissue<DIM>::Iterator::operator->()
 {
     assert(!IsAtEnd());
     return &(*mCellIter);
 }
-
 
 template<unsigned DIM>
 Node<DIM>* Tissue<DIM>::Iterator::GetNode()
@@ -640,7 +633,6 @@ void Tissue<DIM>::SetupTabulatedWriters(ColumnDataWriter& rNodeWriter, ColumnDat
     
     rElementWriter.EndDefineMode();
 }
-
 
 template<unsigned DIM> 
 c_vector<unsigned,5> Tissue<DIM>::GetCellTypeCount()

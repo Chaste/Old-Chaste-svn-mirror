@@ -16,6 +16,7 @@
 #include "WntGradient.hpp"
 #include <vector>
 
+#include "AbstractDiscreteTissueMechanicsSystem.hpp"
 #include "Meineke2001SpringSystem.hpp"
 
 /**
@@ -112,22 +113,7 @@ protected:
     /** The mechanics used to determine the new location of the cells */
     //// this will eventually become:
     // AbstractDiscreteTissueMechanicsSystem<DIM>* mpMechanicsSystem;
-    Meineke2001SpringSystem<DIM>* mpMechanicsSystem;
-
-public:
-    /** Get access to the spring system, so the user can set options. THIS WILL
-     *  HAVE TO BE REMOVED WHEN mpMechanicsSystem BECOMES 
-     *  AbstractDiscreteTissueMechanicsSystem. The user will then have to define the 
-     *  system outside (with whichever options) and pass it in to this class
-     */
-    Meineke2001SpringSystem<DIM>& rGetMeinekeSystem()
-    {
-        return *mpMechanicsSystem;
-    }
-
-
-protected:
-
+    AbstractDiscreteTissueMechanicsSystem<DIM>* mpMechanicsSystem;
 
     /** Whether to print out cell area and perimeter info */
     bool mWriteVoronoiData;
@@ -148,8 +134,7 @@ protected:
         archive & mpRandomGenerator;
                 
         // If Archive is an output archive, then & resolves to <<
-        // If Archive is an input archive, then & resolves to >>
-        archive & mpMechanicsSystem;
+        // If Archive is an input archive, then & resolves to >>        
         archive & mDt;
         archive & mEndTime;
         archive & mNoBirth;
@@ -224,9 +209,10 @@ public:
      *  Constructor
      * 
      *  @param rTissue A tissue facade class (contains a mesh and cells)
-     *  @param deleteTissue whether to delete the tissue on destruction to free up memory.
+     *  @param pMechanicsSystem The spring system to use in the simulation
+     *  @param deleteTissue Whether to delete the tissue on destruction to free up memory
      */
-    TissueSimulation(Tissue<DIM>& rTissue, bool deleteTissue=false);
+    TissueSimulation(Tissue<DIM>& rTissue, AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL, bool deleteTissue=false);
     
     /**
      * Free any memory allocated by the constructor
@@ -253,6 +239,19 @@ public:
     
     Tissue<DIM>& rGetTissue();
     const Tissue<DIM>& rGetTissue() const;
+    
+    
+    /** 
+     * Get access to the spring system.
+     */
+    const AbstractDiscreteTissueMechanicsSystem<DIM>& rGetMechanicsSystem() const
+    {
+        return *mpMechanicsSystem;
+    }
+    AbstractDiscreteTissueMechanicsSystem<DIM>& rGetMechanicsSystem()
+    {
+        return *mpMechanicsSystem;
+    }
 
     // Serialization methods
     virtual void Save();
@@ -292,6 +291,9 @@ inline void save_construct_data(
         WntGradient* p_wnt_gradient = WntGradient::Instance();
         ar & *p_wnt_gradient;
     }
+    
+    const AbstractDiscreteTissueMechanicsSystem<DIM> * p_spring_system = &(t->rGetMechanicsSystem());
+    ar & p_spring_system;
 }
 
 /**
@@ -313,8 +315,12 @@ inline void load_construct_data(
         WntGradient* p_wnt_gradient = WntGradient::Instance();
         ar & *p_wnt_gradient;
     }
+    
+    AbstractDiscreteTissueMechanicsSystem<DIM>* p_spring_system;
+    ar >> p_spring_system;
+    
     // invoke inplace constructor to initialize instance
-    ::new(t)TissueSimulation<DIM>(*p_tissue, true);
+    ::new(t)TissueSimulation<DIM>(*p_tissue, p_spring_system, true);
 }
 }
 } // namespace ...

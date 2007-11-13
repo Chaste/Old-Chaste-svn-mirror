@@ -884,14 +884,16 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        CryptSimulation2d simulator(crypt);
+        // set up crypt simulation
+        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
+        p_spring_system->UseCutoffPoint(sqrt(2)); // root2 is a sensible choice
+        
+        CryptSimulation2d simulator(crypt, p_spring_system);
 
         simulator.SetOutputDirectory("MonolayerCutoffPointNoGhosts");
         simulator.SetEndTime(12.0);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
-
-        simulator.rGetMeinekeSystem().UseCutoffPoint( sqrt(2) ); // root2 is a sensible choice
         
         simulator.Solve();
         

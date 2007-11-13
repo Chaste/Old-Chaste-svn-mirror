@@ -187,8 +187,8 @@ private :
 
 
 public:
-    TissueSimulationWithNutrients(Tissue<DIM>& rTissue, AbstractNonlinearEllipticPde<DIM>* pPde, bool deleteTissue=false)
-        : TissueSimulation<DIM>(rTissue, deleteTissue),
+    TissueSimulationWithNutrients(Tissue<DIM>& rTissue, AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL, AbstractNonlinearEllipticPde<DIM>* pPde=NULL, bool deleteTissue=false) 
+        : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissue), 
           mOxygenSolution(NULL),
           mpPde(pPde)
     {

@@ -24,7 +24,7 @@
 #include "VoronoiTessellation.cpp"
 
 template<unsigned DIM> 
-TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, bool deleteTissue)
+TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem, bool deleteTissue)
   :  mrTissue(rTissue)
 {
     srandom(0);
@@ -51,10 +51,11 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, bool deleteTissue)
     mrTissue.SetMaxCells(mMaxCells);
     mrTissue.SetMaxElements(mMaxElements);
     
-    if (!deleteTissue)
+    if (pMechanicsSystem == NULL)
     {
-	mpMechanicsSystem = new Meineke2001SpringSystem<DIM>(mrTissue);
+        pMechanicsSystem = new Meineke2001SpringSystem<DIM>(mrTissue);
     }
+    mpMechanicsSystem = pMechanicsSystem;    
 }
 
 /**
@@ -496,7 +497,7 @@ void TissueSimulation<DIM>::Solve()
         }
 
 
-        if(mWriteVoronoiData || mpMechanicsSystem->NeedsTessellation())
+        if(mWriteVoronoiData || mpMechanicsSystem->NeedsVoronoiTessellation())
         {
             mrTissue.CreateVoronoiTessellation();
         }

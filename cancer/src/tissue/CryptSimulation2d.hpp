@@ -207,8 +207,8 @@ public :
      *  @param rTissue A tissue facade class (contains a mesh and cells)
      *  @param deleteTissue whether to delete the tissue on destruction to free up memory.
      */
-    CryptSimulation2d(Tissue<2>& rTissue, bool deleteTissue=false)
-        : TissueSimulation<2>(rTissue, deleteTissue),
+    CryptSimulation2d(Tissue<2>& rTissue, AbstractDiscreteTissueMechanicsSystem<2>* pMechanicsSystem=NULL, bool deleteTissue=false)
+        : TissueSimulation<2>(rTissue, pMechanicsSystem, deleteTissue),
           mUseJiggledBottomCells(false)
     {
     }
@@ -307,6 +307,9 @@ inline void save_construct_data(
         ar & *p_wnt_gradient;
         ar & p_wnt_gradient;
     }    
+    
+    const AbstractDiscreteTissueMechanicsSystem<2> * p_spring_system = &(t->rGetMechanicsSystem());
+    ar & p_spring_system;
 }
 
 /**
@@ -329,8 +332,12 @@ inline void load_construct_data(
         ar & *p_wnt_gradient;
         ar & p_wnt_gradient;
     }
+    
+    AbstractDiscreteTissueMechanicsSystem<2>* p_spring_system;
+    ar >> p_spring_system;
+    
     // invoke inplace constructor to initialize instance
-    ::new(t)CryptSimulation2d(*p_tissue, true);
+    ::new(t)CryptSimulation2d(*p_tissue, p_spring_system, true);
 }
 }
 } // namespace ...
