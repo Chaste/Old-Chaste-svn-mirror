@@ -7,9 +7,8 @@
 #include "Tissue.cpp"
 
 /**
- * An abstract discrete tissue mechanics system that contains basic information to 
- * all mechanics systems.
- * 
+ * An abstract discrete tissue mechanics system that contains basic 
+ * information to all mechanics systems.
  */
 template<unsigned DIM>
 class AbstractDiscreteTissueMechanicsSystem

@@ -27,9 +27,9 @@ template<unsigned DIM>
 TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem, bool deleteTissue)
   :  mrTissue(rTissue)
 {
-    srandom(0);
     mDeleteTissue = deleteTissue;
     mpParams = CancerParameters::Instance();
+    // this line sets a random seed of 0 if it wasn't specified earlier.
     mpRandomGenerator = RandomNumberGenerator::Instance();
     
     mDt = 1.0/120.0; // Timestep of 30 seconds (as per Meineke)
@@ -492,8 +492,9 @@ void TissueSimulation<DIM>::Solve()
 
         if(mReMesh)
         {
-            LOG(1, "\tRemeshing..\n");
+            LOG(1, "\tRemeshing...");
             mrTissue.ReMesh();
+            LOG(1, "DONE.\n");
         }
 
 

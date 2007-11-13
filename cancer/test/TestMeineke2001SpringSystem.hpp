@@ -594,12 +594,12 @@ public:
         SimulationTime::Destroy();
     } 
 
-
+    /* See #545 */
     void dontTestArchiving() throw (Exception)
     {   
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "oxygen_based_killer.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "meineke_spring_system.arch";
 
         unsigned num_nodes;
         {
@@ -637,19 +637,17 @@ public:
 
             output_arch << p_meineke_spring_system;
        }
-
+       
        {
 //            // Create an input archive
 //            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
 //            boost::archive::text_iarchive input_arch(ifs);
 //            
 //            Meineke2001SpringSystem<2>* p_meineke_spring_system;
-//    
+//            
 //            // restore from the archive
 //            input_arch >> p_meineke_spring_system;
-//           
-//            // TS_ASSERT_EQUALS(p_meineke_spring_system->rGetTissue().rGetMesh().GetNumNodes(), num_nodes);
-//        
+//            
 //            // add test for cutoff point etc..
 //
 //            delete p_meineke_spring_system;

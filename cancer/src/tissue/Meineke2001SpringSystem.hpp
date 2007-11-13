@@ -7,22 +7,6 @@
 #include "Tissue.cpp"
 #include "AbstractDiscreteTissueMechanicsSystem.hpp"
 
-//// An abstract class for later..
-//template<unsigned DIM>
-//class AbstractDiscreteTissueMechanicsSystem
-//{
-//public : 
-//    virtual std::vector<c_vector<double, DIM> > rCalculateVelocitiesOfEachNode()=0;
-//    virtual ~AbstractDiscreteTissueMechanicsSystem()
-//    {
-//    }
-//
-//    virtual bool NeedsVoronoiTessellation()
-//    {
-//        return false;
-//    }
-//};
-
 /**
  *  Meineke2001System
  * 
@@ -409,7 +393,6 @@ public :
 };
 
 #include "TemplatedExport.hpp"
-
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(Meineke2001SpringSystem)
 
 namespace boost

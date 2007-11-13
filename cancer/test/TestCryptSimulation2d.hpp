@@ -447,11 +447,11 @@ public:
         // These results are from time 0.25, which is also tested below
         // after a save and a load. (See #420, #479.)
         std::vector<double> node_28_location = simulator.GetNodeLocation(28);
-        TS_ASSERT_DELTA(node_28_location[0], 4.2123 , 1e-4);
+        TS_ASSERT_DELTA(node_28_location[0], 3.7875 , 1e-4);
         TS_ASSERT_DELTA(node_28_location[1], 0.0 , 1e-4);
         std::vector<double> node_120_location = simulator.GetNodeLocation(120);
-        TS_ASSERT_DELTA(node_120_location[0], 3.7968 , 1e-4);
-        TS_ASSERT_DELTA(node_120_location[1], 0.1050 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[0], 4.2035 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[1], 0.1033 , 1e-4);
                 
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();
@@ -461,7 +461,7 @@ public:
         TissueCell* p_cell = &(crypt.rGetCellAtNodeIndex(28));
         TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
         p_cell = &(crypt.rGetCellAtNodeIndex(120));
-        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
+        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
         WntGradient::Destroy();
         
     }
@@ -555,11 +555,11 @@ public:
         // These cells just divided and have been gradually moving apart.
         // These results are from time 0.25 in the StandardResult test above.
         std::vector<double> node_28_location = p_simulator2->GetNodeLocation(28);
-        TS_ASSERT_DELTA(node_28_location[0], 4.2123 , 1e-4);
+        TS_ASSERT_DELTA(node_28_location[0], 3.7875 , 1e-4);
         TS_ASSERT_DELTA(node_28_location[1], 0.0 , 1e-4);
         std::vector<double> node_120_location = p_simulator2->GetNodeLocation(120);
-        TS_ASSERT_DELTA(node_120_location[0], 3.7968 , 1e-4);
-        TS_ASSERT_DELTA(node_120_location[1], 0.1050 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[0], 4.2035 , 1e-4);
+        TS_ASSERT_DELTA(node_120_location[1], 0.1033 , 1e-4);
         
         // test Wnt Gradient was set up correctly
         TS_ASSERT_EQUALS(WntGradient::Instance()->IsGradientSetUp(),true);
@@ -567,7 +567,7 @@ public:
         TissueCell* p_cell = &(p_simulator2->rGetTissue().rGetCellAtNodeIndex(28));
         TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
         p_cell = &(p_simulator2->rGetTissue().rGetCellAtNodeIndex(120));
-        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
+        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
         
         delete p_simulator1;
         delete p_simulator2;
@@ -747,9 +747,9 @@ public:
         // work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DPeriodicTysonNovak",false);
         std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results";
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.vizelements cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizelements").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.viznodes cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.viznodes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.vizsetup cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizsetup").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.viznodes cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizsetup").c_str()), 0);
     }
    
     

@@ -193,7 +193,7 @@ public:
         // ... and checking visualization of labelled cells against previous run
         OutputFileHandler handler("MakeMeinekeGraphs",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznodes";
-        TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/MakeMeinekeGraphs/results_from_time_0/vis_results/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/MakeMeinekeGraphs/results_from_time_0/vis_results/results.viznodes").c_str()), 0);
 
         // TEST crypt_statistics::LabelSPhaseCells
         
@@ -425,7 +425,7 @@ public:
     // ... and checking visualization of labelled cells against previous run
     OutputFileHandler handler("MakeMoreMeinekeGraphs",false);
     std::string results_file = handler.GetOutputDirectoryFullPath() + "percentage_of_labelled_cells.dat";
-    TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/MakeMoreMeinekeGraphs/percentage_of_labelled_cells.dat").c_str()), 0);
+    TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/MakeMoreMeinekeGraphs/percentage_of_labelled_cells.dat").c_str()), 0);
        
     delete p_params;
     RandomNumberGenerator::Destroy();
