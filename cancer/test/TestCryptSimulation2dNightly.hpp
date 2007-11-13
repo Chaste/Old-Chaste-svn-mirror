@@ -885,7 +885,7 @@ public:
         crypt.SetGhostNodes(ghost_node_indices);
 
         // set up crypt simulation
-        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
+        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(crypt);
         p_spring_system->UseCutoffPoint(sqrt(2)); // root2 is a sensible choice
         
         CryptSimulation2d simulator(crypt, p_spring_system);
