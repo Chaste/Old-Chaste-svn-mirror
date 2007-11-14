@@ -1125,7 +1125,7 @@ public:
 
         // check writing of beta-catenin data
         OutputFileHandler handler("CryptBetaCatenin",false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "/betacatenin/betacatenin_0.dat";
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/betacatenin/betacatenin_0.dat";
         TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/CryptBetaCatenin/betacatenin_0.dat").c_str()), 0);    
 
         SimulationTime::Destroy();

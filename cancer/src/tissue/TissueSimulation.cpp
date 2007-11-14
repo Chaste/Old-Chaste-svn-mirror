@@ -37,6 +37,7 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, AbstractDiscreteTi
     
     // defaults
     mOutputDirectory = "";
+    mSimulationOutputDirectory = mOutputDirectory;
     mReMesh = true;
     mOutputCellTypes = false ;
     mNoBirth = false;
@@ -256,6 +257,7 @@ template<unsigned DIM>
 void TissueSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)
 {
     mOutputDirectory = outputDirectory;
+    mSimulationOutputDirectory = mOutputDirectory;
 }
 
 /**
@@ -399,7 +401,7 @@ void TissueSimulation<DIM>::Solve()
     time_string << time_now;
     
     std::string results_directory = mOutputDirectory +"/results_from_time_" + time_string.str();
-    
+    mSimulationOutputDirectory = results_directory;
     
     ///////////////////////////////////////////////////////////
     // Set up Simulation

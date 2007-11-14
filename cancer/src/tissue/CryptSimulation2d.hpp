@@ -186,7 +186,7 @@ private :
         static unsigned counter = 0;
         std::stringstream string_stream;
         string_stream << "betacatenin_" << counter << ".dat";
-        SimpleDataWriter writer(this->mOutputDirectory+"/betacatenin/", string_stream.str(), data, false);
+        SimpleDataWriter writer(this->mSimulationOutputDirectory+"/vis_results/betacatenin/", string_stream.str(), data, false);
         counter++;
     }
        

@@ -95,6 +95,9 @@ protected:
     /** Output directory (a subfolder of tmp/<USERNAME>/testoutput) */
     std::string mOutputDirectory;
     
+    /** Simulation Output directory either the same as mOutputDirectory or includes mOutputDirectory/results_from_time_<TIME> */
+    std::string mSimulationOutputDirectory;
+    
     /** The Meineke and cancer parameters */
     CancerParameters *mpParams;
     

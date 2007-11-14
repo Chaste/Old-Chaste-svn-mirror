@@ -154,7 +154,7 @@ private :
         static unsigned counter = 0;
         std::stringstream string_stream;
         string_stream << "nutrients_" << counter << ".dat";
-        SimpleDataWriter writer(this->mOutputDirectory+"/nutrients/", string_stream.str(), data, false);
+        SimpleDataWriter writer(this->mSimulationOutputDirectory+"/vis_results/nutrients/", string_stream.str(), data, false);
         counter++;
         
         VecDestroy(initial_guess);
