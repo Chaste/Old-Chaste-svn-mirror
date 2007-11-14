@@ -51,6 +51,7 @@ public:
     void AssembleIntermediateLhsMatrix();
     void AssembleRhsVector();
     
+    void SetMatrixIsSymmetric();
     void DisplayMatrix();
     void DisplayRhs() ;
     void SetMatrixRow(PetscInt row, double value);

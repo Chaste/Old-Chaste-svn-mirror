@@ -8,6 +8,7 @@
 #include "DistributedVector.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
+#include <cmath>
 
 
 class TestLinearSystem : public CxxTest::TestSuite
@@ -356,5 +357,119 @@ public:
         }
     }
     
+  
+  void TestSymmetricMatrix()
+    {
+        LinearSystem ls = LinearSystem(3);
+        
+        ls.SetMatrixIsSymmetric();
+        
+        // Enter symmetric data
+        for (int row=0; row<3; row++)
+        {
+            for (int col=0; col<3; col++)
+            {
+                ls.SetMatrixElement(row, col, fabs(row-col));
+            }
+        }
+        ls.AssembleFinalLinearSystem();
+        
+        // arbitrary
+        ls.SetRhsVectorElement(0, 14.0);
+        ls.SetRhsVectorElement(1, 32.0);
+        ls.SetRhsVectorElement(2, 50.0);
+        
+        // solving should be fine
+        SimpleLinearSolver solver(1e-6);
+        Vec solution_vector;
+        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
+        
+        double expected_solution[3]={25.0,0.0,7.0};
+        PetscInt lo, hi;    
+        ls.GetOwnershipRange(lo, hi);
+        double *p_solution_elements_array;
+        VecGetArray(solution_vector, &p_solution_elements_array);
+        for (int global_index=0; global_index<3; global_index++)
+        {
+            int local_index = global_index-lo;
+            if (lo<=global_index && global_index<hi)
+            {
+                TS_ASSERT_DELTA(p_solution_elements_array[local_index], expected_solution[global_index], 1e-5);
+            }
+        }
+            
+        VecRestoreArray(solution_vector, &p_solution_elements_array);
+      
+        VecDestroy(solution_vector);
+        
+    }
+
+  void TestNonSymmetricMatrix()
+    {
+        LinearSystem ls = LinearSystem(3);
+        
+        // Enter non-symmetric data
+        for (int row=0; row<3; row++)
+        {
+            for (int col=0; col<3; col++)
+            {
+                ls.SetMatrixElement(row, col, (double)(10+row-col));
+            }
+        }
+        ls.AssembleFinalLinearSystem();
+        
+        // arbitrary
+        ls.SetRhsVectorElement(0, 14.0);
+        ls.SetRhsVectorElement(1, 32.0);
+        ls.SetRhsVectorElement(2, 50.0);
+        
+        // solving should be fine
+        SimpleLinearSolver solver(1e-6);
+        Vec solution_vector;
+        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
+        
+
+        LinearSystem ls2 = LinearSystem(3);
+        ls2.SetMatrixIsSymmetric();
+        
+        for (int row=0; row<3; row++)
+        {
+            for (int col=0; col<3; col++)
+            {
+                ls2.SetMatrixElement(row, col, (double)(10+row-col));
+            }
+        }
+        ls2.AssembleFinalLinearSystem();
+        
+        // what happens when we solve?
+        Vec solution_vector2;
+        solution_vector2 = ls2.Solve(&solver);
+        
+        //Check answers
+        double expected_solution[3]={-68.0,6.0,80.0};
+        PetscInt lo, hi;    
+        ls.GetOwnershipRange(lo, hi);
+        double *p_solution_elements_array, *p_solution_elements_array2;
+        VecGetArray(solution_vector, &p_solution_elements_array);
+        VecGetArray(solution_vector2, &p_solution_elements_array2);
+        for (int global_index=0; global_index<3; global_index++)
+        {
+            int local_index = global_index-lo;
+            if (lo<=global_index && global_index<hi)
+            {
+                TS_ASSERT_DELTA(p_solution_elements_array[local_index], expected_solution[global_index], 1e-5);
+                TS_ASSERT_LESS_THAN(2, fabs(p_solution_elements_array2[local_index] - expected_solution[global_index]));
+                //Diverges from expected by more than 2
+            }
+        }
+            
+        VecRestoreArray(solution_vector, &p_solution_elements_array);
+        VecRestoreArray(solution_vector2, &p_solution_elements_array2);
+        VecDestroy(solution_vector2);
+        VecDestroy(solution_vector);
+       
+        
+    }
+        
 };
 #endif //_TESTLINEARSYSTEM_HPP_

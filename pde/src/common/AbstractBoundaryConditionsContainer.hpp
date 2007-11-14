@@ -47,6 +47,20 @@ public:
         DeleteDirichletBoundaryConditions();
     }
     
+    /**
+     * Return whether any Dirichlet conditions are defined.
+     */
+    bool HasDirichletBoundaryConditions()
+    {
+        for (unsigned i=0; i<PROBLEM_DIM; i++)
+        {
+            if (!mpDirichletMap[i]->empty())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     
     void DeleteDirichletBoundaryConditions(std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deletedConditions = std::set<const AbstractBoundaryCondition<SPACE_DIM>*>())
     {

@@ -328,8 +328,14 @@ Mat& LinearSystem::rGetLhsMatrix()
     return mLhsMatrix;
 }
 
-
-
+/** Force PETSc to treat the matrix in this linear system as symmetric from now on
+ */
+void LinearSystem::SetMatrixIsSymmetric()
+{
+    MatSetOption(mLhsMatrix, MAT_SYMMETRIC);
+    MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL);
+}
+    
 /* BROKEN IN PARALLEL
 void LinearSystem::WriteLinearSystem(std::string matFile, std::string rhsVectorFile)
 {

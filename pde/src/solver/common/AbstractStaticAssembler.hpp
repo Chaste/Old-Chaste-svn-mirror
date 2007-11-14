@@ -61,8 +61,6 @@ protected:
      */
     LinearSystem *mpLinearSystem;
 
-
-          
     /**
      *  Calculate the contribution of a single element to the linear system.
      * 
@@ -317,7 +315,12 @@ protected:
         assert(mpLinearSystem->GetSize() == PROBLEM_DIM * this->mpMesh->GetNumNodes());
         assert(!assembleVector || mpLinearSystem->rGetRhsVector() != NULL);
         assert(!assembleMatrix || mpLinearSystem->rGetLhsMatrix() != NULL);
-                   
+
+        // Is the matrix symmetric?
+        if (assembleMatrix && !this->mpBoundaryConditions->HasDirichletBoundaryConditions())
+        {
+            mpLinearSystem->SetMatrixIsSymmetric();
+        }
 
         // Replicate the current solution and store so can be used in
         // AssembleOnElement

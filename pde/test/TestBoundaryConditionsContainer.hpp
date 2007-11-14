@@ -23,6 +23,8 @@ public:
         int num_nodes = 10;
         BoundaryConditionsContainer<1,1,1> bcc1;
         
+        TS_ASSERT(!bcc1.HasDirichletBoundaryConditions());
+        
         Node<1>* nodes[num_nodes];
         for (int i=0; i<num_nodes; i++)
         {
@@ -31,6 +33,8 @@ public:
                 new ConstBoundaryCondition<1>((double)i);
             bcc1.AddDirichletBoundaryCondition(nodes[i], p_boundary_condition);
         }
+        
+        TS_ASSERT(bcc1.HasDirichletBoundaryConditions());
         
         for (int i=0; i<num_nodes; i++)
         {
