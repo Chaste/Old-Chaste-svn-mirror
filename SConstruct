@@ -113,10 +113,9 @@ comp_deps = {'cancer': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'io': ['global'],
              'global': [],
              'core': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global']}
-components = ['cancer', 'heart', 'pde', 'ode',
-               'mesh', 'linalg', 'io', 'global']
+components = ['global', 'io', 'linalg', 'mesh', 'ode', 'pde', 'heart', 'cancer']
 if build.using_dealii:
-    components = ['dealii'] + components
+    components = components + ['dealii']
 Export('components', 'comp_deps')
 
 Alias('core', Split('global io linalg mesh ode pde'))
@@ -238,8 +237,15 @@ for toplevel_dir in components:
     if not os.path.exists(bld_dir):
         os.mkdir(bld_dir)
     script = os.path.join(toplevel_dir, 'SConscript')
-    test_depends.append(SConscript(script, src_dir=toplevel_dir, build_dir=bld_dir,
-                                   duplicate=0))
+    (test_logs, lib) = SConscript(script, src_dir=toplevel_dir, build_dir=bld_dir,
+                                  duplicate=0)
+    if not lib:
+        for v in comp_deps.itervalues():
+            try:
+                v.remove(toplevel_dir)
+            except ValueError:
+                pass
+    test_depends.append(test_logs)
 
 # Any user projects?
 for project in glob.glob('projects/[_a-zA-z]*'):

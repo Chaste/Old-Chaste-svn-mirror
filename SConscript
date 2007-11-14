@@ -80,11 +80,6 @@ if test_cpppath:
     newenv['CHASTE_OBJECTS'] = env['CHASTE_OBJECTS']
     env = newenv
 
-# Determine libraries to link against.
-# Note that order does matter!
-chaste_libs = [toplevel_dir] + comp_deps[toplevel_dir]
-all_libs = ['test'+toplevel_dir] + chaste_libs + other_libs
-
 # Build and install the library for this component
 if use_chaste_libs:
     if static_libs:
@@ -95,7 +90,10 @@ if use_chaste_libs:
         shlib = File('#lib/lib'+toplevel_dir+'.so').abspath
         env.Execute(Delete(shlib))
     else:
-        lib = env.SharedLibrary(toplevel_dir, files)
+        if files:
+            lib = env.SharedLibrary(toplevel_dir, files)
+        else:
+            lib = None
         libpath = '#linklib'
     # Build the test library for this component
     env.Library('test'+toplevel_dir, testsource)
@@ -108,6 +106,15 @@ else:
         #print toplevel_dir, "source", key
         env['CHASTE_OBJECTS'][key] = obj[0]
     
+
+# Determine libraries to link against.
+# Note that order does matter!
+if lib:
+	chaste_libs = [toplevel_dir] + comp_deps[toplevel_dir]
+else:
+	chaste_libs = comp_deps[toplevel_dir]
+all_libs = ['test'+toplevel_dir] + chaste_libs + other_libs
+
 
 
 # Make test output depend on shared libraries, so if implementation changes
@@ -151,4 +158,5 @@ for testfile in testfiles:
         test_log_files.append(log_file)
         env.RunTest(log_file, runner_exe)
 
-Return("test_log_files")
+return_value = (test_log_files, lib)
+Return("return_value")
