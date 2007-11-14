@@ -229,19 +229,24 @@ public:
             ColumnDataReader results_reader(results_handler.GetOutputDirectoryFullPath(), "Results", false);
             
             
-            // Write out the time series for the node at first and third quadrant
             {
                 std::vector<double> transmembrane_potential=results_reader.GetValues("V", third_quadrant_node);
                 std::vector<double> time_series = results_reader.GetUnlimitedDimensionValues();
-                OutputFileHandler plot_file_handler("ConvergencePlots", false);
-                std::stringstream plot_file_name_stream;
-                plot_file_name_stream<< "Node1_"<< file_num << "_timestep.csv";
-                out_stream p_plot_file = plot_file_handler.OpenOutputFile(plot_file_name_stream.str());
-                for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
+                
+                // Write out the time series for the node at third quadrant
+                if (results_handler.IsMaster())
                 {
-                    (*p_plot_file) << time_series[data_point] << "\t" << transmembrane_potential[data_point] << "\n";                 
+                    OutputFileHandler plot_file_handler("ConvergencePlots", false);
+                    std::stringstream plot_file_name_stream;
+                    plot_file_name_stream<< "Node1_"<< file_num << "_timestep.csv";
+                    out_stream p_plot_file = plot_file_handler.OpenOutputFile(plot_file_name_stream.str());
+                    for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
+                    {
+                        (*p_plot_file) << time_series[data_point] << "\t" << transmembrane_potential[data_point] << "\n";                 
+                    }
+                    p_plot_file->close();
                 }
-                p_plot_file->close();
+
                 // calculate l2norm
                 //double *p_prev_voltage = prev_voltage;
                 double max_abs_error = 0;
@@ -280,6 +285,8 @@ public:
                 }
             }
             
+            // Write time series for first quadrant node
+            if (results_handler.IsMaster())
             {
                 std::vector<double> transmembrane_potential=results_reader.GetValues("V", first_quadrant_node);
                 std::vector<double> time_series = results_reader.GetUnlimitedDimensionValues();

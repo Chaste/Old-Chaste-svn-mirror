@@ -11,7 +11,6 @@
 #include <math.h>
 
 #include "BackwardEulerLuoRudyIModel1991.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
 #include "PdeConvergenceTester.hpp"
 #include "SpaceConvergenceTester.hpp"
 #include "KspConvergenceTester.hpp"
