@@ -44,27 +44,31 @@ build.SetRevision(ARGUMENTS.get('revision', ''))
 Export('build')
 
 # Whether to use static or shared libraries
-static_libs = ARGUMENTS.get('static', 0)
+static_libs = int(ARGUMENTS.get('static', 0))
 if build.is_profile:
     static_libs = 1
 Export('static_libs')
 
+# Whether to build Chaste libraries, or link tests against object files directly
+use_chaste_libs = int(ARGUMENTS.get('chaste_libs', 1))
+Export('use_chaste_libs')
+
 # Specify test_summary=0 to scons to *NOT* generate a summary html page
-test_summary = ARGUMENTS.get('test_summary', 1)
+test_summary = int(ARGUMENTS.get('test_summary', 1))
 
 # Used by the automated build system
-run_infrastructure_tests = ARGUMENTS.get('do_inf_tests', 1)
+run_infrastructure_tests = int(ARGUMENTS.get('do_inf_tests', 1))
 
 # Specifying extra run-time flags
 run_time_flags = ARGUMENTS.get('run_time_flags', '')
 
 # Specify all_tests=1 to select all tests for running (useful with
 # compile_only=1)
-all_tests = ARGUMENTS.get('all_tests', 0)
+all_tests = int(ARGUMENTS.get('all_tests', 0))
 Export('all_tests')
 
 # Specify compile_only=1 to not run any tests
-compile_only = ARGUMENTS.get('compile_only', 0)
+compile_only = int(ARGUMENTS.get('compile_only', 0))
 Export('compile_only')
 
 # To run a single test suite only, give its path (relative to the Chaste
@@ -179,6 +183,8 @@ env.Replace(CXX = build.tools['mpicxx'])
 env.Replace(AR = build.tools['ar'])
 env.Replace(CPPPATH = cpppath)
 env['buildsig'] = build.GetSignature()
+env['CHASTE_COMPONENTS'] = components
+env['CHASTE_OBJECTS'] = {}
 
 
 if not single_test_suite:
@@ -195,9 +201,10 @@ def test_description(target, source, env):
     return "running '%s'" % (source[0])
 test_action = Action(TestRunner.get_build_function(build, run_time_flags),
                      test_description, ['buildsig'])
-runtests = Builder(action=test_action)
+runtest = Builder(action=test_action)
 env['BUILDERS']['Test'] = test
-env['BUILDERS']['RunTests'] = runtests
+env['BUILDERS']['RunTest'] = runtest
+env['BUILDERS']['BuildTest'] = Builder(action=SConsTools.BuildTest)
 
 # Faster builds of shared libraries
 import fasterSharedLibrary
