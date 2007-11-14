@@ -22,4 +22,4 @@ public:
     }
 };
 
-#endif //_HEATEQUATIONPDE_HPP_
+#endif //_LINEARHEATEQUATIONPDE_HPP_

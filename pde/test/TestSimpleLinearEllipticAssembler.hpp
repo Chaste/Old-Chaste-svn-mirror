@@ -6,6 +6,7 @@
 #include <petsc.h>
 #include "LinearHeatEquationPde.hpp"
 #include "LinearPdeWithZeroSource.hpp"
+#include "EllipticPdeWithLinearSource.hpp"
 #include "SimpleLinearSolver.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include <vector>
@@ -539,12 +540,44 @@ public:
     }
     
     
-//    // solve u_xx + u = 0, u(0)=1, u(1)=2 => u = a sin(x) + cos(x), where a = -cos1/sin1
-//    void TestWithLinearSourceTerm()
-//    {
-//        
-//    }
-    
+    // solve u_xx + 4*u = 0, u(0)=1, u(1)=2 => u = a sin(2x) + cos(2x), where a = (2-cos2)/sin2
+    void TestWithLinearSourceTerm()
+    {
+        // Create mesh from mesh reader
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
+        ConformingTetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Instantiate PDE object
+        EllipticPdeWithLinearSource<1> pde(4,0);
+        
+        // Boundary conditions
+        BoundaryConditionsContainer<1,1,1> bcc;
+        ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
+
+        p_boundary_condition = new ConstBoundaryCondition<1>(2.0);
+        unsigned last_node = (unsigned)(mesh.GetNumNodes()-1);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(last_node), p_boundary_condition);
+        
+        // Assembler
+        SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
+        
+        Vec result = assembler.Solve();
+        ReplicatableVector result_repl(result);
+
+        // Solution should be u = a sin(x) + cos(x), where a = (2-cos1)/sin1
+        double a = (2-cos(2))/sin(2);
+        for (unsigned i=0; i<result_repl.size(); i++)
+        {
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            double u = a*sin(2*x) + cos(2*x);
+            //std::cout << u << " " << result_repl[i] << "\n";
+            TS_ASSERT_DELTA(result_repl[i], u, u*0.001);
+        }
+
+        VecDestroy(result);        
+    }
 };
 
 #endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_

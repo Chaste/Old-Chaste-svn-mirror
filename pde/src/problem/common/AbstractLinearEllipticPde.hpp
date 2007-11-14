@@ -51,7 +51,7 @@ public:
      */
     virtual double ComputeLinearInUCoeffInSourceTerm(ChastePoint<SPACE_DIM> x)
     {
-        NEVER_REACHED;
+        return 0.0;
     }
     
     /**
