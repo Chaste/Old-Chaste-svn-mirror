@@ -1,1 +1,2 @@
 TestBidomainCompareWithMemfem.hpp
+Test3DPerformance05.hpp

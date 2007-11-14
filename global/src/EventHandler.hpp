@@ -29,13 +29,13 @@ public:
     
     static void BeginEvent(EventType event)
     {
-        mCpuTime[event]-= (double) (clock()/1000); // clock() is always gives a multiple of 1000
+        mCpuTime[event]-= clock()/(CLOCKS_PER_SEC/1000.0); 
         //std::cout << "Begining " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
     
     static void EndEvent(EventType event)
     {
-        mCpuTime[event]+= (double) (clock()/1000);
+        mCpuTime[event]+= clock()/(CLOCKS_PER_SEC/1000.0);
         //std::cout << "Ending " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
     
@@ -48,7 +48,7 @@ public:
             printf("%2.1e\t", mCpuTime[event]);
             mCpuTime[event]=0.0;
         }
-        std::cout << "\n";
+        std::cout << "(milliseconds) \n";
     }
     
     static void Headings()
