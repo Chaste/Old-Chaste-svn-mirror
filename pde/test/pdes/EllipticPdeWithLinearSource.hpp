@@ -24,7 +24,7 @@ public:
     {
         return mConstant;
     }
-    
+
     double ComputeLinearInUCoeffInSourceTerm(ChastePoint<SPACE_DIM> )
     {
         return mCoeffOfU;

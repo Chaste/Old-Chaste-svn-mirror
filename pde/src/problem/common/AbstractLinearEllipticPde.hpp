@@ -49,11 +49,8 @@ public:
      *  Div(D Grad u)  +  f(x)u + g(x) = 0
      *  @param x The point in space 
      */
-    virtual double ComputeLinearInUCoeffInSourceTerm(ChastePoint<SPACE_DIM> x)
-    {
-        return 0.0;
-    }
-    
+    virtual double ComputeLinearInUCoeffInSourceTerm(ChastePoint<SPACE_DIM> x)=0;
+
     /**
      * Compute Diffusion Term.
      * @param x The point in space at which the Diffusion Term is computed.

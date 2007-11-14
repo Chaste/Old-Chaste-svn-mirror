@@ -16,6 +16,11 @@ public:
         return 0.0;
     }
     
+    double ComputeLinearInUCoeffInSourceTerm(ChastePoint<SPACE_DIM> )
+    {
+        return 0.0;
+    }
+        
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> x)
     {
         return identity_matrix<double>(SPACE_DIM);

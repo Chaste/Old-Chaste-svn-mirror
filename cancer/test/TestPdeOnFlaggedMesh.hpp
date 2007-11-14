@@ -53,11 +53,11 @@ public:
         return -1;
     }
     
-    double ComputeNonlinearSourceTerm(ChastePoint<2> , double )
+    double ComputeLinearInUCoeffInSourceTerm(ChastePoint<2> )
     {
         return 0.0;
-    }
-    
+    }    
+
     c_matrix<double,2,2> ComputeDiffusionTerm(ChastePoint<2> )
     {
         return identity_matrix<double>(2);

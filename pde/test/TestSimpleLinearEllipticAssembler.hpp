@@ -572,12 +572,19 @@ public:
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = a*sin(2*x) + cos(2*x);
-            //std::cout << u << " " << result_repl[i] << "\n";
+            std::cout << u << " " << result_repl[i] << "\n";
             TS_ASSERT_DELTA(result_repl[i], u, u*0.001);
         }
 
         VecDestroy(result);        
     }
+    
+//    // Picking the solution u=exp(xy), we solve the pde u_xx + u_yy = (x^2+y^2) u, with bcs
+//    // u = exp(xy) on the boundary
+//    void TestWithLinearSourceTerm2d()
+//    {
+//        
+//    }
 };
 
 #endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_
