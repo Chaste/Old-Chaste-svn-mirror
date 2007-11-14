@@ -62,95 +62,6 @@ protected:
     LinearSystem *mpLinearSystem;
 
 
-    /**
-     *  Calculate the contribution, in a PETSc-friendly format, of a single element. It
-     *      contains a call to AssembleOnElement 
-     * 
-     */    
-    void AssembleOnElementPetscFormat( Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-                                       PetscInt* m, PetscInt idxm[], 
-                                       PetscInt* n, PetscInt idxn[],
-                                       double v[],
-                                       PetscInt* m_rhs, PetscInt idx_rhs[], 
-                                       double rhs[],
-                                       bool assembleVector, bool assembleMatrix,
-                                       unsigned num_elem_nodes)
-    {
-        *m=*n=*m_rhs=0;
-        
-//        //Assume all elements have the same number of nodes...
-//        const unsigned num_elem_nodes = (*iter)->GetNumNodes();
-        
-        c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1)> a_elem;
-        c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> b_elem;
-        
-        // Call original AssembleOnElement Method        
-        AssembleOnElement(rElement, a_elem, b_elem, assembleVector, assembleMatrix);
-
-        PetscInt RangeLo, RangeHi;
-        mpLinearSystem->GetOwnershipRange(RangeLo, RangeHi);
-                        
-        //unsigned n_elem = 0u;
-        for (unsigned i=0; i<num_elem_nodes; i++)
-        {
-            unsigned node1 = rElement.GetNodeGlobalIndex(i);
-                    
-            if (assembleMatrix)
-            {
-                for (unsigned j=0; j<num_elem_nodes; j++)
-                {
-                    unsigned node2 = rElement.GetNodeGlobalIndex(j);
-             
-                    for (unsigned k=0; k<PROBLEM_DIM; k++)
-                    {
-                        PetscInt row = PROBLEM_DIM*node1+k;
-                        if (row >= RangeLo && row < RangeHi)
-                        {
-                            if (j==0)
-                            {
-                                idxm[*m] = row;
-                                *m = (*m) + 1;                                                            
-                            }
-                            for (unsigned l=0; l<PROBLEM_DIM; l++)
-                            {
-                                if (i==0 && k==0)
-                                {
-                                    idxn[*n] = PROBLEM_DIM*node2+l;
-                                    *n = (*n) + 1;                                                            
-                                }
-
-                                unsigned small_mat_row = PROBLEM_DIM*i+k;
-                                unsigned small_mat_col = PROBLEM_DIM*j+l;
-                                unsigned small_mat_num_cols = PROBLEM_DIM*(ELEMENT_DIM+1);        
-                                v[small_mat_row*small_mat_num_cols + small_mat_col] = a_elem(small_mat_row, small_mat_col);
-  
-                                //std::cout << PROBLEM_DIM*node1+k << " " << PROBLEM_DIM*node2+l << " : " << a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+l) << std::endl;
-                            //mpLinearSystem->AddToMatrixElement( PROBLEM_DIM*node1+k,
-                            //                                PROBLEM_DIM*node2+l,
-                            //                                a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+l) );
-                            }
-                        }
-                    }
-                }
-            }
-        
-            if (assembleVector)
-            {
-                for (unsigned k=0; k<PROBLEM_DIM; k++)
-                {
-                    PetscInt row = PROBLEM_DIM*node1+k;
-                    if (row >= RangeLo && row < RangeHi)
-                    {                   
-                      idx_rhs[*m_rhs] = PROBLEM_DIM*node1+k;
-                      rhs[*m_rhs]       = b_elem(PROBLEM_DIM*i+k);
-                      *m_rhs = (*m_rhs) + 1;
-                    }
-                    //mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
-                }
-            }
-        }
-
-    }
           
     /**
      *  Calculate the contribution of a single element to the linear system.
@@ -470,14 +381,6 @@ protected:
                 if (assembleVector)
                 {
                     mpLinearSystem->AddRhsMultipleValues(p_indices, b_elem);
-//                    for (unsigned i=0; i<num_elem_nodes; i++)
-//                    {
-//                        unsigned node1 = element.GetNodeGlobalIndex(i);
-//                        for (unsigned k=0; k<PROBLEM_DIM; k++)
-//                        {
-//                            mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
-//                        }
-//                    }
                 }
             }
                 
