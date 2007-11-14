@@ -56,7 +56,7 @@ protected:
         c_vector<double,1> &u,
         c_matrix<double,1,SPACE_DIM> &rGradU)
     {
-        return mpEllipticPde->ComputeLinearSourceTerm(rX) * rPhi;
+        return mpEllipticPde->ComputeConstantInUSourceTerm(rX) * rPhi;
     }
     
     

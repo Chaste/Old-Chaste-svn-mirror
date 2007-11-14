@@ -1,9 +1,11 @@
 #ifndef _ABSTRACTLINEARPARABOLICPDE_HPP_
 #define _ABSTRACTLINEARPARABOLICPDE_HPP_
 
-#include "AbstractLinearEllipticPde.hpp"
+#include "UblasCustomFunctions.hpp"
 #include "ChastePoint.hpp"
 #include "Node.hpp"
+#include <petscvec.h>
+
 
 /**
  * AbstractLinearParabolicPde class.
@@ -13,7 +15,7 @@
  *
  */
 template <unsigned SPACE_DIM>
-class AbstractLinearParabolicPde : public AbstractLinearEllipticPde<SPACE_DIM>
+class AbstractLinearParabolicPde
 {
 public:
     /**
@@ -34,9 +36,27 @@ public:
         return ComputeNonlinearSourceTerm(node.GetPoint(), u);
     }
 
-    // The methods below are pure methods inherited from AbstractLinearEllipticPde:
-    //virtual double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> x)=0;
-    //virtual MatrixDouble ComputeDiffusionTerm(ChastePoint<SPACE_DIM> x)=0;
+
+    /**
+     * Compute Linear Source Term.
+     * @param x The point in space at which the Linear Source Term is computed.
+     */
+    virtual double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> x)=0;
+                                              
+    /**
+     * Compute Diffusion Term.
+     * @param x The point in space at which the Diffusion Term is computed.
+     * @return A matrix. 
+     */
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> x)=0;
+    
+    virtual double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& node)
+    {
+        return ComputeLinearSourceTerm(node.GetPoint());
+    }
+    
+    virtual ~AbstractLinearParabolicPde()
+    {}
 };
 
 #endif //_ABSTRACTLINEARPARABOLICPDE_HPP_

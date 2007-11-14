@@ -133,8 +133,8 @@ public:
         // Instantiate PDE object
         LinearHeatEquationPde<1> pde;
         
-        double value1 = pde.ComputeLinearSourceTermAtNode(*(mesh.GetNode(0)));
-        double value2 = pde.ComputeLinearSourceTerm(mesh.GetNode(0)->GetPoint());
+        double value1 = pde.ComputeConstantInUSourceTermAtNode(*(mesh.GetNode(0)));
+        double value2 = pde.ComputeConstantInUSourceTerm(mesh.GetNode(0)->GetPoint());
         TS_ASSERT_DELTA(value1, value2, 1e-10);
         
         // Boundary conditions
@@ -494,9 +494,7 @@ public:
             double y = (*iter)->GetPoint()[1];
             double z = (*iter)->GetPoint()[2];
             
-            if (fabs(1-x)<0.01)
-            {}
-            else
+            if (fabs(1-x)>=0.01)
             {
                 //Dirichlet boundary condition
                 ConstBoundaryCondition<3>* p_dirichlet_boundary_condition = new ConstBoundaryCondition<3>(-1.0/6*(x*x+y*y+z*z));
@@ -539,6 +537,14 @@ public:
 
         VecDestroy(result);
     }
+    
+    
+//    // solve u_xx + u = 0, u(0)=1, u(1)=2 => u = a sin(x) + cos(x), where a = -cos1/sin1
+//    void TestWithLinearSourceTerm()
+//    {
+//        
+//    }
+    
 };
 
 #endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_

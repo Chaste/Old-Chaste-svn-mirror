@@ -11,7 +11,7 @@ template <int SPACE_DIM>
 class LinearPdeWithZeroSource:public AbstractLinearEllipticPde<SPACE_DIM>
 {
 public:
-    double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> x)
+    double ComputeConstantInUSourceTerm(ChastePoint<SPACE_DIM> x)
     {
         return 0.0;
     }

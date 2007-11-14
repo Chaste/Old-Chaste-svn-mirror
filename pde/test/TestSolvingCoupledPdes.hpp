@@ -23,7 +23,7 @@
 class MySimplePde : public AbstractLinearEllipticPde<2>
 {
 public:
-    double ComputeLinearSourceTerm(ChastePoint<2> x)
+    double ComputeConstantInUSourceTerm(ChastePoint<2> x)
     {
         return x[0];
     }

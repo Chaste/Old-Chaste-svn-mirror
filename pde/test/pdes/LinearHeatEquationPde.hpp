@@ -11,7 +11,7 @@ template <int SPACE_DIM>
 class LinearHeatEquationPde:public AbstractLinearEllipticPde<SPACE_DIM>
 {
 public:
-    double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> )
+    double ComputeConstantInUSourceTerm(ChastePoint<SPACE_DIM> )
     {
         return 1.0;
     }

@@ -11,7 +11,9 @@
  * AbstractLinearEllipticPde class.
  *
  * A general PDE of the form:
- * 0 = Grad.(DiffusionTerm(x)*Grad(u))+LinearSourceTerm(x)+NonlinearSourceTerm(x, u)
+ * 0 =   Grad.(DiffusionTerm(x)*Grad(u))
+ *     + ComputeConstantInUSourceTerm(x)
+ *     + ComputeLinearInUCoeffInSourceTerm(x, u)
  *
  * Parabolic PDEs are be derived from this (AbstractLinearParabolicPde)
  */
@@ -36,11 +38,22 @@ class AbstractLinearEllipticPde
 public:
 
     /**
-     * Compute Linear Source Term.
-     * @param x The point in space at which the Linear Source Term is computed.
+     *  The constant in u part of the source term, i.e g(x) in
+     *  Div(D Grad u)  +  f(x)u + g(x) = 0
+     *  @param x The point in space 
      */
-    virtual double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> x)=0;
-                                              
+    virtual double ComputeConstantInUSourceTerm(ChastePoint<SPACE_DIM> x)=0;
+    
+    /**
+     *  The coefficient of u in the linear part of the source term, i.e f(x) in
+     *  Div(D Grad u)  +  f(x)u + g(x) = 0
+     *  @param x The point in space 
+     */
+    virtual double ComputeLinearInUCoeffInSourceTerm(ChastePoint<SPACE_DIM> x)
+    {
+        NEVER_REACHED;
+    }
+    
     /**
      * Compute Diffusion Term.
      * @param x The point in space at which the Diffusion Term is computed.
@@ -48,15 +61,9 @@ public:
      */
     virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> x)=0;
     
-    
-    // - The following is defined in AbstractLinearParabolicPde, which inherits this class
-    // - Compute the coefficient c(x) of du/dt
-    //virtual double ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM> x)=0;
- 
-    
-    virtual double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& node)
+    virtual double ComputeConstantInUSourceTermAtNode(const Node<SPACE_DIM>& node)
     {
-        return ComputeLinearSourceTerm(node.GetPoint());
+        return ComputeConstantInUSourceTerm(node.GetPoint());
     }
     
     virtual ~AbstractLinearEllipticPde()

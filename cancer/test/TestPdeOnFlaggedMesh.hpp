@@ -48,7 +48,7 @@ class SimpleEllipticPde : public AbstractLinearEllipticPde<2>
 {
 
 public:
-    double ComputeLinearSourceTerm(ChastePoint<2> )
+    double ComputeConstantInUSourceTerm(ChastePoint<2> )
     {
         return -1;
     }

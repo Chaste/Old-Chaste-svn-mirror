@@ -25,7 +25,7 @@ private:
     }
     
 public:
-    double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> x)
+    double ComputeConstantInUSourceTerm(ChastePoint<SPACE_DIM> x)
     {
         return pow(DistanceFromOrigin(x),3);
     }
