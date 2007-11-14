@@ -148,12 +148,22 @@ private:
         
         c_vector<double,2*(ELEMENT_DIM+1)> ret;
         
-        vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_V  (ret, slice (0, 2, ELEMENT_DIM+1));
-        vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
+//        vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_V  (ret, slice (0, 2, ELEMENT_DIM+1));
+//        vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
+//        
+//        // u(0) = voltage
+//        slice_V   =  (Am*Cm*u(0)/this->mDt - Am*mIionic - mIIntracellularStimulus) * rPhi;
+//        slice_Phi =  -mIExtracellularStimulus * rPhi;
         
-        // u(0) = voltage
-        slice_V   =  (Am*Cm*u(0)/this->mDt - Am*mIionic - mIIntracellularStimulus) * rPhi;
-        slice_Phi =  -mIExtracellularStimulus * rPhi;
+        double factor = (Am*Cm*u(0)/this->mDt - Am*mIionic - mIIntracellularStimulus);
+        
+        for (unsigned index=0; index<ELEMENT_DIM+1; index++)
+        {
+            ret(2*index)=factor * rPhi(index);
+            ret(2*index+1)=-mIExtracellularStimulus * rPhi(index);
+        }
+        
+        
         
         return ret;
     }

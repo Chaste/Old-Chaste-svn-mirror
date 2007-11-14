@@ -667,6 +667,7 @@ class IntelProduction(IntelP4):
   def __init__(self, *args, **kwargs):
     IntelP4.__init__(self, *args, **kwargs)
     self.build_dir = 'intel_production'
+    self._cc_flags.append('-DNDEBUG')
     self.is_production = True
 
 class StyleCheck(GccDebug):
