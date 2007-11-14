@@ -459,6 +459,7 @@ public:
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime::Instance()->SetStartTime(0.0);
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
         
         // Set up cells 
         std::vector<TissueCell> cells;                      

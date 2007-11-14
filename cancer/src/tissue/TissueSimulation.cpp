@@ -428,12 +428,14 @@ void TissueSimulation<DIM>::Solve()
         *p_cell_types_file <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
     }
         
-    /* Age the cells to the correct time (cells set up with negative birth dates
+    /* 
+     * Age the cells to the correct time (cells set up with negative birth dates
      * to give some that are almost ready to divide).
      * 
      * TODO:For some strange reason this seems to take about 3 minutes for a realistic Wnt-Crypt.
      * Not sure why - when the same code was evaluated in a test it seemed almost instant.
      */
+    LOG(1, "Setting up cells...");
     for (typename Tissue<DIM>::Iterator cell_iter = mrTissue.Begin();
          cell_iter != mrTissue.End();
          ++cell_iter)
@@ -443,7 +445,8 @@ void TissueSimulation<DIM>::Solve()
          */
         cell_iter->ReadyToDivide();
     }
-        
+    LOG(1, "\tdone\n");
+     
     // Write initial conditions to file for the visualizer.
     if(DIM==2)
     {
@@ -494,7 +497,7 @@ void TissueSimulation<DIM>::Solve()
         {
             LOG(1, "\tRemeshing...");
             mrTissue.ReMesh();
-            LOG(1, "DONE.\n");
+            LOG(1, "\tdone.\n");
         }
 
 

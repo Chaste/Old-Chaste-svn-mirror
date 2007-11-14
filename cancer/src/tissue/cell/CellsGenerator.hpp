@@ -14,9 +14,6 @@
 #include "CancerParameters.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
-#include "WntGradient.hpp"
-
-
 
 // Possible types of Cell Cycle Model (just for GenerateForCrypt method)
 typedef enum CellCycleType_
@@ -32,13 +29,21 @@ typedef enum CellCycleType_
 } CellCycleType;
 
 
-/*
+/**
  * A helper class for generating a vector of cells for a given mesh
  */
 template<unsigned DIM>
 class CellsGenerator
 {
 public :
+    /**
+     * Fills a vector of cells with a Fixed cell cycle model, to match 
+     * a given mesh. Gives them birth times of 0 for node 0,
+     * -1 for node 1, -2 for node 2 etc...
+     * 
+     * @param rCells  An empty vector of cells to fill up.
+     * @param rMesh  The mesh the cells should be associated with.  
+     */
     static void GenerateBasic(std::vector<TissueCell>& rCells, 
                                ConformingTetrahedralMesh<DIM,DIM>& rMesh)
     {
@@ -54,6 +59,22 @@ public :
         }
     }
 
+    /**
+     * Generates cells of a specified cell cycle type under the correct 
+     * crypt conditions and gives random ages if required, 
+     * or gives them an age of 0.0 - creates least work for solver startup.
+     * 
+     * @param rCells  An empty cells vector for this function to fill up
+     * @param rMesh  The crypt mesh (can be cylindrical)
+     * @param cycleType (As specified in the enumeration at the top of this file)
+     * @param randomBirthTimes  Whether to assign the cells random birth times (this can be expensive computationally with ODE models)
+     * @param y0  below this line cells are generation 0 (defaults to 0.3)
+     * @param y1  below this line cells are generation 1 (defaults to 2.0)
+     * @param y2  below this line cells are generation 2 (defaults to 3.0)
+     * @param y3  below this line cells are generation 3 (defaults to 4.0)
+     * 
+     * \todo Only give generation information to relevant models (#509)
+     */
     static void GenerateForCrypt(std::vector<TissueCell>& rCells, 
                                  ConformingTetrahedralMesh<2,2>& rMesh, 
                                  CellCycleType cycleType,
@@ -73,6 +94,7 @@ public :
         
         CancerParameters* p_params = CancerParameters::Instance();
         
+        rCells.clear();
         rCells.reserve(num_cells);
         
         for (unsigned i=0; i<num_cells; i++)
@@ -142,7 +164,7 @@ public :
             }
             
 
-            double birth_time = -2; 
+            double birth_time = 0.0; // why -2 !?!?
             
             if (y <= y0)
             {
@@ -186,11 +208,10 @@ public :
                 {
                     birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
                 }
-                if(cycleType==WNT || cycleType==TYSONNOVAK)
+                if(cycleType!=FIXED && cycleType!=STOCHASTIC)
                 {
                     // There are no fully differentiated cells!
-                    cell_type = TRANSIT;
-                    
+                    cell_type = TRANSIT;                    
                 }
                 else
                 {
@@ -198,7 +219,7 @@ public :
                 }                
                 generation = 4;
             }
-
+            
             TissueCell cell(cell_type, HEALTHY, generation, p_cell_cycle_model);
             
             cell.SetNodeIndex(i);
