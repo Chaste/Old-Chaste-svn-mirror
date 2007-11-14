@@ -7,6 +7,7 @@
 #include "LinearHeatEquationPde.hpp"
 #include "LinearPdeWithZeroSource.hpp"
 #include "EllipticPdeWithLinearSource.hpp"
+#include "EllipticPdeWithRadialLinearSource.hpp"
 #include "SimpleLinearSolver.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include <vector>
@@ -572,19 +573,57 @@ public:
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = a*sin(2*x) + cos(2*x);
-            std::cout << u << " " << result_repl[i] << "\n";
+            //std::cout << u << " " << result_repl[i] << "\n";
             TS_ASSERT_DELTA(result_repl[i], u, u*0.001);
         }
 
         VecDestroy(result);        
     }
     
-//    // Picking the solution u=exp(xy), we solve the pde u_xx + u_yy = (x^2+y^2) u, with bcs
-//    // u = exp(xy) on the boundary
-//    void TestWithLinearSourceTerm2d()
-//    {
-//        
-//    }
+    // Picking the solution u=exp(xy), we solve the pde u_xx + u_yy = (x^2+y^2) u, with bcs
+    // u = exp(xy) on the boundary
+    void TestWithLinearSourceTerm2d()
+    {
+        // Create mesh from mesh reader
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Instantiate PDE object
+        EllipticPdeWithRadialLinearSource pde;
+        
+        // Boundary conditions
+        BoundaryConditionsContainer<2,2,1> bcc;
+        for(ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter =
+              mesh.GetBoundaryNodeIteratorBegin();
+            iter != mesh.GetBoundaryNodeIteratorEnd();
+            iter++)
+        {
+            double x = (*iter)->GetPoint()[0];
+            double y = (*iter)->GetPoint()[1];
+            double val = exp(x*y);
+            ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(val);
+            bcc.AddDirichletBoundaryCondition(*iter, p_boundary_condition);
+        }
+        
+        // Assembler
+        SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        
+        Vec result = assembler.Solve();
+        ReplicatableVector result_repl(result);        
+        
+        // Solution should be u = exp(xy)
+        for (unsigned i=0; i<result_repl.size(); i++)
+        {
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            double y = mesh.GetNode(i)->GetPoint()[1];
+            double u = exp(x*y);
+            //std::cout << u << " " << result_repl[i] << "\n";
+            TS_ASSERT_DELTA(result_repl[i], u, u*0.01);
+        }
+
+        VecDestroy(result);
+    }
 };
 
 #endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_
