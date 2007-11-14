@@ -331,6 +331,7 @@ public :
         while (!stepper.IsTimeAtEnd())
         {
             LOG(1, "\nCurrent time = " << stepper.GetTime());
+            std::cout << "\n\n ** Current time = " << stepper.GetTime();
             
             // solve the electrics
             p_electrics_assembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), mTimeStep);
@@ -442,10 +443,9 @@ public :
             LogFile::Instance()->WriteElapsedTime("  ");
         }
 
-
-        if (mWriteOutput)
+        if ((mWriteOutput) && (!mNoElectricsOutput))
         {
-            if((!mNoElectricsOutput) && (mpMonodomainProblem->mpWriter->AmMaster())) // ie only if master process and results files were written
+            if( mpMonodomainProblem->mpWriter->AmMaster() ) // ie only if master process and results files were written
             {
                 // call shell script which converts the data to meshalyzer format
                 std::string chaste_2_meshalyzer;

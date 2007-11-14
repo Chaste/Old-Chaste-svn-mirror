@@ -89,7 +89,7 @@ public:
         else
         {
             ImplicitCardiacMechanicsAssembler<DIM>* p_assembler = new ImplicitCardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir);
-            p_assembler->SetScaling(10);
+            //p_assembler->SetScaling(10);
             this->mpCardiacMechAssembler = p_assembler;
         }
     }

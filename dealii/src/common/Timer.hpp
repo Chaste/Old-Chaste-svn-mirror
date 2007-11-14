@@ -4,6 +4,7 @@
 #include <time.h>
 #include <iostream>
 #include <string>
+#include "LogFile.hpp"
 
 class Timer
 {
@@ -20,6 +21,7 @@ public:
         std::cout << message << " time is "  
                   << (std::clock() - StartTime)/(CLOCKS_PER_SEC) 
                   << "s\n" << std::flush;
+        LOG(1,"    "<<message << " time is "<<(std::clock()-StartTime)/(CLOCKS_PER_SEC)<<"s");                  
     }
     static void PrintAndReset(std::string message)
     {
