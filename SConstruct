@@ -182,7 +182,7 @@ env.Replace(CXX = build.tools['mpicxx'])
 env.Replace(AR = build.tools['ar'])
 env.Replace(CPPPATH = cpppath)
 env['buildsig'] = build.GetSignature()
-env['CHASTE_COMPONENTS'] = components
+env['CHASTE_COMPONENTS'] = components + ['projects']
 env['CHASTE_OBJECTS'] = {}
 
 
