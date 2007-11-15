@@ -221,17 +221,22 @@ del vg_path
 # Export the build environment to SConscript files
 Export('env')
 
+# Test log files to summarise
+test_log_files = []
+
 if run_infrastructure_tests:
     # Check for orphaned test files
+    out = File(build.GetTestReportDir() + 'OrphanedTests.log')
     os.system('python/TestRunner.py python/CheckForOrphanedTests.py ' +
-              build.GetTestReportDir() + 'OrphanedTests.log ' + build_type + ' --no-stdout')
+              str(out) + ' ' + build_type + ' --no-stdout')
+    test_log_files.append(out)
     # Check for duplicate file names in multiple directories
+    out = File(build.GetTestReportDir() + 'DuplicateFileNames.log')
     os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
-              build.GetTestReportDir() + 'DuplicateFileNames.log ' + build_type + ' --no-stdout')
+              str(out) + ' ' + build_type + ' --no-stdout')
+    test_log_files.append(out)
 
 build_dir = build.build_dir
-test_depends = [File(build.GetTestReportDir() + 'OrphanedTests.log'),
-                File(build.GetTestReportDir() + 'DuplicateFileNames.log')]
 for toplevel_dir in components:
     bld_dir = os.path.join(toplevel_dir, 'build', build_dir)
     if not os.path.exists(bld_dir):
@@ -245,7 +250,7 @@ for toplevel_dir in components:
                 v.remove(toplevel_dir)
             except ValueError:
                 pass
-    test_depends.append(test_logs)
+    test_log_files.append(test_logs)
 
 # Any user projects?
 for project in glob.glob('projects/[_a-zA-z]*'):
@@ -253,8 +258,8 @@ for project in glob.glob('projects/[_a-zA-z]*'):
     if not os.path.exists(bld_dir):
         os.mkdir(bld_dir)
     script = os.path.join(project, 'SConscript')
-    test_depends.append(SConscript(script, src_dir=project, build_dir=bld_dir,
-                                   duplicate=0))
+    test_log_files.append(SConscript(script, src_dir=project, build_dir=bld_dir,
+                                     duplicate=0))
 
 
 # Remove the contents of build.GetTestReportDir() on a clean build
@@ -301,7 +306,7 @@ if test_summary and not compile_only:
   senv.AlwaysBuild(summary_index)
   senv.SourceSignatures('timestamp')
   #senv.Command(summary_index, Dir(output_dir), summary_action)
-  senv.Command(summary_index, Flatten(test_depends), summary_action)
+  senv.Command(summary_index, Flatten(test_log_files), summary_action)
   # Avoid circular dependencies
   senv.Ignore(summary_index, summary_index)
   senv.Ignore(Dir(output_dir), summary_index)

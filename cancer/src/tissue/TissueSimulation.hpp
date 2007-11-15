@@ -263,7 +263,8 @@ public:
 protected:
     static std::string GetArchivePathname(const std::string& rArchiveDirectory,
                                           const double& rTimeStamp);
-    static void CommonLoad(boost::archive::text_iarchive& rInputArch);
+    template<class Archive>
+    static void CommonLoad(Archive& rInputArch);
     template<class SIM>
     void CommonSave(SIM* pSim);
 };

@@ -687,7 +687,8 @@ std::string TissueSimulation<DIM>::GetArchivePathname(const std::string& rArchiv
  * At present this is just the simulation time.
  */
 template<unsigned DIM>
-void TissueSimulation<DIM>::CommonLoad(boost::archive::text_iarchive& rInputArch)
+template<class Archive>
+void TissueSimulation<DIM>::CommonLoad(Archive& rInputArch)
 {
     // Load simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
