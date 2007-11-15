@@ -163,6 +163,8 @@ private :
         
         if (mUseEdgeBasedSpringConstant)
         {
+            assert(!mUseBCatSprings);   // don't want to do both (both account for edge length)
+            
             VoronoiTessellation<DIM>& tess = this->mrTissue.rGetVoronoiTessellation();
             
             multiplication_factor = tess.GetEdgeLength(nodeAGlobalIndex,nodeBGlobalIndex)*sqrt(3);
@@ -201,6 +203,7 @@ private :
         
         if (mUseBCatSprings)
         {
+            assert(!mUseEdgeBasedSpringConstant);   // This already adapts for edge lengths - don't want to do it twice.
             double beta_cat_cell_1 = r_cell_A.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
             double beta_cat_cell_2 = r_cell_B.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
             
@@ -293,7 +296,7 @@ public :
                 double d0 = 0.1;
                 // this number is such that d0+A*d1=1, where A is the area of a equilibrium
                 // cell (=sqrt(3)/4 = a third of the area of a hexagon with edges of size 1)
-                double d1 = 1.8/(sqrt(3)*rest_length*rest_length); 
+                double d1 = 2.0*(1.0-d0)/(sqrt(3)*rest_length*rest_length); 
     
                 VoronoiTessellation<DIM>& tess = this->mrTissue.rGetVoronoiTessellation();
             
