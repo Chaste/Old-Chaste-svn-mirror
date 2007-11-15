@@ -97,6 +97,11 @@ public :
         rCells.clear();
         rCells.reserve(num_cells);
         
+        if(cycleType!=FIXED && cycleType!=STOCHASTIC)
+        {   // Only these two models use a fixed number of transit generations.
+            CancerParameters::Instance()->SetMaxTransitGenerations(UINT_MAX);                  
+        }
+        
         for (unsigned i=0; i<num_cells; i++)
         {
             CellType cell_type;

@@ -325,7 +325,7 @@ public:
         // check writing of voronoi data
         OutputFileHandler handler("Monolayer",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "VoronoiAreaAndPerimeter.dat";
-        TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/Monolayer/VoronoiAreaAndPerimeter.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Monolayer/VoronoiAreaAndPerimeter.dat").c_str()), 0);
      
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
@@ -548,8 +548,8 @@ public:
         // (if we do then the boundaries are probably working!)
 
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
-        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 96u);
-        TS_ASSERT_EQUALS(number_of_nodes, 144u);
+        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 94u);
+        TS_ASSERT_EQUALS(number_of_nodes, 142u);
         
         delete p_sloughing_cell_killer;
         SimulationTime::Destroy();

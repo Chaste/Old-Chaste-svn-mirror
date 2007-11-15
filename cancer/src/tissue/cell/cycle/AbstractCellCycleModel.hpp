@@ -90,7 +90,7 @@ public:
     double GetBirthTime() const;
     
     /**
-     * Determine whether the cell is ready to divide.
+     * Determine whether the cell is ready to divide (enter M phase).
      * 
      * @param timeSinceBirth  the elapsed time since the cell was born
      */
