@@ -14,22 +14,22 @@ class TimeDependentDiffusionEquationWithSourceTermPde : public AbstractLinearPar
 {
 
 public:
-    double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> )
+    double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& )
     {
         return 1.0;
     }
     
-    double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> , double )
+    double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& , double )
     {
         return 0.0;
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> )
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& )
     {
         return identity_matrix<double>(SPACE_DIM);
     }
     
-    double ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM> )
+    double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& )
     {
         return 1;
     }

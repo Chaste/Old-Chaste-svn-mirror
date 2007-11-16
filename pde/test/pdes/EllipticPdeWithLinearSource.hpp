@@ -20,17 +20,17 @@ public:
         mConstant = constant;
     }
 
-    double ComputeConstantInUSourceTerm(ChastePoint<SPACE_DIM> )
+    double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& )
     {
         return mConstant;
     }
 
-    double ComputeLinearInUCoeffInSourceTerm(ChastePoint<SPACE_DIM> )
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<SPACE_DIM>& )
     {
         return mCoeffOfU;
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> )
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& )
     {
         return identity_matrix<double>(SPACE_DIM);
     }

@@ -45,12 +45,12 @@ template <int SPACE_DIM>
 class FischerPde : public MonodomainPde<SPACE_DIM>
 {
 public:
-    double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> )
+    double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& )
     {
         return 0.0;
     }
     
-    double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> , double u)
+    double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>&, double u)
     {
         return u*(1-u);
     }
@@ -65,7 +65,7 @@ public:
         return identity_matrix<double>(SPACE_DIM);
     }
     
-    double ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM> )
+    double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& )
     {
         return 1;
     }

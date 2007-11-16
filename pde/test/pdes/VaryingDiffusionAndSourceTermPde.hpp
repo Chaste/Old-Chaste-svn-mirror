@@ -14,7 +14,7 @@ template <int SPACE_DIM>
 class VaryingDiffusionAndSourceTermPde : public AbstractLinearEllipticPde<SPACE_DIM>
 {
 private:
-    double DistanceFromOrigin(ChastePoint<SPACE_DIM> x)
+    double DistanceFromOrigin(const ChastePoint<SPACE_DIM>& x)
     {
         double sum=0;
         for (int i=0; i<SPACE_DIM; i++)
@@ -25,17 +25,17 @@ private:
     }
     
 public:
-    double ComputeConstantInUSourceTerm(ChastePoint<SPACE_DIM> x)
+    double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& x)
     {
         return pow(DistanceFromOrigin(x),3);
     }
     
-    double ComputeLinearInUCoeffInSourceTerm(ChastePoint<SPACE_DIM> )
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<SPACE_DIM>& )
     {
         return 0.0;
     }
         
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> x)
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& x)
     {
         return pow(DistanceFromOrigin(x),2)*identity_matrix<double>(SPACE_DIM);
     }

@@ -27,17 +27,17 @@ class SimpleDiffusionPde : public AbstractLinearParabolicPde<2>
 {
 
 public:
-    double ComputeLinearSourceTerm(ChastePoint<2> )
+    double ComputeLinearSourceTerm(const ChastePoint<2>& )
     {
         return -1;
     }
     
-    c_matrix<double,2,2> ComputeDiffusionTerm(ChastePoint<2> )
+    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& )
     {
         return identity_matrix<double>(2);
     }
     
-    double ComputeDuDtCoefficientFunction(ChastePoint<2> )
+    double ComputeDuDtCoefficientFunction(const ChastePoint<2>& )
     {
         return 1;
     }
@@ -48,17 +48,17 @@ class SimpleEllipticPde : public AbstractLinearEllipticPde<2>
 {
 
 public:
-    double ComputeConstantInUSourceTerm(ChastePoint<2> )
+    double ComputeConstantInUSourceTerm(const ChastePoint<2>& )
     {
         return -1;
     }
     
-    double ComputeLinearInUCoeffInSourceTerm(ChastePoint<2> )
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& )
     {
         return 0.0;
     }    
 
-    c_matrix<double,2,2> ComputeDiffusionTerm(ChastePoint<2> )
+    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& )
     {
         return identity_matrix<double>(2);
     }

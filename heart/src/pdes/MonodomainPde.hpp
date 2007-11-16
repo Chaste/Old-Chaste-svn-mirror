@@ -58,7 +58,7 @@ public:
      * This should not be called; use 
      * ComputeLinearSourceTermAtNode instead
      */
-    double ComputeLinearSourceTerm(ChastePoint<SPACE_DIM> )
+    double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& )
     {
         NEVER_REACHED;
         return 0.0;
@@ -68,7 +68,7 @@ public:
      * This should not be called; use 
      * ComputeNonlinearSourceTermAtNode instead
      */
-    double ComputeNonlinearSourceTerm(ChastePoint<SPACE_DIM> , double )
+    double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& , double )
     {
         NEVER_REACHED;
         return 0.0;
@@ -76,7 +76,7 @@ public:
 #undef COVERAGE_IGNORE
     
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> )
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& )
     {
         return this->mIntracellularConductivityTensor;
     }
@@ -90,7 +90,7 @@ public:
     }
     
     
-    double ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM> )
+    double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& )
     {
         return (this->mSurfaceAreaToVolumeRatio)*(this->mCapacitance);
     }

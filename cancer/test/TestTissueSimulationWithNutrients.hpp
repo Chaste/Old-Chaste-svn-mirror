@@ -21,27 +21,27 @@
 class SimplePdeForTesting : public AbstractNonlinearEllipticPde<2>
 {
 public:
-    double ComputeLinearSourceTerm(ChastePoint<2> )
+    double ComputeLinearSourceTerm(const ChastePoint<2>& )
     {
         return -1.0;
     }
 
-    double ComputeNonlinearSourceTerm(ChastePoint<2> , double )
+    double ComputeNonlinearSourceTerm(const ChastePoint<2>& , double )
     {
         return 0.0;
     }
 
-    c_matrix<double,2,2> ComputeDiffusionTerm(ChastePoint<2> , double u)
+    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& , double u)
     {
         return identity_matrix<double>(2);
     }
     
-    c_matrix<double,2,2> ComputeDiffusionTermPrime(ChastePoint<2> , double u)
+    c_matrix<double,2,2> ComputeDiffusionTermPrime(const ChastePoint<2>& , double u)
     {
         return zero_matrix<double>(2);
     }
     
-    double ComputeNonlinearSourceTermPrime(ChastePoint<2> , double u)
+    double ComputeNonlinearSourceTermPrime(const ChastePoint<2>& , double u)
     {
         return 0.0;
     }
@@ -51,27 +51,27 @@ class SimpleOxygenPde : public AbstractNonlinearEllipticPde<2>
 {
 public:
 
-    double ComputeLinearSourceTerm(ChastePoint<2> )
+    double ComputeLinearSourceTerm(const ChastePoint<2>& )
     {
         return 0.0;
     }
     
-    double ComputeNonlinearSourceTerm(ChastePoint<2> , double u)
+    double ComputeNonlinearSourceTerm(const ChastePoint<2>& , double u)
     {
         return -0.1*u;
     }
     
-    c_matrix<double,2,2> ComputeDiffusionTerm(ChastePoint<2> , double u)
+    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& , double u)
     {
         return identity_matrix<double>(2);
     }
     
-    c_matrix<double,2,2> ComputeDiffusionTermPrime(ChastePoint<2> , double u)
+    c_matrix<double,2,2> ComputeDiffusionTermPrime(const ChastePoint<2>& , double u)
     {
         return zero_matrix<double>(2);
     }
     
-    double ComputeNonlinearSourceTermPrime(ChastePoint<2> , double u)
+    double ComputeNonlinearSourceTermPrime(const ChastePoint<2>& , double u)
     {
         return -1.0;
     }

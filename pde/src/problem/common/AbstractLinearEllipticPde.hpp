@@ -42,21 +42,21 @@ public:
      *  Div(D Grad u)  +  f(x)u + g(x) = 0
      *  @param x The point in space 
      */
-    virtual double ComputeConstantInUSourceTerm(ChastePoint<SPACE_DIM> x)=0;
+    virtual double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& x)=0;
     
     /**
      *  The coefficient of u in the linear part of the source term, i.e f(x) in
      *  Div(D Grad u)  +  f(x)u + g(x) = 0
      *  @param x The point in space 
      */
-    virtual double ComputeLinearInUCoeffInSourceTerm(ChastePoint<SPACE_DIM> x)=0;
+    virtual double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<SPACE_DIM>& x)=0;
 
     /**
      * Compute Diffusion Term.
      * @param x The point in space at which the Diffusion Term is computed.
      * @return A matrix. 
      */
-    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> x)=0;
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& x)=0;
     
     virtual double ComputeConstantInUSourceTermAtNode(const Node<SPACE_DIM>& node)
     {
