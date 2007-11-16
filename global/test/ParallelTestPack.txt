@@ -1,3 +1,4 @@
 TestDistributedVector.hpp
+TestOutputFileHandler.hpp
 TestReplicatableVector.hpp
 TestPetscTools.hpp
