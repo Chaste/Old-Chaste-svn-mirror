@@ -164,12 +164,13 @@ public :
                 typical_stem_cycle_time = typical_transit_cycle_time;
             }
             else
-            {
-                EXCEPTION("Cell Cycle Type is not recognised");   
+            { // Useful to provide a warning if any new cell cycle models are being used.
+                #define COVERAGE_IGNORE
+                EXCEPTION("Cell Cycle Type is not recognised");
+                #undef COVERAGE_IGNORE   
             }
-            
 
-            double birth_time = 0.0; // why -2 !?!?
+            double birth_time = 0.0;
             
             if (y <= y0)
             {
