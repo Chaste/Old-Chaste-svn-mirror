@@ -108,6 +108,10 @@ public:
                               expected_indices_periodic_2[i]);
         }
         
+        // This line upsets things a bit so that hopefully 
+        // the intel build gets the same results as the default build.
+        p_mesh->GetNode(1)->rGetModifiableLocation()[0] = p_mesh->GetNode(1)->rGetLocation()[0] + 0.01;
+        
         // Test an overwritten method
         std::vector< TissueCell* > test_section_periodic_3 = crypt_statistics.GetCryptSectionPeriodic();
         
