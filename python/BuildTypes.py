@@ -331,6 +331,15 @@ class Profile(GccDebug):
     "Run test with a profiler and rename gmon.out"
     return exefile + ' ' + exeflags + ' ; ' + self.tools['gprof'] + ' ' + exefile
 
+class LineProfile(Profile):
+  def __init__(self, *args, **kwargs):
+    Profile.__init__(self, *args, **kwargs)
+    self.build_dir = 'line_profile'
+
+  def GetTestRunnerCommand(self, exefile, exeflags=''):
+    "Run test with a profiler and rename gmon.out"
+    return exefile + ' ' + exeflags + ' ; ' + self.tools['gprof'] + ' -l ' + exefile
+
 
 class GoogleProfile(GccDebug):
   """
