@@ -98,6 +98,9 @@ protected:
     /** Simulation Output directory either the same as mOutputDirectory or includes mOutputDirectory/results_from_time_<TIME> */
     std::string mSimulationOutputDirectory;
     
+    /** Visualiser setup file */ 
+    out_stream mpSetupFile;
+    
     /** The Meineke and cancer parameters */
     CancerParameters *mpParams;
     
@@ -156,7 +159,7 @@ protected:
     /**
      * Writes out special information about the mesh to the visualizer.
      */
-    void WriteVisualizerSetupFile(std::ofstream& rSetupFile);
+    void WriteVisualizerSetupFile();
 
     /**
      * During a simulation time step, process any cell divisions that need to occur.
@@ -204,7 +207,18 @@ protected:
     virtual void PostSolve()
     {
     }
-    
+    /** 
+     *  A method for subclasses to do something at before the start of the time loop
+     */
+    virtual void SetupSolve()
+    {
+    }
+    /** 
+     *  A method for subclasses to do something at the end of each time loop
+     */
+    virtual void AfterSolve()
+    {
+    }
     
 public:
 

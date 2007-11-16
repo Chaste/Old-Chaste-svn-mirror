@@ -81,11 +81,10 @@ TissueSimulation<DIM>::~TissueSimulation()
 
 
 template<unsigned DIM> 
-void TissueSimulation<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
+void TissueSimulation<DIM>::WriteVisualizerSetupFile()
 {
     assert(DIM==2); // this is 2d specific
-    rSetupFile << "MeshWidth\t" << mrTissue.rGetMesh().GetWidth(0u);// get furthest distance between nodes in the x-direction
-    rSetupFile.close();
+    *mpSetupFile << "MeshWidth\t" << mrTissue.rGetMesh().GetWidth(0u);// get furthest distance between nodes in the x-direction
 }
 
 
@@ -421,7 +420,7 @@ void TissueSimulation<DIM>::Solve()
     OutputFileHandler output_file_handler(results_directory+"/vis_results/",false);
     out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
     out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
-    out_stream p_setup_file = output_file_handler.OpenOutputFile("results.vizsetup");
+    mpSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
     
     // Creates output file to store number of different cells
     out_stream p_cell_types_file = output_file_handler.OpenOutputFile("celltypes.dat");
@@ -429,7 +428,8 @@ void TissueSimulation<DIM>::Solve()
     { 
         *p_cell_types_file <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
     }
-        
+    
+    SetupSolve();
     /* 
      * Age the cells to the correct time (cells set up with negative birth dates
      * to give some that are almost ready to divide).
@@ -452,9 +452,9 @@ void TissueSimulation<DIM>::Solve()
     // Write initial conditions to file for the visualizer.
     if(DIM==2)
     {
-        WriteVisualizerSetupFile(*p_setup_file);
+        WriteVisualizerSetupFile();
     }
-    
+    mpSetupFile->close();
     mrTissue.WriteResultsToFiles(tabulated_node_writer, 
                                 tabulated_element_writer,
                                 *p_node_file, *p_element_file, *p_cell_types_file,
@@ -534,7 +534,7 @@ void TissueSimulation<DIM>::Solve()
         
         PostSolve();
     }
-    
+    AfterSolve();
     // Write end state to tabulated files (not visualizer - this
     // is taken care of in the main loop).
     // Doesn't need to count cell types again as it is done in the last loop

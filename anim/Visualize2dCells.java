@@ -27,6 +27,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
     public static RealPoint[][] positions;
     public static RealPoint[][] fibres;
+    public static double[][][] beta_catenin_values;
     public static int[][] element_nodes;
     public static int[][] cell_type;
     public static int[][] image_cells;
@@ -79,7 +80,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static int numSteps = 0;
 
     public static String nutrient_file;
-    public static String beta_catenin_file;
         
     public Visualize2dCells() {
         frame.setSize(700, 700);
@@ -438,14 +438,12 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         }
         File node_file = new File(args[0]+"/vis_results/results.viznodes");
         File element_file = new File(args[0]+"/vis_results/results.vizelements");
+        File beta_catenin_file = new File(args[0]+"/vis_results/results.vizbCat");
         
         // save where the nutrient file will be, in case it is needed later
         nutrient_file = args[0] + "/../nutrients/";
 
-        // save where the beta catenin file will be, in case it is needed later
-        beta_catenin_file = args[0] + "/../betacatenin/";
-        
-        
+                
         if (!node_file.isFile())
         {
             System.out.println("The file "+args[0]+"/vis_results/results.viznodes doesn't exist");
@@ -454,6 +452,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         if (!element_file.isFile())
         {
             System.out.println("The file "+args[0]+"/vis_results/results.vizelements doesn't exist");
+            return;
+        }
+        if (!beta_catenin_file.isFile())
+        {
+            System.out.println("The file "+args[0]+"/vis_results/results.vizbCat doesn't exist");
             return;
         }
     
@@ -502,6 +505,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             element_nodes = new int[num_lines][];
             image_cells = new int[num_lines][];            
             fibres =  new RealPoint[num_lines][];
+            beta_catenin_values = new double[num_lines][][]; 
             String line_fibre="";
             BufferedReader in_fibre_file=null;
             if (drawFibres)
@@ -510,7 +514,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 in_fibre_file=new BufferedReader(new FileReader(fibre_file));
                 line_fibre=in_fibre_file.readLine();
             }
-            
+                        
             if (setupFilePresent)
             {
                 BufferedReader in_setup_file = new BufferedReader(new FileReader(setup_file));
@@ -527,13 +531,25 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         System.out.println("Mesh Width = " + crypt_width);
                         drawCylinder = true && drawCylinderOverride;    // this is made true only if mesh width exists. 
                     }
+                    if (parameter.equals("BetaCatenin"))  // .equals?? That took some doing!
+                    {
+                        System.out.println("Using Beta Catenin");
+                        drawBetaCatenin = true;    // this is made true only if mesh width exists. 
+                    }
                     line_setup = in_setup_file.readLine();
                 }
             }
-            
+
+            String line_beta_catenin="";
+            BufferedReader in_beta_catenin_file=null;
+            if (drawBetaCatenin)
+            {
+                beta_catenin_values = new double[num_lines][][]; 
+                in_beta_catenin_file=new BufferedReader(new FileReader(beta_catenin_file));
+                line_beta_catenin=in_beta_catenin_file.readLine();
+            }
             BufferedReader in_node_file = new BufferedReader(new FileReader(node_file));
             BufferedReader in_element_file = new BufferedReader(new FileReader(element_file));
-            
             
             String line_node = in_node_file.readLine(); // from console input example
             String line_element = in_element_file.readLine();   // above.
@@ -546,12 +562,18 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 StringTokenizer st_node = new StringTokenizer(line_node);
                 StringTokenizer st_element = new StringTokenizer(line_element);
                 StringTokenizer st_fibre = null;
+                StringTokenizer st_beta_catenin = null;
                 if (drawFibres)
                 {
                     st_fibre=new StringTokenizer(line_fibre);
                     Double fibre_time = Double.valueOf(st_fibre.nextToken());
                 }
                 
+                if (drawBetaCatenin)
+                {
+                	st_beta_catenin=new StringTokenizer(line_beta_catenin);
+                    Double beta_catenin_time = Double.valueOf(st_beta_catenin.nextToken());
+                }
                 Double time = Double.valueOf(st_node.nextToken());
                 Double element_time = Double.valueOf(st_element.nextToken());
                 if (Math.abs(time-element_time)>1e-6) 
@@ -570,7 +592,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     System.exit(0);
                 }
                 numCells[row] = entries/3; 
-            
                 // count the number of entries in the element file and check correct 
                 entries = st_element.countTokens();
                 if (entries%3 != 0)
@@ -582,6 +603,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 numElements[row] = st_element.countTokens()/3;
                 positions[row] = new RealPoint[memory_factor*numCells[row]];
                 fibres[row] = new RealPoint[numCells[row]];
+                beta_catenin_values[row] = new double[2*numCells[row]][3];
                 cell_type[row]= new int[memory_factor*numCells[row]];
                 element_nodes[row] = new int[memory_factor*3*numElements[row]];
                 // ArrayList<Double> positionValues= new ArrayList<Double>();
@@ -596,16 +618,47 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         double f2= Double.valueOf(st_fibre.nextToken()).doubleValue();
                         fibres[row][i]=new RealPoint(f1,f2);
                     }
+                    
                     cell_type[row][i] = Integer.parseInt(st_node.nextToken());
                     if ((cell_type[row][i]<0) || (cell_type[row][i]>7))
                     {
                         System.out.println("Oi - I want a cell type between 0 and 7");
                         System.exit(0);
                     }
-
                     positions[row][i]=new RealPoint(d1,d2);
                 }
                 
+                if (drawBetaCatenin)
+                {
+	                for (int i = 0; i < 2*numCells[row]; i++) // should not be 2*numCells[row] but due to periodic drawing don't know how many cells there will be
+	                {
+	                	beta_catenin_values[row][i][0]= 0.0;
+	                	beta_catenin_values[row][i][1]= 0.0;
+	                	beta_catenin_values[row][i][2]= 0.0;
+	                }
+	                //count the number of entries in the bcat file to get num non ghosts and check correct 
+	                int beta_catenin_entries = st_beta_catenin.countTokens();
+	                if (beta_catenin_entries%6 != 0)
+	                {
+	                    System.out.println("Oi - I want the node file to look like: time,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,...");
+	                    System.exit(0);
+	                }
+	                int num_non_ghosts = beta_catenin_entries%6; 
+	                for (int i = 0; i < num_non_ghosts; i++) 
+	                {
+                		String skip; //  Skips past unnecessary info.
+                    	int index = Integer.parseInt(st_beta_catenin.nextToken()); // index
+                    	skip = st_beta_catenin.nextToken(); // x
+                    	skip = st_beta_catenin.nextToken(); // y
+                    	
+                    	double beta_catenin_membrane= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
+                        double beta_catenin_cytoplasm= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
+                        double beta_catenin_nuclear= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
+                        beta_catenin_values[row][index][0]= beta_catenin_membrane;
+                        beta_catenin_values[row][index][1]= beta_catenin_cytoplasm;
+                        beta_catenin_values[row][index][2]= beta_catenin_nuclear;
+                    }
+                }
                 for (int i = 0; i < 3*numElements[row]; i++) 
                 {
                     int node = Integer.parseInt(st_element.nextToken());
@@ -613,6 +666,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     // positionValues.add(d1);
                     element_nodes[row][i] = node;
                 }
+                
                 // Collections.sort(positionValues);
                 // for (int i=0; i<numCells[row]; i++)
                 // {
@@ -624,6 +678,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 {
                     line_fibre=in_fibre_file.readLine();
                 }
+                if (drawBetaCatenin)
+                {
+                	line_beta_catenin=in_beta_catenin_file.readLine();
+                }
                 line_node = in_node_file.readLine();
                 line_element = in_element_file.readLine();
                 row++;
@@ -633,6 +691,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             System.out.println("Writing output files = "+writeFiles);
             System.out.println("Drawing springs = "+drawSprings);
             System.out.println("Drawing fibres = "+drawFibres);
+            System.out.println("Drawing beta catenin = "+drawBetaCatenin);
             System.out.println("Drawing cells = "+drawCells);
             System.out.println("Drawing ghost nodes = "+drawGhosts);
             System.out.println("Drawing cylindrically = "+ drawCylinder);
@@ -642,7 +701,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             CalculateCanvasDimensions();
             
             parsed_all_files=true;
-            
             canvas.drawBufferedImage();
             canvas.repaint();
         } 
@@ -977,60 +1035,58 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         	}
         }
         
-        double[] membrane_beta_cat_conc = new double[500];
-        double[] cyto_beta_cat_conc = new double[500]; 
-        double[] nuc_beta_cat_conc = new double[500]; 
-        
-        for  (int j=0 ; j < 500; j++)
-        { 
-        	membrane_beta_cat_conc[j] = 0.0;
-        	cyto_beta_cat_conc[j] = 0.0;
-        	nuc_beta_cat_conc[j] = 0.0;
-        }        
-        if (vis.drawBetaCatenin)
-        {         
-        	try
-        	{
-        		File beta_catenin_file = new File(vis.beta_catenin_file+"/betacatenin_"+vis.timeStep+".dat");
-        		BufferedReader in_beta_catenin_file = new BufferedReader(new FileReader(beta_catenin_file));
-
-        		int row = 0;
-        		String line_beta_catenin = in_beta_catenin_file.readLine(); 
-
-        		while (line_beta_catenin != null) 
-        		{
-        			// Create a StringTokenizer with a colon sign as a delimiter
-        			StringTokenizer st = new StringTokenizer(line_beta_catenin);
-        			
-        			int node_index = Integer.valueOf(st.nextToken());
-        			Double x = Double.valueOf(st.nextToken());
-        			Double y = Double.valueOf(st.nextToken());        			
-        			membrane_beta_cat_conc[node_index] = Double.valueOf(st.nextToken());
-        			cyto_beta_cat_conc[node_index] = Double.valueOf(st.nextToken());
-        			nuc_beta_cat_conc[node_index] = Double.valueOf(st.nextToken());
-        			        			
-        			line_beta_catenin = in_beta_catenin_file.readLine();
-        			row++;                
-        		}
-        	}
-        	catch (Exception e) 
-        	{
-        		System.out.println("Error occured. Exception message: "+e.getMessage());
-        	}
-        }
+//        double[] membrane_beta_cat_conc = new double[500];
+//        double[] cyto_beta_cat_conc = new double[500]; 
+//        double[] nuc_beta_cat_conc = new double[500]; 
+//        
+//        for  (int j=0 ; j < 500; j++)
+//        { 
+//        	membrane_beta_cat_conc[j] = 0.0;
+//        	cyto_beta_cat_conc[j] = 0.0;
+//        	nuc_beta_cat_conc[j] = 0.0;
+//        }        
+//        if (vis.drawBetaCatenin)
+//        {         
+//        	try
+//        	{
+//        		File beta_catenin_file = new File(vis.beta_catenin_file+"/betacatenin_"+vis.timeStep+".dat");
+//        		BufferedReader in_beta_catenin_file = new BufferedReader(new FileReader(beta_catenin_file));
+//
+//        		int row = 0;
+//        		String line_beta_catenin = in_beta_catenin_file.readLine(); 
+//
+//        		while (line_beta_catenin != null) 
+//        		{
+//        			// Create a StringTokenizer with a colon sign as a delimiter
+//        			StringTokenizer st = new StringTokenizer(line_beta_catenin);
+//        			
+//        			int node_index = Integer.valueOf(st.nextToken());
+//        			Double x = Double.valueOf(st.nextToken());
+//        			Double y = Double.valueOf(st.nextToken());        			
+//        			membrane_beta_cat_conc[node_index] = Double.valueOf(st.nextToken());
+//        			cyto_beta_cat_conc[node_index] = Double.valueOf(st.nextToken());
+//        			nuc_beta_cat_conc[node_index] = Double.valueOf(st.nextToken());
+//        			        			
+//        			line_beta_catenin = in_beta_catenin_file.readLine();
+//        			row++;                
+//        		}
+//        	}
+//        	catch (Exception e) 
+//        	{
+//        		System.out.println("Error occured. Exception message: "+e.getMessage());
+//        	}
+//        }
         
         g2.setColor(Color.black);
         Shape original_clip=g2.getClip();
-                      
         // draw elements first
         for (int i=0 ; i < vis.numElements[vis.timeStep]; i++)
         {       
             // What nodes are we joining up?
-            int index[]=new int[3];
+        	int index[]=new int[3];
             index[0] = vis.element_nodes[vis.timeStep][3*i];
             index[1] = vis.element_nodes[vis.timeStep][3*i+1];
             index[2] = vis.element_nodes[vis.timeStep][3*i+2];
-            
             RealPoint r1 = vis.positions[vis.timeStep][index[0]];
             RealPoint r2 = vis.positions[vis.timeStep][index[1]];
             RealPoint r3 = vis.positions[vis.timeStep][index[2]];
@@ -1160,7 +1216,6 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                 	g2.setClip(original_clip);
                 }
             }            
-            
             if (vis.drawBetaCatenin)
             {                   
                 int clipx[]=new int[3];
@@ -1179,11 +1234,10 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                 	clip_me=true;
                 	g2.setClip(clip);
                 }
-                
                 // plot cytoplasmic beta catenin levels
                 for (int node=0;node<3;node++)
                 {    
-                	 SetCellCytoplasmicBetaCateninColour(cyto_beta_cat_conc[index[node]], index[node]);
+                	 SetCellCytoplasmicBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][1], index[node]);
                      int xs[]=new int[4];
                      int ys[]=new int[4];
                      xs[0]=plotcircumcentre.x;
@@ -1196,28 +1250,26 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                      ys[3]=midpoint[(node+2)%3].y;
                      g2.fillPolygon(xs,ys,4);
                 }
-                
                 // plot membrane-bound beta catenin levels
                 if( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7))
                 {
-                	SetCellMembranBoundBetaCateninColour(membrane_beta_cat_conc[index[0]], index[0]); 
+                	SetCellMembranBoundBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[0]][0], index[0]); 
                     g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
                 if( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7))
                 {
-                	SetCellMembranBoundBetaCateninColour(membrane_beta_cat_conc[index[1]], index[1]); 
+                	SetCellMembranBoundBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[1]][0], index[1]); 
                     g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
                 if( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7))
                 {
-                	SetCellMembranBoundBetaCateninColour(membrane_beta_cat_conc[index[2]], index[2]); 
+                	SetCellMembranBoundBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[2]][0], index[2]); 
                     g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
                 if (clip_me)
                 {
                 	g2.setClip(original_clip);
                 }
-                
             }            
             
             
@@ -1265,7 +1317,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
 
         	if(vis.drawBetaCatenin)
             { 
-        		SetCellNuclearBetaCateninColour(nuc_beta_cat_conc[i], i);
+        		SetCellNuclearBetaCateninColour(vis.beta_catenin_values[vis.timeStep][i][2], i);
         	}
         	else
         	{
