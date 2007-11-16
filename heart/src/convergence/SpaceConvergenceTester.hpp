@@ -33,7 +33,7 @@ public:
             }
             case 3:
             {
-                return this->MeshNum>4;
+                return this->MeshNum>5;
                 break;
             }
             default:
