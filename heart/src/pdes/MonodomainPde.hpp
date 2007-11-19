@@ -75,8 +75,8 @@ public:
     }
 #undef COVERAGE_IGNORE
     
-    
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& )
+    //virtual, since overridden by Fisher
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& )
     {
         return this->mIntracellularConductivityTensor;
     }

@@ -60,7 +60,7 @@ public:
         return u*(1-u);
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(ChastePoint<SPACE_DIM> )
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM> &)
     {
         return identity_matrix<double>(SPACE_DIM);
     }
