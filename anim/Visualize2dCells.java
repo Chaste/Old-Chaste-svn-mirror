@@ -574,7 +574,16 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 {
                 	st_beta_catenin=new StringTokenizer(line_beta_catenin);
                     Double beta_catenin_time = Double.valueOf(st_beta_catenin.nextToken());
+                    System.out.println("Reading in beta_catenin from row = "+row);
+                    //count the number of entries in the bcat file to get num non ghosts and check correct 
+	                int beta_catenin_entries = st_beta_catenin.countTokens();
+	                if (beta_catenin_entries%6 != 0)
+	                {
+	                    System.out.println("Oi - I want the node file to look like: time,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,...");
+	                    System.exit(0);
+	                }
                 }
+                
                 Double time = Double.valueOf(st_node.nextToken());
                 Double element_time = Double.valueOf(st_element.nextToken());
                 if (Math.abs(time-element_time)>1e-6) 
@@ -627,39 +636,31 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         System.exit(0);
                     }
                     positions[row][i]=new RealPoint(d1,d2);
+                    
+                    if (drawBetaCatenin)
+                    {
+                    	if (cell_type[row][i]!=7)	// If this is not a ghost cell
+                    	{
+                    		String skip; //  Skips past unnecessary info.
+                        	int index = Integer.parseInt(st_beta_catenin.nextToken()); // index
+                        	skip = st_beta_catenin.nextToken(); // x
+                        	skip = st_beta_catenin.nextToken(); // y
+                        	
+                        	double beta_catenin_membrane= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
+                        	double beta_catenin_cytoplasm= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
+                        	double beta_catenin_nuclear= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
+                        	beta_catenin_values[row][i][0]= beta_catenin_membrane;
+                        	beta_catenin_values[row][i][1]= beta_catenin_cytoplasm;
+                        	beta_catenin_values[row][i][2]= beta_catenin_nuclear;
+                        	System.out.println("Reading in beta_catenin for cell = " + i);
+                        	System.out.println("membrane = " + beta_catenin_values[row][i][0]);
+                        	System.out.println("cytoplasm = " + beta_catenin_values[row][i][1]);
+                        	System.out.println("nuclear = " + beta_catenin_values[row][i][2]);
+                    	}
+                    }	
                 }
                 
-                if (drawBetaCatenin)
-                {
-	                for (int i = 0; i < 2*numCells[row]; i++) // should not be 2*numCells[row] but due to periodic drawing don't know how many cells there will be
-	                {
-	                	beta_catenin_values[row][i][0]= 0.0;
-	                	beta_catenin_values[row][i][1]= 0.0;
-	                	beta_catenin_values[row][i][2]= 0.0;
-	                }
-	                //count the number of entries in the bcat file to get num non ghosts and check correct 
-	                int beta_catenin_entries = st_beta_catenin.countTokens();
-	                if (beta_catenin_entries%6 != 0)
-	                {
-	                    System.out.println("Oi - I want the node file to look like: time,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,...");
-	                    System.exit(0);
-	                }
-	                int num_non_ghosts = beta_catenin_entries%6; 
-	                for (int i = 0; i < num_non_ghosts; i++) 
-	                {
-                		String skip; //  Skips past unnecessary info.
-                    	int index = Integer.parseInt(st_beta_catenin.nextToken()); // index
-                    	skip = st_beta_catenin.nextToken(); // x
-                    	skip = st_beta_catenin.nextToken(); // y
-                    	
-                    	double beta_catenin_membrane= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
-                        double beta_catenin_cytoplasm= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
-                        double beta_catenin_nuclear= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
-                        beta_catenin_values[row][index][0]= beta_catenin_membrane;
-                        beta_catenin_values[row][index][1]= beta_catenin_cytoplasm;
-                        beta_catenin_values[row][index][2]= beta_catenin_nuclear;
-                    }
-                }
+
                 for (int i = 0; i < 3*numElements[row]; i++) 
                 {
                     int node = Integer.parseInt(st_element.nextToken());
