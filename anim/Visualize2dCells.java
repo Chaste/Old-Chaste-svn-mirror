@@ -454,10 +454,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             System.out.println("The file "+args[0]+"/vis_results/results.vizelements doesn't exist");
             return;
         }
+        
         if (!beta_catenin_file.isFile())
         {
             System.out.println("The file "+args[0]+"/vis_results/results.vizbCat doesn't exist");
-            return;
+            beta_catenin.setVisible(false);
+            beta_catenin.setState(false);
+            drawBetaCatenin=false;
         }
     
         File fibre_file= new File(args[0]+"/vis_results/results.vizfibres");
