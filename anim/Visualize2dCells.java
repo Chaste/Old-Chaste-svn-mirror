@@ -457,7 +457,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         
         if (!beta_catenin_file.isFile())
         {
-            System.out.println("The file "+args[0]+"/vis_results/results.vizbCat doesn't exist");
+            //System.out.println("The file "+args[0]+"/vis_results/results.vizbCat doesn't exist");
             beta_catenin.setVisible(false);
             beta_catenin.setState(false);
             drawBetaCatenin=false;
@@ -466,7 +466,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         File fibre_file= new File(args[0]+"/vis_results/results.vizfibres");
         if (!fibre_file.isFile())
         {
-            System.out.println("The file "+args[0]+"/vis_results/results.vizfibres doesn't exist");
+            //System.out.println("The file "+args[0]+"/vis_results/results.vizfibres doesn't exist");
             fibre.setVisible(false);
             drawFibres=false;
         } 
@@ -536,7 +536,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     }
                     if (parameter.equals("BetaCatenin"))  // .equals?? That took some doing!
                     {
-                        System.out.println("Using Beta Catenin");
                         drawBetaCatenin = true;
                         beta_catenin.setState(true);
                     }
@@ -577,7 +576,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 {
                 	st_beta_catenin=new StringTokenizer(line_beta_catenin);
                     Double beta_catenin_time = Double.valueOf(st_beta_catenin.nextToken());
-                    System.out.println("Reading in beta_catenin from row = "+row);
                     //count the number of entries in the bcat file to get num non ghosts and check correct 
 	                int beta_catenin_entries = st_beta_catenin.countTokens();
 	                if (beta_catenin_entries%6 != 0)
@@ -655,11 +653,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         	beta_catenin_values[row][i][0]= beta_catenin_membrane;
                         	beta_catenin_values[row][i][1]= beta_catenin_cytoplasm;
                         	beta_catenin_values[row][i][2]= beta_catenin_nuclear;
-                        	System.out.println("Reading in beta_catenin for cell = " + i);
-                        	System.out.println("membrane = " + beta_catenin_values[row][i][0]);
-                        	System.out.println("cytoplasm = " + beta_catenin_values[row][i][1]);
-                        	System.out.println("nuclear = " + beta_catenin_values[row][i][2]);
-                    	}
+                        }
                     }	
                 }
                 
