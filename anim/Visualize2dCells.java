@@ -1104,7 +1104,9 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
             midpoint[2] = scale(new RealPoint(r1,r2));
             midpoint[0] = scale(new RealPoint(r2,r3));
             midpoint[1] = scale(new RealPoint(r3,r1));
-                                
+            
+            
+            
             g2.setColor(Color.black);
             
             if (vis.drawCells)
@@ -1233,11 +1235,12 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                 	clip_me=true;
                 	g2.setClip(clip);
                 }
-                // plot cytoplasmic beta catenin levels
+                // plot membrane beta catenin levels
                 for (int node=0;node<3;node++)
                 {    
-                	 SetCellCytoplasmicBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][1], index[node]);
-                     int xs[]=new int[4];
+                	 SetCellMembranBoundBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][0], index[node]);
+                	 
+                	 int xs[]=new int[4];
                      int ys[]=new int[4];
                      xs[0]=plotcircumcentre.x;
                      ys[0]=plotcircumcentre.y;
@@ -1247,6 +1250,39 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                      ys[2]=vertex[node].y;
                      xs[3]=midpoint[(node+2)%3].x;
                      ys[3]=midpoint[(node+2)%3].y;
+                     g2.fillPolygon(xs,ys,4);
+                }
+                // plot cytoplasmic beta catenin levels
+                for (int node=0;node<3;node++)
+                {    
+                	 SetCellCytoplasmicBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][1], index[node]);
+                	 r1 = vis.positions[vis.timeStep][index[0]];
+                	 
+                	 double cyto_scaler = 0.8;
+                	 double mid_cyto_scaler = (cyto_scaler)/2.0;
+                	 
+                	 double circumcentre_for_vertex_x=(1-cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+cyto_scaler*circumcentre.x;
+                	 double circumcentre_for_vertex_y=(1-cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+cyto_scaler*circumcentre.y;
+                	 PlotPoint scaled_circumcentre_for_vertex = scale(circumcentre_for_vertex_x, circumcentre_for_vertex_y);
+                	 
+                	 double mid1_for_vertex_x=(1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+2)%3]].x;
+                	 double mid1_for_vertex_y=(1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+2)%3]].y;
+                	 PlotPoint scaled_mid1_for_vertex = scale(mid1_for_vertex_x, mid1_for_vertex_y);
+                	 
+                	 double mid2_for_vertex_x=(1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+1)%3]].x;
+                	 double mid2_for_vertex_y=(1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+1)%3]].y;
+                	 PlotPoint scaled_mid2_for_vertex = scale(mid2_for_vertex_x, mid2_for_vertex_y);
+                	 
+                     int xs[]=new int[4];
+                     int ys[]=new int[4];
+                     xs[0]=scaled_circumcentre_for_vertex.x;
+                     ys[0]=scaled_circumcentre_for_vertex.y;
+                     xs[1]=scaled_mid1_for_vertex.x;
+                     ys[1]=scaled_mid1_for_vertex.y;
+                     xs[2]=vertex[node].x;
+                     ys[2]=vertex[node].y;
+                     xs[3]=scaled_mid2_for_vertex.x;
+                     ys[3]=scaled_mid2_for_vertex.y;
                      g2.fillPolygon(xs,ys,4);
                 }
                 // plot membrane-bound beta catenin levels
