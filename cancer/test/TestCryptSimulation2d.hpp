@@ -1100,7 +1100,7 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
         
-        HoneycombMeshGenerator generator(4, 4, 1);
+        HoneycombMeshGenerator generator(5, 4, 1);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -1126,7 +1126,10 @@ public:
         // check writing of beta-catenin data
         OutputFileHandler handler("CryptBetaCatenin",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizbCat";
+        std::string results_setup_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizsetup";
+        
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CryptBetaCatenin/results.vizbCat").c_str()), 0);    
+        TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " cancer/test/data/CryptBetaCatenin/results.vizsetup").c_str()), 0);    
 
         SimulationTime::Destroy();
         WntGradient::Destroy();
