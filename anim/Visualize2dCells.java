@@ -534,7 +534,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     if (parameter.equals("BetaCatenin"))  // .equals?? That took some doing!
                     {
                         System.out.println("Using Beta Catenin");
-                        drawBetaCatenin = true;    // this is made true only if mesh width exists. 
+                        drawBetaCatenin = true;
+                        beta_catenin.setState(true);
                     }
                     line_setup = in_setup_file.readLine();
                 }
