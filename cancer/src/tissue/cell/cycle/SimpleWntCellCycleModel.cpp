@@ -48,23 +48,24 @@ bool SimpleWntCellCycleModel::ReadyToDivide()
     bool ready = false;
     
     double wnt_division_threshold = DBL_MAX;
-    
+    double healthy_threshold = 0.65; // Cell will divide if Wnt level >= to this value.
+        
     // set up under what level of Wnt stimulus a cell will divide
     switch (mpCell->GetMutationState())
     {
         case HEALTHY:
-            wnt_division_threshold = 0.5;
+            wnt_division_threshold = healthy_threshold;
             break;
         case LABELLED:
+            wnt_division_threshold = healthy_threshold;
+            break;
+        case APC_ONE_HIT:   // should be less than healthy values
             wnt_division_threshold = 0.5;
             break;
-        case APC_ONE_HIT:
-            wnt_division_threshold = 0.4;
-            break;
-        case BETA_CATENIN_ONE_HIT:
+        case BETA_CATENIN_ONE_HIT:  // less than above value
             wnt_division_threshold = 0.1;
             break;
-        case APC_TWO_HIT:
+        case APC_TWO_HIT:   // should be zero (no Wnt-dependence).
             wnt_division_threshold = 0.0;
             break;
         default:

@@ -231,8 +231,6 @@ public:
         SimpleWntCellCycleModel* p_cycle_model = new SimpleWntCellCycleModel;
         TissueCell cell(STEM, HEALTHY, 0, p_cycle_model);
         
-
-        
         for (unsigned i = 0 ; i< num_timesteps/3 ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -252,7 +250,7 @@ public:
         SimpleWntCellCycleModel *p_cycle_model2 = static_cast <SimpleWntCellCycleModel*> (cell2.GetCellCycleModel());        
         
         // Now reduce the Wnt gradient
-        wnt_level = 0.6;
+        wnt_level = 0.7;
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         double division_time = SimulationTime::Instance()->GetDimensionalisedTime();
