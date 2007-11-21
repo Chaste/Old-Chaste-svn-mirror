@@ -67,8 +67,8 @@ public:
             {
                 first_quadrant_node = (unsigned) (0.25*constructor.NumElements);
                 third_quadrant_node = (unsigned) (0.75*constructor.NumElements);
-                assert(cardiac_problem.rGetMesh().GetNode(first_quadrant_node)->rGetLocation()[0]==0.25*mesh_width);
-                assert(cardiac_problem.rGetMesh().GetNode(third_quadrant_node)->rGetLocation()[0]==0.75*mesh_width);
+                assert(cardiac_problem.rGetMesh().GetNode(first_quadrant_node)->rGetLocation()[0]==0.25*this->mMeshWidth);
+                assert(cardiac_problem.rGetMesh().GetNode(third_quadrant_node)->rGetLocation()[0]==0.75*this->mMeshWidth);
                 break;
             }
             case 2:
@@ -94,12 +94,12 @@ public:
         
         Node<DIM>* fqn = cardiac_problem.rGetMesh().GetNode(first_quadrant_node);
         Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);
-        assert(fqn->rGetLocation()[0]==0.25*mesh_width);
-        assert(tqn->rGetLocation()[0]==0.75*mesh_width);
+        assert(fqn->rGetLocation()[0]==0.25*this->mMeshWidth);
+        assert(tqn->rGetLocation()[0]==0.75*this->mMeshWidth);
         for (unsigned coord=1; coord<DIM; coord++)
         {
-            assert(fqn->rGetLocation()[coord]==0.5*mesh_width);
-            assert(tqn->rGetLocation()[coord]==0.5*mesh_width);
+            assert(fqn->rGetLocation()[coord]==0.5*this->mMeshWidth);
+            assert(tqn->rGetLocation()[coord]==0.5*this->mMeshWidth);
         }
         
         OutputFileHandler results_handler("Convergence", false);

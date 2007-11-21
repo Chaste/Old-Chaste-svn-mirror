@@ -45,7 +45,7 @@ public:
     double Abscissa()
     {
         unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
-        return mesh_width/(double) mesh_size;
+        return this->mMeshWidth/(double) mesh_size;
     }
     
     int GetMeshNum()
@@ -55,7 +55,7 @@ public:
     double GetSpaceStep()
     {
         unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2);// number of elements in each dimension
-        double scaling = mesh_width/(double) mesh_size;
+        double scaling = this->mMeshWidth/(double) mesh_size;
         return scaling;
     }
 };

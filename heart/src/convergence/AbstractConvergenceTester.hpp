@@ -28,17 +28,18 @@ class QuarterStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 private:
     // define a new stimulus
     InitialStimulus* mpStimulus;
-    
+    double mMeshWidth;
 public:
-    QuarterStimulusCellFactory(double timeStep, double mesh_width) : AbstractCardiacCellFactory<DIM>(timeStep)
+    QuarterStimulusCellFactory(double timeStep, double meshWidth) : AbstractCardiacCellFactory<DIM>(timeStep)
     {
         mpStimulus = new InitialStimulus(-1000000, 0.5);
+        mMeshWidth=meshWidth;
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         double x = this->mpMesh->GetNode(node)->GetPoint()[0];
-        if (x<=mesh_width*0.25+1e-10)
+        if (x<=mMeshWidth*0.25+1e-10)
         {
             return new CELL(this->mpSolver, this->mTimeStep, this->mpStimulus, this->mpZeroStimulus);
         }
@@ -57,6 +58,8 @@ public:
 
 class AbstractUntemplatedConvergenceTester
 {
+protected:
+    const static double mMeshWidth=0.2;  //cm   
 public:
     double OdeTimeStep;
     double PdeTimeStep;
@@ -96,6 +99,7 @@ public:
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
 class AbstractConvergenceTester : public AbstractUntemplatedConvergenceTester
 {
+
 public:    
     void Converge()
     {
@@ -121,7 +125,7 @@ public:
 
             if (this->MeshNum!=prev_mesh_num)
             {
-                mesh_pathname = constructor.Construct(this->MeshNum);
+                mesh_pathname = constructor.Construct(this->MeshNum, mMeshWidth);
                 prev_mesh_num = this->MeshNum;
             }                            
             unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
@@ -215,15 +219,15 @@ public:
             #ifndef NDEBUG
             Node<DIM>* fqn = cardiac_problem.rGetMesh().GetNode(first_quadrant_node);
             Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);
-            #endif
-            
+            double mesh_width=constructor.GetWidth();
             assert(fqn->rGetLocation()[0]==0.25*mesh_width);
-            assert(tqn->rGetLocation()[0]==0.75*mesh_width);
+            assert(fabs(tqn->rGetLocation()[0] - 0.75*mesh_width) < 1e-10);
             for (unsigned coord=1; coord<DIM; coord++)
             {
                 assert(fqn->rGetLocation()[coord]==0.5*mesh_width);
                 assert(tqn->rGetLocation()[coord]==0.5*mesh_width);
             }
+            #endif
             
             OutputFileHandler results_handler("Convergence", false);
             ColumnDataReader results_reader(results_handler.GetOutputDirectoryFullPath(), "Results", false);
@@ -315,7 +319,7 @@ public:
     void DisplayRun()
     {
         unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2);// number of elements in each dimension
-        double scaling = mesh_width/(double) mesh_size;
+        double scaling = mMeshWidth/(double) mesh_size;
         
         std::cout<<"================================================================================"<<std::endl;
         std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << this->MeshNum << ")" << std::endl;

@@ -35,7 +35,8 @@ private:
     {
         rMesh.ConstructCuboid(width, width, width);
     }
-
+protected:
+    const static double mMeshWidth=0.2;//cm
 public:    
     PerformanceTester()
     : OdeTimeStep(0.0025),
@@ -62,7 +63,7 @@ public:
 
         if (MeshNum!=prev_mesh_num)
         {
-            mesh_pathname = constructor.Construct(MeshNum);
+            mesh_pathname = constructor.Construct(MeshNum, mMeshWidth);
             mNumElements = constructor.NumElements;
             mNumNodes = constructor.NumNodes;
             prev_mesh_num = MeshNum;

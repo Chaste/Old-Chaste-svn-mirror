@@ -23,7 +23,7 @@ class TestConvergenceNightly : public CxxTest::TestSuite
 public:
     //Current test takes about 20 mins.
     //This is much longer (1 hour?) with default ksp
-    void Test2DSpaceWithSymmLq() throw(Exception)
+    void Test2DSpaceSymmLq() throw(Exception)
     {
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
@@ -37,7 +37,20 @@ public:
         TS_ASSERT_EQUALS(tester.GetMeshNum(), 5); 
         TS_ASSERT_DELTA(tester.GetSpaceStep(), 1.5625e-3 /*cm*/, 1e-8 /*Allowed error*/);     
     }
-       
+
+    void Test2DSpaceWithRegion() throw(Exception)
+    {
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
+        PetscOptionsSetValue("-options_table", "");
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
+        tester.StimulateRegion=true;
+        tester.KspRtol=1e-8;
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 6u); 
+    }       
+    
     //Currently takes about 3 minutes to do mesh0 and mesh1
     void Test3DSpaceWithSymmLq() throw(Exception)
     {

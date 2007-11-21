@@ -5,7 +5,7 @@
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
 
-const double mesh_width = 0.2; // cm
+//const double mesh_width = 0.2; // cm
 
 template<unsigned DIM>
 class CuboidMeshConstructor
@@ -26,17 +26,19 @@ private:
     }
     
 public:
+    double mMeshWidth;
     unsigned NumElements;   
     unsigned NumNodes; 
     
-    std::string Construct(unsigned meshNum)
+    std::string Construct(unsigned meshNum, double meshWidth)
     {
+        mMeshWidth=meshWidth;
         const std::string mesh_dir = "ConvergenceMesh";
         OutputFileHandler output_file_handler(mesh_dir);
         
         // create the mesh
         unsigned mesh_size = (unsigned) pow(2, meshNum+2); // number of elements in each dimension
-        double scaling = mesh_width/(double) mesh_size;
+        double scaling = mMeshWidth/(double) mesh_size;
         ConformingTetrahedralMesh<DIM,DIM> mesh;
         ConstructHyperCube(mesh, mesh_size);
         mesh.Scale(scaling, scaling, scaling);
@@ -61,7 +63,7 @@ public:
     
     double GetWidth()
     {
-        return mesh_width;
+        return mMeshWidth;
     }
     
 };
