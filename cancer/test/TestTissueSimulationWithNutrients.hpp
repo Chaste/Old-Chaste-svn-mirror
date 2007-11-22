@@ -86,7 +86,7 @@ public:
      * 
      * Firstly, test the PDE solver using the problem del squared C = 0.1 
      * on the unit disc, with boundary condition C=1 on r=1, which has 
-     * analytic solution C = 1-0.125*(1-r^2).
+     * analytic solution C = 1-0.25*(1-r^2).
      * 
      * Secondly, test that cells' hypoxic durations are correctly updated when a 
      * nutrient distribution is prescribed.
@@ -108,11 +108,8 @@ public:
 
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         
-        // since we are not calling Solve(), we need to set up 
-        // the simulation time manually
 	    SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0/120.0, 1);   
+        p_simulation_time->SetStartTime(0.0);  
        
         // set up mesh
         ConformingTetrahedralMesh<2,2>* p_mesh = new ConformingTetrahedralMesh<2,2>;
@@ -140,11 +137,23 @@ public:
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
         p_data->SetTissue(tissue);
         
+        // since values are first passed in to CellwiseData before it is updated in PostSolve(),
+        // we need to pass it some initial conditions to avoid memory errors
+        // (note: it would really make more sense to put the PDE solver stuff in a PreSolve method)  
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            p_data->SetValue(1.0, p_mesh->GetNode(i));
+        }
+        
         // set up PDE
         SimplePdeForTesting pde;
         
-        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue); 
-        p_spring_system->UseCutoffPoint(1.5); 
+        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
+        
+        // use an extremely small cutoff so that no cells interact 
+        // - this is to ensure that in the Solve method, the cells don't move
+        // (we need to call Solve to set up the .viznutrient file)
+        p_spring_system->UseCutoffPoint(0.0001); 
               
         // set up tissue simulation
         TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde); 
@@ -157,7 +166,7 @@ public:
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);
         
-        simulator.PostSolve();                
+        simulator.Solve();                
         
         // check the correct solution was obtained           
         for (Tissue<2>::Iterator cell_iter = tissue.Begin();
@@ -282,14 +291,12 @@ public:
      * 
      * Note - if the previous test is changed we need to update the file this test refers to. 
      */
-    void TestWriteFinalMeshSizeForVisualizerMethod() throw (Exception)
+    void TestWriteNutrient() throw (Exception)
     {
         // work out where the previous test wrote its files
         OutputFileHandler handler("TissueSimulationWithOxygen",false);
-        std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results";
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.vizelements cancer/test/data/TissueSimulationWithOxygen_vis/previous_results.vizelements").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.viznodes cancer/test/data/TissueSimulationWithOxygen_vis/previous_results.viznodes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.vizsetup cancer/test/data/TissueSimulationWithOxygen_vis/previous_results.vizsetup").c_str()), 0);
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznutrient";         
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TissueSimulationWithOxygen_vis/results.viznutrient").c_str()), 0);     
     }
 
 };

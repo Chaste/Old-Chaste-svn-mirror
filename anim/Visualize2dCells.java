@@ -27,6 +27,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
     public static RealPoint[][] positions;
     public static RealPoint[][] fibres;
+    public static double[][] nutrient_values;
     public static double[][][] beta_catenin_values;
     public static int[][] element_nodes;
     public static int[][] cell_type;
@@ -40,7 +41,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static double half_width = 0.0;
     
     public static boolean parsed_all_files=false;
-    
     public static boolean drawSprings = false;
     public static boolean drawCells = true;
     public static boolean drawCircles = false;
@@ -54,8 +54,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static boolean setupFilePresent = false;
     
     public static int timeStep = 0;
-
     public static int delay = 50;
+    public static int numSteps = 0;
     
     private Thread updateThread;
 
@@ -65,9 +65,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     
     public static Scrollbar delay_slider = new Scrollbar(Scrollbar.HORIZONTAL, delay, 1, 1, 100);
     public static Scrollbar time_slider = new Scrollbar(Scrollbar.HORIZONTAL, timeStep, 1, 0, 2);
+    
     public static JPanel nutrient_colour_bar = new JPanel();
     public static JPanel beta_catenin_colour_bar = new JPanel();
-    //public static Checkbox output, springs, fibre, cells, ghost_nodes;
+    
     public static Checkbox output = new Checkbox("Output");
     public static Checkbox springs = new Checkbox("Springs");
     public static Checkbox fibre = new Checkbox("Fibres");
@@ -76,30 +77,32 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static Checkbox circles = new Checkbox("Cells as circles");
     public static Checkbox nutrient = new Checkbox("Nutrient");
     public static Checkbox beta_catenin = new Checkbox("Beta catenin");
+    
     public static JLabel nearest_label = new JLabel();
-    public static int numSteps = 0;
-
-    public static String nutrient_file;
-        
-    public Visualize2dCells() {
+            
+    public Visualize2dCells() 
+    {
         frame.setSize(700, 700);
         frame.setTitle("Gavaghan's goons' visualization tools (TM)");
-
         frame.setLayout(new BorderLayout());
+        
         canvas = new CustomCanvas2D(this);
-        //canvas.setSize(1000, 400);
         canvas.setPreferredSize(new Dimension(frame.getWidth(),frame.getHeight()));
         canvas.addMouseMotionListener(canvas);
+        
         addButtons(frame);
         addTimeSlider(frame);
         addNutrientColourBar(frame);
         addBetaCateninColourBar(frame);
+        
         JPanel canvasPanel = new JPanel();
         canvasPanel.add(canvas);
         frame.add(canvasPanel, BorderLayout.CENTER);
 
-        frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
+        frame.addWindowListener(new WindowAdapter() 
+        {
+            public void windowClosing(WindowEvent e) 
+            {
                 System.exit(0);
             }
         });
@@ -107,30 +110,38 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         frame.setVisible(true);
     }
 
-    public void actionPerformed(ActionEvent event) {
+    public void actionPerformed(ActionEvent event) 
+    {
         String pressed = event.getActionCommand();
-        if (pressed == "Quit") {
+        if (pressed == "Quit") 
+        {
             frame.dispose();
         }
-        if (pressed == "Run") {
-            if (timeStep == numSteps - 1) {
+        if (pressed == "Run") 
+        {
+            if (timeStep == numSteps - 1) 
+            {
                 timeStep = 0;
                 time_slider.setValue(timeStep);
             }
-            if (updateThread == null) {
+            if (updateThread == null) 
+            {
                 run.setLabel("Pause");
                 updateThread = new Thread(this);
                 updateThread.start();
             }
         }
-        if (pressed == "Reset") {
+        if (pressed == "Reset") 
+        {
             timeStep = 0;
             time_slider.setValue(timeStep);
             canvas.drawBufferedImage();
             canvas.repaint();
         }
-        if (pressed == "Pause") {
-            if (updateThread != null) {
+        if (pressed == "Pause") 
+        {
+            if (updateThread != null) 
+            {
                 Thread fred = updateThread;
                 updateThread = null;
                 fred.interrupt();
@@ -138,28 +149,29 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             }
         }
     }
-    public void itemStateChanged(ItemEvent e) {
-        Object cb= e.getItemSelectable();
+    public void itemStateChanged(ItemEvent e) 
+    {
+        Object cb = e.getItemSelectable();
         boolean state=(e.getStateChange() == ItemEvent.SELECTED);
         
         if (cb == output) 
         {
-            writeFiles=state;
+            writeFiles = state;
             System.out.println("Writing output files = "+writeFiles);
         } 
         else if (cb == springs) 
         {
-            drawSprings=state;
+            drawSprings = state;
             System.out.println("Drawing springs = "+drawSprings);
         }
         else if (cb == fibre)
         {
-            drawFibres=state;
+            drawFibres = state;
             System.out.println("Drawing fibres = "+drawFibres);
         }
         else if (cb == cells)
         {
-            drawCells=state;
+            drawCells = state;
             System.out.println("Drawing cells = "+drawCells);
         }
         else if (cb == ghost_nodes)
@@ -186,11 +198,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         canvas.repaint();
     }
 
-    public void adjustmentValueChanged(AdjustmentEvent e) {
+    public void adjustmentValueChanged(AdjustmentEvent e) 
+    {
         delay = delay_slider.getValue();
         timeStep = time_slider.getValue();
-        //System.out.println("delay = "+delay);
-        //System.out.println("timeStep = "+timeStep);
         canvas.drawBufferedImage();
         canvas.repaint();
     }
@@ -206,7 +217,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             } 
             else 
             {
-
                 if (updateThread != null) 
                 {
                     Thread fred = updateThread;
@@ -249,8 +259,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         
         delay_slider.setPreferredSize(new Dimension(frame.getWidth(),20));
         delay_slider.addAdjustmentListener(this);
+        
         Label slow = new Label("Slow");
         Label fast = new Label("Fast");
+        
         scrollPanel.add(slow);
         scrollPanel.add(delay_slider);
         scrollPanel.add(fast);
@@ -270,7 +282,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         time_slider.addAdjustmentListener(this);
         
         Label start_time = new Label("Start");
-        
         Label end_time = new Label("End");
         
         scrollPanel_time.add(start_time);
@@ -295,16 +306,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         checkPanel.add(cells);
         checkPanel.add(ghost_nodes);
         checkPanel.add(circles);
-        
         checkPanel.add(nearest_label);
                 
         JPanel southPanel = new JPanel(new GridLayout(2,0));
-        
         southPanel.add(scrollPanel_time);
         southPanel.add(checkPanel);
         frame.add(southPanel,BorderLayout.SOUTH);
     }
-    
     
     public void addNutrientColourBar(Frame frame) 
     {
@@ -319,22 +327,19 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         nutrient_colour_bar.setPreferredSize(new Dimension(panelWidth,panelHeight));
         nutrient_colour_bar.setLayout(new GridLayout(10,2));
        
-        for (int i=num_blocks-1;i>=0;i--)
+        for (int i=num_blocks-1; i>=0; i--)
         {       
             JPanel colour_block = new JPanel();
             colour_block.setPreferredSize(new Dimension(panelWidth/2,panelHeight/num_blocks));
             
-            //Calculate colour                    
+            // Calculate colour                    
             colour_block.setBackground(new Color(121-8*i,126-8*i,200-8*i));
-            
             Label colour_label = new Label(labels[9-i]);        
-        
             nutrient_colour_bar.add(colour_block);
             nutrient_colour_bar.add(colour_label);      
         }
                 
         JPanel eastPanel = new JPanel(new GridLayout(1,1));
-        
         eastPanel.add(nutrient_colour_bar);
         frame.add(eastPanel,BorderLayout.EAST);
     }
@@ -357,25 +362,21 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             JPanel colour_block = new JPanel();
             colour_block.setPreferredSize(new Dimension(panelWidth/2,panelHeight/num_blocks));
             
-            //Calculate colour                    
+            // Calculate colour                    
             colour_block.setBackground(new Color(100,100+16*i,100));
-            
             Label colour_label = new Label(labels[9-i]);        
-        
             beta_catenin_colour_bar.add(colour_block);
             beta_catenin_colour_bar.add(colour_label);      
         }
                 
-        JPanel westPanel = new JPanel(new GridLayout(1,1));
-        
+        JPanel westPanel = new JPanel(new GridLayout(1,1));        
         westPanel.add(beta_catenin_colour_bar);
         frame.add(westPanel,BorderLayout.WEST);
     }
     
-
     public static void main(String args[]) 
     {
-        System.out.println("Copyright Gavaghan's goons");//(Gary Mirams, Sarah Eastburn, Pras Pathmanathan, Alex Fletcher & Joe Pitt-Francis)");
+        System.out.println("Copyright Gavaghan's goons");
         output.setState(false);
         springs.setState(false);
         fibre.setState(false);
@@ -438,11 +439,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         }
         File node_file = new File(args[0]+"/vis_results/results.viznodes");
         File element_file = new File(args[0]+"/vis_results/results.vizelements");
+        File nutrient_file = new File(args[0]+"/vis_results/results.viznutrient");
         File beta_catenin_file = new File(args[0]+"/vis_results/results.vizbCat");
-        
-        // save where the nutrient file will be, in case it is needed later
-        nutrient_file = args[0] + "/../nutrients/";
-
                 
         if (!node_file.isFile())
         {
@@ -454,26 +452,32 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             System.out.println("The file "+args[0]+"/vis_results/results.vizelements doesn't exist");
             return;
         }
-        
+        if (!nutrient_file.isFile())
+        {
+            //System.out.println("The file "+args[0]+"/vis_results/results.viznutrient doesn't exist");
+            nutrient.setVisible(false);
+            nutrient.setState(false);
+            drawNutrient = false;
+        }
         if (!beta_catenin_file.isFile())
         {
             //System.out.println("The file "+args[0]+"/vis_results/results.vizbCat doesn't exist");
             beta_catenin.setVisible(false);
             beta_catenin.setState(false);
-            drawBetaCatenin=false;
+            drawBetaCatenin = false;
         }
     
-        File fibre_file= new File(args[0]+"/vis_results/results.vizfibres");
+        File fibre_file = new File(args[0]+"/vis_results/results.vizfibres");
         if (!fibre_file.isFile())
         {
             //System.out.println("The file "+args[0]+"/vis_results/results.vizfibres doesn't exist");
             fibre.setVisible(false);
-            drawFibres=false;
+            drawFibres = false;
         } 
         else 
         {
             fibre.setState(true);
-            drawFibres=true; //Sorry, this is just to get it working
+            drawFibres = true; //Sorry, this is just to get it working
         }
         
         File setup_file = new File(args[0]+"/vis_results/results.vizsetup");
@@ -508,9 +512,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             element_nodes = new int[num_lines][];
             image_cells = new int[num_lines][];            
             fibres =  new RealPoint[num_lines][];
+            nutrient_values = new double[num_lines][]; 
             beta_catenin_values = new double[num_lines][][]; 
-            String line_fibre="";
-            BufferedReader in_fibre_file=null;
+            String line_fibre = "";
+            BufferedReader in_fibre_file = null;
+
             if (drawFibres)
             {
                 fibres = new RealPoint[num_lines][]; 
@@ -522,19 +528,27 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             {
                 BufferedReader in_setup_file = new BufferedReader(new FileReader(setup_file));
                 String line_setup = in_setup_file.readLine();   // above.
+                
                 // Read setup information.
                 while (line_setup != null)
                 {
                     StringTokenizer st_setup = new StringTokenizer(line_setup);
                     String parameter = st_setup.nextToken();
-                    if (parameter.equals("MeshWidth"))  // .equals?? That took some doing!
+                    if (parameter.equals("MeshWidth"))  
                     {
                         crypt_width = Double.valueOf(st_setup.nextToken());
                         half_width = crypt_width/2.0;
                         System.out.println("Mesh Width = " + crypt_width);
                         drawCylinder = true && drawCylinderOverride;    // this is made true only if mesh width exists. 
                     }
-                    if (parameter.equals("BetaCatenin"))  // .equals?? That took some doing!
+                    if (parameter.equals("Nutrient"))  
+                    {
+//                    	 overrule the previous bit since for nutrient sims, we don't want cylindrical periodicity
+                    	drawCylinder = false; 
+                        drawNutrient = true;
+                        nutrient.setState(true);
+                    }
+                    if (parameter.equals("BetaCatenin")) 
                     {
                         drawBetaCatenin = true;
                         beta_catenin.setState(true);
@@ -543,14 +557,24 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 }
             }
 
-            String line_beta_catenin="";
-            BufferedReader in_beta_catenin_file=null;
+            String line_nutrient = "";
+            BufferedReader in_nutrient_file = null;
+            if (drawNutrient)
+            {
+                nutrient_values = new double[num_lines][]; 
+                in_nutrient_file = new BufferedReader(new FileReader(nutrient_file));
+                line_nutrient = in_nutrient_file.readLine();
+            }
+            
+            String line_beta_catenin = "";
+            BufferedReader in_beta_catenin_file = null;
             if (drawBetaCatenin)
             {
                 beta_catenin_values = new double[num_lines][][]; 
-                in_beta_catenin_file=new BufferedReader(new FileReader(beta_catenin_file));
-                line_beta_catenin=in_beta_catenin_file.readLine();
+                in_beta_catenin_file = new BufferedReader(new FileReader(beta_catenin_file));
+                line_beta_catenin = in_beta_catenin_file.readLine();
             }
+            
             BufferedReader in_node_file = new BufferedReader(new FileReader(node_file));
             BufferedReader in_element_file = new BufferedReader(new FileReader(element_file));
             
@@ -565,28 +589,48 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 StringTokenizer st_node = new StringTokenizer(line_node);
                 StringTokenizer st_element = new StringTokenizer(line_element);
                 StringTokenizer st_fibre = null;
+                StringTokenizer st_nutrient = null;
                 StringTokenizer st_beta_catenin = null;
+
                 if (drawFibres)
                 {
                     st_fibre=new StringTokenizer(line_fibre);
                     Double fibre_time = Double.valueOf(st_fibre.nextToken());
                 }
                 
+                if (drawNutrient)
+                {
+                	st_nutrient = new StringTokenizer(line_nutrient);
+                    Double nutrient_time = Double.valueOf(st_nutrient.nextToken());
+                    
+                    //count the number of entries in the nutrient file to get num non ghosts and check correct 
+	                int nutrient_entries = st_nutrient.countTokens();
+	                
+	                if (nutrient_entries%4 != 0)
+	                {
+	                    System.out.println("Oi - I want the nutrient file to look like: time,index,x,y,nutrient,index,x,y,nutrient,...");
+	                    System.exit(0);
+	                }
+                }
+                
                 if (drawBetaCatenin)
                 {
                 	st_beta_catenin=new StringTokenizer(line_beta_catenin);
                     Double beta_catenin_time = Double.valueOf(st_beta_catenin.nextToken());
+                    
                     //count the number of entries in the bcat file to get num non ghosts and check correct 
 	                int beta_catenin_entries = st_beta_catenin.countTokens();
+	            
 	                if (beta_catenin_entries%6 != 0)
 	                {
-	                    System.out.println("Oi - I want the node file to look like: time,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,...");
+	                    System.out.println("Oi - I want the beta catenin file to look like: time,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,...");
 	                    System.exit(0);
 	                }
                 }
                 
                 Double time = Double.valueOf(st_node.nextToken());
                 Double element_time = Double.valueOf(st_element.nextToken());
+                
                 if (Math.abs(time-element_time)>1e-6) 
                 {
                     System.out.println("Oi - I want the element and node files with rows at the same times...");
@@ -597,14 +641,17 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
                 // count the number of entries in the node file and check correct 
                 int entries = st_node.countTokens();
+                
                 if (entries%3 != 0)
                 {
                     System.out.println("Oi - I want the node file to look like: time,x,y,type,x,y,type...");
                     System.exit(0);
                 }
                 numCells[row] = entries/3; 
+                
                 // count the number of entries in the element file and check correct 
                 entries = st_element.countTokens();
+                
                 if (entries%3 != 0)
                 {
                     System.out.println("Oi - I want the element file to look like: time,n1,n2,n3,n1,n2,n3..");
@@ -614,10 +661,12 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 numElements[row] = st_element.countTokens()/3;
                 positions[row] = new RealPoint[memory_factor*numCells[row]];
                 fibres[row] = new RealPoint[numCells[row]];
+                nutrient_values[row] = new double[2*numCells[row]];
                 beta_catenin_values[row] = new double[2*numCells[row]][3];
                 cell_type[row]= new int[memory_factor*numCells[row]];
                 element_nodes[row] = new int[memory_factor*3*numElements[row]];
                 // ArrayList<Double> positionValues= new ArrayList<Double>();
+                
                 for (int i = 0; i < numCells[row]; i++) 
                 {
                     double d1 = Double.valueOf(st_node.nextToken()).doubleValue();
@@ -637,6 +686,20 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         System.exit(0);
                     }
                     positions[row][i]=new RealPoint(d1,d2);
+                    
+                    if (drawNutrient)
+                    {
+                    	if (cell_type[row][i]!=7)	// If this is not a ghost cell
+                    	{
+                    		String skip; //  Skips past unnecessary info.
+                        	int index = Integer.parseInt(st_nutrient.nextToken()); // index
+                        	skip = st_nutrient.nextToken(); // x
+                        	skip = st_nutrient.nextToken(); // y
+                        	
+                        	double nutrient = Double.valueOf(st_nutrient.nextToken()).doubleValue();
+                        	nutrient_values[row][i] = nutrient;
+                        }
+                    }	
                     
                     if (drawBetaCatenin)
                     {
@@ -675,11 +738,15 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 // Read next line of the file
                 if (drawFibres)
                 {
-                    line_fibre=in_fibre_file.readLine();
+                    line_fibre = in_fibre_file.readLine();
+                }
+                if (drawNutrient)
+                {
+                	line_nutrient = in_nutrient_file.readLine();
                 }
                 if (drawBetaCatenin)
                 {
-                	line_beta_catenin=in_beta_catenin_file.readLine();
+                	line_beta_catenin = in_beta_catenin_file.readLine();
                 }
                 line_node = in_node_file.readLine();
                 line_element = in_element_file.readLine();
@@ -690,16 +757,19 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             System.out.println("Writing output files = "+writeFiles);
             System.out.println("Drawing springs = "+drawSprings);
             System.out.println("Drawing fibres = "+drawFibres);
+            System.out.println("Drawing nutrient = "+drawNutrient);
             System.out.println("Drawing beta catenin = "+drawBetaCatenin);
             System.out.println("Drawing cells = "+drawCells);
             System.out.println("Drawing ghost nodes = "+drawGhosts);
             System.out.println("Drawing cylindrically = "+ drawCylinder);
             
-            if (drawCylinder) ConvertCylindricalDataToPlane();
+            if (drawCylinder) 
+            {
+            	ConvertCylindricalDataToPlane();
+            }
             
             CalculateCanvasDimensions();
-            
-            parsed_all_files=true;
+            parsed_all_files = true;
             canvas.drawBufferedImage();
             canvas.repaint();
         } 
@@ -740,19 +810,22 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         // Scan through each element
         for (int time_index = 0; time_index < numSteps ; time_index++)
         {
-            image_cells[time_index] = new int[memory_factor*numCells[time_index]];// reserve plenty of memory
-            // fill image_nodes  with an identity map (at each time step each node maps to itself)
-            for (int i=0 ; i<numCells[time_index] ; i++) {
+            image_cells[time_index] = new int[memory_factor*numCells[time_index]]; // reserve plenty of memory
+            // fill image_nodes with an identity map (at each time step each node maps to itself)
+            
+            for (int i=0 ; i<numCells[time_index] ; i++) 
+            {
                 image_cells[time_index][i] = i;
             }
             
             // draw elements first
-            for (int i=0 ; i < numElements[time_index]; i++)
+            for (int i = 0 ; i < numElements[time_index]; i++)
             {   
                 // What nodes are we joining up?
                 int indexA = element_nodes[time_index][3*i];
                 int indexB = element_nodes[time_index][3*i+1];
                 int indexC = element_nodes[time_index][3*i+2];
+                
                 // find the x-co-ords of each node
                 RealPoint rA = positions[time_index][indexA];
                 RealPoint rB = positions[time_index][indexB];
@@ -766,6 +839,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     MakeNewImageCell(time_index,indexA);
                     MakeNewImageCell(time_index,indexB);
                     MakeNewImageCell(time_index,indexC);
+                    
                     // break those elements into two separate elements
                     SplitElement(time_index,i);
                 }
@@ -778,6 +852,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         int indexA = element_nodes[time_index][3*element_index];
         int indexB = element_nodes[time_index][3*element_index+1];
         int indexC = element_nodes[time_index][3*element_index+2];
+
         // find the x-co-ords of each node
         RealPoint rA = positions[time_index][indexA];
         RealPoint rB = positions[time_index][indexB];
@@ -785,6 +860,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         
         // Create a new element which contains the image of node A.
         element_nodes[time_index][3*numElements[time_index]] = image_cells[time_index][indexA];
+        
         // Leave Node A in this element
         
         // if node B is far away 
@@ -795,27 +871,32 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             element_nodes[time_index][3*element_index+1] = image_cells[time_index][indexB];
         }
         else
-        {   // node B is still in this element - add its image to new element
+        {   
+        	// node B is still in this element - add its image to new element
             element_nodes[time_index][3*numElements[time_index]+1] = image_cells[time_index][indexB];
         }
         
         // if node C is far away 
         if (Math.abs(rA.x - rC.x) > 0.75*crypt_width)
-        {   // add it to new element and add image of C to this element.
+        {   
+        	// add it to new element and add image of C to this element.
             element_nodes[time_index][3*numElements[time_index]+2] = indexC;
             element_nodes[time_index][3*element_index+2] = image_cells[time_index][indexC];
         }
         else
-        {   // node C is still in this element - add its image to new element
+        {   
+        	// node C is still in this element - add its image to new element
             element_nodes[time_index][3*numElements[time_index]+2] = image_cells[time_index][indexC];
         }       
         numElements[time_index]++;
     }
     
     public static void MakeNewImageCell(int time_index, int node_index)
-    {   // only make a new cell if one hasn't already been made
+    {   
+    	// only make a new cell if one hasn't already been made
         if (image_cells[time_index][node_index]==node_index)
-        {   // Make a new image of Cell A       
+        {   
+        	// Make a new image of Cell A       
             RealPoint new_point = positions[time_index][node_index];
             RealPoint new_point2 = new RealPoint(0.0,0.0);
             new_point2.y = new_point.y;
@@ -836,11 +917,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             // update the image record
             image_cells[time_index][node_index] = numCells[time_index]; 
             numCells[time_index]++;
-        }
-        
+        }    
     }
 }
-
 
 
 class RealPoint
@@ -848,8 +927,8 @@ class RealPoint
     public double x, y; 
     public RealPoint(double xs, double ys)
     {
-        x=xs;
-        y=ys;
+        x = xs;
+        y = ys;
     }
     public RealPoint(RealPoint p1, RealPoint p2) // returns the average of p1 and p2
     {
@@ -858,42 +937,42 @@ class RealPoint
     }
 }
 
+
 class PlotPoint
 {
     public int x, y;
     public PlotPoint(int xs, int ys)
-    {
-        
-        x=xs;
-        y=ys;
+    {        
+        x = xs;
+        y = ys;
     }
 }
 
-class CustomCanvas2D extends Canvas implements MouseMotionListener {
+
+class CustomCanvas2D extends Canvas implements MouseMotionListener 
+{
     private static final long serialVersionUID = 6997195399856046957L;
 
     Visualize2dCells vis;
 
-    int width;
-
-    int height;
-
-    BufferedImage buffered_image=null;
-    Graphics g2=null;
+    boolean imageReady = false;   
+    boolean imageDrawing = false;
     
-    boolean imageReady=false;   
-    boolean imageDrawing=false;
+    int width;
+    int height;
     int node_radius = 5;
-
+    
+    BufferedImage buffered_image = null;
+    Graphics g2 = null;
+    
     Color garysSexySilver = new Color(238,238,238);
     Color garysSpringsSilver = new Color(200,200,200);
     Color ozzysDirtyGrey = new Color(80,80,80);
     Color purple = new Color(121,126,234);
     
-    
-    public CustomCanvas2D(Visualize2dCells v) {
+    public CustomCanvas2D(Visualize2dCells v) 
+    {
         vis = v;
-    
         setBackground(garysSexySilver);
     }
 
@@ -907,14 +986,14 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                 
         if (!imageReady)
         {
-        repaint();
+            repaint();
         }
         imageDrawing = true;
         graphics.drawImage(buffered_image,0,0,this);
         
         if (vis.writeFiles)
         {
-            String filename=String.format("image%1$05d.png", vis.timeStep);
+            String filename = String.format("image%1$05d.png", vis.timeStep);
             System.out.println("Writing file : "+filename+".");
             File f = new File(filename);
             try 
@@ -931,14 +1010,14 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
     
     public void drawBufferedImage() 
     {
-        int cycle=0;
+        int cycle = 0;
         while (imageDrawing)
         {
             System.out.print("");
-            if (cycle==100000)
+            if (cycle == 100000)
             {
                 System.out.print(".");
-                cycle=0;
+                cycle = 0;
             }
             cycle++;
         }
@@ -957,258 +1036,125 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         {
             height = getHeight();
             width = getWidth();
-            buffered_image=new BufferedImage(width, height,BufferedImage.TYPE_INT_RGB);
-            //buffered_image=new Image(width, height);
-             g2 = buffered_image.getGraphics();
+            buffered_image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            g2 = buffered_image.getGraphics();
         }
         
         g2.setColor(garysSexySilver);
-        g2.fillRect(0,0,width,height);
+        g2.fillRect(0, 0, width, height);
         g2.setColor(Color.black);
-                
-        g2.drawString("Time = " + vis.times[vis.timeStep], 10,10);
+        g2.drawString("Time = " + vis.times[vis.timeStep], 10, 10);
 
-        if(vis.drawCircles)
+        if (vis.drawCircles)
         {
-	        //draw cell circle interiors
+	        // draw cell circle interiors
 	        for (int i=0; i<vis.numCells[vis.timeStep]; i++ ) 
 	        {
-	            PlotPoint p=scale(vis.positions[vis.timeStep][i]);
-	
+	        	SetCellColour(i); 
+	            PlotPoint p = scale(vis.positions[vis.timeStep][i]);
 	            int rx = (int) (0.5* width /(vis.max_x - vis.min_x));
 	            int ry = (int) (0.5 * height /(vis.max_y - vis.min_y));
-	            SetCellColour(i); 
-	            if(vis.cell_type[vis.timeStep][i]!=7) // if not ghost
+	            
+	            if (vis.cell_type[vis.timeStep][i] != 7) // if not ghost
 	            {
 	            	g2.fillOval(p.x-rx, p.y-ry, 2*rx, 2*ry);
 	            }
 	        }        
 	        
-	        //draw cell circle boundaries
+	        // draw cell circle boundaries
 	        for (int i=0; i<vis.numCells[vis.timeStep]; i++ ) 
 	        {
+	        	g2.setColor(Color.black);
 	            PlotPoint p=scale(vis.positions[vis.timeStep][i]);
-	
 	            int rx = (int) (0.5* width /(vis.max_x - vis.min_x));
 	            int ry = (int) (0.5 * height /(vis.max_y - vis.min_y));
-	            g2.setColor(Color.black);
-	            if(vis.cell_type[vis.timeStep][i]!=7) // if not ghost
+	            
+	            if (vis.cell_type[vis.timeStep][i]!=7) // if not ghost
 	            {
 	            	g2.drawOval(p.x-rx, p.y-ry, 2*rx, 2*ry);
 	            }
 	        }        
         }
-        
-        double[] nutrient_conc = new double[500];    
-        for  (int j=0 ; j < 500; j++)
-        { 
-        	nutrient_conc[j] = 0.0;
-        }        
-        if (vis.drawNutrient)
-        {   
-        	try
-        	{
-        		File nutrient_file = new File(vis.nutrient_file+"/nutrients_"+vis.timeStep+".dat");
-        		BufferedReader in_nut_file = new BufferedReader(new FileReader(nutrient_file));
-
-        		int row = 0;
-        		String line_nut = in_nut_file.readLine(); 
-
-        		while (line_nut != null) 
-        		{
-        			// Create a StringTokenizer with a colon sign as a delimiter
-        			StringTokenizer st = new StringTokenizer(line_nut);
-        			
-        			int node_index = Integer.valueOf(st.nextToken());
-        			Double x = Double.valueOf(st.nextToken());
-        			Double y = Double.valueOf(st.nextToken());        			
-        			nutrient_conc[node_index] = Double.valueOf(st.nextToken());
-        			
-        			line_nut = in_nut_file.readLine();
-        			row++;                
-        		}
-        	}
-        	catch (Exception e) 
-        	{
-        		System.out.println("Error occured. Exception message: "+e.getMessage());
-        	}
-        }
-        
-//        double[] membrane_beta_cat_conc = new double[500];
-//        double[] cyto_beta_cat_conc = new double[500]; 
-//        double[] nuc_beta_cat_conc = new double[500]; 
-//        
-//        for  (int j=0 ; j < 500; j++)
-//        { 
-//        	membrane_beta_cat_conc[j] = 0.0;
-//        	cyto_beta_cat_conc[j] = 0.0;
-//        	nuc_beta_cat_conc[j] = 0.0;
-//        }        
-//        if (vis.drawBetaCatenin)
-//        {         
-//        	try
-//        	{
-//        		File beta_catenin_file = new File(vis.beta_catenin_file+"/betacatenin_"+vis.timeStep+".dat");
-//        		BufferedReader in_beta_catenin_file = new BufferedReader(new FileReader(beta_catenin_file));
-//
-//        		int row = 0;
-//        		String line_beta_catenin = in_beta_catenin_file.readLine(); 
-//
-//        		while (line_beta_catenin != null) 
-//        		{
-//        			// Create a StringTokenizer with a colon sign as a delimiter
-//        			StringTokenizer st = new StringTokenizer(line_beta_catenin);
-//        			
-//        			int node_index = Integer.valueOf(st.nextToken());
-//        			Double x = Double.valueOf(st.nextToken());
-//        			Double y = Double.valueOf(st.nextToken());        			
-//        			membrane_beta_cat_conc[node_index] = Double.valueOf(st.nextToken());
-//        			cyto_beta_cat_conc[node_index] = Double.valueOf(st.nextToken());
-//        			nuc_beta_cat_conc[node_index] = Double.valueOf(st.nextToken());
-//        			        			
-//        			line_beta_catenin = in_beta_catenin_file.readLine();
-//        			row++;                
-//        		}
-//        	}
-//        	catch (Exception e) 
-//        	{
-//        		System.out.println("Error occured. Exception message: "+e.getMessage());
-//        	}
-//        }
-        
+              
         g2.setColor(Color.black);
-        Shape original_clip=g2.getClip();
+        Shape original_clip = g2.getClip();
+        
         // draw elements first
         for (int i=0 ; i < vis.numElements[vis.timeStep]; i++)
         {       
             // What nodes are we joining up?
-        	int index[]=new int[3];
+        	int index[] = new int[3];
             index[0] = vis.element_nodes[vis.timeStep][3*i];
             index[1] = vis.element_nodes[vis.timeStep][3*i+1];
             index[2] = vis.element_nodes[vis.timeStep][3*i+2];
+            
             RealPoint r1 = vis.positions[vis.timeStep][index[0]];
             RealPoint r2 = vis.positions[vis.timeStep][index[1]];
             RealPoint r3 = vis.positions[vis.timeStep][index[2]];
             
             RealPoint circumcentre=DrawCircumcentre(r1,r2,r3);
-            
             PlotPoint plotcircumcentre = scale(circumcentre);
             
             // Where are they? and convert to integer pixels
-            PlotPoint vertex[]=new PlotPoint[3];
+            PlotPoint vertex[] = new PlotPoint[3];
             vertex[0] = scale(r1);
             vertex[1] = scale(r2);
             vertex[2] = scale(r3);
 
-            PlotPoint midpoint[]=new PlotPoint[3];
+            PlotPoint midpoint[] = new PlotPoint[3];
             midpoint[2] = scale(new RealPoint(r1,r2));
             midpoint[0] = scale(new RealPoint(r2,r3));
             midpoint[1] = scale(new RealPoint(r3,r1));
-            
-            
             
             g2.setColor(Color.black);
             
             if (vis.drawCells)
             {
-                 int clipx[]=new int[3];
-                 int clipy[]=new int[3];
-                 for (int node=0;node<3;node++)
-                 {
-                	 clipx[node]=vertex[node].x;
-                     clipy[node]=vertex[node].y;
-                 }
-                 Polygon clip=new Polygon(clipx,clipy,3);
-                 boolean clip_me=false;
-                 //Is circumcentre in the triangle?
-                 //If not, then we'll clip the next bit of drawing to fit inside the triangle (ticket #432)
-                 if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
-                 {
-                     clip_me=true;
-                     g2.setClip(clip);
-                 }
-                 for (int node=0;node<3;node++)
-                 {                	 
-                     SetCellColour(index[node]);
-                     int xs[]=new int[4];
-                     int ys[]=new int[4];
-                     xs[0]=plotcircumcentre.x;
-                     ys[0]=plotcircumcentre.y;
-                     xs[1]=midpoint[(node+1)%3].x;
-                     ys[1]=midpoint[(node+1)%3].y;
-                     xs[2]=vertex[node].x;
-                     ys[2]=vertex[node].y;
-                     xs[3]=midpoint[(node+2)%3].x;
-                     ys[3]=midpoint[(node+2)%3].y;
-                     g2.fillPolygon(xs,ys,4);
-                 }
-            
-                g2.setColor(Color.black);
-                ////         Plot cell boundary lines
-                if( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7))
+                int clipx[] = new int[3];
+                int clipy[] = new int[3];
+                for (int node=0; node<3; node++)
                 {
-                    g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
+                	clipx[node] = vertex[node].x;
+                    clipy[node] = vertex[node].y;
                 }
-                if( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7))
-                {
-                    g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
-                }
-                if( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7))
-                {
-                    g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
-                }
-                if (clip_me)
-                {
-                	g2.setClip(original_clip);
-                }
-            }            
-
-            if (vis.drawNutrient)
-            {                   
-                int clipx[]=new int[3];
-                int clipy[]=new int[3];
-                for (int node=0;node<3;node++)
-                {
-                	clipx[node]=vertex[node].x;
-                	clipy[node]=vertex[node].y;
-                }
-                Polygon clip=new Polygon(clipx,clipy,3);
-                boolean clip_me=false;
+                Polygon clip = new Polygon(clipx,clipy,3);
+                boolean clip_me = false;
+                 
                 // Is circumcentre in the triangle?
                 // If not, then we'll clip the next bit of drawing to fit inside the triangle (ticket #432)
                 if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
                 {
-                	clip_me=true;
-                	g2.setClip(clip);
+                	clip_me = true;
+                    g2.setClip(clip);
+                }
+                for (int node=0; node<3; node++)
+                {                	 
+                    SetCellColour(index[node]);
+                    int xs[] = new int[4];
+                    int ys[] = new int[4];
+                    xs[0] = plotcircumcentre.x;
+                    ys[0] = plotcircumcentre.y;
+                    xs[1] = midpoint[(node+1)%3].x;
+                    ys[1] = midpoint[(node+1)%3].y;
+                    xs[2] = vertex[node].x;
+                    ys[2] = vertex[node].y;
+                    xs[3] = midpoint[(node+2)%3].x;
+                    ys[3] = midpoint[(node+2)%3].y;
+                    g2.fillPolygon(xs,ys,4);
                 }
                 
-                for (int node=0;node<3;node++)
-                {    
-                	 SetCellNutrientColour(nutrient_conc[index[node]], index[node]);
-                     int xs[]=new int[4];
-                     int ys[]=new int[4];
-                     xs[0]=plotcircumcentre.x;
-                     ys[0]=plotcircumcentre.y;
-                     xs[1]=midpoint[(node+1)%3].x;
-                     ys[1]=midpoint[(node+1)%3].y;
-                     xs[2]=vertex[node].x;
-                     ys[2]=vertex[node].y;
-                     xs[3]=midpoint[(node+2)%3].x;
-                     ys[3]=midpoint[(node+2)%3].y;
-                     g2.fillPolygon(xs,ys,4);
-                }
-           
                 g2.setColor(Color.black);
+                
                 // Plot cell boundary lines
-                if( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7))
+                if ( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7) )
                 {
                     g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
-                if( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7))
+                if ( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7) )
                 {
                     g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
-                if( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7))
+                if ( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7) )
                 {
                     g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
@@ -1217,86 +1163,148 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                 	g2.setClip(original_clip);
                 }
             }            
-            if (vis.drawBetaCatenin)
+            
+            if (vis.drawNutrient)
             {                   
-                int clipx[]=new int[3];
-                int clipy[]=new int[3];
-                for (int node=0;node<3;node++)
+                int clipx[] = new int[3];
+                int clipy[] = new int[3];
+          
+                for (int node=0; node<3; node++)
                 {
-                	clipx[node]=vertex[node].x;
-                	clipy[node]=vertex[node].y;
+                	clipx[node] = vertex[node].x;
+                	clipy[node] = vertex[node].y;
                 }
-                Polygon clip=new Polygon(clipx,clipy,3);
-                boolean clip_me=false;
+                Polygon clip = new Polygon(clipx,clipy,3);
+                boolean clip_me = false;
+                
                 // Is circumcentre in the triangle?
                 // If not, then we'll clip the next bit of drawing to fit inside the triangle (ticket #432)
                 if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
                 {
-                	clip_me=true;
+                	clip_me = true;
                 	g2.setClip(clip);
+                } 
+                
+                // plot nutrient levels
+                for (int node=0; node<3; node++)
+                {    
+                    SetCellNutrientColour(vis.nutrient_values[vis.timeStep][index[node]], index[node]);    
+                    int xs[] = new int[4];
+                    int ys[] = new int[4];
+                    xs[0] = plotcircumcentre.x;
+                    ys[0] = plotcircumcentre.y;
+                    xs[1] = midpoint[(node+1)%3].x;
+                    ys[1] = midpoint[(node+1)%3].y;
+                    xs[2] = vertex[node].x;
+                    ys[2] = vertex[node].y;
+                    xs[3] = midpoint[(node+2)%3].x;
+                    ys[3] = midpoint[(node+2)%3].y;
+                    g2.fillPolygon(xs,ys,4);
                 }
+                
+                // Plot cell boundary lines    
+                g2.setColor(Color.black);
+
+                if ( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7) )
+                {
+                    g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
+                }
+                if ( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7) )
+                {
+                    g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
+                }
+                if ( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7) )
+                {
+                    g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
+                }
+                if (clip_me)
+                {
+                    g2.setClip(original_clip);
+                }
+            }            
+            
+            if (vis.drawBetaCatenin)
+            {                   
+                int clipx[] = new int[3];
+                int clipy[] = new int[3];
+                
+                for (int node=0; node<3; node++)
+                {
+                	clipx[node] = vertex[node].x;
+                	clipy[node] = vertex[node].y;
+                }
+                Polygon clip = new Polygon(clipx,clipy,3);
+                boolean clip_me = false;
+                
+                // Is circumcentre in the triangle?
+                // If not, then we'll clip the next bit of drawing to fit inside the triangle (ticket #432)
+                if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
+                {
+                	clip_me = true;
+                	g2.setClip(clip);
+                } 
+                
                 // plot membrane beta catenin levels
-                for (int node=0;node<3;node++)
+                for (int node=0; node<3; node++)
                 {    
                 	 SetCellMembranBoundBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][0], index[node]);
-                	 
-                	 int xs[]=new int[4];
-                     int ys[]=new int[4];
-                     xs[0]=plotcircumcentre.x;
-                     ys[0]=plotcircumcentre.y;
-                     xs[1]=midpoint[(node+1)%3].x;
-                     ys[1]=midpoint[(node+1)%3].y;
-                     xs[2]=vertex[node].x;
-                     ys[2]=vertex[node].y;
-                     xs[3]=midpoint[(node+2)%3].x;
-                     ys[3]=midpoint[(node+2)%3].y;
+                	 int xs[] = new int[4];
+                     int ys[]= new int[4];
+                     xs[0] = plotcircumcentre.x;
+                     ys[0] = plotcircumcentre.y;
+                     xs[1] = midpoint[(node+1)%3].x;
+                     ys[1] = midpoint[(node+1)%3].y;
+                     xs[2] = vertex[node].x;
+                     ys[2] = vertex[node].y;
+                     xs[3] = midpoint[(node+2)%3].x;
+                     ys[3] = midpoint[(node+2)%3].y;
                      g2.fillPolygon(xs,ys,4);
                 }
+                
                 // plot cytoplasmic beta catenin levels
-                for (int node=0;node<3;node++)
+                for (int node=0; node<3; node++)
                 {    
                 	 SetCellCytoplasmicBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][1], index[node]);
                 	 r1 = vis.positions[vis.timeStep][index[0]];
-                	 
                 	 double cyto_scaler = 0.8;
                 	 double mid_cyto_scaler = (cyto_scaler)/2.0;
-                	 
-                	 double circumcentre_for_vertex_x=(1-cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+cyto_scaler*circumcentre.x;
-                	 double circumcentre_for_vertex_y=(1-cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+cyto_scaler*circumcentre.y;
+                	 double circumcentre_for_vertex_x = (1-cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+cyto_scaler*circumcentre.x;
+                	 double circumcentre_for_vertex_y = (1-cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+cyto_scaler*circumcentre.y;
                 	 PlotPoint scaled_circumcentre_for_vertex = scale(circumcentre_for_vertex_x, circumcentre_for_vertex_y);
                 	 
-                	 double mid1_for_vertex_x=(1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+2)%3]].x;
-                	 double mid1_for_vertex_y=(1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+2)%3]].y;
+                	 double mid1_for_vertex_x = (1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+2)%3]].x;
+                	 double mid1_for_vertex_y = (1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+2)%3]].y;
                 	 PlotPoint scaled_mid1_for_vertex = scale(mid1_for_vertex_x, mid1_for_vertex_y);
                 	 
-                	 double mid2_for_vertex_x=(1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+1)%3]].x;
-                	 double mid2_for_vertex_y=(1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+1)%3]].y;
+                	 double mid2_for_vertex_x = (1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+1)%3]].x;
+                	 double mid2_for_vertex_y = (1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+1)%3]].y;
                 	 PlotPoint scaled_mid2_for_vertex = scale(mid2_for_vertex_x, mid2_for_vertex_y);
                 	 
-                     int xs[]=new int[4];
-                     int ys[]=new int[4];
-                     xs[0]=scaled_circumcentre_for_vertex.x;
-                     ys[0]=scaled_circumcentre_for_vertex.y;
-                     xs[1]=scaled_mid1_for_vertex.x;
-                     ys[1]=scaled_mid1_for_vertex.y;
-                     xs[2]=vertex[node].x;
-                     ys[2]=vertex[node].y;
-                     xs[3]=scaled_mid2_for_vertex.x;
-                     ys[3]=scaled_mid2_for_vertex.y;
+                     int xs[] = new int[4];
+                     int ys[] = new int[4];
+                     xs[0] = scaled_circumcentre_for_vertex.x;
+                     ys[0] = scaled_circumcentre_for_vertex.y;
+                     xs[1] = scaled_mid1_for_vertex.x;
+                     ys[1] = scaled_mid1_for_vertex.y;
+                     xs[2] = vertex[node].x;
+                     ys[2] = vertex[node].y;
+                     xs[3] = scaled_mid2_for_vertex.x;
+                     ys[3] = scaled_mid2_for_vertex.y;
                      g2.fillPolygon(xs,ys,4);
                 }
+                
                 // plot membrane-bound beta catenin levels
-                if( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7))
+                if ( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7) )
                 {
                 	SetCellMembranBoundBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[0]][0], index[0]); 
                     g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
-                if( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7))
+                if ( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7) )
                 {
                 	SetCellMembranBoundBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[1]][0], index[1]); 
                     g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
-                if( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7))
+                if ( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7) )
                 {
                 	SetCellMembranBoundBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[2]][0], index[2]); 
                     g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
@@ -1307,34 +1315,33 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                 }
             }            
             
-            
             if (vis.drawSprings)
             {
                 // Plot lines
-                if( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7))
+                if ( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7) )
                 {
                     g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
                 }
-                if( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7))
+                if ( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7) )
                 {
                     g2.drawLine(vertex[1].x, vertex[1].y, vertex[2].x, vertex[2].y);
                 }
-                if( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7))
+                if ( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7) )
                 {
                     g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
                 }
-                if(vis.drawGhosts)
+                if (vis.drawGhosts)
                 {
                     g2.setColor(garysSpringsSilver);
-                    if( (vis.cell_type[vis.timeStep][index[0]]>=7) || (vis.cell_type[vis.timeStep][index[1]]>=7))
+                    if ( (vis.cell_type[vis.timeStep][index[0]]>=7) || (vis.cell_type[vis.timeStep][index[1]]>=7) )
                     {
                         g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
                     }
-                    if( (vis.cell_type[vis.timeStep][index[1]]>=7) || (vis.cell_type[vis.timeStep][index[2]]>=7))
+                    if ( (vis.cell_type[vis.timeStep][index[1]]>=7) || (vis.cell_type[vis.timeStep][index[2]]>=7) )
                     {
                         g2.drawLine(vertex[1].x, vertex[1].y, vertex[2].x, vertex[2].y);
                     }
-                    if( (vis.cell_type[vis.timeStep][index[2]]>=7) || (vis.cell_type[vis.timeStep][index[0]]>=7))
+                    if ( (vis.cell_type[vis.timeStep][index[2]]>=7) || (vis.cell_type[vis.timeStep][index[0]]>=7) )
                     {
                         g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
                     }
@@ -1342,15 +1349,14 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
                 }
             }
         }
-        
 
         // draw nodes second so that dots are on top of lines
-        double fibre_length=1.2*node_radius;
+        double fibre_length = 1.2*node_radius;
         for (int i = 0; i < vis.numCells[vis.timeStep]; i++ ) 
         {
-        	PlotPoint p=scale(vis.positions[vis.timeStep][i]);
+        	PlotPoint p = scale(vis.positions[vis.timeStep][i]);
 
-        	if(vis.drawBetaCatenin)
+        	if (vis.drawBetaCatenin)
             { 
         		SetCellNuclearBetaCateninColour(vis.beta_catenin_values[vis.timeStep][i][2], i);
         	}
@@ -1362,50 +1368,43 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         	{
         		g2.fillOval(p.x - node_radius, p.y - node_radius, 2 * node_radius, 2 * node_radius);
         	}
-        	//old_x = p.x;
-        	//old_y = p.y;
+
         	if (vis.drawFibres)
         	{
         		g2.setColor(Color.magenta);
-        		RealPoint fibre=vis.fibres[vis.timeStep][i];
+        		RealPoint fibre = vis.fibres[vis.timeStep][i];
         		g2.drawLine(p.x, p.y, (int) (p.x+fibre_length*fibre.x), (int) (p.y-fibre_length*fibre.y) );
-
         	}
         }
         g2.setColor(Color.black);
-
         drawXAxis(tick_length, num_ticks);
         drawYAxis(tick_length, num_ticks);
-        
         imageReady = true;
     }
 
     private void drawXAxis(int tick_length, int num_ticks) 
     {
-        PlotPoint start=scale(vis.min_x,0);
-        PlotPoint end=scale(vis.max_x,0);
-        
-        
+        PlotPoint start = scale(vis.min_x,0);
+        PlotPoint end = scale(vis.max_x,0);
         g2.drawLine(start.x, start.y, end.x, end.y);
+        
         for (int i = 0; i <= num_ticks; i++) 
         {
             double x = vis.min_x + (i * (vis.max_x-vis.min_x)) / num_ticks;
             DecimalFormat df = new DecimalFormat("0.00");
             String x_2dp = df.format(x);
             
-
-            //Tick lines!
-            PlotPoint posn=scale(x,0);
+            // Tick lines
+            PlotPoint posn = scale(x,0);
             g2.drawLine(posn.x, posn.y, posn.x, posn.y+tick_length);
-            g2.drawString(x_2dp, posn.x, posn.y + 2
-                    * tick_length);
+            g2.drawString(x_2dp, posn.x, posn.y + 2*tick_length);
         }
     }
     
     private void drawYAxis(int tick_length, int num_ticks) 
     {
-        PlotPoint start=scale(0,vis.min_y);
-        PlotPoint end=scale(0,vis.max_y);
+        PlotPoint start = scale(0,vis.min_y);
+        PlotPoint end = scale(0,vis.max_y);
         g2.drawLine(start.x, start.y, end.x, end.y);
         
         for (int i = 0; i <= num_ticks; i++) 
@@ -1414,33 +1413,28 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
             DecimalFormat df = new DecimalFormat("0.00");
             String y_2dp = df.format(y);
 
-            //Tick lines!
-            PlotPoint posn=scale(0,y);
+            //Tick lines
+            PlotPoint posn = scale(0,y);
             g2.drawLine(posn.x-tick_length, posn.y, posn.x, posn.y);
             g2.drawString(y_2dp, posn.x - 4*tick_length, posn.y );
-        
-
-            //g2.drawString(y_2dp, scaleX(0.0) - 4* tick_length, scaleY(vis.max_y)-scaleY(y)+scaleY(0.0));
         }
     }
-
-
     
     PlotPoint scale(double x, double y)
     {
         //Map min_x to eps and max_x to width-eps (to allow a border)
-        int eps=20;
+        int eps = 20;
         int ix = (int) ((x - vis.min_x) * (width-2*eps) /(vis.max_x - vis.min_x) +eps);
         int iy = (int) ((y - vis.min_y) * (height-2*eps) /(vis.max_y - vis.min_y) +eps);
         iy = height - iy; // This is because java is silly and has the y axis going down the screen.
         return (new PlotPoint(ix,iy));
-        
     }
+    
     PlotPoint scale(RealPoint p) 
     {
-        return (scale(p.x,p.y));
-        
+        return (scale(p.x,p.y));    
     }
+    
     RealPoint unscale(PlotPoint p)
     {
         int ix = p.x;
@@ -1453,23 +1447,24 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         return (new RealPoint(x,y));
     }
     
-    public void mouseMoved(MouseEvent e) {
+    public void mouseMoved(MouseEvent e) 
+    {
         PlotPoint mouse_position = new PlotPoint(e.getX(), e.getY());
         RealPoint real_position = unscale(mouse_position);
         
-        int nearest_index=-1;
-        for (int i = 0; i < vis.numCells[vis.timeStep]; i++ ) 
+        int nearest_index = -1;
+        for (int i = 0; i < vis.numCells[vis.timeStep]; i++) 
         {
-            int sq_dist=SquaredDistance(scale(vis.positions[vis.timeStep][i]),mouse_position);
+            int sq_dist = SquaredDistance(scale(vis.positions[vis.timeStep][i]),mouse_position);
             if (sq_dist < node_radius*node_radius)
             {
-                nearest_index=i;
+                nearest_index = i;
                 break;
             }
         }
-        if (nearest_index>=0)
+        if (nearest_index >= 0)
         {
-            RealPoint node_position=vis.positions[vis.timeStep][nearest_index];
+            RealPoint node_position = vis.positions[vis.timeStep][nearest_index];
             vis.nearest_label.setText("Node "+nearest_index+" is at "+ node_position.x + "  " + node_position.y);
         }
         else
@@ -1478,15 +1473,15 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         }
     }
     
-    public void mouseDragged(MouseEvent e) {
-        //Not used
+    public void mouseDragged(MouseEvent e) 
+    {
+        // Not used
     }
     
     int SquaredDistance(PlotPoint p0, PlotPoint p1)
     {
-        int diffx=p0.x-p1.x;
-        int diffy=p0.y-p1.y;
-        
+        int diffx = p0.x-p1.x;
+        int diffy = p0.y-p1.y;
         return diffx*diffx + diffy*diffy;
     }
     
@@ -1502,17 +1497,13 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
          * 
          */ 
         
-        
         double X1 = p1.x - p0.x;
         double Y1 = p1.y - p0.y;
         double X2 = p2.x - p0.x;
         double Y2 = p2.y - p0.y;
-        
         double determinant = X1*Y2 - X2*Y1;
-        
         double RHS1 = (X1*X1 + Y1*Y1)/2.0;
         double RHS2 = (X2*X2 + Y2*Y2)/2.0;
-        
         double x_c = (Y2*RHS1 - Y1*RHS2)/determinant;
         double y_c = (-X2*RHS1 + X1*RHS2)/determinant;
         
@@ -1521,50 +1512,49 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         y_c += p0.y;
         
         return (new RealPoint(x_c,y_c));
-            
     }
     
     void SetNodeColour(int index)
     {
-        if(vis.cell_type[vis.timeStep][index]==0)
+        if (vis.cell_type[vis.timeStep][index] == 0)
         {
             // stem cell
             g2.setColor(Color.green);
         }
-        else if (vis.cell_type[vis.timeStep][index]==1)
+        else if (vis.cell_type[vis.timeStep][index] == 1)
         {
             // transit cell
             g2.setColor(Color.orange);
         }
-        else if (vis.cell_type[vis.timeStep][index]==2)
+        else if (vis.cell_type[vis.timeStep][index] == 2)
         {
             // differentiated cell
             g2.setColor(Color.red);
         }
-        else if (vis.cell_type[vis.timeStep][index]==3)
+        else if (vis.cell_type[vis.timeStep][index] == 3)
         {
             // DANGER! early CANCER!
             g2.setColor(Color.gray);
         }
-        else if (vis.cell_type[vis.timeStep][index]==4)
+        else if (vis.cell_type[vis.timeStep][index] == 4)
         {
             // DANGER! late CANCER!
             g2.setColor(Color.black);
         }
-        else if (vis.cell_type[vis.timeStep][index]==5)
+        else if (vis.cell_type[vis.timeStep][index] == 5)
         {
             // LABELLED CELLS
             g2.setColor(Color.blue);
         }
-        else if (vis.cell_type[vis.timeStep][index]==6)
+        else if (vis.cell_type[vis.timeStep][index] == 6)
         {
             // Apoptosis Cell
             g2.setColor(Color.black);
         }
-        else if(vis.cell_type[vis.timeStep][index]==7)
+        else if (vis.cell_type[vis.timeStep][index] == 7)
         {
             // danger! sloughed - don't draw anything unless asked for
-            if(!vis.drawGhosts)
+            if (!vis.drawGhosts)
             {
                 g2.setColor(garysSexySilver);
             }
@@ -1575,45 +1565,44 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         }
     }
     
-    
     void SetCellColour(int index)
     {
-        if(vis.cell_type[vis.timeStep][index]==0)
+        if (vis.cell_type[vis.timeStep][index] == 0)
         {
             // stem cell
             g2.setColor(Color.cyan);
         }
-        else if (vis.cell_type[vis.timeStep][index]==1)
+        else if (vis.cell_type[vis.timeStep][index] == 1)
         {
             // transit cell
             g2.setColor(Color.yellow);
         }
-        else if (vis.cell_type[vis.timeStep][index]==2)
+        else if (vis.cell_type[vis.timeStep][index] == 2)
         {
             // differentiated cell
             g2.setColor(Color.pink);
         }
-        else if (vis.cell_type[vis.timeStep][index]==3)
+        else if (vis.cell_type[vis.timeStep][index] == 3)
         {
             // DANGER! early CANCER!
             g2.setColor(Color.lightGray);
         }
-        else if (vis.cell_type[vis.timeStep][index]==4)
+        else if (vis.cell_type[vis.timeStep][index] == 4)
         {
             // DANGER! late CANCER!
             g2.setColor(Color.gray);
         }
-        else if (vis.cell_type[vis.timeStep][index]==5)
+        else if (vis.cell_type[vis.timeStep][index] == 5)
         {
             // Labelled cell
             g2.setColor(purple);
         }
-        else if(vis.cell_type[vis.timeStep][index]==6)
+        else if (vis.cell_type[vis.timeStep][index] == 6)
         {
             // Undergoing Apoptosis
             g2.setColor(ozzysDirtyGrey);
         }
-        else if(vis.cell_type[vis.timeStep][index]==7)
+        else if (vis.cell_type[vis.timeStep][index] == 7)
         {
             // danger! sloughed - don't draw anything
             g2.setColor(garysSexySilver);
@@ -1622,12 +1611,12 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
     
     void SetCellNutrientColour(double conc, int index)
     {
-    	if(vis.cell_type[vis.timeStep][index]==6)
+    	if (vis.cell_type[vis.timeStep][index] == 6)
         {
             // Undergoing Apoptosis
             g2.setColor(ozzysDirtyGrey);
         }
-        else if(vis.cell_type[vis.timeStep][index]==7)
+        else if (vis.cell_type[vis.timeStep][index] == 7)
         {
             // danger! sloughed - don't draw anything
             g2.setColor(garysSexySilver);
@@ -1635,31 +1624,31 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
         else
         {
             int r = (int)(121 - 80*conc); 
-            if (r<0) 
+            if (r < 0) 
             {
-            	r=0;
+            	r = 0;
             }
-            if (r>255)
+            if (r > 255)
             { 
-            	r=255;
+            	r = 255;
             }
             int g = (int)(126 - 80*conc); 
-            if (g<0) 
+            if (g < 0) 
             {
-            	g=0;
+            	g = 0;
             }
-            if (g>255)
+            if (g > 255)
             {
-            	g=255;
+            	g = 255;
             }
             int b = (int)(200 - 80*conc); 
-            if (b<0) 
+            if (b < 0) 
             {
-            	b=0; 
+            	b = 0; 
             }
-            if(b>255)
+            if (b > 255)
             {
-            	b=255;
+            	b = 255;
             }
             Color colour = new Color(r,g,b);
             g2.setColor(colour);
@@ -1668,7 +1657,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
     
     void SetCellCytoplasmicBetaCateninColour(double conc, int index)
     {
-    	if(vis.cell_type[vis.timeStep][index]==7)
+    	if (vis.cell_type[vis.timeStep][index] == 7)
         {
             // danger! sloughed - don't draw anything
             g2.setColor(garysSexySilver);
@@ -1677,15 +1666,15 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
     	{
     		int r = 100;
     		int b = 100;
-
     		int g = (int)(100 + 8*conc); 
-    		if (g<0) 
+    		
+    		if (g < 0) 
     		{
-    			g=0;
+    			g = 0;
     		}
-    		if (g>255)
+    		if (g > 255)
     		{
-    			g=255;
+    			g = 255;
     		}
 
     		Color colour = new Color(r,g,b);
@@ -1695,7 +1684,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
     
     void SetCellNuclearBetaCateninColour(double conc, int index)
     {
-    	if(vis.cell_type[vis.timeStep][index]==7)
+    	if (vis.cell_type[vis.timeStep][index] == 7)
         {
             // danger! sloughed - don't draw anything
             g2.setColor(garysSexySilver);
@@ -1704,15 +1693,15 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
     	{
     		int r = 100;
     		int b = 100;
-
     		int g = (int)(100 + 8*conc); 
-    		if (g<0) 
+    		
+    		if (g < 0) 
     		{
-    			g=0;
+    			g = 0;
     		}
-    		if (g>255)
+    		if (g > 255)
     		{
-    			g=255;
+    			g = 255;
     		}
 
     		Color colour = new Color(r,g,b);
@@ -1722,7 +1711,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
     
     void SetCellMembranBoundBetaCateninColour(double conc, int index)
     {
-    	if(vis.cell_type[vis.timeStep][index]==7)
+    	if (vis.cell_type[vis.timeStep][index] == 7)
         {
             // danger! sloughed - don't draw anything
             g2.setColor(garysSexySilver);
@@ -1731,21 +1720,19 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener {
     	{
     		int r = 100;
     		int b = 100;
-
     		int g = (int)(100 + 8*conc); 
-    		if (g<0) 
+    		
+    		if (g < 0) 
     		{
-    			g=0;
+    			g = 0;
     		}
-    		if (g>255)
+    		if (g > 255)
     		{
-    			g=255;
+    			g = 255;
     		}
 
     		Color colour = new Color(r,g,b);
     		g2.setColor(colour);
     	}
     }
-            
-    
 }

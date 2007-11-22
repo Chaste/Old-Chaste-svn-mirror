@@ -75,6 +75,7 @@ protected:
 
     /** Facade encapsulating cells in the tissue being simulated */
     Tissue<DIM>& mrTissue;
+    
     /** Whether to delete the facade in our destructor */
     bool mDeleteTissue;
     

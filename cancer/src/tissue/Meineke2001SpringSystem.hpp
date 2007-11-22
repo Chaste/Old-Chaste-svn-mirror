@@ -101,7 +101,7 @@ private :
         c_vector<double, DIM> node_a_location = this->mrTissue.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
         c_vector<double, DIM> node_b_location = this->mrTissue.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
         
-        // there is reason not to substract one position from the other (cyclidrical meshes). clever gary
+        // there is reason not to substract one position from the other (cyclidrical meshes)
         unit_difference = this->mrTissue.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
         
         double distance_between_nodes = norm_2(unit_difference);

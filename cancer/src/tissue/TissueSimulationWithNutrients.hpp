@@ -10,11 +10,11 @@
 #include "CellwiseData.cpp"
 #include "PetscTools.hpp"
 
+
 template<unsigned DIM>
 class TissueSimulationWithNutrients : public TissueSimulation<DIM>
 {
-    // allow tests to access private members, in order to 
-    // test computation of private functions 
+    // allow tests to access private members, in order to test computation of private functions 
     friend class TestTissueSimulationWithNutrients;
     
 private :
@@ -22,13 +22,68 @@ private :
     Vec mOxygenSolution;
 
     AbstractNonlinearEllipticPde<DIM>* mpPde;  
+    
+    /** The file that the nutrient values are written out to. */ 
+    out_stream mpNutrientResultsFile; 
+    
+    void SetupWriteNutrient() 
+    { 
+        OutputFileHandler output_file_handler2(this->mSimulationOutputDirectory+"/vis_results/",false); 
+        mpNutrientResultsFile = output_file_handler2.OpenOutputFile("results.viznutrient");
+        *this->mpSetupFile << "Nutrient \n" ;         
+    } 
+    
+    void WriteNutrient()
+    {
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        double time = p_simulation_time->GetDimensionalisedTime();
+        
+        (*mpNutrientResultsFile) <<  time << "\t";
+        
+        double global_index;
+        double x;
+        double y;
+        double nutrient;
+
+        for (Tissue<2>::Iterator cell_iter = this->mrTissue.Begin();
+               cell_iter != this->mrTissue.End();
+               ++cell_iter)
+        {
+            // \todo: we don't need this anymore since there are no ghost nodes,
+            // but we'd need to change the visualizer before we take this out
+            global_index = (double) cell_iter.GetNode()->GetIndex();
+            x = cell_iter.rGetLocation()[0];
+            y = cell_iter.rGetLocation()[1];
+                        
+            nutrient = CellwiseData<2>::Instance()->GetValue(&(*cell_iter));
+            
+            (*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
+        }
+        
+        (*mpNutrientResultsFile) << "\n";
+    }
+    
+    void SetupSolve()
+    {
+        if ( this->mrTissue.Begin() != this->mrTissue.End() )  // there are any cells
+        {
+            SetupWriteNutrient();
+            WriteNutrient();
+        }
+    }
+
+    void AfterSolve()
+    {
+        if ( this->mrTissue.Begin() != this->mrTissue.End() )  // there are any cells
+        {
+            mpNutrientResultsFile->close();
+        }
+    }
         
     void PostSolve()
-    {
+    {   
         ConformingTetrahedralMesh<2,2>& r_mesh = this->mrTissue.rGetMesh();
-
-        CellwiseData<DIM>::Instance()->ReallocateMemory();
-        
+        CellwiseData<DIM>::Instance()->ReallocateMemory();        
         std::set<unsigned> ghost_node_indices = this->mrTissue.GetGhostNodeIndices();
         
         // we shouldn't have any ghost nodes
@@ -47,15 +102,14 @@ private :
                 
         // set up assembler
         SimpleNonlinearEllipticAssembler<2,2> assembler(&r_mesh, mpPde, &bcc);
-                
+                        
         // we cannot use the exact previous solution as initial guess as the size may be different
         // (due to cell birth/death) - could we just add in the necessary number of 1.0's say? 
         Vec initial_guess;
-        
-        // If we have a previous solution, then use 
-        // this as the basis for the initial guess 
+                
+        // If we have a previous solution, then use this as the basis for the initial guess 
         if (mOxygenSolution)
-        {        	
+        {        	            
             // get the size of the previous solution
             PetscInt isize;
             VecGetSize(mOxygenSolution, &isize);
@@ -65,50 +119,6 @@ private :
             {
                 initial_guess = assembler.CreateConstantInitialGuess(1.0); 
             }  
-            
-//            // if it's too small, then add the necessary number of extra entries
-//            if (size_of_previous_solution < r_mesh.GetNumNodes() )
-//            {
-//                std::cout << "Need to add entries to previous solution...\n" << std::flush;
-//                std::cout << "Previous solution size =" << size_of_previous_solution << "\n" << std::flush;
-//                std::cout << "Current solution size =" << r_mesh.GetNumNodes() << "\n" << std::flush;
-//                
-//                ReplicatableVector previous_solution(mOxygenSolution);
-//                std::vector<double> correctly_sized_guess;
-//                
-//                // use the previous solution
-//                for (unsigned i=0; i<size_of_previous_solution; i++)
-//                {
-//                    correctly_sized_guess.push_back(previous_solution[i]);
-//                }
-//                // and add the the necessary number of entries
-//                for (unsigned i=size_of_previous_solution; i<r_mesh.GetNumNodes(); i++)
-//                {
-//                    correctly_sized_guess.push_back(1.0);
-//                }
-//                initial_guess = PetscTools::CreateVec(correctly_sized_guess);
-//            }
-//            else if (size_of_previous_solution > r_mesh.GetNumNodes() )
-//            {
-//                std::cout << "Need to remove entries from previous solution...\n" << std::flush;
-//                std::cout << "Previous solution size =" << size_of_previous_solution << "\n" << std::flush;
-//                std::cout << "Current solution size =" << r_mesh.GetNumNodes() << "\n" << std::flush;
-//                
-//                ReplicatableVector previous_solution(mOxygenSolution);
-//                std::vector<double> correctly_sized_guess;
-//                
-//                // use the previous solution
-//                for (unsigned i=0; i<size_of_previous_solution; i++)
-//                {
-//                    correctly_sized_guess.push_back(previous_solution[i]);
-//                }
-//                // and remove the the necessary number of entries
-//                for (unsigned i=size_of_previous_solution; i<r_mesh.GetNumNodes(); i++)
-//                {
-//                    correctly_sized_guess.pop_back();
-//                }
-//                initial_guess = PetscTools::CreateVec(correctly_sized_guess);
-//            }
             else
             {
                 VecDuplicate(mOxygenSolution, &initial_guess);
@@ -119,48 +129,22 @@ private :
         {
             initial_guess = assembler.CreateConstantInitialGuess(1.0);        
         }
-                
+                        
         // solve the nutrient PDE
         mOxygenSolution = assembler.Solve(initial_guess);        
         ReplicatableVector result_repl(mOxygenSolution);
-                
-        // save results to file
-		std::vector<double> global_indices;
-        std::vector<double> x;
-        std::vector<double> y;
-        std::vector<double> u;
         
+        // update cellwise data        
         for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
         {
-            // we don't need to save the global node indices any more, 
-            // since there are no ghost nodes, but we'd need to change 
-            // the visualizer before we can take this out
-            global_indices.push_back((double) i);
-            x.push_back(r_mesh.GetNode(i)->rGetLocation()[0]);
-            y.push_back(r_mesh.GetNode(i)->rGetLocation()[1]);
-            u.push_back(result_repl[i]);
-
             double oxygen_conc = result_repl[i];
             CellwiseData<DIM>::Instance()->SetValue(oxygen_conc, r_mesh.GetNode(i));
         }
-
-        // TODO: using SimpleDataWriter is inefficient
-        std::vector<std::vector<double> > data;
-        data.push_back(global_indices);
-        data.push_back(x);
-        data.push_back(y);
-        data.push_back(u);
         
-        static unsigned counter = 0;
-        std::stringstream string_stream;
-        string_stream << "nutrients_" << counter << ".dat";
-        SimpleDataWriter writer(this->mSimulationOutputDirectory+"/vis_results/nutrients/", string_stream.str(), data, false);
-        counter++;
+        // save results to file
+        WriteNutrient(); 
         
-        VecDestroy(initial_guess);
-                
-        // update each cell's hypoxic duration according to 
-        // its current oxygen concentration        
+        // update each cell's hypoxic duration according to its current oxygen concentration        
         for( typename Tissue<2>::Iterator cell_iter = this->mrTissue.Begin();
             cell_iter != this->mrTissue.End();
             ++cell_iter)
@@ -168,7 +152,7 @@ private :
         	double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(&(*cell_iter));
         	
             // the oxygen concentration had better not be negative
-//        	assert(oxygen_concentration >= -1e-8);
+            // assert(oxygen_concentration >= -1e-8);
         	  	
         	if ( oxygen_concentration < CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration() )
         	{
@@ -181,8 +165,9 @@ private :
         		// reset the cell's hypoxic duration
             	cell_iter->SetHypoxicDuration(0.0);
         	}          	   
-        }        
+        }  
         
+        VecDestroy(initial_guess);          
     }
 
 
@@ -214,13 +199,13 @@ public:
         std::string results_directory = (this)->mOutputDirectory +"/results_from_time_" + time_string.str();
         
         OutputFileHandler output_file_handler(results_directory+"/vis_results/",false);
-        out_stream p_setup_file = output_file_handler.OpenOutputFile("results.vizsetup");
+        this->mpSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
         
-        *p_setup_file << "FinalMeshSize\t" << std::max((this)->mrTissue.rGetMesh().GetWidth(0u),(this)->mrTissue.rGetMesh().GetWidth(1u));
-        p_setup_file->close();
+        *this->mpSetupFile << "FinalMeshSize\t" << std::max((this)->mrTissue.rGetMesh().GetWidth(0u),(this)->mrTissue.rGetMesh().GetWidth(1u));
+        this->mpSetupFile->close();
     }
     
     
-    
 };
+
 #endif /*TISSUESIMULATIONWITHNUTRIENTS_HPP_*/
