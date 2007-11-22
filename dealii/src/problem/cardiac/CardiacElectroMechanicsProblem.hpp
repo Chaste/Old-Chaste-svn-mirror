@@ -25,7 +25,8 @@ public:
      *  Constructor
      *  @param pCellFactory cell factory for creating cells (see Monodomain tests)
      *  @endTime end time of the simulation. Start time is assumed to be 0.0
-     *  @timeStep time step for the electrics (and currently the mechanics too)
+     *  @numElementsPerDimInMechanicsMesh number of elements in each direction
+     *  in the mechanics mesh  
      *  @useExplicit Whether to use an explicit or implicit mechanics solver
      *  @outputDirectory. Output directory. Omit if no output is required.
      * 
@@ -33,14 +34,14 @@ public:
      */
     CardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
                                    double endTime,
-                                   double timeStep,
-                                   bool useExplicitMethod,
                                    unsigned numElementsPerDimInMechanicsMesh,
+                                   bool useExplicitMethod,
+                                   unsigned numElecStepsPerMechStep,
                                    std::string outputDirectory = "")
         :  AbstractCardiacElectroMechanicsProblem<DIM>(pCellFactory,
                                                        endTime,
-                                                       timeStep,
                                                        useExplicitMethod,
+                                                       numElecStepsPerMechStep,
                                                        outputDirectory)
     {
         //mNumElementsPerDimInElectricsMesh = numElementsPerDimInElectricsMesh;

@@ -59,13 +59,13 @@ private:
 public:
     CardiacElectroMechanicsProblem1d(AbstractCardiacCellFactory<1>* pCellFactory,
                                      double endTime,
-                                     double timeStep,
                                      bool useExplicitMethod,
+                                     unsigned numElecStepsPerMechStep,
                                      std::string outputDirectory = "")
         :  AbstractCardiacElectroMechanicsProblem<1>(pCellFactory,
                                                      endTime,
-                                                     timeStep,
                                                      useExplicitMethod,
+                                                     numElecStepsPerMechStep,
                                                      outputDirectory)
     {
         if(this->mWriteOutput)

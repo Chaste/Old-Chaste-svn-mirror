@@ -91,8 +91,12 @@ protected :
 
     /*< End time. The start time is assumed to be 0.0 */
     double mEndTime;
-    /*< The timestep. TODO: different timesteps for different bits */
-    double mTimeStep;    
+    /*< The electrics timestep. */
+    double mElectricsTimeStep;
+    /*< The mechanics timestep. Needds to be a multiple of the electrics timestep */  
+    double mMechanicsTimeStep;
+    /*< The number of electrics timesteps per mechanics timestep */
+    unsigned mNumElecStepsPerMechStep;
     
     /*< A chaste mesh for the electrics */
     ConformingTetrahedralMesh<DIM,DIM>* mpElectricsMesh;
@@ -143,8 +147,8 @@ public :
      */
     AbstractCardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
                                            double endTime,
-                                           double timeStep,
                                            bool useExplicitMethod,
+                                           unsigned numElecStepsPerMechStep,
                                            std::string outputDirectory = "")
     {
         // create the monodomain problem. Note the we use this to set up the cells,
@@ -156,8 +160,11 @@ public :
         // save time infomation        
         assert(endTime > 0);
         mEndTime = endTime;
-        mTimeStep = timeStep;
-        
+        mElectricsTimeStep = 0.01;
+        assert(mNumElecStepsPerMechStep>0);
+        mNumElecStepsPerMechStep = numElecStepsPerMechStep;
+        mMechanicsTimeStep = mElectricsTimeStep*mNumElecStepsPerMechStep;
+                        
         // check whether output is required
         mWriteOutput = (outputDirectory!="");
         if(mWriteOutput)
@@ -175,6 +182,10 @@ public :
                 
         mUseExplicitMethod = useExplicitMethod;
         
+        // check mMechanicsTimeStep=mElectricsTimeStep is explicit as prob won't be correct otherwise
+        assert(!(mUseExplicitMethod && (mNumElecStepsPerMechStep>1)));
+        
+        
         // initialise all the pointers
         mpElectricsMesh = NULL;
         mpMechanicsMesh = NULL;
@@ -186,7 +197,7 @@ public :
         LogFile::Instance()->Set(1, mOutputDirectory);
         LogFile::Instance()->WriteHeader("Electromechanics");
         LOG(1, DIM << "d CardiacElectroMechanics Simulation:");
-        LOG(1, "End time = " << mEndTime << ", timestep = " << mTimeStep <<  "\n");
+        LOG(1, "End time = " << mEndTime << ", electrics time step = " << mElectricsTimeStep << ", mechanics timestep = " << mMechanicsTimeStep << "\n");
         LOG(1, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
         
         if(mUseExplicitMethod)
@@ -314,7 +325,7 @@ public :
         
         unsigned counter = 0;
 
-        TimeStepper stepper(0.0, mEndTime, mTimeStep);
+        TimeStepper stepper(0.0, mEndTime, mMechanicsTimeStep);
 
         unsigned mech_writer_counter = 0;
         if (mWriteOutput)
@@ -333,20 +344,26 @@ public :
             LOG(1, "\nCurrent time = " << stepper.GetTime());
             std::cout << "\n\n ** Current time = " << stepper.GetTime();
             
-            // solve the electrics
-            p_electrics_assembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), mTimeStep);
-            p_electrics_assembler->SetInitialCondition( initial_voltage );
-            
-            LOG(1, "  Solving electrics");
-            voltage = p_electrics_assembler->Solve();
-            
-            PetscReal min_voltage, max_voltage;
-            VecMax(voltage,PETSC_NULL,&max_voltage); //the second param is where the index would be returned
-            VecMin(voltage,PETSC_NULL,&min_voltage);
-            LOG(1, "  minimun and maximum voltage is " << min_voltage <<", "<<max_voltage);
+            for(unsigned i=0; i<mNumElecStepsPerMechStep; i++)
+            {
+                double current_time = stepper.GetTime() + i*mElectricsTimeStep;
+                double next_time = stepper.GetTime() + (i+1)*mElectricsTimeStep;
 
-            VecDestroy(initial_voltage);
-            initial_voltage = voltage;
+                // solve the electrics
+                p_electrics_assembler->SetTimes(current_time, next_time, mElectricsTimeStep);
+                p_electrics_assembler->SetInitialCondition( initial_voltage );
+            
+                LOG(1, "  Solving electrics");
+                voltage = p_electrics_assembler->Solve();
+            
+                PetscReal min_voltage, max_voltage;
+                VecMax(voltage,PETSC_NULL,&max_voltage); //the second param is where the index would be returned
+                VecMin(voltage,PETSC_NULL,&min_voltage);
+                LOG(1, "  minimum and maximum voltage is " << min_voltage <<", "<<max_voltage);
+        
+                VecDestroy(initial_voltage);
+                initial_voltage = voltage;
+            }
             
             // compute Ca_I at each quad point (by interpolation, using the info on which
             // electrics element the quad point is in. Then: 
@@ -372,7 +389,7 @@ public :
                     cellmech_systems[i].SetLambdaAndDerivative(lambda[i], dlambda_dt[i]);
                     cellmech_systems[i].SetIntracellularCalciumConcentration(interpolated_Ca_I);
         
-                    euler_solver.SolveAndUpdateStateVariable(&cellmech_systems[i], stepper.GetTime(), stepper.GetNextTime(), mTimeStep);
+                    euler_solver.SolveAndUpdateStateVariable(&cellmech_systems[i], stepper.GetTime(), stepper.GetNextTime(), mElectricsTimeStep);
                     forcing_quantity[i] = cellmech_systems[i].GetActiveTension();
                 }
                 else
@@ -413,10 +430,19 @@ public :
                 lambda = mpCardiacMechAssembler->rGetLambda();
                 for(unsigned i=0; i<dlambda_dt.size(); i++)
                 {
-                    dlambda_dt[i] = (lambda[i] - old_lambda[i])/mTimeStep;
+                    dlambda_dt[i] = (lambda[i] - old_lambda[i])/mMechanicsTimeStep;
                 }
             }
 
+            PostSolve(stepper.GetTime());
+            
+            //// TODO: Update the monodomain equations for the deformation
+            
+            // update the current time
+            stepper.AdvanceOneTimeStep();
+            counter++;
+
+            // output the results
             if(mWriteOutput && (counter%WRITE_EVERY_NTH_TIME==0))
             {
                 LOG(1, "  Writing output");
@@ -430,14 +456,6 @@ public :
                     mpMonodomainProblem->WriteOneStep(stepper.GetTime(), voltage);
                 }
             }
-            
-            PostSolve(stepper.GetTime());
-            
-            //// TODO: Update the monodomain equations for the deformation
-            
-            // update the current time
-            stepper.AdvanceOneTimeStep();
-            counter++;
 
             // write the total elapsed time..
             LogFile::Instance()->WriteElapsedTime("  ");

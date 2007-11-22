@@ -62,9 +62,9 @@ public :
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 1 is a corner node, 
         // The deformation is not that large
-        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](1),  1.0012, 1e-3);
-        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), -0.0023, 1e-3);
-        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[2](1),  0.0009, 1e-3);
+        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[0](1), 1.0012, 1e-3);
+        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[1](1), 0.0020, 1e-3);
+        TS_ASSERT_DELTA( cardiac_mech_assembler.rGetDeformedPosition()[2](1), 0.0009, 1e-3);
         
         std::vector<double>& lambda = cardiac_mech_assembler.rGetLambda();
         std::vector<std::vector<double> > quad_points 

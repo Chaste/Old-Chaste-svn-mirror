@@ -21,10 +21,10 @@ public:
         // files get closed
         {
             // instabilities appear at about 6.8
-            CardiacElectroMechanicsProblem1d explicit_problem(&cell_factory, 0.5, time_step, true,  "ExplicitCardiacElectroMech");
+            CardiacElectroMechanicsProblem1d explicit_problem(&cell_factory, 5, true, 1,  "ExplicitCardiacElectroMech");
             explicit_problem.Solve();
 
-            CardiacElectroMechanicsProblem1d implicit_problem(&cell_factory, 0.5, time_step, false, "ImplicitCardiacElectroMech");
+            CardiacElectroMechanicsProblem1d implicit_problem(&cell_factory, 5, false, 1, "ImplicitCardiacElectroMech");
             implicit_problem.Solve();
         }
 
@@ -66,20 +66,20 @@ public:
     
     void Test2dCompareExplicitVsImplicit() throw(Exception)
     {
-        double time_step = 0.01;
-        PlaneStimulusCellFactory<2> cell_factory(time_step, -1000*1000);
+        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 
-        unsigned num_elements_per_dim = 1;
-        for(unsigned i=0; i<6; i++)
+        unsigned num_mech_per_elec = 1;
+
+        for(unsigned i=0; i<1; i++)
         {
             std::stringstream name;
-            name << "CardiacElectroMech2dImplicit" << "_" << i;
+            name << "CardiacElectroMech2dImplicitVaryTime" << "_" << i;
             
-            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, time_step, false, num_elements_per_dim, name.str());
+            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 1, false, num_mech_per_elec, name.str());
             implicit_problem.SetNoElectricsOutput();
             implicit_problem.Solve();
             
-            num_elements_per_dim *=2;
+            num_mech_per_elec /= 2;
         }
     }
 };
