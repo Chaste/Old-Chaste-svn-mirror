@@ -28,4 +28,4 @@ while 1
    i = i+1;
 end;
 
-fclose(fid)
+fclose(fid);
