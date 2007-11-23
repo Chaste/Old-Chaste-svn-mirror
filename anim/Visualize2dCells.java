@@ -1293,21 +1293,19 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                      g2.fillPolygon(xs,ys,4);
                 }
                 
+                g2.setColor(Color.black);
                 // plot membrane-bound beta catenin levels
                 if ( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7) )
                 {
-                	SetCellMembranBoundBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[0]][0], index[0]); 
-                    g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
+                	g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
                 if ( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7) )
                 {
-                	SetCellMembranBoundBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[1]][0], index[1]); 
-                    g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
+                	g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
                 if ( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7) )
                 {
-                	SetCellMembranBoundBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[2]][0], index[2]); 
-                    g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
+                	g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
                 if (clip_me)
                 {
