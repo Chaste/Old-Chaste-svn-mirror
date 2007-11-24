@@ -80,12 +80,7 @@ TissueSimulation<DIM>::~TissueSimulation()
 }
 
 
-template<unsigned DIM> 
-void TissueSimulation<DIM>::WriteVisualizerSetupFile()
-{
-    assert(DIM==2); // this is 2d specific
-    *mpSetupFile << "MeshWidth\t" << mrTissue.rGetMesh().GetWidth(0u);// get furthest distance between nodes in the x-direction
-}
+
 
 
 template<unsigned DIM>  
@@ -322,6 +317,7 @@ void TissueSimulation<DIM>::SetNoBirth(bool nobirth)
     mNoBirth = nobirth;
 }
 
+
 /**
  * Set the simulation to Count and store the number of each cell type.
  */
@@ -332,7 +328,6 @@ void TissueSimulation<DIM>::SetOutputCellTypes(bool outputCellTypes)
 }
 
 
-
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell)
 {
@@ -340,6 +335,7 @@ void TissueSimulation<DIM>::SetWriteVoronoiData(bool writeVoronoiData, bool foll
     mWriteVoronoiData = writeVoronoiData;
     mFollowLoggedCell = followLoggedCell;
 }
+
 
 /**
  * Add a cell killer to be used in this simulation
@@ -349,6 +345,7 @@ void TissueSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
 {
     mCellKillers.push_back(pCellKiller);
 }
+
 
 /**
  * Get a node's location (ONLY FOR TESTING)
@@ -366,6 +363,7 @@ std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNode
     }
     return location;
 }
+
 
 /**
  * Main Solve method.

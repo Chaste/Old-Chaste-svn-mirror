@@ -156,6 +156,12 @@ private :
         }
     }
     
+    
+    void WriteVisualizerSetupFile()
+    {
+        *mpSetupFile << "MeshWidth\t" << mrTissue.rGetMesh().GetWidth(0u);// get furthest distance between nodes in the x-direction
+    }
+    
     void SetupWriteBetaCatenin()
     {
         OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false);

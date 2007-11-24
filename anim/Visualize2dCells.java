@@ -316,7 +316,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     
     public void addNutrientColourBar(Frame frame) 
     {
-        String[] labels = {"0.9-1", "0.8-0.9", "0.7-0.8", "0.6-0.7", "0.5-0.6", "0.4-0.5", "0.3-0.4", "0.2-0.3", "0.1-0.2", "0.0-0.1"};
+    	String[] labels = {"0.9-1", "0.8-0.9", "0.7-0.8", "0.6-0.7", "0.5-0.6", "0.4-0.5", "0.3-0.4", "0.2-0.3", "0.1-0.2", "0.0-0.1"};
         
         int panelHeight = (int) (0.8 * frame.getHeight());
         int panelWidth = 120;
@@ -327,21 +327,24 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         nutrient_colour_bar.setPreferredSize(new Dimension(panelWidth,panelHeight));
         nutrient_colour_bar.setLayout(new GridLayout(10,2));
        
-        for (int i=num_blocks-1; i>=0; i--)
+        for (int i=num_blocks-1;i>=0;i--)
         {       
             JPanel colour_block = new JPanel();
             colour_block.setPreferredSize(new Dimension(panelWidth/2,panelHeight/num_blocks));
             
-            // Calculate colour                    
-            colour_block.setBackground(new Color(121-8*i,126-8*i,200-8*i));
-            Label colour_label = new Label(labels[9-i]);        
+            // calculate colour                    
+            int g_value = (int) ((255.0/((double) num_blocks))*((double) i));
+            colour_block.setBackground(new Color(0,g_value,255));
+            
+            Label colour_label = new Label(labels[num_blocks-1-i]);        
+        
             nutrient_colour_bar.add(colour_block);
             nutrient_colour_bar.add(colour_label);      
         }
                 
-        JPanel eastPanel = new JPanel(new GridLayout(1,1));
+        JPanel eastPanel = new JPanel(new GridLayout(1,1));        
         eastPanel.add(nutrient_colour_bar);
-        frame.add(eastPanel,BorderLayout.EAST);
+        frame.add(eastPanel,BorderLayout.EAST);        
     }
     
     public void addBetaCateninColourBar(Frame frame) 
@@ -1621,33 +1624,25 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         }
         else
         {
-            int r = (int)(121 - 80*conc); 
-            if (r < 0) 
+        	int r = 0;
+        	int g = (int)(255*conc);
+            if (g<0) 
             {
-            	r = 0;
+          	    g=0;
             }
-            if (r > 255)
-            { 
-            	r = 255;
-            }
-            int g = (int)(126 - 80*conc); 
-            if (g < 0) 
+            if (g>255)
             {
-            	g = 0;
-            }
-            if (g > 255)
-            {
-            	g = 255;
+          	    g=255;
             }
             int b = (int)(200 - 80*conc); 
-            if (b < 0) 
+            if (b<0) 
             {
-            	b = 0; 
+                b=0; 
             }
-            if (b > 255)
+            if(b>255)
             {
-            	b = 255;
-            }
+          	    b=255;
+            }    
             Color colour = new Color(r,g,b);
             g2.setColor(colour);
         }   	

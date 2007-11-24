@@ -62,6 +62,7 @@ private:
     
     /** list of cells */
     std::list<TissueCell> mCells;
+    
     /** Map node indices back to cells. */
     std::map<unsigned, TissueCell*> mNodeCellMap;
     

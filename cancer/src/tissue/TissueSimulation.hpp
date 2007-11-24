@@ -160,7 +160,9 @@ protected:
     /**
      * Writes out special information about the mesh to the visualizer.
      */
-    void WriteVisualizerSetupFile();
+    virtual void WriteVisualizerSetupFile()
+    {
+    }
 
     /**
      * During a simulation time step, process any cell divisions that need to occur.
