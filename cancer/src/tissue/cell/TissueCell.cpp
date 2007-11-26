@@ -272,48 +272,52 @@ TissueCell TissueCell::Divide()
     CancerParameters *p_params = CancerParameters::Instance();
     //std::cout<< "Divide time" << mpSimulationTime->GetDimensionalisedTime() << "\n" ;
     
-    if (mCellType != HEPA_ONE)
+    if (mSymmetricDivision)
     {
-        if (mCellType != STEM)
+        mpCellCycleModel->ResetModel(); // cell goes back to age zero, and cell type is possibly reset                
+        TissueCell new_cell = TissueCell(GetCellType(), mMutationState, 1,
+                                         mpCellCycleModel->CreateCellCycleModel());
+        new_cell.SetSymmetricDivision();
+        return new_cell;
+    }
+    
+    else
+    {
+        if (mCellType != HEPA_ONE)
         {
-            if (mGeneration < p_params->GetMaxTransitGenerations())
+            if (mCellType != STEM)
             {
-                mGeneration++;
-                mpCellCycleModel->ResetModel();// Cell goes back to age zero
-                return TissueCell(TRANSIT, mMutationState, mGeneration,
-                                        mpCellCycleModel->CreateCellCycleModel());
+                if (mGeneration < p_params->GetMaxTransitGenerations())
+                {
+                    mGeneration++;
+                    mpCellCycleModel->ResetModel();// Cell goes back to age zero
+                    return TissueCell(TRANSIT, mMutationState, mGeneration,
+                                      mpCellCycleModel->CreateCellCycleModel());
+                }
+                else
+                {
+                    mGeneration++;
+                    mCellType = DIFFERENTIATED;
+                    mpCellCycleModel->ResetModel();// Cell goes back to age zero
+                    return TissueCell(DIFFERENTIATED, mMutationState, mGeneration,
+                                      mpCellCycleModel->CreateCellCycleModel());
+                }
             }
             else
             {
-                mGeneration++;
-                mCellType = DIFFERENTIATED;
                 mpCellCycleModel->ResetModel();// Cell goes back to age zero
-                return TissueCell(DIFFERENTIATED, mMutationState, mGeneration,
-                                        mpCellCycleModel->CreateCellCycleModel());
+                return TissueCell(TRANSIT, mMutationState, 1,
+                                      mpCellCycleModel->CreateCellCycleModel());
+                
             }
         }
         else
         {
-        	if (mSymmetricDivision)
-        	{
-        		mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            	return TissueCell(STEM, mMutationState, 1,
-                                    mpCellCycleModel->CreateCellCycleModel());
-        	}
-        	else
-        	{
-            	mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            	return TissueCell(TRANSIT, mMutationState, 1,
-                                    mpCellCycleModel->CreateCellCycleModel());
-        	}
+            mpCellCycleModel->ResetModel();// Cell goes back to age zero
+            return TissueCell(HEPA_ONE, mMutationState, 1,
+                                        mpCellCycleModel->CreateCellCycleModel());
         }
     }
-    else
-    {
-        mpCellCycleModel->ResetModel();// Cell goes back to age zero
-        return TissueCell(HEPA_ONE, mMutationState, 1,
-                                    mpCellCycleModel->CreateCellCycleModel());
-    }
-    
+        
 }
 

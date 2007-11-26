@@ -96,34 +96,68 @@ public:
         // cover bad cell cycle model
         TS_ASSERT_THROWS_ANYTHING(TissueCell bad_cell2(STEM, HEALTHY, 0, NULL));
         
-        TissueCell stem_cell(STEM, // type
-                                   HEALTHY,//Mutation State
-                                   0,    // generation
-                                   new FixedCellCycleModel());
+        TissueCell stem_cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+        
+        // also test symmetric division
+        TissueCell symmetric_stem_cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+        symmetric_stem_cell.SetSymmetricDivision();
+        TS_ASSERT(symmetric_stem_cell.DividesSymmetrically());     
+        
         p_simulation_time->IncrementTimeOneStep();//t=12
         p_simulation_time->IncrementTimeOneStep();//t=18
         p_simulation_time->IncrementTimeOneStep();//t=24
+        
         TS_ASSERT(!stem_cell.ReadyToDivide());
-                
+        TS_ASSERT(!symmetric_stem_cell.ReadyToDivide());
+        
         p_simulation_time->IncrementTimeOneStep();//t=30
+        
         TS_ASSERT(stem_cell.ReadyToDivide());
+        TS_ASSERT(symmetric_stem_cell.ReadyToDivide());
         
         // create transit progeny of stem
         TissueCell daughter_cell = stem_cell.Divide();
-        
-        TS_ASSERT(!stem_cell.ReadyToDivide());
-        
+                
+        TS_ASSERT(!stem_cell.ReadyToDivide());        
         TS_ASSERT(daughter_cell.GetGeneration() == 1);
         TS_ASSERT(daughter_cell.GetCellType() == TRANSIT);
         TS_ASSERT_DELTA(daughter_cell.GetAge(), 0 , 1e-9);
         
+        // create progeny of symmetric stem cell
+        TissueCell symmetric_daughter_stem_cell = symmetric_stem_cell.Divide();
+        
+        TS_ASSERT(symmetric_daughter_stem_cell.DividesSymmetrically());
+        
+        TS_ASSERT(!symmetric_stem_cell.ReadyToDivide());        
+        TS_ASSERT(symmetric_daughter_stem_cell.GetGeneration() == 1);
+        TS_ASSERT(symmetric_daughter_stem_cell.GetCellType() == STEM);
+        TS_ASSERT_DELTA(symmetric_daughter_stem_cell.GetAge(), 0 , 1e-9);
+        
+        // create a transit cell that divides symmetrically        
+        TissueCell symmetric_transit_cell(TRANSIT, HEALTHY, 0, new FixedCellCycleModel());
+        symmetric_transit_cell.SetSymmetricDivision();    
+        
         p_simulation_time->IncrementTimeOneStep();//t=36
+        
         TS_ASSERT(!daughter_cell.ReadyToDivide());
+        TS_ASSERT(!symmetric_transit_cell.ReadyToDivide());
+        
         p_simulation_time->IncrementTimeOneStep();//t=42
+        
         TS_ASSERT(daughter_cell.ReadyToDivide());
+        TS_ASSERT(symmetric_transit_cell.ReadyToDivide());
         
         // create transit progeny of transit
         TissueCell grandaughter_cell = daughter_cell.Divide();
+        
+        // create progeny of symmetric transit cell
+        TissueCell symmetric_daughter_transit_cell = symmetric_transit_cell.Divide();
+        
+        TS_ASSERT(symmetric_daughter_transit_cell.DividesSymmetrically());
+        TS_ASSERT(!symmetric_daughter_transit_cell.ReadyToDivide());        
+        TS_ASSERT(symmetric_daughter_transit_cell.GetGeneration() == 1);
+        TS_ASSERT(symmetric_daughter_transit_cell.GetCellType() == TRANSIT);
+        TS_ASSERT_DELTA(symmetric_daughter_transit_cell.GetAge(), 0 , 1e-9);
         
         p_simulation_time->IncrementTimeOneStep();//t=48
         TS_ASSERT(!stem_cell.ReadyToDivide());
@@ -135,16 +169,12 @@ public:
         p_simulation_time->IncrementTimeOneStep();//t=54
         TS_ASSERT(stem_cell.ReadyToDivide());
         
-        // both grandaughter and daughter cells should be ready to
-        // divide
+        // both grandaughter and daughter cells should be ready to divide
         TS_ASSERT(grandaughter_cell.ReadyToDivide());
         TS_ASSERT(daughter_cell.ReadyToDivide());
         
         // test the Divide() method for a HEPA-1 cell        
-        TissueCell hepa_one_cell(HEPA_ONE, // type
-                           HEALTHY,//Mutation State
-                           0,  // generation
-                           new FixedCellCycleModel());      
+        TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, 0, new FixedCellCycleModel());      
 
         hepa_one_cell.SetBirthTime(54.0);
         p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(94.0, 4);   
@@ -153,11 +183,9 @@ public:
         p_simulation_time->IncrementTimeOneStep();//t=74
         TS_ASSERT(hepa_one_cell.ReadyToDivide());
         
-         // create transit progeny of stem
         TissueCell hepa_one_daughter_cell = hepa_one_cell.Divide();
         
-        TS_ASSERT(!hepa_one_cell.ReadyToDivide());
-        
+        TS_ASSERT(!hepa_one_cell.ReadyToDivide());        
         TS_ASSERT(hepa_one_daughter_cell.GetGeneration() == 1);
         TS_ASSERT(hepa_one_daughter_cell.GetCellType() == HEPA_ONE);
         TS_ASSERT_DELTA(hepa_one_daughter_cell.GetAge(), 0 , 1e-9);

@@ -115,6 +115,7 @@ public:
 
         CancerParameters *params = CancerParameters::Instance();
         
+        // Test GetWntLevel(double) method
         double height = 100;
         double wnt_level = 0.0;
         wnt_level = p_wnt_gradient->GetWntLevel(height);
@@ -133,16 +134,59 @@ public:
         params->SetCryptLength(10.0);
         wnt_level = p_wnt_gradient->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
+        
         // under a third of the way up the crypt.
         params->SetCryptLength(22.0);
         height = 7.0;
         wnt_level = p_wnt_gradient->GetWntLevel(height);
-        TS_ASSERT_DELTA(wnt_level , 1.0 - height/((1.0/3.0)*params->GetCryptLength()) , 1e-9);
+        TS_ASSERT_DELTA(wnt_level , 1.0 - height/((1.0/3.0)*params->GetCryptLength()), 1e-9);
+        
         // more than a third of the way up the crypt.
         height = 10.0;
         wnt_level = p_wnt_gradient->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
         
+        // Test GetWntLevel(TissueCell*) method
+        
+        // set up the simulation time object so the cells can be created
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // translate mesh so that its centre is at (0,0)
+        mesh.Translate(-0.5,-0.5); 
+        
+        std::vector<TissueCell> cells;
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            WntCellCycleModel* p_model = new WntCellCycleModel();
+            TissueCell cell(STEM, HEALTHY, 0, p_model);
+            double birth_time = 0.0-i;
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);        
+        }
+        
+        // create a crypt
+        Tissue<2> crypt(mesh,cells);        
+        CancerParameters::Instance()->SetCryptLength(1.0);
+        p_wnt_gradient->SetTissue(crypt);
+        
+        Tissue<2>::Iterator cell_iter = crypt.Begin();
+        
+        double wnt_gradient_at_cell0 = p_wnt_gradient->GetWntLevel(&(*cell_iter));
+        
+        while(cell_iter!=crypt.End())
+        {
+            TS_ASSERT_DELTA(p_wnt_gradient->GetWntLevel(&(*cell_iter)), wnt_gradient_at_cell0, 1e-12);
+            ++cell_iter;
+        }
+                
+        SimulationTime::Destroy();
         WntGradient::Destroy();
     }
     
