@@ -42,7 +42,6 @@ public :
     #define COVERAGE_IGNORE
     virtual bool NeedsVoronoiTessellation()
     {
-        NEVER_REACHED;
         return false;
     }
     #undef COVERAGE_IGNORE
