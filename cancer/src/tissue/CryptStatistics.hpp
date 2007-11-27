@@ -11,7 +11,7 @@ private:
 
     /**
      *  Method computing the perpendicular distance from the cell to the line from (xBottom,0) to (xTop,yTop), 
-     *  and returning if the distance is within the specified width to the section (defaults to 1.0)
+     *  and returning if the distance is within the specified width to the section (defaults to 0.5)
      */  
     bool CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=0.5);
 
@@ -67,8 +67,7 @@ public :
      */
     std::vector<TissueCell*> GetCryptSectionPeriodic(double xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
-                                             double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0, 
-                                             bool periodic = false);
+                                             double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0);
     
     /**
      * To recreate the Meineke labelling experiments
@@ -96,14 +95,14 @@ public :
      * @param xBottom    (defaults to a random number U[0,crypt_width])
      * @param xTop  (defaults to a random number U[0,crypt_width])
      * @param yTop  (defaults to crypt_length +2, to get the cells near the top)
-     * @param periodic  (defaults to false)
+     * @param periodic  (defaults to true)
      * 
      * @return  a standard vector of booleans which states whether a labelled cell is present at a corresponing position.
      */
     std::vector<bool> GetWhetherCryptSectionCellsAreLabelled(double xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0, 
-                                             bool periodic = false);
+                                             bool periodic = true);
     
 };
 

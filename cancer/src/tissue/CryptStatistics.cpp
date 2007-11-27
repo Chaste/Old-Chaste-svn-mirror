@@ -138,7 +138,7 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
     return ordered_cells;
 }
 
-std::vector<TissueCell*> CryptStatistics::GetCryptSectionPeriodic(double xBottom, double xTop, double yTop, bool periodic) 
+std::vector<TissueCell*> CryptStatistics::GetCryptSectionPeriodic(double xBottom, double xTop, double yTop) 
 {
    return GetCryptSection(xBottom,xTop,yTop,true);
 }   
@@ -171,10 +171,10 @@ void CryptStatistics::LabelAllCellsAsHealthy()
 
 std::vector<bool> CryptStatistics::GetWhetherCryptSectionCellsAreLabelled(double xBottom, 
                                                          double xTop, 
-                                                         double yTop, 
+                                                         double yTop,
                                                          bool periodic)
 {
-    std::vector<TissueCell*> crypt_section = GetCryptSectionPeriodic(xBottom,xTop,yTop,periodic);
+    std::vector<TissueCell*> crypt_section = GetCryptSection(xBottom,xTop,yTop,periodic);
     std::vector<bool> crypt_section_labelled(crypt_section.size()) ;
     
     for (unsigned vector_index=0; vector_index<crypt_section.size(); vector_index++)

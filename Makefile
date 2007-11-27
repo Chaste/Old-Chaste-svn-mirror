@@ -75,8 +75,8 @@ TestCryptSimulation2dRunner: TestCryptSimulation2dRunner.o ${LIBS}
 	
 # This runs the test which generates MeinekeLabellingExperiment data.
 
-TestMeinekeLabellingExperimentsRunner.cpp:	projects/GaryM/test/TestMeinekeLabellingExperiments.hpp
-	cxxtest/cxxtestgen.py  --error-printer -o TestMeinekeLabellingExperimentsRunner.cpp projects/GaryM/test/TestMeinekeLabellingExperiments.hpp
+TestMeinekeLabellingExperimentsRunner.cpp:	projects/GaryM/test/TestMeinekeLabellingExperimentsSunterData.hpp
+	cxxtest/cxxtestgen.py  --error-printer -o TestMeinekeLabellingExperimentsRunner.cpp projects/GaryM/test/TestMeinekeLabellingExperimentsSunterData.hpp
 
 TestMeinekeLabellingExperimentsRunner: TestMeinekeLabellingExperimentsRunner.o ${LIBS}
 	g++ TestMeinekeLabellingExperimentsRunner.o ${LIBS} -o TestMeinekeLabellingExperimentsRunner ${LDFLAGS};\
@@ -88,7 +88,7 @@ TestMeinekeLabellingExperimentsRunner: TestMeinekeLabellingExperimentsRunner.o $
 	# Need to copy across the starting state of the simulation
 	mkdir ${FRESH_DIR}/MeinekeLabellingExperiment; mkdir ${FRESH_DIR}/MeinekeLabellingExperiment/archive ;\
 	cd ${FRESH_DIR}/MeinekeLabellingExperiment/archive ;\
-	cp ../../../projects/GaryM/test/data/SteadyStateMeinekeStochastic/archive/* . ;\
+	cp ../../../projects/GaryM/test/data/SteadyStateSimpleWnt/sunter1_archive/* . ;\
 	cd ../.. ;\
 	# Finished copying archives across.
 	cp TestMeinekeLabellingExperimentsRunner ${FRESH_DIR} ;\

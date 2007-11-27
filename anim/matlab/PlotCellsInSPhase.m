@@ -12,15 +12,16 @@ close all
 clear
 
 % Experiment Setup
-title_string = 'Meineke Cells in Sunter iii) Geometry';
-runs = 4;
+title_string = 'Meineke Cells in Sunter i) Geometry';
+runs = 5;
 Start_time = 300;
 Num_experiments = 51;
-crypt_height = 20;
-file_path(1,:) = '/local/pmxgm/Simulation_Results/16_stem_cell_Meineke_recreate/sunter3/2007-11-22-19-15/MeinekeLabellingExperiment';
-file_path(2,:) = '/local/pmxgm/Simulation_Results/16_stem_cell_Meineke_recreate/sunter3/2007-11-22-19-17/MeinekeLabellingExperiment';
-file_path(3,:) = '/local/pmxgm/Simulation_Results/16_stem_cell_Meineke_recreate/sunter3/2007-11-22-19-19/MeinekeLabellingExperiment';
-file_path(4,:) = '/local/pmxgm/Simulation_Results/16_stem_cell_Meineke_recreate/sunter3/2007-11-22-19-20/MeinekeLabellingExperiment';
+crypt_height = 30;
+file_path(1,:) = '/local/pmxgm/Simulation_Results/16_stem_cell_Meineke_recreate/sunter1/2007-11-24-18-10/MeinekeLabellingExperiment';
+file_path(2,:) = '/local/pmxgm/Simulation_Results/16_stem_cell_Meineke_recreate/sunter1/2007-11-24-18-12/MeinekeLabellingExperiment';
+file_path(3,:) = '/local/pmxgm/Simulation_Results/16_stem_cell_Meineke_recreate/sunter1/2007-11-24-18-15/MeinekeLabellingExperiment';
+file_path(4,:) = '/local/pmxgm/Simulation_Results/16_stem_cell_Meineke_recreate/sunter1/2007-11-24-18-16/MeinekeLabellingExperiment';
+file_path(5,:) = '/local/pmxgm/Simulation_Results/16_stem_cell_Meineke_recreate/sunter1/2007-11-24-18-19/MeinekeLabellingExperiment';
 % End of setup
 
 y_all_40min = [];
