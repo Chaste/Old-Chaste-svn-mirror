@@ -81,9 +81,9 @@ private :
     }
         
     void PostSolve()
-    {   
+    {
         ConformingTetrahedralMesh<2,2>& r_mesh = this->mrTissue.rGetMesh();
-        CellwiseData<DIM>::Instance()->ReallocateMemory();        
+        CellwiseData<DIM>::Instance()->ReallocateMemory();
         std::set<unsigned> ghost_node_indices = this->mrTissue.GetGhostNodeIndices();
         
         // we shouldn't have any ghost nodes
@@ -97,44 +97,47 @@ private :
         {
             p_boundary_condition = new ConstBoundaryCondition<2>(1.0);
             bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
-            node_iter++;            
+            node_iter++;
         }
-                
+        
         // set up assembler
         SimpleNonlinearEllipticAssembler<2,2> assembler(&r_mesh, mpPde, &bcc);
-                        
+        
         // we cannot use the exact previous solution as initial guess as the size may be different
-        // (due to cell birth/death) - could we just add in the necessary number of 1.0's say? 
+        // (due to cell birth/death) - could we just add in the necessary number of 1.0's say?
         Vec initial_guess;
-                
-        // If we have a previous solution, then use this as the basis for the initial guess 
+        
+        // If we have a previous solution, then use this as the basis for the initial guess
         if (mOxygenSolution)
-        {        	            
+        {
             // get the size of the previous solution
             PetscInt isize;
             VecGetSize(mOxygenSolution, &isize);
-            unsigned size_of_previous_solution = isize;  
+            unsigned size_of_previous_solution = isize;
             
             if (size_of_previous_solution != r_mesh.GetNumNodes() )
             {
-                initial_guess = assembler.CreateConstantInitialGuess(1.0); 
-            }  
+                initial_guess = assembler.CreateConstantInitialGuess(1.0);
+            }
             else
             {
                 VecDuplicate(mOxygenSolution, &initial_guess);
                 VecCopy(mOxygenSolution, initial_guess);
             }
+            // Free memory
+            VecDestroy(mOxygenSolution);
         }
         else
         {
-            initial_guess = assembler.CreateConstantInitialGuess(1.0);        
+            initial_guess = assembler.CreateConstantInitialGuess(1.0);
         }
-                        
+        
         // solve the nutrient PDE
-        mOxygenSolution = assembler.Solve(initial_guess);        
+        mOxygenSolution = assembler.Solve(initial_guess);
+        VecDestroy(initial_guess);
         ReplicatableVector result_repl(mOxygenSolution);
         
-        // update cellwise data        
+        // update cellwise data
         for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
         {
             double oxygen_conc = result_repl[i];
@@ -142,32 +145,31 @@ private :
         }
         
         // save results to file
-        WriteNutrient(); 
+        WriteNutrient();
         
-        // update each cell's hypoxic duration according to its current oxygen concentration        
+        // update each cell's hypoxic duration according to its current oxygen concentration
         for( typename Tissue<2>::Iterator cell_iter = this->mrTissue.Begin();
             cell_iter != this->mrTissue.End();
             ++cell_iter)
-        {               
-        	double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(&(*cell_iter));
-        	
+        {
+            double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(&(*cell_iter));
+            
             // the oxygen concentration had better not be negative
             // assert(oxygen_concentration >= -1e-8);
-        	  	
-        	if ( oxygen_concentration < CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration() )
-        	{
-        		// add timestep to the hypoxic duration, since PostSolve() is called at the end of every timestep 
-        		double curr_hyp_dur = cell_iter->GetHypoxicDuration();        		
-            	cell_iter->SetHypoxicDuration(curr_hyp_dur + SimulationTime::Instance()->GetTimeStep());
-        	}  
-        	else 
-        	{
-        		// reset the cell's hypoxic duration
-            	cell_iter->SetHypoxicDuration(0.0);
-        	}          	   
+            
+            if ( oxygen_concentration < CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration() )
+            {
+                // add timestep to the hypoxic duration, since PostSolve() is called at the end of every timestep
+                double curr_hyp_dur = cell_iter->GetHypoxicDuration();
+                cell_iter->SetHypoxicDuration(curr_hyp_dur + SimulationTime::Instance()->GetTimeStep());
+            }
+            else
+            {
+                // reset the cell's hypoxic duration
+                cell_iter->SetHypoxicDuration(0.0);
+            }   
         }  
         
-        VecDestroy(initial_guess);          
     }
 
 

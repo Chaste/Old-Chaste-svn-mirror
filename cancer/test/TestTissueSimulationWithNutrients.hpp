@@ -91,8 +91,8 @@ public:
      * Secondly, test that cells' hypoxic durations are correctly updated when a 
      * nutrient distribution is prescribed.
      */
-	void TestPostSolveMethod() throw(Exception)
-	{
+    void TestPostSolveMethod() throw(Exception)
+    {
         if (!PetscTools::IsSequential())
         {
             TS_TRACE("This test does not pass in parallel yet.");
@@ -108,7 +108,7 @@ public:
 
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         
-	    SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);  
        
         // set up mesh
@@ -182,11 +182,11 @@ public:
             // Second part of test - check that each cell's hypoxic duration is correctly updated
             if ( p_data->GetValue(&(*cell_iter)) >= p_params->GetHepaOneCellHypoxicConcentration() )
             {
-            	TS_ASSERT_DELTA(cell_iter->GetHypoxicDuration(), 0.0, 1e-5);
+                TS_ASSERT_DELTA(cell_iter->GetHypoxicDuration(), 0.0, 1e-5);
             }
             else
             {
-            	TS_ASSERT_DELTA(cell_iter->GetHypoxicDuration(), 1.0/120.0, 1e-5);	
+                TS_ASSERT_DELTA(cell_iter->GetHypoxicDuration(), 1.0/120.0, 1e-5);    
             } 
         }     
         
@@ -196,7 +196,7 @@ public:
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
         CellwiseData<2>::Destroy();
-	}
+    }
         
     void TestWithOxygen() throw(Exception)
     {
@@ -226,7 +226,7 @@ public:
         {
             TissueCell cell(HEPA_ONE, HEALTHY, 0, new SimpleOxygenBasedCellCycleModel());
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*(p_params->GetHepaOneCellG1Duration()
-                                                                       +p_params->GetSG2MDuration());
+                                                                            +p_params->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -235,7 +235,7 @@ public:
         // set up tissue        
         Tissue<2> tissue(*p_mesh, cells);
         
-        // set up Cellwiseata and associate it with the tissue
+        // set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         p_data->SetTissue(tissue);
@@ -245,17 +245,17 @@ public:
         // (note: it would really make more sense to put the PDE solver stuff in a PreSolve method)  
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-			p_data->SetValue(1.0, p_mesh->GetNode(i));
-		}
+            p_data->SetValue(1.0, p_mesh->GetNode(i));
+        }
         
         // set up PDE
         SimpleOxygenPde pde;
         
-        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue); 
-        p_spring_system->UseCutoffPoint(1.5); 
+        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
+        p_spring_system->UseCutoffPoint(1.5);
                   
         // set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde); 
+        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithOxygen");
         simulator.SetEndTime(0.5);
         simulator.SetMaxCells(400);
