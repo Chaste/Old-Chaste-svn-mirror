@@ -9,6 +9,7 @@
 #include <ctime>
 
 #include "RunAndCheckIonicModels.hpp"
+#include "Exception.hpp"
 
 #include "InitialStimulus.hpp"
 #include "RegularStimulus.hpp"
@@ -69,7 +70,7 @@ public:
     }
     
     
-    void TestOdeSolverForFHN61WithInitialStimulus(void)
+    void TestOdeSolverForFHN61WithInitialStimulus(void) throw (Exception)
     {
         clock_t ck_start, ck_end;
 
@@ -86,7 +87,7 @@ public:
         FitzHughNagumo1961OdeSystem fhn61_ode_system(&solver, time_step, &stimulus);
 
         // fhn has no [Ca_i]
-        TS_ASSERT_THROWS_ANYTHING(fhn61_ode_system.GetIntracellularCalciumConcentration())
+        TS_ASSERT_THROWS_ANYTHING(fhn61_ode_system.GetIntracellularCalciumConcentration());
         
         // Solve and write to file
         ck_start = clock();
@@ -308,17 +309,19 @@ public:
         
     }
     
-    void TestLr91WithVoltageDropVariousTimeStepRatios() throw (Exception)
+    // For some bizarre reason having the exception specification here and/or in the private method
+    // causes the IntelProduction build to fail on this test (unless it is the only test defined, i.e.
+    // we x-out the other tests in this file).
+    void TestLr91WithVoltageDropVariousTimeStepRatios() //throw (Exception)
     {
-        TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(1));
-        TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(2));
-        TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(3));
+        TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(1))
+        TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(2))
+        TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(3))
         TS_ASSERT_THROWS_NOTHING(TryTestLr91WithVoltageDrop(4));
-           
     }
     
 private:
-    void TryTestLr91WithVoltageDrop(unsigned ratio) throw (Exception)
+    void TryTestLr91WithVoltageDrop(unsigned ratio) //throw (Exception)
     {
         double pde_time_step = 0.01;  // ms (not used, but here to replicate TestMonodomainHeart)
         double ode_time_step = pde_time_step/ratio; // ms
