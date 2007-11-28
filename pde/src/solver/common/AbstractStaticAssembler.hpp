@@ -149,16 +149,19 @@ protected:
             for (unsigned i=0; i<num_nodes; i++)
             {
                 const Node<SPACE_DIM> *p_node = rElement.GetNode(i);
-                const c_vector<double, SPACE_DIM> node_loc = p_node->rGetLocation();
                 
-                // interpolate x
-                x.rGetLocation() += phi(i)*node_loc;
+                if (NON_HEART)
+                {
+                    const c_vector<double, SPACE_DIM> node_loc = p_node->rGetLocation();
+                    // interpolate x
+                    x.rGetLocation() += phi(i)*node_loc;
+                }
                 
                 // interpolate u and grad u if a current solution or guess exists
                 unsigned node_global_index = rElement.GetNodeGlobalIndex(i);
                 if (mCurrentSolutionOrGuessReplicated.size()>0)
                 {
-                    for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
+                    for (unsigned index_of_unknown=0; index_of_unknown<(NON_HEART ? PROBLEM_DIM : 1) ; index_of_unknown++)
                     {
                         // If we have a current solution (e.g. this is a dynamic problem)
                         // get the value in a usable form.
@@ -171,7 +174,7 @@ protected:
                         double u_at_node=GetCurrentSolutionOrGuessValue(node_global_index, index_of_unknown);
                         u(index_of_unknown) += phi(i)*u_at_node;
                         
-                        if ( this->ProblemIsNonlinear() ) // don't need to construct grad_phi or grad_u in that case
+                        if (this->ProblemIsNonlinear() ) // don't need to construct grad_phi or grad_u in that case
                         {
                             for (unsigned j=0; j<SPACE_DIM; j++)
                             {
