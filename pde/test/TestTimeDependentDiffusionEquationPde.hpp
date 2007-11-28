@@ -44,6 +44,10 @@ public:
         TS_ASSERT_DELTA(diff3(0,1), 0, 1e-12);
         TS_ASSERT_DELTA(diff3(0,2), 0, 1e-12);
         TS_ASSERT_DELTA(diff3(1,2), 0, 1e-12);
+
+        Node<1> node(0, zero1);
+        TS_ASSERT_DELTA(pde1.ComputeLinearSourceTermAtNode(node), 0.0, 1e-12);
+        TS_ASSERT_DELTA(pde1.ComputeNonlinearSourceTermAtNode(node,u), 0.0, 1e-12);
     }
 };
 

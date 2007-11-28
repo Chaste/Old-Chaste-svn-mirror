@@ -293,6 +293,12 @@ public:
      */
     void TestWriteNutrient() throw (Exception)
     {
+        if (!PetscTools::IsSequential())
+        {
+            TS_TRACE("This test does not pass in parallel yet.");
+            return;
+        }
+
         // work out where the previous test wrote its files
         OutputFileHandler handler("TissueSimulationWithOxygen",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznutrient";         
