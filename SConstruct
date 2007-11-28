@@ -106,6 +106,7 @@ comp_deps = {'cancer': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'io': ['global'],
              'global': [],
              'core': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global']}
+SConsTools.comp_deps = comp_deps
 components = ['global', 'io', 'linalg', 'mesh', 'ode', 'pde', 'heart', 'cancer']
 if build.using_dealii:
     components = components + ['dealii']
@@ -288,7 +289,7 @@ if test_summary and not compile_only:
   
   summary_index = os.path.join(output_dir, 'index.html')
   senv.AlwaysBuild(summary_index)
-  senv.SourceSignatures('timestamp')
+  #senv.SourceSignatures('timestamp')
   #senv.Command(summary_index, Dir(output_dir), summary_action)
   senv.Command(summary_index, Flatten(test_log_files), summary_action)
   # Avoid circular dependencies

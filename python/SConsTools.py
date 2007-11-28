@@ -158,6 +158,8 @@ def FindTestsToRun(build, BUILD_TARGETS,
         # Are we building this component/project?
         test_this_comp = False
         this_comp_targets = ['.', SCons.Defaults.DefaultEnvironment().Dir('#').abspath]
+        if not project and component in comp_deps['core']:
+            this_comp_targets.append('core')
         if project:
             this_comp_targets.append('projects/'+project)
         else:
