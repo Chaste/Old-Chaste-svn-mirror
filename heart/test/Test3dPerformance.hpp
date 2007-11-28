@@ -88,10 +88,10 @@ public:
         tester.MeshNum++;
         tester.Run();
         EventHandler::Report(); 
-        
-        tester.MeshNum++;
-        tester.Run();
-        EventHandler::Report(); 
+//        Can't run mesh 5 yet: runs out of memory.       
+//        tester.MeshNum++;
+//        tester.Run();
+//        EventHandler::Report(); 
     }
 };
 
