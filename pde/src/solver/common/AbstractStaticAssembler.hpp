@@ -31,7 +31,7 @@
  *
  *  See also documentation for AbstractAssembler
  */
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART>
 class AbstractStaticAssembler : virtual public AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 protected:
@@ -89,7 +89,7 @@ protected:
                                     bool assembleMatrix)
     {
         GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
-            *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpQuadRule);
+            *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART>::mpQuadRule);
             
         /**
          * \todo This assumes that the Jacobian is constant on an element.
@@ -219,7 +219,7 @@ protected:
                                           c_vector<double, PROBLEM_DIM*ELEMENT_DIM> &rBSurfElem)
     {
         GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
-            *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpSurfaceQuadRule);
+            *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART>::mpSurfaceQuadRule);
             
         double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
         

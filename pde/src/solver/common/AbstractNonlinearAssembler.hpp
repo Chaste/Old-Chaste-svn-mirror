@@ -54,7 +54,7 @@ PetscErrorCode AbstractNonlinearAssembler_AssembleJacobian(SNES snes,
  *  AbstractNonlinearAssembler
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class AbstractNonlinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
+class AbstractNonlinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, true>
 {
 private:
     Vec mInitialGuess;
@@ -235,7 +235,7 @@ protected:
     {
         // If the problem is nonlinear the currentGuess MUST be specifed
         assert( currentGuess );
-        AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AssembleSystem(
+        AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, true>::AssembleSystem(
             assembleVector, assembleMatrix, currentGuess, currentTime);
     }
     
@@ -293,7 +293,7 @@ public:
      * Constructors just call the base class versions.
      */
     AbstractNonlinearAssembler(unsigned numQuadPoints = 2) :
-            AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
+            AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, true>(numQuadPoints)
     {
         mpSolver = new SimplePetscNonlinearSolver;
         mWeAllocatedSolverMemory = true;

@@ -196,7 +196,7 @@ public :
         DistributedVector::SetProblemSize(mesh.GetNumNodes());
 
         // Assembler for fine mesh flagged region
-        SimpleDg0ParabolicAssembler<2,2> assembler(&mesh, &pde, &bcc);
+        SimpleDg0ParabolicAssembler<2,2, true> assembler(&mesh, &pde, &bcc);
         assembler.SetTimes(0, 1, 0.1);
         assembler.SetInitialCondition(initial_condition);
 
@@ -436,7 +436,7 @@ public :
         bcc.DefineZeroDirichletOnMeshBoundary(&coarse_mesh);
         
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> assembler(&coarse_mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<2,2, true> assembler(&coarse_mesh,&pde,&bcc);
 
         std::vector<double> init_cond_coarse(coarse_mesh.GetNumNodes());
         for (unsigned i=0; i<coarse_mesh.GetNumNodes(); i++)
@@ -618,7 +618,7 @@ public :
         bcc.DefineZeroDirichletOnMeshBoundary(&coarse_mesh);
         
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> assembler(&coarse_mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<2,2, true> assembler(&coarse_mesh,&pde,&bcc);
         
         std::vector<double> init_cond_coarse(coarse_mesh.GetNumNodes());
         for (unsigned i=0; i<coarse_mesh.GetNumNodes(); i++)

@@ -20,7 +20,7 @@
  *  Assembler for solving AbstractLinearEllipticPdes
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class SimpleLinearEllipticAssembler : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1>
+class SimpleLinearEllipticAssembler : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, true>
 {
     friend class TestSimpleLinearEllipticAssembler;
     
@@ -90,7 +90,7 @@ public:
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1, true>(numQuadPoints)
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later
@@ -104,7 +104,7 @@ public:
      */
     void PrepareForSolve()
     {
-        AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1>::PrepareForSolve();
+        AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1, true>::PrepareForSolve();
         assert(mpEllipticPde != NULL);
     }
 };

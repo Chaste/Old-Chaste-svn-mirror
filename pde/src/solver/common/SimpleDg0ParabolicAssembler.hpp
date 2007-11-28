@@ -19,9 +19,9 @@
  *
  *  Assembler for solving AbstractLinearParabolicPdes
  */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, bool NON_HEART>
 class SimpleDg0ParabolicAssembler
-    : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1>,
+    : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART>,
       public AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>
 {
 private:
@@ -88,7 +88,7 @@ public:
                                 unsigned numQuadPoints = 2,
                                 double linearSolverRelativeTolerance=1e-6) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints,linearSolverRelativeTolerance),
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1, NON_HEART>(numQuadPoints,linearSolverRelativeTolerance),
             AbstractDynamicAssemblerMixin<ELEMENT_DIM,SPACE_DIM,1>()
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
@@ -105,7 +105,7 @@ public:
      */
     virtual void PrepareForSolve()
     {
-        AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1>::PrepareForSolve();
+        AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1, NON_HEART>::PrepareForSolve();
         assert(mpParabolicPde != NULL);
     }
     

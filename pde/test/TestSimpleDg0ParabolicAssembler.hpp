@@ -34,7 +34,7 @@ public:
     void TestExceptionalBehaviour( void )
     {
         // Assembler
-        SimpleDg0ParabolicAssembler<1,1> assembler(NULL,NULL,NULL);
+        SimpleDg0ParabolicAssembler<1,1, true> assembler(NULL,NULL,NULL);
         
         // start > end
         TS_ASSERT_THROWS_ANYTHING(assembler.SetTimes(1.0, 0.0, 0.01));
@@ -62,7 +62,7 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode( mesh.GetNumNodes()-1 ), p_boundary_condition);
         
         // Assembler
-        SimpleDg0ParabolicAssembler<1,1> assembler(&mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<1,1,true> assembler(&mesh,&pde,&bcc);
         
         // Initial condition, u(0,x) = sin(x*pi);
         std::vector<double> init_cond(mesh.GetNumNodes());
@@ -112,7 +112,7 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode( mesh.GetNumNodes()-1 ), p_boundary_condition);
         
         // Assembler
-        SimpleDg0ParabolicAssembler<1,1> assembler(&mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<1,1,true> assembler(&mesh,&pde,&bcc);
         
         // initial condition, u(0,x) = sin(x*pi)+0.5*x*x;
         std::vector<double> init_cond(mesh.GetNumNodes());
@@ -164,7 +164,7 @@ public:
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
         
         // Assembler
-        SimpleDg0ParabolicAssembler<1,1> assembler(&mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<1,1,true> assembler(&mesh,&pde,&bcc);
         
         // initial condition;
         const double PI_over_2 = M_PI/2.0;
@@ -212,7 +212,7 @@ public:
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
         
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
         
         // initial condition;
         // choose initial condition sin(x*pi)*sin(y*pi) as this is an eigenfunction of
@@ -275,7 +275,7 @@ public:
         }
         
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
         
         // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2);
         std::vector<double> init_cond(mesh.GetNumNodes());
@@ -338,7 +338,7 @@ public:
         }
         
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
         
         // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2);
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
@@ -430,7 +430,7 @@ public:
         }
         
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
         
         // initial condition, u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
         std::vector<double> init_cond(mesh.GetNumNodes());
@@ -516,7 +516,7 @@ public:
         }
         
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
         
         // initial condition, u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
         std::vector<double> init_cond(mesh.GetNumNodes());
@@ -569,7 +569,7 @@ public:
         }
         
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
         
         // initial condition;
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes(), -84.5);
@@ -612,7 +612,7 @@ public:
         }
         
         // Assembler - created using Set methods for coverage
-        SimpleDg0ParabolicAssembler<1,1> assembler(NULL,&pde,NULL);
+        SimpleDg0ParabolicAssembler<1,1,true> assembler(NULL,&pde,NULL);
         assembler.SetMesh(&mesh);
         assembler.SetBoundaryConditionsContainer(&bcc);
         
@@ -663,7 +663,7 @@ public:
         }
         
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
         
         // initial condition;
         // choose initial condition sin(x*pi)*sin(y*pi) as this is an eigenfunction of

@@ -26,7 +26,7 @@
  *  The user should call Solve() from the superclass AbstractDynamicAssemblerMixin.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class MonodomainDg0Assembler : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>
+class MonodomainDg0Assembler : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false>
 {
 private:
     double mSourceTerm;
@@ -84,7 +84,7 @@ public:
                            unsigned numQuadPoints = 2,
                            double linearSolverRelativeTolerance = 1e-6) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
-            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints, linearSolverRelativeTolerance)
+            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM, false>(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints, linearSolverRelativeTolerance)
     {
         mpMonodomainPde = pPde;
         

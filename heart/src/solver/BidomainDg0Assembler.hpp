@@ -37,7 +37,7 @@
  */
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class BidomainDg0Assembler : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 2>,
+class BidomainDg0Assembler : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 2, false>,
                              public AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 2>
 {
 private:
@@ -309,7 +309,7 @@ public:
                          unsigned numQuadPoints = 2,
                          double linearSolverRelativeTolerance = 1e-6) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,2>(),
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,2>(numQuadPoints, linearSolverRelativeTolerance),
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,2, false>(numQuadPoints, linearSolverRelativeTolerance),
             AbstractDynamicAssemblerMixin<ELEMENT_DIM,SPACE_DIM,2>()
     {
         assert(pPde != NULL);

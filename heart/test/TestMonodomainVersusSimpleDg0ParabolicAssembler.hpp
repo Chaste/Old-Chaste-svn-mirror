@@ -81,7 +81,7 @@ public:
 class TestMonodomainVersusSimpleDg0ParabolicAssembler : public CxxTest::TestSuite
 {
 public:
-    void xTestMonodomainDg0AssemblerWithFischer1DAgainstSimpleDg0Assembler()
+    void TestMonodomainDg0AssemblerWithFischer1DAgainstSimpleDg0Assembler()
     {
         double t_start = 0;
         double t_final = 1;
@@ -109,7 +109,7 @@ public:
         
         // Assembler
         MonodomainDg0Assembler<1,1> monodomain_assembler(&mesh,&pde);
-        SimpleDg0ParabolicAssembler<1,1> simple_assembler(&mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<1,1, true> simple_assembler(&mesh,&pde,&bcc);
         
         // initial condition;
         Vec initial_condition_1, initial_condition_2;
@@ -186,7 +186,7 @@ public:
         
         // Assembler
         MonodomainDg0Assembler<2,2> monodomain_assembler(&mesh,&pde);
-        SimpleDg0ParabolicAssembler<2,2> simple_assembler(&mesh,&pde,&bcc);
+        SimpleDg0ParabolicAssembler<2,2, true> simple_assembler(&mesh,&pde,&bcc);
         
         // initial condition;
         Vec initial_condition_1, initial_condition_2;

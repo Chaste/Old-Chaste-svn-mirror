@@ -47,7 +47,7 @@ public:
 //
 //   \lambda is taken in in the constructor
 //////////////////////////////////////////////////////////////////////////////
-class MySimpleCoupledAssembler : public AbstractLinearAssembler<2,2,2>
+class MySimpleCoupledAssembler : public AbstractLinearAssembler<2,2,2, true>
 {
     double mLambda;
     
@@ -118,7 +118,7 @@ public:
                              BoundaryConditionsContainer<2,2,2>* pBoundaryConditions,
                              double lambda) :
             AbstractAssembler<2,2,2>(),
-            AbstractLinearAssembler<2,2,2>()
+            AbstractLinearAssembler<2,2,2, true>()
     {
         mpMesh = pMesh;
         mpBoundaryConditions = pBoundaryConditions;

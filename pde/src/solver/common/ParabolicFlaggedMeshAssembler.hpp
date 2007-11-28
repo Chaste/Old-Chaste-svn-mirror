@@ -9,7 +9,7 @@
  * A simple flagged mesh assembler for parabolic PDEs.
  */
 template<unsigned DIM>
-class ParabolicFlaggedMeshAssembler : public SimpleDg0ParabolicAssembler<DIM,DIM>, public AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>
+class ParabolicFlaggedMeshAssembler : public SimpleDg0ParabolicAssembler<DIM, DIM, true>, public AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>
 {
 private:
     friend class TestFlaggedMeshAssembler;  
@@ -36,7 +36,7 @@ public :
                                   FlaggedMeshBoundaryConditionsContainer<DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2) :
             AbstractAssembler<DIM,DIM,1>(),
-            SimpleDg0ParabolicAssembler<DIM,DIM>(pMesh,pPde,NULL,numQuadPoints),
+            SimpleDg0ParabolicAssembler<DIM,DIM, true>(pMesh,pPde,NULL,numQuadPoints),
             AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>(pBoundaryConditions)
     {
         this->SetMatrixIsConstant(false);
