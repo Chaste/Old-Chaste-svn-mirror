@@ -1,6 +1,7 @@
 """Useful functions for use by the build system."""
 
 import os
+import glob
 import SCons.Defaults
 
 # Compatability with Python 2.3
