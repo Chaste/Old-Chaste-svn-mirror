@@ -1,6 +1,7 @@
 """Useful functions for use by the build system."""
 
 import os
+import SCons.Defaults
 
 # Compatability with Python 2.3
 try:
@@ -23,29 +24,38 @@ def IsTemplateCpp(filepath):
     fp.close() 
     return template
 
-def FindSourceFiles(rootDir, ignoreDirs=[]):
+def FindSourceFiles(rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=False):
     """Look for source files under rootDir.
     
     Returns 2 lists: the first of source (.cpp) files, and the second
     of the directories in which they may be found.
     
-    Optionally, specify ignoreDirs to not search within particular
-    folder names.
+    Optionally:
+     * specify ignoreDirs to not search within particular folder names
+     * set dirsOnly to True to only find source directories.  In this case
+       only a single list is returned
+     * set includeRoot to True to include the rootDir in the returned folder list
     """
     source_files = []
     source_dirs = []
     ignoreDirs.append('.svn')
+    if includeRoot:
+        source_dirs.append(rootDir)
     for dirpath, dirnames, filenames in os.walk(rootDir):
         for dirname in dirnames[:]:
             if dirname in ignoreDirs:
                 dirnames.remove(dirname)
             else:
                 source_dirs.append(os.path.join(dirpath, dirname))
-        for filename in filenames:
-            filepath = os.path.join(dirpath, filename)
-            if filename[-4:] == '.cpp' and not IsTemplateCpp(filepath):
-                source_files.append(filepath)
-    return source_files, source_dirs
+        if not dirsOnly:
+            for filename in filenames:
+                filepath = os.path.join(dirpath, filename)
+                if filename[-4:] == '.cpp' and not IsTemplateCpp(filepath):
+                    source_files.append(filepath)
+    if dirsOnly:
+        return source_dirs
+    else:
+        return source_files, source_dirs
 
 def BuildTest(target, source, env):
     """A builder for test executables.
@@ -107,3 +117,77 @@ def BuildTest(target, source, env):
 def pns(nodes):
   """Pretty-print nodes for debugging"""
   return map(str, nodes)
+
+
+def FindTestsToRun(build, BUILD_TARGETS,
+                   singleTestSuite, singleTestSuiteDir, allTests,
+                   component=None, project=None):
+    """Find header files defining tests to run.
+
+    One of component or project must be specified; this says which Chaste
+    component or user project to hunt for tests in.
+
+    If singleTestSuite is set, and singleTestSuiteDir is equal to component
+    (or project), then just run the requested test.
+    If instead allTests is True, then find all tests listed in test packs
+    in this component/project.
+    Otherwise, if this component (or project) is being built (determined by
+    checking BUILD_TARGETS) then search for all tests listed in the test packs
+    specified by build.TestPacks().
+
+    Returns an iterable of header file leaf names.
+    """
+    testfiles = set()
+    # Check arguments
+    assert component or project
+    if component:
+        assert project is None
+    else:
+        component = project
+    # Check for a single test
+    if singleTestSuite:
+        if singleTestSuiteDir == component:
+            testfiles.add(singleTestSuite)
+            # Remove any old test output file to force a re-run
+            try:
+                os.remove(singleTestSuite[:-4] + '.log')
+            except OSError:
+                pass
+    else:
+        # Are we building this component/project?
+        test_this_comp = False
+        this_comp_targets = ['.', SCons.Defaults.DefaultEnvironment().Dir('#').abspath]
+        if project:
+            this_comp_targets.append('projects/'+project)
+        else:
+            this_comp_targets.append(component)
+        for targ in BUILD_TARGETS:
+            if str(targ) in this_comp_targets:
+                test_this_comp = True
+        if test_this_comp:
+            # Find appropriate test pack files
+            packfiles = []
+            if allTests:
+                for packfile in glob.glob('../../test/*TestPack.txt'):
+                    try:
+                        packfiles.append(file(packfile, 'r'))
+                    except IOError:
+                        pass
+            else:
+                for testpack in build.TestPacks():
+                    try:
+                        packfile = '../../test/'+testpack+'TestPack.txt'
+                        packfiles.append(file(packfile, 'r'))
+                    except IOError:
+                        pass
+            # Find tests in those test pack files
+            for packfile in packfiles:
+                try:
+                    for testfile in map(lambda s: s.strip(), packfile.readlines()):
+                        # Ignore blank lines and repeated tests.
+                        if testfile and not testfile in testfiles:
+                            testfiles.add(testfile)
+                    packfile.close()
+                except IOError:
+                    pass
+    return testfiles

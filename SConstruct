@@ -1,4 +1,4 @@
-# Controlling scons build script for Chaste
+# Controlling SCons build script for Chaste.
 
 # This script is executed within the root Chaste source directory.
 # We need at least Python 2.3.
@@ -7,7 +7,8 @@ EnsurePythonVersion(2,3)
 Help("""
   Type: 'scons -c' to remove all the compiled files (clean build),
         'scons' to do a default build,
-        'scons test_suite=<Path from chaste folder>' to run a single test.
+        'scons test_suite=<Path from chaste folder>' to run a single test,
+        'scons <component>' to build and test a single component.
   
   For other options, such as profiling, optimised builds and 
   memory testing please refer to:
@@ -28,14 +29,6 @@ Export('SConsTools')
 
 sys.path.append('python/hostconfig')
 import hostconfig
-
-# Compatability with Python 2.3
-try:
-  set = set
-except NameError:
-  import sets
-  set = sets.Set
-Export('set')
 
 # The type of build to perform (see python/BuildTypes.py for options)
 build_type = ARGUMENTS.get('build', 'default')
@@ -142,25 +135,16 @@ other_includepaths = hostconfig.incpaths
 Export("other_libpaths", "other_libs")
 
 
-## Any extra CCFLAGS and LINKFLAGS
+# Any extra CCFLAGS and LINKFLAGS
 extra_flags = build.CcFlags() + ' ' + hostconfig.ccflags() + ' '
 link_flags  = build.LinkFlags()
 
-# Hack to get around Debian sarge strangeness
-##if system_name in ['maths']:
-##    extra_flags = extra_flags + " -DCWD_HACK "
-
 # Search path for Chaste #includes
-cpppath = ['#/', '#/cxxtest']
+cpppath = ['.', 'cxxtest']
 src_folders = glob.glob('*/src')
 for src_folder in src_folders:
-    cpppath.append('#/'+src_folder)
-    for dirpath, dirnames, filenames in os.walk(src_folder):
-        for dirname in dirnames[:]:
-            if dirname == '.svn':
-                dirnames.remove(dirname)
-            else:
-                cpppath.append('#/'+os.path.join(dirpath, dirname))
+    cpppath.extend(SConsTools.FindSourceFiles(src_folder, dirsOnly=True, includeRoot=True))
+cpppath = map(lambda p: '#/'+p, cpppath)
 
 
 # Set up the environment to use for building.

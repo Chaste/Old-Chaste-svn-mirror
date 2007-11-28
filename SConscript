@@ -1,9 +1,11 @@
+# SCons build script for core Chaste components.
+
 import glob
 import os
 
 Import("*")
 
-# Note that this script is executed from within the build/<something>/ folder
+# Note that this script is executed from within the <component>/build/<something>/ folder
 curdir = os.getcwd()
 
 # Get our top-level directory
@@ -27,46 +29,10 @@ os.chdir(curdir)
 # file, one per line.
 # Alternatively, a single test suite may have been specified on the command
 # line.
-test_this_comp = False
-for targ in BUILD_TARGETS:
-    if str(targ) in [toplevel_dir, '.', Dir('#').abspath]:
-        test_this_comp = True
-if test_component == toplevel_dir:
-    test_this_comp = True
-testfiles = set()
-if single_test_suite:
-  if single_test_suite_dir == toplevel_dir:
-    testfiles.add(single_test_suite)
-    # Remove any old test output file to force a re-run
-    try:
-      os.remove(single_test_suite[:-4] + '.log')
-    except OSError:
-      pass
-elif test_this_comp:
-  packfiles = []
-  if all_tests:
-    for packfile in glob.glob('../../test/*TestPack.txt'):
-      try:
-        packfiles.append(file(packfile, 'r'))
-      except IOError:
-        pass
-  else:
-    for testpack in build.TestPacks():
-      try:
-        packfile = '../../test/'+testpack+'TestPack.txt'
-        packfiles.append(file(packfile, 'r'))
-      except IOError:
-        pass
-  for packfile in packfiles:
-    try:
-      for testfile in map(lambda s: s.strip(), packfile.readlines()):
-        # Ignore blank lines and repeated tests.
-        if testfile and not testfile in testfiles:
-          testfiles.add(testfile)
-      packfile.close()
-    except IOError:
-      pass
-
+testfiles = SConsTools.FindTestsToRun(
+    build, BUILD_TARGETS,
+    single_test_suite, single_test_suite_dir, all_tests,
+    component=toplevel_dir)
 
 #print test_cpppath, testsource
 #print files, testfiles, testsource
