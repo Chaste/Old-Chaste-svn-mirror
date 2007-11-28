@@ -59,7 +59,7 @@ public:
 class AbstractUntemplatedConvergenceTester
 {
 protected:
-    const static double mMeshWidth=0.2;  //cm   
+    double mMeshWidth;   
 public:
     double OdeTimeStep;
     double PdeTimeStep;
@@ -74,7 +74,8 @@ public:
     bool StimulateRegion;
     
     AbstractUntemplatedConvergenceTester()   
-    : OdeTimeStep(0.0025),//Justification from 1D test with this->PdeTimeStep held at 0.01 (allowing two hits at convergence)
+    : mMeshWidth(0.2),//cm
+      OdeTimeStep(0.0025),//Justification from 1D test with this->PdeTimeStep held at 0.01 (allowing two hits at convergence)
       PdeTimeStep(0.005),//Justification from 1D test with this->OdeTimeStep held at 0.0025
       MeshNum(5u),//Justification from 1D test
       KspRtol(5e-7),//Justification from overlayed 1D time/space convergence plots with varied KSP tolerances
@@ -128,7 +129,7 @@ public:
                 mesh_pathname = constructor.Construct(this->MeshNum, mMeshWidth);
                 prev_mesh_num = this->MeshNum;
             }                            
-            unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
+            unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
             
             AbstractCardiacCellFactory<DIM>* p_cell_factory;
             if (!this->StimulateRegion)
@@ -139,12 +140,12 @@ public:
                 if (this->UseAbsoluteStimulus)
                 {
                     #define COVERAGE_IGNORE
-                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, this->AbsoluteStimulus, true);
+                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, 0, this->AbsoluteStimulus, true);
                     #undef COVERAGE_IGNORE                
                 }
                 else
                 {
-                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, mesh_size);                
+                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, num_ele_across, constructor.GetWidth());                
                 }
             }
             else
@@ -318,8 +319,8 @@ public:
     
     void DisplayRun()
     {
-        unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2);// number of elements in each dimension
-        double scaling = mMeshWidth/(double) mesh_size;
+        unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2);// number of elements in each dimension
+        double scaling = mMeshWidth/(double) num_ele_across;
         
         std::cout<<"================================================================================"<<std::endl;
         std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << this->MeshNum << ")" << std::endl;
@@ -355,6 +356,11 @@ public:
     bool IsConverged()
     {
         return Converged;
+    }
+    
+    void SetMeshWidth(double meshWidth)
+    {
+    	mMeshWidth=meshWidth;
     }
 };
 #endif /*ABSTRACTCONVERGENCETESTER_HPP_*/

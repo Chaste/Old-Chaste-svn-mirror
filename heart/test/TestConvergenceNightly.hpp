@@ -21,6 +21,22 @@
 class TestConvergenceNightly : public CxxTest::TestSuite
 {   
 public:
+
+    void Test3DSpaceExperiment() throw(Exception)
+    {
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
+        PetscOptionsSetValue("-options_table", "");
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
+        tester.KspRtol=1e-8;
+        tester.SetMeshWidth(0.15);//cm
+        //tester.RelativeConvergenceCriterion=4e-2;//Just to prove the thing works
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u); ///Just to prove the thing works
+    }
+
+
     //Current test takes about 20 mins.
     //This is much longer (1 hour?) with default ksp
     void Test2DSpaceSymmLq() throw(Exception)
@@ -31,11 +47,11 @@ public:
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
         tester.KspRtol=5e-8;
         tester.Converge();
-        //TS_ASSERT(tester.Converged);
-        //TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
         TS_ASSERT(tester.IsConverged());
-        TS_ASSERT_EQUALS(tester.GetMeshNum(), 5); 
-        TS_ASSERT_DELTA(tester.GetSpaceStep(), 1.5625e-3 /*cm*/, 1e-8 /*Allowed error*/);     
+        //TS_ASSERT_EQUALS(tester.GetMeshNum(), 4); 
+        //TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0023 /*cm*/, 1e-4 /*Allowed error*/);     
     }
 
     void Test2DSpaceWithRegion() throw(Exception)
@@ -58,7 +74,7 @@ public:
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
-        tester.KspRtol=5e-8;
+        tester.KspRtol=1e-8;
         tester.RelativeConvergenceCriterion=4e-2;//Just to prove the thing works
         tester.Converge();
         TS_ASSERT(tester.Converged);

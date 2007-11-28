@@ -69,8 +69,8 @@ public:
             prev_mesh_num = MeshNum;
         }
         
-        unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2);
-        GeneralPlaneStimulusCellFactory<CELL, DIM> cell_factory(OdeTimeStep, mesh_size);
+        unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2);
+        GeneralPlaneStimulusCellFactory<CELL, DIM> cell_factory(OdeTimeStep, num_ele_across, mMeshWidth);
         CARDIAC_PROBLEM cardiac_problem(&cell_factory);
         
         cardiac_problem.SetMeshFilename(mesh_pathname);

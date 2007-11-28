@@ -11,16 +11,16 @@ private:
     InitialStimulus* mpStimulus;
     
 public:
-    GeneralPlaneStimulusCellFactory(double timeStep, double meshSize, bool useMeshSizeAsMag=false) : AbstractCardiacCellFactory<DIM>(timeStep)
+    GeneralPlaneStimulusCellFactory(double timeStep, unsigned numEleAcross, double meshWidth, bool useMeshWidthAsMag=false) : AbstractCardiacCellFactory<DIM>(timeStep)
     {
-        //\todo The useMeshSizeAsMag is temporary, while we are sorting out 
+        //\todo The useMeshWidth is temporary, while we are sorting out 
         //3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
         // scale stimulus depending on space_step of elements
         //\todo It looks like the value of the stimulus is specific to 3D
-        if (useMeshSizeAsMag)
+        if (useMeshWidthAsMag)
         {
             #define COVERAGE_IGNORE
-            mpStimulus = new InitialStimulus(meshSize, 0.5);
+            mpStimulus = new InitialStimulus(meshWidth, 0.5);
             #undef COVERAGE_IGNORE
         }
         else
@@ -29,20 +29,20 @@ public:
             {
                 case 1:
                 {
-                    mpStimulus = new InitialStimulus(-1e7*meshSize/64.0, 0.5);
+                    mpStimulus = new InitialStimulus(-1e7*numEleAcross/(64.0), 0.5);
                     //wrt mesh 4 which has 64 elements in 1D
                     //Justification: elements go half size with each refinement
                     break;
                 }
                 case 2:
                 {
-                    mpStimulus = new InitialStimulus(-1e7*meshSize/64.0, 0.5);
+                    mpStimulus = new InitialStimulus(-1e7*numEleAcross*meshWidth/(64.0*0.2), 0.5);
                     //wrt mesh which which has 64 elements across in 2D
                     //Justification: Triangles go quarter size with each refinement, but there are twice as many nodes on 
                     break;
                 }
                 default:
-                    mpStimulus = new InitialStimulus(-1e7*meshSize/64.0, 0.5);
+                    mpStimulus = new InitialStimulus(-1e7*numEleAcross*meshWidth*meshWidth/(64.0*0.2*0.2), 0.5);
             }
         }
     }

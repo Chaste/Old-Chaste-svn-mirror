@@ -84,9 +84,13 @@ public:
         
     }
     
-    void TestStimulatePlaneAndRegion() throw(Exception)
+    void TestStimulatePlanein1D() throw(Exception)
     {
         ConvergeInVarious(false);
+    }
+
+    void TestStimulateRegionin1D() throw(Exception)
+    {
         ConvergeInVarious(true);
     }
  

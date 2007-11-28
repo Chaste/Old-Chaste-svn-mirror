@@ -33,12 +33,12 @@ public:
             }
             case 3:
             {
-                return this->MeshNum>5;
+                return this->MeshNum>4;
                 break;
             }
             default:
                 assert(0);
-                return true;//To keep Intel compiler happy
+                return true;//To keep Inntel compiler happy
         }
         return true;//To keep Intel compiler happy
     }
@@ -58,6 +58,7 @@ public:
         double scaling = this->mMeshWidth/(double) mesh_size;
         return scaling;
     }
+    
 };
 
 #endif /*SPACECONVERGENCETESTER_HPP_*/
