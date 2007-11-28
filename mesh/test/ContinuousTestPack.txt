@@ -1,4 +1,3 @@
-TestDecimation.hpp
 TestConformingTetrahedralMesh.hpp
 TestFemlabMeshReader.hpp
 TestFace.hpp
