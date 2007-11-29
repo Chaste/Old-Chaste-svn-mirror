@@ -102,9 +102,12 @@ public:
 
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
         
-        // this may fail if optimised
+#ifndef NDEBUG
+        // this will fail if optimised (and should fail) since the NDEBUG flag currently forces NO LOGGING
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log4.txt  global/test/data/good_log4.txt").c_str()), 0);
-
+#else
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log4.txt  global/test/data/empty_log4.txt").c_str()), 0);
+#endif
         LogFile::Close();
     }
 
