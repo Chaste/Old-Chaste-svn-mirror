@@ -213,7 +213,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             
             if (timeStep < numSteps - 1) 
             {
-                timeStep++;
+            	timeStep = timeStep++;//timeStep + 10;//timeStep++;
             } 
             else 
             {
@@ -700,7 +700,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         	skip = st_nutrient.nextToken(); // y
                         	
                         	double nutrient = Double.valueOf(st_nutrient.nextToken()).doubleValue();
-                        	nutrient_values[row][i] = nutrient;
+                        	nutrient_values[row][index] = nutrient;
                         }
                     }	
                     
@@ -716,9 +716,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         	double beta_catenin_membrane= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
                         	double beta_catenin_cytoplasm= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
                         	double beta_catenin_nuclear= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
-                        	beta_catenin_values[row][i][0]= beta_catenin_membrane;
-                        	beta_catenin_values[row][i][1]= beta_catenin_cytoplasm;
-                        	beta_catenin_values[row][i][2]= beta_catenin_nuclear;
+                        	beta_catenin_values[row][index][0]= beta_catenin_membrane;
+                        	beta_catenin_values[row][index][1]= beta_catenin_cytoplasm;
+                        	beta_catenin_values[row][index][2]= beta_catenin_nuclear;
                         }
                     }	
                 }
