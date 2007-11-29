@@ -213,7 +213,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             
             if (timeStep < numSteps - 1) 
             {
-            	timeStep = timeStep++;//timeStep + 10;//timeStep++;
+            	timeStep++;
             } 
             else 
             {
