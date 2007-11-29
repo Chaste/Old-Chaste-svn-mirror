@@ -101,18 +101,21 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
         TissueCell& cell = *cell_iter;
 
         // check if this cell is ready to divide - if so create a new cell etc.
-        if (cell.ReadyToDivide())
+        if (cell.GetAge()>0.0)
         {
-            // Create new cell
-            TissueCell new_cell = cell.Divide();
-        
-            // Add a new node to the mesh
-            c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
+            if (cell.ReadyToDivide())
+            {
+                // Create new cell
+                TissueCell new_cell = cell.Divide();
             
-            TissueCell *p_new_cell=mrTissue.AddCell(new_cell, new_location);
-            mrTissue.MarkSpring(cell, *p_new_cell);
-            num_births_this_step++;
-        } 
+                // Add a new node to the mesh
+                c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
+                
+                TissueCell *p_new_cell=mrTissue.AddCell(new_cell, new_location);
+                mrTissue.MarkSpring(cell, *p_new_cell);
+                num_births_this_step++;
+            } 
+        }
     } 
    
     return num_births_this_step;
