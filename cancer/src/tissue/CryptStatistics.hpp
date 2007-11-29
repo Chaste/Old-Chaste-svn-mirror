@@ -51,11 +51,17 @@ public :
      * @param periodic  (defaults to false)
      * 
      * @return  an ordered list of pointes to TissueCells from the bottom to the top of the crypt.
+     * 
+     * Note that placing calls to functions with side-effects (eg. changing the random seed)
+     * in the default arguments is DANGEROUS.  There is no guarantee that the compiler will 
+     * execute these in a sensible order.
+     * It appears that Intel goes left-to-right and Gcc goes right-to-left.
      */
-     std::vector<TissueCell*> GetCryptSection(double xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
-                                             double xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
+     std::vector<TissueCell*> GetCryptSection(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
+                                             double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0, 
                                              bool periodic = false);
+    
    
     
     /** 
@@ -64,9 +70,13 @@ public :
      * 
      *  If xTop and xBottom are more than half a crypt width apart then a more realistic section
      *  will be across the periodic boundary.
+     * Note that placing calls to functions with side-effects (eg. changing the random seed)
+     * in the default arguments is DANGEROUS.  There is no guarantee that the compiler will 
+     * execute these in a sensible order.
+     * It appears that Intel goes left-to-right and Gcc goes right-to-left.
      */
-    std::vector<TissueCell*> GetCryptSectionPeriodic(double xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
-                                             double xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
+    std::vector<TissueCell*> GetCryptSectionPeriodic(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
+                                             double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0);
     
     /**

@@ -88,6 +88,18 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
  */
 std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double xTop, double yTop, bool periodic)
 {
+    //Fill in the default values - in a sequential manner
+    if (xBottom == DBL_MAX)
+    {
+        xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth();
+    }
+    
+    if (xTop == DBL_MAX)
+    { 
+        xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth();
+    }   
+
+    
     assert(yTop>0.0);
     std::list<std::pair<TissueCell*, double> > cells_list; // the second entry is the y value (needed for sorting)
     
