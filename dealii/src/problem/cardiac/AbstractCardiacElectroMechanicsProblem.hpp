@@ -344,6 +344,7 @@ public :
             LOG(1, "\nCurrent time = " << stepper.GetTime());
             std::cout << "\n\n ** Current time = " << stepper.GetTime();
             
+            LOG(1, "  Solving electrics");
             for(unsigned i=0; i<mNumElecStepsPerMechStep; i++)
             {
                 double current_time = stepper.GetTime() + i*mElectricsTimeStep;
@@ -353,13 +354,19 @@ public :
                 p_electrics_assembler->SetTimes(current_time, next_time, mElectricsTimeStep);
                 p_electrics_assembler->SetInitialCondition( initial_voltage );
             
-                LOG(1, "  Solving electrics");
                 voltage = p_electrics_assembler->Solve();
             
                 PetscReal min_voltage, max_voltage;
                 VecMax(voltage,PETSC_NULL,&max_voltage); //the second param is where the index would be returned
                 VecMin(voltage,PETSC_NULL,&min_voltage);
-                LOG(1, "  minimum and maximum voltage is " << min_voltage <<", "<<max_voltage);
+                if(i==0)
+                {
+                    LOG(1, "  minimum and maximum voltage is " << min_voltage <<", "<<max_voltage);
+                }
+                else if(i==1)
+                {
+                    LOG(1, "  ..");
+                }
         
                 VecDestroy(initial_voltage);
                 initial_voltage = voltage;
@@ -416,7 +423,8 @@ public :
 
             // solve the mechanics
             LOG(1, "  Solving mechanics");
-            mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), stepper.GetNextTime()-stepper.GetTime());
+            double timestep = std::min(0.01, stepper.GetNextTime()-stepper.GetTime());
+            mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), timestep);
             
             unsigned num_iters = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->GetNumNewtonIterations();
             LOG(1, "    Number of newton iterations = " << num_iters);

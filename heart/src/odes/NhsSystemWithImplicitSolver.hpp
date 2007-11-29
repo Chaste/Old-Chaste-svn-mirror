@@ -84,6 +84,15 @@ private:
      *  These can be done directly as the rhs is linear in Qi
      */ 
     double ImplicitSolveForQ();
+    
+//    /**
+//     *  Instead of solving an ODE for Qi, assume that the Qi equations reach a static 
+//     *  solution on a timescale much smaller than thatt of the deformation, and therefore
+//     *  solve the algebraic equation 0 = A_i lambda_dot - alpha_i Q_i to Q_i(t).
+//     * 
+//     *  This method returns Q = Q1+Q2+Q3
+//     */
+//    double QuasiStaticSolveForQ(); 
 
 public :
     /**

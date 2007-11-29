@@ -39,7 +39,7 @@ public:
         // time info will not be set. We therefore must explicitly set them here.
         implicit_assembler.mCurrentTime = 0.0;
         implicit_assembler.mNextTime = 0.01;
-        implicit_assembler.mDt = 0.01;
+        implicit_assembler.mOdeTimestep = 0.01;
 
         // higher tolerance than CardiacMechAssembler. difficult to say if the dTa/dU_I bits 
         // in the jacobian are quite correct or if there is some numerical error in the 

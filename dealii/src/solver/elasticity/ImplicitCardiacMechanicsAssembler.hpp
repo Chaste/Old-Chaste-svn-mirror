@@ -18,7 +18,7 @@ private:
 
     double mCurrentTime;
     double mNextTime;
-    double mDt;
+    double mOdeTimestep;
     
 public:
     /**
@@ -35,7 +35,7 @@ public:
         : CardiacMechanicsAssembler<DIM>(pMesh, outputDirectory, pMaterialLaw),
           mCurrentTime(DBL_MAX),
           mNextTime(DBL_MAX),
-          mDt(DBL_MAX)
+          mOdeTimestep(DBL_MAX)
     {
         mCellMechSystems.resize(this->mTotalQuadPoints);
         mLambdaLastTimeStep.resize(this->mTotalQuadPoints, 1.0);        
@@ -67,16 +67,16 @@ public:
      *  Overloaded Solve, which stores the time info, calls the base Solve(),
      *  then updates cell mechanics systems and lambda
      */
-    void Solve(double currentTime, double nextTime, double timestep)
+    void Solve(double currentTime, double nextTime, double odeTimestep)
     {
         this->mActiveTension.clear();
         
         assert(currentTime < nextTime);
         mCurrentTime = currentTime;
         mNextTime = nextTime;
-        mDt = timestep;
+        mOdeTimestep = odeTimestep;
         
-        CardiacMechanicsAssembler<DIM>::Solve(currentTime,nextTime,timestep);
+        CardiacMechanicsAssembler<DIM>::Solve(currentTime,nextTime,odeTimestep);
 
         this->AssembleSystem(true,false);
 
@@ -109,7 +109,7 @@ private:
         // check these have been set
         assert(mCurrentTime != DBL_MAX);
         assert(mNextTime != DBL_MAX);
-        assert(mDt != DBL_MAX);
+        assert(mOdeTimestep != DBL_MAX);
         
         // if mCurrentQuadPointGlobalIndex is greater than the total num of quad points something
         // very bad has happened. 
@@ -240,7 +240,7 @@ private:
             double active_tension;        
             try
             {
-                system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+                system.SolveDoNotUpdate(mCurrentTime,mNextTime,mOdeTimestep);
                 active_tension = system.GetActiveTensionAtNextTime()/this->mScaleFactor;        
             }
             catch (Exception& e)
@@ -260,13 +260,13 @@ private:
                 // get active tension for (lam+h,dlamdt)
                 double h1 = std::max(1e-6, lam/100);
                 system.SetLambdaAndDerivative(lam+h1, dlam_dt);
-                system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+                system.SolveDoNotUpdate(mCurrentTime,mNextTime,mOdeTimestep);
                 double active_tension_at_lam_plus_h = system.GetActiveTensionAtNextTime()/this->mScaleFactor;        
 
                 // get active tension for (lam,dlamdt+h)
                 double h2 = std::max(1e-6, dlam_dt/100);
                 system.SetLambdaAndDerivative(lam, dlam_dt+h2);
-                system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+                system.SolveDoNotUpdate(mCurrentTime,mNextTime,mOdeTimestep);
                 double active_tension_at_dlamdt_plus_h = system.GetActiveTensionAtNextTime()/this->mScaleFactor;        
 
                 d_act_tension_dlam = (active_tension_at_lam_plus_h - active_tension)/h1;
@@ -281,7 +281,7 @@ private:
             
             try
             {
-                system.SolveDoNotUpdate(mCurrentTime,mNextTime,mDt);
+                system.SolveDoNotUpdate(mCurrentTime,mNextTime,mOdeTimestep);
                 assert( fabs(system.GetActiveTensionAtNextTime()/this->mScaleFactor-active_tension)<1e-8);
             }
             catch (Exception& e)
@@ -392,7 +392,7 @@ private:
                             elementMatrix(i,j) +=   (
                                                        d_act_tension_dlam
                                                      +
-                                                       d_act_tension_d_dlamdt/mDt
+                                                       d_act_tension_d_dlamdt/(mNextTime-mCurrentTime)
                                                     )
                                                     * (F[component_j][0]/lam)
                                                     * (fe_values.shape_grad(j,q_point)[0]/C[0][0])

@@ -93,6 +93,8 @@ double NhsSystemWithImplicitSolver::CalcActiveTensionResidual(double activeTensi
     // solve for the new Qi's (and therefore Q) implicitly (note Q1, Q2, Q3 are stored in 
     // this method
     double new_Q = ImplicitSolveForQ();                        // <-- SHOULD BE MOVED UP!!
+    //double new_Q = QuasiStaticSolveForQ();                        
+
 
     // compute the new active tension and return the difference                
     double new_active_tension = 0;
@@ -176,7 +178,7 @@ double NhsSystemWithImplicitSolver::ImplicitExplicitSolveForZ(double newCaTrop)
 }
 
 
-// Solve for Q1, Q2,, Q3 implicitly and directly
+// Solve for Q1, Q2, Q3 implicitly and directly
 double NhsSystemWithImplicitSolver::ImplicitSolveForQ()
 {
     double old_Q1 = mCurrentStateVars[2];
@@ -194,6 +196,19 @@ double NhsSystemWithImplicitSolver::ImplicitSolveForQ()
     return new_Q1 + new_Q2 + new_Q3; 
 }
 
+
+//double NhsSystemWithImplicitSolver::QuasiStaticSolveForQ()
+//{
+//    double new_Q1 = mA1*mDLambdaDt/mAlpha1;
+//    double new_Q2 = mA2*mDLambdaDt/mAlpha2;
+//    double new_Q3 = mA3*mDLambdaDt/mAlpha3;
+//    
+//    mTempStoredStateVariables[2] = new_Q1;
+//    mTempStoredStateVariables[3] = new_Q2;
+//    mTempStoredStateVariables[4] = new_Q3;
+//    
+//    return new_Q1 + new_Q2 + new_Q3;
+//}
             
 
 

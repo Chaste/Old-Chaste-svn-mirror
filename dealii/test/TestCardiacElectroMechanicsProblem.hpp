@@ -12,75 +12,31 @@
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
 public:
-    void xTest1dCompareExplicitVsImplicit() throw(Exception)
-    {
-        double time_step = 0.01;
-        PlaneStimulusCellFactory<1> cell_factory(time_step, -1000*1000);
-
-        // put these inside braces so that there destructor gets called and all output
-        // files get closed
-        {
-            // instabilities appear at about 6.8
-            CardiacElectroMechanicsProblem1d explicit_problem(&cell_factory, 5, true, 1,  "ExplicitCardiacElectroMech");
-            explicit_problem.Solve();
-
-            CardiacElectroMechanicsProblem1d implicit_problem(&cell_factory, 5, false, 1, "ImplicitCardiacElectroMech");
-            implicit_problem.Solve();
-        }
-
-        std::string file1 = OutputFileHandler::GetChasteTestOutputDirectory() + 
-                            "ExplicitCardiacElectroMech/length.txt";
-
-        std::string file2 = OutputFileHandler::GetChasteTestOutputDirectory() + 
-                            "ImplicitCardiacElectroMech/length.txt";
-        
-        std::ifstream ifs1(file1.c_str());
-        std::ifstream ifs2(file2.c_str());
-        
-        double length1;
-        double length2;
-        
-        ifs1 >> length1;
-        ifs2 >> length2;
-
-        double counter = 0;
-        
-        TS_ASSERT(!ifs1.eof());
-        TS_ASSERT(!ifs2.eof());
-        
-        while(!ifs1.eof())
-        {
-            std::cout << length1 << " " << length2 << "\n";
-            TS_ASSERT_DELTA(length1, length2,  fabs(length1*1e-5));
-            ifs1 >> length1;
-            ifs2 >> length2;
-            
-            // hardcoded test
-            if(counter==450)
-            {
-                TS_ASSERT_DELTA(length2, 0.999378, 1e-5);
-            }
-            counter++;
-        }
-    }
-    
-    void Test2dCompareExplicitVsImplicit() throw(Exception)
+    // test the interface works and does what it should do.
+    // We only test the implicit solver as the explicit is expected to work for very long
+    void Test2dImplicit() throw(Exception)
     {
         PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 
-        unsigned num_mech_per_elec = 1;
+        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
+                                                           10, /* end time */
+                                                           5, /*mech mesh size*/ 
+                                                           false, /* implicit */
+                                                           100, /* 100*0.01ms mech dt */
+                                                           "TestCardiacElectroMechImplicit");
+        implicit_problem.SetNoElectricsOutput();
+        implicit_problem.Solve();
 
-        for(unsigned i=0; i<1; i++)
-        {
-            std::stringstream name;
-            name << "CardiacElectroMech2dImplicitVaryTime" << "_" << i;
-            
-            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 1, false, num_mech_per_elec, name.str());
-            implicit_problem.SetNoElectricsOutput();
-            implicit_problem.Solve();
-            
-            num_mech_per_elec /= 2;
-        }
+        // Test by looking at the results manually to see if they look ok and 
+        // checking nothing has changed by comparing the log files.
+        // 
+        // note we have to get rid of the first line in the log (which has the date
+        // of the simulation) before doing the comparison.
+        OutputFileHandler handler("TestCardiacElectroMechImplicit",false);
+        std::string results_dir = handler.GetOutputDirectoryFullPath();         
+        std::string command = "sed \"2d\" " + results_dir + "log.txt > " + results_dir + "log2.txt";
+        system(command.c_str());
+        TS_ASSERT_EQUALS(system(("diff -bB " + results_dir + "log2.txt dealii/test/data/TestCardiacElectroMechImplicit/log.txt").c_str()), 0);     
     }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEM_HPP_*/
