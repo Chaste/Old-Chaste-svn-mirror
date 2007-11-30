@@ -13,7 +13,7 @@ class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
 public:
     // test the interface works and does what it should do.
-    // We only test the implicit solver as the explicit is expected to work for very long
+    // We only test the implicit solver as the explicit is not expected to work for very long
     void Test2dImplicit() throw(Exception)
     {
         PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
@@ -27,16 +27,10 @@ public:
         implicit_problem.SetNoElectricsOutput();
         implicit_problem.Solve();
 
-        // Test by looking at the results manually to see if they look ok and 
-        // checking nothing has changed by comparing the log files.
-        // 
-        // note we have to get rid of the first line in the log (which has the date
-        // of the simulation) before doing the comparison.
-        OutputFileHandler handler("TestCardiacElectroMechImplicit",false);
-        std::string results_dir = handler.GetOutputDirectoryFullPath();         
-        std::string command = "sed \"2d\" " + results_dir + "log.txt > " + results_dir + "log2.txt";
-        system(command.c_str());
-        TS_ASSERT_EQUALS(system(("diff -bB " + results_dir + "log2.txt dealii/test/data/TestCardiacElectroMechImplicit/log.txt").c_str()), 0);     
+        // test by checking the length of the tissue against hardcoded value
+        AbstractElasticityAssembler<2>* assembler = dynamic_cast<AbstractElasticityAssembler<2>*>(implicit_problem.mpCardiacMechAssembler);
+        std::vector<Vector<double> >& deformed_position = assembler->rGetDeformedPosition();
+        TS_ASSERT_DELTA(deformed_position[0](5), 0.998313, 1e-4);
     }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEM_HPP_*/
