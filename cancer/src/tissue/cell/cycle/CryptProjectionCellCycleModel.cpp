@@ -24,12 +24,6 @@ void CryptProjectionCellCycleModel::SetG1Duration()
         case TRANSIT:
             mG1Duration = 1 + 2*p_gen->ranf(); // U[1,3] according to Meineke
             break;
-//        case HEPA_ONE:
-//            mG1Duration = 1 + 4*p_gen->ranf(); // U[1,5] according to Meineke
-//            break;
-//        case DIFFERENTIATED:
-//            mG1Duration = DBL_MAX;
-//            break;
         default:
             NEVER_REACHED;
     }
@@ -48,20 +42,11 @@ bool CryptProjectionCellCycleModel::ReadyToDivide()
     switch (mpCell->GetMutationState())
     {
         case HEALTHY:
-            wnt_division_threshold = 0.5;
+            wnt_division_threshold = CancerParameters::Instance()->GetRadialWntThreshold();
             break;
         case LABELLED:
-            wnt_division_threshold = 0.5;
+            wnt_division_threshold = CancerParameters::Instance()->GetRadialWntThreshold();
             break;
-//        case APC_ONE_HIT:
-//            wnt_division_threshold = 0.4;
-//            break;
-//        case BETA_CATENIN_ONE_HIT:
-//            wnt_division_threshold = 0.1;
-//            break;
-//        case APC_TWO_HIT:
-//            wnt_division_threshold = 0.0;
-//            break;
         default:
             NEVER_REACHED;
     }
@@ -89,15 +74,14 @@ bool CryptProjectionCellCycleModel::ReadyToDivide()
     }
     else
     {
-    	// if the cell is a stem cell and the Wnt level is below some theshold,
-	    // the cell divides into two transit cells
-	    if ( mpCell->GetCellType()==STEM && WntGradient::Instance()->GetWntLevel(mpCell) <= wnt_division_threshold)
-	    {
-	    	mpCell->SetCellType(TRANSIT);  
-	    	
-	    	// reset the G1 duration - this may not be needed
-	    	//SetG1Duration();
-	    }
+    	if (WntGradient::Instance()->GetWntLevel(mpCell) > wnt_division_threshold)
+        {
+            mpCell->SetCellType(STEM);
+        }
+        else
+        {
+            mpCell->SetCellType(TRANSIT);
+        }
 	    ready = true;
 	    mCurrentCellCyclePhase = M;
 	}    

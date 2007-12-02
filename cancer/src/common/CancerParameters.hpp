@@ -32,6 +32,7 @@ public:
     double GetDivisionRestingSpringLength();
     double GetDivisionSeparation();
     double GetHepaOneCellHypoxicConcentration();
+    double GetRadialWntThreshold();
     
     void SetStemCellG1Duration(double);
     void SetTransitCellG1Duration(double);
@@ -50,6 +51,7 @@ public:
     void SetDivisionRestingSpringLength(double);
     void SetDivisionSeparation(double);
     void SetHepaOneCellHypoxicConcentration(double);
+    void SetRadialWntThreshold(double); 
       
     /** 
      *  Reset all parameters to their defaults
@@ -153,9 +155,14 @@ private:
     double mDivisionRestingSpringLength;
     
     /**
-     * Non-dimensionalized ozygen concentration below which HEPA-1 are hypoxic 
+     * Non-dimensionalized oxygen concentration below which HEPA-1 are hypoxic 
      */
     double mHepaOneCellHypoxicConcentration;
+      
+    /**
+     * Non-dimensionalized radial Wnt threshold, below which cells become TRANSIT
+     */
+    double mRadialWntThreshold;
       
     friend class boost::serialization::access;
     /**
@@ -181,6 +188,7 @@ private:
         archive & mBetaCatSpringScaler;
         archive & mApoptosisTime;
         archive & mHepaOneCellHypoxicConcentration;
+        archive & mRadialWntThreshold;
     }
 };
 

@@ -40,7 +40,7 @@ public:
      * and can be in the continuous test pack.
      * 
      * IF THIS TEST FAILS:
-     * - You have probably changed an archiving funciton somewhere
+     * - You have probably changed an archiving function somewhere
      * - You need to remake cancer/test/data/<test below>/archive/
      * - To do this re-run TestGenerateSteadyStateCrypt.hpp
      * - Archives produced can be copied to :

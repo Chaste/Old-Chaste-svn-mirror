@@ -28,8 +28,8 @@ private:
         
         if (pModel->GetCell()->GetCellType()==DIFFERENTIATED)
         {
-        	TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ZERO);	
+            TS_ASSERT(!pModel->ReadyToDivide());
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ZERO);    
         }
         else if (age < p_params->GetMDuration())
         {   // if in M phase
@@ -143,7 +143,7 @@ public:
             CheckCellCyclePhasesAreUpdated(p_stem_model, 4.36075);
             CheckCellCyclePhasesAreUpdated(p_transit_model, 1.78877);
             CheckCellCyclePhasesAreUpdated(p_hepa_one_model, 4.1324);
-            CheckCellCyclePhasesAreUpdated(p_diff_model, 132);	// any old number            
+            CheckCellCyclePhasesAreUpdated(p_diff_model, 132);  // any old number            
         }
         RandomNumberGenerator::Destroy();
         SimulationTime::Destroy();
@@ -239,9 +239,9 @@ public:
             // the first random number generated    
             CheckCellCyclePhasesAreUpdated(p_cycle_model, 1.0676);
         }
-      	// stem cell should have been changed into a transit cell by wnt cell cycle model
+        // stem cell should have been changed into a transit cell by wnt cell cycle model
         TS_ASSERT_EQUALS(cell.GetCellType(), TRANSIT);
-  		
+        
         // divide the cell
         TS_ASSERT_EQUALS(cell.ReadyToDivide(), true);
         TissueCell cell2 = cell.Divide();
@@ -333,7 +333,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
         
         // set up the Wnt gradient
-        double wnt_level = 0.6;
+        double wnt_level = p_params->GetRadialWntThreshold() + 0.01;
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
                 
         // set up a cell cycle model and cell        
@@ -351,9 +351,9 @@ public:
             CheckCellCyclePhasesAreUpdated(p_cycle_model, first_g1_duration);
         }
 
-      	// stem cell should have been changed into a transit cell by CryptProjectionCellCycleModel
+        // stem cell should have been changed into a transit cell by CryptProjectionCellCycleModel
         TS_ASSERT_EQUALS(cell.GetCellType(), STEM);
-  		
+        
         // divide the cell
         TS_ASSERT_EQUALS(cell.ReadyToDivide(), true);
         
@@ -363,7 +363,7 @@ public:
         CryptProjectionCellCycleModel *p_cycle_model2 = static_cast <CryptProjectionCellCycleModel*> (cell2.GetCellCycleModel());        
         
         // Now reduce the Wnt gradient
-        wnt_level = 0.4;
+        wnt_level = p_params->GetRadialWntThreshold() - 0.01;
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
               
         // The numbers for the G1 durations are taken from 
@@ -404,8 +404,8 @@ public:
             
             TissueCell cell(TRANSIT, // type
                             HEALTHY,//Mutation State
-					        0,  // generation
-                    		p_model);
+                            0,  // generation
+                            p_model);
             
             p_simulation_time->IncrementTimeOneStep();
             p_simulation_time->IncrementTimeOneStep();
@@ -471,8 +471,8 @@ public:
             
             TissueCell cell(TRANSIT, // type
                             HEALTHY,//Mutation State
-					        0,  // generation
-                    		p_model);
+                            0,  // generation
+                            p_model);
             
             cell.SetBirthTime(-1.1);
             p_simulation_time->IncrementTimeOneStep();
@@ -636,8 +636,8 @@ public:
             TissueCell stem_cell(STEM, HEALTHY, 0, p_cell_model);
                                        
             while (p_cell_model->GetAge() < 
-            	g1_duration + p_params->GetSG2MDuration() 
-            	- p_simulation_time->GetTimeStep()) // minus one to match birth time.
+                g1_duration + p_params->GetSG2MDuration() 
+                - p_simulation_time->GetTimeStep()) // minus one to match birth time.
             {
                 p_simulation_time->IncrementTimeOneStep();  
                 CheckCellCyclePhasesAreUpdated(p_cell_model, g1_duration);
@@ -721,7 +721,7 @@ public:
         archive_filename = handler.GetOutputDirectoryFullPath() + "crypt_projection_cell_cycle.arch";
         
         // Set up the Wnt gradient
-        double wnt_level = 0.4;
+        double wnt_level = p_params->GetRadialWntThreshold() - 0.01;
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         double random_number_test = 0;
@@ -749,8 +749,8 @@ public:
             TissueCell stem_cell(STEM, HEALTHY, 0, p_cell_model);
                                        
             while (p_cell_model->GetAge() < 
-            	g1_duration + p_params->GetSG2MDuration() 
-            	- p_simulation_time->GetTimeStep()) // minus one to match birth time.
+                g1_duration + p_params->GetSG2MDuration() 
+                - p_simulation_time->GetTimeStep()) // minus one to match birth time.
             {
                 p_simulation_time->IncrementTimeOneStep();  
                 CheckCellCyclePhasesAreUpdated(p_cell_model, g1_duration);
@@ -825,10 +825,7 @@ public:
 
         WntGradient::Destroy();
     }    
-    
-   
-
-    
+        
 };
 
 #endif /*TESTCELLCYCLEMODELSSIMPLE_HPP_*/

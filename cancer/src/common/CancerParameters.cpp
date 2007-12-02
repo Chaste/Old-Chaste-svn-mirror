@@ -53,6 +53,7 @@ void CancerParameters::Reset()
     mDivisionRestingSpringLength = 0.5;
     mDivisionSeparation = 0.3;    
     mHepaOneCellHypoxicConcentration = 0.4;
+    mRadialWntThreshold = 0.8;
     // Calculated parameters
     // This was used in non-dimensional case
 }
@@ -133,6 +134,11 @@ double CancerParameters::GetHepaOneCellHypoxicConcentration()
 {
 	return mHepaOneCellHypoxicConcentration;
 }
+double CancerParameters::GetRadialWntThreshold()
+{
+    return mRadialWntThreshold;
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
@@ -226,3 +232,11 @@ void CancerParameters::SetHepaOneCellHypoxicConcentration(double hepaOneCellHypo
 	assert(hepaOneCellHypoxicConcentration>=0.0);
 	mHepaOneCellHypoxicConcentration = hepaOneCellHypoxicConcentration;
 }
+void CancerParameters::SetRadialWntThreshold(double radialWntThreshold)
+{
+    assert(radialWntThreshold<=1.0);
+    assert(radialWntThreshold>=0.0);
+    mRadialWntThreshold = radialWntThreshold;
+}
+
+
