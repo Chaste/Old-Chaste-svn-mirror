@@ -2,4 +2,3 @@ TestMonodomainHeart.hpp
 TestBidomainHeart.hpp
 TestMonodomainSlabLong.hpp
 Test3dPerformance.hpp
-TestConvergenceWeekly.hpp
