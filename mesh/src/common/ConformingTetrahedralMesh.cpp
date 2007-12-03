@@ -1847,6 +1847,45 @@ c_vector<double, SPACE_DIM> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::G
     return vector;
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAngleBetweenNodes(unsigned indexA, unsigned indexB)
+{
+    assert(SPACE_DIM == 2);
+    assert(SPACE_DIM == ELEMENT_DIM);
+
+    double x_diff = mNodes[indexB]->rGetLocation()[0] - mNodes[indexA]->rGetLocation()[0];
+    double y_diff = mNodes[indexB]->rGetLocation()[1] - mNodes[indexA]->rGetLocation()[1];
+    
+    if (x_diff==0)
+    {
+        if (y_diff>0)
+        {
+            return M_PI/2.0;
+        }
+        else if (y_diff<0)
+        {
+            return -M_PI/2.0;
+        }
+        else
+        {
+            EXCEPTION("Tried to compute polar angle of (0,0)");
+        }
+    } 
+    
+    double angle = atan(y_diff/x_diff);
+                    
+    if (y_diff >= 0 && x_diff < 0 )
+    {
+        angle += M_PI;
+    }
+    else if (y_diff < 0 && x_diff < 0 )
+    {                           
+        angle -= M_PI;
+    }
+    return angle;    
+}
+
+
 #define COVERAGE_IGNORE    
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension) const

@@ -2010,5 +2010,20 @@ public:
         TS_ASSERT_EQUALS(expected_domain.begin(), expected_domain.end());
         TS_ASSERT_EQUALS(expected_range.begin(), expected_range.end());        
     }
+    
+    void TestGetAngleBetweenNodes()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TS_ASSERT_DELTA( mesh.GetAngleBetweenNodes(0,1),  0.0,      1e-12);
+        TS_ASSERT_DELTA( mesh.GetAngleBetweenNodes(0,2),  M_PI/4,   1e-12);
+        TS_ASSERT_DELTA( mesh.GetAngleBetweenNodes(0,3),  M_PI/2,   1e-12);
+        TS_ASSERT_DELTA( mesh.GetAngleBetweenNodes(1,0),  M_PI,     1e-12);
+        TS_ASSERT_DELTA( mesh.GetAngleBetweenNodes(2,0), -3*M_PI/4, 1e-12);
+        
+        TS_ASSERT_THROWS_ANYTHING(mesh.GetAngleBetweenNodes(0,0));
+    }
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

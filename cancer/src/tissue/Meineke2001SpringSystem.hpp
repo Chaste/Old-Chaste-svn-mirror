@@ -84,6 +84,30 @@ private :
     bool mUseBCatSprings; 
 
 
+public :
+    Meineke2001SpringSystem(Tissue<DIM>& rTissue)
+        : AbstractDiscreteTissueMechanicsSystem<DIM>(rTissue)
+    {
+        // area-based viscosity
+        mUseAreaBasedViscosity = false;
+        // mD0, mD1, or mpFunction ?
+
+        // edge-based springs
+        mUseEdgeBasedSpringConstant = false;
+
+        // cell-type dependent springs
+        mUseMutantSprings = false;
+        mMutantMutantMultiplier = DOUBLE_UNSET;
+        mNormalMutantMultiplier = DOUBLE_UNSET;
+
+        // beta-cat springs
+        mUseBCatSprings = false;
+        
+        // cutoff meineke
+        mUseCutoffPoint = false;
+        mCutoffPoint = 1e10;
+    }
+
     /**
      * Calculates the force between two nodes.
      * 
@@ -223,31 +247,6 @@ private :
         }
         
         return multiplication_factor * CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
-    }
-
-
-public :
-    Meineke2001SpringSystem(Tissue<DIM>& rTissue)
-        : AbstractDiscreteTissueMechanicsSystem<DIM>(rTissue)
-    {
-        // area-based viscosity
-        mUseAreaBasedViscosity = false;
-        // mD0, mD1, or mpFunction ?
-
-        // edge-based springs
-        mUseEdgeBasedSpringConstant = false;
-
-        // cell-type dependent springs
-        mUseMutantSprings = false;
-        mMutantMutantMultiplier = DOUBLE_UNSET;
-        mNormalMutantMultiplier = DOUBLE_UNSET;
-
-        // beta-cat springs
-        mUseBCatSprings = false;
-        
-        // cutoff meineke
-        mUseCutoffPoint = false;
-        mCutoffPoint = 1e10;
     }
 
     bool NeedsVoronoiTessellation()

@@ -55,6 +55,11 @@ public :
         return mrTissue;
     }
     
+    ///\ todo: named wrong
+    Tissue<DIM>& GetTissue()
+    {
+        return mrTissue;
+    }
 };
 
 namespace boost 

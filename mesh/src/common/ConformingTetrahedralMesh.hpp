@@ -322,6 +322,12 @@ public:
     virtual c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB);
     
     /**
+     * Calcuates the angle between the node at indexB and the x axis about
+     * the node at indexA. The angle returned is in the range (-pi,pi]
+     */
+    double GetAngleBetweenNodes(unsigned indexA, unsigned indexB);
+    
+    /**
      * Calculates the `width' of any dimension of the mesh.
      * 
      * @param rDimension a dimension (0,1 or 2)

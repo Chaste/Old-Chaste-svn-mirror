@@ -11,6 +11,7 @@ TestCryptSimulation2d.hpp
 TestCryptStatistics.hpp
 TestCryptVoronoiDataWriter.hpp
 TestCylindrical2dMesh.hpp
+TestDiscreteSystemForceCalculator.hpp
 TestHoneycombMeshGenerator.hpp
 TestIngeWntSwatCellCycleOdeSystem.hpp
 TestMeineke2001SpringSystem.hpp
