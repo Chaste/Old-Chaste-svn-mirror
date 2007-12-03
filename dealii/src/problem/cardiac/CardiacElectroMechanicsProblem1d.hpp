@@ -66,6 +66,7 @@ public:
                                                      endTime,
                                                      useExplicitMethod,
                                                      numElecStepsPerMechStep,
+                                                     0.01,
                                                      outputDirectory)
     {
         if(this->mWriteOutput)

@@ -97,6 +97,8 @@ protected :
     double mMechanicsTimeStep;
     /*< The number of electrics timesteps per mechanics timestep */
     unsigned mNumElecStepsPerMechStep;
+    /*< Timestep to use when solving NHS models (for implicit version)*/
+    double mNhsOdeTimeStep;
     
     /*< A chaste mesh for the electrics */
     ConformingTetrahedralMesh<DIM,DIM>* mpElectricsMesh;
@@ -149,6 +151,7 @@ public :
                                            double endTime,
                                            bool useExplicitMethod,
                                            unsigned numElecStepsPerMechStep,
+                                           double nhsOdeTimeStep,
                                            std::string outputDirectory = "")
     {
         // create the monodomain problem. Note the we use this to set up the cells,
@@ -164,7 +167,9 @@ public :
         assert(mNumElecStepsPerMechStep>0);
         mNumElecStepsPerMechStep = numElecStepsPerMechStep;
         mMechanicsTimeStep = mElectricsTimeStep*mNumElecStepsPerMechStep;
-                        
+        assert(nhsOdeTimeStep <= mMechanicsTimeStep+1e-14);
+        mNhsOdeTimeStep = nhsOdeTimeStep;
+                                
         // check whether output is required
         mWriteOutput = (outputDirectory!="");
         if(mWriteOutput)
@@ -198,6 +203,7 @@ public :
         LogFile::Instance()->WriteHeader("Electromechanics");
         LOG(1, DIM << "d CardiacElectroMechanics Simulation:");
         LOG(1, "End time = " << mEndTime << ", electrics time step = " << mElectricsTimeStep << ", mechanics timestep = " << mMechanicsTimeStep << "\n");
+        LOG(1, "Nhs ode timestep " << mNhsOdeTimeStep);
         LOG(1, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
         
         if(mUseExplicitMethod)
@@ -422,9 +428,9 @@ public :
             mpCardiacMechAssembler->SetForcingQuantity(forcing_quantity);
 
             // solve the mechanics
-            LOG(1, "  Solving mechanics");
-            double timestep = std::min(0.01, stepper.GetNextTime()-stepper.GetTime());
-            mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), timestep);
+            LOG(1, "  Solving mechanics ");
+            //double timestep = std::min(0.01, stepper.GetNextTime()-stepper.GetTime());
+            mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), mNhsOdeTimeStep);
             
             unsigned num_iters = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->GetNumNewtonIterations();
             LOG(1, "    Number of newton iterations = " << num_iters);

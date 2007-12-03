@@ -68,18 +68,22 @@ public:
     {
         PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 
-        unsigned num_mech_per_elec = 8;
+//        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, false, 50, "CardiacElectroMech2dConstQuasiQi");
+//        implicit_problem.SetNoElectricsOutput();
+//        implicit_problem.Solve();
 
-        for(unsigned i=4; i<8; i++)
+        double nhs_ode_time_step = 0.02;
+
+        for(unsigned i=1; i<7; i++)
         {
             std::stringstream name;
-            name << "CardiacElectroMech2dImplicitVaryTime" << "_" << i;
+            name << "CardiacElectroMech2dImplicitVaryOdeTimeStep_" << i;
             
-            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, false, num_mech_per_elec, name.str());
+            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, false, 64, nhs_ode_time_step, name.str());
             implicit_problem.SetNoElectricsOutput();
             implicit_problem.Solve();
             
-            num_mech_per_elec /= 2;
+            nhs_ode_time_step *= 2;
         }
     }
 };

@@ -23,6 +23,7 @@ public:
                                                            5, /*mech mesh size*/ 
                                                            false, /* implicit */
                                                            100, /* 100*0.01ms mech dt */
+                                                           0.01,
                                                            "TestCardiacElectroMechImplicit");
         implicit_problem.SetNoElectricsOutput();
         implicit_problem.Solve();

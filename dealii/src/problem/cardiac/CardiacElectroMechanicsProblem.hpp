@@ -37,11 +37,13 @@ public:
                                    unsigned numElementsPerDimInMechanicsMesh,
                                    bool useExplicitMethod,
                                    unsigned numElecStepsPerMechStep,
+                                   double nhsOdeTimeStep,
                                    std::string outputDirectory = "")
         :  AbstractCardiacElectroMechanicsProblem<DIM>(pCellFactory,
                                                        endTime,
                                                        useExplicitMethod,
                                                        numElecStepsPerMechStep,
+                                                       nhsOdeTimeStep,
                                                        outputDirectory)
     {
         //mNumElementsPerDimInElectricsMesh = numElementsPerDimInElectricsMesh;
