@@ -33,6 +33,7 @@ class Meineke2001SpringSystem  : public AbstractDiscreteTissueMechanicsSystem<DI
     friend class TestTissueSimulation3d;
     friend class TissueSimulationForForceExperiments;
     friend class TissueSimulationForForceExperimentsShearing;
+    friend class TestCryptProjectionSpringSystem;
 
 private :
     
