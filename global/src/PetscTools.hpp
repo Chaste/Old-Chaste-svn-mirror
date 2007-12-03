@@ -26,7 +26,15 @@ public :
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
         return (num_procs==1);
     }
-    
+    /**
+     *  Just returns whether it is the master process or not
+     */
+    static bool AmMaster()
+    {
+        PetscInt my_rank;
+        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+        return (my_rank == 0);
+    }
     /**
      * If MPI is set up, perform a barrier synchronisation.
      * If not, it's a noop.

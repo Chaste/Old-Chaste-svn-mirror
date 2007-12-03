@@ -668,7 +668,7 @@ public:
         
         // check writing of voronoi data
         OutputFileHandler handler("Crypt2DWntMatureCells",false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "VoronoiAreaAndPerimeter.dat";
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.visvoronoi";
         TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat").c_str()), 0);
             
         SimulationTime::Destroy();

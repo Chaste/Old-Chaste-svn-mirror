@@ -11,6 +11,10 @@
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
 
+#ifndef SPECIAL_SERIAL
+#include "PetscTools.hpp"
+#endif //SPECIAL_SERIAL
+
 /**
  *  Generator of honeycomb mesh
  *
@@ -185,6 +189,11 @@ private:
         
         p_elem_file->close();
         p_edge_file->close();
+
+        // Wait for the new mesh to be available
+#ifndef SPECIAL_SERIAL
+        PetscTools::Barrier();
+#endif //SPECIAL_SERIAL
     }
     
     

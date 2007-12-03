@@ -467,8 +467,8 @@ void TissueSimulation<DIM>::Solve()
     if(mWriteVoronoiData)
     {
         p_voronoi_data_writer = new CryptVoronoiDataWriter<DIM>(mrTissue,
-                                                                mOutputDirectory,
-                                                                "VoronoiAreaAndPerimeter.dat",
+                                                                mSimulationOutputDirectory+"/vis_results/",
+                                                                "results.visvoronoi",
                                                                 mFollowLoggedCell);
     }
 

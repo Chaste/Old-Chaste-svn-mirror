@@ -12,6 +12,11 @@ class TestPetscTools : public CxxTest::TestSuite
 public:
     void testPetscTools()
     {
+        PetscInt my_rank;
+        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+        bool am_master = (my_rank == 0);
+        TS_ASSERT_EQUALS( PetscTools::AmMaster(), am_master);
+        
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
         bool is_sequential = (num_procs==1);
