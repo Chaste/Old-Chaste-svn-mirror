@@ -20,6 +20,8 @@ private:
     {
         archive & boost::serialization::base_object<AbstractSimpleCellCycleModel>(*this);
         archive & mTimeSpentInG1Phase;
+        archive & mHypoxicDuration;
+        archive & mHypoxicDurationUpdateTime;
     }
     
     /** Private constructor for creating an identical daughter cell */
@@ -27,12 +29,16 @@ private:
         : AbstractSimpleCellCycleModel(g1Duration) {};
         
     double mTimeSpentInG1Phase;   
+    double mHypoxicDuration;
+    double mHypoxicDurationUpdateTime;
         
 public:
-    SimpleOxygenBasedCellCycleModel() :
-          mTimeSpentInG1Phase(0.0) {};
+    SimpleOxygenBasedCellCycleModel();
     
     bool ReadyToDivide();
+    
+    void UpdateHypoxicDuration();
+    
     
     AbstractCellCycleModel* CreateCellCycleModel();
     
