@@ -34,12 +34,12 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
      * 
      * @return the duration of the S->G2->M phases of the cell cycle.
      */
-    double GetWntSG2MDuration()
+    double GetSG2Duration()
     {
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-        double mean = CancerParameters::Instance()->GetSG2MDuration();
+        double mean = CancerParameters::Instance()->GetSDuration() + CancerParameters::Instance()->GetG2Duration();
         double standard_deviation = 0.1*mean;
-        return p_gen->NormalRandomDeviate(mean,standard_deviation);
+        return p_gen->NormalRandomDeviate(mean,standard_deviation);;
     }
     
   public:

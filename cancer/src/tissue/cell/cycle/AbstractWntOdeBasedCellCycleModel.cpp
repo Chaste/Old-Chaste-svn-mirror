@@ -4,17 +4,13 @@ RungeKutta4IvpOdeSolver AbstractWntOdeBasedCellCycleModel::msSolver;
 
 // PROTECTED FUNCTIONS
 
-double AbstractWntOdeBasedCellCycleModel::GetDivideTime()
+double AbstractWntOdeBasedCellCycleModel::GetOdeStopTime()
 {
     assert(msSolver.StoppingEventOccured());
-    return msSolver.GetStoppingTime() + GetWntSG2MDuration();
+    return msSolver.GetStoppingTime();
 }
 
-double AbstractWntOdeBasedCellCycleModel::GetWntSG2MDuration()
-{   
-    // overridden in subclass StochasticWntCellCycleModel
-    return CancerParameters::Instance()->GetSG2MDuration();
-}
+
 
 // PUBLIC FUNCTIONS
 void AbstractWntOdeBasedCellCycleModel::ResetModel()

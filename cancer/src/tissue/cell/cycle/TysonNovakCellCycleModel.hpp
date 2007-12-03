@@ -42,7 +42,11 @@ public:
     
     bool SolveOdeToTime(double currentTime);
     
-    double GetDivideTime();
+    double GetOdeStopTime();
+    
+    double GetSG2Duration();
+    
+    double GetMDuration();
     
 };
 

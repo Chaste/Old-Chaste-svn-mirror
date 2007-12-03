@@ -76,7 +76,7 @@ bool AbstractOdeBasedCellCycleModel::ReadyToDivide()
             if (mFinishedRunningOdes)
             {
 //              mCurrentCellCyclePhase = S;  
-                mDivideTime = GetDivideTime();
+                mDivideTime = GetOdeStopTime() + GetSG2Duration() + GetMDuration();
 //              need to do some clever business here - instead of a divide time, we should
 //              get back the separate pahse durations for S and G2
 //              (need to do this in each concrete instance)
@@ -109,4 +109,14 @@ void AbstractOdeBasedCellCycleModel::ResetModel()
 }
     
     
-    
+double AbstractOdeBasedCellCycleModel::GetSG2Duration()
+{   
+    // overridden in subclass StochasticWntCellCycleModel
+    return CancerParameters::Instance()->GetSDuration()+CancerParameters::Instance()->GetG2Duration();
+}   
+
+double AbstractOdeBasedCellCycleModel::GetMDuration()
+{   
+    // overridden in subclass TysonNovak
+    return CancerParameters::Instance()->GetMDuration();
+}   

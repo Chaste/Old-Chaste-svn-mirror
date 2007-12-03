@@ -77,11 +77,13 @@ public:
     
     /**
      * This method must be implemented by each subclass
-     * 
+     * FIX COMMENT
      * When the ODEs have reached a stopping event it returns the time at which 
      * the cell should divide, so a delay can be added in for S-G2-M phases if necessary.
      */
-    virtual double GetDivideTime() = 0;
+    virtual double GetSG2Duration();
+    virtual double GetMDuration();
+    virtual double GetOdeStopTime() = 0;
     
     /**
      * This overrides the AbstractCellCycleModel::SetBirthTime(double birthTime)

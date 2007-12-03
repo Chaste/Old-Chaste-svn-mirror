@@ -125,10 +125,10 @@ bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
 }
  
  
-double Alarcon2004OxygenBasedCellCycleModel::GetDivideTime()
+double Alarcon2004OxygenBasedCellCycleModel::GetOdeStopTime()
 {
     assert(msSolver.StoppingEventOccured());
-    return msSolver.GetStoppingTime() + CancerParameters::Instance()->GetSG2MDuration();
+    return msSolver.GetStoppingTime();    
 }
     
     

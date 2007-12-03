@@ -61,9 +61,19 @@ bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)
     return msSolver.StoppingEventOccured();
 }
 
-double  TysonNovakCellCycleModel::GetDivideTime()
+double TysonNovakCellCycleModel::GetOdeStopTime()
 {
     assert(msSolver.StoppingEventOccured());
     return msSolver.GetStoppingTime();
+}
+
+double TysonNovakCellCycleModel::GetSG2Duration()
+{
+    return 0.0;
+}
+
+double TysonNovakCellCycleModel::GetMDuration()
+{
+    return 0.0;
 }
 

@@ -68,7 +68,7 @@ public:
     
     bool SolveOdeToTime(double currentTime);
     
-    double GetDivideTime();
+    double GetOdeStopTime();
     
 };
 

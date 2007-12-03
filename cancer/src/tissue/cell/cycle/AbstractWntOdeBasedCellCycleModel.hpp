@@ -39,15 +39,11 @@ protected:
         : AbstractOdeBasedCellCycleModel(lastTime) {};
         
     /**
-     * Introduces the delay after ODEs have been solved.
+     * Record when ODEs have been solved.
      */
-    virtual double GetDivideTime();
+    virtual double GetOdeStopTime();
     
-    /**
-     * Introduces the delay after ODEs have been solved,
-     * overridden in subclass StochasticWntCellCycleModel
-     */
-    virtual double GetWntSG2MDuration();
+   
         
 public:
     /**

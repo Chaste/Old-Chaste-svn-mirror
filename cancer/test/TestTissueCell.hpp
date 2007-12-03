@@ -902,9 +902,9 @@ public:
         p_parameters->Reset();
         
         // these are the first three normal random with mean 10, s.d. 1 and this seed (0)
-        double SG2MDuration1 = 9.0676;
-        double SG2MDuration2 = 11.1632;
-        double SG2MDuration3 = 9.2712;
+        double SG2MDuration1 = 8.16084 + p_parameters->GetMDuration();
+        double SG2MDuration2 = 10.0468 + p_parameters->GetMDuration();
+        double SG2MDuration3 = 8.34408 + p_parameters->GetMDuration();
         
         unsigned num_steps=100;
         p_simulation_time->SetStartTime(0.0);
@@ -932,7 +932,7 @@ public:
             {
                 TS_ASSERT(wnt_cell.ReadyToDivide()==false);
             }
-            //std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
+            //std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide() << "\n" << std::endl;
         }
         
         p_simulation_time->IncrementTimeOneStep();
