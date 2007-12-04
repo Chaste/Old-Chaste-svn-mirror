@@ -33,6 +33,7 @@ public:
     double GetDivisionSeparation();
     double GetHepaOneCellHypoxicConcentration();
     double GetRadialWntThreshold();
+    double GetCriticalHypoxicDuration();
     
     void SetStemCellG1Duration(double);
     void SetTransitCellG1Duration(double);
@@ -52,6 +53,7 @@ public:
     void SetDivisionSeparation(double);
     void SetHepaOneCellHypoxicConcentration(double);
     void SetRadialWntThreshold(double); 
+    void SetCriticalHypoxicDuration(double);
       
     /** 
      *  Reset all parameters to their defaults
@@ -163,6 +165,11 @@ private:
      * Non-dimensionalized radial Wnt threshold, below which cells become TRANSIT
      */
     double mRadialWntThreshold;
+    
+    /**
+     * Non-dimensionalized critical hypoxic duration
+     */
+    double mCriticalHypoxicDuration;
       
     friend class boost::serialization::access;
     /**
@@ -189,6 +196,7 @@ private:
         archive & mApoptosisTime;
         archive & mHepaOneCellHypoxicConcentration;
         archive & mRadialWntThreshold;
+        archive & mCriticalHypoxicDuration;
     }
 };
 

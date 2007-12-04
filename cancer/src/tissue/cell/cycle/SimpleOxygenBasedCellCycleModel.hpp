@@ -39,6 +39,7 @@ public:
     
     void UpdateHypoxicDuration();
     
+    double GetHypoxicDuration();    
     
     AbstractCellCycleModel* CreateCellCycleModel();
     

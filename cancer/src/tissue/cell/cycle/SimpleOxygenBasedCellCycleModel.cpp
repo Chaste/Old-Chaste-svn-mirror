@@ -7,11 +7,18 @@ SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel() :
     mHypoxicDurationUpdateTime = SimulationTime::Instance()->GetDimensionalisedTime();
 }
 
+
+double SimpleOxygenBasedCellCycleModel::GetHypoxicDuration()
+{
+    return mHypoxicDuration;
+}
+    
+
 bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
 {
     CancerParameters *p_params = CancerParameters::Instance();
     
-    // mG1Duration is now set when the cell cycle model is given a cell.
+    // mG1Duration is set when the cell cycle model is given a cell
     
 	bool ready = false;
     
@@ -21,11 +28,7 @@ bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
         
         // get cell's oxygen concentration
         double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell,0);
-        
-        // we want the oxygen concentration to be positive,
-        // to within numerical tolerances (hence the -1e-8)
-    //        assert(oxygen_concentration >= -1e-8);
-                        
+                                
         double time_since_birth = GetAge();
                
         if (mpCell->GetCellType()==DIFFERENTIATED)
@@ -56,12 +59,12 @@ bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
             else
             {
                 ready = true;
-                // mCurrentCellCyclePhase = M;
             }
         }
     }    
     return ready;
 }
+
 
 AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateCellCycleModel()
 {
@@ -76,26 +79,21 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
     
     double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(this->mpCell);
             
-    // the oxygen concentration had better not be negative
+    // we want the oxygen concentration to be positive, to within numerical tolerances (hence the -1e-8)
     // assert(oxygen_concentration >= -1e-8);
             
     if ( oxygen_concentration < CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration() )
     {
         // add necessary time interval to the hypoxic duration
         mHypoxicDuration += SimulationTime::Instance()->GetDimensionalisedTime() - mHypoxicDurationUpdateTime;
-        
-        
+                
         // update mHypoxicDurationUpdateTime
         mHypoxicDurationUpdateTime = SimulationTime::Instance()->GetDimensionalisedTime();
-        
-        
-//std::cout << "mHypoxicDuration = " << mHypoxicDuration << "\n" << std::flush;
-        
+                
         // a little bit of stochasticity here
         double prob_of_death = 0.9 - 0.5*(oxygen_concentration/CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration()); 
-        
-        // 1.0 is hardcoded, need to change to a CancerParameters member    
-        if (mHypoxicDuration > 1.0 && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
+          
+        if (mHypoxicDuration > CancerParameters::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
         {                     
             this->mpCell->SetCellType(NECROTIC);
         }
@@ -104,12 +102,5 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
     {
         // reset the cell's hypoxic duration
         mHypoxicDuration = 0.0;
-    }   
-    
-        
-       
-                
-    
-}
- 
-
+    }       
+} 

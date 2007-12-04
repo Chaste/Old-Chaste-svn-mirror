@@ -147,6 +147,8 @@ private :
         // save results to file
         WriteNutrient();
         
+        //////////////////////////////
+        
         // update each cell's hypoxic duration according to its current oxygen concentration
         for( typename Tissue<2>::Iterator cell_iter = this->mrTissue.Begin();
             cell_iter != this->mrTissue.End();

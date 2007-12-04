@@ -54,6 +54,7 @@ void CancerParameters::Reset()
     mDivisionSeparation = 0.3;    
     mHepaOneCellHypoxicConcentration = 0.4;
     mRadialWntThreshold = 0.8;
+    mCriticalHypoxicDuration = 2.0;
     // Calculated parameters
     // This was used in non-dimensional case
 }
@@ -137,6 +138,10 @@ double CancerParameters::GetHepaOneCellHypoxicConcentration()
 double CancerParameters::GetRadialWntThreshold()
 {
     return mRadialWntThreshold;
+}
+double CancerParameters::GetCriticalHypoxicDuration()
+{
+    return mCriticalHypoxicDuration;
 }
 
 
@@ -238,5 +243,9 @@ void CancerParameters::SetRadialWntThreshold(double radialWntThreshold)
     assert(radialWntThreshold>=0.0);
     mRadialWntThreshold = radialWntThreshold;
 }
-
+void CancerParameters::SetCriticalHypoxicDuration(double criticalHypoxicDuration)
+{
+    assert(criticalHypoxicDuration>=0.0);
+    mCriticalHypoxicDuration = criticalHypoxicDuration;
+}
 

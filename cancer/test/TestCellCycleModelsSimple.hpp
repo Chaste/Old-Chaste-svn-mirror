@@ -827,7 +827,7 @@ public:
         SimulationTime::Destroy();
         p_simulation_time = SimulationTime::Instance();                  
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, num_steps);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*CancerParameters::Instance()->GetCriticalHypoxicDuration(), num_steps);
         
         // create a cell with a simple oxygen-based cell cycle model
         TissueCell necrotic_cell(HEPA_ONE, HEALTHY, 0, new SimpleOxygenBasedCellCycleModel());
@@ -841,7 +841,8 @@ public:
         // force the cell to be necrotic
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
-            TS_ASSERT(necrotic_cell.GetCellType()!=NECROTIC || p_simulation_time->GetDimensionalisedTime() >= 1.0);
+            TS_ASSERT(necrotic_cell.GetCellType()!=NECROTIC || 
+                      p_simulation_time->GetDimensionalisedTime() >= CancerParameters::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
             
             // note that we need to pass in the updated G1 duration            
@@ -849,11 +850,8 @@ public:
             
         }
         
-        // test that the cell type is updated to be NECROTIC
-        
-        // 1.0 is currently hard-coded, probably needs a new CancerParameter
-        TS_ASSERT(necrotic_cell.GetCellType()==NECROTIC);
-          
+        // test that the cell type is updated to be NECROTIC        
+        TS_ASSERT(necrotic_cell.GetCellType()==NECROTIC);          
                   
         SimulationTime::Destroy();          
         CellwiseData<2>::Destroy();
