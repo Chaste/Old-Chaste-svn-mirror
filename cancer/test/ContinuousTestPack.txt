@@ -1,5 +1,6 @@
 TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 TestCancerParameters.hpp
+TestCancerEventHandler.hpp
 TestCellKillers.hpp
 TestCellwiseData.hpp
 TestCellCycleModelsOde.hpp

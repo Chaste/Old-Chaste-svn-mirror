@@ -18,6 +18,7 @@
 
 #include "AbstractDiscreteTissueMechanicsSystem.hpp"
 #include "Meineke2001SpringSystem.hpp"
+#include "CancerEventHandler.hpp"
 
 /**
  * Run a 2D or 3D tissue simulation, currently based on the Meineke Paper 

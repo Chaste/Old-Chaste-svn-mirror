@@ -27,6 +27,8 @@ template<unsigned DIM>
 TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem, bool deleteTissue)
   :  mrTissue(rTissue)
 {
+    CancerEventHandler::BeginEvent(CANCER_EVERYTHING);
+
     mDeleteTissue = deleteTissue;
     mpParams = CancerParameters::Instance();
     // this line sets a random seed of 0 if it wasn't specified earlier.
@@ -374,6 +376,8 @@ std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNode
 template<unsigned DIM> 
 void TissueSimulation<DIM>::Solve()
 { 
+    CancerEventHandler::BeginEvent(SETUP);
+
     // Set up the simulation time
     SimulationTime* p_simulation_time = SimulationTime::Instance();
     double current_time = p_simulation_time->GetDimensionalisedTime();
@@ -472,6 +476,7 @@ void TissueSimulation<DIM>::Solve()
                                                                 mFollowLoggedCell);
     }
 
+    CancerEventHandler::EndEvent(SETUP);
                                
     /////////////////////////////////////////////////////////////////////
     // Main time loop
@@ -483,11 +488,16 @@ void TissueSimulation<DIM>::Solve()
         // remove dead cells before doing birth
         // neither of these functions use any element information so they 
         // just delete and create nodes
+        CancerEventHandler::BeginEvent(DEATH);
         mNumDeaths += DoCellRemoval();
         LOG(1, "\tNum deaths = " << mNumDeaths << "\n");
+        CancerEventHandler::EndEvent(DEATH);
 
+
+        CancerEventHandler::BeginEvent(BIRTH);
         mNumBirths += DoCellBirth();
         LOG(1, "\tNum births = " << mNumBirths << "\n");
+        CancerEventHandler::EndEvent(BIRTH);
         
 
         if( (mNumBirths>0) || (mNumDeaths>0) )
@@ -496,28 +506,38 @@ void TissueSimulation<DIM>::Solve()
             assert(mReMesh);
         }
 
+        CancerEventHandler::BeginEvent(REMESH);
         if(mReMesh)
         {
             LOG(1, "\tRemeshing...");
             mrTissue.ReMesh();
             LOG(1, "\tdone.\n");
         }
+        CancerEventHandler::EndEvent(REMESH);
 
 
+        CancerEventHandler::BeginEvent(TESSELLATION);
         if(mWriteVoronoiData || mpMechanicsSystem->NeedsVoronoiTessellation())
         {
             mrTissue.CreateVoronoiTessellation();
         }
+        CancerEventHandler::EndEvent(TESSELLATION);
 
         //  calculate node velocities
+        CancerEventHandler::BeginEvent(VELOCITY);
         std::vector<c_vector<double, DIM> >& drdt = mpMechanicsSystem->rCalculateVelocitiesOfEachNode();
+        CancerEventHandler::EndEvent(VELOCITY);
+
 
         // update node positions
+        CancerEventHandler::BeginEvent(POSITION);
         UpdateNodePositions(drdt);
+        CancerEventHandler::EndEvent(POSITION);
      
         // Increment simulation time here, so results files look sensible
         p_simulation_time->IncrementTimeOneStep();
         
+        CancerEventHandler::BeginEvent(OUTPUT);
         // Write results to file
         mrTissue.WriteResultsToFiles(tabulated_node_writer, 
                                     tabulated_element_writer, 
@@ -534,11 +554,15 @@ void TissueSimulation<DIM>::Solve()
         tabulated_output_counter++;
         
         PostSolve();
+        CancerEventHandler::EndEvent(OUTPUT);
     }
+
     AfterSolve();
+    
     // Write end state to tabulated files (not visualizer - this
     // is taken care of in the main loop).
     // Doesn't need to count cell types again as it is done in the last loop
+    CancerEventHandler::BeginEvent(OUTPUT);
     mrTissue.WriteResultsToFiles(tabulated_node_writer, 
                                 tabulated_element_writer, 
                                 *p_node_file, *p_element_file, *p_cell_types_file,
@@ -553,6 +577,8 @@ void TissueSimulation<DIM>::Solve()
     {
         delete p_voronoi_data_writer;
     }
+    CancerEventHandler::EndEvent(OUTPUT);
+    CancerEventHandler::EndEvent(CANCER_EVERYTHING);
 }
 
 
