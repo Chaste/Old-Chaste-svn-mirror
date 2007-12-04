@@ -1,14 +1,14 @@
 #ifndef STOCHASTICCELLCYCLEMODEL_HPP_
 #define STOCHASTICCELLCYCLEMODEL_HPP_
 
-#include "AbstractSimpleCellCycleModel.hpp"
+#include "AbstractSimpleMeinekeCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
 
 /**
  *  Stochastic cell model
  *  
  */
-class StochasticCellCycleModel : public AbstractSimpleCellCycleModel
+class StochasticCellCycleModel : public AbstractSimpleMeinekeCellCycleModel
 {
 private:
     
@@ -16,7 +16,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractSimpleCellCycleModel>(*this);
+        archive & boost::serialization::base_object<AbstractSimpleMeinekeCellCycleModel>(*this);
         
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
@@ -33,7 +33,7 @@ private:
      * Private constructor for identical cells.
      */
     StochasticCellCycleModel(double g1Duration):
-    	AbstractSimpleCellCycleModel(g1Duration) {};
+    	AbstractSimpleMeinekeCellCycleModel(g1Duration) {};
     
 public:
     /**

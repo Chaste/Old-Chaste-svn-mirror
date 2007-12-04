@@ -27,7 +27,7 @@ private:
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
         // These first 4 are dealt with by {load,save}_construct_data
-        archive & mGeneration;
+        //archive & mGeneration;
         archive & mCellType;
         archive & mMutationState;
         archive & mpCellCycleModel;
@@ -40,7 +40,7 @@ private:
     }
     
 protected:
-    unsigned mGeneration;
+    //unsigned mGeneration;
     CellType mCellType;
     CellMutationState mMutationState;
     AbstractCellCycleModel *mpCellCycleModel;

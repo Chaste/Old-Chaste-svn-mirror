@@ -186,7 +186,6 @@ public:
         TissueCell hepa_one_daughter_cell = hepa_one_cell.Divide();
         
         TS_ASSERT(!hepa_one_cell.ReadyToDivide());        
-        TS_ASSERT(hepa_one_daughter_cell.GetGeneration() == 1);
         TS_ASSERT(hepa_one_daughter_cell.GetCellType() == HEPA_ONE);
         TS_ASSERT_DELTA(hepa_one_daughter_cell.GetAge(), 0 , 1e-9);
         
@@ -849,11 +848,8 @@ public:
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
-        TS_ASSERT(wnt_cell.GetGeneration()==1);
         
         TissueCell wnt_cell2 = wnt_cell.Divide();
-        TS_ASSERT(wnt_cell.GetGeneration()==2);
-        TS_ASSERT(wnt_cell2.GetGeneration()==2);
         
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
@@ -937,12 +933,8 @@ public:
         
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
-        TS_ASSERT(wnt_cell.GetGeneration()==1);
         
         TissueCell wnt_cell2 = wnt_cell.Divide();
-        
-        TS_ASSERT(wnt_cell.GetGeneration()==2);
-        TS_ASSERT(wnt_cell2.GetGeneration()==2);
         
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
@@ -1025,13 +1017,10 @@ public:
         
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT(tn_cell.ReadyToDivide()==true);
-        TS_ASSERT(tn_cell.GetGeneration()==1);
         
         TissueCell tn_cell2 = tn_cell.Divide();
         
-        TS_ASSERT(tn_cell.GetGeneration()==2);
-        TS_ASSERT(tn_cell2.GetGeneration()==2);
-        
+                
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
         double time_of_birth = tn_cell.GetBirthTime();

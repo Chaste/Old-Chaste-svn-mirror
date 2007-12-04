@@ -2,6 +2,7 @@
 #define FIXEDCELLCYCLEMODEL_HPP_
 
 #include "AbstractSimpleCellCycleModel.hpp"
+#include "AbstractSimpleMeinekeCellCycleModel.hpp"
 
 /**
  *  Fixed cell cycle model
@@ -10,21 +11,21 @@
  *  CancerParameters::StemCellG1Duration + SG2MDuration 
  *  and CancerParameters::TransitCellG1Duration + SG2MDuration)
  */
-class FixedCellCycleModel : public AbstractSimpleCellCycleModel
+class FixedCellCycleModel : public AbstractSimpleMeinekeCellCycleModel
 {
 private:
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractSimpleCellCycleModel>(*this);
+        archive & boost::serialization::base_object<AbstractSimpleMeinekeCellCycleModel>(*this);
     }
     
     /**
      * Private constructor for identical cells.
      */
     FixedCellCycleModel(double g1Duration):
-    	AbstractSimpleCellCycleModel(g1Duration) {};
+    	AbstractSimpleMeinekeCellCycleModel(g1Duration) {};
     
 protected:    
     

@@ -36,16 +36,19 @@ private:
         CancerParameters* p_params = CancerParameters::Instance();
         archive & *p_params;
         archive & p_params;
+        archive & mGeneration;
         
         // DO NOT archive & mpCell; -- The CellCycleModel is only ever archived from the Cell 
         // which knows this and it is handled in the load_construct of TissueCell.
         archive & mCurrentCellCyclePhase;
     }
-    
+        
 protected:
     TissueCell* mpCell;
     double mBirthTime; // Time to start model from
     CellCyclePhase mCurrentCellCyclePhase;
+public:
+unsigned mGeneration;
         
 public:
 
