@@ -7,7 +7,7 @@
 AbstractCellCycleModel *CryptProjectionCellCycleModel::CreateCellCycleModel()
 {
     // use a private constructor that doesn't reset mG1Duration.
-    return new CryptProjectionCellCycleModel(mG1Duration);  
+    return new CryptProjectionCellCycleModel(mG1Duration,mGeneration);  
 }
 
 void CryptProjectionCellCycleModel::SetG1Duration()

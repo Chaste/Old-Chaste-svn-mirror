@@ -121,7 +121,7 @@ public:
         
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(HEPA_ONE, HEALTHY, 0, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(HEPA_ONE, HEALTHY, new SimpleOxygenBasedCellCycleModel());
             double birth_time = -p_gen->ranf()*(p_params->GetHepaOneCellG1Duration()
                                                +p_params->GetSG2MDuration());
             cell.SetNodeIndex(i);
@@ -231,7 +231,7 @@ public:
         
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(HEPA_ONE, HEALTHY, 0, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(HEPA_ONE, HEALTHY, new SimpleOxygenBasedCellCycleModel());
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*(p_params->GetHepaOneCellG1Duration()
                                                                             +p_params->GetSG2MDuration());
             cell.SetNodeIndex(i);

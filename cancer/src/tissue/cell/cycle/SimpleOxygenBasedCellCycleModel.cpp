@@ -59,6 +59,7 @@ bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
             else
             {
                 ready = true;
+                // mCurrentCellCyclePhase = M;
             }
         }
     }    
@@ -68,7 +69,7 @@ bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
 
 AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateCellCycleModel()
 {
-    return new SimpleOxygenBasedCellCycleModel(mG1Duration, mHypoxicDuration, mHypoxicDurationUpdateTime);
+    return new SimpleOxygenBasedCellCycleModel(mG1Duration, mGeneration, mHypoxicDuration, mHypoxicDurationUpdateTime);
 }
 
 
@@ -86,6 +87,7 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
     {
         // add necessary time interval to the hypoxic duration
         mHypoxicDuration += SimulationTime::Instance()->GetDimensionalisedTime() - mHypoxicDurationUpdateTime;      
+        
         
         // update mHypoxicDurationUpdateTime
         mHypoxicDurationUpdateTime = SimulationTime::Instance()->GetDimensionalisedTime();

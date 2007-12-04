@@ -64,7 +64,7 @@ public:
                       AbstractOdeSystem* pParentOdeSystem, 
                       const CellMutationState& rMutationState, 
                       double birthTime, double lastTime,
-                      bool inSG2MPhase, bool readyToDivide, double divideTime);
+                      bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation);
 
     IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                       const std::vector<double>& rParentProteinConcentrations, 

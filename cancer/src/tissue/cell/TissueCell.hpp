@@ -71,7 +71,7 @@ public:
      
     TissueCell(CellType cellType,
                CellMutationState mutationState,
-               unsigned generation,
+               //unsigned generation,
                AbstractCellCycleModel *pCellCycleModel,
                bool archiving = false);
                
@@ -151,11 +151,11 @@ inline void save_construct_data(
     // save data required to construct instance
     const CellType cell_type = t->GetCellType();
     const CellMutationState mutation_state = t->GetMutationState();
-    const unsigned generation = t->GetGeneration();
     const AbstractCellCycleModel * const p_cell_cycle_model = t->GetCellCycleModel();
+    //const unsigned generation = p_cell_cycle_model->GetGeneration();
     ar << cell_type;
     ar << mutation_state;
-    ar << generation;
+    //ar << generation;
     ar << p_cell_cycle_model;
 }
 
@@ -169,16 +169,16 @@ inline void load_construct_data(
     // retrieve data from archive required to construct new instance
     CellType cell_type;
     CellMutationState mutation_state;
-    unsigned generation;
+    //unsigned generation;
     AbstractCellCycleModel *p_cell_cycle_model;
     ar >> cell_type;
     ar >> mutation_state;
-    ar >> generation;
+    //ar >> generation;
     ar >> p_cell_cycle_model;
     bool archiving = true;
     // invoke inplace constructor to initialize instance
-    ::new(t)TissueCell(cell_type, mutation_state, generation,
-                             p_cell_cycle_model, archiving);
+    ::new(t)TissueCell(cell_type, mutation_state, //generation, 
+                        p_cell_cycle_model,archiving);
 }
 }
 } // namespace ...

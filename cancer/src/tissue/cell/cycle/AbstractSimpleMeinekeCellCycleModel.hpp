@@ -38,8 +38,8 @@ protected:
      * Protected constructor for creating an identical daughter cell 
      * (with the same G_ONE duration...)
      * */
-    AbstractSimpleMeinekeCellCycleModel(double g1Duration)
-        :AbstractSimpleCellCycleModel(g1Duration){};
+    AbstractSimpleMeinekeCellCycleModel(double g1Duration, unsigned generation)
+        :AbstractSimpleCellCycleModel(g1Duration, generation){};
         
 
 

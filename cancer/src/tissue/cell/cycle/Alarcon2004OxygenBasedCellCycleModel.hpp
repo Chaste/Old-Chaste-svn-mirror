@@ -55,7 +55,7 @@ public:
     Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, 
-                              bool inSG2MPhase, bool readyToDivide, double divideTime);
+                              bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation);
 
     Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                               const CellMutationState& rMutationState); 

@@ -164,7 +164,7 @@ public:
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             WntCellCycleModel* p_model = new WntCellCycleModel();
-            TissueCell cell(STEM, HEALTHY, 0, p_model);
+            TissueCell cell(STEM, HEALTHY, p_model);
             double birth_time = 0.0-i;
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -294,7 +294,7 @@ public:
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             WntCellCycleModel* p_model = new WntCellCycleModel();
-            TissueCell cell(STEM, HEALTHY, 0, p_model);
+            TissueCell cell(STEM, HEALTHY, p_model);
             double birth_time = 0.0-i;
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);

@@ -16,11 +16,13 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations
  * @param birthTime the SimulationTime when the cell divided (birth time of parent cell)
  */
-TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime)
+TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, 
+                                                   double divideTime, unsigned generation)
  : AbstractOdeBasedCellCycleModel(divideTime)
 {
     mpOdeSystem = new TysonNovak2001OdeSystem;
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+    mGeneration = generation;
 }
 
 void TysonNovakCellCycleModel::ResetModel()
@@ -49,7 +51,7 @@ void TysonNovakCellCycleModel::ResetModel()
 
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
 {
-    return new TysonNovakCellCycleModel(mpOdeSystem->rGetStateVariables(), mDivideTime);
+    return new TysonNovakCellCycleModel(mpOdeSystem->rGetStateVariables(), mDivideTime, mGeneration);
 }
 
 bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)

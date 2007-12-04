@@ -73,7 +73,7 @@ public:
         TysonNovakCellCycleModel* p_cell_model = new TysonNovakCellCycleModel;
         //coverage
         p_cell_model->SetBirthTime(p_simulation_time->GetDimensionalisedTime());           
-        TissueCell cell(STEM, HEALTHY, 0, p_cell_model);
+        TissueCell cell(STEM, HEALTHY, p_cell_model);
                                    
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -107,7 +107,7 @@ public:
         p_cell_model->ResetModel();
         TysonNovakCellCycleModel *p_cell_model2 = static_cast <TysonNovakCellCycleModel*> (p_cell_model->CreateCellCycleModel());
         
-        TissueCell stem_cell_2(STEM, APC_ONE_HIT, 0, p_cell_model2);
+        TissueCell stem_cell_2(STEM, APC_ONE_HIT, p_cell_model2);
         
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -161,7 +161,7 @@ public:
 
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
         
-        TissueCell stem_cell(STEM, HEALTHY, 0, p_cell_model);
+        TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
                            
         stem_cell.InitialiseCellCycleModel();
 
@@ -237,7 +237,7 @@ public:
         TS_ASSERT(p_cell_model->UsesBetaCat());
         TS_ASSERT_EQUALS(p_cell_model->GetHypothesis(), 1u);
         
-        TissueCell stem_cell(STEM, HEALTHY, 0, p_cell_model);
+        TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
                                    
         // Coverage of cell cycle model copying without an ODE system set up
         TissueCell stem_cell2 = stem_cell;
@@ -405,7 +405,7 @@ public:
 
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
                 
-        TissueCell stem_cell(STEM, HEALTHY, 0, p_cell_model);
+        TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
 
         stem_cell.InitialiseCellCycleModel();
                                                               
@@ -414,13 +414,12 @@ public:
         
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
                 
-        TissueCell stem_cell_1(STEM, APC_ONE_HIT, 0, p_cell_model_1);
+        TissueCell stem_cell_1(STEM, APC_ONE_HIT, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
         
         // Wnt cells not set up to deal with unknown mutations...
         TissueCell cell(STEM, // type
                         ALARCON_NORMAL,//Mutation State
-                        0,  // generation
                         new WntCellCycleModel());
         TS_ASSERT_THROWS_ANYTHING(cell.InitialiseCellCycleModel());
                 
@@ -471,14 +470,14 @@ public:
         
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
                 
-        TissueCell stem_cell(STEM, BETA_CATENIN_ONE_HIT, 0, p_cell_model);
+        TissueCell stem_cell(STEM, BETA_CATENIN_ONE_HIT, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
         
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
                 
-        TissueCell stem_cell_1(STEM, BETA_CATENIN_ONE_HIT, 0, p_cell_model_1);        
+        TissueCell stem_cell_1(STEM, BETA_CATENIN_ONE_HIT, p_cell_model_1);        
         stem_cell_1.InitialiseCellCycleModel();
         
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
@@ -517,14 +516,13 @@ public:
                 
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
         
-        TissueCell stem_cell_1(STEM, APC_TWO_HIT, 0, p_cell_model_1);   
+        TissueCell stem_cell_1(STEM, APC_TWO_HIT, p_cell_model_1);   
         stem_cell_1.InitialiseCellCycleModel();
         
         WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
                 
         TissueCell stem_cell_2(STEM, // type
                                      APC_TWO_HIT,//Mutation State
-                                     0,  // generation
                                      p_cell_model_2);   
         stem_cell_2.InitialiseCellCycleModel();
         
@@ -562,12 +560,12 @@ public:
                 
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
                 
-        TissueCell stem_cell_1(STEM, HEALTHY, 0, p_cell_model_1);   
+        TissueCell stem_cell_1(STEM, HEALTHY, p_cell_model_1);   
         stem_cell_1.InitialiseCellCycleModel();
 
         WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
                 
-        TissueCell stem_cell_2(STEM, HEALTHY, 0, p_cell_model_2);   
+        TissueCell stem_cell_2(STEM, HEALTHY, p_cell_model_2);   
         stem_cell_2.InitialiseCellCycleModel();
         
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
@@ -605,7 +603,7 @@ public:
         
         StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel();
                 
-        TissueCell stem_cell(STEM, HEALTHY, 0, p_cell_model);   
+        TissueCell stem_cell(STEM, HEALTHY, p_cell_model);   
         stem_cell.InitialiseCellCycleModel();
                
         // A WntCellCycleModel does this:
@@ -656,7 +654,7 @@ public:
         Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
         
         // create cell 
-        TissueCell cell(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model);    
+        TissueCell cell(HEPA_ONE, ALARCON_NORMAL, p_cell_model);    
         
         // Coverage of cell cycle model copying without an ODE system set up
         TissueCell stem_cell2 = cell;
@@ -671,7 +669,7 @@ public:
         // divide a cell    
         Alarcon2004OxygenBasedCellCycleModel *p_cell_model2 = static_cast <Alarcon2004OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
         
-        TissueCell cell2(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model2);
+        TissueCell cell2(HEPA_ONE, ALARCON_NORMAL, p_cell_model2);
         
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),false)
@@ -706,7 +704,6 @@ public:
             
             TissueCell cell(TRANSIT, // type
                             HEALTHY,//Mutation State
-                            0,  // generation
                             p_model);
             cell.InitialiseCellCycleModel();  
             
@@ -768,10 +765,8 @@ public:
             WntCellCycleModel* p_cell_model = new WntCellCycleModel();
             
             TissueCell stem_cell(STEM, // type
-                                 HEALTHY,//Mutation State
-                                 0,  // generation
-                                 p_cell_model);
-                                 
+                                       HEALTHY,//Mutation State
+                                       p_cell_model);
             stem_cell.InitialiseCellCycleModel();  
             
             p_simulation_time->IncrementTimeOneStep();            
@@ -847,7 +842,6 @@ public:
             
             TissueCell stem_cell(STEM, // type
                                  HEALTHY,//Mutation State
-                                 0,  // generation
                                  p_cell_model);
             stem_cell.InitialiseCellCycleModel();  
             
@@ -923,17 +917,15 @@ public:
             StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel();                    
                                            
             TissueCell stoc_cell(STEM, // type
-                                 HEALTHY,//Mutation State
-                                 0,  // generation
-                                 p_stoc_model); 
+                                       HEALTHY,//Mutation State
+                                       p_stoc_model); 
             stoc_cell.InitialiseCellCycleModel();                                       
             
             WntCellCycleModel* p_wnt_model = new WntCellCycleModel();
             
             TissueCell wnt_cell(STEM, // type
-                                HEALTHY,//Mutation State
-                                0,  // generation
-                                p_wnt_model); 
+                                      HEALTHY,//Mutation State
+                                      p_wnt_model); 
             wnt_cell.InitialiseCellCycleModel();                                       
                                        
             p_simulation_time->IncrementTimeOneStep(); // 5.5
@@ -1042,7 +1034,7 @@ public:
             
             Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
             
-            TissueCell cell(HEPA_ONE, ALARCON_NORMAL, 0, p_cell_model);
+            TissueCell cell(HEPA_ONE, ALARCON_NORMAL, p_cell_model);
             cell.InitialiseCellCycleModel();  
             cell.GetCellCycleModel()->SetBirthTime(-10.0);
             

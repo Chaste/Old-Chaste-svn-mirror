@@ -1161,7 +1161,7 @@ public:
         std::vector<TissueCell> cells;
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(TRANSIT, HEALTHY, 0, new FixedCellCycleModel());
+            TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
             double birth_time = -p_gen->ranf()*(p_params->GetTransitCellG1Duration()
                                                +p_params->GetSG2MDuration());
             cell.SetNodeIndex(i);

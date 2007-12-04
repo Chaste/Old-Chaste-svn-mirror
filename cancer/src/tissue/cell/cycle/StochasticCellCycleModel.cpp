@@ -6,7 +6,7 @@
 
 AbstractCellCycleModel *StochasticCellCycleModel::CreateCellCycleModel()
 {
-    return new StochasticCellCycleModel(mG1Duration);  // use a private constructor that doesn't reset mG1Duration.
+    return new StochasticCellCycleModel(mG1Duration, mGeneration);  // use a private constructor that doesn't reset mG1Duration.
 }
 
 void StochasticCellCycleModel::SetG1Duration()

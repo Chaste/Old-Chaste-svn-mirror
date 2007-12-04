@@ -52,7 +52,8 @@ public:
             unsigned generation;
             cell_type = STEM;
             generation = 0;
-            TissueCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetNodeIndex(i);
             if ( i == 50u)
             {
@@ -88,7 +89,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        TissueCell cell(STEM, HEALTHY, 0u, new FixedCellCycleModel());
+        TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
         std::vector<TissueCell> cells;
         for(unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
@@ -152,7 +153,8 @@ public:
             unsigned generation;
             cell_type = STEM;
             generation = 0;
-            TissueCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetNodeIndex(i);    
             cell.SetBirthTime(-p_random_num_gen->ranf()*
                                (p_params->GetStemCellG1Duration() + p_params->GetSG2MDuration())  );            
@@ -239,7 +241,8 @@ public:
                 
             cell_type = STEM;
             generation = 0;
-            TissueCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetNodeIndex(i);    
             cell.SetBirthTime(-p_random_num_gen->ranf()*(  p_params->GetStemCellG1Duration() +
                                                            p_params->GetSG2MDuration()  ));      

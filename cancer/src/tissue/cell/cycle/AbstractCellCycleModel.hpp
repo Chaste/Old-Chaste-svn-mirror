@@ -47,8 +47,9 @@ protected:
     TissueCell* mpCell;
     double mBirthTime; // Time to start model from
     CellCyclePhase mCurrentCellCyclePhase;
+    
 public:
-unsigned mGeneration;
+    unsigned mGeneration;
         
 public:
 
@@ -59,7 +60,10 @@ public:
     AbstractCellCycleModel()
         : mpCell(NULL),
           mBirthTime(SimulationTime::Instance()->GetDimensionalisedTime()),
-          mCurrentCellCyclePhase(M_PHASE) {};
+          mCurrentCellCyclePhase(M_PHASE) 
+          {
+            mGeneration = 0;
+          };
 
     /**
      * Base class with virtual methods needs a virtual destructor.
@@ -86,6 +90,19 @@ public:
      * Returns the cell's age...
      */
     double GetAge();
+    
+    /**
+     * Sets the cell's generation...
+     */
+    void SetGeneration(unsigned generation);
+    
+    
+    /**
+     * Returns the cell's generation...
+     */
+    unsigned GetGeneration() const;
+    
+    
     
     /**
      * Returns the cell's birth time...

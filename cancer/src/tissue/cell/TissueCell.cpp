@@ -6,7 +6,7 @@
 
 TissueCell::TissueCell(CellType cellType,
                                    CellMutationState mutationState,
-                                   unsigned generation,
+                                   //unsigned generation,
                                    AbstractCellCycleModel *pCellCycleModel,
                                    bool archiving)
         : mpCellCycleModel(pCellCycleModel)
@@ -21,7 +21,7 @@ TissueCell::TissueCell(CellType cellType,
     }
     // Stem cells are the only ones with generation = 0
     //assert( (generation == 0) == (cellType == STEM) ); Not for Wnt cells
-    mpCellCycleModel->mGeneration = generation;
+    //mpCellCycleModel->SetGeneration(generation);
     mCellType = cellType;
     mMutationState = mutationState;
     mCanDivide = false;
@@ -139,10 +139,6 @@ double TissueCell::GetBirthTime() const
     return mpCellCycleModel->GetBirthTime();
 }
 
-unsigned TissueCell::GetGeneration() const
-{
-    return mpCellCycleModel->mGeneration;
-}
 
 CellType TissueCell::GetCellType() const
 {
@@ -262,8 +258,9 @@ TissueCell TissueCell::Divide()
     if (mSymmetricDivision)
     {
         mpCellCycleModel->ResetModel(); // cell goes back to age zero, and cell type is possibly reset                
-        TissueCell new_cell = TissueCell(GetCellType(), mMutationState, 1,
+        TissueCell new_cell = TissueCell(GetCellType(), mMutationState,
                                          mpCellCycleModel->CreateCellCycleModel());
+        new_cell.GetCellCycleModel()->SetGeneration(1);
         new_cell.SetSymmetricDivision();
         return new_cell;
     }
@@ -277,31 +274,40 @@ TissueCell TissueCell::Divide()
                 {
                     mpCellCycleModel->mGeneration++;
                     mpCellCycleModel->ResetModel();// Cell goes back to age zero
-                    return TissueCell(TRANSIT, mMutationState, mpCellCycleModel->mGeneration,
+                    TissueCell new_cell=TissueCell(TRANSIT, mMutationState,
                                       mpCellCycleModel->CreateCellCycleModel());
+                    assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->mGeneration);     
+                    return new_cell;  
                 }
                 else
                 {
                     mpCellCycleModel->mGeneration++;
                     mCellType = DIFFERENTIATED;
                     mpCellCycleModel->ResetModel();// Cell goes back to age zero
-                    return TissueCell(DIFFERENTIATED, mMutationState, mpCellCycleModel->mGeneration,
+                    TissueCell new_cell= TissueCell(DIFFERENTIATED, mMutationState, 
                                       mpCellCycleModel->CreateCellCycleModel());
+                    assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->mGeneration);       
+                    return new_cell;  
                 }
             }
             else
             {
                 mpCellCycleModel->ResetModel();// Cell goes back to age zero
-                return TissueCell(TRANSIT, mMutationState, 1,
+                TissueCell new_cell=TissueCell(TRANSIT, mMutationState,
                                       mpCellCycleModel->CreateCellCycleModel());
+                new_cell.GetCellCycleModel()->SetGeneration(1u);                      
+                assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->mGeneration+1u);       
+                return new_cell;  
                 
             }
         }
         else
         {
             mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            return TissueCell(HEPA_ONE, mMutationState, 1,
+            TissueCell new_cell = TissueCell(HEPA_ONE, mMutationState,
                                         mpCellCycleModel->CreateCellCycleModel());
+            new_cell.GetCellCycleModel()->SetGeneration(1);
+            return new_cell;
         }
     }
         

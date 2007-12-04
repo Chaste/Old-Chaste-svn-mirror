@@ -60,9 +60,9 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
     StochasticWntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
                                 CellMutationState mutationState,
                                 double birthTime, double lastTime,
-                                bool inSG2MPhase, bool readyToDivide, double divideTime)
+                                bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation)
       : WntCellCycleModel(pParentOdeSystem, mutationState, birthTime, lastTime, 
-                          inSG2MPhase, readyToDivide, divideTime)
+                          inSG2MPhase, readyToDivide, divideTime, generation)
     {
     }
 
@@ -87,7 +87,7 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
         assert(mpCell!=NULL);
         // calls a cheeky version of the constructor which makes the new cell cycle model
         // the same age as the old one - not a copy at this time.
-        return new StochasticWntCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), mBirthTime, mLastTime, mFinishedRunningOdes, mReadyToDivide,mDivideTime);
+        return new StochasticWntCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), mBirthTime, mLastTime, mFinishedRunningOdes, mReadyToDivide,mDivideTime, mGeneration);
     }
     
 };

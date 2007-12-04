@@ -21,7 +21,7 @@
 WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
-                                     bool inSG2MPhase, bool readyToDivide, double divideTime)
+                                     bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation)
    : AbstractWntOdeBasedCellCycleModel(lastTime) 
 {
     if (pParentOdeSystem !=NULL)
@@ -46,6 +46,7 @@ WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const
     mFinishedRunningOdes = inSG2MPhase;
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
+    mGeneration = generation;
 }
 
 /**
@@ -75,7 +76,7 @@ AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
     // unless the parent cell has just divided.
     return new WntCellCycleModel(mpOdeSystem, 
                                  mpCell->GetMutationState(), mBirthTime, mLastTime, 
-                                 mFinishedRunningOdes, mReadyToDivide, mDivideTime);
+                                 mFinishedRunningOdes, mReadyToDivide, mDivideTime, mGeneration);
 }
 
 /**

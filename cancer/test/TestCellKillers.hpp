@@ -199,7 +199,7 @@ public:
         std::vector<TissueCell> cells;
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             double birth_time = 0.0;
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);

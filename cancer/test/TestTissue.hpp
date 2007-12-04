@@ -28,7 +28,7 @@ private:
         std::vector<TissueCell> cells;
         for(unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             double birth_time = 0.0-i;
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -232,7 +232,7 @@ public:
         unsigned old_num_cells = tissue.rGetCells().size();
 
         // create a new cell, DON'T set the node index, set birth time=-1
-        TissueCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+        TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
         cell.SetBirthTime(-1);
         c_vector<double,2> new_cell_location;
         new_cell_location[0] = 2;
@@ -361,7 +361,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), 81u);
         
-        TissueCell new_cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+        TissueCell new_cell(STEM, HEALTHY, new FixedCellCycleModel());
         new_cell.SetBirthTime(0);
         
         c_vector<double,2> new_location;
@@ -383,7 +383,7 @@ public:
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), 81u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 70u);
 
-        TissueCell new_cell2(STEM, HEALTHY, 0, new FixedCellCycleModel());
+        TissueCell new_cell2(STEM, HEALTHY, new FixedCellCycleModel());
         new_cell2.SetBirthTime(0);
         
         c_vector<double,2> new_location2;

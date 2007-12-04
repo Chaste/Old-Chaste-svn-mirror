@@ -23,7 +23,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
                                      AbstractOdeSystem* pParentOdeSystem,//const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState, 
                                      double birthTime, double lastTime,
-                                     bool inSG2MPhase, bool readyToDivide, double divideTime)
+                                     bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation)
    : AbstractWntOdeBasedCellCycleModel(lastTime) 
 {
     if (pParentOdeSystem !=NULL)
@@ -49,6 +49,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
     mHypothesis = rHypothesis;
+    mGeneration = generation;
 }
 
 /**
@@ -81,7 +82,7 @@ AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateCellCycleModel()
     return new IngeWntSwatCellCycleModel(mHypothesis,
                                  mpOdeSystem, 
                                  mpCell->GetMutationState(), mBirthTime, mLastTime, 
-                                 mFinishedRunningOdes, mReadyToDivide, mDivideTime);
+                                 mFinishedRunningOdes, mReadyToDivide, mDivideTime, mGeneration);
 }
 
 /**

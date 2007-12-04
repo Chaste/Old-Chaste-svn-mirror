@@ -386,7 +386,8 @@ public:
                 birth_time = -1; //hours
             }
             
-            TissueCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

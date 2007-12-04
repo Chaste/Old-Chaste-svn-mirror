@@ -21,7 +21,7 @@ RungeKutta4IvpOdeSolver Alarcon2004OxygenBasedCellCycleModel::msSolver;
 Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                               const CellMutationState& rMutationState, double birthTime, 
                               double lastTime, bool inSG2MPhase, 
-                              bool readyToDivide, double divideTime)
+                              bool readyToDivide, double divideTime, unsigned generation)
     : AbstractOdeBasedCellCycleModel(lastTime)// these values overwritten below
 {
     if (pParentOdeSystem !=NULL)
@@ -47,6 +47,7 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(Abstr
     mReadyToDivide = readyToDivide;
     mDivideTime = divideTime;
     mFinishedRunningOdes = inSG2MPhase;
+    mGeneration = generation; 
 }
 
 /**
@@ -98,7 +99,7 @@ AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateCellCycleMod
     // cycle model the same as the old one - not a dividing copy at this time.
     // unless the parent cell has just divided.        
     return new Alarcon2004OxygenBasedCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), 
-                                         mBirthTime, mLastTime, mFinishedRunningOdes, mReadyToDivide, mDivideTime);
+                                         mBirthTime, mLastTime, mFinishedRunningOdes, mReadyToDivide, mDivideTime, mGeneration);
 }
 
 

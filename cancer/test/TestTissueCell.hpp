@@ -36,7 +36,6 @@ public:
         
         TS_ASSERT_THROWS_ANYTHING(TissueCell bad_cell(STEM, // type
                                                             HEALTHY,//Mutation State
-                                                            0,    // generation
                                                             &fixed_model));
                                                             
         // Proper test again
@@ -47,12 +46,10 @@ public:
         
         TS_ASSERT_THROWS_ANYTHING(TissueCell stem_cell(STEM,
                                    HEALTHY,
-                                   0,// generation
                                    NULL));
         
         TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
-                                   0,    // generation
                                    new FixedCellCycleModel());
                                    
         p_simulation_time->IncrementTimeOneStep();
@@ -94,12 +91,12 @@ public:
         p_simulation_time->IncrementTimeOneStep();//t=6
         
         // cover bad cell cycle model
-        TS_ASSERT_THROWS_ANYTHING(TissueCell bad_cell2(STEM, HEALTHY, 0, NULL));
+        TS_ASSERT_THROWS_ANYTHING(TissueCell bad_cell2(STEM, HEALTHY, NULL));
         
-        TissueCell stem_cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+        TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
         
         // also test symmetric division
-        TissueCell symmetric_stem_cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+        TissueCell symmetric_stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
         symmetric_stem_cell.SetSymmetricDivision();
         TS_ASSERT(symmetric_stem_cell.DividesSymmetrically());     
         
@@ -118,8 +115,8 @@ public:
         // create transit progeny of stem
         TissueCell daughter_cell = stem_cell.Divide();
                 
-        TS_ASSERT(!stem_cell.ReadyToDivide());        
-        TS_ASSERT(daughter_cell.GetGeneration() == 1);
+        TS_ASSERT(!stem_cell.ReadyToDivide());    
+        TS_ASSERT(daughter_cell.GetCellCycleModel()->GetGeneration() == 1);
         TS_ASSERT(daughter_cell.GetCellType() == TRANSIT);
         TS_ASSERT_DELTA(daughter_cell.GetAge(), 0 , 1e-9);
         
@@ -129,12 +126,12 @@ public:
         TS_ASSERT(symmetric_daughter_stem_cell.DividesSymmetrically());
         
         TS_ASSERT(!symmetric_stem_cell.ReadyToDivide());        
-        TS_ASSERT(symmetric_daughter_stem_cell.GetGeneration() == 1);
+        TS_ASSERT(symmetric_daughter_stem_cell.GetCellCycleModel()->GetGeneration() == 1);
         TS_ASSERT(symmetric_daughter_stem_cell.GetCellType() == STEM);
         TS_ASSERT_DELTA(symmetric_daughter_stem_cell.GetAge(), 0 , 1e-9);
         
         // create a transit cell that divides symmetrically        
-        TissueCell symmetric_transit_cell(TRANSIT, HEALTHY, 0, new FixedCellCycleModel());
+        TissueCell symmetric_transit_cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
         symmetric_transit_cell.SetSymmetricDivision();    
         
         p_simulation_time->IncrementTimeOneStep();//t=36
@@ -155,7 +152,7 @@ public:
         
         TS_ASSERT(symmetric_daughter_transit_cell.DividesSymmetrically());
         TS_ASSERT(!symmetric_daughter_transit_cell.ReadyToDivide());        
-        TS_ASSERT(symmetric_daughter_transit_cell.GetGeneration() == 1);
+        TS_ASSERT(symmetric_daughter_transit_cell.GetCellCycleModel()->GetGeneration() == 1);
         TS_ASSERT(symmetric_daughter_transit_cell.GetCellType() == TRANSIT);
         TS_ASSERT_DELTA(symmetric_daughter_transit_cell.GetAge(), 0 , 1e-9);
         
@@ -174,7 +171,7 @@ public:
         TS_ASSERT(daughter_cell.ReadyToDivide());
         
         // test the Divide() method for a HEPA-1 cell        
-        TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, 0, new FixedCellCycleModel());      
+        TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, new FixedCellCycleModel());      
 
         hepa_one_cell.SetBirthTime(54.0);
         p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(94.0, 4);   
@@ -221,7 +218,6 @@ public:
         
         TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
-                                   0,    // generation
                                    new FixedCellCycleModel());
                                    
         p_simulation_time->IncrementTimeOneStep();
@@ -309,7 +305,6 @@ public:
         
         TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
-                                   0,  // generation
                                    new FixedCellCycleModel());
                                    
         stem_cell.ReadyToDivide();
@@ -327,7 +322,6 @@ public:
         
         TissueCell wnt_cell(TRANSIT, // type
                                    HEALTHY,//Mutation State
-                                   0,  // generation
                                    new WntCellCycleModel());
                                    
         TS_ASSERT_EQUALS(wnt_cell.GetCellType(),TRANSIT);                           
@@ -367,7 +361,6 @@ public:
         
         TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
-                                   0,  // generation
                                    new FixedCellCycleModel());
                                                                       
         std::vector<TissueCell> cells;
@@ -455,25 +448,23 @@ public:
         //  Creating different types of cells with different cell cycle models at SimulationTime = 6 hours.
         TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
-                                   0,    // generation
                                    new FixedCellCycleModel());
                                    
         TissueCell stochastic_stem_cell(STEM, // type
                                               HEALTHY,//Mutation State
-                                              0,    // generation
                                               new StochasticCellCycleModel);
         TissueCell differentiated_cell(DIFFERENTIATED, // type
                                              HEALTHY,//Mutation State
-                                             6,    // generation
                                              new FixedCellCycleModel());
+        differentiated_cell.GetCellCycleModel()->SetGeneration(6);                             
         TissueCell stochastic_differentiated_cell(DIFFERENTIATED, // type
                                                         HEALTHY,//Mutation State
-                                                        6,    // generation
                                                         new StochasticCellCycleModel);
+        stochastic_differentiated_cell.GetCellCycleModel()->SetGeneration(6);                             
         TissueCell transit_cell(TRANSIT, // type
                                       HEALTHY,//Mutation State
-                                      2,    // generation
                                       new FixedCellCycleModel());
+        transit_cell.GetCellCycleModel()->SetGeneration(2);                             
                                       
                                       
         // SimulationTime = 6 hours
@@ -543,9 +534,9 @@ public:
         // now at t=6.00
         TissueCell transit_cell(TRANSIT, // type
                                       HEALTHY,//Mutation State
-                                      2,    // generation
                                       new FixedCellCycleModel());
-                                      
+        transit_cell.GetCellCycleModel()->SetGeneration(2);                             
+                                     
         for (int i=0; i<1199; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -609,7 +600,6 @@ public:
             
             TissueCell stem_cell(STEM, // type
                                  HEALTHY,//Mutation State
-                                 0,  // generation
                                  new StochasticCellCycleModel);
             cells.push_back(stem_cell);
             // produce the offspring of the cells
@@ -694,36 +684,35 @@ public:
         
         TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
-                                   0,  // generation
                                    new FixedCellCycleModel());
                                    
         cells.push_back(stem_cell);
         
         TissueCell transit_cell_1(TRANSIT, // type
                                         HEALTHY,//Mutation State
-                                        1,  // generation
                                         new FixedCellCycleModel());
-                                        
+        transit_cell_1.GetCellCycleModel()->SetGeneration(1);                             
+                                       
         cells.push_back(transit_cell_1);
         
         TissueCell transit_cell_2(TRANSIT, // type
                                         HEALTHY,//Mutation State
-                                        2,  // generation
                                         new FixedCellCycleModel());
+        transit_cell_2.GetCellCycleModel()->SetGeneration(2);                             
                                         
         cells.push_back(transit_cell_2);
         
         TissueCell transit_cell_3(TRANSIT, // type
                                         HEALTHY,//Mutation State
-                                        3,  // generation
                                         new FixedCellCycleModel());
+        transit_cell_3.GetCellCycleModel()->SetGeneration(3);                             
                                         
         cells.push_back(transit_cell_3);
         
         TissueCell differentiated_cell(DIFFERENTIATED, // type
                                              HEALTHY,//Mutation State
-                                             4,  // generation
-                                             new FixedCellCycleModel());
+                                              new FixedCellCycleModel());
+        differentiated_cell.GetCellCycleModel()->SetGeneration(4);                             
                                              
         cells.push_back(differentiated_cell);
         
@@ -823,8 +812,8 @@ public:
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         TissueCell wnt_cell(TRANSIT, // type
                                   HEALTHY,//Mutation State
-                                  1,    // generation
                                   new WntCellCycleModel());
+        wnt_cell.GetCellCycleModel()->SetGeneration(1);                             
         wnt_cell.InitialiseCellCycleModel();
                  
         for (unsigned i=0 ; i<num_steps/2 ; i++)
@@ -913,8 +902,9 @@ public:
         
         TissueCell wnt_cell(TRANSIT, // type
                                   HEALTHY,//Mutation State
-                                  1,    // generation
                                   new StochasticWntCellCycleModel());
+        wnt_cell.GetCellCycleModel()->SetGeneration(1);                             
+        
         wnt_cell.InitialiseCellCycleModel();
                                   
         for (unsigned i=0 ; i<num_steps/2 ; i++)
@@ -999,8 +989,8 @@ public:
         
         TissueCell tn_cell(TRANSIT, // type
                                  HEALTHY,//Mutation State
-                                 1,    // generation
                                  new TysonNovakCellCycleModel());
+        tn_cell.GetCellCycleModel()->SetGeneration(1);                             
                                  
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -1070,7 +1060,6 @@ public:
         
         TissueCell cell(TRANSIT, // type
                               HEALTHY,//Mutation State
-                              0,    // generation
                               new FixedCellCycleModel());
                               
         TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),false);
@@ -1117,7 +1106,6 @@ public:
         
         TissueCell cell(TRANSIT, // type
                               HEALTHY,//Mutation State
-                              0,    // generation
                               new FixedCellCycleModel());
                               
         p_simulation_time->IncrementTimeOneStep();//t=25
@@ -1143,7 +1131,6 @@ public:
         
         TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
-                                   0,  // generation
                                    new FixedCellCycleModel());
                                    
                                    
@@ -1250,7 +1237,6 @@ public:
             
             TissueCell stem_cell(STEM, // type
                                        HEALTHY,//Mutation State
-                                       0,    // generation
                                        new FixedCellCycleModel());
                                        
             p_simulation_time->IncrementTimeOneStep();
@@ -1301,7 +1287,7 @@ public:
             
             TS_ASSERT_EQUALS(p_stem_cell->GetNodeIndex(), 3u);
             TS_ASSERT_EQUALS(p_stem_cell->GetAge(), 0.5);
-            TS_ASSERT_EQUALS(p_stem_cell->GetGeneration(), 0u);
+            TS_ASSERT_EQUALS(p_stem_cell->GetCellCycleModel()->GetGeneration(), 0u);
             TS_ASSERT_EQUALS(p_stem_cell->GetCellType(), STEM);
             TS_ASSERT(p_stem_cell->DividesSymmetrically())
             
@@ -1337,29 +1323,29 @@ public:
         
         TissueCell wnt_cell(TRANSIT, // type
                                   APC_ONE_HIT,//Mutation State
-                                  1,    // generation
                                   new WntCellCycleModel());
+        wnt_cell.GetCellCycleModel()->SetGeneration(1);                             
                                   
         wnt_cell.InitialiseCellCycleModel();
                                   
         TissueCell wnt_cell2(TRANSIT, // type
                                   BETA_CATENIN_ONE_HIT,//Mutation State
-                                  1,    // generation
                                   new WntCellCycleModel());                          
+        wnt_cell2.GetCellCycleModel()->SetGeneration(1);                             
         
         wnt_cell2.InitialiseCellCycleModel();
                                   
         TissueCell wnt_cell3(TRANSIT, // type
                                   APC_TWO_HIT,//Mutation State
-                                  1,    // generation
                                   new WntCellCycleModel()); 
+        wnt_cell3.GetCellCycleModel()->SetGeneration(1);                             
                                   
         wnt_cell3.InitialiseCellCycleModel();
         
         TissueCell wnt_cell4(TRANSIT, // type
                                   LABELLED,//Mutation State
-                                  1,    // generation
                                   new WntCellCycleModel());                               
+        wnt_cell4.GetCellCycleModel()->SetGeneration(1);                             
 
         wnt_cell4.InitialiseCellCycleModel();
                 
@@ -1380,7 +1366,6 @@ public:
         
         TissueCell cell(STEM, // type
                               HEALTHY,//Mutation State
-                              0,    // generation
                               new FixedCellCycleModel());
                                    
         TS_ASSERT(!cell.IsLogged());

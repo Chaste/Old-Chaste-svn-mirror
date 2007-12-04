@@ -23,7 +23,7 @@ class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModel
 private:
     static BackwardEulerIvpOdeSolver msSolver;
     
-    TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime);
+    TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime, unsigned generation);
     
     friend class boost::serialization::access;
     template<class Archive>

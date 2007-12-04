@@ -62,3 +62,13 @@ bool AbstractCellCycleModel::UsesBetaCat()
 {
     return false;
 }
+
+void AbstractCellCycleModel::SetGeneration(unsigned generation)
+{
+    mGeneration = generation;
+}
+
+unsigned AbstractCellCycleModel::GetGeneration() const
+{
+    return mGeneration;
+}

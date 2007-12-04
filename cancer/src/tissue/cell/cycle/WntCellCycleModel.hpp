@@ -52,7 +52,7 @@ public:
     WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
                       const CellMutationState& rMutationState, 
                       double birthTime, double lastTime,
-                      bool inSG2MPhase, bool readyToDivide, double divideTime);
+                      bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation);
 
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                       const CellMutationState& rMutationState); 

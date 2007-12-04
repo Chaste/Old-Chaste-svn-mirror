@@ -190,9 +190,9 @@ public:
         
         TissueCell wnt_cell(TRANSIT, // type
                                   APC_ONE_HIT,//Mutation State
-                                  1,    // generation
                                   new WntCellCycleModel());
-                                  
+         
+        wnt_cell.GetCellCycleModel()->SetGeneration(1);                          
         wnt_cell.InitialiseCellCycleModel();
         
         for (unsigned i=0 ; i<num_steps/2 ; i++)
@@ -213,12 +213,12 @@ public:
 
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
-        TS_ASSERT(wnt_cell.GetGeneration()==1);
+        TS_ASSERT(wnt_cell.GetCellCycleModel()->GetGeneration()==1);
         
         TissueCell wnt_cell2 = wnt_cell.Divide();
         
-        TS_ASSERT(wnt_cell.GetGeneration()==2);
-        TS_ASSERT(wnt_cell2.GetGeneration()==2);
+        TS_ASSERT(wnt_cell.GetCellCycleModel()->GetGeneration()==2);
+        TS_ASSERT(wnt_cell2.GetCellCycleModel()->GetGeneration()==2);
         
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
@@ -276,8 +276,8 @@ public:
         
         TissueCell wnt_cell(TRANSIT, // type
                                   BETA_CATENIN_ONE_HIT,//Mutation State
-                                  1,    // generation
                                   new WntCellCycleModel());
+        wnt_cell.GetCellCycleModel()->SetGeneration(1);                          
                                   
         wnt_cell.InitialiseCellCycleModel();
                                   
@@ -299,12 +299,12 @@ public:
         
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
-        TS_ASSERT(wnt_cell.GetGeneration()==1);
+        TS_ASSERT(wnt_cell.GetCellCycleModel()->GetGeneration()==1);
         
         TissueCell wnt_cell2 = wnt_cell.Divide();
         
-        TS_ASSERT(wnt_cell.GetGeneration()==2);
-        TS_ASSERT(wnt_cell2.GetGeneration()==2);
+        TS_ASSERT(wnt_cell.GetCellCycleModel()->GetGeneration()==2);
+        TS_ASSERT(wnt_cell2.GetCellCycleModel()->GetGeneration()==2);
         
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
@@ -361,8 +361,8 @@ public:
         
         TissueCell wnt_cell(TRANSIT, // type
                                   APC_TWO_HIT,//Mutation State
-                                  1,    // generation
                                   new WntCellCycleModel());
+        wnt_cell.GetCellCycleModel()->SetGeneration(1);                          
         
         wnt_cell.InitialiseCellCycleModel();
                                           
@@ -398,12 +398,12 @@ public:
         
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
-        TS_ASSERT(wnt_cell.GetGeneration()==1);
+        TS_ASSERT(wnt_cell.GetCellCycleModel()->GetGeneration()==1);
         
         TissueCell wnt_cell2 = wnt_cell.Divide();
         
-        TS_ASSERT(wnt_cell.GetGeneration()==2);
-        TS_ASSERT(wnt_cell2.GetGeneration()==2);
+        TS_ASSERT(wnt_cell.GetCellCycleModel()->GetGeneration()==2);
+        TS_ASSERT(wnt_cell2.GetCellCycleModel()->GetGeneration()==2);
         
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         

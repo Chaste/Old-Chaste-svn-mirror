@@ -32,8 +32,8 @@ private:
     /**
      * Private constructor for identical cells.
      */
-    StochasticCellCycleModel(double g1Duration):
-    	AbstractSimpleMeinekeCellCycleModel(g1Duration) {};
+    StochasticCellCycleModel(double g1Duration, unsigned generation):
+    	AbstractSimpleMeinekeCellCycleModel(g1Duration, generation) {};
     
 public:
     /**

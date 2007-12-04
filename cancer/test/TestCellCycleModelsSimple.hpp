@@ -74,24 +74,27 @@ public:
         
         FixedCellCycleModel* p_stem_model = new FixedCellCycleModel;
         TS_ASSERT(!p_stem_model->UsesBetaCat());
-        TissueCell stem_cell(STEM, HEALTHY, 0, p_stem_model);
+        TissueCell stem_cell(STEM, HEALTHY, p_stem_model);
         
         TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),M_PHASE);
+        TS_ASSERT_EQUALS(p_stem_model->GetGeneration(), 0u);
         
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),STEM);
         
         FixedCellCycleModel* p_transit_model = new FixedCellCycleModel;
-        TissueCell transit_cell(TRANSIT, HEALTHY, 0, p_transit_model);
+        TissueCell transit_cell(TRANSIT, HEALTHY, p_transit_model);
                            
         TS_ASSERT_EQUALS(transit_cell.GetCellType(),TRANSIT);
+        TS_ASSERT_EQUALS(p_transit_model->GetGeneration(), 0u);
         
         FixedCellCycleModel* p_diff_model = new FixedCellCycleModel;
-        TissueCell diff_cell(DIFFERENTIATED, HEALTHY, 0, p_diff_model);
+        TissueCell diff_cell(DIFFERENTIATED, HEALTHY, p_diff_model);
                            
         TS_ASSERT_EQUALS(diff_cell.GetCellType(),DIFFERENTIATED);
+        TS_ASSERT_EQUALS(p_diff_model->GetGeneration(), 0u);
         
         FixedCellCycleModel* p_hepa_one_model = new FixedCellCycleModel;
-        TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, 0, p_hepa_one_model);
+        TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, p_hepa_one_model);
                 
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
@@ -129,10 +132,10 @@ public:
         StochasticCellCycleModel* p_hepa_one_model = new StochasticCellCycleModel;
         StochasticCellCycleModel* p_diff_model = new StochasticCellCycleModel;
                 
-        TissueCell stem_cell(STEM, HEALTHY, 0, p_stem_model);                
-        TissueCell transit_cell(TRANSIT, HEALTHY, 0, p_transit_model);
-        TissueCell diff_cell(DIFFERENTIATED, HEALTHY, 0, p_diff_model); 
-        TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, 0, p_hepa_one_model);  
+        TissueCell stem_cell(STEM, HEALTHY,  p_stem_model);                
+        TissueCell transit_cell(TRANSIT, HEALTHY, p_transit_model);
+        TissueCell diff_cell(DIFFERENTIATED, HEALTHY, p_diff_model); 
+        TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, p_hepa_one_model);  
                           
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
@@ -169,7 +172,7 @@ public:
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
                 
         SimpleWntCellCycleModel* p_cycle_model = new SimpleWntCellCycleModel;
-        TissueCell cell(STEM, HEALTHY, 0, p_cycle_model);
+        TissueCell cell(STEM, HEALTHY, p_cycle_model);
         
         for (unsigned i = 0 ; i< num_timesteps/3 ; i++)
         {
@@ -248,9 +251,9 @@ public:
         
         // for coverage...
         SimpleWntCellCycleModel* p_cycle_model1 = new SimpleWntCellCycleModel;
-        TissueCell cell1(DIFFERENTIATED, HEALTHY, 0, p_cycle_model1);
+        TissueCell cell1(DIFFERENTIATED, HEALTHY, p_cycle_model1);
         SimpleWntCellCycleModel* p_cycle_model3 = new SimpleWntCellCycleModel;
-        TissueCell cell3(HEPA_ONE, HEALTHY, 0, p_cycle_model3);
+        TissueCell cell3(HEPA_ONE, HEALTHY, p_cycle_model3);
         // end for coverage...
         
         
@@ -278,7 +281,7 @@ public:
                 
         // set up a cell cycle model and cell        
         CryptProjectionCellCycleModel* p_cycle_model = new CryptProjectionCellCycleModel;
-        TissueCell cell(STEM, HEALTHY, 0, p_cycle_model);
+        TissueCell cell(STEM, HEALTHY,  p_cycle_model);
         
         // test the GetCurrentCellCyclePhase() and ReadyToDivide() methods
         double first_g1_duration = 4.36075;
@@ -344,7 +347,6 @@ public:
             
             TissueCell cell(TRANSIT, // type
                             HEALTHY,//Mutation State
-                            0,  // generation
                             p_model);
             
             p_simulation_time->IncrementTimeOneStep();
@@ -411,7 +413,6 @@ public:
             
             TissueCell cell(TRANSIT, // type
                             HEALTHY,//Mutation State
-                            0,  // generation
                             p_model);
             
             cell.SetBirthTime(-1.1);
@@ -573,7 +574,7 @@ public:
             
             p_cell_model->SetBirthTime(-1.0);
             
-            TissueCell stem_cell(STEM, HEALTHY, 0, p_cell_model);
+            TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
                                        
             while (p_cell_model->GetAge() < 
                 g1_duration + p_params->GetSG2MDuration() 
@@ -686,7 +687,7 @@ public:
             
             p_cell_model->SetBirthTime(-1.0);
             
-            TissueCell stem_cell(STEM, HEALTHY, 0, p_cell_model);
+            TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
                                        
             while (p_cell_model->GetAge() < 
                 g1_duration + p_params->GetSG2MDuration() 
@@ -792,8 +793,8 @@ public:
         SimpleOxygenBasedCellCycleModel* p_diff_model = new SimpleOxygenBasedCellCycleModel();
         
         // create cell 
-        TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, 0, p_hepa_one_model);    
-        TissueCell diff_cell(DIFFERENTIATED, HEALTHY, 0, p_diff_model);
+        TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, p_hepa_one_model);    
+        TissueCell diff_cell(DIFFERENTIATED, HEALTHY, p_diff_model);
         
         // check that the cell cycle phase and ready to divide
         // are updated correctly        
@@ -817,7 +818,7 @@ public:
         // check that cell division correctly resets the cell cycle phase
         SimpleOxygenBasedCellCycleModel *p_hepa_one_model2 = static_cast <SimpleOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateCellCycleModel());
         
-        TissueCell hepa_one_cell2(HEPA_ONE, HEALTHY, 0, p_hepa_one_model2);
+        TissueCell hepa_one_cell2(HEPA_ONE, HEALTHY, p_hepa_one_model2);
         TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);        
         TS_ASSERT_EQUALS(p_hepa_one_model2->GetCurrentCellCyclePhase(), M_PHASE);
         
@@ -831,7 +832,7 @@ public:
         
         // create a cell with a simple oxygen-based cell cycle model
         SimpleOxygenBasedCellCycleModel* p_cell_model = new SimpleOxygenBasedCellCycleModel();
-        TissueCell necrotic_cell(HEPA_ONE, HEALTHY, 0, p_cell_model);
+        TissueCell necrotic_cell(HEPA_ONE, HEALTHY, p_cell_model);
         
         // set up constant oxygen_concentration     
         std::vector<double> low_oxygen_concentration;

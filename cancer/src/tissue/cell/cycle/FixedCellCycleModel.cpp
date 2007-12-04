@@ -2,6 +2,6 @@
 
 AbstractCellCycleModel *FixedCellCycleModel::CreateCellCycleModel()
 {
-    return new FixedCellCycleModel(mG1Duration);
+    return new FixedCellCycleModel(mG1Duration, mGeneration);
 }
 

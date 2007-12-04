@@ -47,7 +47,7 @@ public:
                 mutation_state = APC_TWO_HIT;
             }
             
-            TissueCell cell(STEM, mutation_state, 0, new FixedCellCycleModel());
+            TissueCell cell(STEM, mutation_state, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(-10);
             cells.push_back(cell);
@@ -501,7 +501,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
         std::vector<TissueCell> cells;
-        TissueCell cell(STEM, HEALTHY, 0u, new FixedCellCycleModel());
+        TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             cell.SetNodeIndex(i);
@@ -614,7 +614,7 @@ public:
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
             std::vector<TissueCell> cells;
-            TissueCell cell(STEM, HEALTHY, 0u, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             for(unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 cell.SetNodeIndex(i);

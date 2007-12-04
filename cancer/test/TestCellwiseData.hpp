@@ -58,7 +58,7 @@ public:
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter)), 2.23, 1e-12);
         
         // test ReallocateMemory method
-        TissueCell new_cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+        TissueCell new_cell(STEM, HEALTHY, new FixedCellCycleModel());
         new_cell.SetBirthTime(-1);
         c_vector<double,2> new_cell_location;
         new_cell_location[0] = 0.2;

@@ -37,8 +37,11 @@ protected:
 	 * Protected constructor for creating an identical daughter cell 
 	 * (with the same G_ONE duration...)
 	 * */
-    AbstractSimpleCellCycleModel(double g1Duration)
-        :mG1Duration(g1Duration) {};
+    AbstractSimpleCellCycleModel(double g1Duration, unsigned generation)
+        :mG1Duration(g1Duration)
+        {
+            mGeneration=generation;
+        };  
     
     /**
      * The duration of the G1 phase of the cell cycle. This is set once a cell

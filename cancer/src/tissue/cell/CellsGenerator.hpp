@@ -51,7 +51,7 @@ public :
         rCells.reserve(rMesh.GetNumNodes());
         for(unsigned i=0; i<rMesh.GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             double birth_time = 0.0-i;
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -226,7 +226,8 @@ public :
                 generation = 4;
             }
             
-            TissueCell cell(cell_type, HEALTHY, generation, p_cell_cycle_model);
+            p_cell_cycle_model->SetGeneration(generation);
+            TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
             
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);

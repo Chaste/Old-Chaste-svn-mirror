@@ -24,8 +24,8 @@ private:
     /**
      * Private constructor for identical cells.
      */
-    FixedCellCycleModel(double g1Duration):
-    	AbstractSimpleMeinekeCellCycleModel(g1Duration) {};
+    FixedCellCycleModel(double g1Duration, unsigned generation):
+    	AbstractSimpleMeinekeCellCycleModel(g1Duration, generation){};
     
 protected:    
     

@@ -30,8 +30,8 @@ private:
     /**
      * Private constructor for identical cells.
      */
-    CryptProjectionCellCycleModel(double g1Duration):
-    	AbstractSimpleCellCycleModel(g1Duration) {};
+    CryptProjectionCellCycleModel(double g1Duration, unsigned generation):
+    	AbstractSimpleCellCycleModel(g1Duration,generation){};
     
 public:
 
