@@ -5,7 +5,8 @@ AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(double lastTime)
           mLastTime(lastTime),
           mDivideTime(lastTime),
           mReadyToDivide(false),
-          mFinishedRunningOdes(false)
+          mFinishedRunningOdes(false),
+          mG2PhaseStartTime(DBL_MAX)
 {
     AbstractCellCycleModel::SetBirthTime(lastTime);
 }
@@ -57,7 +58,7 @@ bool AbstractOdeBasedCellCycleModel::ReadyToDivide()
     if (mCurrentCellCyclePhase == M_PHASE)
     {
         double m_duration = GetMDuration();
-        if (current_time - mBirthTime > m_duration)
+        if (current_time - mBirthTime >= m_duration)
         {
             mCurrentCellCyclePhase = G_ONE_PHASE;
             mLastTime = m_duration + mBirthTime;
@@ -90,7 +91,8 @@ bool AbstractOdeBasedCellCycleModel::ReadyToDivide()
             if (mFinishedRunningOdes)
             {
                 mCurrentCellCyclePhase = S_PHASE;  
-                mDivideTime = GetOdeStopTime() + GetSDuration() + GetG2Duration() ;//+ GetMDuration();
+                mG2PhaseStartTime = GetOdeStopTime() + GetSDuration();
+                mDivideTime = mG2PhaseStartTime + GetG2Duration();
                 //std::cout << "Ode Stop time = " << GetOdeStopTime() << "\n" << std::flush;
                 //std::cout << "mDivideTime = " << mDivideTime << "\n" << std::flush;
 //              need to do some clever business here - instead of a divide time, we should
@@ -100,6 +102,10 @@ bool AbstractOdeBasedCellCycleModel::ReadyToDivide()
                 {
                     mReadyToDivide = true;
                 }
+                if (current_time >= mG2PhaseStartTime)
+                {
+                    mCurrentCellCyclePhase = G_TWO_PHASE;
+                }
             }
             mLastTime = current_time;   // This is the last time the ODEs were evaluated.
         }
@@ -108,6 +114,10 @@ bool AbstractOdeBasedCellCycleModel::ReadyToDivide()
             if (current_time >= mDivideTime)
             {
                 mReadyToDivide = true;
+            }
+            if (current_time >= mG2PhaseStartTime)
+            {
+                mCurrentCellCyclePhase = G_TWO_PHASE;
             }
         }
     }

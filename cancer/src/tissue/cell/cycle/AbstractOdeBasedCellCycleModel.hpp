@@ -30,6 +30,7 @@ private:
         archive & mDivideTime;
         archive & mReadyToDivide;
         archive & mFinishedRunningOdes;
+        archive & mG2PhaseStartTime;
     }
     
 protected:
@@ -43,6 +44,8 @@ protected:
     bool mReadyToDivide;
     /** Whether the cell cycle model is currently in a delay (not solving ODEs).*/
     bool mFinishedRunningOdes;
+    /** The start time for the G2 phase */
+    double mG2PhaseStartTime;
     
 public:
 
