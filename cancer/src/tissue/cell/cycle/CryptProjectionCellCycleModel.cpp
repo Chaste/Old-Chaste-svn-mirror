@@ -58,19 +58,19 @@ bool CryptProjectionCellCycleModel::ReadyToDivide()
     // update the current cell cycle phase    
     if ( time_since_birth < p_params->GetMDuration() )
     {
-        mCurrentCellCyclePhase = M;   
+        mCurrentCellCyclePhase = M_PHASE;   
     }
     else if ( time_since_birth < p_params->GetMDuration() + mG1Duration)
     {
-        mCurrentCellCyclePhase = G_ONE;   
+        mCurrentCellCyclePhase = G_ONE_PHASE;   
     }
     else if ( time_since_birth < p_params->GetMDuration() + mG1Duration + p_params->GetSDuration())
     {
-        mCurrentCellCyclePhase = S;   
+        mCurrentCellCyclePhase = S_PHASE;   
     }
     else if ( time_since_birth < p_params->GetMDuration() + mG1Duration + p_params->GetSDuration()  + p_params->GetG2Duration())
     {
-        mCurrentCellCyclePhase = G_TWO;   
+        mCurrentCellCyclePhase = G_TWO_PHASE;   
     }
     else
     {
@@ -83,7 +83,7 @@ bool CryptProjectionCellCycleModel::ReadyToDivide()
             mpCell->SetCellType(TRANSIT);
         }
 	    ready = true;
-	    mCurrentCellCyclePhase = M;
+	    mCurrentCellCyclePhase = M_PHASE;
 	}    
     
     return ready;

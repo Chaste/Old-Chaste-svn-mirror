@@ -67,7 +67,17 @@ double TysonNovakCellCycleModel::GetOdeStopTime()
     return msSolver.GetStoppingTime();
 }
 
-double TysonNovakCellCycleModel::GetSG2Duration()
+/**
+ * Tyson & Novak pretends it is running ODEs in just G1, 
+ * but they really represent the whole cell cycle so 
+ * we set the other phases to zero.
+ */
+double TysonNovakCellCycleModel::GetSDuration()
+{
+    return 0.0;
+}
+
+double TysonNovakCellCycleModel::GetG2Duration()
 {
     return 0.0;
 }

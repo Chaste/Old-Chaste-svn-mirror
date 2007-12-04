@@ -44,8 +44,8 @@ public:
     
     double GetOdeStopTime();
     
-    double GetSG2Duration();
-    
+    double GetSDuration();
+    double GetG2Duration();
     double GetMDuration();
     
 };

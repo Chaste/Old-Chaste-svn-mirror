@@ -29,27 +29,27 @@ private:
         if (pModel->GetCell()->GetCellType()==DIFFERENTIATED)
         {
         	TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ZERO);	
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ZERO_PHASE);	
         }
         else if (age < p_params->GetMDuration())
         {   // if in M phase
             TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),M);
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),M_PHASE);
         }
         else if (age < p_params->GetMDuration() + g1Duration)
         {   // if in G1 phase
             TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ONE);
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ONE_PHASE);
         }
         else if (age < p_params->GetMDuration() + g1Duration + p_params->GetSDuration())
         {   // if in S phase
             TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),S);
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),S_PHASE);
         }
         else if (age < p_params->GetMDuration() + g1Duration + p_params->GetSDuration() + p_params->GetG2Duration() )
         {   // if in G2 phase
             TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_TWO);
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_TWO_PHASE);
         }
         else
         {
@@ -183,6 +183,7 @@ public:
             }
             WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
             
+            
             TS_ASSERT(result==false)
         }
         
@@ -259,6 +260,7 @@ public:
             {
                 TS_ASSERT_EQUALS(result, false);
             }
+            //CheckCellCyclePhasesAreUpdated(p_cell_model,6.1877);
         }
         TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 21.0, 1e-4);
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
@@ -291,12 +293,12 @@ public:
         // Acts as if it was divided at time = 16.1877... which is OK 
         // (cell cycle model dictates division time, not when the cell is manually
         // divided)
-        std::cout << "Cell divided at time = " << SimulationTime::Instance()->GetDimensionalisedTime() << "\n" << std::flush;
+        //std::cout << "Cell divided at time = " << SimulationTime::Instance()->GetDimensionalisedTime() << "\n" << std::flush;
         TissueCell daughter_cell = stem_cell.Divide();
         AbstractCellCycleModel* p_cell_model2 = daughter_cell.GetCellCycleModel();
         
-        TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), M);
-        TS_ASSERT_EQUALS(p_cell_model2->GetCurrentCellCyclePhase(), M);
+        TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), M_PHASE);
+        TS_ASSERT_EQUALS(p_cell_model2->GetCurrentCellCyclePhase(), M_PHASE);
         
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);
         TS_ASSERT_EQUALS(p_cell_model2->ReadyToDivide(), false);

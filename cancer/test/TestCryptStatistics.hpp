@@ -216,7 +216,7 @@ public:
         {
             bool is_labelled= (*cell_iter).GetMutationState() == LABELLED;
             
-            bool in_s_phase = (*cell_iter).GetCellCycleModel()->GetCurrentCellCyclePhase()== S;
+            bool in_s_phase = (*cell_iter).GetCellCycleModel()->GetCurrentCellCyclePhase()== S_PHASE;
             
             TS_ASSERT_EQUALS(is_labelled, in_s_phase);
             

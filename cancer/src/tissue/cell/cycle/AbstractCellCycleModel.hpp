@@ -59,7 +59,7 @@ public:
     AbstractCellCycleModel()
         : mpCell(NULL),
           mBirthTime(SimulationTime::Instance()->GetDimensionalisedTime()),
-          mCurrentCellCyclePhase(M) {};
+          mCurrentCellCyclePhase(M_PHASE) {};
 
     /**
      * Base class with virtual methods needs a virtual destructor.

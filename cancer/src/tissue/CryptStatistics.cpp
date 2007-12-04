@@ -162,7 +162,7 @@ void CryptStatistics::LabelSPhaseCells()
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
-        if ((*cell_iter).GetCellCycleModel()->GetCurrentCellCyclePhase()== S)
+        if ((*cell_iter).GetCellCycleModel()->GetCurrentCellCyclePhase()== S_PHASE)
         {
             assert((*cell_iter).GetMutationState() == HEALTHY);
             (*cell_iter).SetMutationState(LABELLED);

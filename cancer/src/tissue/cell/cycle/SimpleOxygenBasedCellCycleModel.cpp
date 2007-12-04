@@ -33,28 +33,28 @@ bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
                
         if (mpCell->GetCellType()==DIFFERENTIATED)
         {
-            mCurrentCellCyclePhase = G_ZERO;   
+            mCurrentCellCyclePhase = G_ZERO_PHASE;   
         }
         else 
         {
             if ( GetAge() < p_params->GetMDuration() )
             {
-                mCurrentCellCyclePhase = M;   
+                mCurrentCellCyclePhase = M_PHASE;   
             }
             else if ( time_since_birth < p_params->GetMDuration() + mG1Duration )
             {
-                mCurrentCellCyclePhase = G_ONE;
+                mCurrentCellCyclePhase = G_ONE_PHASE;
                  
                 mG1Duration = mG1Duration + (1-std::max(oxygen_concentration,0.0))*SimulationTime::Instance()->GetTimeStep();
                 mTimeSpentInG1Phase = mTimeSpentInG1Phase + SimulationTime::Instance()->GetTimeStep();  
             }
             else if ( time_since_birth < p_params->GetMDuration() + mG1Duration + p_params->GetSDuration() )
             {
-                mCurrentCellCyclePhase = S; 
+                mCurrentCellCyclePhase = S_PHASE; 
             }
             else if ( time_since_birth < p_params->GetMDuration() + mG1Duration + p_params->GetSDuration()  + p_params->GetG2Duration())
             {
-                mCurrentCellCyclePhase = G_TWO;   
+                mCurrentCellCyclePhase = G_TWO_PHASE;   
             }
             else
             {

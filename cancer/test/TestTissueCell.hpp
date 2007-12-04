@@ -841,7 +841,7 @@ public:
             {
                 TS_ASSERT(wnt_cell.ReadyToDivide()==false);
             }
-            std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide() << "\n" << std::endl;
+            //std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide() << "\n" << std::endl;
         }
         
         p_simulation_time->IncrementTimeOneStep();

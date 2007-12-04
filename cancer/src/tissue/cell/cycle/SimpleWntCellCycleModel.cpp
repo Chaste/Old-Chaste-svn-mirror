@@ -80,7 +80,7 @@ bool SimpleWntCellCycleModel::ReadyToDivide()
     // If the Wnt stimulus is below the threshold, the cell is
     // of type DIFFERENTIATED and hence in G0 phase       
     CellType cell_type = DIFFERENTIATED;    
-    mCurrentCellCyclePhase = G_ZERO;
+    mCurrentCellCyclePhase = G_ZERO_PHASE;
     
     // If the Wnt stimulus exceeds the threshold, the cell is
     // of type TRANSIT, and hence its cell cycle phase depends
@@ -91,24 +91,24 @@ bool SimpleWntCellCycleModel::ReadyToDivide()
         
         if ( time_since_birth < p_params->GetMDuration() )
         {
-            mCurrentCellCyclePhase = M;   
+            mCurrentCellCyclePhase = M_PHASE;   
         }
         else if ( time_since_birth < p_params->GetMDuration() + mG1Duration)
         {
-            mCurrentCellCyclePhase = G_ONE;   
+            mCurrentCellCyclePhase = G_ONE_PHASE;   
         }
         else if ( time_since_birth < p_params->GetMDuration() + mG1Duration + p_params->GetSDuration())
         {
-            mCurrentCellCyclePhase = S;   
+            mCurrentCellCyclePhase = S_PHASE;   
         }
         else if ( time_since_birth < p_params->GetMDuration() + mG1Duration + p_params->GetSDuration()  + p_params->GetG2Duration())
         {
-            mCurrentCellCyclePhase = G_TWO;   
+            mCurrentCellCyclePhase = G_TWO_PHASE;   
         }
         else
         {
             ready = true;
-            mCurrentCellCyclePhase = M;
+            mCurrentCellCyclePhase = M_PHASE;
         }
     }
     

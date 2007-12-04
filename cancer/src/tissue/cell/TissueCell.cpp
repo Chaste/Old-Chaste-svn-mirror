@@ -269,10 +269,7 @@ TissueCell TissueCell::Divide()
     mCanDivide = false;
     
     CancerParameters *p_params = CancerParameters::Instance();
-    
-    
-    
-    
+        
     if (mSymmetricDivision)
     {
         mpCellCycleModel->ResetModel(); // cell goes back to age zero, and cell type is possibly reset                
@@ -281,7 +278,6 @@ TissueCell TissueCell::Divide()
         new_cell.SetSymmetricDivision();
         return new_cell;
     }
-    
     else
     {
         if (mCellType != HEPA_ONE)

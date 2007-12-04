@@ -29,27 +29,27 @@ private:
         if (pModel->GetCell()->GetCellType()==DIFFERENTIATED)
         {
             TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ZERO);    
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ZERO_PHASE);    
         }
         else if (age < p_params->GetMDuration())
         {   // if in M phase
             TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),M);
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),M_PHASE);
         }
         else if (age < p_params->GetMDuration() + g1Duration)
         {   // if in G1 phase
             TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ONE);
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ONE_PHASE);
         }
         else if (age < p_params->GetMDuration() + g1Duration + p_params->GetSDuration())
         {   // if in S phase
             TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),S);
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),S_PHASE);
         }
         else if (age < p_params->GetMDuration() + g1Duration + p_params->GetSDuration() + p_params->GetG2Duration() )
         {   // if in G2 phase
             TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_TWO);
+            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_TWO_PHASE);
         }
         else
         {
@@ -76,7 +76,7 @@ public:
         TS_ASSERT(!p_stem_model->UsesBetaCat());
         TissueCell stem_cell(STEM, HEALTHY, 0, p_stem_model);
         
-        TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),M);
+        TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),M_PHASE);
         
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),STEM);
         
@@ -361,7 +361,7 @@ public:
             TissueCell* const p_cell = &cell;
             
             output_arch << p_cell;
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),G_ONE);
+            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),G_ONE_PHASE);
             
             SimulationTime::Destroy();
         }
@@ -384,7 +384,7 @@ public:
             // Check private data has been restored correctly.
             TS_ASSERT_DELTA(p_model->GetBirthTime(),-1.0,1e-12);
             TS_ASSERT_DELTA(p_model->GetAge(),2.5,1e-12);
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),G_ONE);
+            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),G_ONE_PHASE);
             
             SimulationTime::Destroy();
             delete p_cell;
@@ -431,7 +431,7 @@ public:
             
             TS_ASSERT_DELTA(p_model->GetBirthTime(),-1.1,1e-12);
             TS_ASSERT_DELTA(p_model->GetAge(),2.1,1e-12);
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),G_ONE);
+            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),G_ONE_PHASE);
             
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             random_number_test = p_gen->ranf();
@@ -469,7 +469,7 @@ public:
             // Check
             TS_ASSERT_DELTA(p_model->GetBirthTime(),-1.1,1e-12);
             TS_ASSERT_DELTA(p_model->GetAge(),2.1,1e-12);
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),G_ONE);
+            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),G_ONE_PHASE);
             
             TS_ASSERT_DELTA(inst1->GetSDuration(),5.0,1e-12);
             
@@ -529,7 +529,7 @@ public:
             // check that archiiving worked correctly
             TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
             TS_ASSERT_DELTA(model.GetAge(),1.5,1e-12);
-            TS_ASSERT_EQUALS(model.GetCurrentCellCyclePhase(),M);            
+            TS_ASSERT_EQUALS(model.GetCurrentCellCyclePhase(),M_PHASE);            
             
             SimulationTime::Destroy();
         }
@@ -585,7 +585,7 @@ public:
             // wnt should change this to a transit cell.
             TS_ASSERT_EQUALS(stem_cell.GetCellType(), TRANSIT);
             TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(), false);
-            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->GetCurrentCellCyclePhase(), G_TWO);                             
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->GetCurrentCellCyclePhase(), G_TWO_PHASE);                             
                        
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -698,7 +698,7 @@ public:
             // wnt should change this to a transit cell.
             TS_ASSERT_EQUALS(stem_cell.GetCellType(), STEM);
             TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(), false);
-            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->GetCurrentCellCyclePhase(), G_TWO);                             
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->GetCurrentCellCyclePhase(), G_TWO_PHASE);                             
                        
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -798,10 +798,10 @@ public:
         // check that the cell cycle phase and ready to divide
         // are updated correctly        
         TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),false);        
-        TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),M);
+        TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),M_PHASE);
         
         TS_ASSERT_EQUALS(p_diff_model->ReadyToDivide(),false);
-        TS_ASSERT_EQUALS(p_diff_model->GetCurrentCellCyclePhase(),G_ZERO);
+        TS_ASSERT_EQUALS(p_diff_model->GetCurrentCellCyclePhase(),G_ZERO_PHASE);
                 
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
@@ -819,7 +819,7 @@ public:
         
         TissueCell hepa_one_cell2(HEPA_ONE, HEALTHY, 0, p_hepa_one_model2);
         TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);        
-        TS_ASSERT_EQUALS(p_hepa_one_model2->GetCurrentCellCyclePhase(), M);
+        TS_ASSERT_EQUALS(p_hepa_one_model2->GetCurrentCellCyclePhase(), M_PHASE);
         
         TS_ASSERT_THROWS_NOTHING(p_hepa_one_model->ResetModel());     
         

@@ -12,11 +12,11 @@
  */
 typedef enum CellCyclePhase_
 {
-    G_ZERO,
-    G_ONE,
-    S,
-    G_TWO,
-    M    
+    G_ZERO_PHASE,
+    G_ONE_PHASE,
+    S_PHASE,
+    G_TWO_PHASE,
+    M_PHASE    
 } CellCyclePhase;
 
 

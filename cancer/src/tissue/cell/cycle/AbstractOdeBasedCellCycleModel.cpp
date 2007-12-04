@@ -54,12 +54,12 @@ bool AbstractOdeBasedCellCycleModel::ReadyToDivide()
 //    we want to start solving the ODEs at the end of M phase - could possibly 
 //    hijack mLastTime to do this
     //std::cout << "mBirthTime = " << mBirthTime << " current time = "<< current_time << "\n" << std::flush; 
-    if (mCurrentCellCyclePhase == M)
+    if (mCurrentCellCyclePhase == M_PHASE)
     {
         double m_duration = GetMDuration();
         if (current_time - mBirthTime > m_duration)
         {
-            mCurrentCellCyclePhase = G_ONE;
+            mCurrentCellCyclePhase = G_ONE_PHASE;
             mLastTime = m_duration + mBirthTime;
         } 
         else 
@@ -86,13 +86,11 @@ bool AbstractOdeBasedCellCycleModel::ReadyToDivide()
                     #undef COVERAGE_IGNORE
                 }
             }
-            
-//            mCurrentCellCyclePhase = G_ONE;
-            
+                        
             if (mFinishedRunningOdes)
             {
-                mCurrentCellCyclePhase = S;  
-                mDivideTime = GetOdeStopTime() + GetSG2Duration() ;//+ GetMDuration();
+                mCurrentCellCyclePhase = S_PHASE;  
+                mDivideTime = GetOdeStopTime() + GetSDuration() + GetG2Duration() ;//+ GetMDuration();
                 //std::cout << "Ode Stop time = " << GetOdeStopTime() << "\n" << std::flush;
                 //std::cout << "mDivideTime = " << mDivideTime << "\n" << std::flush;
 //              need to do some clever business here - instead of a divide time, we should
@@ -124,14 +122,19 @@ void AbstractOdeBasedCellCycleModel::ResetModel()
     mLastTime = mDivideTime;
     mFinishedRunningOdes = false;
     mReadyToDivide = false;
-    mCurrentCellCyclePhase = M;
+    mCurrentCellCyclePhase = M_PHASE;
 }
+   
+double AbstractOdeBasedCellCycleModel::GetSDuration()
+{   
+    // overridden in subclasses?
+    return CancerParameters::Instance()->GetSDuration();
+}   
     
-    
-double AbstractOdeBasedCellCycleModel::GetSG2Duration()
+double AbstractOdeBasedCellCycleModel::GetG2Duration()
 {   
     // overridden in subclass StochasticWntCellCycleModel
-    return CancerParameters::Instance()->GetSDuration()+CancerParameters::Instance()->GetG2Duration();
+    return CancerParameters::Instance()->GetG2Duration();
 }   
 
 double AbstractOdeBasedCellCycleModel::GetMDuration()

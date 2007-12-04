@@ -28,20 +28,21 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
     /**
      * This is a function which overrides that in WntCellCycleModel and 
      * introduces the stochastic element of this class. 
-     * We allow the duration of the S->G2->M phase of the cell cycle to 
+     * We allow the duration of the G2 phase of the cell cycle to 
      * vary with a mean of its deterministic duration and a standard 
-     * deviation of 10% of that.
+     * deviation of 0.9 hours.
      * 
-     * @return the duration of the S->G2->M phases of the cell cycle.
+     * @return the duration of the G2 phases of the cell cycle.
      */
-    double GetSG2Duration()
+    double GetG2Duration()
     {
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-        double mean = CancerParameters::Instance()->GetSDuration() + CancerParameters::Instance()->GetG2Duration();
-        double standard_deviation = 0.1*mean;
-        return p_gen->NormalRandomDeviate(mean,standard_deviation);;
+        double mean = CancerParameters::Instance()->GetG2Duration();
+        double standard_deviation = 0.9;        
+        return p_gen->NormalRandomDeviate(mean,standard_deviation);
     }
     
+        
   public:
   
     /**
