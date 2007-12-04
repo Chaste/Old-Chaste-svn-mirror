@@ -830,7 +830,8 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*CancerParameters::Instance()->GetCriticalHypoxicDuration(), num_steps);
         
         // create a cell with a simple oxygen-based cell cycle model
-        TissueCell necrotic_cell(HEPA_ONE, HEALTHY, 0, new SimpleOxygenBasedCellCycleModel());
+        SimpleOxygenBasedCellCycleModel* p_cell_model = new SimpleOxygenBasedCellCycleModel();
+        TissueCell necrotic_cell(HEPA_ONE, HEALTHY, 0, p_cell_model);
         
         // set up constant oxygen_concentration     
         std::vector<double> low_oxygen_concentration;
@@ -852,6 +853,7 @@ public:
         
         // test that the cell type is updated to be NECROTIC        
         TS_ASSERT(necrotic_cell.GetCellType()==NECROTIC);          
+        TS_ASSERT_EQUALS(p_cell_model->GetHypoxicDuration(), 2.04);
                   
         SimulationTime::Destroy();          
         CellwiseData<2>::Destroy();

@@ -25,8 +25,14 @@ private:
     }
     
     /** Private constructor for creating an identical daughter cell */
-    SimpleOxygenBasedCellCycleModel(double g1Duration)
-        : AbstractSimpleCellCycleModel(g1Duration) {};
+    SimpleOxygenBasedCellCycleModel(double g1Duration,
+                                    double hypoxicDuration,
+                                    double hypoxicDurationUpdateTime)
+        : AbstractSimpleCellCycleModel(g1Duration)
+    {
+        mHypoxicDuration=hypoxicDuration;
+        mHypoxicDurationUpdateTime=hypoxicDurationUpdateTime;
+    };
         
     double mTimeSpentInG1Phase;   
     double mHypoxicDuration;

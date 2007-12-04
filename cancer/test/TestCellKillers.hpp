@@ -361,16 +361,11 @@ public:
         TS_ASSERT_THROWS_NOTHING(oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin()));
            
         // check that a single cell reaches apoptosis 
-        r_cells.begin()->SetHypoxicDuration(1.5);         
-        
-        unsigned max_tries=0;
-        while (!r_cells.begin()->HasApoptosisBegun() && max_tries<99)
-        {
-            oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
-            max_tries++;
-        }
-        TS_ASSERT_DIFFERS(max_tries, 99u);
-        TS_ASSERT_DIFFERS(max_tries, 0u);        
+        TS_ASSERT(!r_cells.begin()->HasApoptosisBegun());
+        r_cells.begin()->SetCellType(NECROTIC);         
+        oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
+  
+        TS_ASSERT(r_cells.begin()->HasApoptosisBegun());
         
         // increment time to a time after death         
         p_simulation_time->IncrementTimeOneStep();        

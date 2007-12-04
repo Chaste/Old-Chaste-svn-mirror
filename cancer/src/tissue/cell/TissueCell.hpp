@@ -35,7 +35,6 @@ private:
         archive & mUndergoingApoptosis;
         archive & mDeathTime;
         archive & mNodeIndex;
-        archive & mHypoxicDuration;
         archive & mSymmetricDivision;
     }
     
@@ -49,7 +48,6 @@ protected:
     double mDeathTime;
     bool mIsDead;
     bool mIsLogged;
-    double mHypoxicDuration;
     bool mSymmetricDivision;
 
     /**
@@ -136,8 +134,6 @@ public:
     void SetLogged();
     bool IsLogged();
     
-    void SetHypoxicDuration(double hypoxicDuration);
-    double GetHypoxicDuration() const;
 };
 
 

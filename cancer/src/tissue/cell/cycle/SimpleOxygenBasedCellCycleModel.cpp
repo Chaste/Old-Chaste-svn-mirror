@@ -68,7 +68,7 @@ bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
 
 AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateCellCycleModel()
 {
-    return new SimpleOxygenBasedCellCycleModel(mG1Duration);
+    return new SimpleOxygenBasedCellCycleModel(mG1Duration, mHypoxicDuration, mHypoxicDurationUpdateTime);
 }
 
 
@@ -85,8 +85,8 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
     if ( oxygen_concentration < CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration() )
     {
         // add necessary time interval to the hypoxic duration
-        mHypoxicDuration += SimulationTime::Instance()->GetDimensionalisedTime() - mHypoxicDurationUpdateTime;
-                
+        mHypoxicDuration += SimulationTime::Instance()->GetDimensionalisedTime() - mHypoxicDurationUpdateTime;      
+        
         // update mHypoxicDurationUpdateTime
         mHypoxicDurationUpdateTime = SimulationTime::Instance()->GetDimensionalisedTime();
                 

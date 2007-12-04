@@ -158,7 +158,7 @@ public:
         // set up tissue simulation
         TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde); 
         simulator.SetOutputDirectory("TestPostSolveMethod");
-        simulator.SetEndTime(1.0/120.0);
+        simulator.SetEndTime(2.0/120.0);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
         
@@ -176,17 +176,24 @@ public:
             double radius = norm_2(tissue.GetLocationOfCell(*cell_iter));
             double analytic_solution = 1 - 0.25*(1 - pow(radius,2.0));
             
+            // Get cell model
+            AbstractCellCycleModel* p_abstract_model=cell_iter->GetCellCycleModel();
+            SimpleOxygenBasedCellCycleModel* p_oxygen_model = static_cast <SimpleOxygenBasedCellCycleModel*>(p_abstract_model);
+            
             // First part of test - check that PDE solver is working correctly
             TS_ASSERT_DELTA(p_data->GetValue(&(*cell_iter)), analytic_solution, 1e-2);
             
             // Second part of test - check that each cell's hypoxic duration is correctly updated
             if ( p_data->GetValue(&(*cell_iter)) >= p_params->GetHepaOneCellHypoxicConcentration() )
             {
-                TS_ASSERT_DELTA(cell_iter->GetHypoxicDuration(), 0.0, 1e-5);
+                //TS_ASSERT_DELTA(cell_iter->GetHypoxicDuration(), 0.0, 1e-5);
+                TS_ASSERT_DELTA(p_oxygen_model->GetHypoxicDuration(), 0.0, 1e-5);
             }
             else
             {
-                TS_ASSERT_DELTA(cell_iter->GetHypoxicDuration(), 1.0/120.0, 1e-5);    
+                //TS_ASSERT_DELTA(cell_iter->GetHypoxicDuration(), 1.0/120.0, 1e-5);    
+                TS_ASSERT_DELTA(p_oxygen_model->GetHypoxicDuration(), 1/120.0, 1e-5);
+                
             } 
         }     
         

@@ -1259,10 +1259,6 @@ public:
             
             stem_cell.SetNodeIndex(3);
             
-            TS_ASSERT_DELTA(stem_cell.GetHypoxicDuration(), 0.0, 1e-5);
-            stem_cell.SetHypoxicDuration(15.3);            
-            TS_ASSERT_DELTA(stem_cell.GetHypoxicDuration(), 15.3, 1e-5);
-            
             TS_ASSERT(!stem_cell.DividesSymmetrically());
             stem_cell.SetSymmetricDivision();
             TS_ASSERT(stem_cell.DividesSymmetrically())
@@ -1307,7 +1303,6 @@ public:
             TS_ASSERT_EQUALS(p_stem_cell->GetAge(), 0.5);
             TS_ASSERT_EQUALS(p_stem_cell->GetGeneration(), 0u);
             TS_ASSERT_EQUALS(p_stem_cell->GetCellType(), STEM);
-            TS_ASSERT_DELTA(p_stem_cell->GetHypoxicDuration(), 15.3, 1e-5);
             TS_ASSERT(p_stem_cell->DividesSymmetrically())
             
             AbstractCellCycleModel* p_model = p_stem_cell->GetCellCycleModel();

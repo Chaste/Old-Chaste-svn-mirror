@@ -60,26 +60,15 @@ public:
      *  local oxygen concentration).
      */  
     void TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
-    {        
-        if (rCell.GetCellType()!=HEPA_ONE)
+    {   
+        if (rCell.GetCellType()!=HEPA_ONE && rCell.GetCellType()!=NECROTIC)
         {
-            EXCEPTION("OxygenBasedCellKiller is trying to kill a cell that is not of type HEPA_ONE");
-        }    
-        
-        double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(&rCell);
-        
-		if ( oxygen_concentration < mHypoxicConcentration )
+            EXCEPTION("OxygenBasedCellKiller is trying to kill a cell that is not of type HEPA_ONE or NECROTIC");
+        }      
+        if (rCell.GetCellType()==NECROTIC)
         {
-        	double hypoxic_duration = rCell.GetHypoxicDuration();
-            
-            // a little bit of stochasticity here
-            double prob_of_death = 0.9 - 0.5*(oxygen_concentration/mHypoxicConcentration); 
-            
-            if (!rCell.HasApoptosisBegun() && hypoxic_duration > 1.0 && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
-            {                     
-                rCell.StartApoptosis();
-            }
-        }           
+            rCell.StartApoptosis();
+        }          
     }
     
     /**

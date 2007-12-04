@@ -39,7 +39,6 @@ TissueCell::TissueCell(CellType cellType,
     {
     	mpCellCycleModel->SetCell(this);
     }
-    mHypoxicDuration = 0.0;
     mSymmetricDivision = false;
 }
 
@@ -66,7 +65,6 @@ void TissueCell::CommonCopy(const TissueCell &other_cell)
     // only, as the model is fully set up (from the above line) already.
     mpCellCycleModel->AbstractCellCycleModel::SetCell(this);
     
-    mHypoxicDuration = other_cell.mHypoxicDuration;
     mSymmetricDivision = other_cell.mSymmetricDivision;
 }
 
@@ -186,15 +184,6 @@ bool TissueCell::IsLogged()
     return mIsLogged;
 }
 
-void TissueCell::SetHypoxicDuration(double hypoxicDuration)
-{
-	mHypoxicDuration = hypoxicDuration;
-}
-
-double TissueCell::GetHypoxicDuration() const
-{
-	return mHypoxicDuration;
-}
 
 /**
  * The TissueCell ready to divide method
