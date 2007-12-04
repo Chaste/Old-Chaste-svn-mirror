@@ -148,10 +148,10 @@ public:
         CancerParameters::Instance()->Reset();
         
         // Here we have a system at rest at Wnt = 1.0 - it would normally go into S phase at 5.971.
-        // Instead we reduce Wnt linearly over 0<t<1 to zero and the cell doesn't divide.
+        // Instead we reduce Wnt linearly over 1<t<2 to zero and the cell doesn't divide.
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         
-        double end_time = 10.0; //hours
+        double end_time = 10.0 + CancerParameters::Instance()->GetMDuration(); //hours
         int num_timesteps = 1000*(int)end_time;
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);// 15.971 hours to go into S phase
@@ -173,9 +173,9 @@ public:
             double time = p_simulation_time->GetDimensionalisedTime();            
             bool result = p_cell_model->ReadyToDivide();
             
-            if (time <= 1.0)
+            if (time <= 2.0)    // Reduces from 1 to 0 over the interval 1<t<2 (at beginning of G1 phase)
             {
-                wnt_level = 1.0-time;
+                wnt_level = 2.0-time;
             }
             else
             {
@@ -221,7 +221,7 @@ public:
         // Instead we reduce Wnt linearly over 0<t<1 to zero and the cell doesn't divide.
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         
-        double end_time = 30.0; //hours
+        double end_time = 30; //hours
         int num_timesteps = 1000*(int)end_time;
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);// 15.971 hours to go into S phase
@@ -246,7 +246,7 @@ public:
 
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
         WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
-        for (int i=0; i<2*num_timesteps/3; i++)
+        for (int i=0; i<21*num_timesteps/30.0; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             bool result = stem_cell.ReadyToDivide();
@@ -260,7 +260,7 @@ public:
                 TS_ASSERT_EQUALS(result, false);
             }
         }
-        TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 20.0, 1e-4);
+        TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 21.0, 1e-4);
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
         
         std::vector<double> test_results = p_cell_model->GetProteinConcentrations();
@@ -291,8 +291,12 @@ public:
         // Acts as if it was divided at time = 16.1877... which is OK 
         // (cell cycle model dictates division time, not when the cell is manually
         // divided)
+        std::cout << "Cell divided at time = " << SimulationTime::Instance()->GetDimensionalisedTime() << "\n" << std::flush;
         TissueCell daughter_cell = stem_cell.Divide();
         AbstractCellCycleModel* p_cell_model2 = daughter_cell.GetCellCycleModel();
+        
+        TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), M);
+        TS_ASSERT_EQUALS(p_cell_model2->GetCurrentCellCyclePhase(), M);
         
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);
         TS_ASSERT_EQUALS(p_cell_model2->ReadyToDivide(), false);
@@ -322,16 +326,16 @@ public:
         TS_ASSERT_DELTA(test_results[20], 2.235636835087684e+00, 1e-4);
         TS_ASSERT_DELTA(test_results[21], 1.000000000000000e+00, 1e-4);
         
-        for (int i=0; i<num_timesteps/3; i++)
+        for (int i=0; i<9*num_timesteps/30.0; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();            
             bool result = p_cell_model->ReadyToDivide();
             bool result2 = p_cell_model2->ReadyToDivide();
             
-            if (time <= 21.0)
+            if (time <= 22.0)
             {
-                wnt_level = 21.0 - time;
+                wnt_level = 22.0 - time;
             }
             else
             {
@@ -431,7 +435,7 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();            
             bool result = p_cell_model_1->ReadyToDivide();
-            if (time < 4.804+SG2MDuration)
+            if (time < 4.804 + SG2MDuration)
             {
                 TS_ASSERT(result==false);
             }
@@ -442,13 +446,14 @@ public:
         }
         p_cell_model_1->ResetModel();
         double second_cycle_start = p_cell_model_1->GetBirthTime();
-        
+        //std::cout << "second cycle start = " << second_cycle_start << ", predicted division time = " << second_cycle_start+14.804 << "\n" << std::flush;
+        TS_ASSERT_DELTA(SG2MDuration, 10.0, 1e-5);
         for (int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();            
             bool result = p_cell_model_1->ReadyToDivide();
-            if (time< second_cycle_start+4.804+SG2MDuration)
+            if (time< second_cycle_start + 4.804 + SG2MDuration)
             {
                 TS_ASSERT(result==false);
             }
@@ -456,6 +461,7 @@ public:
             {
                 TS_ASSERT(result==true);
             }
+            //std::cout << "time = " << time << ", result = " << result << "\n" << std::flush;
         }
         
         SimulationTime::Destroy();

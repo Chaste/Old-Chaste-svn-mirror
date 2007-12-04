@@ -53,11 +53,27 @@ bool AbstractOdeBasedCellCycleModel::ReadyToDivide()
     
 //    we want to start solving the ODEs at the end of M phase - could possibly 
 //    hijack mLastTime to do this
+    //std::cout << "mBirthTime = " << mBirthTime << " current time = "<< current_time << "\n" << std::flush; 
+    if (mCurrentCellCyclePhase == M)
+    {
+        double m_duration = GetMDuration();
+        if (current_time - mBirthTime > m_duration)
+        {
+            mCurrentCellCyclePhase = G_ONE;
+            mLastTime = m_duration + mBirthTime;
+        } 
+        else 
+        {
+            return false;
+        }
+        //return false;
+    }
     
     if (current_time>mLastTime)
     {
         if (!mFinishedRunningOdes)
         {   
+            //std::cout << "Running ODEs to time " << current_time << "\n" << std::flush;
             mFinishedRunningOdes = SolveOdeToTime(current_time);
             
             for (unsigned i=0 ; i<mpOdeSystem->GetNumberOfStateVariables() ; i++)
@@ -75,8 +91,10 @@ bool AbstractOdeBasedCellCycleModel::ReadyToDivide()
             
             if (mFinishedRunningOdes)
             {
-//              mCurrentCellCyclePhase = S;  
-                mDivideTime = GetOdeStopTime() + GetSG2Duration() + GetMDuration();
+                mCurrentCellCyclePhase = S;  
+                mDivideTime = GetOdeStopTime() + GetSG2Duration() ;//+ GetMDuration();
+                //std::cout << "Ode Stop time = " << GetOdeStopTime() << "\n" << std::flush;
+                //std::cout << "mDivideTime = " << mDivideTime << "\n" << std::flush;
 //              need to do some clever business here - instead of a divide time, we should
 //              get back the separate pahse durations for S and G2
 //              (need to do this in each concrete instance)
@@ -106,6 +124,7 @@ void AbstractOdeBasedCellCycleModel::ResetModel()
     mLastTime = mDivideTime;
     mFinishedRunningOdes = false;
     mReadyToDivide = false;
+    mCurrentCellCyclePhase = M;
 }
     
     

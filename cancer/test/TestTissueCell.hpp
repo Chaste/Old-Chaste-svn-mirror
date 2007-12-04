@@ -841,7 +841,7 @@ public:
             {
                 TS_ASSERT(wnt_cell.ReadyToDivide()==false);
             }
-            //std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
+            std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide() << "\n" << std::endl;
         }
         
         p_simulation_time->IncrementTimeOneStep();
@@ -851,14 +851,14 @@ public:
         
         TissueCell wnt_cell2 = wnt_cell.Divide();
         
-        //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
+        std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
         double time_of_birth = wnt_cell.GetBirthTime();
         double time_of_birth2 = wnt_cell2.GetBirthTime();
         
         TS_ASSERT_DELTA(time_of_birth, time_of_birth2, 1e-9);
         
-        //std::cout << "time of cell divisions = " << time_of_birth << "\tand\t" << time_of_birth2 << "\n" << std::endl;
+        std::cout << "time of cell divisions = " << time_of_birth << "\tand\t" << time_of_birth2 << "\n" << std::endl;
         
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -878,6 +878,8 @@ public:
                 TS_ASSERT(result1==false);
                 TS_ASSERT(result2==false);
             }
+            std::cout << "Time = " << time << " ready = " << result1 << " ready2 = " << result2 << "\n" << std::endl;
+        
         }
         
         SimulationTime::Destroy();

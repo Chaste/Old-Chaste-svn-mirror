@@ -111,6 +111,11 @@ int main(int argc, char *argv[])
 {
     PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
     
+    // solver and preconditioner options
+    //PetscOptionsSetValue("-ksp_type", "cg");
+    //PetscOptionsSetValue("-pc_type", "bjacobi");
+    //PetscOptionsSetValue("-options_table", "");
+    
     if (argc!=2)
     {
         std::cout  << "Usage: SpiralWaveProject parameters_file\n";
