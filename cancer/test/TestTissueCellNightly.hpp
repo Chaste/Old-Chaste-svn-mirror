@@ -38,7 +38,6 @@ public:
         
         TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
-                                   0,  // generation
                                    new TysonNovakCellCycleModel());
                                    
                                    
@@ -94,7 +93,6 @@ public:
         
         TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
-                                   0,  // generation
                                    new TysonNovakCellCycleModel());
                                    
                                    
