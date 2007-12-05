@@ -44,6 +44,8 @@ public:
     bool ReadyToDivide();
         
     AbstractCellCycleModel *CreateCellCycleModel(); 
+    
+    std::vector<CellType> GetNewCellTypes(CellType cellType);
         
 };
 

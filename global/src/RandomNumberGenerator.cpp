@@ -48,7 +48,7 @@ unsigned RandomNumberGenerator::randMod(unsigned base)
  */
 double RandomNumberGenerator::ranf(void)
 {
-	mTimesCalled++;
+    mTimesCalled++;
     return (double)random() / RAND_MAX;
 }
 

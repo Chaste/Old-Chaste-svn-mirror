@@ -254,7 +254,7 @@ TissueCell TissueCell::Divide()
     mCanDivide = false;
     
     CancerParameters *p_params = CancerParameters::Instance();
-        
+    
     if (mSymmetricDivision)
     {
         mpCellCycleModel->ResetModel(); // cell goes back to age zero, and cell type is possibly reset                
@@ -266,6 +266,15 @@ TissueCell TissueCell::Divide()
     }
     else
     {
+//        mpCellCycleModel->mGeneration++;
+//        mpCellCycleModel->ResetModel();
+//        
+//        TissueCell new_cell=TissueCell(mpCellCycleModel->GetNewCellTypes(mCellType)[1], mMutationState,
+//                                      mpCellCycleModel->CreateCellCycleModel());
+//        mpCellCycleModel->SetMotherGeneration(mCellType);
+//        mCellType = mpCellCycleModel->GetNewCellTypes(mCellType)[0];
+//        return new_cell;
+        
         if (mCellType != HEPA_ONE)
         {
             if (mCellType != STEM)

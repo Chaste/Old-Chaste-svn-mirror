@@ -88,3 +88,17 @@ bool CryptProjectionCellCycleModel::ReadyToDivide()
     
     return ready;
 }
+
+std::vector<CellType> CryptProjectionCellCycleModel::GetNewCellTypes(CellType cellType)
+{
+   
+    std::vector<CellType> cell_types(2);
+    cell_types[0] = cellType;
+    cell_types[1] = TRANSIT;
+    if (cellType == STEM)
+    {
+        SetGeneration(0u); 
+    }
+    
+    return cell_types;
+}

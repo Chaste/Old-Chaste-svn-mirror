@@ -102,7 +102,11 @@ public:
      */
     unsigned GetGeneration() const;
     
-    
+    /**
+     * Returns the cell types of the next generation of cells in a vector
+     * [0] is the new mother cell type, [1] is the new daughter cell type
+     */
+    virtual std::vector<CellType> GetNewCellTypes(CellType cellType);
     
     /**
      * Returns the cell's birth time...
@@ -137,6 +141,12 @@ public:
      *    called to copy its state. 
      */
     virtual AbstractCellCycleModel *CreateCellCycleModel()=0;
+    
+    /**
+     * This normally does nothing but is over-ridden when the mother cell has
+     * an AbstractSimpleMeineke cell cycle model and cell is a stem.
+     */ 
+    virtual void SetMotherGeneration(CellType cellType) {};
     
     /**
      * @return the level of membrane bound beta-catenin. However in most Cell Cycle models this does not exist.

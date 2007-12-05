@@ -18,7 +18,7 @@
 #include "CancerParameters.hpp"
 #include "WntGradient.hpp"
 
-class TestSimpleCellCycleModels : public CxxTest::TestSuite
+class TestCellCycleModelsSimple : public CxxTest::TestSuite
 {
 private:
     void CheckCellCyclePhasesAreUpdated(AbstractCellCycleModel* pModel, double g1Duration)
@@ -299,11 +299,13 @@ public:
         
         // divide the cell
         TS_ASSERT_EQUALS(cell.ReadyToDivide(), true);
-        
+        TS_ASSERT_EQUALS(cell.GetCellType(), STEM);
         TissueCell cell2 = cell.Divide();
+        TS_ASSERT_EQUALS(cell.GetCellType(), STEM);
+        TS_ASSERT_EQUALS(cell2.GetCellType(), TRANSIT);
         cell.SetMutationState(LABELLED);
         
-        CryptProjectionCellCycleModel *p_cycle_model2 = static_cast <CryptProjectionCellCycleModel*> (cell2.GetCellCycleModel());        
+//        CryptProjectionCellCycleModel *p_cycle_model2 = static_cast <CryptProjectionCellCycleModel*> (cell2.GetCellCycleModel());        
         
         // Now reduce the Wnt gradient
         wnt_level = p_params->GetRadialWntThreshold() - 0.01;
@@ -312,12 +314,12 @@ public:
         // The numbers for the G1 durations are taken from 
         // the first two random numbers generated
         double new_g1_duration = 2.57753;
-        double new_g1_duration2 = 2.5662;
+//        double new_g1_duration2 = 2.5662;
         for (unsigned i = 0 ; i< num_timesteps/3 ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();            
             CheckCellCyclePhasesAreUpdated(p_cycle_model, new_g1_duration);
-            CheckCellCyclePhasesAreUpdated(p_cycle_model2, new_g1_duration2);
+//            CheckCellCyclePhasesAreUpdated(p_cycle_model2, new_g1_duration2);
         }
         
         TS_ASSERT_EQUALS(cell.GetCellType(), TRANSIT);

@@ -56,6 +56,19 @@ public:
         
 	void ResetModel();
     
+    /**
+     * Returns the cell types of the next generation of cells in a vector
+     * [0] is the new mother cell type, [1] is the new daughter cell type
+     * overwritten as new daughter cell type can depend on mother cell type.
+     */
+    std::vector<CellType> GetNewCellTypes(CellType cellType);
+    
+    /**
+     * This normally does nothing but is over-ridden when the mother cell has
+     * an AbstractSimpleMeineke cell cycle model and cell is a stem.
+     */ 
+    void SetMotherGeneration(CellType cellType);
+    
 };
 
 BOOST_IS_ABSTRACT(AbstractSimpleMeinekeCellCycleModel)

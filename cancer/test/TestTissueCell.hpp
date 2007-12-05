@@ -111,10 +111,10 @@ public:
         
         TS_ASSERT(stem_cell.ReadyToDivide());
         TS_ASSERT(symmetric_stem_cell.ReadyToDivide());
-        
         // create transit progeny of stem
+        std::cout << "mother gen  = " << stem_cell.GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
         TissueCell daughter_cell = stem_cell.Divide();
-                
+        std::cout << "mother gen  = " << stem_cell.GetCellCycleModel()->GetGeneration() << " " << "daughter gen  = " << daughter_cell.GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
         TS_ASSERT(!stem_cell.ReadyToDivide());    
         TS_ASSERT(daughter_cell.GetCellCycleModel()->GetGeneration() == 1);
         TS_ASSERT(daughter_cell.GetCellType() == TRANSIT);
@@ -172,7 +172,6 @@ public:
         
         // test the Divide() method for a HEPA-1 cell        
         TissueCell hepa_one_cell(HEPA_ONE, HEALTHY, new FixedCellCycleModel());      
-
         hepa_one_cell.SetBirthTime(54.0);
         p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(94.0, 4);   
         p_simulation_time->IncrementTimeOneStep();//t=64
@@ -181,8 +180,7 @@ public:
         TS_ASSERT(hepa_one_cell.ReadyToDivide());
         
         TissueCell hepa_one_daughter_cell = hepa_one_cell.Divide();
-        
-        TS_ASSERT(!hepa_one_cell.ReadyToDivide());        
+        TS_ASSERT(!hepa_one_cell.ReadyToDivide());  
         TS_ASSERT(hepa_one_daughter_cell.GetCellType() == HEPA_ONE);
         TS_ASSERT_DELTA(hepa_one_daughter_cell.GetAge(), 0 , 1e-9);
         
@@ -219,7 +217,6 @@ public:
         TissueCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
                                    new FixedCellCycleModel());
-                                   
         p_simulation_time->IncrementTimeOneStep();
         p_simulation_time->IncrementTimeOneStep();
         p_simulation_time->IncrementTimeOneStep();
@@ -237,6 +234,7 @@ public:
         // track all the offspring of the daughter cell
         // after 3 generations they should become differentiated
         // and stop dividing
+        //daughter_cell.GetCellCycleModel()->SetGeneration(0u);
         cells.push_back(daughter_cell);
         
         std::vector<TissueCell>::iterator cell_iterator;
@@ -251,7 +249,8 @@ public:
         expected_num_cells[5]=8;
         
         TS_ASSERT_EQUALS(expected_num_cells[1], cells.size());
-        
+        std::cout << "mother gen start = " << cells[0].GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
+        std::cout << "mother gen start 2 = " << daughter_cell.GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
         for (int generation=2; generation<6; generation++)
         {
             // produce the offspring of the cells
@@ -261,12 +260,13 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             p_simulation_time->IncrementTimeOneStep();
             
-            
             while (cell_iterator < cells.end())
             {
                 if (cell_iterator->ReadyToDivide())
                 {
+                    std::cout << "mother gen  = " << cell_iterator->GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
                     newly_born.push_back(cell_iterator->Divide());
+                    std::cout << "mother gen  = " << cell_iterator->GetCellCycleModel()->GetGeneration() << "new gen  = " << newly_born[newly_born.size()-1].GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
                 }
                 cell_iterator++;
             }

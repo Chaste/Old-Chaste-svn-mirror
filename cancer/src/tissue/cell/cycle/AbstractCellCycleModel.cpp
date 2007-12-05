@@ -73,6 +73,16 @@ unsigned AbstractCellCycleModel::GetGeneration() const
     return mGeneration;
 }
 
+std::vector<CellType> AbstractCellCycleModel::GetNewCellTypes(CellType cellType)
+{
+    std::vector<CellType> cell_types(2);
+    cell_types[0] = cellType;
+    cell_types[1] = cellType;
+    return cell_types;
+}
+
+
+
    
 double AbstractCellCycleModel::GetSDuration()
 {
@@ -88,3 +98,4 @@ double AbstractCellCycleModel::GetMDuration()
 {
     return CancerParameters::Instance()->GetMDuration();
 }   
+
