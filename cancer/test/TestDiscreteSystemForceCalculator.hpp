@@ -125,8 +125,7 @@ public:
         Tissue<2> tissue(*p_mesh, cells);
         tissue.SetGhostNodes(ghost_node_indices);
 
-        // Need to create a spring system explicitly so we can pass 
-        // it in to the force calculator
+        // Need to create a spring system explicitly so we can pass it in to the force calculator
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
         
         // Create a force calculator
@@ -175,7 +174,48 @@ public:
                     TS_ASSERT_DELTA( calculated_results[1][i], expected_maximum_interior, 1e-4);              
                 }
             }
-        }
+        }        
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+    
+    void TestCalculateWriteResultsToFile() throw (Exception)
+    {
+        // Set up a tissue 
+        CancerParameters::Instance();
+        
+        SimulationTime::Instance()->SetStartTime(0.0);        
+        //SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(0.1, 1);
+                
+        HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
+        ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
+        std::set<unsigned> ghost_node_indices = mesh_generator.GetGhostNodeIndices();
+                
+        CellsGenerator<2> cells_generator;
+        std::vector<TissueCell> cells;
+        cells_generator.GenerateBasic(cells, *p_mesh);
+        
+        Tissue<2> tissue(*p_mesh, cells);
+        tissue.SetGhostNodes(ghost_node_indices);
+
+        // Need to create a spring system explicitly so we can pass it in to the force calculator
+        Meineke2001SpringSystem<2> meineke_spring_system(tissue);
+        
+        // Create a force calculator
+        DiscreteSystemForceCalculator calculator(meineke_spring_system); 
+        
+        // Test WriteResultsToFile
+        TS_ASSERT_THROWS_NOTHING(calculator.WriteResultsToFile("TestDiscreteSystemForceCalculator"));
+        
+         
+        // Compare output with saved files of what they should look like 
+        OutputFileHandler handler("TestDiscreteSystemForceCalculator",false);
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizstress";         
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestDiscreteSystemForceCalculator/results.vizstress").c_str()), 0);  
+        
+        // Tidy up 
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
     
 };

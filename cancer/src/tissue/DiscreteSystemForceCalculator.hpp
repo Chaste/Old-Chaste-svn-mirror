@@ -2,6 +2,7 @@
 #define DISCRETESYSTEMFORCECALCULATOR_HPP_
 
 #include "Meineke2001SpringSystem.hpp"
+#include "OutputFileHandler.hpp"
 
 
 class DiscreteSystemForceCalculator
@@ -19,6 +20,9 @@ private:
      * Small parameter, used in GetSamplingAngles().
      */ 
     double mEpsilon; 
+    
+    /** The file that the results of CalculateExtremalNormalForces */ 
+    out_stream mpStressResultsFile; 
     
     
     /**
@@ -158,7 +162,6 @@ private:
                 sampling_angles[i] = alpha_minus_epsilon_plus_pi;
             }
             assert(sampling_angles[i] < 2*M_PI);
-//            std::cout << sampling_angles[i] << "\n" << std::flush;
             assert(sampling_angles[i] >= 0);
             i++;
             
@@ -336,6 +339,44 @@ public:
         extremal_normal_forces.push_back(maximum_normal_forces);
         
         return extremal_normal_forces;
+    }
+    
+    void WriteResultsToFile(std::string simulationOutputDirectory)
+    {
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        double time = p_simulation_time->GetDimensionalisedTime();
+        std::ostringstream time_string;
+        time_string << time;
+        std::string results_directory = simulationOutputDirectory +"/results_from_time_" + time_string.str();
+            
+        OutputFileHandler output_file_handler2(results_directory+"/vis_results/",false); 
+        mpStressResultsFile = output_file_handler2.OpenOutputFile("results.vizstress");
+        
+        (*mpStressResultsFile) <<  time << "\t";
+        
+        double global_index;
+        double x;
+        double y;
+        double minimum;
+        double maximum;
+
+        ConformingTetrahedralMesh<2,2>& r_mesh = mrMeinekeSpringSystem.GetTissue().rGetMesh();
+        
+        std::vector< std::vector<double> > extremal_normal_forces = CalculateExtremalNormalForces();
+               
+        for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
+        {
+            global_index = (double) i;
+            
+            x = r_mesh.GetNode(i)->rGetLocation()[0];
+            y = r_mesh.GetNode(i)->rGetLocation()[1];
+            
+            minimum = extremal_normal_forces[0][i]; 
+            maximum = extremal_normal_forces[1][i];
+            
+            (*mpStressResultsFile) << global_index << " " << x << " " << y << " " << minimum << " " << maximum << " ";
+        }
+       mpStressResultsFile->close();
     }
 
 };
