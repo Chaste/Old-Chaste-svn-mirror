@@ -756,7 +756,15 @@ public:
                          
     }
     
-    
+    void Test1DBoundaryNodeMerger()
+    {
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_1_element");
+        ConformingTetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT_EQUALS(mesh.CalculateMeshVolume(), 1.0);
+        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(0U, 1U));
+    }  
     
     void Test1DNodeMerger()
     {

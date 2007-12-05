@@ -449,6 +449,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned i
         if (unshared_boundary_element_indices.size()
             == mNodes[index]->rGetContainingBoundaryElementIndices().size())
         {
+            //May be redundant (only thrown in 1D tests)
             EXCEPTION("These nodes cannot be merged since they are not neighbours on the boundary");
         }
     }
