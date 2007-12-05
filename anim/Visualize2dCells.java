@@ -20,6 +20,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public Frame frame = new Frame();
 
     public static double[] times;
+    public static double stress_time = 0.0;
 
     public static int[] numCells;
     public static int[] numElements;
@@ -29,6 +30,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static RealPoint[][] fibres;
     public static double[][] nutrient_values;
     public static double[][][] beta_catenin_values;
+    public static double[][][] stress_values;
     public static int[][] element_nodes;
     public static int[][] cell_type;
     public static int[][] image_cells;
@@ -46,6 +48,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static boolean drawCircles = false;
     public static boolean drawNutrient = false;
     public static boolean drawBetaCatenin = false;
+    public static boolean drawAverageStress = false;
+    public static boolean drawDifferenceStress = false;
     public static boolean writeFiles = false;
     public static boolean drawGhosts = false;
     public static boolean drawFibres = false;
@@ -68,6 +72,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     
     public static JPanel nutrient_colour_bar = new JPanel();
     public static JPanel beta_catenin_colour_bar = new JPanel();
+    public static JPanel stress_colour_bar = new JPanel();
+    
+    public static JPanel east_panel = new JPanel(new GridLayout(1,1));
     
     public static Checkbox output = new Checkbox("Output");
     public static Checkbox springs = new Checkbox("Springs");
@@ -77,6 +84,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static Checkbox circles = new Checkbox("Cells as circles");
     public static Checkbox nutrient = new Checkbox("Nutrient");
     public static Checkbox beta_catenin = new Checkbox("Beta catenin");
+    public static Checkbox average_stress = new Checkbox("Average Stress");
+    public static Checkbox difference_stress = new Checkbox("Difference Stress");
     
     public static JLabel nearest_label = new JLabel();
             
@@ -94,11 +103,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         addTimeSlider(frame);
         addNutrientColourBar(frame);
         addBetaCateninColourBar(frame);
+        addStressColourBar(frame);
         
         JPanel canvasPanel = new JPanel();
         canvasPanel.add(canvas);
         frame.add(canvasPanel, BorderLayout.CENTER);
-
+        frame.add(east_panel, BorderLayout.EAST);
+                
         frame.addWindowListener(new WindowAdapter() 
         {
             public void windowClosing(WindowEvent e) 
@@ -172,6 +183,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         else if (cb == cells)
         {
             drawCells = state;
+            if (state == true)
+            {
+            	drawCircles = false;
+                circles.setState(false);
+            }
             System.out.println("Drawing cells = "+drawCells);
         }
         else if (cb == ghost_nodes)
@@ -182,6 +198,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         else if (cb == circles)
         {
             drawCircles = state;
+            if (state == true)
+            {
+            	drawCells = false;
+            	cells.setState(false);
+            }
             System.out.println("Drawing cells as circles = "+drawCircles);    
         }
         else if (cb == nutrient)
@@ -192,7 +213,37 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         else if (cb == beta_catenin)
         {
             drawBetaCatenin = state;
+            if (state == true)
+            {
+            	circles.setState(false);
+            	circles.setVisible(false);
+            	drawCircles = false;
+            }
+            else
+            {
+            	circles.setVisible(true);
+            }
             System.out.println("Drawing beta catenin = "+drawBetaCatenin); 
+        }
+        else if (cb == average_stress)
+        {
+            drawAverageStress = state;
+            if (state == true)
+            {
+            	drawDifferenceStress = false;
+            	difference_stress.setState(false);
+            }
+            System.out.println("Drawing average stress = "+drawAverageStress); 
+        }
+        else if (cb == difference_stress)
+        {
+            drawDifferenceStress = state;
+            if (state == true)
+            {
+            	drawAverageStress = false;
+            	average_stress.setState(false);
+            }
+            System.out.println("Drawing difference stress = "+drawDifferenceStress); 
         }
         canvas.drawBufferedImage();
         canvas.repaint();
@@ -235,7 +286,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             }
             canvas.drawBufferedImage();
             canvas.repaint();
-
         }
     }
 
@@ -288,7 +338,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         scrollPanel_time.add(time_slider);
         scrollPanel_time.add(end_time);
                         
-        JPanel checkPanel = new JPanel(new GridLayout(0,4));
+        JPanel checkPanel = new JPanel(new GridLayout(0,5));
         output.addItemListener(this);
         springs.addItemListener(this);
         fibre.addItemListener(this);
@@ -297,15 +347,19 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         circles.addItemListener(this);
         nutrient.addItemListener(this);
         beta_catenin.addItemListener(this);
+        average_stress.addItemListener(this);
+        difference_stress.addItemListener(this);
         
         checkPanel.add(output);
         checkPanel.add(springs);
-        checkPanel.add(nutrient);
-        checkPanel.add(beta_catenin);
-        checkPanel.add(fibre);
         checkPanel.add(cells);
         checkPanel.add(ghost_nodes);
         checkPanel.add(circles);
+        checkPanel.add(nutrient);
+        checkPanel.add(beta_catenin);
+        checkPanel.add(fibre);
+        checkPanel.add(average_stress);
+        checkPanel.add(difference_stress);
         checkPanel.add(nearest_label);
                 
         JPanel southPanel = new JPanel(new GridLayout(2,0));
@@ -325,26 +379,25 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         
         nutrient_colour_bar.setVisible(false);
         nutrient_colour_bar.setPreferredSize(new Dimension(panelWidth,panelHeight));
-        nutrient_colour_bar.setLayout(new GridLayout(10,2));
+        nutrient_colour_bar.setLayout(new GridLayout(num_blocks,2));
        
         for (int i=num_blocks-1;i>=0;i--)
         {       
             JPanel colour_block = new JPanel();
             colour_block.setPreferredSize(new Dimension(panelWidth/2,panelHeight/num_blocks));
             
-            // calculate colour                    
-            int g_value = (int) ((255.0/((double) num_blocks))*((double) i));
-            colour_block.setBackground(new Color(0,g_value,255));
+//          calculate colour 
+            double conc = (double)(i)/(double)(num_blocks);
+            int g_value = (int)(255.0 * conc);
+            int b_value = (int)(200.0 - 80.0*conc); 
+            colour_block.setBackground(new Color(0,g_value,b_value));
             
             Label colour_label = new Label(labels[num_blocks-1-i]);        
         
             nutrient_colour_bar.add(colour_block);
-            nutrient_colour_bar.add(colour_label);      
-        }
-                
-        JPanel eastPanel = new JPanel(new GridLayout(1,1));        
-        eastPanel.add(nutrient_colour_bar);
-        frame.add(eastPanel,BorderLayout.EAST);        
+            nutrient_colour_bar.add(colour_label);  
+        }   
+        east_panel.add(nutrient_colour_bar); 
     }
     
     public void addBetaCateninColourBar(Frame frame) 
@@ -358,7 +411,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         
         beta_catenin_colour_bar.setVisible(false);
         beta_catenin_colour_bar.setPreferredSize(new Dimension(panelWidth,panelHeight));
-        beta_catenin_colour_bar.setLayout(new GridLayout(10,2));
+        beta_catenin_colour_bar.setLayout(new GridLayout(num_blocks,2));
        
         for (int i=num_blocks-1;i>=0;i--)
         {       
@@ -377,6 +430,70 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         frame.add(westPanel,BorderLayout.WEST);
     }
     
+    public void addStressColourBar(Frame frame) 
+    {
+    	double stress_max = 40;
+    	double stress_min = 0 ;
+    	int r = 0;
+    	int g=0;
+    	int b=0;
+    	double interval = (stress_max-stress_min)/4.0;
+    	
+    	int panelHeight = (int) (0.8 * frame.getHeight());
+        int panelWidth = 120;
+        int num_blocks = 20;        
+        int blockHeight = panelHeight/num_blocks;
+        
+        stress_colour_bar.setVisible(false);
+        stress_colour_bar.setPreferredSize(new Dimension(panelWidth,panelHeight));
+        stress_colour_bar.setLayout(new GridLayout(num_blocks,2));
+       
+        for (int i=num_blocks-1;i>=0;i--)
+        {    
+        	double stress =  stress_min + (stress_max-stress_min)*i/(num_blocks-1);
+        	
+            JPanel colour_block = new JPanel();
+            colour_block.setPreferredSize(new Dimension(panelWidth/2,panelHeight/num_blocks));
+            if (stress <  interval)
+        	{
+        		r=0;
+        		g= (int)(255.0*stress/interval);
+        		b=255;
+        	}
+        	else if (stress < 2.0*interval)
+        	{
+        		r=0;
+        		g= 255;
+        		b=255 - (int) (255.0*(stress-interval)/interval);
+        	}
+        	else if (stress < 3.0*interval)
+        	{
+        		r=(int)(255.0*(stress-2.0*interval)/interval);
+        		g= 255;
+        		b=0;
+        	}
+        	else 
+        	{
+        		r=255;
+        		g= 255 - (int) (255.0*(stress- 3.0*interval)/interval);
+        		b=0;
+        	}
+            // calculate colour                    
+            colour_block.setBackground(new Color(r,g,b));
+            
+            double box_interval = (stress_max-stress_min)/(double)(num_blocks);
+            double lower_bound = stress_min + i*box_interval;
+            double upper_bound = lower_bound + box_interval;
+            Label colour_label = new Label(lower_bound+ " - " + upper_bound);        
+        
+            stress_colour_bar.add(colour_block);
+            stress_colour_bar.add(colour_label);      
+        } 
+        
+        east_panel.add(stress_colour_bar);        
+    }
+    
+    
     public static void main(String args[]) 
     {
         System.out.println("Copyright Gavaghan's goons");
@@ -388,6 +505,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         circles.setState(false);
         nutrient.setState(false);
         beta_catenin.setState(false);
+        average_stress.setState(false);
+        difference_stress.setState(false);
         
         for (int i=1; i<args.length; i++)
         {
@@ -444,6 +563,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         File element_file = new File(args[0]+"/vis_results/results.vizelements");
         File nutrient_file = new File(args[0]+"/vis_results/results.viznutrient");
         File beta_catenin_file = new File(args[0]+"/vis_results/results.vizbCat");
+        File stress_file = new File(args[0]+"/vis_results/results.vizstress");
                 
         if (!node_file.isFile())
         {
@@ -468,6 +588,23 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             beta_catenin.setVisible(false);
             beta_catenin.setState(false);
             drawBetaCatenin = false;
+        }
+        if (!stress_file.isFile())
+        {
+            //System.out.println("The file "+args[0]+"/vis_results/results.vizbCat doesn't exist");
+            average_stress.setVisible(false);
+            difference_stress.setVisible(false);
+            average_stress.setState(false);
+            difference_stress.setState(false);
+            drawAverageStress = false;
+            drawDifferenceStress = false;
+        }
+        else
+        {
+        	average_stress.setState(true);
+            difference_stress.setState(false);
+            drawAverageStress = true;
+            drawDifferenceStress = false;        	
         }
     
         File fibre_file = new File(args[0]+"/vis_results/results.vizfibres");
@@ -517,6 +654,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             fibres =  new RealPoint[num_lines][];
             nutrient_values = new double[num_lines][]; 
             beta_catenin_values = new double[num_lines][][]; 
+            stress_values = new double[num_lines][][]; 
             String line_fibre = "";
             BufferedReader in_fibre_file = null;
 
@@ -555,6 +693,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     {
                         drawBetaCatenin = true;
                         beta_catenin.setState(true);
+                        circles.setVisible(false);
                     }
                     line_setup = in_setup_file.readLine();
                 }
@@ -578,6 +717,15 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 line_beta_catenin = in_beta_catenin_file.readLine();
             }
             
+            String line_stress = "";
+            BufferedReader in_stress_file = null;
+            if (drawAverageStress || drawDifferenceStress)
+            {
+                stress_values = new double[num_lines][][]; 
+                in_stress_file = new BufferedReader(new FileReader(stress_file));
+                line_stress = in_stress_file.readLine();
+            }
+            
             BufferedReader in_node_file = new BufferedReader(new FileReader(node_file));
             BufferedReader in_element_file = new BufferedReader(new FileReader(element_file));
             
@@ -585,22 +733,23 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             String line_element = in_element_file.readLine();   // above.
             
             // If line is not end of file continue
+            boolean has_stress_line_been_read = false;
             int row = 0;
             while (line_node != null) 
             {
-                // Create a StringTokenizer with a colon sign as a delimiter
+            	// Create a StringTokenizer with a colon sign as a delimiter
                 StringTokenizer st_node = new StringTokenizer(line_node);
                 StringTokenizer st_element = new StringTokenizer(line_element);
                 StringTokenizer st_fibre = null;
                 StringTokenizer st_nutrient = null;
                 StringTokenizer st_beta_catenin = null;
-
+                StringTokenizer st_stress = null;
+                
                 if (drawFibres)
                 {
                     st_fibre=new StringTokenizer(line_fibre);
                     Double fibre_time = Double.valueOf(st_fibre.nextToken());
                 }
-                
                 if (drawNutrient)
                 {
                 	st_nutrient = new StringTokenizer(line_nutrient);
@@ -615,7 +764,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 	                    System.exit(0);
 	                }
                 }
-                
                 if (drawBetaCatenin)
                 {
                 	st_beta_catenin=new StringTokenizer(line_beta_catenin);
@@ -629,6 +777,22 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 	                    System.out.println("Oi - I want the beta catenin file to look like: time,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,...");
 	                    System.exit(0);
 	                }
+                }
+                if ((drawAverageStress || drawDifferenceStress) && !has_stress_line_been_read)
+                {
+                	st_stress=new StringTokenizer(line_stress);
+                    stress_time = Double.valueOf(st_stress.nextToken());
+                    
+                    //count the number of entries in the bcat file to get num non ghosts and check correct 
+	                int stress_entries = st_stress.countTokens();
+	            
+	                if (stress_entries%5 != 0)
+	                {
+	                    System.out.println("Oi - I want the stress file to look like: time,index,x,y,min_stress,max_stress,index,x,y,min_stress,max_stress,...");
+	                    System.exit(0);
+	                }
+	                System.out.println("My stress file is for time = " + stress_time);
+	                has_stress_line_been_read = true;
                 }
                 
                 Double time = Double.valueOf(st_node.nextToken());
@@ -660,19 +824,19 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     System.out.println("Oi - I want the element file to look like: time,n1,n2,n3,n1,n2,n3..");
                     System.exit(0);
                 }
-                                
+                
                 numElements[row] = st_element.countTokens()/3;
                 positions[row] = new RealPoint[memory_factor*numCells[row]];
                 fibres[row] = new RealPoint[numCells[row]];
                 nutrient_values[row] = new double[2*numCells[row]];
                 beta_catenin_values[row] = new double[2*numCells[row]][3];
+                stress_values[row] = new double[2*numCells[row]][2];
                 cell_type[row]= new int[memory_factor*numCells[row]];
                 element_nodes[row] = new int[memory_factor*3*numElements[row]];
                 // ArrayList<Double> positionValues= new ArrayList<Double>();
-                
                 for (int i = 0; i < numCells[row]; i++) 
                 {
-                    double d1 = Double.valueOf(st_node.nextToken()).doubleValue();
+                	double d1 = Double.valueOf(st_node.nextToken()).doubleValue();
                     double d2 = Double.valueOf(st_node.nextToken()).doubleValue();
 
                     if (drawFibres)
@@ -721,9 +885,30 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         	beta_catenin_values[row][index][2]= beta_catenin_nuclear;
                         }
                     }	
+                    
+                    if (Math.abs(stress_time - times[row]) < 1e-7)
+                    {
+                    //	There is currently only ever one timestep's worth of data in 
+                    // 	the stress file, so this is only called when it is the correct time 
+                    	if (drawAverageStress || drawDifferenceStress)
+                    	{
+                    		String skip; //  Skips past unnecessary info.
+                        	int index = Integer.parseInt(st_stress.nextToken()); // index
+                        	//System.out.println("Time = " + times[row] + " Reading in for node = " + index);
+        	                
+                        	skip = st_stress.nextToken(); // x
+                        	skip = st_stress.nextToken(); // y
+                        	
+                        	double stress_min= Double.valueOf(st_stress.nextToken()).doubleValue();
+                        	double stress_max= Double.valueOf(st_stress.nextToken()).doubleValue();
+                        	stress_values[0][index][0]= 0.5*(stress_min + stress_max);
+                        	stress_values[0][index][1]= 0.5*(stress_max - stress_min);
+                    	
+                    	}
+                    }
                 }
                 
-
+                
                 for (int i = 0; i < 3*numElements[row]; i++) 
                 {
                     int node = Integer.parseInt(st_element.nextToken());
@@ -732,12 +917,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     element_nodes[row][i] = node;
                 }
                 
-                // Collections.sort(positionValues);
-                // for (int i=0; i<numCells[row]; i++)
-                // {
-                // positions[row][i] = positionValues.get(i);
-                // }
-
                 // Read next line of the file
                 if (drawFibres)
                 {
@@ -754,7 +933,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 line_node = in_node_file.readLine();
                 line_element = in_element_file.readLine();
                 row++;
-
             } // end while not at end of file
             
             System.out.println("Writing output files = "+writeFiles);
@@ -762,10 +940,12 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             System.out.println("Drawing fibres = "+drawFibres);
             System.out.println("Drawing nutrient = "+drawNutrient);
             System.out.println("Drawing beta catenin = "+drawBetaCatenin);
+            System.out.println("Drawing average stress = "+drawAverageStress);
+            System.out.println("Drawing difference stress = "+drawDifferenceStress);
             System.out.println("Drawing cells = "+drawCells);
             System.out.println("Drawing ghost nodes = "+drawGhosts);
             System.out.println("Drawing cylindrically = "+ drawCylinder);
-            
+                        
             if (drawCylinder) 
             {
             	ConvertCylindricalDataToPlane();
@@ -1030,11 +1210,20 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         int old_y = -1;
         int tick_length = 10;
         int num_ticks = 10;
-        
-        vis.time_slider.setValue(vis.timeStep);        
-        vis.nutrient_colour_bar.setVisible(vis.drawNutrient);
+        vis.east_panel.removeAll();
+        vis.time_slider.setValue(vis.timeStep); 
+        if (vis.drawNutrient)
+        {
+        	vis.east_panel.add(vis.nutrient_colour_bar);
+            vis.nutrient_colour_bar.setVisible(true);
+        }
         vis.beta_catenin_colour_bar.setVisible(vis.drawBetaCatenin);
-            
+        if(vis.drawAverageStress || vis.drawDifferenceStress)
+        {
+        	vis.east_panel.add(vis.stress_colour_bar);
+        	vis.stress_colour_bar.setVisible(true);
+        }
+        
         if (g2==null)
         {
             height = getHeight();
@@ -1166,66 +1355,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                 	g2.setClip(original_clip);
                 }
             }            
-            
-            if (vis.drawNutrient)
-            {                   
-                int clipx[] = new int[3];
-                int clipy[] = new int[3];
-          
-                for (int node=0; node<3; node++)
-                {
-                	clipx[node] = vertex[node].x;
-                	clipy[node] = vertex[node].y;
-                }
-                Polygon clip = new Polygon(clipx,clipy,3);
-                boolean clip_me = false;
-                
-                // Is circumcentre in the triangle?
-                // If not, then we'll clip the next bit of drawing to fit inside the triangle (ticket #432)
-                if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
-                {
-                	clip_me = true;
-                	g2.setClip(clip);
-                } 
-                
-                // plot nutrient levels
-                for (int node=0; node<3; node++)
-                {    
-                    SetCellNutrientColour(vis.nutrient_values[vis.timeStep][index[node]], index[node]);    
-                    int xs[] = new int[4];
-                    int ys[] = new int[4];
-                    xs[0] = plotcircumcentre.x;
-                    ys[0] = plotcircumcentre.y;
-                    xs[1] = midpoint[(node+1)%3].x;
-                    ys[1] = midpoint[(node+1)%3].y;
-                    xs[2] = vertex[node].x;
-                    ys[2] = vertex[node].y;
-                    xs[3] = midpoint[(node+2)%3].x;
-                    ys[3] = midpoint[(node+2)%3].y;
-                    g2.fillPolygon(xs,ys,4);
-                }
-                
-                // Plot cell boundary lines    
-                g2.setColor(Color.black);
-
-                if ( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7) )
-                {
-                    g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
-                }
-                if ( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7) )
-                {
-                    g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
-                }
-                if ( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7) )
-                {
-                    g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
-                }
-                if (clip_me)
-                {
-                    g2.setClip(original_clip);
-                }
-            }            
-            
+                        
             if (vis.drawBetaCatenin)
             {                   
                 int clipx[] = new int[3];
@@ -1314,7 +1444,9 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                 {
                 	g2.setClip(original_clip);
                 }
-            }            
+            }       
+            
+            
             
             if (vis.drawSprings)
             {
@@ -1568,85 +1700,171 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     
     void SetCellColour(int index)
     {
-        if (vis.cell_type[vis.timeStep][index] == 0)
-        {
-            // stem cell
-            g2.setColor(Color.cyan);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 1)
-        {
-            // transit cell
-            g2.setColor(Color.yellow);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 2)
-        {
-            // differentiated cell
-            g2.setColor(Color.pink);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 3)
-        {
-            // DANGER! early CANCER!
-            g2.setColor(Color.lightGray);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 4)
-        {
-            // DANGER! late CANCER!
-            g2.setColor(Color.gray);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 5)
-        {
-            // Labelled cell
-            g2.setColor(purple);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 6)
-        {
-            // Undergoing Apoptosis
-            g2.setColor(ozzysDirtyGrey);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 7)
-        {
-            // danger! sloughed - don't draw anything
-            g2.setColor(garysSexySilver);
-        }
+    	if (vis.drawNutrient)
+    	{
+    		double conc = vis.nutrient_values[vis.timeStep][index];
+    		if (vis.cell_type[vis.timeStep][index] == 6)
+            {
+                // Undergoing Apoptosis
+                g2.setColor(ozzysDirtyGrey);
+            }
+            else if (vis.cell_type[vis.timeStep][index] == 7)
+            {
+                // danger! sloughed - don't draw anything
+                g2.setColor(garysSexySilver);
+            }
+            else
+            {
+            	int r = 0;
+            	int g = (int)(255*conc);
+                if (g<0) 
+                {
+              	    g=0;
+                }
+                if (g>255)
+                {
+              	    g=255;
+                }
+                int b = (int)(200 - 80*conc); 
+                if (b<0) 
+                {
+                    b=0; 
+                }
+                if(b>255)
+                {
+              	    b=255;
+                }    
+                Color colour = new Color(r,g,b);
+                g2.setColor(colour);
+            }   	
+    		
+    	}
+    	else if (vis.drawAverageStress || vis.drawDifferenceStress)
+    	{
+    		double stress;
+        	if (vis.drawAverageStress)
+        	{
+        		stress = vis.stress_values[vis.timeStep][index][0];
+        	}
+        	else
+        	{
+        		stress = vis.stress_values[vis.timeStep][index][1];
+            }
+    		double stress_max = 40;
+        	double stress_min = 0 ;
+        	int r = 0;
+        	int g=0;
+        	int b=0;
+        	double interval = (stress_max-stress_min)/4.0;
+        	
+        	// We do not show up ghost nodes in a stress plot.
+            if (vis.cell_type[vis.timeStep][index] == 7)
+            {
+                // danger! sloughed - don't draw anything
+                g2.setColor(garysSexySilver);
+            }
+            else
+            {
+            	if (stress <  interval)
+            	{
+            		r=0;
+            		g= (int)(255.0*stress/interval);
+            		b=255;
+            	}
+            	else if (stress < 2.0*interval)
+            	{
+            		r=0;
+            		g= 255;
+            		b=255 - (int) (255.0*(stress-interval)/interval);
+            	}
+            	else if (stress < 3.0*interval)
+            	{
+            		r=(int)(255.0*(stress-2.0*interval)/interval);
+            		g= 255;
+            		b=0;
+            	}
+            	else 
+            	{
+            		r=255;
+            		g= 255 - (int) (255.0*(stress- 3.0*interval)/interval);
+            		b=0;
+            	}
+            	
+            	if (r<0) 
+                {
+              	    r=0;
+                }
+                if (r>255)
+                {
+              	    r=255;
+                }
+            	
+            	if (g<0) 
+                {
+              	    g=0;
+                }
+                if (g>255)
+                {
+              	    g=255;
+                }
+                if (b<0) 
+                {
+                    b=0; 
+                }
+                if(b>255)
+                {
+              	    b=255;
+                }    
+                Color colour = new Color(r,g,b);
+                g2.setColor(colour);
+            }   	
+    	}
+    	else	// The default setting...
+    	{
+	        if (vis.cell_type[vis.timeStep][index] == 0)
+	        {
+	            // stem cell
+	            g2.setColor(Color.cyan);
+	        }
+	        else if (vis.cell_type[vis.timeStep][index] == 1)
+	        {
+	            // transit cell
+	            g2.setColor(Color.yellow);
+	        }
+	        else if (vis.cell_type[vis.timeStep][index] == 2)
+	        {
+	            // differentiated cell
+	            g2.setColor(Color.pink);
+	        }
+	        else if (vis.cell_type[vis.timeStep][index] == 3)
+	        {
+	            // DANGER! early CANCER!
+	            g2.setColor(Color.lightGray);
+	        }
+	        else if (vis.cell_type[vis.timeStep][index] == 4)
+	        {
+	            // DANGER! late CANCER!
+	            g2.setColor(Color.gray);
+	        }
+	        else if (vis.cell_type[vis.timeStep][index] == 5)
+	        {
+	            // Labelled cell
+	            g2.setColor(purple);
+	        }
+	        else if (vis.cell_type[vis.timeStep][index] == 6)
+	        {
+	            // Undergoing Apoptosis
+	            g2.setColor(ozzysDirtyGrey);
+	        }
+	        else if (vis.cell_type[vis.timeStep][index] == 7)
+	        {
+	            // danger! sloughed - don't draw anything
+	            g2.setColor(garysSexySilver);
+	        }
+    	}
     }
     
-    void SetCellNutrientColour(double conc, int index)
-    {
-    	if (vis.cell_type[vis.timeStep][index] == 6)
-        {
-            // Undergoing Apoptosis
-            g2.setColor(ozzysDirtyGrey);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 7)
-        {
-            // danger! sloughed - don't draw anything
-            g2.setColor(garysSexySilver);
-        }
-        else
-        {
-        	int r = 0;
-        	int g = (int)(255*conc);
-            if (g<0) 
-            {
-          	    g=0;
-            }
-            if (g>255)
-            {
-          	    g=255;
-            }
-            int b = (int)(200 - 80*conc); 
-            if (b<0) 
-            {
-                b=0; 
-            }
-            if(b>255)
-            {
-          	    b=255;
-            }    
-            Color colour = new Color(r,g,b);
-            g2.setColor(colour);
-        }   	
-    }
+    
     
     void SetCellCytoplasmicBetaCateninColour(double conc, int index)
     {
@@ -1723,9 +1941,15 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     		{
     			g = 255;
     		}
-
+    		
     		Color colour = new Color(r,g,b);
     		g2.setColor(colour);
     	}
     }
-}
+    
+    
+ }
+
+
+
+
