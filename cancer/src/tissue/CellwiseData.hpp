@@ -1,6 +1,10 @@
 #ifndef CELLWISEDATA_HPP_
 #define CELLWISEDATA_HPP_
 
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/vector.hpp>
+
 #include "CancerParameters.hpp"
 #include "Tissue.cpp"
 #include <vector>
@@ -33,6 +37,18 @@ private:
       
     std::vector<double> mConstantDataForTesting;
     bool mUseConstantDataForTesting;    
+    
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mpTissue;
+        archive & mAllocatedMemory;
+        archive & mNumberOfVariables;
+        archive & mData;
+        archive & mConstantDataForTesting;
+        archive & mUseConstantDataForTesting;
+    }
     
     
 protected:
