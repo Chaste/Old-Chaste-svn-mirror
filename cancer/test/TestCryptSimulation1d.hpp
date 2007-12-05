@@ -278,7 +278,7 @@ public:
         
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
         
-	// CheckAgainstPreviousRun("CryptWithCells",50);
+	    CheckAgainstPreviousRun("CryptWithCells",50);
         RandomNumberGenerator::Destroy();
     }
     
