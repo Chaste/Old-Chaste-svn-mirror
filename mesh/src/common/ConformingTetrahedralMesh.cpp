@@ -9,12 +9,15 @@
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh()
-{}
+{
+    Clear();
+}
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh(unsigned numElements)
 {
+    Clear();
     mElements.reserve(numElements);
 }
 
@@ -22,12 +25,13 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh(std::vector<Node<SPACE_DIM> *> nodes)
   //: mNodes(nodes)
 {
+    Clear();
     for (unsigned index=0; index<nodes.size(); index++)
     {
         Node<SPACE_DIM>* temp_node = nodes[index];
         mNodes.push_back(temp_node);
     }
-    
+    mAddedNodes = true;
     NodeMap node_map(nodes.size());
     ReMesh(node_map);
 }
@@ -196,7 +200,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_D
         delete mNodes[index];
         mNodes[index] = pNewNode;
     }
-    
+    mAddedNodes = true;
     return pNewNode->GetIndex();
 }
 
@@ -941,7 +945,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(uns
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
 {
-	map.Resize(GetNumAllNodes());
+	assert(!mAddedNodes);
+    map.Resize(GetNumAllNodes());
 	
     std::vector<Element<ELEMENT_DIM, SPACE_DIM> *> live_elements;
     for (unsigned i=0; i<mElements.size(); i++)
@@ -1028,6 +1033,22 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         
     //Make sure the map is big enough
     map.Resize(GetNumAllNodes());
+    
+
+//// #554: commented out for the time being as some cancer tests do not pass with
+//// this (probably because of hardcoded values), although it seems to work ok
+//// and passes all the mesh tests.
+//    if (mDeletedNodeIndices.size()==0 && !mAddedNodes)
+//    {
+//        //If there are no nodes waiting to be deleted and the current mesh is
+//        //Voronoi then we don't need to call triangle/tetgen
+//        if (CheckVoronoi())
+//        {
+//            map.ResetToIdentity();
+//            return;
+//        }
+//    }
+      
     
     OutputFileHandler handler("");
     std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
@@ -1236,7 +1257,7 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
             {
                 neighbouring_elements.insert(GetElement(*it));
             }
-    }
+     }
     neighbouring_elements.erase(pElement);
     
     //For each neighbouring element find the supporting nodes
@@ -1785,6 +1806,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
     mDeletedBoundaryElementIndices.clear();
     mDeletedNodeIndices.clear();
     mBoundaryNodes.clear();
+    mAddedNodes = false;
     
     mNumCornerNodes = 0;
 }

@@ -170,7 +170,7 @@ public:
     // to 24.0 and it will look like a parallelogram.
     // However we keep the simulation time at 1.0 to make
     // the test short.
-    void Testt2DSpringSystem() throw (Exception)
+    void Test2DSpringSystem() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -235,7 +235,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void Testt2DHoneycombMeshNotPeriodic() throw (Exception)
+    void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -281,7 +281,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void TesttMonolayer() throw (Exception)
+    void TestMonolayer() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -336,7 +336,7 @@ public:
     // differentiated, check the number of cells at the end of the
     // simulation is as expected.
     //////////////////////////////////////////////////////////////////
-    void Testt2DCorrectCellNumbers() throw (Exception)
+    void Test2DCorrectCellNumbers() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -456,7 +456,7 @@ public:
 // 
 ////////////////////////////////////////////////////////////////////////////
     
-    void Testt2DPeriodicNightly() throw (Exception)
+    void Test2DPeriodicNightly() throw (Exception)
     {        
         CancerParameters::Instance()->Reset();
 
@@ -653,7 +653,7 @@ public:
     
 
     
-    void TesttRandomDeathWithPeriodicMesh() throw (Exception)
+    void TestRandomDeathWithPeriodicMesh() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
         unsigned cells_across = 7;
@@ -698,7 +698,7 @@ public:
   
     // Sloughing with a sloughing cell killer and not turning into ghost nodes
     // on a non-periodic mesh
-    void TesttSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
+    void TestSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
 
@@ -738,7 +738,7 @@ public:
     }
 
 
-    void TesttSloughingDeathWithPeriodicMesh() throw (Exception)
+    void TestSloughingDeathWithPeriodicMesh() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
 
@@ -795,7 +795,7 @@ public:
     }
 
 
-    void TesttWithMultipleCellKillers() throw (Exception)
+    void TestWithMultipleCellKillers() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
 
@@ -861,7 +861,7 @@ public:
     
     
     
-    void TesttMonolayerWithCutoffPointAndNoGhosts() throw (Exception)
+    void TestMonolayerWithCutoffPointAndNoGhosts() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();

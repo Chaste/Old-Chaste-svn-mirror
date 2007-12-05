@@ -45,7 +45,7 @@ protected:  // Give access of these variables to subclasses
     std::vector<unsigned> mDeletedElementIndices;
     std::vector<unsigned> mDeletedBoundaryElementIndices;
     std::vector<unsigned> mDeletedNodeIndices;
-    
+    bool mAddedNodes;
     std::vector< Node<SPACE_DIM> *> mBoundaryNodes;
     
 private:    

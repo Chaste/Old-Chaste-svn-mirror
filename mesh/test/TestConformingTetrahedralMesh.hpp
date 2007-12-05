@@ -2033,5 +2033,26 @@ public:
         
         TS_ASSERT_THROWS_ANYTHING(mesh.GetAngleBetweenNodes(0,0));
     }
+    
+    void TestConstructFromNodes() throw (Exception)
+    {
+        
+        // Create conforming tetrahedral mesh which is Delaunay
+        std::vector<Node<3> *> nodes;
+        
+        nodes.push_back(new Node<3>(0, true,  0.0,  0.0,  0.0));
+        nodes.push_back(new Node<3>(1, true,  1.0,  1.0,  0.0));
+        nodes.push_back(new Node<3>(2, true,  1.0,  0.0,  1.0));
+        nodes.push_back(new Node<3>(3, true,  0.0,  1.0,  1.0));
+        nodes.push_back(new Node<3>(4, false, 0.5,  0.5,  0.5));
+        
+        ConformingTetrahedralMesh<3,3> mesh(nodes);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 4U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4U);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.3333, 1e-4);
+        
+        
+    }
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_
