@@ -596,7 +596,7 @@ public:
     } 
 
     /* See #545 */
-    void dontTestArchiving() throw (Exception)
+    void TestArchiving() throw (Exception)
     {   
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename;
@@ -633,25 +633,33 @@ public:
             
             p_meineke_spring_system->UseCutoffPoint(1.1);
             p_meineke_spring_system->SetAreaBasedViscosity(true);
-            p_meineke_spring_system->SetMutantSprings(0.1,0.2,0.3);
+            p_meineke_spring_system->SetMutantSprings(true,0.2,0.3);
             p_meineke_spring_system->SetBCatSprings(true);
 
             output_arch << p_meineke_spring_system;
-       }
+        }
        
-       {
-//            // Create an input archive
-//            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-//            boost::archive::text_iarchive input_arch(ifs);
-//            
-//            Meineke2001SpringSystem<2>* p_meineke_spring_system;
-//            
-//            // restore from the archive
-//            input_arch >> p_meineke_spring_system;
-//            
-//            // add test for cutoff point etc..
-//
-//            delete p_meineke_spring_system;
+        {
+            Tissue<2>::meshPathname = "mesh/test/data/square_2_elements";
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            Meineke2001SpringSystem<2>* p_meineke_spring_system;
+            
+            // restore from the archive
+            input_arch >> p_meineke_spring_system;
+            
+            // test the member data
+            TS_ASSERT_EQUALS(p_meineke_spring_system->mUseCutoffPoint,true);
+            TS_ASSERT_DELTA(p_meineke_spring_system->mCutoffPoint,1.1,1e-12);            
+            TS_ASSERT_EQUALS(p_meineke_spring_system->mUseEdgeBasedSpringConstant, false);
+            TS_ASSERT_EQUALS(p_meineke_spring_system->mUseAreaBasedViscosity, true);
+            TS_ASSERT_EQUALS(p_meineke_spring_system->mUseMutantSprings, true);
+            TS_ASSERT_DELTA(p_meineke_spring_system->mMutantMutantMultiplier, 0.2, 1e-12);
+            TS_ASSERT_DELTA(p_meineke_spring_system->mNormalMutantMultiplier, 0.3, 1e-12);
+            TS_ASSERT_EQUALS(p_meineke_spring_system->mUseBCatSprings, true);
+
         }
     } 
 };

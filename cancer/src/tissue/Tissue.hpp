@@ -445,6 +445,7 @@ inline void load_construct_data(
 {
     //std::cout << "Load Tissue construct data\n" << std::flush;
     // retrieve data from archive required to construct new instance
+    assert(Tissue<DIM>::meshPathname.length() > 0);
     ConformingTetrahedralMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
     //std::cout << "L.Tissue(): loading mesh from " << Tissue<DIM>::meshPathname << std::endl << std::flush;
