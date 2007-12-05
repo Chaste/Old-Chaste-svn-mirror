@@ -72,3 +72,19 @@ unsigned AbstractCellCycleModel::GetGeneration() const
 {
     return mGeneration;
 }
+
+   
+double AbstractCellCycleModel::GetSDuration()
+{
+    return CancerParameters::Instance()->GetSDuration();
+}   
+    
+double AbstractCellCycleModel::GetG2Duration()
+{
+    return CancerParameters::Instance()->GetG2Duration();
+}   
+
+double AbstractCellCycleModel::GetMDuration()
+{
+    return CancerParameters::Instance()->GetMDuration();
+}   

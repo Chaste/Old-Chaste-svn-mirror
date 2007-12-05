@@ -134,21 +134,3 @@ void AbstractOdeBasedCellCycleModel::ResetModel()
     mReadyToDivide = false;
     mCurrentCellCyclePhase = M_PHASE;
 }
-   
-double AbstractOdeBasedCellCycleModel::GetSDuration()
-{   
-    // overridden in subclasses?
-    return CancerParameters::Instance()->GetSDuration();
-}   
-    
-double AbstractOdeBasedCellCycleModel::GetG2Duration()
-{   
-    // overridden in subclass StochasticWntCellCycleModel
-    return CancerParameters::Instance()->GetG2Duration();
-}   
-
-double AbstractOdeBasedCellCycleModel::GetMDuration()
-{   
-    // overridden in subclass TysonNovak
-    return CancerParameters::Instance()->GetMDuration();
-}   

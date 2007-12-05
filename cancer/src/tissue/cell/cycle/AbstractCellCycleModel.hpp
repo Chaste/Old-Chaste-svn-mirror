@@ -165,6 +165,19 @@ public:
      * @return whether the cell cycle model uses beta-catenin levels in cell cycle model, ie Inge models.
      */
     virtual bool UsesBetaCat();
+
+    /**
+     * @return the duration of the S phase of the cell cycle
+     */
+    virtual double GetSDuration();
+    /**
+     * @return the duration of the G2 phase of the cell cycle
+     */
+    virtual double GetG2Duration();
+    /**
+     * @return the duration of the M phase of the cell cycle
+     */
+    virtual double GetMDuration();
     
 };
 

@@ -32,24 +32,22 @@ void AbstractSimpleCellCycleModel::SetG1Duration()
 
 void AbstractSimpleCellCycleModel::SetCell(TissueCell* pCell)
 {
-	AbstractCellCycleModel::SetCell(pCell);
-	// This method should only be called once per cell cycle model - when it is created so G1Duration can be set here.
-	SetG1Duration();	
+    AbstractCellCycleModel::SetCell(pCell);
+    // This method should only be called once per cell cycle model - when it is created so G1Duration can be set here.
+    SetG1Duration();	
 }
 
 void AbstractSimpleCellCycleModel::ResetModel()
 {
-	mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
+    mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
     SetG1Duration();
 }
 
 
 bool AbstractSimpleCellCycleModel::ReadyToDivide()
 {
-	assert(mpCell != NULL);
+    assert(mpCell != NULL);
     bool ready = false;
-    
-    CancerParameters *p_params = CancerParameters::Instance();
     
     double time_since_birth = GetAge();
     assert(time_since_birth>=0);
@@ -58,19 +56,19 @@ bool AbstractSimpleCellCycleModel::ReadyToDivide()
     {
         mCurrentCellCyclePhase = G_ZERO_PHASE;   
     }
-    else if ( time_since_birth < p_params->GetMDuration() )
+    else if ( time_since_birth < GetMDuration() )
     {
         mCurrentCellCyclePhase = M_PHASE;   
     }
-    else if ( time_since_birth < p_params->GetMDuration() + mG1Duration)
+    else if ( time_since_birth < GetMDuration() + mG1Duration)
     {
         mCurrentCellCyclePhase = G_ONE_PHASE;   
     }
-    else if ( time_since_birth < p_params->GetMDuration() + mG1Duration + p_params->GetSDuration())
+    else if ( time_since_birth < GetMDuration() + mG1Duration + GetSDuration())
     {
         mCurrentCellCyclePhase = S_PHASE;   
     }
-    else if ( time_since_birth < p_params->GetMDuration() + mG1Duration + p_params->GetSDuration()  + p_params->GetG2Duration())
+    else if ( time_since_birth < GetMDuration() + mG1Duration + GetSDuration()  + GetG2Duration())
     {
         mCurrentCellCyclePhase = G_TWO_PHASE;   
     }
