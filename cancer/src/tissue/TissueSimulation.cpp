@@ -22,6 +22,7 @@
 #include "OutputFileHandler.hpp"
 #include "LogFile.hpp"
 #include "VoronoiTessellation.cpp"
+#include "CellwiseData.cpp"
 
 template<unsigned DIM> 
 TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem, bool deleteTissue)
@@ -652,6 +653,15 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
         output_arch & *p_wnt_gradient;
     }
     
+    // Archive the CellwiseData if it's used
+    bool archive_cellwise_data = CellwiseData<DIM>::Instance()->IsSetUp();
+    output_arch & archive_cellwise_data;
+    if (archive_cellwise_data)
+    {
+        CellwiseData<DIM>* p_cellwise_data = CellwiseData<DIM>::Instance();
+        output_arch & *p_cellwise_data;
+    }
+    
     //TissueSimulation<DIM> * p_sim = this;
     output_arch & pSim; // const-ness would be a pain here
 }
@@ -739,6 +749,15 @@ void TissueSimulation<DIM>::CommonLoad(Archive& rInputArch)
     {
         WntGradient* p_wnt_gradient = WntGradient::Instance();
         rInputArch & *p_wnt_gradient;
+    }
+    
+    // Load CellwiseData if it's used
+    bool archive_cellwise_data;
+    rInputArch & archive_cellwise_data;
+    if (archive_cellwise_data)
+    {
+        CellwiseData<DIM>* p_cellwise_data = CellwiseData<DIM>::Instance();
+        rInputArch & *p_cellwise_data;
     }
 }
 

@@ -285,6 +285,23 @@ public:
         // print out time taken to run tissue simulation    
         double elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "Time taken to perform simulation was = " << elapsed_time << "\n";
+        
+        // test positions        
+        std::vector<double> node_5_location = simulator.GetNodeLocation(5);
+        TS_ASSERT_DELTA(node_5_location[0], 0.4968, 1e-4);
+        TS_ASSERT_DELTA(node_5_location[1], 0.8635, 1e-4);
+        
+        std::vector<double> node_15_location = simulator.GetNodeLocation(15);
+        TS_ASSERT_DELTA(node_15_location[0], 0.4976, 1e-4);
+        TS_ASSERT_DELTA(node_15_location[1], 2.5977, 1e-4);
+                
+        // test the CellwiseData result
+        TissueCell* p_cell = &(simulator.rGetTissue().rGetCellAtNodeIndex(5));
+        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9604, 1e-4);
+        
+        p_cell = &(simulator.rGetTissue().rGetCellAtNodeIndex(15));
+        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
+        
                         
         // tidy up
         delete p_killer;
@@ -310,6 +327,109 @@ public:
         OutputFileHandler handler("TissueSimulationWithOxygen",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznutrient";         
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TissueSimulationWithOxygen_vis/results.viznutrient").c_str()), 0);     
+    }
+    
+    void TestArchiving() throw (Exception)
+    {
+        if (!PetscTools::IsSequential())
+        {
+            TS_TRACE("This test does not pass in parallel yet.");
+            return;
+        }
+        
+        // instantiate singleton objects
+        CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+              
+        // set up mesh
+        int num_cells_depth = 5;
+        int num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+                    
+        // set up cells
+        std::vector<TissueCell> cells;        
+        
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            TissueCell cell(HEPA_ONE, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*(p_params->GetHepaOneCellG1Duration()
+                                                                            +p_params->GetSG2MDuration());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+        
+        // set up tissue        
+        Tissue<2> tissue(*p_mesh, cells);
+        
+        // set up CellwiseData and associate it with the tissue
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
+        p_data->SetTissue(tissue);
+        
+        // since values are first passed in to CellwiseData before it is updated in PostSolve(),
+        // we need to pass it some initial conditions to avoid memory errors
+        // (note: it would really make more sense to put the PDE solver stuff in a PreSolve method)  
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            p_data->SetValue(1.0, p_mesh->GetNode(i));
+        }
+        
+        // set up PDE
+        SimpleOxygenPde pde;
+        
+        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
+        p_spring_system->UseCutoffPoint(1.5);
+                  
+        // set up tissue simulation
+        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
+        simulator.SetOutputDirectory("TissueSimulationWithNutrientsSaveAndLoad");
+        simulator.SetEndTime(0.2);
+        simulator.SetMaxCells(400);
+        simulator.SetMaxElements(800);
+        
+        // set up cell killer and pass into simulation
+        AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
+        simulator.AddCellKiller(p_killer);
+        
+        simulator.Solve();
+        
+        simulator.Save();
+        
+        TissueSimulationWithNutrients<2>* p_simulator = TissueSimulationWithNutrients<2>::Load("TissueSimulationWithNutrientsSaveAndLoad", 0.2);
+        p_simulator->SetPde(&pde);
+        
+        p_simulator->SetEndTime(0.5);
+        p_simulator->Solve();        
+        
+        // These results are from time 0.5 in TestWithOxygen.
+        std::vector<double> node_5_location = p_simulator->GetNodeLocation(5);
+        TS_ASSERT_DELTA(node_5_location[0], 0.4968, 1e-4);
+        TS_ASSERT_DELTA(node_5_location[1], 0.8635, 1e-4);
+        
+        std::vector<double> node_15_location = p_simulator->GetNodeLocation(15);
+        TS_ASSERT_DELTA(node_15_location[0], 0.4976, 1e-4);
+        TS_ASSERT_DELTA(node_15_location[1], 2.5977, 1e-4);
+        
+        // test CellwiseData was set up correctly
+        TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(),true);
+        
+        // test the CellwiseData result
+        TissueCell* p_cell = &(p_simulator->rGetTissue().rGetCellAtNodeIndex(5));
+        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9604, 1e-4);
+        
+        p_cell = &(p_simulator->rGetTissue().rGetCellAtNodeIndex(15));
+        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
+        
+        delete p_simulator;
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();        
+        CellwiseData<2>::Destroy();
+        
     }
 
 };

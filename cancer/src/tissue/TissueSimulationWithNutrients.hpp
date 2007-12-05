@@ -10,7 +10,6 @@
 #include "CellwiseData.cpp"
 #include "PetscTools.hpp"
 
-
 template<unsigned DIM>
 class TissueSimulationWithNutrients : public TissueSimulation<DIM>
 {
@@ -18,6 +17,15 @@ class TissueSimulationWithNutrients : public TissueSimulation<DIM>
     friend class TestTissueSimulationWithNutrients;
     
 private :
+
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {   
+        // If Archive is an output archive, then & resolves to <<
+        // If Archive is an input archive, then & resolves to >>      
+        archive & boost::serialization::base_object<TissueSimulation<DIM> >(*this);
+    }
     
     Vec mOxygenSolution;
 
@@ -45,7 +53,7 @@ private :
         double y;
         double nutrient;
 
-        for (Tissue<2>::Iterator cell_iter = this->mrTissue.Begin();
+        for (typename Tissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
                cell_iter != this->mrTissue.End();
                ++cell_iter)
         {
@@ -55,7 +63,7 @@ private :
             x = cell_iter.rGetLocation()[0];
             y = cell_iter.rGetLocation()[1];
                         
-            nutrient = CellwiseData<2>::Instance()->GetValue(&(*cell_iter));
+            nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
             
             (*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
         }
@@ -82,7 +90,9 @@ private :
         
     void PostSolve()
     {
-        ConformingTetrahedralMesh<2,2>& r_mesh = this->mrTissue.rGetMesh();
+        assert(mpPde);
+        
+        ConformingTetrahedralMesh<DIM,DIM>& r_mesh = this->mrTissue.rGetMesh();
         CellwiseData<DIM>::Instance()->ReallocateMemory();
         std::set<unsigned> ghost_node_indices = this->mrTissue.GetGhostNodeIndices();
         
@@ -90,18 +100,17 @@ private :
         assert(ghost_node_indices.size()==0);
                 
         // set up boundary conditions
-        BoundaryConditionsContainer<2,2,1> bcc;
-        ConstBoundaryCondition<2>* p_boundary_condition;
-        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
-        while (node_iter != r_mesh.GetBoundaryNodeIteratorEnd())
+        BoundaryConditionsContainer<DIM,DIM,1> bcc;
+        ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
+        for (typename ConformingTetrahedralMesh<DIM,DIM>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
+             node_iter != r_mesh.GetBoundaryNodeIteratorEnd();
+             ++node_iter)
         {
-            p_boundary_condition = new ConstBoundaryCondition<2>(1.0);
             bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
-            node_iter++;
         }
         
         // set up assembler
-        SimpleNonlinearEllipticAssembler<2,2> assembler(&r_mesh, mpPde, &bcc);
+        SimpleNonlinearEllipticAssembler<DIM,DIM> assembler(&r_mesh, mpPde, &bcc);
         
         // we cannot use the exact previous solution as initial guess as the size may be different
         // (due to cell birth/death) - could we just add in the necessary number of 1.0's say?
@@ -145,13 +154,15 @@ private :
         }
         
         // save results to file
-        WriteNutrient();  
-        
+        WriteNutrient();
     }
 
 
 public:
-    TissueSimulationWithNutrients(Tissue<DIM>& rTissue, AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL, AbstractNonlinearEllipticPde<DIM>* pPde=NULL, bool deleteTissue=false) 
+    TissueSimulationWithNutrients(Tissue<DIM>& rTissue,
+                                  AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
+                                  AbstractNonlinearEllipticPde<DIM>* pPde=NULL,
+                                  bool deleteTissue=false) 
         : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissue), 
           mOxygenSolution(NULL),
           mpPde(pPde)
@@ -164,6 +175,15 @@ public:
         {
             VecDestroy(mOxygenSolution);
         }
+    }
+    
+    /**
+     * A small hack until we fully archive this class - needed to set the PDE after loading a simulation from an
+     * archive.
+     */
+    void SetPde(AbstractNonlinearEllipticPde<DIM>* pPde)
+    {
+        mpPde = pPde;
     }
     
     /*
@@ -184,7 +204,109 @@ public:
         this->mpSetupFile->close();
     }
     
+    /**
+     * Saves the whole tissue simulation for restarting later.
+     *
+     * Puts it in the folder mOutputDirectory/archive/
+     * and the file "tissue_sim_at_time_<SIMULATION TIME>.arch"
+     *
+     * First archives simulation time then the simulation itself.
+     * 
+     * Note that this method has to be implemented in this class,
+     * so you save the right sort of simulation to the archive.
+     * Not really sure why this is needed, but...
+     */
+    void Save()
+    {
+        CommonSave(this);
+    }
+
+    /**
+     * Loads a saved tissue simulation to run further.
+     *
+     * @param rArchiveDirectory the name of the simulation to load
+     * (specified originally by simulation.SetOutputDirectory("wherever"); )
+     * @param rTimeStamp the time at which to load the simulation (this must
+     * be one of the times at which simulation.Save() was called) 
+     * 
+     * Note that this method has to be implemented in this class, since it's a static method.
+     */
+    static TissueSimulationWithNutrients<DIM>* Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
+    {
+        std::string archive_filename =
+            TissueSimulation<DIM>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
+
+        // Create an input archive
+        std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+        boost::archive::text_iarchive input_arch(ifs);
+
+        TissueSimulation<DIM>::CommonLoad(input_arch);
+
+        TissueSimulationWithNutrients<DIM>* p_sim; 
+        input_arch >> p_sim;
+         
+        if (p_sim->rGetTissue().rGetMesh().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size()) 
+        { 
+            #define COVERAGE_IGNORE 
+            std::stringstream string_stream; 
+            string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().rGetMesh().GetNumNodes() 
+                          << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size()  
+                          << ")"; 
+            EXCEPTION(string_stream.str()); 
+            #undef COVERAGE_IGNORE 
+        } 
+          
+        return p_sim;         
+    }       
     
 };
+
+
+#include "TemplatedExport.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(TissueSimulationWithNutrients)
+
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a TissueSimulationWithNutrients.
+ */
+template<class Archive, unsigned DIM>
+inline void save_construct_data(
+    Archive & ar, const TissueSimulationWithNutrients<DIM> * t, const BOOST_PFTO unsigned int file_version)
+{
+    //std::cout << "Save tissue construct data\n" << std::flush;
+    // save data required to construct instance
+    const Tissue<DIM> * p_tissue = &(t->rGetTissue());
+    ar & p_tissue;
+    
+    const AbstractDiscreteTissueMechanicsSystem<DIM> * p_spring_system = &(t->rGetMechanicsSystem());
+    ar & p_spring_system;
+}
+
+/**
+ * De-serialize constructor parameters and initialise tissue.
+ */
+template<class Archive, unsigned DIM>
+inline void load_construct_data(
+    Archive & ar, TissueSimulationWithNutrients<DIM> * t, const unsigned int file_version)
+{
+    //std::cout << "load tissue construct data\n" << std::flush;
+    // retrieve data from archive required to construct new instance
+    Tissue<DIM>* p_tissue;
+    ar >> p_tissue;
+    
+    AbstractDiscreteTissueMechanicsSystem<DIM>* p_spring_system;
+    ar >> p_spring_system;
+    
+    // invoke inplace constructor to initialize instance
+    ::new(t)TissueSimulationWithNutrients<DIM>(*p_tissue, p_spring_system, NULL, true);
+}
+}
+} // namespace ...
+
+
 
 #endif /*TISSUESIMULATIONWITHNUTRIENTS_HPP_*/
