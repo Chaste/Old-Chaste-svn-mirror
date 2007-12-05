@@ -306,14 +306,6 @@ inline void save_construct_data(
     const Tissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     
-    bool archive_wnt = WntGradient::Instance()->IsGradientSetUp();
-    ar & archive_wnt;
-    if (archive_wnt)
-    {
-        WntGradient* p_wnt_gradient = WntGradient::Instance();
-        ar & *p_wnt_gradient;
-    }
-    
     const AbstractDiscreteTissueMechanicsSystem<DIM> * p_spring_system = &(t->rGetMechanicsSystem());
     ar & p_spring_system;
 }
@@ -330,14 +322,6 @@ inline void load_construct_data(
     Tissue<DIM>* p_tissue;
     ar >> p_tissue;
 
-    bool archive_wnt;
-    ar & archive_wnt;
-    if (archive_wnt)
-    {
-        WntGradient* p_wnt_gradient = WntGradient::Instance();
-        ar & *p_wnt_gradient;
-    }
-    
     AbstractDiscreteTissueMechanicsSystem<DIM>* p_spring_system;
     ar >> p_spring_system;
     

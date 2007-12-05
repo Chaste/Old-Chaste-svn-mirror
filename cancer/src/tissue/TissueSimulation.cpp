@@ -642,6 +642,16 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
     // Save the simulation.  We save the time directly first to maintain its
     // singleton-ness on load.
     output_arch << *p_sim_time;
+    
+    // Archive the Wnt gradient if it's used
+    bool archive_wnt = WntGradient::Instance()->IsGradientSetUp();
+    output_arch & archive_wnt;
+    if (archive_wnt)
+    {
+        WntGradient* p_wnt_gradient = WntGradient::Instance();
+        output_arch & *p_wnt_gradient;
+    }
+    
     //TissueSimulation<DIM> * p_sim = this;
     output_arch & pSim; // const-ness would be a pain here
 }
@@ -721,6 +731,15 @@ void TissueSimulation<DIM>::CommonLoad(Archive& rInputArch)
     SimulationTime *p_simulation_time = SimulationTime::Instance();
     assert(p_simulation_time->IsStartTimeSetUp());
     rInputArch >> *p_simulation_time;
+    
+    // Load Wnt gradient if it's used
+    bool archive_wnt;
+    rInputArch & archive_wnt;
+    if (archive_wnt)
+    {
+        WntGradient* p_wnt_gradient = WntGradient::Instance();
+        rInputArch & *p_wnt_gradient;
+    }
 }
 
 /**
