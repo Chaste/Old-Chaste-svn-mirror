@@ -35,8 +35,14 @@ ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh(std
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
-    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader)
+    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
+    bool cullInternalFaces)
 {
+    if(ELEMENT_DIM==1)
+    {
+        cullInternalFaces = true;
+    }
+
     // Record number of corner nodes
     mNumCornerNodes = rMeshReader.GetNumNodes();
     
@@ -77,12 +83,15 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         
         mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes));
     }
+
     
     // Add boundary elements & nodes
     unsigned actual_face_index=0;
     for (unsigned face_index=0; face_index<(unsigned)rMeshReader.GetNumFaces(); face_index++)
     {
         std::vector<unsigned> node_indices = rMeshReader.GetNextFace();
+        bool is_boundary_face = true;
+
         
         // Determine if this is a boundary face
         std::set<unsigned> containing_element_indices; // Elements that contain this face
@@ -93,29 +102,40 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             // Add Node pointer to list for creating an element
             nodes.push_back(mNodes[node_indices[node_index]]);
             
-            // Work out what elements contain this face, by taking the intersection
-            // of the sets of elements containing each node in the face.
-            if (node_index == 0)
-            {
-                containing_element_indices = nodes[node_index]->rGetContainingElementIndices();
-            }
-            else
-            {
-                std::set<unsigned> temp;
-                std::set_intersection(nodes[node_index]->rGetContainingElementIndices().begin(),
-                                      nodes[node_index]->rGetContainingElementIndices().end(),
-                                      containing_element_indices.begin(), containing_element_indices.end(),
-                                      std::inserter(temp, temp.begin()));
-                containing_element_indices = temp;
+            if(cullInternalFaces)
+            {                
+                // Work out what elements contain this face, by taking the intersection
+                // of the sets of elements containing each node in the face.
+                if (node_index == 0)
+                {
+                    containing_element_indices = nodes[node_index]->rGetContainingElementIndices();
+                }
+                else
+                {
+                    std::set<unsigned> temp;
+                    std::set_intersection(nodes[node_index]->rGetContainingElementIndices().begin(),
+                                          nodes[node_index]->rGetContainingElementIndices().end(),
+                                          containing_element_indices.begin(), containing_element_indices.end(),
+                                          std::inserter(temp, temp.begin()));
+                    containing_element_indices = temp;
+                }
             }
         }
+            
+        if(cullInternalFaces)
+        {
+            //If the following assertion is thrown, it means that the .edge/.face file does not
+            //match the .ele file -- they were generated at separate times.  Simply remove the internal
+            //edges/faces by hand.
+            assert(containing_element_indices.size() != 0);
         
-        //If the following assertion is thrown, it means that the .edge/.face file does not
-        //match the .ele file -- they were generated at separate times.  Simply remove the internal
-        //edges/faces by hand.
-        assert(containing_element_indices.size() != 0);
-        
-        if (containing_element_indices.size() == 1)
+            if(containing_element_indices.size() > 1)
+            {
+                is_boundary_face = false;
+            }
+        }
+
+        if (is_boundary_face)
         {
             // This is a boundary face
             // Ensure all its nodes are marked as boundary nodes
@@ -132,10 +152,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             }
             
             // The added elements will be deleted in our destructor
-            mBoundaryElements.push_back(
-                new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes));
+            mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes));
             actual_face_index++;
-            
         }
     }
 }

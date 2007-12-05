@@ -39,9 +39,7 @@ public:
         
         // then compare against known good file
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "InventorWriter/";
-        std::cout<< "/n TEST DIREC "<<results_dir;
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/SimpleTet.iv mesh/test/data/InventorWriter/SimpleTet.iv").c_str()), 0);
-        
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/SimpleTet.iv mesh/test/data/InventorWriter/SimpleTet.iv").c_str()), 0); 
     }
     
     void TestWriteComplexCube() throw (Exception)
@@ -62,8 +60,7 @@ public:
         
         // then compare against known good file
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "InventorWriter/";
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/Complex.iv mesh/test/data/InventorWriter/Complex.iv").c_str()), 0);
-        
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/Complex.iv mesh/test/data/InventorWriter/Complex.iv").c_str()), 0);        
     }
     
     void TestScaleAndWriteTet() throw (Exception)

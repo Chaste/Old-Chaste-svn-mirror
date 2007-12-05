@@ -42,153 +42,157 @@ private:
     void Make2dPeriodicCryptMesh(double width, unsigned ghosts)
     {
         OutputFileHandler output_file_handler("");
-        
-        out_stream p_node_file = output_file_handler.OpenOutputFile(mMeshFilename+".node");
-        (*p_node_file) << std::scientific;
-        
-        out_stream p_elem_file = output_file_handler.OpenOutputFile(mMeshFilename+".ele");
-        (*p_elem_file) << std::scientific;
-        
-        unsigned numNodesAlongWidth = mNumCellWidth;
-        unsigned numNodesAlongLength = mNumCellLength;
-        double horizontal_spacing = width / (double)numNodesAlongWidth;
-        double vertical_spacing = (sqrt(3)/2)*horizontal_spacing;
 
-
-        // This line needed to define ghost nodes later...
-        mCryptDepth = (double)(numNodesAlongLength) * vertical_spacing;
-                
-        // Add in the ghost nodes...
-        if(!mCylindrical)
+        if (output_file_handler.IsMaster())
         {
-            numNodesAlongWidth = numNodesAlongWidth + 2*ghosts;
-        }
-        numNodesAlongLength = numNodesAlongLength + 2*ghosts;
-        
-        unsigned num_nodes            = numNodesAlongWidth*numNodesAlongLength;
-        unsigned num_elem_along_width = numNodesAlongWidth-1;
-        unsigned num_elem_along_length = numNodesAlongLength-1;
-        unsigned num_elem             = 2*num_elem_along_width*num_elem_along_length;
-        unsigned num_edges            = 3*num_elem_along_width*num_elem_along_length + num_elem_along_width + num_elem_along_length;
-        
-        double x0 = -horizontal_spacing*ghosts;
-        if(mCylindrical)
-        {
-            x0 = 0;
-        }
-        double y0 = -vertical_spacing*ghosts;
-        mBottom = -vertical_spacing*ghosts;
-        mTop = mBottom + vertical_spacing*(numNodesAlongLength-1);
-        
-        (*p_node_file) << num_nodes << "\t2\t0\t1" << std::endl;
-        unsigned node = 0;
-        for (unsigned i = 0; i < numNodesAlongLength; i++)
-        {
-            for (unsigned j = 0; j < numNodesAlongWidth; j++)
+            out_stream p_node_file = output_file_handler.OpenOutputFile(mMeshFilename+".node");
+            (*p_node_file) << std::scientific;
+            
+            out_stream p_elem_file = output_file_handler.OpenOutputFile(mMeshFilename+".ele");
+            (*p_elem_file) << std::scientific;
+            
+            unsigned numNodesAlongWidth = mNumCellWidth;
+            unsigned numNodesAlongLength = mNumCellLength;
+            double horizontal_spacing = width / (double)numNodesAlongWidth;
+            double vertical_spacing = (sqrt(3)/2)*horizontal_spacing;
+    
+    
+            // This line needed to define ghost nodes later...
+            mCryptDepth = (double)(numNodesAlongLength) * vertical_spacing;
+                    
+            // Add in the ghost nodes...
+            if(!mCylindrical)
             {
-                if ( i < ghosts || i >= (ghosts+mNumCellLength))
+                numNodesAlongWidth = numNodesAlongWidth + 2*ghosts;
+            }
+            numNodesAlongLength = numNodesAlongLength + 2*ghosts;
+            
+            unsigned num_nodes            = numNodesAlongWidth*numNodesAlongLength;
+            unsigned num_elem_along_width = numNodesAlongWidth-1;
+            unsigned num_elem_along_length = numNodesAlongLength-1;
+            unsigned num_elem             = 2*num_elem_along_width*num_elem_along_length;
+            unsigned num_edges            = 3*num_elem_along_width*num_elem_along_length + num_elem_along_width + num_elem_along_length;
+            
+            double x0 = -horizontal_spacing*ghosts;
+            if(mCylindrical)
+            {
+                x0 = 0;
+            }
+            double y0 = -vertical_spacing*ghosts;
+            mBottom = -vertical_spacing*ghosts;
+            mTop = mBottom + vertical_spacing*(numNodesAlongLength-1);
+            
+            (*p_node_file) << num_nodes << "\t2\t0\t1" << std::endl;
+            unsigned node = 0;
+            for (unsigned i = 0; i < numNodesAlongLength; i++)
+            {
+                for (unsigned j = 0; j < numNodesAlongWidth; j++)
                 {
-                    mGhostNodeIndices.insert(node);
-                }
-                else if ( !mCylindrical && (j < ghosts || j >= (ghosts+mNumCellWidth)))
-                {
-                    mGhostNodeIndices.insert(node);
-                }
-                unsigned boundary = 0;
-                if ((i==0) || (i==numNodesAlongLength-1))
-                {
-                    boundary = 1;
-                }
-                if (!mCylindrical)
-                {
-                    if ((j==0) || (j==numNodesAlongWidth-1))
+                    if ( i < ghosts || i >= (ghosts+mNumCellLength))
+                    {
+                        mGhostNodeIndices.insert(node);
+                    }
+                    else if ( !mCylindrical && (j < ghosts || j >= (ghosts+mNumCellWidth)))
+                    {
+                        mGhostNodeIndices.insert(node);
+                    }
+                    unsigned boundary = 0;
+                    if ((i==0) || (i==numNodesAlongLength-1))
                     {
                         boundary = 1;
                     }
+                    if (!mCylindrical)
+                    {
+                        if ((j==0) || (j==numNodesAlongWidth-1))
+                        {
+                            boundary = 1;
+                        }
+                    }
+                    
+                                    
+                    double x = x0 + horizontal_spacing*((double)j + 0.25*(1.0+ pow(-1,i+1)));
+                    
+                    double y = y0 + vertical_spacing*(double)i;
+                    // Avoif floating point errors which upset CryptSimulation2d
+                    if ( (y<0.0) && (y>-1e-12) )
+                    {
+                        y=0.0;
+                    }
+                    
+                    (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << boundary << std::endl;
                 }
-                
-                                
-                double x = x0 + horizontal_spacing*((double)j + 0.25*(1.0+ pow(-1,i+1)));
-                
-                double y = y0 + vertical_spacing*(double)i;
-                // Avoif floating point errors which upset CryptSimulation2d
-                if ( (y<0.0) && (y>-1e-12) )
-                {
-                    y=0.0;
-                }
-                
-                (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << boundary << std::endl;
             }
-        }
-        p_node_file->close();
-        
-        out_stream p_edge_file = output_file_handler.OpenOutputFile(mMeshFilename+".edge");
-        (*p_node_file) << std::scientific;
-        
-        (*p_elem_file) << num_elem << "\t3\t0" << std::endl;
-        (*p_edge_file) << num_edges << "\t3\t0\t1" << std::endl;
-        
-        unsigned elem = 0;
-        unsigned edge = 0;
-        for (unsigned i = 0; i < num_elem_along_length; i++)
-        {
+            p_node_file->close();
+            
+            out_stream p_edge_file = output_file_handler.OpenOutputFile(mMeshFilename+".edge");
+            (*p_node_file) << std::scientific;
+            
+            (*p_elem_file) << num_elem << "\t3\t0" << std::endl;
+            (*p_edge_file) << num_edges << "\t1" << std::endl;
+            
+            unsigned elem = 0;
+            unsigned edge = 0;
+            for (unsigned i = 0; i < num_elem_along_length; i++)
+            {
+                for (unsigned j = 0; j < num_elem_along_width; j++)
+                {
+                    unsigned node0 =     i*numNodesAlongWidth + j;
+                    unsigned node1 =     i*numNodesAlongWidth + j+1;
+                    unsigned node2 = (i+1)*numNodesAlongWidth + j;
+    
+                    if (i%2 != 0)
+                    {
+                        node2 = node2 + 1;
+                    }
+                    
+                    (*p_elem_file) << elem++ << "\t" << node0 << "\t" << node1 << "\t" << node2 << std::endl;
+                    
+                    unsigned horizontal_edge_is_boundary_edge = 0;
+                    unsigned vertical_edge_is_boundary_edge = 0;
+                    if (i==0)
+                    {
+                        horizontal_edge_is_boundary_edge = 1;
+                    }
+                    if (j==0 && !mCylindrical)
+                    {
+                        vertical_edge_is_boundary_edge = 1;
+                    }
+                    
+                    (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 <<  "\t" << horizontal_edge_is_boundary_edge << std::endl;
+                    (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node2 <<  "\t" << 0 << std::endl;
+                    (*p_edge_file) << edge++ << "\t" << node2 << "\t" << node0 <<  "\t" << vertical_edge_is_boundary_edge << std::endl;
+                    
+                    node0 = i*numNodesAlongWidth + j + 1;
+                    
+                    if (i%2 != 0)
+                    {
+                        node0 = node0 - 1;
+                    }
+                    node1 = (i+1)*numNodesAlongWidth + j+1;
+                    node2 = (i+1)*numNodesAlongWidth + j;
+                    
+                    (*p_elem_file) << elem++ << "\t" << node0 << "\t" << node1 << "\t" << node2 << std::endl;
+                }
+            }
+            
+            for (unsigned i = 0; i < num_elem_along_length; i++)
+            {
+                unsigned node0 = (i+1)*numNodesAlongWidth-1;
+                unsigned node1 = (i+2)*numNodesAlongWidth-1;
+                (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 << "\t" << 1 << std::endl;
+            }
+            
+            
             for (unsigned j = 0; j < num_elem_along_width; j++)
             {
-                unsigned node0 =     i*numNodesAlongWidth + j;
-                unsigned node1 =     i*numNodesAlongWidth + j+1;
-                unsigned node2 = (i+1)*numNodesAlongWidth + j;
-                if (i%2 != 0)
-                {
-                    node2 = node2 + 1;
-                }
-                
-                (*p_elem_file) << elem++ << "\t" << node0 << "\t" << node1 << "\t" << node2 << std::endl;
-                
-                unsigned horizontal_edge_is_boundary_edge = 0;
-                unsigned vertical_edge_is_boundary_edge = 0;
-                if (i==0)
-                {
-                    horizontal_edge_is_boundary_edge = 1;
-                }
-                if (j==0 && !mCylindrical)
-                {
-                    vertical_edge_is_boundary_edge = 1;
-                }
-                
-                (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 <<  "\t" << horizontal_edge_is_boundary_edge << std::endl;
-                (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node2 <<  "\t" << 0 << std::endl;
-                (*p_edge_file) << edge++ << "\t" << node2 << "\t" << node0 <<  "\t" << vertical_edge_is_boundary_edge << std::endl;
-                
-                node0 = i*numNodesAlongWidth + j + 1;
-                
-                if (i%2 != 0)
-                {
-                    node0 = node0 - 1;
-                }
-                node1 = (i+1)*numNodesAlongWidth + j+1;
-                node2 = (i+1)*numNodesAlongWidth + j;
-                
-                (*p_elem_file) << elem++ << "\t" << node0 << "\t" << node1 << "\t" << node2 << std::endl;
+                unsigned node0 =  numNodesAlongWidth*(numNodesAlongLength-1) + j;
+                unsigned node1 =  numNodesAlongWidth*(numNodesAlongLength-1) + j+1;
+                (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node0 << "\t" << 1 << std::endl;
             }
+            
+            p_elem_file->close();
+            p_edge_file->close();
         }
-        
-        for (unsigned i = 0; i < num_elem_along_length; i++)
-        {
-            unsigned node0 = (i+1)*numNodesAlongWidth-1;
-            unsigned node1 = (i+2)*numNodesAlongWidth-1;
-            (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 << "\t" << 1 << std::endl;
-        }
-        
-        
-        for (unsigned j = 0; j < num_elem_along_width; j++)
-        {
-            unsigned node0 =  numNodesAlongWidth*(numNodesAlongLength-1) + j;
-            unsigned node1 =  numNodesAlongWidth*(numNodesAlongLength-1) + j+1;
-            (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node0 << "\t" << 1 << std::endl;
-        }
-        
-        p_elem_file->close();
-        p_edge_file->close();
 
         // Wait for the new mesh to be available
 #ifndef SPECIAL_SERIAL

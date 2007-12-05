@@ -20,7 +20,6 @@ typedef TrianglesMeshReader<2,2> TRI_READ_2;
 class TestMeshWriters : public CxxTest::TestSuite
 {
 public:
-
     void TestMemfemtoTetgen(void)
     {
         TrianglesMeshWriter<3,3> mesh_writer("", "MeshFromMemfem");
@@ -104,7 +103,8 @@ public:
             "femlab_lshape_edges.dat");
             
         ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(import_mesh_reader);
+        bool cull_internal_faces = true;
+        mesh.ConstructFromMeshReader(import_mesh_reader, cull_internal_faces);
         
         mesh_writer.WriteFilesUsingMesh(mesh);
         std::string output_dir = mesh_writer.GetOutputDirectory();
@@ -165,8 +165,7 @@ public:
     
     void TestTriangles1DClosedMeshIn2DSpace()
     {
-        TrianglesMeshReader<1,2> mesh_reader(
-            "mesh/test/data/circle_outline");
+        TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/circle_outline");
         ConformingTetrahedralMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -176,8 +175,7 @@ public:
         
         std::string output_dir = mesh_writer.GetOutputDirectory();
         
-        TrianglesMeshReader<1,2> mesh_reader2(
-            output_dir+"1dClosedMeshIn2dSpace");
+        TrianglesMeshReader<1,2> mesh_reader2(output_dir+"1dClosedMeshIn2dSpace");
         TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 100U);
         
         TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(),100U);
@@ -188,8 +186,7 @@ public:
     
     void TestTriangles1DMeshIn2DSpace()
     {
-        TrianglesMeshReader<1,2> mesh_reader(
-            "mesh/test/data/semicircle_outline");
+        TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
         ConformingTetrahedralMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -199,19 +196,16 @@ public:
         
         std::string output_dir = mesh_writer.GetOutputDirectory();
         
-        TrianglesMeshReader<1,2> mesh_reader2(
-            output_dir+"1dMeshIn2dSpace");
+        TrianglesMeshReader<1,2> mesh_reader2(output_dir+"1dMeshIn2dSpace");
+        
         TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 51U);
-        
         TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 50U);
-        
         TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 51U);
     }
     
     void TestTriangles1DMeshIn2DSpaceWithDeletedNode()
     {
-        TrianglesMeshReader<1,2> mesh_reader(
-            "mesh/test/data/semicircle_outline");
+        TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
         ConformingTetrahedralMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.DeleteBoundaryNodeAt(0);
@@ -222,20 +216,15 @@ public:
         
         std::string output_dir = mesh_writer.GetOutputDirectory();
         
-        TrianglesMeshReader<1,2> mesh_reader2(
-            output_dir+"1dMeshIn2dSpaceWithDeletedNode");
+        TrianglesMeshReader<1,2> mesh_reader2(output_dir+"1dMeshIn2dSpaceWithDeletedNode");
         TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 50U);
-        
         TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 49U);
-        
         TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 50U);
     }
     
     void Test2DClosedMeshIn3DSpace()
     {
-    
-        TrianglesMeshReader<2,3> mesh_reader(
-            "mesh/test/data/slab_395_elements");
+        TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/slab_395_elements");
             
         ConformingTetrahedralMesh<2,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -245,22 +234,17 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
         
         std::string output_dir = mesh_writer.GetOutputDirectory();
-        TrianglesMeshReader<2,3> mesh_reader2(
-            output_dir+"2dClosedMeshIn3dSpace");
+        TrianglesMeshReader<2,3> mesh_reader2(output_dir+"2dClosedMeshIn3dSpace");
+        
         TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 132U);
-        
         TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 224U);
-        
         TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 0U);
-        
-        
     }
     
+
     void Test2DMeshIn3DSpace()
-    {
-    
-        TrianglesMeshReader<2,3> mesh_reader(
-            "mesh/test/data/disk_in_3d");
+    {    
+        TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
             
         ConformingTetrahedralMesh<2,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -270,17 +254,16 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
         
         std::string output_dir = mesh_writer.GetOutputDirectory();
-        TrianglesMeshReader<2,3> mesh_reader2(
-            output_dir+"2dMeshIn3dSpace");
+        TrianglesMeshReader<2,3> mesh_reader2(output_dir+"2dMeshIn3dSpace");
+
         TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 312U);
         TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 522U);
         TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), mesh_reader.GetNumNodes());
         TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), mesh_reader.GetNumElements());
         
         //Note that this not a straight conversion, since we have culled internal data
-        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 833U);
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 100U);
-        
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 100U); // culling now occurs in the reader
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 100U);        
     }
     
 };

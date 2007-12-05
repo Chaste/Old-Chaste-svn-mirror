@@ -19,9 +19,19 @@ private:
     std::vector<std::vector<double> > TokenizeStringsToDoubles(
         std::vector<std::string> rawData);
         
+    /**
+     *  Convert strings for vectors of unsigned
+     *  @param rawData the raw data. Each string should look like: index value0 value1 .. valueN marker
+     *  Here marker doesn't have to be present, it is ignored unless onlyMarked=true
+     *  @dimensionOfObject The number of values
+     *  @onlyMarked Set this to true to look at the marker and ignore any strings 
+     *  for which the marker is set to zero.
+     */
     std::vector<std::vector<unsigned> > TokenizeStringsToInts(
         std::vector<std::string> rawData,
-        unsigned dimensionOfObject);
+        unsigned dimensionOfObject,
+        bool onlyMarked=false);
+
     void ReadFacesAsElements(std::string pathBaseName);
     void ReadEdgesAsFaces(std::string pathBaseName);
     

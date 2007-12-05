@@ -81,6 +81,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
 #undef COVERAGE_IGNORE
     }
     
+    assert(this->mMaxFaceBdyMarker == 0);
     // Read the rest of the element data using TokenizeStringsToInts method
     this->mElementData = TokenizeStringsToInts(this->mElementRawData,ELEMENT_DIM+1);
     this->mpElementIterator = this->mElementData.begin();
@@ -135,15 +136,17 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
     std::stringstream face_header_stream(this->mFaceRawData[0]);
     unsigned num_faces;
     face_header_stream >> num_faces >> this->mMaxFaceBdyMarker;
+    assert(this->mMaxFaceBdyMarker==0 || this->mMaxFaceBdyMarker==1);
     
     //mNumBoundaryFaces = mNumFaces; //temporary
     
     // Read the rest of the face/edge data using TokenizeStringsToInts method
-    this->mFaceData = TokenizeStringsToInts(this->mFaceRawData,ELEMENT_DIM);
+    bool only_marked = (this->mMaxFaceBdyMarker==1);
+    this->mFaceData = TokenizeStringsToInts(this->mFaceRawData,ELEMENT_DIM, only_marked);
     this->mpFaceIterator = this->mFaceData.begin();
     
     //Check that the size of the data matches the information in the header
-    if (num_faces != this->mFaceData.size())
+    if ((!only_marked) && (num_faces != this->mFaceData.size()) )
     {
         EXCEPTION("Number of faces does not match expected number declared in header");
     }
@@ -254,7 +257,8 @@ std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::T
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<std::vector<unsigned> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(
     std::vector<std::string> rawData,
-    unsigned dimensionOfObject)
+    unsigned dimensionOfObject,
+    bool onlyMarked)
 {
     std::vector< std::vector<unsigned> > tokenized_data;
     
@@ -283,11 +287,26 @@ std::vector<std::vector<unsigned> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>:
                     }
                     current_indices.push_back(item_index);
                 }
-                
-                tokenized_data.push_back(current_indices);
+
+                // if asked for, look at the marker and ignore if the marker
+                // is equal to 0
+                if(onlyMarked)
+                {
+                    // read the marker
+                    unsigned boundary_marker;
+                    line_stream >> boundary_marker;
+                    assert(boundary_marker==0 || boundary_marker==1);
+                    if (boundary_marker != 0)
+                    {
+                        tokenized_data.push_back(current_indices);
+                    }
+                }
+                else 
+                {
+                    tokenized_data.push_back(current_indices);
+                }
             }
         }
-        
     }
     
     return tokenized_data;
@@ -369,19 +388,18 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadEdgesAsFaces(std::string p
     /* Read single line header as at:
      * http://tetgen.berlios.de/fformats.face.html
      * http://www-2.cs.cmu.edu/~quake/triangle.edge.html
-     */
-    
+     */    
     std::stringstream face_header_stream(this->mFaceRawData[0]);
     unsigned num_faces;
     face_header_stream >> num_faces >> this->mMaxFaceBdyMarker;
     
-    
     // Read the rest of the face/edge data using TokenizeStringsToInts method
-    this->mFaceData = TokenizeStringsToInts(this->mFaceRawData,ELEMENT_DIM);
+    bool only_marked = (this->mMaxFaceBdyMarker==1);
+    this->mFaceData = TokenizeStringsToInts(this->mFaceRawData,ELEMENT_DIM,only_marked);
     this->mpFaceIterator = this->mFaceData.begin();
     
     //Check that the size of the data matches the information in the header
-    if (num_faces != this->mFaceData.size())
+    if (num_faces != this->mFaceData.size() && !only_marked)
     {
         // ignored from coverage because otherwise would have to create files
         // for a bad mesh just to test this line
