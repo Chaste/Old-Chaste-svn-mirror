@@ -21,7 +21,6 @@ TestSimulationTime.hpp
 TestTissueSimulation3d.hpp
 TestTissue.hpp
 TestTissueCell.hpp
-TestTissueSimulationWithNutrients.hpp
 TestTysonNovak2001OdeSystem.hpp
 TestWntCellCycleOdeSystem.hpp
 TestVoronoiAreaOnPeriodicMesh.hpp

@@ -14,20 +14,23 @@ std::vector<CellType> AbstractSimpleMeinekeCellCycleModel::GetNewCellTypes(CellT
     
     if (cellType != STEM)
     {
+        //std::cout << "Generation  " << mGeneration << " max trans " << p_params->GetMaxTransitGenerations() << "\n";
         if (cellType == HEPA_ONE)
         {
             assert(GetGeneration()==mGeneration);  
             cell_types[0] = cellType;
             cell_types[1] = cellType;
         }
-        else if (mGeneration-1 < p_params->GetMaxTransitGenerations())
+        else if ((mGeneration-1u) < p_params->GetMaxTransitGenerations())
         {
+            //std::cout << "Generation T " << mGeneration << "\n";
             assert(GetGeneration()==mGeneration);     
             cell_types[0] = cellType;
             cell_types[1] = TRANSIT;
         }
         else
         {
+            //std::cout << "Generation D " << mGeneration << "\n";
             assert(GetGeneration()==mGeneration);
             cell_types[0] = DIFFERENTIATED;
             cell_types[1] = DIFFERENTIATED;
@@ -35,7 +38,7 @@ std::vector<CellType> AbstractSimpleMeinekeCellCycleModel::GetNewCellTypes(CellT
     }
     else
     {
-        SetGeneration(0u);                      
+        //SetGeneration(0u);                      
         cell_types[0] = cellType;
         cell_types[1] = TRANSIT;
         

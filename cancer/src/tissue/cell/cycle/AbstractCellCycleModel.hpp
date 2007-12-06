@@ -146,7 +146,7 @@ public:
      * This normally does nothing but is over-ridden when the mother cell has
      * an AbstractSimpleMeineke cell cycle model and cell is a stem.
      */ 
-    virtual void SetMotherGeneration(CellType cellType) {};
+    virtual void SetMotherGeneration(CellType cellType) ;
     
     /**
      * @return the level of membrane bound beta-catenin. However in most Cell Cycle models this does not exist.

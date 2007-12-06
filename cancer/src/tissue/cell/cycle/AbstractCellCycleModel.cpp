@@ -76,12 +76,26 @@ unsigned AbstractCellCycleModel::GetGeneration() const
 std::vector<CellType> AbstractCellCycleModel::GetNewCellTypes(CellType cellType)
 {
     std::vector<CellType> cell_types(2);
-    cell_types[0] = cellType;
-    cell_types[1] = cellType;
+    if (cellType == STEM)
+    {
+        cell_types[0] = cellType;
+        cell_types[1] = TRANSIT;
+    }
+    else
+    {
+        cell_types[0] = cellType;
+        cell_types[1] = cellType;
+    }
     return cell_types;
 }
 
-
+void AbstractCellCycleModel::SetMotherGeneration(CellType cellType)
+{
+    if (cellType == STEM)
+    {
+        mGeneration--;
+    }
+}
 
    
 double AbstractCellCycleModel::GetSDuration()
