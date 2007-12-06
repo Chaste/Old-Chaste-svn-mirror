@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 #include <iostream>
 #include "TissueSimulationWithNutrients.hpp"
