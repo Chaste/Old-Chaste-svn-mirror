@@ -26,7 +26,11 @@
 #include "VoronoiTessellation.cpp"
 #include "CellsGenerator.hpp"
 
-
+/**
+ * Note that all these tests call setUp() and tearDown() before running,
+ * so if you copy them into a new test suite be sure to copy these methods
+ * too.
+ */
 class TestCryptSimulation2d : public CxxTest::TestSuite
 {
     /**
@@ -79,21 +83,23 @@ class TestCryptSimulation2d : public CxxTest::TestSuite
     void setUp()
     {
         mLastStartTime = std::clock();
+        SimulationTime::Instance()->SetStartTime(0.0);
+        RandomNumberGenerator::Instance()->Reseed(0);
+        CancerParameters::Instance()->Reset();
     }
     void tearDown()
     {
         double time = std::clock();
         double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
         std::cout << "Elapsed time: " << elapsed_time << std::endl;
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
 
 public:
-
+    
     void TestUpdatePositions() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
-        SimulationTime::Instance()->SetStartTime(0.0);
-        
         HoneycombMeshGenerator generator(3, 3, 1, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
@@ -145,20 +151,14 @@ public:
                 }
             }
         }
-
-        SimulationTime::Destroy();
     }
 
     void Test2DCylindrical() throw (Exception)
     {        
-        CancerParameters::Instance()->Reset();
-
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 0;
- 
-        SimulationTime::Instance()->SetStartTime(0.0);
         
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
@@ -208,8 +208,6 @@ public:
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
 
         delete p_sloughing_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
     
@@ -223,9 +221,6 @@ public:
         unsigned cells_up = 8;
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 0;
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
@@ -276,9 +271,6 @@ public:
         }
         
         delete p_sloughing_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-        
         // close the log file opened in this test
         LogFile::Close();
     }
@@ -289,11 +281,6 @@ public:
     // For a better test with more randomly distributed cell ages see the Nightly test pack.
     void TestWithWntDependentCells() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        // There is no limit on transit cells in Wnt simulation
-        p_params->SetMaxTransitGenerations(1000);
-        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 0;
@@ -301,9 +288,6 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells 
         std::vector<TissueCell> cells;                      
@@ -337,16 +321,12 @@ public:
         TS_ASSERT_DELTA(node_35_location[1], 4.33013 , 1e-4);
           
         delete p_sloughing_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
         WntGradient::Destroy();
     }
     
     // A better check that the loaded mesh is the same as that saved
     void TestMeshSurvivesSaveLoad() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
-        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
@@ -356,8 +336,6 @@ public:
         
         // Set up a simulation
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         std::vector<TissueCell> cells;
                 
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
@@ -376,7 +354,7 @@ public:
         // Memory leak (unconditional jump) without the following line.
         // The archiver assumes that a Solve has been called and simulation time has been set up properly.
         // In this test it hasn't so we need this to avoid memory leak.
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.1, 100);
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(0.1, 100);
 
         // Save
         simulator.Save();
@@ -393,18 +371,11 @@ public:
         CompareMeshes(p_mesh2, &(p_simulator->rGetTissue().rGetMesh()));
         
         delete p_simulator;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
         WntGradient::Destroy();
     }
 
     void TestStandardResultForArchivingTestsBelow() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        // There is no limit on transit cells in Wnt simulation
-        p_params->SetMaxTransitGenerations(1000); 
-        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
@@ -412,9 +383,6 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -454,8 +422,6 @@ public:
         TS_ASSERT_DELTA(node_120_location[1], 0.1033 , 1e-4);
                 
         delete p_sloughing_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
         
         // test the Wnt gradient result
         TissueCell* p_cell = &(crypt.rGetCellAtNodeIndex(28));
@@ -469,9 +435,6 @@ public:
     // Testing Save 
     void TestSave() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
@@ -479,9 +442,6 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -512,8 +472,6 @@ public:
         simulator.Save();
         
         delete p_sloughing_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
         WntGradient::Destroy();
     }
     
@@ -521,11 +479,6 @@ public:
     // Testing Load (based on previous two tests)
     void TestLoad() throw (Exception) 
     {
-        CancerParameters::Instance()->Reset();
-
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 0.2
         CryptSimulation2d* p_simulator1;
@@ -570,10 +523,7 @@ public:
         TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
         
         delete p_simulator1;
-        delete p_simulator2;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-        
+        delete p_simulator2;        
         WntGradient::Destroy();
     }
     
@@ -590,11 +540,6 @@ public:
      */
     void TestWntCellsCannotMoveAcrossYEqualsZeroAndVoronoiWriter() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        // There is no limit on transit cells in Wnt simulation
-        p_params->SetMaxTransitGenerations(1000);
-        
         unsigned cells_across = 2;
         unsigned cells_up = 2;
         double crypt_width = 0.5;
@@ -604,9 +549,6 @@ public:
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-                
         // Set up cells
         std::vector<TissueCell> cells;        
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, true);
@@ -669,10 +611,8 @@ public:
         // check writing of voronoi data
         OutputFileHandler handler("Crypt2DWntMatureCells",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.visvoronoi";
-        TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat").c_str()), 0);
-            
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat").c_str()), 0);
+        
         WntGradient::Destroy();
     }
     
@@ -680,10 +620,8 @@ public:
     // good testing of the periodic boundaries though... [comment no longer valid?]
     void TestWithTysonNovakCells() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();      
         // There is no limit on transit cells in T&N
-        p_params->SetMaxTransitGenerations(1000);
+        CancerParameters::Instance()->SetMaxTransitGenerations(1000);
         
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -692,9 +630,6 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -733,8 +668,6 @@ public:
         TS_ASSERT_EQUALS(number_of_nodes, 123u);
 
         delete p_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
     /*
@@ -755,22 +688,15 @@ public:
     
     void TestAddCellKiller() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        RandomNumberGenerator::Instance();
-        
         double crypt_length = 9.3;
         double crypt_width = 10.0;
         
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);        
+        CancerParameters::Instance()->SetCryptLength(crypt_length);
+        CancerParameters::Instance()->SetCryptWidth(crypt_width);        
         
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -792,8 +718,6 @@ public:
         TS_ASSERT_EQUALS(num_deaths,11u);
                
         delete p_sloughing_cell_killer;       
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
     void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
@@ -801,9 +725,6 @@ public:
         CancerParameters::Instance()->Reset();
         CancerParameters::Instance()->SetDivisionRestingSpringLength(0.9);//Only coverage
         CancerParameters::Instance()->SetDivisionSeparation(0.1);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Make a parent node
         c_vector<double ,2> location;
@@ -831,17 +752,11 @@ public:
             CancerParameters::Instance()->GetDivisionSeparation(),
             1e-7);
 
-        SimulationTime::Destroy();
     }
     
 
     void TestCalculateDividingCellCentreLocationsConfMeshStemCell() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
-
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
         // Make a parent node
         c_vector<double ,2> location;
         location[0]=1.0;
@@ -876,17 +791,10 @@ public:
                 1.0*CancerParameters::Instance()->GetDivisionSeparation(),
                 1e-7);
        }
-
-        SimulationTime::Destroy();
     }
 
     void TestCalculateDividingCellCentreLocationsCylindricalMesh() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();        
-
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
         // Make a mesh
         c_vector<double ,2> location;
         location[0]=1.0;
@@ -909,17 +817,10 @@ public:
         TS_ASSERT_DELTA(norm_2(parent_to_daughter), 
             CancerParameters::Instance()->GetDivisionSeparation(),
             1e-7);
-
-        SimulationTime::Destroy();
     }
 
     void TestCalculateDividingCellCentreLocationsCylindricalMeshStemCell() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();        
-
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
         // Make a mesh
         c_vector<double ,2> location;
         location[0]=1.0;
@@ -947,23 +848,16 @@ public:
         TS_ASSERT_DELTA(norm_2(parent_to_daughter), 
             CancerParameters::Instance()->GetDivisionSeparation(),
             1e-7);
-
-        SimulationTime::Destroy();
     }
     
     // short test which sets mNoBirth for coverage
     void TestNoBirth() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
-        
         std::string output_directory = "Crypt2DCylindricalNoBirth";        
         unsigned cells_across = 2;
         unsigned cells_up = 3;
         double crypt_width = 2.0;
         unsigned thickness_of_ghost_layer = 0;
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
@@ -1002,8 +896,6 @@ public:
         TS_ASSERT_EQUALS(number_of_nodes, number_of_cells+thickness_of_ghost_layer*2*cells_across); 
 
         delete p_sloughing_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
 
@@ -1012,8 +904,6 @@ public:
     // Note that birth does occur too.
     void TestRandomDeathOnNonPeriodicCrypt() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
-        
         unsigned cells_across = 2;
         unsigned cells_up = 1;
         unsigned thickness_of_ghost_layer = 1;
@@ -1021,9 +911,6 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -1048,21 +935,14 @@ public:
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
     
         delete p_random_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
     void TestUsingJiggledBottomSurface()
     {
-        CancerParameters::Instance()->Reset();
-        
         HoneycombMeshGenerator generator(4, 4, 0, true, 1.0);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -1090,22 +970,13 @@ public:
         // the cell should have been pulled up, but not above y=0. However it should
         // then been moved to above y=0 by the jiggling
         TS_ASSERT_LESS_THAN(0.0, cell_iter.rGetLocation()[1]);
-    
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
    
     void TestWriteBetaCatenin() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        
         HoneycombMeshGenerator generator(5, 4, 1);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells 
         std::vector<TissueCell> cells;                      
@@ -1131,19 +1002,13 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CryptBetaCatenin/results.vizbCat").c_str()), 0);    
         TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " cancer/test/data/CryptBetaCatenin/results.vizsetup").c_str()), 0);    
 
-        SimulationTime::Destroy();
         WntGradient::Destroy();
     }        
 
     void TestApoptosisSpringLengths() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-
-        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-       
-        int num_cells_depth = 2;
-        int num_cells_width = 2;
+        unsigned num_cells_depth = 2;
+        unsigned num_cells_width = 2;
         double crypt_length = num_cells_depth-0.0;
         double crypt_width = num_cells_width-0.0;
         
@@ -1151,18 +1016,16 @@ public:
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
+        CancerParameters* p_params = CancerParameters::Instance();
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<TissueCell> cells;
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
-            double birth_time = -p_gen->ranf()*(p_params->GetTransitCellG1Duration()
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
                                                +p_params->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -1235,9 +1098,6 @@ public:
         simulator.Solve();
         
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 2u);
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
 };
 
