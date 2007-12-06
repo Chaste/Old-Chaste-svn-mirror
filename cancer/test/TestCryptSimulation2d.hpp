@@ -83,6 +83,7 @@ class TestCryptSimulation2d : public CxxTest::TestSuite
     void setUp()
     {
         mLastStartTime = std::clock();
+        // Initialise singleton classes
         SimulationTime::Instance()->SetStartTime(0.0);
         RandomNumberGenerator::Instance()->Reseed(0);
         CancerParameters::Instance()->Reset();
@@ -92,6 +93,7 @@ class TestCryptSimulation2d : public CxxTest::TestSuite
         double time = std::clock();
         double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
         std::cout << "Elapsed time: " << elapsed_time << std::endl;
+        // Clear up singleton classes
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

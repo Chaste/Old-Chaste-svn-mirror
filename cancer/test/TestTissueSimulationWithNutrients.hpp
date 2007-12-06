@@ -81,6 +81,25 @@ public:
 
 class TestTissueSimulationWithNutrients : public CxxTest::TestSuite
 {
+    double mLastStartTime;
+    void setUp()
+    {
+        mLastStartTime = std::clock();
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+        RandomNumberGenerator::Instance()->Reseed(0);
+        CancerParameters::Instance()->Reset();
+    }
+    void tearDown()
+    {
+        double time = std::clock();
+        double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
+        std::cout << "Elapsed time: " << elapsed_time << std::endl;
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+    
 public:
 
     /* 
@@ -101,18 +120,9 @@ public:
             return;
         }
         
-        // instantiate singleton objects
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        
         // change the hypoxic concentration, just for this test
-        p_params->SetHepaOneCellHypoxicConcentration(0.9);
+        CancerParameters::Instance()->SetHepaOneCellHypoxicConcentration(0.9);
 
-        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);  
-       
         // set up mesh
         ConformingTetrahedralMesh<2,2>* p_mesh = new ConformingTetrahedralMesh<2,2>;
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
@@ -124,8 +134,9 @@ public:
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(HEPA_ONE, HEALTHY, new SimpleOxygenBasedCellCycleModel());
-            double birth_time = -p_gen->ranf()*(p_params->GetHepaOneCellG1Duration()
-                                               +p_params->GetSG2MDuration());
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
+                                    (CancerParameters::Instance()->GetHepaOneCellG1Duration()
+                                    +CancerParameters::Instance()->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -186,7 +197,7 @@ public:
             TS_ASSERT_DELTA(p_data->GetValue(&(*cell_iter)), analytic_solution, 1e-2);
             
             // Second part of test - check that each cell's hypoxic duration is correctly updated
-            if ( p_data->GetValue(&(*cell_iter)) >= p_params->GetHepaOneCellHypoxicConcentration() )
+            if ( p_data->GetValue(&(*cell_iter)) >= CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration() )
             {
                 //TS_ASSERT_DELTA(cell_iter->GetHypoxicDuration(), 0.0, 1e-5);
                 TS_ASSERT_DELTA(p_oxygen_model->GetHypoxicDuration(), 0.0, 1e-5);
@@ -202,8 +213,6 @@ public:
         // tidy up
         delete p_mesh;
         delete p_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
         CellwiseData<2>::Destroy();
     }
         
@@ -215,16 +224,9 @@ public:
             return;
         }
         
-        // instantiate singleton objects
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-              
         // set up mesh
-        int num_cells_depth = 5;
-        int num_cells_width = 5;
+        unsigned num_cells_depth = 5;
+        unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
                     
@@ -234,8 +236,9 @@ public:
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(HEPA_ONE, HEALTHY, new SimpleOxygenBasedCellCycleModel());
-            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*(p_params->GetHepaOneCellG1Duration()
-                                                                            +p_params->GetSG2MDuration());
+            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
+                                    (CancerParameters::Instance()->GetHepaOneCellG1Duration()
+                                    +CancerParameters::Instance()->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -274,7 +277,6 @@ public:
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);
                
-        double start_time = std::clock();       
         
         // run tissue simulation 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -282,12 +284,6 @@ public:
         // record final mesh size for visualizer
         TS_ASSERT_THROWS_NOTHING(simulator.WriteFinalMeshSizeForVisualizer());
                         
-        double end_time = std::clock();
-        
-        // print out time taken to run tissue simulation    
-        double elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-        std::cout <<  "Time taken to perform simulation was = " << elapsed_time << "\n";
-        
         // test positions        
         std::vector<double> node_5_location = simulator.GetNodeLocation(5);
         TS_ASSERT_DELTA(node_5_location[0], 0.4968, 1e-4);
@@ -307,8 +303,6 @@ public:
                         
         // tidy up
         delete p_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
         CellwiseData<2>::Destroy();
     }
     
@@ -339,16 +333,9 @@ public:
             return;
         }
         
-        // instantiate singleton objects
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-              
         // set up mesh
-        int num_cells_depth = 5;
-        int num_cells_width = 5;
+        unsigned num_cells_depth = 5;
+        unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
                     
@@ -358,8 +345,9 @@ public:
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(HEPA_ONE, HEALTHY, new SimpleOxygenBasedCellCycleModel());
-            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*(p_params->GetHepaOneCellG1Duration()
-                                                                            +p_params->GetSG2MDuration());
+            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
+                                            (CancerParameters::Instance()->GetHepaOneCellG1Duration()
+                                             +CancerParameters::Instance()->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -427,9 +415,7 @@ public:
         p_cell = &(p_simulator->rGetTissue().rGetCellAtNodeIndex(15));
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
         
-        delete p_simulator;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();        
+        delete p_simulator;       
         CellwiseData<2>::Destroy();
         
     }

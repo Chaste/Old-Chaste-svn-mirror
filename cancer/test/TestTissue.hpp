@@ -440,11 +440,11 @@ public:
         // compare output with saved files of what they should look like                           
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.vizelements  cancer/test/data/TestTissueWriters/results.vizelements").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.viznodes     cancer/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements  cancer/test/data/TestTissueWriters/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
 
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_node_results.dat cancer/test/data/TestTissueWriters/tab_node_results.dat").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_elem_results.dat cancer/test/data/TestTissueWriters/tab_elem_results.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "tab_node_results.dat cancer/test/data/TestTissueWriters/tab_node_results.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "tab_elem_results.dat cancer/test/data/TestTissueWriters/tab_elem_results.dat").c_str()), 0);
         
         /*
          * Test the GetCellTypeCount function

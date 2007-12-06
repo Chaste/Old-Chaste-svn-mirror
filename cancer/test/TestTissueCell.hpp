@@ -112,9 +112,9 @@ public:
         TS_ASSERT(stem_cell.ReadyToDivide());
         TS_ASSERT(symmetric_stem_cell.ReadyToDivide());
         // create transit progeny of stem
-        std::cout << "mother gen  = " << stem_cell.GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
+        //std::cout << "mother gen  = " << stem_cell.GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
         TissueCell daughter_cell = stem_cell.Divide();
-        std::cout << "mother gen  = " << stem_cell.GetCellCycleModel()->GetGeneration() << " " << "daughter gen  = " << daughter_cell.GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
+        //std::cout << "mother gen  = " << stem_cell.GetCellCycleModel()->GetGeneration() << " " << "daughter gen  = " << daughter_cell.GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
         TS_ASSERT(!stem_cell.ReadyToDivide());    
         TS_ASSERT(daughter_cell.GetCellCycleModel()->GetGeneration() == 1);
         TS_ASSERT(daughter_cell.GetCellType() == TRANSIT);
@@ -249,8 +249,8 @@ public:
         expected_num_cells[5]=8;
         
         TS_ASSERT_EQUALS(expected_num_cells[1], cells.size());
-        std::cout << "mother gen start = " << cells[0].GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
-        std::cout << "mother gen start 2 = " << daughter_cell.GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
+        //std::cout << "mother gen start = " << cells[0].GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
+        //std::cout << "mother gen start 2 = " << daughter_cell.GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
         for (int generation=2; generation<6; generation++)
         {
             // produce the offspring of the cells
@@ -264,9 +264,9 @@ public:
             {
                 if (cell_iterator->ReadyToDivide())
                 {
-                    std::cout << "mother gen  = " << cell_iterator->GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
+                    //std::cout << "mother gen  = " << cell_iterator->GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
                     newly_born.push_back(cell_iterator->Divide());
-                    std::cout << "mother gen  = " << cell_iterator->GetCellCycleModel()->GetGeneration() << "new gen  = " << newly_born[newly_born.size()-1].GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
+                    //std::cout << "mother gen  = " << cell_iterator->GetCellCycleModel()->GetGeneration() << "new gen  = " << newly_born[newly_born.size()-1].GetCellCycleModel()->GetGeneration() << "\n " << std::flush; 
                 }
                 cell_iterator++;
             }
@@ -840,14 +840,14 @@ public:
         
         TissueCell wnt_cell2 = wnt_cell.Divide();
         
-        std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
+        //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
         double time_of_birth = wnt_cell.GetBirthTime();
         double time_of_birth2 = wnt_cell2.GetBirthTime();
         
         TS_ASSERT_DELTA(time_of_birth, time_of_birth2, 1e-9);
         
-        std::cout << "time of cell divisions = " << time_of_birth << "\tand\t" << time_of_birth2 << "\n" << std::endl;
+        //std::cout << "time of cell divisions = " << time_of_birth << "\tand\t" << time_of_birth2 << "\n" << std::endl;
         
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -867,7 +867,7 @@ public:
                 TS_ASSERT(result1==false);
                 TS_ASSERT(result2==false);
             }
-            std::cout << "Time = " << time << " ready = " << result1 << " ready2 = " << result2 << "\n" << std::endl;
+            //std::cout << "Time = " << time << " ready = " << result1 << " ready2 = " << result2 << "\n" << std::endl;
         
         }
         

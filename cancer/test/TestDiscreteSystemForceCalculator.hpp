@@ -181,11 +181,9 @@ public:
     
     void TestCalculateWriteResultsToFile() throw (Exception)
     {
+        std::string output_directory = "TestDiscreteSystemForceCalculator"; 
         // Set up a tissue 
-        CancerParameters::Instance();
-        
-        SimulationTime::Instance()->SetStartTime(0.0);        
-        //SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(0.1, 1);
+        SimulationTime::Instance()->SetStartTime(0.0);
                 
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
         ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
@@ -205,12 +203,20 @@ public:
         DiscreteSystemForceCalculator calculator(meineke_spring_system); 
         
         // Test WriteResultsToFile
-        TS_ASSERT_THROWS_NOTHING(calculator.WriteResultsToFile("TestDiscreteSystemForceCalculator"));
-                 
+        calculator.WriteResultsToFile(output_directory);
+        
         // Compare output with saved files of what they should look like 
-        OutputFileHandler handler("TestDiscreteSystemForceCalculator",false);
+        OutputFileHandler handler(output_directory, false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizstress";         
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestDiscreteSystemForceCalculator/results.vizstress").c_str()), 0);  
+        
+        // Run a simulation to generate some results.viz<other things> files 
+        // so the visualizer can display the results.vizstress file.
+        // (These lines are not actually necessary for generating results.vizstress)
+        TissueSimulation<2> simulator(tissue);        
+        simulator.SetEndTime(0.05);
+        simulator.SetOutputDirectory(output_directory);
+        simulator.Solve();
         
         // Tidy up 
         SimulationTime::Destroy();

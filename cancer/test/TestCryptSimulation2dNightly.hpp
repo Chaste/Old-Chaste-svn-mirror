@@ -153,6 +153,24 @@ class TestCryptSimulation2dNightly : public CxxTest::TestSuite
         }
     }
 
+    double mLastStartTime;
+    void setUp()
+    {
+        mLastStartTime = std::clock();
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+        RandomNumberGenerator::Instance()->Reseed(0);
+        CancerParameters::Instance()->Reset();
+    }
+    void tearDown()
+    {
+        double time = std::clock();
+        double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
+        std::cout << "Elapsed time: " << elapsed_time << std::endl;
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
     
 public:
 
@@ -172,23 +190,15 @@ public:
     // the test short.
     void Test2DSpringSystem() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        
         double crypt_length = 10;
         double crypt_width = 10;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
+        CancerParameters::Instance()->SetCryptLength(crypt_length);
+        CancerParameters::Instance()->SetCryptWidth(crypt_width);
         
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        RandomNumberGenerator::Instance();
-
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-
         // Set up cells
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, mesh, FIXED, false, 0.0, 3.0, 6.5, 8.0);
@@ -198,15 +208,13 @@ public:
                 
         // destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
-        p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
+        SimulationTime::Instance()->SetStartTime(0.0);
         simulator.SetEndTime(1.0);
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());// fails because output directory not set
                 
         // destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
-        p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
+        SimulationTime::Instance()->SetStartTime(0.0);
         
         simulator.SetOutputDirectory("Crypt2DSprings");
 
@@ -221,8 +229,7 @@ public:
 
         // destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
-        p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
+        SimulationTime::Instance()->SetStartTime(0.0);
         
         simulator.Solve();
         std::vector<double> node_0_location = simulator.GetNodeLocation(0);
@@ -230,16 +237,10 @@ public:
         TS_ASSERT_DELTA(node_0_location[1], 0.0, 1e-12);
         
         CheckAgainstPreviousRun("Crypt2DSprings","results_from_time_0", 400u, 400u);
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
     void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-       
         int num_cells_depth = 11;
         int num_cells_width = 6;
         double crypt_length = num_cells_depth-1.0;
@@ -249,11 +250,8 @@ public:
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
+        CancerParameters::Instance()->SetCryptLength(crypt_length);
+        CancerParameters::Instance()->SetCryptWidth(crypt_width);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -276,16 +274,11 @@ public:
         
         CheckAgainstPreviousRun("Crypt2DHoneycombMesh","results_from_time_0", 500u, 1000u);
        
-        delete p_sloughing_cell_killer;       
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
+        delete p_sloughing_cell_killer;     
     }
     
     void TestMonolayer() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-       
         int num_cells_depth = 11;
         int num_cells_width = 6;
         double crypt_length = num_cells_depth-1.0;
@@ -295,11 +288,8 @@ public:
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
+        CancerParameters::Instance()->SetCryptLength(crypt_length);
+        CancerParameters::Instance()->SetCryptWidth(crypt_width);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -326,9 +316,6 @@ public:
         OutputFileHandler handler("Monolayer",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.visvoronoi";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Monolayer/VoronoiAreaAndPerimeter.dat").c_str()), 0);
-     
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
     //////////////////////////////////////////////////////////////////
@@ -338,10 +325,7 @@ public:
     //////////////////////////////////////////////////////////////////
     void Test2DCorrectCellNumbers() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        RandomNumberGenerator::Instance();
-        
+        CancerParameters* p_params = CancerParameters::Instance();
         // check the stem cell cycle time is still 24 hrs, otherwise
         // this test might not pass
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14, 1e-12);
@@ -358,11 +342,8 @@ public:
         double crypt_width = num_cells_width - 1.0;
         double crypt_length = num_cells_depth - 1.0;
         
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
+        CancerParameters::Instance()->SetCryptLength(crypt_length);
+        CancerParameters::Instance()->SetCryptWidth(crypt_width);
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();
@@ -445,8 +426,6 @@ public:
         TS_ASSERT_LESS_THAN(15u, num_differentiated);
         
         delete p_sloughing_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
 ////////////////////////////////////////////////////////////////////////////
@@ -458,8 +437,6 @@ public:
     
     void Test2DPeriodicNightly() throw (Exception)
     {        
-        CancerParameters::Instance()->Reset();
-
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
@@ -467,10 +444,7 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+       
         // Set up cells
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
@@ -499,17 +473,13 @@ public:
         TS_ASSERT_EQUALS(number_of_nodes, 133u);
         
         delete p_sloughing_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
     
     void TestCrypt2DPeriodicWntNightly() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
         // There is no limit on transit cells in Wnt simulation
-        p_params->SetMaxTransitGenerations(1000);
+        CancerParameters::Instance()->SetMaxTransitGenerations(1000);
         
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -518,9 +488,6 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -553,8 +520,6 @@ public:
         TS_ASSERT_EQUALS(number_of_nodes, 142u);
         
         delete p_sloughing_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
         WntGradient::Destroy();
         
         CancerEventHandler::Headings();
@@ -567,11 +532,6 @@ public:
     // are tested elsewhere directly. 
     void dontRunTestWithMutantCellsUsingDifferentViscosities() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        // There is no limit on transit cells in Wnt simulation
-        p_params->SetMaxTransitGenerations(1000);
-        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
@@ -579,9 +539,6 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -646,8 +603,6 @@ public:
         }
         
         delete p_sloughing_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
         WntGradient::Destroy();
     }
     
@@ -655,7 +610,6 @@ public:
     
     void TestRandomDeathWithPeriodicMesh() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
         unsigned cells_across = 7;
         unsigned cells_up = 12;
         double crypt_width = 6.0;
@@ -664,9 +618,6 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -691,8 +642,6 @@ public:
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
     
         delete p_random_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
   
@@ -700,8 +649,6 @@ public:
     // on a non-periodic mesh
     void TestSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
-
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
@@ -709,9 +656,6 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -733,15 +677,11 @@ public:
         simulator.Solve();
     
         delete p_sloughing_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
 
 
     void TestSloughingDeathWithPeriodicMesh() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
-
         unsigned cells_across = 7;
         unsigned cells_up = 12;
         double crypt_width = 6.0;
@@ -750,9 +690,6 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer,true,crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -790,8 +727,6 @@ public:
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 85u);
     
         delete p_cell_killer;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
 
 
@@ -806,9 +741,6 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -855,17 +787,10 @@ public:
     
         delete p_cell_killer1;
         delete p_cell_killer2;
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
-    
-    
-    
+        
     void TestMonolayerWithCutoffPointAndNoGhosts() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-       
         int num_cells_depth = 11;
         int num_cells_width = 6;
         double crypt_length = num_cells_depth-1.0;
@@ -875,11 +800,8 @@ public:
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
+        CancerParameters::Instance()->SetCryptLength(crypt_length);
+        CancerParameters::Instance()->SetCryptWidth(crypt_width);
         
         // Set up cells
         std::vector<TissueCell> cells;
@@ -900,9 +822,6 @@ public:
         simulator.SetMaxElements(800);
         
         simulator.Solve();
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }  
 };
 

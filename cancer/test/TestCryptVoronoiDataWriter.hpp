@@ -45,8 +45,8 @@ public:
         // work out where the previous test wrote its files
         OutputFileHandler handler("TestCryptVoronoiDataWriter",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "Simple.dat";
-        //TS_ASSERT_EQUALS(system(("ndiff -relerr 1e-5 " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/Simple.dat").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/Simple.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("ndiff -relative-error 1e-5 " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/Simple.dat").c_str()), 0);
+        //TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/Simple.dat").c_str()), 0);
         
         SimulationTime::Destroy();
     }
@@ -75,8 +75,8 @@ public:
         
         crypt.CreateVoronoiTessellation();
         
-        // put this in brackets just so the writer does out scope, so its destructor
-        // gets called and the file gets closed
+        // put this in brackets just so the writer goes out of scope, 
+        // so its destructor gets called and the file gets closed.
         {        
             CryptVoronoiDataWriter<2> writer(crypt,"TestCryptVoronoiDataWriter","OneCell.dat", true);
             writer.WriteData();
@@ -87,7 +87,7 @@ public:
         // work out where the previous test wrote its files
         OutputFileHandler handler("TestCryptVoronoiDataWriter",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "OneCell.dat";
-        TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/OneCell.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/OneCell.dat").c_str()), 0);
         
         SimulationTime::Destroy();
     }

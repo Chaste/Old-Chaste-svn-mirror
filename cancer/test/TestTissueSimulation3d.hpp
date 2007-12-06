@@ -28,20 +28,33 @@ class TestTissueSimulation3d : public CxxTest::TestSuite
         mesh_writer.WriteFilesUsingMesh(mesh);
 
         return mesh;
-    }   
+    }  
+    
+    double mLastStartTime;
+    void setUp()
+    {
+        mLastStartTime = std::clock();
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+        RandomNumberGenerator::Instance()->Reseed(0);
+        CancerParameters::Instance()->Reset();
+    }
+    void tearDown()
+    {
+        double time = std::clock();
+        double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
+        std::cout << "Elapsed time: " << elapsed_time << std::endl;
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    } 
 
 public:
     void TestDoCellBirth() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
-        RandomNumberGenerator::Instance();
-        
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
@@ -72,22 +85,14 @@ public:
         unsigned num_births = simulator.DoCellBirth();
                                                                 
         TS_ASSERT_EQUALS(num_births, 1u);
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
        
     void TestBirthOccursDuringSolve() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
-
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_Single_tetrahedron_element");
         
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
         std::vector<TissueCell> cells;
@@ -124,16 +129,10 @@ public:
 
         TrianglesMeshWriter<3,3> mesh_writer2("Test3DCellBirth","EndMesh",false); 
         mesh_writer2.WriteFilesUsingMesh(mesh);
-
-        SimulationTime::Destroy();
     } 
     
     void TestSolveMethodSpheroidSimulation3D() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
-                
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -141,9 +140,6 @@ public:
         TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh","StartMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
         
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
         std::vector<TissueCell> cells;
@@ -156,8 +152,9 @@ public:
             TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
             cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetNodeIndex(i);    
-            cell.SetBirthTime(-p_random_num_gen->ranf()*
-                               (p_params->GetStemCellG1Duration() + p_params->GetSG2MDuration())  );            
+            cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
+                               ( CancerParameters::Instance()->GetStemCellG1Duration() 
+                                 + CancerParameters::Instance()->GetSG2MDuration()   ));            
             cells.push_back(cell);
         } 
         
@@ -172,9 +169,7 @@ public:
         simulator.SetReMeshRule(true);
         simulator.SetEndTime(0.1);
         
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
+        simulator.Solve();
         
         TrianglesMeshWriter<3,3> mesh_writer2("TestSolveMethodSpheroidSimulation3DMesh","EndMesh",false); 
         mesh_writer2.WriteFilesUsingMesh(mesh);      
@@ -183,12 +178,6 @@ public:
  
     void TestGhostNodesSpheroidSimulation3DandSave() throw (Exception)
     {
-        double start_time = std::clock();
-        
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
-                       
         unsigned width = 3;
         unsigned height = 3;               
         unsigned depth = 3;      
@@ -197,9 +186,6 @@ public:
         TrianglesMeshWriter<3,3> mesh_writer("TestGhostNodesSpheroidSimulation3D","StartMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
                        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-      
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
         std::vector<TissueCell> cells;
@@ -244,8 +230,9 @@ public:
             TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
             cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetNodeIndex(i);    
-            cell.SetBirthTime(-p_random_num_gen->ranf()*(  p_params->GetStemCellG1Duration() +
-                                                           p_params->GetSG2MDuration()  ));      
+            cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
+                                (  CancerParameters::Instance()->GetStemCellG1Duration() +
+                                   CancerParameters::Instance()->GetSG2MDuration()  ));      
             cells.push_back(cell);
         } 
                     
@@ -274,27 +261,15 @@ public:
  
         TrianglesMeshWriter<3,3> mesh_writer2("TestGhostNodesSpheroidSimulation3D","EndMesh",false); 
         mesh_writer2.WriteFilesUsingMesh(mesh);
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-        
-        double end_time = std::clock();
-        double elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-        std::cout <<  "Time of simulation " << elapsed_time << "\n" << std::flush; 
     }
     
     void TestLoadOf3DSimulation() throw (Exception)
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
         TissueSimulation<3>* p_simulator = TissueSimulation<3>::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
         unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
         
         TS_ASSERT_EQUALS(num_cells, 8u);      
-        TS_ASSERT_DELTA(p_simulation_time->GetDimensionalisedTime(), 0.1, 1e-9);  
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
+        TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 0.1, 1e-9);  
         
         delete p_simulator;
     }

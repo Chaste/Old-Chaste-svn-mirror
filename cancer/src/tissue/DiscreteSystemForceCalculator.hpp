@@ -22,8 +22,7 @@ private:
     double mEpsilon; 
     
     /** The file that the results of CalculateExtremalNormalForces */ 
-    out_stream mpStressResultsFile; 
-    
+    out_stream mpStressResultsFile;    
     
     /**
      * Given a node index, returns the set of neighbouring node indices.
@@ -51,8 +50,7 @@ private:
         }
         return neighbouring_node_indices;
     }
-    
-    
+        
     /**
      * Given a node index and angle of intersecting line, returns the tangential and normal forces.
      */ 
