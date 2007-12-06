@@ -45,7 +45,7 @@ public:
         
     AbstractCellCycleModel *CreateCellCycleModel(); 
     
-    std::vector<CellType> GetNewCellTypes(CellType cellType);
+    std::vector<CellType> GetNewCellTypes();
         
 };
 

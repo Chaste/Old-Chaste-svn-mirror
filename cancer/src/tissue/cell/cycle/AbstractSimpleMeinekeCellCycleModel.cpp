@@ -6,50 +6,51 @@ void AbstractSimpleMeinekeCellCycleModel::ResetModel()
     SetG1Duration();
 }
 
-std::vector<CellType> AbstractSimpleMeinekeCellCycleModel::GetNewCellTypes(CellType cellType)
+std::vector<CellType> AbstractSimpleMeinekeCellCycleModel::GetNewCellTypes()
 {
-   
-    std::vector<CellType> cell_types(2);
+    CellType cell_type = mpCell->GetCellType();
+    std::vector<CellType> new_cell_types(2);
     CancerParameters *p_params = CancerParameters::Instance();
     
-    if (cellType != STEM)
+    if (cell_type != STEM)
     {
         //std::cout << "Generation  " << mGeneration << " max trans " << p_params->GetMaxTransitGenerations() << "\n";
-        if (cellType == HEPA_ONE)
+        if (cell_type == HEPA_ONE)
         {
             assert(GetGeneration()==mGeneration);  
-            cell_types[0] = cellType;
-            cell_types[1] = cellType;
+            new_cell_types[0] = cell_type;
+            new_cell_types[1] = cell_type;
         }
         else if ((mGeneration-1u) < p_params->GetMaxTransitGenerations())
         {
             //std::cout << "Generation T " << mGeneration << "\n";
             assert(GetGeneration()==mGeneration);     
-            cell_types[0] = cellType;
-            cell_types[1] = TRANSIT;
+            new_cell_types[0] = cell_type;
+            new_cell_types[1] = TRANSIT;
         }
         else
         {
             //std::cout << "Generation D " << mGeneration << "\n";
             assert(GetGeneration()==mGeneration);
-            cell_types[0] = DIFFERENTIATED;
-            cell_types[1] = DIFFERENTIATED;
+            new_cell_types[0] = DIFFERENTIATED;
+            new_cell_types[1] = DIFFERENTIATED;
         }
     }
     else
     {
         //SetGeneration(0u);                      
-        cell_types[0] = cellType;
-        cell_types[1] = TRANSIT;
+        new_cell_types[0] = cell_type;
+        new_cell_types[1] = TRANSIT;
         
     }
     
-    return cell_types;
+    return new_cell_types;
 }
 
-void AbstractSimpleMeinekeCellCycleModel::SetMotherGeneration(CellType cellType)
+void AbstractSimpleMeinekeCellCycleModel::SetMotherGeneration()
 {
-    if (cellType == STEM)
+    CellType cell_type = mpCell->GetCellType();
+    if (cell_type == STEM)
     {
         mGeneration--;
     }

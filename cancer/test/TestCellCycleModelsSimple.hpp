@@ -862,7 +862,7 @@ public:
         
         TissueCell fixed_stem_cell(STEM, HEALTHY, p_fixed_cell_cycle_model);
         CellType old_cell_type = p_fixed_cell_cycle_model->GetCell()->GetCellType();
-        std::vector<CellType> new_cell_types = p_fixed_cell_cycle_model->GetNewCellTypes(old_cell_type);
+        std::vector<CellType> new_cell_types = p_fixed_cell_cycle_model->GetNewCellTypes();
         
         TS_ASSERT(new_cell_types[0]==STEM);
         TS_ASSERT(new_cell_types[1]==TRANSIT);
@@ -872,7 +872,7 @@ public:
         p_fixed_cell_cycle_model->SetGeneration(1u);
         TissueCell fixed_trans_cell_new(TRANSIT, HEALTHY, p_fixed_cell_cycle_model);
         old_cell_type = p_fixed_cell_cycle_model->GetCell()->GetCellType();
-        new_cell_types = p_fixed_cell_cycle_model->GetNewCellTypes(old_cell_type);
+        new_cell_types = p_fixed_cell_cycle_model->GetNewCellTypes();
         
         TS_ASSERT(new_cell_types[0]==TRANSIT);
         TS_ASSERT(new_cell_types[1]==TRANSIT);

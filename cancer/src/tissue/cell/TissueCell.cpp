@@ -264,11 +264,9 @@ TissueCell TissueCell::Divide()
     }
     else
     {
-//        if (mCellType != HEPA_ONE)
-//        {
             CellType daughter_cell_type;
             mpCellCycleModel->mGeneration++;
-            std::vector<CellType> new_cell_types = mpCellCycleModel->GetNewCellTypes(mCellType);
+            std::vector<CellType> new_cell_types = mpCellCycleModel->GetNewCellTypes();
             
             mCellType = new_cell_types[0];
             daughter_cell_type = new_cell_types[1];
@@ -277,17 +275,8 @@ TissueCell TissueCell::Divide()
                                       mpCellCycleModel->CreateCellCycleModel());
             
             assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->mGeneration);
-            mpCellCycleModel->SetMotherGeneration(mCellType);
+            mpCellCycleModel->SetMotherGeneration();
             return new_cell;
-//        }
-//        else
-//        {
-//            mpCellCycleModel->ResetModel();// Cell goes back to age zero
-//            TissueCell new_cell = TissueCell(HEPA_ONE, mMutationState,
-//                                        mpCellCycleModel->CreateCellCycleModel());
-//            new_cell.GetCellCycleModel()->SetGeneration(1);
-//            return new_cell;
-//        }
     }
         
 }

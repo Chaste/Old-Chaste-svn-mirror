@@ -73,25 +73,27 @@ unsigned AbstractCellCycleModel::GetGeneration() const
     return mGeneration;
 }
 
-std::vector<CellType> AbstractCellCycleModel::GetNewCellTypes(CellType cellType)
+std::vector<CellType> AbstractCellCycleModel::GetNewCellTypes()
 {
-    std::vector<CellType> cell_types(2);
-    if (cellType == STEM)
+    CellType cell_type = mpCell->GetCellType();
+    std::vector<CellType> new_cell_types(2);
+    if (cell_type == STEM)
     {
-        cell_types[0] = cellType;
-        cell_types[1] = TRANSIT;
+        new_cell_types[0] = cell_type;
+        new_cell_types[1] = TRANSIT;
     }
     else
     {
-        cell_types[0] = cellType;
-        cell_types[1] = cellType;
+        new_cell_types[0] = cell_type;
+        new_cell_types[1] = cell_type;
     }
-    return cell_types;
+    return new_cell_types;
 }
 
-void AbstractCellCycleModel::SetMotherGeneration(CellType cellType)
+void AbstractCellCycleModel::SetMotherGeneration()
 {
-    if (cellType == STEM)
+    CellType cell_type = mpCell->GetCellType();
+    if (cell_type == STEM)
     {
         mGeneration--;
     }

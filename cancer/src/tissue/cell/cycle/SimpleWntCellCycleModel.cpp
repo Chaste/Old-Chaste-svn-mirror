@@ -136,22 +136,23 @@ bool SimpleWntCellCycleModel::ReadyToDivide()
     return ready;
 }
 
-std::vector<CellType> SimpleWntCellCycleModel::GetNewCellTypes(CellType cellType)
+std::vector<CellType> SimpleWntCellCycleModel::GetNewCellTypes()
 {   
-    std::vector<CellType> cell_types(2);
+    CellType cell_type = mpCell->GetCellType();
+    std::vector<CellType> new_cell_types(2);
     
     if (WntGradient::Instance()->GetType()==RADIAL)
     {        
-        cell_types[0] = cellType;
-        cell_types[1] = TRANSIT;
-        if (cellType == STEM)
+        new_cell_types[0] = cell_type;
+        new_cell_types[1] = TRANSIT;
+        if (cell_type == STEM)
         {
             SetGeneration(0u); 
         }
     }
     else
     {
-        cell_types = AbstractCellCycleModel::GetNewCellTypes(cellType);
+        new_cell_types = AbstractCellCycleModel::GetNewCellTypes();
     }
-    return cell_types;
+    return new_cell_types;
 }
