@@ -62,10 +62,9 @@ private:
         std::set<unsigned> neighbouring_node_indices = GetNeighbouringNodeIndices(index);
         
         double tangential_force = 0.0;
-        double normal_force = 0.0;       
-         
+        double normal_force = 0.0;   
         double alpha;
-        double plusminus_norm_force;
+        
         c_vector<double,2> unit_vec_between_nodes(2);        
         
         for (std::set<unsigned>::iterator iter = neighbouring_node_indices.begin();
@@ -79,13 +78,13 @@ private:
             assert(alpha > -M_PI);
             
             if ( sin(alpha-theta) > 0 )
-            {
+            {                
                 c_vector<double,2> force_between_nodes = mrMeinekeSpringSystem.CalculateForceBetweenNodes(index,*iter);
                 
                 unit_vec_between_nodes[0] = cos(alpha);
                 unit_vec_between_nodes[1] = sin(alpha);
                 
-                plusminus_norm_force = inner_prod(force_between_nodes,unit_vec_between_nodes);         
+                double plusminus_norm_force = inner_prod(force_between_nodes,unit_vec_between_nodes);         
                 
                 tangential_force += plusminus_norm_force * cos(alpha-theta);
                 normal_force += plusminus_norm_force * sin(alpha-theta);
@@ -113,6 +112,7 @@ private:
         std::vector<double> sampling_angles(4*neighbouring_node_indices.size());
         
         unsigned i=0;
+        
         for(std::set<unsigned>::iterator iter = neighbouring_node_indices.begin();
             iter != neighbouring_node_indices.end();
             iter++)

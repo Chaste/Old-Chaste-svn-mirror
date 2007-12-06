@@ -88,6 +88,11 @@ public:
     void SetTissue(Tissue<2>& rTissue);
     
     /**
+     *  Get the type of wnt gradient. 
+     */
+    WntGradientType GetType();
+    
+    /**
      *  Set the type of wnt gradient. Must be called before GetWntLevel().
      */
     void SetType(WntGradientType type);

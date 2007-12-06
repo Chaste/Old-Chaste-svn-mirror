@@ -80,6 +80,10 @@ void WntGradient::SetTissue(Tissue<2>& rTissue)
     rTissue.InitialiseCells();
 }
 
+WntGradientType WntGradient::GetType()
+{
+    return mGradientType;    
+}
 
 void WntGradient::SetType(WntGradientType type)
 {

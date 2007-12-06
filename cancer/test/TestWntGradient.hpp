@@ -23,6 +23,8 @@ public:
         WntGradient* p_wnt_gradient = WntGradient::Instance();
         p_wnt_gradient->SetType(NONE);
         
+        TS_ASSERT_EQUALS(p_wnt_gradient->GetType(), NONE);
+        
         double height = 5;
         double wnt_level = 0.0;
         wnt_level = p_wnt_gradient->GetWntLevel(height);
