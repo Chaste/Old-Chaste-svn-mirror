@@ -52,50 +52,58 @@ private:
     }
         
     /**
-     * Given a node index and angle of intersecting line, returns the tangential and normal forces.
+     * Given a node index and angle of intersecting line in the range (-pi,pi], 
+     * returns the tangential and normal forces.
      */ 
     std::vector<double> CalculateFtAndFn(unsigned index, double theta)
     {
         ConformingTetrahedralMesh<2,2>& r_mesh = mrMeinekeSpringSystem.GetTissue().rGetMesh();
-        
+                
         std::set<unsigned> neighbouring_node_indices = GetNeighbouringNodeIndices(index);
         
-        double total_tangential_force = 0.0;
-        double total_normal_force = 0.0;
+        double tangential_force = 0.0;
+        double normal_force = 0.0;       
+         
+        double alpha;
+        double plusminus_norm_force;
+        c_vector<double,2> unit_vec_between_nodes(2);        
         
-        for(std::set<unsigned>::iterator iter = neighbouring_node_indices.begin();
+        for (std::set<unsigned>::iterator iter = neighbouring_node_indices.begin();
             iter != neighbouring_node_indices.end();
             iter++)
         {
-            double alpha = r_mesh.GetAngleBetweenNodes(index, *iter);
+            // The method GetAngleBetweenNodes() returns an angle in the range (-pi,pi]
+            alpha = r_mesh.GetAngleBetweenNodes(index, *iter);
 
-            if(sin(alpha-theta)>0)
+            assert(alpha <= M_PI);
+            assert(alpha > -M_PI);
+            
+            if ( sin(alpha-theta) > 0 )
             {
                 c_vector<double,2> force_between_nodes = mrMeinekeSpringSystem.CalculateForceBetweenNodes(index,*iter);
-                //std::cout << "force between nodes = " << force_between_nodes[0] << "," <<  force_between_nodes[1] << "\n" << std::flush;
                 
-                c_vector<double,2> unit_vec_between_nodes;
                 unit_vec_between_nodes[0] = cos(alpha);
                 unit_vec_between_nodes[1] = sin(alpha);
-                //std::cout << "unit vector = " << unit_vec_between_nodes[0] << "," <<  unit_vec_between_nodes[1] << "\n" << std::flush;
-                double plusminus_norm_force = inner_prod(force_between_nodes,unit_vec_between_nodes);         
                 
-                total_tangential_force += plusminus_norm_force * cos(alpha-theta);
-                total_normal_force += plusminus_norm_force * sin(alpha-theta);
+                plusminus_norm_force = inner_prod(force_between_nodes,unit_vec_between_nodes);         
+                
+                tangential_force += plusminus_norm_force * cos(alpha-theta);
+                normal_force += plusminus_norm_force * sin(alpha-theta);
             }
         }
 
         std::vector<double> ret(2);
-        ret[0] = total_tangential_force;
-        ret[1] = total_normal_force;
+        ret[0] = tangential_force;
+        ret[1] = normal_force;
         
         return ret;
     }
     
     
     /**
-     * Given a node index, returns a vector of sampling angles which may be used
-     * by GetExtremalAngles() to find the locations of local extrema of the normal force.
+     * Given a node index, returns a vector of sampling angles in the range (-pi,pi]
+     * that can be used by GetExtremalAngles() to find the locations of local extrema 
+     * of the normal force.
      */  
     std::vector<double> GetSamplingAngles(unsigned index)
     {
@@ -109,86 +117,66 @@ private:
             iter != neighbouring_node_indices.end();
             iter++)
         {
+            // The method GetAngleBetweenNodes() returns an angle in the range (-pi,pi]
             double alpha = r_mesh.GetAngleBetweenNodes(index, *iter);
+            
             double alpha_minus_epsilon = alpha - mEpsilon;
-            double alpha_plus_epsilon = alpha + mEpsilon;
-            double alpha_minus_epsilon_plus_pi = alpha - mEpsilon + M_PI;
-            double alpha_plus_epsilon_plus_pi = alpha + mEpsilon + M_PI;
+            double alpha_plus_epsilon = alpha + mEpsilon;            
+            double alpha_plus_pi_minus_epsilon = alpha + M_PI - mEpsilon;
+            double alpha_plus_pi_plus_epsilon = alpha + M_PI + mEpsilon;
             
-            if (alpha_minus_epsilon > 2*M_PI)
+            // Calculate sampling angles in the range (-pi,pi]
+                        
+            if (alpha_minus_epsilon <= -M_PI)
             {
-                sampling_angles[i] = alpha_minus_epsilon - 2*M_PI;
+                alpha_minus_epsilon += 2*M_PI;
             }
-            else if (alpha_minus_epsilon < 0)
-            {
-                sampling_angles[i] = alpha_minus_epsilon + 2*M_PI;
-            }
-            else
-            {
-                sampling_angles[i] = alpha_minus_epsilon;
-            }
-            assert(sampling_angles[i] < 2*M_PI);
-            assert(sampling_angles[i] >= 0);
+            sampling_angles[i] = alpha_minus_epsilon;  
+            
+            assert(sampling_angles[i] <= M_PI);
+            assert(sampling_angles[i] > -M_PI);
             i++;
             
-            if (alpha_plus_epsilon > 2*M_PI)
+            if (alpha_plus_epsilon > M_PI)
             {
-                sampling_angles[i] = alpha_plus_epsilon - 2*M_PI;
+                alpha_plus_epsilon -= 2*M_PI;
             }
-            else if (alpha_plus_epsilon < 0)
-            {
-                sampling_angles[i] = alpha_plus_epsilon + 2*M_PI;
-            }
-            else
-            {
-                sampling_angles[i] = alpha_plus_epsilon;
-            }
-            assert(sampling_angles[i] < 2*M_PI);
-            assert(sampling_angles[i] >= 0);
+            sampling_angles[i] = alpha_plus_epsilon;
+           
+            assert(sampling_angles[i] <= M_PI);
+            assert(sampling_angles[i] > -M_PI);
             i++;
             
-            if (alpha_minus_epsilon_plus_pi > 2*M_PI)
+            if (alpha_plus_pi_minus_epsilon > M_PI)
             {
-                sampling_angles[i] = alpha_minus_epsilon_plus_pi - 2*M_PI;
-            }
-            else if (alpha_minus_epsilon_plus_pi < 0)
-            {
-                sampling_angles[i] = alpha_minus_epsilon_plus_pi + 2*M_PI;
-            }
-            else
-            {
-                sampling_angles[i] = alpha_minus_epsilon_plus_pi;
-            }
-            assert(sampling_angles[i] < 2*M_PI);
-            assert(sampling_angles[i] >= 0);
+                alpha_plus_pi_minus_epsilon -= 2*M_PI;
+            }   
+            sampling_angles[i] = alpha_plus_pi_minus_epsilon;
+            
+            assert(sampling_angles[i] <= M_PI);
+            assert(sampling_angles[i] > -M_PI);
             i++;
             
-            if (alpha_plus_epsilon_plus_pi > 2*M_PI)
+            if (alpha_plus_pi_plus_epsilon > M_PI)
             {
-                sampling_angles[i] = alpha_plus_epsilon_plus_pi - 2*M_PI;
-            }
-            else if (alpha_plus_epsilon_plus_pi < 0)
-            {
-                sampling_angles[i] = alpha_plus_epsilon_plus_pi + 2*M_PI;
-            }
-            else
-            {
-                sampling_angles[i] = alpha_plus_epsilon_plus_pi;
-            }
-            assert(sampling_angles[i] < 2*M_PI);
-            assert(sampling_angles[i] >= 0);
+                alpha_plus_pi_plus_epsilon -= 2*M_PI;
+            }   
+            sampling_angles[i] = alpha_plus_pi_plus_epsilon;
+            
+            assert(sampling_angles[i] <= M_PI);
+            assert(sampling_angles[i] > -M_PI);
             i++;            
         }
         
-        sort(sampling_angles.begin(), sampling_angles.end());
-        
+        sort(sampling_angles.begin(), sampling_angles.end());        
         return sampling_angles;
     }
     
     
     /**
-     * Given a node index and two sampling angles, finds the location of the root 
-     * of the tangential force in the interval between the two angles.
+     * Given a node index and two sampling angles in the range (-pi,pi], 
+     * finds the location of the root of the tangential force in the 
+     * interval between the two angles.
      */ 
     double GetLocalExtremum(unsigned index, double angle1, double angle2)
     {        
@@ -204,10 +192,10 @@ private:
         current_error = angle2 - angle1;            
         std::vector<double> current_ft_and_fn(2);
         
-        while (current_error>tolerance)
+        while (current_error > tolerance)
         {
             previous_angle = current_angle;
-            current_ft_and_fn = CalculateFtAndFn(index,current_angle);
+            current_ft_and_fn = CalculateFtAndFn(index, current_angle);
             current_angle -= current_ft_and_fn[0]/current_ft_and_fn[1];
             current_error = fabs(current_angle - previous_angle);
             counter++;
@@ -216,17 +204,22 @@ private:
         assert( current_angle>angle1 && current_angle<angle2 );            
         assert( current_error < tolerance );        
         
-        if (current_angle<0.0)
+        if (current_angle <= -M_PI)
         {
             current_angle += 2*M_PI;
+        }
+        else if (current_angle > M_PI)
+        {
+            current_angle -= 2*M_PI;
         }
         return current_angle;        
     }
     
 
     /**
-     * Given a vector of sampling angles, returns a vector of extremal angles, i.e. angles 
-     * at which local extrema of the normal force occur.
+     * Given a vector of sampling angles in the range (-pi,pi], returns a vector 
+     * of extremal angles, i.e. angles at which local extrema of the normal force 
+     * occur, again in the range (-pi,pi].
      */ 
     std::vector<double> GetExtremalAngles(unsigned index, std::vector<double> samplingAngles)
     {
@@ -242,12 +235,13 @@ private:
         
         for (unsigned i=0; i<samplingAngles.size()-1; i++)
         {
-            if ( ( (tangential_force[i] > 0) && (tangential_force[i+1] < 0) ) ||  
-                 ( (tangential_force[i] < 0) && (tangential_force[i+1] > 0) ) )
+            if ( ( tangential_force[i]>0 && tangential_force[i+1]<0 ) ||  
+                 ( tangential_force[i]<0 && tangential_force[i+1]>0 ) )
             {
                 double next_extremal_angle;
                 
-                // if we jump through zero, then we know exactly where the local extremum is
+                // If we find a jump through zero, then we know exactly 
+                // where the local extremum is
                 if (samplingAngles[i+1] - samplingAngles[i] < 2*mEpsilon + 1e-6 )
                 {
                     next_extremal_angle = (samplingAngles[i+1] + samplingAngles[i])/2.0;
@@ -261,26 +255,31 @@ private:
             }
         }
         
-        // separate bit of code for the interval from the last sampling angel back round to the first...
+        // Need a separate bit of code for the interval from 
+        // the last sampling angle back round to the first
         
         samplingAngles[samplingAngles.size()-1] -= 2*M_PI;
         
-        if ( ( (tangential_force[samplingAngles.size()-1] > 0) && (tangential_force[0] < 0) ) ||  
-                 ( (tangential_force[samplingAngles.size()-1] < 0) && (tangential_force[0] > 0) ) )
+        if ( ( tangential_force[samplingAngles.size()-1]>0 && tangential_force[0]<0 ) ||  
+             ( tangential_force[samplingAngles.size()-1]<0 && tangential_force[0]>0 ) )
         {
             double next_extremal_angle;
             
-            // if we jump through zero, then we know exactly where the local extremum is
+            // If we find a jump through zero, then we know exactly 
+            // where the local extremum is
             if ( samplingAngles[0] - samplingAngles[samplingAngles.size()-1] < 2*mEpsilon + 1e-6 )
             {
                 next_extremal_angle = (samplingAngles[0] + samplingAngles[samplingAngles.size()-1])/2.0;
-                extremal_angles.push_back(next_extremal_angle);
             }
             else
             {
                 next_extremal_angle = GetLocalExtremum(index, samplingAngles[samplingAngles.size()-1], samplingAngles[0]);
-                extremal_angles.push_back(next_extremal_angle);
             }
+            if (next_extremal_angle <= -M_PI)
+            {
+                next_extremal_angle += 2*M_PI;
+            }
+            extremal_angles.push_back(next_extremal_angle);
         }
         
         return extremal_angles;        
@@ -329,8 +328,7 @@ public:
             }   
             
             minimum_normal_forces[i] = minimum_normal_force_for_node_i;
-            maximum_normal_forces[i] = maximum_normal_force_for_node_i;
-            
+            maximum_normal_forces[i] = maximum_normal_force_for_node_i;            
         } 
                 
         extremal_normal_forces.push_back(minimum_normal_forces);

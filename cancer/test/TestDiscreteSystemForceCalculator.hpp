@@ -70,27 +70,33 @@ public:
         std::vector<double> expected_sampling_angles;
         double epsilon = calculator.mEpsilon;
         
-        expected_sampling_angles.push_back(epsilon);
-        expected_sampling_angles.push_back(epsilon);
-        
+        expected_sampling_angles.push_back(-M_PI +epsilon);
+        expected_sampling_angles.push_back(-M_PI +epsilon);
+                
         for (unsigned i=1; i<6; i++)
         {
-            expected_sampling_angles.push_back(((double) i)*M_PI/3.0 - epsilon);
-            expected_sampling_angles.push_back(((double) i)*M_PI/3.0 - epsilon);
-            expected_sampling_angles.push_back(((double) i)*M_PI/3.0 + epsilon);
-            expected_sampling_angles.push_back(((double) i)*M_PI/3.0 + epsilon);
+            expected_sampling_angles.push_back(-M_PI +((double) i)*M_PI/3.0 - epsilon);
+            expected_sampling_angles.push_back(-M_PI +((double) i)*M_PI/3.0 - epsilon);
+            expected_sampling_angles.push_back(-M_PI +((double) i)*M_PI/3.0 + epsilon);
+            expected_sampling_angles.push_back(-M_PI +((double) i)*M_PI/3.0 + epsilon);
         }
-        expected_sampling_angles.push_back(2*M_PI - epsilon);
-        expected_sampling_angles.push_back(2*M_PI - epsilon);
+        expected_sampling_angles.push_back(M_PI - epsilon);
+        expected_sampling_angles.push_back(M_PI - epsilon);
                 
         std::vector<double> sampling_angles = calculator.GetSamplingAngles(node_index);
         for (unsigned i=0; i<sampling_angles.size(); i++)
         {
+            // the sampling angles lie in the range (pi,pi]
+            if (expected_sampling_angles[i] > M_PI)
+            {
+                expected_sampling_angles[i] -= 2*M_PI;
+            }
+            
             TS_ASSERT_DELTA(sampling_angles[i], expected_sampling_angles[i], 1e-6);
         }
                          
         // Test GetLocalExtremum
-        double expected_extremal_angle = M_PI/6.0;
+        double expected_extremal_angle = -M_PI +M_PI/6.0;
         double calculated_extremal_angle = calculator.GetLocalExtremum(node_index, sampling_angles[1], sampling_angles[2]);
         
         TS_ASSERT_DELTA(calculated_extremal_angle, expected_extremal_angle, 1e-4);
@@ -98,11 +104,12 @@ public:
         // Test GetExtremalAngles
         std::vector<double> calculated_extremal_angles = calculator.GetExtremalAngles(node_index, sampling_angles);
         
-        TS_ASSERT_DELTA(M_PI/6.0, calculated_extremal_angles[0], 1e-4);
-        TS_ASSERT_DELTA(M_PI/3.0, calculated_extremal_angles[1], 1e-4);
-        TS_ASSERT_DELTA(M_PI/2.0, calculated_extremal_angles[2], 1e-4);
-        TS_ASSERT_DELTA(2.0*M_PI/3.0, calculated_extremal_angles[3], 1e-4);
-        TS_ASSERT_DELTA(5.0*M_PI/6.0, calculated_extremal_angles[4], 1e-4);
+        // the extremal angles lie in the range (pi,pi]
+        TS_ASSERT_DELTA(-M_PI + M_PI/6.0, calculated_extremal_angles[0], 1e-4);
+        TS_ASSERT_DELTA(-M_PI + M_PI/3.0, calculated_extremal_angles[1], 1e-4);
+        TS_ASSERT_DELTA(-M_PI + M_PI/2.0, calculated_extremal_angles[2], 1e-4);
+        TS_ASSERT_DELTA(-M_PI + 2.0*M_PI/3.0, calculated_extremal_angles[3], 1e-4);
+        TS_ASSERT_DELTA(-M_PI + 5.0*M_PI/6.0, calculated_extremal_angles[4], 1e-4);
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
@@ -196,7 +203,8 @@ public:
         Tissue<2> tissue(*p_mesh, cells);
         tissue.SetGhostNodes(ghost_node_indices);
 
-        // Need to create a spring system explicitly so we can pass it in to the force calculator
+        // Need to create a spring system explicitly so we can pass it in 
+        // to the force calculator
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
         
         // Create a force calculator
