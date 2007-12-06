@@ -264,25 +264,8 @@ TissueCell TissueCell::Divide()
     }
     else
     {
-//        std::vector<CellType> new_cell_types = mpCellCycleModel->GetNewCellTypes(mCellType);
-//        mCellType = new_cell_types[0];
-//        mpCellCycleModel->mGeneration++;
-//        if (mCellType == STEM)
+//        if (mCellType != HEPA_ONE)
 //        {
-//            mpCellCycleModel->mGeneration--;
-//        }
-//        mpCellCycleModel->ResetModel();
-//        TissueCell new_cell=TissueCell(new_cell_types[1], mMutationState,
-//                                      mpCellCycleModel->CreateCellCycleModel());
-//        if (mCellType == STEM)
-//        {
-//            new_cell.GetCellCycleModel()->SetGeneration(1u);
-//        }
-//        //mpCellCycleModel->SetMotherGeneration(mCellType);
-//        return new_cell;
-        
-        if (mCellType != HEPA_ONE)
-        {
             CellType daughter_cell_type;
             mpCellCycleModel->mGeneration++;
             std::vector<CellType> new_cell_types = mpCellCycleModel->GetNewCellTypes(mCellType);
@@ -296,15 +279,15 @@ TissueCell TissueCell::Divide()
             assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->mGeneration);
             mpCellCycleModel->SetMotherGeneration(mCellType);
             return new_cell;
-        }
-        else
-        {
-            mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            TissueCell new_cell = TissueCell(HEPA_ONE, mMutationState,
-                                        mpCellCycleModel->CreateCellCycleModel());
-            new_cell.GetCellCycleModel()->SetGeneration(1);
-            return new_cell;
-        }
+//        }
+//        else
+//        {
+//            mpCellCycleModel->ResetModel();// Cell goes back to age zero
+//            TissueCell new_cell = TissueCell(HEPA_ONE, mMutationState,
+//                                        mpCellCycleModel->CreateCellCycleModel());
+//            new_cell.GetCellCycleModel()->SetGeneration(1);
+//            return new_cell;
+//        }
     }
         
 }
