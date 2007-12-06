@@ -1913,16 +1913,7 @@ double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAngleBetweenNodes(u
         }
     } 
     
-    double angle = atan(y_diff/x_diff);
-                    
-    if (y_diff >= 0 && x_diff < 0 )
-    {
-        angle += M_PI;
-    }
-    else if (y_diff < 0 && x_diff < 0 )
-    {                           
-        angle -= M_PI;
-    }
+    double angle = atan2(y_diff,x_diff);
     return angle;    
 }
 
