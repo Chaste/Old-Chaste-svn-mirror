@@ -14,7 +14,6 @@
 #include "StochasticCellCycleModel.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
-#include "CryptProjectionCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "WntGradient.hpp"
 
@@ -257,36 +256,24 @@ public:
         // end for coverage...
         
         
-        RandomNumberGenerator::Destroy();
-        SimulationTime::Destroy();
+        /*
+         * Test the case of a radial Wnt gradient
+         */ 
+        
+        p_params->Reset(); 
+        RandomNumberGenerator::Instance()->Reseed(0);
+        
+        // Set up the Wnt gradient
+        wnt_level = p_params->GetRadialWntThreshold() + 0.01;
         WntGradient::Destroy();
-    }
-    
-    
-    void TestCryptProjectionCellCycleModel() throw(Exception)
-    {
-        CancerParameters* p_params = CancerParameters::Instance();
-        p_params->Reset();
-        
-        WntGradient* p_wnt_gradient = WntGradient::Instance();
-        p_wnt_gradient->SetType(RADIAL);
-        
-        // Set up the simulation time
-        SimulationTime *p_simulation_time = SimulationTime::Instance();  
-        double end_time = 60.0;         
-        unsigned num_timesteps = 1000*(unsigned)end_time;        
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
-        
-        // set up the Wnt gradient
-        double wnt_level = p_params->GetRadialWntThreshold() + 0.01;
-        p_wnt_gradient->SetConstantWntValueForTesting(wnt_level);
+        WntGradient::Instance()->SetType(RADIAL);
+        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
                 
-        // set up a cell cycle model and cell        
-        CryptProjectionCellCycleModel* p_cycle_model = new CryptProjectionCellCycleModel;
-        TissueCell cell(STEM, HEALTHY,  p_cycle_model);
+        // Set up a cell cycle model and cell        
+        SimpleWntCellCycleModel* p_cycle_model4 = new SimpleWntCellCycleModel;
+        TissueCell cell4(STEM, HEALTHY,  p_cycle_model4);
         
-        // test the GetCurrentCellCyclePhase() and ReadyToDivide() methods
+        // Test the GetCurrentCellCyclePhase() and ReadyToDivide() methods
         double first_g1_duration = 1.0676;
         for (unsigned i = 0 ; i< num_timesteps/3 ; i++)
         {
@@ -294,43 +281,43 @@ public:
             
             // The number for the G1 duration is taken from 
             // the first random number generated    
-            CheckCellCyclePhasesAreUpdated(p_cycle_model, first_g1_duration);
+            CheckCellCyclePhasesAreUpdated(p_cycle_model4, first_g1_duration);
         }
 
         // We should still have a stem cell since the WntGradient exceeds mRadialWntThreshold
-        TS_ASSERT_EQUALS(cell.GetCellType(), STEM);
+        TS_ASSERT_EQUALS(cell4.GetCellType(), STEM);
         
         // Divide the cell
-        TS_ASSERT_EQUALS(cell.ReadyToDivide(), true);
-        TS_ASSERT_EQUALS(cell.GetCellType(), STEM);
-        TissueCell cell2 = cell.Divide();
-        TS_ASSERT_EQUALS(cell.GetCellType(), STEM);
-        TS_ASSERT_EQUALS(cell2.GetCellType(), TRANSIT);
-        cell.SetMutationState(LABELLED);
+        TS_ASSERT_EQUALS(cell4.ReadyToDivide(), true);
+        TS_ASSERT_EQUALS(cell4.GetCellType(), STEM);
+        TissueCell cell5 = cell4.Divide();
+        TS_ASSERT_EQUALS(cell4.GetCellType(), STEM);
+        TS_ASSERT_EQUALS(cell5.GetCellType(), TRANSIT);
+        cell2.SetMutationState(LABELLED);
             
         // Now reduce the Wnt gradient
         wnt_level = p_params->GetRadialWntThreshold() - 0.01;
-        p_wnt_gradient->SetConstantWntValueForTesting(wnt_level);
+        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
               
         // The numbers for the G1 durations are taken from 
         // the first two random numbers generated
-        double new_g1_duration = 3.16316;
+        new_g1_duration = 3.16316;
         for (unsigned i = 0 ; i< num_timesteps/3 ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();            
-            CheckCellCyclePhasesAreUpdated(p_cycle_model, new_g1_duration);
+            CheckCellCyclePhasesAreUpdated(p_cycle_model4, new_g1_duration);
         }
         
-        TS_ASSERT_DELTA(p_wnt_gradient->GetWntLevel(&cell), wnt_level, 1e-12);
-        TS_ASSERT_EQUALS(cell.GetCellType(), TRANSIT);
-        TS_ASSERT_EQUALS(cell2.GetCellType(), TRANSIT);
-
+        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(&cell4), wnt_level, 1e-12);
+        TS_ASSERT_EQUALS(cell4.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(cell5.GetCellType(), TRANSIT);
+        
         RandomNumberGenerator::Destroy();
         SimulationTime::Destroy();
         WntGradient::Destroy();
     }
-        
-        
+    
+    
     void TestArchiveFixedCellCycleModels() throw (Exception)
     {
         CancerParameters::Instance()->Reset();
@@ -394,6 +381,7 @@ public:
         }
     }
     
+        
     void TestArchiveStochasticCellCycleModels()
     {
         CancerParameters::Instance()->Reset();
@@ -647,26 +635,23 @@ public:
             SimulationTime::Destroy();
             delete p_cell;
         }
+        
+        /*
+         * Test the case of a radial Wnt gradient
+         */ 
 
-        WntGradient::Destroy();
-    }    
-    
-    // NB - to archive a cell cycle model it has to be archived via the cell that owns it.
-    void TestArchiveCryptProjectionCellCycleModel()
-    {
-        CancerParameters* p_params = CancerParameters::Instance();
         p_params->Reset();
         RandomNumberGenerator::Instance()->Reseed(0);
         
-        OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "crypt_projection_cell_cycle.arch";
+        OutputFileHandler handler2("archive", false);
+        archive_filename = handler2.GetOutputDirectoryFullPath() + "crypt_projection_cell_cycle.arch";
         
         // Set up the Wnt gradient
-        double wnt_level = p_params->GetRadialWntThreshold() - 0.01;
+        wnt_level = p_params->GetRadialWntThreshold() - 0.01;
+        WntGradient::Destroy();
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
         
-        double random_number_test = 0;
+        random_number_test = 0;
         
         // Create an ouput archive
         {
@@ -683,7 +668,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
                            
-            CryptProjectionCellCycleModel* p_cell_model = new CryptProjectionCellCycleModel();
+            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel();
             
             p_cell_model->SetBirthTime(-1.0);
             
@@ -764,9 +749,10 @@ public:
             SimulationTime::Destroy();
             delete p_cell;
         }
-
+        
         WntGradient::Destroy();
-    }    
+    }   
+    
     
     void TestSimpleOxygenBasedCellCycleModel(void) throw(Exception)
     {           
