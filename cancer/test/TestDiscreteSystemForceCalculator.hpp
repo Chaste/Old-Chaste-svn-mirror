@@ -206,8 +206,7 @@ public:
         
         // Test WriteResultsToFile
         TS_ASSERT_THROWS_NOTHING(calculator.WriteResultsToFile("TestDiscreteSystemForceCalculator"));
-        
-         
+                 
         // Compare output with saved files of what they should look like 
         OutputFileHandler handler("TestDiscreteSystemForceCalculator",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizstress";         

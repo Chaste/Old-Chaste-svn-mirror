@@ -376,7 +376,9 @@ public:
             
             (*mpStressResultsFile) << global_index << " " << x << " " << y << " " << minimum << " " << maximum << " ";
         }
-       mpStressResultsFile->close();
+        
+        (*mpStressResultsFile) << "\n";        
+        mpStressResultsFile->close();
     }
 
 };
