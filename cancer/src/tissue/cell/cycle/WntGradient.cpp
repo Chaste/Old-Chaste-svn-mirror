@@ -7,9 +7,10 @@
 /** Pointer to the single instance */
 WntGradient* WntGradient::mpInstance = NULL;
 
+
 /*
- * Return a pointer to the simulation time object.
- * The first time this is called the object is created.
+ * Return a pointer to the WntGradient object.
+ * The first time this is called, the object is created.
  */
 WntGradient* WntGradient::Instance()
 {
@@ -30,11 +31,13 @@ WntGradient::WntGradient()
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
-
 }
 
+
 WntGradient::~WntGradient()
-{}
+{
+}
+
 
 void WntGradient::Destroy()
 {
@@ -70,11 +73,13 @@ double WntGradient::GetWntLevel(TissueCell* pCell)
     return GetWntLevel(height);
 }
 
+
 void WntGradient::SetTissue(Tissue<2>& rTissue)
 {
     mpTissue=&rTissue;
     rTissue.InitialiseCells();
 }
+
 
 void WntGradient::SetType(WntGradientType type)
 {
@@ -137,6 +142,7 @@ double WntGradient::GetWntLevel(double height)
     return wnt_level;
 }
 
+
 /**
  * This allows the TissueSimulation to ask whether a WntGradient has been set up or not
  * To let it know whether it should move stem cells around!!
@@ -152,6 +158,7 @@ bool WntGradient::IsGradientSetUp()
     }
     return result;   
 }
+
 
 void WntGradient::SetConstantWntValueForTesting(double value)
 {

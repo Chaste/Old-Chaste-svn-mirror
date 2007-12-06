@@ -4,6 +4,7 @@
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <fstream>
 
 #include <cmath>
 #include <vector>
@@ -15,7 +16,8 @@
 class TestCellwiseData : public CxxTest::TestSuite
 {
 public:
-    void TestCellwiseDataSimple()
+
+    void TestCellwiseDataSimple() throw(Exception)
     {
         // set up the simulation time object so the cells can be created
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -100,43 +102,43 @@ public:
         CellwiseData<2>::Destroy();
     }
     
+    
     void TestArchiveCellwiseData()
     {
-        // set up the simulation time object so the cells can be created
+        // Set up the simulation time object so the cells can be created
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        // create a simple mesh
+        // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        // Set up cells, one for each node. Get each a birth time of -node_index,
-        // so the age = node_index
+        // Set up cells, one for each node. Get each a birth time of -node_index, so the age = node_index
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
 
-        // create a tissue
+        // Create a tissue
         Tissue<2> tissue(mesh,cells);
         
-        // work out where to put the archive
+        // Work out where to put the archive
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "cellwise_data.arch";
 
         {
-            // set up the data store
+            // Set up the data store
             CellwiseData<2>* p_data = CellwiseData<2>::Instance();
             p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
             p_data->SetTissue(tissue);  
             
-            // put some data in
+            // Put some data in
             for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 p_data->SetValue((double) i, mesh.GetNode(i), 0);
             }
             
-            // write to the archive
+            // Write to the archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
@@ -152,11 +154,11 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            // restore from the archive
+            // Restore from the archive
             Tissue<2>::meshPathname = "mesh/test/data/square_4_elements";
             input_arch >> *p_data;
             
-            // check the data
+            // Check the data
             TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
             TS_ASSERT(p_data->IsSetUp());
             TS_ASSERT(!p_data->mUseConstantDataForTesting);

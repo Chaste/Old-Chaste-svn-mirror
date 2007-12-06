@@ -1,24 +1,23 @@
 #ifndef CELLWISEDATA_HPP_
 #define CELLWISEDATA_HPP_
 
-
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
 
-#include "CancerParameters.hpp"
-#include "Tissue.cpp"
 #include <vector>
+#include "Tissue.cpp"
+
 
 /**
- *  A singleton object for storing data certain cell cycle models
- *  will need to know about. Eg, storing nutrient concentrations
- *  computed via some pde in a place a nutrient based cell 
- *  cycle model can get to it
+ *  A singleton object for storing data that certain cell cycle models
+ *  need to know about, e.g. nutrient concentrations computed via some PDE 
+ *  for use in nutrient based cell cycle models.
  */
 template<unsigned DIM>
 class CellwiseData
 {
     friend class TestCellwiseData;
+    
 private:
     /* the single instance of the singleton object */
     static CellwiseData* mpInstance;
@@ -42,6 +41,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
+std::cout << " Entering serialize method \n" << std::flush;
         archive & mpTissue;
         archive & mAllocatedMemory;
         archive & mNumberOfVariables;
@@ -52,10 +52,12 @@ private:
     
     
 protected:
+
     /**
      *  Protected constuctor. Not to be called, use Instance() instead
      */
     CellwiseData();
+    
     
 public:
     /**
@@ -114,6 +116,7 @@ public:
      *  according to the number of nodes in the mesh in the Tissue member variable
      */
     void ReallocateMemory();
+    
 };
 
 #endif /*CELLWISEDATA_HPP_*/

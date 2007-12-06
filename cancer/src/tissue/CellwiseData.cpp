@@ -12,6 +12,10 @@ template<unsigned DIM>
 CellwiseData<DIM>* CellwiseData<DIM>::mpInstance = NULL;
 
 
+/*
+ * Return a pointer to the CellwiseData object.
+ * The first time this is called, the object is created.
+ */
 template<unsigned DIM>
 CellwiseData<DIM>* CellwiseData<DIM>::Instance()
 {
@@ -34,9 +38,12 @@ CellwiseData<DIM>::CellwiseData()
     assert(mpInstance == NULL);
 }
 
+
 template<unsigned DIM>
 CellwiseData<DIM>::~CellwiseData()
-{}
+{
+}
+
 
 template<unsigned DIM>
 void CellwiseData<DIM>::Destroy()
@@ -51,7 +58,8 @@ void CellwiseData<DIM>::Destroy()
 template<unsigned DIM>
 double CellwiseData<DIM>::GetValue(TissueCell* pCell, unsigned variableNumber)
 {
-    if(mUseConstantDataForTesting)  // to test a cell and cell cycle models without a tissue
+    // To test a cell and cell cycle models without a tissue
+    if(mUseConstantDataForTesting)  
     {
         return mConstantDataForTesting[variableNumber];
     }
