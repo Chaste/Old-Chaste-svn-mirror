@@ -18,8 +18,8 @@
 class TissueCell; // Circular definition (cells need to know about cycle models and vice-versa).
 
 /**
- * The AbstractCellCycleModel contains basic information to all cell cycle models
- * it handles assignment of birth time, cell cycle phase and a TissueCell. 
+ * The AbstractCellCycleModel contains basic information to all cell cycle models.
+ * It handles assignment of birth time, cell cycle phase and a TissueCell.
  */
 class AbstractCellCycleModel
 {
@@ -29,6 +29,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & mBirthTime;
+
         // Make sure the simulation and cancer parameters get saved too
         SimulationTime* p_time = SimulationTime::Instance();
         archive & *p_time;
@@ -36,8 +37,8 @@ private:
         CancerParameters* p_params = CancerParameters::Instance();
         archive & *p_params;
         archive & p_params;
+
         archive & mGeneration;
-        
         // DO NOT archive & mpCell; -- The CellCycleModel is only ever archived from the Cell 
         // which knows this and it is handled in the load_construct of TissueCell.
         archive & mCurrentCellCyclePhase;
@@ -70,9 +71,9 @@ public:
         : mpCell(NULL),
           mBirthTime(SimulationTime::Instance()->GetDimensionalisedTime()),
           mCurrentCellCyclePhase(M_PHASE) 
-          {
-            mGeneration = 0;
-          };
+    {
+        mGeneration = 0;
+    }
 
     /**
      * Base class with virtual methods needs a virtual destructor.
@@ -87,13 +88,18 @@ public:
     
     /**
      * Set the cell's time of birth (usually not required as it should be inside
-     * the indivdual cell-cycle-model-constructor, but useful for tests)
+     * the indivdual cell-cycle-model-constructor, but useful for tests).
      * 
      * @param birthTime the simulation time at this cell's birth.
      * 
      * (This function is overridden in AbstractOdeBasedCellCycleModel).
      */
     virtual void SetBirthTime(double birthTime);
+    
+    /**
+     * @return the time at which the cell was born.
+     */
+    double GetBirthTime() const;
     
     /**
      * Returns the cell's age...
@@ -109,27 +115,32 @@ public:
      * Returns the cell's generation...
      */
     unsigned GetGeneration() const;
+
     
     /**
      * Returns the cell types of the next generation of cells in a vector
      * [0] is the new mother cell type, [1] is the new daughter cell type
+     *
+     * \todo perhaps returning a std::pair would be better?
      */
     virtual std::vector<CellType> GetNewCellTypes();
     
     /**
-     * Returns the cell's birth time...
-     */
-    double GetBirthTime() const;
-    
-    /**
      * Determine whether the cell is ready to divide (enter M phase).
-     * 
-     * @param timeSinceBirth  the elapsed time since the cell was born
+     *
+     * The intention is that this method is called precisely once at
+     * each timestep of the simulation.  However this does not appear
+     * to always be the case at present.
      */
     virtual bool ReadyToDivide()=0;
     
     /**
-     * Each cell cycle model must be able to be reset after a cell division.
+     * Each cell cycle model must be able to be reset 'after' a cell division.
+     * 
+     * Actually, this method is called from TissueCell::Divide to
+     * reset the cell cycle just before the daughter cell is created.
+     * CreateCellCycleModel can then clone our state to generate a
+     * cell cycle model instance for the daughter cell.
      */
     virtual void ResetModel()=0;
     
@@ -140,13 +151,15 @@ public:
      * NB It should create an instance which is identical to the host instance.
      * 
      * This method is called in 2 circumstances:
-     *  - By the copy constructor and operator= of TissueCell to create a copy of the cell cycle model
-     *    when copying a cell. The CreateCellCycleModel just needs to create any instance of the right class,
-     *    as operator= on the cell cycle model is then called to ensure the model is copied properly.
-     *  - By TissueCell.Divide to create a cell cycle model for the daughter cell. CreateCellCycleModel
-     *    must thus produce a cell cycle model in a suitable state for a newly-born cell spawned from the
-     *    'current' cell. Note that the parent cell cycle model should be Reset() just before CreateCellCycleModel is
-     *    called to copy its state. 
+     *  - By the copy constructor and operator= of TissueCell to create a copy of the cell cycle
+     *    model when copying a cell.  The CreateCellCycleModel just needs to create any instance
+     *    of the right class, as operator= on the cell cycle model is then called to ensure the
+     *    model is copied properly.
+     *  - By TissueCell.Divide to create a cell cycle model for the daughter cell.
+     *    CreateCellCycleModel must thus produce a cell cycle model in a suitable state for a
+     *    newly-born cell spawned from the 'current' cell. Note that the parent cell cycle model
+     *    will have had ResetModel() called just before CreateCellCycleModel is called to copy
+     *    its state. 
      */
     virtual AbstractCellCycleModel *CreateCellCycleModel()=0;
     
@@ -156,34 +169,36 @@ public:
      */ 
     virtual void SetMotherGeneration();
     
-    /**
-     * @return the level of membrane bound beta-catenin. However in most Cell Cycle models this does not exist.
-     * We have a "work-around" such that we throw an error if we try and acess it for any other cell type. 
-     */
-    virtual double GetMembraneBoundBetaCateninLevel();
-    
-    /**
-     * @return the level of cytoplasm beta-catenin. However in most Cell Cycle models this does not exist.
-     * We have a "work-around" such that we throw an error if we try and acess it for any other cell type. 
-     */
-    virtual double GetCytoplasmicBetaCateninLevel();
-    
-    /**
-     * @return the level of nuclear bound beta-catenin. However in most Cell Cycle models this does not exist.
-     * We have a "work-around" such that we throw an error if we try and acess it for any other cell type. 
-     */
-    virtual double GetNuclearBetaCateninLevel();
-    
-    /*
-     * @return the current cell cycle phase
-     */
-    CellCyclePhase GetCurrentCellCyclePhase();
-    
+
     /**
      * @return whether the cell cycle model uses beta-catenin levels in cell cycle model, ie Inge models.
      */
     virtual bool UsesBetaCat();
 
+    /**
+     * @return the level of membrane bound beta-catenin. However in most Cell Cycle models this does not exist.
+     * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
+     */
+    virtual double GetMembraneBoundBetaCateninLevel();
+    
+    /**
+     * @return the level of cytoplasm beta-catenin. However in most Cell Cycle models this does not exist.
+     * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
+     */
+    virtual double GetCytoplasmicBetaCateninLevel();
+    
+    /**
+     * @return the level of nuclear bound beta-catenin. However in most Cell Cycle models this does not exist.
+     * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
+     */
+    virtual double GetNuclearBetaCateninLevel();
+    
+
+    /*
+     * @return the current cell cycle phase
+     */
+    CellCyclePhase GetCurrentCellCyclePhase();
+    
     /**
      * @return the duration of the S phase of the cell cycle
      */

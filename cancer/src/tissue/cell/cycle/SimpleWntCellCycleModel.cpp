@@ -81,23 +81,13 @@ bool SimpleWntCellCycleModel::ReadyToDivide()
         default:
             NEVER_REACHED;
     }
-        
-    double time_since_birth = GetAge();
-    assert(time_since_birth >= 0);
-    
-     
-    // If the Wnt stimulus is below the threshold, the cell is
-    // of type DIFFERENTIATED and hence in G0 phase       
-    CellType cell_type = DIFFERENTIATED;    
-    mCurrentCellCyclePhase = G_ZERO_PHASE;
-    
     
     // If the Wnt stimulus exceeds the threshold, the cell is
     // of type TRANSIT, and hence its cell cycle phase depends
-    // on its age     
+    // on its age, just as in AbstractSimpleCellCycleModel.
     if (p_wnt_gradient->GetWntLevel(mpCell) >= wnt_division_threshold)
     {       
-        cell_type = TRANSIT;
+        CellType cell_type = TRANSIT;
         
         if (p_wnt_gradient->GetType()==RADIAL)
         {
@@ -106,32 +96,18 @@ bool SimpleWntCellCycleModel::ReadyToDivide()
                 cell_type = STEM;
             }
         }
+	// Update the cell type to reflect the Wnt concentration
+	mpCell->SetCellType(cell_type);   
         
-        if ( time_since_birth < p_params->GetMDuration() )
-        {
-            mCurrentCellCyclePhase = M_PHASE;   
-        }
-        else if ( time_since_birth < p_params->GetMDuration() + mG1Duration)
-        {
-            mCurrentCellCyclePhase = G_ONE_PHASE;   
-        }
-        else if ( time_since_birth < p_params->GetMDuration() + mG1Duration + p_params->GetSDuration())
-        {
-            mCurrentCellCyclePhase = S_PHASE;   
-        }
-        else if ( time_since_birth < p_params->GetMDuration() + mG1Duration + p_params->GetSDuration()  + p_params->GetG2Duration())
-        {
-            mCurrentCellCyclePhase = G_TWO_PHASE;   
-        }
-        else
-        {
-            ready = true;          
-            mCurrentCellCyclePhase = M_PHASE;
-        }
+	ready = AbstractSimpleCellCycleModel::ReadyToDivide();
     }
-    
-    // Update the cell type to reflect the Wnt concentration
-    mpCell->SetCellType(cell_type);     
+    else
+    {
+	// If the Wnt stimulus is below the threshold, the cell is
+	// of type DIFFERENTIATED and hence in G0 phase       
+	mpCell->SetCellType(DIFFERENTIATED);
+	mCurrentCellCyclePhase = G_ZERO_PHASE;
+    }
     
     return ready;
 }

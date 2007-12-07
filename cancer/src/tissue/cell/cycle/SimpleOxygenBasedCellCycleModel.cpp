@@ -16,11 +16,9 @@ double SimpleOxygenBasedCellCycleModel::GetHypoxicDuration()
 
 bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
 {
-    CancerParameters *p_params = CancerParameters::Instance();
-    
     // mG1Duration is set when the cell cycle model is given a cell
     
-	bool ready = false;
+    bool ready = false;
     
     if (this->mpCell->GetCellType()!=NECROTIC)
     {
@@ -28,40 +26,16 @@ bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
         
         // get cell's oxygen concentration
         double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell,0);
-                                
-        double time_since_birth = GetAge();
-               
-        if (mpCell->GetCellType()==DIFFERENTIATED)
-        {
-            mCurrentCellCyclePhase = G_ZERO_PHASE;   
-        }
-        else 
-        {
-            if ( GetAge() < p_params->GetMDuration() )
-            {
-                mCurrentCellCyclePhase = M_PHASE;   
-            }
-            else if ( time_since_birth < p_params->GetMDuration() + mG1Duration )
-            {
-                mCurrentCellCyclePhase = G_ONE_PHASE;
-                 
-                mG1Duration = mG1Duration + (1-std::max(oxygen_concentration,0.0))*SimulationTime::Instance()->GetTimeStep();
-                mTimeSpentInG1Phase = mTimeSpentInG1Phase + SimulationTime::Instance()->GetTimeStep();  
-            }
-            else if ( time_since_birth < p_params->GetMDuration() + mG1Duration + p_params->GetSDuration() )
-            {
-                mCurrentCellCyclePhase = S_PHASE; 
-            }
-            else if ( time_since_birth < p_params->GetMDuration() + mG1Duration + p_params->GetSDuration()  + p_params->GetG2Duration())
-            {
-                mCurrentCellCyclePhase = G_TWO_PHASE;   
-            }
-            else
-            {
-                ready = true;
-                // mCurrentCellCyclePhase = M;
-            }
-        }
+
+	ready = AbstractSimpleCellCycleModel::ReadyToDivide();
+
+	if (mCurrentCellCyclePhase == G_ONE_PHASE)
+	{
+	    // Update G1 duration based on oxygen concentration
+	    double dt = SimulationTime::Instance()->GetTimeStep();
+	    mG1Duration += (1-std::max(oxygen_concentration,0.0))*dt;
+	    mTimeSpentInG1Phase += dt;
+	}
     }    
     return ready;
 }

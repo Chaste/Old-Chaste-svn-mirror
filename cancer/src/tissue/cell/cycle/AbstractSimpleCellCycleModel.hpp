@@ -33,15 +33,15 @@ private:
     
 protected:
 
-	/** 
-	 * Protected constructor for creating an identical daughter cell 
-	 * (with the same G_ONE duration...)
-	 * */
+    /** 
+     * Protected constructor for creating an identical daughter cell 
+     * (with the same G1 duration).
+     */
     AbstractSimpleCellCycleModel(double g1Duration, unsigned generation)
-        :mG1Duration(g1Duration)
+        : mG1Duration(g1Duration)
     {
-        mGeneration=generation;
-    };  
+        mGeneration = generation;
+    }
     
     /**
      * The duration of the G1 phase of the cell cycle. This is set once a cell
@@ -62,7 +62,9 @@ public:
      * Default constructor - creates an AbstractSimpleCellCycleModel
      */
     AbstractSimpleCellCycleModel() :
-        mG1Duration(DBL_MAX) {};
+        mG1Duration(DBL_MAX)
+    {
+    }
         
     /**
      * Default destructor
@@ -78,14 +80,14 @@ public:
      */
     void SetCell(TissueCell* pCell);
 
-	void ResetModel();
-
-	/**
-	 * Default ReadyToDivide function for a simple cell cycle model
-	 * 
-	 * can be overridden if they should do something more subtle. 
-	 */
-	virtual bool ReadyToDivide();
+    void ResetModel();
+    
+    /**
+     * Default ReadyToDivide function for a simple cell cycle model.
+     * 
+     * Can be overridden if they should do something more subtle. 
+     */
+    virtual bool ReadyToDivide();
     
 };
 
