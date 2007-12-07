@@ -70,12 +70,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static Scrollbar delay_slider = new Scrollbar(Scrollbar.HORIZONTAL, delay, 1, 1, 100);
     public static Scrollbar time_slider = new Scrollbar(Scrollbar.HORIZONTAL, timeStep, 1, 0, 2);
     
-    public static JPanel nutrient_colour_bar = new JPanel();
-    public static JPanel beta_catenin_colour_bar = new JPanel();
-    public static JPanel stress_colour_bar = new JPanel();
-    
-    public static JPanel east_panel = new JPanel(new GridLayout(1,1));
-    
     public static Checkbox output = new Checkbox("Output");
     public static Checkbox springs = new Checkbox("Springs");
     public static Checkbox fibre = new Checkbox("Fibres");
@@ -101,14 +95,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         
         addButtons(frame);
         addTimeSlider(frame);
-        addNutrientColourBar(frame);
-        addBetaCateninColourBar(frame);
-        addStressColourBar(frame);
         
         JPanel canvasPanel = new JPanel();
         canvasPanel.add(canvas);
         frame.add(canvasPanel, BorderLayout.CENTER);
-        frame.add(east_panel, BorderLayout.EAST);
                 
         frame.addWindowListener(new WindowAdapter() 
         {
@@ -368,131 +358,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         frame.add(southPanel,BorderLayout.SOUTH);
     }
     
-    public void addNutrientColourBar(Frame frame) 
-    {
-    	String[] labels = {"0.9-1", "0.8-0.9", "0.7-0.8", "0.6-0.7", "0.5-0.6", "0.4-0.5", "0.3-0.4", "0.2-0.3", "0.1-0.2", "0.0-0.1"};
-        
-        int panelHeight = (int) (0.8 * frame.getHeight());
-        int panelWidth = 120;
-        int num_blocks = 10;        
-        int blockHeight = panelHeight/num_blocks;
-        
-        nutrient_colour_bar.setVisible(false);
-        nutrient_colour_bar.setPreferredSize(new Dimension(panelWidth,panelHeight));
-        nutrient_colour_bar.setLayout(new GridLayout(num_blocks,2));
-       
-        for (int i=num_blocks-1;i>=0;i--)
-        {       
-            JPanel colour_block = new JPanel();
-            colour_block.setPreferredSize(new Dimension(panelWidth/2,panelHeight/num_blocks));
-            
-//          calculate colour 
-            double conc = (double)(i)/(double)(num_blocks);
-            int g_value = (int)(255.0 * conc);
-            int b_value = (int)(200.0 - 80.0*conc); 
-            colour_block.setBackground(new Color(0,g_value,b_value));
-            
-            Label colour_label = new Label(labels[num_blocks-1-i]);        
-        
-            nutrient_colour_bar.add(colour_block);
-            nutrient_colour_bar.add(colour_label);  
-        }   
-        east_panel.add(nutrient_colour_bar); 
-    }
-    
-    public void addBetaCateninColourBar(Frame frame) 
-    {
-        String[] labels = {"18-20", "16-18", "14-16", "12-14", "10-12", "8-10", "6-8", "4-6", "2-4", "0-2"};        
-        
-        int panelHeight = (int) (0.8 * frame.getHeight());
-        int panelWidth = 120;        
-        int num_blocks = 10;        
-        int blockHeight = panelHeight/num_blocks;
-        
-        beta_catenin_colour_bar.setVisible(false);
-        beta_catenin_colour_bar.setPreferredSize(new Dimension(panelWidth,panelHeight));
-        beta_catenin_colour_bar.setLayout(new GridLayout(num_blocks,2));
-       
-        for (int i=num_blocks-1;i>=0;i--)
-        {       
-            JPanel colour_block = new JPanel();
-            colour_block.setPreferredSize(new Dimension(panelWidth/2,panelHeight/num_blocks));
-            
-            // Calculate colour                    
-            colour_block.setBackground(new Color(100,100+16*i,100));
-            Label colour_label = new Label(labels[9-i]);        
-            beta_catenin_colour_bar.add(colour_block);
-            beta_catenin_colour_bar.add(colour_label);      
-        }
-                
-        JPanel westPanel = new JPanel(new GridLayout(1,1));        
-        westPanel.add(beta_catenin_colour_bar);
-        frame.add(westPanel,BorderLayout.WEST);
-    }
-    
-    public void addStressColourBar(Frame frame) 
-    {
-    	double stress_max = 40;
-    	double stress_min = 0 ;
-    	int r = 0;
-    	int g=0;
-    	int b=0;
-    	double interval = (stress_max-stress_min)/4.0;
-    	
-    	int panelHeight = (int) (0.8 * frame.getHeight());
-        int panelWidth = 120;
-        int num_blocks = 20;        
-        int blockHeight = panelHeight/num_blocks;
-        
-        stress_colour_bar.setVisible(false);
-        stress_colour_bar.setPreferredSize(new Dimension(panelWidth,panelHeight));
-        stress_colour_bar.setLayout(new GridLayout(num_blocks,2));
-       
-        for (int i=num_blocks-1;i>=0;i--)
-        {    
-        	double stress =  stress_min + (stress_max-stress_min)*i/(num_blocks-1);
-        	
-            JPanel colour_block = new JPanel();
-            colour_block.setPreferredSize(new Dimension(panelWidth/2,panelHeight/num_blocks));
-            if (stress <  interval)
-        	{
-        		r=0;
-        		g= (int)(255.0*stress/interval);
-        		b=255;
-        	}
-        	else if (stress < 2.0*interval)
-        	{
-        		r=0;
-        		g= 255;
-        		b=255 - (int) (255.0*(stress-interval)/interval);
-        	}
-        	else if (stress < 3.0*interval)
-        	{
-        		r=(int)(255.0*(stress-2.0*interval)/interval);
-        		g= 255;
-        		b=0;
-        	}
-        	else 
-        	{
-        		r=255;
-        		g= 255 - (int) (255.0*(stress- 3.0*interval)/interval);
-        		b=0;
-        	}
-            // calculate colour                    
-            colour_block.setBackground(new Color(r,g,b));
-            
-            double box_interval = (stress_max-stress_min)/(double)(num_blocks);
-            double lower_bound = stress_min + i*box_interval;
-            double upper_bound = lower_bound + box_interval;
-            Label colour_label = new Label(lower_bound+ " - " + upper_bound);        
-        
-            stress_colour_bar.add(colour_block);
-            stress_colour_bar.add(colour_label);      
-        } 
-        
-        east_panel.add(stress_colour_bar);        
-    }
-    
     
     public static void main(String args[]) 
     {
@@ -577,21 +442,18 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         }
         if (!nutrient_file.isFile())
         {
-            //System.out.println("The file "+args[0]+"/vis_results/results.viznutrient doesn't exist");
             nutrient.setVisible(false);
             nutrient.setState(false);
             drawNutrient = false;
         }
         if (!beta_catenin_file.isFile())
         {
-            //System.out.println("The file "+args[0]+"/vis_results/results.vizbCat doesn't exist");
             beta_catenin.setVisible(false);
             beta_catenin.setState(false);
             drawBetaCatenin = false;
         }
         if (!stress_file.isFile())
         {
-            //System.out.println("The file "+args[0]+"/vis_results/results.vizbCat doesn't exist");
             average_stress.setVisible(false);
             difference_stress.setVisible(false);
             average_stress.setState(false);
@@ -610,14 +472,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         File fibre_file = new File(args[0]+"/vis_results/results.vizfibres");
         if (!fibre_file.isFile())
         {
-            //System.out.println("The file "+args[0]+"/vis_results/results.vizfibres doesn't exist");
             fibre.setVisible(false);
             drawFibres = false;
         } 
         else 
         {
             fibre.setState(true);
-            drawFibres = true; //Sorry, this is just to get it working
+            drawFibres = true; // Sorry, this is just to get it working
         }
         
         File setup_file = new File(args[0]+"/vis_results/results.vizsetup");
@@ -684,7 +545,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     }
                     if (parameter.equals("Nutrient"))  
                     {
-//                    	 overrule the previous bit since for nutrient sims, we don't want cylindrical periodicity
+                    	// overrule the previous bit since for nutrient sims, we don't want cylindrical periodicity
                     	drawCylinder = false; 
                         drawNutrient = true;
                         nutrient.setState(true);
@@ -755,7 +616,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 	st_nutrient = new StringTokenizer(line_nutrient);
                     Double nutrient_time = Double.valueOf(st_nutrient.nextToken());
                     
-                    //count the number of entries in the nutrient file to get num non ghosts and check correct 
+                    // count the number of entries in the nutrient file to get num non ghosts and check correct 
 	                int nutrient_entries = st_nutrient.countTokens();
 	                
 	                if (nutrient_entries%4 != 0)
@@ -769,7 +630,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 	st_beta_catenin=new StringTokenizer(line_beta_catenin);
                     Double beta_catenin_time = Double.valueOf(st_beta_catenin.nextToken());
                     
-                    //count the number of entries in the bcat file to get num non ghosts and check correct 
+                    // count the number of entries in the bcat file to get num non ghosts and check correct 
 	                int beta_catenin_entries = st_beta_catenin.countTokens();
 	            
 	                if (beta_catenin_entries%6 != 0)
@@ -783,7 +644,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 	st_stress=new StringTokenizer(line_stress);
                     stress_time = Double.valueOf(st_stress.nextToken());
                     
-                    //count the number of entries in the bcat file to get num non ghosts and check correct 
+                    // count the number of entries in the bcat file to get num non ghosts and check correct 
 	                int stress_entries = st_stress.countTokens();
 	            
 	                if (stress_entries%5 != 0)
@@ -833,7 +694,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 stress_values[row] = new double[2*numCells[row]][2];
                 cell_type[row]= new int[memory_factor*numCells[row]];
                 element_nodes[row] = new int[memory_factor*3*numElements[row]];
-                // ArrayList<Double> positionValues= new ArrayList<Double>();
+
                 for (int i = 0; i < numCells[row]; i++) 
                 {
                 	double d1 = Double.valueOf(st_node.nextToken()).doubleValue();
@@ -872,7 +733,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     {
                     	if (cell_type[row][i]!=7)	// If this is not a ghost cell
                     	{
-                    		String skip; //  Skips past unnecessary info.
+                    		String skip; // Skips past unnecessary info.
                         	int index = Integer.parseInt(st_beta_catenin.nextToken()); // index
                         	skip = st_beta_catenin.nextToken(); // x
                         	skip = st_beta_catenin.nextToken(); // y
@@ -912,8 +773,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 for (int i = 0; i < 3*numElements[row]; i++) 
                 {
                     int node = Integer.parseInt(st_element.nextToken());
-                    // int node = Int.valueOf(st_element.nextToken()).intValue();
-                    // positionValues.add(d1);
                     element_nodes[row][i] = node;
                 }
                 
@@ -1209,20 +1068,8 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         int old_x = -1;
         int old_y = -1;
         int tick_length = 10;
-        int num_ticks = 10;
-        vis.east_panel.removeAll();
+        
         vis.time_slider.setValue(vis.timeStep); 
-        if (vis.drawNutrient)
-        {
-        	vis.east_panel.add(vis.nutrient_colour_bar);
-            vis.nutrient_colour_bar.setVisible(true);
-        }
-        vis.beta_catenin_colour_bar.setVisible(vis.drawBetaCatenin);
-        if(vis.drawAverageStress || vis.drawDifferenceStress)
-        {
-        	vis.east_panel.add(vis.stress_colour_bar);
-        	vis.stress_colour_bar.setVisible(true);
-        }
         
         if (g2==null)
         {
@@ -1380,7 +1227,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                 // plot membrane beta catenin levels
                 for (int node=0; node<3; node++)
                 {    
-                	 SetCellMembranBoundBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][0], index[node]);
+                	 SetCellBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][0], index[node]);
                 	 int xs[] = new int[4];
                      int ys[]= new int[4];
                      xs[0] = plotcircumcentre.x;
@@ -1397,7 +1244,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                 // plot cytoplasmic beta catenin levels
                 for (int node=0; node<3; node++)
                 {    
-                	 SetCellCytoplasmicBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][1], index[node]);
+                	 SetCellBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][1], index[node]);
                 	 r1 = vis.positions[vis.timeStep][index[0]];
                 	 double cyto_scaler = 0.8;
                 	 double mid_cyto_scaler = (cyto_scaler)/2.0;
@@ -1491,7 +1338,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 
         	if (vis.drawBetaCatenin)
             { 
-        		SetCellNuclearBetaCateninColour(vis.beta_catenin_values[vis.timeStep][i][2], i);
+        		SetCellBetaCateninColour(vis.beta_catenin_values[vis.timeStep][i][2], i);
         	}
         	else
         	{
@@ -1510,53 +1357,207 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         	}
         }
         g2.setColor(Color.black);
-        drawXAxis(tick_length, num_ticks);
-        drawYAxis(tick_length, num_ticks);
+        drawXAxis(tick_length);
+        drawYAxis(tick_length);
+        
+        if (vis.drawNutrient)
+        {
+        	drawNutrientColourBar(); 
+        }
+        if (vis.drawBetaCatenin)
+        {
+        	drawBetaCateninColourBar(); 
+        }
+        if (vis.drawAverageStress || vis.drawDifferenceStress)
+        {
+        	drawStressColourBar(); 
+        }
         imageReady = true;
     }
-
-    private void drawXAxis(int tick_length, int num_ticks) 
-    {
-        PlotPoint start = scale(vis.min_x,0);
-        PlotPoint end = scale(vis.max_x,0);
-        g2.drawLine(start.x, start.y, end.x, end.y);
+    
+    private void drawNutrientColourBar() 
+    {   
+    	int panelHeight = (int) (0.8 * vis.frame.getHeight());
+        int panelWidth = (int) (0.8 * vis.frame.getWidth());
+        int num_blocks = 10;        
+        int blockHeight = panelHeight/(2*num_blocks);
+        int blockWidth = blockHeight;
         
-        for (int i = 0; i <= num_ticks; i++) 
-        {
-            double x = vis.min_x + (i * (vis.max_x-vis.min_x)) / num_ticks;
-            DecimalFormat df = new DecimalFormat("0.00");
-            String x_2dp = df.format(x);
+    	String[] labels = {"1.0", "0.9", "0.8", "0.7", "0.6", "0.5", "0.4", "0.3", "0.2", "0.1", "0.0"};
+                
+        for (int i=1; i<=num_blocks; i++)
+        {       
+            // Calculate colour 
+            double conc = (double)(num_blocks - i)/(double)(num_blocks);
+            int g = (int)(255.0 * conc);
+            int b = (int)(200.0 - 80.0*conc); 
             
-            // Tick lines
-            PlotPoint posn = scale(x,0);
-            g2.drawLine(posn.x, posn.y, posn.x, posn.y+tick_length);
-            g2.drawString(x_2dp, posn.x, posn.y + 2*tick_length);
-        }
+            Color colour = new Color(0,g,b);
+            g2.setColor(colour);
+            
+            g2.fillRect(panelWidth, i*blockHeight, blockWidth, blockHeight);
+            g2.setColor(Color.black);
+            g2.drawString(labels[i], panelWidth + blockWidth + 5, (i+1)*blockHeight);
+        
+            
+        }   
+        g2.drawString(labels[0], panelWidth + blockWidth + 5, blockHeight);        
     }
     
-    private void drawYAxis(int tick_length, int num_ticks) 
+    private void drawBetaCateninColourBar()  
     {
-        PlotPoint start = scale(0,vis.min_y);
-        PlotPoint end = scale(0,vis.max_y);
+    	int panelHeight = (int) (0.8 * vis.frame.getHeight());
+        int panelWidth = (int) (0.8 * vis.frame.getWidth());
+        int num_blocks = 10;        
+        int blockHeight = panelHeight/(2*num_blocks);
+        int blockWidth = blockHeight;
+        
+        String[] labels = {"20", "18", "16", "14", "12", "10", "8", "6", "4", "2", "0"};        
+               
+        for (int i=1; i<=num_blocks; i++)
+        {       
+            // Calculate colour 
+        	int g = Math.min(100+16*i,255);
+            Color colour = new Color(100,g,100);
+            g2.setColor(colour);
+            
+            g2.fillRect(panelWidth, i*blockHeight, blockWidth, blockHeight);
+            g2.setColor(Color.black);
+            g2.drawString(labels[i], panelWidth + blockWidth + 5, (i+1)*blockHeight);
+        
+            
+        }   
+        g2.drawString(labels[0], panelWidth + blockWidth + 5, blockHeight);  
+    }
+    
+    private void drawStressColourBar()  
+    {
+    	int panelHeight = (int) (0.8 * vis.frame.getHeight());
+        int panelWidth = (int) (0.8 * vis.frame.getWidth());
+        int num_blocks = 10;        
+        int blockHeight = panelHeight/(2*num_blocks);
+        int blockWidth = blockHeight;
+        
+        double stress_max = 40;
+    	double stress_min = 0 ;
+    	int r = 0;
+    	int g = 0;
+    	int b = 0;
+    	double interval = (stress_max-stress_min)/4.0;
+        
+        for (int i=1; i<=num_blocks; i++)
+        {       
+            // Calculate colour 
+        	double stress =  stress_min + (stress_max-stress_min)*i/(num_blocks-1);        	
+            if (stress <  interval)
+        	{
+        		r = 0;
+        		g = Math.min( Math.max((int)(255.0*stress/interval),0) , 255 );  
+        		b = 255;
+        	}
+        	else if (stress < 2.0*interval)
+        	{
+        		r = 0;
+        		g = 255;
+        		b = Math.min( Math.max(255 - (int) (255.0*(stress-interval)/interval),0) , 255 );
+        	}
+        	else if (stress < 3.0*interval)
+        	{
+        		r = Math.min( Math.max((int)(255.0*(stress-2.0*interval)/interval),0) , 255 );
+        		g = 255;
+        		b = 0;
+        	}
+        	else 
+        	{
+        		r = 255;
+        		g = Math.min( Math.max(255 - (int) (255.0*(stress- 3.0*interval)/interval),0) , 255 );
+        		b = 0;
+        	}
+            
+            Color colour = new Color(r,g,b);
+            g2.setColor(colour);
+            
+            g2.fillRect(panelWidth, i*blockHeight, blockWidth, blockHeight);
+            g2.setColor(Color.black);
+            
+            double box_interval = (stress_max-stress_min)/(double)(num_blocks);
+            double lower_bound = stress_min + i*box_interval;
+            double upper_bound = lower_bound + box_interval;
+            String colour_label = new String(lower_bound+ " - " + upper_bound); 
+            g2.drawString(colour_label, panelWidth + blockWidth + 5, (i+1)*blockHeight);
+        
+            
+        }           
+    }
+    
+    private void drawXAxis(int tick_length) 
+    {
+        int min_x = (int) vis.min_x;
+        if (vis.min_x<0)
+        {
+        	min_x -= 1;
+        }
+        int max_x = (int) vis.max_x;
+        if (vis.max_x>0)
+        {
+        	max_x += 1;
+        }
+        
+        PlotPoint start = scale(min_x, 0);
+        PlotPoint end = scale(max_x, 0);
         g2.drawLine(start.x, start.y, end.x, end.y);
+          
+        int num_ticks = max_x - min_x + 1;        
         
         for (int i = 0; i <= num_ticks; i++) 
         {
-            double y = vis.min_y + (i * (vis.max_y-vis.min_y)) / num_ticks;
-            DecimalFormat df = new DecimalFormat("0.00");
-            String y_2dp = df.format(y);
+            double x = (double) (min_x + i);
+            DecimalFormat df = new DecimalFormat("0.0");
+            String x_1dp = df.format(x);
+              
+            // Tick lines!
+            PlotPoint posn =  scale(x,0);
+            g2.drawLine(posn.x, posn.y, posn.x, posn.y+tick_length);
+            g2.drawString(x_1dp, posn.x, posn.y + 2*tick_length);
+        }
+    }
+        
+    private void drawYAxis(int tick_length) 
+    {
+        int min_y = (int) vis.min_y;
+        if (vis.min_y<0)
+        {
+        	min_y -= 1;
+        }
+        int max_y = (int) vis.max_y;
+        if (vis.max_y>0)
+        {
+        	max_y += 1;
+        }        
+        	
+        PlotPoint start = scale(0, min_y);
+        PlotPoint end = scale(0, max_y);        
+        g2.drawLine(start.x, start.y, end.x, end.y);
+            
+        int num_ticks = max_y - min_y + 1;
+            
+        for (int i = 0; i <= num_ticks; i++) 
+        {
+            double y = (double) (min_y + i);
+            DecimalFormat df = new DecimalFormat("0.0");
+            String y_1dp = df.format(y);
 
-            //Tick lines
+            // Tick lines
             PlotPoint posn = scale(0,y);
             g2.drawLine(posn.x-tick_length, posn.y, posn.x, posn.y);
-            g2.drawString(y_2dp, posn.x - 4*tick_length, posn.y );
+            g2.drawString(y_1dp, posn.x - 4*tick_length, posn.y );
         }
     }
     
     PlotPoint scale(double x, double y)
     {
-        //Map min_x to eps and max_x to width-eps (to allow a border)
-        int eps = 20;
+        // Map min_x to eps and max_x to width-eps (to allow a border)
+        int eps = 100;
         int ix = (int) ((x - vis.min_x) * (width-2*eps) /(vis.max_x - vis.min_x) +eps);
         int iy = (int) ((y - vis.min_y) * (height-2*eps) /(vis.max_y - vis.min_y) +eps);
         iy = height - iy; // This is because java is silly and has the y axis going down the screen.
@@ -1648,54 +1649,44 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     }
     
     void SetNodeColour(int index)
-    {
-        if (vis.cell_type[vis.timeStep][index] == 0)
-        {
-            // stem cell
-            g2.setColor(Color.green);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 1)
-        {
-            // transit cell
-            g2.setColor(Color.orange);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 2)
-        {
-            // differentiated cell
-            g2.setColor(Color.red);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 3)
-        {
-            // DANGER! early CANCER!
-            g2.setColor(Color.gray);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 4)
-        {
-            // DANGER! late CANCER!
-            g2.setColor(Color.black);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 5)
-        {
-            // LABELLED CELLS
-            g2.setColor(Color.blue);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 6)
-        {
-            // Apoptosis Cell
-            g2.setColor(Color.black);
-        }
-        else if (vis.cell_type[vis.timeStep][index] == 7)
-        {
-            // danger! sloughed - don't draw anything unless asked for
-            if (!vis.drawGhosts)
-            {
-                g2.setColor(garysSexySilver);
-            }
-            else
-            {
-                g2.setColor(Color.lightGray);
-            }
-        }
+    { 
+    	switch (vis.cell_type[vis.timeStep][index]) 
+    	{
+    		case 0: // stem cell
+    			g2.setColor(Color.green); 
+    			break;
+    		case 1: // transit cell
+    			g2.setColor(Color.orange); 
+    			break;
+    		case 2: // differentiated cell
+    			g2.setColor(Color.red); 
+    			break;
+    		case 3: // early cancer
+    			g2.setColor(Color.gray); 
+    			break;
+    		case 4:  // late cancer
+    			g2.setColor(Color.black);
+    			break;
+    		case 5: // labelled cell
+    			g2.setColor(Color.blue); 
+    			break;
+    		case 6: // apoptotic cell
+    			g2.setColor(Color.black); 
+    			break;
+    		case 7: // sloughed cell
+    			if (!vis.drawGhosts)
+                {
+                    g2.setColor(garysSexySilver);
+                }
+                else
+                {
+                    g2.setColor(Color.lightGray);
+                } 
+    			break;
+    		default: 
+    			System.out.println("Invalid cell type.");
+    		    break;
+    	}    	
     }
     
     void SetCellColour(int index)
@@ -1703,41 +1694,23 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     	if (vis.drawNutrient)
     	{
     		double conc = vis.nutrient_values[vis.timeStep][index];
-    		if (vis.cell_type[vis.timeStep][index] == 6)
-            {
-                // Undergoing Apoptosis
-                g2.setColor(ozzysDirtyGrey);
-            }
-            else if (vis.cell_type[vis.timeStep][index] == 7)
-            {
-                // danger! sloughed - don't draw anything
-                g2.setColor(garysSexySilver);
-            }
-            else
-            {
-            	int r = 0;
-            	int g = (int)(255*conc);
-                if (g<0) 
-                {
-              	    g=0;
-                }
-                if (g>255)
-                {
-              	    g=255;
-                }
-                int b = (int)(200 - 80*conc); 
-                if (b<0) 
-                {
-                    b=0; 
-                }
-                if(b>255)
-                {
-              	    b=255;
-                }    
-                Color colour = new Color(r,g,b);
-                g2.setColor(colour);
-            }   	
     		
+    		switch (vis.cell_type[vis.timeStep][index]) 
+        	{
+        		case 6: // apoptotic cell
+        			g2.setColor(ozzysDirtyGrey); 
+        			break;
+        		case 7: // sloughed cell
+        			g2.setColor(garysSexySilver); 
+        			break;
+        		default: // any other cell type
+                	int r = 0;
+                	int g = Math.min( Math.max((int)(255*conc),0) , 255 );            	
+                    int b = Math.min( Math.max( (int)(200 - 80*conc),0) , 255);                  
+                    Color colour = new Color(r,g,b);
+                    g2.setColor(colour);
+        		    break;
+        	}    		
     	}
     	else if (vis.drawAverageStress || vis.drawDifferenceStress)
     	{
@@ -1750,206 +1723,100 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         	{
         		stress = vis.stress_values[vis.timeStep][index][1];
             }
+        	
     		double stress_max = 40;
         	double stress_min = 0 ;
         	int r = 0;
-        	int g=0;
-        	int b=0;
+        	int g = 0;
+        	int b = 0;
         	double interval = (stress_max-stress_min)/4.0;
         	
         	// We do not show up ghost nodes in a stress plot.
             if (vis.cell_type[vis.timeStep][index] == 7)
             {
-                // danger! sloughed - don't draw anything
+            	// Sloughed cell
                 g2.setColor(garysSexySilver);
             }
             else
             {
-            	if (stress <  interval)
+            	if (stress < interval)
             	{
-            		r=0;
-            		g= (int)(255.0*stress/interval);
-            		b=255;
+            		r = 0;
+            		g = Math.min( Math.max((int)(255.0*stress/interval),0) , 255 ); 
+            		b = 255;
             	}
             	else if (stress < 2.0*interval)
             	{
-            		r=0;
-            		g= 255;
-            		b=255 - (int) (255.0*(stress-interval)/interval);
+            		r = 0;
+            		g = 255;
+            		b = Math.min( Math.max(255 - (int) (255.0*(stress - interval)/interval),0) , 255 ); 
             	}
             	else if (stress < 3.0*interval)
             	{
-            		r=(int)(255.0*(stress-2.0*interval)/interval);
-            		g= 255;
-            		b=0;
+            		r = Math.min( Math.max((int)(255.0*(stress - 2.0*interval)/interval),0) , 255 ); 
+            		g = 255;
+            		b = 0;
             	}
             	else 
             	{
-            		r=255;
-            		g= 255 - (int) (255.0*(stress- 3.0*interval)/interval);
-            		b=0;
+            		r = 255;
+            		g = Math.min( Math.max(255 - (int) (255.0*(stress - 3.0*interval)/interval),0) , 255 ); 
+            		b = 0;
             	}
-            	
-            	if (r<0) 
-                {
-              	    r=0;
-                }
-                if (r>255)
-                {
-              	    r=255;
-                }
-            	
-            	if (g<0) 
-                {
-              	    g=0;
-                }
-                if (g>255)
-                {
-              	    g=255;
-                }
-                if (b<0) 
-                {
-                    b=0; 
-                }
-                if(b>255)
-                {
-              	    b=255;
-                }    
                 Color colour = new Color(r,g,b);
                 g2.setColor(colour);
             }   	
     	}
-    	else	// The default setting...
+    	else	// The default setting
     	{
-	        if (vis.cell_type[vis.timeStep][index] == 0)
-	        {
-	            // stem cell
-	            g2.setColor(Color.cyan);
-	        }
-	        else if (vis.cell_type[vis.timeStep][index] == 1)
-	        {
-	            // transit cell
-	            g2.setColor(Color.yellow);
-	        }
-	        else if (vis.cell_type[vis.timeStep][index] == 2)
-	        {
-	            // differentiated cell
-	            g2.setColor(Color.pink);
-	        }
-	        else if (vis.cell_type[vis.timeStep][index] == 3)
-	        {
-	            // DANGER! early CANCER!
-	            g2.setColor(Color.lightGray);
-	        }
-	        else if (vis.cell_type[vis.timeStep][index] == 4)
-	        {
-	            // DANGER! late CANCER!
-	            g2.setColor(Color.gray);
-	        }
-	        else if (vis.cell_type[vis.timeStep][index] == 5)
-	        {
-	            // Labelled cell
-	            g2.setColor(purple);
-	        }
-	        else if (vis.cell_type[vis.timeStep][index] == 6)
-	        {
-	            // Undergoing Apoptosis
-	            g2.setColor(ozzysDirtyGrey);
-	        }
-	        else if (vis.cell_type[vis.timeStep][index] == 7)
-	        {
-	            // danger! sloughed - don't draw anything
-	            g2.setColor(garysSexySilver);
-	        }
+    		switch (vis.cell_type[vis.timeStep][index]) 
+        	{
+        		case 0: // stem cell
+        			g2.setColor(Color.cyan); 
+        			break;
+        		case 1: // transit cell
+        			g2.setColor(Color.yellow); 
+        			break;
+        		case 2: // differentiated cell
+        			g2.setColor(Color.pink); 
+        			break;
+        		case 3: // early cancer
+        			g2.setColor(Color.lightGray); 
+        			break;
+        		case 4:  // late cancer
+        			g2.setColor(Color.gray);
+        			break;
+        		case 5: // labelled cell
+        			g2.setColor(purple); 
+        			break;
+        		case 6: // apoptotic cell
+        			g2.setColor(ozzysDirtyGrey); 
+        			break;
+        		case 7: // sloughed cell
+        			g2.setColor(garysSexySilver);                    
+        			break;
+        		default: 
+        			System.out.println("Invalid cell type.");
+        		    break;
+        	}
     	}
     }
-    
-    
-    
-    void SetCellCytoplasmicBetaCateninColour(double conc, int index)
+            
+    void SetCellBetaCateninColour(double conc, int index)
     {
     	if (vis.cell_type[vis.timeStep][index] == 7)
         {
-            // danger! sloughed - don't draw anything
+            // Sloughed cell
             g2.setColor(garysSexySilver);
         }
     	else
     	{
     		int r = 100;
     		int b = 100;
-    		int g = (int)(100 + 8*conc); 
-    		
-    		if (g < 0) 
-    		{
-    			g = 0;
-    		}
-    		if (g > 255)
-    		{
-    			g = 255;
-    		}
-
+    		int g = Math.min( Math.max((int)(100 + 8*conc),0) , 255 );  
     		Color colour = new Color(r,g,b);
     		g2.setColor(colour);
     	}
     }
-    
-    void SetCellNuclearBetaCateninColour(double conc, int index)
-    {
-    	if (vis.cell_type[vis.timeStep][index] == 7)
-        {
-            // danger! sloughed - don't draw anything
-            g2.setColor(garysSexySilver);
-        }
-    	else
-    	{
-    		int r = 100;
-    		int b = 100;
-    		int g = (int)(100 + 8*conc); 
-    		
-    		if (g < 0) 
-    		{
-    			g = 0;
-    		}
-    		if (g > 255)
-    		{
-    			g = 255;
-    		}
-
-    		Color colour = new Color(r,g,b);
-    		g2.setColor(colour);
-    	}
-    }
-    
-    void SetCellMembranBoundBetaCateninColour(double conc, int index)
-    {
-    	if (vis.cell_type[vis.timeStep][index] == 7)
-        {
-            // danger! sloughed - don't draw anything
-            g2.setColor(garysSexySilver);
-        }
-    	else
-    	{
-    		int r = 100;
-    		int b = 100;
-    		int g = (int)(100 + 8*conc); 
-    		
-    		if (g < 0) 
-    		{
-    			g = 0;
-    		}
-    		if (g > 255)
-    		{
-    			g = 255;
-    		}
-    		
-    		Color colour = new Color(r,g,b);
-    		g2.setColor(colour);
-    	}
-    }
-    
     
  }
-
-
-
-
