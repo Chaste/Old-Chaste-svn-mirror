@@ -188,7 +188,7 @@ bool TissueCell::IsLogged()
 bool TissueCell::ReadyToDivide()
 {
     assert(!IsDead());
-    if (mUndergoingApoptosis || mCellType==NECROTIC)
+    if (mUndergoingApoptosis || mMutationState==NECROTIC)
     {
         return false;
     }    
