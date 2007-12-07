@@ -265,7 +265,7 @@ TissueCell TissueCell::Divide()
     else
     {
             CellType daughter_cell_type;
-            mpCellCycleModel->mGeneration++;
+            mpCellCycleModel->SetGeneration(mpCellCycleModel->GetGeneration()+1);
             std::vector<CellType> new_cell_types = mpCellCycleModel->GetNewCellTypes();
             
             mCellType = new_cell_types[0];
@@ -274,7 +274,7 @@ TissueCell TissueCell::Divide()
             TissueCell new_cell=TissueCell(daughter_cell_type, mMutationState,
                                       mpCellCycleModel->CreateCellCycleModel());
             
-            assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->mGeneration);
+            assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->GetGeneration());
             mpCellCycleModel->SetMotherGeneration();
             return new_cell;
     }

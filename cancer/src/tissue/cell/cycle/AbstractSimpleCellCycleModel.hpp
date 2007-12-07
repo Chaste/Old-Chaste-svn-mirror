@@ -39,9 +39,9 @@ protected:
 	 * */
     AbstractSimpleCellCycleModel(double g1Duration, unsigned generation)
         :mG1Duration(g1Duration)
-        {
-            mGeneration=generation;
-        };  
+    {
+        mGeneration=generation;
+    };  
     
     /**
      * The duration of the G1 phase of the cell cycle. This is set once a cell

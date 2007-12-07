@@ -9,13 +9,10 @@
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
 
-const unsigned MAX_TRANSIT_GENS = 4; // NOT USED ANYWHERE USEFUL AT PRESENT
-
 class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
 
 class TissueCell
 {
-
 private:
     /// Caches the result of ReadyToDivide() so Divide() can look at it
     bool mCanDivide;
@@ -27,7 +24,6 @@ private:
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
         // These first 4 are dealt with by {load,save}_construct_data
-        //archive & mGeneration;
         archive & mCellType;
         archive & mMutationState;
         archive & mpCellCycleModel;
@@ -39,7 +35,6 @@ private:
     }
     
 protected:
-    //unsigned mGeneration;
     CellType mCellType;
     CellMutationState mMutationState;
     AbstractCellCycleModel *mpCellCycleModel;
@@ -55,10 +50,8 @@ protected:
      */
     void CommonCopy(const TissueCell &other_cell);
     
-    
-    
-    
 public:
+
     /**
      * Create a new tissue cell.
      * @param cellType  the type of cell this is
@@ -67,8 +60,7 @@ public:
      * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
      * @param archiving  whether this constructor is being called by the archiver - do things slightly differently!
-     */  
-     
+     */       
     TissueCell(CellType cellType,
                CellMutationState mutationState,
                //unsigned generation,
@@ -125,10 +117,11 @@ public:
     bool HasApoptosisBegun() const;
     double TimeUntilDeath() const;
     bool IsDead() const;
+    
     /**
-        * Divide this cell to produce a daughter cell.
-        * ReadyToDivide must have been called with the given simulationTime, and returned true.
-        */
+     * Divide this cell to produce a daughter cell.
+     * ReadyToDivide must have been called with the given simulationTime, and returned true.
+     */
     TissueCell Divide();
     
     void SetLogged();
@@ -152,10 +145,8 @@ inline void save_construct_data(
     const CellType cell_type = t->GetCellType();
     const CellMutationState mutation_state = t->GetMutationState();
     const AbstractCellCycleModel * const p_cell_cycle_model = t->GetCellCycleModel();
-    //const unsigned generation = p_cell_cycle_model->GetGeneration();
     ar << cell_type;
     ar << mutation_state;
-    //ar << generation;
     ar << p_cell_cycle_model;
 }
 
@@ -169,16 +160,13 @@ inline void load_construct_data(
     // retrieve data from archive required to construct new instance
     CellType cell_type;
     CellMutationState mutation_state;
-    //unsigned generation;
     AbstractCellCycleModel *p_cell_cycle_model;
     ar >> cell_type;
     ar >> mutation_state;
-    //ar >> generation;
     ar >> p_cell_cycle_model;
     bool archiving = true;
     // invoke inplace constructor to initialize instance
-    ::new(t)TissueCell(cell_type, mutation_state, //generation, 
-                        p_cell_cycle_model,archiving);
+    ::new(t)TissueCell(cell_type, mutation_state,p_cell_cycle_model,archiving);
 }
 }
 } // namespace ...

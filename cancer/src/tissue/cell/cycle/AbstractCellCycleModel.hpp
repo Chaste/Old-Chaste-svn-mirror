@@ -42,14 +42,23 @@ private:
         // which knows this and it is handled in the load_construct of TissueCell.
         archive & mCurrentCellCyclePhase;
     }
+
         
 protected:
+    /** The cell that this model is associated with */
     TissueCell* mpCell;
-    double mBirthTime; // Time to start model from
+    
+    /** 
+     * The time that the cell began to split from its parent
+     * (i.e. beginning of M phase NOT the end) 
+     */
+    double mBirthTime;
+    
+    /** The phase of the cell cycle that this model is in (specified in CellCyclePhases.hpp) */
     CellCyclePhase mCurrentCellCyclePhase;
     
-public:
-    unsigned mGeneration;
+    /** The Generation of this cell (STEM cells have a generation of 0) */
+    unsigned mGeneration;    
         
 public:
 
@@ -94,8 +103,7 @@ public:
     /**
      * Sets the cell's generation...
      */
-    void SetGeneration(unsigned generation);
-    
+    void SetGeneration(unsigned generation);    
     
     /**
      * Returns the cell's generation...
@@ -146,7 +154,7 @@ public:
      * This normally does nothing but is over-ridden when the mother cell has
      * an AbstractSimpleMeineke cell cycle model and cell is a stem.
      */ 
-    virtual void SetMotherGeneration() ;
+    virtual void SetMotherGeneration();
     
     /**
      * @return the level of membrane bound beta-catenin. However in most Cell Cycle models this does not exist.
@@ -180,10 +188,12 @@ public:
      * @return the duration of the S phase of the cell cycle
      */
     virtual double GetSDuration();
+    
     /**
      * @return the duration of the G2 phase of the cell cycle
      */
     virtual double GetG2Duration();
+    
     /**
      * @return the duration of the M phase of the cell cycle
      */
