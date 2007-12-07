@@ -264,14 +264,10 @@ TissueCell TissueCell::Divide()
     }
     else
     {
-            CellType daughter_cell_type;
             mpCellCycleModel->SetGeneration(mpCellCycleModel->GetGeneration()+1);
-            std::vector<CellType> new_cell_types = mpCellCycleModel->GetNewCellTypes();
-            
-            mCellType = new_cell_types[0];
-            daughter_cell_type = new_cell_types[1];
+            mCellType = mpCellCycleModel->GetNewCellTypes()[0];
             mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            TissueCell new_cell=TissueCell(daughter_cell_type, mMutationState,
+            TissueCell new_cell=TissueCell(mpCellCycleModel->GetNewCellTypes()[1], mMutationState,
                                       mpCellCycleModel->CreateCellCycleModel());
             
             assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->GetGeneration());
