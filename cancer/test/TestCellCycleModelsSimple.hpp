@@ -57,7 +57,7 @@ private:
     }
                 
 public:
-    void TestFixedCellCycleModel(void) throw(Exception)
+    void TestFixedCellCycleModel() throw(Exception)
     {   
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
