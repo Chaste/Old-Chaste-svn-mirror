@@ -61,10 +61,6 @@ public:
      */  
     void TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
     {   
-        if (rCell.GetCellType()!=HEPA_ONE && rCell.GetCellType()!=NECROTIC)
-        {
-            EXCEPTION("OxygenBasedCellKiller is trying to kill a cell that is not of type HEPA_ONE or NECROTIC");
-        }      
         if (rCell.GetCellType()==NECROTIC)
         {
             rCell.StartApoptosis();

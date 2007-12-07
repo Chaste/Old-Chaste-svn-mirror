@@ -54,6 +54,7 @@ public:
     void SetHepaOneCellHypoxicConcentration(double);
     void SetRadialWntThreshold(double); 
     void SetCriticalHypoxicDuration(double);
+    void SetHepaOneParameters();
       
     /** 
      *  Reset all parameters to their defaults

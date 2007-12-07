@@ -9,7 +9,6 @@ typedef enum CellType_
     STEM,
     TRANSIT,
     DIFFERENTIATED,
-    HEPA_ONE,
     NECROTIC
 } CellType;
 

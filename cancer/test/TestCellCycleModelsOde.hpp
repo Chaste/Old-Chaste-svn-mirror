@@ -639,6 +639,7 @@ public:
     void TestAlarcon2004OxygenBasedCellCycleModel() throw(Exception)
     {        
         CancerParameters::Instance()->Reset();
+        CancerParameters::Instance()->SetHepaOneParameters();
        
         // set up SimulationTime         
         SimulationTime *p_simulation_time = SimulationTime::Instance();   
@@ -654,7 +655,8 @@ public:
         Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
         
         // create cell 
-        TissueCell cell(HEPA_ONE, ALARCON_NORMAL, p_cell_model);    
+        TissueCell cell(STEM, ALARCON_NORMAL, p_cell_model);
+        cell.SetSymmetricDivision();
         
         // Coverage of cell cycle model copying without an ODE system set up
         TissueCell stem_cell2 = cell;
@@ -669,7 +671,8 @@ public:
         // divide a cell    
         Alarcon2004OxygenBasedCellCycleModel *p_cell_model2 = static_cast <Alarcon2004OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
         
-        TissueCell cell2(HEPA_ONE, ALARCON_NORMAL, p_cell_model2);
+        TissueCell cell2(STEM, ALARCON_NORMAL, p_cell_model2);
+        cell.SetSymmetricDivision();
         
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),false)
@@ -1017,6 +1020,7 @@ public:
     void TestArchiveAlarcon2004OxygenBasedCellCycleModels()
     {
         CancerParameters::Instance()->Reset();
+        CancerParameters::Instance()->SetHepaOneParameters();
 
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
@@ -1034,7 +1038,8 @@ public:
             
             Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
             
-            TissueCell cell(HEPA_ONE, ALARCON_NORMAL, p_cell_model);
+            TissueCell cell(STEM, ALARCON_NORMAL, p_cell_model);
+            cell.SetSymmetricDivision();
             cell.InitialiseCellCycleModel();  
             cell.GetCellCycleModel()->SetBirthTime(-10.0);
             

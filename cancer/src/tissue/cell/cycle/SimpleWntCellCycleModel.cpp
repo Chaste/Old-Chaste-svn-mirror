@@ -30,9 +30,6 @@ void SimpleWntCellCycleModel::SetG1Duration()
         case TRANSIT:
             mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(),1.0);
             break;
-        case HEPA_ONE:
-            mG1Duration = p_gen->NormalRandomDeviate(p_params->GetHepaOneCellG1Duration(),1.0);
-            break;
         case DIFFERENTIATED:
             mG1Duration = DBL_MAX;
             break;

@@ -122,6 +122,7 @@ public:
         
         // change the hypoxic concentration, just for this test
         CancerParameters::Instance()->SetHepaOneCellHypoxicConcentration(0.9);
+        CancerParameters::Instance()->SetHepaOneParameters();
 
         // set up mesh
         ConformingTetrahedralMesh<2,2>* p_mesh = new ConformingTetrahedralMesh<2,2>;
@@ -133,12 +134,13 @@ public:
         
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(HEPA_ONE, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
+            cell.SetSymmetricDivision();
             cells.push_back(cell);
         }
         
@@ -224,6 +226,8 @@ public:
             return;
         }
         
+        CancerParameters::Instance()->SetHepaOneParameters();
+        
         // set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
@@ -235,12 +239,13 @@ public:
         
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(HEPA_ONE, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
+            cell.SetSymmetricDivision();
             cells.push_back(cell);
         }
         
@@ -333,6 +338,8 @@ public:
             return;
         }
         
+        CancerParameters::Instance()->SetHepaOneParameters();
+        
         // set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
@@ -344,12 +351,13 @@ public:
         
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(HEPA_ONE, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                             (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                              +CancerParameters::Instance()->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
+            cell.SetSymmetricDivision();
             cells.push_back(cell);
         }
         

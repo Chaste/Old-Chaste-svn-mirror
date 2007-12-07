@@ -248,4 +248,9 @@ void CancerParameters::SetCriticalHypoxicDuration(double criticalHypoxicDuration
     assert(criticalHypoxicDuration>=0.0);
     mCriticalHypoxicDuration = criticalHypoxicDuration;
 }
+void CancerParameters::SetHepaOneParameters()
+{
+    mStemCellG1Duration = mHepaOneCellG1Duration;
+}
+
 

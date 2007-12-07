@@ -313,28 +313,29 @@ public:
     void TestOxygenBasedCellKiller(void) throw(Exception)
     {        
         CancerParameters::Instance()->Reset();   
+        CancerParameters::Instance()->SetHepaOneParameters();
         
-        // read in a mesh
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        SimulationTime *p_simulation_time = SimulationTime::Instance();       
-        // set SimulationTime so that the time step is not too small 
+        // Set SimulationTime so that the time step is not too small         
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         double end_time = 1.0; 
         int num_timesteps = 100*(int)end_time;
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
-                
-        std::vector<TissueCell> cells;
         
+        // Read in a mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Set up tissue        
+        std::vector<TissueCell> cells;        
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         Tissue<2> tissue(mesh, cells);
         
-        // before we can do anything with the cell killer, we need to set up CellwiseData
+        // Before we can do anything with the cell killer, we need to set up CellwiseData
         std::vector<double> oxygen_concentration;
         
-        // set the oxygen concentration to be zero 
+        // Set the oxygen concentration to be zero 
         oxygen_concentration.push_back(0.0);
         CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
         
@@ -342,16 +343,14 @@ public:
         
         // Get a reference to the cells held in tissue
         std::list<TissueCell>& r_cells = tissue.rGetCells();
-
-        // this should throw an exception since the cells are not of type HEPA_ONE
-        TS_ASSERT_THROWS_ANYTHING(bad_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin()));
         
-        // reset cell types to HEPA_ONE        
+        // reset cell types to STEM        
         for(Tissue<2>::Iterator cell_iter = tissue.Begin();
             cell_iter != tissue.End();
             ++cell_iter)
         {
-            cell_iter->SetCellType(HEPA_ONE); 
+            cell_iter->SetCellType(STEM); 
+            cell_iter->SetSymmetricDivision();
         }
         
         TS_ASSERT_THROWS_NOTHING(OxygenBasedCellKiller<2> oxygen_based_cell_killer(&tissue));

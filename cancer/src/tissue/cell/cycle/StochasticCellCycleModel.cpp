@@ -23,9 +23,6 @@ void StochasticCellCycleModel::SetG1Duration()
         case TRANSIT:
             mG1Duration = 1 + 2*p_gen->ranf(); // U[1,3] according to Meineke
             break;
-        case HEPA_ONE:
-            mG1Duration = 1 + 4*p_gen->ranf(); // U[1,5] according to Meineke
-            break;
         case DIFFERENTIATED:
             mG1Duration = DBL_MAX;
             break;

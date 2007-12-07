@@ -18,9 +18,6 @@ void AbstractSimpleCellCycleModel::SetG1Duration()
         case TRANSIT:
             mG1Duration = p_params->GetTransitCellG1Duration();
             break;
-        case HEPA_ONE:
-            mG1Duration = p_params->GetHepaOneCellG1Duration();
-            break;
         case DIFFERENTIATED:
             mG1Duration = DBL_MAX;
             break;
