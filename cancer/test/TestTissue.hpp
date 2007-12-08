@@ -797,6 +797,57 @@ public:
         
         // check there is no marked spring between nodes 1 & 2
         TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
+        SimulationTime::Destroy();
+    }
+    
+    void TestSettingCellAncestors() throw (Exception)
+    {
+        // set up the simulation time object so the cells can be created
+        SimulationTime::Instance()->SetStartTime(0.0);
+        
+        // create a small tissue
+        std::vector<Node<2> *> nodes;
+        nodes.push_back(new Node<2>(0, false, 0, 0.5));
+        nodes.push_back(new Node<2>(1, false, 1, 0));
+        nodes.push_back(new Node<2>(2, false, 1, 1));
+        nodes.push_back(new Node<2>(3, false, 2, 0.5));
+        nodes.push_back(new Node<2>(4, false, 2, 1.5));
+        
+        ConformingTetrahedralMesh<2,2> mesh(nodes);
+        
+        std::vector<TissueCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        
+        Tissue<2> tissue(mesh, cells);
+        
+        // test that the tissue makes all cells fix the node index as ancestor
+        tissue.SetCellAncestorsToNodeIndices();
+        
+        unsigned counter = 0;
+        for(Tissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
+        {
+            TS_ASSERT_EQUALS(cell_iter->GetAncestor(), cell_iter->GetNodeIndex());
+            counter ++;
+        }
+        TS_ASSERT_EQUALS(counter, 5u);
+        
+        // Test that we can recover remaining number of ancestors
+        std::set<unsigned> remaining_ancestors = tissue.GetCellAncestors();
+        TS_ASSERT_EQUALS(remaining_ancestors.size(), 5u);
+        
+        // test that the set correctly represents a monoclonal population.
+        for(Tissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
+        {   // Set all cells to have the same ancestor...
+            cell_iter->SetAncestor(1u);
+        }
+        remaining_ancestors = tissue.GetCellAncestors();
+        TS_ASSERT_EQUALS(remaining_ancestors.size(), 1u);
+        
+        SimulationTime::Destroy();
     }
 };
 

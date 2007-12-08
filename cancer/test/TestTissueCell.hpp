@@ -1370,6 +1370,30 @@ public:
         
         SimulationTime::Destroy();
     }
+    
+    void TestAncestors() throw (Exception)
+    {
+        CancerParameters::Instance()->Reset();
+        SimulationTime::Instance()->SetStartTime(0.0);
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(25, 2);
+        
+        TissueCell cell(STEM, // type
+                              HEALTHY,//Mutation State
+                              new FixedCellCycleModel());
+                              
+        cell.SetAncestor(2u);
+        SimulationTime::Instance()->IncrementTimeOneStep();
+        SimulationTime::Instance()->IncrementTimeOneStep();
+        
+        TS_ASSERT_EQUALS(cell.ReadyToDivide(), true);
+        
+        TissueCell cell2 = cell.Divide();
+        
+        TS_ASSERT_EQUALS(cell.GetAncestor(), 2u);
+        TS_ASSERT_EQUALS(cell2.GetAncestor(), 2u);
+        
+        SimulationTime::Destroy();
+    }
 };
 
 

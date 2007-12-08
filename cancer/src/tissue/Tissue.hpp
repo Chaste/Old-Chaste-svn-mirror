@@ -308,6 +308,19 @@ public:
 
 	/** Get the number of real cells, (ie non-ghost nodes) */
 	unsigned GetNumRealCells();
+    
+    /** 
+     * Sets the Ancestor index of all the cells at this time to be the
+     * same as their node index, can be used to trace clonal populations.
+     */   
+    void SetCellAncestorsToNodeIndices();
+    
+    /**
+     * Loops over cells and makes a list of the ancestors that 
+     * are part of the tissue.
+     * @return remaining_ancestors  The size of this set tells you how many clonal populations remain. 
+     */
+    std::set<unsigned> GetCellAncestors();
 
     /**
      * Check consistency of our internal data structures.

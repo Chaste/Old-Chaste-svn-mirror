@@ -40,32 +40,32 @@ TissueCell::TissueCell(CellType cellType,
     	mpCellCycleModel->SetCell(this);
     }
     mSymmetricDivision = false;
+    mAncestor = 0u; // Has to be set by a SetAncestor() call (usually from Tissue)
 }
 
 void TissueCell::CommonCopy(const TissueCell &other_cell)
 {
-    // Copy 'easy' data members
+    // Copy private data members
+    mCanDivide = other_cell.mCanDivide;
+    // Copy 'easy' protected data members
     mCellType = other_cell.mCellType;
     mMutationState = other_cell.mMutationState;
-    mCanDivide = other_cell.mCanDivide;
     mUndergoingApoptosis = other_cell.mUndergoingApoptosis;
     mIsDead = other_cell.mIsDead;
-
     mDeathTime = other_cell.mDeathTime;
     mNodeIndex = other_cell.mNodeIndex;
+    mIsLogged = other_cell.mIsLogged;
+    mSymmetricDivision = other_cell.mSymmetricDivision;
+    mAncestor = other_cell.mAncestor;
+    
     // Copy cell cycle model
     // First create a new object
     mpCellCycleModel = other_cell.mpCellCycleModel->CreateCellCycleModel();
     // Then copy its state
     *mpCellCycleModel = *(other_cell.mpCellCycleModel);
-
-    mIsLogged = other_cell.mIsLogged;
-
     // note: we call the base class version because we want to do model.mpCell=*this
     // only, as the model is fully set up (from the above line) already.
     mpCellCycleModel->AbstractCellCycleModel::SetCell(this);
-    
-    mSymmetricDivision = other_cell.mSymmetricDivision;
 }
 
 TissueCell::TissueCell(const TissueCell &other_cell)
@@ -244,6 +244,15 @@ void TissueCell::Kill()
     mIsDead = true;
 }
 
+void TissueCell::SetAncestor(unsigned ancestorIndex)
+{
+    mAncestor = ancestorIndex;
+}
+
+unsigned TissueCell::GetAncestor() const
+{
+    return mAncestor;   
+}
 
 TissueCell TissueCell::Divide()
 {
@@ -260,6 +269,7 @@ TissueCell TissueCell::Divide()
                                          mpCellCycleModel->CreateCellCycleModel());
         new_cell.GetCellCycleModel()->SetGeneration(1);
         new_cell.SetSymmetricDivision();
+        new_cell.SetAncestor(GetAncestor());
         return new_cell;
     }
     else
@@ -272,8 +282,11 @@ TissueCell TissueCell::Divide()
             
             assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->GetGeneration());
             mpCellCycleModel->SetMotherGeneration();
+            new_cell.SetAncestor(GetAncestor());
             return new_cell;
     }
         
 }
+
+
 

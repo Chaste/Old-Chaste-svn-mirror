@@ -244,7 +244,7 @@ public:
         TS_ASSERT_EQUALS(stem_cell2.GetMutationState(), HEALTHY);
                            
         stem_cell.InitialiseCellCycleModel();
-
+        // Check the Inge model has changed the cell type correctly.
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
         WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
         for (int i=0; i<21*num_timesteps/30.0; i++)
@@ -350,7 +350,7 @@ public:
         TS_ASSERT_DELTA(test_results[0] , 0.3636, 1e-3);
         TS_ASSERT_DELTA(test_results[1] , 0.9900, 1e-2);
         TS_ASSERT_DELTA(test_results[2] , 1.4996, 1e-3);
-        TS_ASSERT_DELTA(test_results[3] , 0.8180, 1e-4);
+        TS_ASSERT_DELTA(test_results[3] , 0.8181, 1e-4);
         TS_ASSERT_DELTA(test_results[4] , 0.1000, 1e-4);
         TS_ASSERT_DELTA(test_results[5] , 0.6666, 1e-4);
         TS_ASSERT_DELTA(test_results[6] , 0.0666, 1e-4);
@@ -362,12 +362,12 @@ public:
         TS_ASSERT_DELTA(test_results[12], 17.5432, 1e-4);
         TS_ASSERT_DELTA(test_results[13], 75.8316, 1e-2);
         TS_ASSERT_DELTA(test_results[14], 0, 1e-4);
-        TS_ASSERT_DELTA(test_results[15], 29.5727, 1e-4);
+        TS_ASSERT_DELTA(test_results[15], 29.5728, 1e-4);
         TS_ASSERT_DELTA(test_results[16], 7.1564, 1e-3);
         TS_ASSERT_DELTA(test_results[17], 0, 1e-4);
         TS_ASSERT_DELTA(test_results[18], 0, 1e-4);
         TS_ASSERT_DELTA(test_results[19], 0, 1e-4);
-        TS_ASSERT_DELTA(test_results[20], 1.6047, 1e-4);
+        TS_ASSERT_DELTA(test_results[20], 1.6048, 1e-4);
         TS_ASSERT_DELTA(test_results[21], 0.0000, 1e-4);
 
         TS_ASSERT_EQUALS(stem_cell.GetCellType(), DIFFERENTIATED);

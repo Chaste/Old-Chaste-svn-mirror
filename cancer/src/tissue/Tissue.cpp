@@ -443,6 +443,26 @@ unsigned Tissue<DIM>::GetNumRealCells()
 	return counter;
 }
 
+template<unsigned DIM> 
+void Tissue<DIM>::SetCellAncestorsToNodeIndices()
+{
+    for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
+    {
+        cell_iter->SetAncestor(cell_iter->GetNodeIndex());
+    }
+}
+
+template<unsigned DIM> 
+std::set<unsigned> Tissue<DIM>::GetCellAncestors()
+{
+    std::set<unsigned> remaining_ancestors;
+    for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
+    {
+        remaining_ancestors.insert(cell_iter->GetAncestor());
+    }
+    return remaining_ancestors;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //                             iterator class                               // 

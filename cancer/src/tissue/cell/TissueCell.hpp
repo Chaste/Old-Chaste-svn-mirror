@@ -32,9 +32,11 @@ private:
         archive & mDeathTime;
         archive & mNodeIndex;
         archive & mSymmetricDivision;
+        archive & mAncestor;
     }
     
 protected:
+    // NB - if you add any member variables make sure CommonCopy includes them.
     CellType mCellType;
     CellMutationState mMutationState;
     AbstractCellCycleModel *mpCellCycleModel;
@@ -44,6 +46,8 @@ protected:
     bool mIsDead;
     bool mIsLogged;
     bool mSymmetricDivision;
+    /** An index which is inherited by all children of this cell */
+    unsigned mAncestor;
 
     /**
      * Contains code common to both the copy constructor and operator=.
@@ -63,7 +67,6 @@ public:
      */       
     TissueCell(CellType cellType,
                CellMutationState mutationState,
-               //unsigned generation,
                AbstractCellCycleModel *pCellCycleModel,
                bool archiving = false);
                
@@ -126,6 +129,9 @@ public:
     
     void SetLogged();
     bool IsLogged();
+    
+    void SetAncestor(unsigned ancestorIndex);
+    unsigned GetAncestor() const;
     
 };
 
