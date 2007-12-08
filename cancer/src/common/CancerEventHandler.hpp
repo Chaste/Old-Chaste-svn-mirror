@@ -2,7 +2,7 @@
 #define CANCEREVENTHANDLER_HPP_
 
 #include <cassert>
-#include <petsc.h>
+//#include <petsc.h>
 #include <time.h>
 #include <iostream>
 
@@ -25,7 +25,7 @@ class CancerEventHandler
 public:
     const static unsigned NUM_EVENTS=9;
     const static char* EVENT_NAME[NUM_EVENTS];
-    static PetscEvent mPetscEvent[NUM_EVENTS];
+    //static PetscEvent mPetscEvent[NUM_EVENTS];//Unused?
     static double mCpuTime[NUM_EVENTS];
     
     static void BeginEvent(CancerEventType event)
