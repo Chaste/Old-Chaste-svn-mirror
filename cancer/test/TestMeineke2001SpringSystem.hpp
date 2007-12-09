@@ -42,7 +42,7 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             CellMutationState mutation_state = HEALTHY;
-            if(i==60)
+            if (i==60)
             {
                 mutation_state = APC_TWO_HIT;
             }
@@ -595,7 +595,7 @@ public:
         SimulationTime::Destroy();
     } 
 
-    /* See #545 */
+    
     void TestArchiving() throw (Exception)
     {   
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
