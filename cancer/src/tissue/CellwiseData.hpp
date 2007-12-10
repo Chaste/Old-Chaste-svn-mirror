@@ -41,7 +41,6 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-std::cout << " Entering serialize method \n" << std::flush;
         archive & mpTissue;
         archive & mAllocatedMemory;
         archive & mNumberOfVariables;

@@ -172,4 +172,8 @@ void WntGradient::SetConstantWntValueForTesting(double value)
     }
     mConstantWntValueForTesting = value;
     mUseConstantWntValueForTesting = true;
+    if (!mTypeSet)
+    {
+        mGradientType = NONE;
+    }
 }

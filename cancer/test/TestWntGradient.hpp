@@ -214,13 +214,13 @@ public:
         }
         
         {
-            WntGradient* p_wnt=WntGradient::Instance();
+            WntGradient* p_wnt = WntGradient::Instance();
             
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            // restore from the archive
+            // Restore from the archive
             input_arch >> *p_wnt;
            
             double height = 21.0;
