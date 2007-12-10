@@ -236,14 +236,14 @@ private :
 
 public :
 
-    CryptProjectionSpringSystem(Tissue<2>& rTissue, double rA, double rB)
-        : AbstractDiscreteTissueMechanicsSystem<2>(rTissue),
-          mA(rA),
-          mB(rB)
+    CryptProjectionSpringSystem(Tissue<2>& rTissue)
+        : AbstractDiscreteTissueMechanicsSystem<2>(rTissue)
     {                   
         // do not use a cutoff by default
         mUseCutoffPoint = false;
         mCutoffPoint = 1e10;        
+        mA = CancerParameters::Instance()->GetCryptProjectionParameterA();
+        mB = CancerParameters::Instance()->GetCryptProjectionParameterB();
     }
 
     bool NeedsVoronoiTessellation()
@@ -368,7 +368,7 @@ inline void load_construct_data(
     ar >> a;
     ar >> b;
     // invoke inplace constructor to initialize instance
-    ::new(t)CryptProjectionSpringSystem(*p_tissue, a, b);
+    ::new(t)CryptProjectionSpringSystem(*p_tissue);
 }
 }
 } // namespace ...

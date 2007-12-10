@@ -66,10 +66,12 @@ public:
         tissue.SetGhostNodes(ghost_node_indices);
         
         // Test it is possible to construct a spring system
-        TS_ASSERT_THROWS_NOTHING(CryptProjectionSpringSystem spring_system(tissue,1.0,1.0));
+        TS_ASSERT_THROWS_NOTHING(CryptProjectionSpringSystem spring_system(tissue));
                 
         // Create a spring system with crypt surface z = 2*r
-        CryptProjectionSpringSystem spring_system(tissue, 2.0, 1.0);
+        p_params->SetCryptProjectionParameterA(2.0);
+        p_params->SetCryptProjectionParameterB(1.0);
+        CryptProjectionSpringSystem spring_system(tissue);
         
         TS_ASSERT(!spring_system.NeedsVoronoiTessellation()) // for coverage        
                 
@@ -156,7 +158,9 @@ public:
                        
                 
         // Test that in the case of a flat crypt surface (mA=mB=0), the results are the same as for Meineke2001SpringSystem
-        CryptProjectionSpringSystem flat_crypt_spring_system(tissue,0.001,0.001);
+        p_params->SetCryptProjectionParameterA(0.001);
+        p_params->SetCryptProjectionParameterB(0.001);
+        CryptProjectionSpringSystem flat_crypt_spring_system(tissue);
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
         
         // Normally this would be set up at the start of rCalculateVelocitiesOfEachNode
@@ -182,6 +186,9 @@ public:
     
     void TestArchiving() throw (Exception)
     {   
+        CancerParameters* p_params = CancerParameters::Instance();
+        p_params->Reset();
+        
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "crypt_projection_spring_system.arch";
@@ -192,7 +199,6 @@ public:
         
             ConformingTetrahedralMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
-            //mesh.Translate(-0.5, -0.5); // centre mesh at (0,0)
             num_nodes = mesh.GetNumNodes();
 
             SimulationTime::Instance()->SetStartTime(0.0);
@@ -208,7 +214,9 @@ public:
             }
         
             Tissue<2> crypt(mesh,cells);
-            CryptProjectionSpringSystem spring_system(crypt, 1.0, 2.0);
+            p_params->SetCryptProjectionParameterA(1.0);
+            p_params->SetCryptProjectionParameterB(2.0);
+            CryptProjectionSpringSystem spring_system(crypt);
          
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);

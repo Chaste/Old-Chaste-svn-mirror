@@ -31,8 +31,7 @@ private :
     bool mUseJiggledBottomCells;
     
     /** The file that the values of beta catenin is written out to. */
-    out_stream mBetaCatResultsFile;
-    
+    out_stream mBetaCatResultsFile;    
     
     
     /**
@@ -281,19 +280,15 @@ public :
     {
 	    std::string archive_filename =
             TissueSimulation<2>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
-	//std::cout << "Crypt.Load(): from " << archive_filename <<  std::endl << std::flush;
 
         // Create an input archive
         std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
         boost::archive::text_iarchive input_arch(ifs);
-	//std::cout << "Crypt.Load(): opened archive\n" << std::flush;
 
 	    TissueSimulation<2>::CommonLoad(input_arch);
-	//std::cout << "Crypt.Load(): loaded time\n" << std::flush;
 
         CryptSimulation2d* p_sim; 
         input_arch >> p_sim;
-	//std::cout << "Crypt.Load(): loaded sim\n" << std::flush;
          
         if (p_sim->rGetTissue().rGetMesh().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size()) 
         { 
@@ -324,7 +319,6 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const CryptSimulation2d * t, const BOOST_PFTO unsigned int file_version)
 {
-    //std::cout << "Save Crypt construct data\n" << std::flush;
     // save data required to construct instance
     const Tissue<2> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
@@ -340,7 +334,6 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, CryptSimulation2d * t, const unsigned int file_version)
 {
-    //std::cout << "load Crypt construct data\n" << std::flush;
     // retrieve data from archive required to construct new instance
     Tissue<2>* p_tissue;
     ar >> p_tissue;

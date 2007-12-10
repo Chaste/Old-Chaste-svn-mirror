@@ -19,7 +19,7 @@
 #include "SimulationTime.hpp"
 #include <iostream>
 
-class TestNightlyTissueCell: public CxxTest::TestSuite
+class TestTissueCellNightly: public CxxTest::TestSuite
 {
 
 public:
@@ -160,8 +160,8 @@ public:
         }
         
         TS_ASSERT_EQUALS(stem_cells[time_steps-1], 1u);
-        TS_ASSERT_EQUALS(transit_cells[time_steps-1], 7u);
-        TS_ASSERT_EQUALS(differentiated_cells[time_steps-1], 24u);
+        TS_ASSERT_EQUALS(transit_cells[time_steps-1], 31u);
+        TS_ASSERT_EQUALS(differentiated_cells[time_steps-1], 0u);
         SimulationTime::Destroy();
     }
     

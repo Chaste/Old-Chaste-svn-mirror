@@ -122,31 +122,26 @@ public:
         double wnt_level = 0.0;
         wnt_level = p_wnt_gradient->GetWntLevel(height);
         
-        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-4);
         
         height = -1e-12;
         wnt_level = p_wnt_gradient->GetWntLevel(height);
-        TS_ASSERT_DELTA(wnt_level, 1.0, 1e-9);        
+        TS_ASSERT_DELTA(wnt_level, 1.0, 1e-4);        
         
         height = 21.0;
         wnt_level = p_wnt_gradient->GetWntLevel(height);
         
-        TS_ASSERT_DELTA(wnt_level, 0.0 , 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 0.0454 , 1e-4);
         
         params->SetCryptLength(10.0);
         wnt_level = p_wnt_gradient->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
         
-        // under a third of the way up the crypt.
         params->SetCryptLength(22.0);
         height = 7.0;
         wnt_level = p_wnt_gradient->GetWntLevel(height);
-        TS_ASSERT_DELTA(wnt_level , 1.0 - height/((1.0/3.0)*params->GetCryptLength()), 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 0.6818, 1e-4);
         
-        // more than a third of the way up the crypt.
-        height = 10.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
-        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
         
         // Test GetWntLevel(TissueCell*) method
         

@@ -27,10 +27,21 @@ CancerParameters::CancerParameters()
  * mG2Duration has units of hours
  * mMDuration has units of hours
  * mMaxTransitGenerations has no units
- * mHepaOneCellHypoxicConcentration has no units
+ * mCryptWidth has units of cell size at equilibrium rest length
  * mCryptLength has units of cell size at equilibrium rest length
- * mNaturalSpringLength has units of cell length at equilibrium rest length. * 
- * This is set to 1 and should be left unchanged in all simulations.
+ * mSpringStiffness has units of ???
+ * mDampingConstantNormal has units of ??? 
+ * mDampingConstantMutant has units of ???
+ * mBetaCatSpringScaler has no units
+ * mApoptosisTime has units of hours
+ * mDivisionRestingSpringLength has units of cell size at equilibrium rest length
+ * mDivisionSeparation has units of cell size at equilibrium rest length 
+ * mHepaOneCellHypoxicConcentration has no units
+ * mRadialWntThreshold has no units
+ * mCriticalHypoxicDuration has units of hours
+ * mCryptProjectionParameterA has no units
+ * mCryptProjectionParameterB has no units
+ * 
  */
 void CancerParameters::Reset()
 {   
@@ -55,6 +66,9 @@ void CancerParameters::Reset()
     mHepaOneCellHypoxicConcentration = 0.4;
     mRadialWntThreshold = 0.8;
     mCriticalHypoxicDuration = 2.0;
+    mCryptProjectionParameterA = 0.5;
+    mCryptProjectionParameterB = 2.0;
+    
     // Calculated parameters
     // This was used in non-dimensional case
 }
@@ -143,7 +157,14 @@ double CancerParameters::GetCriticalHypoxicDuration()
 {
     return mCriticalHypoxicDuration;
 }
-
+double CancerParameters::GetCryptProjectionParameterA()
+{
+    return mCryptProjectionParameterA;
+}
+double CancerParameters::GetCryptProjectionParameterB()
+{
+    return mCryptProjectionParameterB;
+}
 
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
@@ -251,6 +272,16 @@ void CancerParameters::SetCriticalHypoxicDuration(double criticalHypoxicDuration
 void CancerParameters::SetHepaOneParameters()
 {
     mStemCellG1Duration = mHepaOneCellG1Duration;
+}
+void CancerParameters::SetCryptProjectionParameterA(double cryptProjectionParameterA)
+{
+    assert(cryptProjectionParameterA>=0.0);
+    mCryptProjectionParameterA = cryptProjectionParameterA;
+}
+void CancerParameters::SetCryptProjectionParameterB(double cryptProjectionParameterB)
+{
+    assert(cryptProjectionParameterB>=0.0);
+    mCryptProjectionParameterB = cryptProjectionParameterB;
 }
 
 

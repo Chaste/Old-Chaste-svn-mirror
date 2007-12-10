@@ -34,6 +34,8 @@ private:
         TS_ASSERT_DELTA(inst->GetHepaOneCellHypoxicConcentration(), 0.4, 1e-12);
         TS_ASSERT_DELTA(inst->GetRadialWntThreshold(), 0.8, 1e-12);
         TS_ASSERT_DELTA(inst->GetCriticalHypoxicDuration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetCryptProjectionParameterA(), 0.5, 1e-12);
+        TS_ASSERT_DELTA(inst->GetCryptProjectionParameterB(), 2.0, 1e-12);
     }
 
 public:
@@ -63,6 +65,8 @@ public:
         inst->SetHepaOneCellHypoxicConcentration(0.3);
         inst->SetRadialWntThreshold(0.7);
         inst->SetCriticalHypoxicDuration(1.0);
+        inst->SetCryptProjectionParameterA(0.8);
+        inst->SetCryptProjectionParameterB(1.3);
         
         inst->Reset();
 
@@ -90,6 +94,8 @@ public:
         inst1->SetHepaOneCellHypoxicConcentration(0.3);
         inst1->SetRadialWntThreshold(0.7);
         inst1->SetCriticalHypoxicDuration(1.0);
+        inst1->SetCryptProjectionParameterA(0.8);
+        inst1->SetCryptProjectionParameterB(1.3);
         
         CancerParameters *inst2 = CancerParameters::Instance();
         
@@ -110,6 +116,8 @@ public:
         TS_ASSERT_DELTA(inst2->GetHepaOneCellHypoxicConcentration(), 0.3, 1e-12);
         TS_ASSERT_DELTA(inst2->GetRadialWntThreshold(), 0.7, 1e-12);
         TS_ASSERT_DELTA(inst2->GetCriticalHypoxicDuration(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetCryptProjectionParameterA(), 0.8, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetCryptProjectionParameterB(), 1.3, 1e-12);
     }
     
     void TestArchiveCancerParameters()
@@ -138,7 +146,9 @@ public:
             inst1->SetHepaOneCellHypoxicConcentration(0.3);
             inst1->SetRadialWntThreshold(0.7);
             inst1->SetCriticalHypoxicDuration(1.0);
-
+            inst1->SetCryptProjectionParameterA(0.8);
+            inst1->SetCryptProjectionParameterB(1.3);
+            
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             // save messed up parameters
@@ -148,6 +158,7 @@ public:
         
         {
             CancerParameters *inst1 = CancerParameters::Instance();
+            
             // restore to nice parameters
             inst1->SetSDuration(5.0);
             inst1->SetG2Duration(4.0);
@@ -165,6 +176,8 @@ public:
             inst1->SetHepaOneCellHypoxicConcentration(0.4);
             inst1->SetRadialWntThreshold(0.8);
             inst1->SetCriticalHypoxicDuration(2.0);
+            inst1->SetCryptProjectionParameterA(0.5);
+            inst1->SetCryptProjectionParameterB(2.0);
             
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -189,7 +202,9 @@ public:
             TS_ASSERT_DELTA(inst1->GetApoptosisTime(), 0.3, 1e-12);
             TS_ASSERT_DELTA(inst1->GetHepaOneCellHypoxicConcentration(), 0.3, 1e-12);
             TS_ASSERT_DELTA(inst1->GetRadialWntThreshold(), 0.7, 1e-12);
-            TS_ASSERT_DELTA(inst1->GetCriticalHypoxicDuration(), 1.0, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetCriticalHypoxicDuration(), 1.0, 1e-12);            
+            TS_ASSERT_DELTA(inst1->GetCryptProjectionParameterA(), 0.8, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetCryptProjectionParameterB(), 1.3, 1e-12);
         }
     }
     

@@ -408,7 +408,7 @@ public:
      */
     SpringIterator SpringsEnd();
     
-    /// For debugging
+    // For debugging
     void CheckTissueCellPointers();
     
     /**
@@ -442,7 +442,6 @@ template<class Archive, unsigned DIM>
 inline void save_construct_data(
     Archive & ar, const Tissue<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
-    //std::cout << "Save Tissue construct data\n" << std::flush;
     // save data required to construct instance
     const ConformingTetrahedralMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
     ar & p_mesh;
@@ -456,18 +455,16 @@ template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, Tissue<DIM> * t, const unsigned int file_version)
 {
-    //std::cout << "Load Tissue construct data\n" << std::flush;
     // retrieve data from archive required to construct new instance
     assert(Tissue<DIM>::meshPathname.length() > 0);
     ConformingTetrahedralMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
-    //std::cout << "L.Tissue(): loading mesh from " << Tissue<DIM>::meshPathname << std::endl << std::flush;
+    
     // Re-initialise the mesh
     p_mesh->Clear();
-    //std::cout << "L.Tissue(): cleared mesh\n" << std::flush;
     TrianglesMeshReader<DIM,DIM> mesh_reader(Tissue<DIM>::meshPathname);
     p_mesh->ConstructFromMeshReader(mesh_reader);
-    //std::cout << "L.Tissue(): read mesh from file\n" << std::flush;
+    
     // Needed for cylindrical meshes at present; should be safe in any case.
     NodeMap map(p_mesh->GetNumNodes());
     p_mesh->ReMesh(map);

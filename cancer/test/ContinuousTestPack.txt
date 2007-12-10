@@ -7,6 +7,7 @@ TestCellwiseData.hpp
 TestCellCycleModelsOde.hpp
 TestCellCycleModelsSimple.hpp
 TestCellsGenerator.hpp
+TestCryptProjectionSimulation.hpp
 TestCryptProjectionSpringSystem.hpp
 TestCryptSimulation1d.hpp
 TestCryptSimulation2d.hpp
