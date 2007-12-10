@@ -9,6 +9,7 @@
 #include "PoleZeroMaterialLaw.hpp"
 #include "PoleZero3dIn1dLaw.hpp"
 #include "NashHunterPoleZeroLaw.hpp"
+#include "SchmidCostaExponentialLaw2d.hpp"
 #include <cassert>
 
 
@@ -768,6 +769,87 @@ public:
                         
             C[M][M] -= h;
         }
+    }
+    
+
+
+    void TestSchmidCostaExponentialLaw()
+    {
+        SchmidCostaExponentialLaw2d law;
+
+        double a = law.GetA();
+        assert(a>0);
+        double bff = law.GetB()[0][0];
+        double bfs = law.GetB()[0][1];
+        double bsf = law.GetB()[1][0];
+        double bss = law.GetB()[1][1];
+
+        TS_ASSERT(bsf == bfs);
+        
+        Tensor<2,2> C;
+        Tensor<2,2> invC;
+        C[0][0] = 1.1;
+        C[0][1] = C[1][0] = 0.1;
+        C[1][1] = 0.9;
+        invC = invert(C);
+
+        SymmetricTensor<2,2> T_base;
+        FourthOrderTensor<2> dTdE;
+        
+        law.ComputeStressAndStressDerivative(C,invC,0.0,T_base,dTdE,false);
+
+        double e00 = 0.5*(C[0][0]-1);
+        double e01 = 0.5*C[0][1];
+        double e11 = 0.5*(C[1][1]-1);
+        double Q = bff*e00*e00 + 2*bfs*e01*e01 + bss*e11*e11;
+        TS_ASSERT_DELTA(T_base[0][0], a*exp(Q-1)*bff*e00, 1e-9);
+        TS_ASSERT_DELTA(T_base[0][1], a*exp(Q-1)*bfs*e01, 1e-9);
+        TS_ASSERT_DELTA(T_base[1][0], a*exp(Q-1)*bsf*e01, 1e-9);
+        TS_ASSERT_DELTA(T_base[1][1], a*exp(Q-1)*bss*e11, 1e-9);
+        
+        double h=0.00001;
+
+        for(unsigned M=0; M<2; M++)
+        {
+            Tensor<2,2> C;
+            Tensor<2,2> invC;
+
+            C[0][0] = 1.1;
+            C[0][1] = C[1][0] = 0.1;
+            C[1][1] = 0.9;
+                
+            C[M][M] += h;     // just change C00 and C11. Can't see how to compute numerical
+                              // derivative of wrt C01,C10, given the C is assumed symmetric
+            invC = invert(C);
+
+            SymmetricTensor<2,2> T;
+        
+            law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
+
+            for(unsigned P=0; P<2; P++)
+            {
+                for(unsigned Q=0; Q<2; Q++)
+                {
+                    double dtdc = (T[P][Q]-T_base[P][Q])/h;
+                    //std::cout << P << Q << M << M << " " << dTdE(P,Q,M,M) << "\n"; 
+                    TS_ASSERT_DELTA(2*dtdc, dTdE(P,Q,M,M), fabs(dTdE(P,Q,M,M)*1e-3));
+                }
+            }
+                        
+            C[M][M] -= h;
+        }
+        
+        // test get zero strain pressure
+        C[0][0] = 1.0;
+        C[0][1] = C[1][0] = 0.0;
+        C[1][1] = 1.0;
+        invC = invert(C);
+        double p = law.GetZeroStrainPressure();
+        law.ComputeStressAndStressDerivative(C,invC,0.0,T_base,dTdE,false);
+        TS_ASSERT_DELTA(T_base[0][0], 0.0, 1e-9);
+        TS_ASSERT_DELTA(T_base[0][1], 0.0, 1e-9);
+        TS_ASSERT_DELTA(T_base[0][1], 0.0, 1e-9);
+        TS_ASSERT_DELTA(T_base[1][1], 0.0, 1e-9);
     }
 };
 
