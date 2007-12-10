@@ -19,7 +19,7 @@ bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
     // mG1Duration is set when the cell cycle model is given a cell
     
     bool ready = false;
-    
+	  
     if (this->mpCell->GetMutationState()!=NECROTIC)
     {
         UpdateHypoxicDuration();
@@ -27,15 +27,15 @@ bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
         // get cell's oxygen concentration
         double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell,0);
 
-	ready = AbstractSimpleCellCycleModel::ReadyToDivide();
+	    ready = AbstractSimpleCellCycleModel::ReadyToDivide();
 
-	if (mCurrentCellCyclePhase == G_ONE_PHASE)
-	{
-	    // Update G1 duration based on oxygen concentration
-	    double dt = SimulationTime::Instance()->GetTimeStep();
-	    mG1Duration += (1-std::max(oxygen_concentration,0.0))*dt;
-	    mTimeSpentInG1Phase += dt;
-	}
+        if (mCurrentCellCyclePhase == G_ONE_PHASE)
+        {
+	       // Update G1 duration based on oxygen concentration
+	       double dt = SimulationTime::Instance()->GetTimeStep();
+	       mG1Duration += (1-std::max(oxygen_concentration,0.0))*dt;
+	       mTimeSpentInG1Phase += dt;
+	    }
     }    
     return ready;
 }
@@ -60,15 +60,16 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
     if ( oxygen_concentration < CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration() )
     {
         // add necessary time interval to the hypoxic duration
-        mHypoxicDuration += SimulationTime::Instance()->GetDimensionalisedTime() - mHypoxicDurationUpdateTime;      
+       
+        mHypoxicDuration = (SimulationTime::Instance()->GetDimensionalisedTime() - mHypoxicDurationUpdateTime);      
+        //Not this mHypoxicDurationUpdateTime is currently redundant.  This change has been made to avoid
+        //floating point inaccuracies growing in the computation of mHypoxicDuration
         
-        
-        // update mHypoxicDurationUpdateTime
-        mHypoxicDurationUpdateTime = SimulationTime::Instance()->GetDimensionalisedTime();
+        // DO NOT update mHypoxicDurationUpdateTime
+        //mHypoxicDurationUpdateTime = SimulationTime::Instance()->GetDimensionalisedTime();
                 
         // a little bit of stochasticity here
         double prob_of_death = 0.9 - 0.5*(oxygen_concentration/CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration()); 
-          
         if (mHypoxicDuration > CancerParameters::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
         {                     
             this->mpCell->SetMutationState(NECROTIC);

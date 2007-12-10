@@ -77,7 +77,7 @@ private:
             assert(alpha <= M_PI);
             assert(alpha > -M_PI);
             
-            if ( sin(alpha-theta) > 0 )
+            if ( sin(alpha-theta) > DBL_EPSILON )
             {                
                 c_vector<double,2> force_between_nodes = mrMeinekeSpringSystem.CalculateForceBetweenNodes(index,*iter);
                 
@@ -85,7 +85,6 @@ private:
                 unit_vec_between_nodes[1] = sin(alpha);
                 
                 double plusminus_norm_force = inner_prod(force_between_nodes,unit_vec_between_nodes);         
-                
                 tangential_force += plusminus_norm_force * cos(alpha-theta);
                 normal_force += plusminus_norm_force * sin(alpha-theta);
             }
@@ -315,7 +314,6 @@ public:
             for (unsigned j=0; j<extremal_angles.size(); j++)
             {
                 current_normal_force = CalculateFtAndFn(i,extremal_angles[j])[1];
-                
                 if (current_normal_force > maximum_normal_force_for_node_i)
                 {
                     maximum_normal_force_for_node_i = current_normal_force;
@@ -369,7 +367,6 @@ public:
             
             minimum = extremal_normal_forces[0][i]; 
             maximum = extremal_normal_forces[1][i];
-            
             (*mpStressResultsFile) << global_index << " " << x << " " << y << " " << minimum << " " << maximum << " ";
         }
         
