@@ -25,25 +25,33 @@ public:
         }
         else
         {
+            double stimulus_magnitude=-1e7;//wrt mesh 4 which has 64 elements in 1D
             switch(DIM)
             {
                 case 1:
                 {
-                    mpStimulus = new InitialStimulus(-1e7*numEleAcross/(64.0), 0.5);
-                    //wrt mesh 4 which has 64 elements in 1D
+                    stimulus_magnitude*=numEleAcross/(64.0);
                     //Justification: elements go half size with each refinement
+                    stimulus_magnitude*=meshWidth/(0.2);
                     break;
                 }
                 case 2:
                 {
-                    mpStimulus = new InitialStimulus(-1e7*numEleAcross*meshWidth/(64.0*0.2), 0.5);
-                    //wrt mesh which which has 64 elements across in 2D
-                    //Justification: Triangles go quarter size with each refinement, but there are twice as many nodes on 
+                    stimulus_magnitude*=numEleAcross/(64.0);
+                    //Justification: Triangles go quarter size with each refinement, but there are twice as many nodes on boundary
+                    stimulus_magnitude*=meshWidth/(0.2);
                     break;
                 }
-                default:
-                    mpStimulus = new InitialStimulus(-1e7*numEleAcross*meshWidth*meshWidth/(64.0*0.2*0.2), 0.5);
+                default: //3D
+                {
+                    stimulus_magnitude*=numEleAcross/(64.0);
+                    //Hypothesis: Triangles go eighth size with each refinement, but there are four-times as many nodes on boundary
+                    stimulus_magnitude*=meshWidth/(0.2);
+                    break;
+                }
             }
+            //std::cout<<"Mag is "<<stimulus_magnitude<<"\n";
+            mpStimulus = new InitialStimulus(stimulus_magnitude, 0.5);
         }
     }
     

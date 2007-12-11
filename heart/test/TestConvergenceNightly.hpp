@@ -16,7 +16,7 @@
 #include "SpaceConvergenceTester.hpp"
 #include "KspConvergenceTester.hpp"
 #include "OdeConvergenceTester.hpp"
-#include "StimulusConvergenceTester.hpp"
+//#include "StimulusConvergenceTester.hpp"
 
 class TestConvergenceNightly : public CxxTest::TestSuite
 {   

@@ -45,7 +45,7 @@ public:
         // work out where the previous test wrote its files
         OutputFileHandler handler("TestCryptVoronoiDataWriter",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "Simple.dat";
-        TS_ASSERT_EQUALS(system(("ndiff -relative-error 1e-5 " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/Simple.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/Simple.dat").c_str()), 0);
         
         SimulationTime::Destroy();
     }
