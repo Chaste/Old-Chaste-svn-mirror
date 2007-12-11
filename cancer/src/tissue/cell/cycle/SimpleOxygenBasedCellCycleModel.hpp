@@ -8,7 +8,13 @@
 /**
  *  Simple oxygen-based cell cycle model
  *
- *  \todo: document this class
+ *  A simple oxygen-dependent cell cycle model that inherits from 
+ *  AbstractSimpleCellCycleModel. The duration of G1 phase depends 
+ *  on the local oxygen concentration. A prolonged period of acute
+ *  hypoxia leads to the cell being labelled as necrotic. This model
+ *  allows for quiescence imposed by transient periods of hypoxia, 
+ *  followed by reoxygenation.
+ *  
  */ 
 class SimpleOxygenBasedCellCycleModel : public AbstractSimpleCellCycleModel
 {
@@ -24,11 +30,24 @@ private:
         archive & mCurrentHypoxiaOnsetTime;
     }
     
-    double mTimeSpentInG1Phase;   
+    /**
+     * The time spent in G1 phase so far
+     */ 
+    double mTimeSpentInG1Phase;
+    
+    /**
+     * How long the current period of hypoxia has lasted
+     */    
     double mCurrentHypoxicDuration;
+    
+    /*
+     * The time when the current period of hypoxia began
+     */ 
     double mCurrentHypoxiaOnsetTime;
     
-    /** Private constructor for creating an identical daughter cell */
+    /** 
+     * Private constructor for creating an identical daughter cell
+     */
     SimpleOxygenBasedCellCycleModel(double g1Duration,
 									unsigned generation,
                                     double currentHypoxicDuration,
@@ -39,12 +58,23 @@ private:
           mCurrentHypoxiaOnsetTime(currentHypoxiaOnsetTime) {};
                 
 public:
+
+    /**
+     * Constructor
+     */ 
     SimpleOxygenBasedCellCycleModel();
     
+    /** 
+     * Overwritten ReadyToDivide() method
+     */ 
     bool ReadyToDivide();
     
+    /**
+     * Method for updating mCurrentHypoxicDuration, 
+     * called at the start of ReadyToDivide()
+     */ 
     void UpdateHypoxicDuration();
-    
+     
     double GetCurrentHypoxicDuration();  
     
     double GetCurrentHypoxiaOnsetTime();  
