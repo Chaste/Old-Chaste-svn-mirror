@@ -28,6 +28,8 @@ template<unsigned DIM>
 TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem, bool deleteTissue)
   :  mrTissue(rTissue)
 {
+    assert(DIM==2 || DIM==3); // there are no instances of TissueSimulation<1>
+    
     CancerEventHandler::BeginEvent(CANCER_EVERYTHING);
 
     mDeleteTissue = deleteTissue;
@@ -81,9 +83,6 @@ TissueSimulation<DIM>::~TissueSimulation()
     }
     delete mpMechanicsSystem;
 }
-
-
-
 
 
 template<unsigned DIM>  
@@ -143,7 +142,6 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
 }
 
 
-
 template<unsigned DIM> 
 c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename Tissue<DIM>::Iterator parentCell)
 {
@@ -151,21 +149,22 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
     c_vector<double, DIM> parent_coords = parentCell.rGetLocation();
     c_vector<double, DIM> daughter_coords;
         
-    // pick a random direction and move the parent cell backwards by 0.5*sep in that
+    // Pick a random direction and move the parent cell backwards by 0.5*sep in that
     // direction and return the position of the daughter cell (0.5*sep forwards in the
     // random vector direction
 
     // Make a random direction vector of the required length
     c_vector<double, DIM> random_vector;
     
-    if(DIM==1)
-    {
-        random_vector(0) = 0.5*separation;
-
-        daughter_coords = parent_coords+random_vector;
-        parent_coords = parent_coords-random_vector;
-    }   
-    else if(DIM==2)
+//    if(DIM==1)
+//    {
+//        random_vector(0) = 0.5*separation;
+//
+//        daughter_coords = parent_coords+random_vector;
+//        parent_coords = parent_coords-random_vector;
+//    }   
+//    else if(DIM==2)
+    if (DIM==2)
     {
         double random_angle = RandomNumberGenerator::Instance()->ranf();
         random_angle *= 2.0*M_PI;
@@ -176,7 +175,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
         parent_coords = parent_coords-random_vector;
         daughter_coords = parent_coords+random_vector;        
     }
-    else if(DIM==3)
+    else if (DIM==3)
     {
         double random_zenith_angle = RandomNumberGenerator::Instance()->ranf();// phi 
         random_zenith_angle *= M_PI;
@@ -228,6 +227,7 @@ void TissueSimulation<DIM>::SetDt(double dt)
     mDt=dt;
 }
 
+
 /**
  * Get the timestep of the simulation
  */
@@ -236,6 +236,7 @@ double TissueSimulation<DIM>::GetDt()
 {
     return mDt;
 }
+
 
 /**
  * Sets the end time and resets the timestep to be endtime/100
@@ -246,6 +247,7 @@ void TissueSimulation<DIM>::SetEndTime(double endTime)
     assert(endTime>0);
     mEndTime=endTime;
 }
+
 
 /**
  * Set the output directory of the simulation.
@@ -259,6 +261,7 @@ void TissueSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)
     mOutputDirectory = outputDirectory;
     mSimulationOutputDirectory = mOutputDirectory;
 }
+
 
 /**
  * Sets the maximum number of cells that the simulation will contain (for use by the datawriter)
@@ -274,6 +277,7 @@ void TissueSimulation<DIM>::SetMaxCells(unsigned maxCells)
     }
     mrTissue.SetMaxCells(maxCells);
 }
+
 
 /**
  * Sets the maximum number of elements that the simulation will contain (for use by the datawriter)
@@ -583,7 +587,6 @@ void TissueSimulation<DIM>::Solve()
 }
 
 
-
 /**
  * Saves the whole tissue simulation for restarting later.
  *
@@ -599,6 +602,7 @@ void TissueSimulation<DIM>::Save()
     CommonSave(this);
 }
 
+
 /**
  * The function that does the actual work.  Templated over the type
  * of simulation that's actually being saved, since normal inheritance
@@ -611,7 +615,6 @@ template<unsigned DIM>
 template<class SIM>
 void TissueSimulation<DIM>::CommonSave(SIM* pSim)
 {
-    //std::cout << "Tissue.Save()\n" << std::flush;
     // Get the simulation time as a string
     const SimulationTime* p_sim_time = SimulationTime::Instance();
     assert(p_sim_time->IsStartTimeSetUp());
@@ -662,9 +665,9 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
         output_arch & *p_cellwise_data;
     }
     
-    //TissueSimulation<DIM> * p_sim = this;
     output_arch & pSim; // const-ness would be a pain here
 }
+
 
 /**
  * Loads a saved tissue simulation to run further.
@@ -677,21 +680,17 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
 template<unsigned DIM> 
 TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
 {
-    //std::cout << "Tissue.Load()" << std::endl << std::flush;
     std::string archive_filename = TissueSimulation<DIM>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
 
     // Create an input archive
     std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
     boost::archive::text_iarchive input_arch(ifs);
-    //std::cout << "Tissue.Load(): loading from " << archive_filename << std::endl << std::flush;
-
+    
     TissueSimulation<DIM>::CommonLoad(input_arch);
-    //std::cout << "Tissue.Load(): loaded time" << std::endl << std::flush;
-        
+    
     TissueSimulation<DIM>* p_sim;
     input_arch >> p_sim;
-    //std::cout << "Tissue.Load(): loaded sim" << std::endl << std::flush;
-
+    
     if (p_sim->rGetTissue().rGetMesh().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size())
     {
         #define COVERAGE_IGNORE
@@ -705,6 +704,7 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
     
     return p_sim;
 }
+
 
 /**
  * Find the right archive (and mesh) to load.  The files are contained within
@@ -728,6 +728,7 @@ std::string TissueSimulation<DIM>::GetArchivePathname(const std::string& rArchiv
     Tissue<DIM>::meshPathname = mesh_filename;
     return archive_filename;
 }
+
 
 /**
  * Load any data from the archive that isn't the simulation class itself.
@@ -760,6 +761,7 @@ void TissueSimulation<DIM>::CommonLoad(Archive& rInputArch)
         rInputArch & *p_cellwise_data;
     }
 }
+
 
 /**
  * Find out how many cells of each mutation state there are

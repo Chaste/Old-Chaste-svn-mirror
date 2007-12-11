@@ -91,6 +91,7 @@ protected:
     
     /** The maximum number of cells that this simulation will include (for use by datawriter). */
     unsigned mMaxCells;
+    
     /** The maximum number of elements that this simulation will include (for use by datawriter). */
     unsigned mMaxElements;
     
@@ -301,7 +302,6 @@ template<class Archive, unsigned DIM>
 inline void save_construct_data(
     Archive & ar, const TissueSimulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
-    //std::cout << "Save TissueSim construct data\n" << std::flush;
     // save data required to construct instance
     const Tissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
@@ -317,7 +317,6 @@ template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, TissueSimulation<DIM> * t, const unsigned int file_version)
 {
-    //std::cout << "Load TissueSim construct data\n" << std::flush;
     // retrieve data from archive required to construct new instance
     Tissue<DIM>* p_tissue;
     ar >> p_tissue;

@@ -125,11 +125,13 @@ private:
             double alpha_plus_pi_plus_epsilon = alpha + M_PI + mEpsilon;
             
             // Calculate sampling angles in the range (-pi,pi]
-                        
+            
+            #define COVERAGE_IGNORE                    
             if (alpha_minus_epsilon <= -M_PI)
             {
                 alpha_minus_epsilon += 2*M_PI;
             }
+            #undef COVERAGE_IGNORE
             sampling_angles[i] = alpha_minus_epsilon;  
             
             assert(sampling_angles[i] <= M_PI);
@@ -173,12 +175,14 @@ private:
     
     
     /**
-     * Given a node index and two sampling angles in the range (-pi,pi], 
-     * finds the location of the root of the tangential force in the 
-     * interval between the two angles.
+     * Given a node index and two sampling angles, finds the location of 
+     * the root of the tangential force in the interval between the two 
+     * angles. There is no guarantee that this will lie in (-pi,pi].
      */ 
     double GetLocalExtremum(unsigned index, double angle1, double angle2)
-    {        
+    {   
+        // We always pass in angle1 and angle2 such that angle1<angle2, 
+        // but note that angle1 may be <M_PI           
         assert(angle1 < angle2);
         
         double tolerance = 1e-5;
@@ -203,14 +207,6 @@ private:
         assert( current_angle>angle1 && current_angle<angle2 );            
         assert( current_error < tolerance );        
         
-        if (current_angle <= -M_PI)
-        {
-            current_angle += 2*M_PI;
-        }
-        else if (current_angle > M_PI)
-        {
-            current_angle -= 2*M_PI;
-        }
         return current_angle;        
     }
     
@@ -232,53 +228,41 @@ private:
             tangential_force[i] = ft_and_fn[0];
         }         
         
-        for (unsigned i=0; i<samplingAngles.size()-1; i++)
+        unsigned n = samplingAngles.size()-1;
+        
+        for (unsigned i=0; i<n; i++)
         {
-            if ( ( tangential_force[i]>0 && tangential_force[i+1]<0 ) ||  
-                 ( tangential_force[i]<0 && tangential_force[i+1]>0 ) )
+            if ( ( tangential_force[i%n]>0 && tangential_force[(i+1)%n]<0 ) ||  
+                 ( tangential_force[i%n]<0 && tangential_force[(i+1)%n]>0 ) )
             {
                 double next_extremal_angle;
                 
-                // If we find a jump through zero, then we know exactly 
-                // where the local extremum is
-                if (samplingAngles[i+1] - samplingAngles[i] < 2*mEpsilon + 1e-6 )
+                // If we are in the interval that crosses the branch line at pi, 
+                // then subtract 2*pi from the positive angle 
+                if (i==n-1)
                 {
-                    next_extremal_angle = (samplingAngles[i+1] + samplingAngles[i])/2.0;
-                    extremal_angles.push_back(next_extremal_angle);
+                    samplingAngles[i%n] -= 2*M_PI;
+                }
+                
+                if (samplingAngles[(i+1)%n] - samplingAngles[i%n] < 2*mEpsilon + 1e-6 )
+                {
+                    // If we find a jump through zero, then the local extremum is
+                    // simply at the mid-point of the interval
+                    next_extremal_angle = (samplingAngles[(i+1)%n] + samplingAngles[i%n])/2.0;
                 }
                 else
                 {
-                    next_extremal_angle = GetLocalExtremum(index, samplingAngles[i], samplingAngles[i+1]);
-                    extremal_angles.push_back(next_extremal_angle);
+                    // Otherwise we need to find it using Newton's method
+                    next_extremal_angle = GetLocalExtremum(index, samplingAngles[i%n], samplingAngles[(i+1)%n]);    
                 }
+                
+                if (next_extremal_angle <= -M_PI)
+                {
+                    next_extremal_angle += 2*M_PI;
+                }
+                assert(next_extremal_angle>-M_PI && next_extremal_angle<=M_PI); 
+                extremal_angles.push_back(next_extremal_angle);
             }
-        }
-        
-        // Need a separate bit of code for the interval from 
-        // the last sampling angle back round to the first
-        
-        samplingAngles[samplingAngles.size()-1] -= 2*M_PI;
-        
-        if ( ( tangential_force[samplingAngles.size()-1]>0 && tangential_force[0]<0 ) ||  
-             ( tangential_force[samplingAngles.size()-1]<0 && tangential_force[0]>0 ) )
-        {
-            double next_extremal_angle;
-            
-            // If we find a jump through zero, then we know exactly 
-            // where the local extremum is
-            if ( samplingAngles[0] - samplingAngles[samplingAngles.size()-1] < 2*mEpsilon + 1e-6 )
-            {
-                next_extremal_angle = (samplingAngles[0] + samplingAngles[samplingAngles.size()-1])/2.0;
-            }
-            else
-            {
-                next_extremal_angle = GetLocalExtremum(index, samplingAngles[samplingAngles.size()-1], samplingAngles[0]);
-            }
-            if (next_extremal_angle <= -M_PI)
-            {
-                next_extremal_angle += 2*M_PI;
-            }
-            extremal_angles.push_back(next_extremal_angle);
         }
         
         return extremal_angles;        
