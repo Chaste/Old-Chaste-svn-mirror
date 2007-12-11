@@ -28,7 +28,10 @@ template<unsigned DIM>
 TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem, bool deleteTissue)
   :  mrTissue(rTissue)
 {
+    #define COVERAGE_IGNORE
     assert(DIM==2 || DIM==3); // there are no instances of TissueSimulation<1>
+    #undef COVERAGE_IGNORE
+        
     
     CancerEventHandler::BeginEvent(CANCER_EVERYTHING);
 
