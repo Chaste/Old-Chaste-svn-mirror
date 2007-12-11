@@ -16,7 +16,6 @@
 #include "SimpleWntCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CryptProjectionSpringSystem.hpp"
-#include "CompareMeshes.hpp"
     
 class TestCryptProjectionSimulation : public CxxTest::TestSuite
 {
