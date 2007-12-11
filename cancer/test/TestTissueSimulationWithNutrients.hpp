@@ -201,14 +201,11 @@ public:
             // Second part of test - check that each cell's hypoxic duration is correctly updated
             if ( p_data->GetValue(&(*cell_iter)) >= CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration() )
             {
-                //TS_ASSERT_DELTA(cell_iter->GetHypoxicDuration(), 0.0, 1e-5);
-                TS_ASSERT_DELTA(p_oxygen_model->GetHypoxicDuration(), 0.0, 1e-5);
+                TS_ASSERT_DELTA(p_oxygen_model->GetCurrentHypoxicDuration(), 0.0, 1e-5);
             }
             else
             {
-                //TS_ASSERT_DELTA(cell_iter->GetHypoxicDuration(), 1.0/120.0, 1e-5);    
-                TS_ASSERT_DELTA(p_oxygen_model->GetHypoxicDuration(), 1/120.0, 1e-5);
-                
+                TS_ASSERT_DELTA(p_oxygen_model->GetCurrentHypoxicDuration(), 1/120.0, 1e-5);
             } 
         }     
         
