@@ -1542,15 +1542,28 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         	max_x += 1;
         }
         
+        // work out the number of ticks to use - if it's too big (>15, say)
+        // this would make the axis look crowded, so halve num_ticks  
+        if ((max_x-min_x)%2 != 0)
+        {
+        	max_x++;
+        }
+        int num_ticks = max_x - min_x;        
+        int tick_spacing = 1;
+        if (num_ticks > 11) 
+        {        	
+        	num_ticks = num_ticks/2;
+        	tick_spacing = 2;
+        }
+        
         PlotPoint start = scale(min_x, 0);
         PlotPoint end = scale(max_x, 0);
         g2.drawLine(start.x, start.y, end.x, end.y);
           
-        int num_ticks = max_x - min_x + 1;        
-        
+                
         for (int i = 0; i <= num_ticks; i++) 
         {
-            double x = (double) (min_x + i);
+            double x = (double) (min_x + tick_spacing*i);
             DecimalFormat df = new DecimalFormat("0.0");
             String x_1dp = df.format(x);
               
@@ -1573,16 +1586,28 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         {
         	max_y += 1;
         }        
-        	
+        
+        // work out the number of ticks to use - if it's too big (>15, say)
+        // this would make the axis look crowded, so halve num_ticks  
+        if ((max_y-min_y)%2 != 0)
+        {
+        	max_y++;
+        }
+        int num_ticks = max_y - min_y;        
+        int tick_spacing = 1;
+        if (num_ticks > 11) 
+        {        	
+        	num_ticks = num_ticks/2;
+        	tick_spacing = 2;
+        }
+                
         PlotPoint start = scale(0, min_y);
         PlotPoint end = scale(0, max_y);        
         g2.drawLine(start.x, start.y, end.x, end.y);
-            
-        int num_ticks = max_y - min_y + 1;
-            
+        
         for (int i = 0; i <= num_ticks; i++) 
         {
-            double y = (double) (min_y + i);
+            double y = (double) (min_y + tick_spacing*i);
             DecimalFormat df = new DecimalFormat("0.0");
             String y_1dp = df.format(y);
 
