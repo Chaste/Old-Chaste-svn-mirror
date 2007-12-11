@@ -108,7 +108,8 @@ public:
         // Set up the simulation time object so the cells can be created
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-        
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
+         
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -137,6 +138,8 @@ public:
             {
                 p_data->SetValue((double) i, mesh.GetNode(i), 0);
             }
+            
+            TS_ASSERT(p_data->IsSetUp());
             
             // Write to the archive
             std::ofstream ofs(archive_filename.c_str());
@@ -167,9 +170,10 @@ public:
                  iter != tissue.End();
                  ++iter)
             {
-                TS_ASSERT_DELTA(p_data->GetValue(&(*iter), 0),(double) iter->GetNodeIndex(), 1e-12);
+                TS_ASSERT_DELTA(p_data->GetValue(&(*iter), 0), (double) iter->GetNodeIndex(), 1e-12);
             }
             
+            delete p_data->mpTissue;
             CellwiseData<2>::Destroy();
         }
         

@@ -423,6 +423,7 @@ public:
         p_cell = &(p_simulator->rGetTissue().rGetCellAtNodeIndex(15));
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
         
+        delete p_killer;
         delete p_simulator;       
         CellwiseData<2>::Destroy();
         

@@ -659,7 +659,9 @@ public:
             TS_ASSERT_DELTA(p_meineke_spring_system->mMutantMutantMultiplier, 0.2, 1e-12);
             TS_ASSERT_DELTA(p_meineke_spring_system->mNormalMutantMultiplier, 0.3, 1e-12);
             TS_ASSERT_EQUALS(p_meineke_spring_system->mUseBCatSprings, true);
-
+            
+            delete &(p_meineke_spring_system->mrTissue);
+            delete p_meineke_spring_system;
         }
     } 
 };

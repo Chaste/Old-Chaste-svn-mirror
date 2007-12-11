@@ -24,21 +24,20 @@ private:
         archive & mHypoxicDurationUpdateTime;
     }
     
+    double mTimeSpentInG1Phase;   
+    double mHypoxicDuration;
+    double mHypoxicDurationUpdateTime;
+    
     /** Private constructor for creating an identical daughter cell */
     SimpleOxygenBasedCellCycleModel(double g1Duration,
 									unsigned generation,
                                     double hypoxicDuration,
                                     double hypoxicDurationUpdateTime)
-        : AbstractSimpleCellCycleModel(g1Duration,generation)
-    {
-        mHypoxicDuration=hypoxicDuration;
-        mHypoxicDurationUpdateTime=hypoxicDurationUpdateTime;
-    };
-        
-    double mTimeSpentInG1Phase;   
-    double mHypoxicDuration;
-    double mHypoxicDurationUpdateTime;
-        
+        : AbstractSimpleCellCycleModel(g1Duration,generation),
+          mTimeSpentInG1Phase(0.0),
+          mHypoxicDuration(hypoxicDuration),
+          mHypoxicDurationUpdateTime(hypoxicDurationUpdateTime) {};
+                
 public:
     SimpleOxygenBasedCellCycleModel();
     
