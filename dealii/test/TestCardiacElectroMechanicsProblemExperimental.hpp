@@ -68,23 +68,23 @@ public:
     {
         PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 
-//        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, false, 50, "CardiacElectroMech2dConstQuasiQi");
-//        implicit_problem.SetNoElectricsOutput();
-//        implicit_problem.Solve();
+        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, false, 50, 0.50, "Exponential");
+        implicit_problem.SetNoElectricsOutput();
+        implicit_problem.Solve();
 
-        double nhs_ode_time_step = 0.02;
-
-        for(unsigned i=1; i<7; i++)
-        {
-            std::stringstream name;
-            name << "CardiacElectroMech2dImplicitVaryOdeTimeStep_" << i;
-            
-            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, false, 64, nhs_ode_time_step, name.str());
-            implicit_problem.SetNoElectricsOutput();
-            implicit_problem.Solve();
-            
-            nhs_ode_time_step *= 2;
-        }
+//        double nhs_ode_time_step = 0.02;
+//
+//        for(unsigned i=1; i<7; i++)
+//        {
+//            std::stringstream name;
+//            name << "CardiacElectroMech2dImplicitVaryOdeTimeStep_" << i;
+//            
+//            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, false, 64, nhs_ode_time_step, name.str());
+//            implicit_problem.SetNoElectricsOutput();
+//            implicit_problem.Solve();
+//            
+//            nhs_ode_time_step *= 2;
+//        }
     }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEMEXPERIMENTAL_HPP_*/

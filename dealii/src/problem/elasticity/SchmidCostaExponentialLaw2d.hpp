@@ -18,17 +18,19 @@ class SchmidCostaExponentialLaw2d : public AbstractIncompressibleMaterialLaw<2>
 {
 
 private :
-    double mA;
+    double mA;         // should be kPa as the assembler gets the active tension in kPa 
     std::vector<std::vector<double> > mB;
     Tensor<2,2> mIdentity;
     
 public :
     SchmidCostaExponentialLaw2d()
     {
-        mA = 0.221/1000;    // Pascals -> kiloPascals
-        double bff = 42.5;
-        double bfs = 11.0;
-        double bss = 18.6;
+        mA = 0.221;    // kiloPascals, presumably, althought the paper doesn't say.
+                       // gives results matching Pole-zero anyway.
+
+        double bff = 42.5; // dimensionless
+        double bfs = 11.0; // dimensionless
+        double bss = 18.6; // dimensionless
         
         mB.resize(2);
         mB[0].resize(2);
@@ -55,8 +57,6 @@ public :
                                           FourthOrderTensor<2>& dTdE,
                                           bool                  computeDTdE)
     {
-        
-        
         Tensor<2,2> E = 0.5*(C-mIdentity);
         
         double Q = 0;
