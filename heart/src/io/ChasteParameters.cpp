@@ -34,188 +34,444 @@
 //
 //
 // End prologue.
-#define COVERAGE_IGNORE
-
 
 #include <xsd/cxx/pre.hxx>
 
-#include "SpiralParameters.hpp"
+#include "ChasteParameters.hpp"
 
-// SpiralParameters::_xsd_SpiralParameters_::SpiralParameters
+// domain_type
 // 
 
-const SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::SimulationDuration::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+domain_type::
+domain_type (_xsd_domain_type v)
+: ::xml_schema::string (_xsd_domain_type_literals_[v])
+{
+}
+
+domain_type::
+domain_type (const ::xml_schema::string& _xsd_domain_type)
+: ::xml_schema::string (_xsd_domain_type)
+{
+}
+
+domain_type::
+domain_type (const domain_type& v,
+             ::xml_schema::flags f,
+             ::xml_schema::type* c)
+: ::xml_schema::string (v, f, c)
+{
+}
+
+domain_type& domain_type::
+operator= (_xsd_domain_type v)
+{
+  static_cast< ::xml_schema::string& > (*this) = 
+  ::xml_schema::string (_xsd_domain_type_literals_[v]);
+
+  return *this;
+}
+
+
+// ionic_model_type
+// 
+
+ionic_model_type::
+ionic_model_type (_xsd_ionic_model_type v)
+: ::xml_schema::string (_xsd_ionic_model_type_literals_[v])
+{
+}
+
+ionic_model_type::
+ionic_model_type (const ::xml_schema::string& _xsd_ionic_model_type)
+: ::xml_schema::string (_xsd_ionic_model_type)
+{
+}
+
+ionic_model_type::
+ionic_model_type (const ionic_model_type& v,
+                  ::xml_schema::flags f,
+                  ::xml_schema::type* c)
+: ::xml_schema::string (v, f, c)
+{
+}
+
+ionic_model_type& ionic_model_type::
+operator= (_xsd_ionic_model_type v)
+{
+  static_cast< ::xml_schema::string& > (*this) = 
+  ::xml_schema::string (_xsd_ionic_model_type_literals_[v]);
+
+  return *this;
+}
+
+
+// ChasteParameters::_xsd_ChasteParameters_::ChasteParameters
+// 
+
+const ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::SimulationDuration::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 SimulationDuration () const
 {
   return this->_xsd_SimulationDuration_.get ();
 }
 
-SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::SimulationDuration::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::SimulationDuration::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 SimulationDuration ()
 {
   return this->_xsd_SimulationDuration_.get ();
 }
 
-void SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 SimulationDuration (const SimulationDuration::type& SimulationDuration)
 {
   this->_xsd_SimulationDuration_.set (SimulationDuration);
 }
 
-const SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::SlabWidth::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+const ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::SlabWidth::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 SlabWidth () const
 {
   return this->_xsd_SlabWidth_.get ();
 }
 
-SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::SlabWidth::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::SlabWidth::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 SlabWidth ()
 {
   return this->_xsd_SlabWidth_.get ();
 }
 
-void SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 SlabWidth (const SlabWidth::type& SlabWidth)
 {
   this->_xsd_SlabWidth_.set (SlabWidth);
 }
 
-const SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::SlabHeight::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+const ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::SlabHeight::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 SlabHeight () const
 {
   return this->_xsd_SlabHeight_.get ();
 }
 
-SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::SlabHeight::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::SlabHeight::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 SlabHeight ()
 {
   return this->_xsd_SlabHeight_.get ();
 }
 
-void SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 SlabHeight (const SlabHeight::type& SlabHeight)
 {
   this->_xsd_SlabHeight_.set (SlabHeight);
 }
 
-const SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::InterNodeSpace::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+const ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::InterNodeSpace::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 InterNodeSpace () const
 {
   return this->_xsd_InterNodeSpace_.get ();
 }
 
-SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::InterNodeSpace::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::InterNodeSpace::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 InterNodeSpace ()
 {
   return this->_xsd_InterNodeSpace_.get ();
 }
 
-void SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 InterNodeSpace (const InterNodeSpace::type& InterNodeSpace)
 {
   this->_xsd_InterNodeSpace_.set (InterNodeSpace);
 }
 
-const SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::FaceStimulusWidth::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+const ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::FaceStimulusWidth::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 FaceStimulusWidth () const
 {
   return this->_xsd_FaceStimulusWidth_.get ();
 }
 
-SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::FaceStimulusWidth::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::FaceStimulusWidth::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 FaceStimulusWidth ()
 {
   return this->_xsd_FaceStimulusWidth_.get ();
 }
 
-void SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 FaceStimulusWidth (const FaceStimulusWidth::type& FaceStimulusWidth)
 {
   this->_xsd_FaceStimulusWidth_.set (FaceStimulusWidth);
 }
 
-const SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::QuadrantStimulusDelay::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+const ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::QuadrantStimulusDelay::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 QuadrantStimulusDelay () const
 {
   return this->_xsd_QuadrantStimulusDelay_.get ();
 }
 
-SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::QuadrantStimulusDelay::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::QuadrantStimulusDelay::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 QuadrantStimulusDelay ()
 {
   return this->_xsd_QuadrantStimulusDelay_.get ();
 }
 
-void SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 QuadrantStimulusDelay (const QuadrantStimulusDelay::type& QuadrantStimulusDelay)
 {
   this->_xsd_QuadrantStimulusDelay_.set (QuadrantStimulusDelay);
 }
 
-const SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::OutputDirectory::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+const ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::OutputDirectory::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 OutputDirectory () const
 {
   return this->_xsd_OutputDirectory_.get ();
 }
 
-SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::OutputDirectory::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::OutputDirectory::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 OutputDirectory ()
 {
   return this->_xsd_OutputDirectory_.get ();
 }
 
-void SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 OutputDirectory (const OutputDirectory::type& OutputDirectory)
 {
   this->_xsd_OutputDirectory_.set (OutputDirectory);
 }
 
-void SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 OutputDirectory (::std::auto_ptr< OutputDirectory::type > OutputDirectory)
 {
   this->_xsd_OutputDirectory_.set (OutputDirectory);
 }
 
-const SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::MeshOutputDirectory::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+const ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::MeshOutputDirectory::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 MeshOutputDirectory () const
 {
   return this->_xsd_MeshOutputDirectory_.get ();
 }
 
-SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::MeshOutputDirectory::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::MeshOutputDirectory::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 MeshOutputDirectory ()
 {
   return this->_xsd_MeshOutputDirectory_.get ();
 }
 
-void SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 MeshOutputDirectory (const MeshOutputDirectory::type& MeshOutputDirectory)
 {
   this->_xsd_MeshOutputDirectory_.set (MeshOutputDirectory);
 }
 
-void SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 MeshOutputDirectory (::std::auto_ptr< MeshOutputDirectory::type > MeshOutputDirectory)
 {
   this->_xsd_MeshOutputDirectory_.set (MeshOutputDirectory);
+}
+
+const ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::Domain::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
+Domain () const
+{
+  return this->_xsd_Domain_.get ();
+}
+
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::Domain::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
+Domain ()
+{
+  return this->_xsd_Domain_.get ();
+}
+
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
+Domain (const Domain::type& Domain)
+{
+  this->_xsd_Domain_.set (Domain);
+}
+
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
+Domain (::std::auto_ptr< Domain::type > Domain)
+{
+  this->_xsd_Domain_.set (Domain);
+}
+
+const ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::IonicModel::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
+IonicModel () const
+{
+  return this->_xsd_IonicModel_.get ();
+}
+
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::IonicModel::type& ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
+IonicModel ()
+{
+  return this->_xsd_IonicModel_.get ();
+}
+
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
+IonicModel (const IonicModel::type& IonicModel)
+{
+  this->_xsd_IonicModel_.set (IonicModel);
+}
+
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
+IonicModel (::std::auto_ptr< IonicModel::type > IonicModel)
+{
+  this->_xsd_IonicModel_.set (IonicModel);
 }
 
 
 #include <xsd/cxx/xml/dom/elements.hxx>
 #include <xsd/cxx/xml/dom/parser.hxx>
 
-// SpiralParameters::_xsd_SpiralParameters_::SpiralParameters
+// domain_type
 //
 
-SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
-SpiralParameters (const SimulationDuration::type& _xsd_SimulationDuration,
+domain_type::
+domain_type (const ::xercesc::DOMElement& e,
+             ::xml_schema::flags f,
+             ::xml_schema::type* c)
+: ::xml_schema::string (e, f, c)
+{
+  _xsd_domain_type_convert ();
+}
+
+domain_type::
+domain_type (const ::xercesc::DOMAttr& a,
+             ::xml_schema::flags f,
+             ::xml_schema::type* c)
+: ::xml_schema::string (a, f, c)
+{
+  _xsd_domain_type_convert ();
+}
+
+domain_type::
+domain_type (const ::std::basic_string< char >& s,
+             const ::xercesc::DOMElement* e,
+             ::xml_schema::flags f,
+             ::xml_schema::type* c)
+: ::xml_schema::string (s, e, f, c)
+{
+  _xsd_domain_type_convert ();
+}
+
+domain_type* domain_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new domain_type (*this, f, c);
+}
+
+domain_type::_xsd_domain_type domain_type::
+_xsd_domain_type_convert () const
+{
+  ::xsd::cxx::tree::enum_comparator< char > c (_xsd_domain_type_literals_);
+  const _xsd_domain_type* i (::std::lower_bound (
+                               _xsd_domain_type_indexes_,
+                               _xsd_domain_type_indexes_ + 2,
+                               *this,
+                               c));
+
+  if (i == _xsd_domain_type_indexes_ + 2 || _xsd_domain_type_literals_[*i] != *this)
+  {
+    throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
+  }
+
+  return *i;
+}
+
+const char* const domain_type::
+_xsd_domain_type_literals_[2] =
+{
+  "Mono",
+  "Bi"
+};
+
+const domain_type::_xsd_domain_type domain_type::
+_xsd_domain_type_indexes_[2] =
+{
+  ::domain_type::Bi,
+  ::domain_type::Mono
+};
+
+// ionic_model_type
+//
+
+ionic_model_type::
+ionic_model_type (const ::xercesc::DOMElement& e,
+                  ::xml_schema::flags f,
+                  ::xml_schema::type* c)
+: ::xml_schema::string (e, f, c)
+{
+  _xsd_ionic_model_type_convert ();
+}
+
+ionic_model_type::
+ionic_model_type (const ::xercesc::DOMAttr& a,
+                  ::xml_schema::flags f,
+                  ::xml_schema::type* c)
+: ::xml_schema::string (a, f, c)
+{
+  _xsd_ionic_model_type_convert ();
+}
+
+ionic_model_type::
+ionic_model_type (const ::std::basic_string< char >& s,
+                  const ::xercesc::DOMElement* e,
+                  ::xml_schema::flags f,
+                  ::xml_schema::type* c)
+: ::xml_schema::string (s, e, f, c)
+{
+  _xsd_ionic_model_type_convert ();
+}
+
+ionic_model_type* ionic_model_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new ionic_model_type (*this, f, c);
+}
+
+ionic_model_type::_xsd_ionic_model_type ionic_model_type::
+_xsd_ionic_model_type_convert () const
+{
+  ::xsd::cxx::tree::enum_comparator< char > c (_xsd_ionic_model_type_literals_);
+  const _xsd_ionic_model_type* i (::std::lower_bound (
+                                    _xsd_ionic_model_type_indexes_,
+                                    _xsd_ionic_model_type_indexes_ + 3,
+                                    *this,
+                                    c));
+
+  if (i == _xsd_ionic_model_type_indexes_ + 3 || _xsd_ionic_model_type_literals_[*i] != *this)
+  {
+    throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
+  }
+
+  return *i;
+}
+
+const char* const ionic_model_type::
+_xsd_ionic_model_type_literals_[3] =
+{
+  "BackwardEulerFoxModel2002Modified",
+  "BackwardEulerLuoRudyIModel1991",
+  "LuoRudyIModel1991OdeSystem"
+};
+
+const ionic_model_type::_xsd_ionic_model_type ionic_model_type::
+_xsd_ionic_model_type_indexes_[3] =
+{
+  ::ionic_model_type::BackwardEulerFoxModel2002Modified,
+  ::ionic_model_type::BackwardEulerLuoRudyIModel1991,
+  ::ionic_model_type::LuoRudyIModel1991OdeSystem
+};
+
+// ChasteParameters::_xsd_ChasteParameters_::ChasteParameters
+//
+
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
+ChasteParameters (const SimulationDuration::type& _xsd_SimulationDuration,
                   const SlabWidth::type& _xsd_SlabWidth,
                   const SlabHeight::type& _xsd_SlabHeight,
                   const InterNodeSpace::type& _xsd_InterNodeSpace,
                   const FaceStimulusWidth::type& _xsd_FaceStimulusWidth,
                   const QuadrantStimulusDelay::type& _xsd_QuadrantStimulusDelay,
                   const OutputDirectory::type& _xsd_OutputDirectory,
-                  const MeshOutputDirectory::type& _xsd_MeshOutputDirectory)
+                  const MeshOutputDirectory::type& _xsd_MeshOutputDirectory,
+                  const Domain::type& _xsd_Domain,
+                  const IonicModel::type& _xsd_IonicModel)
 : ::xml_schema::type (),
 _xsd_SimulationDuration_ (_xsd_SimulationDuration,
                           ::xml_schema::flags (),
@@ -240,44 +496,56 @@ _xsd_OutputDirectory_ (_xsd_OutputDirectory,
                        this),
 _xsd_MeshOutputDirectory_ (_xsd_MeshOutputDirectory,
                            ::xml_schema::flags (),
-                           this)
+                           this),
+_xsd_Domain_ (_xsd_Domain,
+              ::xml_schema::flags (),
+              this),
+_xsd_IonicModel_ (_xsd_IonicModel,
+                  ::xml_schema::flags (),
+                  this)
 {
 }
 
-SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
-SpiralParameters (const SpiralParameters& _xsd_SpiralParameters,
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
+ChasteParameters (const ChasteParameters& _xsd_ChasteParameters,
                   ::xml_schema::flags f,
                   ::xml_schema::type* c)
-: ::xml_schema::type (_xsd_SpiralParameters, f, c),
-_xsd_SimulationDuration_ (_xsd_SpiralParameters._xsd_SimulationDuration_,
+: ::xml_schema::type (_xsd_ChasteParameters, f, c),
+_xsd_SimulationDuration_ (_xsd_ChasteParameters._xsd_SimulationDuration_,
                           f | ::xml_schema::flags::not_root,
                           this),
-_xsd_SlabWidth_ (_xsd_SpiralParameters._xsd_SlabWidth_,
+_xsd_SlabWidth_ (_xsd_ChasteParameters._xsd_SlabWidth_,
                  f | ::xml_schema::flags::not_root,
                  this),
-_xsd_SlabHeight_ (_xsd_SpiralParameters._xsd_SlabHeight_,
+_xsd_SlabHeight_ (_xsd_ChasteParameters._xsd_SlabHeight_,
                   f | ::xml_schema::flags::not_root,
                   this),
-_xsd_InterNodeSpace_ (_xsd_SpiralParameters._xsd_InterNodeSpace_,
+_xsd_InterNodeSpace_ (_xsd_ChasteParameters._xsd_InterNodeSpace_,
                       f | ::xml_schema::flags::not_root,
                       this),
-_xsd_FaceStimulusWidth_ (_xsd_SpiralParameters._xsd_FaceStimulusWidth_,
+_xsd_FaceStimulusWidth_ (_xsd_ChasteParameters._xsd_FaceStimulusWidth_,
                          f | ::xml_schema::flags::not_root,
                          this),
-_xsd_QuadrantStimulusDelay_ (_xsd_SpiralParameters._xsd_QuadrantStimulusDelay_,
+_xsd_QuadrantStimulusDelay_ (_xsd_ChasteParameters._xsd_QuadrantStimulusDelay_,
                              f | ::xml_schema::flags::not_root,
                              this),
-_xsd_OutputDirectory_ (_xsd_SpiralParameters._xsd_OutputDirectory_,
+_xsd_OutputDirectory_ (_xsd_ChasteParameters._xsd_OutputDirectory_,
                        f | ::xml_schema::flags::not_root,
                        this),
-_xsd_MeshOutputDirectory_ (_xsd_SpiralParameters._xsd_MeshOutputDirectory_,
+_xsd_MeshOutputDirectory_ (_xsd_ChasteParameters._xsd_MeshOutputDirectory_,
                            f | ::xml_schema::flags::not_root,
-                           this)
+                           this),
+_xsd_Domain_ (_xsd_ChasteParameters._xsd_Domain_,
+              f | ::xml_schema::flags::not_root,
+              this),
+_xsd_IonicModel_ (_xsd_ChasteParameters._xsd_IonicModel_,
+                  f | ::xml_schema::flags::not_root,
+                  this)
 {
 }
 
-SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
-SpiralParameters (const ::xercesc::DOMElement& e,
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
+ChasteParameters (const ::xercesc::DOMElement& e,
                   ::xml_schema::flags f,
                   ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
@@ -288,12 +556,14 @@ _xsd_InterNodeSpace_ (f | ::xml_schema::flags::not_root, this),
 _xsd_FaceStimulusWidth_ (f | ::xml_schema::flags::not_root, this),
 _xsd_QuadrantStimulusDelay_ (f | ::xml_schema::flags::not_root, this),
 _xsd_OutputDirectory_ (f | ::xml_schema::flags::not_root, this),
-_xsd_MeshOutputDirectory_ (f | ::xml_schema::flags::not_root, this)
+_xsd_MeshOutputDirectory_ (f | ::xml_schema::flags::not_root, this),
+_xsd_Domain_ (f | ::xml_schema::flags::not_root, this),
+_xsd_IonicModel_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
 
-void SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+void ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
 {
   ::xsd::cxx::xml::dom::parser< char > p (e);
@@ -433,6 +703,42 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
         continue;
       }
     }
+
+    // Domain
+    //
+    {
+      if (e.name () == "Domain" && e.namespace_ () == "")
+      {
+        ::std::auto_ptr< Domain::type > r (
+          Domain::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_Domain_.present ())
+          continue;
+        this->Domain (r);
+        continue;
+      }
+    }
+
+    // IonicModel
+    //
+    {
+      if (e.name () == "IonicModel" && e.namespace_ () == "")
+      {
+        ::std::auto_ptr< IonicModel::type > r (
+          IonicModel::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_IonicModel_.present ())
+          continue;
+        this->IonicModel (r);
+        continue;
+      }
+    }
   }
 
   if (!_xsd_SimulationDuration_.present ())
@@ -490,13 +796,27 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       "MeshOutputDirectory",
       "");
   }
+
+  if (!_xsd_Domain_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "Domain",
+      "");
+  }
+
+  if (!_xsd_IonicModel_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "IonicModel",
+      "");
+  }
 }
 
-SpiralParameters::_xsd_SpiralParameters_::SpiralParameters* SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+ChasteParameters::_xsd_ChasteParameters_::ChasteParameters* ChasteParameters::_xsd_ChasteParameters_::ChasteParameters::
 _clone (::xml_schema::flags f,
         ::xml_schema::type* c) const
 {
-  return new SpiralParameters (*this, f, c);
+  return new ChasteParameters (*this, f, c);
 }
 
 #include <istream>
@@ -504,8 +824,8 @@ _clone (::xml_schema::flags f,
 #include <xsd/cxx/xml/sax/std-input-source.hxx>
 #include <xsd/cxx/tree/error-handler.hxx>
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::std::basic_string< char >& u,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::std::basic_string< char >& u,
                   ::xml_schema::flags f,
                   const ::xsd::cxx::tree::properties< char >& p)
 {
@@ -520,12 +840,12 @@ SpiralParameters (const ::std::basic_string< char >& u,
 
   h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
 
-  return ::SpiralParameters (
+  return ::ChasteParameters (
     static_cast< const ::xercesc::DOMDocument& > (*d), f);
 }
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::std::basic_string< char >& u,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::std::basic_string< char >& u,
                   ::xsd::cxx::xml::error_handler< char >& h,
                   ::xml_schema::flags f,
                   const ::xsd::cxx::tree::properties< char >& p)
@@ -542,12 +862,12 @@ SpiralParameters (const ::std::basic_string< char >& u,
     throw ::xsd::cxx::tree::parsing< char > ();
   }
 
-  return ::SpiralParameters (
+  return ::ChasteParameters (
     static_cast< const ::xercesc::DOMDocument& > (*d), f);
 }
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::std::basic_string< char >& u,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::std::basic_string< char >& u,
                   ::xercesc::DOMErrorHandler& h,
                   ::xml_schema::flags f,
                   const ::xsd::cxx::tree::properties< char >& p)
@@ -560,12 +880,12 @@ SpiralParameters (const ::std::basic_string< char >& u,
     throw ::xsd::cxx::tree::parsing< char > ();
   }
 
-  return ::SpiralParameters (
+  return ::ChasteParameters (
     static_cast< const ::xercesc::DOMDocument& > (*d), f);
 }
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (::std::istream& is,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (::std::istream& is,
                   ::xml_schema::flags f,
                   const ::xsd::cxx::tree::properties< char >& p)
 {
@@ -575,11 +895,11 @@ SpiralParameters (::std::istream& is,
 
   ::xsd::cxx::xml::sax::std_input_source isrc (is);
   ::xercesc::Wrapper4InputSource wrap (&isrc, false);
-  return ::SpiralParameters (wrap, f, p);
+  return ::ChasteParameters (wrap, f, p);
 }
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (::std::istream& is,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (::std::istream& is,
                   ::xsd::cxx::xml::error_handler< char >& h,
                   ::xml_schema::flags f,
                   const ::xsd::cxx::tree::properties< char >& p)
@@ -590,22 +910,22 @@ SpiralParameters (::std::istream& is,
 
   ::xsd::cxx::xml::sax::std_input_source isrc (is);
   ::xercesc::Wrapper4InputSource wrap (&isrc, false);
-  return ::SpiralParameters (wrap, h, f, p);
+  return ::ChasteParameters (wrap, h, f, p);
 }
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (::std::istream& is,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (::std::istream& is,
                   ::xercesc::DOMErrorHandler& h,
                   ::xml_schema::flags f,
                   const ::xsd::cxx::tree::properties< char >& p)
 {
   ::xsd::cxx::xml::sax::std_input_source isrc (is);
   ::xercesc::Wrapper4InputSource wrap (&isrc, false);
-  return ::SpiralParameters (wrap, h, f, p);
+  return ::ChasteParameters (wrap, h, f, p);
 }
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (::std::istream& is,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (::std::istream& is,
                   const ::std::basic_string< char >& sid,
                   ::xml_schema::flags f,
                   const ::xsd::cxx::tree::properties< char >& p)
@@ -616,11 +936,11 @@ SpiralParameters (::std::istream& is,
 
   ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
   ::xercesc::Wrapper4InputSource wrap (&isrc, false);
-  return ::SpiralParameters (wrap, f, p);
+  return ::ChasteParameters (wrap, f, p);
 }
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (::std::istream& is,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (::std::istream& is,
                   const ::std::basic_string< char >& sid,
                   ::xsd::cxx::xml::error_handler< char >& h,
                   ::xml_schema::flags f,
@@ -632,11 +952,11 @@ SpiralParameters (::std::istream& is,
 
   ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
   ::xercesc::Wrapper4InputSource wrap (&isrc, false);
-  return ::SpiralParameters (wrap, h, f, p);
+  return ::ChasteParameters (wrap, h, f, p);
 }
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (::std::istream& is,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (::std::istream& is,
                   const ::std::basic_string< char >& sid,
                   ::xercesc::DOMErrorHandler& h,
                   ::xml_schema::flags f,
@@ -644,11 +964,11 @@ SpiralParameters (::std::istream& is,
 {
   ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
   ::xercesc::Wrapper4InputSource wrap (&isrc, false);
-  return ::SpiralParameters (wrap, h, f, p);
+  return ::ChasteParameters (wrap, h, f, p);
 }
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::xercesc::DOMInputSource& i,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::xercesc::DOMInputSource& i,
                   ::xml_schema::flags f,
                   const ::xsd::cxx::tree::properties< char >& p)
 {
@@ -659,12 +979,12 @@ SpiralParameters (const ::xercesc::DOMInputSource& i,
 
   h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
 
-  return ::SpiralParameters (
+  return ::ChasteParameters (
     static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
 }
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::xercesc::DOMInputSource& i,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::xercesc::DOMInputSource& i,
                   ::xsd::cxx::xml::error_handler< char >& h,
                   ::xml_schema::flags f,
                   const ::xsd::cxx::tree::properties< char >& p)
@@ -677,12 +997,12 @@ SpiralParameters (const ::xercesc::DOMInputSource& i,
     throw ::xsd::cxx::tree::parsing< char > ();
   }
 
-  return ::SpiralParameters (
+  return ::ChasteParameters (
     static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
 }
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::xercesc::DOMInputSource& i,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::xercesc::DOMInputSource& i,
                   ::xercesc::DOMErrorHandler& h,
                   ::xml_schema::flags f,
                   const ::xsd::cxx::tree::properties< char >& p)
@@ -695,12 +1015,12 @@ SpiralParameters (const ::xercesc::DOMInputSource& i,
     throw ::xsd::cxx::tree::parsing< char > ();
   }
 
-  return ::SpiralParameters (
+  return ::ChasteParameters (
     static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
 }
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::xercesc::DOMDocument& d,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::xercesc::DOMDocument& d,
                   ::xml_schema::flags f,
                   const ::xsd::cxx::tree::properties< char >&)
 {
@@ -714,11 +1034,11 @@ SpiralParameters (const ::xercesc::DOMDocument& d,
     ? *c->getDocumentElement ()
     : *d.getDocumentElement ());
 
-  if (e.name () == "SpiralParameters" &&
+  if (e.name () == "ChasteParameters" &&
       e.namespace_ () == "")
   {
-    ::std::auto_ptr< SpiralParameters::type > r (
-      ::xsd::cxx::tree::traits< SpiralParameters::type, char >::create (
+    ::std::auto_ptr< ChasteParameters::type > r (
+      ::xsd::cxx::tree::traits< ChasteParameters::type, char >::create (
         e.dom_element (), f, 0));
     if (f & ::xml_schema::flags::keep_dom) c.release ();
     return r;
@@ -727,7 +1047,7 @@ SpiralParameters (const ::xercesc::DOMDocument& d,
   throw ::xsd::cxx::tree::unexpected_element < char > (
     e.name (),
     e.namespace_ (),
-    "SpiralParameters",
+    "ChasteParameters",
     "");
 }
 
@@ -2553,9 +2873,461 @@ MeshOutputDirectory (const ::xercesc::DOMDocument& d,
     "");
 }
 
-#include <xsd/cxx/post.hxx>
+::std::auto_ptr< ::domain_type >
+Domain (const ::std::basic_string< char >& u,
+        ::xml_schema::flags f,
+        const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
 
-#undef COVERAGE_IGNORE
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::Domain (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::domain_type >
+Domain (const ::std::basic_string< char >& u,
+        ::xsd::cxx::xml::error_handler< char >& h,
+        ::xml_schema::flags f,
+        const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::Domain (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::domain_type >
+Domain (const ::std::basic_string< char >& u,
+        ::xercesc::DOMErrorHandler& h,
+        ::xml_schema::flags f,
+        const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::Domain (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::domain_type >
+Domain (::std::istream& is,
+        ::xml_schema::flags f,
+        const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::Domain (wrap, f, p);
+}
+
+::std::auto_ptr< ::domain_type >
+Domain (::std::istream& is,
+        ::xsd::cxx::xml::error_handler< char >& h,
+        ::xml_schema::flags f,
+        const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::Domain (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::domain_type >
+Domain (::std::istream& is,
+        ::xercesc::DOMErrorHandler& h,
+        ::xml_schema::flags f,
+        const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::Domain (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::domain_type >
+Domain (::std::istream& is,
+        const ::std::basic_string< char >& sid,
+        ::xml_schema::flags f,
+        const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::Domain (wrap, f, p);
+}
+
+::std::auto_ptr< ::domain_type >
+Domain (::std::istream& is,
+        const ::std::basic_string< char >& sid,
+        ::xsd::cxx::xml::error_handler< char >& h,
+        ::xml_schema::flags f,
+        const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::Domain (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::domain_type >
+Domain (::std::istream& is,
+        const ::std::basic_string< char >& sid,
+        ::xercesc::DOMErrorHandler& h,
+        ::xml_schema::flags f,
+        const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::Domain (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::domain_type >
+Domain (const ::xercesc::DOMInputSource& i,
+        ::xml_schema::flags f,
+        const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::Domain (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::domain_type >
+Domain (const ::xercesc::DOMInputSource& i,
+        ::xsd::cxx::xml::error_handler< char >& h,
+        ::xml_schema::flags f,
+        const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::Domain (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::domain_type >
+Domain (const ::xercesc::DOMInputSource& i,
+        ::xercesc::DOMErrorHandler& h,
+        ::xml_schema::flags f,
+        const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::Domain (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::domain_type >
+Domain (const ::xercesc::DOMDocument& d,
+        ::xml_schema::flags f,
+        const ::xsd::cxx::tree::properties< char >&)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > c (
+    (f & ::xml_schema::flags::keep_dom) 
+    ? static_cast< ::xercesc::DOMDocument* > (d.cloneNode (true))
+    : 0);
+
+  const ::xsd::cxx::xml::dom::element< char > e (
+    c.get ()
+    ? *c->getDocumentElement ()
+    : *d.getDocumentElement ());
+
+  if (e.name () == "Domain" &&
+      e.namespace_ () == "")
+  {
+    ::std::auto_ptr< ::domain_type > r (
+      ::xsd::cxx::tree::traits< ::domain_type, char >::create (
+        e.dom_element (), f, 0));
+    if (f & ::xml_schema::flags::keep_dom) c.release ();
+    return r;
+  }
+
+  throw ::xsd::cxx::tree::unexpected_element < char > (
+    e.name (),
+    e.namespace_ (),
+    "Domain",
+    "");
+}
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::std::basic_string< char >& u,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::IonicModel (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::std::basic_string< char >& u,
+            ::xsd::cxx::xml::error_handler< char >& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::IonicModel (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::std::basic_string< char >& u,
+            ::xercesc::DOMErrorHandler& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::IonicModel (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (::std::istream& is,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::IonicModel (wrap, f, p);
+}
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (::std::istream& is,
+            ::xsd::cxx::xml::error_handler< char >& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::IonicModel (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (::std::istream& is,
+            ::xercesc::DOMErrorHandler& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::IonicModel (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (::std::istream& is,
+            const ::std::basic_string< char >& sid,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::IonicModel (wrap, f, p);
+}
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (::std::istream& is,
+            const ::std::basic_string< char >& sid,
+            ::xsd::cxx::xml::error_handler< char >& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::IonicModel (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (::std::istream& is,
+            const ::std::basic_string< char >& sid,
+            ::xercesc::DOMErrorHandler& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::IonicModel (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::xercesc::DOMInputSource& i,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::IonicModel (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::xercesc::DOMInputSource& i,
+            ::xsd::cxx::xml::error_handler< char >& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::IonicModel (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::xercesc::DOMInputSource& i,
+            ::xercesc::DOMErrorHandler& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::IonicModel (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::xercesc::DOMDocument& d,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >&)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > c (
+    (f & ::xml_schema::flags::keep_dom) 
+    ? static_cast< ::xercesc::DOMDocument* > (d.cloneNode (true))
+    : 0);
+
+  const ::xsd::cxx::xml::dom::element< char > e (
+    c.get ()
+    ? *c->getDocumentElement ()
+    : *d.getDocumentElement ());
+
+  if (e.name () == "IonicModel" &&
+      e.namespace_ () == "")
+  {
+    ::std::auto_ptr< ::ionic_model_type > r (
+      ::xsd::cxx::tree::traits< ::ionic_model_type, char >::create (
+        e.dom_element (), f, 0));
+    if (f & ::xml_schema::flags::keep_dom) c.release ();
+    return r;
+  }
+
+  throw ::xsd::cxx::tree::unexpected_element < char > (
+    e.name (),
+    e.namespace_ (),
+    "IonicModel",
+    "");
+}
+
+#include <xsd/cxx/post.hxx>
 
 // Begin epilogue.
 //

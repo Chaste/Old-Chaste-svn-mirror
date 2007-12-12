@@ -126,6 +126,7 @@ public:
         monodomain_problem.SetEndTime(1);   // 1 ms
         monodomain_problem.SetOutputDirectory("Monodomain1d");
         monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
+        monodomain_problem.SetCallChaste2Meshalyzer(true); // for coverage
         
         monodomain_problem.Initialise();
         

@@ -7,7 +7,6 @@ TestMonodomainNoStimulus.hpp
 TestMonodomainSlab.hpp
 TestPerformance.hpp
 TestPerformanceOfAssembly.hpp
-TestSpiralWaveProject.hpp
 TestMonodomainHeartApex.hpp
 TestElectroMechanicCellularModels.hpp
 TestIonicModelsLong.hpp

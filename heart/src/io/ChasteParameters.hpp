@@ -30,8 +30,8 @@
 // in the accompanying FLOSSE file.
 //
 
-#ifndef SPIRAL_PARAMETERS_HXX
-#define SPIRAL_PARAMETERS_HXX
+#ifndef CHASTE_PARAMETERS_HXX
+#define CHASTE_PARAMETERS_HXX
 
 #include <xsd/cxx/version.hxx>
 
@@ -198,6 +198,8 @@ namespace xml_schema
 
 // Forward declarations.
 //
+class domain_type;
+class ionic_model_type;
 
 #include <memory>    // std::auto_ptr
 #include <algorithm> // std::binary_search
@@ -207,17 +209,122 @@ namespace xml_schema
 #include <xsd/cxx/tree/containers.hxx>
 #include <xsd/cxx/tree/list.hxx>
 
-// SpiralParameters
-// 
-class SpiralParameters
+class domain_type: public ::xml_schema::string
 {
-  struct _xsd_SpiralParameters_
+  public:
+  enum _xsd_domain_type
   {
-    class SpiralParameters: public ::xml_schema::type
+    Mono,
+    Bi
+  };
+
+  domain_type (_xsd_domain_type);
+
+  domain_type (const ::xml_schema::string&);
+
+  domain_type (const ::xercesc::DOMElement&,
+               ::xml_schema::flags = 0,
+               ::xml_schema::type* = 0);
+
+  domain_type (const ::xercesc::DOMAttr&,
+               ::xml_schema::flags = 0,
+               ::xml_schema::type* = 0);
+
+  domain_type (const ::std::basic_string< char >&,
+               const ::xercesc::DOMElement*,
+               ::xml_schema::flags = 0,
+               ::xml_schema::type* = 0);
+
+  domain_type (const domain_type&,
+               ::xml_schema::flags = 0,
+               ::xml_schema::type* = 0);
+
+  virtual domain_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  domain_type&
+  operator= (_xsd_domain_type);
+
+  virtual
+  operator _xsd_domain_type () const
+  {
+    return _xsd_domain_type_convert ();
+  }
+
+  protected:
+  _xsd_domain_type
+  _xsd_domain_type_convert () const;
+
+  public:
+  static const char* const _xsd_domain_type_literals_[2];
+  static const _xsd_domain_type _xsd_domain_type_indexes_[2];
+};
+
+class ionic_model_type: public ::xml_schema::string
+{
+  public:
+  enum _xsd_ionic_model_type
+  {
+    BackwardEulerFoxModel2002Modified,
+    BackwardEulerLuoRudyIModel1991,
+    LuoRudyIModel1991OdeSystem
+  };
+
+  ionic_model_type (_xsd_ionic_model_type);
+
+  ionic_model_type (const ::xml_schema::string&);
+
+  ionic_model_type (const ::xercesc::DOMElement&,
+                    ::xml_schema::flags = 0,
+                    ::xml_schema::type* = 0);
+
+  ionic_model_type (const ::xercesc::DOMAttr&,
+                    ::xml_schema::flags = 0,
+                    ::xml_schema::type* = 0);
+
+  ionic_model_type (const ::std::basic_string< char >&,
+                    const ::xercesc::DOMElement*,
+                    ::xml_schema::flags = 0,
+                    ::xml_schema::type* = 0);
+
+  ionic_model_type (const ionic_model_type&,
+                    ::xml_schema::flags = 0,
+                    ::xml_schema::type* = 0);
+
+  virtual ionic_model_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  ionic_model_type&
+  operator= (_xsd_ionic_model_type);
+
+  virtual
+  operator _xsd_ionic_model_type () const
+  {
+    return _xsd_ionic_model_type_convert ();
+  }
+
+  protected:
+  _xsd_ionic_model_type
+  _xsd_ionic_model_type_convert () const;
+
+  public:
+  static const char* const _xsd_ionic_model_type_literals_[3];
+  static const _xsd_ionic_model_type _xsd_ionic_model_type_indexes_[3];
+};
+
+// ChasteParameters
+// 
+class ChasteParameters
+{
+  struct _xsd_ChasteParameters_
+  {
+    class ChasteParameters: public ::xml_schema::type
     {
       public:
 
-      struct _xsd_SpiralParameters
+      struct _xsd_ChasteParameters
       {
         typedef ::xml_schema::type base_;
       };
@@ -372,27 +479,71 @@ class SpiralParameters
       void
       MeshOutputDirectory (::std::auto_ptr< MeshOutputDirectory::type >);
 
+      // Domain
+      // 
+      public:
+      struct Domain
+      {
+        typedef ::domain_type type;
+        typedef ::xsd::cxx::tree::traits< type, char > traits;
+      };
+
+      const Domain::type&
+      Domain () const;
+
+      Domain::type&
+      Domain ();
+
+      void
+      Domain (const Domain::type&);
+
+      void
+      Domain (::std::auto_ptr< Domain::type >);
+
+      // IonicModel
+      // 
+      public:
+      struct IonicModel
+      {
+        typedef ::ionic_model_type type;
+        typedef ::xsd::cxx::tree::traits< type, char > traits;
+      };
+
+      const IonicModel::type&
+      IonicModel () const;
+
+      IonicModel::type&
+      IonicModel ();
+
+      void
+      IonicModel (const IonicModel::type&);
+
+      void
+      IonicModel (::std::auto_ptr< IonicModel::type >);
+
       // Constructors.
       //
       public:
-      SpiralParameters (const SimulationDuration::type&,
+      ChasteParameters (const SimulationDuration::type&,
                         const SlabWidth::type&,
                         const SlabHeight::type&,
                         const InterNodeSpace::type&,
                         const FaceStimulusWidth::type&,
                         const QuadrantStimulusDelay::type&,
                         const OutputDirectory::type&,
-                        const MeshOutputDirectory::type&);
+                        const MeshOutputDirectory::type&,
+                        const Domain::type&,
+                        const IonicModel::type&);
 
-      SpiralParameters (const ::xercesc::DOMElement&,
+      ChasteParameters (const ::xercesc::DOMElement&,
                         ::xml_schema::flags = 0,
                         ::xml_schema::type* = 0);
 
-      SpiralParameters (const SpiralParameters&,
+      ChasteParameters (const ChasteParameters&,
                         ::xml_schema::flags = 0,
                         ::xml_schema::type* = 0);
 
-      virtual SpiralParameters*
+      virtual ChasteParameters*
       _clone (::xml_schema::flags = 0,
               ::xml_schema::type* = 0) const;
 
@@ -410,11 +561,13 @@ class SpiralParameters
       ::xsd::cxx::tree::one< QuadrantStimulusDelay::type > _xsd_QuadrantStimulusDelay_;
       ::xsd::cxx::tree::one< OutputDirectory::type > _xsd_OutputDirectory_;
       ::xsd::cxx::tree::one< MeshOutputDirectory::type > _xsd_MeshOutputDirectory_;
+      ::xsd::cxx::tree::one< Domain::type > _xsd_Domain_;
+      ::xsd::cxx::tree::one< IonicModel::type > _xsd_IonicModel_;
     };
   };
 
   public:
-  typedef _xsd_SpiralParameters_::SpiralParameters type;
+  typedef _xsd_ChasteParameters_::ChasteParameters type;
 };
 
 #include <iosfwd>
@@ -426,19 +579,19 @@ class SpiralParameters
 // Read from a URI or a local file.
 //
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::std::basic_string< char >&,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::std::basic_string< char >&,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::std::basic_string< char >&,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::std::basic_string< char >&,
                   ::xsd::cxx::xml::error_handler< char >&,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::std::basic_string< char >&,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::std::basic_string< char >&,
                   ::xercesc::DOMErrorHandler&,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
@@ -447,39 +600,39 @@ SpiralParameters (const ::std::basic_string< char >&,
 // Read from std::istream.
 //
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (::std::istream&,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (::std::istream&,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (::std::istream&,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (::std::istream&,
                   ::xsd::cxx::xml::error_handler< char >&,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (::std::istream&,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (::std::istream&,
                   ::xercesc::DOMErrorHandler&,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
 
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (::std::istream&,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (::std::istream&,
                   const ::std::basic_string< char >& id,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (::std::istream&,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (::std::istream&,
                   const ::std::basic_string< char >& id,
                   ::xsd::cxx::xml::error_handler< char >&,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (::std::istream&,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (::std::istream&,
                   const ::std::basic_string< char >& id,
                   ::xercesc::DOMErrorHandler&,
                   ::xml_schema::flags = 0,
@@ -489,19 +642,19 @@ SpiralParameters (::std::istream&,
 // Read from InputSource.
 //
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::xercesc::DOMInputSource&,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::xercesc::DOMInputSource&,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::xercesc::DOMInputSource&,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::xercesc::DOMInputSource&,
                   ::xsd::cxx::xml::error_handler< char >&,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::xercesc::DOMInputSource&,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::xercesc::DOMInputSource&,
                   ::xercesc::DOMErrorHandler&,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
@@ -510,8 +663,8 @@ SpiralParameters (const ::xercesc::DOMInputSource&,
 // Read from DOM.
 //
 
-::std::auto_ptr< SpiralParameters::type >
-SpiralParameters (const ::xercesc::DOMDocument&,
+::std::auto_ptr< ChasteParameters::type >
+ChasteParameters (const ::xercesc::DOMDocument&,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
 
@@ -1260,6 +1413,192 @@ MeshOutputDirectory (const ::xercesc::DOMDocument&,
                      const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
 
 
+// Read from a URI or a local file.
+//
+
+::std::auto_ptr< ::domain_type >
+Domain (const ::std::basic_string< char >&,
+        ::xml_schema::flags = 0,
+        const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::domain_type >
+Domain (const ::std::basic_string< char >&,
+        ::xsd::cxx::xml::error_handler< char >&,
+        ::xml_schema::flags = 0,
+        const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::domain_type >
+Domain (const ::std::basic_string< char >&,
+        ::xercesc::DOMErrorHandler&,
+        ::xml_schema::flags = 0,
+        const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from std::istream.
+//
+
+::std::auto_ptr< ::domain_type >
+Domain (::std::istream&,
+        ::xml_schema::flags = 0,
+        const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::domain_type >
+Domain (::std::istream&,
+        ::xsd::cxx::xml::error_handler< char >&,
+        ::xml_schema::flags = 0,
+        const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::domain_type >
+Domain (::std::istream&,
+        ::xercesc::DOMErrorHandler&,
+        ::xml_schema::flags = 0,
+        const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+::std::auto_ptr< ::domain_type >
+Domain (::std::istream&,
+        const ::std::basic_string< char >& id,
+        ::xml_schema::flags = 0,
+        const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::domain_type >
+Domain (::std::istream&,
+        const ::std::basic_string< char >& id,
+        ::xsd::cxx::xml::error_handler< char >&,
+        ::xml_schema::flags = 0,
+        const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::domain_type >
+Domain (::std::istream&,
+        const ::std::basic_string< char >& id,
+        ::xercesc::DOMErrorHandler&,
+        ::xml_schema::flags = 0,
+        const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from InputSource.
+//
+
+::std::auto_ptr< ::domain_type >
+Domain (const ::xercesc::DOMInputSource&,
+        ::xml_schema::flags = 0,
+        const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::domain_type >
+Domain (const ::xercesc::DOMInputSource&,
+        ::xsd::cxx::xml::error_handler< char >&,
+        ::xml_schema::flags = 0,
+        const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::domain_type >
+Domain (const ::xercesc::DOMInputSource&,
+        ::xercesc::DOMErrorHandler&,
+        ::xml_schema::flags = 0,
+        const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from DOM.
+//
+
+::std::auto_ptr< ::domain_type >
+Domain (const ::xercesc::DOMDocument&,
+        ::xml_schema::flags = 0,
+        const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from a URI or a local file.
+//
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::std::basic_string< char >&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::std::basic_string< char >&,
+            ::xsd::cxx::xml::error_handler< char >&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::std::basic_string< char >&,
+            ::xercesc::DOMErrorHandler&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from std::istream.
+//
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (::std::istream&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (::std::istream&,
+            ::xsd::cxx::xml::error_handler< char >&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (::std::istream&,
+            ::xercesc::DOMErrorHandler&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (::std::istream&,
+            const ::std::basic_string< char >& id,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (::std::istream&,
+            const ::std::basic_string< char >& id,
+            ::xsd::cxx::xml::error_handler< char >&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (::std::istream&,
+            const ::std::basic_string< char >& id,
+            ::xercesc::DOMErrorHandler&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from InputSource.
+//
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::xercesc::DOMInputSource&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::xercesc::DOMInputSource&,
+            ::xsd::cxx::xml::error_handler< char >&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::xercesc::DOMInputSource&,
+            ::xercesc::DOMErrorHandler&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from DOM.
+//
+
+::std::auto_ptr< ::ionic_model_type >
+IonicModel (const ::xercesc::DOMDocument&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
 #include <xsd/cxx/post.hxx>
 
 // Begin epilogue.
@@ -1267,4 +1606,4 @@ MeshOutputDirectory (const ::xercesc::DOMDocument&,
 //
 // End epilogue.
 
-#endif // SPIRAL_PARAMETERS_HXX
+#endif // CHASTE_PARAMETERS_HXX

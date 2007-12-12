@@ -12,5 +12,4 @@ TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 TestNhsSystemWithImplicitSolver.hpp
 TestPlaneStimulusCellFactory.hpp
 TestPropagationPropertiesCalculator.hpp
-TestSpiralParametersReader.hpp
 TestStimulus.hpp

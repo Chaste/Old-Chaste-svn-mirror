@@ -30,6 +30,7 @@ private:
     double mPrintingTimeStep; 
     bool mWriteInfo;
     bool mPrintOutput;
+    bool mCallChaste2Meshalyzer;
  
     AbstractCardiacPde<SPACE_DIM>* mpCardiacPde;
     
@@ -91,6 +92,7 @@ public:
         mPrintingTimeStep = mPdeTimeStep;  // default behaviour: print out every pde time step
         mWriteInfo = false;
         mPrintOutput = true;
+        mCallChaste2Meshalyzer = true;
         mpCardiacPde = NULL;
         mpAssembler = NULL;
         mVoltage = NULL;
@@ -244,6 +246,17 @@ public:
     double GetPdeTimeStep()
     {
         return mPdeTimeStep;
+    }
+    
+    
+    /** Set whether to call the Chaste2Meshalyzer script.
+     * This script gets everything ready to visualize the results with meshalyser
+     * and is useful in testing. By default the script is called.
+     * In performance testing for example it desirable to disable the script.
+     */
+    void SetCallChaste2Meshalyzer(bool call)
+    {
+        mCallChaste2Meshalyzer=call;
     }
     
     void SetMeshFilename(const std::string &rMeshFilename)
@@ -416,7 +429,7 @@ public:
             mpWriter->Close();
             delete mpWriter;
             
-            if (am_master) // ie only if master process and results files were written
+            if (am_master && mCallChaste2Meshalyzer) // ie only if master process and results files were written
             {
                 // call shell script which converts the data to meshalyzer format
                 std::string chaste_2_meshalyzer;

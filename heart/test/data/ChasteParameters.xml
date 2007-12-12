@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ChasteParameters
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../src/io/ChasteParameters.xsd">
+    <SimulationDuration>10.0</SimulationDuration>
+    <SlabWidth>2.0</SlabWidth>
+    <SlabHeight>1.0</SlabHeight>
+    <InterNodeSpace>0.25</InterNodeSpace>
+    <FaceStimulusWidth>0.25</FaceStimulusWidth>
+    <QuadrantStimulusDelay>1.0</QuadrantStimulusDelay>
+    <OutputDirectory>SpiralWave</OutputDirectory>
+    <MeshOutputDirectory>/tmp/Slab</MeshOutputDirectory>
+    <Domain>Mono</Domain>
+    <IonicModel>LuoRudyIModel1991OdeSystem</IonicModel>
+</ChasteParameters>

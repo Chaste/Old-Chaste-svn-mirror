@@ -3,19 +3,19 @@
 
 #include <cxxtest/TestSuite.h>
 #include <memory>
-#include "SpiralParameters.hpp"
+#include "ChasteParameters.hpp"
 
 
 using std::auto_ptr;
 
-class TestSpiralParametersReader : public CxxTest::TestSuite
+class TestChasteParametersReader : public CxxTest::TestSuite
 {
 public:
     void TestRead()
     {
         try
         {
-            auto_ptr<SpiralParameters::type> p (SpiralParameters("heart/test/data/Baseline.xml"));
+            auto_ptr<ChasteParameters::type> p (ChasteParameters("heart/test/data/ChasteParameters.xml"));
             
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
@@ -26,6 +26,8 @@ public:
             TS_ASSERT_EQUALS(p->QuadrantStimulusDelay(), 1.0);
             TS_ASSERT_EQUALS(p->OutputDirectory(), "SpiralWave");
             TS_ASSERT_EQUALS(p->MeshOutputDirectory(), "/tmp/Slab");
+            TS_ASSERT_EQUALS(p->Domain(), domain_type::Bi);
+            TS_ASSERT_EQUALS(p->IonicModel(), ionic_model_type::LuoRudyIModel1991OdeSystem);
         }
         catch (const xml_schema::exception& e)
         {
@@ -39,7 +41,7 @@ public:
     {
         try
         {
-            auto_ptr<const SpiralParameters::type> p (SpiralParameters("heart/test/data/Baseline.xml"));
+            auto_ptr<const ChasteParameters::type> p (ChasteParameters("heart/test/data/ChasteParameters.xml"));
             
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
@@ -50,6 +52,8 @@ public:
             TS_ASSERT_EQUALS(p->QuadrantStimulusDelay(), 1.0);
             TS_ASSERT_EQUALS(p->OutputDirectory(), "SpiralWave");
             TS_ASSERT_EQUALS(p->MeshOutputDirectory(), "/tmp/Slab");
+            TS_ASSERT_EQUALS(p->Domain(), domain_type::Bi);
+            TS_ASSERT_EQUALS(p->IonicModel(), ionic_model_type::LuoRudyIModel1991OdeSystem);
         }
         catch (const xml_schema::exception& e)
         {
