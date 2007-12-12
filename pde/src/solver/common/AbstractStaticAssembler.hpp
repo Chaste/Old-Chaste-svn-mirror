@@ -179,7 +179,6 @@ protected:
                             for (unsigned j=0; j<SPACE_DIM; j++)
                             {
                                 grad_u(index_of_unknown,j) += grad_phi(j,i)*u_at_node;
-             
                             }
                         }
                     }

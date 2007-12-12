@@ -1,3 +1,4 @@
+TestAbstractFunctionalCalculator.hpp
 TestBoundaryConditionsContainer.hpp
 TestConstBoundaryCondition.hpp
 TestFlaggedMeshAssembler.hpp
