@@ -27,6 +27,7 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNu
     
     if (!mLinearSystemKnown)
     {
+        mPointerToMatrix=lhsMatrix;
         mNonZerosUsed=mat_info.nz_used;
         //MatNorm(lhsMatrix, NORM_FROBENIUS, &mMatrixNorm);
         PC prec; //Type of pre-conditioner
@@ -110,6 +111,10 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNu
     }
     
     try {
+        if (mPointerToMatrix!=lhsMatrix)//Check that the matrix isn't wandering all over the place
+        {
+            EXCEPTION("Matrix location has changed");
+        }
         EventHandler::BeginEvent(SOLVE_LINEAR_SYSTEM);
         PETSCEXCEPT(KSPSolve(mSimpleSolver, rhsVector, lhs_vector));
         EventHandler::EndEvent(SOLVE_LINEAR_SYSTEM);

@@ -443,7 +443,8 @@ public:
         
         // what happens when we solve?
         Vec solution_vector2;
-        solution_vector2 = ls2.Solve(&solver);
+        SimpleLinearSolver solver2(1e-6);
+        solution_vector2 = ls2.Solve(&solver2);
         
         //Check answers
         double expected_solution[3]={-68.0,6.0,80.0};
@@ -470,6 +471,49 @@ public:
        
         
     }
+    
+    void TestSolverCannotHaveDifferentMatricesInput() throw (Exception)
+    {
+        LinearSystem ls = LinearSystem(3);
         
+        // Enter non-symmetric data
+        for (int row=0; row<3; row++)
+        {
+            for (int col=0; col<3; col++)
+            {
+                ls.SetMatrixElement(row, col, (double)(10+row-col));
+            }
+        }
+        ls.AssembleFinalLinearSystem();
+        
+        // arbitrary
+        ls.SetRhsVectorElement(0, 14.0);
+        ls.SetRhsVectorElement(1, 32.0);
+        ls.SetRhsVectorElement(2, 50.0);
+        
+        // solving should be fine
+        SimpleLinearSolver solver(1e-6);
+        Vec solution_vector;
+        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
+        
+        //Do it all again
+        LinearSystem ls2 = LinearSystem(3);
+        
+        // Enter non-symmetric data
+        for (int row=0; row<3; row++)
+        {
+            for (int col=0; col<3; col++)
+            {
+                ls2.SetMatrixElement(row, col, (double)(10+row-col));
+            }
+        }
+        ls2.AssembleFinalLinearSystem();
+        
+        // arbitrary
+        ls2.SetRhsVectorElement(0, 14.0);
+        ls2.SetRhsVectorElement(1, 32.0);
+        ls2.SetRhsVectorElement(2, 50.0);
+        TS_ASSERT_THROWS_ANYTHING(solution_vector = ls2.Solve(&solver));
+    }
 };
 #endif //_TESTLINEARSYSTEM_HPP_

@@ -137,8 +137,8 @@ public :
         VecDestroy(initial_condition);
     }
     
-    //Ticket 487
-    void PleaseFixTestParabolicFlaggedMeshAssembler() throw (Exception)
+    
+    void FailingTest_TestParabolicFlaggedMeshAssembler() throw (Exception)
     {
         if (!PetscTools::IsSequential())
         {
@@ -171,8 +171,9 @@ public :
         Vec initial_condition_everywhere = PetscTools::CreateVec(flagged_mesh.GetNumNodes(),1.0);
         flagged_assembler.SetInitialCondition(initial_condition_everywhere);
 
-        // solve
-        Vec result_flagged = flagged_assembler.Solve();
+        // solve //Ticket 487: Currently throws
+        Vec result_flagged;
+        TS_ASSERT_THROWS_ANYTHING( result_flagged = flagged_assembler.Solve() );
         ReplicatableVector result_flagged_repl(result_flagged);
 
 
