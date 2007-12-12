@@ -7,22 +7,30 @@
 #include "TrianglesMeshReader.cpp"
 #include "SimulationTime.hpp"
 
+/**
+ * Note that all these tests call setUp() and tearDown() before running,
+ * so if you copy them into a new test suite be sure to copy these methods
+ * too.
+ */
 class TestCellsGenerator : public CxxTest::TestSuite
-{    
+{   
 private:
-    void SetUpTime()
-    {   // 
-        if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
-        {
-            SimulationTime::Instance()->SetStartTime(0.0);
-        }  
+
+    void setUp()
+    {
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+    }
+    void tearDown()
+    {
+        // Clear up singleton classes
+        SimulationTime::Destroy();
     }
 
 public:
+
     void TestCellsGeneratorBasic() throw(Exception)
-    {
-        SetUpTime();
-        
+    {        
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
         
         ConformingTetrahedralMesh<2,2> mesh;
@@ -40,23 +48,23 @@ public:
             TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(i), 1e-9);   
         }
-        SimulationTime::Destroy();
     }
     
+    
     void TestSimpleCellsGeneratorForCryptRandom() throw(Exception)
-    {
-        SetUpTime();
-        
+    {        
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
         
         CellsGenerator<2> generator;
         
-        std::vector<TissueCell> cells;        
+        std::vector<TissueCell> cells;  
+              
         double y0 = 0.2;
         double y1 = 1.0;
         double y2 = 2.0;
         double y3 = 3.0;
+        
         generator.GenerateForCrypt(cells, *p_mesh, FIXED, true, y0, y1, y2 ,y3 );
         
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
@@ -87,13 +95,11 @@ public:
                 TS_ASSERT_EQUALS(generation, 4u);
             }
         }
-        SimulationTime::Destroy();
     }
+    
     
     void TestSimpleCellsGeneratorForCryptNonRandom() throw(Exception)
     {
-        SetUpTime();
-        
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
         
@@ -135,14 +141,11 @@ public:
             
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);   
         }
-        
-        SimulationTime::Destroy();
     }
+    
     
     void TestOdeCellsGeneratorForCryptRandom() throw(Exception)
     {
-        SetUpTime();
-        
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
         
@@ -157,13 +160,11 @@ public:
         {
             TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
         }
-        SimulationTime::Destroy();
     }
+    
     
     void TestOdeCellsGeneratorForCryptNonRandom() throw(Exception)
     {
-        SetUpTime();
-        
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();;
         
@@ -186,8 +187,6 @@ public:
         generator.GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_ONE, false);
         generator.GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_TWO, false);
         generator.GenerateForCrypt(cells, *p_mesh, STOCHASTIC_WNT, false);
-        
-        SimulationTime::Destroy();
     }
     
 };

@@ -10,14 +10,32 @@
 #include "CryptVoronoiDataWriter.hpp"
 #include "CellsGenerator.hpp"
 
+/**
+ * Note that all these tests call setUp() and tearDown() before running,
+ * so if you copy them into a new test suite be sure to copy these methods
+ * too.
+ */
 class TestCryptVoronoiDataWriter : public CxxTest::TestSuite
 {    
+private:
+
+    void setUp()
+    {
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+    }
+    void tearDown()
+    {
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+    }
+    
 public:
+
     void TestDataWriter()
     {
         // set up the simulation time object so the cells can be created
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,1);
         
         // create a simple mesh
@@ -46,15 +64,12 @@ public:
         OutputFileHandler handler("TestCryptVoronoiDataWriter",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "Simple.dat";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/Simple.dat").c_str()), 0);
-        
-        SimulationTime::Destroy();
     }
 
     void TestDataWriterWithLoggedCell()
     {
         // set up the simulation time object so the cells can be created
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,1);
         
         // create a simple mesh
@@ -87,8 +102,6 @@ public:
         OutputFileHandler handler("TestCryptVoronoiDataWriter",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "OneCell.dat";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/OneCell.dat").c_str()), 0);
-        
-        SimulationTime::Destroy();
     }
 };
 

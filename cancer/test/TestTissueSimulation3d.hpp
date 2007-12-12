@@ -20,6 +20,8 @@
 
 class TestTissueSimulation3d : public CxxTest::TestSuite
 {
+private:
+
     ConformingTetrahedralMesh<3,3> Make3dMesh(unsigned width=3, unsigned height=3, unsigned depth=3)
     {
         ConformingTetrahedralMesh<3,3> mesh;

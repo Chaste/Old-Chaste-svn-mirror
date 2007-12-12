@@ -14,16 +14,34 @@
 #include "CellsGenerator.hpp"
 #include "OutputFileHandler.hpp"
 
-
+/**
+ * Note that all these tests call setUp() and tearDown() before running,
+ * so if you copy them into a new test suite be sure to copy these methods
+ * too.
+ */
 class TestDiscreteSystemForceCalculator : public CxxTest::TestSuite
 {
+private:
+
+    void setUp()
+    {
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+        RandomNumberGenerator::Instance()->Reseed(0);
+        CancerParameters::Instance()->Reset();
+    }
+    void tearDown()
+    {
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+    
 public:
 
     void TestPrivateMethods() throw (Exception)
     {
-        // Set up a tissue 
-        CancerParameters::Instance();
-        SimulationTime::Instance()->SetStartTime(0.0);        
+        // Set up a tissue    
                 
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
         ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
@@ -110,16 +128,11 @@ public:
         TS_ASSERT_DELTA(-M_PI + M_PI/2.0, calculated_extremal_angles[2], 1e-4);
         TS_ASSERT_DELTA(-M_PI + 2.0*M_PI/3.0, calculated_extremal_angles[3], 1e-4);
         TS_ASSERT_DELTA(-M_PI + 5.0*M_PI/6.0, calculated_extremal_angles[4], 1e-4);
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
     void TestCalculateExtremalNormalForces() throw (Exception)
     {
-        // Set up a tissue 
-        CancerParameters::Instance();
-        SimulationTime::Instance()->SetStartTime(0.0);        
+        // Set up a tissue       
                 
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
         ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
@@ -182,15 +195,13 @@ public:
                 }
             }
         }        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
     void TestCalculateWriteResultsToFile() throw (Exception)
     {
         std::string output_directory = "TestDiscreteSystemForceCalculator"; 
+        
         // Set up a tissue 
-        SimulationTime::Instance()->SetStartTime(0.0);
                 
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
         ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
@@ -226,10 +237,6 @@ public:
         simulator.SetEndTime(0.05);
         simulator.SetOutputDirectory(output_directory);
         simulator.Solve();
-        
-        // Tidy up 
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
 };

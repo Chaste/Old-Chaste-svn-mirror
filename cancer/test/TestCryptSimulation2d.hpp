@@ -33,6 +33,8 @@
  */
 class TestCryptSimulation2d : public CxxTest::TestSuite
 {
+private:
+
     /**
      * Compare 2 meshes to see if they are 'the same'.  Doesn't check everything,
      * but is fairly thorough.  Used for testing serialization.

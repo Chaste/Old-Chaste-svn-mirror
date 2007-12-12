@@ -13,13 +13,31 @@
 #include "TissueCell.hpp"
 #include "WntCellCycleModel.hpp"
 
+/**
+ * Note that all these tests call setUp() and tearDown() before running,
+ * so if you copy them into a new test suite be sure to copy these methods
+ * too.
+ */
 class TestWntGradient : public CxxTest::TestSuite
 {
+private:
+    
+    void setUp()
+    {
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+        CancerParameters::Instance()->Reset();
+    }
+    void tearDown()
+    {        
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+        WntGradient::Destroy();
+    }
+    
 public:    
     void TestNoWntGradient() throw(Exception)
     {
-        CancerParameters::Instance()->Reset();
-
         WntGradient* p_wnt_gradient = WntGradient::Instance();
         p_wnt_gradient->SetType(NONE);
         
@@ -30,14 +48,10 @@ public:
         wnt_level = p_wnt_gradient->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
-        
-        WntGradient::Destroy();
     }
     
     void TestLinearWntGradient() throw(Exception)
     {
-        CancerParameters::Instance()->Reset();
-        
         WntGradient* p_wnt_gradient = WntGradient::Instance();
         p_wnt_gradient->SetType(LINEAR);
         
@@ -62,15 +76,11 @@ public:
         wnt_level = p_wnt_gradient->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
-        
-        WntGradient::Destroy();
     }
     
     
     void TestOffsetLinearWntGradient() throw(Exception)
     {
-        CancerParameters::Instance()->Reset();
-
         WntGradient* p_wnt_gradient = WntGradient::Instance();
         p_wnt_gradient->SetType(OFFSET_LINEAR);
 
@@ -103,15 +113,11 @@ public:
         height = 10.0;
         wnt_level = p_wnt_gradient->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
-        
-        WntGradient::Destroy();
     }
     
     
     void TestRadialWntGradient() throw(Exception)
     {
-        CancerParameters::Instance()->Reset();
-
         WntGradient* p_wnt_gradient = WntGradient::Instance();
         p_wnt_gradient->SetType(RADIAL);
 
@@ -141,14 +147,9 @@ public:
         height = 7.0;
         wnt_level = p_wnt_gradient->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.6818, 1e-4);
-        
-        
+                
         // Test GetWntLevel(TissueCell*) method
-        
-        // set up the simulation time object so the cells can be created
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+                
         // create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -181,16 +182,11 @@ public:
         {
             TS_ASSERT_DELTA(p_wnt_gradient->GetWntLevel(&(*cell_iter)), wnt_gradient_at_cell0, 1e-12);
             ++cell_iter;
-        }
-                
-        SimulationTime::Destroy();
-        WntGradient::Destroy();
+        }                
     }
     
     void TestArchiveWntGradient()
     {
-        CancerParameters::Instance()->Reset();
-
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_grad.arch";
@@ -222,14 +218,12 @@ public:
             double wnt_level = p_wnt->GetWntLevel(height);
             
             TS_ASSERT_DELTA(wnt_level, 1.0-height/CancerParameters::Instance()->GetCryptLength(), 1e-9);
-            WntGradient::Destroy();
         }
     }
     
     
     void TestSingletonnessOfWntGradient()
     {
-        CancerParameters::Instance()->Reset();
         CancerParameters *params = CancerParameters::Instance();
         
         WntGradient* p_wnt_gradient = WntGradient::Instance();
@@ -268,18 +262,12 @@ public:
         
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
         
-        TS_ASSERT_THROWS_ANYTHING(p_wnt_gradient->SetConstantWntValueForTesting(-10));
-        
-        WntGradient::Destroy();
+        TS_ASSERT_THROWS_ANYTHING(p_wnt_gradient->SetConstantWntValueForTesting(-10));      
     }
     
     
     void TestWntInitialisationSetup() throw(Exception)
-    {
-        // set up the simulation time object so the cells can be created
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-                
+    {                
         // create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -331,8 +319,6 @@ public:
 
             ++iter;
         }
-
-        WntGradient::Destroy();
     }
 };
 

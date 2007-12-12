@@ -17,56 +17,38 @@
 #include "WntCellCycleModel.hpp"
 #include "Alarcon2004OxygenBasedCellCycleModel.hpp"
 #include "WntGradient.hpp"
+#include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 
+/**
+ * Note that all these tests call setUp() and tearDown() before running,
+ * so if you copy them into a new test suite be sure to copy these methods
+ * too.
+ */
 class TestOdeCellCycleModels : public CxxTest::TestSuite
 {
-private:
-    void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel, double g1Duration)
-    {   
-        double age = pModel->GetAge();
-        CancerParameters* p_params = CancerParameters::Instance();
-        
-        if (pModel->GetCell()->GetCellType()==DIFFERENTIATED)
-        {
-        	TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ZERO_PHASE);	
-        }
-        else if (age < p_params->GetMDuration())
-        {   // if in M phase
-            TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),M_PHASE);
-        }
-        else if (age < p_params->GetMDuration() + g1Duration)
-        {   // if in G1 phase
-            TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_ONE_PHASE);
-        }
-        else if (age < p_params->GetMDuration() + g1Duration + p_params->GetSDuration())
-        {   // if in S phase
-            TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),S_PHASE);
-        }
-        else if (age < p_params->GetMDuration() + g1Duration + p_params->GetSDuration() + p_params->GetG2Duration() )
-        {   // if in G2 phase
-            TS_ASSERT(!pModel->ReadyToDivide());
-            TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_TWO_PHASE);
-        }
-        else
-        {
-            TS_ASSERT(pModel->ReadyToDivide());
-        }
+private:    
+    
+    void setUp()
+    {
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+        RandomNumberGenerator::Instance()->Reseed(0);
+        CancerParameters::Instance()->Reset();
+    }
+    void tearDown()
+    {
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
                 
 public:    
     
     void TestTysonNovakCellCycleModel(void) throw(Exception)
-    {
-        CancerParameters::Instance()->Reset();
-        
+    {        
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         int num_timesteps = 100;
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, num_timesteps); // just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
                 
         double standard_divide_time = 75.19/60.0;
         
@@ -139,21 +121,17 @@ public:
         TS_ASSERT_DELTA(proteins[3],1.40562614481544, 1e-1);
         TS_ASSERT_DELTA(proteins[4],0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(proteins[5],0.95328206604519, 1e-2);
-        
-        SimulationTime::Destroy();
     }
+    
     
     void TestWntCellCycleModelForVaryingWntStimulus() throw(Exception)
     {
-        CancerParameters::Instance()->Reset();
-        
         // Here we have a system at rest at Wnt = 1.0 - it would normally go into S phase at 5.971.
         // Instead we reduce Wnt linearly over 1<t<2 to zero and the cell doesn't divide.
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         
         double end_time = 10.0 + CancerParameters::Instance()->GetMDuration(); //hours
         int num_timesteps = 1000*(int)end_time;
-        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);// 15.971 hours to go into S phase
                 
         double wnt_level = 1.0;
@@ -209,22 +187,19 @@ public:
         
         TS_ASSERT_DELTA(test_results[6] , diff + 0.5*7.415537855270896e-03 , 1e-5);
         TS_ASSERT_DELTA(test_results[5] , 9.999999999999998e-01 , 1e-5);
-                
-        SimulationTime::Destroy();        
+                 
         WntGradient::Destroy();
     }
     
+    
     void TestIngeWntSwatCellCycleModel() throw(Exception)
-    {
-        CancerParameters::Instance()->Reset();
-        
+    { 
         // Here we have a system at rest at Wnt = 1.0 - it would normally go into S phase at 5.971.
         // Instead we reduce Wnt linearly over 0<t<1 to zero and the cell doesn't divide.
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         
         double end_time = 30; //hours
         int num_timesteps = 1000*(int)end_time;
-        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);// 15.971 hours to go into S phase
                 
         double wnt_level = 1.0;
@@ -386,18 +361,15 @@ public:
         TS_ASSERT_DELTA(p_cell_model->GetMembraneBoundBetaCateninLevel(), membrane_beta_cat, 1e-4);
         TS_ASSERT_DELTA(p_cell_model->GetCytoplasmicBetaCateninLevel(), cytoplasm_beta_cat, 1e-4);
         TS_ASSERT_DELTA(p_cell_model->GetNuclearBetaCateninLevel(), nuclear_beta_cat, 1e-4);
-        
-        SimulationTime::Destroy();        
+            
         WntGradient::Destroy();
     }
     
+    
     void TestWntCellCycleModelForAPCSingleHit(void) throw(Exception)
-    {
-        int num_timesteps = 500;
-
-        CancerParameters::Instance()->Reset();
+    {        
         SimulationTime *p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
+        int num_timesteps = 500;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
         
         double wnt_level = 1.0;        
@@ -418,9 +390,7 @@ public:
         stem_cell_1.InitialiseCellCycleModel();
         
         // Wnt cells not set up to deal with unknown mutations...
-        TissueCell cell(STEM, // type
-                        ALARCON_NORMAL,//Mutation State
-                        new WntCellCycleModel());
+        TissueCell cell(STEM, ALARCON_NORMAL, new WntCellCycleModel());
         TS_ASSERT_THROWS_ANYTHING(cell.InitialiseCellCycleModel());
                 
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
@@ -449,20 +419,16 @@ public:
             {
                 TS_ASSERT(result==true);
             }
-            //std::cout << "time = " << time << ", result = " << result << "\n" << std::flush;
         }
         
-        SimulationTime::Destroy();
         WntGradient::Destroy();
     }
     
+    
     void TestWntCellCycleModelForBetaCatSingleHit(void) throw(Exception)
-    {
-        CancerParameters::Instance()->Reset();
-
-        int num_timesteps = 500;
+    {        
         SimulationTime *p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
+        int num_timesteps = 500;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
 
         double wnt_level = 0.0;
@@ -498,20 +464,17 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, 7.82);
         }
         
-        SimulationTime::Destroy();
         WntGradient::Destroy();
     }
     
+    
     void TestWntCellCycleModelForAPCDoubleHit(void) throw(Exception)
-    {
-        CancerParameters::Instance()->Reset();
-        
-        int num_timesteps = 500;
+    { 
         SimulationTime *p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
+        int num_timesteps = 500;
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps); // 15.971 hours to go into S phase
         
-        double wnt_level = 0.738;// This shouldn't matter for this kind of cell!
+        double wnt_level = 0.738; // This shouldn't matter for this kind of cell!
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
                 
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
@@ -521,9 +484,7 @@ public:
         
         WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
                 
-        TissueCell stem_cell_2(STEM, // type
-                                     APC_TWO_HIT,//Mutation State
-                                     p_cell_model_2);   
+        TissueCell stem_cell_2(STEM, APC_TWO_HIT, p_cell_model_2);   
         stem_cell_2.InitialiseCellCycleModel();
         
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
@@ -543,16 +504,14 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, 3.9435);
         }
         
-        SimulationTime::Destroy();
         WntGradient::Destroy();
     }
     
+    
     void TestWntCellCycleModelForConstantWntStimulusHealthyCell(void) throw(Exception)
     {
-        CancerParameters::Instance()->Reset();
-        int num_timesteps = 500;
         SimulationTime *p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
+        int num_timesteps = 500;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
         
         double wnt_level = 1.0;
@@ -585,17 +544,14 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, 5.971);
         }
         
-        SimulationTime::Destroy();
         WntGradient::Destroy();
     }
     
+    
     void TestStochasticWntCellCycleModel() throw (Exception)
-    {
-        RandomNumberGenerator::Instance()->Reseed(0);
-        
-        int num_timesteps = 100;
+    { 
         SimulationTime *p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
+        int num_timesteps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20, num_timesteps);// 15.971 hours to go into S phase
 
         double wnt_level = 1.0;
@@ -631,19 +587,16 @@ public:
             }
         }
         
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
         WntGradient::Destroy();
     }
     
+    
     void TestAlarcon2004OxygenBasedCellCycleModel() throw(Exception)
     {        
-        CancerParameters::Instance()->Reset();
         CancerParameters::Instance()->SetHepaOneParameters();
        
         // set up SimulationTime         
         SimulationTime *p_simulation_time = SimulationTime::Instance();   
-        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20.0, 2);
         
         // set up oxygen_concentration        
@@ -684,15 +637,12 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(p_cell_model->ResetModel());     
 
-        SimulationTime::Destroy();
         CellwiseData<2>::Destroy();
     }
     
             
     void TestArchiveTysonNovakCellCycleModels()
     {
-        CancerParameters::Instance()->Reset();
-
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "tyson_novak_cell_cycle.arch";
@@ -700,15 +650,13 @@ public:
         // Create an ouput archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(100.0, 1);
+            
             TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel;
+            
             p_simulation_time->IncrementTimeOneStep();
             
-            TissueCell cell(TRANSIT, // type
-                            HEALTHY,//Mutation State
-                            p_model);
-            cell.InitialiseCellCycleModel();  
+            TissueCell cell(TRANSIT, HEALTHY, p_model);            cell.InitialiseCellCycleModel();  
             
             TS_ASSERT_EQUALS(p_model->ReadyToDivide(),true);
             
@@ -744,16 +692,13 @@ public:
             TS_ASSERT_EQUALS(p_model->ReadyToDivide(),true);
             TS_ASSERT_DELTA(p_model->GetBirthTime(),-1.0,1e-12);
             TS_ASSERT_DELTA(p_model->GetAge(),101.0,1e-12);
-            SimulationTime::Destroy();
             delete p_cell;
         }
     }
     
-    // NB - to archive a cell cycle model it has to be archived via the cell that owns it.
+    
     void TestArchiveWntCellCycleModel()
     {
-        CancerParameters::Instance()->Reset();
-
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_cell_cycle.arch";
@@ -762,14 +707,11 @@ public:
         // Create an ouput archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16, 2);
                        
             WntCellCycleModel* p_cell_model = new WntCellCycleModel();
             
-            TissueCell stem_cell(STEM, // type
-                                       HEALTHY,//Mutation State
-                                       p_cell_model);
+            TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
             stem_cell.InitialiseCellCycleModel();  
             
             p_simulation_time->IncrementTimeOneStep();            
@@ -818,18 +760,15 @@ public:
             TS_ASSERT_DELTA(p_cell_model->GetAge(),17.0,1e-12);
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
             TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), G_TWO_PHASE);
-            SimulationTime::Destroy();
             delete p_cell;
         }
 
         WntGradient::Destroy();
     }   
     
-    // NB - to archive a cell cycle model it has to be archived via the cell that owns it.
+    
     void TestArchiveIngeWntSwatCellCycleModel()
     {
-        CancerParameters::Instance()->Reset();
-
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "inge_wnt_swat_cell_cycle.arch";
@@ -838,14 +777,11 @@ public:
         // Create an ouput archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(17, 2);
                        
             IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1);
             
-            TissueCell stem_cell(STEM, // type
-                                 HEALTHY,//Mutation State
-                                 p_cell_model);
+            TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
             stem_cell.InitialiseCellCycleModel();  
             
             p_simulation_time->IncrementTimeOneStep();            
@@ -892,17 +828,15 @@ public:
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
             TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), G_TWO_PHASE);
 
-            SimulationTime::Destroy();
             delete p_cell;
         }
 
         WntGradient::Destroy();
     }   
         
+        
     void TestArchiveStochasticWntCellCycleModels()
     {
-        CancerParameters::Instance()->Reset();
-        RandomNumberGenerator::Instance()->Reseed(0);   // reset at beginning of this test.
         // In this case the first cycle time will be 5.971+9.0676 = 15.0386
         // note that the S-G2-M time is assigned when the cell finishes G1
         //(i.e. at time 5.971 here so the model has to be archived BEFORE that.
@@ -914,21 +848,15 @@ public:
         // Create an ouput archive
         {   // In this test the RandomNumberGenerator in existence 
             SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 1000);
             
             StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel();                    
                                            
-            TissueCell stoc_cell(STEM, // type
-                                       HEALTHY,//Mutation State
-                                       p_stoc_model); 
+            TissueCell stoc_cell(STEM, HEALTHY, p_stoc_model); 
             stoc_cell.InitialiseCellCycleModel();                                       
             
-            WntCellCycleModel* p_wnt_model = new WntCellCycleModel();
-            
-            TissueCell wnt_cell(STEM, // type
-                                      HEALTHY,//Mutation State
-                                      p_wnt_model); 
+            WntCellCycleModel* p_wnt_model = new WntCellCycleModel();            
+            TissueCell wnt_cell(STEM, HEALTHY, p_wnt_model);             
             wnt_cell.InitialiseCellCycleModel();                                       
                                        
             p_simulation_time->IncrementTimeOneStep(); // 5.5
@@ -937,10 +865,11 @@ public:
             {
                 p_simulation_time->IncrementTimeOneStep();   
             }
-            TS_ASSERT_EQUALS(stoc_cell.GetCellCycleModel()->ReadyToDivide(),false);
-            TS_ASSERT_EQUALS(wnt_cell.GetCellCycleModel()->ReadyToDivide(),false);
             
+            TS_ASSERT_EQUALS(stoc_cell.GetCellCycleModel()->ReadyToDivide(),false);
+            TS_ASSERT_EQUALS(wnt_cell.GetCellCycleModel()->ReadyToDivide(),false);            
             TS_ASSERT_EQUALS(stoc_cell.GetCellCycleModel()->GetCurrentCellCyclePhase(), G_ONE_PHASE);
+            
             // When these are included here they pass - so are moved down into 
             // after load to see if they still pass.
             
@@ -1010,16 +939,13 @@ public:
             
             delete p_stoc_cell;
             delete p_wnt_cell;
-            SimulationTime::Destroy();
         }
-        RandomNumberGenerator::Destroy();
         WntGradient::Destroy();
     }    
     
-    // NB - to archive a cell cycle model it has to be archived via the cell that owns it.
+    
     void TestArchiveAlarcon2004OxygenBasedCellCycleModels()
     {
-        CancerParameters::Instance()->Reset();
         CancerParameters::Instance()->SetHepaOneParameters();
 
         OutputFileHandler handler("archive", false);
@@ -1033,7 +959,6 @@ public:
         // Create an ouput archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 2);
             
             Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
@@ -1083,7 +1008,6 @@ public:
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(),-10.0,1e-12);
             TS_ASSERT_DELTA(p_cell_model->GetAge(),20.0,1e-12);
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
-            SimulationTime::Destroy();
             delete p_cell;
         }
 

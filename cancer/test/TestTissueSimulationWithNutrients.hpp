@@ -81,6 +81,8 @@ public:
 
 class TestTissueSimulationWithNutrients : public CxxTest::TestSuite
 {
+private:
+
     double mLastStartTime;
     void setUp()
     {

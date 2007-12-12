@@ -18,8 +18,29 @@
 #include "Tissue.cpp"
 #include "CellsGenerator.hpp"
 
+/**
+ * Note that all these tests call setUp() and tearDown() before running,
+ * so if you copy them into a new test suite be sure to copy these methods
+ * too.
+ */
 class TestTissue : public CxxTest::TestSuite
 {
+private:
+
+    void setUp()
+    {
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+        RandomNumberGenerator::Instance()->Reseed(0);
+        CancerParameters::Instance()->Reset();
+    }
+    void tearDown()
+    {
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+    
 private: 
     // test construction (without ghost nodes), accessors and iterator
     template<unsigned DIM>
@@ -40,11 +61,7 @@ private:
     
     template<unsigned DIM>
     void TestSimpleTissue(std::string meshFilename)
-    {
-        // set up the simulation time object so the cells can be created
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+    {        
         // create a simple mesh
         TrianglesMeshReader<DIM,DIM> mesh_reader(meshFilename);
         ConformingTetrahedralMesh<DIM,DIM> mesh;
@@ -83,16 +100,13 @@ private:
             {
                 TS_ASSERT_EQUALS(cell_iter.rGetLocation()[space_index], 
                                  mesh.GetNode(counter)->rGetLocation()[space_index]);
-            }
-  
+            }  
             counter++;
         }
         
         TS_ASSERT_EQUALS(counter, tissue.GetNumRealCells());
-        
-        SimulationTime::Destroy();
     }
-
+    
 
 public:
 
@@ -104,12 +118,9 @@ public:
         TestSimpleTissue<3>("mesh/test/data/cube_136_elements");
     }
     
+    
     void TestValidate()
-    {
-    	// set up the simulation time object so the cells can be created
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+    {        
         // create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -123,23 +134,18 @@ public:
 
 		// fails as no cell or ghost correponding to node 0        
         TS_ASSERT_THROWS_ANYTHING(Tissue<2> tissue2(mesh, cells));
-
-        SimulationTime::Destroy();
     }
     
     
     // test with ghost nodes, incl the Iterator doesn't loop over ghost nodes
     void TestTissueWithGhostNodes() throw(Exception)
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);        
-        
         unsigned num_cells_depth = 11;
         unsigned num_cells_width = 6;
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
 
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
@@ -190,15 +196,11 @@ public:
         
         // check counter = num_nodes - num_ghost_nodes
         TS_ASSERT_EQUALS(counter + ghost_node_indices.size(), p_mesh->GetNumNodes());
-        
-        SimulationTime::Destroy();
     }
     
+    
     void TestMoveCellAndAddCell()
-    {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);        
-        
+    {             
         // create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -256,14 +258,13 @@ public:
         // check the index of the new cell
         TissueCell& new_cell = tissue.rGetCells().back();
         TS_ASSERT_EQUALS(new_cell.GetNodeIndex(), old_num_nodes);
-        
-        SimulationTime::Destroy();
     }
+    
     
     void TestRemoveDeadCellsAndReMesh()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);        
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
         
         // create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -293,9 +294,9 @@ public:
 
         // num real cells should be num_nodes (81) - num_ghosts (11) = 70
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 70u);
-
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
+        
         p_simulation_time->IncrementTimeOneStep();
+        
         unsigned num_removed = tissue.RemoveDeadCells();
         
         TS_ASSERT_EQUALS(num_removed, 1u);
@@ -326,16 +327,14 @@ public:
             TS_ASSERT_EQUALS(tissue.rGetGhostNodes()[i], ((i<10)||(i==79))); 
         }
         
-        // finally, check the cells node indices have updated..
-        
-        SimulationTime::Destroy(); 
+        // \todo: finally, check the cells node indices have updated..
     }
     
     
     void TestAddAndRemoveAndAddWithOutRemesh()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);        
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);      
         
         // create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -372,8 +371,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 82u);
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), 82u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 71u);
-
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
+        
         p_simulation_time->IncrementTimeOneStep();
 
         unsigned num_removed = tissue.RemoveDeadCells();
@@ -394,17 +392,12 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 82u);
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), 82u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 71u);
-        
-        SimulationTime::Destroy();
     }
 
-    // test update ghost node positions
-    
+
+    // Test update ghost node positions    
     void TestOutputWriters()
-    {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);        
-        
+    {        
         // create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -455,10 +448,9 @@ public:
         for (unsigned i=1; i<5 ; i++)
         {
             TS_ASSERT_EQUALS(cellTypes[i], 0u);
-        }
-        
-        SimulationTime::Destroy();        
+        }         
     }
+    
     
     void TestSpringIterator2d() throw(Exception)
     {
@@ -480,8 +472,6 @@ public:
         }
         
         // set up simple tissue with honeycomb mesh
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);        
         
         unsigned num_cells_depth = 2;
         unsigned num_cells_width = 2;
@@ -520,16 +510,11 @@ public:
         }
         
          TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
-
-        SimulationTime::Destroy();        
     }
 
     // 3d test with some ghost nodes
     void TestSpringIterator3d() throw(Exception)
-    {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);        
-        
+    {        
         // create a simple mesh
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
         ConformingTetrahedralMesh<3,3> mesh;
@@ -597,16 +582,10 @@ public:
         }
         
         TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
-
-        SimulationTime::Destroy();        
     }
     
     void TestGetLocationOfCell() throw (Exception)
-    {
-        // set up the simulation time object so the cells can be created
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+    {        
         // create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -618,8 +597,7 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
         // create the tissue
-        Tissue<2> tissue(mesh, cells);
-        
+        Tissue<2> tissue(mesh, cells);        
                 
         // loop over nodes
         for (Tissue<2>::Iterator cell_iter = tissue.Begin();
@@ -634,16 +612,14 @@ public:
             // test GetLocationOfCell()
             TS_ASSERT_DELTA(node_location[0] , tissue.GetLocationOfCell(r_cell)[0] , 1e-9);
             TS_ASSERT_DELTA(node_location[1] , tissue.GetLocationOfCell(r_cell)[1] , 1e-9);
-        }// end loop
-        SimulationTime::Destroy(); 
+        }
     }
+    
     
     // At the moment the tissue cannot be properly archived since the mesh cannot be. This test
     // just checks that the cells are correctly archived.
     void TestArchivingTissue() throw (Exception)
-    {
-        CancerParameters::Instance()->Reset();
-        
+    {    
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "tissue.arch";
@@ -653,7 +629,6 @@ public:
             // need to set up time 
             unsigned num_steps=10;
             SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
             
             // create a simple mesh
@@ -738,16 +713,12 @@ public:
             // TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(),5u);            
             
             delete p_tissue;
-            SimulationTime::Destroy();
         }
     }
     
+    
     void TestSpringMarking()
-    {
-        // set up the simulation time object so the cells can be created
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+    {        
         // create a small tissue
         std::vector<Node<2> *> nodes;
         nodes.push_back(new Node<2>(0, false, 0, 0.5));
@@ -797,14 +768,11 @@ public:
         
         // check there is no marked spring between nodes 1 & 2
         TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
-        SimulationTime::Destroy();
     }
     
+    
     void TestSettingCellAncestors() throw (Exception)
-    {
-        // set up the simulation time object so the cells can be created
-        SimulationTime::Instance()->SetStartTime(0.0);
-        
+    {        
         // create a small tissue
         std::vector<Node<2> *> nodes;
         nodes.push_back(new Node<2>(0, false, 0, 0.5));
@@ -846,11 +814,9 @@ public:
         }
         remaining_ancestors = tissue.GetCellAncestors();
         TS_ASSERT_EQUALS(remaining_ancestors.size(), 1u);
-        
-        SimulationTime::Destroy();
     }
+    
 };
-
 
 
 #endif /*TESTTISSUE_HPP_*/

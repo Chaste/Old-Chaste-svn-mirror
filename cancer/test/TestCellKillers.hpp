@@ -27,13 +27,34 @@
 #include "OxygenBasedCellKiller.hpp"
 #include "CellsGenerator.hpp"
 
+/**
+ * Note that all these tests call setUp() and tearDown() before running,
+ * so if you copy them into a new test suite be sure to copy these methods
+ * too.
+ */
 class TestCellKillers : public CxxTest::TestSuite
 {
+private:
+
+    void setUp()
+    {
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+        RandomNumberGenerator::Instance()->Reseed(0);
+        CancerParameters::Instance()->Reset();
+    }
+    void tearDown()
+    {
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+    
 public:
+
     void TestRandomCellKiller(void) throw(Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
         
         // read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
@@ -41,7 +62,6 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
@@ -119,25 +139,19 @@ public:
         }
         
         TS_ASSERT(new_locations == old_locations);
-        RandomNumberGenerator::Destroy();  
-        SimulationTime::Destroy();
     }
            
 
     void TestSloughingCellKillerTopAndSides(void) throw(Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
         
         // read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.Translate(-0.25,-0.25);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+                
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         Tissue<2> tissue(mesh, cells);
@@ -177,25 +191,19 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS(x, 0.5);
             TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
         }
-
-        SimulationTime::Destroy();
     }   
 
 
     void TestSloughingCellKillerTopOnly(void) throw(Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
  
         // read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.Translate(-0.25,-0.25);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+                
         std::vector<TissueCell> cells;
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -238,8 +246,6 @@ public:
             double y = iter.rGetLocation()[1];
             TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
         }
-
-        SimulationTime::Destroy();
     }   
     
     
@@ -263,11 +269,7 @@ public:
         
         // choose radius of death (!)
         double radius = 0.4;
-        
-        // set up simulation time       
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+                
         // set up cells
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
@@ -305,21 +307,16 @@ public:
             double r = norm_2(cell_iter.rGetLocation() - centre);            
             TS_ASSERT_LESS_THAN_EQUALS(r, radius);
         }
-
-		// tidy up
-        SimulationTime::Destroy();
     }  
     
     void TestOxygenBasedCellKiller(void) throw(Exception)
     {        
-        CancerParameters::Instance()->Reset();   
         CancerParameters::Instance()->SetHepaOneParameters();
         
         // Set SimulationTime so that the time step is not too small         
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         double end_time = 1.0; 
         int num_timesteps = 100*(int)end_time;
-        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
         
         // Read in a mesh
@@ -397,16 +394,12 @@ public:
         }
         
         TS_ASSERT(new_locations == old_locations);
-        RandomNumberGenerator::Destroy();  
-        SimulationTime::Destroy();        
         CellwiseData<2>::Destroy();
     }      
     
     
     void TestArchivingOfRandomCellKiller() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();    
-    
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "random_killer.arch";

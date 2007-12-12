@@ -23,20 +23,35 @@
 #include "SimpleDataWriter.hpp"
 
 
+/**
+ * Note that all these tests call setUp() and tearDown() before running,
+ * so if you copy them into a new test suite be sure to copy these methods
+ * too.
+ */
 class TestCryptStatistics : public CxxTest::TestSuite
 {
+private:
+
+    void setUp()
+    {
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+        CancerParameters::Instance()->Reset();
+    }
+    void tearDown()
+    {
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+    }
+    
 public:
+
     void TestGetSection() throw (Exception)
     {        
-        CancerParameters::Instance()->Reset();
-
         unsigned cells_across = 3;
         unsigned cells_up = 3;
         unsigned thickness_of_ghost_layer = 0;
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+                
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
@@ -121,14 +136,12 @@ public:
             TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(), 
                               expected_indices_periodic_3[i]);
         }
-        SimulationTime::Destroy();
     }
     
     
     void TestMakeMeinekeGraphs() throw (Exception)
     {        
         CancerParameters* p_params = CancerParameters::Instance();
-        p_params->Reset();
         
         std::string output_directory = "MakeMeinekeGraphs";
                 
@@ -140,10 +153,7 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+                
         // Set up cells
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC, true);
@@ -289,11 +299,14 @@ public:
         }
         
         delete p_cell_killer;
-        SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
     
-    /** This test runs multipe crypt simulations and records whether or not labelled cells are in a randomly chosen crypt section **/
+    
+    /** 
+     * This test runs multipe crypt simulations and records whether 
+     * or not labelled cells are in a randomly chosen crypt section.
+     */
     void TestMultipleCryptSimulations() throw (Exception)
     {        
         std::string output_directory = "MakeMoreMeinekeGraphs";
@@ -316,7 +329,6 @@ public:
         }
 
         CancerParameters* p_params = CancerParameters::Instance();
-        p_params->Reset();
         
         p_params->SetDampingConstantNormal(1.0);    // normally 1   
         // Do not give mutant cells any different movement properties to normal ones
@@ -350,6 +362,7 @@ public:
             p_mesh=generator.GetCylindricalMesh();
             
             // reset start time
+            SimulationTime::Destroy();
             p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             
@@ -403,33 +416,31 @@ public:
             cells.clear();
             labelled.clear();
             WntGradient::Destroy();    
-            SimulationTime::Destroy();
             
             //delete p_generator;
             delete p_crypt_statistics;
             delete p_crypt;
             delete p_cell_killer;        
         }
+            
+        // Calculate percentage of labelled cells at each position in 'labelled_cells_counter'
+        std::vector<double> percentage_of_labelled_cells(max_length_of_crypt_section);
+        for (unsigned index=0; index < max_length_of_crypt_section; index ++)
+        {
+            percentage_of_labelled_cells[index] = (double)labelled_cells_counter[index]/num_simulations;
+        }
         
-    // Calculate percentage of labelled cells at each position in 'labelled_cells_counter'
-    std::vector<double> percentage_of_labelled_cells(max_length_of_crypt_section);
-    for (unsigned index=0; index < max_length_of_crypt_section; index ++)
-    {
-        percentage_of_labelled_cells[index] = (double)labelled_cells_counter[index]/num_simulations;
-    }
-    
-     //Write data to file
-    SimpleDataWriter writer1(output_directory , "percentage_of_labelled_cells.dat", percentage_of_labelled_cells, false);
-    
-    // Test against previous run    
-    // ... and checking visualization of labelled cells against previous run
-    OutputFileHandler handler("MakeMoreMeinekeGraphs",false);
-    std::string results_file = handler.GetOutputDirectoryFullPath() + "percentage_of_labelled_cells.dat";
-    TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/MakeMoreMeinekeGraphs/percentage_of_labelled_cells.dat").c_str()), 0);
-       
-    delete p_params;
-    RandomNumberGenerator::Destroy();
-       
+         //Write data to file
+        SimpleDataWriter writer1(output_directory , "percentage_of_labelled_cells.dat", percentage_of_labelled_cells, false);
+        
+        // Test against previous run    
+        // ... and checking visualization of labelled cells against previous run
+        OutputFileHandler handler("MakeMoreMeinekeGraphs",false);
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "percentage_of_labelled_cells.dat";
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/MakeMoreMeinekeGraphs/percentage_of_labelled_cells.dat").c_str()), 0);
+           
+        delete p_params;       
+        RandomNumberGenerator::Destroy();
     }
 };
 

@@ -12,17 +12,31 @@
 #include "CellwiseData.cpp"
 #include "CellsGenerator.hpp"
 
-
+/**
+ * Note that all these tests call setUp() and tearDown() before running,
+ * so if you copy them into a new test suite be sure to copy these methods
+ * too.
+ */
 class TestCellwiseData : public CxxTest::TestSuite
 {
+private:
+
+    void setUp()
+    {
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+        CancerParameters::Instance()->Reset();
+    }
+    void tearDown()
+    {
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+    }
+    
 public:
 
     void TestCellwiseDataSimple() throw(Exception)
-    {
-        // set up the simulation time object so the cells can be created
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+    {        
         // create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -98,17 +112,13 @@ public:
         ++iter2;
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 0), 0.0, 1e-12);
         
-        SimulationTime::Destroy();
         CellwiseData<2>::Destroy();
     }
     
     
     void TestArchiveCellwiseData()
     {
-        // Set up the simulation time object so the cells can be created
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
          
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -176,8 +186,6 @@ public:
             delete p_data->mpTissue;
             CellwiseData<2>::Destroy();
         }
-        
-        SimulationTime::Destroy();
     }
     
 };        

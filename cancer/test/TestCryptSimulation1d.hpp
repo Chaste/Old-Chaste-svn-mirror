@@ -18,9 +18,15 @@
 #include "CancerParameters.hpp"
 #include "ColumnDataReader.hpp"
 
-
+/**
+ * Note that all these tests call setUp() and tearDown() before running,
+ * so if you copy them into a new test suite be sure to copy these methods
+ * too.
+ */
 class TestCryptSimulation1d : public CxxTest::TestSuite
 {
+private:
+    
     void Make1dCryptMesh(std::string meshFilename, unsigned numNodesInEachDimension, double length)
     {
         OutputFileHandler output_file_handler("CryptMesh");
@@ -94,6 +100,20 @@ class TestCryptSimulation1d : public CxxTest::TestSuite
         }
     }
     
+    void setUp()
+    {
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+        RandomNumberGenerator::Instance()->Reseed(0);
+        CancerParameters::Instance()->Reset();
+    }
+    void tearDown()
+    {
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+    
 public:
 
     void TestExceptions(void)
@@ -106,17 +126,19 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
+        // we have to destroy SimulationTime as it is automatically instantiated in SetUp()
+        SimulationTime::Destroy();
+        
         // throws because start time not set on simulation time
         TS_ASSERT_THROWS_ANYTHING(CryptSimulation1d bad_simulator(mesh));
         
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+        // now we must re-instantiate SimulationTime
+        SimulationTime::Instance()->SetStartTime(0.0);
+                
         CryptSimulation1d simulator(mesh);
         simulator.SetDt(1.0/120.0); // i.e. 30s: this is the default - just for coverage
         simulator.SetEndTime(0.25);
-        TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
-        
+        TS_ASSERT_THROWS_ANYTHING(simulator.Solve());        
     }
     
     // No birth because SetIncludeRandomBirth() was not called.
@@ -125,8 +147,6 @@ public:
     // are sloughed off.
     void Test1dChainWithNoBirth(void) throw(Exception)
     {
-        CancerParameters::Instance()->Reset();
-        
         Make1dCryptMesh("1D_crypt_mesh", 22, 21);
         std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
         
@@ -137,10 +157,7 @@ public:
         ChastePoint<1> shifted_point;
         shifted_point.rGetLocation()[0]=10.5;
         mesh.SetNode(10, shifted_point);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+                
         CryptSimulation1d simulator(mesh);
         simulator.SetOutputDirectory("CryptWithNoBirthAndNoDeath");
         simulator.SetMaxCells(22);
@@ -163,8 +180,6 @@ public:
     // the crypt.
     void Test1dChainWithDeathAndNoBirth(void) throw(Exception)
     {
-        CancerParameters::Instance()->Reset();
-
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
         
@@ -175,10 +190,7 @@ public:
         ChastePoint<1> shifted_point;
         shifted_point.rGetLocation()[0]=10.5;
         mesh.SetNode(10, shifted_point);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+                
         CryptSimulation1d simulator(mesh);
         simulator.SetOutputDirectory("CryptWithDeathButNoBirth");
         simulator.SetMaxCells(23);
@@ -207,16 +219,13 @@ public:
         
         CheckAgainstPreviousRun("CryptWithDeathButNoBirth", 23);
     }
-    
-        
+            
     
     // Create a chain of cells (1 stem, 14 transit cells and 8 differentiated)
     // and pass into the simulation class
     void Test1DChainWithMeinekeCells() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
-        RandomNumberGenerator *p_rand_gen=RandomNumberGenerator::Instance();
-        
+        RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();        
         CancerParameters *p_params = CancerParameters::Instance();
         
         double crypt_length = 22.0;
@@ -229,9 +238,7 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+                
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumNodes();
         std::vector<TissueCell> cells;
@@ -245,20 +252,20 @@ public:
                 cell_type = STEM;
                 generation = 0;
                 birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
-                                                  + p_params->GetSG2MDuration()); //hours - doesn't matter for stem cell;
+                                                  + p_params->GetSG2MDuration()); // hours - doesn't matter for stem cell
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
                 birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
-                                                    + p_params->GetSG2MDuration()); //hours
+                                                    + p_params->GetSG2MDuration()); // hours
             }
             else
             {
                 cell_type = DIFFERENTIATED;
                 generation = 4;
-                birth_time = 0; //hours
+                birth_time = 0; // hours
             }
             TissueCell cell(cell_type, HEALTHY, new StochasticCellCycleModel);
             cell.GetCellCycleModel()->SetGeneration(generation);
@@ -266,29 +273,24 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
-        
-        
+                
         CryptSimulation1d simulator(mesh, cells);
         
         simulator.SetOutputDirectory("CryptWithCells");
         simulator.SetMaxCells(50);
         simulator.SetEndTime(10.0);
-        
-        //std::cout << "Solving...\n";
-        
+                
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
         
 	    CheckAgainstPreviousRun("CryptWithCells",50);
-        RandomNumberGenerator::Destroy();
     }
     
     
-    // same as Test1DChainWithBirthVariableRestLength but with cells.
+    // Same as Test1DChainWithBirthVariableRestLength but with cells
     // (see comment for Test1DChainWithBirthVariableRestLength).
     void Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
         RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();
         
         double crypt_length = 22.0;
@@ -299,10 +301,7 @@ public:
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+                
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
         std::vector<TissueCell> cells;
@@ -316,20 +315,20 @@ public:
                 cell_type = STEM;
                 generation = 0;
                 birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
-                                                  + p_params->GetSG2MDuration()); //hours - doesn't matter for stem cell;
+                                                  + p_params->GetSG2MDuration());
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
                 birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
-                                                   + p_params->GetSG2MDuration()); //hours
+                                                   + p_params->GetSG2MDuration()); 
             }
             else
             {
                 cell_type = DIFFERENTIATED;
                 generation = 4;
-                birth_time = 0; //hours
+                birth_time = 0; 
             }
             TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
             cell.GetCellCycleModel()->SetGeneration(generation);
@@ -342,22 +341,18 @@ public:
         
         simulator.SetOutputDirectory("CryptWithCellsAndGrowth");
         simulator.SetMaxCells(50);
-        simulator.SetEndTime(10.0);
-        
+        simulator.SetEndTime(10.0);        
         simulator.SetIncludeVariableRestLength();
         
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
         
         CheckAgainstPreviousRun("CryptWithCellsAndGrowth",50);
-        RandomNumberGenerator::Destroy();
     }
-    
-    
+        
       
     void Test1DChainWithTysonNovakCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
         RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();
         
         double crypt_length = 22.0;
@@ -368,10 +363,7 @@ public:
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+                
         // For Tyson-Novak Cells
         double temp_stem = p_params->GetStemCellG1Duration()+p_params->GetSG2MDuration();
         double temp_transit = p_params->GetTransitCellG1Duration()+p_params->GetSG2MDuration();
@@ -394,20 +386,20 @@ public:
                 cell_type = STEM;
                 generation = 0;
                 birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
-                                                  + p_params->GetSG2MDuration()); //hours - doesn't matter for stem cell;
+                                                  + p_params->GetSG2MDuration()); 
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
                 birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
-                                                    + p_params->GetSG2MDuration()); //hours
+                                                    + p_params->GetSG2MDuration()); 
             }
             else
             {
                 cell_type = DIFFERENTIATED;
                 generation = 4;
-                birth_time = 0; //hours
+                birth_time = 0; 
             }
             TissueCell cell(cell_type, HEALTHY, new TysonNovakCellCycleModel());
             cell.GetCellCycleModel()->SetGeneration(generation);
@@ -420,8 +412,7 @@ public:
         
         simulator.SetOutputDirectory("CryptWithTysonNovakCells");
         simulator.SetMaxCells(500);
-        simulator.SetEndTime(1.35);
-        
+        simulator.SetEndTime(1.35);        
         simulator.SetIncludeVariableRestLength();
         
         simulator.Solve();
@@ -439,8 +430,7 @@ public:
         p_params->SetStemCellG1Duration(temp_stem - 10.0);
         p_params->SetTransitCellG1Duration(temp_transit - 10.0);
     }
-    
-    
+        
     
     /////////////////////////////////////////////////////////////////////////////
     // create a chain of 1 stem cell and the test differentiated and check
@@ -449,8 +439,6 @@ public:
     void Test1dChainCorrectCellNumbers()
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-        RandomNumberGenerator::Instance();
         
         // check the stem cell cycle time is still 24 hrs, otherwise
         // this test might not pass
@@ -468,8 +456,6 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
@@ -483,13 +469,13 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = 0; //hours - doesn't matter for stem cell;
+                birth_time = 0; 
             }
             else
             {
                 cell_type = DIFFERENTIATED;
                 generation = 4;
-                birth_time = 0; //hours
+                birth_time = 0; 
             }
             TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
             cell.GetCellCycleModel()->SetGeneration(generation);
@@ -497,13 +483,11 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
-        
-        
+                
         CryptSimulation1d simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt1dTestCorrectCellNumbers");
         simulator.SetMaxCells(50);
-        simulator.SetEndTime(40);
-        
+        simulator.SetEndTime(40);        
         simulator.SetIncludeVariableRestLength();
         
         simulator.Solve();
@@ -540,8 +524,8 @@ public:
                 }
             }
         }
-        RandomNumberGenerator::Destroy();
     }
+    
 };
 
 #endif /*TESTCRYPTSIMULATION1D_HPP_*/

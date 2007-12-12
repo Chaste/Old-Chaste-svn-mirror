@@ -19,19 +19,39 @@
 #include "VoronoiTessellation.cpp"
 #include "CellsGenerator.hpp"
 
+/**
+ * Note that all these tests call setUp() and tearDown() before running,
+ * so if you copy them into a new test suite be sure to copy these methods
+ * too.
+ */
 class TestMeineke2001SpringSystem : public CxxTest::TestSuite
 {
+private:
+
+    void setUp()
+    {
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+        RandomNumberGenerator::Instance()->Reseed(0);
+        CancerParameters::Instance()->Reset();
+    }
+    void tearDown()
+    {
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+    
 public:
+
     void TestForceCalculations() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
         CancerParameters *p_params = CancerParameters::Instance();
  
         unsigned cells_across = 7;
         unsigned cells_up = 5;
         unsigned thickness_of_ghost_layer = 3;
         
-        SimulationTime::Instance()->SetStartTime(0.0);
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
         
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false);
@@ -135,17 +155,12 @@ public:
         force_on_spring = meineke_spring_system.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
         TS_ASSERT_DELTA(force_on_spring[0], 0.0, 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
 
-    void TestEdgeLengthBasedSpring() throw (Exception)
-    {        
-        CancerParameters::Instance()->Reset();
 
+    void TestEdgeLengthBasedSpring() throw (Exception)
+    {  
         // Set up the simulation time
-        SimulationTime::Instance()->SetStartTime(0.0);
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
                 
         unsigned cells_across = 6;
@@ -213,23 +228,16 @@ public:
         // force calculation: shift is along x-axis so we should have
         // new_edge_length = (5/6 + shift[0])*tan(0.5*arctan(5*sqrt(3)/(5 + 12*shift[0]))),
         // force^2 = mu^2 * (new_edge_length*sqrt(3))^2 * (1 - 5/6 - shift[0])^2
-        TS_ASSERT_DELTA(new_force[0]*new_force[0] + new_force[1]*new_force[1], 3.83479824,1e-3);
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();    
+        TS_ASSERT_DELTA(new_force[0]*new_force[0] + new_force[1]*new_force[1], 3.83479824,1e-3);       
     }
     
-
+    
+    // Test on a periodic mesh
     void TestEdgeBasedSpringsOnPeriodicMesh() throw (Exception)
-    {     
-        // Test on a periodic mesh
-        CancerParameters::Instance()->Reset();
-
+    { 
         // Set up the simulation time
-        SimulationTime::Instance()->SetStartTime(0.0);
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
-                
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 5.0;
@@ -274,19 +282,13 @@ public:
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
             c_vector<double, 2> force = meineke_spring_system.CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
-        }              
-            
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();                
+        }                          
     }
     
 
     void TestAreaBasedVisocity() throw (Exception)
-    {        
-        CancerParameters::Instance()->Reset();
-
+    {
         // Set up the simulation time
-        SimulationTime::Instance()->SetStartTime(0.0);
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
              
         unsigned cells_across = 3;
@@ -347,18 +349,13 @@ public:
         for(unsigned i=0; i<norm_vel.size(); i++)
         {
             TS_ASSERT_DELTA(norm_vel_area[i], norm_vel[i]/(0.1 +  1.2*0.9), 1e-3);            
-        }
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();    
+        }        
     }   
+        
         
     void TestAreaBasedVisocityOnAPeriodicMesh() throw (Exception)
     {        
-        CancerParameters::Instance()->Reset();
-
         // Set up the simulation time
-        SimulationTime::Instance()->SetStartTime(0.0);
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
                 
         unsigned cells_across = 3;
@@ -392,18 +389,11 @@ public:
                 TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);
             }
         }        
-        
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();    
     } 
 
 
     void TestSpringConstantsForMutantCells()
-    {
-        // set up the simulation time object so the cells can be created
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
+    {        
         // create a small tissue
         std::vector<Node<2> *> nodes;
         nodes.push_back(new Node<2>(0, false, 0, 0));
@@ -444,22 +434,17 @@ public:
         TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(1,2)), 45.0, 1e-10);
         TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(2,3)), 60.0, 1e-10);
         TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(3,0)), 45.0, 1e-10);
-        
-        SimulationTime::Destroy();
     }
     
 
     void TestSpringConstantsForIngeBCatCells()
     {
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->Reset();
-
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
+        
         HoneycombMeshGenerator generator(6, 12, 0, true, 1.1);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
-        SimulationTime::Instance()->SetStartTime(0.0);
-        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
         
         // Set up cells 
         std::vector<TissueCell> cells;                      
@@ -480,26 +465,21 @@ public:
         
         // Note this is just a crap test to check that you get some dependency on BCat of both cells
         TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(20,21)), 1.5*8.59312/18.14, 1e-5);
-        p_params->SetBetaCatSpringScaler(20/6.0);
+        CancerParameters::Instance()->SetBetaCatSpringScaler(20/6.0);
         TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(20,21)), 1.5*8.59312/20.0, 1e-5);
         
-        SimulationTime::Destroy();
         WntGradient::Destroy(); 
     }
 
 
     void TestCalcForcesIn3d() throw (Exception)
     {
-        CancerParameters::Instance()->Reset();
-
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_Single_tetrahedron_element");
-        
-        ConformingTetrahedralMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        SimulationTime::Instance()->SetStartTime(0.0);
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_Single_tetrahedron_element");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
         std::vector<TissueCell> cells;
         TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -591,8 +571,6 @@ public:
         {
             TS_ASSERT_DELTA(new_velocities[0](i),p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
         }
-  
-        SimulationTime::Destroy();
     } 
 
     
@@ -610,7 +588,6 @@ public:
             mesh.ConstructFromMeshReader(mesh_reader);
             num_nodes = mesh.GetNumNodes();
 
-            SimulationTime::Instance()->SetStartTime(0.0);
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
             std::vector<TissueCell> cells;

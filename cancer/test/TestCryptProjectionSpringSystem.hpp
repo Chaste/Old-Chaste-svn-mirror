@@ -11,22 +11,38 @@
 #include "FixedCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 
+/**
+ * Note that all these tests call setUp() and tearDown() before running,
+ * so if you copy them into a new test suite be sure to copy these methods
+ * too.
+ */
 class TestCryptProjectionSpringSystem : public CxxTest::TestSuite
 {
+private:
+
+    void setUp()
+    {
+        // Initialise singleton classes
+        SimulationTime::Instance()->SetStartTime(0.0);
+        CancerParameters::Instance()->Reset();
+    }
+    void tearDown()
+    {
+        // Clear up singleton classes
+        SimulationTime::Destroy();
+    }
+    
 public:   
     
     void TestSpringSystemMethods() throw (Exception)
     {      
-        // Instantiate any singletons
         CancerParameters* p_params = CancerParameters::Instance();
-        p_params->Reset();
 
         // Create a mesh 
         unsigned num_cells_width = 10;
         unsigned num_cells_depth = 10;
         unsigned thickness_of_ghost_layer = 0;
         
-        SimulationTime::Instance()->SetStartTime(0.0);
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
@@ -179,15 +195,12 @@ public:
             TS_ASSERT_DELTA( force_flat[0], force_meineke[0], 1e-3);
             TS_ASSERT_DELTA( force_flat[1], force_meineke[1], 1e-3);
         }
-        
-        SimulationTime::Destroy();
     }
     
     
     void TestArchiving() throw (Exception)
     {   
         CancerParameters* p_params = CancerParameters::Instance();
-        p_params->Reset();
         
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename;
@@ -201,7 +214,6 @@ public:
             mesh.ConstructFromMeshReader(mesh_reader);
             num_nodes = mesh.GetNumNodes();
 
-            SimulationTime::Instance()->SetStartTime(0.0);
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
             std::vector<TissueCell> cells;

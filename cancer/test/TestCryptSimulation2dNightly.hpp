@@ -65,6 +65,8 @@ public :
 
 class TestCryptSimulation2dNightly : public CxxTest::TestSuite
 {
+private:
+
     void CheckAgainstPreviousRun(std::string resultDirectory, std::string resultSet, unsigned maxCells, unsigned maxElements)
     {
         std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
