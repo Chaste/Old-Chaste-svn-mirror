@@ -75,6 +75,8 @@ public:
         mesh.ConstructFromMeshReader(reader);
         
         // Test interpolation of x and u
+        // Integrate x^2 + 2y over the unit square
+        // = 4/3
         ExampleFunctionalOne calculator;
         
         Vec petsc_vec = PetscTools::CreateVec(2*mesh.GetNumNodes(), 2.0);
@@ -94,6 +96,8 @@ public:
         TS_ASSERT_DELTA(result, 4.0/3.0, 1e-6);
         
         // Test interpolation of grad_u
+        // Integrate x^2 + y^2 + 1 over the unit square
+        // = 5/3
         ExampleFunctionalTwo other_calculator;
 
         DistributedVector::Stripe v(vec, 1);

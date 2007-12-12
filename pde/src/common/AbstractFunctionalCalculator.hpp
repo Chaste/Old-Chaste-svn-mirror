@@ -32,7 +32,6 @@ private:
                                 c_vector<double,PROBLEM_DIM> &rU,
                                 c_matrix<double,PROBLEM_DIM,SPACE_DIM> &rGradU)=0;
 
-    
     /** Compute the contribution to the integral from one element */
     double CalculateOnElement(Element<ELEMENT_DIM,SPACE_DIM>& rElement)
     {
@@ -61,17 +60,12 @@ private:
             c_vector<double,PROBLEM_DIM> u = zero_vector<double>(PROBLEM_DIM);
             c_matrix<double,PROBLEM_DIM,SPACE_DIM> grad_u = zero_matrix<double>(PROBLEM_DIM,SPACE_DIM);
             
-            
-            /////////////////////////////////////////////////////////////
-            // interpolation
-            /////////////////////////////////////////////////////////////
             for (unsigned i=0; i<num_nodes; i++)
             {
-                const Node<SPACE_DIM> *p_node = rElement.GetNode(i);
+                const c_vector<double, SPACE_DIM>& r_node_loc = rElement.GetNode(i)->rGetLocation();
                 
                 // interpolate x
-                const c_vector<double, SPACE_DIM> node_loc = p_node->rGetLocation();
-                x.rGetLocation() += phi(i)*node_loc;
+                x.rGetLocation() += phi(i)*r_node_loc;
                 
                 // interpolate u and grad u
                 unsigned node_global_index = rElement.GetNodeGlobalIndex(i);
@@ -112,14 +106,14 @@ public:
     {
         assert(solution);
         mSolutionReplicated.ReplicatePetscVector(solution);
-        if(mSolutionReplicated.size() != rMesh.GetNumNodes() * PROBLEM_DIM)
+        if (mSolutionReplicated.size() != rMesh.GetNumNodes() * PROBLEM_DIM)
         {
             EXCEPTION("The solution size does not match the mesh");
         }
         
         double result = 0;
     
-        for( typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
+        for (typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
                iter = rMesh.GetElementIteratorBegin();
              iter != rMesh.GetElementIteratorEnd();
              ++iter)

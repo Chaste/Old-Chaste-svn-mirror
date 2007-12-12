@@ -152,9 +152,9 @@ protected:
                 
                 if (NON_HEART)
                 {
-                    const c_vector<double, SPACE_DIM> node_loc = p_node->rGetLocation();
+                    const c_vector<double, SPACE_DIM>& r_node_loc = p_node->rGetLocation();
                     // interpolate x
-                    x.rGetLocation() += phi(i)*node_loc;
+                    x.rGetLocation() += phi(i)*r_node_loc;
                 }
                 
                 // interpolate u and grad u if a current solution or guess exists
