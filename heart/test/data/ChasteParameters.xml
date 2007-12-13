@@ -10,6 +10,6 @@
     <QuadrantStimulusDelay>1.0</QuadrantStimulusDelay>
     <OutputDirectory>SpiralWave</OutputDirectory>
     <MeshOutputDirectory>/tmp/Slab</MeshOutputDirectory>
-    <Domain>Mono</Domain>
+    <Domain>Bi</Domain>
     <IonicModel>LuoRudyIModel1991OdeSystem</IonicModel>
 </ChasteParameters>
