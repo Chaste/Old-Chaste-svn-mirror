@@ -65,9 +65,9 @@ private:
     {
         unsigned node_global_index = pNode->GetIndex();
         
-        mIionic                 += phi_i * mpBidomainPde->GetIionicCacheReplicated()[ node_global_index ];
-        mIIntracellularStimulus += phi_i * mpBidomainPde->GetIntracellularStimulusCacheReplicated()[ node_global_index ];
-        mIExtracellularStimulus += phi_i * mpBidomainPde->GetExtracellularStimulusCacheReplicated()[ node_global_index ];
+        mIionic                 += phi_i * mpBidomainPde->rGetIionicCacheReplicated()[ node_global_index ];
+        mIIntracellularStimulus += phi_i * mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
+        mIExtracellularStimulus += phi_i * mpBidomainPde->rGetExtracellularStimulusCacheReplicated()[ node_global_index ];
     }
     
     /**
@@ -87,8 +87,8 @@ private:
         double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
         double Cm = mpBidomainPde->GetCapacitance();
         
-        c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_i = mpBidomainPde->GetIntracellularConductivityTensor();
-        c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_e = mpBidomainPde->GetExtracellularConductivityTensor();
+        c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_i = mpBidomainPde->rGetIntracellularConductivityTensor();
+        c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_e = mpBidomainPde->rGetExtracellularConductivityTensor();
         
         
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, rGradPhi);
@@ -162,8 +162,7 @@ private:
 //            ret(2*index)=factor * rPhi(index);
 //            ret(2*index+1)=-mIExtracellularStimulus * rPhi(index);
 //        }
-//        
-//        
+   
         
         return ret;
     }

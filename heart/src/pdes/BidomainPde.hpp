@@ -64,7 +64,7 @@ public:
         mExtracellularConductivityTensor = extracellularConductivity;
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM> GetExtracellularConductivityTensor()
+    c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetExtracellularConductivityTensor()
     {
         return mExtracellularConductivityTensor;
     }
@@ -90,7 +90,7 @@ public:
         mExtracellularStimulusCacheReplicated.Replicate(lo, hi);
     }
     
-    ReplicatableVector& GetExtracellularStimulusCacheReplicated()
+    ReplicatableVector& rGetExtracellularStimulusCacheReplicated()
     {
         return mExtracellularStimulusCacheReplicated;
     }

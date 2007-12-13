@@ -157,7 +157,7 @@ public:
         return mCapacitance;
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM> GetIntracellularConductivityTensor()
+    c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetIntracellularConductivityTensor()
     {
         return mIntracellularConductivityTensor;
     }
@@ -220,12 +220,12 @@ public:
         EventHandler::EndEvent(COMMUNICATION);
     }
     
-    ReplicatableVector& GetIionicCacheReplicated()
+    ReplicatableVector& rGetIionicCacheReplicated()
     {
         return mIionicCacheReplicated;
     }
     
-    ReplicatableVector& GetIntracellularStimulusCacheReplicated()
+    ReplicatableVector& rGetIntracellularStimulusCacheReplicated()
     {
         return mIntracellularStimulusCacheReplicated;
     }

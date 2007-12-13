@@ -94,19 +94,19 @@ public:
         
         // Check results by solving ODE systems directly
         // Check node 0
-        double value_pde = monodomain_pde.GetIionicCacheReplicated()[0];
+        double value_pde = monodomain_pde.rGetIionicCacheReplicated()[0];
         LuoRudyIModel1991OdeSystem ode_system_stimulated(solver, small_time_step, stimulus);
         ode_system_stimulated.ComputeExceptVoltage(start_time, start_time + big_time_step);
         double value_ode = ode_system_stimulated.GetIIonic();
         TS_ASSERT_DELTA(value_pde, value_ode, 0.000001);
         
         // shouldn't be different when called again as reset not yet been called
-        value_pde = monodomain_pde.GetIionicCacheReplicated()[0];
+        value_pde = monodomain_pde.rGetIionicCacheReplicated()[0];
         TS_ASSERT_DELTA(value_pde, value_ode, 0.000001);
 
         // Check node 1
         LuoRudyIModel1991OdeSystem ode_system_not_stim(solver, small_time_step, zero_stim);
-        value_pde = monodomain_pde.GetIionicCacheReplicated()[1];
+        value_pde = monodomain_pde.rGetIionicCacheReplicated()[1];
         ode_system_not_stim.ComputeExceptVoltage(start_time, start_time + big_time_step);
         value_ode = ode_system_not_stim.GetIIonic();
         TS_ASSERT_DELTA(value_pde, value_ode, 0.000001);
@@ -130,7 +130,7 @@ public:
         
         // Use MonodomainPde to solve a second (PDE) time step
         monodomain_pde.SolveCellSystems(voltage, start_time, start_time+big_time_step);
-        value_pde = monodomain_pde.GetIionicCacheReplicated()[0];
+        value_pde = monodomain_pde.rGetIionicCacheReplicated()[0];
 
         // Check node 0 by solving ODE system directly
         ode_system_stimulated.ComputeExceptVoltage( start_time + big_time_step, start_time + 2*big_time_step );
@@ -139,7 +139,7 @@ public:
         
         // Check node 1 by solving ODE system directly
         ode_system_not_stim.ComputeExceptVoltage( start_time + big_time_step, start_time + 2*big_time_step );
-        value_pde = monodomain_pde.GetIionicCacheReplicated()[1];
+        value_pde = monodomain_pde.rGetIionicCacheReplicated()[1];
         value_ode = ode_system_not_stim.GetIIonic();
         TS_ASSERT_DELTA(value_pde, value_ode, 1e-10);
         

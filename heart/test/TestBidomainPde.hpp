@@ -93,10 +93,10 @@ public:
         sigma_e(0,0) = 218;
         bidomain_pde.SetExtracellularConductivityTensor(sigma_e);
         
-        c_matrix<double, 1,1> sigma = bidomain_pde.GetIntracellularConductivityTensor();
+        c_matrix<double, 1,1> sigma = bidomain_pde.rGetIntracellularConductivityTensor();
         TS_ASSERT_DELTA( sigma(0,0), 314, 1e-10);
         
-        sigma = bidomain_pde.GetExtracellularConductivityTensor();
+        sigma = bidomain_pde.rGetExtracellularConductivityTensor();
         TS_ASSERT_DELTA( sigma(0,0), 218, 1e-10);
     }
     
@@ -142,16 +142,16 @@ public:
              index != DistributedVector::End();
              ++index)
         {
-            TS_ASSERT_EQUALS(monodomain_pde.GetIionicCacheReplicated()[index.Global], bidomain_pde.GetIionicCacheReplicated()[index.Global]);
+            TS_ASSERT_EQUALS(monodomain_pde.rGetIionicCacheReplicated()[index.Global], bidomain_pde.rGetIionicCacheReplicated()[index.Global]);
         }
         
         // Check that the bidomain PDE has the right intracellular stimulus at node 0 and 1
-        TS_ASSERT_EQUALS(bidomain_pde.GetIntracellularStimulusCacheReplicated()[0], -80);
-        TS_ASSERT_EQUALS(bidomain_pde.GetIntracellularStimulusCacheReplicated()[1], 0);
+        TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularStimulusCacheReplicated()[0], -80);
+        TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularStimulusCacheReplicated()[1], 0);
         
         // Check that the bidomain PDE has the right extracellular stimulus at node 0 and 1
-        TS_ASSERT_EQUALS(bidomain_pde.GetExtracellularStimulusCacheReplicated()[0], -150);
-        TS_ASSERT_EQUALS(bidomain_pde.GetExtracellularStimulusCacheReplicated()[1], -250);
+        TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularStimulusCacheReplicated()[0], -150);
+        TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularStimulusCacheReplicated()[1], -250);
         
         VecDestroy(monodomain_vec);
         VecDestroy(bidomain_vec);
