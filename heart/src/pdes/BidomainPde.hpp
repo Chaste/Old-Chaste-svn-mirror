@@ -64,7 +64,7 @@ public:
         mExtracellularConductivityTensor = extracellularConductivity;
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetExtracellularConductivityTensor()
+    const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetExtracellularConductivityTensor()
     {
         return mExtracellularConductivityTensor;
     }

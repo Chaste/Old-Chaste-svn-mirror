@@ -157,7 +157,7 @@ public:
         return mCapacitance;
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetIntracellularConductivityTensor()
+    const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetIntracellularConductivityTensor()
     {
         return mIntracellularConductivityTensor;
     }
