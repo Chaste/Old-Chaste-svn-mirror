@@ -14,7 +14,7 @@
 #include "AbstractNonlinearAssembler.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
 #include "ReplicatableVector.hpp"
-#include "NonlinearHeatEquationPde.hpp"
+#include "NonlinearEquationPde.hpp"
 #include "SimpleNewtonNonlinearSolver.hpp"
 
 
@@ -277,7 +277,7 @@ private :
         ///////////////////////////////////////////////////////////////////////
         
         // Instantiate PDE object
-        NonlinearHeatEquationPde<DIM> pde;  //defined above
+        NonlinearEquationPde<DIM> pde;  //defined above
         
         // boundary conditions for 1-unknown problem
         BoundaryConditionsContainer<DIM,DIM,1> bcc_1unknown;
@@ -399,7 +399,7 @@ public:
         ///////////////////////////////////////////////////////////////////////
         
         // Instantiate PDE object
-        NonlinearHeatEquationPde<2> pde;
+        NonlinearEquationPde<2> pde;
         
         // boundary conditions for 1-unknown problem
         BoundaryConditionsContainer<2,2,1> bcc_1unknown;

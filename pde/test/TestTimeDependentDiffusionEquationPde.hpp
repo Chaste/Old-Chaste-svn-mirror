@@ -2,22 +2,22 @@
 #define _TESTTIMEDEPENDENTDIFFUSIONEQUATIONPDE_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "TimeDependentDiffusionEquationPde.hpp"
+#include "HeatEquation.hpp"
 
-class TestTimeDependentDiffusionEquationPde : public CxxTest::TestSuite
+class TestHeatEquation : public CxxTest::TestSuite
 {
 public:
 
-    void TestTimeDependentDiffusionEquationPdeMethod()
+    void TestHeatEquationMethod()
     {
         ChastePoint<1> zero1(0);
         ChastePoint<2> zero2(0,0);
         ChastePoint<3> zero3(0,0,0);
         double u = 2.0;
         
-        TimeDependentDiffusionEquationPde<1> pde1;
-        TimeDependentDiffusionEquationPde<2> pde2;
-        TimeDependentDiffusionEquationPde<3> pde3;
+        HeatEquation<1> pde1;
+        HeatEquation<2> pde2;
+        HeatEquation<3> pde3;
         
         TS_ASSERT_DELTA(pde1.ComputeNonlinearSourceTerm(zero1,u), 0.0, 1e-12);
         TS_ASSERT_DELTA(pde2.ComputeNonlinearSourceTerm(zero2,u), 0.0, 1e-12);

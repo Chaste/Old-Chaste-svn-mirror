@@ -4,7 +4,7 @@
 #include <cxxtest/TestSuite.h>
 #include "ConformingTetrahedralMesh.cpp"
 #include <petsc.h>
-#include "LinearHeatEquationPde.hpp"
+#include "SimplePoissonEquation.hpp"
 #include "LinearPdeWithZeroSource.hpp"
 #include "EllipticPdeWithLinearSource.hpp"
 #include "EllipticPdeWithRadialLinearSource.hpp"
@@ -24,7 +24,7 @@ public:
 
     void TestAssembleOnElement( void )
     {
-        LinearHeatEquationPde<1> pde;
+        SimplePoissonEquation<1> pde;
         std::vector<Node<1>*> nodes;
         nodes.push_back(new Node<1>(0, false, 1.0));
         nodes.push_back(new Node<1>(1, false, 3));
@@ -51,7 +51,7 @@ public:
     
     void TestAssembleOnElement2DCanonical ( void )
     {
-        LinearHeatEquationPde<2> pde;
+        SimplePoissonEquation<2> pde;
         std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
         nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
@@ -89,7 +89,7 @@ public:
     
     void TestAssembleOnElement2DGeneral ( void )
     {
-        LinearHeatEquationPde<2> pde;
+        SimplePoissonEquation<2> pde;
         std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
         nodes.push_back(new Node<2>(1, false, 6.0, 4.0));
@@ -133,7 +133,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        LinearHeatEquationPde<1> pde;
+        SimplePoissonEquation<1> pde;
         
         double value1 = pde.ComputeConstantInUSourceTermAtNode(*(mesh.GetNode(0)));
         double value2 = pde.ComputeConstantInUSourceTerm(mesh.GetNode(0)->GetPoint());
@@ -169,7 +169,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        LinearHeatEquationPde<1> pde;
+        SimplePoissonEquation<1> pde;
         
         // Boundary conditions u(-1)=1, u'(-3)=0
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -206,7 +206,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        LinearHeatEquationPde<1> pde;
+        SimplePoissonEquation<1> pde;
         
         // Boundary conditions u(-1)=1 u'(-3)=1
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -244,7 +244,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        LinearHeatEquationPde<2> pde;
+        SimplePoissonEquation<2> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
@@ -272,7 +272,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        LinearHeatEquationPde<2> pde;
+        SimplePoissonEquation<2> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
@@ -439,7 +439,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        LinearHeatEquationPde<3> pde;
+        SimplePoissonEquation<3> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<3,3,1> bcc;
@@ -484,7 +484,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        LinearHeatEquationPde<3> pde;
+        SimplePoissonEquation<3> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<3,3,1> bcc;

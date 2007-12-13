@@ -17,13 +17,13 @@
 #include "FunctionalBoundaryCondition.hpp"
 #include "ConstBoundaryCondition.hpp"
 
-#include "NonlinearHeatEquationPde.hpp"
-#include "NonlinearHeatEquation2Pde.hpp"
-#include "NonlinearHeatEquation3Pde.hpp"
-#include "NonlinearHeatEquation4Pde.hpp"
-#include "NonlinearHeatEquation5Pde.hpp"
+#include "NonlinearEquationPde.hpp"
+#include "NonlinearEquation2Pde.hpp"
+#include "NonlinearEquation3Pde.hpp"
+#include "NonlinearEquation4Pde.hpp"
+#include "NonlinearEquation5Pde.hpp"
 #include "Example2DNonlinearEllipticPde.hpp"
-#include "NonlinearLinearHeatEquationPde.hpp"
+#include "NonlinearLinearEquation.hpp"
 #include "ExampleNasty2dNonlinearEllipticPde.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -97,7 +97,7 @@ public:
         double h = 0.01;
         Vec solution = PetscTools::CreateVec(mesh.GetNumNodes(), initial_guess_value);
 
-        NonlinearHeatEquationPde<1> pde;
+        NonlinearEquationPde<1> pde;
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
         
         Vec residual;
@@ -130,7 +130,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        NonlinearHeatEquationPde<1> pde;
+        NonlinearEquationPde<1> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -210,7 +210,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        NonlinearHeatEquationPde<1> pde;
+        NonlinearEquationPde<1> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -246,7 +246,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        NonlinearHeatEquationPde<1> pde;
+        NonlinearEquationPde<1> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -292,7 +292,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        NonlinearHeatEquation2Pde<1> pde;
+        NonlinearEquation2Pde<1> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -334,7 +334,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        NonlinearHeatEquation3Pde<1> pde;
+        NonlinearEquation3Pde<1> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -377,7 +377,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        NonlinearHeatEquation4Pde<1> pde;
+        NonlinearEquation4Pde<1> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -423,7 +423,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        NonlinearHeatEquation5Pde<1> pde;
+        NonlinearEquation5Pde<1> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -473,7 +473,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        NonlinearHeatEquationPde<1> pde;
+        NonlinearEquationPde<1> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
@@ -521,7 +521,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        NonlinearLinearHeatEquationPde<2> pde;
+        NonlinearLinearEquation<2> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
@@ -568,7 +568,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        NonlinearHeatEquationPde<2> pde;
+        NonlinearEquationPde<2> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;

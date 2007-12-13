@@ -1,5 +1,5 @@
-#ifndef _LINEARHEATEQUATIONPDE_HPP_
-#define _LINEARHEATEQUATIONPDE_HPP_
+#ifndef _SIMPLEPOISSONEQUATION_HPP_
+#define _SIMPLEPOISSONEQUATION_HPP_
 
 #include "AbstractLinearEllipticPde.hpp"
 
@@ -8,7 +8,7 @@
  * diffusion term.
  */
 template <int SPACE_DIM>
-class LinearHeatEquationPde:public AbstractLinearEllipticPde<SPACE_DIM>
+class SimplePoissonEquation:public AbstractLinearEllipticPde<SPACE_DIM>
 {
 public:
     double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& )
@@ -27,4 +27,4 @@ public:
     }
 };
 
-#endif //_LINEARHEATEQUATIONPDE_HPP_
+#endif //_SIMPLEPOISSONEQUATION_HPP_

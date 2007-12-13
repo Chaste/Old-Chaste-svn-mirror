@@ -1,11 +1,11 @@
-#ifndef _NONLINEARHEATEQUATION5PDE_HPP_
-#define _NONLINEARHEATEQUATION5PDE_HPP_
+#ifndef _NONLINEAREQUATION5PDE_HPP_
+#define _NONLINEAREQUATION5PDE_HPP_
 
 #include "AbstractNonlinearEllipticPde.hpp"
 
 
 template <int SPACE_DIM>
-class NonlinearHeatEquation5Pde : public AbstractNonlinearEllipticPde<SPACE_DIM>
+class NonlinearEquation5Pde : public AbstractNonlinearEllipticPde<SPACE_DIM>
 {
 public:
 
@@ -35,4 +35,4 @@ public:
     }
 };
 
-#endif //_NONLINEARHEATEQUATION5PDE_HPP_
+#endif //_NONLINEAREQUATION5PDE_HPP_

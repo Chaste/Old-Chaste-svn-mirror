@@ -24,8 +24,8 @@
 #include "ParallelColumnDataWriter.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "FemlabMeshReader.cpp"
-#include "TimeDependentDiffusionEquationPde.hpp"
-#include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
+#include "HeatEquation.hpp"
+#include "HeatEquationWithSourceTerm.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
@@ -47,7 +47,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        TimeDependentDiffusionEquationPde<2> pde;
+        HeatEquation<2> pde;
         
         // Boundary conditions - zero dirichlet on boundary;
         BoundaryConditionsContainer<2,2,1> bcc;
@@ -146,7 +146,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        TimeDependentDiffusionEquationPde<3> pde;
+        HeatEquation<3> pde;
         
         // Boundary conditions - zero dirichlet everywhere on boundary
         BoundaryConditionsContainer<3,3,1> bcc;
@@ -208,7 +208,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        TimeDependentDiffusionEquationWithSourceTermPde<3> pde;
+        HeatEquationWithSourceTerm<3> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<3,3,1> bcc;
@@ -290,7 +290,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        TimeDependentDiffusionEquationPde<3> pde;
+        HeatEquation<3> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<3,3,1> bcc;

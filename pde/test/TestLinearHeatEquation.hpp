@@ -2,29 +2,29 @@
 #define _TESTLINEARHEATEQUATION_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "LinearHeatEquationPde.hpp"
+#include "SimplePoissonEquation.hpp"
 #include "Node.hpp"
 
-class TestLinearHeatEquationPde : public CxxTest::TestSuite
+class TestSimplePoissonEquation : public CxxTest::TestSuite
 {
 public:
     void TestComputeConstantInUSourceTermAtNode()
     {
         Node<2> zero(0);
-        LinearHeatEquationPde<2> heat_equation;
+        SimplePoissonEquation<2> heat_equation;
         
         TS_ASSERT_DELTA(heat_equation.ComputeConstantInUSourceTermAtNode(zero), 1.0, 1e-12);
     }
     
-    void TestLinearHeatEquationPdeMethod()
+    void TestSimplePoissonEquationMethod()
     {
         ChastePoint<1> zero1(0);
         ChastePoint<2> zero2(0,0);
         ChastePoint<3> zero3(0,0,0);
         
-        LinearHeatEquationPde<1> heat_equation1;
-        LinearHeatEquationPde<2> heat_equation2;
-        LinearHeatEquationPde<3> heat_equation3;
+        SimplePoissonEquation<1> heat_equation1;
+        SimplePoissonEquation<2> heat_equation2;
+        SimplePoissonEquation<3> heat_equation3;
                 
         // diffusion matrices should be equal to identity
         c_matrix<double,1,1> diff1 = heat_equation1.ComputeDiffusionTerm(zero1);

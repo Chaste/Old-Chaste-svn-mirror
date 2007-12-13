@@ -1,22 +1,22 @@
 #ifndef _TESTNONLINEARHEATEQUATIONPDE_HPP_
 #define _TESTNONLINEARHEATEQUATIONPDE_HPP_
 
-#include "NonlinearHeatEquationPde.hpp"
+#include "NonlinearEquationPde.hpp"
 #include <cxxtest/TestSuite.h>
 
-class TestNonlinearHeatEquationPde : public CxxTest::TestSuite
+class TestNonlinearEquationPde : public CxxTest::TestSuite
 {
 public:
-    void TestNonlinearHeatEquationPdeMethod()
+    void TestNonlinearEquationPdeMethod()
     {
         ChastePoint<1> zero1(0);
         ChastePoint<2> zero2(0,0);
         ChastePoint<3> zero3(0,0,0);
         double u = 2.0;
         
-        NonlinearHeatEquationPde<1> heat_equation1;
-        NonlinearHeatEquationPde<2> heat_equation2;
-        NonlinearHeatEquationPde<3> heat_equation3;
+        NonlinearEquationPde<1> heat_equation1;
+        NonlinearEquationPde<2> heat_equation2;
+        NonlinearEquationPde<3> heat_equation3;
         
         TS_ASSERT_DELTA(heat_equation1.ComputeNonlinearSourceTerm(zero1,u),0.0,1e-12);
         TS_ASSERT_DELTA(heat_equation2.ComputeNonlinearSourceTerm(zero2,u),0.0,1e-12);

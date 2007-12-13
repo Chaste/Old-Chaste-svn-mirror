@@ -11,14 +11,14 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "ParabolicFlaggedMeshAssembler.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
-#include "TimeDependentDiffusionEquationPde.hpp"
-#include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
+#include "HeatEquation.hpp"
+#include "HeatEquationWithSourceTerm.hpp"
 #include "MixedTetrahedralMesh.cpp"
 #include "ParallelColumnDataWriter.hpp"
 #include "TrianglesMeshWriter.cpp"
 #include "RandomNumberGenerator.hpp"
 #include "PetscTools.hpp"
-#include "LinearHeatEquationPde.hpp"
+#include "SimplePoissonEquation.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "EllipticFlaggedMeshAssembler.hpp"
 #include "PetscTools.hpp"
@@ -72,7 +72,7 @@ public :
         }
         
         // Instantiate PDE object
-        TimeDependentDiffusionEquationPde<1> pde;
+        HeatEquation<1> pde;
         
         // Boundary conditions - zero dirichlet at first and last node of flagged region
         FlaggedMeshBoundaryConditionsContainer<1,1> bcc;
@@ -158,7 +158,7 @@ public :
         FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(flagged_mesh, 1.0);
         
         // create the pde
-        TimeDependentDiffusionEquationWithSourceTermPde<2> pde;
+        HeatEquationWithSourceTerm<2> pde;
         
         // set the problem size
         DistributedVector::SetProblemSize(flagged_mesh.GetNumNodes());
@@ -271,7 +271,7 @@ public :
         FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(flagged_mesh, 1.0);
         
         // create the pde
-        LinearHeatEquationPde<2> pde;
+        SimplePoissonEquation<2> pde;
         
         // set the problem size
         DistributedVector::SetProblemSize(flagged_mesh.GetNumNodes());
@@ -377,7 +377,7 @@ public :
 
         // Assembler for fine mesh flagged region
         FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(flagged_mesh, 1.0);
-        TimeDependentDiffusionEquationWithSourceTermPde<2> pde;
+        HeatEquationWithSourceTerm<2> pde;
         DistributedVector::SetProblemSize(flagged_mesh.GetNumNodes());
         ParabolicFlaggedMeshAssembler<2> flagged_assembler(&flagged_mesh, &pde, &flagged_bcc);
 
@@ -430,7 +430,7 @@ public :
         coarse_mesh.SetFineMesh(&fine_mesh);
      
         // Instantiate PDE object
-        TimeDependentDiffusionEquationWithSourceTermPde<2> pde;
+        HeatEquationWithSourceTerm<2> pde;
         
         // Boundary conditions - zero dirichlet everywhere on boundary
         BoundaryConditionsContainer<2,2,1> bcc;
@@ -612,7 +612,7 @@ public :
         coarse_mesh.SetFineMesh(&fine_mesh);
      
         // Instantiate PDE object
-        TimeDependentDiffusionEquationWithSourceTermPde<2> pde;
+        HeatEquationWithSourceTerm<2> pde;
         
         // Boundary conditions - zero dirichlet everywhere on boundary
         BoundaryConditionsContainer<2,2,1> bcc;

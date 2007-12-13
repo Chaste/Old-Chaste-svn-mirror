@@ -1,14 +1,14 @@
-#ifndef _NONLINEARLINEARHEATEQUATIONPDE_HPP_
-#define _NONLINEARLINEARHEATEQUATIONPDE_HPP_
-
+#ifndef _NONLINEAREQUATION2PDE_HPP_
+#define _NONLINEAREQUATION2PDE_HPP_
 
 #include "AbstractNonlinearEllipticPde.hpp"
 
 /**
- * Linear heat equation, using the nonlinear class format.
+ *  A simple nonlinear elliptic PDE used by tests; Grad.(1/u Grad u) + 1 = 0
  */
+
 template <int SPACE_DIM>
-class NonlinearLinearHeatEquationPde : public AbstractNonlinearEllipticPde<SPACE_DIM>
+class NonlinearEquation2Pde : public AbstractNonlinearEllipticPde<SPACE_DIM>
 {
 public:
 
@@ -24,20 +24,18 @@ public:
     
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& , double u)
     {
-        return identity_matrix<double>(SPACE_DIM);
+        return identity_matrix<double>(SPACE_DIM)*(1.0/u);
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(const ChastePoint<SPACE_DIM>& , double )
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(const ChastePoint<SPACE_DIM>& , double u)
     {
-        return identity_matrix<double>(SPACE_DIM)*0.0;
+        return identity_matrix<double>(SPACE_DIM)*(-1.0/pow(u,2));
     }
     
     double ComputeNonlinearSourceTermPrime(const ChastePoint<SPACE_DIM>& , double )
     {
         return 0.0;
     }
-    
 };
 
-
-#endif //_NONLINEARLINEARHEATEQUATIONPDE_HPP_
+#endif //_NONLINEAREQUATION2PDE_HPP_

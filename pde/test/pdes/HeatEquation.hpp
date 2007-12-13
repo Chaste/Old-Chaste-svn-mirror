@@ -1,6 +1,5 @@
-#ifndef _TIMEDEPENDENTDIFFUSIONEQUATIONWITHSOURCETERMPDE_HPP_
-#define _TIMEDEPENDENTDIFFUSIONEQUATIONWITHSOURCETERMPDE_HPP_
-
+#ifndef _HEATEQUATION_HPP_
+#define _HEATEQUATION_HPP_
 
 #include "AbstractLinearParabolicPde.hpp"
 #include "ChastePoint.hpp"
@@ -10,13 +9,13 @@
  */
 
 template <int SPACE_DIM>
-class TimeDependentDiffusionEquationWithSourceTermPde : public AbstractLinearParabolicPde<SPACE_DIM>
+class HeatEquation : public AbstractLinearParabolicPde<SPACE_DIM>
 {
 
 public:
     double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& )
     {
-        return 1.0;
+        return 0.0;
     }
     
     double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& , double )
@@ -36,4 +35,4 @@ public:
     
 };
 
-#endif //_TIMEDEPENDENTDIFFUSIONEQUATIONWITHSOURCETERMPDE_HPP_
+#endif //_HEATEQUATION_HPP_
