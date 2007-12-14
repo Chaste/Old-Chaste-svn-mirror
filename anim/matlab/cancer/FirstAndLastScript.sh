@@ -7,12 +7,12 @@
 # section below.
 
 # BEGIN SETUP
-results=/local/pmxgm/Simulation_Results/16_stem_cell_Simple_Wnt/sunter3
-run[0]="2007-11-23-15-05"
-run[1]="2007-11-23-15-08"
-run[2]="2007-11-23-15-12"
-run[3]="2007-11-23-15-17"
-run[4]="2007-11-23-15-20"
+results=/local/pmxgm/Simulation_Results/16_stem_cell_Meineke_recreate/sunter1
+run[0]="2007-11-24-18-10"
+run[1]="2007-11-24-18-12"
+run[2]="2007-11-24-18-15"
+run[3]="2007-11-24-18-16"
+run[4]="2007-11-24-18-19"
 first_experiment=300
 last_experiment=800
 # END OF SETUP
