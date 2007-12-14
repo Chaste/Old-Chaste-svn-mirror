@@ -137,7 +137,8 @@ Export("other_libpaths", "other_libs")
 
 
 # Any extra CCFLAGS and LINKFLAGS
-extra_flags = build.CcFlags() + ' ' + hostconfig.ccflags() + ' '
+extra_flags = build.CcFlags() + ' ' + hostconfig.ccflags() \
+              + ' -DCHASTE_ROOT=\'"' + Dir('#').abspath + '"\' '
 link_flags  = build.LinkFlags()
 
 # Search path for Chaste #includes
