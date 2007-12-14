@@ -323,6 +323,7 @@ public:
         double scaling = mMeshWidth/(double) num_ele_across;
         
         std::cout<<"================================================================================"<<std::endl;
+        std::cout<<"Solving in "<<DIM<<"D\n";
         std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << this->MeshNum << ")" << std::endl;
         std::cout<<"Solving with a time step of "<<this->PdeTimeStep<<" ms"<<std::endl;
         std::cout<<"Solving with an ode time step of "<<this->OdeTimeStep<<" ms"<<std::endl;

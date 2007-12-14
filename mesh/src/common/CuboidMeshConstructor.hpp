@@ -33,6 +33,7 @@ public:
     std::string Construct(unsigned meshNum, double meshWidth)
     {
         mMeshWidth=meshWidth;
+        assert(meshNum < 30); //Sanity
         const std::string mesh_dir = "ConvergenceMesh";
         OutputFileHandler output_file_handler(mesh_dir);
         
