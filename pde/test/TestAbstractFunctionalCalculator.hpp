@@ -79,18 +79,20 @@ public:
         // = 4/3
         ExampleFunctionalOne calculator;
         
-        Vec petsc_vec = PetscTools::CreateVec(2*mesh.GetNumNodes(), 2.0);
         DistributedVector::SetProblemSize(mesh.GetNumNodes());
-        DistributedVector vec(petsc_vec);
-        DistributedVector::Stripe u(vec, 0);
+	Vec petsc_vec = DistributedVector::CreateVec(2);
+        DistributedVector vec1(petsc_vec);
+        DistributedVector::Stripe u1(vec1, 0);
+        DistributedVector::Stripe v1(vec1, 1);
         for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index!= DistributedVector::End();
+             index != DistributedVector::End();
              ++index)
         {
             Node<2>* p_node = mesh.GetNode(index.Global);
-            u[index] = p_node->rGetLocation()[0];
+            u1[index] = p_node->rGetLocation()[0];
+	    v1[index] = 2.0;
         }
-        vec.Restore();
+        vec1.Restore();
         
         double result = calculator.Calculate(mesh, petsc_vec);
         TS_ASSERT_DELTA(result, 4.0/3.0, 1e-6);
@@ -100,16 +102,18 @@ public:
         // = 5/3
         ExampleFunctionalTwo other_calculator;
 
-        DistributedVector::Stripe v(vec, 1);
+	DistributedVector vec2(petsc_vec);
+        DistributedVector::Stripe u2(vec2, 0);
+        DistributedVector::Stripe v2(vec2, 1);
         for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index!= DistributedVector::End();
+             index != DistributedVector::End();
              ++index)
         {
             Node<2>* p_node = mesh.GetNode(index.Global);
-            u[index] = p_node->rGetLocation()[0];
-            v[index] = p_node->rGetLocation()[1];
+            u2[index] = p_node->rGetLocation()[0];
+            v2[index] = p_node->rGetLocation()[1];
         }
-        vec.Restore();
+        vec2.Restore();
         
         result = other_calculator.Calculate(mesh, petsc_vec);
         TS_ASSERT_DELTA(result, 1 + 2.0/3.0, 1e-6);
