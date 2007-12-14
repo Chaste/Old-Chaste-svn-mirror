@@ -495,6 +495,7 @@ public:
         SimpleLinearSolver solver(1e-6);
         Vec solution_vector;
         TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
+	VecDestroy(solution_vector);
         
         //Do it all again
         LinearSystem ls2 = LinearSystem(3);
