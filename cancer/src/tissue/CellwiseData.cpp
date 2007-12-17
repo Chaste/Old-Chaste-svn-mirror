@@ -94,7 +94,7 @@ void CellwiseData<DIM>::SetTissue(Tissue<DIM>& rTissue)
     }
 
     mpTissue=&rTissue;
-    rTissue.InitialiseCells();
+    //rTissue.InitialiseCells();
 }
 
 template<unsigned DIM>

@@ -159,11 +159,20 @@ private :
 
 
 public:
+
+    /** 
+     *  Constructor
+     * 
+     *  @param rTissue A tissue facade class (contains a mesh and cells)
+     *  @param deleteTissue whether to delete the tissue on destruction to free up memory
+     *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
+     */
     TissueSimulationWithNutrients(Tissue<DIM>& rTissue,
                                   AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
                                   AbstractNonlinearEllipticPde<DIM>* pPde=NULL,
-                                  bool deleteTissue=false) 
-        : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissue), 
+                                  bool deleteTissue=false,
+                                  bool initialiseCells=true) 
+        : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissue, initialiseCells), 
           mOxygenSolution(NULL),
           mpPde(pPde)
     {
@@ -302,7 +311,7 @@ inline void load_construct_data(
     ar >> p_spring_system;
     
     // invoke inplace constructor to initialize instance
-    ::new(t)TissueSimulationWithNutrients<DIM>(*p_tissue, p_spring_system, NULL, true);
+    ::new(t)TissueSimulationWithNutrients<DIM>(*p_tissue, p_spring_system, NULL, true, false);
 }
 }
 } // namespace ...

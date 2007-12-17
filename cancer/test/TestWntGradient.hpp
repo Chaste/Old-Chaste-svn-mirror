@@ -288,13 +288,16 @@ public:
             models.push_back(p_model);
         }
         
-        // create the crypt
+        // Create the crypt
         Tissue<2> crypt(mesh,cells);
         
         CancerParameters::Instance()->SetCryptLength(1.0);
 
         WntGradient::Instance()->SetType(LINEAR);
         WntGradient::Instance()->SetTissue(crypt);
+        
+        // As there is no tissue simulation we must explicitly initialise the cells
+        crypt.InitialiseCells();
         
         Tissue<2>::Iterator iter = crypt.Begin();
         

@@ -79,7 +79,7 @@ double WntGradient::GetWntLevel(TissueCell* pCell)
 void WntGradient::SetTissue(Tissue<2>& rTissue)
 {
     mpTissue=&rTissue;
-    rTissue.InitialiseCells();
+    //rTissue.InitialiseCells();
 }
 
 WntGradientType WntGradient::GetType()

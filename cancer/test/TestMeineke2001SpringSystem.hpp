@@ -443,8 +443,7 @@ public:
         
         HoneycombMeshGenerator generator(6, 12, 0, true, 1.1);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();        
         
         // Set up cells 
         std::vector<TissueCell> cells;                      
@@ -455,6 +454,9 @@ public:
         
         WntGradient::Instance()->SetType(LINEAR);  
         WntGradient::Instance()->SetTissue(crypt);
+        
+        // As there is no tissue simulation we must explicitly initialise the cells
+        crypt.InitialiseCells();
         
         Meineke2001SpringSystem<2> meineke_spring_system(crypt);
         

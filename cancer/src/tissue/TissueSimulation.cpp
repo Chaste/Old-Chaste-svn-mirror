@@ -25,7 +25,10 @@
 #include "CellwiseData.cpp"
 
 template<unsigned DIM> 
-TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem, bool deleteTissue)
+TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, 
+                                        AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem, 
+                                        bool deleteTissue,
+                                        bool initialiseCells)
   :  mrTissue(rTissue)
 {
     #define COVERAGE_IGNORE
@@ -36,6 +39,8 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, AbstractDiscreteTi
     CancerEventHandler::BeginEvent(CANCER_EVERYTHING);
 
     mDeleteTissue = deleteTissue;
+    mInitialiseCells = initialiseCells;
+    
     mpParams = CancerParameters::Instance();
     // this line sets a random seed of 0 if it wasn't specified earlier.
     mpRandomGenerator = RandomNumberGenerator::Instance();
@@ -65,6 +70,11 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, AbstractDiscreteTi
         pMechanicsSystem = new Meineke2001SpringSystem<DIM>(mrTissue);
     }
     mpMechanicsSystem = pMechanicsSystem;    
+    
+    if (mInitialiseCells)
+    {
+        mrTissue.InitialiseCells();
+    }        
 }
 
 /**

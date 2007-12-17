@@ -80,6 +80,9 @@ protected:
     /** Whether to delete the facade in our destructor */
     bool mDeleteTissue;
     
+    /** Whether to initialise the cells */
+    bool mInitialiseCells;
+    
     /** Whether to run the simulation with no birth (defaults to false). */
     bool mNoBirth;
     
@@ -233,8 +236,12 @@ public:
      *  @param rTissue A tissue facade class (contains a mesh and cells)
      *  @param pMechanicsSystem The spring system to use in the simulation
      *  @param deleteTissue Whether to delete the tissue on destruction to free up memory
+     *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
-    TissueSimulation(Tissue<DIM>& rTissue, AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL, bool deleteTissue=false);
+    TissueSimulation(Tissue<DIM>& rTissue, 
+                     AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
+                     bool deleteTissue=false, 
+                     bool initialiseCells=true);
     
     /**
      * Free any memory allocated by the constructor
