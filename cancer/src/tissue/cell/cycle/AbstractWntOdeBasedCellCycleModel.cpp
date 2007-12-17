@@ -11,8 +11,8 @@ double AbstractWntOdeBasedCellCycleModel::GetOdeStopTime()
 }
 
 
-
 // PUBLIC FUNCTIONS
+
 void AbstractWntOdeBasedCellCycleModel::ResetModel()
 {   
     AbstractOdeBasedCellCycleModel::ResetModel();

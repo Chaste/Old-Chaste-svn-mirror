@@ -5,11 +5,10 @@
 
 
 TissueCell::TissueCell(CellType cellType,
-                                   CellMutationState mutationState,
-                                   //unsigned generation,
-                                   AbstractCellCycleModel *pCellCycleModel,
-                                   bool archiving)
-        : mpCellCycleModel(pCellCycleModel)
+                       CellMutationState mutationState,
+                       AbstractCellCycleModel *pCellCycleModel,
+                       bool archiving)
+    : mpCellCycleModel(pCellCycleModel)
 {
     if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
     {
@@ -21,7 +20,7 @@ TissueCell::TissueCell(CellType cellType,
     }
     // Stem cells are the only ones with generation = 0
     //assert( (generation == 0) == (cellType == STEM) ); Not for Wnt cells
-    //mpCellCycleModel->SetGeneration(generation);
+
     mCellType = cellType;
     mMutationState = mutationState;
     mCanDivide = false;
@@ -68,10 +67,12 @@ void TissueCell::CommonCopy(const TissueCell &other_cell)
     mpCellCycleModel->AbstractCellCycleModel::SetCell(this);
 }
 
+
 TissueCell::TissueCell(const TissueCell &other_cell)
 {
     CommonCopy(other_cell);
 }
+
 
 TissueCell& TissueCell::operator=(const TissueCell &other_cell)
 {
@@ -82,6 +83,7 @@ TissueCell& TissueCell::operator=(const TissueCell &other_cell)
     delete temp;
     return *this;
 }
+
 
 TissueCell::~TissueCell()
 {
@@ -94,6 +96,7 @@ void TissueCell::SetBirthTime(double birthTime)
     mpCellCycleModel->SetBirthTime(birthTime);
 }
 
+
 void TissueCell::SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel)
 {
     if (mpCellCycleModel != pCellCycleModel)
@@ -104,15 +107,18 @@ void TissueCell::SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel)
     mpCellCycleModel->SetCell(this);
 }
 
+
 AbstractCellCycleModel* TissueCell::GetCellCycleModel() const
 {
     return mpCellCycleModel;
 }
 
+
 void TissueCell::InitialiseCellCycleModel()
 {
     mpCellCycleModel->Initialise();
 }
+
 
 /**
  * Set the node at which this cell is positioned.
@@ -124,15 +130,18 @@ void TissueCell::SetNodeIndex(unsigned index)
     mNodeIndex = index;
 }
 
+
 unsigned TissueCell::GetNodeIndex() const
 {
     return mNodeIndex;
 }
 
+
 double TissueCell::GetAge() const
 {
     return mpCellCycleModel->GetAge();
 }
+
 
 double TissueCell::GetBirthTime() const
 {
@@ -145,35 +154,42 @@ CellType TissueCell::GetCellType() const
     return mCellType;
 }
 
+
 CellMutationState TissueCell::GetMutationState() const
 {
     return mMutationState;
 }
+
 
 void TissueCell::SetCellType(CellType cellType)
 {
     mCellType = cellType;
 }
 
+
 void TissueCell::SetMutationState(CellMutationState mutationState)
 {
     mMutationState = mutationState;
 }
+
 
 void TissueCell::SetSymmetricDivision()
 {
     mSymmetricDivision = true;
 }
 
+
 bool TissueCell::DividesSymmetrically()
 { 
 	return mSymmetricDivision;
 }
 
+
 void TissueCell::SetLogged()
 {
     mIsLogged = true;
 }
+
 
 bool TissueCell::IsLogged()
 {
@@ -222,6 +238,7 @@ bool TissueCell::HasApoptosisBegun() const
     return mUndergoingApoptosis;
 }
 
+
 double TissueCell::TimeUntilDeath() const
 {
     if (!mUndergoingApoptosis)
@@ -232,6 +249,7 @@ double TissueCell::TimeUntilDeath() const
     return mDeathTime - p_simulation_time->GetDimensionalisedTime();
 }
 
+
 bool TissueCell::IsDead() const
 {
     SimulationTime *p_simulation_time = SimulationTime::Instance();
@@ -239,54 +257,67 @@ bool TissueCell::IsDead() const
     return ( mIsDead || ( (mUndergoingApoptosis) && (p_simulation_time->GetDimensionalisedTime() >= mDeathTime)) );
 }
 
+
 void TissueCell::Kill()
 {
     mIsDead = true;
 }
+
 
 void TissueCell::SetAncestor(unsigned ancestorIndex)
 {
     mAncestor = ancestorIndex;
 }
 
+
 unsigned TissueCell::GetAncestor() const
 {
     return mAncestor;   
 }
 
+
 TissueCell TissueCell::Divide()
 {
     assert(!IsDead());
     
-    //Copy this cell and give new one relevant attributes...
+    // Copy this cell and give new one relevant attributes
     assert(mCanDivide);
     mCanDivide = false;
     
+        
     if (mSymmetricDivision)
     {
-        mpCellCycleModel->ResetModel(); // cell goes back to age zero, and cell type is possibly reset                
-        TissueCell new_cell = TissueCell(GetCellType(), mMutationState,
+        // Cell goes back to age zero, and cell type is possibly reset
+        mpCellCycleModel->ResetModel();         
+                
+        TissueCell new_cell = TissueCell(GetCellType(), 
+                                         mMutationState,
                                          mpCellCycleModel->CreateCellCycleModel());
+                                         
         new_cell.GetCellCycleModel()->SetGeneration(1);
         new_cell.SetSymmetricDivision();
         new_cell.SetAncestor(GetAncestor());
+        
         return new_cell;
     }
     else
     {
-            mpCellCycleModel->SetGeneration(mpCellCycleModel->GetGeneration()+1);
-            mCellType = mpCellCycleModel->GetNewCellTypes()[0];
-            mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            TissueCell new_cell=TissueCell(mpCellCycleModel->GetNewCellTypes()[1], mMutationState,
-                                      mpCellCycleModel->CreateCellCycleModel());
-            
-            assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->GetGeneration());
-            mpCellCycleModel->SetMotherGeneration();
-            new_cell.SetAncestor(GetAncestor());
-            return new_cell;
-    }
+        mpCellCycleModel->SetGeneration(mpCellCycleModel->GetGeneration()+1);
         
+        std::vector<CellType> new_cell_types = mpCellCycleModel->GetNewCellTypes();            
+        mCellType = new_cell_types[0]; 
+        
+        // Cell goes back to age zero
+        mpCellCycleModel->ResetModel();
+        
+        TissueCell new_cell = TissueCell(new_cell_types[1], 
+                                         mMutationState,
+                                         mpCellCycleModel->CreateCellCycleModel());
+        
+        assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->GetGeneration());
+        mpCellCycleModel->SetMotherGeneration();
+        new_cell.SetAncestor(GetAncestor());
+        
+        return new_cell;
+    }        
 }
-
-
-
