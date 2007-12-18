@@ -37,7 +37,7 @@ public:
      */
     FixedCellCycleModel() {};
     
-    AbstractCellCycleModel *CreateCellCycleModel(); 
+    AbstractCellCycleModel *CreateDaughterCellCycleModel(); 
     
 };
 

@@ -47,7 +47,7 @@ bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
 }
 
 
-AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateCellCycleModel()
+AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateDaughterCellCycleModel()
 {
     return new SimpleOxygenBasedCellCycleModel(mG1Duration, mGeneration, mCurrentHypoxicDuration, mCurrentHypoxiaOnsetTime);
 }

@@ -4,7 +4,7 @@
 #include <cassert>
 
 
-AbstractCellCycleModel *StochasticCellCycleModel::CreateCellCycleModel()
+AbstractCellCycleModel *StochasticCellCycleModel::CreateDaughterCellCycleModel()
 {
     return new StochasticCellCycleModel(mG1Duration, mGeneration);  // use a private constructor that doesn't reset mG1Duration.
 }

@@ -288,9 +288,10 @@ TissueCell TissueCell::Divide()
         // Cell goes back to age zero, and cell type is possibly reset
         mpCellCycleModel->ResetModel();         
                 
-        TissueCell new_cell = TissueCell(GetCellType(), 
-                                         mMutationState,
-                                         mpCellCycleModel->CreateCellCycleModel());
+        TissueCell new_cell = TissueCell( 
+            GetCellType(),  
+            mMutationState, 
+            mpCellCycleModel->CreateDaughterCellCycleModel()); 
                                          
         new_cell.GetCellCycleModel()->SetGeneration(1);
         new_cell.SetSymmetricDivision();
@@ -308,9 +309,10 @@ TissueCell TissueCell::Divide()
         // Cell goes back to age zero
         mpCellCycleModel->ResetModel();
         
-        TissueCell new_cell = TissueCell(new_cell_types[1], 
-                                         mMutationState,
-                                         mpCellCycleModel->CreateCellCycleModel());
+        TissueCell new_cell = TissueCell( 
+            new_cell_types[1],  
+            mMutationState, 
+            mpCellCycleModel->CreateDaughterCellCycleModel()); 
         
         assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->GetGeneration());
         mpCellCycleModel->SetMotherGeneration();

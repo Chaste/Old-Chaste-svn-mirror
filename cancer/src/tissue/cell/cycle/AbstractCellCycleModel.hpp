@@ -82,7 +82,26 @@ public:
     
     virtual void SetCell(TissueCell* pCell);
     
-    virtual void Initialise() {};
+    /** 
+     * Initialise the cell cycle model at the start of a simulation. 
+     * 
+     * This method will be called precisely once for any given cell, 
+     * and is only called at simulation start, i.e. not on cell division. 
+     * Initialisation of the daughter cell should be done by 
+     * CreateDaughterCellCycleModel. 
+     * 
+     * By the time this is called, a Tissue will have been set up, so the model 
+     * can know where its cell is located in space.  If relevant to the simulation, 
+     * the CellwiseData and WntGradient singletons will also have been initialised. 
+     */ 
+    virtual void Initialise() 
+    {} 
+    
+    /**
+     * Initialise a daughter cell cycle model upon division.
+     */ 
+    virtual void InitialiseDaughterCell()
+    {}
     
     TissueCell* GetCell();
     
@@ -139,7 +158,7 @@ public:
      * 
      * Actually, this method is called from TissueCell::Divide to
      * reset the cell cycle just before the daughter cell is created.
-     * CreateCellCycleModel can then clone our state to generate a
+     * CreateDaughterCellCycleModel can then clone our state to generate a
      * cell cycle model instance for the daughter cell.
      */
     virtual void ResetModel()=0;
@@ -149,18 +168,34 @@ public:
      * Each concrete subclass must implement this method to create an
      * instance of that subclass.
      * 
-     * This method is called in 2 circumstances:
-     *  - By the copy constructor and operator= of TissueCell to create a copy of the cell cycle
-     *    model when copying a cell.  This method therefore just needs to create any instance
-     *    of the right class, as operator= on the cell cycle model is then called to ensure the
-     *    model is copied properly.
-     *  - By TissueCell.Divide to create a cell cycle model for the daughter cell.
-     *    This method must thus produce a cell cycle model in a suitable state for a
-     *    newly-born cell spawned from the 'current' cell.
-     *    Note that the parent cell cycle model will have had ResetModel() called just
-     *    before CreateCellCycleModel is called.
+     * This method is called by the copy constructor and operator= of 
+     * TissueCell to create a copy of the cell cycle model when 
+     * copying a cell.  It thus just needs to create any instance of 
+     * the right class, as operator= on the cell cycle model is then 
+     * called to ensure the model is copied properly. 
+     * 
+     * A default implementation is given here which uses 
+     * CreateDaughterCellCycleModel, in order to reduce coding effort 
+     * for the refactor. 
      */
-    virtual AbstractCellCycleModel *CreateCellCycleModel()=0;
+    virtual AbstractCellCycleModel *CreateCellCycleModel() 
+    { 
+        return CreateDaughterCellCycleModel(); 
+    } 
+      
+    /** 
+     * Builder method to create new instances of the cell cycle model. 
+     * Each concrete subclass must implement this method to create an 
+     * instance of that subclass. 
+     * 
+     * This method is called by TissueCell.Divide to create a cell 
+     * cycle model for the daughter cell.  It thus must thus produce a 
+     * cell cycle model in a suitable state for a newly-born cell 
+     * spawned from the 'current' cell.  Note that the parent cell 
+     * cycle model will have had ResetModel called just before 
+     * CreateDaughterCellCycleModel is called. 
+     */ 
+    virtual AbstractCellCycleModel *CreateDaughterCellCycleModel()=0; 
     
     /**
      * This normally does nothing but is over-ridden when the mother cell has

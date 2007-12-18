@@ -82,7 +82,7 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
      * Should be called just after the parent cell cycle model has been .Reset().
      *
      */
-    AbstractCellCycleModel* CreateCellCycleModel()
+    AbstractCellCycleModel* CreateDaughterCellCycleModel()
     {
         assert(mpCell!=NULL);
         // calls a cheeky version of the constructor which makes the new cell cycle model

@@ -7,7 +7,7 @@
 #include <cfloat>
 
 /**
- * A private constructor for daughter cells called by the CreateCellCycleModel function
+ * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
  * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
  *
  * @param rHypothesis  which hypothesis to use (supply one or two)
@@ -73,7 +73,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
  *
  * Should be called just after the parent cell cycle model has been Reset().
  */
-AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateCellCycleModel()
+AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);
     // calls a cheeky version of the constructor which makes the new cell 

@@ -57,7 +57,7 @@ public:
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                       const CellMutationState& rMutationState); 
             
-    AbstractCellCycleModel *CreateCellCycleModel();
+    AbstractCellCycleModel *CreateDaughterCellCycleModel();
     
     void Initialise();
     

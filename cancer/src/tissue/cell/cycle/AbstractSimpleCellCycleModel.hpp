@@ -73,6 +73,8 @@ public:
     {}
     
     double GetG1Duration();
+    
+    void InitialiseDaughterCell();
 
     /** 
      * Overridden SetCellMethod - also assigns a G1 duration based on the cell type.

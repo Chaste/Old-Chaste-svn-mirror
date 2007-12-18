@@ -11,7 +11,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 }
 
 /**
- * A private constructor for daughter cells called only by the CreateCellCycleModel function
+ * A private constructor for daughter cells called only by the CreateDaughterCellCycleModel function
  *
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations
  * @param birthTime the SimulationTime when the cell divided (birth time of parent cell)
@@ -49,7 +49,7 @@ void TysonNovakCellCycleModel::ResetModel()
 }
 
 
-AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
+AbstractCellCycleModel* TysonNovakCellCycleModel::CreateDaughterCellCycleModel()
 {
     return new TysonNovakCellCycleModel(mpOdeSystem->rGetStateVariables(), mDivideTime, mGeneration);
 }

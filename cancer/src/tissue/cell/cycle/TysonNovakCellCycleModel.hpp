@@ -38,7 +38,7 @@ public:
     
     void ResetModel();
     
-    AbstractCellCycleModel *CreateCellCycleModel();
+    AbstractCellCycleModel *CreateDaughterCellCycleModel();
     
     bool SolveOdeToTime(double currentTime);
     

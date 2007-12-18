@@ -79,7 +79,7 @@ public:
     
     double GetCurrentHypoxiaOnsetTime();  
     
-    AbstractCellCycleModel* CreateCellCycleModel();
+    AbstractCellCycleModel* CreateDaughterCellCycleModel();
     
 };
 

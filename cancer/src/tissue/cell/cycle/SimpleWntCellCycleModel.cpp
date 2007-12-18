@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cassert>
 
-AbstractCellCycleModel *SimpleWntCellCycleModel::CreateCellCycleModel()
+AbstractCellCycleModel *SimpleWntCellCycleModel::CreateDaughterCellCycleModel()
 {
     // use a private constructor that doesn't reset mG1Duration.
     return new SimpleWntCellCycleModel(mG1Duration,mGeneration);  

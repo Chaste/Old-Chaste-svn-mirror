@@ -7,7 +7,7 @@
 #include <cfloat>
 
 /**
- * A private constructor for daughter cells called by the CreateCellCycleModel function
+ * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
  * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
  *
  * @param pParentOdeSystem  to copy the state of.
@@ -68,7 +68,7 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
  *
  * Should be called just after the parent cell cycle model has been .Reset().
  */
-AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
+AbstractCellCycleModel* WntCellCycleModel::CreateDaughterCellCycleModel()
 {
     assert(mpCell!=NULL);
     // calls a cheeky version of the constructor which makes the new cell 

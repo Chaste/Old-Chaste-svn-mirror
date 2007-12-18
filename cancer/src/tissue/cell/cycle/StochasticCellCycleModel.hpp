@@ -43,7 +43,7 @@ public:
      */
     StochasticCellCycleModel() {};
     
-    AbstractCellCycleModel *CreateCellCycleModel();
+    AbstractCellCycleModel *CreateDaughterCellCycleModel();
     
 };
 

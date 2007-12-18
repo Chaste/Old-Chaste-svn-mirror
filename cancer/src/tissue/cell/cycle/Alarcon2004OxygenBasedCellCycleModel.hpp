@@ -62,7 +62,7 @@ public:
                           
     virtual void ResetModel();
     
-    AbstractCellCycleModel *CreateCellCycleModel();
+    AbstractCellCycleModel *CreateDaughterCellCycleModel();
     
     void Initialise();    
     

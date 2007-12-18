@@ -5,6 +5,13 @@ double AbstractSimpleCellCycleModel::GetG1Duration()
     return mG1Duration;
 }
 
+
+void AbstractSimpleCellCycleModel::InitialiseDaughterCell()
+{
+    SetG1Duration();
+}
+
+
 void AbstractSimpleCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
@@ -33,6 +40,7 @@ void AbstractSimpleCellCycleModel::SetCell(TissueCell* pCell)
     // This method should only be called once per cell cycle model - when it is created so G1Duration can be set here.
     SetG1Duration();	
 }
+
 
 void AbstractSimpleCellCycleModel::ResetModel()
 {

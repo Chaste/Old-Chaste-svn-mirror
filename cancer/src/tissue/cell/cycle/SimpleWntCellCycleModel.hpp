@@ -43,7 +43,7 @@ public:
     
     bool ReadyToDivide();
         
-    AbstractCellCycleModel *CreateCellCycleModel(); 
+    AbstractCellCycleModel *CreateDaughterCellCycleModel(); 
     
     std::vector<CellType> GetNewCellTypes();
         
