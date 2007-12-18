@@ -123,8 +123,6 @@ protected:
     std::vector<AbstractCellKiller<DIM>*> mCellKillers;
     
     /** The mechanics used to determine the new location of the cells */
-    //// this will eventually become:
-    // AbstractDiscreteTissueMechanicsSystem<DIM>* mpMechanicsSystem;
     AbstractDiscreteTissueMechanicsSystem<DIM>* mpMechanicsSystem;
 
     /** Whether to print out cell area and perimeter info */
