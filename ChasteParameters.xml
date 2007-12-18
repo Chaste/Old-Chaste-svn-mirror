@@ -3,13 +3,13 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="heart/src/io/ChasteParameters.xsd">
     <SimulationDuration>10.0</SimulationDuration>
-    <SlabWidth>2.0</SlabWidth>
-    <SlabHeight>1.0</SlabHeight>
+    <SlabWidth>10.0</SlabWidth>
+    <SlabHeight>0.25</SlabHeight>
     <InterNodeSpace>0.25</InterNodeSpace>
     <FaceStimulusWidth>0.25</FaceStimulusWidth>
-    <QuadrantStimulusDelay>1.0</QuadrantStimulusDelay>
+    <QuadrantStimulusDelay>4.0</QuadrantStimulusDelay>
     <OutputDirectory>ChasteResults</OutputDirectory>
     <MeshOutputDirectory>Slab</MeshOutputDirectory>
-    <Domain>Bi</Domain>
-    <IonicModel>LuoRudyIModel1991OdeSystem</IonicModel>
+    <Domain>Mono</Domain>
+    <IonicModel>BackwardEulerFoxModel2002Modified</IonicModel>
 </ChasteParameters>

@@ -13,8 +13,13 @@
 #include "ChasteParameters.hpp"
 #include <memory>
 
-//#include "FoxModel2002.hpp"
+
 #include "BackwardEulerFoxModel2002Modified.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "BackwardEulerLuoRudyIModel1991.hpp"
+
+#include "FoxModel2002Modified.hpp"
+#include "FaberRudy2000Version3.cpp"
 
 // Path to the parameter file
 std::string parameter_file;
@@ -36,7 +41,7 @@ ionic_model_type ionic_model = ionic_model_type::LuoRudyIModel1991OdeSystem;
 const std::string  output_filename_prefix = "Run";
 const double ode_time_step = 0.02;     // ms
 const double pde_time_step = 0.02;     // ms
-const double printing_time_step = 0.1; // ms
+const double printing_time_step = 1; // ms
 
 // Scale factor because Chaste code expects lengths in cm, but params use mm.
 const double scale_factor = 1/10.0;
@@ -47,6 +52,7 @@ private:
     InitialStimulus *mpStimulus;
     InitialStimulus *mpStimulus2;
     SumStimulus *mpSumStimulus;
+    
 public:
     ChasteSlabCellFactory() : AbstractCardiacCellFactory<3>(ode_time_step)
     {
@@ -54,31 +60,56 @@ public:
         mpStimulus2= new InitialStimulus(-600.0*1000, 0.5, quadrant_stimulus_delay);
         mpSumStimulus = new SumStimulus(mpStimulus, mpStimulus2);
     }
+
+    
+    AbstractCardiacCell* CreateCellWith2Stimuli(AbstractStimulusFunction* first_stimulus, AbstractStimulusFunction* second_stimulus)
+    {
+        switch(ionic_model)
+        {
+            case(ionic_model_type::LuoRudyIModel1991OdeSystem):
+                return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, first_stimulus, second_stimulus);
+                break;   
+      
+            case(ionic_model_type::BackwardEulerLuoRudyIModel1991):
+                return new BackwardEulerLuoRudyIModel1991(mTimeStep, first_stimulus, second_stimulus);
+                break;                
+            
+            case(ionic_model_type::BackwardEulerFoxModel2002Modified):
+                return new BackwardEulerFoxModel2002Modified(mTimeStep, first_stimulus, second_stimulus);
+                break;
+                
+            default:
+                EXCEPTION("Unknown ionic model!!!");
+        }   
+        
+    }
+    
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         double x=mpMesh->GetNode(node)->GetPoint()[0];
         double z=mpMesh->GetNode(node)->GetPoint()[2];
+        
         if ( x <= inter_node_space*scale_factor*(face_stimulus_width-slab_width) )
         {
             if (x<=0 && z<=0)
             {
-                return new BackwardEulerFoxModel2002Modified(mTimeStep, mpSumStimulus, mpZeroStimulus);
+                return CreateCellWith2Stimuli(mpSumStimulus, mpZeroStimulus);
             }
             else
             {
-                return new BackwardEulerFoxModel2002Modified(mTimeStep, mpStimulus, mpZeroStimulus);
+                return CreateCellWith2Stimuli(mpStimulus, mpZeroStimulus);
             }
         }
         else
         {
             if (x<=0 && z<=0)
             {
-                return new BackwardEulerFoxModel2002Modified(mTimeStep, mpStimulus2, mpZeroStimulus);
+                return CreateCellWith2Stimuli(mpStimulus2, mpZeroStimulus);
             }
             else
             {
-                return new BackwardEulerFoxModel2002Modified(mTimeStep, mpZeroStimulus, mpZeroStimulus);
+                return CreateCellWith2Stimuli(mpZeroStimulus, mpZeroStimulus);
             }
         }
     }
@@ -130,8 +161,7 @@ int main(int argc, char *argv[])
     }
     
     parameter_file = std::string(argv[1]);
-
-try{    
+   
     ReadParametersFromFile();
     
     // construct mesh. Note that mesh is measured in cm
@@ -154,12 +184,14 @@ try{
     // write out the mesh that was used if we are the master process
     if (PetscTools::AmMaster())
     {
+        // Meshalyzer output format
         //MeshalyzerMeshWriter<3,3> mesh_writer(mesh_output_directory, "SlabMesh", false);
         //mesh_writer.WriteFilesUsingMesh(mesh);
+        // Triangles output format
         TrianglesMeshWriter<3,3> triangles_writer(mesh_output_directory, "SlabMesh", false);
         triangles_writer.WriteFilesUsingMesh(mesh);
     }
-    
+        
     ChasteSlabCellFactory cell_factory;
     
     cell_factory.SetMesh( &mesh );
@@ -189,18 +221,15 @@ try{
             bi_problem.SetOutputFilenamePrefix("Chaste");
             bi_problem.SetCallChaste2Meshalyzer(false);  
             
-            bi_problem.Initialise();            
+            bi_problem.Initialise();               
             bi_problem.Solve();            
             break;
         }    
         default:
-            std::cout << "Unknown domain type!!!\n";
+            EXCEPTION("Unknown domain type!!!");
     }
       
-    
-}catch(Exception E){
-    std::cout << "Exception "<< E.GetMessage() << "\n";
-    
+        
 }    
 
-}
+
