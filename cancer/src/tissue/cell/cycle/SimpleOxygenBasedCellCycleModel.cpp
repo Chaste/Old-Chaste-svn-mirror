@@ -26,7 +26,7 @@ bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
     
     bool ready = false;
 	  
-    if (this->mpCell->GetMutationState()!=NECROTIC)
+    if (this->mpCell->GetCellType()!=NECROTIC)
     {
         UpdateHypoxicDuration();
         
@@ -55,7 +55,7 @@ AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateCellCycleModel()
 
 void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
 {
-    assert(this->mpCell->GetMutationState()!=NECROTIC);
+    assert(this->mpCell->GetCellType()!=NECROTIC);
     assert(!this->mpCell->HasApoptosisBegun());
     
     double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(this->mpCell);
@@ -69,7 +69,7 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
         double prob_of_death = 0.9 - 0.5*(oxygen_concentration/CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration()); 
         if (mCurrentHypoxicDuration > CancerParameters::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
         {                     
-            this->mpCell->SetMutationState(NECROTIC);
+            this->mpCell->SetCellType(NECROTIC);
         }
     }
     else

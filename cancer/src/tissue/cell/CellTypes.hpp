@@ -8,7 +8,8 @@ typedef enum CellType_
 {
     STEM,
     TRANSIT,
-    DIFFERENTIATED
+    DIFFERENTIATED,
+    NECROTIC // for use in tissue simulations with nutrients
 } CellType;
 
 

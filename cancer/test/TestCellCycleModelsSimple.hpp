@@ -833,7 +833,7 @@ public:
         // force the cell to be necrotic
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
-            TS_ASSERT(necrotic_cell.GetMutationState()!=NECROTIC || 
+            TS_ASSERT(necrotic_cell.GetCellType()!=NECROTIC || 
                       p_simulation_time->GetDimensionalisedTime() >= CancerParameters::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
             
@@ -841,8 +841,8 @@ public:
             necrotic_cell.ReadyToDivide();
         }
         
-        // test that the cell mutation state is updated to be NECROTIC        
-        TS_ASSERT(necrotic_cell.GetMutationState()==NECROTIC);          
+        // test that the cell type is updated to be NECROTIC        
+        TS_ASSERT(necrotic_cell.GetCellType()==NECROTIC);          
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
                   
         CellwiseData<2>::Destroy();

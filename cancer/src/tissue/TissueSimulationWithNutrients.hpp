@@ -13,7 +13,7 @@
 template<unsigned DIM>
 class TissueSimulationWithNutrients : public TissueSimulation<DIM>
 {
-    // allow tests to access private members, in order to test computation of private functions 
+    // Allow tests to access private members, in order to test computation of private functions 
     friend class TestTissueSimulationWithNutrients;
     
 private :
@@ -25,7 +25,11 @@ private :
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>      
         archive & boost::serialization::base_object<TissueSimulation<DIM> >(*this);
+        
+        archive & mWriteSpheroidStatistics;
     }
+    
+    bool mWriteSpheroidStatistics;
     
     Vec mOxygenSolution;
 
@@ -34,12 +38,29 @@ private :
     /** The file that the nutrient values are written out to. */ 
     out_stream mpNutrientResultsFile; 
     
+    /** The file that the spheroid statistics are written out to. */ 
+    out_stream mpSpheroidStatisticsFile; 
+    
+    void SetWriteSpheroidStatistics()
+    {
+        mWriteSpheroidStatistics = true; 
+        this->mrTissue.CreateVoronoiTessellation();
+    }
+    
     void SetupWriteNutrient() 
     { 
-        OutputFileHandler output_file_handler2(this->mSimulationOutputDirectory+"/vis_results/",false); 
-        mpNutrientResultsFile = output_file_handler2.OpenOutputFile("results.viznutrient");
+        OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false); 
+        mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");
         *this->mpSetupFile << "Nutrient \n" ;         
     } 
+    
+    
+    void SetupWriteSpheroidStatistics() 
+    { 
+        OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false); 
+        mpSpheroidStatisticsFile = output_file_handler.OpenOutputFile("results.vizstatistics");        
+    } 
+    
     
     void WriteNutrient()
     {
@@ -71,22 +92,79 @@ private :
         (*mpNutrientResultsFile) << "\n";
     }
     
+    
+    void WriteSpheroidStatistics()
+    {
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        double time = p_simulation_time->GetDimensionalisedTime();
+        
+        (*mpSpheroidStatisticsFile) <<  time << "\t";
+        
+        double spheroid_radius = GetSpheroidStatistics()[0];
+        double necrotic_radius = GetSpheroidStatistics()[1];
+
+        (*mpSpheroidStatisticsFile) << time << " " << spheroid_radius << " " << necrotic_radius << "\n";                
+    }
+    
+    
+    /**     
+     * Calculates the volume of the spheroid and of the necrotic core.
+     * 
+     * Note that this only works for DIM=2 as this is asserted in the 
+     * method VoronoiTessellation<DIM>::GetFaceArea().  
+     * 
+     * @return a c_vector<double,2> whose first entry is the spheroid 
+     *         radius and whose second entry is the necrotic radius     
+     */ 
+    c_vector<double,2> GetSpheroidStatistics()
+    {   
+        assert(DIM==2);
+        // First get references to the Voronoi tessellation and mesh
+        VoronoiTessellation<DIM>& r_tessellation = this->mrTissue.rGetVoronoiTessellation();
+        ConformingTetrahedralMesh<DIM,DIM>& r_mesh = this->mrTissue.rGetMesh();
+                
+        double spheroid_area = 0.0;
+        double necrotic_area = 0.0;
+        
+        // Iterate over nodes (ghost nodes are not used in this class)        
+        for (unsigned i=0; i<r_mesh.GetNumAllNodes(); i++)
+        { 
+            // Don't use contributions from boundary nodes
+            if (r_mesh.GetNode(i)->IsBoundaryNode()==false)
+            {
+                double cell_area = r_tessellation.GetFace(i)->GetArea();
+                spheroid_area += cell_area;
+                
+                if (this->mrTissue.rGetCellAtNodeIndex(i).GetCellType()==NECROTIC)
+                {
+                    necrotic_area += cell_area;                
+                }
+            }            
+        }     
+        
+        c_vector<double,2> radii;        
+        radii[0] = sqrt(spheroid_area/M_PI);
+        radii[1] = sqrt(necrotic_area/M_PI);        
+        
+        return radii;
+    }
+    
+    
     void SetupSolve()
     {
         if ( this->mrTissue.Begin() != this->mrTissue.End() )  // there are any cells
         {
             SetupWriteNutrient();
             WriteNutrient();
+            
+            if (mWriteSpheroidStatistics)
+            {
+                SetupWriteSpheroidStatistics();
+                WriteSpheroidStatistics();
+            }
         }
     }
 
-    void AfterSolve()
-    {
-        if ( this->mrTissue.Begin() != this->mrTissue.End() )  // there are any cells
-        {
-            mpNutrientResultsFile->close();
-        }
-    }
         
     void PostSolve()
     {
@@ -96,10 +174,10 @@ private :
         CellwiseData<DIM>::Instance()->ReallocateMemory();
         std::set<unsigned> ghost_node_indices = this->mrTissue.GetGhostNodeIndices();
         
-        // we shouldn't have any ghost nodes
+        // We shouldn't have any ghost nodes
         assert(ghost_node_indices.size()==0);
                 
-        // set up boundary conditions
+        // Set up boundary conditions
         BoundaryConditionsContainer<DIM,DIM,1> bcc;
         ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
         for (typename ConformingTetrahedralMesh<DIM,DIM>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
@@ -109,17 +187,18 @@ private :
             bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
         }
         
-        // set up assembler
+        // Set up assembler
         SimpleNonlinearEllipticAssembler<DIM,DIM> assembler(&r_mesh, mpPde, &bcc);
         
-        // we cannot use the exact previous solution as initial guess as the size may be different
-        // (due to cell birth/death) - could we just add in the necessary number of 1.0's say?
+        // We cannot use the exact previous solution as initial guess 
+        // as the size may be different (due to cell birth/death)
         Vec initial_guess;
         
-        // If we have a previous solution, then use this as the basis for the initial guess
+        // If we have a previous solution, then use this as the basis 
+        // for the initial guess
         if (mOxygenSolution)
         {
-            // get the size of the previous solution
+            // Get the size of the previous solution
             PetscInt isize;
             VecGetSize(mOxygenSolution, &isize);
             unsigned size_of_previous_solution = isize;
@@ -141,23 +220,42 @@ private :
             initial_guess = assembler.CreateConstantInitialGuess(1.0);
         }
         
-        // solve the nutrient PDE
+        // Solve the nutrient PDE
         mOxygenSolution = assembler.Solve(initial_guess);
         VecDestroy(initial_guess);
         ReplicatableVector result_repl(mOxygenSolution);
         
-        // update cellwise data
+        // Update cellwise data
         for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
         {
             double oxygen_conc = result_repl[i];
             CellwiseData<DIM>::Instance()->SetValue(oxygen_conc, r_mesh.GetNode(i));
         }
         
-        // save results to file
+        // Save results to file
         WriteNutrient();
+        
+        if (mWriteSpheroidStatistics)
+        {
+            WriteSpheroidStatistics();
+        }
     }
-
-
+    
+    
+    void AfterSolve()
+    {
+        if ( this->mrTissue.Begin() != this->mrTissue.End() )  // if there are any cells
+        {
+            mpNutrientResultsFile->close();
+            
+            if (mWriteSpheroidStatistics)
+            {
+                mpSpheroidStatisticsFile->close();
+            }
+        }
+    }
+    
+    
 public:
 
     /** 
@@ -173,10 +271,12 @@ public:
                                   bool deleteTissue=false,
                                   bool initialiseCells=true) 
         : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissue, initialiseCells), 
+          mWriteSpheroidStatistics(false),
           mOxygenSolution(NULL),
           mpPde(pPde)
     {
     }
+    
     
     ~TissueSimulationWithNutrients()
     {
@@ -186,16 +286,19 @@ public:
         }
     }
     
+    
     /**
-     * A small hack until we fully archive this class - needed to set the PDE after loading a simulation from an
-     * archive.
+     * A small hack until we fully archive this class - 
+     * needed to set the PDE after loading a simulation 
+     * from an archive.
      */
     void SetPde(AbstractNonlinearEllipticPde<DIM>* pPde)
     {
         mpPde = pPde;
     }
     
-    /*
+    
+    /**
      * Records the final size of the mesh, for use in the visualizer
      */    
     void WriteFinalMeshSizeForVisualizer()
@@ -213,6 +316,7 @@ public:
         this->mpSetupFile->close();
     }
     
+    
     /**
      * Saves the whole tissue simulation for restarting later.
      *
@@ -229,6 +333,7 @@ public:
     {
         CommonSave(this);
     }
+    
 
     /**
      * Loads a saved tissue simulation to run further.
@@ -238,7 +343,8 @@ public:
      * @param rTimeStamp the time at which to load the simulation (this must
      * be one of the times at which simulation.Save() was called) 
      * 
-     * Note that this method has to be implemented in this class, since it's a static method.
+     * Note that this method has to be implemented in this class, since it's 
+     * a static method.
      */
     static TissueSimulationWithNutrients<DIM>* Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
     {
@@ -286,7 +392,6 @@ template<class Archive, unsigned DIM>
 inline void save_construct_data(
     Archive & ar, const TissueSimulationWithNutrients<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
-    //std::cout << "Save tissue construct data\n" << std::flush;
     // save data required to construct instance
     const Tissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
@@ -302,7 +407,6 @@ template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, TissueSimulationWithNutrients<DIM> * t, const unsigned int file_version)
 {
-    //std::cout << "load tissue construct data\n" << std::flush;
     // retrieve data from archive required to construct new instance
     Tissue<DIM>* p_tissue;
     ar >> p_tissue;

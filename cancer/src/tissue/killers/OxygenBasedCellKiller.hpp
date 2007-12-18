@@ -61,7 +61,7 @@ public:
      */  
     void TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
     {   
-        if (rCell.GetMutationState()==NECROTIC)
+        if (rCell.GetCellType()==NECROTIC)
         {
             rCell.StartApoptosis();
         }          

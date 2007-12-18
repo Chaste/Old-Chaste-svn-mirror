@@ -370,19 +370,19 @@ public:
         
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true); // true = mature cells
 
         Tissue<2> tissue(*p_mesh, cells);               
         tissue.SetGhostNodes(ghost_node_indices);
 
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
     
-        // seems quite difficult to test this on a periodic mesh, so just check the areas 
-        // of all the cells are correct 
+        // It seems quite difficult to test this on a periodic mesh, 
+        // so just check the areas of all the cells are correct 
         tissue.CreateVoronoiTessellation();
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            //check if this is a real cell
+            // Check if this is a real cell
             if(ghost_node_indices.find(i)==ghost_node_indices.end())
             {
                 double area = tissue.rGetVoronoiTessellation().GetFaceArea(i);
