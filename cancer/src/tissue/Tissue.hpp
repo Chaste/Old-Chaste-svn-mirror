@@ -71,6 +71,7 @@ private:
 
     /** used in seting up tabulated writers */
     unsigned mMaxCells;
+    
     /** used in seting up tabulated writers */
     unsigned mMaxElements;
     
@@ -79,6 +80,7 @@ private:
     
     /** used by tabulated writers */
     NodeWriterIdsT mNodeVarIds;
+    
     /** used by tabulated writers */
     ElementWriterIdsT mElemVarIds;
     
@@ -88,6 +90,9 @@ private:
      * (which are represented as 2 cells joined by a shorter spring).
      */
     std::set<std::set<TissueCell*> > mMarkedSprings;
+    
+    /** Helper method used by the spring marking routines */
+    std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
     
     friend class boost::serialization::access;
     /**
@@ -117,6 +122,7 @@ private:
     }
     
 public:
+
     /** Hack until meshes are fully archived using boost::serialization */
     static std::string meshPathname;
     
@@ -165,6 +171,7 @@ public:
     void SetGhostNodes(const std::set<unsigned>& ghostNodeIndices);
 
     void SetMaxCells(unsigned maxCells);
+    
     void SetMaxElements(unsigned maxElements);
     
     /**
@@ -178,9 +185,9 @@ public:
      * This method is used to calculate the force between GHOST nodes.
      */
     c_vector<double, DIM> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
-	    
-	/** 
-	 * Remove all cells labelled as dead. 
+        
+    /** 
+     * Remove all cells labelled as dead. 
      * 
      * Note that this now calls 
      * ConformingTetrahedralMesh::DeleteNodePriorToReMesh() 
@@ -193,7 +200,7 @@ public:
      *  between nodes and cells.
      * 
      *  @return number of cells removed
-	 */
+     */
     unsigned RemoveDeadCells();
     
     /** 
@@ -230,6 +237,7 @@ public:
     class Iterator
     {
     public:
+    
         /**
          * Dereference the iterator giving you a *reference* to the current cell.
          * Make sure to use a reference for the result to avoid copying cells unnecessarily.
@@ -261,6 +269,7 @@ public:
         Iterator(Tissue& rTissue, std::list<TissueCell>::iterator cellIter);
         
     private:
+    
         /**
          * Private helper function which tells us if we're pointing at a real cell.
          * Assumes we are within range (i.e. not at End).
@@ -269,10 +278,10 @@ public:
          */
         inline bool IsRealCell();
 
-	/**
-	 * Private helper function saying whether we're at the end of the cells.
-	 */
-	inline bool IsAtEnd();
+       /**
+        * Private helper function saying whether we're at the end of the cells.
+        */
+       inline bool IsAtEnd();
     
         Tissue& mrTissue;
         std::list<TissueCell>::iterator mCellIter;
@@ -306,8 +315,8 @@ public:
 
     void ReMesh();
 
-	/** Get the number of real cells, (ie non-ghost nodes) */
-	unsigned GetNumRealCells();
+    /** Get the number of real cells, (ie non-ghost nodes) */
+    unsigned GetNumRealCells();
     
     /** 
      * Sets the Ancestor index of all the cells at this time to be the
@@ -325,7 +334,7 @@ public:
     /**
      * Check consistency of our internal data structures.
      */
-	void Validate();
+    void Validate();
 
         
     /**
@@ -423,9 +432,7 @@ public:
      * Stop marking the spring between the given cells.
      */
     void UnmarkSpring(TissueCell&, TissueCell&);
-private:
-    /** Helper method used by the spring marking routines */
-    std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
+
 };
 
 template<unsigned DIM>

@@ -2,14 +2,14 @@
 
 double AbstractSimpleCellCycleModel::GetG1Duration()
 {
-	return mG1Duration;	
+    return mG1Duration;
 }
 
 void AbstractSimpleCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
-    CancerParameters* p_params = CancerParameters::Instance(); 
-	    
+    CancerParameters* p_params = CancerParameters::Instance();
+    
     switch (mpCell->GetCellType())
     {
         case STEM:
@@ -77,5 +77,3 @@ bool AbstractSimpleCellCycleModel::ReadyToDivide()
     
     return ready;
 }
-
-

@@ -29,7 +29,6 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractSimpleCellCycleModel>(*this);
-        
     }
 
 protected:

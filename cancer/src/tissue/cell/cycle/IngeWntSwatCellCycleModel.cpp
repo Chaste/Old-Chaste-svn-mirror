@@ -71,7 +71,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
 /**
  * Returns a new IngeWntSwatCellCycleModel created with the correct initial conditions.
  *
- * Should be called just after the parent cell cycle model has been .Reset().
+ * Should be called just after the parent cell cycle model has been Reset().
  */
 AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateCellCycleModel()
 {

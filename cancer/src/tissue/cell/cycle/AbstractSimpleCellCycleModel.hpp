@@ -69,7 +69,8 @@ public:
     /**
      * Default destructor
      */
-    virtual ~AbstractSimpleCellCycleModel() {};
+    virtual ~AbstractSimpleCellCycleModel()
+    {}
     
     double GetG1Duration();
 

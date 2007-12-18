@@ -80,6 +80,7 @@ public:
     /**
      * Copy all the attributes of one cell to another
      * (used for periodic boundaries - does not copy node or position information)
+     * \todo Is this the way we should be doing it?  Seems a bit counter-intuitive if the comment above is correct!
      */
     TissueCell& operator=(const TissueCell &other_cell);
     

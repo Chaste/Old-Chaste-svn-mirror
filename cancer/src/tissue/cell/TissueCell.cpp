@@ -18,9 +18,7 @@ TissueCell::TissueCell(CellType cellType,
     {
         EXCEPTION("Cell cycle model is null");
     }
-    // Stem cells are the only ones with generation = 0
-    //assert( (generation == 0) == (cellType == STEM) ); Not for Wnt cells
-
+    
     mCellType = cellType;
     mMutationState = mutationState;
     mCanDivide = false;

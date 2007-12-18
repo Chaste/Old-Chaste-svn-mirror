@@ -148,18 +148,17 @@ public:
      * Builder method to create new instances of the cell cycle model.
      * Each concrete subclass must implement this method to create an
      * instance of that subclass.
-     * NB It should create an instance which is identical to the host instance.
      * 
      * This method is called in 2 circumstances:
      *  - By the copy constructor and operator= of TissueCell to create a copy of the cell cycle
-     *    model when copying a cell.  The CreateCellCycleModel just needs to create any instance
+     *    model when copying a cell.  This method therefore just needs to create any instance
      *    of the right class, as operator= on the cell cycle model is then called to ensure the
      *    model is copied properly.
      *  - By TissueCell.Divide to create a cell cycle model for the daughter cell.
-     *    CreateCellCycleModel must thus produce a cell cycle model in a suitable state for a
-     *    newly-born cell spawned from the 'current' cell. Note that the parent cell cycle model
-     *    will have had ResetModel() called just before CreateCellCycleModel is called to copy
-     *    its state. 
+     *    This method must thus produce a cell cycle model in a suitable state for a
+     *    newly-born cell spawned from the 'current' cell.
+     *    Note that the parent cell cycle model will have had ResetModel() called just
+     *    before CreateCellCycleModel is called.
      */
     virtual AbstractCellCycleModel *CreateCellCycleModel()=0;
     
@@ -177,19 +176,22 @@ public:
 
     /**
      * @return the level of membrane bound beta-catenin. However in most Cell Cycle models this does not exist.
-     * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
+     * We have a "work-around" such that we throw an error if we try and access it for any other cell type.
+     * \todo may be better to use dynamic_cast and/or MI.
      */
     virtual double GetMembraneBoundBetaCateninLevel();
     
     /**
      * @return the level of cytoplasm beta-catenin. However in most Cell Cycle models this does not exist.
      * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
+     * \todo may be better to use dynamic_cast and/or MI.
      */
     virtual double GetCytoplasmicBetaCateninLevel();
     
     /**
      * @return the level of nuclear bound beta-catenin. However in most Cell Cycle models this does not exist.
      * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
+     * \todo may be better to use dynamic_cast and/or MI.
      */
     virtual double GetNuclearBetaCateninLevel();
     

@@ -48,12 +48,12 @@ public:
     {        
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         int num_timesteps = 100;
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, num_timesteps); // just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, num_timesteps);
                 
         double standard_divide_time = 75.19/60.0;
         
         TysonNovakCellCycleModel* p_cell_model = new TysonNovakCellCycleModel;
-        //coverage
+        // Coverage
         p_cell_model->SetBirthTime(p_simulation_time->GetDimensionalisedTime());           
         TissueCell cell(STEM, HEALTHY, p_cell_model);
                                    
@@ -85,7 +85,6 @@ public:
         TS_ASSERT_DELTA(proteins[4],0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(proteins[5],0.95328206604519, 1e-2);
         
-        //double divide_time = p_simulation_time->GetDimensionalisedTime();
         p_cell_model->ResetModel();
         TysonNovakCellCycleModel *p_cell_model2 = static_cast <TysonNovakCellCycleModel*> (p_cell_model->CreateCellCycleModel());
         
@@ -151,7 +150,9 @@ public:
             double time = p_simulation_time->GetDimensionalisedTime();            
             bool result = p_cell_model->ReadyToDivide();
             
-            if (time <= 2.0)    // Reduces from 1 to 0 over the interval 1<t<2 (at beginning of G1 phase)
+            // Reduces from 1 to 0 over the interval 1<t<2 
+            // (at beginning of G1 phase)
+            if (time <= 2.0) 
             {
                 wnt_level = 2.0-time;
             }
@@ -160,7 +161,6 @@ public:
                 wnt_level = 0.0;
             }
             WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
-            
             
             TS_ASSERT(result==false)
         }
@@ -263,7 +263,6 @@ public:
         // Acts as if it was divided at time = 16.1877... which is OK 
         // (cell cycle model dictates division time, not when the cell is manually
         // divided)
-        //std::cout << "Cell divided at time = " << SimulationTime::Instance()->GetDimensionalisedTime() << "\n" << std::flush;
         TissueCell daughter_cell = stem_cell.Divide();
         AbstractCellCycleModel* p_cell_model2 = daughter_cell.GetCellCycleModel();
         
@@ -370,7 +369,7 @@ public:
     {        
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         int num_timesteps = 500;
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps); // 15.971 hours to go into S phase
         
         double wnt_level = 1.0;        
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
@@ -404,7 +403,7 @@ public:
 
         p_cell_model_1->ResetModel();
         double second_cycle_start = p_cell_model_1->GetBirthTime();
-        //std::cout << "second cycle start = " << second_cycle_start << ", predicted division time = " << second_cycle_start+14.804 << "\n" << std::flush;
+        
         TS_ASSERT_DELTA(SG2MDuration, 10.0, 1e-5);
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -429,7 +428,7 @@ public:
     {        
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         int num_timesteps = 500;
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps); // 15.971 hours to go into S phase
 
         double wnt_level = 0.0;
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
