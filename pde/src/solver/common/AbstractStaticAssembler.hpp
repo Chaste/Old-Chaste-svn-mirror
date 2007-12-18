@@ -359,9 +359,10 @@ protected:
         // Get an iterator over the elements of the mesh
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
             iter = this->mpMesh->GetElementIteratorBegin();
-              
-        c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1)> a_elem;
-        c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> b_elem;
+        
+        const size_t STENCIL_SIZE=PROBLEM_DIM*(ELEMENT_DIM+1);      
+        c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
+        c_vector<double, STENCIL_SIZE> b_elem;
         
         
         ////////////////////////////////////////////////////////
@@ -375,7 +376,7 @@ protected:
             {
                 AssembleOnElement(element, a_elem, b_elem, assembleVector, assembleMatrix);
                     
-                unsigned p_indices[PROBLEM_DIM*(ELEMENT_DIM+1)];                
+                unsigned p_indices[STENCIL_SIZE];                
                 element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
                     
                 if (assembleMatrix)

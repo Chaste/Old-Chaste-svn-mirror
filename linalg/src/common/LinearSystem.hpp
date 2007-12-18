@@ -86,7 +86,7 @@ public:
       
 
     
-    template<unsigned MATRIX_SIZE>
+    template<size_t MATRIX_SIZE>
     void AddLhsMultipleValues(unsigned* matrixRowAndColIndices, c_matrix<double, MATRIX_SIZE, MATRIX_SIZE>& smallMatrix)
     {
         PetscInt matrix_row_indices[MATRIX_SIZE];
@@ -121,7 +121,7 @@ public:
 
 
 
-    template<unsigned VECTOR_SIZE>
+    template<size_t VECTOR_SIZE>
     void AddRhsMultipleValues(unsigned* VectorIndices, c_vector<double, VECTOR_SIZE>& smallVector)
     {
         PetscInt indices_owned[VECTOR_SIZE];
