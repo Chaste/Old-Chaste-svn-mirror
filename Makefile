@@ -124,8 +124,37 @@ TestMutationSpreadRunner: TestMutationSpreadRunner.o ${LIBS}
 	cd .. ;\
 	cp ../simulationMutationSpread.sh . ;\
 	mv simulationMutationSpread.sh simulation.sh 
-
 # End of different test.
+
+
+FULL_INCS = -isystem /home/chaste/petsc-2.3.2-p4/bmake/linux-intel-opt-mkl \
+-isystem /home/chaste/petsc-2.3.2-p4/include \
+-isystem ../../../xsd-2.3.1-i686-linux-gnu/libxsd \
+${INCS} \
+-I heart/src/problem \
+-I heart/src/solver \
+-I heart/src/pdes \
+-I heart/src/odes \
+-I heart/src/stimulus \
+-I heart/src/io \
+-I global/src
+
+FULL_LIBS= -Llinklib -Lheart/build/intel -Lheart \
+-L/home/chaste/petsc-2.3.2-p4/lib/linux-intel-opt-mkl \
+-L/opt/intel/cc/9.1.039/lib -L/home/chaste/petsc-2.3.2-p4/externalpackages/f2cblaslapack/linux-gnu \
+-L/opt/intel/mkl/9.1.023/lib/32 \
+-Llib -ltestheart -lheart -lode -lmesh -llinalg -lio -lglobal \
+-lpetscts -lpetscsnes -lpetscksp -lpetscdm -lpetscmat -lpetscvec\
+-lpetsc -lmkl_lapack -lmkl -lboost_serialization -lxerces-c
+
+Chaste:	Chaste.o heart/build/intel/src/io/ChasteParameters.o
+	mpicxx -CC=icpc -o Chaste Chaste.o heart/build/intel/src/io/ChasteParameters.o ${FULL_LIBS}
+
+Chaste.o: Chaste.cpp #Need more dependencies here! 
+	mpicxx -CC=icpc ${FULL_INCS} -c Chaste.cpp
+
+heart/build/intel/src/io/ChasteParameters.o:	heart/src/io/ChasteParameters.cpp
+	mpicxx -CC=icpc ${FULL_INCS} -c  heart/src/io/ChasteParameters.cpp -o heart/build/intel/src/io/ChasteParameters.o
 
 clean:
 	rm *.o  */src/*/*.o */src/*/*/*.o */src/*/*/*/*.o Test*.cpp
