@@ -141,7 +141,25 @@ public:
         TS_ASSERT_EQUALS(tester.MeshNum, 1u); ///Just to prove the thing works
     }
 
-
+    //Copied from projects/jmpf
+    //Ought to take less than an hour
+    void Test3DSpace10() throw(Exception)
+    {
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
+        PetscOptionsSetValue("-options_table", "");
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
+        tester.KspRtol=1e-10;
+        tester.OdeTimeStep /= 2.0;
+        tester.PdeTimeStep /= 2.0;
+        
+        //tester.RelativeConvergenceCriterion=2e-11;
+        tester.SetMeshWidth(0.10);//cm
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 3u);
+    }   
+  
 };
 
 #endif /*TESTCONVERGENCENIGHTLY_HPP_*/
