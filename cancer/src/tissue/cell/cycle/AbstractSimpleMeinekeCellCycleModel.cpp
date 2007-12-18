@@ -1,11 +1,5 @@
 #include "AbstractSimpleMeinekeCellCycleModel.hpp"
 
-void AbstractSimpleMeinekeCellCycleModel::ResetModel()
-{ 
-    mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
-    SetG1Duration();
-}
-
 std::vector<CellType> AbstractSimpleMeinekeCellCycleModel::GetNewCellTypes()
 {
     CellType cell_type = mpCell->GetCellType();

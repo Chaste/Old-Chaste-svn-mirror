@@ -80,7 +80,7 @@ public:
      */
     void SetCell(TissueCell* pCell);
 
-    void ResetModel();
+    virtual void ResetModel();
     
     /**
      * Default ReadyToDivide function for a simple cell cycle model.

@@ -33,28 +33,26 @@ private:
     }
 
 protected:
-
     /** 
      * Protected constructor for creating an identical daughter cell 
      * (with the same G_ONE duration...)
      * */
     AbstractSimpleMeinekeCellCycleModel(double g1Duration, unsigned generation)
-        :AbstractSimpleCellCycleModel(g1Duration, generation){};
-        
-
+        : AbstractSimpleCellCycleModel(g1Duration, generation)
+    {}
 
 public:
     /**
      * Default constructor - creates an AbstractSimpleCellCycleModel
      */
-    AbstractSimpleMeinekeCellCycleModel() {};
+    AbstractSimpleMeinekeCellCycleModel()
+    {}
         
     /**
      * Default destructor
      */
-    virtual ~AbstractSimpleMeinekeCellCycleModel() {};
-        
-	void ResetModel();
+    virtual ~AbstractSimpleMeinekeCellCycleModel()
+    {}
     
     /**
      * Returns the cell types of the next generation of cells in a vector
