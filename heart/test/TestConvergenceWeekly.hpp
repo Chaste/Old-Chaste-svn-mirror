@@ -20,7 +20,7 @@ class TestConvergenceWeekly : public CxxTest::TestSuite
 {   
 public:
 
-    void Test3DSpace() throw(Exception)
+    void xxTest3DSpace() throw(Exception)
     {
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
@@ -32,6 +32,24 @@ public:
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 4u); ///Just to prove the thing works
     }
+    
+    //Copied from projects/jmpf
+    void Test3DSpace10() throw(Exception)
+    {
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
+        PetscOptionsSetValue("-options_table", "");
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
+        tester.KspRtol=1e-10;
+        tester.OdeTimeStep /= 2.0;
+        tester.PdeTimeStep /= 2.0;
+        tester.SetMeshWidth(0.10);//cm
+        
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 3u);
+    }   
+  
 
 };
 
