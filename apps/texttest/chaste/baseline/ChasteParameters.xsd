@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="SpiralParameters">
+  <xs:simpleType name="domain_type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Mono"/>
+      <xs:enumeration value="Bi"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ionic_model_type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BackwardEulerFoxModel2002Modified"/>
+      <xs:enumeration value="BackwardEulerLuoRudyIModel1991"/>
+      <xs:enumeration value="LuoRudyIModel1991OdeSystem"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="ChasteParameters">
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="SimulationDuration"/>
@@ -11,6 +24,8 @@
         <xs:element ref="QuadrantStimulusDelay"/>
         <xs:element ref="OutputDirectory"/>
         <xs:element ref="MeshOutputDirectory"/>
+        <xs:element ref="Domain" />
+        <xs:element ref="IonicModel" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -22,4 +37,6 @@
   <xs:element name="QuadrantStimulusDelay" type="xs:decimal"/>
   <xs:element name="OutputDirectory" type="xs:string"/>
   <xs:element name="MeshOutputDirectory" type="xs:string"/>
+  <xs:element name="Domain" type="domain_type"/>
+  <xs:element name="IonicModel" type="ionic_model_type"/>
 </xs:schema>

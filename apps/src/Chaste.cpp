@@ -39,9 +39,9 @@ ionic_model_type ionic_model = ionic_model_type::LuoRudyIModel1991OdeSystem;
 
 // Parameters fixed at compile time
 const std::string  output_filename_prefix = "Run";
-const double ode_time_step = 0.02;     // ms
-const double pde_time_step = 0.02;     // ms
-const double printing_time_step = 1; // ms
+const double ode_time_step = 0.01;     // ms
+const double pde_time_step = 0.01;     // ms
+const double printing_time_step = 0.01; // ms
 
 // Scale factor because Chaste code expects lengths in cm, but params use mm.
 const double scale_factor = 1/10.0;
@@ -145,95 +145,110 @@ void ReadParametersFromFile()
     }
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[]) 
 {
-    PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
-    
-    // solver and preconditioner options
-    //PetscOptionsSetValue("-ksp_type", "cg");
-    //PetscOptionsSetValue("-pc_type", "bjacobi");
-    //PetscOptionsSetValue("-options_table", "");
-    
-    if (argc!=2)
+    try
     {
-        std::cout  << "Usage: Chaste parameters_file\n";
-        return -1;
-    }
-    
-    parameter_file = std::string(argv[1]);
-   
-    ReadParametersFromFile();
-    
-    // construct mesh. Note that mesh is measured in cm
-    unsigned slab_nodes_width = (unsigned)round(slab_width/inter_node_space);
-    unsigned slab_nodes_height = (unsigned)round(slab_height/inter_node_space);
-   
-    ConformingTetrahedralMesh<3,3> mesh;
-    mesh.ConstructCuboid(slab_nodes_width,
-                         slab_nodes_height,
-                         slab_nodes_width,
-                         true);
-    // place at origin
-    mesh.Translate(-(double)slab_nodes_width/2.0,
-                   -(double)slab_nodes_height/2.0,
-                   -(double)slab_nodes_width/2.0);
-    // scale
-    double mesh_scale_factor = inter_node_space*scale_factor;
-    mesh.Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
-
-    // write out the mesh that was used if we are the master process
-    if (PetscTools::AmMaster())
-    {
-        // Meshalyzer output format
-        //MeshalyzerMeshWriter<3,3> mesh_writer(mesh_output_directory, "SlabMesh", false);
-        //mesh_writer.WriteFilesUsingMesh(mesh);
-        // Triangles output format
-        TrianglesMeshWriter<3,3> triangles_writer(mesh_output_directory, "SlabMesh", false);
-        triangles_writer.WriteFilesUsingMesh(mesh);
-    }
+        PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
         
-    ChasteSlabCellFactory cell_factory;
-    
-    cell_factory.SetMesh( &mesh );
-    
-    switch(domain){
-        case domain_type::Mono :
+        // solver and preconditioner options
+        //PetscOptionsSetValue("-ksp_type", "cg");
+        //PetscOptionsSetValue("-pc_type", "bjacobi");
+        //PetscOptionsSetValue("-options_table", "");
+        
+        if (argc!=2)
         {
-            MonodomainProblem<3> mono_problem( &cell_factory );
-
-            mono_problem.SetMesh(&mesh);
-            mono_problem.SetEndTime(simulation_duration);   // ms
-            mono_problem.SetPdeTimeStep(pde_time_step); // ms
-            mono_problem.SetPrintingTimeStep(printing_time_step); // ms
-            mono_problem.SetOutputDirectory(output_directory);
-            mono_problem.SetOutputFilenamePrefix("Chaste");
-            mono_problem.SetCallChaste2Meshalyzer(false);  
-            
-            mono_problem.Initialise();
-            mono_problem.Solve();
-            break;
+            std::cout  << "Usage: Chaste parameters_file\n";
+            return -1;
         }
-        case domain_type::Bi :
-        {
-            BidomainProblem<3> bi_problem( &cell_factory );
-
-            bi_problem.SetMesh(&mesh);
-            bi_problem.SetEndTime(simulation_duration);   // ms
-            bi_problem.SetPdeTimeStep(pde_time_step); // ms
-            bi_problem.SetPrintingTimeStep(printing_time_step); // ms
-            bi_problem.SetOutputDirectory(output_directory);
-            bi_problem.SetOutputFilenamePrefix("Chaste");
-            bi_problem.SetCallChaste2Meshalyzer(false);  
-            
-            bi_problem.Initialise();               
-            bi_problem.Solve();            
-            break;
-        }    
-        default:
-            EXCEPTION("Unknown domain type!!!");
-    }
-      
         
+        parameter_file = std::string(argv[1]);
+       
+        ReadParametersFromFile();
+        
+        // construct mesh. Note that mesh is measured in cm
+        unsigned slab_nodes_width = (unsigned)round(slab_width/inter_node_space);
+        unsigned slab_nodes_height = (unsigned)round(slab_height/inter_node_space);
+       
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructCuboid(slab_nodes_width,
+                             slab_nodes_height,
+                             slab_nodes_width,
+                             true);
+        // place at origin
+        mesh.Translate(-(double)slab_nodes_width/2.0,
+                       -(double)slab_nodes_height/2.0,
+                       -(double)slab_nodes_width/2.0);
+        // scale
+        double mesh_scale_factor = inter_node_space*scale_factor;
+        mesh.Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
+
+        OutputFileHandler handler(output_directory,false);
+        std::string output_dir_full_path = handler.GetOutputDirectoryFullPath();
+
+    
+        // write out the mesh that was used if we are the master process
+        if (PetscTools::AmMaster())
+        {
+            // Meshalyzer output format
+            //MeshalyzerMeshWriter<3,3> mesh_writer(output_directory+"/mesh", "Slab", false);
+            //mesh_writer.WriteFilesUsingMesh(mesh);
+            // Triangles output format
+            TrianglesMeshWriter<3,3> triangles_writer(output_directory+"/mesh", "Slab", false);
+            triangles_writer.WriteFilesUsingMesh(mesh);
+            
+            // copy input parameters file to results directory
+            //system(("cp " + parameter_file + " " + output_dir_full_path).c_str());
+        }
+    
+        ChasteSlabCellFactory cell_factory;
+        cell_factory.SetMesh( &mesh );
+        
+        switch(domain)
+        {
+            case domain_type::Mono :
+            {
+                MonodomainProblem<3> mono_problem( &cell_factory );
+    
+                mono_problem.SetMesh(&mesh);
+                mono_problem.SetEndTime(simulation_duration);   // ms
+                mono_problem.SetPdeTimeStep(pde_time_step); // ms
+                mono_problem.SetPrintingTimeStep(printing_time_step); // ms
+                mono_problem.SetOutputDirectory(output_directory+"/results");
+                mono_problem.SetOutputFilenamePrefix("Chaste");
+                mono_problem.SetCallChaste2Meshalyzer(false);  
+                
+                mono_problem.Initialise();
+                mono_problem.Solve();
+                break;
+            }
+            case domain_type::Bi :
+            {
+                BidomainProblem<3> bi_problem( &cell_factory );
+    
+                bi_problem.SetMesh(&mesh);
+                bi_problem.SetEndTime(simulation_duration);   // ms
+                bi_problem.SetPdeTimeStep(pde_time_step); // ms
+                bi_problem.SetPrintingTimeStep(printing_time_step); // ms
+                bi_problem.SetOutputDirectory(output_directory+"/results");
+                bi_problem.SetOutputFilenamePrefix("Chaste");
+                bi_problem.SetCallChaste2Meshalyzer(false);  
+                
+                bi_problem.Initialise();               
+                bi_problem.Solve();            
+                break;
+            }    
+            default:
+                EXCEPTION("Unknown domain type!!!");
+        }
+
+        return 0;
+    }
+    catch(Exception& e)
+    {
+        std::cerr << e.GetMessage() << "\n";
+        return 1;
+    }
 }    
 
 

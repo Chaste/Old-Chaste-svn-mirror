@@ -308,6 +308,7 @@ if ARGUMENTS.get('exe', 0):
         libpath = '#lib'
     else:
         libpath = '#linklib'
-    env.Program('Chaste', 'Chaste.cpp',
-                LIBS=['heart'] + comp_deps['heart'] + other_libs,
-                LIBPATH=[libpath] + other_libpaths)
+    for main_cpp in glob.glob('apps/src/*.cpp'):
+	    env.Program(main_cpp,
+    	            LIBS=['heart'] + comp_deps['heart'] + other_libs,
+        	        LIBPATH=[libpath] + other_libpaths)

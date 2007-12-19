@@ -1,0 +1,11 @@
+binary:/home/chaste/eclipse/workspace/Chaste/apps/src/Chaste
+create_catalogues:true
+link_test_path:ChasteParameters.xsd
+link_test_path:ChasteParameters.xml
+
+[collate_file]
+results_dat*:ChasteResults/results/Chaste*.dat
+results_info:ChasteResults/results/Chaste.info
+mesh_node:ChasteResults/mesh/Slab.node
+mesh_face:ChasteResults/mesh/Slab.face
+mesh_ele:ChasteResults/mesh/Slab.ele
