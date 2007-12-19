@@ -268,12 +268,12 @@ public:
 
         // Set stimulus
         double magnitude = -25.5;
-        double duration  = 0.002  ;  // ms
+        double duration  = 2.0;  // ms
         double when = 10.0; // ms
         InitialStimulus stimulus(magnitude, duration, when);
         
         double end_time = 1000.0; //ms
-        double time_step = 0.01;  
+        double time_step = 0.007;
         
         EulerIvpOdeSolver solver;
         FaberRudy2000Version3 fr2000_ode_system(&solver, time_step, &stimulus);
@@ -282,21 +282,19 @@ public:
         ck_start = clock();
         RunOdeSolverWithIonicModel(&fr2000_ode_system,
                                    end_time,
-                                   "FR2000DelayedStim");
+                                   "FR2000DelayedStim",
+                                   500, false);
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tForward: " << forward << std::endl;
                                    
-//        CheckCellModelResults("FR2000DelayedStim");
-//        
-//        // test GetIionic: (the GetIionic method was first manually tested
-//        // by changing the EvaluateYDerivatives() code to call it, this verified
-//        // that GetIionic has no errors, therefore we can test here against
-//        // a hardcoded result
-//        RunOdeSolverWithIonicModel(&fr2000_ode_system,
-//                                   60.0,
-//                                   "Lr91GetIIonic");
-//        TS_ASSERT_DELTA( lr91_ode_system.GetIIonic(), 1.9411, 1e-3);
+        CheckCellModelResults("FR2000DelayedStim");
+        
+        // test GetIionic: (the GetIionic method was first manually tested
+        // by changing the EvaluateYDerivatives() code to call it, this verified
+        // that GetIionic has no errors, therefore we can test here against
+        // a hardcoded result
+        TS_ASSERT_DELTA(fr2000_ode_system.GetIIonic(), 0.0002, 1e-4);
     }
     
         

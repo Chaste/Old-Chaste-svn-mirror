@@ -23,7 +23,6 @@ protected:
     
     bool mUseAnalytic;
     
-    
 public:
     /**
      * Constructor for an ODE system.

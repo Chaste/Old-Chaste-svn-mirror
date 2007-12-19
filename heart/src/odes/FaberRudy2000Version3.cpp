@@ -383,7 +383,8 @@ public:
             std::vector<double> &rDY)
     {
         // Inputs:
-        // Time units: second
+        // Time units: second, but input in ms
+        var_environment__time *= 1e-3;
         double var_membrane__V = rY[0];
         // Units: millivolt; Initial value: -90
         double var_fast_sodium_current_m_gate__m = rY[1];
@@ -448,7 +449,7 @@ public:
 //        const double var_membrane__stim_period = 1.0;
 //        const double var_membrane__stim_start = 0.1;
 //        double var_membrane__I_st = ((var_membrane__time >= var_membrane__stim_start) && (var_membrane__time <= var_membrane__stim_end) && (((var_membrane__time - var_membrane__stim_start) - (floor((var_membrane__time - var_membrane__stim_start) / var_membrane__stim_period) * var_membrane__stim_period)) <= var_membrane__stim_duration)) ? var_membrane__stim_amplitude : 0.0;
-        double var_membrane__I_st = GetStimulus(var_environment__time);
+        double var_membrane__I_st = GetStimulus(var_environment__time*1000);
         double var_fast_sodium_current__j = var_fast_sodium_current_j_gate__j;
         double var_fast_sodium_current__h = var_fast_sodium_current_h_gate__h;
         const double var_fast_sodium_current__g_Na = 16.0;
@@ -779,31 +780,31 @@ public:
         double d_dt_ionic_concentrations__Nai = ((-(var_ionic_concentrations__i_Na + var_ionic_concentrations__i_CaNa + var_ionic_concentrations__i_Na_b + var_ionic_concentrations__i_ns_Na + (var_ionic_concentrations__i_NaCa * 3.0) + (var_ionic_concentrations__i_NaK * 3.0))) * var_ionic_concentrations__A_cap) / (var_ionic_concentrations__V_myo * var_ionic_concentrations__F);
         double d_dt_ionic_concentrations__Ki = ((-(var_ionic_concentrations__i_CaK + var_ionic_concentrations__i_Kr + var_ionic_concentrations__i_Ks + var_ionic_concentrations__i_K1 + var_ionic_concentrations__i_Kp + var_ionic_concentrations__i_K_Na + var_ionic_concentrations__i_K_ATP + var_ionic_concentrations__i_to + var_ionic_concentrations__i_ns_K + ((-var_ionic_concentrations__i_NaK) * 2.0))) * var_ionic_concentrations__A_cap) / (var_ionic_concentrations__V_myo * var_ionic_concentrations__F);
         
-        rDY[0] = d_dt_membrane__V;
-        rDY[1] = d_dt_fast_sodium_current_m_gate__m;
-        rDY[2] = d_dt_fast_sodium_current_h_gate__h;
-        rDY[3] = d_dt_fast_sodium_current_j_gate__j;
-        rDY[4] = d_dt_L_type_Ca_channel_d_gate__d;
-        rDY[5] = d_dt_L_type_Ca_channel_f_gate__f;
-        rDY[6] = d_dt_T_type_Ca_channel_b_gate__b;
-        rDY[7] = d_dt_T_type_Ca_channel_g_gate__g;
-        rDY[8] = d_dt_rapid_delayed_rectifier_potassium_current_xr_gate__xr;
-        rDY[9] = d_dt_slow_delayed_rectifier_potassium_current_xs1_gate__xs1;
-        rDY[10] = d_dt_slow_delayed_rectifier_potassium_current_xs2_gate__xs2;
-        rDY[11] = d_dt_transient_outward_current_zdv_gate__zdv;
-        rDY[12] = d_dt_transient_outward_current_ydv_gate__ydv;
-        rDY[13] = d_dt_calcium_dynamics__Cai;
-        rDY[14] = d_dt_calcium_dynamics__Ca_JSR;
-        rDY[15] = d_dt_calcium_dynamics__Ca_NSR;
-        rDY[16] = d_dt_calcium_dynamics__APtrack;
-        rDY[17] = d_dt_calcium_dynamics__APtrack2;
-        rDY[18] = d_dt_calcium_dynamics__APtrack3;
-        rDY[19] = d_dt_calcium_dynamics__Cainfluxtrack;
-        rDY[20] = d_dt_calcium_dynamics__OVRLDtrack;
-        rDY[21] = d_dt_calcium_dynamics__OVRLDtrack2;
-        rDY[22] = d_dt_calcium_dynamics__OVRLDtrack3;
-        rDY[23] = d_dt_ionic_concentrations__Nai;
-        rDY[24] = d_dt_ionic_concentrations__Ki;
+        rDY[0] = d_dt_membrane__V*1e-3;
+        rDY[1] = d_dt_fast_sodium_current_m_gate__m*1e-3;
+        rDY[2] = d_dt_fast_sodium_current_h_gate__h*1e-3;
+        rDY[3] = d_dt_fast_sodium_current_j_gate__j*1e-3;
+        rDY[4] = d_dt_L_type_Ca_channel_d_gate__d*1e-3;
+        rDY[5] = d_dt_L_type_Ca_channel_f_gate__f*1e-3;
+        rDY[6] = d_dt_T_type_Ca_channel_b_gate__b*1e-3;
+        rDY[7] = d_dt_T_type_Ca_channel_g_gate__g*1e-3;
+        rDY[8] = d_dt_rapid_delayed_rectifier_potassium_current_xr_gate__xr*1e-3;
+        rDY[9] = d_dt_slow_delayed_rectifier_potassium_current_xs1_gate__xs1*1e-3;
+        rDY[10] = d_dt_slow_delayed_rectifier_potassium_current_xs2_gate__xs2*1e-3;
+        rDY[11] = d_dt_transient_outward_current_zdv_gate__zdv*1e-3;
+        rDY[12] = d_dt_transient_outward_current_ydv_gate__ydv*1e-3;
+        rDY[13] = d_dt_calcium_dynamics__Cai*1e-3;
+        rDY[14] = d_dt_calcium_dynamics__Ca_JSR*1e-3;
+        rDY[15] = d_dt_calcium_dynamics__Ca_NSR*1e-3;
+        rDY[16] = d_dt_calcium_dynamics__APtrack*1e-3;
+        rDY[17] = d_dt_calcium_dynamics__APtrack2*1e-3;
+        rDY[18] = d_dt_calcium_dynamics__APtrack3*1e-3;
+        rDY[19] = d_dt_calcium_dynamics__Cainfluxtrack*1e-3;
+        rDY[20] = d_dt_calcium_dynamics__OVRLDtrack*1e-3;
+        rDY[21] = d_dt_calcium_dynamics__OVRLDtrack2*1e-3;
+        rDY[22] = d_dt_calcium_dynamics__OVRLDtrack3*1e-3;
+        rDY[23] = d_dt_ionic_concentrations__Nai*1e-3;
+        rDY[24] = d_dt_ionic_concentrations__Ki*1e-3;
     }
 
 };

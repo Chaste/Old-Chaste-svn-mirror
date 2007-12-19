@@ -48,7 +48,7 @@ void CheckCellModelResults(std::string baseResultsFilename)
     ColumnDataReader data_reader("TestIonicModels", baseResultsFilename);
     std::vector<double> times = data_reader.GetValues("Time");
     std::vector<double> voltages = data_reader.GetValues("V");
-    ColumnDataReader valid_reader("ode/test/data", baseResultsFilename+"ValidData",
+    ColumnDataReader valid_reader("heart/test/data", baseResultsFilename+"ValidData",
                                   false);
     std::vector<double> valid_times = valid_reader.GetValues("Time");
     std::vector<double> valid_voltages = valid_reader.GetValues("V");
