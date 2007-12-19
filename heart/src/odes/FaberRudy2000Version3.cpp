@@ -74,7 +74,7 @@ public:
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.5);
 
-        mVariableNames.push_back("Cai");
+        mVariableNames.push_back("CaI");
         mVariableUnits.push_back("millimolar");
         mInitialConditions.push_back(6e-5);
 

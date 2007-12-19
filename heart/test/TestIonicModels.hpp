@@ -27,6 +27,7 @@
 #include "BackwardEulerFoxModel2002Modified.hpp"
 
 #include "FaberRudy2000Version3.cpp"
+#include "FaberRudy2000Version3Optimised.hpp"
 
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
 // are defined in RunAndCheckIonicModels.hpp
@@ -220,7 +221,7 @@ public:
         ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_ode_system,
                                    end_time,
-                                   "Lr91DelayedSt= i_stim im");
+                                   "Lr91DelayedStim");
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         
@@ -258,10 +259,6 @@ public:
         BackwardEulerLuoRudyIModel1991 lr91_backward_euler3(&solver2, time_step, &stimulus);
     }
     
-    //
-    // At this moment we only use this test to output (/tmp/chaste/TestIonicModels/FR2000DelayedStim.dat) the results
-    // of the simulation of the model and check if an AP is generated (or only nan values)
-    //
     void TestOdeSolverForFR2000WithDelayedInitialStimulus(void)
     {
         clock_t ck_start, ck_end;
@@ -276,6 +273,7 @@ public:
         double time_step = 0.007;
         
         EulerIvpOdeSolver solver;
+        FaberRudy2000Version3Optimised fr2000_ode_system_opt(&solver, time_step, &stimulus);
         FaberRudy2000Version3 fr2000_ode_system(&solver, time_step, &stimulus);
         
         // Solve and write to file
@@ -286,15 +284,27 @@ public:
                                    500, false);
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        std::cout << "\n\tForward: " << forward << std::endl;
-                                   
+                                  
+        ck_start = clock(); 
+        RunOdeSolverWithIonicModel(&fr2000_ode_system_opt,
+                                   end_time,
+                                   "FR2000DelayedStimOpt",
+                                   500, false);
+        ck_end = clock();
+        double opt = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        
+        std::cout << "\n\tForward: " << forward
+                  << "\n\tOptimised: " << opt << std::endl;
+        
         CheckCellModelResults("FR2000DelayedStim");
+        CompareCellModelResults("FR2000DelayedStim", "FR2000DelayedStimOpt", 1e-4);
         
         // test GetIionic: (the GetIionic method was first manually tested
         // by changing the EvaluateYDerivatives() code to call it, this verified
         // that GetIionic has no errors, therefore we can test here against
         // a hardcoded result
         TS_ASSERT_DELTA(fr2000_ode_system.GetIIonic(), 0.0002, 1e-4);
+        TS_ASSERT_DELTA(fr2000_ode_system_opt.GetIIonic(), 0.0002, 1e-4);
     }
     
         
