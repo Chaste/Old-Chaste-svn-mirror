@@ -11,8 +11,6 @@
       <xs:enumeration value="BackwardEulerFoxModel2002Modified"/>
       <xs:enumeration value="BackwardEulerLuoRudyIModel1991"/>
       <xs:enumeration value="LuoRudyIModel1991OdeSystem"/>
-      <xs:enumeration value="FaberRudy2000Version3Optimised"/>
-      <xs:enumeration value="FaberRudy2000Version3"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="ChasteParameters">

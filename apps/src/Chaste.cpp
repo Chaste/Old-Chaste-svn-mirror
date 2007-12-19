@@ -20,6 +20,7 @@
 
 #include "FoxModel2002Modified.hpp"
 #include "FaberRudy2000Version3.cpp"
+#include "FaberRudy2000Version3Optimised.hpp"
 
 // Path to the parameter file
 std::string parameter_file;
@@ -39,9 +40,12 @@ ionic_model_type ionic_model = ionic_model_type::LuoRudyIModel1991OdeSystem;
 
 // Parameters fixed at compile time
 const std::string  output_filename_prefix = "Run";
-const double ode_time_step = 0.01;     // ms
-const double pde_time_step = 0.01;     // ms
-const double printing_time_step = 0.01; // ms
+const double ode_time_step = 0.02;     // ms
+const double pde_time_step = 0.02;     // ms
+const double printing_time_step = 1; // ms
+
+const double intracellular_cond = 1.75;
+const double extracellular_cond = 7.0;
 
 // Scale factor because Chaste code expects lengths in cm, but params use mm.
 const double scale_factor = 1/10.0;
@@ -56,26 +60,34 @@ private:
 public:
     ChasteSlabCellFactory() : AbstractCardiacCellFactory<3>(ode_time_step)
     {
-        mpStimulus = new InitialStimulus(-600.0*1000, 0.5);
-        mpStimulus2= new InitialStimulus(-600.0*1000, 0.5, quadrant_stimulus_delay);
+        mpStimulus = new InitialStimulus(-25.5*1000, 0.5);
+        mpStimulus2= new InitialStimulus(-25.5*1000, 0.5, quadrant_stimulus_delay);
         mpSumStimulus = new SumStimulus(mpStimulus, mpStimulus2);
     }
 
     
-    AbstractCardiacCell* CreateCellWith2Stimuli(AbstractStimulusFunction* first_stimulus, AbstractStimulusFunction* second_stimulus)
+    AbstractCardiacCell* CreateCellWithIntracellularStimulus(AbstractStimulusFunction* intracellularStimulus)
     {
         switch(ionic_model)
         {
             case(ionic_model_type::LuoRudyIModel1991OdeSystem):
-                return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, first_stimulus, second_stimulus);
+                return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, intracellularStimulus, mpZeroStimulus);
                 break;   
       
             case(ionic_model_type::BackwardEulerLuoRudyIModel1991):
-                return new BackwardEulerLuoRudyIModel1991(mTimeStep, first_stimulus, second_stimulus);
+                return new BackwardEulerLuoRudyIModel1991(mTimeStep, intracellularStimulus, mpZeroStimulus);
                 break;                
             
             case(ionic_model_type::BackwardEulerFoxModel2002Modified):
-                return new BackwardEulerFoxModel2002Modified(mTimeStep, first_stimulus, second_stimulus);
+                return new BackwardEulerFoxModel2002Modified(mTimeStep, intracellularStimulus, mpZeroStimulus);
+                break;
+    
+            case(ionic_model_type::FaberRudy2000Version3):
+                return new FaberRudy2000Version3(mpSolver, mTimeStep, intracellularStimulus, mpZeroStimulus);
+                break;
+
+            case(ionic_model_type::FaberRudy2000Version3Optimised):
+                return new FaberRudy2000Version3Optimised(mpSolver, mTimeStep, intracellularStimulus, mpZeroStimulus);
                 break;
                 
             default:
@@ -94,22 +106,22 @@ public:
         {
             if (x<=0 && z<=0)
             {
-                return CreateCellWith2Stimuli(mpSumStimulus, mpZeroStimulus);
+                return CreateCellWithIntracellularStimulus(mpSumStimulus);
             }
             else
             {
-                return CreateCellWith2Stimuli(mpStimulus, mpZeroStimulus);
+                return CreateCellWithIntracellularStimulus(mpStimulus);
             }
         }
         else
         {
             if (x<=0 && z<=0)
             {
-                return CreateCellWith2Stimuli(mpStimulus2, mpZeroStimulus);
+                return CreateCellWithIntracellularStimulus(mpStimulus2);
             }
             else
             {
-                return CreateCellWith2Stimuli(mpZeroStimulus, mpZeroStimulus);
+                return CreateCellWithIntracellularStimulus(mpZeroStimulus);
             }
         }
     }
@@ -219,6 +231,7 @@ int main(int argc, char *argv[])
                 mono_problem.SetCallChaste2Meshalyzer(false);  
                 
                 mono_problem.Initialise();
+                mono_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(intracellular_cond*identity_matrix<double>(3));
                 mono_problem.Solve();
                 break;
             }
@@ -234,7 +247,9 @@ int main(int argc, char *argv[])
                 bi_problem.SetOutputFilenamePrefix("Chaste");
                 bi_problem.SetCallChaste2Meshalyzer(false);  
                 
-                bi_problem.Initialise();               
+                bi_problem.Initialise();
+                bi_problem.GetBidomainPde()->SetIntracellularConductivityTensor(intracellular_cond*identity_matrix<double>(3));
+                bi_problem.GetBidomainPde()->SetExtracellularConductivityTensor(extracellular_cond*identity_matrix<double>(3));               
                 bi_problem.Solve();            
                 break;
             }    
@@ -249,6 +264,10 @@ int main(int argc, char *argv[])
         std::cerr << e.GetMessage() << "\n";
         return 1;
     }
+    
+    EventHandler::Headings();
+    EventHandler::Report();
+    
 }    
 
 

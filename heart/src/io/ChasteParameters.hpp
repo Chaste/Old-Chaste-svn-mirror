@@ -268,7 +268,9 @@ class ionic_model_type: public ::xml_schema::string
   {
     BackwardEulerFoxModel2002Modified,
     BackwardEulerLuoRudyIModel1991,
-    LuoRudyIModel1991OdeSystem
+    LuoRudyIModel1991OdeSystem,
+    FaberRudy2000Version3Optimised,
+    FaberRudy2000Version3
   };
 
   ionic_model_type (_xsd_ionic_model_type);
@@ -310,8 +312,8 @@ class ionic_model_type: public ::xml_schema::string
   _xsd_ionic_model_type_convert () const;
 
   public:
-  static const char* const _xsd_ionic_model_type_literals_[3];
-  static const _xsd_ionic_model_type _xsd_ionic_model_type_indexes_[3];
+  static const char* const _xsd_ionic_model_type_literals_[5];
+  static const _xsd_ionic_model_type _xsd_ionic_model_type_indexes_[5];
 };
 
 // ChasteParameters

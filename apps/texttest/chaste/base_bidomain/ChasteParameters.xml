@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ChasteParameters
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:noNamespaceSchemaLocation="heart/src/io/ChasteParameters.xsd">
-    <SimulationDuration>200.0</SimulationDuration>
+       xsi:noNamespaceSchemaLocation="ChasteParameters.xsd">
+    <SimulationDuration>4</SimulationDuration>
     <SlabWidth>10.0</SlabWidth>
     <SlabHeight>0.25</SlabHeight>
     <InterNodeSpace>0.25</InterNodeSpace>
     <FaceStimulusWidth>0.25</FaceStimulusWidth>
-    <QuadrantStimulusDelay>160.0</QuadrantStimulusDelay>
+    <QuadrantStimulusDelay>2.0</QuadrantStimulusDelay>
     <OutputDirectory>ChasteResults</OutputDirectory>
     <MeshOutputDirectory>Slab</MeshOutputDirectory>
-    <Domain>Mono</Domain>
-    <IonicModel>FaberRudy2000Version3</IonicModel>
+    <Domain>Bi</Domain>
+    <IonicModel>BackwardEulerFoxModel2002Modified</IonicModel>
 </ChasteParameters>
