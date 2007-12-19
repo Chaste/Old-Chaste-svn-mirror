@@ -69,7 +69,7 @@ public:
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.942);
 
-        mVariableNames.push_back("Ca_i");
+        mVariableNames.push_back("CaI");
         mVariableUnits.push_back("micromolar");
         mInitialConditions.push_back(0.0472);
 

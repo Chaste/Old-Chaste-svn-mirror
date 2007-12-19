@@ -352,7 +352,7 @@ public:
         ck_end = clock();
         double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         
-        CompareCellModelResults("FoxRegularStim", "BackwardFoxRegularStim", 0.15);
+        CompareCellModelResults("FoxRegularStim", "BackwardFoxRegularStim", 0.2);
         
         std::cout << "Run times:\n\tForward: " << forward
                   << "\n\tBackward: " << backward

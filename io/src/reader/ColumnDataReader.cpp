@@ -152,7 +152,14 @@ std::vector<double> ColumnDataReader::GetValues(std::string variableName)
     {
         EXCEPTION("Data file has fixed dimension which must be specified");
     }
-    int column = mVariablesToColumns[variableName];
+    
+    std::map<std::string, int>::iterator col = mVariablesToColumns.find(variableName);
+    if (col == mVariablesToColumns.end())
+    {
+        EXCEPTION("Unknown variable");
+    }
+    
+    int column = (*col).second;
     ReadColumnFromFile(mDataFilename, column);
     
     return mValues;
@@ -171,12 +178,13 @@ std::vector<double> ColumnDataReader::GetValues(std::string variableName,
     if (mHasUnlimitedDimension)
     {
         std::string datafile = mDataFilename;
-        int column = mVariablesToColumns[variableName];
-        
-        if (0 == column)
+        std::map<std::string, int>::iterator col = mVariablesToColumns.find(variableName);
+        if (col == mVariablesToColumns.end())
         {
             EXCEPTION("Unknown variable");
         }
+        int column = (*col).second;
+        
         int counter = 1;
         while (true)
         {

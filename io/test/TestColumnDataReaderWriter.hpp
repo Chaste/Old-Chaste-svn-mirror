@@ -231,8 +231,8 @@ public:
         }
         
         // Test for coverage
-        
         TS_ASSERT_THROWS_ANYTHING(values_ik = mpTestReader->GetValues("I_K",3));
+        TS_ASSERT_THROWS_ANYTHING(mpTestReader->GetValues("BadVar"));
         
         delete mpTestReader;
     }
@@ -309,7 +309,7 @@ public:
                              
         TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("", "testfixed"));
         
-        //TS_ASSERT_THROWS_ANYTHING(std::vector<double> values_ik = mpTestReader->GetValues("I_K"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestReader->GetValues("BadVar", 0));
         
         for (int i=0; i<4; i++)
         {

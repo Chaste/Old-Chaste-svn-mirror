@@ -104,7 +104,7 @@ void CompareCellModelResults(std::string baseResultsFilename1, std::string baseR
         TS_ASSERT_DELTA(times1[j], times2[i], 1e-12);
         // adjust tol to data
         TS_ASSERT_DELTA(voltages1[j], voltages2[i], tol);
-        TS_ASSERT_DELTA(calcium1[j],  calcium2[i],  tol/1000);
+        TS_ASSERT_DELTA(calcium1[j],  calcium2[i],  tol/100);
         TS_ASSERT_DELTA(h1[j],        h2[i],        tol/10);
     }
 }
