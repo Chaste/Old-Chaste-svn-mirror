@@ -201,8 +201,10 @@ int main(int argc, char *argv[])
         {
             MonodomainProblem<3> mono_problem( &cell_factory );
 
-            mono_problem.SetMeshFilename(mesh_output_directory+"/SlabMesh");
+            mono_problem.SetMesh(&mesh);
             mono_problem.SetEndTime(simulation_duration);   // ms
+            mono_problem.SetPdeTimeStep(pde_time_step); // ms
+            mono_problem.SetPrintingTimeStep(printing_time_step); // ms
             mono_problem.SetOutputDirectory(output_directory);
             mono_problem.SetOutputFilenamePrefix("Chaste");
             mono_problem.SetCallChaste2Meshalyzer(false);  
@@ -215,8 +217,10 @@ int main(int argc, char *argv[])
         {
             BidomainProblem<3> bi_problem( &cell_factory );
 
-            bi_problem.SetMeshFilename(mesh_output_directory+"/SlabMesh");
+            bi_problem.SetMesh(&mesh);
             bi_problem.SetEndTime(simulation_duration);   // ms
+            bi_problem.SetPdeTimeStep(pde_time_step); // ms
+            bi_problem.SetPrintingTimeStep(printing_time_step); // ms
             bi_problem.SetOutputDirectory(output_directory);
             bi_problem.SetOutputFilenamePrefix("Chaste");
             bi_problem.SetCallChaste2Meshalyzer(false);  

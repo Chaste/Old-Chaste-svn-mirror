@@ -300,3 +300,14 @@ if test_summary and not compile_only:
   for targ in BUILD_TARGETS:
       senv.Depends(targ, summary_index)
   senv.Default(summary_index)
+
+
+if ARGUMENTS.get('exe', 0):
+    assert use_chaste_libs
+    if static_libs:
+        libpath = '#lib'
+    else:
+        libpath = '#linklib'
+    env.Program('Chaste', 'Chaste.cpp',
+                LIBS=['heart'] + comp_deps['heart'] + other_libs,
+                LIBPATH=[libpath] + other_libpaths)
