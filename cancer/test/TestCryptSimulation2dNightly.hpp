@@ -266,15 +266,17 @@ public:
                 
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(12.0);
-        simulator.SetMaxCells(400);
-        simulator.SetMaxElements(800);
+        unsigned max_cells=400;
+        simulator.SetMaxCells(max_cells);
+        unsigned max_elements=800;
+        simulator.SetMaxElements(max_elements);
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
        
         simulator.Solve();
         
-        CheckAgainstPreviousRun("Crypt2DHoneycombMesh","results_from_time_0", 500u, 1000u);
+        CheckAgainstPreviousRun("Crypt2DHoneycombMesh","results_from_time_0", max_cells, max_elements);
        
         delete p_sloughing_cell_killer;     
     }
