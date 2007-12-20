@@ -257,7 +257,6 @@ int main(int argc, char *argv[])
                 EXCEPTION("Unknown domain type!!!");
         }
 
-        return 0;
     }
     catch(Exception& e)
     {
@@ -267,7 +266,8 @@ int main(int argc, char *argv[])
     
     EventHandler::Headings();
     EventHandler::Report();
-    
+
+    return 0;    
 }    
 
 
