@@ -58,6 +58,7 @@ public:
 
 class AbstractUntemplatedConvergenceTester
 {
+
 protected:
     double mMeshWidth;   
 public:
@@ -100,7 +101,6 @@ public:
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
 class AbstractConvergenceTester : public AbstractUntemplatedConvergenceTester
 {
-
 public:    
     void Converge()
     {
@@ -169,7 +169,7 @@ public:
             cardiac_problem.Initialise();
             
       	    DisplayRun();
-            
+            double time_before=MPI_Wtime();
             //// use this to get some info printed out
             //cardiac_problem.SetWriteInfo();
             
@@ -274,8 +274,10 @@ public:
                         prev_voltage[data_point] = transmembrane_potential[data_point];
                     }
                 }
+                std::cout << "Time to solve = "<<MPI_Wtime()-time_before<<" seconds\n";
                 if (this->PopulatedResult)
                 {
+                    
                     std::cout << "max_abs_error = " << max_abs_error << " log10 = " << log10(max_abs_error) << "\n";
                     std::cout << "l2 error = " << sum_sq_abs_error/sum_sq_prev_voltage << " log10 = " << log10(sum_sq_abs_error/sum_sq_prev_voltage) << "\n";
                     //std::cout << log10(Abscissa()) << "\t" << log10(sum_sq_abs_error/sum_sq_prev_voltage) <<"\t#Logs for Gnuplot\n";
@@ -283,10 +285,12 @@ public:
                     std::cout << Abscissa() << "\t" << sum_sq_abs_error/sum_sq_prev_voltage <<"\t#Gnuplot raw data\n";
                     // convergence criterion
                     this->Converged = sum_sq_abs_error/sum_sq_prev_voltage<this->RelativeConvergenceCriterion;
+                    
                 }
                 if (!this->PopulatedResult)
                 {
                     this->PopulatedResult=true;
+                    
                 }
             }
             
