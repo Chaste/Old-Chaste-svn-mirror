@@ -333,7 +333,6 @@ protected:
             EventHandler::EndEvent(COMMUNICATION);
         }
 
-        EventHandler::BeginEvent(assemble_event);
 
         // the AssembleOnElement type methods will determine if a current solution or
         // current guess exists by looking at the size of the replicated vector, so
@@ -345,6 +344,10 @@ protected:
         // the concrete class can override this following method if there is
         // work to be done before assembly
         this->PrepareForAssembleSystem(currentSolutionOrGuess, currentTime);
+        
+        // this has to be below PrepareForAssembleSystem as in that
+        // method the odes are solved in cardiac problems
+        EventHandler::BeginEvent(assemble_event);
 
         // Zero the matrix/vector if it is to be assembled
         if (assembleVector)
