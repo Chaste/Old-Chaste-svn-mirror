@@ -74,15 +74,6 @@ public:
     
     double GetG1Duration();
     
-    void InitialiseDaughterCell();
-
-    /** 
-     * Overridden SetCellMethod - also assigns a G1 duration based on the cell type.
-     * 
-     * @param pCell the cell which owns this model.
-     */
-    void SetCell(TissueCell* pCell);
-
     virtual void ResetModel();
     
     /**
@@ -92,6 +83,12 @@ public:
      */
     virtual bool ReadyToDivide();
     
+    /** 
+     * Set the new cell's G1 duration once it has been created after division. 
+     * The duration will be based on cell type. 
+     */ 
+    void InitialiseDaughterCell();     
+    virtual void Initialise(); 
 };
 
 BOOST_IS_ABSTRACT(AbstractSimpleCellCycleModel)

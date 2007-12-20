@@ -1,5 +1,6 @@
 #include "AbstractSimpleCellCycleModel.hpp"
 
+
 double AbstractSimpleCellCycleModel::GetG1Duration()
 {
     return mG1Duration;
@@ -12,6 +13,12 @@ void AbstractSimpleCellCycleModel::InitialiseDaughterCell()
 }
 
 
+void AbstractSimpleCellCycleModel::Initialise() 
+{ 
+    SetG1Duration(); 
+} 
+
+    
 void AbstractSimpleCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
@@ -28,17 +35,12 @@ void AbstractSimpleCellCycleModel::SetG1Duration()
         case DIFFERENTIATED:
             mG1Duration = DBL_MAX;
             break;
+        case NECROTIC:
+            mG1Duration = DBL_MAX;
+            break;    
         default:
             NEVER_REACHED;
     }
-}
-
-
-void AbstractSimpleCellCycleModel::SetCell(TissueCell* pCell)
-{
-    AbstractCellCycleModel::SetCell(pCell);
-    // This method should only be called once per cell cycle model - when it is created so G1Duration can be set here.
-    SetG1Duration();	
 }
 
 

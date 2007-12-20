@@ -80,15 +80,14 @@ public:
      */
     virtual ~AbstractCellCycleModel();
     
-    virtual void SetCell(TissueCell* pCell);
+    void SetCell(TissueCell* pCell);
     
     /** 
      * Initialise the cell cycle model at the start of a simulation. 
      * 
-     * This method will be called precisely once for any given cell, 
-     * and is only called at simulation start, i.e. not on cell division. 
-     * Initialisation of the daughter cell should be done by 
-     * CreateDaughterCellCycleModel. 
+     * This method will be called precisely once per cell set up in the initial 
+     * tissue. It is not called on cell division; use ResetModel, 
+     * CreateDaughterCellCycleModel and InitialiseDaughterCell for that. 
      * 
      * By the time this is called, a Tissue will have been set up, so the model 
      * can know where its cell is located in space.  If relevant to the simulation, 
@@ -97,9 +96,18 @@ public:
     virtual void Initialise() 
     {} 
     
-    /**
-     * Initialise a daughter cell cycle model upon division.
-     */ 
+    /** 
+     * Initialise the new daughter cell's cycle model after a cell division. 
+     * 
+     * This is called by TissueCell::Divide once the new cell object 
+     * has been fully created, to perform any initialisation of the 
+     * cell cycle which requires access to the cell. 
+     * 
+     * Note that much initialisation can be performed using the 
+     * combination of ResetModel (called on the parent prior to 
+     * division) and CreateDaughterCellCycleModel (called on the reset 
+     * parent to create the new cell cycle model object). 
+     */  
     virtual void InitialiseDaughterCell()
     {}
     
@@ -134,7 +142,6 @@ public:
      * Returns the cell's generation...
      */
     unsigned GetGeneration() const;
-
     
     /**
      * Returns the cell types of the next generation of cells in a vector
@@ -230,7 +237,6 @@ public:
      */
     virtual double GetNuclearBetaCateninLevel();
     
-
     /*
      * @return the current cell cycle phase
      */

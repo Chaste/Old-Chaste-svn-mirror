@@ -103,7 +103,7 @@ TestMeinekeLabellingExperimentsRunner: TestMeinekeLabellingExperimentsRunner.o $
 # A more useful test to label a cell near the bottom at random and follow mutation's progress.
 
 TestMutationSpreadRunner.cpp:	projects/GaryM/test/TestMutationSpread.hpp
-	cxxtest/cxxtestgen.py  --error-printer -o TestMutationSpreadRunner.cpp cancer/test/TestMutationSpread.hpp
+	cxxtest/cxxtestgen.py  --error-printer -o TestMutationSpreadRunner.cpp projects/GaryM/test/TestMutationSpread.hpp
 
 TestMutationSpreadRunner: TestMutationSpreadRunner.o ${LIBS}
 	g++ TestMutationSpreadRunner.o ${LIBS} -o TestMutationSpreadRunner ${LDFLAGS};\
@@ -113,9 +113,9 @@ TestMutationSpreadRunner: TestMutationSpreadRunner.o ${LIBS}
 	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
 	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
 # Need to copy across the starting state of the simulation
-	mkdir ${FRESH_DIR}/NiceCryptSim; mkdir ${FRESH_DIR}/NiceCryptSim/archive ;\
-	cd ${FRESH_DIR}/NiceCryptSim/archive ;\
-	cp ../../../cancer/test/data/NiceCryptSim/archive/* . ;\
+	mkdir ${FRESH_DIR}/MutationSpread; mkdir ${FRESH_DIR}/MutationSpread/archive ;\
+	cd ${FRESH_DIR}/MutationSpread/archive ;\
+	cp ../../../projects/GaryM/test/data/SteadyStateSimpleWnt/sunter3_archive/* . ;\
 	cd ../.. ;\
 # Finished copying archives across.
 	cp TestMutationSpreadRunner ${FRESH_DIR} ;\

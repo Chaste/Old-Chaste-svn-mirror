@@ -236,8 +236,7 @@ public:
         
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
+        mesh.ConstructFromMeshReader(mesh_reader);        
                 
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumNodes();
@@ -268,6 +267,7 @@ public:
                 birth_time = 0; // hours
             }
             TissueCell cell(cell_type, HEALTHY, new StochasticCellCycleModel);
+            cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -331,6 +331,7 @@ public:
                 birth_time = 0; 
             }
             TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -402,6 +403,7 @@ public:
                 birth_time = 0; 
             }
             TissueCell cell(cell_type, HEALTHY, new TysonNovakCellCycleModel());
+            cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -418,7 +420,7 @@ public:
         simulator.Solve();
         
         cells = simulator.GetCells();
-        /* check we have had loads of birth
+        /* Check we have had loads of birth
          * N.B. that if this test is run for longer it will fail 
          * because they get too squashed in (T&N is too quick).
          * 
@@ -440,7 +442,7 @@ public:
     {
         CancerParameters *p_params = CancerParameters::Instance();
         
-        // check the stem cell cycle time is still 24 hrs, otherwise
+        // Check the stem cell cycle time is still 24 hrs, otherwise
         // this test might not pass
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
@@ -455,8 +457,7 @@ public:
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
-        
+                
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
         std::vector<TissueCell> cells;
@@ -478,6 +479,7 @@ public:
                 birth_time = 0; 
             }
             TissueCell cell(cell_type, HEALTHY, new FixedCellCycleModel());
+            cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetGeneration(generation);
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -493,8 +495,8 @@ public:
         simulator.Solve();
         
         std::vector<TissueCell> cells_after_simulation = simulator.GetCells();
-        //Warning - there are 6 live cells and one dead one sloughed off still in existance.
-        //n.b. throughout the simulation 2 cells are sloughed off but one place is reused
+        // Warning - there are 6 live cells and one dead one sloughed off still in existence.
+        // N.B. throughout the simulation 2 cells are sloughed off but one place is reused
         TS_ASSERT_EQUALS((int) cells_after_simulation.size(),7);
         for (unsigned index = 0; index<mesh.GetNumAllNodes(); index++)
         {

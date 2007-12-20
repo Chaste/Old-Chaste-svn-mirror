@@ -2,12 +2,14 @@
 #include "CancerParameters.hpp"
 #include "Exception.hpp"
 #include <cassert>
+#include <iostream>
 
 
 AbstractCellCycleModel *StochasticCellCycleModel::CreateDaughterCellCycleModel()
 {
     return new StochasticCellCycleModel(mG1Duration, mGeneration);  // use a private constructor that doesn't reset mG1Duration.
 }
+
 
 void StochasticCellCycleModel::SetG1Duration()
 {
@@ -29,5 +31,4 @@ void StochasticCellCycleModel::SetG1Duration()
         default:
             NEVER_REACHED;
     }
-    //mIsG1DurationSet = true;
 }

@@ -22,24 +22,27 @@ private:
     }
     
     /**
-     * Private function that should only be called by Reset() and SetCell()
-     * this introduces the stochastic element of the model.
+     * Stochastically set the G1 duration.  Called on cell creation at 
+     * the start of a simulation, and for both parent and daughter 
+     * cells at cell division.
      */    
     void SetG1Duration();
     
     /**
      * Private constructor for identical cells.
      */
-    SimpleWntCellCycleModel(double g1Duration, unsigned generation):
-    	AbstractSimpleCellCycleModel(g1Duration, generation) {};
-    
+    SimpleWntCellCycleModel(double g1Duration, unsigned generation) 
+        : AbstractSimpleCellCycleModel(g1Duration, generation) 
+    {} 
+        
 public:
 
     /**
      * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
-     * mG1Duration is set very high, it is set for the individual cells when SetCell() is called
+     * mG1Duration is set very high, it is set for the individual cells when InitialiseDaughterCell is called
      */
-    SimpleWntCellCycleModel() {};
+    SimpleWntCellCycleModel() 
+    {}
     
     bool ReadyToDivide();
         

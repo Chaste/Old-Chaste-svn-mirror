@@ -62,7 +62,7 @@ public:
         unsigned thickness_of_ghost_layer = 3;   
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);
@@ -76,21 +76,26 @@ public:
         // To start off with, set up all cells to be of type TRANSIT
         std::vector<TissueCell> cells;
         
+        std::cout << "num nodes = " << p_mesh->GetNumNodes() << "\n" << std::flush;
+        
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(TRANSIT, HEALTHY, new SimpleWntCellCycleModel());            
-            double birth_time = - RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
-                                                +p_params->GetSG2MDuration());
+            TissueCell cell(TRANSIT, HEALTHY, new SimpleWntCellCycleModel());
+            cell.InitialiseCellCycleModel();
+            double birth_time = - RandomNumberGenerator::Instance()->ranf()*
+                (p_params->GetTransitCellG1Duration()
+                +p_params->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cell.SetSymmetricDivision();
             cells.push_back(cell);
         }
                                                           
-        // Make a tissue and pass in the Wnt gradient
+        // Make a tissue
         Tissue<2> crypt(*p_mesh, cells);         
         crypt.SetGhostNodes(ghost_node_indices);          
         
+	// Set up the Wnt gradient 
         WntGradient::Instance()->SetType(RADIAL); 
         WntGradient::Instance()->SetTissue(crypt);   
         
@@ -98,14 +103,15 @@ public:
         CryptProjectionSpringSystem* p_spring_system = new CryptProjectionSpringSystem(crypt);
                 
         // Make a tissue simulation
-        TissueSimulation<2> crypt_projection_simulator(crypt, p_spring_system);
+        TissueSimulation<2> crypt_projection_simulator(crypt, p_spring_system,
+                                                       false, false);
         
-        // Create a radial cell killer and pass it in to the tissue simulation        
+        // Create a radial cell killer and pass it in to the tissue simulation
         c_vector<double,2> centre = zero_vector<double>(2);
         double crypt_radius = pow(CancerParameters::Instance()->GetCryptLength()/a, 1.0/b);
 
-        RadialSloughingCellKiller* p_killer = new RadialSloughingCellKiller(&crypt, centre, crypt_radius);
-        crypt_projection_simulator.AddCellKiller(p_killer);
+        RadialSloughingCellKiller killer(&crypt, centre, crypt_radius);
+        crypt_projection_simulator.AddCellKiller(&killer);
         
         // Set up the simulation
         crypt_projection_simulator.SetOutputDirectory("CryptProjectionSimulation");
@@ -115,15 +121,15 @@ public:
         
         // Run the simulation
         double start_time = std::clock();        
-        TS_ASSERT_THROWS_NOTHING(crypt_projection_simulator.Solve());                
+        TS_ASSERT_THROWS_NOTHING(crypt_projection_simulator.Solve());
         double end_time = std::clock();
         
         // Print out time taken to run crypt simulation    
         double elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-        std::cout <<  "Time to perform crypt projection simulation was = " << elapsed_time << "\n";
+        std::cout <<  "Time to perform crypt projection simulation was " << elapsed_time << "s\n";
         
-        // These cells just divided and have been gradually moving apart. These results 
-        // are from time 0.25, which is also tested below after a save and a load.
+        // These cells just divided and have been gradually moving apart.  ??
+	// These results are from time 0.25.
         std::vector<double> node_302_location = crypt_projection_simulator.GetNodeLocation(302);
         TS_ASSERT_DELTA(node_302_location[0], -0.0954, 1e-4);
         TS_ASSERT_DELTA(node_302_location[1], 0.2475, 1e-4);
@@ -138,7 +144,6 @@ public:
         TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
         
         // Tidy up
-        delete p_killer;
         WntGradient::Destroy();
     }
     

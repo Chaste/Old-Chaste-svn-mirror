@@ -39,7 +39,7 @@ void RandomNumberGenerator::Destroy()
  */
 unsigned RandomNumberGenerator::randMod(unsigned base)
 {
-	mTimesCalled++;
+    mTimesCalled++;
     return (random()%base);
 }
 

@@ -7,7 +7,7 @@
 AbstractCellCycleModel *SimpleWntCellCycleModel::CreateDaughterCellCycleModel()
 {
     // use a private constructor that doesn't reset mG1Duration.
-    return new SimpleWntCellCycleModel(mG1Duration,mGeneration);  
+    return new SimpleWntCellCycleModel(mG1Duration, mGeneration);  
 }
 
 /** 

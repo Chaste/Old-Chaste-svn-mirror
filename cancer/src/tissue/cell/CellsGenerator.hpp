@@ -82,7 +82,8 @@ public :
                                  double y0 = 0.3,
                                  double y1 = 2.0,
                                  double y2 = 3.0,
-                                 double y3 = 4.0)
+                                 double y3 = 4.0,
+                                 bool initialiseCells = false)
     {
         assert(DIM==2);
         RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
@@ -99,7 +100,7 @@ public :
         
         if(cycleType!=FIXED && cycleType!=STOCHASTIC)
         {   // Only these two models use a fixed number of transit generations.
-            CancerParameters::Instance()->SetMaxTransitGenerations(UINT_MAX);                  
+            CancerParameters::Instance()->SetMaxTransitGenerations(UINT_MAX);
         }
         
         for (unsigned i=0; i<num_cells; i++)
@@ -228,6 +229,10 @@ public :
             
             p_cell_cycle_model->SetGeneration(generation);
             TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
+            if (initialiseCells)
+            {
+                cell.InitialiseCellCycleModel();
+            }
             
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);

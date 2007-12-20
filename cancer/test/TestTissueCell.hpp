@@ -62,7 +62,8 @@ public:
         TS_ASSERT_THROWS_ANYTHING(TissueCell stem_cell(STEM, HEALTHY, NULL));
         
         TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
-                                   
+        stem_cell.InitialiseCellCycleModel();
+               
         p_simulation_time->IncrementTimeOneStep();
         
         TS_ASSERT_EQUALS(stem_cell.GetAge(), 0.5);
@@ -102,10 +103,13 @@ public:
         TS_ASSERT_THROWS_ANYTHING(TissueCell bad_cell2(STEM, HEALTHY, NULL));
         
         TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        stem_cell.InitialiseCellCycleModel();
         
         // also test symmetric division
         TissueCell symmetric_stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        symmetric_stem_cell.InitialiseCellCycleModel();
         symmetric_stem_cell.SetSymmetricDivision();
+        
         TS_ASSERT(symmetric_stem_cell.DividesSymmetrically());     
         
         p_simulation_time->IncrementTimeOneStep(); //t=12
@@ -139,6 +143,7 @@ public:
         
         // create a transit cell that divides symmetrically        
         TissueCell symmetric_transit_cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
+        symmetric_transit_cell.InitialiseCellCycleModel();
         symmetric_transit_cell.SetSymmetricDivision();    
         
         p_simulation_time->IncrementTimeOneStep();//t=36
@@ -199,6 +204,8 @@ public:
         // SimulationTime returns 6 hours
         
         TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
+        stem_cell.InitialiseCellCycleModel();
+        
         p_simulation_time->IncrementTimeOneStep();
         p_simulation_time->IncrementTimeOneStep();
         p_simulation_time->IncrementTimeOneStep();
@@ -279,7 +286,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200, 20);
         
         TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
-                                   
+        stem_cell.InitialiseCellCycleModel();   
         stem_cell.ReadyToDivide();
         
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),STEM);
@@ -294,13 +301,15 @@ public:
         WntGradient::Instance()->SetConstantWntValueForTesting(0.0);
         
         TissueCell wnt_cell(TRANSIT, HEALTHY, new WntCellCycleModel());
-                                   
+                                                     
         TS_ASSERT_EQUALS(wnt_cell.GetCellType(),TRANSIT);                           
                                    
         wnt_cell.InitialiseCellCycleModel();
+        
         TS_ASSERT_EQUALS(wnt_cell.GetCellType(),DIFFERENTIATED);
         
         wnt_cell.ReadyToDivide();        
+        
         TS_ASSERT_EQUALS(wnt_cell.GetCellType(),DIFFERENTIATED);
         
         WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
@@ -328,7 +337,8 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
         
         TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
-                                                                      
+        stem_cell.InitialiseCellCycleModel();
+                                                        
         std::vector<TissueCell> cells;
         std::vector<TissueCell> newly_born;
         std::vector<unsigned> stem_cells(time_steps);
@@ -409,17 +419,22 @@ public:
         
         //  Creating different types of cells with different cell cycle models at SimulationTime = 6 hours.
         TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
-                                   
+        stem_cell.InitialiseCellCycleModel();      
+                             
         TissueCell stochastic_stem_cell(STEM, HEALTHY, new StochasticCellCycleModel);
+        stochastic_stem_cell.InitialiseCellCycleModel();
+        
         TissueCell differentiated_cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
-        
-        differentiated_cell.GetCellCycleModel()->SetGeneration(6);                             
+        differentiated_cell.InitialiseCellCycleModel();        
+        differentiated_cell.GetCellCycleModel()->SetGeneration(6);       
+                              
         TissueCell stochastic_differentiated_cell(DIFFERENTIATED, HEALTHY, new StochasticCellCycleModel);
-        
-        stochastic_differentiated_cell.GetCellCycleModel()->SetGeneration(6);                             
+        stochastic_differentiated_cell.InitialiseCellCycleModel();
+        stochastic_differentiated_cell.GetCellCycleModel()->SetGeneration(6);  
+                                   
         TissueCell transit_cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
-        transit_cell.GetCellCycleModel()->SetGeneration(2);                             
-                                      
+        transit_cell.InitialiseCellCycleModel();
+        transit_cell.GetCellCycleModel()->SetGeneration(2);    
                                       
         // SimulationTime = 6 hours
         p_simulation_time->IncrementTimeOneStep();
@@ -476,9 +491,8 @@ public:
             p_simulation_time->IncrementTimeOneStep();
         }
         // now at t=6.00
-        TissueCell transit_cell(TRANSIT, // type
-                                      HEALTHY,//Mutation State
-                                      new FixedCellCycleModel());
+        TissueCell transit_cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
+        transit_cell.InitialiseCellCycleModel();
         transit_cell.GetCellCycleModel()->SetGeneration(2);                             
                                      
         for (int i=0; i<1199; i++)
@@ -491,6 +505,8 @@ public:
         StochasticCellCycleModel *cell_cycle_model = new StochasticCellCycleModel;
         // this now re-sets the age of the cell to 0.0 so more time added in underneath
         transit_cell.SetCellCycleModel(cell_cycle_model);
+        transit_cell.InitialiseCellCycleModel();
+        
         TS_ASSERT_EQUALS(transit_cell.GetCellCycleModel(), cell_cycle_model);
         for (int i=0; i<1399; i++)
         {
@@ -538,6 +554,7 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(70.0, 70);
             
             TissueCell stem_cell(STEM, HEALTHY, new StochasticCellCycleModel);
+            stem_cell.InitialiseCellCycleModel();
             cells.push_back(stem_cell);
             
             // produce the offspring of the cells
@@ -611,29 +628,28 @@ public:
         std::vector<TissueCell> cells;
         
         TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());    
-                                       
+        stem_cell.InitialiseCellCycleModel();                               
         cells.push_back(stem_cell);
         
-        TissueCell transit_cell_1(TRANSIT, HEALTHY, new FixedCellCycleModel());        
-        transit_cell_1.GetCellCycleModel()->SetGeneration(1);  
-        
+        TissueCell transit_cell_1(TRANSIT, HEALTHY, new FixedCellCycleModel());     
+        transit_cell_1.InitialiseCellCycleModel();  
+        transit_cell_1.GetCellCycleModel()->SetGeneration(1);          
         cells.push_back(transit_cell_1);
         
         TissueCell transit_cell_2(TRANSIT, HEALTHY, new FixedCellCycleModel());
-        transit_cell_2.GetCellCycleModel()->SetGeneration(2);                             
-                                        
+        transit_cell_2.InitialiseCellCycleModel();
+        transit_cell_2.GetCellCycleModel()->SetGeneration(2);      
         cells.push_back(transit_cell_2);
         
         TissueCell transit_cell_3(TRANSIT, HEALTHY, new FixedCellCycleModel());
-        transit_cell_3.GetCellCycleModel()->SetGeneration(3);                             
-                                        
+        transit_cell_3.InitialiseCellCycleModel();
+        transit_cell_3.GetCellCycleModel()->SetGeneration(3);      
         cells.push_back(transit_cell_3);
         
         TissueCell differentiated_cell(DIFFERENTIATED, HEALTHY, new FixedCellCycleModel());
-        differentiated_cell.GetCellCycleModel()->SetGeneration(4);                             
-                                             
-        cells.push_back(differentiated_cell);
-        
+        differentiated_cell.InitialiseCellCycleModel();
+        differentiated_cell.GetCellCycleModel()->SetGeneration(4);   
+        cells.push_back(differentiated_cell);        
         
         std::vector<TissueCell> newly_born;
         std::vector<unsigned> stem_cells(p_simulation_time->GetTotalNumberOfTimeSteps());
@@ -723,9 +739,9 @@ public:
         double wnt_stimulus = 1.0;
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         TissueCell wnt_cell(TRANSIT, HEALTHY, new WntCellCycleModel());
-        wnt_cell.GetCellCycleModel()->SetGeneration(1);                             
         wnt_cell.InitialiseCellCycleModel();
-                 
+        wnt_cell.GetCellCycleModel()->SetGeneration(1);                             
+                         
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -800,9 +816,8 @@ public:
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
         TissueCell wnt_cell(TRANSIT, HEALTHY, new StochasticWntCellCycleModel());
-        wnt_cell.GetCellCycleModel()->SetGeneration(1);                             
-        
         wnt_cell.InitialiseCellCycleModel();
+        wnt_cell.GetCellCycleModel()->SetGeneration(1);                             
                                   
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -822,14 +837,12 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
         
-        TissueCell wnt_cell2 = wnt_cell.Divide();
-        
+        TissueCell wnt_cell2 = wnt_cell.Divide();        
         
         double time_of_birth = wnt_cell.GetBirthTime();
         double time_of_birth2 = wnt_cell2.GetBirthTime();
         
-        TS_ASSERT_DELTA(time_of_birth, time_of_birth2, 1e-9);
-        
+        TS_ASSERT_DELTA(time_of_birth, time_of_birth2, 1e-9);        
         
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
@@ -875,6 +888,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200.0/60.0, num_steps+1);
         
         TissueCell tn_cell(TRANSIT, HEALTHY, new TysonNovakCellCycleModel());
+        tn_cell.InitialiseCellCycleModel();
         tn_cell.GetCellCycleModel()->SetGeneration(1);                             
                                  
         for (unsigned i=0 ; i<num_steps/2 ; i++)
@@ -929,10 +943,10 @@ public:
         
         // this test needs particular apoptosis time
         CancerParameters *p_params = CancerParameters::Instance();
-        TS_ASSERT_EQUALS(p_params->GetApoptosisTime(), 0.25);
-        
+        TS_ASSERT_EQUALS(p_params->GetApoptosisTime(), 0.25);        
         
         TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
+        cell.InitialiseCellCycleModel();
                               
         TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),false);
         TS_ASSERT_EQUALS(cell.IsDead(),false);
@@ -972,7 +986,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 1);
         
         TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
-                              
+        cell.InitialiseCellCycleModel();       
         p_simulation_time->IncrementTimeOneStep(); // t=25
         
         TS_ASSERT_EQUALS(cell.ReadyToDivide(), true);
@@ -990,7 +1004,8 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
         
         TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
-                                   
+        stem_cell.InitialiseCellCycleModel();       
+                            
         std::vector<TissueCell> cells;
         std::vector<TissueCell> newly_born;
         std::vector<unsigned> stem_cells(time_steps);
@@ -1086,7 +1101,7 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
             
             TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
-                                       
+            stem_cell.InitialiseCellCycleModel();            
             p_simulation_time->IncrementTimeOneStep();
             
             TS_ASSERT_EQUALS(stem_cell.GetAge(), 0.5);
@@ -1166,24 +1181,20 @@ public:
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
         TissueCell wnt_cell(TRANSIT, APC_ONE_HIT, new WntCellCycleModel());
-        wnt_cell.GetCellCycleModel()->SetGeneration(1);                             
-                                  
         wnt_cell.InitialiseCellCycleModel();
+        wnt_cell.GetCellCycleModel()->SetGeneration(1);               
                                   
         TissueCell wnt_cell2(TRANSIT, BETA_CATENIN_ONE_HIT, new WntCellCycleModel());                          
-        wnt_cell2.GetCellCycleModel()->SetGeneration(1);                             
-        
         wnt_cell2.InitialiseCellCycleModel();
+        wnt_cell2.GetCellCycleModel()->SetGeneration(1);    
                                   
-        TissueCell wnt_cell3(TRANSIT, APC_TWO_HIT, new WntCellCycleModel()); 
-        wnt_cell3.GetCellCycleModel()->SetGeneration(1);                             
-                                  
-        wnt_cell3.InitialiseCellCycleModel();
+        TissueCell wnt_cell3(TRANSIT, APC_TWO_HIT, new WntCellCycleModel());
+        wnt_cell3.InitialiseCellCycleModel(); 
+        wnt_cell3.GetCellCycleModel()->SetGeneration(1);        
         
-        TissueCell wnt_cell4(TRANSIT, LABELLED, new WntCellCycleModel());                               
+        TissueCell wnt_cell4(TRANSIT, LABELLED, new WntCellCycleModel());      
+        wnt_cell4.InitialiseCellCycleModel();                         
         wnt_cell4.GetCellCycleModel()->SetGeneration(1);                             
-
-        wnt_cell4.InitialiseCellCycleModel();
                 
         TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(),false);
         TS_ASSERT_EQUALS(wnt_cell2.ReadyToDivide(),false);
@@ -1199,6 +1210,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 1);
         
         TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+        cell.InitialiseCellCycleModel();  
                                    
         TS_ASSERT(!cell.IsLogged());
         
@@ -1226,8 +1238,9 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 2);
         
         TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
-                              
+        cell.InitialiseCellCycleModel();      
         cell.SetAncestor(2u);
+        
         p_simulation_time->IncrementTimeOneStep();
         p_simulation_time->IncrementTimeOneStep();
         

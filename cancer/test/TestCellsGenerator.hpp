@@ -109,13 +109,16 @@ public:
         generator.GenerateForCrypt(cells, *p_mesh, STOCHASTIC, false);
         
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
+        
         double y0 = 0.3;
         double y1 = 2.0;
         double y2 = 3.0;
         double y3 = 4.0;
+        
         for (unsigned i=0 ; i<cells.size() ; i++)
         {
             TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
+            
             double height = p_mesh->GetNode(i)->rGetLocation()[1];
             unsigned generation = cells[i].GetCellCycleModel()->GetGeneration();
             if (height <= y0)

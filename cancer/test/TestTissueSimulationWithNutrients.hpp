@@ -194,7 +194,7 @@ public:
             double analytic_solution = 1 - 0.25*(1 - pow(radius,2.0));
             
             // Get cell model
-            AbstractCellCycleModel* p_abstract_model=cell_iter->GetCellCycleModel();
+            AbstractCellCycleModel* p_abstract_model = cell_iter->GetCellCycleModel();
             SimpleOxygenBasedCellCycleModel* p_oxygen_model = static_cast <SimpleOxygenBasedCellCycleModel*>(p_abstract_model);
             
             // First part of test - check that PDE solver is working correctly
@@ -542,6 +542,7 @@ public:
         p_cell = &(p_simulator->rGetTissue().rGetCellAtNodeIndex(15));
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
         
+        // Tidy up
         delete p_killer;
         delete p_simulator;       
         CellwiseData<2>::Destroy();        

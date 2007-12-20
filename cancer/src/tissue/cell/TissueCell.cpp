@@ -26,18 +26,11 @@ TissueCell::TissueCell(CellType cellType,
     mIsDead = false;
     mDeathTime = DBL_MAX; // this has to be initialised for archiving...
     mNodeIndex = (unsigned)(-1); // initialise to a silly value for archiving (avoid memory check error)
-    mIsLogged = false;
-    if (archiving)
-    {	// If we are called by the archiver ONLY set the cell (as in abstract class)
-    	// don't reset the cell cycle variables as the standard set cell might.
-    	mpCellCycleModel->AbstractCellCycleModel::SetCell(this);
-    }
-    else
-    {
-    	mpCellCycleModel->SetCell(this);
-    }
+    mIsLogged = false;    
     mSymmetricDivision = false;
     mAncestor = 0u; // Has to be set by a SetAncestor() call (usually from Tissue)
+    
+    mpCellCycleModel->SetCell(this);
 }
 
 void TissueCell::CommonCopy(const TissueCell &other_cell)
@@ -60,9 +53,8 @@ void TissueCell::CommonCopy(const TissueCell &other_cell)
     mpCellCycleModel = other_cell.mpCellCycleModel->CreateCellCycleModel();
     // Then copy its state
     *mpCellCycleModel = *(other_cell.mpCellCycleModel);
-    // note: we call the base class version because we want to do model.mpCell=*this
-    // only, as the model is fully set up (from the above line) already.
-    mpCellCycleModel->AbstractCellCycleModel::SetCell(this);
+    // and inform it of the new cell object 
+    mpCellCycleModel->SetCell(this); 
 }
 
 
@@ -280,8 +272,7 @@ TissueCell TissueCell::Divide()
     
     // Copy this cell and give new one relevant attributes
     assert(mCanDivide);
-    mCanDivide = false;
-    
+    mCanDivide = false;    
         
     if (mSymmetricDivision)
     {
@@ -292,7 +283,8 @@ TissueCell TissueCell::Divide()
             GetCellType(),  
             mMutationState, 
             mpCellCycleModel->CreateDaughterCellCycleModel()); 
-                                         
+
+        new_cell.GetCellCycleModel()->InitialiseDaughterCell();                                                  
         new_cell.GetCellCycleModel()->SetGeneration(1);
         new_cell.SetSymmetricDivision();
         new_cell.SetAncestor(GetAncestor());
@@ -313,6 +305,8 @@ TissueCell TissueCell::Divide()
             new_cell_types[1],  
             mMutationState, 
             mpCellCycleModel->CreateDaughterCellCycleModel()); 
+        
+        new_cell.GetCellCycleModel()->InitialiseDaughterCell(); 
         
         assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->GetGeneration());
         mpCellCycleModel->SetMotherGeneration();

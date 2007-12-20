@@ -90,7 +90,7 @@ void Alarcon2004OxygenBasedCellCycleModel::ResetModel()
 /**
  * Returns a new Alarcon2004OxygenBasedCellCycleModel created with the correct initial conditions.
  *
- * Should be called just after the parent cell cycle model has been .Reset().
+ * Should be called just after the parent cell cycle model has been reset.
  */
 AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateDaughterCellCycleModel()
 {
