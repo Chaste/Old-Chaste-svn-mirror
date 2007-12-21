@@ -117,8 +117,10 @@ private :
      *         radius and whose second entry is the necrotic radius     
      */ 
     c_vector<double,2> GetSpheroidStatistics()
-    {   
+    {
+#define COVERAGE_IGNORE
         assert(DIM==2);
+#undef COVERAGE_IGNORE
         // First get references to the Voronoi tessellation and mesh
         VoronoiTessellation<DIM>& r_tessellation = this->mrTissue.rGetVoronoiTessellation();
         ConformingTetrahedralMesh<DIM,DIM>& r_mesh = this->mrTissue.rGetMesh();

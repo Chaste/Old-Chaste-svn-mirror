@@ -75,6 +75,7 @@ for gcda_file in gcda_files:
 
 # Now find all our source files
 src_dirs = glob.glob('*/src')
+src_dirs.remove('apps/src')
 src_dirs.remove('dealii/src')
 src_files = []
 for src_dir in src_dirs:
@@ -108,7 +109,7 @@ def coverage_ignore(src_file):
                 code = False
             elif line.find('#undef COVERAGE_IGNORE') != -1:
                 code = True
-	    if code == True and (line.startswith('template') or line.startswith('class ')):
+	    if code and (line.startswith('template') or line.startswith('class ')):
                 ignore = False
                 break
         fp.close()
@@ -182,6 +183,9 @@ for src_file in src_files:
         if src_file['file'][-4:] == '.hpp' and \
             os.path.exists(os.path.join(src_file['dir'], src_file['file'][:-3]+'cpp')):
             status = '' # So output file will be deleted
+        elif src_file['file'] in ['ChasteParameters.cpp']:
+            # An auto-generated file
+            status = ''
         elif coverage_ignore(src_file):
             # Other special case ignorable files
             status = ''

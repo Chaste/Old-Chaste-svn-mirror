@@ -712,8 +712,10 @@ public:
         // Units: millimolar; Initial value: 141.2
         
         // Lookup table indexing
+#define COVERAGE_IGNORE
         if (var_membrane__V>99.9999 || var_membrane__V<-100.0001)
             EXCEPTION(DumpState("V outside lookup table range"));
+#undef COVERAGE_IGNORE
         double _offset_0 = var_membrane__V - -100.0001;
         double _offset_0_over_table_step = _offset_0 * 100.0;
         unsigned _table_index_0 = (unsigned) floor(_offset_0_over_table_step);
@@ -826,8 +828,10 @@ public:
         
         
         // Lookup table indexing
+#define COVERAGE_IGNORE
         if (var_membrane__V>99.9999 || var_membrane__V<-100.0001)
             EXCEPTION(DumpState("V outside lookup table range"));
+#undef COVERAGE_IGNORE
         double _offset_0 = var_membrane__V - -100.0001;
         double _offset_0_over_table_step = _offset_0 * 100.0;
         unsigned _table_index_0 = (unsigned) floor(_offset_0_over_table_step);
