@@ -49,61 +49,73 @@ private :
     
     void SetupWriteNutrient() 
     { 
-        OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false); 
-        mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");
-        *this->mpSetupFile << "Nutrient \n" ;         
+        OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false);
+	if (output_file_handler.IsMaster())
+	{
+	    mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");
+	    *this->mpSetupFile << "Nutrient \n" ;
+	}
     } 
-    
     
     void SetupWriteSpheroidStatistics() 
     { 
         OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false); 
-        mpSpheroidStatisticsFile = output_file_handler.OpenOutputFile("results.vizstatistics");        
+	if (output_file_handler.IsMaster())
+	{
+	    mpSpheroidStatisticsFile = output_file_handler.OpenOutputFile("results.vizstatistics");
+	}
     } 
     
     
     void WriteNutrient()
     {
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
-        double time = p_simulation_time->GetDimensionalisedTime();
+	if (PetscTools::AmMaster())
+	{
+	    SimulationTime *p_simulation_time = SimulationTime::Instance();
+	    double time = p_simulation_time->GetDimensionalisedTime();
         
-        (*mpNutrientResultsFile) <<  time << "\t";
+	    (*mpNutrientResultsFile) <<  time << "\t";
         
-        double global_index;
-        double x;
-        double y;
-        double nutrient;
+	    double global_index; /// \todo why is this a double?
+	    double x;
+	    double y;
+	    double nutrient;
 
-        for (typename Tissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
-               cell_iter != this->mrTissue.End();
-               ++cell_iter)
-        {
-            // \todo: we don't need this anymore since there are no ghost nodes,
-            // but we'd need to change the visualizer before we take this out
-            global_index = (double) cell_iter.GetNode()->GetIndex();
-            x = cell_iter.rGetLocation()[0];
-            y = cell_iter.rGetLocation()[1];
-                        
-            nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
+	    for (typename Tissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+		 cell_iter != this->mrTissue.End();
+		 ++cell_iter)
+	    {
+		// \todo: we don't need this anymore since there are no ghost nodes,
+		// but we'd need to change the visualizer before we take this out
+		global_index = (double) cell_iter.GetNode()->GetIndex();
+		x = cell_iter.rGetLocation()[0];
+		y = cell_iter.rGetLocation()[1];
             
-            (*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
-        }
+		nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
+            
+		(*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
+	    }
         
-        (*mpNutrientResultsFile) << "\n";
+	    (*mpNutrientResultsFile) << "\n";
+	}
     }
     
     
     void WriteSpheroidStatistics()
     {
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
-        double time = p_simulation_time->GetDimensionalisedTime();
-        
-        (*mpSpheroidStatisticsFile) <<  time << "\t";
-        
-        double spheroid_radius = GetSpheroidStatistics()[0];
-        double necrotic_radius = GetSpheroidStatistics()[1];
-
-        (*mpSpheroidStatisticsFile) << time << " " << spheroid_radius << " " << necrotic_radius << "\n";                
+	if (PetscTools::AmMaster())
+	{
+	    SimulationTime *p_simulation_time = SimulationTime::Instance();
+	    double time = p_simulation_time->GetDimensionalisedTime();
+	    
+	    (*mpSpheroidStatisticsFile) <<  time << "\t";
+	    
+	    c_vector<double,2> stats = GetSpheroidStatistics();
+	    double spheroid_radius = stats[0];
+	    double necrotic_radius = stats[1];
+	    
+	    (*mpSpheroidStatisticsFile) << time << " " << spheroid_radius << " " << necrotic_radius << "\n";                
+	}
     }
     
     
@@ -246,7 +258,8 @@ private :
     
     void AfterSolve()
     {
-        if ( this->mrTissue.Begin() != this->mrTissue.End() )  // if there are any cells
+        if (this->mrTissue.Begin() != this->mrTissue.End() // if there are any cells
+	    && PetscTools::AmMaster())
         {
             mpNutrientResultsFile->close();
             
