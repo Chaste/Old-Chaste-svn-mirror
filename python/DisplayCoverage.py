@@ -183,9 +183,6 @@ for src_file in src_files:
         if src_file['file'][-4:] == '.hpp' and \
             os.path.exists(os.path.join(src_file['dir'], src_file['file'][:-3]+'cpp')):
             status = '' # So output file will be deleted
-        elif src_file['file'] in ['ChasteParameters.cpp']:
-            # An auto-generated file
-            status = ''
         elif coverage_ignore(src_file):
             # Other special case ignorable files
             status = ''
