@@ -32,7 +32,8 @@ public:
     double GetDivisionRestingSpringLength();
     double GetDivisionSeparation();
     double GetHepaOneCellHypoxicConcentration();
-    double GetRadialWntThreshold();
+    double GetWntTransitThreshold();
+    double GetWntStemThreshold();
     double GetCriticalHypoxicDuration();
     double GetCryptProjectionParameterA();
     double GetCryptProjectionParameterB();
@@ -54,7 +55,8 @@ public:
     void SetDivisionRestingSpringLength(double);
     void SetDivisionSeparation(double);
     void SetHepaOneCellHypoxicConcentration(double);
-    void SetRadialWntThreshold(double); 
+    void SetWntTransitThreshold(double); 
+    void SetWntStemThreshold(double); 
     void SetCriticalHypoxicDuration(double);
     void SetHepaOneParameters();
     void SetCryptProjectionParameterA(double);
@@ -167,9 +169,14 @@ private:
     double mHepaOneCellHypoxicConcentration;
       
     /**
-     * Non-dimensionalized radial Wnt threshold, below which cells become TRANSIT
+     * Non-dimensionalized Wnt threshold, above which cells cycle
      */
-    double mRadialWntThreshold;
+    double mWntTransitThreshold;
+    
+    /**
+     * Non-dimensionalized Wnt threshold, above which cells behave as stem cells
+     */
+    double mWntStemThreshold;
     
     /**
      * Non-dimensionalized critical hypoxic duration
@@ -212,7 +219,8 @@ private:
         archive & mBetaCatSpringScaler;
         archive & mApoptosisTime;
         archive & mHepaOneCellHypoxicConcentration;
-        archive & mRadialWntThreshold;
+        archive & mWntTransitThreshold;
+        archive & mWntStemThreshold;
         archive & mCriticalHypoxicDuration;
         archive & mCryptProjectionParameterA;
         archive & mCryptProjectionParameterB;

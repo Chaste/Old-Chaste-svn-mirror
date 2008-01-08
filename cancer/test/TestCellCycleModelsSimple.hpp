@@ -268,7 +268,7 @@ public:
         RandomNumberGenerator::Instance()->Reseed(0);
         
         // Set up the Wnt gradient
-        wnt_level = p_params->GetRadialWntThreshold() + 0.01;
+        wnt_level = p_params->GetWntStemThreshold() + 0.01;
         WntGradient::Destroy();
         WntGradient::Instance()->SetType(RADIAL);
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
@@ -301,7 +301,7 @@ public:
         cell2.SetMutationState(LABELLED);
             
         // Now reduce the Wnt gradient
-        wnt_level = p_params->GetRadialWntThreshold() - 0.01;
+        wnt_level = p_params->GetWntStemThreshold() - 0.01;
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
               
         // The numbers for the G1 durations are taken from 
@@ -625,7 +625,7 @@ public:
         archive_filename = handler2.GetOutputDirectoryFullPath() + "crypt_projection_cell_cycle.arch";
         
         // Set up the Wnt gradient
-        wnt_level = p_params->GetRadialWntThreshold() - 0.01;
+        wnt_level = p_params->GetWntStemThreshold() - 0.01;
         WntGradient::Destroy();
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
         

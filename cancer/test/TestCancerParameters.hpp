@@ -32,7 +32,8 @@ private:
         TS_ASSERT_DELTA(inst->GetBetaCatSpringScaler(), 18.14 / 6.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetApoptosisTime(), 0.25, 1e-12);
         TS_ASSERT_DELTA(inst->GetHepaOneCellHypoxicConcentration(), 0.4, 1e-12);
-        TS_ASSERT_DELTA(inst->GetRadialWntThreshold(), 0.8, 1e-12);
+        TS_ASSERT_DELTA(inst->GetWntStemThreshold(), 0.8, 1e-12);
+        TS_ASSERT_DELTA(inst->GetWntTransitThreshold(), 0.65, 1e-12);
         TS_ASSERT_DELTA(inst->GetCriticalHypoxicDuration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetCryptProjectionParameterA(), 0.5, 1e-12);
         TS_ASSERT_DELTA(inst->GetCryptProjectionParameterB(), 2.0, 1e-12);
@@ -63,7 +64,8 @@ public:
         inst->SetBetaCatSpringScaler(10.0);
         inst->SetApoptosisTime(0.3);
         inst->SetHepaOneCellHypoxicConcentration(0.3);
-        inst->SetRadialWntThreshold(0.7);
+        inst->SetWntStemThreshold(0.7);
+        inst->SetWntTransitThreshold(0.4);
         inst->SetCriticalHypoxicDuration(1.0);
         inst->SetCryptProjectionParameterA(0.8);
         inst->SetCryptProjectionParameterB(1.3);
@@ -92,7 +94,8 @@ public:
         inst1->SetBetaCatSpringScaler(10.0);
         inst1->SetApoptosisTime(0.3);
         inst1->SetHepaOneCellHypoxicConcentration(0.3);
-        inst1->SetRadialWntThreshold(0.7);
+        inst1->SetWntStemThreshold(0.7);
+        inst1->SetWntTransitThreshold(0.6);
         inst1->SetCriticalHypoxicDuration(1.0);
         inst1->SetCryptProjectionParameterA(0.8);
         inst1->SetCryptProjectionParameterB(1.3);
@@ -114,7 +117,8 @@ public:
         TS_ASSERT_DELTA(inst2->GetBetaCatSpringScaler(), 10.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetApoptosisTime(), 0.3, 1e-12);
         TS_ASSERT_DELTA(inst2->GetHepaOneCellHypoxicConcentration(), 0.3, 1e-12);
-        TS_ASSERT_DELTA(inst2->GetRadialWntThreshold(), 0.7, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetWntStemThreshold(), 0.7, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetWntTransitThreshold(), 0.6, 1e-12);
         TS_ASSERT_DELTA(inst2->GetCriticalHypoxicDuration(), 1.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetCryptProjectionParameterA(), 0.8, 1e-12);
         TS_ASSERT_DELTA(inst2->GetCryptProjectionParameterB(), 1.3, 1e-12);
@@ -144,7 +148,8 @@ public:
             inst1->SetBetaCatSpringScaler(10.0);
             inst1->SetApoptosisTime(0.3);
             inst1->SetHepaOneCellHypoxicConcentration(0.3);
-            inst1->SetRadialWntThreshold(0.7);
+            inst1->SetWntStemThreshold(0.7);
+            inst1->SetWntTransitThreshold(0.6);
             inst1->SetCriticalHypoxicDuration(1.0);
             inst1->SetCryptProjectionParameterA(0.8);
             inst1->SetCryptProjectionParameterB(1.3);
@@ -174,7 +179,8 @@ public:
             inst1->SetDampingConstantMutant(2.0);
             inst1->SetBetaCatSpringScaler(10.0);
             inst1->SetHepaOneCellHypoxicConcentration(0.4);
-            inst1->SetRadialWntThreshold(0.8);
+            inst1->SetWntStemThreshold(0.8);
+            inst1->SetWntTransitThreshold(0.65);
             inst1->SetCriticalHypoxicDuration(2.0);
             inst1->SetCryptProjectionParameterA(0.5);
             inst1->SetCryptProjectionParameterB(2.0);
@@ -201,7 +207,8 @@ public:
             TS_ASSERT_DELTA(inst1->GetBetaCatSpringScaler(), 10.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetApoptosisTime(), 0.3, 1e-12);
             TS_ASSERT_DELTA(inst1->GetHepaOneCellHypoxicConcentration(), 0.3, 1e-12);
-            TS_ASSERT_DELTA(inst1->GetRadialWntThreshold(), 0.7, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetWntStemThreshold(), 0.7, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetWntTransitThreshold(), 0.6, 1e-12);
             TS_ASSERT_DELTA(inst1->GetCriticalHypoxicDuration(), 1.0, 1e-12);            
             TS_ASSERT_DELTA(inst1->GetCryptProjectionParameterA(), 0.8, 1e-12);
             TS_ASSERT_DELTA(inst1->GetCryptProjectionParameterB(), 1.3, 1e-12);

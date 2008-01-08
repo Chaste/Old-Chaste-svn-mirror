@@ -37,7 +37,8 @@ CancerParameters::CancerParameters()
  * mDivisionRestingSpringLength has units of cell size at equilibrium rest length
  * mDivisionSeparation has units of cell size at equilibrium rest length 
  * mHepaOneCellHypoxicConcentration has no units
- * mRadialWntThreshold has no units
+ * mWntTransitThreshold has no units
+ * mWntStemThreshold has no units
  * mCriticalHypoxicDuration has units of hours
  * mCryptProjectionParameterA has no units
  * mCryptProjectionParameterB has no units
@@ -64,7 +65,8 @@ void CancerParameters::Reset()
     mDivisionRestingSpringLength = 0.5;
     mDivisionSeparation = 0.3;    
     mHepaOneCellHypoxicConcentration = 0.4;
-    mRadialWntThreshold = 0.8;
+    mWntStemThreshold = 0.8;
+    mWntTransitThreshold = 0.65;
     mCriticalHypoxicDuration = 2.0;
     mCryptProjectionParameterA = 0.5;
     mCryptProjectionParameterB = 2.0;
@@ -149,9 +151,13 @@ double CancerParameters::GetHepaOneCellHypoxicConcentration()
 {
 	return mHepaOneCellHypoxicConcentration;
 }
-double CancerParameters::GetRadialWntThreshold()
+double CancerParameters::GetWntTransitThreshold()
 {
-    return mRadialWntThreshold;
+    return mWntTransitThreshold;
+}
+double CancerParameters::GetWntStemThreshold()
+{
+    return mWntStemThreshold;
 }
 double CancerParameters::GetCriticalHypoxicDuration()
 {
@@ -258,11 +264,17 @@ void CancerParameters::SetHepaOneCellHypoxicConcentration(double hepaOneCellHypo
 	assert(hepaOneCellHypoxicConcentration>=0.0);
 	mHepaOneCellHypoxicConcentration = hepaOneCellHypoxicConcentration;
 }
-void CancerParameters::SetRadialWntThreshold(double radialWntThreshold)
+void CancerParameters::SetWntTransitThreshold(double wntThreshold)
 {
-    assert(radialWntThreshold<=1.0);
-    assert(radialWntThreshold>=0.0);
-    mRadialWntThreshold = radialWntThreshold;
+    assert(wntThreshold<=1.0);
+    assert(wntThreshold>=0.0);
+    mWntTransitThreshold = wntThreshold;
+}
+void CancerParameters::SetWntStemThreshold(double wntThreshold)
+{
+    assert(wntThreshold<=1.0);
+    assert(wntThreshold>=0.0);
+    mWntStemThreshold = wntThreshold;
 }
 void CancerParameters::SetCriticalHypoxicDuration(double criticalHypoxicDuration)
 {
