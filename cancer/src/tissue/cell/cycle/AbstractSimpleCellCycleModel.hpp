@@ -38,7 +38,8 @@ protected:
      * (with the same G1 duration).
      */
     AbstractSimpleCellCycleModel(double g1Duration, unsigned generation)
-        : mG1Duration(g1Duration)
+        : mG1Duration(g1Duration),
+          mReadyToDivide(false)
     {
         mGeneration = generation;
     }
@@ -48,6 +49,8 @@ protected:
      * cycle model has been told what cell it belongs to.
      */    
     double mG1Duration;
+    
+    bool mReadyToDivide;
     
     /** 
      * Subclasses can override this function if they wish,
@@ -62,7 +65,8 @@ public:
      * Default constructor - creates an AbstractSimpleCellCycleModel
      */
     AbstractSimpleCellCycleModel() :
-        mG1Duration(DBL_MAX)
+        mG1Duration(DBL_MAX),
+        mReadyToDivide(false)
     {
     }
         
@@ -81,7 +85,14 @@ public:
      * 
      * Can be overridden if they should do something more subtle. 
      */
-    virtual bool ReadyToDivide();
+    bool ReadyToDivide();
+    
+    /**
+     * Default UpdateCellCyclePhase function for a simple cell cycle model.
+     * 
+     * Can be overridden if they should do something more subtle. 
+     */
+    virtual void UpdateCellCyclePhase();
     
     /** 
      * Set the new cell's G1 duration once it has been created after division. 

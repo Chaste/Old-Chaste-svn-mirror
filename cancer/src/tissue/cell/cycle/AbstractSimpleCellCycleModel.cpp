@@ -48,14 +48,29 @@ void AbstractSimpleCellCycleModel::ResetModel()
 {
     mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
     SetG1Duration();
+    mReadyToDivide = false;
 }
 
 
 bool AbstractSimpleCellCycleModel::ReadyToDivide()
 {
     assert(mpCell != NULL);
-    bool ready = false;
     
+    //std::cout << SimulationTime::Instance()->GetDimensionalisedTime() << " " << GetAge() << " " << GetMDuration() << " " << mG1Duration << " " << GetSDuration() << " " << GetG2Duration() << " " << mReadyToDivide << std::endl << std::flush;
+    if (!mReadyToDivide)
+    {
+        UpdateCellCyclePhase();
+        if ( GetAge() >= GetMDuration() + mG1Duration + GetSDuration() + GetG2Duration() )
+        {
+            mReadyToDivide = true;
+        }
+    }
+    return mReadyToDivide;
+}
+
+
+void AbstractSimpleCellCycleModel::UpdateCellCyclePhase()
+{
     double time_since_birth = GetAge();
     assert(time_since_birth>=0);
     
@@ -75,15 +90,9 @@ bool AbstractSimpleCellCycleModel::ReadyToDivide()
     {
         mCurrentCellCyclePhase = S_PHASE;   
     }
-    else if ( time_since_birth < GetMDuration() + mG1Duration + GetSDuration()  + GetG2Duration())
+    else if ( time_since_birth < GetMDuration() + mG1Duration + GetSDuration() + GetG2Duration())
     {
         mCurrentCellCyclePhase = G_TWO_PHASE;   
-    }
-    else
-    {
-        ready = true;
-        mCurrentCellCyclePhase = M_PHASE;
-    }
-    
-    return ready;
+    }    
 }
+
