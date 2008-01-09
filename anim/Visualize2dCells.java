@@ -15,6 +15,8 @@ import javax.swing.Box;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 
+
+
 public class Visualize2dCells implements ActionListener, AdjustmentListener, ItemListener, Runnable
 {
 	private Thread updateThread;
@@ -703,16 +705,16 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     }
                     
                     cell_type[row][i] = Integer.parseInt(st_node.nextToken());
-                    if ((cell_type[row][i]<0) || (cell_type[row][i]>7))
+                    if ( cell_type[row][i]<0 )
                     {
-                        System.out.println("Oi - I want a cell type between 0 and 7");
+                        System.out.println("I want a non-negative cell type");
                         System.exit(0);
                     }
                     positions[row][i]=new RealPoint(d1,d2);
                     
                     if (drawNutrient)
                     {
-                    	if (cell_type[row][i]!=7)	// if this is not a ghost cell
+                    	if (cell_type[row][i]!=canvas.INVISIBLE_COLOUR)	// if this is not a ghost cell
                     	{
                     		String skip; // skips past unnecessary information
                         	int index = Integer.parseInt(st_nutrient.nextToken()); // index
@@ -726,7 +728,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     
                     if (drawBetaCatenin)
                     {
-                    	if (cell_type[row][i]!=7)	// if this is not a ghost cell
+                    	if (cell_type[row][i]!=canvas.INVISIBLE_COLOUR)	// if this is not a ghost cell
                     	{
                     		String skip; 
                         	int index = Integer.parseInt(st_beta_catenin.nextToken()); // index
@@ -945,7 +947,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
             // New ghost node
             positions[time_index][numCells[time_index]] = new_point2;
-            cell_type[time_index][numCells[time_index]] = 7;
+            cell_type[time_index][numCells[time_index]] = canvas.INVISIBLE_COLOUR;
             
             // Update the image record
             image_cells[time_index][node_index] = numCells[time_index]; 
@@ -1085,7 +1087,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	            int rx = (int) (0.5* width /(vis.max_x - vis.min_x));
 	            int ry = (int) (0.5 * height /(vis.max_y - vis.min_y));
 	            
-	            if (vis.cell_type[vis.timeStep][i] != 7) // if not a ghost node
+	            if (vis.cell_type[vis.timeStep][i] != INVISIBLE_COLOUR) // if not a ghost node
 	            {
 	            	g2.fillOval(p.x-rx, p.y-ry, 2*rx, 2*ry);
 	            }
@@ -1099,7 +1101,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	            int rx = (int) (0.5* width /(vis.max_x - vis.min_x));
 	            int ry = (int) (0.5 * height /(vis.max_y - vis.min_y));
 	            
-	            if (vis.cell_type[vis.timeStep][i]!=7) // if not ghost
+	            if (vis.cell_type[vis.timeStep][i] != INVISIBLE_COLOUR) // if not ghost
 	            {
 	            	g2.drawOval(p.x-rx, p.y-ry, 2*rx, 2*ry);
 	            }
@@ -1176,15 +1178,15 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                 g2.setColor(Color.black);
                 
                 // Plot cell boundary lines
-                if ( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7) )
+                if ( (vis.cell_type[vis.timeStep][index[0]]!= INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]]!= INVISIBLE_COLOUR) )
                 {
                     g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
-                if ( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7) )
+                if ( (vis.cell_type[vis.timeStep][index[1]]!= INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[2]]!= INVISIBLE_COLOUR) )
                 {
                     g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
-                if ( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7) )
+                if ( (vis.cell_type[vis.timeStep][index[2]]!= INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[0]]!= INVISIBLE_COLOUR) )
                 {
                     g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
@@ -1231,15 +1233,15 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             	 	           
             	g2.setColor(Color.black);
             	// Plot cell boundary lines
-            	if( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7))
+            	if( (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR))
             	{
             		g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
             	}
-            	if( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7))
+            	if( (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR))
             	{
             		g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
             	}
-            	if( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7))
+            	if( (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR))
             	{
             		g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
             	}
@@ -1322,15 +1324,15 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                 g2.setColor(Color.black);
                 
                 // Plot membrane-bound beta catenin levels
-                if ( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7) )
+                if ( (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) )
                 {
                 	g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
-                if ( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7) )
+                if ( (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) )
                 {
                 	g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
-                if ( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7) )
+                if ( (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) )
                 {
                 	g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
                 }
@@ -1343,30 +1345,30 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             if (vis.drawSprings)
             {
                 // Plot lines
-                if ( (vis.cell_type[vis.timeStep][index[0]]<7) && (vis.cell_type[vis.timeStep][index[1]]<7) )
+                if ( (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) )
                 {
                     g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
                 }
-                if ( (vis.cell_type[vis.timeStep][index[1]]<7) && (vis.cell_type[vis.timeStep][index[2]]<7) )
+                if ( (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) )
                 {
                     g2.drawLine(vertex[1].x, vertex[1].y, vertex[2].x, vertex[2].y);
                 }
-                if ( (vis.cell_type[vis.timeStep][index[2]]<7) && (vis.cell_type[vis.timeStep][index[0]]<7) )
+                if ( (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) )
                 {
                     g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
                 }
                 if (vis.drawGhosts)
                 {
                     g2.setColor(garysSpringsSilver);
-                    if ( (vis.cell_type[vis.timeStep][index[0]]>=7) || (vis.cell_type[vis.timeStep][index[1]]>=7) )
+                    if ( (vis.cell_type[vis.timeStep][index[0]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[1]] == INVISIBLE_COLOUR) )
                     {
                         g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
                     }
-                    if ( (vis.cell_type[vis.timeStep][index[1]]>=7) || (vis.cell_type[vis.timeStep][index[2]]>=7) )
+                    if ( (vis.cell_type[vis.timeStep][index[1]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[2]] == INVISIBLE_COLOUR) )
                     {
                         g2.drawLine(vertex[1].x, vertex[1].y, vertex[2].x, vertex[2].y);
                     }
-                    if ( (vis.cell_type[vis.timeStep][index[2]]>=7) || (vis.cell_type[vis.timeStep][index[0]]>=7) )
+                    if ( (vis.cell_type[vis.timeStep][index[2]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[0]] == INVISIBLE_COLOUR) )
                     {
                         g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
                     }
@@ -1711,33 +1713,33 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         
         return (new RealPoint(x_c,y_c));
     }
-    
+     
     void SetNodeColour(int index)
     { 
     	switch (vis.cell_type[vis.timeStep][index]) 
     	{
-    		case 0: // stem cell
+    		case STEM_COLOUR: // stem cell
     			g2.setColor(Color.green); 
     			break;
-    		case 1: // transit cell
+    		case TRANSIT_COLOUR: // transit cell
     			g2.setColor(Color.orange); 
     			break;
-    		case 2: // differentiated cell
+    		case DIFFERENTIATED_COLOUR: // differentiated cell
     			g2.setColor(Color.red); 
     			break;
-    		case 3: // early cancer
+    		case EARLY_CANCER_COLOUR: // early cancer
     			g2.setColor(Color.gray); 
     			break;
-    		case 4:  // late cancer
+    		case LATE_CANCER_COLOUR:  // late cancer
     			g2.setColor(Color.black);
     			break;
-    		case 5: // labelled cell
+    		case LABELLED_COLOUR: // labelled cell
     			g2.setColor(Color.blue); 
     			break;
-    		case 6: // apoptotic cell
+    		case APOPTOSIS_COLOUR: // apoptotic cell
     			g2.setColor(Color.black); 
     			break;
-    		case 7: // sloughed cell
+    		case INVISIBLE_COLOUR: // sloughed cell
     			if (!vis.drawGhosts)
                 {
                     g2.setColor(garysSexySilver);
@@ -1752,7 +1754,32 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     		    break;
     	}    	
     }
-    
+ 
+     
+    /* From C++ 
+    enum cell_colours
+    {
+        STEM_COLOUR,//0
+        TRANSIT_COLOUR,//1
+        DIFFERENTIATED_COLOUR,//2
+        EARLY_CANCER_COLOUR,//3
+        LATE_CANCER_COLOUR,//4
+        LABELLED_COLOUR,//5
+        APOPTOSIS_COLOUR,//6
+        INVISIBLE_COLOUR, // visualizer treats '7' as invisible
+        SPECIAL_LABEL_START
+    };
+    */
+
+    public static final int STEM_COLOUR=0;
+    public static final int TRANSIT_COLOUR=1;
+    public static final int DIFFERENTIATED_COLOUR=2;
+    public static final int EARLY_CANCER_COLOUR=3;
+    public static final int LATE_CANCER_COLOUR=4;
+    public static final int LABELLED_COLOUR=5;
+    public static final int APOPTOSIS_COLOUR=6;
+    public static final int INVISIBLE_COLOUR=7;
+    public static final int SPECIAL_LABEL_START=8;
     void SetCellColour(int index)
     {
     	if (vis.drawNutrient)
@@ -1761,10 +1788,10 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     		
     		switch (vis.cell_type[vis.timeStep][index]) 
         	{
-        		case 6: // apoptotic cell
+        		case APOPTOSIS_COLOUR: // apoptotic cell
         			g2.setColor(ozzysDirtyGrey); 
         			break;
-        		case 7: // sloughed cell
+        		case INVISIBLE_COLOUR: // sloughed cell
         			g2.setColor(garysSexySilver); 
         			break;
         		default: // any other cell type
@@ -1796,7 +1823,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         	double interval = (stress_max-stress_min)/4.0;
         	
         	// We do not show up ghost nodes in a stress plot.
-            if (vis.cell_type[vis.timeStep][index] == 7)
+            if (vis.cell_type[vis.timeStep][index] == INVISIBLE_COLOUR)
             {
             	// Sloughed cell
                 g2.setColor(garysSexySilver);
@@ -1832,31 +1859,31 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             }   	
     	}
     	else // the default setting
-    	{
+      	{
     		switch (vis.cell_type[vis.timeStep][index]) 
         	{
-        		case 0: // stem cell
+        		case STEM_COLOUR: // stem cell
         			g2.setColor(Color.cyan); 
         			break;
-        		case 1: // transit cell
+        		case TRANSIT_COLOUR: // transit cell
         			g2.setColor(Color.yellow); 
         			break;
-        		case 2: // differentiated cell
+        		case DIFFERENTIATED_COLOUR: // differentiated cell
         			g2.setColor(Color.pink); 
         			break;
-        		case 3: // early cancer
+        		case EARLY_CANCER_COLOUR: // early cancer
         			g2.setColor(Color.lightGray); 
         			break;
-        		case 4:  // late cancer
+        		case LATE_CANCER_COLOUR:  // late cancer
         			g2.setColor(Color.gray);
         			break;
-        		case 5: // labelled cell
+        		case LABELLED_COLOUR: // labelled cell
         			g2.setColor(purple); 
         			break;
-        		case 6: // apoptotic cell
+        		case APOPTOSIS_COLOUR: // apoptotic cell
         			g2.setColor(ozzysDirtyGrey); 
         			break;
-        		case 7: // sloughed cell
+        		case INVISIBLE_COLOUR: // sloughed cell
         			g2.setColor(garysSexySilver);                    
         			break;
         		default: 
@@ -1868,7 +1895,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             
     void SetCellBetaCateninColour(double conc, int index)
     {
-    	if (vis.cell_type[vis.timeStep][index] == 7)
+    	if (vis.cell_type[vis.timeStep][index] == INVISIBLE_COLOUR)
         {
             // Sloughed cell
             g2.setColor(garysSexySilver);

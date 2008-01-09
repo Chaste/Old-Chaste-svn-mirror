@@ -5,6 +5,19 @@
 #include "CancerParameters.hpp"
 #include "VoronoiTessellation.cpp"
 
+enum cell_colours
+{
+    STEM_COLOUR,//0
+    TRANSIT_COLOUR,//1
+    DIFFERENTIATED_COLOUR,//2
+    EARLY_CANCER_COLOUR,//3
+    LATE_CANCER_COLOUR,//4
+    LABELLED_COLOUR,//5
+    APOPTOSIS_COLOUR,//6
+    INVISIBLE_COLOUR, // visualizer treats '7' as invisible
+    SPECIAL_LABEL_START
+};
+
 ///\todo: make this constructor take in ghost nodes, and validate the three objects
 // are in sync ie num cells + num ghost nodes = num_nodes ? this would mean all ghosts
 // *cannot* be cells, making it more difficult to construct the cells.
@@ -706,11 +719,11 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
             EXCEPTION("\nNumber of cells exceeds mMaxCells. Use SetMaxCells(unsigned) to increase it.\n");
             #undef COVERAGE_IGNORE
         }
-        unsigned colour = 0; // all green if no cells have been passed in
+        unsigned colour = STEM_COLOUR; // all green if no cells have been passed in
         
         if (mIsGhostNode[index]==true)
         {
-            colour = 7; // visualizer treats '7' as invisible
+            colour = INVISIBLE_COLOUR; // visualizer treats '7' as invisible
         }
         else if (mrMesh.GetNode(index)->IsDeleted())
         {
@@ -727,15 +740,15 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
             // Set colours dependent on Stem, Transit, Differentiate, HepaOne
             if (type == STEM)
             {
-                colour = 0;
+                colour = STEM_COLOUR;
             }
             else if (type == TRANSIT)
             {
-                colour = 1;
+                colour = TRANSIT_COLOUR;
             }
             else
             {
-                colour = 2;
+                colour = DIFFERENTIATED_COLOUR;
             }
             
             // Override colours for mutant or labelled cells.
@@ -743,7 +756,7 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
             {
                 if (mutation == LABELLED || mutation == ALARCON_CANCER)
                 {
-                    colour = 5;
+                    colour = LABELLED_COLOUR;
                     if (OutputCellTypes)
                     {
                         cell_counter[1]++;
@@ -751,7 +764,7 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                 }
                 if (mutation == APC_ONE_HIT)
                 {
-                    colour = 3;
+                    colour = EARLY_CANCER_COLOUR;
                     if (OutputCellTypes)
                     {
                         cell_counter[2]++;
@@ -759,7 +772,7 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                 }
                 if (mutation == APC_TWO_HIT )
                 {
-                    colour = 4;
+                    colour = LATE_CANCER_COLOUR;
                     if (OutputCellTypes)
                     {
                         cell_counter[3]++;
@@ -767,7 +780,7 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                 }
                 if ( mutation == BETA_CATENIN_ONE_HIT)
                 {
-                    colour = 4;
+                    colour = LATE_CANCER_COLOUR;
                     if (OutputCellTypes)
                     {
                         cell_counter[4]++;
@@ -784,7 +797,7 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
             
             if (p_cell->HasApoptosisBegun())
             {   // For any type of cell set the colour to this if it is undergoing apoptosis.
-                colour = 6;   
+                colour = APOPTOSIS_COLOUR;   
             }
         }
         
