@@ -1750,8 +1750,9 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                 } 
     			break;
     		default: 
-    			System.out.println("Invalid cell type.");
-    		    break;
+                System.out.println("colour of cell is "+(vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START));
+                g2.setColor(new Color(100,10*(vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START),100));
+    			break;
     	}    	
     }
  
@@ -1887,8 +1888,9 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         			g2.setColor(garysSexySilver);                    
         			break;
         		default: 
-        			System.out.println("Invalid cell type.");
-        		    break;
+                    System.out.println("colour of cell is "+(vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START));
+                    g2.setColor(new Color(100,100,10*(vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START)));
+        			break;
         	}
     	}
     }

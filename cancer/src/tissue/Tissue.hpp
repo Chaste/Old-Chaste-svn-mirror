@@ -324,6 +324,11 @@ public:
      */   
     void SetCellAncestorsToNodeIndices();
     
+    /** 
+     * Sets the Ancestor index of all the cells at the bottom in order,
+     * can be used to trace clonal populations.
+     */   
+    void SetBottomCellAncestors();
     /**
      * Loops over cells and makes a list of the ancestors that 
      * are part of the tissue.

@@ -1103,6 +1103,90 @@ public:
         
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 2u);
     }
+        void TestAncestorCryptSimulations() throw (Exception)
+    {        
+        std::string output_directory = "AncestorCrypt";
+        
+        unsigned cells_across = 13;
+        unsigned cells_up = 25;
+        double crypt_width = 12.1;
+        unsigned thickness_of_ghost_layer = 3;
+        
+        CancerParameters* p_params = CancerParameters::Instance();
+        
+        p_params->SetDampingConstantNormal(1.0);    // normally 1   
+        // Do not give mutant cells any different movement properties to normal ones
+        p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
+        p_params->SetSpringStiffness(30.0); //normally 15.0;
+
+        std::set<unsigned> ghost_node_indices;
+        ghost_node_indices.clear();
+
+        std::vector<TissueCell> cells;
+        
+        double time_of_each_run;
+        AbstractCellKiller<2>* p_cell_killer;
+        std::vector<bool> labelled;    
+                     
+        Tissue<2>* p_crypt;
+        
+        HoneycombMeshGenerator generator = HoneycombMeshGenerator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        ghost_node_indices = generator.GetGhostNodeIndices(); 
+        
+        Cylindrical2dMesh* p_mesh;
+        
+        SimulationTime* p_simulation_time;
+        
+        p_mesh=generator.GetCylindricalMesh();
+        
+        // reset start time
+        SimulationTime::Destroy();
+        p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // set up cells                       
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC, true,
+                                            0.3,2.0,3.0,4.0,true);
+        
+        // set up crypt      
+        p_crypt = new Tissue<2>(*p_mesh, cells);        
+        (*p_crypt).SetGhostNodes(ghost_node_indices);
+        p_crypt->SetBottomCellAncestors();
+        // set up crypt simulation
+        CryptSimulation2d simulator(*p_crypt, NULL, false, false);
+        simulator.SetOutputDirectory(output_directory);
+        
+        // Set simulation to output cell types
+        simulator.SetOutputCellTypes(true);
+                
+        // Set length of simulation here
+        time_of_each_run = 10.0*simulator.GetDt(); // for each run
+        simulator.SetEndTime(time_of_each_run);
+        
+        // set up cell killer
+        p_cell_killer = new SloughingCellKiller(&simulator.rGetTissue(),0.01);
+        simulator.AddCellKiller(p_cell_killer);
+        
+        simulator.UseJiggledBottomCells();
+        
+        // run for a bit
+        simulator.Solve();            
+        
+        WntGradient::Destroy();    
+        
+      
+        delete p_crypt;
+        delete p_cell_killer;        
+        
+        // ... and checking visualization of labelled cells against previous run
+        OutputFileHandler handler("AncestorCrypt",false);
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznodes";
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/AncestorCrypt/results_from_time_0/vis_results/results.viznodes").c_str()), 0);
+        
+        
+        delete p_params;       
+        RandomNumberGenerator::Destroy();
+    } 
 };
 
 #endif /*TESTCRYPTSIMULATION2D_HPP_*/

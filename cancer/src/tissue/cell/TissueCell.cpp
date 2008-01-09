@@ -28,7 +28,7 @@ TissueCell::TissueCell(CellType cellType,
     mNodeIndex = (unsigned)(-1); // initialise to a silly value for archiving (avoid memory check error)
     mIsLogged = false;    
     mSymmetricDivision = false;
-    mAncestor = 0u; // Has to be set by a SetAncestor() call (usually from Tissue)
+    mAncestor = UNSIGNED_UNSET; // Has to be set by a SetAncestor() call (usually from Tissue)
     
     mpCellCycleModel->SetCell(this);
 }

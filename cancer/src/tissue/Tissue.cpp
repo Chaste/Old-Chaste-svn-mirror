@@ -466,6 +466,19 @@ void Tissue<DIM>::SetCellAncestorsToNodeIndices()
 }
 
 template<unsigned DIM> 
+void Tissue<DIM>::SetBottomCellAncestors()
+{
+    unsigned index = 0;
+    for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
+    {
+        if (cell_iter.rGetLocation()[1] < 0.5)
+        {
+            cell_iter->SetAncestor(index++);
+        }
+    }
+}
+
+template<unsigned DIM> 
 std::set<unsigned> Tissue<DIM>::GetCellAncestors()
 {
     std::set<unsigned> remaining_ancestors;
@@ -720,7 +733,7 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
             #undef COVERAGE_IGNORE
         }
         unsigned colour = STEM_COLOUR; // all green if no cells have been passed in
-        
+         
         if (mIsGhostNode[index]==true)
         {
             colour = INVISIBLE_COLOUR; // visualizer treats '7' as invisible
@@ -728,6 +741,11 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
         else if (mrMesh.GetNode(index)->IsDeleted())
         {
             // do nothing
+        }
+        else if (mNodeCellMap[index]->GetAncestor()!=UNSIGNED_UNSET)
+        {
+            TissueCell* p_cell = mNodeCellMap[index];
+            colour = SPECIAL_LABEL_START + p_cell->GetAncestor();
         }
 /// \todo remove this if - facade eventually shouldn't be able to have empty cells vector
         else if (mCells.size()>0)
