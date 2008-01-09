@@ -51,6 +51,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static int[][] element_nodes;
     public static int[][] cell_type;
     public static int[][] image_cells;
+    public static int max_cell_type=0;
         
     public static double max_x = -1e12;
     public static double max_y = -1e12;
@@ -709,6 +710,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     {
                         System.out.println("I want a non-negative cell type");
                         System.exit(0);
+                    }
+                    if ( cell_type[row][i] > max_cell_type )
+                    {
+                        max_cell_type = cell_type[row][i];
                     }
                     positions[row][i]=new RealPoint(d1,d2);
                     
@@ -1750,9 +1755,10 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                 } 
     			break;
     		default: 
-                System.out.println("colour of cell is "+(vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START));
-                g2.setColor(new Color(100,10*(vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START),100));
-    			break;
+                //System.out.println("colour of cell is "+(vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START));
+                //g2.setColor(new Color(100,100,10*(vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START)));
+                g2.setColor(Color.white);
+     			break;
     	}    	
     }
  
@@ -1888,9 +1894,19 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         			g2.setColor(garysSexySilver);                    
         			break;
         		default: 
-                    System.out.println("colour of cell is "+(vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START));
-                    g2.setColor(new Color(100,100,10*(vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START)));
-        			break;
+                    int cell_color=vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START;
+                    int max_color=vis.max_cell_type-SPECIAL_LABEL_START;
+                    int scale=(127*cell_color)/max_color;
+                    //Mix them up - everyother index goes high
+                    if (cell_color%2 == 1)
+                    {
+                        scale += 128;
+                    }
+                    //System.out.println("colour of cell is "+cell_color );
+                    //System.out.println("max colour of cell is "+max_color );
+                    //System.out.println("scale is "+scale );
+                    g2.setColor(new Color(255-scale,scale,255));
+                break;
         	}
     	}
     }
