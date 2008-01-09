@@ -3,6 +3,7 @@
 
 #include "Tissue.cpp"
 #include "OutputFileHandler.hpp"
+#include "CellTypes.hpp"
 
 /**
  *  CryptVoronoiDataWriter
@@ -78,6 +79,31 @@ public:
             }
         }
         (*mOutStream)<< "\n";
+    }
+    
+    void WriteTissueAreas()
+    {
+        double total_cell_area=0.0;
+        double necrotic_cell_area=0.0;
+        
+        (*mOutStream)<< SimulationTime::Instance()->GetDimensionalisedTime() << " ";
+        for (typename Tissue<DIM>::Iterator cell_iter = mrCrypt.Begin();
+             cell_iter != mrCrypt.End();
+             ++cell_iter)
+        {
+            if (! cell_iter.GetNode()->IsBoundaryNode())
+            {
+                unsigned node_index = cell_iter.GetNode()->GetIndex();
+                double cell_area = mrCrypt.rGetVoronoiTessellation().GetFace(node_index)->GetArea();
+                total_cell_area += cell_area;
+                if ( cell_iter->GetCellType() == NECROTIC )
+                {
+                    necrotic_cell_area += cell_area;
+                }
+            }
+        }
+
+        (*mOutStream)<< total_cell_area << " " << necrotic_cell_area << "\n";
     }
 };
 

@@ -12,5 +12,7 @@ typedef enum CellType_
     NECROTIC // for use in tissue simulations with nutrients
 } CellType;
 
+const static unsigned NUM_CELL_TYPES=4;
+
 
 #endif /*CELLTYPES_HPP_*/

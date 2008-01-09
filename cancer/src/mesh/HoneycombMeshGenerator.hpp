@@ -153,7 +153,7 @@ private:
                     {
                         horizontal_edge_is_boundary_edge = 1;
                     }
-                    if (j==0 && !mCylindrical)
+                    if (j==0 && i%2==0 && !mCylindrical)
                     {
                         vertical_edge_is_boundary_edge = 1;
                     }
@@ -177,8 +177,18 @@ private:
             
             for (unsigned i = 0; i < num_elem_along_length; i++)
             {
-                unsigned node0 = (i+1)*numNodesAlongWidth-1;
-                unsigned node1 = (i+2)*numNodesAlongWidth-1;
+                unsigned node0, node1;
+                
+                if (i%2==0)
+                {
+                     node0 = (i+1)*numNodesAlongWidth-1;
+                     node1 = (i+2)*numNodesAlongWidth-1;
+                }
+                else
+                {
+                    node0 = (i+1)*numNodesAlongWidth;
+                    node1 = (i)*numNodesAlongWidth;
+                }
                 (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 << "\t" << 1 << std::endl;
             }
             

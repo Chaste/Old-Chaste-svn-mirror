@@ -3,6 +3,7 @@
 #include <cxxtest/TestSuite.h>
 #include "HoneycombMeshGenerator.hpp"
 #include "OutputFileHandler.hpp"
+#include "TrianglesMeshWriter.hpp"
 
 class TestHoneycombMeshGenerator : public CxxTest::TestSuite
 {
@@ -316,6 +317,33 @@ public:
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), length, 1e-7);
     }
+    
+    void TestBoundaryNodes() throw(Exception)
+    {
+        unsigned cells_across = 4;
+        unsigned cells_up = 4;
+        double crypt_width = 4;
+        bool cylindrical = false;
+        unsigned thickness_of_ghost_layer = 0;
+                
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical, crypt_width/cells_across);
+        
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
+        
+        unsigned num_non_boundary_nodes=0;
+        for (unsigned node_index=0; node_index<16u ; node_index++)
+        {
+            if (! p_mesh->GetNode(node_index)->IsBoundaryNode())
+            {
+                num_non_boundary_nodes++;
+            }
+        }
+        TS_ASSERT_EQUALS(num_non_boundary_nodes, 4u);
+        
+    }
+    
 };
 
 
