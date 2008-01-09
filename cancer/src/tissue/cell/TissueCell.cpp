@@ -3,7 +3,6 @@
 #include "FixedCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 
-
 TissueCell::TissueCell(CellType cellType,
                        CellMutationState mutationState,
                        AbstractCellCycleModel *pCellCycleModel,
@@ -51,7 +50,8 @@ void TissueCell::CommonCopy(const TissueCell &other_cell)
     // Copy cell cycle model
     // First create a new object
     mpCellCycleModel = other_cell.mpCellCycleModel->CreateCellCycleModel();
-    // Then copy its state
+    // Then copy its state.
+    // BEWARE: This will only copy base class state!!!
     *mpCellCycleModel = *(other_cell.mpCellCycleModel);
     // and inform it of the new cell object 
     mpCellCycleModel->SetCell(this); 

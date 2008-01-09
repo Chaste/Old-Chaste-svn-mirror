@@ -65,9 +65,9 @@ public:
     SimpleOxygenBasedCellCycleModel();
     
     /** 
-     * Overwritten ReadyToDivide() method
+     * Overridden UpdateCellCyclePhase() method
      */ 
-    bool ReadyToDivide();
+    void UpdateCellCyclePhase();
     
     /**
      * Method for updating mCurrentHypoxicDuration, 

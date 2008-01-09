@@ -103,7 +103,12 @@ double AbstractCellCycleModel::GetSDuration()
 {
     return CancerParameters::Instance()->GetSDuration();
 }   
-    
+
+double AbstractCellCycleModel::GetG1Duration()
+{
+    return mG1Duration;
+}
+
 double AbstractCellCycleModel::GetG2Duration()
 {
     return CancerParameters::Instance()->GetG2Duration();
@@ -121,7 +126,8 @@ bool AbstractCellCycleModel::ReadyToDivide()
     if (!mReadyToDivide)
     {
         UpdateCellCyclePhase();
-        if ( GetAge() >= GetMDuration() + GetG1Duration() + GetSDuration() + GetG2Duration() )
+        if ( (mCurrentCellCyclePhase != G_ZERO_PHASE) &&
+             (GetAge() >= GetMDuration() + GetG1Duration() + GetSDuration() + GetG2Duration()) )
         {
             mReadyToDivide = true;
         }

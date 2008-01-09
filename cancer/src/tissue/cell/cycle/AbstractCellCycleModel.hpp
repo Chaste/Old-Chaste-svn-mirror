@@ -28,8 +28,6 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & mBirthTime;
-
         // Make sure the simulation and cancer parameters get saved too
         SimulationTime* p_time = SimulationTime::Instance();
         archive & *p_time;
@@ -38,10 +36,13 @@ private:
         archive & *p_params;
         archive & p_params;
 
-        archive & mGeneration;
         // DO NOT archive & mpCell; -- The CellCycleModel is only ever archived from the Cell 
         // which knows this and it is handled in the load_construct of TissueCell.
+        archive & mBirthTime;
         archive & mCurrentCellCyclePhase;
+        archive & mGeneration;
+        archive & mG1Duration;
+        archive & mReadyToDivide;
     }
 
         
@@ -61,8 +62,17 @@ protected:
     /** The generation of this cell (STEM cells have a generation of 0) */
     unsigned mGeneration;    
     
+    /**
+     * How long the G1 phase lasts for.
+     * Not necessarily a fixed value...
+     */
+    double mG1Duration;
+    
+    /**
+     * Whether the cell is currently ready to undergo division.
+     */
     bool mReadyToDivide;
-        
+    
 public:
 
     /**
@@ -74,6 +84,7 @@ public:
           mBirthTime(SimulationTime::Instance()->GetDimensionalisedTime()),
           mCurrentCellCyclePhase(M_PHASE),
           mGeneration(0),
+          mG1Duration(DBL_MAX),
           mReadyToDivide(false)
     {}
 
@@ -158,17 +169,18 @@ public:
      *
      * The intention is that this method is called precisely once at
      * each timestep of the simulation.  However this does not appear
-     * to always be the case at present.
+     * to always be the case at present, and so it can cope with more
+     * unusual usage patterns.
      */
-    virtual bool ReadyToDivide();
+    bool ReadyToDivide();
     
     /**
-     * Default UpdateCellCyclePhase function
-     * 
-     * Can be overridden if they should do something more subtle. 
+     * This method must be implemented by subclasses in order to set the phase
+     * the cell cycle model is currently in.  It is called from ReadyToDivide()
+     * just prior to deciding whether to divide the cell based on how far through
+     * the cell cycle it is, i.e. whether it has completed M, G1, S and G2 phases. 
      */
-    virtual void UpdateCellCyclePhase()
-    {}
+    virtual void UpdateCellCyclePhase()=0;
     
     /**
      * Each cell cycle model must be able to be reset 'after' a cell division.
@@ -178,7 +190,12 @@ public:
      * CreateDaughterCellCycleModel can then clone our state to generate a
      * cell cycle model instance for the daughter cell.
      */
-    virtual void ResetModel()=0;
+    virtual void ResetModel()
+    {
+        assert(mReadyToDivide);
+        mCurrentCellCyclePhase = M_PHASE;
+        mReadyToDivide = false;
+    }
     
     /**
      * Builder method to create new instances of the cell cycle model.
@@ -255,7 +272,7 @@ public:
     /**
      * @return the duration of the G1 phase of the cell cycle
      */
-    virtual double GetG1Duration()=0;
+    virtual double GetG1Duration();
     
     /**
      * @return the duration of the S phase of the cell cycle

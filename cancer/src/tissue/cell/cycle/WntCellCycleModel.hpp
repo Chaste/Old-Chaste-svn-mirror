@@ -43,7 +43,6 @@ private:
 protected:   
     
 public:
-
     /**
      * Default constructor.
      */
@@ -62,8 +61,6 @@ public:
     void Initialise();
     
     bool SolveOdeToTime(double currentTime);
-    
-  
 };
 
 // declare identifier for the serializer

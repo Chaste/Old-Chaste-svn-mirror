@@ -28,7 +28,6 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-    	archive & mG1Duration;
     }
     
 protected:
@@ -38,17 +37,11 @@ protected:
      * (with the same G1 duration).
      */
     AbstractSimpleCellCycleModel(double g1Duration, unsigned generation)
-        : mG1Duration(g1Duration)
     {
+        mG1Duration = g1Duration;
         mGeneration = generation;
     }
     
-    /**
-     * The duration of the G1 phase of the cell cycle. This is set once a cell
-     * cycle model has been told what cell it belongs to.
-     */    
-    double mG1Duration;
-        
     /** 
      * Subclasses can override this function if they wish,
      * this just allocates the cancer parameter default values for each
@@ -61,8 +54,7 @@ public:
     /**
      * Default constructor - creates an AbstractSimpleCellCycleModel
      */
-    AbstractSimpleCellCycleModel() :
-        mG1Duration(DBL_MAX)
+    AbstractSimpleCellCycleModel()
     {
     }
         
@@ -71,8 +63,6 @@ public:
      */
     virtual ~AbstractSimpleCellCycleModel()
     {}
-    
-    double GetG1Duration();
     
     virtual void ResetModel();
     

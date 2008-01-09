@@ -20,20 +20,18 @@ double SimpleOxygenBasedCellCycleModel::GetCurrentHypoxiaOnsetTime()
 }
 
 
-bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
+void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 {
     // mG1Duration is set when the cell cycle model is given a cell
     
-    bool ready = false;
-	  
     if (this->mpCell->GetCellType()!=NECROTIC)
     {
         UpdateHypoxicDuration();
         
-        // get cell's oxygen concentration
+        // Get cell's oxygen concentration
         double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell,0);
 
-	    ready = AbstractSimpleCellCycleModel::ReadyToDivide();
+	    AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
 
         if (mCurrentCellCyclePhase == G_ONE_PHASE)
         {
@@ -42,8 +40,7 @@ bool SimpleOxygenBasedCellCycleModel::ReadyToDivide()
 	       mG1Duration += (1-std::max(oxygen_concentration,0.0))*dt;
 	       mTimeSpentInG1Phase += dt;
 	    }
-    }    
-    return ready;
+    }
 }
 
 

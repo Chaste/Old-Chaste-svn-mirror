@@ -12,7 +12,7 @@
 
 class StochasticWntCellCycleModel : public WntCellCycleModel
 {
-  private:
+private:
 
     friend class boost::serialization::access;
     template<class Archive>
@@ -23,6 +23,8 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
         archive & p_gen;
+        
+        archive & mG2Duration;
     }
     
     /**
@@ -34,17 +36,40 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
      * 
      * @return the duration of the G2 phases of the cell cycle.
      */
-    double GetG2Duration()
+    void SetG2Duration()
     {
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         double mean = CancerParameters::Instance()->GetG2Duration();
         double standard_deviation = 0.9;        
-        return p_gen->NormalRandomDeviate(mean,standard_deviation);
+        mG2Duration = p_gen->NormalRandomDeviate(mean,standard_deviation);
     }
     
+    /// The duration of the G2 phase, set stochastically
+    double mG2Duration;
         
-  public:
-  
+public:
+    void InitialiseDaughterCell()
+    {
+        SetG2Duration();
+    }
+
+    void Initialise()
+    {
+        WntCellCycleModel::Initialise();
+        SetG2Duration();
+    }
+    
+    void ResetModel()
+    {
+        AbstractWntOdeBasedCellCycleModel::ResetModel();
+        SetG2Duration();
+    }
+    
+    double GetG2Duration()
+    {
+        return mG2Duration;
+    }
+
     /**
      * The standard constructor called in tests
      */
@@ -60,9 +85,10 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
     StochasticWntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
                                 CellMutationState mutationState,
                                 double birthTime, double lastTime,
-                                bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation)
+                                bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation, double g2Duration)
       : WntCellCycleModel(pParentOdeSystem, mutationState, birthTime, lastTime, 
-                          inSG2MPhase, readyToDivide, divideTime, generation)
+                          inSG2MPhase, readyToDivide, divideTime, generation),
+        mG2Duration(g2Duration)
     {
     }
 
@@ -87,7 +113,7 @@ class StochasticWntCellCycleModel : public WntCellCycleModel
         assert(mpCell!=NULL);
         // calls a cheeky version of the constructor which makes the new cell cycle model
         // the same age as the old one - not a copy at this time.
-        return new StochasticWntCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), mBirthTime, mLastTime, mFinishedRunningOdes, mReadyToDivide,mDivideTime, mGeneration);
+        return new StochasticWntCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), mBirthTime, mLastTime, mFinishedRunningOdes, mReadyToDivide,mDivideTime, mGeneration, mG2Duration);
     }
     
 };

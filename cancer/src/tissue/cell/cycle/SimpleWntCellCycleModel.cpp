@@ -38,11 +38,8 @@ void SimpleWntCellCycleModel::SetG1Duration()
     }        
 }
 
-bool SimpleWntCellCycleModel::ReadyToDivide()
+void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 {
-    assert(mpCell!=NULL);
-    bool ready = false;
-    
     CancerParameters *p_params = CancerParameters::Instance();
     WntGradient* p_wnt_gradient = WntGradient::Instance();
     
@@ -96,7 +93,7 @@ bool SimpleWntCellCycleModel::ReadyToDivide()
     	// Update the cell type to reflect the Wnt concentration
     	mpCell->SetCellType(cell_type);
        
-    	ready = AbstractSimpleCellCycleModel::ReadyToDivide();
+    	AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
     }
     else
     {
@@ -105,8 +102,6 @@ bool SimpleWntCellCycleModel::ReadyToDivide()
     	mpCell->SetCellType(DIFFERENTIATED);
     	mCurrentCellCyclePhase = G_ZERO_PHASE;
     }
-    
-    return ready;
 }
 
 std::vector<CellType> SimpleWntCellCycleModel::GetNewCellTypes()

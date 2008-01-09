@@ -44,7 +44,10 @@ public:
     SimpleWntCellCycleModel() 
     {}
     
-    bool ReadyToDivide();
+    /** 
+     * Overridden UpdateCellCyclePhase() method
+     */ 
+    void UpdateCellCyclePhase();
         
     AbstractCellCycleModel *CreateDaughterCellCycleModel(); 
     

@@ -804,9 +804,10 @@ public:
         CancerParameters *p_parameters = CancerParameters::Instance();
         
         // these are the first three normal random with mean 10, s.d. 1 and this seed (0)
-        double SG2MDuration1 = 8.16084 + p_parameters->GetMDuration();
-        double SG2MDuration2 = 10.0468 + p_parameters->GetMDuration();
-        double SG2MDuration3 = 8.34408 + p_parameters->GetMDuration();
+        double SG2MDuration1 = p_parameters->GetSDuration() + 3.16084 + p_parameters->GetMDuration();
+        double SG2MDuration2 = p_parameters->GetSDuration() + 5.0468  + p_parameters->GetMDuration();
+        double SG2MDuration3 = p_parameters->GetSDuration() + 3.34408 + p_parameters->GetMDuration();
+        double g1_duration = 5.971;
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_steps=100;
@@ -817,14 +818,14 @@ public:
         
         TissueCell wnt_cell(TRANSIT, HEALTHY, new StochasticWntCellCycleModel());
         wnt_cell.InitialiseCellCycleModel();
-        wnt_cell.GetCellCycleModel()->SetGeneration(1);                             
+        wnt_cell.GetCellCycleModel()->SetGeneration(1);
                                   
         for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
             
-            if (time>=5.971+SG2MDuration1)
+            if (time >= g1_duration+SG2MDuration1)
             {
                 TS_ASSERT(wnt_cell.ReadyToDivide()==true);
             }
@@ -837,7 +838,7 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
         
-        TissueCell wnt_cell2 = wnt_cell.Divide();        
+        TissueCell wnt_cell2 = wnt_cell.Divide();
         
         double time_of_birth = wnt_cell.GetBirthTime();
         double time_of_birth2 = wnt_cell2.GetBirthTime();
@@ -849,24 +850,24 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
             
-            bool result1=wnt_cell.ReadyToDivide();
-            bool result2=wnt_cell2.ReadyToDivide();
+            bool parent_ready = wnt_cell.ReadyToDivide();
+            bool daughter_ready = wnt_cell2.ReadyToDivide();
             
-            if (time>=5.971+SG2MDuration2+time_of_birth)
+            if (time >= g1_duration+SG2MDuration2+time_of_birth)
             {
-                TS_ASSERT(result1==true);
+                TS_ASSERT(parent_ready);
             }
             else
             {
-                TS_ASSERT(result1==false);
+                TS_ASSERT(!parent_ready);
             }
-            if (time>=5.971+SG2MDuration3+time_of_birth)
+            if (time >= g1_duration+SG2MDuration3+time_of_birth2)
             {
-                TS_ASSERT(result2==true);
+                TS_ASSERT(daughter_ready);
             }
             else
             {
-                TS_ASSERT(result2==false);
+                TS_ASSERT(!daughter_ready);
             }            
         }
         

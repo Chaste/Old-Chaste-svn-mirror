@@ -28,7 +28,6 @@ private:
         archive & mpOdeSystem->rGetStateVariables();
         archive & mLastTime;
         archive & mDivideTime;
-        archive & mReadyToDivide;
         archive & mFinishedRunningOdes;
         archive & mG2PhaseStartTime;
     }
@@ -40,8 +39,6 @@ protected:
     double mLastTime;
     /** The time at which the cell should divide - Set this to DBL_MAX in constructor.*/
     double mDivideTime;
-    /** Whether the cell is ready to divide or not */
-    bool mReadyToDivide;
     /** Whether the cell cycle model is currently in a delay (not solving ODEs).*/
     bool mFinishedRunningOdes;
     /** The start time for the G2 phase */
@@ -64,12 +61,11 @@ public:
     virtual ~AbstractOdeBasedCellCycleModel();
     
     /**
-     * ReadyToDivide() is called by a cell on its model to establish progress through the cell cycle.
-     * Can be overridden if something special should happen in the subclass.
+     * Default UpdateCellCyclePhase function for an ODE-based cell cycle model.
      * 
-     * @return true if the cell is ready to divide.
+     * Can be overridden if they should do something more subtle. 
      */
-    virtual bool ReadyToDivide();
+    virtual void UpdateCellCyclePhase();
     
     /**
      * This method must be implemented by each subclass - solves the ODEs to a given time and 
@@ -116,15 +112,6 @@ public:
      * call AbstractOdeBasedCellCycleModel::ResetModel() from inside their version. 
      */
     virtual void ResetModel();
-    
-    /**
-     * Temporary implementation while we refactor.
-     */
-    double GetG1Duration()
-    {
-        return DBL_MAX;
-    }
-    
 };
 
 BOOST_IS_ABSTRACT(AbstractOdeBasedCellCycleModel)

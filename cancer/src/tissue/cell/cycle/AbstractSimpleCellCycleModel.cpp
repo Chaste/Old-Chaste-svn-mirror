@@ -1,12 +1,5 @@
 #include "AbstractSimpleCellCycleModel.hpp"
 
-
-double AbstractSimpleCellCycleModel::GetG1Duration()
-{
-    return mG1Duration;
-}
-
-
 void AbstractSimpleCellCycleModel::InitialiseDaughterCell()
 {
     SetG1Duration();
@@ -46,9 +39,9 @@ void AbstractSimpleCellCycleModel::SetG1Duration()
 
 void AbstractSimpleCellCycleModel::ResetModel()
 {
+    AbstractCellCycleModel::ResetModel();
     mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
     SetG1Duration();
-    mReadyToDivide = false;
 }
 
 

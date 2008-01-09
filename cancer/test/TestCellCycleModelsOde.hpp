@@ -162,7 +162,7 @@ public:
             }
             WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
             
-            TS_ASSERT(result==false)
+            TS_ASSERT(result==false);
         }
         
         std::vector<double> test_results = p_cell_model->GetProteinConcentrations();
