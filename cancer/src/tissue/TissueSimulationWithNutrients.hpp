@@ -51,20 +51,20 @@ private :
     void SetupWriteNutrient() 
     { 
         OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false);
-	if (output_file_handler.IsMaster())
-	{
-	    mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");
-	    *this->mpSetupFile << "Nutrient \n" ;
-	}
+    	if (output_file_handler.IsMaster())
+    	{
+    	    mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");
+    	    *this->mpSetupFile << "Nutrient \n" ;
+    	}
     } 
     
     void SetupWriteSpheroidStatistics() 
     { 
         OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false); 
-	if (output_file_handler.IsMaster())
-	{
-	    mpSpheroidStatisticsFile = output_file_handler.OpenOutputFile("results.vizstatistics");
-	}
+    	if (output_file_handler.IsMaster())
+    	{
+    	    mpSpheroidStatisticsFile = output_file_handler.OpenOutputFile("results.vizstatistics");
+    	}
     } 
     
     
@@ -83,18 +83,18 @@ private :
 	    double nutrient;
 
 	    for (typename Tissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
-		 cell_iter != this->mrTissue.End();
-		 ++cell_iter)
+		     cell_iter != this->mrTissue.End();
+		     ++cell_iter)
 	    {
-		// \todo: we don't need this anymore since there are no ghost nodes,
-		// but we'd need to change the visualizer before we take this out
-		global_index = (double) cell_iter.GetNode()->GetIndex();
-		x = cell_iter.rGetLocation()[0];
-		y = cell_iter.rGetLocation()[1];
-            
-		nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
-            
-		(*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
+    		// \todo: we don't need this anymore since there are no ghost nodes,
+    		// but we'd need to change the visualizer before we take this out
+    		global_index = (double) cell_iter.GetNode()->GetIndex();
+    		x = cell_iter.rGetLocation()[0];
+    		y = cell_iter.rGetLocation()[1];
+                
+    		nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
+                
+    		(*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
 	    }
         
 	    (*mpNutrientResultsFile) << "\n";
@@ -104,19 +104,19 @@ private :
     
     void WriteSpheroidStatistics()
     {
-	if (PetscTools::AmMaster())
-	{
-	    SimulationTime *p_simulation_time = SimulationTime::Instance();
-	    double time = p_simulation_time->GetDimensionalisedTime();
-	    
-	    (*mpSpheroidStatisticsFile) <<  time << "\t";
-	    
-	    c_vector<double,2> stats = GetSpheroidStatistics();
-	    double spheroid_radius = stats[0];
-	    double necrotic_radius = stats[1];
-	    
-	    (*mpSpheroidStatisticsFile) << time << " " << spheroid_radius << " " << necrotic_radius << "\n";                
-	}
+    	if (PetscTools::AmMaster())
+    	{
+    	    SimulationTime *p_simulation_time = SimulationTime::Instance();
+    	    double time = p_simulation_time->GetDimensionalisedTime();
+    	    
+    	    (*mpSpheroidStatisticsFile) <<  time << "\t";
+    	    
+    	    c_vector<double,2> stats = GetSpheroidStatistics();
+    	    double spheroid_radius = stats[0];
+    	    double necrotic_radius = stats[1];
+    	    
+    	    (*mpSpheroidStatisticsFile) << time << " " << spheroid_radius << " " << necrotic_radius << "\n";                
+    	}
     }
     
     
@@ -131,9 +131,9 @@ private :
      */ 
     c_vector<double,2> GetSpheroidStatistics()
     {
-#define COVERAGE_IGNORE
+        #define COVERAGE_IGNORE
         assert(DIM==2);
-#undef COVERAGE_IGNORE
+        #undef COVERAGE_IGNORE
         // First get references to the Voronoi tessellation and mesh
         VoronoiTessellation<DIM>& r_tessellation = this->mrTissue.rGetVoronoiTessellation();
         ConformingTetrahedralMesh<DIM,DIM>& r_mesh = this->mrTissue.rGetMesh();
@@ -208,7 +208,23 @@ private :
         // cells (nodes), not the gauss points
         TissueSimulationWithNutrientsAssembler<DIM> assembler(&r_mesh,mpPde,&bcc);
         
-        mOxygenSolution = assembler.Solve();
+        PetscInt size_of_soln_previous_step = 0;
+        if(mOxygenSolution)
+        {
+            VecGetSize(mOxygenSolution, &size_of_soln_previous_step);
+        }
+        
+        if(size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
+        {
+            // use current solution as the initial guess
+            mOxygenSolution = assembler.Solve(mOxygenSolution);
+        }
+        else
+        {
+            mOxygenSolution = assembler.Solve();
+        }
+            
+
         ReplicatableVector result_repl(mOxygenSolution);
 
 ////  Uncomment this for non-linear pdes and find&replace Linear for NonLinear
@@ -252,7 +268,7 @@ private :
   
   
         
-        // Update cellwise data
+        // Update cellwise datasize_of_soln_previous_step
         for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
         {
             double oxygen_conc = result_repl[i];
