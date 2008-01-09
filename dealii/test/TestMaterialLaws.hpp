@@ -845,7 +845,7 @@ public:
         C[1][1] = 1.0;
         invC = invert(C);
         double p = law.GetZeroStrainPressure();
-        law.ComputeStressAndStressDerivative(C,invC,0.0,T_base,dTdE,false);
+        law.ComputeStressAndStressDerivative(C,invC,p,T_base,dTdE,false);
         TS_ASSERT_DELTA(T_base[0][0], 0.0, 1e-9);
         TS_ASSERT_DELTA(T_base[0][1], 0.0, 1e-9);
         TS_ASSERT_DELTA(T_base[0][1], 0.0, 1e-9);
