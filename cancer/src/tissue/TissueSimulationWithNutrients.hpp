@@ -7,6 +7,7 @@
 #include "SimpleDataWriter.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
+#include "TissueSimulationWithNutrientsAssembler.hpp"
 #include "CellwiseData.cpp"
 #include "PetscTools.hpp"
 
@@ -201,13 +202,16 @@ private :
             bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
         }
         
-        // Set up assembler
-        SimpleLinearEllipticAssembler<DIM,DIM> assembler(&r_mesh,mpPde,&bcc);
+        // Set up assembler - note this is a purpose made elliptic assembler
+        // that interpolates the source terms from node onto gauss points,
+        // as for a nutrients simulation the source will only be known at the
+        // cells (nodes), not the gauss points
+        TissueSimulationWithNutrientsAssembler<DIM> assembler(&r_mesh,mpPde,&bcc);
         
         mOxygenSolution = assembler.Solve();
         ReplicatableVector result_repl(mOxygenSolution);
 
-// Uncomment this for non-linear pdes
+////  Uncomment this for non-linear pdes and find&replace Linear for NonLinear
 //
 //        SimpleNonlinearEllipticAssembler<DIM,DIM> assembler(&r_mesh, mpPde, &bcc);
 //        

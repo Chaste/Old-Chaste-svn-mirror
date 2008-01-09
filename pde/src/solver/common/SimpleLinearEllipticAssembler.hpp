@@ -24,7 +24,7 @@ class SimpleLinearEllipticAssembler : public AbstractLinearAssembler<ELEMENT_DIM
 {
     friend class TestSimpleLinearEllipticAssembler;
     
-private:
+protected:
     AbstractLinearEllipticPde<SPACE_DIM>* mpEllipticPde;
     
 protected:

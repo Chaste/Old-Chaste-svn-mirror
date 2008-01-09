@@ -138,7 +138,11 @@ public:
         double value1 = pde.ComputeConstantInUSourceTermAtNode(*(mesh.GetNode(0)));
         double value2 = pde.ComputeConstantInUSourceTerm(mesh.GetNode(0)->GetPoint());
         TS_ASSERT_DELTA(value1, value2, 1e-10);
-        
+
+        value1 = pde.ComputeLinearInUCoeffInSourceTermAtNode(*(mesh.GetNode(0)));
+        value2 = pde.ComputeLinearInUCoeffInSourceTerm(mesh.GetNode(0)->GetPoint());
+        TS_ASSERT_DELTA(value1, value2, 1e-10);
+
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);

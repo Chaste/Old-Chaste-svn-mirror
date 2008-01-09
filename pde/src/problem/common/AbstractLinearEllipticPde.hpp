@@ -63,6 +63,11 @@ public:
         return ComputeConstantInUSourceTerm(node.GetPoint());
     }
     
+    virtual double ComputeLinearInUCoeffInSourceTermAtNode(const Node<SPACE_DIM>& node)
+    {
+        return ComputeLinearInUCoeffInSourceTerm(node.GetPoint());
+    }
+    
     virtual ~AbstractLinearEllipticPde()
     {}
 };
