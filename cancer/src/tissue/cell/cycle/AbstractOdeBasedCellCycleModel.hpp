@@ -117,6 +117,14 @@ public:
      */
     virtual void ResetModel();
     
+    /**
+     * Temporary implementation while we refactor.
+     */
+    double GetG1Duration()
+    {
+        return DBL_MAX;
+    }
+    
 };
 
 BOOST_IS_ABSTRACT(AbstractOdeBasedCellCycleModel)

@@ -52,23 +52,6 @@ void AbstractSimpleCellCycleModel::ResetModel()
 }
 
 
-bool AbstractSimpleCellCycleModel::ReadyToDivide()
-{
-    assert(mpCell != NULL);
-    
-    //std::cout << SimulationTime::Instance()->GetDimensionalisedTime() << " " << GetAge() << " " << GetMDuration() << " " << mG1Duration << " " << GetSDuration() << " " << GetG2Duration() << " " << mReadyToDivide << std::endl << std::flush;
-    if (!mReadyToDivide)
-    {
-        UpdateCellCyclePhase();
-        if ( GetAge() >= GetMDuration() + mG1Duration + GetSDuration() + GetG2Duration() )
-        {
-            mReadyToDivide = true;
-        }
-    }
-    return mReadyToDivide;
-}
-
-
 void AbstractSimpleCellCycleModel::UpdateCellCyclePhase()
 {
     double time_since_birth = GetAge();

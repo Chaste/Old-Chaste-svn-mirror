@@ -58,8 +58,10 @@ protected:
     /** The phase of the cell cycle that this model is in (specified in CellCyclePhases.hpp) */
     CellCyclePhase mCurrentCellCyclePhase;
     
-    /** The Generation of this cell (STEM cells have a generation of 0) */
+    /** The generation of this cell (STEM cells have a generation of 0) */
     unsigned mGeneration;    
+    
+    bool mReadyToDivide;
         
 public:
 
@@ -70,10 +72,10 @@ public:
     AbstractCellCycleModel()
         : mpCell(NULL),
           mBirthTime(SimulationTime::Instance()->GetDimensionalisedTime()),
-          mCurrentCellCyclePhase(M_PHASE) 
-    {
-        mGeneration = 0;
-    }
+          mCurrentCellCyclePhase(M_PHASE),
+          mGeneration(0),
+          mReadyToDivide(false)
+    {}
 
     /**
      * Base class with virtual methods needs a virtual destructor.
@@ -158,7 +160,15 @@ public:
      * each timestep of the simulation.  However this does not appear
      * to always be the case at present.
      */
-    virtual bool ReadyToDivide()=0;
+    virtual bool ReadyToDivide();
+    
+    /**
+     * Default UpdateCellCyclePhase function
+     * 
+     * Can be overridden if they should do something more subtle. 
+     */
+    virtual void UpdateCellCyclePhase()
+    {}
     
     /**
      * Each cell cycle model must be able to be reset 'after' a cell division.
@@ -241,6 +251,11 @@ public:
      * @return the current cell cycle phase
      */
     CellCyclePhase GetCurrentCellCyclePhase();
+    
+    /**
+     * @return the duration of the G1 phase of the cell cycle
+     */
+    virtual double GetG1Duration()=0;
     
     /**
      * @return the duration of the S phase of the cell cycle

@@ -99,7 +99,6 @@ void AbstractCellCycleModel::SetMotherGeneration()
     }
 }
 
-   
 double AbstractCellCycleModel::GetSDuration()
 {
     return CancerParameters::Instance()->GetSDuration();
@@ -115,3 +114,17 @@ double AbstractCellCycleModel::GetMDuration()
     return CancerParameters::Instance()->GetMDuration();
 }   
 
+bool AbstractCellCycleModel::ReadyToDivide()
+{
+    assert(mpCell != NULL);
+    
+    if (!mReadyToDivide)
+    {
+        UpdateCellCyclePhase();
+        if ( GetAge() >= GetMDuration() + GetG1Duration() + GetSDuration() + GetG2Duration() )
+        {
+            mReadyToDivide = true;
+        }
+    }
+    return mReadyToDivide;
+}

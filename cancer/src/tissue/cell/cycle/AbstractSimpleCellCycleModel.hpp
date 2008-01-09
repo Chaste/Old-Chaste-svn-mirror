@@ -38,8 +38,7 @@ protected:
      * (with the same G1 duration).
      */
     AbstractSimpleCellCycleModel(double g1Duration, unsigned generation)
-        : mG1Duration(g1Duration),
-          mReadyToDivide(false)
+        : mG1Duration(g1Duration)
     {
         mGeneration = generation;
     }
@@ -49,9 +48,7 @@ protected:
      * cycle model has been told what cell it belongs to.
      */    
     double mG1Duration;
-    
-    bool mReadyToDivide;
-    
+        
     /** 
      * Subclasses can override this function if they wish,
      * this just allocates the cancer parameter default values for each
@@ -65,8 +62,7 @@ public:
      * Default constructor - creates an AbstractSimpleCellCycleModel
      */
     AbstractSimpleCellCycleModel() :
-        mG1Duration(DBL_MAX),
-        mReadyToDivide(false)
+        mG1Duration(DBL_MAX)
     {
     }
         
@@ -81,13 +77,6 @@ public:
     virtual void ResetModel();
     
     /**
-     * Default ReadyToDivide function for a simple cell cycle model.
-     * 
-     * Can be overridden if they should do something more subtle. 
-     */
-    bool ReadyToDivide();
-    
-    /**
      * Default UpdateCellCyclePhase function for a simple cell cycle model.
      * 
      * Can be overridden if they should do something more subtle. 
@@ -99,7 +88,7 @@ public:
      * The duration will be based on cell type. 
      */ 
     void InitialiseDaughterCell();     
-    virtual void Initialise(); 
+    virtual void Initialise();
 };
 
 BOOST_IS_ABSTRACT(AbstractSimpleCellCycleModel)
