@@ -60,6 +60,52 @@ public:
     }   
 };
 
+
+/*
+ *  A pde which has a sink at non-necrotic cells
+ */
+class PointwiseNutrientSinkPde : public AbstractLinearEllipticPde<2>
+{
+private:
+    Tissue<2>& mrTissue;
+
+public:
+    PointwiseNutrientSinkPde(Tissue<2>& rTissue)
+        : mrTissue(rTissue)
+    {
+    }
+
+    double ComputeConstantInUSourceTerm(const ChastePoint<2>& x)
+    {
+        return 0.0;
+    }
+    
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& x)
+    {
+        NEVER_REACHED;
+        return 0.0;
+    }
+   
+    double ComputeLinearInUCoeffInSourceTermAtNode(const Node<2>& rNode)
+    {
+        TissueCell& r_cell = mrTissue.rGetCellAtNodeIndex(rNode.GetIndex());
+        if(r_cell.GetCellType()!=NECROTIC)
+        {
+            return -0.1;
+        }
+        else
+        {
+            return 0.0;
+        }
+    }
+    
+    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& )
+    {
+        return identity_matrix<double>(2);
+    }   
+};
+
+
 class TestTissueSimulationWithNutrients : public CxxTest::TestSuite
 {
 private:
@@ -284,6 +330,99 @@ public:
         p_cell = &(simulator.rGetTissue().rGetCellAtNodeIndex(15));
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
                                 
+        // Tidy up
+        delete p_killer;
+        CellwiseData<2>::Destroy();
+    }
+    
+        
+    void TestWithPointwiseNutrientSink() throw(Exception)
+    {
+        if (!PetscTools::IsSequential())
+        {
+            TS_TRACE("This test does not pass in parallel yet.");
+            return;
+        }
+        
+        CancerParameters::Instance()->SetHepaOneParameters();
+        
+        // Set up mesh
+        unsigned num_cells_depth = 5;
+        unsigned num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+                    
+        // Set up cells
+        std::vector<TissueCell> cells;        
+        
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
+                                    (CancerParameters::Instance()->GetHepaOneCellG1Duration()
+                                    +CancerParameters::Instance()->GetSG2MDuration());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cell.SetSymmetricDivision();
+            
+            // make the cell necrotic if near the centre
+            double x = p_mesh->GetNode(i)->rGetLocation()[0];
+            double y = p_mesh->GetNode(i)->rGetLocation()[1];
+            double dist_from_centre = sqrt( (x-2.5)*(x-2.5) + (y-2.5)*(y-2.5) );              
+            if(dist_from_centre < 1.5)
+            {
+                cell.SetCellType(NECROTIC);
+            }
+            
+            cells.push_back(cell);
+        }
+        
+        // Set up tissue        
+        Tissue<2> tissue(*p_mesh, cells);
+        
+        // Set up CellwiseData and associate it with the tissue
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
+        p_data->SetTissue(tissue);
+        
+        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+        // we need to pass it some initial conditions to avoid memory errors
+        // (note: it would really make more sense to put the PDE solver stuff in a PreSolve method)  
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            p_data->SetValue(1.0, p_mesh->GetNode(i));
+        }
+        
+        // Set up PDE
+        PointwiseNutrientSinkPde pde(tissue);
+        
+        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
+        p_spring_system->UseCutoffPoint(1.5);
+                  
+        // Set up tissue simulation
+        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
+        simulator.SetOutputDirectory("TissueSimulationWithPointwiseNutrientSink");
+        simulator.SetEndTime(0.5);
+        simulator.SetMaxCells(400);
+        simulator.SetMaxElements(800);
+        
+        // Set up cell killer and pass into simulation
+        AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
+        simulator.AddCellKiller(p_killer);
+                       
+        // Run tissue simulation
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        
+        // record final mesh size for visualizer
+        TS_ASSERT_THROWS_NOTHING(simulator.WriteFinalMeshSizeForVisualizer());
+                        
+        // a few hardcoded tests to check nothing has changed
+        std::vector<double> node_5_location = simulator.GetNodeLocation(5);
+        TS_ASSERT_DELTA(node_5_location[0], 0.6576, 1e-4);
+        TS_ASSERT_DELTA(node_5_location[1], 1.1358, 1e-4);
+        TissueCell* p_cell = &(simulator.rGetTissue().rGetCellAtNodeIndex(5));
+        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9702, 1e-4);
+        
         // Tidy up
         delete p_killer;
         CellwiseData<2>::Destroy();
