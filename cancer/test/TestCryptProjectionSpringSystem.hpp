@@ -10,28 +10,15 @@
 #include "Meineke2001SpringSystem.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
+#include "CommonCancerTestSetup.hpp"
 
 /**
  * Note that all these tests call setUp() and tearDown() before running,
  * so if you copy them into a new test suite be sure to copy these methods
  * too.
  */
-class TestCryptProjectionSpringSystem : public CxxTest::TestSuite
+class TestCryptProjectionSpringSystem : public AbstractCancerTestSuite
 {
-private:
-
-    void setUp()
-    {
-        // Initialise singleton classes
-        SimulationTime::Instance()->SetStartTime(0.0);
-        CancerParameters::Instance()->Reset();
-    }
-    void tearDown()
-    {
-        // Clear up singleton classes
-        SimulationTime::Destroy();
-    }
-    
 public:   
     
     void TestSpringSystemMethods() throw (Exception)

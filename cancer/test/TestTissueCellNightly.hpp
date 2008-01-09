@@ -17,32 +17,12 @@
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
+#include "CommonCancerTestSetup.hpp"
 #include <iostream>
 
-/**
- * Note that all these tests call setUp() and tearDown() before running,
- * so if you copy them into a new test suite be sure to copy these methods
- * too.
- */
+
 class TestTissueCellNightly: public CxxTest::TestSuite
 {
-private:
-
-    double mLastStartTime;
-    void setUp()
-    {
-        // Initialise singleton classes
-        SimulationTime::Instance()->SetStartTime(0.0);
-        RandomNumberGenerator::Instance()->Reseed(0);
-        CancerParameters::Instance()->Reset();
-    }
-    void tearDown()
-    {
-        // Clear up singleton classes
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-    }
-
 public:
 
     void TestTysonNovakImmortalStemCell()

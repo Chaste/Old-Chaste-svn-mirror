@@ -18,12 +18,10 @@
 #include "CancerParameters.hpp"
 #include "ColumnDataReader.hpp"
 
-/**
- * Note that all these tests call setUp() and tearDown() before running,
- * so if you copy them into a new test suite be sure to copy these methods
- * too.
- */
-class TestCryptSimulation1d : public CxxTest::TestSuite
+#include "CommonCancerTestSetup.hpp"
+
+
+class TestCryptSimulation1d : public AbstractCancerTestSuite
 {
 private:
     
@@ -98,20 +96,6 @@ private:
                 TS_ASSERT_DELTA(expected_cell_positions[time_step], computed_cell_positions[time_step],1e-6);
             }
         }
-    }
-    
-    void setUp()
-    {
-        // Initialise singleton classes
-        SimulationTime::Instance()->SetStartTime(0.0);
-        RandomNumberGenerator::Instance()->Reseed(0);
-        CancerParameters::Instance()->Reset();
-    }
-    void tearDown()
-    {
-        // Clear up singleton classes
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
     
 public:

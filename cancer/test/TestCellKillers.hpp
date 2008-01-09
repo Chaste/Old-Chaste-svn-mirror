@@ -26,30 +26,11 @@
 #include "RadialSloughingCellKiller.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "CellsGenerator.hpp"
+#include "CommonCancerTestSetup.hpp"
 
-/**
- * Note that all these tests call setUp() and tearDown() before running,
- * so if you copy them into a new test suite be sure to copy these methods
- * too.
- */
-class TestCellKillers : public CxxTest::TestSuite
-{
-private:
 
-    void setUp()
-    {
-        // Initialise singleton classes
-        SimulationTime::Instance()->SetStartTime(0.0);
-        RandomNumberGenerator::Instance()->Reseed(0);
-        CancerParameters::Instance()->Reset();
-    }
-    void tearDown()
-    {
-        // Clear up singleton classes
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-    }
-    
+class TestCellKillers : public AbstractCancerTestSuite
+{    
 public:
 
     void TestRandomCellKiller(void) throw(Exception)

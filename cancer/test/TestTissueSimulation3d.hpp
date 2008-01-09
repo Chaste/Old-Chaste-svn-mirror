@@ -17,8 +17,10 @@
 #include "FixedCellCycleModel.hpp"
 #include "ColumnDataReader.hpp"
 #include "SimulationTime.hpp"
+#include "CommonCancerTestSetup.hpp"
 
-class TestTissueSimulation3d : public CxxTest::TestSuite
+
+class TestTissueSimulation3d : public AbstractCancerTestSuite
 {
 private:
 
@@ -36,20 +38,15 @@ private:
     void setUp()
     {
         mLastStartTime = std::clock();
-        // Initialise singleton classes
-        SimulationTime::Instance()->SetStartTime(0.0);
-        RandomNumberGenerator::Instance()->Reseed(0);
-        CancerParameters::Instance()->Reset();
+        AbstractCancerTestSuite::setUp();
     }
     void tearDown()
     {
         double time = std::clock();
         double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
         std::cout << "Elapsed time: " << elapsed_time << std::endl;
-        // Clear up singleton classes
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-    } 
+        AbstractCancerTestSuite::tearDown();
+    }
 
 public:
     void TestDoCellBirth() throw (Exception)

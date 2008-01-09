@@ -6,27 +6,11 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include "SimulationTime.hpp"
+#include "CommonCancerTestSetup.hpp"
 
-/**
- * Note that all these tests call setUp() and tearDown() before running,
- * so if you copy them into a new test suite be sure to copy these methods
- * too.
- */
-class TestCellsGenerator : public CxxTest::TestSuite
-{   
-private:
 
-    void setUp()
-    {
-        // Initialise singleton classes
-        SimulationTime::Instance()->SetStartTime(0.0);
-    }
-    void tearDown()
-    {
-        // Clear up singleton classes
-        SimulationTime::Destroy();
-    }
-
+class TestCellsGenerator : public AbstractCancerTestSuite
+{ 
 public:
 
     void TestCellsGeneratorBasic() throw(Exception)

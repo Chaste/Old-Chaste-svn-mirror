@@ -4,17 +4,19 @@
 # Test*.hpp files that aren't listed in a test pack.
 # It expects to be run from the trunk of the Chaste distribution.
 
-import os, glob
+import os, glob, re
 
 chaste_dir = '.'
 
+suite_re = re.compile( r'\bclass\s+(\w+)\s*:\s*public\s+((::)?\s*CxxTest\s*::\s*)?\w*TestSuite\b' )
 def IsTestFile(test_dir, test_file):
   """Does the given file define a test suite?"""
   is_test = False
   if test_file[-4:] == '.hpp' and test_file[:4] == 'Test':
     fp = open(os.path.join(test_dir, test_file))
     for line in fp:
-      if line.find('CxxTest::TestSuite') > -1:
+      m = suite_re.search( line )
+      if m:
         is_test = True
         break
     fp.close()
