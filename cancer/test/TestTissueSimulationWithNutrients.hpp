@@ -20,63 +20,44 @@
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "Meineke2001SpringSystem.hpp" 
 
-class SimplePdeForTesting : public AbstractNonlinearEllipticPde<2>
+class SimplePdeForTesting : public AbstractLinearEllipticPde<2>
 {
 public:
-    double ComputeLinearSourceTerm(const ChastePoint<2>& )
+    double ComputeConstantInUSourceTerm(const ChastePoint<2>& x)
     {
         return -1.0;
     }
-
-    double ComputeNonlinearSourceTerm(const ChastePoint<2>& , double )
+    
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& x)
     {
         return 0.0;
     }
 
-    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& , double u)
+    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& )
     {
         return identity_matrix<double>(2);
     }
     
-    c_matrix<double,2,2> ComputeDiffusionTermPrime(const ChastePoint<2>& , double u)
-    {
-        return zero_matrix<double>(2);
-    }
-    
-    double ComputeNonlinearSourceTermPrime(const ChastePoint<2>& , double u)
-    {
-        return 0.0;
-    }
 };
 
-class SimpleOxygenPde : public AbstractNonlinearEllipticPde<2>
+class SimpleOxygenPde : public AbstractLinearEllipticPde<2>
 {
 public:
 
-    double ComputeLinearSourceTerm(const ChastePoint<2>& )
+    double ComputeConstantInUSourceTerm(const ChastePoint<2>& x)
     {
         return 0.0;
     }
     
-    double ComputeNonlinearSourceTerm(const ChastePoint<2>& , double u)
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& x)
     {
-        return -0.1*u;
+        return -0.1;
     }
     
-    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& , double u)
+    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& )
     {
         return identity_matrix<double>(2);
-    }
-    
-    c_matrix<double,2,2> ComputeDiffusionTermPrime(const ChastePoint<2>& , double u)
-    {
-        return zero_matrix<double>(2);
-    }
-    
-    double ComputeNonlinearSourceTermPrime(const ChastePoint<2>& , double u)
-    {
-        return -1.0;
-    }
+    }   
 };
 
 class TestTissueSimulationWithNutrients : public CxxTest::TestSuite
@@ -326,7 +307,7 @@ public:
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TissueSimulationWithOxygen",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznutrient";         
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TissueSimulationWithOxygen_vis/results.viznutrient").c_str()), 0);     
+        TS_ASSERT_EQUALS(system(("ndiff -relative-error 1e-4 " + results_file + " cancer/test/data/TissueSimulationWithOxygen_vis/results.viznutrient").c_str()), 0);     
     }
     
     void TestSpheroidStatistics() throw (Exception)

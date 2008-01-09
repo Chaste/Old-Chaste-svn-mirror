@@ -5,8 +5,8 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDataWriter.hpp"
-#include "AbstractNonlinearEllipticPde.hpp"
-#include "SimpleNonlinearEllipticAssembler.hpp"
+#include "AbstractLinearEllipticPde.hpp"
+#include "SimpleLinearEllipticAssembler.hpp"
 #include "CellwiseData.cpp"
 #include "PetscTools.hpp"
 
@@ -33,7 +33,7 @@ private :
     
     Vec mOxygenSolution;
 
-    AbstractNonlinearEllipticPde<DIM>* mpPde;  
+    AbstractLinearEllipticPde<DIM>* mpPde;  
     
     /** The file that the nutrient values are written out to. */ 
     out_stream mpNutrientResultsFile; 
@@ -202,42 +202,51 @@ private :
         }
         
         // Set up assembler
-        SimpleNonlinearEllipticAssembler<DIM,DIM> assembler(&r_mesh, mpPde, &bcc);
+        SimpleLinearEllipticAssembler<DIM,DIM> assembler(&r_mesh,mpPde,&bcc);
         
-        // We cannot use the exact previous solution as initial guess 
-        // as the size may be different (due to cell birth/death)
-        Vec initial_guess;
-        
-        // If we have a previous solution, then use this as the basis 
-        // for the initial guess
-        if (mOxygenSolution)
-        {
-            // Get the size of the previous solution
-            PetscInt isize;
-            VecGetSize(mOxygenSolution, &isize);
-            unsigned size_of_previous_solution = isize;
-            
-            if (size_of_previous_solution != r_mesh.GetNumNodes() )
-            {
-                initial_guess = assembler.CreateConstantInitialGuess(1.0);
-            }
-            else
-            {
-                VecDuplicate(mOxygenSolution, &initial_guess);
-                VecCopy(mOxygenSolution, initial_guess);
-            }
-            // Free memory
-            VecDestroy(mOxygenSolution);
-        }
-        else
-        {
-            initial_guess = assembler.CreateConstantInitialGuess(1.0);
-        }
-        
-        // Solve the nutrient PDE
-        mOxygenSolution = assembler.Solve(initial_guess);
-        VecDestroy(initial_guess);
+        mOxygenSolution = assembler.Solve();
         ReplicatableVector result_repl(mOxygenSolution);
+
+// Uncomment this for non-linear pdes
+//
+//        SimpleNonlinearEllipticAssembler<DIM,DIM> assembler(&r_mesh, mpPde, &bcc);
+//        
+//        // We cannot use the exact previous solution as initial guess 
+//        // as the size may be different (due to cell birth/death)
+//        Vec initial_guess;
+//        
+//        // If we have a previous solution, then use this as the basis 
+//        // for the initial guess
+//        if (mOxygenSolution)
+//        {
+//            // Get the size of the previous solution
+//            PetscInt isize;
+//            VecGetSize(mOxygenSolution, &isize);
+//            unsigned size_of_previous_solution = isize;
+//            
+//            if (size_of_previous_solution != r_mesh.GetNumNodes() )
+//            {
+//                initial_guess = assembler.CreateConstantInitialGuess(1.0);
+//            }
+//            else
+//            {
+//                VecDuplicate(mOxygenSolution, &initial_guess);
+//                VecCopy(mOxygenSolution, initial_guess);
+//            }
+//            // Free memory
+//            VecDestroy(mOxygenSolution);
+//        }
+//        else
+//        {
+//            initial_guess = assembler.CreateConstantInitialGuess(1.0);
+//        }
+//        
+//        // Solve the nutrient PDE
+//        mOxygenSolution = assembler.Solve(initial_guess);
+//        VecDestroy(initial_guess);
+//        ReplicatableVector result_repl(mOxygenSolution);
+  
+  
         
         // Update cellwise data
         for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
@@ -282,7 +291,7 @@ public:
      */
     TissueSimulationWithNutrients(Tissue<DIM>& rTissue,
                                   AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
-                                  AbstractNonlinearEllipticPde<DIM>* pPde=NULL,
+                                  AbstractLinearEllipticPde<DIM>* pPde=NULL,
                                   bool deleteTissue=false,
                                   bool initialiseCells=true) 
         : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissue, initialiseCells), 
@@ -307,7 +316,7 @@ public:
      * needed to set the PDE after loading a simulation 
      * from an archive.
      */
-    void SetPde(AbstractNonlinearEllipticPde<DIM>* pPde)
+    void SetPde(AbstractLinearEllipticPde<DIM>* pPde)
     {
         mpPde = pPde;
     }
