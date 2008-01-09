@@ -53,12 +53,12 @@ public:
 
     void ConstructMeshes()
     {        
-        double width = 1;
+        double width = 0.5;
         
         // create electrics mesh
         this->mpElectricsMesh = new ConformingTetrahedralMesh<DIM,DIM>();
 
-        unsigned num_elem = 96; //mNumElementsPerDimInElectricsMesh;
+        unsigned num_elem = 48; //mNumElementsPerDimInElectricsMesh;
         this->mpElectricsMesh->ConstructRectangularMesh(num_elem,num_elem);
         this->mpElectricsMesh->Scale(width/num_elem,width/num_elem);
 

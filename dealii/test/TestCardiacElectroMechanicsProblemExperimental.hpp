@@ -68,18 +68,29 @@ public:
     {
         PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 
-        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, false, 50, 0.50, "Exponential");
-        implicit_problem.SetNoElectricsOutput();
-        implicit_problem.Solve();
+        unsigned num=8;
+        for(unsigned i=0;i<2;i++)
+        {
+            std::stringstream name;
+            name << "CardiacElectroMech_Space_" << num;
+            
+            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, num, false, 1, 0.01, name.str());
+            implicit_problem.SetNoElectricsOutput();
+            implicit_problem.Solve();
+            
+            num *= 2;
+        }
 
-//        double nhs_ode_time_step = 0.02;
+//        double nhs_ode_time_step = 0.01;
 //
-//        for(unsigned i=1; i<7; i++)
+//        for(unsigned i=0; i<8; i++)
 //        {
 //            std::stringstream name;
-//            name << "CardiacElectroMech2dImplicitVaryOdeTimeStep_" << i;
+//            name << "CardiacElectroMech_OdeTimeStepNew_" << i;
+//
+//            std::cout << nhs_ode_time_step << "\n";
 //            
-//            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, false, 64, nhs_ode_time_step, name.str());
+//            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, false, 128, nhs_ode_time_step, name.str());
 //            implicit_problem.SetNoElectricsOutput();
 //            implicit_problem.Solve();
 //            
