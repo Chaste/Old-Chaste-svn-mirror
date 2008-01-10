@@ -81,11 +81,6 @@ TissueCell::~TissueCell()
 }
 
 
-void TissueCell::SetBirthTime(double birthTime)
-{
-    mpCellCycleModel->SetBirthTime(birthTime);
-}
-
 
 void TissueCell::SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel)
 {
@@ -97,12 +92,10 @@ void TissueCell::SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel)
     mpCellCycleModel->SetCell(this);
 }
 
-
 AbstractCellCycleModel* TissueCell::GetCellCycleModel() const
 {
     return mpCellCycleModel;
 }
-
 
 void TissueCell::InitialiseCellCycleModel()
 {
@@ -110,16 +103,10 @@ void TissueCell::InitialiseCellCycleModel()
 }
 
 
-/**
- * Set the node at which this cell is positioned.
- * 
- * @param index Index of the node
- */
 void TissueCell::SetNodeIndex(unsigned index)
 {
     mNodeIndex = index;
 }
-
 
 unsigned TissueCell::GetNodeIndex() const
 {
@@ -132,22 +119,14 @@ double TissueCell::GetAge() const
     return mpCellCycleModel->GetAge();
 }
 
-
 double TissueCell::GetBirthTime() const
 {
     return mpCellCycleModel->GetBirthTime();
 }
 
-
-CellType TissueCell::GetCellType() const
+void TissueCell::SetBirthTime(double birthTime)
 {
-    return mCellType;
-}
-
-
-CellMutationState TissueCell::GetMutationState() const
-{
-    return mMutationState;
+    mpCellCycleModel->SetBirthTime(birthTime);
 }
 
 
@@ -156,10 +135,20 @@ void TissueCell::SetCellType(CellType cellType)
     mCellType = cellType;
 }
 
+CellType TissueCell::GetCellType() const
+{
+    return mCellType;
+}
+
 
 void TissueCell::SetMutationState(CellMutationState mutationState)
 {
     mMutationState = mutationState;
+}
+
+CellMutationState TissueCell::GetMutationState() const
+{
+    return mMutationState;
 }
 
 
@@ -167,7 +156,6 @@ void TissueCell::SetSymmetricDivision()
 {
     mSymmetricDivision = true;
 }
-
 
 bool TissueCell::DividesSymmetrically()
 { 
@@ -180,28 +168,9 @@ void TissueCell::SetLogged()
     mIsLogged = true;
 }
 
-
 bool TissueCell::IsLogged()
 {
     return mIsLogged;
-}
-
-
-/**
- * The TissueCell ready to divide method
- *
- */
-bool TissueCell::ReadyToDivide()
-{
-    assert(!IsDead());
-    if (mUndergoingApoptosis || mCellType==NECROTIC)
-    {
-        return false;
-    }    
-    
-    mCanDivide = mpCellCycleModel->ReadyToDivide();
-
-    return mCanDivide;
 }
 
 
@@ -222,12 +191,10 @@ void TissueCell::StartApoptosis()
     mDeathTime = p_simulation_time->GetDimensionalisedTime() + p_params->GetApoptosisTime();
 }
 
-
 bool TissueCell::HasApoptosisBegun() const
 {
     return mUndergoingApoptosis;
 }
-
 
 double TissueCell::TimeUntilDeath() const
 {
@@ -266,25 +233,39 @@ unsigned TissueCell::GetAncestor() const
 }
 
 
-TissueCell TissueCell::Divide()
+bool TissueCell::ReadyToDivide()
 {
     assert(!IsDead());
+    if (mUndergoingApoptosis || mCellType==NECROTIC)
+    {
+        return false;
+    }    
+    
+    mCanDivide = mpCellCycleModel->ReadyToDivide();
+
+    return mCanDivide;
+}
+
+TissueCell TissueCell::Divide()
+{
+    // Check we're allowed to divide
+    assert(!IsDead());
+    assert(mCanDivide);
+    mCanDivide = false;
     
     // Copy this cell and give new one relevant attributes
-    assert(mCanDivide);
-    mCanDivide = false;    
-        
+    
     if (mSymmetricDivision)
     {
         // Cell goes back to age zero, and cell type is possibly reset
-        mpCellCycleModel->ResetModel();         
-                
-        TissueCell new_cell = TissueCell( 
-            GetCellType(),  
-            mMutationState, 
-            mpCellCycleModel->CreateDaughterCellCycleModel()); 
+        mpCellCycleModel->ResetModel();
+        
+        TissueCell new_cell = TissueCell(
+            GetCellType(),
+            mMutationState,
+            mpCellCycleModel->CreateDaughterCellCycleModel());
 
-        new_cell.GetCellCycleModel()->InitialiseDaughterCell();                                                  
+        new_cell.GetCellCycleModel()->InitialiseDaughterCell();
         new_cell.GetCellCycleModel()->SetGeneration(1);
         new_cell.SetSymmetricDivision();
         new_cell.SetAncestor(GetAncestor());
@@ -295,23 +276,23 @@ TissueCell TissueCell::Divide()
     {
         mpCellCycleModel->SetGeneration(mpCellCycleModel->GetGeneration()+1);
         
-        std::vector<CellType> new_cell_types = mpCellCycleModel->GetNewCellTypes();            
-        mCellType = new_cell_types[0]; 
+        std::vector<CellType> new_cell_types = mpCellCycleModel->GetNewCellTypes();
+        mCellType = new_cell_types[0];
         
         // Cell goes back to age zero
         mpCellCycleModel->ResetModel();
         
-        TissueCell new_cell = TissueCell( 
-            new_cell_types[1],  
-            mMutationState, 
-            mpCellCycleModel->CreateDaughterCellCycleModel()); 
+        TissueCell new_cell = TissueCell(
+            new_cell_types[1],
+            mMutationState,
+            mpCellCycleModel->CreateDaughterCellCycleModel());
         
-        new_cell.GetCellCycleModel()->InitialiseDaughterCell(); 
+        new_cell.GetCellCycleModel()->InitialiseDaughterCell();
         
         assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->GetGeneration());
         mpCellCycleModel->SetMotherGeneration();
         new_cell.SetAncestor(GetAncestor());
         
         return new_cell;
-    }        
+    }
 }

@@ -23,14 +23,17 @@ private:
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        // These first 4 are dealt with by {load,save}_construct_data
+        // These first 4 are also dealt with by {load,save}_construct_data
+        archive & mCanDivide;
         archive & mCellType;
         archive & mMutationState;
         archive & mpCellCycleModel;
-        archive & mCanDivide;
+
+        archive & mNodeIndex;
         archive & mUndergoingApoptosis;
         archive & mDeathTime;
-        archive & mNodeIndex;
+        archive & mIsDead;
+        archive & mIsLogged;
         archive & mSymmetricDivision;
         archive & mAncestor;
     }
@@ -42,8 +45,10 @@ protected:
     AbstractCellCycleModel *mpCellCycleModel;
     unsigned mNodeIndex;
     bool mUndergoingApoptosis;
+    /// When the cell will/did die.
     double mDeathTime;
     bool mIsDead;
+    /// Whether the cell is being tracked specially.
     bool mIsLogged;
     bool mSymmetricDivision;
     /** An index which is inherited by all children of this cell */
@@ -80,7 +85,10 @@ public:
     /**
      * Copy all the attributes of one cell to another
      * (used for periodic boundaries - does not copy node or position information)
+     *
      * \todo Is this the way we should be doing it?  Seems a bit counter-intuitive if the comment above is correct!
+     *
+     * \todo Also, since cell cycle models don't have an operator=, only copies data members of AbstractCellCycleModel when the model is copied.
      */
     TissueCell& operator=(const TissueCell &other_cell);
     
@@ -92,10 +100,19 @@ public:
     void SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel);
     AbstractCellCycleModel *GetCellCycleModel() const;
     
+    /**
+     * Calls Initialise on the cell cycle model associated with this cell.
+     */
     void InitialiseCellCycleModel();
     
-    void UpdateCellCycleModel();
+    // This method doesn't appear to actually be defined anywhere...
+    // void UpdateCellCycleModel();
     
+    /**
+     * Set the node at which this cell is positioned.
+     * 
+     * @param index Index of the node in the mesh
+     */
     void SetNodeIndex(unsigned index);
     unsigned GetNodeIndex() const;
     
@@ -104,17 +121,25 @@ public:
     unsigned GetGeneration() const;
     
     CellType GetCellType() const;
-    CellMutationState GetMutationState() const;
     void SetCellType(CellType cellType);
+    CellMutationState GetMutationState() const;
     void SetMutationState(CellMutationState mutationState);
-    void SetSymmetricDivision();
     bool DividesSymmetrically();
+    void SetSymmetricDivision();
     
     /**
-     * Determine if this cell will be ready to divide at the given simulation time.
-     * MUST be called before Divide().
+     * Determine if this cell is ready to divide at the current simulation time.
+     * MUST be called before calling Divide().
      */
     bool ReadyToDivide();
+    
+    /**
+     * Divide this cell to produce a daughter cell.
+     * ReadyToDivide MUST have been called at the current time, and returned true.
+     *
+     * @return the new daughter cell
+     */
+    TissueCell Divide();
     
     void StartApoptosis();
     void Kill();
@@ -122,18 +147,11 @@ public:
     double TimeUntilDeath() const;
     bool IsDead() const;
     
-    /**
-     * Divide this cell to produce a daughter cell.
-     * ReadyToDivide must have been called with the given simulationTime, and returned true.
-     */
-    TissueCell Divide();
-    
     void SetLogged();
     bool IsLogged();
     
     void SetAncestor(unsigned ancestorIndex);
     unsigned GetAncestor() const;
-    
 };
 
 
