@@ -37,11 +37,6 @@ class Meineke2001SpringSystem  : public AbstractDiscreteTissueMechanicsSystem<DI
 
 private :
     
-    /**
-     * Node velocities
-     */
-    std::vector<c_vector<double, DIM> > mDrDt;
-
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -60,6 +55,11 @@ private :
         archive & mUseBCatSprings;
         archive & mUseNecroticSprings;
     }
+
+protected :
+
+    /** Node velocities */
+    std::vector<c_vector<double, DIM> > mDrDt;
 
     /** Whether to have zero force if the cells are far enough apart */
     bool mUseCutoffPoint;
@@ -303,7 +303,7 @@ public :
      * Note - a loop over cells is used, so if there are ghost nodes the velocity
      * of these nodes will be returned as zero.
      */
-    std::vector<c_vector<double, DIM> >& rCalculateVelocitiesOfEachNode()
+    virtual std::vector<c_vector<double, DIM> >& rCalculateVelocitiesOfEachNode()
     {
         mDrDt.resize(this->mrTissue.rGetMesh().GetNumAllNodes());
         for (unsigned i=0; i<mDrDt.size(); i++)

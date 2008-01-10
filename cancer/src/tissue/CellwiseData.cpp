@@ -97,6 +97,13 @@ void CellwiseData<DIM>::SetTissue(Tissue<DIM>& rTissue)
 }
 
 template<unsigned DIM>
+Tissue<DIM>& CellwiseData<DIM>::rGetTissue()
+{
+    return *mpTissue;
+}
+
+
+template<unsigned DIM>
 void CellwiseData<DIM>::SetNumNodesAndVars(unsigned numNodes, unsigned numberOfVariables)
 {
     if(mpTissue!=NULL)

@@ -91,6 +91,11 @@ public:
     void SetTissue(Tissue<DIM>& rTissue);
     
     /**
+     *  Gets the tissue used in data.
+     */
+    Tissue<DIM>& rGetTissue();
+     
+    /**
      *  Set the number of variables to be stored per cell. The constructor
      *  assumes 1 variable so only really needs to be called if num_vars > 1
      */

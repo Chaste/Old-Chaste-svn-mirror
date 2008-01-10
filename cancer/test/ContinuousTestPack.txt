@@ -6,6 +6,7 @@ TestCellCycleModelsSimple.hpp
 TestCellKillers.hpp
 TestCellsGenerator.hpp
 TestCellwiseData.hpp
+TestCellwiseDataGradient.hpp
 TestCryptProjectionSimulation.hpp
 TestCryptProjectionSpringSystem.hpp
 TestCryptProjectionStatistics.hpp
@@ -18,6 +19,7 @@ TestDiscreteSystemForceCalculator.hpp
 TestHoneycombMeshGenerator.hpp
 TestIngeWntSwatCellCycleOdeSystem.hpp
 TestMeineke2001SpringSystem.hpp
+TestMeinekeSpringSystemWithChemotaxis.hpp
 TestPdeOnFlaggedMesh.hpp
 TestSimulationTime.hpp
 TestTissue.hpp
