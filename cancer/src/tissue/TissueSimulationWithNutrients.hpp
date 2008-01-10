@@ -216,14 +216,24 @@ private :
         
         if(size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
         {
+            // We make an initial guess which gets copied by the Solve method of
+            // SimpleLinearSolver, so we need to delete it too.
+            Vec initial_guess;
+            VecDuplicate(mOxygenSolution, &initial_guess);
+            VecCopy(mOxygenSolution, initial_guess);
             // use current solution as the initial guess
-            mOxygenSolution = assembler.Solve(mOxygenSolution);
+            VecDestroy(mOxygenSolution);    // Solve method makes its own mOxygenSolution
+            mOxygenSolution = assembler.Solve(initial_guess);
+            VecDestroy(initial_guess);
         }
         else
         {
+            if(mOxygenSolution)
+            {
+                VecDestroy(mOxygenSolution);
+            }
             mOxygenSolution = assembler.Solve();
-        }
-            
+        }            
 
         ReplicatableVector result_repl(mOxygenSolution);
 
@@ -268,7 +278,7 @@ private :
   
   
         
-        // Update cellwise datasize_of_soln_previous_step
+        // Update cellwise data
         for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
         {
             double oxygen_conc = result_repl[i];

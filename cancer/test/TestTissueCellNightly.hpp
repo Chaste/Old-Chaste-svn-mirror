@@ -20,8 +20,7 @@
 #include "CommonCancerTestSetup.hpp"
 #include <iostream>
 
-
-class TestTissueCellNightly: public CxxTest::TestSuite
+class TestTissueCellNightly: public AbstractCancerTestSuite
 {
 public:
 
