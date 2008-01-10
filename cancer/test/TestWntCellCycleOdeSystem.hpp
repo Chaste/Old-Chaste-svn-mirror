@@ -151,29 +151,29 @@ public:
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
-        double h_value=0.0001;
+        double h_value_rk4=1e-4;
         
         RungeKutta4IvpOdeSolver rk4_solver;
         RungeKuttaFehlbergIvpOdeSolver rkf_solver;
         BackwardEulerIvpOdeSolver back_solver(9);
         
-        OdeSolution solutions;
-        //OdeSolution solutions2;
+        OdeSolution solutions_rk4;
+        OdeSolution solutions_rkf;
         
         std::vector<double> initial_conditions = wnt_system.GetInitialConditions();
                 
         double start_time, end_time, elapsed_time = 0.0;
         start_time = std::clock();
-        solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
+        solutions_rk4 = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value_rk4, h_value_rk4);
         end_time = std::clock();
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
         
-        h_value = 0.1;
+        double h_value_rkf = 0.1;
         
         initial_conditions = wnt_system.GetInitialConditions();
         start_time = std::clock();
-        solutions = rkf_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, 1e-4);
+        solutions_rkf = rkf_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value_rkf, 1e-4);
         end_time = std::clock();
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "2. Runge-Kutta-Fehlberg Elapsed time = " << elapsed_time << "\n";
@@ -190,49 +190,67 @@ public:
 //        std::cout <<  "1. BackwardEuler Elapsed time = " << elapsed_time << "\n";
 
 
-        int my_rank;
-        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-        if (my_rank==0) // if master process
-        {
+//        int my_rank;
+//        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+//        if (my_rank==0) // if master process
+//        {
+//        
+//            int step_per_row = 1;
+//            ColumnDataWriter writer("WntCellCycle","WntCellCycle");
+//            int time_var_id = writer.DefineUnlimitedDimension("Time","s");
+//            
+//            std::vector<int> var_ids;
+//            for (unsigned i=0; i<wnt_system.rGetVariableNames().size(); i++)
+//            {
+//                var_ids.push_back(writer.DefineVariable(wnt_system.rGetVariableNames()[i],
+//                                                        wnt_system.rGetVariableUnits()[i]));
+//            }
+//            writer.EndDefineMode();
+//            
+//            for (unsigned i = 0; i < solutions_rkf.rGetSolutions().size(); i+=step_per_row)
+//            {
+//                writer.PutVariable(time_var_id, solutions_rkf.rGetTimes()[i]);
+//                for (unsigned j=0; j<var_ids.size(); j++)
+//                {
+//                    writer.PutVariable(var_ids[j], solutions_rkf.rGetSolutions()[i][j]);
+//                }
+//                writer.AdvanceAlongUnlimitedDimension();
+//            }
+//            writer.Close();
+//        }
+//        MPI_Barrier(PETSC_COMM_WORLD);
         
-            int step_per_row = 1;
-            ColumnDataWriter writer("WntCellCycle","WntCellCycle");
-            int time_var_id = writer.DefineUnlimitedDimension("Time","s");
-            
-            std::vector<int> var_ids;
-            for (unsigned i=0; i<wnt_system.rGetVariableNames().size(); i++)
-            {
-                var_ids.push_back(writer.DefineVariable(wnt_system.rGetVariableNames()[i],
-                                                        wnt_system.rGetVariableUnits()[i]));
-            }
-            writer.EndDefineMode();
-            
-            for (unsigned i = 0; i < solutions.rGetSolutions().size(); i+=step_per_row)
-            {
-                writer.PutVariable(time_var_id, solutions.rGetTimes()[i]);
-                for (unsigned j=0; j<var_ids.size(); j++)
-                {
-                    writer.PutVariable(var_ids[j], solutions.rGetSolutions()[i][j]);
-                }
-                writer.AdvanceAlongUnlimitedDimension();
-            }
-            writer.Close();
-        }
-        MPI_Barrier(PETSC_COMM_WORLD);
         
+        // Testing RK4 solution
         // Test solutions are OK for a small time increase...
-        int end = solutions.rGetSolutions().size() - 1;
+        int end = solutions_rk4.rGetSolutions().size() - 1;
         // Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
-        TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 5.971 , 1e-2);
+        TS_ASSERT_DELTA(solutions_rk4.rGetTimes()[end] , 5.971 , 1e-2);
         // Proper values from MatLab ode15s - shocking tolerances to pass though.
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],2.880603485931000e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],1.000220438771564e+00, 1.01e-2);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],2.453870380958196e+00, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3],1.446185835615586e+00, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4],1.383272155041549e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],4.975124378109454e-03, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][6]+solutions.rGetSolutions()[end][7],6.002649406788524e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],1.00, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][0],2.880603485931000e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][1],1.000220438771564e+00, 1.02e-2);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][2],2.453870380958196e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][3],1.446185835615586e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][4],1.383272155041549e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][5],4.975124378109454e-03, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][6]+solutions_rk4.rGetSolutions()[end][7],6.002649406788524e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][8],1.00, 1e-3);
+        
+        
+        // Testing RKF solution
+        // Test solutions are OK for a small time increase...
+        end = solutions_rkf.rGetSolutions().size() - 1;
+        // Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
+        TS_ASSERT_DELTA(solutions_rkf.rGetTimes()[end] , 5.971 , 1e-2);
+        // Proper values from MatLab ode15s - shocking tolerances to pass though.
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][0],2.880603485931000e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][1],1.000220438771564e+00, 1.02e-2);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][2],2.453870380958196e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][3],1.446185835615586e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][4],1.383272155041549e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][5],4.975124378109454e-03, 1e-3);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][6]+solutions_rkf.rGetSolutions()[end][7],6.002649406788524e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][8],1.00, 1e-3);               
     }
     
     void TestWntCellCycleSolverWithAPCSingleHit() throw(Exception)
