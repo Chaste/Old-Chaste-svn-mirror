@@ -67,7 +67,7 @@ public:
         
         std::vector< TissueCell* > test_section = crypt_statistics.GetCryptSection(0.5,1.5,sqrt(3));
         
-        //Test the cells are correct
+        // Test the cells are correct
         TS_ASSERT_EQUALS(test_section.size(), 6u);
 
         unsigned expected_indices[6] = {0,1,3,4,7,8};
@@ -83,7 +83,7 @@ public:
         // Test that we get a valid section when the x-values are the same
         std::vector< TissueCell* > test_section_vertical = crypt_statistics.GetCryptSection(0.5,0.5,sqrt(3));
         
-        //Test the cells are correct
+        // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_vertical.size(), 5u);
 
         unsigned expected_indices_vertical[6] = {0,1,3,6,7};
@@ -97,7 +97,7 @@ public:
         
         std::vector< TissueCell* > test_section_periodic = crypt_statistics.GetCryptSectionPeriodic(0.5,2.5,sqrt(3));
         
-        //Test the cells are correct
+        // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_periodic.size(), 6u);
         
         unsigned expected_indices_periodic[6] = {0,1,3,5,6,8};
@@ -111,7 +111,7 @@ public:
                 
         std::vector< TissueCell* > test_section_periodic_2 = crypt_statistics.GetCryptSectionPeriodic(2.5,0.5,sqrt(3));
         
-        //Test the cells are correct
+        // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_periodic_2.size(), 6u);
         
         unsigned expected_indices_periodic_2[6] = {0,2,3,5,6,7};
@@ -259,7 +259,7 @@ public:
         
         // TEST CryptStatistics::GetWhetherCryptSectionCellsAreLabelled
         
-        // set cells which are not in the crypt section to be in state APC_ONE_HIT, so that we can
+        // Set cells which are not in the crypt section to be in state APC_ONE_HIT, so that we can
         // see the section
         test_section=crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
                 for (Tissue<2>::Iterator cell_iter = crypt.Begin();
@@ -284,7 +284,9 @@ public:
         simulator.Solve();
         
         std::vector<bool> labelled = crypt_statistics.GetWhetherCryptSectionCellsAreLabelled(8.0,8.0);
-        // Test that the vector of booleans corresponds with the a visualisation of the data- Only the third cell had been labelled
+        
+        // Test that the vector of booleans corresponds with a visualisation of the data - 
+        // only the third cell had been labelled
         for (unsigned vector_index=0; vector_index<labelled.size(); vector_index++)
         {
             if (vector_index==2u)

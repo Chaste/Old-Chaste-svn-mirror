@@ -73,39 +73,6 @@ private :
      */
     double mCutoffPoint;
 
-
-    /**
-     *  Calculates the height of the crypt surface given by
-     *      z = f(r) = a*r^b
-     *  at a point whose 2D position is a distance r from the centre of the tissue. 
-     *  This assumes that the tissue is centred at the origin.
-     * 
-     *  @param rNodeLocation 
-     *  
-     *  @return the z component corresponding to rNodeLocation
-     */ 
-    double CalculateCryptSurfaceHeightAtPoint(c_vector<double, 2>& rNodeLocation)
-    {
-        double z_coord = mA*pow(norm_2(rNodeLocation),mB);        
-        return z_coord;
-    }
-    
-    
-    /**
-     *  Calculates the derivative df/dr of the crypt surface function z=f(r) at a point 
-     *  whose 2D position is a distance r from the centre of the tissue, which we assume 
-     *  to be at (0,0).
-     * 
-     *  @param rNodeLocation 
-     *  @return the gradient
-     */ 
-    double CalculateCryptSurfaceDerivativeAtPoint(c_vector<double, 2>& rNodeLocation)
-    {
-        double derivative = mA*mB*pow(norm_2(rNodeLocation),(mB-1.0));
-        return derivative;        
-    }
-    
-    
     /**
      * Fix up the mappings between node indices and 3D locations
      */ 
@@ -261,6 +228,36 @@ public :
         return mB;
     }
        
+    /**
+     *  Calculates the height of the crypt surface given by
+     *      z = f(r) = a*r^b
+     *  at a point whose 2D position is a distance r from the centre of the tissue. 
+     *  This assumes that the tissue is centred at the origin.
+     * 
+     *  @param rNodeLocation 
+     *  
+     *  @return the z component corresponding to rNodeLocation
+     */ 
+    double CalculateCryptSurfaceHeightAtPoint(c_vector<double, 2>& rNodeLocation)
+    {
+        double z_coord = mA*pow(norm_2(rNodeLocation),mB);        
+        return z_coord;
+    }
+    
+    
+    /**
+     *  Calculates the derivative df/dr of the crypt surface function z=f(r) at a point 
+     *  whose 2D position is a distance r from the centre of the tissue, which we assume 
+     *  to be at (0,0).
+     * 
+     *  @param rNodeLocation 
+     *  @return the gradient
+     */ 
+    double CalculateCryptSurfaceDerivativeAtPoint(c_vector<double, 2>& rNodeLocation)
+    {
+        double derivative = mA*mB*pow(norm_2(rNodeLocation),(mB-1.0));
+        return derivative;        
+    }
     
     /**
      * Calculates the forces on each node

@@ -6,14 +6,14 @@
 
 class CryptStatistics 
 {
-private:
+protected:
     Tissue<2>& mrCrypt;
 
     /**
      *  Method computing the perpendicular distance from the cell to the line from (xBottom,0) to (xTop,yTop), 
      *  and returning if the distance is within the specified width to the section (defaults to 0.5)
      */  
-    bool CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=0.5);
+    virtual bool CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=0.5);
 
     
 
@@ -36,6 +36,10 @@ public :
     CryptStatistics(Tissue<2>& rCrypt)
         : mrCrypt(rCrypt) {};
     
+    /**
+     * Free any memory allocated by the constructor
+     */
+     virtual ~CryptStatistics() {}; 
     
     /**
      *  Get all cells within a cell width of the section defined as the line between points (xBottom,0)
@@ -45,7 +49,7 @@ public :
      *  width apart then a more realistic section will be across the periodic boundary), using the 
      *  final parameter. This obviously requires the mesh to be cylindrical.
      * 
-     * @param xBottom    (defaults to a random number U[0,crypt_width])
+     * @param xBottom  (defaults to a random number U[0,crypt_width])
      * @param xTop  (defaults to a random number U[0,crypt_width])
      * @param yTop  (defaults to crypt_length +2, to get the cells near the top)
      * @param periodic  (defaults to false)
@@ -57,7 +61,7 @@ public :
      * execute these in a sensible order.
      * It appears that Intel goes left-to-right and Gcc goes right-to-left.
      */
-     std::vector<TissueCell*> GetCryptSection(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
+     virtual std::vector<TissueCell*> GetCryptSection(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0, 
                                              bool periodic = false);
@@ -107,7 +111,7 @@ public :
      * @param yTop  (defaults to crypt_length +2, to get the cells near the top)
      * @param periodic  (defaults to true)
      * 
-     * @return  a standard vector of booleans which states whether a labelled cell is present at a corresponing position.
+     * @return  a standard vector of booleans which states whether a labelled cell is present at a corresponding position.
      */
     std::vector<bool> GetWhetherCryptSectionCellsAreLabelled(double xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 

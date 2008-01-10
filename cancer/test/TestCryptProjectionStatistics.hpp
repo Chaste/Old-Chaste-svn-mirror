@@ -1,49 +1,34 @@
-#ifndef TESTCRYPTPROJECTIONSIMULATION_HPP_
-#define TESTCRYPTPROJECTIONSIMULATION_HPP_
+#ifndef TESTCRYPTSTATISTICS_HPP_
+#define TESTCRYPTSTATISTICS_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include "TissueSimulation.cpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
-#include <ctime>
 #include <vector>
+#include "Tissue.cpp"
+#include "CryptProjectionStatistics.hpp"
+#include "TissueSimulation.cpp"
 #include "OutputFileHandler.hpp"
 #include "ColumnDataReader.hpp"
-#include "RadialSloughingCellKiller.hpp"
-#include "SimpleWntCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "CryptProjectionSpringSystem.hpp"
+#include "SimulationTime.hpp"
+#include "RadialSloughingCellKiller.hpp"
+#include "CellsGenerator.hpp"
+#include "SimpleDataWriter.hpp"
 #include "CommonCancerTestSetup.hpp"
-    
-class TestCryptProjectionSimulation : public AbstractCancerTestSuite
+
+
+class TestCryptProjectionStatistics : public AbstractCancerTestSuite
 {
-    double mLastStartTime;
-    void setUp()
-    {
-        mLastStartTime = std::clock();
-        AbstractCancerTestSuite::setUp();
-    }
-    void tearDown()
-    {
-        double time = std::clock();
-        double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
-        std::cout << "Elapsed time: " << elapsed_time << std::endl;
-        AbstractCancerTestSuite::tearDown();
-    }
-               
-public:
     
-    /**
-     *  Test a standard crypt projection model simulation with a radial sloughing 
-     *  cell killer, a crypt projection cell cycle model that depends on a radial 
-     *  Wnt gradient, and the crypt projection model spring system, and store the 
-     *  results for use in later archiving tests.
-     */
-    void TestTissueSimulationWithCryptProjectionSpringSystem() throw (Exception)
-    {        
+public:
+
+    void TestGetSection() throw (Exception)
+    {   
+        // Set up tissue
         CancerParameters *p_params = CancerParameters::Instance();        
         p_params->SetWntStemThreshold(0.95);
         
@@ -52,7 +37,6 @@ public:
         p_params->SetCryptProjectionParameterA(a);
         p_params->SetCryptProjectionParameterB(b);   
                 
-        // Set up mesh
         int num_cells_depth = 20;
         int num_cells_width = 20;     
         unsigned thickness_of_ghost_layer = 3;   
@@ -69,10 +53,7 @@ public:
         
         p_mesh->Translate(-width_of_mesh/2,-height_of_mesh/2);                   
         
-        // To start off with, set up all cells to be of type TRANSIT
         std::vector<TissueCell> cells;
-        
-        std::cout << "num nodes = " << p_mesh->GetNumNodes() << "\n" << std::flush;
         
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -91,9 +72,25 @@ public:
         Tissue<2> crypt(*p_mesh, cells);         
         crypt.SetGhostNodes(ghost_node_indices);          
         
-	    // Set up the Wnt gradient 
+        // Set up the Wnt gradient 
         WntGradient::Instance()->SetType(RADIAL); 
         WntGradient::Instance()->SetTissue(crypt);   
+        
+        CryptProjectionStatistics statistics(crypt);
+        
+        std::vector< TissueCell* > test_section = statistics.GetCryptSection(M_PI/2.0);
+        
+        // Test the cells are correct
+        TS_ASSERT_EQUALS(test_section.size(), 10u);
+
+        unsigned expected_indices[10] = {350,377,402,429,454,481,506,533,558,585};
+
+        for(unsigned i=0; i<test_section.size(); i++)
+        {
+            TissueCell* cell = test_section[i];
+            TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(), 
+                              expected_indices[i]);
+        }
         
         // Create the spring system
         CryptProjectionSpringSystem* p_spring_system = new CryptProjectionSpringSystem(crypt);
@@ -109,40 +106,25 @@ public:
         crypt_projection_simulator.AddCellKiller(&killer);
         
         // Set up the simulation
-        crypt_projection_simulator.SetOutputDirectory("CryptProjectionSimulation");
+        crypt_projection_simulator.SetOutputDirectory("CryptProjectionStatistics");
         crypt_projection_simulator.SetEndTime(0.25);
         crypt_projection_simulator.SetMaxCells(1000);
         crypt_projection_simulator.SetMaxElements(2000);
-        
-        // Run the simulation
-        double start_time = std::clock();        
         TS_ASSERT_THROWS_NOTHING(crypt_projection_simulator.Solve());
-        double end_time = std::clock();
-        
-        // Print out time taken to run crypt simulation    
-        double elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-        std::cout <<  "Time to perform crypt projection simulation was " << elapsed_time << "s\n";
-        
-        // These cells just divided and have been gradually moving apart.  ??
-	    // These results are from time 0.25.
-        std::vector<double> node_302_location = crypt_projection_simulator.GetNodeLocation(302);
-        TS_ASSERT_DELTA(node_302_location[0], -0.0954, 1e-4);
-        TS_ASSERT_DELTA(node_302_location[1], 0.2475, 1e-4);
-        std::vector<double> node_506_location = crypt_projection_simulator.GetNodeLocation(506);
-        TS_ASSERT_DELTA(node_506_location[0], -0.7046, 1e-4);
-        TS_ASSERT_DELTA(node_506_location[1], 0.6178, 1e-4);
 
-        // Test the Wnt gradient result
-        TissueCell* p_cell = &(crypt.rGetCellAtNodeIndex(302));
-        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9991, 1e-4);
-        p_cell = &(crypt.rGetCellAtNodeIndex(506));
-        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
+        std::vector< TissueCell* > test_section2 = statistics.GetCryptSection();
+        
+        for(unsigned i=0; i<test_section2.size(); i++)
+        {
+            test_section2[i]->SetMutationState(LABELLED);
+        }
+        
+        crypt_projection_simulator.SetEndTime(0.3);
+        TS_ASSERT_THROWS_NOTHING(crypt_projection_simulator.Solve());
         
         // Tidy up
         WntGradient::Destroy();
     }
-    
 };
 
-
-#endif /*TESTCRYPTPROJECTIONSIMULATION_HPP_*/
+#endif /*TESTCRYPTSTATISTICS_HPP_*/

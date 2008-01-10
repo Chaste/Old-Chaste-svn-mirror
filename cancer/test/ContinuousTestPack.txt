@@ -8,6 +8,7 @@ TestCellsGenerator.hpp
 TestCellwiseData.hpp
 TestCryptProjectionSimulation.hpp
 TestCryptProjectionSpringSystem.hpp
+TestCryptProjectionStatistics.hpp
 TestCryptSimulation1d.hpp
 TestCryptSimulation2d.hpp
 TestCryptStatistics.hpp
