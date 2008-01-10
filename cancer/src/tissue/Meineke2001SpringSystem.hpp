@@ -58,6 +58,7 @@ private :
         archive & mMutantMutantMultiplier;
         archive & mNormalMutantMultiplier;
         archive & mUseBCatSprings;
+        archive & mUseNecroticSprings;
     }
 
     /** Whether to have zero force if the cells are far enough apart */
@@ -83,6 +84,9 @@ private :
     
     /** Use springs which are dependent on beta-catenin levels */
     bool mUseBCatSprings; 
+    
+    /** Use springs which are dependent on whether cells are necrotic */
+    bool mUseNecroticSprings;
 
 
 public :
@@ -107,6 +111,9 @@ public :
         // cutoff meineke
         mUseCutoffPoint = false;
         mCutoffPoint = 1e10;
+        
+        // necrotic springs
+        mUseNecroticSprings = false;
     }
 
     /**
@@ -126,7 +133,7 @@ public :
         c_vector<double, DIM> node_a_location = this->mrTissue.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
         c_vector<double, DIM> node_b_location = this->mrTissue.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
         
-        // there is reason not to substract one position from the other (cyclidrical meshes)
+        // There is reason not to substract one position from the other (cyclidrical meshes)
         unit_difference = this->mrTissue.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
         
         double distance_between_nodes = norm_2(unit_difference);
@@ -137,8 +144,7 @@ public :
         {
             if( distance_between_nodes >= mCutoffPoint )
             {
-                // return zero force
-                return zero_vector<double>(DIM); //c_vector<double,DIM>() is not guaranteed to be fresh memory
+                return zero_vector<double>(DIM); // c_vector<double,DIM>() is not guaranteed to be fresh memory
             }
         }
         
@@ -201,13 +207,13 @@ public :
             
             if (r_cell_A.GetMutationState() == APC_TWO_HIT || r_cell_A.GetMutationState() == BETA_CATENIN_ONE_HIT)
             {   
-                // if cell A is mutant
+                // If cell A is mutant
                 number_of_mutants++;
             }
             
             if (r_cell_B.GetMutationState() == APC_TWO_HIT || r_cell_B.GetMutationState() == BETA_CATENIN_ONE_HIT)
             {   
-                // if cell B is mutant
+                // If cell B is mutant
                 number_of_mutants++;
             }
             
@@ -244,7 +250,41 @@ public :
             double min_beta_Cat_of_two_cells = std::min(beta_cat_on_cell_1_edge, beta_cat_on_cell_2_edge);
             
             double beta_cat_scaling_factor = CancerParameters::Instance()->GetBetaCatSpringScaler();
-            multiplication_factor*= min_beta_Cat_of_two_cells / beta_cat_scaling_factor;
+            multiplication_factor *= min_beta_Cat_of_two_cells / beta_cat_scaling_factor;
+        }
+        
+        if (mUseNecroticSprings)
+        {
+            if (r_cell_A.GetCellType()==NECROTIC || r_cell_B.GetCellType()==NECROTIC)
+            {                
+                double spring_a_stiffness = 2.0*CancerParameters::Instance()->GetSpringStiffness();  
+                double spring_b_stiffness = 2.0*CancerParameters::Instance()->GetSpringStiffness(); 
+                
+                if (r_cell_A.GetCellType()==NECROTIC)
+                {   
+                    if (distance_between_nodes-rest_length > 0) // if under tension
+                    {
+                        spring_a_stiffness = CancerParameters::Instance()->GetNecroticSpringTensionStiffness();
+                    }
+                    else // if under compression
+                    {
+                        spring_a_stiffness = CancerParameters::Instance()->GetNecroticSpringCompressionStiffness();
+                    }
+                }            
+                if (r_cell_B.GetCellType()==NECROTIC)
+                {
+                    if (distance_between_nodes-rest_length > 0) // if under tension
+                    {
+                        spring_b_stiffness = CancerParameters::Instance()->GetNecroticSpringTensionStiffness();
+                    }
+                    else // if under compression
+                    {
+                        spring_b_stiffness = CancerParameters::Instance()->GetNecroticSpringCompressionStiffness();
+                    }
+                }
+                
+                multiplication_factor *= 1.0 / (( 1.0/spring_a_stiffness + 1.0/spring_b_stiffness)*CancerParameters::Instance()->GetSpringStiffness());
+            }
         }
         
         return multiplication_factor * CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
@@ -285,7 +325,7 @@ public :
             
             if (mUseAreaBasedViscosity)
             {
-                // use new_damping_const = old_damping_const * (d0+d1*A)
+                // Use new_damping_const = old_damping_const * (d0+d1*A)
                 // where d0,d1 are params and A is the area, and old_damping_const
                 // if the damping const if not using mUseAreaBasedViscosity
                 
@@ -294,7 +334,7 @@ public :
                 #undef COVERAGE_IGNORE
                 double rest_length = 1.0;
                 double d0 = 0.1;
-                // this number is such that d0+A*d1=1, where A is the area of a equilibrium
+                // This number is such that d0+A*d1=1, where A is the area of a equilibrium
                 // cell (=sqrt(3)/4 = a third of the area of a hexagon with edges of size 1)
                 double d1 = 2.0*(1.0-d0)/(sqrt(3)*rest_length*rest_length); 
     
@@ -303,7 +343,7 @@ public :
                 double area_cell_A = tess.GetFaceArea(nodeA_global_index);
                 double area_cell_B = tess.GetFaceArea(nodeB_global_index);
                 
-                // the areas should be order 1, this is just to avoid getting infinite areas
+                // The areas should be order 1, this is just to avoid getting infinite areas
                 // if an area based viscosity option is chosen without ghost nodes.
                 assert(area_cell_A < 1000);
                 assert(area_cell_B < 1000);
@@ -327,15 +367,13 @@ public :
                 damping_constantB = CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplierB;
             }       
            
-            // these cannot be ghost nodes anymore - they both apply forces on each other
+            // These cannot be ghost nodes anymore - they both apply forces on each other
             mDrDt[nodeB_global_index] -= force / damping_constantB;
             mDrDt[nodeA_global_index] += force / damping_constantA;
         }
         
         return mDrDt;
     }
-    
-
     
     /**
      * Use a cutoff point, ie specify zero force if two cells are greater 
@@ -365,8 +403,7 @@ public :
         assert(DIM == 2);
         mUseAreaBasedViscosity = useAreaBasedViscosity;
     }
-    
-    
+        
     /**
      * Use Different spring strengths depending on two cells:
      * Normal-normal, Normal-mutant, mutant-mutant
@@ -384,6 +421,14 @@ public :
     void SetBCatSprings(bool useBCatSprings)
     {
         mUseBCatSprings = useBCatSprings;
+    }
+    
+    /**
+     * Set spring stiffness to be dependent on whether cells are necrotic 
+     */
+    void SetNecroticSprings(bool useNecroticSprings)
+    {
+        mUseNecroticSprings = useNecroticSprings;
     }
 
     /**
@@ -409,7 +454,7 @@ template<class Archive, unsigned DIM>
 inline void save_construct_data(
     Archive & ar, const Meineke2001SpringSystem<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
-    // save data required to construct instance
+    // Save data required to construct instance
     const Tissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
 }
@@ -421,11 +466,11 @@ template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, Meineke2001SpringSystem<DIM> * t, const unsigned int file_version)
 {
-    // retrieve data from archive required to construct new instance
+    // Retrieve data from archive required to construct new instance
     Tissue<DIM>* p_tissue;
 
     ar >> p_tissue;
-    // invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialize instance
     ::new(t)Meineke2001SpringSystem<DIM>(*p_tissue);
 }
 }

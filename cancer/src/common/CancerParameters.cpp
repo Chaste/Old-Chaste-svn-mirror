@@ -42,7 +42,8 @@ CancerParameters::CancerParameters()
  * mCriticalHypoxicDuration has units of hours
  * mCryptProjectionParameterA has no units
  * mCryptProjectionParameterB has no units
- * 
+ * mNecroticSpringTensionStiffness has the same units as mSpringStiffness
+ * mNecroticSpringCompressionStiffness has the same units as mSpringStiffness
  */
 void CancerParameters::Reset()
 {   
@@ -70,6 +71,9 @@ void CancerParameters::Reset()
     mCriticalHypoxicDuration = 2.0;
     mCryptProjectionParameterA = 0.5;
     mCryptProjectionParameterB = 2.0;
+    
+    mNecroticSpringTensionStiffness = 0.25*mSpringStiffness;
+    mNecroticSpringCompressionStiffness = 0.75*mSpringStiffness;
     
     // Calculated parameters
     // This was used in non-dimensional case
@@ -170,6 +174,14 @@ double CancerParameters::GetCryptProjectionParameterA()
 double CancerParameters::GetCryptProjectionParameterB()
 {
     return mCryptProjectionParameterB;
+}
+double CancerParameters::GetNecroticSpringTensionStiffness()
+{
+    return mNecroticSpringTensionStiffness;
+}
+double CancerParameters::GetNecroticSpringCompressionStiffness()
+{
+    return mNecroticSpringCompressionStiffness;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -295,5 +307,14 @@ void CancerParameters::SetCryptProjectionParameterB(double cryptProjectionParame
     assert(cryptProjectionParameterB>=0.0);
     mCryptProjectionParameterB = cryptProjectionParameterB;
 }
-
+void CancerParameters::SetNecroticSpringTensionStiffness(double necroticSpringTensionStiffness)
+{
+    assert(necroticSpringTensionStiffness>=0.0);
+    mNecroticSpringTensionStiffness = necroticSpringTensionStiffness;
+}
+void CancerParameters::SetNecroticSpringCompressionStiffness(double necroticSpringCompressionStiffness)
+{
+    assert(necroticSpringCompressionStiffness>=0.0);
+    mNecroticSpringCompressionStiffness = necroticSpringCompressionStiffness;
+}
 

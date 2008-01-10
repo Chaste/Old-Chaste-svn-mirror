@@ -37,6 +37,8 @@ public:
     double GetCriticalHypoxicDuration();
     double GetCryptProjectionParameterA();
     double GetCryptProjectionParameterB();
+    double GetNecroticSpringTensionStiffness();
+    double GetNecroticSpringCompressionStiffness();
     
     void SetStemCellG1Duration(double);
     void SetTransitCellG1Duration(double);
@@ -61,6 +63,8 @@ public:
     void SetHepaOneParameters();
     void SetCryptProjectionParameterA(double);
     void SetCryptProjectionParameterB(double);
+    void SetNecroticSpringTensionStiffness(double);
+    void SetNecroticSpringCompressionStiffness(double);
       
     /** 
      *  Reset all parameters to their defaults
@@ -194,6 +198,16 @@ private:
      * surface is given in cylindrical polar coordinates by z = a*r^b 
      */
     double mCryptProjectionParameterB;
+    
+    /**
+     * Non-dimensionalized 'stiffness' of a necrotic cell under tension
+     */
+    double mNecroticSpringTensionStiffness;
+    
+    /**
+     * Non-dimensionalized 'stiffness' of a necrotic cell under compression
+     */
+    double mNecroticSpringCompressionStiffness;
       
     friend class boost::serialization::access;
     /**
@@ -224,6 +238,8 @@ private:
         archive & mCriticalHypoxicDuration;
         archive & mCryptProjectionParameterA;
         archive & mCryptProjectionParameterB;
+        archive & mNecroticSpringTensionStiffness;
+        archive & mNecroticSpringCompressionStiffness; 
     }
 };
 
