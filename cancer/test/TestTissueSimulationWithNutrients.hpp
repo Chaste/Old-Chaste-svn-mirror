@@ -446,6 +446,10 @@ public:
         TS_ASSERT_EQUALS(system(("ndiff -relative-error 1e-4 " + results_file + " cancer/test/data/TissueSimulationWithOxygen_vis/results.viznutrient").c_str()), 0);     
     }
     
+    /**
+     * This test compares the visualizer output from the previous test 
+     * with a known file.
+     */ 
     void TestSpheroidStatistics() throw (Exception)
     {
         if (!PetscTools::IsSequential())
@@ -500,8 +504,8 @@ public:
         simulator.SetOutputDirectory("TestSpheroidStatistics");
         simulator.SetEndTime(1.0/120.0);
         simulator.SetMaxCells(400);
-        simulator.SetMaxElements(800);
-        simulator.SetWriteSpheroidStatistics();   
+        simulator.SetMaxElements(800);     
+        simulator.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius   
         
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);        
@@ -521,10 +525,7 @@ public:
             }
         }
         TS_ASSERT_EQUALS(num_necrotic_cells, 3u);      
-        
-        // Now calculate the spheroid radius and necrotic radius
-        c_vector<double, 2> radii = simulator.GetSpheroidStatistics();
-        
+                
         // We have 25 cells. Adding up the boundary cell areas, we
         // should have the equivalent area of 16 full regular hexagonal 
         // cells. 
@@ -538,37 +539,15 @@ public:
         // Unfortunately, the GetArea method has its own ideas as to areas
         // (see comments on #555). Therefore we have a different spheroid
         // radius for the time being.
-        
-        double correct_spheroid_radius = 1.7013; // sqrt((16*sqrt(3)/2)/M_PI);
-        double correct_necrotic_radius = sqrt((3*sqrt(3)/2)/M_PI);
-        
-        TS_ASSERT_DELTA(radii[0], correct_spheroid_radius, 1e-4);
-        TS_ASSERT_DELTA(radii[1], correct_necrotic_radius, 1e-4);          
-           
+                       
+        //Work out where the previous test wrote its files
+        OutputFileHandler handler("TestSpheroidStatistics",false);
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/Areas.dat";
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestSpheroidStatistics/Areas.dat").c_str()), 0);
+          
         // Tidy up
         delete p_killer;
         CellwiseData<2>::Destroy();
-    }
-    
-    /*
-     * This test compares the visualizer output from the previous test 
-     * with a known file.
-     * 
-     * Note: if the previous test is changed we need to update the file 
-     * this test refers to. 
-     */
-    void TestWriteSpheroidStatistics() throw (Exception)
-    {
-        if (!PetscTools::IsSequential())
-        {
-            TS_TRACE("This test does not pass in parallel yet.");
-            return;
-        }
-
-        // Work out where the previous test wrote its files
-        OutputFileHandler handler("TestSpheroidStatistics",false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizstatistics";         
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestSpheroidStatistics/results.vizstatistics").c_str()), 0);     
     }
     
     

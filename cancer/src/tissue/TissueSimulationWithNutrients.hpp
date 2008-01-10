@@ -26,28 +26,15 @@ private :
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>      
         archive & boost::serialization::base_object<TissueSimulation<DIM> >(*this);
-        
-        archive & mWriteSpheroidStatistics;
     }
-    
-    bool mWriteSpheroidStatistics;
-    
+        
     Vec mOxygenSolution;
 
     AbstractLinearEllipticPde<DIM>* mpPde;  
     
     /** The file that the nutrient values are written out to. */ 
     out_stream mpNutrientResultsFile; 
-    
-    /** The file that the spheroid statistics are written out to. */ 
-    out_stream mpSpheroidStatisticsFile; 
-    
-    void SetWriteSpheroidStatistics()
-    {
-        mWriteSpheroidStatistics = true; 
-        this->mrTissue.CreateVoronoiTessellation();
-    }
-    
+        
     void SetupWriteNutrient() 
     { 
         OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false);
@@ -58,128 +45,47 @@ private :
     	}
     } 
     
-    void SetupWriteSpheroidStatistics() 
-    { 
-        OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false); 
-    	if (output_file_handler.IsMaster())
-    	{
-    	    mpSpheroidStatisticsFile = output_file_handler.OpenOutputFile("results.vizstatistics");
-    	}
-    } 
-    
-    
     void WriteNutrient()
-    {
-	if (PetscTools::AmMaster())
-	{
-	    SimulationTime *p_simulation_time = SimulationTime::Instance();
-	    double time = p_simulation_time->GetDimensionalisedTime();
-        
-	    (*mpNutrientResultsFile) <<  time << "\t";
-        
-	    double global_index; /// \todo why is this a double?
-	    double x;
-	    double y;
-	    double nutrient;
-
-	    for (typename Tissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
-		     cell_iter != this->mrTissue.End();
-		     ++cell_iter)
-	    {
-    		// \todo: we don't need this anymore since there are no ghost nodes,
-    		// but we'd need to change the visualizer before we take this out
-    		global_index = (double) cell_iter.GetNode()->GetIndex();
-    		x = cell_iter.rGetLocation()[0];
-    		y = cell_iter.rGetLocation()[1];
-                
-    		nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
-                
-    		(*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
-	    }
-        
-	    (*mpNutrientResultsFile) << "\n";
-	}
-    }
-    
-    
-    void WriteSpheroidStatistics()
     {
     	if (PetscTools::AmMaster())
     	{
     	    SimulationTime *p_simulation_time = SimulationTime::Instance();
     	    double time = p_simulation_time->GetDimensionalisedTime();
-    	    
-    	    (*mpSpheroidStatisticsFile) <<  time << "\t";
-    	    
-    	    c_vector<double,2> stats = GetSpheroidStatistics();
-    	    double spheroid_radius = stats[0];
-    	    double necrotic_radius = stats[1];
-    	    
-    	    (*mpSpheroidStatisticsFile) << time << " " << spheroid_radius << " " << necrotic_radius << "\n";                
+            
+    	    (*mpNutrientResultsFile) <<  time << "\t";
+            
+    	    double global_index; /// \todo why is this a double?
+    	    double x;
+    	    double y;
+    	    double nutrient;
+    
+    	    for (typename Tissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+    		     cell_iter != this->mrTissue.End();
+    		     ++cell_iter)
+    	    {
+        		// \todo: we don't need this anymore since there are no ghost nodes,
+        		// but we'd need to change the visualizer before we take this out
+        		global_index = (double) cell_iter.GetNode()->GetIndex();
+        		x = cell_iter.rGetLocation()[0];
+        		y = cell_iter.rGetLocation()[1];
+                    
+        		nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
+                    
+        		(*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
+    	    }
+            
+    	    (*mpNutrientResultsFile) << "\n";
     	}
     }
-    
-    
-    /**     
-     * Calculates the volume of the spheroid and of the necrotic core.
-     * 
-     * Note that this only works for DIM=2 as this is asserted in the 
-     * method VoronoiTessellation<DIM>::GetFaceArea().  
-     * 
-     * @return a c_vector<double,2> whose first entry is the spheroid 
-     *         radius and whose second entry is the necrotic radius     
-     */ 
-    c_vector<double,2> GetSpheroidStatistics()
-    {
-        #define COVERAGE_IGNORE
-        assert(DIM==2);
-        #undef COVERAGE_IGNORE
-        // First get references to the Voronoi tessellation and mesh
-        VoronoiTessellation<DIM>& r_tessellation = this->mrTissue.rGetVoronoiTessellation();
-        ConformingTetrahedralMesh<DIM,DIM>& r_mesh = this->mrTissue.rGetMesh();
-                
-        double spheroid_area = 0.0;
-        double necrotic_area = 0.0;
         
-        // Iterate over nodes (ghost nodes are not used in this class)        
-        for (unsigned i=0; i<r_mesh.GetNumAllNodes(); i++)
-        { 
-            // Don't use contributions from boundary nodes
-            if (r_mesh.GetNode(i)->IsBoundaryNode()==false)
-            {
-                double cell_area = r_tessellation.GetFace(i)->GetArea();
-                spheroid_area += cell_area;
-                
-                if (this->mrTissue.rGetCellAtNodeIndex(i).GetCellType()==NECROTIC)
-                {
-                    necrotic_area += cell_area;                
-                }
-            }            
-        }     
-        
-        c_vector<double,2> radii;        
-        radii[0] = sqrt(spheroid_area/M_PI);
-        radii[1] = sqrt(necrotic_area/M_PI);        
-        
-        return radii;
-    }
-    
-    
     void SetupSolve()
     {
         if ( this->mrTissue.Begin() != this->mrTissue.End() )  // there are any cells
         {
             SetupWriteNutrient();
-            WriteNutrient();
-            
-            if (mWriteSpheroidStatistics)
-            {
-                SetupWriteSpheroidStatistics();
-                WriteSpheroidStatistics();
-            }
+            WriteNutrient();            
         }
     }
-
         
     void PostSolve()
     {
@@ -287,11 +193,6 @@ private :
         
         // Save results to file
         WriteNutrient();
-        
-        if (mWriteSpheroidStatistics)
-        {
-            WriteSpheroidStatistics();
-        }
     }
     
     
@@ -301,11 +202,6 @@ private :
 	    && PetscTools::AmMaster())
         {
             mpNutrientResultsFile->close();
-            
-            if (mWriteSpheroidStatistics)
-            {
-                mpSpheroidStatisticsFile->close();
-            }
         }
     }
     
@@ -325,7 +221,6 @@ public:
                                   bool deleteTissue=false,
                                   bool initialiseCells=true) 
         : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissue, initialiseCells), 
-          mWriteSpheroidStatistics(false),
           mOxygenSolution(NULL),
           mpPde(pPde)
     {

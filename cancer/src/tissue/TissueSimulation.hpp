@@ -128,6 +128,9 @@ protected:
     /** Whether to print out cell area and perimeter info */
     bool mWriteVoronoiData;
     
+    /** Whether to print out tissue areas */
+    bool mWriteTissueAreas;
+    
     /** Whether to follow only the logged cell if writing voronoi data */
     bool mFollowLoggedCell;
 
@@ -156,8 +159,9 @@ protected:
         archive & mNumDeaths;
         archive & mCellKillers;
         archive & mOutputCellTypes;
-        archive & mWriteVoronoiData;
+        archive & mWriteVoronoiData;        
         archive & mFollowLoggedCell;
+        archive & mWriteTissueAreas;
     }
     
     /**
@@ -258,6 +262,8 @@ public:
     void SetReMeshRule(bool remesh); 
 
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
+    void SetWriteTissueAreas(bool writeTissueAreas);
+    
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);    
     c_vector<unsigned,5> GetCellTypeCount();

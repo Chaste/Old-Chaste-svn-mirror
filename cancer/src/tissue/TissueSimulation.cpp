@@ -60,6 +60,7 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue,
     mNumDeaths = 0;
 
     mWriteVoronoiData = false;
+    mWriteTissueAreas = false;
     mFollowLoggedCell = false;
         
     mrTissue.SetMaxCells(mMaxCells);
@@ -359,6 +360,13 @@ void TissueSimulation<DIM>::SetWriteVoronoiData(bool writeVoronoiData, bool foll
     mFollowLoggedCell = followLoggedCell;
 }
 
+template<unsigned DIM> 
+void TissueSimulation<DIM>::SetWriteTissueAreas(bool writeTissueAreas)
+{
+    assert(DIM == 2);
+    mWriteTissueAreas = writeTissueAreas;
+}
+
 
 /**
  * Add a cell killer to be used in this simulation
@@ -493,6 +501,14 @@ void TissueSimulation<DIM>::Solve()
                                                                 "results.visvoronoi",
                                                                 mFollowLoggedCell);
     }
+    
+    if(mWriteTissueAreas)
+    {
+        p_voronoi_data_writer = new CryptVoronoiDataWriter<DIM>(mrTissue,
+                                                                mSimulationOutputDirectory,
+                                                                "Areas.dat",
+                                                                false);
+    }
 
     CancerEventHandler::EndEvent(SETUP);
                                
@@ -535,7 +551,7 @@ void TissueSimulation<DIM>::Solve()
 
 
         CancerEventHandler::BeginEvent(TESSELLATION);
-        if(mWriteVoronoiData || mpMechanicsSystem->NeedsVoronoiTessellation())
+        if(mWriteVoronoiData || mpMechanicsSystem->NeedsVoronoiTessellation() || mWriteTissueAreas)
         {
             mrTissue.CreateVoronoiTessellation();
         }
@@ -567,6 +583,11 @@ void TissueSimulation<DIM>::Solve()
         if(mWriteVoronoiData)
         {
             p_voronoi_data_writer->WriteData();
+        }
+                                    
+        if(mWriteTissueAreas)
+        {
+            p_voronoi_data_writer->WriteTissueAreas();
         }
 
         tabulated_output_counter++;
