@@ -37,7 +37,7 @@ void TestIngeBetaCatVis() throw (Exception)
         p_params->SetMaxTransitGenerations(1000);
         
         
-        double end_of_simulation = 150.0; // hours
+        //double end_of_simulation = 150.0; // hours
         double time_of_each_run = 50.0; // for each run
         
         unsigned cells_across = 13;
@@ -94,21 +94,21 @@ void TestIngeBetaCatVis() throw (Exception)
                 
         simulator.Solve();
         simulator.Save();
-        double end_of_simulation = 350.0; // hours
-        double time_of_each_run = 50.0; // for each run
-        double start_time = 200.0;
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(50.0);
-        
-        
-        for (double t=time_of_each_run; t<end_of_simulation+0.5; t += time_of_each_run)
-        {
-            CryptSimulation2d* p_simulator = CryptSimulation2d::Load("IngeCellsNiceCryptSim_long",t);
-            p_simulator->SetEndTime(t+time_of_each_run);
-            p_simulator->Solve();
-            p_simulator->Save();
-            delete p_simulator;
-        }
+//        double end_of_simulation = 350.0; // hours
+//        double time_of_each_run = 50.0; // for each run
+//        double start_time = 200.0;
+//        SimulationTime* p_simulation_time = SimulationTime::Instance();
+//        p_simulation_time->SetStartTime(50.0);
+//        
+//        
+//        for (double t=time_of_each_run; t<end_of_simulation+0.5; t += time_of_each_run)
+//        {
+//            CryptSimulation2d* p_simulator = CryptSimulation2d::Load("IngeCellsNiceCryptSim_long",t);
+//            p_simulator->SetEndTime(t+time_of_each_run);
+//            p_simulator->Solve();
+//            p_simulator->Save();
+//            delete p_simulator;
+//        }
                 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
