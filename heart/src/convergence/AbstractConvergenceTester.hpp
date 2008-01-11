@@ -67,6 +67,7 @@ public:
     unsigned MeshNum;
     double KspRtol;
     double RelativeConvergenceCriterion;
+    double LastDifference;
     double AbsoluteStimulus;
     bool PopulatedResult;
     bool FixedResult;
@@ -81,6 +82,7 @@ public:
       MeshNum(5u),//Justification from 1D test
       KspRtol(5e-7),//Justification from overlayed 1D time/space convergence plots with varied KSP tolerances
       RelativeConvergenceCriterion(1e-4),
+      LastDifference(1),
       AbsoluteStimulus(-1e7),
       PopulatedResult(false),
       FixedResult(false),
@@ -285,7 +287,7 @@ public:
                     std::cout << Abscissa() << "\t" << sum_sq_abs_error/sum_sq_prev_voltage <<"\t#Gnuplot raw data\n";
                     // convergence criterion
                     this->Converged = sum_sq_abs_error/sum_sq_prev_voltage<this->RelativeConvergenceCriterion;
-                    
+                    this->LastDifference=sum_sq_abs_error/sum_sq_prev_voltage;
                 }
                 if (!this->PopulatedResult)
                 {
