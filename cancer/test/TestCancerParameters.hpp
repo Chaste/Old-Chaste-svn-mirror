@@ -37,6 +37,8 @@ private:
         TS_ASSERT_DELTA(inst->GetCriticalHypoxicDuration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetCryptProjectionParameterA(), 0.5, 1e-12);
         TS_ASSERT_DELTA(inst->GetCryptProjectionParameterB(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetNecroticSpringTensionStiffness(), 0.25*15.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetNecroticSpringCompressionStiffness(), 0.75*15.0, 1e-12);
     }
 
 public:
@@ -99,6 +101,8 @@ public:
         inst1->SetCriticalHypoxicDuration(1.0);
         inst1->SetCryptProjectionParameterA(0.8);
         inst1->SetCryptProjectionParameterB(1.3);
+        inst1->SetNecroticSpringTensionStiffness(1.3);
+        inst1->SetNecroticSpringCompressionStiffness(1.2);
         
         CancerParameters *inst2 = CancerParameters::Instance();
         
@@ -122,6 +126,8 @@ public:
         TS_ASSERT_DELTA(inst2->GetCriticalHypoxicDuration(), 1.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetCryptProjectionParameterA(), 0.8, 1e-12);
         TS_ASSERT_DELTA(inst2->GetCryptProjectionParameterB(), 1.3, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetNecroticSpringTensionStiffness(), 1.3, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetNecroticSpringCompressionStiffness(), 1.2, 1e-12);
     }
     
     void TestArchiveCancerParameters()
@@ -153,7 +159,9 @@ public:
             inst1->SetCriticalHypoxicDuration(1.0);
             inst1->SetCryptProjectionParameterA(0.8);
             inst1->SetCryptProjectionParameterB(1.3);
-            
+            inst1->SetNecroticSpringTensionStiffness(1.3);
+            inst1->SetNecroticSpringCompressionStiffness(1.2);
+        
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             // save messed up parameters
@@ -184,7 +192,9 @@ public:
             inst1->SetCriticalHypoxicDuration(2.0);
             inst1->SetCryptProjectionParameterA(0.5);
             inst1->SetCryptProjectionParameterB(2.0);
-            
+            inst1->SetNecroticSpringTensionStiffness(0.0);
+            inst1->SetNecroticSpringCompressionStiffness(0.0);
+        
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
@@ -212,6 +222,8 @@ public:
             TS_ASSERT_DELTA(inst1->GetCriticalHypoxicDuration(), 1.0, 1e-12);            
             TS_ASSERT_DELTA(inst1->GetCryptProjectionParameterA(), 0.8, 1e-12);
             TS_ASSERT_DELTA(inst1->GetCryptProjectionParameterB(), 1.3, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetNecroticSpringTensionStiffness(), 1.3, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetNecroticSpringCompressionStiffness(), 1.2, 1e-12);
         }
     }
     
