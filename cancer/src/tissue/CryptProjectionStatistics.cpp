@@ -35,15 +35,8 @@ bool CryptProjectionStatistics::CellIsInSection(double angle, const c_vector<dou
  * @param angle  The angle between the crypt section and the x axis in the projection 
  * 
  */ 
-std::vector<TissueCell*> CryptProjectionStatistics::GetCryptSection(double angle,
-                                                                    double unused1,
-                                                                    double unused2,
-                                                                    bool unused3)
-{   // These are to match the base classes arguments!
-    assert(unused1 == 0.0);
-    assert(unused2 == 0.0);
-    assert(unused3 == false);
-    
+std::vector<TissueCell*> CryptProjectionStatistics::GetCryptSection(double angle)
+{   
     if (angle == DBL_MAX)
     {
         angle = M_PI - 2*M_PI*RandomNumberGenerator::Instance()->ranf();

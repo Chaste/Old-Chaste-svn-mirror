@@ -283,7 +283,8 @@ public:
         simulator.SetEndTime(3*time_of_each_run);
         simulator.Solve();
         
-        std::vector<bool> labelled = crypt_statistics.GetWhetherCryptSectionCellsAreLabelled(8.0,8.0);
+        std::vector<TissueCell*> crypt_section = crypt_statistics.GetCryptSection(8.0,8.0);
+        std::vector<bool> labelled = crypt_statistics.GetWhetherCryptSectionCellsAreLabelled(crypt_section);
         
         // Test that the vector of booleans corresponds with a visualisation of the data - 
         // only the third cell had been labelled
@@ -401,8 +402,10 @@ public:
             
             simulator.SetEndTime(2.0*time_of_each_run);
             simulator.Solve();
-            labelled = p_crypt_statistics->GetWhetherCryptSectionCellsAreLabelled(8.0,8.0);
-        
+            
+            std::vector<TissueCell*> crypt_section = p_crypt_statistics->GetCryptSection(8.0,8.0);
+            labelled = p_crypt_statistics->GetWhetherCryptSectionCellsAreLabelled(crypt_section);
+            
             // Store information from this simulation in a global vector.
             for (unsigned cell_index=0 ; cell_index < labelled.size();cell_index++)
             {

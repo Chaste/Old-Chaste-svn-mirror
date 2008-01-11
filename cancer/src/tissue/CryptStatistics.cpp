@@ -154,53 +154,7 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSectionPeriodic(double xBottom
 {
    return GetCryptSection(xBottom,xTop,yTop,true);
 }   
+    
 
-    
-void CryptStatistics::LabelSPhaseCells()
-{
-    for (Tissue<2>::Iterator cell_iter = mrCrypt.Begin();
-         cell_iter != mrCrypt.End();
-         ++cell_iter)
-    {
-        if ((*cell_iter).GetCellCycleModel()->GetCurrentCellCyclePhase()== S_PHASE)
-        {
-            assert((*cell_iter).GetMutationState() == HEALTHY);
-            (*cell_iter).SetMutationState(LABELLED);
-        }
-    } 
- 
-}
-    
-void CryptStatistics::LabelAllCellsAsHealthy()
-{
-    for (Tissue<2>::Iterator cell_iter = mrCrypt.Begin();
-         cell_iter != mrCrypt.End();
-         ++cell_iter)
-    {
-        (*cell_iter).SetMutationState(HEALTHY);
-    }    
-} 
 
-std::vector<bool> CryptStatistics::GetWhetherCryptSectionCellsAreLabelled(double xBottom, 
-                                                         double xTop, 
-                                                         double yTop,
-                                                         bool periodic)
-{
-    std::vector<TissueCell*> crypt_section = GetCryptSection(xBottom,xTop,yTop,periodic);
-    std::vector<bool> crypt_section_labelled(crypt_section.size()) ;
-    
-    for (unsigned vector_index=0; vector_index<crypt_section.size(); vector_index++)
-    {
-        if (crypt_section[vector_index]->GetMutationState() == LABELLED)
-        {
-            crypt_section_labelled[vector_index]=true;
-        }
-        else
-        {   
-            crypt_section_labelled[vector_index]=false;
-        }
-    }
-    
-    return crypt_section_labelled;
-}
 

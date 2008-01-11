@@ -112,15 +112,29 @@ public:
         crypt_projection_simulator.SetMaxElements(2000);
         TS_ASSERT_THROWS_NOTHING(crypt_projection_simulator.Solve());
 
-        std::vector< TissueCell* > test_section2 = statistics.GetCryptSection();
+        statistics.LabelSPhaseCells();
         
-        for(unsigned i=0; i<test_section2.size(); i++)
+        std::vector< TissueCell* > test_section2 = statistics.GetCryptSection();
+        std::vector<bool> labelled_cells = statistics.GetWhetherCryptSectionCellsAreLabelled(test_section2);
+        
+        TS_ASSERT_EQUALS(test_section2.size(), labelled_cells.size());
+        
+        // Only two of these cells are actually labelled - at node 376 and node 399.
+        for (unsigned i=0 ; i<test_section2.size() ; i++)
         {
-            test_section2[i]->SetMutationState(LABELLED);
+            unsigned node_index = test_section2[i]->GetNodeIndex();
+            if (node_index == 376u || node_index == 399u)
+            {
+                TS_ASSERT_EQUALS(labelled_cells[i], true);  
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(labelled_cells[i], false);  
+            }
         }
         
         crypt_projection_simulator.SetEndTime(0.3);
-        TS_ASSERT_THROWS_NOTHING(crypt_projection_simulator.Solve());
+        crypt_projection_simulator.Solve();
         
         // Tidy up
         WntGradient::Destroy();
