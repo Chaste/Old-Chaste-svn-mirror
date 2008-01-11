@@ -18,7 +18,7 @@
 #include "CancerParameters.hpp"
 #include "ColumnDataReader.hpp"
 
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestCryptSimulation1d : public AbstractCancerTestSuite

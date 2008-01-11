@@ -11,7 +11,7 @@
 #include "Tissue.cpp"
 #include "CellwiseData.cpp"
 #include "CellsGenerator.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestCellwiseData : public AbstractCancerTestSuite

@@ -19,7 +19,7 @@
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "Meineke2001SpringSystem.hpp" 
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class SimplePdeForTesting : public AbstractLinearEllipticPde<2>

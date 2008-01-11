@@ -25,7 +25,7 @@
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "CellsGenerator.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 // Simple cell killer which just kills a single cell.
 // The constructor takes in a number, and the killer

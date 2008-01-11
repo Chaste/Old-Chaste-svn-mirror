@@ -6,7 +6,7 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include "SimulationTime.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestCellsGenerator : public AbstractCancerTestSuite

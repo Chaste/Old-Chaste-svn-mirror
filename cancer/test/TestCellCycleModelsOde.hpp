@@ -18,7 +18,7 @@
 #include "Alarcon2004OxygenBasedCellCycleModel.hpp"
 #include "WntGradient.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestOdeCellCycleModels : public AbstractCancerTestSuite

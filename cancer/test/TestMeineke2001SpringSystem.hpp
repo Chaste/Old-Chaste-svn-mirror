@@ -18,7 +18,7 @@
 #include "WntGradient.hpp"
 #include "VoronoiTessellation.cpp"
 #include "CellsGenerator.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestMeineke2001SpringSystem : public AbstractCancerTestSuite

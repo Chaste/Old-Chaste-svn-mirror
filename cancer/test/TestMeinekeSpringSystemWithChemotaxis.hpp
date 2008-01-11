@@ -10,7 +10,7 @@
 #include "TrianglesMeshReader.cpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestMeinekeSpringSystemWithChemotaxis : public AbstractCancerTestSuite

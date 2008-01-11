@@ -12,7 +12,7 @@
 #include "CellwiseData.cpp"
 #include "CellwiseDataGradient.hpp"
 #include "CellsGenerator.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestCellwiseDataGradient : public AbstractCancerTestSuite

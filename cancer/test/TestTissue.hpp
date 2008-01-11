@@ -17,7 +17,7 @@
 #include "SimulationTime.hpp"
 #include "Tissue.cpp"
 #include "CellsGenerator.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestTissue : public AbstractCancerTestSuite

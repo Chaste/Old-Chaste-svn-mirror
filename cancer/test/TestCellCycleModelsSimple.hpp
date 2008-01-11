@@ -17,7 +17,7 @@
 #include "CancerParameters.hpp"
 #include "WntGradient.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestCellCycleModelsSimple : public AbstractCancerTestSuite

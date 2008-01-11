@@ -17,7 +17,7 @@
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 #include <iostream>
 
 class TestTissueCellNightly: public AbstractCancerTestSuite

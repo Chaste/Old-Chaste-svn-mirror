@@ -1,5 +1,5 @@
-#ifndef COMMONCANCERTESTSETUP_HPP_
-#define COMMONCANCERTESTSETUP_HPP_
+#ifndef ABSTRACTCANCERTESTSUITE_HPP_
+#define ABSTRACTCANCERTESTSUITE_HPP_
 
 /**
  * This class provides setUp and tearDown methods that are common to
@@ -26,4 +26,4 @@ protected:
 };
 
 
-#endif /*COMMONCANCERTESTSETUP_HPP_*/
+#endif /*ABSTRACTCANCERTESTSUITE_HPP_*/

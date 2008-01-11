@@ -25,7 +25,7 @@
 #include "WntGradient.hpp"
 #include "VoronoiTessellation.cpp"
 #include "CellsGenerator.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestCryptSimulation2d : public AbstractCancerTestSuite

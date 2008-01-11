@@ -13,7 +13,7 @@
 #include "HoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
 #include "OutputFileHandler.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestDiscreteSystemForceCalculator : public AbstractCancerTestSuite

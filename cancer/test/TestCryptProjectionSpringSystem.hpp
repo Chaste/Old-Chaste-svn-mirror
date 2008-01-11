@@ -10,7 +10,7 @@
 #include "Meineke2001SpringSystem.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 /**
  * Note that all these tests call setUp() and tearDown() before running,

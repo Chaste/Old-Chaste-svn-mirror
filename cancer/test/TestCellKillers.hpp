@@ -26,7 +26,7 @@
 #include "RadialSloughingCellKiller.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "CellsGenerator.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestCellKillers : public AbstractCancerTestSuite

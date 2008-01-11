@@ -18,7 +18,7 @@
 #include "RadialSloughingCellKiller.hpp"
 #include "CellsGenerator.hpp"
 #include "SimpleDataWriter.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestCryptProjectionStatistics : public AbstractCancerTestSuite

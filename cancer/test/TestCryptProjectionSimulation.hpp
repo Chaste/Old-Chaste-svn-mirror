@@ -16,7 +16,7 @@
 #include "SimpleWntCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CryptProjectionSpringSystem.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
     
 class TestCryptProjectionSimulation : public AbstractCancerTestSuite
 {

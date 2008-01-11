@@ -17,7 +17,7 @@
 #include "FixedCellCycleModel.hpp"
 #include "ColumnDataReader.hpp"
 #include "SimulationTime.hpp"
-#include "CommonCancerTestSetup.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 class TestTissueSimulation3d : public AbstractCancerTestSuite
