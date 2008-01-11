@@ -68,42 +68,7 @@ public:
 
             double force_magnitude = ChemotacticForceMagnitude(nutrient_concentration, magnitude_of_gradient);
         
-            // get the damping constant 
-            // TODO: this is copied from Meineke2001SpringSystem - needs refactoring!
-            double damping_multiplier = 1.0;
-            
-            if (this->mUseAreaBasedViscosity)
-            {
-                // use new_damping_const = old_damping_const * (d0+d1*A)
-                // where d0,d1 are params and A is the area, and old_damping_const
-                // if the damping const if not using mUseAreaBasedViscosity
-                
-                #define COVERAGE_IGNORE
-                assert(DIM==2);
-                #undef COVERAGE_IGNORE
-                double rest_length = 1.0;
-                double d0 = 0.1;
-                // this number is such that d0+A*d1=1, where A is the area of a equilibrium
-                // cell (=sqrt(3)/4 = a third of the area of a hexagon with edges of size 1)
-                double d1 = 2.0*(1.0-d0)/(sqrt(3)*rest_length*rest_length); 
-    
-                VoronoiTessellation<DIM>& tess = this->mrTissue.rGetVoronoiTessellation();
-            
-                double area_cell = tess.GetFaceArea(node_global_index);
-                
-                // the areas should be order 1, this is just to avoid getting infinite areas
-                // if an area based viscosity option is chosen without ghost nodes.
-                assert(area_cell < 1000);
-                
-                damping_multiplier = d0 + area_cell*d1;
-            }
-            
-            double damping_constant = CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplier;
-            
-            if( (cell.GetMutationState()!=HEALTHY) && (cell.GetMutationState()!=APC_ONE_HIT))
-            {            
-                damping_constant = CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplier;            
-            } 
+            double damping_constant = this->GetDampingConstant(cell); 
             
             // velocity += viscosity * chi * gradC/|gradC|
             if(magnitude_of_gradient > 0)

@@ -88,6 +88,52 @@ protected :
     /** Use springs which are dependent on whether cells are necrotic */
     bool mUseNecroticSprings;
 
+    /** 
+     *  Get the damping constant for this cell - ie d in drdt = F/d
+     *  This depends on whether using area-based viscosity has been switched on, and 
+     *  on whether the cell is a mutant or not
+     */
+    double GetDampingConstant(TissueCell& rCell)
+    { 
+        double damping_multiplier = 1.0;
+        
+        if (this->mUseAreaBasedViscosity)
+        {
+            //  use new_damping_const = old_damping_const * (d0+d1*A)
+            //  where d0,d1 are params and A is the area, and old_damping_const
+            //  if the damping const if not using mUseAreaBasedViscosity
+            #define COVERAGE_IGNORE
+            assert(DIM==2);
+            #undef COVERAGE_IGNORE
+            double rest_length = 1.0;
+            double d0 = 0.1;
+
+            // this number is such that d0+A*d1=1, where A is the area of a equilibrium
+            // cell (=sqrt(3)/4 = a third of the area of a hexagon with edges of size 1)
+            double d1 = 2.0*(1.0-d0)/(sqrt(3)*rest_length*rest_length); 
+
+            VoronoiTessellation<DIM>& tess = this->mrTissue.rGetVoronoiTessellation();
+        
+            double area_cell = tess.GetFaceArea(rCell.GetNodeIndex());
+            
+            // the areas should be order 1, this is just to avoid getting infinite areas
+            // if an area based viscosity option is chosen without ghost nodes.
+            assert(area_cell < 1000);
+            
+            damping_multiplier = d0 + area_cell*d1;
+        }
+        
+        
+        if( (rCell.GetMutationState()!=HEALTHY) && (rCell.GetMutationState()!=APC_ONE_HIT))
+        {            
+            return CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplier;            
+        }
+        else 
+        {
+            return CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplier;
+        }
+    } 
+    
 
 public :
     Meineke2001SpringSystem(Tissue<DIM>& rTissue)
@@ -320,54 +366,9 @@ public :
     
             c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
              
-            double damping_multiplierA = 1.0;
-            double damping_multiplierB = 1.0;
+            double damping_constantA = GetDampingConstant(spring_iterator.rGetCellA());
+            double damping_constantB = GetDampingConstant(spring_iterator.rGetCellB());
             
-            if (mUseAreaBasedViscosity)
-            {
-                // Use new_damping_const = old_damping_const * (d0+d1*A)
-                // where d0,d1 are params and A is the area, and old_damping_const
-                // if the damping const if not using mUseAreaBasedViscosity
-                
-                #define COVERAGE_IGNORE
-                assert(DIM==2);
-                #undef COVERAGE_IGNORE
-                double rest_length = 1.0;
-                double d0 = 0.1;
-                // This number is such that d0+A*d1=1, where A is the area of a equilibrium
-                // cell (=sqrt(3)/4 = a third of the area of a hexagon with edges of size 1)
-                double d1 = 2.0*(1.0-d0)/(sqrt(3)*rest_length*rest_length); 
-    
-                VoronoiTessellation<DIM>& tess = this->mrTissue.rGetVoronoiTessellation();
-            
-                double area_cell_A = tess.GetFaceArea(nodeA_global_index);
-                double area_cell_B = tess.GetFaceArea(nodeB_global_index);
-                
-                // The areas should be order 1, this is just to avoid getting infinite areas
-                // if an area based viscosity option is chosen without ghost nodes.
-                assert(area_cell_A < 1000);
-                assert(area_cell_B < 1000);
-                
-                damping_multiplierA = d0 + area_cell_A*d1;
-                damping_multiplierB = d0 + area_cell_B*d1;
-            }
-            
-            double damping_constantA = CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplierA;
-            double damping_constantB = CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplierB;
-            
-            if(   (spring_iterator.rGetCellA().GetMutationState()!=HEALTHY)
-               && (spring_iterator.rGetCellA().GetMutationState()!=APC_ONE_HIT))
-            {            
-                damping_constantA = CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplierA;            
-            }
-    
-            if(   (spring_iterator.rGetCellB().GetMutationState()!=HEALTHY)
-               && (spring_iterator.rGetCellB().GetMutationState()!=APC_ONE_HIT))
-            {
-                damping_constantB = CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplierB;
-            }       
-           
-            // These cannot be ghost nodes anymore - they both apply forces on each other
             mDrDt[nodeB_global_index] -= force / damping_constantB;
             mDrDt[nodeA_global_index] += force / damping_constantA;
         }
