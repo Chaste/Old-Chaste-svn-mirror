@@ -136,7 +136,7 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
     
     double steady_Cc = steady_Cf - steady_Co;
     
-    if ((steady_Cc < 0) && (steady_Cc+1e-10 > 0) ) // A Miramsesque bodge to solve the problem of protein values going -ve
+    if ((steady_Cc < 0) && (steady_Cc+DBL_MAX > 0) ) // Stop protein values going -ve
     {
         steady_Cc = 0.0;
     }
@@ -334,11 +334,6 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     double Cu = rY[7];
     double Co = rY[8];
     double Cc = rY[9];
-//if (rY[9]<0)
-//{
-//    std::cout << "rY[9] = " << rY[9] << "\n" << std::flush;
-//    std::cout << "time is " << time << "\n";
-//}    
     double Mo = rY[10];
     double Mc = rY[11];
     double A = rY[12];
@@ -395,9 +390,8 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
             // this can't happen if all mutation states are catered for.
             NEVER_REACHED;
     }
-
     
-    // Now the cell cycle stuff...////////////////////////////////
+    // Now the cell cycle stuff...
     
     // dr
     dx1 = e/(mKm1d+e)*mJ11d/(mJ11d+r)*mJ61d/(mJ61d+p) - mk16d*r*j+mk61d*p-mphi_r*r;
@@ -418,29 +412,25 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     rDY[2] = dx3*factor;
     rDY[3] = dx4*factor;
     rDY[4] = dx5*factor;
-    // Inge's ODEs ////////////////////////////////////////////////////////
+    
+    // Inge's ODEs 
     rDY[5] = (1.0-sigma_D)*mSd*X - (d_d_hat + d_d_x_hat)*D;
     rDY[6] = mSx - (1.0-sigma_D)*mSd*X - d_x_hat*X + d_d_x_hat*D;
     rDY[7] = (mPu*D*Cf)/(Cf+mKd) - mDu*Cu;
 
     rDY[8] = (1.0-sigma_B)*mSc + mDca*Ca + mDct*Cot - (mSca*A + mSct*T + mDc)*Co
              - (p_c_hat*Co)/(Co + Mo + mKc) - (mPu*D*Co)/(Cf+mKd);
-    
 
     rDY[9] = (p_c_hat*Co)/(Co + Mo + mKc) + mDct*Cct - (mSct*T + mDc)*Cc
              - (mPu*D*Cc)/(Cf+mKd);
-//if (rDY[9]!=0)
-//{
-//    std::cout << "rDY[9] = " << rDY[9] << "\n" << std::flush;
-//}
+             
     rDY[10] = sigma_B*mSc + mDca*Ma + mDct*Mot - (mSca*A + mSct*T + mDc)*Mo
              - (p_c_hat*Mo)/(Co + Mo + mKc);
+             
     rDY[11] = (p_c_hat*Mo)/(Co + Mo + mKc) + mDct*Mct - (mSct*T + mDc)*Mc;    
     rDY[12] = mSa + mDca*(Ca+Ma) - (mSca*(Co+Mo) + mDa)*A;
     rDY[13] = mSca*Co*A - mDca*Ca; 
-
     rDY[14] = mSca*Mo*A - mDca*Ma; 
-
     rDY[15] = mSt + mDct*(Ct+Mt) - mSct*(Cf+Mf)*T - mDt*T;
     rDY[16] = mSct*Co*T - mDct*Cot; 
     rDY[17] = mSct*Cc*T - mDct*Cct; 
@@ -449,4 +439,3 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     rDY[20] = (mSy*(Ct+Mt))/(Ct + Mt + mKt) - mDy*Y;
     rDY[21] = 0.0;  // don't interfere with Wnt stimulus.
 }
-
