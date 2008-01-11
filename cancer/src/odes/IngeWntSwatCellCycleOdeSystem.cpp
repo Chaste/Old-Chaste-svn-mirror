@@ -136,6 +136,11 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
     
     double steady_Cc = steady_Cf - steady_Co;
     
+    if ((steady_Cc < 0) && (steady_Cc+1e-10 > 0) ) // A Miramsesque bodge to solve the problem of protein values going -ve
+    {
+        steady_Cc = 0.0;
+    }
+    
     mVariableNames.push_back("Cc"); //  Closed form beta-catenin
     mVariableUnits.push_back("nM");
     mInitialConditions.push_back(steady_Cc);
@@ -242,7 +247,7 @@ void IngeWntSwatCellCycleOdeSystem::Init()
     //Gary's magic mitogenic factor to make Inge's model influence cell cycle just the same
     double mitogenic_factorF = 1.0/25.0;
     
-//  Non-dimensionalise...
+    // Non-dimensionalise...
     mk2d = k2/(Km2*phi_E2F1);
     mk3d = k3*mitogenic_factorF/(Km4*phi_E2F1);
     mk34d = k34/phi_E2F1;
@@ -323,12 +328,17 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     double dx5 = 0.0;
     
     // Bit back-to-front, but work out the Wnt section first...
-        // variables
+    // variables
     double D = rY[5];
     double X = rY[6];
     double Cu = rY[7];
     double Co = rY[8];
     double Cc = rY[9];
+//if (rY[9]<0)
+//{
+//    std::cout << "rY[9] = " << rY[9] << "\n" << std::flush;
+//    std::cout << "time is " << time << "\n";
+//}    
     double Mo = rY[10];
     double Mc = rY[11];
     double A = rY[12];
@@ -419,6 +429,10 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
 
     rDY[9] = (p_c_hat*Co)/(Co + Mo + mKc) + mDct*Cct - (mSct*T + mDc)*Cc
              - (mPu*D*Cc)/(Cf+mKd);
+//if (rDY[9]!=0)
+//{
+//    std::cout << "rDY[9] = " << rDY[9] << "\n" << std::flush;
+//}
     rDY[10] = sigma_B*mSc + mDca*Ma + mDct*Mot - (mSca*A + mSct*T + mDc)*Mo
              - (p_c_hat*Mo)/(Co + Mo + mKc);
     rDY[11] = (p_c_hat*Mo)/(Co + Mo + mKc) + mDct*Mct - (mSct*T + mDc)*Mc;    

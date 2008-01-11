@@ -26,21 +26,25 @@
 #include "AbstractCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 
-class TestRepresentativeSimulation : public CxxTest::TestSuite
+class TestIngeCellsSimulation : public CxxTest::TestSuite
 {
 public:
-void TestIngeBetaCatVis() throw (Exception)
+    // Test to check that none of the protein concentrations become -ve for different Wnt stimuli
+    // See ticket 629 and bodge in IngeWntSwatCellCycleModel.cpp in initial conditions
+    // Note this is fairly random on which Wnt stimuli make protein conc 9 and 17 go -ve.
+    // !!Don't change the crypt height on this test unless you know that the bodge is being used.!! 
+    
+    void TestIngeBetaCatVis() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
         // There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000);
-        
-        
+                
         //double end_of_simulation = 150.0; // hours
-        double time_of_each_run = 50.0; // for each run
+        double time_of_each_run = 0.01; // for each run
         
-        unsigned cells_across = 13;
+        unsigned cells_across = 4;
         unsigned cells_up = 25;
         double crypt_width = 12.1;
         unsigned thickness_of_ghost_layer = 3;
@@ -55,10 +59,15 @@ void TestIngeBetaCatVis() throw (Exception)
         // Set up cells
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_ONE, true);
-              
+        
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            cells[i].SetBirthTime(-1.1); // Just to make the test run a bit quicker.
+        }
+        
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
-                
+        
         WntGradient::Instance()->SetType(OFFSET_LINEAR);
         WntGradient::Instance()->SetTissue(crypt);
         
@@ -77,55 +86,13 @@ void TestIngeBetaCatVis() throw (Exception)
         AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetTissue(),0.01);
         simulator.AddCellKiller(p_cell_killer);
         
-        // UNUSUAL SET UP HERE /////////////////////////////////////
-        
-        p_params->SetDampingConstantNormal(1.0);    // normally 1
-
-        // Do not give mutant cells any different movement properties to normal ones
-        p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
-        
-        p_params->SetSpringStiffness(30.0); //normally 15.0;
-        // 0.3/30 = 0.01 (i.e. Meineke's values)
-        
-        simulator.UseJiggledBottomCells();
-        
-        // END OF UNUSUAL SET UP! //////////////////////////////////
-        
-                
-        simulator.Solve();
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         simulator.Save();
-//        double end_of_simulation = 350.0; // hours
-//        double time_of_each_run = 50.0; // for each run
-//        double start_time = 200.0;
-//        SimulationTime* p_simulation_time = SimulationTime::Instance();
-//        p_simulation_time->SetStartTime(50.0);
-//        
-//        
-//        for (double t=time_of_each_run; t<end_of_simulation+0.5; t += time_of_each_run)
-//        {
-//            CryptSimulation2d* p_simulator = CryptSimulation2d::Load("IngeCellsNiceCryptSim_long",t);
-//            p_simulator->SetEndTime(t+time_of_each_run);
-//            p_simulator->Solve();
-//            p_simulator->Save();
-//            delete p_simulator;
-//        }
                 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
         WntGradient::Destroy();
     }
-std::vector<unsigned> Label()
-{
-    std::vector<unsigned> label_these;
-//    label_these.push_back(442);
-//    label_these.push_back(290);
-//    label_these.push_back(417);
-//    label_these.push_back(260);
-    label_these.push_back(505);
-    label_these.push_back(206);
-    label_these.push_back(40);
-    return label_these;   
-}
 };
 
 
