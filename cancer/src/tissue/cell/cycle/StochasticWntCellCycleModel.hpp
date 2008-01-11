@@ -40,7 +40,7 @@ private:
     {
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         double mean = CancerParameters::Instance()->GetG2Duration();
-        double standard_deviation = 0.9;        
+        double standard_deviation = 0.9;
         mG2Duration = p_gen->NormalRandomDeviate(mean,standard_deviation);
     }
     

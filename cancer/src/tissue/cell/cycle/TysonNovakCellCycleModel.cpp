@@ -51,7 +51,7 @@ void TysonNovakCellCycleModel::ResetModel()
 
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateDaughterCellCycleModel()
 {
-    return new TysonNovakCellCycleModel(mpOdeSystem->rGetStateVariables(), mDivideTime, mGeneration);
+    return new TysonNovakCellCycleModel(mpOdeSystem->rGetStateVariables(), mBirthTime, mGeneration);
 }
 
 bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)

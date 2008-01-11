@@ -117,8 +117,11 @@ void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
 
 void AbstractOdeBasedCellCycleModel::ResetModel()
 {
+    assert(mFinishedRunningOdes);
     AbstractCellCycleModel::ResetModel();
     mBirthTime = mDivideTime;
     mLastTime = mDivideTime;
     mFinishedRunningOdes = false;
+    mG1Duration = DBL_MAX;
+    mDivideTime = DBL_MAX;
 }
