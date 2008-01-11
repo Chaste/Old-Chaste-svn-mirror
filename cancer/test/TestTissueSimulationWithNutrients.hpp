@@ -443,7 +443,8 @@ public:
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TissueSimulationWithOxygen",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznutrient";         
-        TS_ASSERT_EQUALS(system(("ndiff -relative-error 1e-4 " + results_file + " cancer/test/data/TissueSimulationWithOxygen_vis/results.viznutrient").c_str()), 0);     
+        //TS_ASSERT_EQUALS(system(("ndiff -relative-error 1e-4 " + results_file + " cancer/test/data/TissueSimulationWithOxygen_vis/results.viznutrient").c_str()), 0);     
+        TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/TissueSimulationWithOxygen_vis/results.viznutrient").c_str()), 0);     
     }
     
     /**
