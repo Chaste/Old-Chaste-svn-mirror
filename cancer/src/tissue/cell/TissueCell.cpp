@@ -26,7 +26,6 @@ TissueCell::TissueCell(CellType cellType,
     mDeathTime = DBL_MAX; // this has to be initialised for archiving...
     mNodeIndex = (unsigned)(-1); // initialise to a silly value for archiving (avoid memory check error)
     mIsLogged = false;    
-    mSymmetricDivision = false;
     mAncestor = UNSIGNED_UNSET; // Has to be set by a SetAncestor() call (usually from Tissue)
     
     mpCellCycleModel->SetCell(this);
@@ -44,7 +43,6 @@ void TissueCell::CommonCopy(const TissueCell &other_cell)
     mDeathTime = other_cell.mDeathTime;
     mNodeIndex = other_cell.mNodeIndex;
     mIsLogged = other_cell.mIsLogged;
-    mSymmetricDivision = other_cell.mSymmetricDivision;
     mAncestor = other_cell.mAncestor;
     
     // Copy cell cycle model
@@ -152,21 +150,11 @@ CellMutationState TissueCell::GetMutationState() const
 }
 
 
-void TissueCell::SetSymmetricDivision()
-{
-    mSymmetricDivision = true;
-}
-
-bool TissueCell::DividesSymmetrically()
-{ 
-	return mSymmetricDivision;
-}
-
-
 void TissueCell::SetLogged()
 {
     mIsLogged = true;
 }
+
 
 bool TissueCell::IsLogged()
 {
@@ -255,44 +243,25 @@ TissueCell TissueCell::Divide()
     
     // Copy this cell and give new one relevant attributes
     
-    if (mSymmetricDivision)
-    {
-        // Cell goes back to age zero, and cell type is possibly reset
-        mpCellCycleModel->ResetModel();
-        
-        TissueCell new_cell = TissueCell(
-            GetCellType(),
-            mMutationState,
-            mpCellCycleModel->CreateDaughterCellCycleModel());
-
-        new_cell.GetCellCycleModel()->InitialiseDaughterCell();
-        new_cell.GetCellCycleModel()->SetGeneration(1);
-        new_cell.SetSymmetricDivision();
-        new_cell.SetAncestor(GetAncestor());
-        
-        return new_cell;
-    }
-    else
-    {
-        mpCellCycleModel->SetGeneration(mpCellCycleModel->GetGeneration()+1);
-        
-        std::vector<CellType> new_cell_types = mpCellCycleModel->GetNewCellTypes();
-        mCellType = new_cell_types[0];
-        
-        // Cell goes back to age zero
-        mpCellCycleModel->ResetModel();
-        
-        TissueCell new_cell = TissueCell(
-            new_cell_types[1],
-            mMutationState,
-            mpCellCycleModel->CreateDaughterCellCycleModel());
-        
-        new_cell.GetCellCycleModel()->InitialiseDaughterCell();
-        
-        assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->GetGeneration());
-        mpCellCycleModel->SetMotherGeneration();
-        new_cell.SetAncestor(GetAncestor());
-        
-        return new_cell;
-    }
+    mpCellCycleModel->SetGeneration(mpCellCycleModel->GetGeneration()+1);
+    
+    std::vector<CellType> new_cell_types = mpCellCycleModel->GetNewCellTypes();
+    mCellType = new_cell_types[0];
+    
+    // Cell goes back to age zero
+    mpCellCycleModel->ResetModel();
+    
+    TissueCell new_cell = TissueCell(
+        new_cell_types[1],
+        mMutationState,
+        mpCellCycleModel->CreateDaughterCellCycleModel());
+    
+    new_cell.GetCellCycleModel()->InitialiseDaughterCell();
+    
+    assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->GetGeneration());
+    mpCellCycleModel->SetMotherGeneration();
+    new_cell.SetAncestor(GetAncestor());
+    
+    return new_cell;
+    
 }

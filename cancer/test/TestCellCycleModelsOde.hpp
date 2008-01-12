@@ -186,7 +186,7 @@ public:
         double wnt_level = 1.0;
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        // cover exception
+        // Cover exception
         TS_ASSERT_THROWS_ANYTHING(IngeWntSwatCellCycleModel model(0));
 
         IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1);
@@ -200,13 +200,15 @@ public:
         TS_ASSERT_EQUALS(stem_cell2.GetMutationState(), HEALTHY);
                            
         stem_cell.InitialiseCellCycleModel();
+        
         // Check the Inge model has changed the cell type correctly.
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
         WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
         for (int i=0; i<21*num_timesteps/30.0; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            // call ReadyToDivide on the cell, then test the results
+            
+            // Call ReadyToDivide on the cell, then test the results
             // of calling ReadyToDivide on the model and test (in 
             // CheckReadyToDivideAndPhaseIsUpdated).
             stem_cell.ReadyToDivide();
@@ -575,21 +577,20 @@ public:
     {        
         CancerParameters::Instance()->SetHepaOneParameters();
        
-        // set up SimulationTime         
+        // Set up SimulationTime         
         SimulationTime *p_simulation_time = SimulationTime::Instance();   
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20.0, 2);
         
-        // set up oxygen_concentration        
+        // Set up oxygen_concentration        
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);
         CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
-        // create model
+        // Create model
         Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
         
-        // create cell 
+        // Create cell 
         TissueCell cell(STEM, ALARCON_NORMAL, p_cell_model);
-        cell.SetSymmetricDivision();
         
         // Coverage of cell cycle model copying without an ODE system set up
         TissueCell stem_cell2 = cell;
@@ -597,15 +598,14 @@ public:
                                
         cell.InitialiseCellCycleModel();
         
-        // check oxygen concentration is correct in cell cycle model
+        // Check oxygen concentration is correct in cell cycle model
         TS_ASSERT_DELTA(p_cell_model->GetProteinConcentrations()[5], 1.0, 1e-5);
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);        
         
-        // divide a cell    
+        // Divide a cell    
         Alarcon2004OxygenBasedCellCycleModel *p_cell_model2 = static_cast <Alarcon2004OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
         
         TissueCell cell2(STEM, ALARCON_NORMAL, p_cell_model2);
-        cell.SetSymmetricDivision();
         
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),false)
@@ -663,7 +663,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_cell;
             
             AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
@@ -699,7 +699,7 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(),true);
 
-            // should be in G2 after a couple of timesteps
+            // Should be in G2 after a couple of timesteps
             TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), G_TWO_PHASE);
 
             stem_cell.GetCellCycleModel()->SetBirthTime(-1.0);
@@ -723,15 +723,15 @@ public:
             inst1->SetSDuration(101.0);
             
             TissueCell* p_cell;
+            
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_cell;
             
-            // Check
-            
+            // Check            
             AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
             TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());            
                  
@@ -790,15 +790,15 @@ public:
             inst1->SetSDuration(101.0);
             
             TissueCell* p_cell;
+            
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_cell;
             
-            // Check
-            
+            // Check            
             AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
             TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());            
                  
@@ -883,15 +883,14 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_stoc_cell;
             input_arch >> p_wnt_cell;
  
             TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->GetCurrentCellCyclePhase(), G_ONE_PHASE);
             
             // Check - stochastic should divide at 15.03
-            // Wnt should divide at 15.971
-                        
+            // Wnt should divide at 15.971                        
             while (p_simulation_time->GetDimensionalisedTime() < 15.0)
             {
                 p_simulation_time->IncrementTimeOneStep();   
@@ -944,7 +943,6 @@ public:
             Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
             
             TissueCell cell(STEM, ALARCON_NORMAL, p_cell_model);
-            cell.SetSymmetricDivision();
             cell.InitialiseCellCycleModel();  
             cell.GetCellCycleModel()->SetBirthTime(-10.0);
             
@@ -977,7 +975,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_cell;
             
             // Check            

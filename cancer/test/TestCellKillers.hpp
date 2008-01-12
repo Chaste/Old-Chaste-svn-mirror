@@ -37,7 +37,7 @@ public:
     {
         CancerParameters *p_params = CancerParameters::Instance();
         
-        // read in mesh
+        // Read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -52,13 +52,13 @@ public:
         // Get a reference to the cells held in tissue
         std::list<TissueCell>& r_cells = tissue.rGetCells();
         
-        // bad probabilities passed in
+        // Bad probabilities passed in
         TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&tissue, -0.1));
         TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&tissue,  1.1));
         
         RandomCellKiller<2> random_cell_killer(&tissue, 0.05);
        
-        // check that a single cell reaches apoptosis
+        //Check that a single cell reaches apoptosis
         unsigned max_tries=0;
         while (!r_cells.begin()->HasApoptosisBegun() && max_tries<99)
         {
@@ -69,7 +69,7 @@ public:
         TS_ASSERT_DIFFERS(max_tries, 0u);
         
         
-        // check that some of the vector of cells reach apotosis
+        // Check that some of the vector of cells reach apotosis
         random_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
         
         std::set< double > old_locations;
@@ -88,12 +88,12 @@ public:
         
         TS_ASSERT(apoptosis_cell_found);
         
-        // increment time to a time after death 
+        //Increment time to a time after death 
         double death_time = p_simulation_time->GetDimensionalisedTime() + p_params->GetApoptosisTime();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(death_time+1.0, 1);
         p_simulation_time->IncrementTimeOneStep();
         
-        // store 'locations' of cells which are not dead
+        // Store 'locations' of cells which are not dead
         for (std::list<TissueCell>::iterator it = r_cells.begin();
              it != r_cells.end(); ++it)
         {
@@ -105,10 +105,10 @@ public:
             }
         }
         
-        // remove dead cells...
+        // Remove dead cells...
         tissue.RemoveDeadCells();
         
-        // check that dead cells are removed from the mesh
+        // Check that dead cells are removed from the mesh
         std::set< double > new_locations;
         for (std::list<TissueCell>::iterator it = r_cells.begin();
              it != r_cells.end(); ++it)
@@ -127,7 +127,7 @@ public:
     {
         CancerParameters *p_params = CancerParameters::Instance();
         
-        // read in mesh
+        // Read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -179,7 +179,7 @@ public:
     {
         CancerParameters *p_params = CancerParameters::Instance();
  
-        // read in mesh
+        // Read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -232,13 +232,13 @@ public:
     
     void TestRadialSloughingCellKiller(void) throw(Exception)
     {        
-        // read in mesh
+        // Read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.Translate(-0.5,-0.5);
         
-        // get centre of mesh (we know it's at the origin, really)
+        //Get centre of mesh (we know it's at the origin, really)
         c_vector<double,2> centre(2);
         centre[0] = 0.0;
         centre[1] = 0.0;         
@@ -248,19 +248,19 @@ public:
         }
         centre = centre/mesh.GetNumNodes();
         
-        // choose radius of death (!)
+        // Choose radius of cell killer
         double radius = 0.4;
                 
-        // set up cells
+        // Set up cells
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         Tissue<2> tissue(mesh, cells);        
 
-		// set up cell killer
+		// Set up cell killer
         RadialSloughingCellKiller radial_cell_killer(&tissue, centre, radius);
         radial_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
-		// check that cells are being labelled for death correctly 
+		// Check that cells are being labelled for death correctly 
         for(Tissue<2>::Iterator cell_iter = tissue.Begin();
             cell_iter!=tissue.End();
             ++cell_iter)
@@ -277,10 +277,10 @@ public:
             }
         }
   
-  		// now get rid of dead cells
+  		// Now get rid of dead cells
         tissue.RemoveDeadCells();
 
-		// check that we are correctly left with cells inside the circle of death
+		// Check that we are correctly left with cells inside the circle of death
         for(Tissue<2>::Iterator cell_iter = tissue.Begin();
             cell_iter!=tissue.End();
             ++cell_iter)
@@ -322,13 +322,12 @@ public:
         // Get a reference to the cells held in tissue
         std::list<TissueCell>& r_cells = tissue.rGetCells();
         
-        // reset cell types to STEM        
+        // Reset cell types to STEM        
         for(Tissue<2>::Iterator cell_iter = tissue.Begin();
             cell_iter != tissue.End();
             ++cell_iter)
         {
             cell_iter->SetCellType(STEM); 
-            cell_iter->SetSymmetricDivision();
         }
         
         TS_ASSERT_THROWS_NOTHING(OxygenBasedCellKiller<2> oxygen_based_cell_killer(&tissue));
@@ -337,17 +336,17 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin()));
            
-        // check that a single cell reaches apoptosis 
+        // Check that a single cell reaches apoptosis 
         TS_ASSERT(!r_cells.begin()->HasApoptosisBegun());
         r_cells.begin()->SetCellType(NECROTIC);         
         oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
   
         TS_ASSERT(r_cells.begin()->HasApoptosisBegun());
         
-        // increment time to a time after death         
+        // Increment time to a time after death         
         p_simulation_time->IncrementTimeOneStep();        
         
-        // store 'locations' of cells which are not dead
+        // Store 'locations' of cells which are not dead
         std::set< double > old_locations;
         for (std::list<TissueCell>::iterator it = r_cells.begin();
              it != r_cells.end(); ++it)
@@ -360,10 +359,10 @@ public:
             }
         }
         
-        // remove the dead cell
+        // Remove the dead cell
         tissue.RemoveDeadCells();
         
-        // check that dead cells are removed from the mesh
+        // Check that dead cells are removed from the mesh
         std::set< double > new_locations;
         for (std::list<TissueCell>::iterator it = r_cells.begin();
              it != r_cells.end(); ++it)
@@ -406,10 +405,10 @@ public:
 
             RandomCellKiller<2>* p_cell_killer;
 
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_cell_killer;
            
-            // test we have restored the probability correctly.
+            // Test we have restored the probability correctly.
             TS_ASSERT_DELTA(p_cell_killer->GetDeathProbability(), 0.134, 1e-9);
             delete p_cell_killer;
         }
@@ -454,10 +453,10 @@ public:
            
             SloughingCellKiller* p_cell_killer;
 
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_cell_killer;
            
-            // test we have restored the sloughing properties correctly.
+            // Test we have restored the sloughing properties correctly.
             TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);
             TS_ASSERT_DELTA(p_cell_killer->GetCryptLength(), 10.0, 1e-9);
             TS_ASSERT_DELTA(p_cell_killer->GetCryptWidth(), 5.0, 1e-9);
@@ -494,7 +493,7 @@ public:
             TS_ASSERT_DELTA(p_cell_killer->GetRadius(), 0.4, 1e-9);
         }
 
-		// change centre and radius prior to restoring the cell killer
+		// Change centre and radius prior to restoring the cell killer
 		centre[0] = 0.0;
         centre[1] = 0.0; 
         radius = 0.0;
@@ -506,10 +505,10 @@ public:
            
             RadialSloughingCellKiller* p_cell_killer;
 
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_cell_killer;
            
-            // test we have restored the sloughing properties correctly.
+            // Test we have restored the sloughing properties correctly.
             TS_ASSERT_DELTA(p_cell_killer->GetCentre()[0], 0.1, 1e-9);
             TS_ASSERT_DELTA(p_cell_killer->GetCentre()[1], 0.2, 1e-9);
             TS_ASSERT_DELTA(p_cell_killer->GetRadius(), 0.4, 1e-9);
@@ -519,9 +518,7 @@ public:
     
     
     void TestArchivingOfOxygenBasedCellKiller() throw (Exception)
-    {   
-        //CancerParameters::Instance()->Reset();  
-                
+    {                   
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "oxygen_based_killer.arch";
@@ -550,7 +547,7 @@ public:
             
             OxygenBasedCellKiller<2>* p_cell_killer;
     
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_cell_killer;
            
             TS_ASSERT_DELTA(p_cell_killer->GetHypoxicConcentration(), 0.3, 1e-5);

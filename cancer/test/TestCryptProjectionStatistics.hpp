@@ -64,7 +64,6 @@ public:
                 +p_params->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
-            cell.SetSymmetricDivision();
             cells.push_back(cell);
         }
                                                           

@@ -49,7 +49,7 @@ public:
         
         TS_ASSERT_EQUALS(stem_cell.GetAge(), 0.5);
         
-        // for coverage
+        // For coverage
         stem_cell.SetNodeIndex(3);
         TS_ASSERT_EQUALS((int)(stem_cell.GetNodeIndex()), 3);
         
@@ -73,93 +73,59 @@ public:
         // We are going to start at t=0 and jump up in steps of 6.0
         CancerParameters *p_params = CancerParameters::Instance();
         
-        // this test needs particular cell cycle times
+        // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
         
         p_simulation_time->IncrementTimeOneStep();//t=6
         
-        // cover bad cell cycle model
+        // Cover bad cell cycle model
         TS_ASSERT_THROWS_ANYTHING(TissueCell bad_cell2(STEM, HEALTHY, NULL));
         
         TissueCell stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
-        
-        // also test symmetric division
-        TissueCell symmetric_stem_cell(STEM, HEALTHY, new FixedCellCycleModel());
-        symmetric_stem_cell.InitialiseCellCycleModel();
-        symmetric_stem_cell.SetSymmetricDivision();
-        
-        TS_ASSERT(symmetric_stem_cell.DividesSymmetrically());     
-        
+                
         p_simulation_time->IncrementTimeOneStep(); //t=12
         p_simulation_time->IncrementTimeOneStep(); //t=18
         p_simulation_time->IncrementTimeOneStep(); //t=24
         
         TS_ASSERT(!stem_cell.ReadyToDivide());
-        TS_ASSERT(!symmetric_stem_cell.ReadyToDivide());
         
         p_simulation_time->IncrementTimeOneStep();//t=30
         
         TS_ASSERT(stem_cell.ReadyToDivide());
-        TS_ASSERT(symmetric_stem_cell.ReadyToDivide());
         
-        // create transit progeny of stem
+        // Create transit progeny of stem
         TissueCell daughter_cell = stem_cell.Divide();
         
         TS_ASSERT(!stem_cell.ReadyToDivide());    
         TS_ASSERT(daughter_cell.GetCellCycleModel()->GetGeneration() == 1);
         TS_ASSERT(daughter_cell.GetCellType() == TRANSIT);
-        TS_ASSERT_DELTA(daughter_cell.GetAge(), 0 , 1e-9);
+        TS_ASSERT_DELTA(daughter_cell.GetAge(), 0 , 1e-9);                
         
-        // create progeny of symmetric stem cell
-        TissueCell symmetric_daughter_stem_cell = symmetric_stem_cell.Divide();
-        
-        TS_ASSERT(symmetric_daughter_stem_cell.DividesSymmetrically());        
-        TS_ASSERT(!symmetric_stem_cell.ReadyToDivide());        
-        TS_ASSERT(symmetric_daughter_stem_cell.GetCellCycleModel()->GetGeneration() == 1);
-        TS_ASSERT(symmetric_daughter_stem_cell.GetCellType() == STEM);
-        TS_ASSERT_DELTA(symmetric_daughter_stem_cell.GetAge(), 0 , 1e-9);
-        
-        // create a transit cell that divides symmetrically        
-        TissueCell symmetric_transit_cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
-        symmetric_transit_cell.InitialiseCellCycleModel();
-        symmetric_transit_cell.SetSymmetricDivision();    
-        
-        p_simulation_time->IncrementTimeOneStep();//t=36
+        p_simulation_time->IncrementTimeOneStep(); //t=36
         
         TS_ASSERT(!daughter_cell.ReadyToDivide());
-        TS_ASSERT(!symmetric_transit_cell.ReadyToDivide());
         
-        p_simulation_time->IncrementTimeOneStep();//t=42
+        p_simulation_time->IncrementTimeOneStep(); //t=42
         
         TS_ASSERT(daughter_cell.ReadyToDivide());
-        TS_ASSERT(symmetric_transit_cell.ReadyToDivide());
         
-        // create transit progeny of transit
+        // Create transit progeny of transit
         TissueCell grandaughter_cell = daughter_cell.Divide();
-        
-        // create progeny of symmetric transit cell
-        TissueCell symmetric_daughter_transit_cell = symmetric_transit_cell.Divide();
-        
-        TS_ASSERT(symmetric_daughter_transit_cell.DividesSymmetrically());
-        TS_ASSERT(!symmetric_daughter_transit_cell.ReadyToDivide());        
-        TS_ASSERT(symmetric_daughter_transit_cell.GetCellCycleModel()->GetGeneration() == 1);
-        TS_ASSERT(symmetric_daughter_transit_cell.GetCellType() == TRANSIT);
-        TS_ASSERT_DELTA(symmetric_daughter_transit_cell.GetAge(), 0 , 1e-9);
-        
+                        
         p_simulation_time->IncrementTimeOneStep(); //t=48
         TS_ASSERT(!stem_cell.ReadyToDivide());
         
         TS_ASSERT(!grandaughter_cell.ReadyToDivide());
         TS_ASSERT(!daughter_cell.ReadyToDivide());
         
-        // stem cell ready to divide again
+        // Stem cell ready to divide again
         p_simulation_time->IncrementTimeOneStep(); //t=54
         TS_ASSERT(stem_cell.ReadyToDivide());
         
-        // both grandaughter and daughter cells should be ready to divide
+        // Both grandaughter and daughter cells should be ready to divide
         TS_ASSERT(grandaughter_cell.ReadyToDivide());
         TS_ASSERT(daughter_cell.ReadyToDivide());
     }
@@ -175,7 +141,7 @@ public:
         // step and end time will need to be changed accordingly so that
         // IncrementTimeOneStep() gets the cell to correct division times
         
-        // this test needs particular cell cycle times
+        // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
@@ -194,14 +160,14 @@ public:
         
         // SimulationTime returns 30 hours
         
-        // create transit progeny of stem
+        // Create transit progeny of stem
         TS_ASSERT(stem_cell.ReadyToDivide());
         TissueCell daughter_cell = stem_cell.Divide();
         
         std::vector<TissueCell> cells;
         std::vector<TissueCell> newly_born;
         
-        // track all the offspring of the daughter cell
+        // Track all the offspring of the daughter cell
         // after 3 generations they should become differentiated
         // and stop dividing
         //daughter_cell.GetCellCycleModel()->SetGeneration(0u);
@@ -222,7 +188,7 @@ public:
         
         for (int generation=2; generation<6; generation++)
         {
-            // produce the offspring of the cells
+            // Produce the offspring of the cells
             cell_iterator = cells.begin();            
             
             p_simulation_time->IncrementTimeOneStep();
@@ -237,7 +203,7 @@ public:
                 cell_iterator++;
             }
             
-            // copy offspring in newly_born vector to cells vector
+            // Copy offspring in newly_born vector to cells vector
             cell_iterator = newly_born.begin();
             while (cell_iterator < newly_born.end())
             {
@@ -246,7 +212,7 @@ public:
             }
             newly_born.clear();
             
-            // check cell counts
+            // Check cell counts
             TS_ASSERT_EQUALS(expected_num_cells[generation], cells.size());
         }
         
@@ -295,7 +261,7 @@ public:
         
         WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
 
-        // go forward through time        
+        // Go forward through time        
         for (unsigned i=0 ; i<20 ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -333,8 +299,7 @@ public:
         unsigned i=0;
         while (p_simulation_time->GetDimensionalisedTime()< end_time)
         {
-            // produce the offspring of the cells
-            
+            // Produce the offspring of the cells            
             p_simulation_time->IncrementTimeOneStep();
             cell_iterator = cells.begin();
             while (cell_iterator < cells.end())
@@ -346,7 +311,7 @@ public:
                 cell_iterator++;
             }
             
-            // copy offspring in newly_born vector to cells vector
+            // Copy offspring in newly_born vector to cells vector
             cell_iterator = newly_born.begin();
             while (cell_iterator < newly_born.end())
             {
@@ -355,7 +320,7 @@ public:
             }
             newly_born.clear();
             
-            // update cell counts
+            // Update cell counts
             cell_iterator = cells.begin();
             while (cell_iterator < cells.end())
             {
@@ -391,7 +356,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(6000.0, 1000);
         CancerParameters *p_params = CancerParameters::Instance();
         
-        // this test needs particular cell cycle times
+        // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
@@ -421,31 +386,26 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         p_simulation_time->IncrementTimeOneStep();
         
-        TS_ASSERT(!stochastic_stem_cell.ReadyToDivide());
-        
         // SimulationTime = 18 hours
-        
+        TS_ASSERT(!stochastic_stem_cell.ReadyToDivide());
         TS_ASSERT(transit_cell.ReadyToDivide());
         
         p_simulation_time->IncrementTimeOneStep();
         
-        // SimulationTime = 24 hours
-        
+        // SimulationTime = 24 hours        
         TS_ASSERT(!stem_cell.ReadyToDivide());
         TS_ASSERT(stochastic_stem_cell.ReadyToDivide());
         
         p_simulation_time->IncrementTimeOneStep();
         
-        // SimulationTime = 30 hours
-        
+        // SimulationTime = 30 hours        
         TS_ASSERT(stem_cell.ReadyToDivide());
         TS_ASSERT(stochastic_stem_cell.ReadyToDivide());
         
         TissueCell daughter_cell1 = stem_cell.Divide();
         TS_ASSERT(typeid(daughter_cell1.GetCellCycleModel()) == typeid(stem_cell.GetCellCycleModel()));
         
-        // Go to large time to ensure that differentiated cells can not divide
-        
+        // Go to large time to ensure that differentiated cells can not divide        
         for (int i=0; i<990; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -462,7 +422,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 5400);
         CancerParameters *p_params = CancerParameters::Instance();
         
-        // this test needs particular cell cycle times
+        // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
@@ -471,7 +431,8 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
         }
-        // now at t=6.00
+        
+        // Now at t=6.00
         TissueCell transit_cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
         transit_cell.InitialiseCellCycleModel();
         transit_cell.GetCellCycleModel()->SetGeneration(2);                             
@@ -480,11 +441,13 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
         }
-        // now at t = 17.99, cell is 11.99 old
+        
+        // Now at t = 17.99, cell is 11.99 old
         TS_ASSERT(!transit_cell.ReadyToDivide());
         
         StochasticCellCycleModel *cell_cycle_model = new StochasticCellCycleModel;
-        // this now re-sets the age of the cell to 0.0 so more time added in underneath
+        
+        // This now resets the age of the cell to 0.0 so more time added in underneath
         transit_cell.SetCellCycleModel(cell_cycle_model);
         transit_cell.InitialiseCellCycleModel();
         
@@ -509,7 +472,7 @@ public:
     {
         CancerParameters *p_params = CancerParameters::Instance();
         
-        // this test needs particular cell cycle times
+        // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
@@ -538,7 +501,7 @@ public:
             stem_cell.InitialiseCellCycleModel();
             cells.push_back(stem_cell);
             
-            // produce the offspring of the cells
+            // Produce the offspring of the cells
             std::vector<TissueCell>::iterator cell_iterator = cells.begin();
                                    
             while (p_simulation_time->GetDimensionalisedTime()< end_time)
@@ -554,7 +517,7 @@ public:
                     cell_iterator++;
                 }
                 
-                // copy offspring in newly_born vector to cells vector
+                // Copy offspring in newly_born vector to cells vector
                 cell_iterator = newly_born.begin();
                 while (cell_iterator < newly_born.end())
                 {
@@ -645,7 +608,7 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
             
-            // produce the offspring of the cells
+            // Produce the offspring of the cells
             cell_iterator = cells.begin();
             while (cell_iterator < cells.end())
             {
@@ -659,7 +622,7 @@ public:
                 cell_iterator++;
             }
             
-            // copy offspring in newly_born vector to cells vector
+            // Copy offspring in newly_born vector to cells vector
             cell_iterator = newly_born.begin();
             while (cell_iterator < newly_born.end())
             {
@@ -668,7 +631,7 @@ public:
             }
             newly_born.clear();
             
-            // count # cells of each type
+            // Count number of cells of each type
             cell_iterator = cells.begin();
             stem_cells[i] = 0;
             transit_cells[i] = 0;
@@ -784,7 +747,7 @@ public:
     {        
         CancerParameters *p_parameters = CancerParameters::Instance();
         
-        // these are the first three normal random with mean 10, s.d. 1 and this seed (0)
+        // These are the first three normal random with mean 10, s.d. 1 and this seed (0)
         double SG2MDuration1 = p_parameters->GetSDuration() + 3.16084 + p_parameters->GetMDuration();
         double SG2MDuration2 = p_parameters->GetSDuration() + 5.0468  + p_parameters->GetMDuration();
         double SG2MDuration3 = p_parameters->GetSDuration() + 3.34408 + p_parameters->GetMDuration();
@@ -923,7 +886,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.6, 3);
         
-        // this test needs particular apoptosis time
+        // This test needs particular apoptosis time
         CancerParameters *p_params = CancerParameters::Instance();
         TS_ASSERT_EQUALS(p_params->GetApoptosisTime(), 0.25);        
         
@@ -943,7 +906,7 @@ public:
         TS_ASSERT_EQUALS(cell.IsDead(),false);
         TS_ASSERT_DELTA(cell.TimeUntilDeath(),0.25,1e-12);
         
-        // check that we can copy a cell that has started apoptosis
+        // Check that we can copy a cell that has started apoptosis
         TissueCell cell2(cell);
         
         p_simulation_time->IncrementTimeOneStep(); // t=0.4
@@ -1002,7 +965,7 @@ public:
         unsigned i=0;
         while (p_simulation_time->GetDimensionalisedTime()< end_time)
         {
-            // produce the offspring of the cells
+            // Produce the offspring of the cells
             
             p_simulation_time->IncrementTimeOneStep();
             cell_iterator = cells.begin();
@@ -1025,7 +988,7 @@ public:
                 cell_iterator++;
             }
             
-            // copy offspring in newly_born vector to cells vector
+            // Copy offspring in newly_born vector to cells vector
             cell_iterator = newly_born.begin();
             while (cell_iterator < newly_born.end())
             {
@@ -1034,7 +997,7 @@ public:
             }
             newly_born.clear();
             
-            // update cell counts
+            // Update cell counts
             cell_iterator = cells.begin();
             while (cell_iterator < cells.end())
             {
@@ -1089,18 +1052,14 @@ public:
             TS_ASSERT_EQUALS(stem_cell.GetAge(), 0.5);
             
             stem_cell.SetNodeIndex(3);
-            
-            TS_ASSERT(!stem_cell.DividesSymmetrically());
-            stem_cell.SetSymmetricDivision();
-            TS_ASSERT(stem_cell.DividesSymmetrically())
-            
+                        
             // Create an ouput archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
             TissueCell* const p_cell = &stem_cell;
             
-            // and write the cell to the archive
+            // Write the cell to the archive
             output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
             output_arch << p_cell;
             SimulationTime::Destroy();
@@ -1108,7 +1067,7 @@ public:
         
         // Restore TissueCell
         {
-            // need to set up time to initialise a cell
+            // Need to set up time to initialise a cell
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(1.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 1); // will be restored
@@ -1117,15 +1076,14 @@ public:
             
             TissueCell* p_stem_cell; 
                                        
-            // restore the cell
+            // Restore the cell
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
             input_arch >> *p_simulation_time;
-            input_arch >> p_stem_cell;
+            input_arch >> p_stem_cell;            
             
-            
-            // check the simulation time has been restored (through the cell)
+            // Check the simulation time has been restored (through the cell)
             TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.5);
             TS_ASSERT_EQUALS(p_simulation_time->GetTimeStep(), 0.5);
             
@@ -1133,7 +1091,6 @@ public:
             TS_ASSERT_EQUALS(p_stem_cell->GetAge(), 0.5);
             TS_ASSERT_EQUALS(p_stem_cell->GetCellCycleModel()->GetGeneration(), 0u);
             TS_ASSERT_EQUALS(p_stem_cell->GetCellType(), STEM);
-            TS_ASSERT(p_stem_cell->DividesSymmetrically())
             
             AbstractCellCycleModel* p_model = p_stem_cell->GetCellCycleModel();
             

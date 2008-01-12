@@ -34,7 +34,6 @@ private:
         archive & mDeathTime;
         archive & mIsDead;
         archive & mIsLogged;
-        archive & mSymmetricDivision;
         archive & mAncestor;
     }
     
@@ -50,7 +49,6 @@ protected:
     bool mIsDead;
     /// Whether the cell is being tracked specially.
     bool mIsLogged;
-    bool mSymmetricDivision;
     /** An index which is inherited by all children of this cell */
     unsigned mAncestor;
 
@@ -124,8 +122,6 @@ public:
     void SetCellType(CellType cellType);
     CellMutationState GetMutationState() const;
     void SetMutationState(CellMutationState mutationState);
-    bool DividesSymmetrically();
-    void SetSymmetricDivision();
     
     /**
      * Determine if this cell is ready to divide at the current simulation time.
@@ -166,7 +162,7 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const TissueCell * t, const BOOST_PFTO unsigned int file_version)
 {
-    // save data required to construct instance
+    // Save data required to construct instance
     const CellType cell_type = t->GetCellType();
     const CellMutationState mutation_state = t->GetMutationState();
     const AbstractCellCycleModel * const p_cell_cycle_model = t->GetCellCycleModel();
@@ -182,7 +178,7 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, TissueCell * t, const unsigned int file_version)
 {
-    // retrieve data from archive required to construct new instance
+    // Retrieve data from archive required to construct new instance
     CellType cell_type;
     CellMutationState mutation_state;
     AbstractCellCycleModel *p_cell_cycle_model;
@@ -190,7 +186,7 @@ inline void load_construct_data(
     ar >> mutation_state;
     ar >> p_cell_cycle_model;
     bool archiving = true;
-    // invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialize instance
     ::new(t)TissueCell(cell_type, mutation_state,p_cell_cycle_model,archiving);
 }
 }

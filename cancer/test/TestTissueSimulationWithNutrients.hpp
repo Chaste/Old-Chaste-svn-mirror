@@ -166,7 +166,6 @@ public:
                                     +CancerParameters::Instance()->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
-            cell.SetSymmetricDivision();
             cells.push_back(cell);
         }
         
@@ -268,7 +267,6 @@ public:
                                     +CancerParameters::Instance()->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
-            cell.SetSymmetricDivision();
             cells.push_back(cell);
         }
         
@@ -308,7 +306,7 @@ public:
         // Run tissue simulation 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         
-        // record final mesh size for visualizer
+        // Record final mesh size for visualizer
         TS_ASSERT_THROWS_NOTHING(simulator.WriteFinalMeshSizeForVisualizer());
                         
         // Test positions        
@@ -360,9 +358,8 @@ public:
                                     +CancerParameters::Instance()->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
-            cell.SetSymmetricDivision();
             
-            // make the cell necrotic if near the centre
+            // Make the cell necrotic if near the centre
             double x = p_mesh->GetNode(i)->rGetLocation()[0];
             double y = p_mesh->GetNode(i)->rGetLocation()[1];
             double dist_from_centre = sqrt( (x-2.5)*(x-2.5) + (y-2.5)*(y-2.5) );              
@@ -410,10 +407,10 @@ public:
         // Run tissue simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         
-        // record final mesh size for visualizer
+        // Record final mesh size for visualizer
         TS_ASSERT_THROWS_NOTHING(simulator.WriteFinalMeshSizeForVisualizer());
                         
-        // a few hardcoded tests to check nothing has changed
+        // A few hardcoded tests to check nothing has changed
         std::vector<double> node_5_location = simulator.GetNodeLocation(5);
         TS_ASSERT_DELTA(node_5_location[0], 0.6576, 1e-4);
         TS_ASSERT_DELTA(node_5_location[1], 1.1358, 1e-4);
@@ -443,7 +440,6 @@ public:
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TissueSimulationWithOxygen",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznutrient";         
-        //TS_ASSERT_EQUALS(system(("ndiff -relative-error 1e-4 " + results_file + " cancer/test/data/TissueSimulationWithOxygen_vis/results.viznutrient").c_str()), 0);     
         TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/TissueSimulationWithOxygen_vis/results.viznutrient").c_str()), 0);     
     }
     
@@ -473,7 +469,6 @@ public:
             TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(-0.1);
-            cell.SetSymmetricDivision();
             
             // Label three neighbouring cells as necrotic
             if (i==12 || i==13 || i==17)
@@ -541,7 +536,7 @@ public:
         // (see comments on #555). Therefore we have a different spheroid
         // radius for the time being.
                        
-        //Work out where the previous test wrote its files
+        // Work out where the previous test wrote its files
         OutputFileHandler handler("TestSpheroidStatistics",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/Areas.dat";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestSpheroidStatistics/Areas.dat").c_str()), 0);
@@ -579,7 +574,6 @@ public:
                                              +CancerParameters::Instance()->GetSG2MDuration());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
-            cell.SetSymmetricDivision();
             cells.push_back(cell);
         }
         

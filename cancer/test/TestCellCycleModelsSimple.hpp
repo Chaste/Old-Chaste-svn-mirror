@@ -79,7 +79,6 @@ public:
         FixedCellCycleModel* p_hepa_one_model = new FixedCellCycleModel;
         TissueCell hepa_one_cell(STEM, HEALTHY, p_hepa_one_model);
         hepa_one_cell.InitialiseCellCycleModel();
-        hepa_one_cell.SetSymmetricDivision();
                 
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
@@ -131,7 +130,6 @@ public:
         StochasticCellCycleModel* p_hepa_one_model = new StochasticCellCycleModel;
         TissueCell hepa_one_cell(STEM, HEALTHY, p_hepa_one_model);
         hepa_one_cell.InitialiseCellCycleModel();
-        hepa_one_cell.SetSymmetricDivision();
                 
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
@@ -152,7 +150,7 @@ public:
         unsigned num_timesteps = 1000*(unsigned)end_time;     
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
         
-        // set up the Wnt gradient
+        // Set up the Wnt gradient
         double wnt_level = 1.0;
         WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
                 
@@ -168,10 +166,10 @@ public:
             // the first random number generated    
             CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model, 1.0676);
         }
-        // stem cell should have been changed into a transit cell by wnt cell cycle model
+        // Stem cell should have been changed into a transit cell by wnt cell cycle model
         TS_ASSERT_EQUALS(cell.GetCellType(), TRANSIT);
         
-        // divide the cell
+        // Divide the cell
         TS_ASSERT_EQUALS(cell.ReadyToDivide(), true);
         TissueCell cell2 = cell.Divide();
         cell.SetMutationState(LABELLED);
@@ -213,7 +211,7 @@ public:
         TS_ASSERT(!p_cycle_model->ReadyToDivide());
         TS_ASSERT(!p_cycle_model2->ReadyToDivide());
         
-        // coverage...
+        // Coverage...
         cell.SetMutationState(APC_TWO_HIT);
         TS_ASSERT(!p_cycle_model->ReadyToDivide());
         cell.SetMutationState(APC_ONE_HIT);
@@ -234,11 +232,11 @@ public:
         TS_ASSERT_EQUALS(cell.GetCellType(), DIFFERENTIATED);
         TS_ASSERT_EQUALS(cell2.GetCellType(), TRANSIT);
         
-        // for coverage...
+        // For coverage...
         SimpleWntCellCycleModel* p_cycle_model1 = new SimpleWntCellCycleModel;
         TissueCell cell1(DIFFERENTIATED, HEALTHY, p_cycle_model1);
         cell1.InitialiseCellCycleModel();
-        // end for coverage...
+        // ...end of coverage
         
         
         /*
@@ -325,7 +323,7 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
-            // update cell phase...
+            // Update cell phase
             p_model->ReadyToDivide();
             
             TissueCell* const p_cell = &cell;
@@ -346,7 +344,8 @@ public:
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
-            // restore from the archive
+            
+            // Restore from the archive
             input_arch >> p_cell;
             
             AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
@@ -382,7 +381,7 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             p_simulation_time->IncrementTimeOneStep();
             
-            cell.ReadyToDivide(); //updates phases.
+            cell.ReadyToDivide(); // updates phases
             
             TissueCell* const p_cell = &cell;
             
@@ -420,10 +419,9 @@ public:
             
             inst1->SetSDuration(101.0);
             
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_cell;
             
-            // \todo : ticket: make the following line pass.
             TS_ASSERT_DELTA(RandomNumberGenerator::Instance()->ranf(),random_number_test,1e-7);
             
             AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
@@ -477,14 +475,14 @@ public:
             SimpleOxygenBasedCellCycleModel model;
             model.SetBirthTime(-2.0);            
             
-            // create an input archive
+            // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            // restore from the archive
+            // Restore from the archive
             input_arch >> model;
             
-            // check that archiiving worked correctly
+            // Check that archiiving worked correctly
             TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
             TS_ASSERT_DELTA(model.GetAge(),1.5,1e-12);
             TS_ASSERT_EQUALS(model.GetCurrentCellCyclePhase(),M_PHASE);     
@@ -534,7 +532,8 @@ public:
                 p_simulation_time->IncrementTimeOneStep();  
                 CheckReadyToDivideAndPhaseIsUpdated(p_cell_model, g1_duration);
             }
-            // wnt should change this to a transit cell.
+            
+            // Wnt should change this to a transit cell
             TS_ASSERT_EQUALS(stem_cell.GetCellType(), TRANSIT);
             TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(), false);
             TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->GetCurrentCellCyclePhase(), G_TWO_PHASE);                             
@@ -575,7 +574,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_cell;
             
             // Check            
@@ -685,7 +684,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_cell;
             
             // Check            
@@ -717,7 +716,7 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->SetHepaOneParameters();
         
-        // check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration are 
+        // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration are 
         // updated correctly
         SimulationTime *p_simulation_time = SimulationTime::Instance();  
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
@@ -726,7 +725,7 @@ public:
         TissueCell cell(STEM, HEALTHY, p_model);
         cell.InitialiseCellCycleModel();
         
-        // set up constant oxygen_concentration     
+        // Set up constant oxygen_concentration     
         std::vector<double> low_oxygen_concentration;
         std::vector<double> high_oxygen_concentration;
         low_oxygen_concentration.push_back(0.0);
@@ -756,8 +755,7 @@ public:
         TS_ASSERT_DELTA(p_model->GetCurrentHypoxicDuration(), 1.0, 1e-12);
         TS_ASSERT_DELTA(p_model->GetCurrentHypoxiaOnsetTime(), 2.0, 1e-12);
         
-        
-        // set up SimulationTime       
+        // Set up SimulationTime       
         SimulationTime::Destroy();  
         p_simulation_time = SimulationTime::Instance();   
                 
@@ -767,26 +765,25 @@ public:
             4.0*(p_params->GetHepaOneCellG1Duration()
                   +p_params->GetSG2MDuration()     ), num_steps);
         
-        // set up constant oxygen_concentration     
+        // Set up constant oxygen_concentration     
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);
         CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
         TS_ASSERT_THROWS_NOTHING(SimpleOxygenBasedCellCycleModel model);
         
-        // create cell cycle model
+        // Create cell cycle model
         SimpleOxygenBasedCellCycleModel* p_hepa_one_model = new SimpleOxygenBasedCellCycleModel();
         SimpleOxygenBasedCellCycleModel* p_diff_model = new SimpleOxygenBasedCellCycleModel();
         
-        // create cell 
+        // Create cell 
         TissueCell hepa_one_cell(STEM, HEALTHY, p_hepa_one_model);
         hepa_one_cell.InitialiseCellCycleModel();
-        hepa_one_cell.SetSymmetricDivision();
         
         TissueCell diff_cell(DIFFERENTIATED, HEALTHY, p_diff_model);
         diff_cell.InitialiseCellCycleModel();
         
-        // check that the cell cycle phase and ready to divide
+        // Check that the cell cycle phase and ready to divide
         // are updated correctly        
         TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),false);        
         TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),M_PHASE);
@@ -798,49 +795,47 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
             
-            // note that we need to pass in the updated G1 duration            
+            // Note that we need to pass in the updated G1 duration            
             CheckReadyToDivideAndPhaseIsUpdated(p_hepa_one_model, p_hepa_one_model->GetG1Duration());         
         }
         
         TS_ASSERT_DELTA(p_hepa_one_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
         TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),true);  
 
-        // check that cell division correctly resets the cell cycle phase
+        // Check that cell division correctly resets the cell cycle phase
         SimpleOxygenBasedCellCycleModel *p_hepa_one_model2 = static_cast <SimpleOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateCellCycleModel());
         
         TissueCell hepa_one_cell2(STEM, HEALTHY, p_hepa_one_model2);
-        hepa_one_cell.SetSymmetricDivision();
         TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);        
         TS_ASSERT_EQUALS(p_hepa_one_model2->GetCurrentCellCyclePhase(), M_PHASE);
         
         TS_ASSERT_THROWS_NOTHING(p_hepa_one_model->ResetModel());     
         
-        // set up SimulationTime         
+        // Set up SimulationTime         
         SimulationTime::Destroy();
         p_simulation_time = SimulationTime::Instance();                  
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*CancerParameters::Instance()->GetCriticalHypoxicDuration(), num_steps);
         
-        // create a cell with a simple oxygen-based cell cycle model
+        // Create a cell with a simple oxygen-based cell cycle model
         SimpleOxygenBasedCellCycleModel* p_cell_model = new SimpleOxygenBasedCellCycleModel();
         TissueCell necrotic_cell(STEM, HEALTHY, p_cell_model);
-        necrotic_cell.SetSymmetricDivision();
         
-        // set up constant oxygen_concentration     
+        // Set up constant oxygen_concentration     
         CellwiseData<2>::Instance()->SetConstantDataForTesting(low_oxygen_concentration);
                           
-        // force the cell to be necrotic
+        // Force the cell to be necrotic
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
             TS_ASSERT(necrotic_cell.GetCellType()!=NECROTIC || 
                       p_simulation_time->GetDimensionalisedTime() >= CancerParameters::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
             
-            // note that we need to pass in the updated G1 duration            
+            // Note that we need to pass in the updated G1 duration            
             necrotic_cell.ReadyToDivide();
         }
         
-        // test that the cell type is updated to be NECROTIC        
+        // Test that the cell type is updated to be NECROTIC        
         TS_ASSERT(necrotic_cell.GetCellType()==NECROTIC);          
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
                   
