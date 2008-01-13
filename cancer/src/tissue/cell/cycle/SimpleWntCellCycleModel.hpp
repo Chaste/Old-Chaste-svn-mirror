@@ -52,7 +52,8 @@ public:
     AbstractCellCycleModel *CreateDaughterCellCycleModel(); 
     
     std::vector<CellType> GetNewCellTypes();
-        
+    
+    void ResetModel();        
 };
 
 // declare identifier for the serializer

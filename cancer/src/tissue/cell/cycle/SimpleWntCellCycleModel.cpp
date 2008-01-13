@@ -113,10 +113,6 @@ std::vector<CellType> SimpleWntCellCycleModel::GetNewCellTypes()
     {        
         new_cell_types[0] = cell_type;
         new_cell_types[1] = TRANSIT;
-        if (cell_type == STEM)
-        {
-            SetGeneration(0u); 
-        }
     }
     else
     {
@@ -124,3 +120,16 @@ std::vector<CellType> SimpleWntCellCycleModel::GetNewCellTypes()
     }
     return new_cell_types;
 }
+
+void SimpleWntCellCycleModel::ResetModel()
+{
+    AbstractSimpleCellCycleModel::ResetModel();
+    if (WntGradient::Instance()->GetType()==RADIAL)
+    {        
+        if (mGeneration == 1)
+        {
+            mGeneration = 0; 
+        }
+    }
+}
+

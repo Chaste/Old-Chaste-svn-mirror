@@ -90,15 +90,14 @@ std::vector<CellType> AbstractCellCycleModel::GetNewCellTypes()
     return new_cell_types;
 }
 
-void AbstractCellCycleModel::SetMotherGeneration()
+void AbstractCellCycleModel::ResetModel()
 {
-    CellType cell_type = mpCell->GetCellType();
-    if (cell_type == STEM)
-    {
-        mGeneration--;
-    }
+    assert(mReadyToDivide);
+    mGeneration++;
+    mCurrentCellCyclePhase = M_PHASE;
+    mReadyToDivide = false;
 }
-
+    
 double AbstractCellCycleModel::GetSDuration()
 {
     return CancerParameters::Instance()->GetSDuration();

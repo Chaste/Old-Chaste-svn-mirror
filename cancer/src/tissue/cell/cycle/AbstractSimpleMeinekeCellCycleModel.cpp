@@ -13,7 +13,7 @@ std::vector<CellType> AbstractSimpleMeinekeCellCycleModel::GetNewCellTypes()
     }       
     else
     {
-        if ((mGeneration-1u) < p_params->GetMaxTransitGenerations())
+        if (mGeneration < p_params->GetMaxTransitGenerations())
         {
             new_cell_types[0] = cell_type;
             new_cell_types[1] = TRANSIT;
@@ -28,11 +28,21 @@ std::vector<CellType> AbstractSimpleMeinekeCellCycleModel::GetNewCellTypes()
     return new_cell_types;
 }
 
-void AbstractSimpleMeinekeCellCycleModel::SetMotherGeneration()
+void AbstractSimpleMeinekeCellCycleModel::ResetModel()
 {
-    CellType cell_type = mpCell->GetCellType();
-    if (cell_type == STEM)
+    AbstractSimpleCellCycleModel::ResetModel();
+    if (mGeneration == 1)
     {
-        mGeneration = 0u;
+        mGeneration = 0;
     }
+}
+
+
+void AbstractSimpleMeinekeCellCycleModel::InitialiseDaughterCell()
+{
+    if (mGeneration == 0)
+    {
+        mGeneration = 1;
+    }
+    AbstractSimpleCellCycleModel::InitialiseDaughterCell();
 }

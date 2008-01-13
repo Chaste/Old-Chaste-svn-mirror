@@ -190,13 +190,8 @@ public:
      * CreateDaughterCellCycleModel can then clone our state to generate a
      * cell cycle model instance for the daughter cell.
      */
-    virtual void ResetModel()
-    {
-        assert(mReadyToDivide);
-        mCurrentCellCyclePhase = M_PHASE;
-        mReadyToDivide = false;
-    }
-    
+    virtual void ResetModel();
+        
     /**
      * Builder method to create new instances of the cell cycle model.
      * Each concrete subclass must implement this method to create an
@@ -231,13 +226,6 @@ public:
      */ 
     virtual AbstractCellCycleModel *CreateDaughterCellCycleModel()=0; 
     
-    /**
-     * This normally does nothing but is over-ridden when the mother cell has
-     * an AbstractSimpleMeineke cell cycle model and cell is a stem.
-     */ 
-    virtual void SetMotherGeneration();
-    
-
     /**
      * @return whether the cell cycle model uses beta-catenin levels in cell cycle model, ie Inge models.
      */

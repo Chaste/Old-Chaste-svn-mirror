@@ -59,12 +59,10 @@ public:
      * overwritten as new daughter cell type can depend on mother cell type.
      */
     std::vector<CellType> GetNewCellTypes();
+        
+    void ResetModel();
     
-    /**
-     * This normally does nothing but is over-ridden when the mother cell has
-     * an AbstractSimpleMeineke cell cycle model and cell is a stem.
-     */ 
-    void SetMotherGeneration();
+    void InitialiseDaughterCell();
     
 };
 

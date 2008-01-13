@@ -241,27 +241,22 @@ TissueCell TissueCell::Divide()
     assert(mCanDivide);
     mCanDivide = false;
     
-    // Copy this cell and give new one relevant attributes
-    
-    mpCellCycleModel->SetGeneration(mpCellCycleModel->GetGeneration()+1);
-    
+    // Copy this cell and give new one relevant attributes    
     std::vector<CellType> new_cell_types = mpCellCycleModel->GetNewCellTypes();
     mCellType = new_cell_types[0];
-    
-    // Cell goes back to age zero
+        
+    // Reset properties of parent cell
     mpCellCycleModel->ResetModel();
     
+    // Create daughter cell
     TissueCell new_cell = TissueCell(
         new_cell_types[1],
         mMutationState,
         mpCellCycleModel->CreateDaughterCellCycleModel());
-    
+
+    // Initialise properties of daughter cell     
     new_cell.GetCellCycleModel()->InitialiseDaughterCell();
-    
-    assert(new_cell.GetCellCycleModel()->GetGeneration()==mpCellCycleModel->GetGeneration());
-    mpCellCycleModel->SetMotherGeneration();
-    new_cell.SetAncestor(GetAncestor());
-    
-    return new_cell;
-    
+    new_cell.SetAncestor(GetAncestor());    
+
+    return new_cell;    
 }
