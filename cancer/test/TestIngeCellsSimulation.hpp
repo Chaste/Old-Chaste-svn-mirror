@@ -88,7 +88,8 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         simulator.Save();
-                
+        
+        delete p_cell_killer;        
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
         WntGradient::Destroy();
