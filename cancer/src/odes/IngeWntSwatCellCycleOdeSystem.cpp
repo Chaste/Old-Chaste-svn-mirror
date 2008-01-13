@@ -136,7 +136,7 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
     
     double steady_Cc = steady_Cf - steady_Co;
     
-    if ((steady_Cc < 0) && (steady_Cc+DBL_MAX > 0) ) // Stop protein values going -ve
+    if ((steady_Cc < 0) && (steady_Cc+100*DBL_EPSILON > 0) ) // Stop protein values going -ve
     {
         steady_Cc = 0.0;
     }
