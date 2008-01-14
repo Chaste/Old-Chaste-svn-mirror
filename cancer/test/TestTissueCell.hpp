@@ -170,7 +170,6 @@ public:
         // Track all the offspring of the daughter cell
         // after 3 generations they should become differentiated
         // and stop dividing
-        //daughter_cell.GetCellCycleModel()->SetGeneration(0u);
         cells.push_back(daughter_cell);
         
         std::vector<TissueCell>::iterator cell_iterator;
@@ -186,7 +185,7 @@ public:
         
         TS_ASSERT_EQUALS(expected_num_cells[1], cells.size());
         
-        for (int generation=2; generation<6; generation++)
+        for (unsigned generation=2; generation<6; generation++)
         {
             // Produce the offspring of the cells
             cell_iterator = cells.begin();            
@@ -198,7 +197,28 @@ public:
             {
                 if (cell_iterator->ReadyToDivide())
                 {
-                    newly_born.push_back(cell_iterator->Divide());
+                    TissueCell new_cell = cell_iterator->Divide();
+                    TS_ASSERT_DELTA(cell_iterator->GetAge(), 0, 1e-9);
+                    if (cell_iterator->GetCellType()==STEM)
+                    {
+                        TS_ASSERT_EQUALS(new_cell.GetCellType(), TRANSIT);
+                        TS_ASSERT_EQUALS(cell_iterator->GetCellCycleModel()->GetGeneration(), 0u);
+                    }
+                    else if (cell_iterator->GetCellType()==TRANSIT)
+                    {
+                        TS_ASSERT_EQUALS(new_cell.GetCellType(), TRANSIT);
+                        TS_ASSERT_EQUALS(cell_iterator->GetCellCycleModel()->GetGeneration(), generation);
+                    }
+                    else
+                    {
+                        TS_ASSERT_EQUALS(new_cell.GetCellType(), DIFFERENTIATED);
+                        TS_ASSERT_EQUALS(cell_iterator->GetCellCycleModel()->GetGeneration(), generation);
+                    }
+                    
+                    TS_ASSERT_DELTA(new_cell.GetAge(), 0, 1e-9);                    
+                    TS_ASSERT_EQUALS(new_cell.GetCellCycleModel()->GetGeneration(), generation);
+                     
+                    newly_born.push_back(new_cell);
                 }
                 cell_iterator++;
             }

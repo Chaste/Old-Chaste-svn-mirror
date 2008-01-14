@@ -48,6 +48,8 @@ public:
     double GetG2Duration();
     double GetMDuration();
     
+    void InitialiseDaughterCell();
+    
 };
 
 

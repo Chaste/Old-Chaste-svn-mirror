@@ -104,23 +104,6 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     }
 }
 
-std::vector<CellType> SimpleWntCellCycleModel::GetNewCellTypes()
-{   
-    CellType cell_type = mpCell->GetCellType();
-    std::vector<CellType> new_cell_types(2);
-    
-    if (WntGradient::Instance()->GetType()==RADIAL)
-    {        
-        new_cell_types[0] = cell_type;
-        new_cell_types[1] = TRANSIT;
-    }
-    else
-    {
-        new_cell_types = AbstractCellCycleModel::GetNewCellTypes();
-    }
-    return new_cell_types;
-}
-
 void SimpleWntCellCycleModel::ResetModel()
 {
     AbstractSimpleCellCycleModel::ResetModel();
@@ -133,3 +116,11 @@ void SimpleWntCellCycleModel::ResetModel()
     }
 }
 
+void SimpleWntCellCycleModel::InitialiseDaughterCell()
+{
+    if (WntGradient::Instance()->GetType()==RADIAL)
+    {   
+        mpCell->SetCellType(TRANSIT);
+    }
+    AbstractSimpleCellCycleModel::InitialiseDaughterCell();
+}

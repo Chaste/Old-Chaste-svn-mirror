@@ -81,15 +81,15 @@ private:
             std::vector<double> expected_cell_types = expected_results.GetValues(cell_type_var_name.str());
             std::vector<double> computed_cell_types = computed_results.GetValues(cell_type_var_name.str());
             
-            //Vector of Cell Positions
+            // Vector of Cell Positions
             std::vector<double> expected_cell_positions = expected_results.GetValues(cell_position_var_name.str());
             std::vector<double> computed_cell_positions = computed_results.GetValues(cell_position_var_name.str());
             
-            //Comparing expected and computed vector length
+            // Comparing expected and computed vector length
             TS_ASSERT_EQUALS(expected_cell_types.size(), computed_cell_types.size());
             TS_ASSERT_EQUALS(expected_cell_positions.size(), computed_cell_positions.size());
             
-            //Walkthrough of the expected and computed vectors
+            // Walkthrough of the expected and computed vectors
             for (unsigned time_step = 0; time_step < expected_cell_types.size(); time_step++)
             {
                 TS_ASSERT_EQUALS(expected_cell_types[time_step], computed_cell_types[time_step]);
@@ -110,13 +110,13 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        // we have to destroy SimulationTime as it is automatically instantiated in SetUp()
+        // We have to destroy SimulationTime as it is automatically instantiated in SetUp()
         SimulationTime::Destroy();
         
-        // throws because start time not set on simulation time
+        // Throws because start time not set on simulation time
         TS_ASSERT_THROWS_ANYTHING(CryptSimulation1d bad_simulator(mesh));
         
-        // now we must re-instantiate SimulationTime
+        // Now we must re-instantiate SimulationTime
         SimulationTime::Instance()->SetStartTime(0.0);
                 
         CryptSimulation1d simulator(mesh);
@@ -266,7 +266,7 @@ public:
                 
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
         
-	    CheckAgainstPreviousRun("CryptWithCells",50);
+        CheckAgainstPreviousRun("CryptWithCells",50);
     }
     
     
@@ -419,7 +419,7 @@ public:
         
     
     /////////////////////////////////////////////////////////////////////////////
-    // create a chain of 1 stem cell and the test differentiated and check
+    // Create a chain of 1 stem cell and the test differentiated and check
     // that there is correct number of cells and they are in the correct order
     /////////////////////////////////////////////////////////////////////////////
     void Test1dChainCorrectCellNumbers()

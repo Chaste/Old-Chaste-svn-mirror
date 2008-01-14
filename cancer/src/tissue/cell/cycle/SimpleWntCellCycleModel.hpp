@@ -50,10 +50,10 @@ public:
     void UpdateCellCyclePhase();
         
     AbstractCellCycleModel *CreateDaughterCellCycleModel(); 
+        
+    void ResetModel();
     
-    std::vector<CellType> GetNewCellTypes();
-    
-    void ResetModel();        
+    void InitialiseDaughterCell();        
 };
 
 // declare identifier for the serializer

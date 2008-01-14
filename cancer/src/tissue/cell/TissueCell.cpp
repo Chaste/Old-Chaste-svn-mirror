@@ -23,8 +23,8 @@ TissueCell::TissueCell(CellType cellType,
     mCanDivide = false;
     mUndergoingApoptosis = false;
     mIsDead = false;
-    mDeathTime = DBL_MAX; // this has to be initialised for archiving...
-    mNodeIndex = (unsigned)(-1); // initialise to a silly value for archiving (avoid memory check error)
+    mDeathTime = DBL_MAX; // This has to be initialised for archiving...
+    mNodeIndex = (unsigned)(-1); // Initialise to a silly value for archiving (avoid memory check error)
     mIsLogged = false;    
     mAncestor = UNSIGNED_UNSET; // Has to be set by a SetAncestor() call (usually from Tissue)
     
@@ -55,12 +55,10 @@ void TissueCell::CommonCopy(const TissueCell &other_cell)
     mpCellCycleModel->SetCell(this); 
 }
 
-
 TissueCell::TissueCell(const TissueCell &other_cell)
 {
     CommonCopy(other_cell);
 }
-
 
 TissueCell& TissueCell::operator=(const TissueCell &other_cell)
 {
@@ -72,13 +70,10 @@ TissueCell& TissueCell::operator=(const TissueCell &other_cell)
     return *this;
 }
 
-
 TissueCell::~TissueCell()
 {
     delete mpCellCycleModel;
 }
-
-
 
 void TissueCell::SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel)
 {
@@ -138,7 +133,6 @@ CellType TissueCell::GetCellType() const
     return mCellType;
 }
 
-
 void TissueCell::SetMutationState(CellMutationState mutationState)
 {
     mMutationState = mutationState;
@@ -149,18 +143,15 @@ CellMutationState TissueCell::GetMutationState() const
     return mMutationState;
 }
 
-
 void TissueCell::SetLogged()
 {
     mIsLogged = true;
 }
 
-
 bool TissueCell::IsLogged()
 {
     return mIsLogged;
 }
-
 
 void TissueCell::StartApoptosis()
 {
@@ -194,7 +185,6 @@ double TissueCell::TimeUntilDeath() const
     return mDeathTime - p_simulation_time->GetDimensionalisedTime();
 }
 
-
 bool TissueCell::IsDead() const
 {
     SimulationTime *p_simulation_time = SimulationTime::Instance();
@@ -202,24 +192,20 @@ bool TissueCell::IsDead() const
     return ( mIsDead || ( (mUndergoingApoptosis) && (p_simulation_time->GetDimensionalisedTime() >= mDeathTime)) );
 }
 
-
 void TissueCell::Kill()
 {
     mIsDead = true;
 }
-
 
 void TissueCell::SetAncestor(unsigned ancestorIndex)
 {
     mAncestor = ancestorIndex;
 }
 
-
 unsigned TissueCell::GetAncestor() const
 {
     return mAncestor;   
 }
-
 
 bool TissueCell::ReadyToDivide()
 {
@@ -240,23 +226,19 @@ TissueCell TissueCell::Divide()
     assert(!IsDead());
     assert(mCanDivide);
     mCanDivide = false;
-    
-    // Copy this cell and give new one relevant attributes    
-    std::vector<CellType> new_cell_types = mpCellCycleModel->GetNewCellTypes();
-    mCellType = new_cell_types[0];
-        
+                
     // Reset properties of parent cell
     mpCellCycleModel->ResetModel();
     
     // Create daughter cell
     TissueCell new_cell = TissueCell(
-        new_cell_types[1],
+        mCellType,   
         mMutationState,
         mpCellCycleModel->CreateDaughterCellCycleModel());
 
     // Initialise properties of daughter cell     
     new_cell.GetCellCycleModel()->InitialiseDaughterCell();
     new_cell.SetAncestor(GetAncestor());    
-
+    
     return new_cell;    
 }

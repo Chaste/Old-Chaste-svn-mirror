@@ -52,13 +52,6 @@ public:
      */
     virtual ~AbstractSimpleMeinekeCellCycleModel()
     {}
-    
-    /**
-     * Returns the cell types of the next generation of cells in a vector
-     * [0] is the new mother cell type, [1] is the new daughter cell type
-     * overwritten as new daughter cell type can depend on mother cell type.
-     */
-    std::vector<CellType> GetNewCellTypes();
         
     void ResetModel();
     

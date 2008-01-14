@@ -43,6 +43,7 @@ void AbstractOdeBasedCellCycleModel::SetProteinConcentrationsForTestsOnly(double
     mpOdeSystem->SetStateVariables(proteinConcentrations);
 }
 
+
 void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
 {     
     assert(mpOdeSystem!=NULL);

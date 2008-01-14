@@ -2,6 +2,7 @@
 
 void AbstractSimpleCellCycleModel::InitialiseDaughterCell()
 {
+    AbstractCellCycleModel::InitialiseDaughterCell();
     SetG1Duration();
 }
 

@@ -155,15 +155,7 @@ public:
      * Returns the cell's generation...
      */
     unsigned GetGeneration() const;
-    
-    /**
-     * Returns the cell types of the next generation of cells in a vector
-     * [0] is the new mother cell type, [1] is the new daughter cell type
-     *
-     * \todo perhaps returning a std::pair would be better?
-     */
-    virtual std::vector<CellType> GetNewCellTypes();
-    
+        
     /**
      * Determine whether the cell is ready to divide (enter M phase).
      *

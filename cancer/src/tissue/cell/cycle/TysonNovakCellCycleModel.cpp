@@ -31,7 +31,7 @@ void TysonNovakCellCycleModel::ResetModel()
     
     assert(mpOdeSystem!=NULL);
     // This model needs the protein concentrations and phase resetting to G0/G1.
-    // This model should cycle itself and nothing needs to be reset.
+    // This model should cycle itself and nothing needs to be reset,
     // but at the moment we are resetting to initial conditions because it
     // breaks after a while and will not converge.
     
@@ -44,10 +44,16 @@ void TysonNovakCellCycleModel::ResetModel()
     else
     {
         mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
-    }
-    
+    }    
 }
 
+void TysonNovakCellCycleModel::InitialiseDaughterCell()
+{    
+    if (mpCell->GetCellType() == STEM) 
+    {    
+        mpCell->SetCellType(TRANSIT); 
+    }
+}
 
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateDaughterCellCycleModel()
 {

@@ -840,36 +840,7 @@ public:
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
                   
         CellwiseData<2>::Destroy();
-    }
-    
-    
-    void TestNewCellTypes(void) throw(Exception)
-    {  
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
-        
-        FixedCellCycleModel* p_fixed_cell_cycle_model = new FixedCellCycleModel;
-        p_fixed_cell_cycle_model->SetGeneration(0u);
-        
-        TissueCell fixed_stem_cell(STEM, HEALTHY, p_fixed_cell_cycle_model);
-        CellType old_cell_type = p_fixed_cell_cycle_model->GetCell()->GetCellType();
-        std::vector<CellType> new_cell_types = p_fixed_cell_cycle_model->GetNewCellTypes();
-        
-        TS_ASSERT(new_cell_types[0]==STEM);
-        TS_ASSERT(new_cell_types[1]==TRANSIT);
-        TS_ASSERT(p_fixed_cell_cycle_model->GetGeneration()==0u);
-        
-        p_fixed_cell_cycle_model = new FixedCellCycleModel;
-        p_fixed_cell_cycle_model->SetGeneration(1u);
-        TissueCell fixed_trans_cell_new(TRANSIT, HEALTHY, p_fixed_cell_cycle_model);
-        old_cell_type = p_fixed_cell_cycle_model->GetCell()->GetCellType();
-        new_cell_types = p_fixed_cell_cycle_model->GetNewCellTypes();
-        
-        TS_ASSERT(new_cell_types[0]==TRANSIT);
-        TS_ASSERT(new_cell_types[1]==TRANSIT);
-        TS_ASSERT(p_fixed_cell_cycle_model->GetGeneration()==1u);
-    }         
-        
+    }    
 };
 
 #endif /*TESTCELLCYCLEMODELSSIMPLE_HPP_*/

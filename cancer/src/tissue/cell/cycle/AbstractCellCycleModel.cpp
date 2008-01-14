@@ -73,23 +73,6 @@ unsigned AbstractCellCycleModel::GetGeneration() const
     return mGeneration;
 }
 
-std::vector<CellType> AbstractCellCycleModel::GetNewCellTypes()
-{
-    CellType cell_type = mpCell->GetCellType();
-    std::vector<CellType> new_cell_types(2);
-    if (cell_type == STEM)
-    {
-        new_cell_types[0] = cell_type;
-        new_cell_types[1] = TRANSIT;
-    }
-    else
-    {
-        new_cell_types[0] = cell_type;
-        new_cell_types[1] = cell_type;
-    }
-    return new_cell_types;
-}
-
 void AbstractCellCycleModel::ResetModel()
 {
     assert(mReadyToDivide);

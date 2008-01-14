@@ -673,7 +673,7 @@ public:
      */
     void TestVisualizerOutput() throw (Exception)
     {
-        // work out where the previous test wrote its files
+        // Work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DPeriodicTysonNovak",false);
         std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results";
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizelements").c_str()), 0);
