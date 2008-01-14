@@ -13,9 +13,9 @@ double AbstractWntOdeBasedCellCycleModel::GetOdeStopTime()
 
 // PUBLIC FUNCTIONS
 
-void AbstractWntOdeBasedCellCycleModel::ResetModel()
+void AbstractWntOdeBasedCellCycleModel::ResetForDivision()
 {   
-    AbstractOdeBasedCellCycleModel::ResetModel();
+    AbstractOdeBasedCellCycleModel::ResetForDivision();
     
     assert(mpOdeSystem!=NULL);    
     // This model needs the protein concentrations and phase resetting to G0/G1.

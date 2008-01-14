@@ -1,14 +1,14 @@
 #include "AbstractSimpleMeinekeCellCycleModel.hpp"
 
 
-void AbstractSimpleMeinekeCellCycleModel::ResetModel()
+void AbstractSimpleMeinekeCellCycleModel::ResetForDivision()
 {
     CancerParameters *p_params = CancerParameters::Instance();
     if (mGeneration+1u > p_params->GetMaxTransitGenerations())
     {
         mpCell->SetCellType(DIFFERENTIATED);
     }
-    AbstractSimpleCellCycleModel::ResetModel();
+    AbstractSimpleCellCycleModel::ResetForDivision();
     if (mGeneration == 1)
     {
         mGeneration = 0;

@@ -59,9 +59,9 @@ public:
         SetG2Duration();
     }
     
-    void ResetModel()
+    void ResetForDivision()
     {
-        AbstractWntOdeBasedCellCycleModel::ResetModel();
+        AbstractWntOdeBasedCellCycleModel::ResetForDivision();
         SetG2Duration();
     }
     

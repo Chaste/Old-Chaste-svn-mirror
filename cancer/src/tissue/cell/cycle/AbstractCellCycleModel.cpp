@@ -73,7 +73,7 @@ unsigned AbstractCellCycleModel::GetGeneration() const
     return mGeneration;
 }
 
-void AbstractCellCycleModel::ResetModel()
+void AbstractCellCycleModel::ResetForDivision()
 {
     assert(mReadyToDivide);
     mGeneration++;

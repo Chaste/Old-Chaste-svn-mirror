@@ -58,7 +58,7 @@ public:
      *
      * Should only be called by the TissueCell::Divide() method.
      */
-    void ResetModel();
+    void ResetForDivision();
     
     /**
      * Updates the current cell type to reflect whether the

@@ -182,7 +182,7 @@ public:
      * CreateDaughterCellCycleModel can then clone our state to generate a
      * cell cycle model instance for the daughter cell.
      */
-    virtual void ResetModel();
+    virtual void ResetForDivision();
         
     /**
      * Builder method to create new instances of the cell cycle model.

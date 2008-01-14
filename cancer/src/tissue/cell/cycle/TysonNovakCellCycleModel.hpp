@@ -36,7 +36,7 @@ public:
 
     TysonNovakCellCycleModel();
     
-    void ResetModel();
+    void ResetForDivision();
     
     AbstractCellCycleModel *CreateDaughterCellCycleModel();
     

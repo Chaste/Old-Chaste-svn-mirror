@@ -228,7 +228,7 @@ TissueCell TissueCell::Divide()
     mCanDivide = false;
                 
     // Reset properties of parent cell
-    mpCellCycleModel->ResetModel();
+    mpCellCycleModel->ResetForDivision();
     
     // Create daughter cell
     TissueCell new_cell = TissueCell(

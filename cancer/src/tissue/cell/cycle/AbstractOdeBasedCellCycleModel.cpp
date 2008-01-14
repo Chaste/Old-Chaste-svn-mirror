@@ -116,10 +116,10 @@ void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
 }
 
 
-void AbstractOdeBasedCellCycleModel::ResetModel()
+void AbstractOdeBasedCellCycleModel::ResetForDivision()
 {
     assert(mFinishedRunningOdes);
-    AbstractCellCycleModel::ResetModel();
+    AbstractCellCycleModel::ResetForDivision();
     mBirthTime = mDivideTime;
     mLastTime = mDivideTime;
     mFinishedRunningOdes = false;

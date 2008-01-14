@@ -104,9 +104,9 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     }
 }
 
-void SimpleWntCellCycleModel::ResetModel()
+void SimpleWntCellCycleModel::ResetForDivision()
 {
-    AbstractSimpleCellCycleModel::ResetModel();
+    AbstractSimpleCellCycleModel::ResetForDivision();
     if (WntGradient::Instance()->GetType()==RADIAL)
     {        
         if (mGeneration == 1)

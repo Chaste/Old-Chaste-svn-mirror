@@ -38,9 +38,9 @@ void AbstractSimpleCellCycleModel::SetG1Duration()
 }
 
 
-void AbstractSimpleCellCycleModel::ResetModel()
+void AbstractSimpleCellCycleModel::ResetForDivision()
 {
-    AbstractCellCycleModel::ResetModel();
+    AbstractCellCycleModel::ResetForDivision();
     mBirthTime = SimulationTime::Instance()->GetDimensionalisedTime();
     SetG1Duration();
 }

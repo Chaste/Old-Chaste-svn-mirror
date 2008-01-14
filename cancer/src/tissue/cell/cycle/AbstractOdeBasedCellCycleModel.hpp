@@ -109,9 +109,9 @@ public:
     /**
      * For a naturally cycling model this does not need to be overridden in the 
      * subclasses. But most models should override this function and then 
-     * call AbstractOdeBasedCellCycleModel::ResetModel() from inside their version. 
+     * call AbstractOdeBasedCellCycleModel::ResetForDivision() from inside their version. 
      */
-    virtual void ResetModel();
+    virtual void ResetForDivision();
 };
 
 BOOST_IS_ABSTRACT(AbstractOdeBasedCellCycleModel)

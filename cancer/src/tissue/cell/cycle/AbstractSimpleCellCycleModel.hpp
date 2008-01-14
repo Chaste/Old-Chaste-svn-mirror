@@ -64,7 +64,7 @@ public:
     virtual ~AbstractSimpleCellCycleModel()
     {}
     
-    virtual void ResetModel();
+    virtual void ResetForDivision();
     
     /**
      * Default UpdateCellCyclePhase function for a simple cell cycle model.

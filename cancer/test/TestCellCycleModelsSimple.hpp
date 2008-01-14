@@ -196,8 +196,8 @@ public:
         TS_ASSERT_EQUALS(cell.GetCellType(), TRANSIT);
         TS_ASSERT_EQUALS(cell2.GetCellType(), TRANSIT);
                                     
-        p_cycle_model->ResetModel();
-        p_cycle_model2->ResetModel();
+        p_cycle_model->ResetForDivision();
+        p_cycle_model2->ResetForDivision();
                  
         division_time = SimulationTime::Instance()->GetDimensionalisedTime();                
                 
@@ -809,7 +809,7 @@ public:
         TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);        
         TS_ASSERT_EQUALS(p_hepa_one_model2->GetCurrentCellCyclePhase(), M_PHASE);
         
-        TS_ASSERT_THROWS_NOTHING(p_hepa_one_model->ResetModel());     
+        TS_ASSERT_THROWS_NOTHING(p_hepa_one_model->ResetForDivision());     
         
         // Set up SimulationTime         
         SimulationTime::Destroy();

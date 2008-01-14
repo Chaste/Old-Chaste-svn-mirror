@@ -60,7 +60,7 @@ public:
     Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
                               const CellMutationState& rMutationState); 
                           
-    virtual void ResetModel();
+    virtual void ResetForDivision();
     
     AbstractCellCycleModel *CreateDaughterCellCycleModel();
     

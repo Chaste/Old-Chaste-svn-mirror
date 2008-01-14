@@ -66,7 +66,7 @@ public:
         TS_ASSERT_DELTA(proteins[4],0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(proteins[5],0.95328206604519, 1e-2);
         
-        p_cell_model->ResetModel();
+        p_cell_model->ResetForDivision();
         TysonNovakCellCycleModel *p_cell_model2 = static_cast <TysonNovakCellCycleModel*> (p_cell_model->CreateCellCycleModel());
         
         TissueCell stem_cell_2(STEM, APC_ONE_HIT, p_cell_model2);
@@ -384,7 +384,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, 4.804);
         }
 
-        p_cell_model_1->ResetModel();
+        p_cell_model_1->ResetForDivision();
         double second_cycle_start = p_cell_model_1->GetBirthTime();
         
         TS_ASSERT_DELTA(SG2MDuration, 10.0, 1e-5);
@@ -438,7 +438,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, 7.82);
         }
         
-        p_cell_model_1->ResetModel();
+        p_cell_model_1->ResetForDivision();
         
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -478,7 +478,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, 3.9435);
         }
 
-        p_cell_model_2->ResetModel();
+        p_cell_model_2->ResetForDivision();
         
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -518,7 +518,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, 5.971);
         }
         
-        p_cell_model_2->ResetModel();
+        p_cell_model_2->ResetForDivision();
         
         for (int i=0; i<num_timesteps/2; i++)
         {
@@ -615,7 +615,7 @@ public:
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),true)
         TS_ASSERT_EQUALS(p_cell_model2->ReadyToDivide(),true);
         
-        TS_ASSERT_THROWS_NOTHING(p_cell_model->ResetModel());     
+        TS_ASSERT_THROWS_NOTHING(p_cell_model->ResetForDivision());     
 
         CellwiseData<2>::Destroy();
     }

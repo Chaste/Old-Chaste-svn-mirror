@@ -73,9 +73,9 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const
  * Should only be called by the TissueCell Divide() method.
  *
  */
-void Alarcon2004OxygenBasedCellCycleModel::ResetModel()
+void Alarcon2004OxygenBasedCellCycleModel::ResetForDivision()
 {	
-    AbstractOdeBasedCellCycleModel::ResetModel();
+    AbstractOdeBasedCellCycleModel::ResetForDivision();
     assert(mpOdeSystem!=NULL);
     
     // This model needs the protein concentrations and phase resetting to G0/G1.

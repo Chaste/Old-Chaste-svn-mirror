@@ -53,7 +53,7 @@ public:
     virtual ~AbstractSimpleMeinekeCellCycleModel()
     {}
         
-    void ResetModel();
+    void ResetForDivision();
     
     void InitialiseDaughterCell();
     

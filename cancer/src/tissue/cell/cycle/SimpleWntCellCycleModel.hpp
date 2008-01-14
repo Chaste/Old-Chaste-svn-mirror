@@ -51,7 +51,7 @@ public:
         
     AbstractCellCycleModel *CreateDaughterCellCycleModel(); 
         
-    void ResetModel();
+    void ResetForDivision();
     
     void InitialiseDaughterCell();        
 };
