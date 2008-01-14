@@ -12,9 +12,9 @@ close all
 clear
 
 % Experiment Setup
-title_string = 'Simple Wnt Cells in Sunter iii) Geometry';
+title_string = 'Simple Wnt Cells in Sunter i) Geometry';
 crypt_height = 30;
-path = '/local/pmxgm/Simulation_Results/16_stem_cell_Meineke_recreate/sunter3/';
+path = '/local/pmxgm/Simulation_Results/sunter1/';
 % End of setup
 
 addpath('../');	% Adds the LoadNonConstantLengthData function.

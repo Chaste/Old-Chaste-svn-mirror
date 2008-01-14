@@ -37,9 +37,6 @@ public :
      * Free any memory allocated by the constructor
      */
      virtual ~CryptStatistics() {}; 
-     
-     
- 
     
     /**
      *  Get all cells within a cell width of the section defined as the line between points (xBottom,0)
