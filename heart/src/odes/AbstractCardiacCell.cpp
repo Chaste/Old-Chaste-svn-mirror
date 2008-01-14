@@ -73,6 +73,11 @@ double AbstractCardiacCell::GetVoltage()
     return rGetStateVariables()[mVoltageIndex];
 }
 
+unsigned AbstractCardiacCell::GetVoltageIndex()
+{
+    return mVoltageIndex;
+}
+
 void AbstractCardiacCell::SetStimulusFunction(AbstractStimulusFunction *stimulus)
 {
     SetIntracellularStimulusFunction(stimulus);

@@ -142,6 +142,7 @@ public:
         
         EulerIvpOdeSolver solver;
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
+        TS_ASSERT_EQUALS(lr91_ode_system.GetVoltageIndex(), 4u); // For coverage
         
         // Solve and write to file
         ck_start = clock();

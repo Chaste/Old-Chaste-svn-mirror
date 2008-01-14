@@ -65,6 +65,8 @@ public:
     
     double GetVoltage();
     
+    unsigned GetVoltageIndex();
+    
     void SetStimulusFunction(AbstractStimulusFunction *stimulus);
     
     double GetStimulus(double time);
