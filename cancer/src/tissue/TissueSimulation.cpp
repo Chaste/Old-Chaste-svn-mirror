@@ -33,8 +33,7 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue,
 {
     #define COVERAGE_IGNORE
     assert(DIM==2 || DIM==3); // there are no instances of TissueSimulation<1>
-    #undef COVERAGE_IGNORE
-        
+    #undef COVERAGE_IGNORE        
     
     CancerEventHandler::BeginEvent(CANCER_EVERYTHING);
 
@@ -42,13 +41,13 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue,
     mInitialiseCells = initialiseCells;
     
     mpParams = CancerParameters::Instance();
-    // this line sets a random seed of 0 if it wasn't specified earlier.
+    // This line sets a random seed of 0 if it wasn't specified earlier.
     mpRandomGenerator = RandomNumberGenerator::Instance();
     
     mDt = 1.0/120.0; // Timestep of 30 seconds (as per Meineke)
     mEndTime = 0.0; // hours - this is set later on.
     
-    // defaults
+    // Defaults
     mOutputDirectory = "";
     mSimulationOutputDirectory = mOutputDirectory;
     mReMesh = true;
@@ -116,7 +115,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
     {
         TissueCell& cell = *cell_iter;
 
-        // check if this cell is ready to divide - if so create a new cell etc.
+        // Check if this cell is ready to divide - if so create a new cell etc.
         if (cell.GetAge()>0.0)
         {
             if (cell.ReadyToDivide())
@@ -143,7 +142,7 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
 {
     unsigned num_deaths_this_step=0;
         
-    // this labels cells as dead or apoptosing. It does not actually remove the cells, 
+    // This labels cells as dead or apoptosing. It does not actually remove the cells, 
     // tissue.RemoveDeadCells() needs to be called for this.
     for(unsigned killer_index = 0; killer_index<mCellKillers.size(); killer_index++)
     {
@@ -170,14 +169,6 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
     // Make a random direction vector of the required length
     c_vector<double, DIM> random_vector;
     
-//    if(DIM==1)
-//    {
-//        random_vector(0) = 0.5*separation;
-//
-//        daughter_coords = parent_coords+random_vector;
-//        parent_coords = parent_coords-random_vector;
-//    }   
-//    else if(DIM==2)
     if (DIM==2)
     {
         double random_angle = RandomNumberGenerator::Instance()->ranf();
@@ -191,9 +182,9 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
     }
     else if (DIM==3)
     {
-        double random_zenith_angle = RandomNumberGenerator::Instance()->ranf();// phi 
+        double random_zenith_angle = RandomNumberGenerator::Instance()->ranf(); // phi 
         random_zenith_angle *= M_PI;
-        double random_azimuth_angle = RandomNumberGenerator::Instance()->ranf();// theta
+        double random_azimuth_angle = RandomNumberGenerator::Instance()->ranf(); // theta
         random_azimuth_angle *= 2*M_PI;
         
         random_vector(0) = 0.5*separation*cos(random_azimuth_angle)*sin(random_zenith_angle);
@@ -204,7 +195,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
         parent_coords = parent_coords-random_vector;
     }
         
-    // set the parent to use this location
+    // Set the parent to use this location
     ChastePoint<DIM> parent_coords_point(parent_coords);
     mrTissue.MoveCell(parentCell, parent_coords_point);
     return daughter_coords;
@@ -214,7 +205,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 template<unsigned DIM> 
 void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt)
 {
-    // update ghost positions first because they do not affect the real cells
+    // Update ghost positions first because they do not affect the real cells
     mrTissue.UpdateGhostPositions(mDt);
 
     // Iterate over all cells to update their positions.
@@ -314,6 +305,7 @@ Tissue<DIM>& TissueSimulation<DIM>::rGetTissue()
 {
     return mrTissue;
 }
+
 
 template<unsigned DIM> 
 const Tissue<DIM>& TissueSimulation<DIM>::rGetTissue() const
@@ -493,18 +485,18 @@ void TissueSimulation<DIM>::Solve()
                                 true,
                                 mOutputCellTypes);
 
-    CryptVoronoiDataWriter<DIM>* p_voronoi_data_writer = NULL;
-    if(mWriteVoronoiData)
+    TissueVoronoiDataWriter<DIM>* p_voronoi_data_writer = NULL;
+    if (mWriteVoronoiData)
     {
-        p_voronoi_data_writer = new CryptVoronoiDataWriter<DIM>(mrTissue,
+        p_voronoi_data_writer = new TissueVoronoiDataWriter<DIM>(mrTissue,
                                                                 mSimulationOutputDirectory+"/vis_results/",
                                                                 "results.visvoronoi",
                                                                 mFollowLoggedCell);
     }
     
-    if(mWriteTissueAreas)
+    if (mWriteTissueAreas)
     {
-        p_voronoi_data_writer = new CryptVoronoiDataWriter<DIM>(mrTissue,
+        p_voronoi_data_writer = new TissueVoronoiDataWriter<DIM>(mrTissue,
                                                                 mSimulationOutputDirectory,
                                                                 "Areas.dat",
                                                                 false);
@@ -557,13 +549,12 @@ void TissueSimulation<DIM>::Solve()
         }
         CancerEventHandler::EndEvent(TESSELLATION);
 
-        //  calculate node velocities
+        //  Calculate node velocities
         CancerEventHandler::BeginEvent(VELOCITY);
         std::vector<c_vector<double, DIM> >& drdt = mpMechanicsSystem->rCalculateVelocitiesOfEachNode();
         CancerEventHandler::EndEvent(VELOCITY);
 
-
-        // update node positions
+        // Update node positions
         CancerEventHandler::BeginEvent(POSITION);
         UpdateNodePositions(drdt);
         CancerEventHandler::EndEvent(POSITION);
@@ -572,6 +563,7 @@ void TissueSimulation<DIM>::Solve()
         p_simulation_time->IncrementTimeOneStep();
         
         CancerEventHandler::BeginEvent(OUTPUT);
+        
         // Write results to file
         mrTissue.WriteResultsToFiles(tabulated_node_writer, 
                                     tabulated_element_writer, 
@@ -580,12 +572,12 @@ void TissueSimulation<DIM>::Solve()
                                     true,
                                     mOutputCellTypes);
                                     
-        if(mWriteVoronoiData)
+        if (mWriteVoronoiData)
         {
             p_voronoi_data_writer->WriteData();
         }
                                     
-        if(mWriteTissueAreas)
+        if (mWriteTissueAreas)
         {
             p_voronoi_data_writer->WriteTissueAreas();
         }
@@ -669,7 +661,7 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
         mrTissue.ReMesh();
     }
     
-    // the false is so the directory isn't cleaned
+    // The false is so the directory isn't cleaned
     TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);
     mesh_writer.WriteFilesUsingMesh(mrTissue.rGetMesh());
     

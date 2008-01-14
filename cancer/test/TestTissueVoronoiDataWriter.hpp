@@ -7,7 +7,7 @@
 #include <vector>
 #include "FixedCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "CryptVoronoiDataWriter.hpp"
+#include "TissueVoronoiDataWriter.hpp"
 #include "CellsGenerator.hpp"
 
 /**
@@ -15,7 +15,7 @@
  * so if you copy them into a new test suite be sure to copy these methods
  * too.
  */
-class TestCryptVoronoiDataWriter : public CxxTest::TestSuite
+class TestTissueVoronoiDataWriter : public CxxTest::TestSuite
 {    
 private:
 
@@ -34,115 +34,116 @@ public:
 
     void TestDataWriter()
     {
-        // set up the simulation time object so the cells can be created
+        // Set up the simulation time object so the cells can be created
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,1);
         
-        // create a simple mesh
+        // Create a simple mesh
         HoneycombMeshGenerator generator(5, 5, 2, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
         
-        // create the crypt
+        // Create the crypt
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
-        Tissue<2> crypt(*p_mesh,cells);
-        crypt.SetGhostNodes(ghost_node_indices);
-        crypt.CreateVoronoiTessellation();
+        Tissue<2> tissue(*p_mesh,cells);
+        tissue.SetGhostNodes(ghost_node_indices);
+        tissue.CreateVoronoiTessellation();
         
-        // put this in brackets just so the writer does out scope, so its destructor
+        // Put this in brackets just so the writer does out scope, so its destructor
         // gets called and the file gets closed
         {        
-            CryptVoronoiDataWriter<2> writer(crypt,"TestCryptVoronoiDataWriter","Simple.dat");
+            TissueVoronoiDataWriter<2> writer(tissue,"TestTissueVoronoiDataWriter","Simple.dat");
             writer.WriteData();
             p_simulation_time->IncrementTimeOneStep();
             writer.WriteData();
         }
 
-        // work out where the previous test wrote its files
-        OutputFileHandler handler("TestCryptVoronoiDataWriter",false);
+        // Work out where the previous test wrote its files
+        OutputFileHandler handler("TestTissueVoronoiDataWriter",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "Simple.dat";
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/Simple.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestTissueVoronoiDataWriter/Simple.dat").c_str()), 0);
     }
 
     void TestDataWriterWithLoggedCell()
     {
-        // set up the simulation time object so the cells can be created
+        // Set up the simulation time object so the cells can be created
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,1);
         
-        // create a simple mesh
+        // Create a simple mesh
         HoneycombMeshGenerator generator(5, 5, 2, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
         
-        // create the crypt
+        // Create the crypt
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
-        Tissue<2> crypt(*p_mesh,cells);
-        crypt.SetGhostNodes(ghost_node_indices);
+        Tissue<2> tissue(*p_mesh,cells);
+        tissue.SetGhostNodes(ghost_node_indices);
         
-        // flag a cell
-        crypt.Begin()->SetLogged();
+        // Flag a cell
+        tissue.Begin()->SetLogged();
         
-        crypt.CreateVoronoiTessellation();
+        tissue.CreateVoronoiTessellation();
         
-        // put this in brackets just so the writer goes out of scope, 
+        // Put this in brackets just so the writer goes out of scope, 
         // so its destructor gets called and the file gets closed.
         {        
-            CryptVoronoiDataWriter<2> writer(crypt,"TestCryptVoronoiDataWriter","OneCell.dat", true);
+            TissueVoronoiDataWriter<2> writer(tissue,"TestTissueVoronoiDataWriter","OneCell.dat", true);
             writer.WriteData();
             p_simulation_time->IncrementTimeOneStep();
             writer.WriteData();
         }
 
-        // work out where the previous test wrote its files
-        OutputFileHandler handler("TestCryptVoronoiDataWriter",false);
+        // Work out where the previous test wrote its files
+        OutputFileHandler handler("TestTissueVoronoiDataWriter",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "OneCell.dat";
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/OneCell.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestTissueVoronoiDataWriter/OneCell.dat").c_str()), 0);
     }
     
     void TestWriteTissueAreas()
     {
-        // set up the simulation time object so the cells can be created
+        // Set up the simulation time object so the cells can be created
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0,1);
-        
-        // create a simple mesh
+
+        // Create a simple mesh
         HoneycombMeshGenerator generator(4, 4, 0, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
-        
-        // create the crypt
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();   
+
+        // Create the crypt
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
-        // set one of the non-boundary cells to be necrotic
+
+        // Set one of the non-boundary cells to be necrotic
         cells[6].SetCellType(NECROTIC);
         
-        Tissue<2> crypt(*p_mesh,cells);
-        crypt.SetGhostNodes(ghost_node_indices);
-        crypt.CreateVoronoiTessellation();
-        
-        // put this in brackets just so the writer does out scope, so its destructor
+        Tissue<2> tissue(*p_mesh,cells);
+        tissue.SetGhostNodes(ghost_node_indices);
+        tissue.CreateVoronoiTessellation();
+
+        // Put this in brackets just so the writer does out scope, so its destructor
         // gets called and the file gets closed
         {        
-            CryptVoronoiDataWriter<2> writer(crypt,"TestCryptVoronoiDataWriter","Areas.dat");
+            TissueVoronoiDataWriter<2> writer(tissue,"TestTissueVoronoiDataWriter","Areas.dat");
             writer.WriteTissueAreas();
             p_simulation_time->IncrementTimeOneStep();
             writer.WriteTissueAreas();
         }
 
-        // work out where the previous test wrote its files
-        OutputFileHandler handler("TestCryptVoronoiDataWriter",false);
+        // Work out where the previous test wrote its files
+        OutputFileHandler handler("TestTissueVoronoiDataWriter",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "Areas.dat";
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestCryptVoronoiDataWriter/Areas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestTissueVoronoiDataWriter/Areas.dat").c_str()), 0);
 
-        // expect 3.4641016 for total area and 0.8660255 for necrotic
+        // Expect 3.4641016 for total area and 0.8660255 for necrotic
         // because each cell is 0.8660255 and there is one nectoric and four non-boundary cells in total.
     }
 };
 
 
-#endif /*TESTCRYPTVORONOIDATAWRITER_HPP_*/
+#endif /*TESTTISSUEVORONOIDATAWRITER_HPP_*/

@@ -12,7 +12,7 @@
 #include "RandomCellKiller.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "Tissue.cpp"
-#include "CryptVoronoiDataWriter.hpp"
+#include "TissueVoronoiDataWriter.hpp"
 #include "WntGradient.hpp"
 #include <vector>
 

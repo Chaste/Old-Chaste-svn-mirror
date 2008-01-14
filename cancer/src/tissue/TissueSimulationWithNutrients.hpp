@@ -43,6 +43,8 @@ private :
     	    mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");
     	    *this->mpSetupFile << "Nutrient \n" ;
     	}
+        
+        
     } 
     
     void WriteNutrient()
@@ -63,8 +65,6 @@ private :
     		     cell_iter != this->mrTissue.End();
     		     ++cell_iter)
     	    {
-        		// \todo: we don't need this anymore since there are no ghost nodes,
-        		// but we'd need to change the visualizer before we take this out
         		global_index = (double) cell_iter.GetNode()->GetIndex();
         		x = cell_iter.rGetLocation()[0];
         		y = cell_iter.rGetLocation()[1];
@@ -72,8 +72,7 @@ private :
         		nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
                     
         		(*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
-    	    }
-            
+    	    }            
     	    (*mpNutrientResultsFile) << "\n";
     	}
     }
@@ -127,7 +126,8 @@ private :
             Vec initial_guess;
             VecDuplicate(mOxygenSolution, &initial_guess);
             VecCopy(mOxygenSolution, initial_guess);
-            // use current solution as the initial guess
+            
+            // Use current solution as the initial guess
             VecDestroy(mOxygenSolution);    // Solve method makes its own mOxygenSolution
             mOxygenSolution = assembler.Solve(initial_guess);
             VecDestroy(initial_guess);
@@ -181,9 +181,7 @@ private :
 //        mOxygenSolution = assembler.Solve(initial_guess);
 //        VecDestroy(initial_guess);
 //        ReplicatableVector result_repl(mOxygenSolution);
-  
-  
-        
+          
         // Update cellwise data
         for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
         {
@@ -264,7 +262,6 @@ public:
         *this->mpSetupFile << "FinalMeshSize\t" << std::max((this)->mrTissue.rGetMesh().GetWidth(0u),(this)->mrTissue.rGetMesh().GetWidth(1u));
         this->mpSetupFile->close();
     }
-    
     
     /**
      * Saves the whole tissue simulation for restarting later.

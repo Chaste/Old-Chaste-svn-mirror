@@ -134,7 +134,7 @@ private :
         {
             if( distance_between_nodes_3d >= mCutoffPoint )
             {
-                // return zero force
+                // Return zero force
                 return zero_vector<double>(2); 
             }
         }        

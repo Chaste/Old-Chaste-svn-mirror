@@ -1,16 +1,16 @@
-#ifndef CRYPTVORONOIDATAWRITER_HPP_
-#define CRYPTVORONOIDATAWRITER_HPP_
+#ifndef TISSUEVORONOIDATAWRITER_HPP_
+#define TISSUEVORONOIDATAWRITER_HPP_
 
 #include "Tissue.cpp"
 #include "OutputFileHandler.hpp"
 #include "CellTypes.hpp"
 
 /**
- *  CryptVoronoiDataWriter
+ *  TissueVoronoiDataWriter
  *  
  *  Write position and voronoi cell area and perimeter data for each cell.
- *  Usage: create a crypt, create this writer. Everytime timestep create the 
- *  tessellation on the crypt and call WriteData() on this class. 
+ *  Usage: create a tissue, create this writer. Everytime timestep create the 
+ *  tessellation on the tissue and call WriteData() on this class. 
  * 
  *  Alternatively call SetLogged() on a cell and pass true for the final
  *  argument of the constructor so just log ONE cell. Note only one cell is 
@@ -27,17 +27,17 @@
  *  Templated over dim but only meant for dim=2
  */
 template<unsigned DIM>
-class CryptVoronoiDataWriter
+class TissueVoronoiDataWriter
 {
 private:
-    Tissue<DIM>& mrCrypt;
+    Tissue<DIM>& mrTissue;
     out_stream mOutStream;
     bool mFollowLoggedCell;
     
     
 public:
-    CryptVoronoiDataWriter(Tissue<DIM>& rCrypt, std::string directory, std::string filename, bool followLoggedCell = false)
-        :mrCrypt(rCrypt),
+    TissueVoronoiDataWriter(Tissue<DIM>& rTissue, std::string directory, std::string filename, bool followLoggedCell = false)
+        :mrTissue(rTissue),
          mFollowLoggedCell(followLoggedCell)
     {
         #define COVERAGE_IGNORE
@@ -45,11 +45,10 @@ public:
         #undef COVERAGE_IGNORE
         OutputFileHandler output_file_handler(directory,false);
         mOutStream = output_file_handler.OpenOutputFile(filename);
-        (*mOutStream)<< std::setprecision(8);
-        
+        (*mOutStream)<< std::setprecision(8);        
     }
 
-    ~CryptVoronoiDataWriter()
+    ~TissueVoronoiDataWriter()
     {
         mOutStream->close();
     }
@@ -57,8 +56,8 @@ public:
     void WriteData()
     {
         (*mOutStream)<< SimulationTime::Instance()->GetDimensionalisedTime() << " ";
-        for (typename Tissue<DIM>::Iterator cell_iter = mrCrypt.Begin();
-             cell_iter != mrCrypt.End();
+        for (typename Tissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+             cell_iter != mrTissue.End();
              ++cell_iter)
         {
             if((!mFollowLoggedCell) || ((mFollowLoggedCell) && (cell_iter->IsLogged())))
@@ -67,8 +66,8 @@ public:
                 double x = cell_iter.rGetLocation()[0];
                 double y = cell_iter.rGetLocation()[1];
             
-                double cell_area = mrCrypt.rGetVoronoiTessellation().GetFace(node_index)->GetArea();
-                double cell_perimeter = mrCrypt.rGetVoronoiTessellation().GetFace(node_index)->GetPerimeter();
+                double cell_area = mrTissue.rGetVoronoiTessellation().GetFace(node_index)->GetArea();
+                double cell_perimeter = mrTissue.rGetVoronoiTessellation().GetFace(node_index)->GetPerimeter();
             
                 (*mOutStream)<< node_index << " " << x << " " << y << " " << cell_area << " " << cell_perimeter << " ";
                 
@@ -82,29 +81,30 @@ public:
     }
     
     void WriteTissueAreas()
-    {
-        double total_cell_area=0.0;
-        double necrotic_cell_area=0.0;
-        
+    {         
         (*mOutStream)<< SimulationTime::Instance()->GetDimensionalisedTime() << " ";
-        for (typename Tissue<DIM>::Iterator cell_iter = mrCrypt.Begin();
-             cell_iter != mrCrypt.End();
+        
+        // Don't use the Voronoi tessellation to calculate the total area
+        // because it gives huge areas for boundary cells
+        double total_area = mrTissue.rGetMesh().CalculateMeshVolume();    
+            
+        double necrotic_area = 0.0;
+        
+        for (typename Tissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+             cell_iter != mrTissue.End();
              ++cell_iter)
         {
-            if (! cell_iter.GetNode()->IsBoundaryNode())
+            // Only bother calculating the cell area if it is necrotic
+            if (cell_iter->GetCellType() == NECROTIC)
             {
-                unsigned node_index = cell_iter.GetNode()->GetIndex();
-                double cell_area = mrCrypt.rGetVoronoiTessellation().GetFace(node_index)->GetArea();
-                total_cell_area += cell_area;
-                if ( cell_iter->GetCellType() == NECROTIC )
-                {
-                    necrotic_cell_area += cell_area;
-                }
+                unsigned node_index = cell_iter.GetNode()->GetIndex();                
+                double cell_area = mrTissue.rGetVoronoiTessellation().GetFace(node_index)->GetArea();
+                necrotic_area += cell_area;
             }
-        }
-
-        (*mOutStream)<< total_cell_area << " " << necrotic_cell_area << "\n";
+        }       
+        
+        (*mOutStream) << total_area << " " << necrotic_area << "\n";
     }
 };
 
-#endif /*CRYPTVORONOIDATAWRITER_HPP_*/
+#endif /*TISSUEVORONOIDATAWRITER_HPP_*/

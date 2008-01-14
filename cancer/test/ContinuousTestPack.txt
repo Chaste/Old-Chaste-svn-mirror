@@ -14,7 +14,7 @@ TestCryptProjectionStatistics.hpp
 TestCryptSimulation1d.hpp
 TestCryptSimulation2d.hpp
 TestCryptStatistics.hpp
-TestCryptVoronoiDataWriter.hpp
+TestTissueVoronoiDataWriter.hpp
 TestCylindrical2dMesh.hpp
 TestDiscreteSystemForceCalculator.hpp
 TestHoneycombMeshGenerator.hpp
