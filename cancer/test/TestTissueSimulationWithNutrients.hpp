@@ -138,7 +138,7 @@ public:
      * Secondly, test that cells' hypoxic durations are correctly updated when a 
      * nutrient distribution is prescribed.
      */
-    void xTestPostSolveMethod() throw(Exception)
+    void TestPostSolveMethod() throw(Exception)
     {
         if (!PetscTools::IsSequential())
         {
@@ -295,7 +295,7 @@ public:
         // Set up tissue simulation
         TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithOxygen");
-        simulator.SetEndTime(1);
+        simulator.SetEndTime(0.5);
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
         simulator.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius   
@@ -313,7 +313,7 @@ public:
     }
     
         
-    void xTestWithPointwiseNutrientSink() throw(Exception)
+    void TestWithPointwiseNutrientSink() throw(Exception)
     {
         if (!PetscTools::IsSequential())
         {
@@ -411,7 +411,7 @@ public:
      * Note: if the previous test is changed we need to update the file 
      * this test refers to. 
      */
-    void xTestWriteNutrient() throw (Exception)
+    void TestWriteNutrient() throw (Exception)
     {
         if (!PetscTools::IsSequential())
         {
@@ -429,7 +429,7 @@ public:
      * This test compares the visualizer output from the previous test 
      * with a known file.
      */ 
-    void xTestSpheroidStatistics() throw (Exception)
+    void TestSpheroidStatistics() throw (Exception)
     {
         if (!PetscTools::IsSequential())
         {
@@ -529,7 +529,7 @@ public:
     }
     
     
-    void xTestArchiving() throw (Exception)
+    void TestArchiving() throw (Exception)
     {
         if (!PetscTools::IsSequential())
         {
