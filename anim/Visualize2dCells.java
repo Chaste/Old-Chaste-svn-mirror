@@ -1467,7 +1467,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         for (int i=1; i<=num_blocks; i++)
         {       
             // Calculate colour 
-        	int g = Math.min(100+16*i,255);
+        	int g = Math.min(100+16*(num_blocks-i+1),255);
             Color colour = new Color(100,g,100);
             g2.setColor(colour);
             
