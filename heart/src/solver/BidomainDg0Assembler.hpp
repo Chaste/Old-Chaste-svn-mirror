@@ -37,10 +37,18 @@
  */
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class BidomainDg0Assembler : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 2, false>,
-                             public AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 2>
+class BidomainDg0Assembler
+    : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 2, false, BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >,
+      public AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 2>
 {
 private:
+    // Save typing
+    typedef BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> SelfType;
+    typedef AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 2, false, SelfType> BaseClassType;
+
+    /// Allow the AbstractStaticAssembler to call our private/protected methods using static polymorphism.
+    friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 2, false, SelfType>;
+
     BidomainPde<SPACE_DIM>* mpBidomainPde;
     
     // quantities to be interpolated
@@ -206,7 +214,7 @@ private:
     /**
      *  PrepareForAssembleSystem
      * 
-     *  Called at the beginning of AbstractLinearAssmebler::AssembleSystem() 
+     *  Called at the beginning of AbstractLinearAssembler::AssembleSystem() 
      *  after the system. Here, used to integrate cell odes.
      */
     virtual void PrepareForAssembleSystem(Vec currentSolution, double time)
@@ -308,7 +316,7 @@ public:
                          unsigned numQuadPoints = 2,
                          double linearSolverRelativeTolerance = 1e-6) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,2>(),
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,2, false>(numQuadPoints, linearSolverRelativeTolerance),
+            BaseClassType(numQuadPoints, linearSolverRelativeTolerance),
             AbstractDynamicAssemblerMixin<ELEMENT_DIM,SPACE_DIM,2>()
     {
         assert(pPde != NULL);

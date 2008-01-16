@@ -26,13 +26,19 @@
  * It probably needs re-writing to take advantage of parallel machines.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class SimpleNonlinearEllipticAssembler : public AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, 1>
+class SimpleNonlinearEllipticAssembler
+  : public AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> >
 {
+public:
+    typedef SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> SelfType;
+    typedef AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, SelfType> BaseClassType;
+
+private:
+    friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1, true, SelfType>;
     // Allow tests to access private members, in order to test computation of
     // residual & jacobian directly.
     friend class TestSimpleNonlinearEllipticAssembler;
-    
-private:
+
     /*< The pde to be solved */
     AbstractNonlinearEllipticPde<SPACE_DIM> *mpNonlinearEllipticPde;
     
@@ -145,7 +151,7 @@ public :
                                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
                                       unsigned numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
-            AbstractNonlinearAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
+            BaseClassType(numQuadPoints)
     {
         // Store data structures
         assert(pMesh!=NULL);

@@ -34,13 +34,13 @@
  *
  * [The implementations are at the bottom of this file]
  */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
 PetscErrorCode AbstractNonlinearAssembler_AssembleResidual(SNES snes,
         Vec currentGuess,
         Vec residualVector,
         void *pContext);
         
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
 PetscErrorCode AbstractNonlinearAssembler_AssembleJacobian(SNES snes,
         Vec currentGuess,
         Mat *pGlobalJacobian,
@@ -53,9 +53,10 @@ PetscErrorCode AbstractNonlinearAssembler_AssembleJacobian(SNES snes,
 /**
  *  AbstractNonlinearAssembler
  */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class AbstractNonlinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, true>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
+class AbstractNonlinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,CONCRETE>
 {
+    typedef AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,CONCRETE> BaseClassType;
 private:
     Vec mInitialGuess;
 protected:
@@ -235,8 +236,7 @@ protected:
     {
         // If the problem is nonlinear the currentGuess MUST be specifed
         assert( currentGuess );
-        AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, true>::AssembleSystem(
-            assembleVector, assembleMatrix, currentGuess, currentTime);
+        BaseClassType::AssembleSystem(assembleVector, assembleMatrix, currentGuess, currentTime);
     }
     
     bool ProblemIsNonlinear()
@@ -281,8 +281,8 @@ protected:
         
         // run the solver, telling it which global functions to call in order to assemble
         // the residual or jacobian
-        Vec answer = this->mpSolver->Solve(&AbstractNonlinearAssembler_AssembleResidual<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
-                                           &AbstractNonlinearAssembler_AssembleJacobian<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
+        Vec answer = this->mpSolver->Solve(&AbstractNonlinearAssembler_AssembleResidual<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>,
+                                           &AbstractNonlinearAssembler_AssembleJacobian<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>,
                                            currentSolutionOrGuess,
                                            this);
         return answer;
@@ -293,7 +293,7 @@ public:
      * Constructors just call the base class versions.
      */
     AbstractNonlinearAssembler(unsigned numQuadPoints = 2) :
-            AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, true>(numQuadPoints)
+            BaseClassType(numQuadPoints)
     {
         mpSolver = new SimplePetscNonlinearSolver;
         mWeAllocatedSolverMemory = true;
@@ -491,13 +491,13 @@ public:
  * Note: this is a global function, hence the need for a long name to avoid
  * potential conflicting names later
  */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
 PetscErrorCode AbstractNonlinearAssembler_AssembleResidual(SNES snes, Vec currentGuess,
         Vec residualVector, void *pContext)
 {
     // Extract an assembler from the void*
-    AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pAssembler =
-        (AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
+    AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE> *pAssembler =
+        (AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>*) pContext;
         
     PetscErrorCode ierr = pAssembler->AssembleResidual(currentGuess, residualVector);
     
@@ -525,7 +525,7 @@ PetscErrorCode AbstractNonlinearAssembler_AssembleResidual(SNES snes, Vec curren
  * Note: this is a global function, hence the need a long name to avoid
  * potential conflicting names later
  */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
 PetscErrorCode AbstractNonlinearAssembler_AssembleJacobian(SNES snes, Vec currentGuess,
         Mat *pGlobalJacobian, Mat *pPreconditioner,
         MatStructure *pMatStructure, void *pContext)
@@ -533,8 +533,8 @@ PetscErrorCode AbstractNonlinearAssembler_AssembleJacobian(SNES snes, Vec curren
     //std::cout << "begin assemble jacobian\n";
     
     // Extract an assembler from the void*
-    AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pAssembler =
-        (AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
+    AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE> *pAssembler =
+        (AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>*) pContext;
         
     PetscErrorCode ierr = pAssembler->AssembleJacobian(currentGuess, pGlobalJacobian);
     //std::cout << "end assemble jacobian\n";

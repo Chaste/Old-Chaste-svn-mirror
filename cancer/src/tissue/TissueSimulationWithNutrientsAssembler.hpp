@@ -20,8 +20,11 @@
  *  be known at the cells (nodes), not the gauss points.
  */
 template<unsigned DIM>
-class TissueSimulationWithNutrientsAssembler : public SimpleLinearEllipticAssembler<DIM, DIM>
+class TissueSimulationWithNutrientsAssembler
+    : public SimpleLinearEllipticAssembler<DIM, DIM, TissueSimulationWithNutrientsAssembler<DIM> >
 {
+    typedef SimpleLinearEllipticAssembler<DIM, DIM, TissueSimulationWithNutrientsAssembler<DIM> > BaseClassType;
+    friend class AbstractStaticAssembler<DIM, DIM, 1u, true, BaseClassType>;
 private:
     /** The constant in u part of the source term, interpolated onto
      *  the current point 
@@ -97,7 +100,7 @@ public:
                                   AbstractLinearEllipticPde<DIM>* pPde,
                                   BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2) :
-            SimpleLinearEllipticAssembler<DIM,DIM>(pMesh, pPde, pBoundaryConditions, numQuadPoints)
+            BaseClassType(pMesh, pPde, pBoundaryConditions, numQuadPoints)
     {
     }
     

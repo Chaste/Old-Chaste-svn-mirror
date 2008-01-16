@@ -15,6 +15,8 @@
 #include "AbstractLinearEllipticPde.hpp"
 #include "ReplicatableVector.hpp"
 
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/void.hpp>
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -47,8 +49,13 @@ public:
 //
 //   \lambda is taken in in the constructor
 //////////////////////////////////////////////////////////////////////////////
-class MySimpleCoupledAssembler : public AbstractLinearAssembler<2,2,2, true>
+template<class CONCRETE = boost::mpl::void_>
+class MySimpleCoupledAssembler : public AbstractLinearAssembler<2,2,2, true, MySimpleCoupledAssembler<CONCRETE> >
 {
+    typedef MySimpleCoupledAssembler<CONCRETE> SelfType;
+    typedef AbstractLinearAssembler<2,2,2, true, SelfType> BaseClassType;
+    friend class AbstractStaticAssembler<2, 2, 2, true, SelfType>;
+
     double mLambda;
     
     virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeMatrixTerm(c_vector<double, 2+1> &rPhi,
@@ -118,12 +125,25 @@ public:
                              BoundaryConditionsContainer<2,2,2>* pBoundaryConditions,
                              double lambda) :
             AbstractAssembler<2,2,2>(),
-            AbstractLinearAssembler<2,2,2, true>()
+            BaseClassType()
     {
-        mpMesh = pMesh;
-        mpBoundaryConditions = pBoundaryConditions;
+        this->mpMesh = pMesh;
+        this->mpBoundaryConditions = pBoundaryConditions;
         mLambda = lambda;
     }
+};
+
+template<class CONCRETE>
+struct AssemblerTraits<MySimpleCoupledAssembler<CONCRETE> >
+{
+    typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
+                                     MySimpleCoupledAssembler<CONCRETE>,
+                                     typename AssemblerTraits<CONCRETE>::CVT_CLS>::type
+            CVT_CLS;
+    typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
+                                     MySimpleCoupledAssembler<CONCRETE>,
+                                     typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
+            CMT_CLS;
 };
 
 
@@ -139,8 +159,10 @@ public:
 // ComputeMatrixTerm() and ComputeSurfaceRhsTerm() are identical to MySimpleCoupledAssembler
 //  (above), so this class inherits from MySimpleCoupledAssembler
 //////////////////////////////////////////////////////////////////////////////
-class AnotherCoupledAssembler : public MySimpleCoupledAssembler
+class AnotherCoupledAssembler : public MySimpleCoupledAssembler<AnotherCoupledAssembler>
 {
+    friend class AbstractStaticAssembler<2, 2, 2, true, MySimpleCoupledAssembler<AnotherCoupledAssembler> >;
+
     double f(double x,double y)
     {
         return -2*M_PI*M_PI*sin(M_PI*x)*sin(M_PI*y) + sin(2*M_PI*x)*sin(2*M_PI*y);
@@ -172,8 +194,15 @@ public :
     AnotherCoupledAssembler(ConformingTetrahedralMesh<2,2>* pMesh,
                             BoundaryConditionsContainer<2,2,2>* pBoundaryConditions) :
             AbstractAssembler<2,2,2>(),
-            MySimpleCoupledAssembler(pMesh, pBoundaryConditions,0.0)
+            MySimpleCoupledAssembler<AnotherCoupledAssembler>(pMesh, pBoundaryConditions,0.0)
     {}
+};
+
+template<>
+struct AssemblerTraits<AnotherCoupledAssembler>
+{
+    typedef AnotherCoupledAssembler CVT_CLS;
+    typedef MySimpleCoupledAssembler<AnotherCoupledAssembler> CMT_CLS;
 };
 
 
@@ -208,7 +237,7 @@ public:
         bcc_2unknowns.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
         
         // lambda in MySimpleCoupledAssembler = 2
-        MySimpleCoupledAssembler assembler_2unknowns(&mesh,&bcc_2unknowns,2.0);
+        MySimpleCoupledAssembler<> assembler_2unknowns(&mesh,&bcc_2unknowns,2.0);
         Vec result_2unknowns = assembler_2unknowns.Solve();
         ReplicatableVector result_2unknowns_repl(result_2unknowns);
         
@@ -285,7 +314,7 @@ public:
         
         // use assembler to solve (with lambda in MySimpleCoupledAssembler = 1)
         
-        MySimpleCoupledAssembler assembler_2unknowns(&mesh,&bcc_2unknowns,1.0);
+        MySimpleCoupledAssembler<> assembler_2unknowns(&mesh,&bcc_2unknowns,1.0);
         
         Vec result_2unknowns = assembler_2unknowns.Solve();
         ReplicatableVector result_2unknowns_repl(result_2unknowns);

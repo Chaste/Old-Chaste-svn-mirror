@@ -26,12 +26,20 @@
  *  The user should call Solve() from the superclass AbstractDynamicAssemblerMixin.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class MonodomainDg0Assembler : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false>
+class MonodomainDg0Assembler
+    : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
 {
 private:
     double mSourceTerm;
     
     MonodomainPde<SPACE_DIM>* mpMonodomainPde;
+
+    // Save typing
+    typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> SelfType;
+    typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, SelfType> BaseClassType;
+    
+    /// Allow the AbstractStaticAssembler to call our private/protected methods using static polymorphism.
+    friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1u, false, BaseClassType>;
     
 protected:
 
@@ -84,7 +92,7 @@ public:
                            unsigned numQuadPoints = 2,
                            double linearSolverRelativeTolerance = 1e-6) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
-            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM, false>(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints, linearSolverRelativeTolerance)
+            BaseClassType(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints, linearSolverRelativeTolerance)
     {
         mpMonodomainPde = pPde;
         
@@ -105,6 +113,20 @@ public:
         // Let's hope no user called SetBCC!
         delete this->mpBoundaryConditions;
     }
+};
+
+/**
+ * Specialization of AssemblerTraits for the MonodomainDg0Assembler.
+ *
+ * This is always a concrete class, but only defines some of the methods.
+ * For others it thus has to know which base class defines them.
+ */
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+struct AssemblerTraits<MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
+{
+    typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CVT_CLS;
+    typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
+            CMT_CLS;
 };
 
 #endif //_MONODOMAINDG0ASSEMBLER_HPP_

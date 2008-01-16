@@ -13,8 +13,8 @@
 /**
  *  AbstractLinearAssembler. See AbstractAssembler for usage.
  */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART>
-class AbstractLinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
+class AbstractLinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>
 {
 
 protected:
@@ -98,7 +98,7 @@ protected:
 public:
     AbstractLinearAssembler(unsigned numQuadPoints = 2,
                             double linearSolverRelativeTolerance = 1e-6) :
-            AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART>(numQuadPoints)
+            AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>(numQuadPoints)
     {
         mpLinearSolver = new SimpleLinearSolver(linearSolverRelativeTolerance);
     }

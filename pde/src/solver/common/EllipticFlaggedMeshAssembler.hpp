@@ -9,10 +9,13 @@
  * A simple flagged mesh assembler for elliptic PDEs.
  */
 template<unsigned DIM>
-class EllipticFlaggedMeshAssembler : public SimpleLinearEllipticAssembler<DIM,DIM>, public AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>
+class EllipticFlaggedMeshAssembler
+    : public SimpleLinearEllipticAssembler<DIM,DIM,EllipticFlaggedMeshAssembler<DIM> >,
+      public AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>
 {
 private:
-    friend class TestFlaggedMeshAssembler;  
+    friend class TestFlaggedMeshAssembler;
+    typedef SimpleLinearEllipticAssembler<DIM,DIM,EllipticFlaggedMeshAssembler<DIM> > BaseClassType;
     
     /**
      * This needs to be implemented so the compiler knows which subclass version of the
@@ -38,9 +41,18 @@ public :
                                   FlaggedMeshBoundaryConditionsContainer<DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2) :
             AbstractAssembler<DIM,DIM,1>(),
-            SimpleLinearEllipticAssembler<DIM,DIM>(pMesh,pPde,NULL,numQuadPoints),
+            BaseClassType(pMesh,pPde,NULL,numQuadPoints),
             AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>(pBoundaryConditions)
     {
     }
 };
+
+
+template<unsigned DIM>
+struct AssemblerTraits<EllipticFlaggedMeshAssembler<DIM> >
+{
+    typedef SimpleLinearEllipticAssembler<DIM,DIM,EllipticFlaggedMeshAssembler<DIM> > CVT_CLS;
+    typedef SimpleLinearEllipticAssembler<DIM,DIM,EllipticFlaggedMeshAssembler<DIM> > CMT_CLS;
+};
+
 #endif /*ELLIPTICFLAGGEDMESHASSEMBLER_HPP_*/

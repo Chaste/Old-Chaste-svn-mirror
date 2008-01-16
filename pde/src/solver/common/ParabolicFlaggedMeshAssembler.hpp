@@ -9,10 +9,15 @@
  * A simple flagged mesh assembler for parabolic PDEs.
  */
 template<unsigned DIM>
-class ParabolicFlaggedMeshAssembler : public SimpleDg0ParabolicAssembler<DIM, DIM, true>, public AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>
+class ParabolicFlaggedMeshAssembler
+    : public SimpleDg0ParabolicAssembler<DIM, DIM, true, ParabolicFlaggedMeshAssembler<DIM> >,
+      public AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>
 {
+public:
+    typedef SimpleDg0ParabolicAssembler<DIM, DIM, true, ParabolicFlaggedMeshAssembler<DIM> > BaseClassType;
+
 private:
-    friend class TestFlaggedMeshAssembler;  
+    friend class TestFlaggedMeshAssembler;
     
     /**
      * This needs to be implemented so the compiler knows which subclass version of the
@@ -36,10 +41,18 @@ public :
                                   FlaggedMeshBoundaryConditionsContainer<DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2) :
             AbstractAssembler<DIM,DIM,1>(),
-            SimpleDg0ParabolicAssembler<DIM,DIM, true>(pMesh,pPde,NULL,numQuadPoints),
+            BaseClassType(pMesh,pPde,NULL,numQuadPoints),
             AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>(pBoundaryConditions)
     {
         this->SetMatrixIsConstant(false);
     }
 };
+
+template<unsigned DIM>
+struct AssemblerTraits<ParabolicFlaggedMeshAssembler<DIM> >
+{
+    typedef typename ParabolicFlaggedMeshAssembler<DIM>::BaseClassType CVT_CLS;
+    typedef typename ParabolicFlaggedMeshAssembler<DIM>::BaseClassType CMT_CLS;
+};
+
 #endif /*PARABOLICFLAGGEDMESHASSEMBLER_HPP_*/

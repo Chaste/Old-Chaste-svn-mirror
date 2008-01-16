@@ -13,16 +13,23 @@
 #include "AbstractLinearSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 
+#include <boost/mpl/void.hpp>
+#include <boost/mpl/if.hpp>
 
 /**
  *  SimpleLinearEllipticAssembler
  *
  *  Assembler for solving AbstractLinearEllipticPdes
  */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class SimpleLinearEllipticAssembler : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, true>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, class CONCRETE = boost::mpl::void_>
+class SimpleLinearEllipticAssembler : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, true, SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CONCRETE> >
 {
     friend class TestSimpleLinearEllipticAssembler;
+
+    typedef SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CONCRETE> SelfType;
+    typedef AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, true, SelfType> BaseClassType;
+    /// Allow the AbstractStaticAssembler to call our private/protected methods using static polymorphism.
+    friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1, true, SelfType>;
     
 protected:
     AbstractLinearEllipticPde<SPACE_DIM>* mpEllipticPde;
@@ -90,7 +97,7 @@ public:
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1, true>(numQuadPoints)
+            BaseClassType(numQuadPoints)
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later
@@ -104,10 +111,23 @@ public:
      */
     void PrepareForSolve()
     {
-        AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1, true>::PrepareForSolve();
+        BaseClassType::PrepareForSolve();
         assert(mpEllipticPde != NULL);
     }
 };
 
+/** See the AssemblerTraits for SimpleDg0ParabolicAssembler for why this looks like it does */
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, class CONCRETE>
+struct AssemblerTraits<SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CONCRETE> >
+{
+    typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
+                                     SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CONCRETE>,
+                                     typename AssemblerTraits<CONCRETE>::CVT_CLS>::type
+            CVT_CLS;
+    typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
+                                     SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CONCRETE>,
+                                     typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
+            CMT_CLS;
+};
 
 #endif //_SIMPLELINEARELLIPTICASSEMBLER_HPP_

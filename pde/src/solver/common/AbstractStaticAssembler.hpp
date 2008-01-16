@@ -13,6 +13,32 @@
 #include "EventHandler.hpp"
 #include <iostream>
 
+
+/**
+ * A default traits class for using static polymorphism in the assembler hierarchy.
+ *
+ * The AssemblerTraits struct, for a given concrete class T, defines
+ * typedefs specifying where in the hierarchy of assembler classes
+ * various methods are defined, so that we can avoid virtual method
+ * overhead by setting which method is called at compile time.
+ *
+ * The default behaviour, defined in this general template, is that
+ * all methods are assumed to be defined in the concrete class T.
+ * Template specialization can be used if this is not the case for a
+ * given concrete class.
+ *
+ * See MonodomainDg0Assembler and SimpleDg0ParabolicAssembler for 2
+ * typical examples of specializing AssemblerTraits.
+ */
+template<class T>
+struct AssemblerTraits
+{
+    /** The class in which ComputeVectorTerm is defined */
+    typedef T CVT_CLS;
+    /** The class in which ComputeMatrixTerm is defined */
+    typedef T CMT_CLS;
+};
+
 /**
  *  AbstractStaticAssembler
  *
@@ -31,7 +57,7 @@
  *
  *  See also documentation for AbstractAssembler
  */
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
 class AbstractStaticAssembler : virtual public AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 protected:
@@ -89,7 +115,7 @@ protected:
                                     bool assembleMatrix)
     {
         GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
-            *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART>::mpQuadRule);
+            *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>::mpQuadRule);
             
         /**
          * \todo This assumes that the Jacobian is constant on an element.
@@ -196,12 +222,12 @@ protected:
             ////////////////////////////////////////////////////////////
             if (assembleMatrix)
             {
-                noalias(rAElem) += ComputeMatrixTerm(phi, grad_phi, x, u, grad_u) * wJ;
+                noalias(rAElem) += static_cast<typename AssemblerTraits<CONCRETE>::CMT_CLS *>(this)->ComputeMatrixTerm(phi, grad_phi, x, u, grad_u) * wJ;
             }
             
             if (assembleVector)
             {
-                noalias(rBElem) += ComputeVectorTerm(phi, grad_phi, x, u, grad_u) * wJ;
+                noalias(rBElem) += static_cast<typename AssemblerTraits<CONCRETE>::CVT_CLS *>(this)->ComputeVectorTerm(phi, grad_phi, x, u, grad_u) * wJ;
             }
         }
     }
@@ -221,7 +247,7 @@ protected:
                                           c_vector<double, PROBLEM_DIM*ELEMENT_DIM> &rBSurfElem)
     {
         GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
-            *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART>::mpSurfaceQuadRule);
+            *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>::mpSurfaceQuadRule);
             
         double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
         

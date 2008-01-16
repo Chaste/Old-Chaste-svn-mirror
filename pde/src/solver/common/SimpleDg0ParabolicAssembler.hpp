@@ -14,18 +14,27 @@
 #include "AbstractLinearSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/void.hpp>
+
+
 /**
  *  SimpleDg0ParabolicAssembler
  *
  *  Assembler for solving AbstractLinearParabolicPdes
  */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, bool NON_HEART>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, bool NON_HEART, class CONCRETE = boost::mpl::void_>
 class SimpleDg0ParabolicAssembler
-    : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART>,
+    : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART, SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE> >,
       public AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>
 {
 private:
     AbstractLinearParabolicPde<SPACE_DIM>* mpParabolicPde;
+    
+    typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE> SelfType;
+    typedef AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART, SelfType> BaseClassType;
+    /// Allow the AbstractStaticAssembler to call our private/protected methods using static polymorphism.
+    friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART, SelfType>;
     
 protected:
     /**
@@ -88,7 +97,7 @@ public:
                                 unsigned numQuadPoints = 2,
                                 double linearSolverRelativeTolerance=1e-6) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1, NON_HEART>(numQuadPoints,linearSolverRelativeTolerance),
+            BaseClassType(numQuadPoints,linearSolverRelativeTolerance),
             AbstractDynamicAssemblerMixin<ELEMENT_DIM,SPACE_DIM,1>()
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
@@ -105,7 +114,7 @@ public:
      */
     virtual void PrepareForSolve()
     {
-        AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,1, NON_HEART>::PrepareForSolve();
+        BaseClassType::PrepareForSolve();
         assert(mpParabolicPde != NULL);
     }
     
@@ -115,5 +124,31 @@ public:
     }
 };
 
+
+/**
+ * Specialization of AssemblerTraits for the SimpleDg0ParabolicAssembler.
+ *
+ * Since this class can function both as a concrete class and as a
+ * base class, we need to use compile-time logic to work out where the
+ * methods are defined.  SimpleDg0ParabolicAssembler has its CONCRETE
+ * template parameter default to boost::mpl::void_.  This default
+ * value will be used if it is functioning as a concrete class, in
+ * which case all the methods must be defined in
+ * SimpleDg0ParabolicAssembler.  If, on the other hand, we are a base
+ * class, then look up where the methods are defined in the traits
+ * class for the provided CONCRETE class.
+ */
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, bool NON_HEART, class CONCRETE>
+struct AssemblerTraits<SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE> >
+{
+    typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
+                                     SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE>,
+                                     typename AssemblerTraits<CONCRETE>::CVT_CLS>::type
+            CVT_CLS;
+    typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
+                                     SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE>,
+                                     typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
+            CMT_CLS;
+};
 
 #endif //_SIMPLEDG0PARABOLICASSEMBLER_HPP_

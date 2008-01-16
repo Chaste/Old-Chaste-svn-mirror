@@ -28,9 +28,13 @@
 //   \lambda is taken in in the constructor
 //////////////////////////////////////////////////////////////////////////////
 template <int DIM>
-class MySimpleNonlinearCoupledAssembler : public AbstractNonlinearAssembler<DIM,DIM,2>
+class MySimpleNonlinearCoupledAssembler : public AbstractNonlinearAssembler<DIM,DIM,2,MySimpleNonlinearCoupledAssembler<DIM> >
 {
 private:
+    typedef MySimpleNonlinearCoupledAssembler<DIM> SelfType;
+    typedef AbstractNonlinearAssembler<DIM,DIM,2,SelfType> BaseClassType;
+    friend class AbstractStaticAssembler<DIM,DIM,2,true,SelfType>;
+    
     double mLambda;
     virtual c_matrix<double,2*(DIM+1),2*(DIM+1)> ComputeMatrixTerm(c_vector<double, DIM+1> &rPhi,
             c_matrix<double, DIM, DIM+1> &rGradPhi,
@@ -57,10 +61,8 @@ private:
     }
     
     
-//    - todo - change the name of ComputeMatrixTerm to ComputeMatrixTerm or something
-    //         - make rGradPhi, rGradU easier to understand and easier to access the
-    //         vectors
-    // make default jacobian analytic
+    //  - todo - make rGradPhi, rGradU easier to understand and easier to access the vectors
+    //         - make default jacobian analytic
     
     virtual c_vector<double,2*(DIM+1)> ComputeVectorTerm(c_vector<double, DIM+1> &rPhi,
                                                          c_matrix<double, DIM, DIM+1> &rGradPhi,
@@ -107,7 +109,7 @@ public:
     MySimpleNonlinearCoupledAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
                                       BoundaryConditionsContainer<DIM,DIM,2>* pBoundaryConditions,
                                       double lambda)
-            :  AbstractNonlinearAssembler<DIM,DIM,2>()
+            :  BaseClassType()
     {
         this->mpMesh = pMesh;
         this->mpBoundaryConditions = pBoundaryConditions;
@@ -125,8 +127,11 @@ public:
 // where f and g (and boundary conditions) are chosen such that the solution is
 //    u = x^2,  v = y
 //////////////////////////////////////////////////////////////////////////////////
-class AnotherCoupledNonlinearAssembler : public AbstractNonlinearAssembler<2,2,2>
+class AnotherCoupledNonlinearAssembler : public AbstractNonlinearAssembler<2,2,2,AnotherCoupledNonlinearAssembler>
 {
+    typedef AbstractNonlinearAssembler<2,2,2,AnotherCoupledNonlinearAssembler> BaseClassType;
+    friend class AbstractStaticAssembler<2,2,2,true,AnotherCoupledNonlinearAssembler>;
+
     double f(double x,double y)
     {
         return 2*y;
@@ -199,7 +204,7 @@ class AnotherCoupledNonlinearAssembler : public AbstractNonlinearAssembler<2,2,2
 public :
     AnotherCoupledNonlinearAssembler(ConformingTetrahedralMesh<2,2>* pMesh,
                                      BoundaryConditionsContainer<2,2,2>* pBoundaryConditions)
-            :  AbstractNonlinearAssembler<2,2,2>()
+            :  BaseClassType()
     {
         this->mpMesh = pMesh;
         this->mpBoundaryConditions = pBoundaryConditions;
