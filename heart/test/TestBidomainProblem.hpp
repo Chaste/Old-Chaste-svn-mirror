@@ -15,7 +15,7 @@
 class TestBidomainProblem : public CxxTest::TestSuite
 {
 public:
-    void TestBidomainDg01D()
+    void TestBidomainDg01DPinned()
     {
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
@@ -106,6 +106,95 @@ public:
         }
     }
     
+    void TestBidomainDg01DMeanPhiE()
+    {
+        PlaneStimulusCellFactory<1> bidomain_cell_factory;
+        BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
+        
+        bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
+        bidomain_problem.SetEndTime(1);   // 1 ms
+        bidomain_problem.SetOutputDirectory("bidomainDg01d");
+        bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
+        
+        bidomain_problem.Initialise();
+        
+        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
+        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
+        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
+
+        bidomain_problem.PrintEveryNthTimeStep(10);
+        bidomain_problem.SetWriteInfo();
+                        
+        try
+        {
+            bidomain_problem.Solve();
+        }
+        catch (Exception e)
+        {
+            TS_FAIL(e.GetMessage());
+        }
+       
+        DistributedVector striped_voltage(bidomain_problem.GetVoltage());
+        DistributedVector::Stripe voltage(striped_voltage,0);
+
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
+        {
+            // assuming LR model has Ena = 54.4 and Ek = -77
+            double Ena   =  54.4;   // mV
+            double Ek    = -77.0;   // mV
+            
+            TS_ASSERT_LESS_THAN_EQUALS( voltage[index], Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-voltage[index] + (Ek-30), 0);
+            
+            std::vector<double>& r_ode_vars = bidomain_problem.GetBidomainPde()->GetCardiacCell(index.Global)->rGetStateVariables();
+            for (int j=0; j<8; j++)
+            {
+                // if not voltage or calcium ion conc, test whether between 0 and 1
+                if ((j!=4) && (j!=3))
+                {
+                    TS_ASSERT_LESS_THAN_EQUALS( r_ode_vars[j], 1.0);
+                    TS_ASSERT_LESS_THAN_EQUALS(-r_ode_vars[j], 0.0);
+                }
+            }
+            
+            // wave shouldn't have reached the second half of the mesh so
+            // these should all be near the resting potential
+            
+            if (index.Global>50)
+            {
+                TS_ASSERT_DELTA(voltage[index], -83.85, 0.1);
+            }
+            
+            // final voltages for nodes 0 to 5 produced with ksp_rtol=1e-9
+            double test_values[6]={31.0335, 28.9214, 20.0279, -3.92649, -57.9395, -79.7754};
+            
+            for (unsigned node=0; node<=5; node++)
+            {
+                if (index.Global == node)
+                {
+                    // test against hardcoded value to check nothing has changed
+                    TS_ASSERT_DELTA(voltage[index], test_values[node], 7e-3);
+                    //With ksp_rtol set to 1e-6 the starting value may lead to changes of more that 1e-3 in final answer
+                }
+            }
+        }
+        
+        // check mean of extracellular potential is 0
+        
+        // replicate solution vector
+        ReplicatableVector rep_voltage;
+        rep_voltage.ReplicatePetscVector(bidomain_problem.GetVoltage());
+        
+        double total_phi_e=0;
+        for (unsigned cell_index=0; cell_index<101; cell_index++)
+        {
+            total_phi_e += rep_voltage[2*cell_index+1];
+        }
+        TS_ASSERT_DELTA(total_phi_e, 0, 1e-4);
+    }    
     
     /*
      * The monodomain equations are obtained by taking the limit of the bidomain

@@ -230,7 +230,24 @@ private:
      */
     virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime)
     {
-        // if there are no fixed nodes then set up the null basis.
+         if ( mFixedExtracellularPotentialNodes.size()==0) 
+         {
+            //Set average phi_e to zero
+            
+            unsigned matrix_size = this->mpLinearSystem->GetSize();
+            // Set the last matrix row to 0 1 0 1 ...
+            for (unsigned col_index=0; col_index<matrix_size; col_index++)
+            {
+                this->mpLinearSystem->SetMatrixElement(matrix_size-1, col_index, col_index % 2);
+            }
+            // Set the last rhs vector row to 0
+            this->mpLinearSystem->SetRhsVectorElement(matrix_size-1, 0);
+            
+            this->mpLinearSystem->AssembleFinalLinearSystem();
+            //Temporary - ignore the rest of this method
+            return;
+         }
+         // if there are no fixed nodes then set up the null basis.
         if ( (mFixedExtracellularPotentialNodes.size()==0) && (!mNullSpaceCreated) )
         {
             //create null space for matrix and pass to linear system
