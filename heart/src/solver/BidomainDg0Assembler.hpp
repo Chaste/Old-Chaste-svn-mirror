@@ -234,29 +234,34 @@ private:
      */
     virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime)
     {
-         if ( mFixedExtracellularPotentialNodes.size()==0) 
-         {
-            //Set average phi_e to zero
-            unsigned matrix_size = this->mpLinearSystem->GetSize();
-            if (!this->mMatrixIsAssembled)
-            {
-                
-                // Set the last matrix row to 0 1 0 1 ...
-                for (unsigned col_index=0; col_index<matrix_size; col_index++)
-                {
-                    this->mpLinearSystem->SetMatrixElement(matrix_size-1, col_index, col_index % 2);
-                }
-                this->mpLinearSystem->AssembleFinalLhsMatrix();
-                
-            }
-            // Set the last rhs vector row to 0
-            this->mpLinearSystem->SetRhsVectorElement(matrix_size-1, 0);
-            
-            this->mpLinearSystem->AssembleRhsVector();
-            //Temporary - ignore the rest of this method
-            return;
-         }
-         // if there are no fixed nodes then set up the null basis.
+        //\todo #638 - this won't work in 3D with symmlq and bjacobi
+//         if ( mFixedExtracellularPotentialNodes.size()==0) 
+//         {
+//            //Set average phi_e to zero
+//            unsigned matrix_size = this->mpLinearSystem->GetSize();
+//            if (!this->mMatrixIsAssembled)
+//            {
+//                
+//                // Set the last matrix row to 0 1 0 1 ...
+//                this->mpLinearSystem->ZeroMatrixRow(matrix_size-1);
+//                for (unsigned col_index=0; col_index<matrix_size; col_index++)
+//                {
+//                    if (col_index%2 == 1)
+//                    {
+//                        this->mpLinearSystem->SetMatrixElement(matrix_size-1, col_index, 1);
+//                    }
+//                }
+//                this->mpLinearSystem->AssembleFinalLhsMatrix();
+//                
+//            }
+//            // Set the last rhs vector row to 0
+//            this->mpLinearSystem->SetRhsVectorElement(matrix_size-1, 0);
+//            
+//            this->mpLinearSystem->AssembleRhsVector();
+//            //Temporary - ignore the rest of this method
+//         }
+//         return;
+        // if there are no fixed nodes then set up the null basis.
         if ( (mFixedExtracellularPotentialNodes.size()==0) && (!mNullSpaceCreated) )
         {
             //create null space for matrix and pass to linear system
