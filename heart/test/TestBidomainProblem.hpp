@@ -122,9 +122,6 @@ public:
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
         bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
-
-        bidomain_problem.PrintEveryNthTimeStep(10);
-        bidomain_problem.SetWriteInfo();
                         
         try
         {
