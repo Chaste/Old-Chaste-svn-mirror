@@ -24,6 +24,11 @@
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, class CONCRETE = boost::mpl::void_>
 class SimpleLinearEllipticAssembler : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, true, SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CONCRETE> >
 {
+public:
+    static const unsigned E_DIM = ELEMENT_DIM;
+    static const unsigned S_DIM = SPACE_DIM;
+    static const unsigned P_DIM = 1u;
+
     friend class TestSimpleLinearEllipticAssembler;
 
     typedef SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CONCRETE> SelfType;
@@ -128,6 +133,11 @@ struct AssemblerTraits<SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CON
                                      SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CONCRETE>,
                                      typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
             CMT_CLS;
+    /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined */
+    typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
+				     AbstractAssembler<ELEMENT_DIM, SPACE_DIM, 1u>,
+				     typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
+            INTERPOLATE_CLS;
 };
 
 #endif //_SIMPLELINEARELLIPTICASSEMBLER_HPP_

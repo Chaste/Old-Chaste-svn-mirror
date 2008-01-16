@@ -14,6 +14,10 @@ class ParabolicFlaggedMeshAssembler
       public AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>
 {
 public:
+    static const unsigned E_DIM = DIM;
+    static const unsigned S_DIM = DIM;
+    static const unsigned P_DIM = 1u;
+
     typedef SimpleDg0ParabolicAssembler<DIM, DIM, true, ParabolicFlaggedMeshAssembler<DIM> > BaseClassType;
 
 private:
@@ -53,6 +57,7 @@ struct AssemblerTraits<ParabolicFlaggedMeshAssembler<DIM> >
 {
     typedef typename ParabolicFlaggedMeshAssembler<DIM>::BaseClassType CVT_CLS;
     typedef typename ParabolicFlaggedMeshAssembler<DIM>::BaseClassType CMT_CLS;
+    typedef AbstractAssembler<DIM, DIM, 1u> INTERPOLATE_CLS;
 };
 
 #endif /*PARABOLICFLAGGEDMESHASSEMBLER_HPP_*/

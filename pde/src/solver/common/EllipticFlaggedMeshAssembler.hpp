@@ -13,6 +13,10 @@ class EllipticFlaggedMeshAssembler
     : public SimpleLinearEllipticAssembler<DIM,DIM,EllipticFlaggedMeshAssembler<DIM> >,
       public AbstractFlaggedMeshAssemblerMixin<DIM,DIM,1>
 {
+public:
+    static const unsigned E_DIM = DIM;
+    static const unsigned S_DIM = DIM;
+    static const unsigned P_DIM = 1u;
 private:
     friend class TestFlaggedMeshAssembler;
     typedef SimpleLinearEllipticAssembler<DIM,DIM,EllipticFlaggedMeshAssembler<DIM> > BaseClassType;
@@ -53,6 +57,7 @@ struct AssemblerTraits<EllipticFlaggedMeshAssembler<DIM> >
 {
     typedef SimpleLinearEllipticAssembler<DIM,DIM,EllipticFlaggedMeshAssembler<DIM> > CVT_CLS;
     typedef SimpleLinearEllipticAssembler<DIM,DIM,EllipticFlaggedMeshAssembler<DIM> > CMT_CLS;
+    typedef AbstractAssembler<DIM, DIM, 1u> INTERPOLATE_CLS;
 };
 
 #endif /*ELLIPTICFLAGGEDMESHASSEMBLER_HPP_*/

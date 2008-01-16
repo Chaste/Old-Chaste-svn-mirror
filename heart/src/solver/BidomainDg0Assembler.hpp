@@ -41,6 +41,10 @@ class BidomainDg0Assembler
     : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 2, false, BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >,
       public AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 2>
 {
+public:
+    static const unsigned E_DIM = ELEMENT_DIM;
+    static const unsigned S_DIM = SPACE_DIM;
+    static const unsigned P_DIM = 2u;
 private:
     // Save typing
     typedef BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> SelfType;
@@ -408,4 +412,19 @@ public:
         }
     }
 };
+
+/**
+ * Specialize AssemblerTraits since we define interpolation methods as well as Compute*Term methods.
+ */
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+struct AssemblerTraits<BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
+{
+    /** The class in which ComputeVectorTerm is defined */
+    typedef BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CVT_CLS;
+    /** The class in which ComputeMatrixTerm is defined */
+    typedef BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CMT_CLS;
+    /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined */
+    typedef BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> INTERPOLATE_CLS;
+};
+
 #endif /*_BIDOMAINDG0ASSEMBLER_HPP_*/

@@ -30,6 +30,10 @@ class SimpleNonlinearEllipticAssembler
   : public AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> >
 {
 public:
+    static const unsigned E_DIM = ELEMENT_DIM;
+    static const unsigned S_DIM = SPACE_DIM;
+    static const unsigned P_DIM = 1u;
+
     typedef SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> SelfType;
     typedef AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, SelfType> BaseClassType;
 

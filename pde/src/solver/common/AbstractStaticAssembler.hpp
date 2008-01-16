@@ -13,6 +13,7 @@
 #include "EventHandler.hpp"
 #include <iostream>
 
+#include <boost/mpl/void.hpp>
 
 /**
  * A default traits class for using static polymorphism in the assembler hierarchy.
@@ -37,6 +38,17 @@ struct AssemblerTraits
     typedef T CVT_CLS;
     /** The class in which ComputeMatrixTerm is defined */
     typedef T CMT_CLS;
+    /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined */
+    typedef AbstractAssembler<T::E_DIM, T::S_DIM, T::P_DIM> INTERPOLATE_CLS;
+};
+
+/** Empty specialization for the void type */
+template<>
+struct AssemblerTraits<boost::mpl::void_>
+{
+    typedef boost::mpl::void_ CVT_CLS;
+    typedef boost::mpl::void_ CMT_CLS;
+    typedef boost::mpl::void_ INTERPOLATE_CLS;
 };
 
 /**
@@ -166,7 +178,7 @@ protected:
             
             // allow the concrete version of the assembler to interpolate any
             // desired quantities
-            this->ResetInterpolatedQuantities();
+            static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLS *>(this)->ResetInterpolatedQuantities();
             
             
             /////////////////////////////////////////////////////////////
@@ -212,7 +224,7 @@ protected:
                 
                 // allow the concrete version of the assembler to interpolate any
                 // desired quantities
-                IncrementInterpolatedQuantities(phi(i), p_node);
+                static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLS *>(this)->IncrementInterpolatedQuantities(phi(i), p_node);
             }
             
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);

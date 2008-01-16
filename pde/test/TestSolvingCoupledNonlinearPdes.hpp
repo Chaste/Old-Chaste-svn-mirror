@@ -30,6 +30,11 @@
 template <int DIM>
 class MySimpleNonlinearCoupledAssembler : public AbstractNonlinearAssembler<DIM,DIM,2,MySimpleNonlinearCoupledAssembler<DIM> >
 {
+public:
+    static const unsigned E_DIM = DIM;
+    static const unsigned S_DIM = DIM;
+    static const unsigned P_DIM = 2u;
+
 private:
     typedef MySimpleNonlinearCoupledAssembler<DIM> SelfType;
     typedef AbstractNonlinearAssembler<DIM,DIM,2,SelfType> BaseClassType;
@@ -129,9 +134,15 @@ public:
 //////////////////////////////////////////////////////////////////////////////////
 class AnotherCoupledNonlinearAssembler : public AbstractNonlinearAssembler<2,2,2,AnotherCoupledNonlinearAssembler>
 {
+public:
+    static const unsigned E_DIM = 2u;
+    static const unsigned S_DIM = 2u;
+    static const unsigned P_DIM = 2u;
+
     typedef AbstractNonlinearAssembler<2,2,2,AnotherCoupledNonlinearAssembler> BaseClassType;
     friend class AbstractStaticAssembler<2,2,2,true,AnotherCoupledNonlinearAssembler>;
 
+private:
     double f(double x,double y)
     {
         return 2*y;

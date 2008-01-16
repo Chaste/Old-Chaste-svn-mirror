@@ -29,6 +29,10 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainDg0Assembler
     : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
 {
+public:
+    static const unsigned E_DIM = ELEMENT_DIM;
+    static const unsigned S_DIM = SPACE_DIM;
+    static const unsigned P_DIM = 1u;
 private:
     double mSourceTerm;
     
@@ -127,6 +131,7 @@ struct AssemblerTraits<MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
     typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CVT_CLS;
     typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
             CMT_CLS;
+    typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> INTERPOLATE_CLS;
 };
 
 #endif //_MONODOMAINDG0ASSEMBLER_HPP_

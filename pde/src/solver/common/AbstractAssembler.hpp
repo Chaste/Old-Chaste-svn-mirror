@@ -181,23 +181,6 @@ protected:
                                           c_vector<double, PROBLEM_DIM*ELEMENT_DIM> &rBSurfElem)=0;
     
 
-    /**
-     *  The concrete subclass can overload this and IncrementInterpolatedQuantities()
-     *  if there are some quantities which need to be computed at each Gauss point. 
-     *  They are called in AssembleOnElement()
-     */
-    virtual void ResetInterpolatedQuantities( void )
-    {}
-    
-    /**
-     *  The concrete subclass can overload this and ResetInterpolatedQuantities()
-     *  if there are some quantities which need to be computed at each Gauss point. 
-     *  They are called in AssembleOnElement()
-     */
-    virtual void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM> *pNode)
-    {}
-    
-    
     
     virtual void AssembleSystem(bool assembleVector, bool assembleMatrix,
                                 Vec currentSolutionOrGuess=NULL, double currentTime=0.0)=0;
@@ -301,6 +284,28 @@ public:
     virtual ~AbstractAssembler()
     {
     }
+
+
+    // The following have to be public in order for compilation to work, but shouldn't be called
+    // by users
+
+    /**
+     *  The concrete subclass can overload this and IncrementInterpolatedQuantities()
+     *  if there are some quantities which need to be computed at each Gauss point. 
+     *  They are called in AssembleOnElement()
+     */
+    virtual void ResetInterpolatedQuantities( void )
+    {}
+    
+    /**
+     *  The concrete subclass can overload this and ResetInterpolatedQuantities()
+     *  if there are some quantities which need to be computed at each Gauss point. 
+     *  They are called in AssembleOnElement()
+     */
+    virtual void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM> *pNode)
+    {}
+    
+    
 };
 
 #endif //_ABSTRACTASSEMBLER_HPP_

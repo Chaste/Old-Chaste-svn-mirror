@@ -52,10 +52,16 @@ public:
 template<class CONCRETE = boost::mpl::void_>
 class MySimpleCoupledAssembler : public AbstractLinearAssembler<2,2,2, true, MySimpleCoupledAssembler<CONCRETE> >
 {
+public:
+    static const unsigned E_DIM = 2u;
+    static const unsigned S_DIM = 2u;
+    static const unsigned P_DIM = 2u;
+
     typedef MySimpleCoupledAssembler<CONCRETE> SelfType;
     typedef AbstractLinearAssembler<2,2,2, true, SelfType> BaseClassType;
     friend class AbstractStaticAssembler<2, 2, 2, true, SelfType>;
 
+private:
     double mLambda;
     
     virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeMatrixTerm(c_vector<double, 2+1> &rPhi,
@@ -144,6 +150,10 @@ struct AssemblerTraits<MySimpleCoupledAssembler<CONCRETE> >
                                      MySimpleCoupledAssembler<CONCRETE>,
                                      typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
             CMT_CLS;
+    typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
+                                     AbstractStaticAssembler<2u,2u,2u,true,MySimpleCoupledAssembler<CONCRETE> >,
+                                     typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
+            INTERPOLATE_CLS;
 };
 
 
@@ -161,8 +171,14 @@ struct AssemblerTraits<MySimpleCoupledAssembler<CONCRETE> >
 //////////////////////////////////////////////////////////////////////////////
 class AnotherCoupledAssembler : public MySimpleCoupledAssembler<AnotherCoupledAssembler>
 {
+public:
+    static const unsigned E_DIM = 2u;
+    static const unsigned S_DIM = 2u;
+    static const unsigned P_DIM = 2u;
+
     friend class AbstractStaticAssembler<2, 2, 2, true, MySimpleCoupledAssembler<AnotherCoupledAssembler> >;
 
+private:
     double f(double x,double y)
     {
         return -2*M_PI*M_PI*sin(M_PI*x)*sin(M_PI*y) + sin(2*M_PI*x)*sin(2*M_PI*y);
@@ -203,6 +219,7 @@ struct AssemblerTraits<AnotherCoupledAssembler>
 {
     typedef AnotherCoupledAssembler CVT_CLS;
     typedef MySimpleCoupledAssembler<AnotherCoupledAssembler> CMT_CLS;
+    typedef AbstractStaticAssembler<2u,2u,2u,true,AnotherCoupledAssembler> INTERPOLATE_CLS;
 };
 
 

@@ -112,4 +112,12 @@ public:
     }
 };
 
+template<unsigned DIM>
+struct AssemblerTraits<TissueSimulationWithNutrientsAssembler<DIM> >
+{
+    typedef TissueSimulationWithNutrientsAssembler<DIM> CVT_CLS;
+    typedef TissueSimulationWithNutrientsAssembler<DIM> CMT_CLS;
+    typedef TissueSimulationWithNutrientsAssembler<DIM> INTERPOLATE_CLS;
+};
+
 #endif //_TISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_

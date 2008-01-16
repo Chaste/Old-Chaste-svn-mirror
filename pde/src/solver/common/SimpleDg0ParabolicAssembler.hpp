@@ -28,6 +28,10 @@ class SimpleDg0ParabolicAssembler
     : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART, SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE> >,
       public AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>
 {
+public:
+    static const unsigned E_DIM = ELEMENT_DIM;
+    static const unsigned S_DIM = SPACE_DIM;
+    static const unsigned P_DIM = 1u;
 private:
     AbstractLinearParabolicPde<SPACE_DIM>* mpParabolicPde;
     
@@ -149,6 +153,11 @@ struct AssemblerTraits<SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_H
                                      SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE>,
                                      typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
             CMT_CLS;
+    /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined */
+    typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
+				     AbstractAssembler<ELEMENT_DIM, SPACE_DIM, 1u>,
+				     typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
+            INTERPOLATE_CLS;
 };
 
 #endif //_SIMPLEDG0PARABOLICASSEMBLER_HPP_
