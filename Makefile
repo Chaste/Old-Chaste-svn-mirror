@@ -68,7 +68,27 @@ TestGenerateSteadyStateCryptRunner: TestGenerateSteadyStateCryptRunner.o ${LIBS}
 	cd .. ;\
 	cp ../simulationGenerateSteadyStateCrypt.sh .  ;\
 	mv simulationGenerateSteadyStateCrypt.sh simulation.sh
+
+# This test generates Inge cells crypt
+
+TestMakeNiceCryptSimsAlexWRunner.cpp:	cancer/test/TestMakeNiceCryptSimsAlexW.hpp
+	cxxtest/cxxtestgen.py  --error-printer -o TestMakeNiceCryptSimsAlexWRunner.cpp cancer/test/TestMakeNiceCryptSimsAlexW.hpp
+
+TestMakeNiceCryptSimsAlexWRunner: TestMakeNiceCryptSimsAlexWRunner.o ${LIBS}
+	g++ TestMakeNiceCryptSimsAlexWRunner.o ${LIBS} -o TestMakeNiceCryptSimsAlexWRunner ${LDFLAGS};\
+	echo "Making new experiment in ${FRESH_DIR} " ;\
+	echo "Do scp -r -C ${FRESH_DIR} pmxaw@deimos.nottingham.ac.uk:" ;\
+	echo "Then qsub simulation.sh on deimos";\
+	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
+	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
+	cp TestMakeNiceCryptSimsAlexWRunner ${FRESH_DIR} ;\
+	cd ${FRESH_DIR}/bin ;\
+	cp ../../bin/triangle triangle ;\
+	cd .. ;\
+	cp ../simulationMakeNiceCryptSimsAlexW.sh .  ;\
+	mv simulationMakeNiceCryptSimsAlexW.sh simulation.sh
 	
+
 TestCryptSimulation2dRunner.cpp:	cancer/test/TestCryptSimulation2d.hpp
 	cxxtest/cxxtestgen.py  --error-printer  -o TestCryptSimulation2dRunner.cpp cancer/test/TestCryptSimulation2d.hpp
 
