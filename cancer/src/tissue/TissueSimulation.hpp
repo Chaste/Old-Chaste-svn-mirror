@@ -119,6 +119,12 @@ protected:
     /** Counts the number of deaths during the simulation */
     unsigned mNumDeaths;
     
+    /** 
+     * The ratio of the number of actual timesteps to the number 
+     * of timesteps at which results are written to file 
+     * */
+    unsigned mSamplingTimestepMultiple;
+    
     /** List of cell killers */
     std::vector<AbstractCellKiller<DIM>*> mCellKillers;
     
@@ -162,6 +168,7 @@ protected:
         archive & mWriteVoronoiData;        
         archive & mFollowLoggedCell;
         archive & mWriteTissueAreas;
+        archive & mSamplingTimestepMultiple;
     }
     
     /**
@@ -256,6 +263,7 @@ public:
     void SetOutputDirectory(std::string outputDirectory);
     void SetMaxCells(unsigned maxCells);
     void SetMaxElements(unsigned maxElements);
+    void SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple);
     void SetNoBirth(bool nobirth);
     void SetOutputCellTypes(bool outputCellTypes);
 

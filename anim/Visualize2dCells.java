@@ -15,8 +15,6 @@ import javax.swing.Box;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 
-
-
 public class Visualize2dCells implements ActionListener, AdjustmentListener, ItemListener, Runnable
 {
 	private Thread updateThread;
@@ -51,7 +49,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static int[][] element_nodes;
     public static int[][] cell_type;
     public static int[][] image_cells;
-    public static int max_cell_type=0;
+    public static int max_cell_type = 0;
         
     public static double max_x = -1e12;
     public static double max_y = -1e12;

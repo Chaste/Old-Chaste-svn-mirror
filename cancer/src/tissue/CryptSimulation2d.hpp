@@ -213,11 +213,14 @@ private :
     
     void PostSolve()
     {
-        if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
-            && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
+        if (SimulationTime::Instance()->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
-            WriteBetaCatenin();
-        }
+            if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
+                && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
+            {
+                WriteBetaCatenin();
+            }
+        }        
     }
 
     void AfterSolve()

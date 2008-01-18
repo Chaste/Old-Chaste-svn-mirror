@@ -298,8 +298,8 @@ public:
         simulator.SetEndTime(0.5);
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
-        simulator.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius   
-        
+        simulator.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
+                
         // Set up cell killer and pass into simulation
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);

@@ -190,7 +190,10 @@ private :
         }
         
         // Save results to file
-        WriteNutrient();
+        if (SimulationTime::Instance()->GetTimeStepsElapsed()%this->mSamplingTimestepMultiple==0)
+        {
+            WriteNutrient();
+        }
     }
     
     

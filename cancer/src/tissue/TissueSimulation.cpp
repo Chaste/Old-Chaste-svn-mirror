@@ -57,7 +57,8 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue,
     mMaxElements = 10*mrTissue.rGetMesh().GetNumElements();
     mNumBirths = 0;
     mNumDeaths = 0;
-
+    mSamplingTimestepMultiple = 1;
+    
     mWriteVoronoiData = false;
     mWriteTissueAreas = false;
     mFollowLoggedCell = false;
@@ -298,7 +299,16 @@ void TissueSimulation<DIM>::SetMaxElements(unsigned maxElements)
     }
     mrTissue.SetMaxElements(maxElements);
 }
-
+    
+/**
+ * Sets the ratio of the number of actual timesteps to the number of timesteps 
+ * at which results are written to file. Default value is set to 1 by the constructor.
+ */
+template<unsigned DIM> 
+void TissueSimulation<DIM>::SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple)
+{
+    mSamplingTimestepMultiple = samplingTimestepMultiple;
+}
 
 template<unsigned DIM> 
 Tissue<DIM>& TissueSimulation<DIM>::rGetTissue()
@@ -477,7 +487,7 @@ void TissueSimulation<DIM>::Solve()
     {
         WriteVisualizerSetupFile();
     }
-    mpSetupFile->close();
+    mpSetupFile->close();    
     mrTissue.WriteResultsToFiles(tabulated_node_writer, 
                                 tabulated_element_writer,
                                 *p_node_file, *p_element_file, *p_cell_types_file,
@@ -565,25 +575,28 @@ void TissueSimulation<DIM>::Solve()
         CancerEventHandler::BeginEvent(OUTPUT);
         
         // Write results to file
-        mrTissue.WriteResultsToFiles(tabulated_node_writer, 
-                                    tabulated_element_writer, 
-                                    *p_node_file, *p_element_file, *p_cell_types_file,
-                                    tabulated_output_counter%80==0,
-                                    true,
-                                    mOutputCellTypes);
-                                    
-        if (mWriteVoronoiData)
+        if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
-            p_voronoi_data_writer->WriteData();
-        }
-                                    
-        if (mWriteTissueAreas)
-        {
-            p_voronoi_data_writer->WriteTissueAreas();
+            mrTissue.WriteResultsToFiles(tabulated_node_writer, 
+                                        tabulated_element_writer, 
+                                        *p_node_file, *p_element_file, *p_cell_types_file,
+                                        tabulated_output_counter%80==0,
+                                        true,
+                                        mOutputCellTypes);
+                                        
+            if (mWriteVoronoiData)
+            {
+                p_voronoi_data_writer->WriteData();
+            }
+                                        
+            if (mWriteTissueAreas)
+            {
+                p_voronoi_data_writer->WriteTissueAreas();
+            }
+            
+            tabulated_output_counter++;
         }
 
-        tabulated_output_counter++;
-        
         PostSolve();
         CancerEventHandler::EndEvent(OUTPUT);
     }
