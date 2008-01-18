@@ -34,7 +34,8 @@ machine_fqdn = socket.getfqdn()
 if machine_fqdn in ["userpc30.comlab.ox.ac.uk", "userpc33.comlab.ox.ac.uk"]:
     import joe as conf
 elif machine_fqdn in ["userpc44.comlab.ox.ac.uk", "userpc60.comlab.ox.ac.uk",
-                      "userpc58.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk"]:
+                      "userpc58.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk",
+                      "chaste-bob.comlab.ox.ac.uk" ]:
     import chaste as conf
 elif machine_fqdn == "zuse.osc.ox.ac.uk":
     import zuse as conf
