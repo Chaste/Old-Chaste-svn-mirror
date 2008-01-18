@@ -283,7 +283,24 @@ double VoronoiTessellation<DIM>::GetEdgeLength(unsigned node_index_1, unsigned n
     set_intersection( vertices_1.begin(), vertices_1.end(),
                       vertices_2.begin(), vertices_2.end(),
                       back_inserter(intersecting_vertices) );
-                      
+    if (intersecting_vertices.size() != 2)
+    {
+        std::cout<< "node 1 = " << node_index_1 << " node 2 = " << node_index_2 <<" \n" << std::flush;
+        std::cout<< "vertices 1 \n" << std::flush;
+        for (unsigned i=0; i<vertices_1.size(); i++)
+        {
+            c_vector<double, DIM> current_vertex = *(vertices_1[i]);
+            std::cout<<  current_vertex[0] << " \t" << current_vertex[1] << " \n" << std::flush;
+        }
+        std::cout<< "vertices 2 \n" << std::flush;
+        for (unsigned i=0; i<vertices_2.size(); i++)
+        {
+            c_vector<double, DIM> current_vertex = *(vertices_2[i]);
+            std::cout<<  current_vertex[0] << " \t" << current_vertex[1] << " \n" << std::flush;
+        }
+        std::cout<< "size of common vertices = " << intersecting_vertices.size() << " \n" << std::flush;
+    }
+    
     assert(intersecting_vertices.size()==2);
     
     c_vector<double, DIM> edge_vector = mrMesh.GetVectorFromAtoB( *(intersecting_vertices[0]),

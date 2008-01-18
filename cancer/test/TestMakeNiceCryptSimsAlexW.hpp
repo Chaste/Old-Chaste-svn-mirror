@@ -182,7 +182,7 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
         p_params->SetMaxTransitGenerations(1000);
         
         
-        double time_of_each_run = 30.0; // for each run
+        double time_of_each_run = 3.0; // for each run
         
         unsigned cells_across = 13;
         unsigned cells_up = 25;
@@ -242,20 +242,20 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
         // END OF UNUSUAL SET UP! //////////////////////////////////
         std::cout<< "About to solve \n" << std::flush;
         simulator.Solve();
-        simulator.Save();
-        double end_of_simulation = 400.0; // hours
-        
-        std::cout<< "Going into loop \n" << std::flush;
-        
-        for (double t=time_of_each_run; t<end_of_simulation+0.5; t += time_of_each_run)
-        {
-            std::cout<< "Results from time " << time_of_each_run << "\n" << std::flush;
-            CryptSimulation2d* p_simulator = CryptSimulation2d::Load("Noddy_WNT_Yes_Area_Yes_Length",t);
-            p_simulator->SetEndTime(t+time_of_each_run);
-            p_simulator->Solve();
-            p_simulator->Save();
-            delete p_simulator;
-        }
+//        simulator.Save();
+//        double end_of_simulation = 400.0; // hours
+//        
+//        std::cout<< "Going into loop \n" << std::flush;
+//        
+//        for (double t=time_of_each_run; t<end_of_simulation+0.5; t += time_of_each_run)
+//        {
+//            std::cout<< "Results from time " << time_of_each_run << "\n" << std::flush;
+//            CryptSimulation2d* p_simulator = CryptSimulation2d::Load("Noddy_WNT_Yes_Area_Yes_Length",t);
+//            p_simulator->SetEndTime(t+time_of_each_run);
+//            p_simulator->Solve();
+//            p_simulator->Save();
+//            delete p_simulator;
+//        }
                 
         delete p_cell_killer;
         SimulationTime::Destroy();
