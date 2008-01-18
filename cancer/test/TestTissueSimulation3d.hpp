@@ -164,6 +164,11 @@ public:
         simulator.SetMaxElements(2500);
         simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
         
+        // Test SetSamplingTimestepMultiple method
+        TS_ASSERT_EQUALS(simulator.mSamplingTimestepMultiple, 1u);
+        simulator.SetSamplingTimestepMultiple(2);               
+        TS_ASSERT_EQUALS(simulator.mSamplingTimestepMultiple, 2u);
+        
         // Set to re-mesh
         simulator.SetReMeshRule(true);
         simulator.SetEndTime(0.1);

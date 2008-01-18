@@ -307,6 +307,7 @@ void TissueSimulation<DIM>::SetMaxElements(unsigned maxElements)
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple)
 {
+    assert(samplingTimestepMultiple > 0);
     mSamplingTimestepMultiple = samplingTimestepMultiple;
 }
 
