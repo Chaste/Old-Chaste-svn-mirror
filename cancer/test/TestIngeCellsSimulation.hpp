@@ -68,7 +68,8 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
-        WntGradient::Instance()->SetType(OFFSET_LINEAR);
+        WntGradient::Instance()->SetType(LINEAR);
+        CancerParameters::Instance()->SetTopOfLinearWntGradient(1.0/3.0);
         WntGradient::Instance()->SetTissue(crypt);
         
         CryptSimulation2d simulator(crypt);

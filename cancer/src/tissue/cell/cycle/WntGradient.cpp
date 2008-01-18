@@ -116,22 +116,8 @@ double WntGradient::GetWntLevel(double height)
     if (mGradientType==LINEAR || mGradientType==RADIAL)
     {
         double crypt_height = mpCancerParams->GetCryptLength();
+        double top_of_gradient = mpCancerParams->GetTopOfLinearWntGradient(); // of crypt height.
         
-        if ((height >= -1e-9) && (height < crypt_height))
-        {
-            wnt_level = 1.0 - height/crypt_height;
-        }
-        else
-        {
-            wnt_level = 0.0;
-        }
-    }
-    
-    // An offset Wnt gradient - reaches zero at 2/3 of way up crypt
-    if (mGradientType==OFFSET_LINEAR)
-    {
-        double crypt_height = mpCancerParams->GetCryptLength();
-        double top_of_gradient = 1.0/3.0; // of crypt height.
         if ((height >= -1e-9) && (height < top_of_gradient*crypt_height))
         {
             wnt_level = 1.0 - height/(top_of_gradient*crypt_height);

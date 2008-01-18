@@ -82,9 +82,10 @@ public:
     void TestOffsetLinearWntGradient() throw(Exception)
     {
         WntGradient* p_wnt_gradient = WntGradient::Instance();
-        p_wnt_gradient->SetType(OFFSET_LINEAR);
-
+        
+        p_wnt_gradient->SetType(LINEAR);
         CancerParameters *params = CancerParameters::Instance();
+        params->SetTopOfLinearWntGradient(1.0/3.0);
         
         double height = 100;
         double wnt_level = 0.0;

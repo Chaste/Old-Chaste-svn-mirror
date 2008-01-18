@@ -13,7 +13,6 @@ typedef enum WntGradientType_
 {
     NONE,
     LINEAR,
-    OFFSET_LINEAR,
     RADIAL
 } WntGradientType;
 
