@@ -253,8 +253,7 @@ void TissueSimulation<DIM>::SetEndTime(double endTime)
 /**
  * Set the output directory of the simulation.
  * 
- * Note that tabulated results (for test comparison) go into a /tab_results subfolder
- * And visualizer results go into a /vis_results subfolder.
+ * Note that results go into the /vis_results subfolder.
  */
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)

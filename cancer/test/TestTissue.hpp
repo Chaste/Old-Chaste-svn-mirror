@@ -195,7 +195,7 @@ public:
         Tissue<2> tissue(mesh, cells);
 
         //////////////////
-        // test move cell
+        // Test move cell
         //////////////////
         
         // Move node 0 by a small amount
@@ -392,23 +392,16 @@ public:
         
         std::string output_directory = "TestTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
-//        ColumnDataWriter tabulated_node_writer(output_directory, "tab_node_results");
-//        ColumnDataWriter tabulated_element_writer(output_directory, "tab_elem_results", false);
-//
-//        TS_ASSERT_THROWS_NOTHING(tissue.SetupTabulatedWriters(tabulated_node_writer, tabulated_element_writer));
-                
+
         out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
         out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
         out_stream p_cell_types_file = output_file_handler.OpenOutputFile("results.vizelements");
         
-        tissue.WriteResultsToFiles(//tabulated_node_writer,
-                                  //tabulated_element_writer,
-                                  *p_node_file,
-                                  *p_element_file,
-                                  *p_cell_types_file,
-                                  //true,
-                                  true,
-                                  true);
+        tissue.WriteResultsToFiles(*p_node_file,
+                                   *p_element_file,
+                                   *p_cell_types_file,
+                                   true,
+                                   true);
         p_node_file->close();                          
         p_element_file->close();                          
 
@@ -418,12 +411,6 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements  cancer/test/data/TestTissueWriters/results.vizelements").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
 
-//\todo: if deleting this, then we can also delete the files 
-//        cancer/test/data/TestTissueWriters/tab_node_results.dat
-//        cancer/test/data/TestTissueWriters/tab_elem_results.dat       
-//        TS_ASSERT_EQUALS(system(("diff " + results_dir + "tab_node_results.dat cancer/test/data/TestTissueWriters/tab_node_results.dat").c_str()), 0);
-//        TS_ASSERT_EQUALS(system(("diff " + results_dir + "tab_elem_results.dat cancer/test/data/TestTissueWriters/tab_elem_results.dat").c_str()), 0);
-        
         /*
          * Test the GetCellTypeCount function
          * There should only be healthy cells
@@ -596,7 +583,7 @@ public:
             // Get cell at each node
             TissueCell& r_cell = tissue.rGetCellAtNodeIndex(cell_iter.GetNode()->GetIndex());      
             
-            // Gest GetLocationOfCell()
+            // Test GetLocationOfCell()
             TS_ASSERT_DELTA(node_location[0] , tissue.GetLocationOfCell(r_cell)[0] , 1e-9);
             TS_ASSERT_DELTA(node_location[1] , tissue.GetLocationOfCell(r_cell)[1] , 1e-9);
         }
@@ -672,7 +659,7 @@ public:
             // WARNING! This is here because the loading of a tissue is only ever called
             // by TissueSimulation::Load() which has a line like this:
             Tissue<2>::meshPathname = "mesh/test/data/square_4_elements";
-            // this horribleness will go away when ticket:412 (proper mesh archiving) is done.
+            // This horribleness will go away when ticket:412 (proper mesh archiving) is done.
             
             input_arch >> p_tissue;
             
