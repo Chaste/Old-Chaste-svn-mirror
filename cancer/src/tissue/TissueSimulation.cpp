@@ -404,8 +404,9 @@ void TissueSimulation<DIM>::Solve()
    
     // Create output files for the visualizer
     OutputFileHandler output_file_handler(results_directory+"/vis_results/",false);
-    out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
-    out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
+    
+    mrTissue.CreateOutputFiles(results_directory+"/vis_results/",false);
+    
     mpSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
     
     // Creates output file to store number of different cells
@@ -442,9 +443,7 @@ void TissueSimulation<DIM>::Solve()
         WriteVisualizerSetupFile();
     }
     mpSetupFile->close();    
-    mrTissue.WriteResultsToFiles(*p_node_file, 
-                                 *p_element_file, 
-                                 *p_cell_types_file,
+    mrTissue.WriteResultsToFiles(*p_cell_types_file,
                                  true,
                                  mOutputCellTypes);
 
@@ -530,9 +529,7 @@ void TissueSimulation<DIM>::Solve()
         // Write results to file
         if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
-            mrTissue.WriteResultsToFiles(*p_node_file, 
-                                         *p_element_file, 
-                                         *p_cell_types_file,
+            mrTissue.WriteResultsToFiles(*p_cell_types_file,
                                          true,
                                          mOutputCellTypes);
                                         
@@ -557,13 +554,13 @@ void TissueSimulation<DIM>::Solve()
     // is taken care of in the main loop).
     // Doesn't need to count cell types again as it is done in the last loop
     CancerEventHandler::BeginEvent(OUTPUT);
-    mrTissue.WriteResultsToFiles(*p_node_file, 
-                                 *p_element_file, 
-                                 *p_cell_types_file,
+    mrTissue.WriteResultsToFiles(*p_cell_types_file,
                                  false,
                                  false);
 
-    if(p_voronoi_data_writer!=NULL)
+    mrTissue.CloseOutputFiles();
+    
+    if (p_voronoi_data_writer!=NULL)
     {
         delete p_voronoi_data_writer;
     }

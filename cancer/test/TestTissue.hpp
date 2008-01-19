@@ -392,19 +392,17 @@ public:
         
         std::string output_directory = "TestTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
-
-        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
-        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
+        
+        TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false));
+    
         out_stream p_cell_types_file = output_file_handler.OpenOutputFile("results.vizelements");
         
-        tissue.WriteResultsToFiles(*p_node_file,
-                                   *p_element_file,
-                                   *p_cell_types_file,
+        tissue.WriteResultsToFiles(*p_cell_types_file,
                                    true,
-                                   true);
-        p_node_file->close();                          
-        p_element_file->close();                          
+                                   true);                         
 
+        TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles());
+        
         // Compare output with saved files of what they should look like                           
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 

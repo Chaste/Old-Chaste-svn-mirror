@@ -47,7 +47,6 @@ private:
     /** Records whether a nodes is a ghost node or not */
     std::vector<bool> mIsGhostNode;
 
-
     /** Current cell type counts */
     c_vector<unsigned,5> mCellTypeCount;
         
@@ -57,6 +56,10 @@ private:
      * (which are represented as two cells joined by a shorter spring).
      */
     std::set<std::set<TissueCell*> > mMarkedSprings;
+    
+    out_stream mpNodeFile;
+    
+    out_stream mpElementFile;
     
     /** Helper method used by the spring marking routines */
     std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
@@ -185,6 +188,10 @@ public:
      */
     c_vector<unsigned,5> GetCellTypeCount();
     
+    void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory);
+    
+    void CloseOutputFiles();
+    
     /**
      * Iterator class allows one to iterate over cells in the tissue.
      * Dereferencing the iterator will give you the current cell.
@@ -286,6 +293,7 @@ public:
      * can be used to trace clonal populations.
      */   
     void SetBottomCellAncestors();
+    
     /**
      * Loops over cells and makes a list of the ancestors that 
      * are part of the tissue.
@@ -298,9 +306,7 @@ public:
      */
     void Validate();
 
-    void WriteResultsToFiles(std::ofstream& rNodeFile, 
-                             std::ofstream& rElementFile,
-                             std::ofstream& rCellTypesFile,
+    void WriteResultsToFiles(std::ofstream& rCellTypesFile,
                              bool writeVisualizerResults,
                              bool OutputCellTypes);
 

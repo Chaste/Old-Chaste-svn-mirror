@@ -586,12 +586,25 @@ c_vector<unsigned,5> Tissue<DIM>::GetCellTypeCount()
     return mCellTypeCount;
 }
 
+template<unsigned DIM>
+void Tissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory)
+{
+    OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
+    mpNodeFile = output_file_handler.OpenOutputFile("results.viznodes");
+    mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
+}
+
+template<unsigned DIM>
+void Tissue<DIM>::CloseOutputFiles()
+{
+    mpNodeFile->close();
+    mpElementFile->close();
+}
+
 template<unsigned DIM>  
-void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rNodeFile, 
-                                     std::ofstream& rElementFile,
-                                     std::ofstream& rCellTypesFile,
-                                     bool writeVisualizerResults,
-                                     bool OutputCellTypes)
+void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rCellTypesFile,
+                                      bool writeVisualizerResults,
+                                      bool OutputCellTypes)
 {
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
@@ -604,8 +617,8 @@ void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rNodeFile,
     
     if (writeVisualizerResults)
     {
-        rNodeFile <<  time << "\t";
-        rElementFile <<  time << "\t";
+        *mpNodeFile <<  time << "\t";
+        *mpElementFile <<  time << "\t";
     }
     
     if (OutputCellTypes)
@@ -710,9 +723,9 @@ void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rNodeFile,
             {
                 for(unsigned i=0; i<DIM; i++)
                 {
-                    rNodeFile << position[i] << " ";
+                    *mpNodeFile << position[i] << " ";
                 }
-                rNodeFile << colour << " ";
+                *mpNodeFile << colour << " ";
             }
         }
     }
@@ -726,7 +739,7 @@ void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rNodeFile,
             {
                 for(unsigned i=0; i<DIM+1; i++)
                 {
-                    rElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i)<< " ";
+                    *mpElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i)<< " ";
                 }
             }
         }
@@ -744,15 +757,16 @@ void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rNodeFile,
     
     if (writeVisualizerResults)
     {
-        rNodeFile << "\n";
-        rElementFile << "\n";
+        *mpNodeFile << "\n";
+        *mpElementFile << "\n";
     }
 }
 
 
 //////////////////////////////////////////////////////////////////////////////
-//                          spring iterator class                           // 
+//                          Spring iterator class                           // 
 //////////////////////////////////////////////////////////////////////////////
+
 template<unsigned DIM>
 Node<DIM>* Tissue<DIM>::SpringIterator::GetNodeA()
 {
@@ -772,14 +786,12 @@ TissueCell& Tissue<DIM>::SpringIterator::rGetCellA()
     return mrTissue.rGetCellAtNodeIndex(mEdgeIter.GetNodeA()->GetIndex());
 }
 
-
 template<unsigned DIM>
 TissueCell& Tissue<DIM>::SpringIterator::rGetCellB()
 {
     assert((*this) != mrTissue.SpringsEnd());
     return mrTissue.rGetCellAtNodeIndex(mEdgeIter.GetNodeB()->GetIndex());
 }
-
 
 template<unsigned DIM>
 bool Tissue<DIM>::SpringIterator::operator!=(const Tissue<DIM>::SpringIterator& other)
@@ -807,7 +819,6 @@ typename Tissue<DIM>::SpringIterator& Tissue<DIM>::SpringIterator::operator++()
 
     return (*this);
 }
-
 
 template<unsigned DIM>
 Tissue<DIM>::SpringIterator::SpringIterator(Tissue& rTissue,
