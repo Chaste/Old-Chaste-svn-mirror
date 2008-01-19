@@ -110,8 +110,6 @@ public:
         // Set up the simulation
         crypt_projection_simulator.SetOutputDirectory("CryptProjectionSimulation");
         crypt_projection_simulator.SetEndTime(0.25);
-        crypt_projection_simulator.SetMaxCells(1000);
-        crypt_projection_simulator.SetMaxElements(2000);
         
         // Run the simulation
         double start_time = std::clock();        

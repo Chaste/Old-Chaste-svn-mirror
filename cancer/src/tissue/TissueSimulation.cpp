@@ -53,8 +53,6 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue,
     mReMesh = true;
     mOutputCellTypes = false ;
     mNoBirth = false;
-    mMaxCells = 10*mrTissue.rGetMesh().GetNumNodes();
-    mMaxElements = 10*mrTissue.rGetMesh().GetNumElements();
     mNumBirths = 0;
     mNumDeaths = 0;
     mSamplingTimestepMultiple = 1;
@@ -62,9 +60,6 @@ TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue,
     mWriteVoronoiData = false;
     mWriteTissueAreas = false;
     mFollowLoggedCell = false;
-        
-    mrTissue.SetMaxCells(mMaxCells);
-    mrTissue.SetMaxElements(mMaxElements);
     
     if (pMechanicsSystem == NULL)
     {
@@ -268,37 +263,6 @@ void TissueSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)
     mSimulationOutputDirectory = mOutputDirectory;
 }
 
-
-/**
- * Sets the maximum number of cells that the simulation will contain (for use by the datawriter)
- * default value is set to 10x the initial mesh value by the constructor.
- */
-template<unsigned DIM>  
-void TissueSimulation<DIM>::SetMaxCells(unsigned maxCells)
-{
-    mMaxCells = maxCells;
-    if (maxCells<mrTissue.rGetMesh().GetNumAllNodes())
-    {
-        EXCEPTION("mMaxCells is less than the number of cells in the mesh.");
-    }
-    mrTissue.SetMaxCells(maxCells);
-}
-
-
-/**
- * Sets the maximum number of elements that the simulation will contain (for use by the datawriter)
- * default value is set to 10x the initial mesh value by the constructor.
- */
-template<unsigned DIM> 
-void TissueSimulation<DIM>::SetMaxElements(unsigned maxElements)
-{
-    mMaxElements = maxElements;
-    if (maxElements<mrTissue.rGetMesh().GetNumAllElements())
-    {
-        EXCEPTION("mMaxElements is less than the number of elements in the mesh.");
-    }
-    mrTissue.SetMaxElements(maxElements);
-}
     
 /**
  * Sets the ratio of the number of actual timesteps to the number of timesteps 
@@ -310,6 +274,7 @@ void TissueSimulation<DIM>::SetSamplingTimestepMultiple(unsigned samplingTimeste
     assert(samplingTimestepMultiple > 0);
     mSamplingTimestepMultiple = samplingTimestepMultiple;
 }
+
 
 template<unsigned DIM> 
 Tissue<DIM>& TissueSimulation<DIM>::rGetTissue()
@@ -413,7 +378,7 @@ void TissueSimulation<DIM>::Solve()
     
     unsigned num_time_steps = (unsigned) ((mEndTime-current_time)/mDt+0.5);
 
-    if (current_time>0)//use the reset function if necessary
+    if (current_time > 0) // use the reset function if necessary
     {
         p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
     }
@@ -422,13 +387,11 @@ void TissueSimulation<DIM>::Solve()
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
     }
     
-
     if (mOutputDirectory=="")
     {
         EXCEPTION("OutputDirectory not set");
     }
     
-
     double time_now = p_simulation_time->GetDimensionalisedTime();
     std::ostringstream time_string;
     time_string << time_now;
@@ -439,17 +402,7 @@ void TissueSimulation<DIM>::Solve()
     ///////////////////////////////////////////////////////////
     // Set up Simulation
     ///////////////////////////////////////////////////////////
-    
-    // Data writers for tabulated results data, used in tests
-    // first construction clears out the folder
-    ColumnDataWriter tabulated_node_writer(results_directory+"/tab_results", "tabulated_node_results",true);
-    ColumnDataWriter tabulated_element_writer(results_directory+"/tab_results", "tabulated_element_results",false);
-    
-    mrTissue.SetupTabulatedWriters(tabulated_node_writer, tabulated_element_writer);//, element_writer_ids);
-    
-    // This keeps track of when tabulated results were last output
-    unsigned tabulated_output_counter = 0;
-    
+   
     // Create output files for the visualizer
     OutputFileHandler output_file_handler(results_directory+"/vis_results/",false);
     out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
@@ -464,6 +417,7 @@ void TissueSimulation<DIM>::Solve()
     }
     
     SetupSolve();
+    
     /* 
      * Age the cells to the correct time (cells set up with negative birth dates
      * to give some that are almost ready to divide).
@@ -489,12 +443,11 @@ void TissueSimulation<DIM>::Solve()
         WriteVisualizerSetupFile();
     }
     mpSetupFile->close();    
-    mrTissue.WriteResultsToFiles(tabulated_node_writer, 
-                                tabulated_element_writer,
-                                *p_node_file, *p_element_file, *p_cell_types_file,
-                                false,
-                                true,
-                                mOutputCellTypes);
+    mrTissue.WriteResultsToFiles(*p_node_file, 
+                                 *p_element_file, 
+                                 *p_cell_types_file,
+                                 true,
+                                 mOutputCellTypes);
 
     TissueVoronoiDataWriter<DIM>* p_voronoi_data_writer = NULL;
     if (mWriteVoronoiData)
@@ -522,7 +475,7 @@ void TissueSimulation<DIM>::Solve()
     {        
         LOG(1, "--TIME = " << p_simulation_time->GetDimensionalisedTime() << "\n");
         
-        // remove dead cells before doing birth
+        // Remove dead cells before doing birth
         // neither of these functions use any element information so they 
         // just delete and create nodes
         CancerEventHandler::BeginEvent(DEATH);
@@ -578,12 +531,11 @@ void TissueSimulation<DIM>::Solve()
         // Write results to file
         if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
-            mrTissue.WriteResultsToFiles(tabulated_node_writer, 
-                                        tabulated_element_writer, 
-                                        *p_node_file, *p_element_file, *p_cell_types_file,
-                                        tabulated_output_counter%80==0,
-                                        true,
-                                        mOutputCellTypes);
+            mrTissue.WriteResultsToFiles(*p_node_file, 
+                                         *p_element_file, 
+                                         *p_cell_types_file,
+                                         true,
+                                         mOutputCellTypes);
                                         
             if (mWriteVoronoiData)
             {
@@ -594,8 +546,6 @@ void TissueSimulation<DIM>::Solve()
             {
                 p_voronoi_data_writer->WriteTissueAreas();
             }
-            
-            tabulated_output_counter++;
         }
 
         PostSolve();
@@ -608,16 +558,12 @@ void TissueSimulation<DIM>::Solve()
     // is taken care of in the main loop).
     // Doesn't need to count cell types again as it is done in the last loop
     CancerEventHandler::BeginEvent(OUTPUT);
-    mrTissue.WriteResultsToFiles(tabulated_node_writer, 
-                                tabulated_element_writer, 
-                                *p_node_file, *p_element_file, *p_cell_types_file,
-                                true,
-                                false,
-                                false);
-                        
-    tabulated_node_writer.Close();
-    tabulated_element_writer.Close();
-    
+    mrTissue.WriteResultsToFiles(*p_node_file, 
+                                 *p_element_file, 
+                                 *p_cell_types_file,
+                                 false,
+                                 false);
+
     if(p_voronoi_data_writer!=NULL)
     {
         delete p_voronoi_data_writer;

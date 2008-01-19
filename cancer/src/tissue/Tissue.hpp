@@ -3,7 +3,6 @@
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "TissueCell.hpp"
-#include "ColumnDataWriter.hpp"
 #include "VoronoiTessellation.cpp"
 
 #include <list>
@@ -14,27 +13,6 @@
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/set.hpp>
 
-/**
- * Structure encapsulating variable identifiers for the node datawriter
- */
-typedef struct NodeWriterIdsT
-{
-    unsigned time;                
-    std::vector<unsigned> types; 
-    std::vector<c_vector<unsigned, 3> > position_id; 
-    
-}
-NodeWriterIdsT;
-
-/**
- * Structure encapsulating variable identifiers for the element datawriter
- */
-typedef struct ElementWriterIdsT
-{
-    unsigned time;
-    std::vector<c_vector<unsigned, 4> > node_id;
-}
-ElementWriterIdsT;
 
 /**
  * A facade class encapsulating a 'tissue'
@@ -69,25 +47,14 @@ private:
     /** Records whether a nodes is a ghost node or not */
     std::vector<bool> mIsGhostNode;
 
-    /** used in seting up tabulated writers */
-    unsigned mMaxCells;
-    
-    /** used in seting up tabulated writers */
-    unsigned mMaxElements;
-    
+
     /** Current cell type counts */
     c_vector<unsigned,5> mCellTypeCount;
-    
-    /** used by tabulated writers */
-    NodeWriterIdsT mNodeVarIds;
-    
-    /** used by tabulated writers */
-    ElementWriterIdsT mElemVarIds;
-    
+        
     /**
      * Special springs that we want to keep track of for some reason.
      * Currently used to track cells in the process of dividing
-     * (which are represented as 2 cells joined by a shorter spring).
+     * (which are represented as two cells joined by a shorter spring).
      */
     std::set<std::set<TissueCell*> > mMarkedSprings;
     
@@ -109,11 +76,7 @@ private:
         archive & mCells;
         archive & mNodeCellMap;
         archive & mIsGhostNode;
-        archive & mMaxCells;
-        archive & mMaxElements;
-        
-        //CheckTissueCellPointers();
-        
+                
         // The Voronoi stuff can't be archived yet
         //archive & mpVoronoiTessellation
         delete mpVoronoiTessellation;
@@ -169,18 +132,13 @@ public:
      *  Set the ghost nodes by taking in a set of which nodes are ghosts.
      */
     void SetGhostNodes(const std::set<unsigned>& ghostNodeIndices);
-
-    void SetMaxCells(unsigned maxCells);
-    
-    void SetMaxElements(unsigned maxElements);
     
     /**
      * Update the GhostNode positions using the spring force model with rest length=1.
      * Forces are applied to ghost nodes from connected ghost and normal nodes.
      */
     void UpdateGhostPositions(double dt);
-    
-    
+        
     /***
      * This method is used to calculate the force between GHOST nodes.
      */
@@ -214,7 +172,6 @@ public:
     c_vector<double, DIM> GetLocationOfCell(const TissueCell& rCell);
 
     Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell);
-
     
     /**
      * Find out how many cells of each mutation state there are
@@ -341,25 +298,12 @@ public:
      */
     void Validate();
 
-        
-    /**
-     * Define the variable identifiers in the data writer used to write node positions
-     * and element results.
-     *
-     * Uses mMaxCells and mMaxElements to decide how many variables to define.
-     */
-    void SetupTabulatedWriters(ColumnDataWriter& rNodeWriter, ColumnDataWriter& rElementWriter);
-    
-    void WriteResultsToFiles(ColumnDataWriter& rNodeWriter, 
-                             ColumnDataWriter& rElementWriter, 
-                             std::ofstream& rNodeFile, 
+    void WriteResultsToFiles(std::ofstream& rNodeFile, 
                              std::ofstream& rElementFile,
                              std::ofstream& rCellTypesFile,
-                             bool writeTabulatedResults,
                              bool writeVisualizerResults,
                              bool OutputCellTypes);
-                             
-                             
+
     /** Get a reference to a Voronoi Tessellation of the mesh */                         
     void CreateVoronoiTessellation();
 
@@ -373,10 +317,12 @@ public:
     class SpringIterator
     {
     public:
+    
         /**
          * Get a pointer to the node in the mesh at end A of the spring.
          */
         Node<DIM>* GetNodeA();
+        
         /**
          * Get a pointer to the node in the mesh at end B of the spring.
          */
@@ -386,6 +332,7 @@ public:
          * Get a *reference* to the cell at end A of the spring.
          */
         TissueCell& rGetCellA();
+        
         /**
          * Get a *reference* to the cell at end B of the spring.
          */
@@ -404,6 +351,7 @@ public:
         SpringIterator(Tissue& rTissue, typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edgeIter);
         
     private:
+    
         /** Keep track of what edges have been visited */
         std::set<std::set<unsigned> > mSpringsVisited;
     
@@ -429,10 +377,12 @@ public:
      * Test whether the spring between 2 cells is marked.
      */
     bool IsMarkedSpring(TissueCell&, TissueCell&);
+    
     /**
      * Mark the spring between the given cells.
      */
     void MarkSpring(TissueCell&, TissueCell&);
+    
     /**
      * Stop marking the spring between the given cells.
      */
@@ -454,7 +404,7 @@ template<class Archive, unsigned DIM>
 inline void save_construct_data(
     Archive & ar, const Tissue<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
-    // save data required to construct instance
+    // Save data required to construct instance
     const ConformingTetrahedralMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
     ar & p_mesh;
 }
@@ -467,7 +417,7 @@ template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, Tissue<DIM> * t, const unsigned int file_version)
 {
-    // retrieve data from archive required to construct new instance
+    // Retrieve data from archive required to construct new instance
     assert(Tissue<DIM>::meshPathname.length() > 0);
     ConformingTetrahedralMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
@@ -480,7 +430,7 @@ inline void load_construct_data(
     // Needed for cylindrical meshes at present; should be safe in any case.
     NodeMap map(p_mesh->GetNumNodes());
     p_mesh->ReMesh(map);
-    // invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialize instance
     ::new(t)Tissue<DIM>(*p_mesh);
 }
 }

@@ -91,13 +91,7 @@ protected:
     
     /** Whether to count the number of each cell type and output to file*/
     bool mOutputCellTypes;
-    
-    /** The maximum number of cells that this simulation will include (for use by datawriter). */
-    unsigned mMaxCells;
-    
-    /** The maximum number of elements that this simulation will include (for use by datawriter). */
-    unsigned mMaxElements;
-    
+
     /** Output directory (a subfolder of tmp/<USERNAME>/testoutput) */
     std::string mOutputDirectory;
     
@@ -158,8 +152,6 @@ protected:
         archive & mEndTime;
         archive & mNoBirth;
         archive & mReMesh;
-        archive & mMaxCells;
-        archive & mMaxElements;
         archive & mOutputDirectory;
         archive & mNumBirths;
         archive & mNumDeaths;
@@ -261,8 +253,6 @@ public:
     double GetDt();
     void SetEndTime(double endTime);
     void SetOutputDirectory(std::string outputDirectory);
-    void SetMaxCells(unsigned maxCells);
-    void SetMaxElements(unsigned maxElements);
     void SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple);
     void SetNoBirth(bool nobirth);
     void SetOutputCellTypes(bool outputCellTypes);

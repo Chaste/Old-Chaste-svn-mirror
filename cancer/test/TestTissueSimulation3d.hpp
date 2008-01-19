@@ -78,9 +78,6 @@ public:
         Tissue<3> tissue(mesh,cells);
         TissueSimulation<3> simulator(tissue);
         
-        simulator.SetMaxCells(400);
-        simulator.SetMaxElements(2400);
-        
         unsigned num_births = simulator.DoCellBirth();
                                                                 
         TS_ASSERT_EQUALS(num_births, 1u);
@@ -113,8 +110,6 @@ public:
         TrianglesMeshWriter<3,3> mesh_writer1("Test3DCellBirth","StartMesh");
         mesh_writer1.WriteFilesUsingMesh(mesh);
         
-        simulator.SetMaxCells(10);
-        simulator.SetMaxElements(25);
         simulator.SetOutputDirectory("Test3DCellBirth");
         
         // Set to re-mesh
@@ -159,9 +154,6 @@ public:
         
         Tissue<3> tissue(mesh,cells);
         TissueSimulation<3> simulator(tissue);
-        
-        simulator.SetMaxCells(1000);
-        simulator.SetMaxElements(2500);
         simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
         
         // Test SetSamplingTimestepMultiple method
@@ -247,9 +239,6 @@ public:
         tissue.SetGhostNodes(ghost_node_indices);        
 
         TissueSimulation<3> simulator(tissue);
-
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
         simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");
         
         // Set to re-mesh
@@ -260,9 +249,7 @@ public:
         simulator.Save();
         
         // These lines generate result to test in the following Test. 
-//        unsigned num_real_cells = p_simulator->rGetTissue().GetNumRealCells();
-//        std::cout << "Num real cells = " << num_real_cells << "/" << num_cells << "\n" << std::flush;
- 
+
         TrianglesMeshWriter<3,3> mesh_writer2("TestGhostNodesSpheroidSimulation3D","EndMesh",false); 
         mesh_writer2.WriteFilesUsingMesh(mesh);
     }

@@ -20,7 +20,7 @@ public:
 
     void TestCellwiseDataSimple() throw(Exception)
     {        
-        // create a simple mesh
+        // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -30,7 +30,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
 
-        // create a tissue
+        // Create a tissue
         Tissue<2> tissue(mesh,cells);
 
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
@@ -58,7 +58,7 @@ public:
         ++iter;
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter)), 2.23, 1e-12);
         
-        // test ReallocateMemory method
+        // Test ReallocateMemory method
         TissueCell new_cell(STEM, HEALTHY, new FixedCellCycleModel());
         new_cell.SetBirthTime(-1);
         c_vector<double,2> new_cell_location;
@@ -91,7 +91,7 @@ public:
         ++iter2;
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 1), 4.23, 1e-12);
 
-        //  other values should have been initialised to zero        
+        // Other values should have been initialised to zero        
         ++iter2;
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 0), 0.0, 1e-12);
         

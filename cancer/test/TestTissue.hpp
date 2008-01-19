@@ -23,7 +23,8 @@
 class TestTissue : public AbstractCancerTestSuite
 {    
 private: 
-    // test construction (without ghost nodes), accessors and iterator
+
+    // Test construction (without ghost nodes), accessors and iterator
     template<unsigned DIM>
     std::vector<TissueCell> SetUpCells(ConformingTetrahedralMesh<DIM,DIM>* pMesh)
     {
@@ -43,7 +44,7 @@ private:
     template<unsigned DIM>
     void TestSimpleTissue(std::string meshFilename)
     {        
-        // create a simple mesh
+        // Create a simple mesh
         TrianglesMeshReader<DIM,DIM> mesh_reader(meshFilename);
         ConformingTetrahedralMesh<DIM,DIM> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -53,7 +54,7 @@ private:
         std::vector<TissueCell> cells;
         CellsGenerator<DIM>::GenerateBasic(cells, mesh);
 
-        // create the tissue
+        // Create the tissue
         Tissue<DIM> tissue(mesh,cells);
         
         TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(), mesh.GetNumNodes());
@@ -64,19 +65,19 @@ private:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            // test operator* and that cells are in sync
+            // Test operator* and that cells are in sync
             TS_ASSERT_EQUALS((*cell_iter).GetNodeIndex(), counter);
  
-            // test operator-> and that cells are in sync
+            // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
  
-            // test GetNode on the iterator
+            // Test GetNode on the iterator
             TS_ASSERT_EQUALS(cell_iter.GetNode()->GetIndex(), mesh.GetNode(counter)->GetIndex());
  
-            // test iter.GetNode()->GetIndex() is consistent with cell.GetNodeIndex()
+            // Test iter.GetNode()->GetIndex() is consistent with cell.GetNodeIndex()
             TS_ASSERT_EQUALS((*cell_iter).GetNodeIndex(), cell_iter.GetNode()->GetIndex());
  
-            // test rGetLocation on the iterator
+            // Test rGetLocation on the iterator
             for(unsigned space_index=0; space_index<DIM; space_index++)
             {
                 TS_ASSERT_EQUALS(cell_iter.rGetLocation()[space_index], 
@@ -91,7 +92,7 @@ private:
 
 public:
 
-    // test construction, accessors and Iterator
+    // Test construction, accessors and Iterator
     void TestSimpleTissue1d2d3d() throw(Exception)
     {
         TestSimpleTissue<1>("mesh/test/data/1D_0_to_1_10_elements");
@@ -102,7 +103,7 @@ public:
     
     void TestValidate()
     {        
-        // create a simple mesh
+        // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -113,12 +114,12 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         cells[0].SetNodeIndex(1);
 
-		// fails as no cell or ghost correponding to node 0        
+		// Fails as no cell or ghost correponding to node 0        
         TS_ASSERT_THROWS_ANYTHING(Tissue<2> tissue2(mesh, cells));
     }
     
     
-    // test with ghost nodes, incl the Iterator doesn't loop over ghost nodes
+    // Test with ghost nodes, incl the Iterator doesn't loop over ghost nodes
     void TestTissueWithGhostNodes() throw(Exception)
     {
         unsigned num_cells_depth = 11;
@@ -133,10 +134,10 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);        
 
-        // create a tissue, with no ghost nodes at the moment
+        // Create a tissue, with no ghost nodes at the moment
         Tissue<2> tissue(*p_mesh,cells);
 
-        // iterator should loop over all nodes
+        // Iterator should loop over all nodes
         unsigned counter = 0;
         for (Tissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
@@ -146,7 +147,7 @@ public:
         }
         TS_ASSERT_EQUALS(counter, p_mesh->GetNumNodes());
         
-        // set ghost nodes
+        // Set ghost nodes
         tissue.SetGhostNodes(ghost_node_indices);
         std::vector<bool> is_ghost_node(p_mesh->GetNumNodes(), false);
         for(std::set<unsigned>::iterator it = ghost_node_indices.begin();
@@ -158,11 +159,11 @@ public:
         
         TS_ASSERT_EQUALS(tissue.rGetGhostNodes(), is_ghost_node);
         
-        // test the GetGhostNodeIndices method
+        // Test the GetGhostNodeIndices method
         std::set<unsigned> ghost_node_indices2 = tissue.GetGhostNodeIndices();
         TS_ASSERT_EQUALS(ghost_node_indices, ghost_node_indices2);
         
-        // check the iterator doesn't loop over ghost nodes
+        // Check the iterator doesn't loop over ghost nodes
         counter = 0;
         for (Tissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
@@ -175,14 +176,14 @@ public:
         
         TS_ASSERT_EQUALS(counter, tissue.GetNumRealCells());
         
-        // check counter = num_nodes - num_ghost_nodes
+        // Check counter = num_nodes - num_ghost_nodes
         TS_ASSERT_EQUALS(counter + ghost_node_indices.size(), p_mesh->GetNumNodes());
     }
     
     
     void TestMoveCellAndAddCell()
     {             
-        // create a simple mesh
+        // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -190,14 +191,14 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
 
-        // create a tissue, with no ghost nodes at the moment
+        // Create a tissue, with no ghost nodes at the moment
         Tissue<2> tissue(mesh, cells);
 
         //////////////////
         // test move cell
         //////////////////
         
-        // move node 0 by a small amount
+        // Move node 0 by a small amount
         Tissue<2>::Iterator cell_iter = tissue.Begin();
         c_vector<double,2> new_location = cell_iter.rGetLocation();
         new_location[0] += 1e-2;
@@ -209,12 +210,12 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[1], new_location[1], 1e-12);
 
         //////////////////
-        // test add cell
+        // Test add cell
         //////////////////
         unsigned old_num_nodes = mesh.GetNumNodes();
         unsigned old_num_cells = tissue.rGetCells().size();
 
-        // create a new cell, DON'T set the node index, set birth time=-1
+        // Create a new cell, DON'T set the node index, set birth time=-1
         TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
         cell.SetBirthTime(-1);
         c_vector<double,2> new_cell_location;
@@ -223,20 +224,20 @@ public:
         
         tissue.AddCell(cell,new_cell_location); 
 
-        // tissue should have updated mesh and cells
+        // Tissue should have updated mesh and cells
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), old_num_nodes+1);
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), old_num_cells+1);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), old_num_nodes+1);
 
-        // same test via tissue class
+        // Same test via tissue class
         TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(), old_num_nodes+1);
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), old_num_cells+1);
         
-        // check the location of the new node
+        // Check the location of the new node
         TS_ASSERT_DELTA(mesh.GetNode(old_num_nodes)->rGetLocation()[0], 2.0, 1e-12);
         TS_ASSERT_DELTA(mesh.GetNode(old_num_nodes)->rGetLocation()[1], 2.0, 1e-12);
 
-        // check the index of the new cell
+        // Check the index of the new cell
         TissueCell& new_cell = tissue.rGetCells().back();
         TS_ASSERT_EQUALS(new_cell.GetNodeIndex(), old_num_nodes);
     }
@@ -247,7 +248,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
         
-        // create a simple mesh
+        // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -258,10 +259,10 @@ public:
         
         cells[27].StartApoptosis();
         
-        // create a tissue, with some random ghost nodes
+        // Create a tissue, with some random ghost nodes
         Tissue<2> tissue(mesh,cells);
 
-        // set ghost nodes (using alternative constructor)
+        // Set ghost nodes (using alternative constructor)
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
         for(unsigned i=0; i<10; i++)
         {
@@ -273,7 +274,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), 81u);
 
-        // num real cells should be num_nodes (81) - num_ghosts (11) = 70
+        // Num real cells should be num_nodes (81) - num_ghosts (11) = 70
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 70u);
         
         p_simulation_time->IncrementTimeOneStep();
@@ -286,21 +287,21 @@ public:
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), 80u);
         TS_ASSERT_DIFFERS(tissue.rGetCells().size(), cells.size()); // Tissue now copies cells
         
-        // num real cells should be num_nodes (81) - num_ghosts (11) - One deleted node = 69
+        // Num real cells should be num_nodes (81) - num_ghosts (11) - One deleted node = 69
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 69u);
         
         TS_ASSERT_EQUALS(tissue.rGetGhostNodes().size(), mesh.GetNumAllNodes()); 
 
         tissue.ReMesh();
 
-        // num real cells should be num_new_nodes (80) - num_ghosts (11)
+        // Num real cells should be num_new_nodes (80) - num_ghosts (11)
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 69u);
 
-        // test size of ghost nodes vector is correct - mesh.GetNumNodes() ?
+        // Test size of ghost nodes vector is correct - mesh.GetNumNodes() ?
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh.GetNumAllNodes()); 
         TS_ASSERT_EQUALS(tissue.rGetGhostNodes().size(), mesh.GetNumNodes()); 
         
-        // nodes 0-9 should not been renumbered so are still ghost nodes.
+        // Nodes 0-9 should not been renumbered so are still ghost nodes.
         // the ghost node at node 80 is now at 79 as node 27 was deleted..
         for(unsigned i=0; i<tissue.rGetGhostNodes().size(); i++)
         {
@@ -308,7 +309,7 @@ public:
             TS_ASSERT_EQUALS(tissue.rGetGhostNodes()[i], ((i<10)||(i==79))); 
         }
         
-        // \todo: finally, check the cells node indices have updated..
+        // \todo: Finally, check the cells node indices have updated
     }
     
     
@@ -317,7 +318,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);      
         
-        // create a simple mesh
+        // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -327,7 +328,7 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         cells[27].StartApoptosis();
         
-        // create a tissue, with some random ghost nodes
+        // Create a tissue, with some random ghost nodes
         Tissue<2> tissue(mesh,cells);
 
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
@@ -379,7 +380,7 @@ public:
     // Test update ghost node positions    
     void TestOutputWriters()
     {        
-        // create a simple mesh
+        // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -391,34 +392,37 @@ public:
         
         std::string output_directory = "TestTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
-        ColumnDataWriter tabulated_node_writer(output_directory, "tab_node_results");
-        ColumnDataWriter tabulated_element_writer(output_directory, "tab_elem_results", false);
-
-        TS_ASSERT_THROWS_NOTHING(tissue.SetupTabulatedWriters(tabulated_node_writer, tabulated_element_writer));
+//        ColumnDataWriter tabulated_node_writer(output_directory, "tab_node_results");
+//        ColumnDataWriter tabulated_element_writer(output_directory, "tab_elem_results", false);
+//
+//        TS_ASSERT_THROWS_NOTHING(tissue.SetupTabulatedWriters(tabulated_node_writer, tabulated_element_writer));
                 
         out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
         out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
         out_stream p_cell_types_file = output_file_handler.OpenOutputFile("results.vizelements");
         
-        tissue.WriteResultsToFiles(tabulated_node_writer,
-                                  tabulated_element_writer,
+        tissue.WriteResultsToFiles(//tabulated_node_writer,
+                                  //tabulated_element_writer,
                                   *p_node_file,
                                   *p_element_file,
                                   *p_cell_types_file,
-                                  true,
+                                  //true,
                                   true,
                                   true);
         p_node_file->close();                          
         p_element_file->close();                          
 
-        // compare output with saved files of what they should look like                           
+        // Compare output with saved files of what they should look like                           
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements  cancer/test/data/TestTissueWriters/results.vizelements").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
 
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "tab_node_results.dat cancer/test/data/TestTissueWriters/tab_node_results.dat").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "tab_elem_results.dat cancer/test/data/TestTissueWriters/tab_elem_results.dat").c_str()), 0);
+//\todo: if deleting this, then we can also delete the files 
+//        cancer/test/data/TestTissueWriters/tab_node_results.dat
+//        cancer/test/data/TestTissueWriters/tab_elem_results.dat       
+//        TS_ASSERT_EQUALS(system(("diff " + results_dir + "tab_node_results.dat cancer/test/data/TestTissueWriters/tab_node_results.dat").c_str()), 0);
+//        TS_ASSERT_EQUALS(system(("diff " + results_dir + "tab_elem_results.dat cancer/test/data/TestTissueWriters/tab_elem_results.dat").c_str()), 0);
         
         /*
          * Test the GetCellTypeCount function
@@ -435,7 +439,7 @@ public:
     
     void TestSpringIterator2d() throw(Exception)
     {
-        // set up expected results for the honeycombmesh created below
+        // Set up expected results for the honeycombmesh created below
         // the following are the edges which do not contain a ghost node
         std::set < std::set < unsigned > > expected_node_pairs;        
         unsigned expected_node_pairs_array[] = {5,6,
@@ -467,12 +471,13 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
-        // create a tissue, with no ghost nodes at the moment
+        // Create a tissue, with no ghost nodes at the moment
         Tissue<2> tissue(*p_mesh,cells);
-        // set ghost nodes
+        
+        // Set ghost nodes
         tissue.SetGhostNodes(ghost_node_indices);
                 
-        // check that we can iterate over the set of springs
+        // Check that we can iterate over the set of springs
         std::set< std::set< unsigned > > springs_visited;
         
         for (Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
@@ -496,7 +501,7 @@ public:
     // 3d test with some ghost nodes
     void TestSpringIterator3d() throw(Exception)
     {        
-        // create a simple mesh
+        // Create a simple mesh
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -505,20 +510,20 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<3>::GenerateBasic(cells, mesh);
         
-        // create a tissue, with no ghost nodes at the moment
+        // Create a tissue, with no ghost nodes at the moment
         Tissue<3> tissue(mesh,cells);
         
-        // make nodes 0-10 ghost nodes
+        // Make nodes 0-10 ghost nodes
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(),false);
         for(unsigned i=0; i<10; i++)
         {
             is_ghost_node[i] = true;
         }
-        // set ghost nodes
+        
+        // Set ghost nodes
         tissue.SetGhostNodes(is_ghost_node);
-
                 
-        // check that we can iterate over the set of springs
+        // Check that we can iterate over the set of springs
         std::set< std::set< unsigned > > springs_visited;
         
         for (Tissue<3>::SpringIterator spring_iterator=tissue.SpringsBegin();
@@ -536,7 +541,7 @@ public:
             TS_ASSERT_EQUALS(spring_iterator.rGetCellB().GetNodeIndex(), spring_iterator.GetNodeB()->GetIndex());
         }
         
-        // set up expected node pairs
+        // Set up expected node pairs
         std::set< std::set<unsigned> > expected_node_pairs;
         for(unsigned i=0; i<mesh.GetNumElements(); i++)
         {
@@ -548,7 +553,7 @@ public:
                     unsigned node_A = p_element->GetNodeGlobalIndex(j);
                     unsigned node_B = p_element->GetNodeGlobalIndex(k);
                     
-                    // if nodeA or node_B are <10 they will have been labelled a ghost node
+                    // If nodeA or node_B are <10 they will have been labelled a ghost node
                     // above
                     if(node_A != node_B && node_A>=10 && node_B>=10)
                     {
@@ -567,7 +572,7 @@ public:
     
     void TestGetLocationOfCell() throw (Exception)
     {        
-        // create a simple mesh
+        // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -577,20 +582,21 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
-        // create the tissue
+        // Create the tissue
         Tissue<2> tissue(mesh, cells);        
                 
-        // loop over nodes
+        // Loop over nodes
         for (Tissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            // record node location
+            // Record node location
             c_vector<double , 2> node_location = cell_iter.GetNode()->rGetLocation();
-            //std::cout << "node_location[0]" << node_location[0] << "\n";
-            // get cell at each node
+            
+            // Get cell at each node
             TissueCell& r_cell = tissue.rGetCellAtNodeIndex(cell_iter.GetNode()->GetIndex());      
-            // test GetLocationOfCell()
+            
+            // Gest GetLocationOfCell()
             TS_ASSERT_DELTA(node_location[0] , tissue.GetLocationOfCell(r_cell)[0] , 1e-9);
             TS_ASSERT_DELTA(node_location[1] , tissue.GetLocationOfCell(r_cell)[1] , 1e-9);
         }
@@ -607,12 +613,12 @@ public:
         
         // Archive a tissue 
         {
-            // need to set up time 
+            // Need to set up time 
             unsigned num_steps=10;
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
             
-            // create a simple mesh
+            // Create a simple mesh
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
             ConformingTetrahedralMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
@@ -622,7 +628,7 @@ public:
             std::vector<TissueCell> cells;
             CellsGenerator<2>::GenerateBasic(cells, mesh);
             
-            // create the tissue
+            // Create the tissue
             Tissue<2>* const p_tissue = new Tissue<2>(mesh, cells);
         
             // Cells have been given birth times of 0, -1, -2, -3, -4.
@@ -636,11 +642,11 @@ public:
             
             p_tissue->MarkSpring(p_tissue->rGetCellAtNodeIndex(0), p_tissue->rGetCellAtNodeIndex(1));
         
-            // create an output archive
+            // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
-            // write the tissue to the archive
+            // Write the tissue to the archive
             output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
             output_arch << p_tissue;
             SimulationTime::Destroy();
@@ -649,7 +655,7 @@ public:
         
         // Restore tissue
         {
-            // need to set up time 
+            // Need to set up time 
             unsigned num_steps=10;
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
@@ -658,7 +664,7 @@ public:
             
             Tissue<2>* p_tissue;
                                                    
-            // restore the tissue
+            // Restore the tissue
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             input_arch >> *p_simulation_time;
@@ -681,13 +687,13 @@ public:
                 counter++;
             }
             
-            // check the marked spring
+            // Check the marked spring
             TS_ASSERT(p_tissue->IsMarkedSpring(p_tissue->rGetCellAtNodeIndex(0), p_tissue->rGetCellAtNodeIndex(1)));
                         
-            // check the simulation time has been restored (through the cell)
+            // Check the simulation time has been restored (through the cell)
             TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.0);
             
-            // check the tissue has been restored
+            // Check the tissue has been restored
             TS_ASSERT_EQUALS(p_tissue->rGetCells().size(),5u);            
 
             // This won't pass because of the mesh not being archived 
@@ -700,7 +706,7 @@ public:
     
     void TestSpringMarking()
     {        
-        // create a small tissue
+        // Create a small tissue
         std::vector<Node<2> *> nodes;
         nodes.push_back(new Node<2>(0, false, 0, 0.5));
         nodes.push_back(new Node<2>(1, false, 1, 0));
@@ -715,26 +721,26 @@ public:
         
         Tissue<2> tissue(mesh, cells);
         
-        // mark some springs
+        // Mark some springs
         tissue.MarkSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2));
         tissue.MarkSpring(tissue.rGetCellAtNodeIndex(3), tissue.rGetCellAtNodeIndex(4));
                
-        // check if springs are marked
+        // Check if springs are marked
         TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
         TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(3), tissue.rGetCellAtNodeIndex(4)));
         
         TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(4)));
         TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(0), tissue.rGetCellAtNodeIndex(2)));
         
-        // delete cell 4
+        // Delete cell 4
         tissue.rGetCellAtNodeIndex(4).Kill();
         tissue.RemoveDeadCells();      
         
-        // check springs with non-deleted cells are still marked
+        // Check springs with non-deleted cells are still marked
         TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
         tissue.CheckTissueCellPointers();
                
-        // move cell 2
+        // Move cell 2
         Tissue<2>::Iterator it=tissue.Begin();
         ++it;
         ++it;
@@ -742,19 +748,19 @@ public:
         ChastePoint<2> new_location(1,10);
         tissue.MoveCell(it, new_location);
         
-        // remesh
-        tissue.ReMesh();
-        
+        // Remesh
+        tissue.ReMesh(); 
+               
         tissue.CheckTissueCellPointers();
         
-        // check there is no marked spring between nodes 1 & 2
+        // Check there is no marked spring between nodes 1 & 2
         TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
     }
     
     
     void TestSettingCellAncestors() throw (Exception)
     {        
-        // create a small tissue
+        // Create a small tissue
         std::vector<Node<2> *> nodes;
         nodes.push_back(new Node<2>(0, false, 0, 0.5));
         nodes.push_back(new Node<2>(1, false, 1, 0));
@@ -769,7 +775,7 @@ public:
         
         Tissue<2> tissue(mesh, cells);
         
-        // test that the tissue makes all cells fix the node index as ancestor
+        // Test that the tissue makes all cells fix the node index as ancestor
         tissue.SetCellAncestorsToNodeIndices();
         
         unsigned counter = 0;
@@ -786,11 +792,12 @@ public:
         std::set<unsigned> remaining_ancestors = tissue.GetCellAncestors();
         TS_ASSERT_EQUALS(remaining_ancestors.size(), 5u);
         
-        // test that the set correctly represents a monoclonal population.
+        // Test that the set correctly represents a monoclonal population.
         for(Tissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
-        {   // Set all cells to have the same ancestor...
+        {  
+            // Set all cells to have the same ancestor...
             cell_iter->SetAncestor(1u);
         }
         remaining_ancestors = tissue.GetCellAncestors();

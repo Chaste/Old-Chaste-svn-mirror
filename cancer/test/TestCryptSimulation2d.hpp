@@ -107,14 +107,11 @@ public:
         tissue.SetGhostNodes(ghost_node_indices);
 
         CryptSimulation2d simulator(tissue);
-        
-        simulator.SetMaxCells(400);
-        simulator.SetMaxElements(400);
 
         std::vector<c_vector<double, 2> > old_posns(p_mesh->GetNumNodes());
         std::vector<c_vector<double, 2> > velocities_on_each_node(p_mesh->GetNumNodes());
 
-        // make some velocities up.. 
+        // Make some velocities up.. 
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
             old_posns[i][0] = p_mesh->GetNode(i)->rGetLocation()[0];
@@ -136,7 +133,7 @@ public:
             {
                 if(old_posns[i][1]==0) // stem
                 {
-                    // no wnt so shouldn't have been moved
+                    // No wnt so shouldn't have been moved
                     TS_ASSERT_DELTA(p_node->rGetLocation()[0], old_posns[i][0], 1e-9);
                     TS_ASSERT_DELTA(p_node->rGetLocation()[1], old_posns[i][1], 1e-9);
                 }
@@ -170,10 +167,6 @@ public:
         CryptSimulation2d simulator(crypt);
         
         simulator.SetEndTime(0.1);
-        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(10));
-        simulator.SetMaxCells(500);
-        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(10));
-        simulator.SetMaxElements(1000);
         
         simulator.SetOutputCellTypes(true);
                 
@@ -188,7 +181,7 @@ public:
 
         simulator.Solve();
 
-        // test we have the same number of cells and nodes at the end of each time
+        // Test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
         std::vector<bool> ghost_cells = crypt.rGetGhostNodes();
         unsigned number_of_cells = crypt.GetNumRealCells();
@@ -209,7 +202,7 @@ public:
     
     void Test2DCylindricalMultipleDivisions() throw (Exception)
     {   
-        // create a log of this test.
+        // Create a log of this test.
         LogFile* p_log_file = LogFile::Instance();
         p_log_file->Set(2,"Crypt2DCylindricalMultipleDivisions");
              
@@ -238,19 +231,17 @@ public:
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true); 
         simulator.AddCellKiller(p_sloughing_cell_killer); 
-        
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
+
         simulator.SetOutputDirectory("Crypt2DCylindricalMultipleDivisions");        
         simulator.SetEndTime(0.6);
         simulator.Solve();
         
-        //Find the height of the current crypt
+        // Find the height of the current crypt
         double height_after_division=p_mesh->GetWidth(1);
         simulator.SetEndTime(0.8);
         simulator.Solve();
         
-        //Find the height of the current crypt
+        // Find the height of the current crypt
         double height_after_relaxation=p_mesh->GetWidth(1);
          
         TS_ASSERT_LESS_THAN(height_after_division, height_after_relaxation);        
@@ -258,7 +249,7 @@ public:
         simulator.SetEndTime(2.0);
         simulator.Solve();
         
-        //All fully diffs has sloughed off
+        // All fully diffs has sloughed off
         for (Tissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
@@ -267,7 +258,8 @@ public:
         }
         
         delete p_sloughing_cell_killer;
-        // close the log file opened in this test
+        
+        // Close the log file opened in this test
         LogFile::Close();
     }
 
@@ -299,10 +291,7 @@ public:
         simulator.SetOutputDirectory("Crypt2DPeriodicWnt");
         
         // Set length of simulation here
-        simulator.SetEndTime(0.3);
-        
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);   
+        simulator.SetEndTime(0.3); 
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
@@ -312,6 +301,7 @@ public:
         std::vector<double> node_35_location = simulator.GetNodeLocation(35);
         
         TS_ASSERT_DELTA(node_35_location[0], 5.5000 , 1e-4);
+        
         // Old version of this test had cells with age zero, therefore small spring lengths.
         // Variable spring lengths now only associated with cell division.
         TS_ASSERT_DELTA(node_35_location[1], 4.33013 , 1e-4);
@@ -343,9 +333,7 @@ public:
         
         CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DMeshArchive");
-        simulator.SetEndTime(0.1);
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);        
+        simulator.SetEndTime(0.1);     
         
         // Memory leak (unconditional jump) without the following line.
         // The archiver assumes that a Solve has been called and simulation time has been set up properly.
@@ -398,10 +386,7 @@ public:
         
         // Our full end time is 0.25
         simulator.SetEndTime(0.25);
-        
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
-        
+
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
 
@@ -419,7 +404,7 @@ public:
                 
         delete p_sloughing_cell_killer;
         
-        // test the Wnt gradient result
+        // Test the Wnt gradient result
         TissueCell* p_cell = &(crypt.rGetCellAtNodeIndex(28));
         TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
         p_cell = &(crypt.rGetCellAtNodeIndex(120));
@@ -456,15 +441,12 @@ public:
         // Our full end time is 0.25, here we run until 0.1 then load and run more below.
         simulator.SetEndTime(0.1);
         
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
-        
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
 
         simulator.Solve();
         
-        // save the results..
+        // Save the results..
         simulator.Save();
         
         delete p_sloughing_cell_killer;
@@ -487,7 +469,7 @@ public:
         p_simulator1->SetEndTime(0.2);
         p_simulator1->Solve();
         
-        // save that then reload
+        //Save that then reload
         // and run from 0.2 to 0.25.
         NodeMap map(0) ;
         p_simulator1->rGetTissue().rGetMesh().ReMesh(map);
@@ -510,9 +492,10 @@ public:
         TS_ASSERT_DELTA(node_120_location[0], 4.2035 , 1e-4);
         TS_ASSERT_DELTA(node_120_location[1], 0.1033 , 1e-4);
         
-        // test Wnt Gradient was set up correctly
+        // Test Wnt Gradient was set up correctly
         TS_ASSERT_EQUALS(WntGradient::Instance()->IsGradientSetUp(),true);
-        // test the Wnt gradient result
+        
+        // Test the Wnt gradient result
         TissueCell* p_cell = &(p_simulator2->rGetTissue().rGetCellAtNodeIndex(28));
         TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
         p_cell = &(p_simulator2->rGetTissue().rGetCellAtNodeIndex(120));
@@ -577,15 +560,14 @@ public:
                 
         CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DWntMatureCells");
+        
         // If you want to visualize this use the 'notcylindrical' option
         // (it is too small for it to figure out what's happening on its own).
         
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
         simulator.SetEndTime(0.01);
         simulator.SetOutputCellTypes(true);   
         
-        // cover the write voronoi data method
+        // Cover the write voronoi data method
         simulator.SetWriteVoronoiData(true, false);     
         simulator.Solve();
         
@@ -604,7 +586,7 @@ public:
         TS_ASSERT_EQUALS(cellTypeCount[3],0u);  // No APC two hit, one of all the rest.
         TS_ASSERT_EQUALS(cellTypeCount[4],1u);
         
-        // check writing of voronoi data
+        // Check writing of voronoi data
         OutputFileHandler handler("Crypt2DWntMatureCells",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.visvoronoi";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat").c_str()), 0);
@@ -641,8 +623,6 @@ public:
                 
         simulator.SetOutputDirectory("Crypt2DPeriodicTysonNovak");
         simulator.SetEndTime(0.05);
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
         simulator.SetDt(0.001);
         
         // Test that labelling a few cells doesn't make any difference to the simulation
@@ -654,7 +634,7 @@ public:
         simulator.SetOutputCellTypes(true);             
         simulator.Solve();
         
-        // test we have the same number of cells and nodes at the end of each time
+        // Test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
         std::vector<bool> ghost_cells = crypt.rGetGhostNodes();
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
@@ -756,7 +736,7 @@ public:
         // Make a parent node
         c_vector<double ,2> location;
         location[0]=1.0;
-        location[1]=0.0;                                    // <- y=0
+        location[1]=0.0; // <- y=0
         Node<2>* p_node = new Node<2>(0u,location, false);
         ConformingTetrahedralMesh<2,2> conf_mesh;
         conf_mesh.AddNode(p_node);
@@ -770,7 +750,7 @@ public:
 
         CryptSimulation2d simulator(conf_crypt);
         
-        // repeat two times for coverage
+        // Repeat two times for coverage
         // need vector from parent to daughter to have both +ve and -ve y component
         // different branches will execute to make sure daughter stays in crypt ie. +ve y component
         for (unsigned repetitions=0; repetitions<=1; repetitions++)
@@ -778,6 +758,7 @@ public:
             c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(conf_iter);
             c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
             c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
+            
             // The parent stem cell should stay where it is and the daughter be introduced at positive y.
             
             TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
@@ -820,7 +801,7 @@ public:
         // Make a mesh
         c_vector<double ,2> location;
         location[0]=1.0;
-        location[1]=0.0;                                    // <- y=0
+        location[1]=0.0; // <- y=0
         Node<2>* p_node = new Node<2>(0u,location, false);
         Cylindrical2dMesh cyl_mesh(6.0);
         cyl_mesh.AddNode(p_node);
@@ -846,7 +827,7 @@ public:
             1e-7);
     }
     
-    // short test which sets mNoBirth for coverage
+    // Short test which sets mNoBirth for coverage
     void TestNoBirth() throw (Exception)
     {
         std::string output_directory = "Crypt2DCylindricalNoBirth";        
@@ -870,8 +851,6 @@ public:
 
         simulator.SetOutputDirectory(output_directory);
         simulator.SetEndTime(2.0); // long enough for a cell to be born were SetNoBirth not called
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
         
         // These are for coverage and use the defaults
         simulator.SetDt(1.0/120.0);
@@ -883,7 +862,7 @@ public:
 
         simulator.Solve();
 
-        // test we have the same number of cells and nodes at the end of each time
+        // Test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
         unsigned number_of_cells = crypt.GetNumRealCells();
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
@@ -919,15 +898,13 @@ public:
         
         simulator.SetOutputDirectory("Crypt2DRandomDeathNonPeriodic");
         simulator.SetEndTime(0.6);
-        simulator.SetMaxCells(20);
-        simulator.SetMaxElements(20);
 
         AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&crypt, 0.1);
         simulator.AddCellKiller(p_random_cell_killer);
 
         simulator.Solve();
         
-        // there should be no cells left after this amount of time
+        // There should be no cells left after this amount of time
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
     
         delete p_random_cell_killer;
@@ -953,17 +930,17 @@ public:
         simulator.SetEndTime(0.01);
         simulator.UseJiggledBottomCells();  
 
-        // move the first cell (which should be on y=0) down a bit
+        //Move the first cell (which should be on y=0) down a bit
         Tissue<2>::Iterator cell_iter = crypt.Begin();
         assert(cell_iter.rGetLocation()[1] == 0.0);
 
-        // move the cell (can't use the iterator for this as it is const)
+        // Move the cell (can't use the iterator for this as it is const)
         crypt.rGetMesh().GetNode(0)->rGetModifiableLocation()[1] = -0.1;
         assert(cell_iter.rGetLocation()[1] < 0.0);
         
         simulator.Solve();
 
-        // the cell should have been pulled up, but not above y=0. However it should
+        //The cell should have been pulled up, but not above y=0. However it should
         // then been moved to above y=0 by the jiggling
         TS_ASSERT_LESS_THAN(0.0, cell_iter.rGetLocation()[1]);
     }
@@ -990,7 +967,7 @@ public:
         
         simulator.Solve();
 
-        // check writing of beta-catenin data
+        // Check writing of beta-catenin data
         OutputFileHandler handler("CryptBetaCatenin",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizbCat";
         std::string results_setup_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizsetup";
@@ -1035,8 +1012,6 @@ public:
 
         simulator.SetOutputDirectory("2dSpheroidApoptosis");
         simulator.SetEndTime(1.0);
-        simulator.SetMaxCells(50);
-        simulator.SetMaxElements(100);
         
         CancerParameters::Instance()->SetApoptosisTime(2.0);
         tissue.rGetCellAtNodeIndex(14).StartApoptosis();
@@ -1087,7 +1062,6 @@ public:
         
         TS_ASSERT_DELTA(a_b_separation , 0.01, 1e-1);
         TS_ASSERT_DELTA(a_c_separation , 0.5, 1e-1);
-        //TS_ASSERT_DELTA(c_d_separation , 1.0, 1e-1); no longer attached by a spring
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 4u);
         
         simulator.SetEndTime(2.01);
@@ -1106,7 +1080,8 @@ public:
         
         CancerParameters* p_params = CancerParameters::Instance();
         
-        p_params->SetDampingConstantNormal(1.0);    // normally 1   
+        p_params->SetDampingConstantNormal(1.0); // normally 1   
+        
         // Do not give mutant cells any different movement properties to normal ones
         p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
         p_params->SetSpringStiffness(30.0); //normally 15.0;
@@ -1131,20 +1106,21 @@ public:
         
         p_mesh=generator.GetCylindricalMesh();
         
-        // reset start time
+        // Reset start time
         SimulationTime::Destroy();
         p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        // set up cells                       
+        // Set up cells                       
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC, true,
                                             0.3,2.0,3.0,4.0,true);
         
-        // set up crypt      
+        // Set up crypt      
         p_crypt = new Tissue<2>(*p_mesh, cells);        
         (*p_crypt).SetGhostNodes(ghost_node_indices);
+        
         p_crypt->SetBottomCellAncestors();
-        // set up crypt simulation
+        // Set up crypt simulation
         CryptSimulation2d simulator(*p_crypt, NULL, false, false);
         simulator.SetOutputDirectory(output_directory);
         
@@ -1155,17 +1131,16 @@ public:
         time_of_each_run = 10.0*simulator.GetDt(); // for each run
         simulator.SetEndTime(time_of_each_run);
         
-        // set up cell killer
+        // Set up cell killer
         p_cell_killer = new SloughingCellKiller(&simulator.rGetTissue(),0.01);
         simulator.AddCellKiller(p_cell_killer);
         
         simulator.UseJiggledBottomCells();
         
-        // run for a bit
+        // Run for a bit
         simulator.Solve();            
         
-        WntGradient::Destroy();    
-        
+        WntGradient::Destroy(); 
       
         delete p_crypt;
         delete p_cell_killer;        
@@ -1174,7 +1149,6 @@ public:
         OutputFileHandler handler("AncestorCrypt",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznodes";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/AncestorCrypt/results_from_time_0/vis_results/results.viznodes").c_str()), 0);
-        
         
         delete p_params;       
         RandomNumberGenerator::Destroy();

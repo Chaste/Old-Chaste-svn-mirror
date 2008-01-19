@@ -7,18 +7,18 @@
 
 enum cell_colours
 {
-    STEM_COLOUR,//0
-    TRANSIT_COLOUR,//1
-    DIFFERENTIATED_COLOUR,//2
-    EARLY_CANCER_COLOUR,//3
-    LATE_CANCER_COLOUR,//4
-    LABELLED_COLOUR,//5
-    APOPTOSIS_COLOUR,//6
+    STEM_COLOUR, // 0
+    TRANSIT_COLOUR, // 1
+    DIFFERENTIATED_COLOUR, // 2
+    EARLY_CANCER_COLOUR, // 3
+    LATE_CANCER_COLOUR, // 4
+    LABELLED_COLOUR, // 5
+    APOPTOSIS_COLOUR, // 6
     INVISIBLE_COLOUR, // visualizer treats '7' as invisible
     SPECIAL_LABEL_START
 };
 
-///\todo: make this constructor take in ghost nodes, and validate the three objects
+///\todo: Make this constructor take in ghost nodes, and validate the three objects
 // are in sync ie num cells + num ghost nodes = num_nodes ? this would mean all ghosts
 // *cannot* be cells, making it more difficult to construct the cells.
 // also check cell.GetNodeIndices() is in the mesh, and covers the mesh, etc.
@@ -33,11 +33,8 @@ Tissue<DIM>::Tissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
     
     mDeleteMesh = deleteMesh;
     mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
-    
-    mMaxCells = 10*mrMesh.GetNumNodes();
-    mMaxElements = 10*mrMesh.GetNumElements();
 
-    // this must always be true    
+    // This must always be true    
     assert( mCells.size() <= mrMesh.GetNumNodes() );
 
     // Set up the node map
@@ -45,7 +42,7 @@ Tissue<DIM>::Tissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
          it != mCells.end();
          ++it)
     {
-        /// \todo check it points to a real cell; if not do
+        /// \todo Check it points to a real cell; if not do
         /// it = mCells.erase(it); --it; continue;
         unsigned node_index = it->GetNodeIndex();
         mNodeCellMap[node_index] = &(*it);
@@ -91,7 +88,7 @@ void Tissue<DIM>::InitialiseCells()
 }
 
 
-// check every node either has a cell associated with it or is a ghost node
+// Check every node either has a cell associated with it or is a ghost node
 // (for the time being, we are allowing ghost nodes to also have cells 
 // associated with it, although this isn't very clean)
 template<unsigned DIM>
@@ -124,15 +121,7 @@ TissueCell& Tissue<DIM>::rGetCellAtNodeIndex(unsigned nodeGlobalIndex)
 template<unsigned DIM>
 Node<DIM>* Tissue<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
 {
-    // find the node to which this cell corresponds
-//    std::map<unsigned, TissueCell*>::iterator it=mNodeCellMap.begin();
-//    while (it != mNodeCellMap.end() && (*it).second != &rCell)
-//    {
-//        it++;
-//    }
-//    assert (it != mNodeCellMap.end());
-//    unsigned node_index = (*it).first;
-//    assert (node_index == rCell.GetNodeIndex());
+    // Find the node to which this cell corresponds
     unsigned node_index = rCell.GetNodeIndex();
     return mrMesh.GetNode(node_index);   
 }
@@ -196,7 +185,7 @@ void Tissue<DIM>::SetGhostNodes(const std::vector<bool>& rGhostNodes)
 template<unsigned DIM> 
 void Tissue<DIM>::SetGhostNodes(const std::set<unsigned>& ghostNodeIndices)
 {
-    // reinitialise all to false..
+    // Reinitialise all to false..
     mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
 
     // ..then update which ones are ghosts
@@ -321,7 +310,7 @@ c_vector<double, DIM> Tissue<DIM>::CalculateForceBetweenNodes(const unsigned& rN
     c_vector<double, DIM> node_a_location = mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
     c_vector<double, DIM> node_b_location = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation();
     
-    // there is reason not to substract one position from the other (cyclidrical meshes). clever gary
+    // There is reason not to substract one position from the other (cyclidrical meshes). clever gary
     unit_difference = mrMesh.GetVectorFromAtoB(node_a_location, node_b_location);   
     
     double distance_between_nodes = norm_2(unit_difference);
@@ -370,7 +359,7 @@ void Tissue<DIM>::ReMesh()
 
     if(!map.IsIdentityMap())
     {
-        // copy mIsGhostNode. nodes bool
+        // Copy mIsGhostNode. nodes bool
         std::vector<bool> ghost_nodes_before_remesh = mIsGhostNode;    
         mIsGhostNode.clear();
         mIsGhostNode.resize(mrMesh.GetNumNodes());
@@ -391,7 +380,8 @@ void Tissue<DIM>::ReMesh()
              ++it)
         {
             unsigned old_node_index = it->GetNodeIndex();
-            // this shouldn't ever happen, as the cell vectors is only ever living cells
+            
+            // This shouldn't ever happen, as the cell vectors is only ever living cells
             assert(!map.IsDeleted(old_node_index));
             unsigned new_node_index = map.GetNewIndex(old_node_index);
             it->SetNodeIndex(new_node_index);
@@ -491,7 +481,7 @@ std::set<unsigned> Tissue<DIM>::GetCellAncestors()
 
 
 //////////////////////////////////////////////////////////////////////////////
-//                             iterator class                               // 
+//                             Iterator class                               // 
 //////////////////////////////////////////////////////////////////////////////
 template<unsigned DIM>
 TissueCell& Tissue<DIM>::Iterator::operator*()
@@ -587,98 +577,8 @@ typename Tissue<DIM>::Iterator Tissue<DIM>::End()
 
 
 //////////////////////////////////////////////////////////////////////////////
-//                             output methods                               // 
+//                             Output methods                               // 
 //////////////////////////////////////////////////////////////////////////////
-template<unsigned DIM>  
-void Tissue<DIM>::SetMaxCells(unsigned maxCells)
-{
-    mMaxCells = maxCells;
-    if (maxCells<mrMesh.GetNumAllNodes())
-    {
-        #define COVERAGE_IGNORE
-        EXCEPTION("mMaxCells is less than the number of cells in the mesh.");
-        #undef COVERAGE_IGNORE
-    }
-}
-
-/**
- * Sets the maximum number of elements that the simulation will contain (for use by the datawriter)
- * default value is set to 10x the initial mesh value by the constructor.
- */
-template<unsigned DIM> 
-void Tissue<DIM>::SetMaxElements(unsigned maxElements)
-{
-    mMaxElements = maxElements;
-    if (maxElements<mrMesh.GetNumAllElements())
-    {
-        #define COVERAGE_IGNORE
-        EXCEPTION("mMaxElements is less than the number of elements in the mesh.");
-        #undef COVERAGE_IGNORE
-    }
-}
-
-template<unsigned DIM>  
-void Tissue<DIM>::SetupTabulatedWriters(ColumnDataWriter& rNodeWriter, ColumnDataWriter& rElementWriter)
-{   
-    // set up node writer
-    mNodeVarIds.time = rNodeWriter.DefineUnlimitedDimension("Time","hours");
-    
-    mNodeVarIds.types.resize(mMaxCells);
-    mNodeVarIds.position_id.resize(mMaxCells);
-    
-    // set up per-cell variables
-    for (unsigned cell=0; cell<mMaxCells; cell++)
-    {
-        std::stringstream cell_type_var_name, cell_x_position_var_name, cell_y_position_var_name, cell_z_position_var_name;
-        cell_type_var_name << "cell_type_" << cell;
-        
-        cell_x_position_var_name << "cell_x_position_" << cell;
-        cell_y_position_var_name << "cell_y_position_" << cell;
-        cell_z_position_var_name << "cell_z_position_" << cell; // not used in 2d
-
-        std::vector<std::string> cell_position_var_name_string;
-        cell_position_var_name_string.push_back(cell_x_position_var_name.str());
-        cell_position_var_name_string.push_back(cell_y_position_var_name.str());
-        cell_position_var_name_string.push_back(cell_z_position_var_name.str()); // not used in 2d
-        
-        mNodeVarIds.types[cell]=rNodeWriter.DefineVariable(cell_type_var_name.str(),"dimensionless");
-        for(unsigned i=0; i<DIM; i++)
-        {
-            mNodeVarIds.position_id[cell](i)=rNodeWriter.DefineVariable(cell_position_var_name_string[i],"rest_spring_length");
-        }
-    }
-    
-    rNodeWriter.EndDefineMode();
-
-    // set up element writer
-    mElemVarIds.time = rElementWriter.DefineUnlimitedDimension("Time","hours");
-    
-    // Set up columns for element writer
-    mElemVarIds.node_id.resize(mMaxElements);
-    
-    for (unsigned elem_index = 0; elem_index<mMaxElements; elem_index++)
-    {
-        std::stringstream nodeA_var_name, nodeB_var_name, nodeC_var_name, nodeD_var_name;
-        
-        nodeA_var_name << "nodeA_" << elem_index;
-        nodeB_var_name << "nodeB_" << elem_index;
-        nodeC_var_name << "nodeC_" << elem_index;
-        nodeD_var_name << "nodeD_" << elem_index;
-
-        std::vector<std::string> node_var_name_string;
-        node_var_name_string.push_back(nodeA_var_name.str());
-        node_var_name_string.push_back(nodeB_var_name.str());
-        node_var_name_string.push_back(nodeC_var_name.str());
-        node_var_name_string.push_back(nodeD_var_name.str());
-        
-        for(unsigned i=0; i<DIM+1; i++)
-        {
-            mElemVarIds.node_id[elem_index](i) = rElementWriter.DefineVariable(node_var_name_string[i],"dimensionless");
-        }
-    }
-    
-    rElementWriter.EndDefineMode();
-}
 
 template<unsigned DIM> 
 c_vector<unsigned,5> Tissue<DIM>::GetCellTypeCount()
@@ -687,12 +587,9 @@ c_vector<unsigned,5> Tissue<DIM>::GetCellTypeCount()
 }
 
 template<unsigned DIM>  
-void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
-                                     ColumnDataWriter& rElementWriter,
-                                     std::ofstream& rNodeFile, 
+void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rNodeFile, 
                                      std::ofstream& rElementFile,
                                      std::ofstream& rCellTypesFile,
-                                     bool writeTabulatedResults,
                                      bool writeVisualizerResults,
                                      bool OutputCellTypes)
 {
@@ -715,23 +612,10 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
     {
         rCellTypesFile <<  time << "\t";
     }
-       
-    if (writeTabulatedResults)
-    {
-        rNodeWriter.PutVariable(mNodeVarIds.time, time);
-        rElementWriter.PutVariable(mElemVarIds.time, time);
-    }
-    
-        
-    // write node files
+
+    // Write node files
     for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
     {
-        if (index>mMaxCells)
-        {
-            #define COVERAGE_IGNORE
-            EXCEPTION("\nNumber of cells exceeds mMaxCells. Use SetMaxCells(unsigned) to increase it.\n");
-            #undef COVERAGE_IGNORE
-        }
         unsigned colour = STEM_COLOUR; // all green if no cells have been passed in
          
         if (mIsGhostNode[index]==true)
@@ -740,7 +624,7 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
         }
         else if (mrMesh.GetNode(index)->IsDeleted())
         {
-            // do nothing
+            // Do nothing
         }
         else if (mNodeCellMap[index]->GetAncestor()!=UNSIGNED_UNSET)
         {
@@ -805,7 +689,7 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                     }  
                 }
             }
-            else // its healthy, or normal in the sense of the Alarcon model
+            else // It's healthy, or normal in the sense of the Alarcon model
             {
                 if (OutputCellTypes)
                 {
@@ -830,26 +714,12 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                 }
                 rNodeFile << colour << " ";
             }
-            if (writeTabulatedResults)
-            {
-                for(unsigned i=0; i<DIM; i++)
-                {
-                    rNodeWriter.PutVariable(mNodeVarIds.position_id[index](i), position[i]);
-                }
-                rNodeWriter.PutVariable(mNodeVarIds.types[index], colour);
-            }
         }
     }
     
-    // write element data files
+    // Write element data files
     for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
     {
-        if (elem_index>mMaxElements)
-        {
-            #define COVERAGE_IGNORE
-            EXCEPTION("Maximum number of elements (mMaxElements) exceeded.\nUse SetMaxElements(unsigned) to increase it.\n");
-            #undef COVERAGE_IGNORE
-        }
         if (!mrMesh.GetElement(elem_index)->IsDeleted())
         {
             if (writeVisualizerResults)
@@ -859,17 +729,9 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
                     rElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i)<< " ";
                 }
             }
-            if (writeTabulatedResults)
-            {
-                for(unsigned i=0; i<DIM+1; i++)
-                {
-                    rElementWriter.PutVariable(mElemVarIds.node_id[elem_index](i), mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i));
-                }
-            }
         }
     }
-    
-    
+        
     if (OutputCellTypes)
     {
         for(unsigned i=0; i < 5; i++)
@@ -884,11 +746,6 @@ void Tissue<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter,
     {
         rNodeFile << "\n";
         rElementFile << "\n";
-    }
-    if (writeTabulatedResults)
-    {
-        rNodeWriter.AdvanceAlongUnlimitedDimension();
-        rElementWriter.AdvanceAlongUnlimitedDimension();
     }
 }
 
@@ -1009,6 +866,7 @@ void Tissue<DIM>::CheckTissueCellPointers()
         assert(p_cell);
         AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
         assert(p_model);
+        
         // Check cell exists in tissue
         unsigned node_index = p_cell->GetNodeIndex();
         std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
@@ -1018,6 +876,7 @@ void Tissue<DIM>::CheckTissueCellPointers()
             std::cout << "  Mismatch with tissue" << std::endl << std::flush;
             res = false;
         }
+        
         // Check model links back to cell
         if (p_model->GetCell() != p_cell)
         {
@@ -1044,12 +903,14 @@ void Tissue<DIM>::CheckTissueCellPointers()
             assert(p_model);
             unsigned node_index = p_cell->GetNodeIndex();
             std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
+            
             // Check cell is alive
             if (p_cell->IsDead())
             {
                 std::cout << "  Cell is dead" << std::endl << std::flush;
                 res = false;
             }
+            
             // Check cell exists in tissue
             TissueCell& r_cell = rGetCellAtNodeIndex(node_index);
             if (&r_cell != p_cell)
@@ -1057,6 +918,7 @@ void Tissue<DIM>::CheckTissueCellPointers()
                 std::cout << "  Mismatch with tissue" << std::endl << std::flush;
                 res = false;
             }
+            
             // Check model links back to cell
             if (p_model->GetCell() != p_cell)
             {

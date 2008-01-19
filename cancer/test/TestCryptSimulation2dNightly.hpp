@@ -67,95 +67,7 @@ public :
 class TestCryptSimulation2dNightly : public AbstractCancerTestSuite
 {
 private:
-
-    void CheckAgainstPreviousRun(std::string resultDirectory, std::string resultSet, unsigned maxCells, unsigned maxElements)
-    {
-        std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
-        
-        ColumnDataReader computed_node_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",
-                                                                  "tabulated_node_results",
-                                                                  true);
-                                                                  
-        ColumnDataReader expected_node_results = ColumnDataReader("cancer/test/data/" + resultDirectory+"Results",
-                                                                  "tabulated_node_results",
-                                                                  false);
-        ColumnDataReader computed_element_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",
-                                                    "tabulated_element_results",
-                                                    true);
-                                                    
-        ColumnDataReader expected_element_results = ColumnDataReader("cancer/test/data/" + resultDirectory+"Results",
-                                                    "tabulated_element_results",
-                                                    false);
-        
-        for (unsigned cell=0; cell<maxCells; cell++)
-        {
-            std::stringstream cell_type_var_name;
-            std::stringstream cell_x_position_var_name;
-            std::stringstream cell_y_position_var_name;
-            cell_type_var_name << "cell_type_" << cell;
-            cell_x_position_var_name << "cell_x_position_" << cell;
-            cell_y_position_var_name << "cell_y_position_" << cell;
-            
-            // Vector of Cell Types
-            std::vector<double> expected_cell_types = expected_node_results.GetValues(cell_type_var_name.str());
-            std::vector<double> computed_cell_types = computed_node_results.GetValues(cell_type_var_name.str());
-            
-            //Vector of Cell Positions
-            std::vector<double> expected_cell_x_positions = expected_node_results.GetValues(cell_x_position_var_name.str());
-            std::vector<double> computed_cell_x_positions = computed_node_results.GetValues(cell_x_position_var_name.str());
-            
-            std::vector<double> expected_cell_y_positions = expected_node_results.GetValues(cell_y_position_var_name.str());
-            std::vector<double> computed_cell_y_positions = computed_node_results.GetValues(cell_y_position_var_name.str());
-            
-            //Comparing expected and computed vector length
-            TS_ASSERT_EQUALS(expected_cell_types.size(), computed_cell_types.size());
-            TS_ASSERT_EQUALS(expected_cell_x_positions.size(), computed_cell_x_positions.size());
-            TS_ASSERT_EQUALS(expected_cell_y_positions.size(), computed_cell_y_positions.size());
-            
-            //Walkthrough of the expected and computed vectors
-            for (unsigned time_step = 0; time_step < expected_cell_types.size(); time_step++)
-            {
-                TS_ASSERT_EQUALS(expected_cell_types[time_step], computed_cell_types[time_step]);
-                TS_ASSERT_DELTA(expected_cell_x_positions[time_step], computed_cell_x_positions[time_step],1e-6);
-                TS_ASSERT_DELTA(expected_cell_y_positions[time_step], computed_cell_y_positions[time_step],1e-6);
-            }
-        }
-        
-        for (unsigned element=0; element<maxElements; element++)
-        {
-            std::stringstream nodeA_var_name;
-            std::stringstream nodeB_var_name;
-            std::stringstream nodeC_var_name;
-            nodeA_var_name << "nodeA_" << element;
-            nodeB_var_name << "nodeB_" << element;
-            nodeC_var_name << "nodeC_" << element;
-            
-            // Vector of Node A indexes
-            std::vector<double> expected_NodeA_numbers = expected_element_results.GetValues(nodeA_var_name.str());
-            std::vector<double> computed_NodeA_numbers = computed_element_results.GetValues(nodeA_var_name.str());
-            
-            // Vector of Node B indexes
-            std::vector<double> expected_NodeB_numbers = expected_element_results.GetValues(nodeB_var_name.str());
-            std::vector<double> computed_NodeB_numbers = computed_element_results.GetValues(nodeB_var_name.str());
-            
-            // Vector of Node C indexes
-            std::vector<double> expected_NodeC_numbers = expected_element_results.GetValues(nodeC_var_name.str());
-            std::vector<double> computed_NodeC_numbers = computed_element_results.GetValues(nodeC_var_name.str());
-            
-            TS_ASSERT_EQUALS(expected_NodeA_numbers.size(), computed_NodeA_numbers.size());
-            TS_ASSERT_EQUALS(expected_NodeB_numbers.size(), computed_NodeB_numbers.size());
-            TS_ASSERT_EQUALS(expected_NodeC_numbers.size(), computed_NodeC_numbers.size());
-            
-            for (unsigned time_step = 0; time_step < expected_NodeA_numbers.size(); time_step++)
-            {
-                TS_ASSERT_EQUALS(expected_NodeA_numbers[time_step], computed_NodeA_numbers[time_step]);
-                TS_ASSERT_EQUALS(expected_NodeB_numbers[time_step], computed_NodeB_numbers[time_step]);
-                TS_ASSERT_EQUALS(expected_NodeC_numbers[time_step], computed_NodeC_numbers[time_step]);
-            }
-            
-        }
-    }
-
+  
     double mLastStartTime;
     void setUp()
     {
@@ -204,28 +116,24 @@ public:
         Tissue<2> crypt(mesh, cells);
         CryptSimulation2d simulator(crypt);    
                 
-        // destroy the simulation time class because of failed solve
+        // Destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
         SimulationTime::Instance()->SetStartTime(0.0);
         simulator.SetEndTime(1.0);
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());// fails because output directory not set
                 
-        // destroy the simulation time class because of failed solve
+        // Destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
         SimulationTime::Instance()->SetStartTime(0.0);
         
         simulator.SetOutputDirectory("Crypt2DSprings");
 
         simulator.SetEndTime(1.0);
-        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(90));
-        simulator.SetMaxCells(400);
-        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(90));
-        simulator.SetMaxElements(400);
         
         simulator.SetReMeshRule(false);
         simulator.SetNoBirth(true);
 
-        // destroy the simulation time class because of failed solve
+        // Destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
         SimulationTime::Instance()->SetStartTime(0.0);
         
@@ -234,7 +142,13 @@ public:
         TS_ASSERT_DELTA(node_0_location[0], 0.0, 1e-12);
         TS_ASSERT_DELTA(node_0_location[1], 0.0, 1e-12);
         
-        CheckAgainstPreviousRun("Crypt2DSprings","results_from_time_0", 400u, 400u);
+        // Work out where the previous test wrote its files
+        OutputFileHandler handler("Crypt2DSprings",false);
+        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznodes";
+        TS_ASSERT_EQUALS(system(("diff " + node_results_file + " cancer/test/data/Crypt2DSpringsResults/results.viznodes").c_str()), 0);
+         
+        std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizelements";
+        TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cancer/test/data/Crypt2DSpringsResults/results.vizelements").c_str()), 0);          
     }
     
     void Test2DHoneycombMeshNotPeriodic() throw (Exception)
@@ -262,18 +176,20 @@ public:
                 
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(12.0);
-        unsigned max_cells=400;
-        simulator.SetMaxCells(max_cells);
-        unsigned max_elements=800;
-        simulator.SetMaxElements(max_elements);
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
        
         simulator.Solve();
         
-        CheckAgainstPreviousRun("Crypt2DHoneycombMesh","results_from_time_0", max_cells, max_elements);
-       
+        // Work out where the previous test wrote its files
+        OutputFileHandler handler("Crypt2DHoneycombMesh",false);
+        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznodes";
+        TS_ASSERT_EQUALS(system(("diff " + node_results_file + " cancer/test/data/Crypt2DHoneycombMeshResults/results.viznodes").c_str()), 0);
+         
+        std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizelements";
+        TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cancer/test/data/Crypt2DHoneycombMeshResults/results.vizelements").c_str()), 0);          
+           
         delete p_sloughing_cell_killer;     
     }
     
@@ -298,21 +214,19 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        // set the first cell to be logged
+        // Set the first cell to be logged
         crypt.Begin()->SetLogged();
 
         CryptSimulation2d simulator(crypt);
 
         simulator.SetOutputDirectory("Monolayer");
         simulator.SetEndTime(1);
-        simulator.SetMaxCells(400);
-        simulator.SetMaxElements(800);
 
         simulator.SetWriteVoronoiData(true,true);
         
         simulator.Solve();
         
-        // check writing of voronoi data
+        //Check writing of voronoi data
         OutputFileHandler handler("Monolayer",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.visvoronoi";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Monolayer/VoronoiAreaAndPerimeter.dat").c_str()), 0);
@@ -326,7 +240,8 @@ public:
     void Test2DCorrectCellNumbers() throw (Exception)
     {
         CancerParameters* p_params = CancerParameters::Instance();
-        // check the stem cell cycle time is still 24 hrs, otherwise
+        
+        // Check the stem cell cycle time is still 24 hrs, otherwise
         // this test might not pass
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14, 1e-12);
         TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2, 1e-12);
@@ -380,16 +295,14 @@ public:
         CryptSimulation2d simulator(crypt);
         
         simulator.SetOutputDirectory("Crypt2DSpringsCorrectCellNumbers");
-        simulator.SetEndTime(40); //hours
-        simulator.SetMaxCells(800);
-        simulator.SetMaxElements(800);
+        simulator.SetEndTime(40); // hours
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
         
         simulator.Solve();
         
-        // now count the number of each type of cell
+        // Now count the number of each type of cell
         unsigned num_stem = 0;
         unsigned num_transit = 0;
         unsigned num_differentiated = 0;
@@ -456,15 +369,13 @@ public:
         
         simulator.SetOutputDirectory("Crypt2DPeriodicNightly");
         simulator.SetEndTime(12.0);
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
        
         simulator.Solve();
         
-        // test we have the same number of cells and nodes at the end of each time
+        // Test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
         unsigned number_of_cells = crypt.GetNumRealCells();
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
@@ -504,15 +415,13 @@ public:
         simulator.SetOutputDirectory("Crypt2DPeriodicWntNightly");
         
         simulator.SetEndTime(24.0);
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
        
         simulator.Solve();
         
-        // test we have the same number of cells and nodes at the end of each time
+        // Test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
 
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
@@ -527,8 +436,8 @@ public:
     }
     
 
-    // this test is dontTest-ed out and not run every night as it doesn't really test
-    // anything. it does show how to set up a mutant simulation. Mutant viscosities 
+    // This test is dontTest-ed out and not run every night as it doesn't really test
+    // anything. It does show how to set up a mutant simulation. Mutant viscosities 
     // are tested elsewhere directly. 
     void dontRunTestWithMutantCellsUsingDifferentViscosities() throw (Exception)
     {
@@ -574,15 +483,13 @@ public:
         
         simulator.SetOutputDirectory("Crypt2DPeriodicMutant");        
         simulator.SetEndTime(12.0);
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
         
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
         
         simulator.Solve();
         
-        // test we have the same number of cells and nodes at the end of each time
+        // Test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
         std::vector<bool> ghost_cells = crypt.rGetGhostNodes();
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
@@ -606,8 +513,7 @@ public:
         WntGradient::Destroy();
     }
     
-
-    
+        
     void TestRandomDeathWithPeriodicMesh() throw (Exception)
     {
         unsigned cells_across = 7;
@@ -630,15 +536,13 @@ public:
         
         simulator.SetOutputDirectory("Crypt2DRandomDeathPeriodic");
         simulator.SetEndTime(4.6);
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
 
         AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&crypt, 0.01);
         simulator.AddCellKiller(p_random_cell_killer);
     
         simulator.Solve();
         
-        // there should be no cells left after this amount of time
+        // There should be no cells left after this amount of time
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
     
         delete p_random_cell_killer;
@@ -668,8 +572,6 @@ public:
         
         simulator.SetOutputDirectory("Crypt2DSloughingDeathNonPeriodic");
         simulator.SetEndTime(4.0);
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
 
         AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
         simulator.AddCellKiller(p_sloughing_cell_killer);
@@ -702,8 +604,6 @@ public:
         
         simulator.SetOutputDirectory("Crypt2DSloughingDeathPeriodic");
         simulator.SetEndTime(4.0);
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
 
         AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&crypt);
         simulator.AddCellKiller(p_cell_killer);
@@ -722,7 +622,8 @@ public:
         
         // Check no new ghost nodes have been created.
         TS_ASSERT_EQUALS(num_ghosts, ghost_node_indices.size());
-        // there should be this number of cells left after this amount of time
+        
+        // There should be this number of cells left after this amount of time
         // (we have lost two rows of 7 but had a bit of birth too)
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 85u);
     
@@ -753,7 +654,7 @@ public:
         
         simulator.SetOutputDirectory("CryptWithMultipleCellKillers");
 
-        // these killers are defined in this test. They kill the first and second
+        // These killers are defined in this test. They kill the first and second
         // available cell, respectively.
         AbstractCellKiller<2>* p_cell_killer1 = new SingleCellCellKiller(&crypt,0);
         AbstractCellKiller<2>* p_cell_killer2 = new SingleCellCellKiller(&crypt,1);
@@ -761,7 +662,7 @@ public:
         simulator.AddCellKiller(p_cell_killer1);
         simulator.AddCellKiller(p_cell_killer2);
 
-        // just enough time to kill off all the cells, as two are killed per timestep
+        // Just enough time to kill off all the cells, as two are killed per timestep
         double dt = 0.01;
         unsigned num_cells = crypt.GetNumRealCells();
         simulator.SetDt(dt);
@@ -782,12 +683,13 @@ public:
         // Check no new ghost nodes have been created.
         TS_ASSERT_EQUALS(num_ghosts, ghost_node_indices.size());
 
-        // all cells should have been removed in this time
+        // All cells should have been removed in this time
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
     
         delete p_cell_killer1;
         delete p_cell_killer2;
     }
+        
         
     void TestMonolayerWithCutoffPointAndNoGhosts() throw (Exception)
     {
@@ -810,7 +712,7 @@ public:
         Tissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        // set up crypt simulation
+        // Set up crypt simulation
         Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(crypt);
         p_spring_system->UseCutoffPoint(sqrt(2)); // root2 is a sensible choice
         
@@ -818,8 +720,6 @@ public:
 
         simulator.SetOutputDirectory("MonolayerCutoffPointNoGhosts");
         simulator.SetEndTime(12.0);
-        simulator.SetMaxCells(400);
-        simulator.SetMaxElements(800);
         
         simulator.Solve();
     }  

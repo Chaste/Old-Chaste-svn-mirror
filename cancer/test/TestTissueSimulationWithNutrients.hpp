@@ -199,8 +199,6 @@ public:
         TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde); 
         simulator.SetOutputDirectory("TestPostSolveMethod");
         simulator.SetEndTime(2.0/120.0);
-        simulator.SetMaxCells(400);
-        simulator.SetMaxElements(800);
         
         // Set up cell killer and pass into simulation
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
@@ -296,8 +294,6 @@ public:
         TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithOxygen");
         simulator.SetEndTime(0.5);
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
         simulator.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
                 
         // Set up cell killer and pass into simulation
@@ -379,8 +375,6 @@ public:
         TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithPointwiseNutrientSink");
         simulator.SetEndTime(0.5);
-        simulator.SetMaxCells(400);
-        simulator.SetMaxElements(800);
         
         // Set up cell killer and pass into simulation
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
@@ -481,8 +475,6 @@ public:
         TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
         simulator.SetOutputDirectory("TestSpheroidStatistics");
         simulator.SetEndTime(1.0/120.0);
-        simulator.SetMaxCells(400);
-        simulator.SetMaxElements(800);     
         simulator.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius   
         
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
@@ -585,8 +577,6 @@ public:
         TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithNutrientsSaveAndLoad");
         simulator.SetEndTime(0.2);
-        simulator.SetMaxCells(400);
-        simulator.SetMaxElements(800);
         
         // Set up cell killer and pass into simulation
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);

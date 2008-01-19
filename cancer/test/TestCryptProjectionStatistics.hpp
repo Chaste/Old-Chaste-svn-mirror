@@ -107,8 +107,6 @@ public:
         // Set up the simulation
         crypt_projection_simulator.SetOutputDirectory("CryptProjectionStatistics");
         crypt_projection_simulator.SetEndTime(0.25);
-        crypt_projection_simulator.SetMaxCells(1000);
-        crypt_projection_simulator.SetMaxElements(2000);
         TS_ASSERT_THROWS_NOTHING(crypt_projection_simulator.Solve());
 
         statistics.LabelSPhaseCells();

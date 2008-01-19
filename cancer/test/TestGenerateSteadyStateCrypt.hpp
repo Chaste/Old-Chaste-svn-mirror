@@ -79,9 +79,6 @@ public:
                 
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
-        
-        simulator.SetMaxCells(2000);
-        simulator.SetMaxElements(3000);
 
         AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetTissue(),0.01);
         simulator.AddCellKiller(p_cell_killer);
