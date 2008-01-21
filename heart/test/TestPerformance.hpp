@@ -19,8 +19,8 @@ class TestPerformance : public CxxTest::TestSuite
 public:
     void TestPerf() throw(Exception)
     {
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
+        //PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "jacobi");
         PetscOptionsSetValue("-options_table", "");
         // write headings
         PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2>::DisplayHeadings();

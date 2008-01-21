@@ -30,8 +30,8 @@ public:
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
         
         
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
+        //PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "jacobi");
         PetscOptionsSetValue("-options_table", "");
         PetscOptionsSetValue("-log_summary", "");
         

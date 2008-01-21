@@ -33,8 +33,8 @@ public:
         bidomain_problem.rGetMesh().PermuteNodes();
         RandomNumberGenerator::Destroy();
         
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
+        //PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "jacobi");
         PetscOptionsSetValue("-options_table", "");
         PetscOptionsSetValue("-log_summary", "");
         

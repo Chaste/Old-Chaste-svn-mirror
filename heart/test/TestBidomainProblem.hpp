@@ -106,7 +106,7 @@ public:
         }
     }
     //#638
-    void FailingTestBidomainDg01DMeanPhiE()
+    void TestBidomainDg01DMeanPhiE()
     {
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );

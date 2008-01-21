@@ -101,8 +101,8 @@ public:
     //This is much longer (1 hour?) with default ksp
     void Test2DSpaceSymmLq() throw(Exception)
     {
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
+        //PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "jacobi");
         PetscOptionsSetValue("-options_table", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
         tester.KspRtol=5e-8;
@@ -116,9 +116,7 @@ public:
 
     void Test2DSpaceWithRegion() throw(Exception)
     {
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
-        PetscOptionsSetValue("-options_table", "");
+        
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
         tester.StimulateRegion=true;
         tester.KspRtol=1e-8;
@@ -128,11 +126,9 @@ public:
     }       
     
     //Currently takes about 3 minutes to do mesh0 and mesh1
-    void Test3DSpaceWithSymmLq() throw(Exception)
+    void Test3DSpace() throw(Exception)
     {
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
-        PetscOptionsSetValue("-options_table", "");
+        
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
         tester.KspRtol=1e-8;
         tester.RelativeConvergenceCriterion=4e-2;//Just to prove the thing works

@@ -65,8 +65,8 @@ public:
         bidomain_problem.PrintOutput(false);
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
         
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
+        // This is default PetscOptionsSetValue("-ksp_type", "gmres");
+        PetscOptionsSetValue("-pc_type", "jacobi");
         PetscOptionsSetValue("-options_table", "");
         PetscOptionsSetValue("-log_summary", "");
         

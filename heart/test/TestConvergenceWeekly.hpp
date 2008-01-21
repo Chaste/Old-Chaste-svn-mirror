@@ -22,9 +22,7 @@ public:
 
     void xxTest3DSpace() throw(Exception)
     {
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
-        PetscOptionsSetValue("-options_table", "");
+        
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
         tester.KspRtol=1e-8;
         tester.SetMeshWidth(0.15);//cm
@@ -36,8 +34,8 @@ public:
     //Copied from projects/jmpf
     void Test3DSpace10() throw(Exception)
     {
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
+        //PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "jacobi");
         PetscOptionsSetValue("-options_table", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
         tester.KspRtol=1e-10;
@@ -73,8 +71,7 @@ public:
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
         tester.KspRtol=1e-17;//Unreasonably small
         
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
+        
         PetscOptionsSetValue("-ksp_atol", "1e-5");
         PetscOptionsSetValue("-options_table", "");
         tester.Converge();
@@ -89,8 +86,7 @@ public:
     //Copied from projects/jmpf since this converges on mesh4
     void Test3DSpaceRelaxWidthWithAtol() throw(Exception)
     {
-        PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "bjacobi");
+        
         PetscOptionsSetValue("-ksp_atol", "1e-3");
         PetscOptionsSetValue("-options_table", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
