@@ -1048,41 +1048,48 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
 //            return;
 //        }
 //    }
-      
-    
+    std::stringstream pid;
+    pid<<getpid(); //<<"_"<<clock();
     OutputFileHandler handler("");
-    std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
+    std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp_"+pid.str()+".";
     
     // Only the master process should do IO and call the mesher
     if (handler.IsMaster())
     {
-        out_stream node_file=handler.OpenOutputFile("temp.node");
+        std::string node_file_name="temp_"+pid.str()+".node";
+        {//Scope for node_file
+        	out_stream node_file=handler.OpenOutputFile(node_file_name);
         
-        (*node_file)<<GetNumNodes()<<"\t" << SPACE_DIM << "\t0\t0\n";
-        
-        unsigned new_index = 0;
-        
-        for (unsigned i=0; i<GetNumAllNodes(); i++)
-        {
-            if (mNodes[i]->IsDeleted())
-            {
-                map.SetDeleted(i);
-            }
-            else
-            {
-                map.SetNewIndex(i,new_index);
-                new_index++;
-                const c_vector<double, SPACE_DIM> node_loc = mNodes[i]->rGetLocation();
-                (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1];
-                if (SPACE_DIM ==3)
-                {
-                    (*node_file)<<"\t"<<node_loc[2];
-                }
-                (*node_file)<<"\n";
-            }
-        }
-        
-        node_file->close();
+	        (*node_file)<<GetNumNodes()<<"\t" << SPACE_DIM << "\t0\t0\n";
+	        
+	        unsigned new_index = 0;
+	        
+	        for (unsigned i=0; i<GetNumAllNodes(); i++)
+	        {
+	            if (mNodes[i]->IsDeleted())
+	            {
+	                map.SetDeleted(i);
+	            }
+	            else
+	            {
+	                map.SetNewIndex(i,new_index);
+	                new_index++;
+	                const c_vector<double, SPACE_DIM> node_loc = mNodes[i]->rGetLocation();
+	                (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1];
+	                if (SPACE_DIM ==3)
+	                {
+	                    (*node_file)<<"\t"<<node_loc[2];
+	                }
+	                (*node_file)<<"\n";
+	            }
+	        }
+	        node_file->flush();
+	        node_file->close();
+	        //node_file->close();
+	        //delete *node_file;
+	        //while(node_file->is_open())
+	        //{}//Let's be sure that the file is written before running the re-mesher
+	    }//Scope for node_file
         
         //system("cat /tmp/chaste/testoutput/temp.node");
         
@@ -1098,15 +1105,22 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         std::string command =   "./bin/"+ binary_name +" -e "
                               + full_name + "node"
                               + " > /dev/null";
+        
+        
         int return_value = system(command.c_str());
+        
         
         if (return_value != 0)
         {
             // try remeshing again, this time without sending the output to /dev/null 
             // (just so the error message is displayed in std output)
-            std::string command = "./bin/"+ binary_name +" -e " + full_name + "node";
-            system(command.c_str());
-            EXCEPTION("The triangle/tetgen mesher did not suceed in remeshing.");
+            //std::string command = "./bin/"+ binary_name +" -e " + full_name + "node";
+        	std::cout<<"ConformingTetrahedralMesh::ReMesh Warning. First attempt failed.  Showing output from meshing program in second attempt\n";
+            return_value = system(command.c_str());
+        	if (return_value != 0)
+        	{
+            	EXCEPTION("The triangle/tetgen mesher did not suceed in remeshing.");
+        	}
         }
     }
     // Wait for the new mesh to be available
@@ -1120,6 +1134,10 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     //Read the new mesh back from file
     TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(full_name+"1");    
     ConstructFromMeshReader(mesh_reader);
+    
+    std::string remove_command = "rm "+ full_name+"*";
+    system(remove_command.c_str());
+    //std::cout<<"Remove "<< remove_command<<"\n";
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
