@@ -64,6 +64,7 @@ private:
     Vec mExternalVoltageMask;
     std::vector<unsigned> mFixedExtracellularPotentialNodes;
     
+    unsigned mRowMeanPhiEZero;
     
     void ResetInterpolatedQuantities( void )
     {
@@ -234,33 +235,34 @@ private:
      */
     virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime)
     {
-        //\todo #638 - this won't work in 3D with symmlq and bjacobi
+         //\todo #638 - this won't work in 3D with symmlq and bjacobi
          if ( mFixedExtracellularPotentialNodes.size()==0) 
          {
-            //Set average phi_e to zero
-            unsigned matrix_size = this->mpLinearSystem->GetSize();
+            //Set average phi_e to zero            
+            unsigned matrix_size = this->mpLinearSystem->GetSize(); 
             if (!this->mMatrixIsAssembled)
             {
                 
-                // Set the last matrix row to 0 1 0 1 ...
-                this->mpLinearSystem->ZeroMatrixRow(matrix_size-1);
+                // Set the mRowMeanPhiEZero-th matrix row to 0 1 0 1 ...
+                this->mpLinearSystem->ZeroMatrixRow(mRowMeanPhiEZero);
                 for (unsigned col_index=0; col_index<matrix_size; col_index++)
                 {
                     if (col_index%2 == 1)
                     {
-                        this->mpLinearSystem->SetMatrixElement(matrix_size-1, col_index, 1);
+                        this->mpLinearSystem->SetMatrixElement(mRowMeanPhiEZero, col_index, 1);
                     }
                 }
                 this->mpLinearSystem->AssembleFinalLhsMatrix();
                 
             }
-            // Set the last rhs vector row to 0
-            this->mpLinearSystem->SetRhsVectorElement(matrix_size-1, 0);
+            // Set the mRowMeanPhiEZero-th rhs vector row to 0
+            this->mpLinearSystem->SetRhsVectorElement(mRowMeanPhiEZero, 0);
             
             this->mpLinearSystem->AssembleRhsVector();
             //Temporary - ignore the rest of this method
          }
          return;
+         
         // if there are no fixed nodes then set up the null basis.
         if ( (mFixedExtracellularPotentialNodes.size()==0) && (!mNullSpaceCreated) )
         {
@@ -369,6 +371,8 @@ public:
         
         mFixedExtracellularPotentialNodes.resize(0);
         
+        mRowMeanPhiEZero = 1; //this->mpLinearSystem->GetSize() - 1;
+        
     }
     
     /**
@@ -415,6 +419,18 @@ public:
             
             this->mpBoundaryConditions->AddDirichletBoundaryCondition(p_node, p_boundary_condition, 1);
         }
+    }
+    
+    void SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZero)
+    {
+        // Row should be odd in C++-like indexing 
+        if (rowMeanPhiEZero % 2 == 0)
+        {
+            EXCEPTION("Row for meaning phi_e to zero should be odd in C++ like indexing");   
+        }
+        
+        mRowMeanPhiEZero = rowMeanPhiEZero;
+        
     }
 };
 

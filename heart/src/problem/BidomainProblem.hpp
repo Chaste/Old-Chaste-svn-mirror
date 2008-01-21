@@ -24,6 +24,8 @@ private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */    
     unsigned mExtracelluarColumnId;
     
+    unsigned mRowMeanPhiEZero;
+    
 protected:
     AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde()
     {
@@ -39,6 +41,7 @@ protected:
         try
         {
             p_bidomain_assembler->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
+            p_bidomain_assembler->SetRowForMeanPhiEToZero(mRowMeanPhiEZero);
         }
         catch (const Exception& e)
         {
@@ -60,6 +63,7 @@ public:
             mpBidomainPde(NULL)
     {
         mFixedExtracellularPotentialNodes.resize(0);
+        mRowMeanPhiEZero = 1;
     }
     
     /**
@@ -89,6 +93,21 @@ public:
             // the number of nodes in the mesh so this is not done here
             mFixedExtracellularPotentialNodes[i] = nodes[i];
         }
+    }
+    
+    /**
+     *  
+     * 
+     */    
+    void SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZero)
+    {
+        // Row should be odd in C++-like indexing 
+        if (rowMeanPhiEZero % 2 == 0)
+        {
+            EXCEPTION("Row for meaning phi_e to zero should be odd in C++ like indexing");   
+        }
+        
+        mRowMeanPhiEZero = rowMeanPhiEZero;      
     }
     
     /**
