@@ -262,10 +262,8 @@ public:
             mpMesh->ReMesh(map); // This makes the mesh cylindrical
         }
                 
-        CancerParameters* p_params = CancerParameters::Instance();
-        p_params->SetCryptLength(mCryptDepth);
-        p_params->SetCryptWidth(mCryptWidth);
-        
+        CancerParameters::Instance()->SetCryptLength(mCryptDepth);
+        CancerParameters::Instance()->SetCryptWidth(mCryptWidth);
     }
     
     ConformingTetrahedralMesh<2,2>* GetMesh()

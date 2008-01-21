@@ -68,8 +68,6 @@ public:
     {
         PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 
-
-assert(0); // change width to 0.5 and num_elem to 48 in CardiacElectroMechanicsProblem::ConstructMeshes() before running.
         unsigned num=8;
         for(unsigned i=0;i<2;i++)
         {

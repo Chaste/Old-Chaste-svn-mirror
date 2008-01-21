@@ -5,7 +5,7 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "Tissue.cpp"
-#include "AbstractDiscreteTissueMechanicsSystem.hpp"
+#include "AbstractVariableDampingMechanicsSystem.hpp"
 
 /**
  *  Spring system class for 2D crypt projection simulations.
@@ -17,7 +17,7 @@
  *        at the moment the caller must know this.
  * 
  */
-class CryptProjectionSpringSystem  : public AbstractDiscreteTissueMechanicsSystem<2>
+class CryptProjectionSpringSystem  : public AbstractVariableDampingMechanicsSystem<2>
 {
     // Allow tests to access private members, in order to test computation of private functions
     friend class TestCryptProjectionSpringSystem;
@@ -30,7 +30,7 @@ private :
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        archive & boost::serialization::base_object<AbstractDiscreteTissueMechanicsSystem<2> >(*this);
+        archive & boost::serialization::base_object<AbstractVariableDampingMechanicsSystem<2> >(*this);
         
         archive & mUseCutoffPoint;
         archive & mCutoffPoint;
@@ -40,13 +40,13 @@ private :
     
     /**
      *  The value of the constant a in the definition of the crypt surface
-     *      z = f(r) = z*r^b.  
+     *      z = f(r) = a*r^b.  
      */
     double mA;
     
     /**
      *  The value of the constant b in the definition of the crypt surface
-     *      z = f(r) = z*r^b.  
+     *      z = f(r) = a*r^b.  
      */
     double mB;
     
@@ -204,7 +204,7 @@ private :
 public :
 
     CryptProjectionSpringSystem(Tissue<2>& rTissue)
-        : AbstractDiscreteTissueMechanicsSystem<2>(rTissue)
+        : AbstractVariableDampingMechanicsSystem<2>(rTissue)
     {                   
         // do not use a cutoff by default
         mUseCutoffPoint = false;
@@ -215,7 +215,7 @@ public :
 
     bool NeedsVoronoiTessellation()
     {
-        return false;
+        return this->mUseAreaBasedViscosity;
     }
     
     double GetA() const
@@ -240,8 +240,7 @@ public :
      */ 
     double CalculateCryptSurfaceHeightAtPoint(c_vector<double, 2>& rNodeLocation)
     {
-        double z_coord = mA*pow(norm_2(rNodeLocation),mB);        
-        return z_coord;
+        return mA*pow(norm_2(rNodeLocation),mB); // =z_coord;
     }
     
     
@@ -255,8 +254,7 @@ public :
      */ 
     double CalculateCryptSurfaceDerivativeAtPoint(c_vector<double, 2>& rNodeLocation)
     {
-        double derivative = mA*mB*pow(norm_2(rNodeLocation),(mB-1.0));
-        return derivative;        
+        return mA*mB*pow(norm_2(rNodeLocation),(mB-1.0));         
     }
     
     /**
@@ -288,17 +286,9 @@ public :
     
             c_vector<double, 2> force = CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
              
-            double damping_multiplierA = 1.0;
-            double damping_multiplierB = 1.0;
+            double damping_constantA = this->GetDampingConstant(spring_iterator.rGetCellA());
+            double damping_constantB = this->GetDampingConstant(spring_iterator.rGetCellB());
             
-            //  \todo: This is where the code for the case mUseAreaBasedViscosity=true would go            
-             
-            double damping_constantA = CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplierA;
-            double damping_constantB = CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplierB;
-            
-            // \todo: This is where the code for mutations would go
-                 
-            // These cannot be ghost nodes anymore - they both apply forces on each other
             mDrDt[nodeB_global_index] -= force / damping_constantB;
             mDrDt[nodeA_global_index] += force / damping_constantA;
         }

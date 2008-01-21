@@ -13,6 +13,7 @@ TissueCell::TissueCell(CellType cellType,
     {
         EXCEPTION("TissueCell is setting up a cell cycle model but SimulationTime has not been set up");
     }
+    
     if(pCellCycleModel==NULL)
     {
         EXCEPTION("Cell cycle model is null");
@@ -163,11 +164,8 @@ void TissueCell::StartApoptosis()
     }
     mUndergoingApoptosis = true;
     
-    CancerParameters *p_params = CancerParameters::Instance();
-    
-    SimulationTime *p_simulation_time = SimulationTime::Instance();
-    
-    mDeathTime = p_simulation_time->GetDimensionalisedTime() + p_params->GetApoptosisTime();
+    mDeathTime =    SimulationTime::Instance()->GetDimensionalisedTime() 
+                  + CancerParameters::Instance()->GetApoptosisTime();
 }
 
 bool TissueCell::HasApoptosisBegun() const
@@ -181,15 +179,13 @@ double TissueCell::TimeUntilDeath() const
     {
         EXCEPTION("Shouldn't be checking time until apoptosis as it isn't undergoing apoptosis");
     }
-    SimulationTime *p_simulation_time = SimulationTime::Instance();
-    return mDeathTime - p_simulation_time->GetDimensionalisedTime();
+
+    return mDeathTime - SimulationTime::Instance()->GetDimensionalisedTime();
 }
 
 bool TissueCell::IsDead() const
 {
-    SimulationTime *p_simulation_time = SimulationTime::Instance();
-
-    return ( mIsDead || ( (mUndergoingApoptosis) && (p_simulation_time->GetDimensionalisedTime() >= mDeathTime)) );
+    return ( mIsDead || ( (mUndergoingApoptosis) && (SimulationTime::Instance()->GetDimensionalisedTime() >= mDeathTime)) );
 }
 
 void TissueCell::Kill()
@@ -231,10 +227,8 @@ TissueCell TissueCell::Divide()
     mpCellCycleModel->ResetForDivision();
     
     // Create daughter cell
-    TissueCell new_cell = TissueCell(
-        mCellType,   
-        mMutationState,
-        mpCellCycleModel->CreateDaughterCellCycleModel());
+    TissueCell new_cell = TissueCell(mCellType, mMutationState,
+                                     mpCellCycleModel->CreateDaughterCellCycleModel());
 
     // Initialise properties of daughter cell     
     new_cell.GetCellCycleModel()->InitialiseDaughterCell();

@@ -5,7 +5,7 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "Tissue.cpp"
-#include "AbstractDiscreteTissueMechanicsSystem.hpp"
+#include "AbstractVariableDampingMechanicsSystem.hpp"
 
 /**
  *  Meineke2001System
@@ -24,7 +24,7 @@
  *  stiffness
  */
 template<unsigned DIM>
-class Meineke2001SpringSystem  : public AbstractDiscreteTissueMechanicsSystem<DIM>
+class Meineke2001SpringSystem  : public AbstractVariableDampingMechanicsSystem<DIM>
 {
     // Allow tests to access private members, in order to test computation of
     // private functions
@@ -43,12 +43,11 @@ private :
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        archive & boost::serialization::base_object<AbstractDiscreteTissueMechanicsSystem<DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractVariableDampingMechanicsSystem<DIM> >(*this);
         
         archive & mUseCutoffPoint;
         archive & mCutoffPoint;
         archive & mUseEdgeBasedSpringConstant;
-        archive & mUseAreaBasedViscosity;
         archive & mUseMutantSprings;
         archive & mMutantMutantMultiplier;
         archive & mNormalMutantMultiplier;
@@ -69,9 +68,6 @@ protected :
 
     /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
     bool mUseEdgeBasedSpringConstant;
-    
-    /** Whether to use a viscosity that is linear in the cell area, rather than constant */
-    bool mUseAreaBasedViscosity;
 
     /** Whether to use different stiffnesses depending on whether either cell is a mutant */
     bool mUseMutantSprings;
@@ -88,61 +84,11 @@ protected :
     /** Use springs which are dependent on whether cells are necrotic */
     bool mUseNecroticSprings;
 
-    /** 
-     *  Get the damping constant for this cell - ie d in drdt = F/d
-     *  This depends on whether using area-based viscosity has been switched on, and 
-     *  on whether the cell is a mutant or not
-     */
-    double GetDampingConstant(TissueCell& rCell)
-    { 
-        double damping_multiplier = 1.0;
-        
-        if (this->mUseAreaBasedViscosity)
-        {
-            //  use new_damping_const = old_damping_const * (d0+d1*A)
-            //  where d0,d1 are params and A is the area, and old_damping_const
-            //  if the damping const if not using mUseAreaBasedViscosity
-            #define COVERAGE_IGNORE
-            assert(DIM==2);
-            #undef COVERAGE_IGNORE
-            double rest_length = 1.0;
-            double d0 = 0.1;
-
-            // this number is such that d0+A*d1=1, where A is the area of a equilibrium
-            // cell (=sqrt(3)/4 = a third of the area of a hexagon with edges of size 1)
-            double d1 = 2.0*(1.0-d0)/(sqrt(3)*rest_length*rest_length); 
-
-            VoronoiTessellation<DIM>& tess = this->mrTissue.rGetVoronoiTessellation();
-        
-            double area_cell = tess.GetFaceArea(rCell.GetNodeIndex());
-            
-            // the areas should be order 1, this is just to avoid getting infinite areas
-            // if an area based viscosity option is chosen without ghost nodes.
-            assert(area_cell < 1000);
-            
-            damping_multiplier = d0 + area_cell*d1;
-        }
-        
-        
-        if( (rCell.GetMutationState()!=HEALTHY) && (rCell.GetMutationState()!=APC_ONE_HIT))
-        {            
-            return CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplier;            
-        }
-        else 
-        {
-            return CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplier;
-        }
-    } 
-    
 
 public :
     Meineke2001SpringSystem(Tissue<DIM>& rTissue)
-        : AbstractDiscreteTissueMechanicsSystem<DIM>(rTissue)
+        : AbstractVariableDampingMechanicsSystem<DIM>(rTissue)
     {
-        // area-based viscosity
-        mUseAreaBasedViscosity = false;
-        // mD0, mD1, or mpFunction ?
-
         // edge-based springs
         mUseEdgeBasedSpringConstant = false;
 
@@ -338,7 +284,7 @@ public :
 
     bool NeedsVoronoiTessellation()
     {
-        return (mUseAreaBasedViscosity || mUseEdgeBasedSpringConstant);
+        return (this->mUseAreaBasedViscosity || mUseEdgeBasedSpringConstant);
     }
 
     /**
@@ -351,6 +297,9 @@ public :
      */
     virtual std::vector<c_vector<double, DIM> >& rCalculateVelocitiesOfEachNode()
     {
+        // note: the following 4 lines are NOT equivalent to 
+        // mDrDt.resize(this->mrTissue.rGetMesh().GetNumAllNodes(), zero_vector<double,DIM>),
+        // which would only *append* zeros is the size had increased
         mDrDt.resize(this->mrTissue.rGetMesh().GetNumAllNodes());
         for (unsigned i=0; i<mDrDt.size(); i++)
         {
@@ -366,8 +315,8 @@ public :
     
             c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
              
-            double damping_constantA = GetDampingConstant(spring_iterator.rGetCellA());
-            double damping_constantB = GetDampingConstant(spring_iterator.rGetCellB());
+            double damping_constantA = this->GetDampingConstant(spring_iterator.rGetCellA());
+            double damping_constantB = this->GetDampingConstant(spring_iterator.rGetCellB());
             
             mDrDt[nodeB_global_index] -= force / damping_constantB;
             mDrDt[nodeA_global_index] += force / damping_constantA;
@@ -396,15 +345,6 @@ public :
         mUseEdgeBasedSpringConstant = useEdgeBasedSpringConstant;
     }
     
-    /**
-     * Use an area based viscosity
-     */
-    void SetAreaBasedViscosity(bool useAreaBasedViscosity)
-    {
-        assert(DIM == 2);
-        mUseAreaBasedViscosity = useAreaBasedViscosity;
-    }
-        
     /**
      * Use Different spring strengths depending on two cells:
      * Normal-normal, Normal-mutant, mutant-mutant

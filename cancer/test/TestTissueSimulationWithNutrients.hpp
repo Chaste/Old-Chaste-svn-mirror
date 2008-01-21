@@ -20,6 +20,7 @@
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "Meineke2001SpringSystem.hpp" 
 #include "AbstractCancerTestSuite.hpp"
+#include "CellsGenerator.hpp"
 
 
 class SimplePdeForTesting : public AbstractLinearEllipticPde<2>
@@ -59,6 +60,28 @@ public:
     c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& )
     {
         return identity_matrix<double>(2);
+    }   
+};
+
+
+
+class SimpleOxygenPde3d : public AbstractLinearEllipticPde<3>
+{
+public:
+
+    double ComputeConstantInUSourceTerm(const ChastePoint<3>& x)
+    {
+        return 0.0;
+    }
+    
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<3>& x)
+    {
+        return -0.1;
+    }
+    
+    c_matrix<double,3,3> ComputeDiffusionTerm(const ChastePoint<3>& )
+    {
+        return identity_matrix<double>(3);
     }   
 };
 
@@ -140,11 +163,7 @@ public:
      */
     void TestPostSolveMethod() throw(Exception)
     {
-        if (!PetscTools::IsSequential())
-        {
-            TS_TRACE("This test does not pass in parallel yet.");
-            return;
-        }
+        EXIT_IF_PARALLEL; //defined in PetscTools
         
         // Change the hypoxic concentration, just for this test
         CancerParameters::Instance()->SetHepaOneCellHypoxicConcentration(0.9);
@@ -240,11 +259,7 @@ public:
         
     void TestWithOxygen() throw(Exception)
     {
-        if (!PetscTools::IsSequential())
-        {
-            TS_TRACE("This test does not pass in parallel yet.");
-            return;
-        }
+        EXIT_IF_PARALLEL; //defined in PetscTools
         
         CancerParameters::Instance()->SetHepaOneParameters();
         
@@ -311,11 +326,7 @@ public:
         
     void TestWithPointwiseNutrientSink() throw(Exception)
     {
-        if (!PetscTools::IsSequential())
-        {
-            TS_TRACE("This test does not pass in parallel yet.");
-            return;
-        }
+        EXIT_IF_PARALLEL; //defined in PetscTools
         
         CancerParameters::Instance()->SetHepaOneParameters();
         
@@ -407,11 +418,7 @@ public:
      */
     void TestWriteNutrient() throw (Exception)
     {
-        if (!PetscTools::IsSequential())
-        {
-            TS_TRACE("This test does not pass in parallel yet.");
-            return;
-        }
+        EXIT_IF_PARALLEL; //defined in PetscTools
 
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TissueSimulationWithOxygen",false);
@@ -425,11 +432,7 @@ public:
      */ 
     void TestSpheroidStatistics() throw (Exception)
     {
-        if (!PetscTools::IsSequential())
-        {
-            TS_TRACE("This test does not pass in parallel yet.");
-            return;
-        }
+        EXIT_IF_PARALLEL; //defined in PetscTools
 
         // Set up a simple tissue
         CancerParameters::Instance()->SetHepaOneParameters();
@@ -523,11 +526,7 @@ public:
     
     void TestArchiving() throw (Exception)
     {
-        if (!PetscTools::IsSequential())
-        {
-            TS_TRACE("This test does not pass in parallel yet.");
-            return;
-        }
+        EXIT_IF_PARALLEL; //defined in PetscTools
         
         CancerParameters::Instance()->SetHepaOneParameters();
         
@@ -616,6 +615,83 @@ public:
         delete p_simulator;       
         CellwiseData<2>::Destroy();        
     }
+
+
+///// seems to work ok:
+//    void TestWithOxygen3D() throw(Exception)
+//    {
+//        EXIT_IF_PARALLEL; //defined in PetscTools
+//        
+//        CancerParameters::Instance()->SetHepaOneParameters();
+//        
+//        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+//        ConformingTetrahedralMesh<3,3> mesh;
+//        mesh.ConstructFromMeshReader(mesh_reader);
+//
+//        TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh","StartMesh");
+//        mesh_writer.WriteFilesUsingMesh(mesh);
+//                    
+//        // Set up cells
+//        std::vector<TissueCell> cells;
+//        CellsGenerator<3>::GenerateBasic(cells, mesh);
+//        
+//        // Set up tissue        
+//        Tissue<3> tissue(mesh, cells);
+//        
+//        // Set up CellwiseData and associate it with the tissue
+//        CellwiseData<3>* p_data = CellwiseData<3>::Instance();
+//        p_data->SetNumNodesAndVars(mesh.GetNumNodes(),1);
+//        p_data->SetTissue(tissue);
+//        
+//        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+//        // we need to pass it some initial conditions to avoid memory errors
+//        // (note: it would really make more sense to put the PDE solver stuff in a PreSolve method)  
+//        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+//        {
+//            p_data->SetValue(1.0, mesh.GetNode(i));
+//        }
+//        
+//        // Set up PDE
+//        SimpleOxygenPde3d pde;
+//        
+//        Meineke2001SpringSystem<3>* p_spring_system = new Meineke2001SpringSystem<3>(tissue);
+//        p_spring_system->UseCutoffPoint(1.5);
+//                  
+//        // Set up tissue simulation
+//        TissueSimulationWithNutrients<3> simulator(tissue, p_spring_system, &pde);
+//        simulator.SetOutputDirectory("TissueSimulationWithOxygen3d");
+//        simulator.SetEndTime(0.5);
+//        
+//        // Set up cell killer and pass into simulation
+//        AbstractCellKiller<3>* p_killer = new OxygenBasedCellKiller<3>(&tissue);
+//        simulator.AddCellKiller(p_killer);
+//                       
+//        // Run tissue simulation 
+//        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+////        
+////        // Record final mesh size for visualizer
+////        TS_ASSERT_THROWS_NOTHING(simulator.WriteFinalMeshSizeForVisualizer());
+//                        
+////        // Test positions        
+////        std::vector<double> node_5_location = simulator.GetNodeLocation(5);
+////        TS_ASSERT_DELTA(node_5_location[0], 0.4968, 1e-4);
+////        TS_ASSERT_DELTA(node_5_location[1], 0.8635, 1e-4);
+////        
+////        std::vector<double> node_15_location = simulator.GetNodeLocation(15);
+////        TS_ASSERT_DELTA(node_15_location[0], 0.4976, 1e-4);
+////        TS_ASSERT_DELTA(node_15_location[1], 2.5977, 1e-4);
+////                
+////        // Test the CellwiseData result
+////        TissueCell* p_cell = &(simulator.rGetTissue().rGetCellAtNodeIndex(5));
+////        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9604, 1e-4);
+////        
+////        p_cell = &(simulator.rGetTissue().rGetCellAtNodeIndex(15));
+////        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
+//                                
+//        // Tidy up
+//        delete p_killer;
+//        CellwiseData<2>::Destroy();
+//    }
 
 };
 #endif /*TESTTISSUESIMULATIONWITHNUTRIENTS_HPP_*/

@@ -54,8 +54,7 @@ public:
      */
     void TestLoadArchive() throw (Exception)
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
+        SimulationTime::Instance()->SetStartTime(0.0);
 
         std::string test_to_profile = "SteadyStateCrypt";
         double t = 150;   // this is the folder and time that the stored results were archived (needed to know foldernames)

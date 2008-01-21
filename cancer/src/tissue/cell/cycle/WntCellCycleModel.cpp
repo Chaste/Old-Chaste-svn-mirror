@@ -35,8 +35,8 @@ WntCellCycleModel::WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,//const
     {
         mpOdeSystem = NULL;
     }
-    SimulationTime* p_sim_time = SimulationTime::Instance();
-    if (p_sim_time->IsStartTimeSetUp()==false)
+
+    if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
     {
         #define COVERAGE_IGNORE
         EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");

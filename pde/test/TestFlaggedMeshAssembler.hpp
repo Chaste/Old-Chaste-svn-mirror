@@ -140,11 +140,8 @@ public :
     
     void FailingTest_TestParabolicFlaggedMeshAssembler() throw (Exception)
     {
-        if (!PetscTools::IsSequential())
-        {
-            TS_TRACE("This test does not pass in parallel yet.");
-            return;
-        }
+        EXIT_IF_PARALLEL; //defined in PetscTools
+        
         ///////////////////////////////////////////////////////////////////////////
         // solve using a flaggled assembler on [0,1]x[0,1] using a flagged mesh
         ///////////////////////////////////////////////////////////////////////////
@@ -256,11 +253,7 @@ public :
 
     void TestEllipticFlaggedMeshAssembler() throw (Exception)
     {
-        if (!PetscTools::IsSequential())
-        {
-            TS_TRACE("This test does not pass in parallel yet.");
-            return;
-        }
+        EXIT_IF_PARALLEL; //defined in PetscTools
                 
         // create a mesh on [0,2]x[0,2] with [0,1]x[0,1] flagged
         ConformingTetrahedralMesh<2,2> flagged_mesh; 

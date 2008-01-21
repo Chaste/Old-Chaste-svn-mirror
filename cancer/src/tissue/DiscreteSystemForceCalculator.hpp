@@ -321,8 +321,7 @@ public:
     
     void WriteResultsToFile(std::string simulationOutputDirectory)
     {
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
-        double time = p_simulation_time->GetDimensionalisedTime();
+        double time = SimulationTime::Instance()->GetDimensionalisedTime();
         std::ostringstream time_string;
         time_string << time;
         std::string results_directory = simulationOutputDirectory +"/results_from_time_" + time_string.str();

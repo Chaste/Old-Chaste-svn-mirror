@@ -37,8 +37,8 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
     {
         mpOdeSystem = NULL;
     }
-    SimulationTime* p_sim_time = SimulationTime::Instance();
-    if (p_sim_time->IsStartTimeSetUp()==false)
+    
+    if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
     {
         #define COVERAGE_IGNORE
         EXCEPTION("IngeWntSwatCellCycleModel is being created but SimulationTime has not been set up");

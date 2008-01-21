@@ -16,15 +16,14 @@ void AbstractSimpleCellCycleModel::Initialise()
 void AbstractSimpleCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
-    CancerParameters* p_params = CancerParameters::Instance();
     
     switch (mpCell->GetCellType())
     {
         case STEM:
-            mG1Duration = p_params->GetStemCellG1Duration();
+            mG1Duration = CancerParameters::Instance()->GetStemCellG1Duration();
             break;
         case TRANSIT:
-            mG1Duration = p_params->GetTransitCellG1Duration();
+            mG1Duration = CancerParameters::Instance()->GetTransitCellG1Duration();
             break;
         case DIFFERENTIATED:
             mG1Duration = DBL_MAX;

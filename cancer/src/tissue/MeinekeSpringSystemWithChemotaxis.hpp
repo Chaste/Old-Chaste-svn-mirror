@@ -17,9 +17,7 @@
  *  There is an additional chemotactic force term which couples the tissue to CellwiseData.  
  * 
  *  Uses Fc = chi(C,|gradC) gradC/|gradC|, where C is the nutrient concentration
- *  and chi is a specified function. If gradC=0, Fc=0  
- * 
- *  TODO: remove duplicated code calculating damping constant
+ *  and chi is a specified function. If gradC=0, Fc=0
  */
 template<unsigned DIM>
 class MeinekeSpringSystemWithChemotaxis  : public Meineke2001SpringSystem<DIM>
@@ -27,9 +25,10 @@ class MeinekeSpringSystemWithChemotaxis  : public Meineke2001SpringSystem<DIM>
 friend class TestMeinekeSpringSystemWithChemotaxis;
     
 private:
-    double ChemotacticForceMagnitude(double nutrientConc, double nutrientGradientMagnitude)
+    double ChemotacticForceMagnitude(const double nutrientConc, const double nutrientGradientMagnitude)
     {
-        return nutrientConc;
+        return nutrientConc; // temporary force law - can be changed to something realistic
+                             // without tests failing
     }
     
 public:
@@ -45,7 +44,7 @@ public:
      * The velocities are those that would be returned by the Meineke2001SpringSystem,
      * with a velocity due to the force by chemotaxis added on.
      * 
-     * F_c = chi(C,|gradC|) gradC/|gradC|
+     * Fc = chi(C,|gradC|) gradC/|gradC|  (if |gradC|>0, else Fc = 0)
      * 
      */
     std::vector<c_vector<double, DIM> >& rCalculateVelocitiesOfEachNode()

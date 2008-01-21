@@ -11,6 +11,8 @@
 #include "DistributedVector.hpp"
 #include "ReplicatableVector.hpp"
 
+#define EXIT_IF_PARALLEL if(!PetscTools::IsSequential()){TS_TRACE("This test does not pass in parallel yet.");return;}
+
 /**
  *  A helper class of static methods.
  */

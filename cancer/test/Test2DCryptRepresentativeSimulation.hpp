@@ -31,8 +31,7 @@ class TestRepresentativeSimulation : public CxxTest::TestSuite
 public:
 void TestRepresentativeSimulationForProfiling() throw (Exception)
     {        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
+        SimulationTime::Instance()->SetStartTime(0.0);
 
         std::string test_to_load = "SteadyStateCrypt";
         std::string test_to_profile = "CryptProfiling";

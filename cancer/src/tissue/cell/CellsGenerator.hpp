@@ -110,65 +110,76 @@ public :
 
             double y = rMesh.GetNode(i)->GetPoint().rGetLocation()[1];
             
-            if (cycleType==FIXED)
+            switch(cycleType)
             {
-                p_cell_cycle_model = new FixedCellCycleModel();
-                typical_transit_cycle_time = p_params->GetTransitCellG1Duration()
-                                            + p_params->GetSG2MDuration();
-                typical_stem_cycle_time = p_params->GetStemCellG1Duration()
-                                            + p_params->GetSG2MDuration();
-            }
-            else if (cycleType==STOCHASTIC)
-            {
-                p_cell_cycle_model = new StochasticCellCycleModel();
-                typical_transit_cycle_time = p_params->GetTransitCellG1Duration()
-                                                + p_params->GetSG2MDuration();
-                typical_stem_cycle_time = p_params->GetStemCellG1Duration()
-                                            + p_params->GetSG2MDuration();
-            }
-            else if (cycleType==SIMPLE_WNT)
-            {
-                p_cell_cycle_model = new SimpleWntCellCycleModel();
-                typical_transit_cycle_time = p_params->GetTransitCellG1Duration()
-                                               + p_params->GetSG2MDuration();
-                typical_stem_cycle_time = p_params->GetStemCellG1Duration()
-                                            + p_params->GetSG2MDuration();
-            }
-            else if (cycleType==WNT)
-            {
-                p_cell_cycle_model = new WntCellCycleModel();
-                typical_transit_cycle_time = 16.0;
-                typical_stem_cycle_time = typical_transit_cycle_time;
-            }
-            else if (cycleType==INGE_WNT_SWAT_HYPOTHESIS_ONE)
-            {
-                p_cell_cycle_model = new IngeWntSwatCellCycleModel(1u);
-                typical_transit_cycle_time = 16.0;
-                typical_stem_cycle_time = typical_transit_cycle_time;
-            }
-            else if (cycleType==INGE_WNT_SWAT_HYPOTHESIS_TWO)
-            {
-                p_cell_cycle_model = new IngeWntSwatCellCycleModel(2u);
-                typical_transit_cycle_time = 16.0;
-                typical_stem_cycle_time = typical_transit_cycle_time;
-            }
-            else if (cycleType==STOCHASTIC_WNT)
-            {
-                p_cell_cycle_model = new StochasticWntCellCycleModel();
-                typical_transit_cycle_time = 16.0;
-                typical_stem_cycle_time = typical_transit_cycle_time;
-            }
-            else if (cycleType==TYSONNOVAK)
-            {
-                p_cell_cycle_model = new TysonNovakCellCycleModel();
-                typical_transit_cycle_time = 1.25;
-                typical_stem_cycle_time = typical_transit_cycle_time;
-            }
-            else
-            { // Useful to provide a warning if any new cell cycle models are being used.
-                #define COVERAGE_IGNORE
-                EXCEPTION("Cell Cycle Type is not recognised");
-                #undef COVERAGE_IGNORE   
+                case(FIXED):
+                {
+                    p_cell_cycle_model = new FixedCellCycleModel();
+                    typical_transit_cycle_time =    p_params->GetTransitCellG1Duration()
+                                                  + p_params->GetSG2MDuration();
+                    typical_stem_cycle_time =   p_params->GetStemCellG1Duration()
+                                              + p_params->GetSG2MDuration();
+                    break;
+                }
+                case(STOCHASTIC):
+                {
+                    p_cell_cycle_model = new StochasticCellCycleModel();
+                    typical_transit_cycle_time =    p_params->GetTransitCellG1Duration()
+                                                  + p_params->GetSG2MDuration();
+                    typical_stem_cycle_time =   p_params->GetStemCellG1Duration()
+                                              + p_params->GetSG2MDuration();
+                    break;
+                }
+                case(SIMPLE_WNT):
+                {
+                    p_cell_cycle_model = new SimpleWntCellCycleModel();
+                    typical_transit_cycle_time =    p_params->GetTransitCellG1Duration()
+                                                  + p_params->GetSG2MDuration();
+                    typical_stem_cycle_time =   p_params->GetStemCellG1Duration()
+                                              + p_params->GetSG2MDuration();
+                    break;
+                }
+                case(WNT):
+                {
+                    p_cell_cycle_model = new WntCellCycleModel();
+                    typical_transit_cycle_time = 16.0;
+                    typical_stem_cycle_time = typical_transit_cycle_time;
+                    break;
+                }
+                case(INGE_WNT_SWAT_HYPOTHESIS_ONE):
+                {
+                    p_cell_cycle_model = new IngeWntSwatCellCycleModel(1u);
+                    typical_transit_cycle_time = 16.0;
+                    typical_stem_cycle_time = typical_transit_cycle_time;
+                    break;
+                }
+                case(INGE_WNT_SWAT_HYPOTHESIS_TWO):
+                {
+                    p_cell_cycle_model = new IngeWntSwatCellCycleModel(2u);
+                    typical_transit_cycle_time = 16.0;
+                    typical_stem_cycle_time = typical_transit_cycle_time;
+                    break;
+                }
+                case(STOCHASTIC_WNT):
+                {
+                    p_cell_cycle_model = new StochasticWntCellCycleModel();
+                    typical_transit_cycle_time = 16.0;
+                    typical_stem_cycle_time = typical_transit_cycle_time;
+                    break;
+                }
+                case(TYSONNOVAK):
+                {
+                    p_cell_cycle_model = new TysonNovakCellCycleModel();
+                    typical_transit_cycle_time = 1.25;
+                    typical_stem_cycle_time = typical_transit_cycle_time;
+                    break;
+                }
+                default:
+                { 
+                    #define COVERAGE_IGNORE
+                    EXCEPTION("Cell Cycle Type is not recognised");
+                    #undef COVERAGE_IGNORE  
+                }
             }
 
             double birth_time = 0.0;

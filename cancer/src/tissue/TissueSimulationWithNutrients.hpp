@@ -51,12 +51,9 @@ private :
     {
     	if (PetscTools::AmMaster())
     	{
-    	    SimulationTime *p_simulation_time = SimulationTime::Instance();
-    	    double time = p_simulation_time->GetDimensionalisedTime();
+    	    (*mpNutrientResultsFile) <<  SimulationTime::Instance()->GetDimensionalisedTime() << "\t";
             
-    	    (*mpNutrientResultsFile) <<  time << "\t";
-            
-    	    double global_index; /// \todo why is this a double?
+    	    unsigned global_index; 
     	    double x;
     	    double y;
     	    double nutrient;
@@ -65,7 +62,7 @@ private :
     		     cell_iter != this->mrTissue.End();
     		     ++cell_iter)
     	    {
-        		global_index = (double) cell_iter.GetNode()->GetIndex();
+        		global_index = cell_iter.GetNode()->GetIndex();
         		x = cell_iter.rGetLocation()[0];
         		y = cell_iter.rGetLocation()[1];
                     

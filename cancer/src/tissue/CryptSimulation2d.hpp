@@ -70,7 +70,7 @@ private :
         if (   (proposed_new_parent_coords(1) >= 0.0)
             && (proposed_new_daughter_coords(1) >= 0.0))
         {
-             // We are not too close to the bottom of the tissue
+            // We are not too close to the bottom of the tissue
             // move parent
             parent_coords = proposed_new_parent_coords;
             daughter_coords = proposed_new_daughter_coords;
@@ -165,8 +165,7 @@ private :
     {
         OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false);
         mBetaCatResultsFile = output_file_handler.OpenOutputFile("results.vizbCat");
-        *mpSetupFile << "BetaCatenin\n" ;
-        //p_setup_file->close();
+        *mpSetupFile << "BetaCatenin\n";
     }
     
     void WriteBetaCatenin()
@@ -183,8 +182,8 @@ private :
         double b_cat_cytoplasm;
         double b_cat_nuclear;
         for (Tissue<2>::Iterator cell_iter = mrTissue.Begin();
-               cell_iter != mrTissue.End();
-               ++cell_iter)
+             cell_iter != mrTissue.End();
+             ++cell_iter)
         {
             // \todo: don't need this anymore since there'are no ghost nodes,
             // but we'd need to change the visualizer before we take this out
@@ -285,8 +284,7 @@ public :
      */
     static CryptSimulation2d* Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
     {
-	    std::string archive_filename =
-            TissueSimulation<2>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
+	    std::string archive_filename = TissueSimulation<2>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
 
         // Create an input archive
         std::ifstream ifs(archive_filename.c_str(), std::ios::binary);

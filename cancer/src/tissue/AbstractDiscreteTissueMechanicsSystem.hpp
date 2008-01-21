@@ -33,6 +33,15 @@ public :
     {
     }
     
+    /**
+     *  Pure method, overloaded in the concrete classes, which returns a reference 
+     *  to the node velocities. Note, the overloaded must store the velocities
+     *  as a member variable (eg see the meineke implementation of this method), as 
+     *  a reference to it is taken.
+     * 
+     *  @param drdt The velocities at each node, a std::vector of c_vector's. drdt[i](j)
+     *  is the jth component of the velocity of node i.
+     */
     virtual std::vector<c_vector<double, DIM> >& rCalculateVelocitiesOfEachNode()=0;
     
     virtual ~AbstractDiscreteTissueMechanicsSystem()

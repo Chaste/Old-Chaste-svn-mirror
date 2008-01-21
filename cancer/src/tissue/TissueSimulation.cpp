@@ -451,17 +451,17 @@ void TissueSimulation<DIM>::Solve()
     if (mWriteVoronoiData)
     {
         p_voronoi_data_writer = new TissueVoronoiDataWriter<DIM>(mrTissue,
-                                                                mSimulationOutputDirectory+"/vis_results/",
-                                                                "results.visvoronoi",
-                                                                mFollowLoggedCell);
+                                                                 mSimulationOutputDirectory+"/vis_results/",
+                                                                 "results.visvoronoi",
+                                                                 mFollowLoggedCell);
     }
     
     if (mWriteTissueAreas)
     {
         p_voronoi_data_writer = new TissueVoronoiDataWriter<DIM>(mrTissue,
-                                                                mSimulationOutputDirectory,
-                                                                "Areas.dat",
-                                                                false);
+                                                                 mSimulationOutputDirectory,
+                                                                 "Areas.dat",
+                                                                 false);
     }
 
     CancerEventHandler::EndEvent(SETUP);

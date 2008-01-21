@@ -37,10 +37,8 @@ public:
         : AbstractCellKiller<2>(pCrypt),
           mSloughSides(sloughSides)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
-        
-        mCryptLength = p_params->GetCryptLength();
-        mCryptWidth = p_params->GetCryptWidth();
+        mCryptLength = CancerParameters::Instance()->GetCryptLength();
+        mCryptWidth = CancerParameters::Instance()->GetCryptWidth();
     }
     
     bool GetSloughSides() const

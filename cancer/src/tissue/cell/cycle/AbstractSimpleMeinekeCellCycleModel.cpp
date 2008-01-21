@@ -3,8 +3,7 @@
 
 void AbstractSimpleMeinekeCellCycleModel::ResetForDivision()
 {
-    CancerParameters *p_params = CancerParameters::Instance();
-    if (mGeneration+1u > p_params->GetMaxTransitGenerations())
+    if (mGeneration+1u > CancerParameters::Instance()->GetMaxTransitGenerations())
     {
         mpCell->SetCellType(DIFFERENTIATED);
     }
