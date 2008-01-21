@@ -2,12 +2,12 @@
 <ChasteParameters
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="heart/src/io/ChasteParameters.xsd">
-    <SimulationDuration>200.0</SimulationDuration>
+    <SimulationDuration>350.0</SimulationDuration>
     <SlabWidth>10.0</SlabWidth>
     <SlabHeight>0.25</SlabHeight>
     <InterNodeSpace>0.25</InterNodeSpace>
     <FaceStimulusWidth>0.25</FaceStimulusWidth>
-    <QuadrantStimulusDelay>160.0</QuadrantStimulusDelay>
+    <QuadrantStimulusDelay>230.0</QuadrantStimulusDelay>
     <OutputDirectory>ChasteResults</OutputDirectory>
     <MeshOutputDirectory>Slab</MeshOutputDirectory>
     <Domain>Mono</Domain>
