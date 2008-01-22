@@ -1049,7 +1049,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
 //        }
 //    }
     std::stringstream pid;
-    pid<<getpid(); //<<"_"<<clock();
+    pid<<getpid();
     OutputFileHandler handler("");
     std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp_"+pid.str()+".";
     
@@ -1083,15 +1083,11 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
 	                (*node_file)<<"\n";
 	            }
 	        }
-	        node_file->flush();
+	        
 	        node_file->close();
-	        //node_file->close();
-	        //delete *node_file;
-	        //while(node_file->is_open())
-	        //{}//Let's be sure that the file is written before running the re-mesher
+	        
 	    }//Scope for node_file
         
-        //system("cat /tmp/chaste/testoutput/temp.node");
         
         std::string binary_name;
         if (SPACE_DIM==2)
@@ -1114,8 +1110,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         {
             // try remeshing again, this time without sending the output to /dev/null 
             // (just so the error message is displayed in std output)
-            //std::string command = "./bin/"+ binary_name +" -e " + full_name + "node";
-        	std::cout<<"ConformingTetrahedralMesh::ReMesh Warning. First attempt failed.  Showing output from meshing program in second attempt\n";
+            std::string command = "./bin/"+ binary_name +" -e " + full_name + "node";
+        	//std::cout<<"ConformingTetrahedralMesh::ReMesh Warning. First attempt failed.  Showing output from meshing program in second attempt\n";
             return_value = system(command.c_str());
         	if (return_value != 0)
         	{
@@ -1137,7 +1133,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     
     std::string remove_command = "rm "+ full_name+"*";
     system(remove_command.c_str());
-    //std::cout<<"Remove "<< remove_command<<"\n";
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
