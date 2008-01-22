@@ -179,8 +179,8 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
         // There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000);
         
-        
-        double time_of_each_run = 30.0; // for each run
+        std::string output_directory = "Noddy_WNT_No_Area_No_Length";
+        double time_of_each_run = 1.0; // for each run
         
         unsigned cells_across = 23;
         unsigned cells_up = 30;
@@ -210,7 +210,7 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
         meineke_spring_system.SetEdgeBasedSpringConstant(false);
         
         CryptSimulation2d simulator(crypt, &meineke_spring_system, false, true);
-        simulator.SetOutputDirectory("Noddy_WNT_No_Area_No_Length");
+        simulator.SetOutputDirectory(output_directory);
         
         // Set simulation to output cell types
         simulator.SetOutputCellTypes(true);
@@ -235,21 +235,21 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
         simulator.SetWriteVoronoiData(true, false); //Writes Area and perimeter
         
         // END OF UNUSUAL SET UP! //////////////////////////////////
-        std::cout<< "About to solve \n" << std::flush;
+        std::cout<< "About to solve " << output_directory << "\n" << std::flush;
         simulator.Solve();
         simulator.Save();
-        double end_of_simulation = 450.0; // hours
+        double end_of_simulation = 4.0; // hours
         
         std::cout<< "Going into loop \n" << std::flush;
         
         for (double t=time_of_each_run; t<end_of_simulation+0.5; t += time_of_each_run)
         {
             std::cout<< "Results from time " << t << "\n" << std::flush;
-            CryptSimulation2d* p_simulator = CryptSimulation2d::Load("Noddy_WNT_No_Area_No_Length",t);
+            CryptSimulation2d* p_simulator = CryptSimulation2d::Load(output_directory,t);
             p_simulator->SetEndTime(t+time_of_each_run);
             p_simulator->Solve();
             p_simulator->Save();
-            //delete p_simulator;
+            delete p_simulator;
         }
                 
         delete p_cell_killer;
