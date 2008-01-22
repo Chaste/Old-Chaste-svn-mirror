@@ -159,7 +159,8 @@ protected:
      * For example,
      *      EXCEPTION(DumpState("Gating variable out of range"));
      */
-    std::string DumpState(const std::string& message);
+    std::string DumpState(const std::string& message,
+                          std::vector<double> Y = std::vector<double>());
 };
 
 

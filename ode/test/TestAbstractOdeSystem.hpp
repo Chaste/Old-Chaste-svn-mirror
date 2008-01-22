@@ -126,6 +126,14 @@ public:
         
         // Dump the state variables
         std::string state = ode_system.DumpState("This is a test.");
+        TS_ASSERT_EQUALS(state, "This is a test.\nState:\n\tx:10\n\tv:10\n");
+
+        // Dump user-supplied values
+        std::vector<double> rY(2);
+        rY[0] = 0.0;
+        rY[1] = 1.0;
+        state = ode_system.DumpState("Test 2.", rY);
+        TS_ASSERT_EQUALS(state, "Test 2.\nState:\n\tx:0\n\tv:1\n");
     }
 };
 
