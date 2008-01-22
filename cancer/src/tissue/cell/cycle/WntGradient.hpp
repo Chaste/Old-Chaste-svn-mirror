@@ -2,12 +2,19 @@
 #define WNTGRADIENT_HPP_
 
 #include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
 
 #include "CancerParameters.hpp"
 #include "Tissue.cpp"
 
+// Needs to be included last
+#include <boost/serialization/export.hpp>
+
 /**
- * Possible types of WntGradient.
+ * Possible types of WntGradient, currently:
+ *  NONE - For testing/to remove Wnt dependence.
+ *  LINEAR - For CryptSimulation2d.hpp.
+ *  RADIAL - for CryptProjection model.
  */
 typedef enum WntGradientType_
 {
@@ -16,21 +23,45 @@ typedef enum WntGradientType_
     RADIAL
 } WntGradientType;
 
-
 /**
  *  Singleton Wnt gradient object
  */
 class WntGradient
 {
 private:
+    /** Pointer to the singleton instance of WntGradient */
     static WntGradient* mpInstance;
-
-    CancerParameters* mpCancerParams;
-    WntGradientType mGradientType;
-    Tissue<2>* mpTissue;
-    bool mTypeSet; 
     
+    /** The cancer parameters */
+    CancerParameters* mpCancerParams;
+    
+    /** 
+     * The type of Wnt Gradient current options are
+     *  NONE - returns zero everywhere
+     *  LINEAR - Goes from 1 to zero at height specified by CancerParameters::mTopOfLinearWntGradient
+     *  RADIAL - Goes from 1 to zero at height specified by CancerParameters::mTopOfLinearWntGradient
+     */
+    WntGradientType mGradientType;
+    
+    /** 
+     *  The Tissue which the Wnt Gradient is operating in
+     */
+    Tissue<2>* mpTissue;
+    
+    /**
+     *  Whether this WntGradient object has had its type set
+     */
+    bool mTypeSet;  
+
+    /**
+     *  A value to return for testing purposes
+     */
     double mConstantWntValueForTesting;
+    
+    /**
+     *  Whether to return the testing value
+     *  (when false WntGradient works with Tissue)
+     */
     bool mUseConstantWntValueForTesting;
     
     friend class boost::serialization::access;
@@ -59,6 +90,9 @@ public:
      */
     static WntGradient* Instance();
     
+    /**
+     *  Destructor - frees up the singleton instance.
+     */
     virtual ~WntGradient();
     
     /** 
@@ -108,5 +142,7 @@ public:
     bool IsGradientSetUp();
     
 };
+
+BOOST_CLASS_EXPORT(WntGradient);
 
 #endif /*WNTGRADIENT_HPP_*/

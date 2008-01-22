@@ -263,7 +263,6 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
  */
 void Cylindrical2dMesh::ReconstructCylindricalMesh()
 {
-
     // Figure out which elements have real nodes and image nodes in them
     // and replace image nodes with corresponding real ones.
     for (unsigned elem_index = 0; elem_index<GetNumAllElements(); elem_index++)
@@ -271,51 +270,60 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
         Element<2,2>* p_element = GetElement(elem_index);
         if (!p_element->IsDeleted())
         {
-            unsigned number_of_image_nodes = 0;
+            unsigned number_of_left_image_nodes = 0u;
+            unsigned number_of_right_image_nodes = 0u;
             for (unsigned i=0; i<3; i++)
             {
                 unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
                 //std::cout << "Node " << this_node_index << "\t";
-                bool this_node_an_image = false;
+                bool this_node_a_left_image = false;
+                bool this_node_a_right_image = false;
                 if(IsThisIndexInList(this_node_index,mLeftImages))
                 {
-                    this_node_an_image = true;
+                    this_node_a_left_image = true;
                 }
                 if(IsThisIndexInList(this_node_index,mRightImages))
                 {
-                    this_node_an_image = true;
+                    this_node_a_right_image = true;
                 }
-                if(this_node_an_image)
+                if(this_node_a_left_image)
                 {
-                    number_of_image_nodes++;
+                    number_of_left_image_nodes++;
+                }
+                if(this_node_a_right_image)
+                {
+                    number_of_right_image_nodes++;
                 }
             }
             
-            //std::cout << "\nNumber of image nodes = " << number_of_image_nodes << "\n" << std::flush;
-            if (number_of_image_nodes==3 || number_of_image_nodes==2 )
+            // Delete all the elements on the right hand side...
+            if (number_of_right_image_nodes>=1u)
             {
                 //std::cout << "purely image element\n" << std::flush;
                 p_element->MarkAsDeleted();
                 mDeletedElementIndices.push_back(p_element->GetIndex());
             }
+            
+            // Delete only purely imaginary elements on the left
+            if (number_of_left_image_nodes==3u)
+            {
+                //std::cout << "purely image element\n" << std::flush;
+                p_element->MarkAsDeleted();
+                mDeletedElementIndices.push_back(p_element->GetIndex());
+            }
+            
             /* 
              * If some are images then replace them with the real nodes.
              * 
-             * There would be two copies of each periodic element
-             * one with one image and two real (on one side),
-             * another with two images and one real (on the other side).
-             * Because of this we can just take one case (one image node)
-             * and delete the other element
+             * There can be elements with either two image nodes on the left (and one real)
+             * or one image node on the left (and two real).
              */
-            if (number_of_image_nodes==1 )
-            {
-                
-                //std::cout << "Periodic element found \n" << std::flush;   
+            if (number_of_left_image_nodes==1u || number_of_left_image_nodes==2u )
+            {   //std::cout << "Periodic element found \n" << std::flush;   
                 for (unsigned i=0; i<3; i++)
                 {
                     unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
                     ReplaceImageWithRealNodeOnElement(p_element,mLeftImages,mLeftOriginals,this_node_index);
-                    ReplaceImageWithRealNodeOnElement(p_element,mRightImages,mRightOriginals,this_node_index);
                 }
             }
         }

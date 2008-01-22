@@ -2,7 +2,6 @@
 #define ABSTRACTCELLKILLER_HPP_
 
 #include "TissueCell.hpp"
-#include "ConformingTetrahedralMesh.cpp"
 #include "Tissue.cpp"
 
 #include <boost/serialization/access.hpp>

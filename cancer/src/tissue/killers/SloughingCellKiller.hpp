@@ -19,8 +19,6 @@ class SloughingCellKiller : public AbstractCellKiller<2>
 {
 private:
     bool mSloughSides;
-    double mCryptLength;
-    double mCryptWidth;
     
     friend class boost::serialization::access;
     template<class Archive>
@@ -28,39 +26,31 @@ private:
     {
         archive & boost::serialization::base_object<AbstractCellKiller<2> >(*this);
         //archive & mSloughSides; // done in load_construct_data
-        archive & mCryptLength;
-        archive & mCryptWidth;
+        // Make sure Cancer Parameters are archived.
+        CancerParameters* p_params = CancerParameters::Instance();
+        archive & *p_params;
+        archive & p_params;
     }
     
 public:
     SloughingCellKiller(Tissue<2>* pCrypt, bool sloughSides=false)
         : AbstractCellKiller<2>(pCrypt),
           mSloughSides(sloughSides)
-    {
-        mCryptLength = CancerParameters::Instance()->GetCryptLength();
-        mCryptWidth = CancerParameters::Instance()->GetCryptWidth();
-    }
+    {}
     
     bool GetSloughSides() const
     {
         return mSloughSides;
     }
     
-    double GetCryptLength()
-    {
-        return mCryptLength;
-    }
-
-    double GetCryptWidth()
-    {
-        return mCryptWidth;
-    }
-
     /**
      *  Loops over cells and kills cells outside boundary.
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath()
     {
+        double crypt_length = CancerParameters::Instance()->GetCryptLength();
+        double crypt_width = CancerParameters::Instance()->GetCryptWidth();
+            
         for (Tissue<2>::Iterator cell_iter = this->mpTissue->Begin();
              cell_iter != this->mpTissue->End();
              ++cell_iter)
@@ -68,7 +58,7 @@ public:
             double x = cell_iter.rGetLocation()[0];
             double y = cell_iter.rGetLocation()[1];
             
-            if ( (y>mCryptLength) ||  (mSloughSides && ((x<0.0) || (x>mCryptWidth))) )
+            if ( (y>crypt_length) ||  (mSloughSides && ((x<0.0) || (x>crypt_width))) )
             {
                 cell_iter->Kill();
             }        

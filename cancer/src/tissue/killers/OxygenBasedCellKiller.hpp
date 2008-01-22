@@ -2,11 +2,9 @@
 #define OXYGENBASEDCELLKILLER_HPP_
 
 #include "AbstractCellKiller.hpp"
-#include "ConformingTetrahedralMesh.hpp"
 #include "CancerParameters.hpp"
-#include "RandomNumberGenerator.hpp"
 #include "SimulationTime.hpp"
-#include "CellwiseData.cpp"
+#include "Tissue.cpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -17,10 +15,6 @@
  *  The non-dimensionalised oxygen concentration at which cells become 
  *  hypoxic is optionally passed into the constructor. 
  * 
- *  Note that TestAndLabelSingleCellForApoptosis() is stochastic, and that 
- *  this does take into account current times or timesteps, so if more 
- *  timesteps are used, and TestAndLabelCellsForApoptosis() is called 
- *  at each timestep, more cells will die.
  */
 
 template <unsigned SPACE_DIM>

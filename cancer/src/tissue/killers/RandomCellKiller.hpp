@@ -2,9 +2,8 @@
 #define RANDOMCELLKILLER_HPP_
 
 #include "AbstractCellKiller.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "Tissue.cpp"
 #include "RandomNumberGenerator.hpp"
-
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -28,6 +27,11 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellKiller<SPACE_DIM> >(*this);
+        // Make sure random number generator is archived...
+        RandomNumberGenerator* p_random_generator = RandomNumberGenerator::Instance();
+        archive & *p_random_generator;
+        archive & p_random_generator;
+        // archive & mProbabilityOfDeath // not needed here - done in load_construct.
     }
     
 public:

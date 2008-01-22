@@ -649,6 +649,11 @@ public:
     /*
      * This test compares the visualizer output from the previous test with a known file.
      * 
+     * The results of this should be a yellow crypt with a line of 
+     * blue stem cells at the base, and four labelled cells of different
+     * colours in the centre. A couple of cells divide, the crypt stays
+     * periodic and a couple of cells swap sides.
+     * 
      * Note - if the previous test is changed we need to update the file this test refers to. 
      */
     void TestVisualizerOutput() throw (Exception)

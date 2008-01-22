@@ -27,7 +27,7 @@
 #include "OxygenBasedCellKiller.hpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
-
+#include "CellwiseData.cpp"
 
 class TestCellKillers : public AbstractCancerTestSuite
 {    
@@ -438,8 +438,6 @@ public:
             output_arch << p_cell_killer;
 
             TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);
-            TS_ASSERT_DELTA(p_cell_killer->GetCryptLength(), 10.0, 1e-9);
-            TS_ASSERT_DELTA(p_cell_killer->GetCryptWidth(), 5.0, 1e-9);
         }
  
         // Change the cancer parameters
@@ -458,8 +456,6 @@ public:
            
             // Test we have restored the sloughing properties correctly.
             TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);
-            TS_ASSERT_DELTA(p_cell_killer->GetCryptLength(), 10.0, 1e-9);
-            TS_ASSERT_DELTA(p_cell_killer->GetCryptWidth(), 5.0, 1e-9);
             delete p_cell_killer;
         }  
     }

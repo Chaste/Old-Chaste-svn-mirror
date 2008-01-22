@@ -7,7 +7,6 @@
 /** Pointer to the single instance */
 WntGradient* WntGradient::mpInstance = NULL;
 
-
 /*
  * Return a pointer to the WntGradient object.
  * The first time this is called, the object is created.
