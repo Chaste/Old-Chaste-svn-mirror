@@ -66,8 +66,8 @@ public:
                 double x = cell_iter.rGetLocation()[0];
                 double y = cell_iter.rGetLocation()[1];
             
-                double cell_area = mrTissue.rGetVoronoiTessellation().GetFace(node_index)->GetArea();
-                double cell_perimeter = mrTissue.rGetVoronoiTessellation().GetFace(node_index)->GetPerimeter();
+                double cell_area = mrTissue.rGetVoronoiTessellation().GetFaceArea(node_index);
+                double cell_perimeter = mrTissue.rGetVoronoiTessellation().GetFacePerimeter(node_index);
             
                 (*mOutStream)<< node_index << " " << x << " " << y << " " << cell_area << " " << cell_perimeter << " ";
                 
