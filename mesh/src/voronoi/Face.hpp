@@ -51,11 +51,15 @@ public:
     
     /**
      * Gets the sum of the length of all edges
+     * !!!!! NOTE: Don't use this if you are using a periodic mesh
+     * Use GetFacePerimeter(face_index) to takeinto account periodicity.
      */
     double GetPerimeter() const;
     
     /**
      * Gets the area of a voronoi face for 2d space only
+     * !!!!! NOTE: Don't use this if you are using a periodic mesh
+     * Use GetFaceArea(face_index) to takeinto account periodicity.
      */
     double GetArea() const;
     

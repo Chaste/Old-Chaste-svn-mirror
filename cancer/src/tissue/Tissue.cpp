@@ -72,8 +72,7 @@ Tissue<DIM>::~Tissue()
         delete &mrMesh;
     }
     
-    
-    delete mpVoronoiTessellation;
+    //delete mpVoronoiTessellation;
 }
 
 template<unsigned DIM>

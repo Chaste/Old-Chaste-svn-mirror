@@ -206,10 +206,10 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
         
         
         Meineke2001SpringSystem<2> meineke_spring_system(crypt);
-        meineke_spring_system.SetAreaBasedViscosity(false);
-        meineke_spring_system.SetEdgeBasedSpringConstant(false);
+        //meineke_spring_system.SetAreaBasedViscosity(false);
+        //meineke_spring_system.SetEdgeBasedSpringConstant(false);
         
-        CryptSimulation2d simulator(crypt, &meineke_spring_system, false, true);
+        CryptSimulation2d simulator(crypt), &meineke_spring_system, true, true);
         simulator.SetOutputDirectory(output_directory);
         
         // Set simulation to output cell types
@@ -249,7 +249,9 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
             p_simulator->SetEndTime(t+time_of_each_run);
             p_simulator->Solve();
             p_simulator->Save();
+            std::cout<< "Saved and stuff \n" << std::flush;
             delete p_simulator;
+            std::cout<< "deleted \n" << std::flush;
         }
                 
         delete p_cell_killer;
