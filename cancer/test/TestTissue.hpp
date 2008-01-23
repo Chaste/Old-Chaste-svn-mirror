@@ -393,13 +393,9 @@ public:
         std::string output_directory = "TestTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
         
-        TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false));
-    
-        out_stream p_cell_types_file = output_file_handler.OpenOutputFile("results.vizelements");
+        TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false, false));
         
-        tissue.WriteResultsToFiles(*p_cell_types_file,
-                                   true,
-                                   true);                         
+        tissue.WriteResultsToFiles(true);                         
 
         TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles());
         

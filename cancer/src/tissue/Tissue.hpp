@@ -61,6 +61,8 @@ private:
     
     out_stream mpElementFile;
     
+    out_stream mpCellTypesFile;
+    
     /** Helper method used by the spring marking routines */
     std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
     
@@ -188,7 +190,7 @@ public:
      */
     c_vector<unsigned,5> GetCellTypeCount();
     
-    void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory);
+    void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes);
     
     void CloseOutputFiles();
     
@@ -306,9 +308,7 @@ public:
      */
     void Validate();
 
-    void WriteResultsToFiles(std::ofstream& rCellTypesFile,
-                             bool writeVisualizerResults,
-                             bool OutputCellTypes);
+    void WriteResultsToFiles(bool OutputCellTypes);
 
     /** Get a reference to a Voronoi Tessellation of the mesh */                         
     void CreateVoronoiTessellation();

@@ -403,19 +403,12 @@ void TissueSimulation<DIM>::Solve()
     ///////////////////////////////////////////////////////////
    
     // Create output files for the visualizer
-    OutputFileHandler output_file_handler(results_directory+"/vis_results/",false);
+    OutputFileHandler output_file_handler(results_directory+"/vis_results/", false);
     
-    mrTissue.CreateOutputFiles(results_directory+"/vis_results/",false);
+    mrTissue.CreateOutputFiles(results_directory+"/vis_results/", false, mOutputCellTypes);
     
     mpSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
-    
-    // Creates output file to store number of different cells
-    out_stream p_cell_types_file = output_file_handler.OpenOutputFile("celltypes.dat");
-    if (mOutputCellTypes)
-    { 
-        *p_cell_types_file <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
-    }
-    
+
     SetupSolve();
     
     /* 
@@ -443,9 +436,8 @@ void TissueSimulation<DIM>::Solve()
         WriteVisualizerSetupFile();
     }
     mpSetupFile->close();    
-    mrTissue.WriteResultsToFiles(*p_cell_types_file,
-                                 true,
-                                 mOutputCellTypes);
+
+    mrTissue.WriteResultsToFiles(mOutputCellTypes);
 
     TissueVoronoiDataWriter<DIM>* p_voronoi_data_writer = NULL;
     if (mWriteVoronoiData)
@@ -529,9 +521,7 @@ void TissueSimulation<DIM>::Solve()
         // Write results to file
         if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
-            mrTissue.WriteResultsToFiles(*p_cell_types_file,
-                                         true,
-                                         mOutputCellTypes);
+            mrTissue.WriteResultsToFiles(mOutputCellTypes);
                                         
             if (mWriteVoronoiData)
             {
@@ -554,9 +544,6 @@ void TissueSimulation<DIM>::Solve()
     // is taken care of in the main loop).
     // Doesn't need to count cell types again as it is done in the last loop
     CancerEventHandler::BeginEvent(OUTPUT);
-    mrTissue.WriteResultsToFiles(*p_cell_types_file,
-                                 false,
-                                 false);
 
     mrTissue.CloseOutputFiles();
     

@@ -587,11 +587,17 @@ c_vector<unsigned,5> Tissue<DIM>::GetCellTypeCount()
 }
 
 template<unsigned DIM>
-void Tissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory)
+void Tissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes)
 {
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpNodeFile = output_file_handler.OpenOutputFile("results.viznodes");
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
+    mpCellTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
+    
+    if (outputCellTypes)
+    {
+        *mpCellTypesFile <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
+    }
 }
 
 template<unsigned DIM>
@@ -599,12 +605,11 @@ void Tissue<DIM>::CloseOutputFiles()
 {
     mpNodeFile->close();
     mpElementFile->close();
+    mpCellTypesFile->close();
 }
 
 template<unsigned DIM>  
-void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rCellTypesFile,
-                                      bool writeVisualizerResults,
-                                      bool OutputCellTypes)
+void Tissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
 {
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
@@ -615,15 +620,12 @@ void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rCellTypesFile,
         cell_counter[i] =0;
     }
     
-    if (writeVisualizerResults)
-    {
-        *mpNodeFile <<  time << "\t";
-        *mpElementFile <<  time << "\t";
-    }
+    *mpNodeFile <<  time << "\t";
+    *mpElementFile <<  time << "\t";
     
-    if (OutputCellTypes)
+    if (outputCellTypes)
     {
-        rCellTypesFile <<  time << "\t";
+        *mpCellTypesFile <<  time << "\t";
     }
 
     // Write node files
@@ -672,7 +674,7 @@ void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rCellTypesFile,
                 if (mutation == LABELLED || mutation == ALARCON_CANCER)
                 {
                     colour = LABELLED_COLOUR;
-                    if (OutputCellTypes)
+                    if (outputCellTypes)
                     {
                         cell_counter[1]++;
                     }
@@ -680,7 +682,7 @@ void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rCellTypesFile,
                 if (mutation == APC_ONE_HIT)
                 {
                     colour = EARLY_CANCER_COLOUR;
-                    if (OutputCellTypes)
+                    if (outputCellTypes)
                     {
                         cell_counter[2]++;
                     }
@@ -688,7 +690,7 @@ void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rCellTypesFile,
                 if (mutation == APC_TWO_HIT )
                 {
                     colour = LATE_CANCER_COLOUR;
-                    if (OutputCellTypes)
+                    if (outputCellTypes)
                     {
                         cell_counter[3]++;
                     }  
@@ -696,7 +698,7 @@ void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rCellTypesFile,
                 if ( mutation == BETA_CATENIN_ONE_HIT)
                 {
                     colour = LATE_CANCER_COLOUR;
-                    if (OutputCellTypes)
+                    if (outputCellTypes)
                     {
                         cell_counter[4]++;
                     }  
@@ -704,14 +706,15 @@ void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rCellTypesFile,
             }
             else // It's healthy, or normal in the sense of the Alarcon model
             {
-                if (OutputCellTypes)
+                if (outputCellTypes)
                 {
                     cell_counter[0]++;
                 }  
             }
             
             if (p_cell->HasApoptosisBegun())
-            {   // For any type of cell set the colour to this if it is undergoing apoptosis.
+            {   
+                // For any type of cell set the colour to this if it is undergoing apoptosis.
                 colour = APOPTOSIS_COLOUR;   
             }
         }
@@ -719,14 +722,12 @@ void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rCellTypesFile,
         if (!mrMesh.GetNode(index)->IsDeleted())
         {
             const c_vector<double,DIM>& position = mrMesh.GetNode(index)->rGetLocation();
-            if (writeVisualizerResults)
+            
+            for(unsigned i=0; i<DIM; i++)
             {
-                for(unsigned i=0; i<DIM; i++)
-                {
-                    *mpNodeFile << position[i] << " ";
-                }
-                *mpNodeFile << colour << " ";
+                *mpNodeFile << position[i] << " ";
             }
+            *mpNodeFile << colour << " ";
         }
     }
     
@@ -735,31 +736,25 @@ void Tissue<DIM>::WriteResultsToFiles(std::ofstream& rCellTypesFile,
     {
         if (!mrMesh.GetElement(elem_index)->IsDeleted())
         {
-            if (writeVisualizerResults)
+            for(unsigned i=0; i<DIM+1; i++)
             {
-                for(unsigned i=0; i<DIM+1; i++)
-                {
-                    *mpElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i)<< " ";
-                }
+                *mpElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i)<< " ";
             }
         }
     }
         
-    if (OutputCellTypes)
+    if (outputCellTypes)
     {
         for(unsigned i=0; i < 5; i++)
         {
             mCellTypeCount[i] = cell_counter[i];
-            rCellTypesFile <<  cell_counter[i] << "\t";
+            *mpCellTypesFile <<  cell_counter[i] << "\t";
         }
-        rCellTypesFile <<  "\n";
+        *mpCellTypesFile <<  "\n";
     }
     
-    if (writeVisualizerResults)
-    {
-        *mpNodeFile << "\n";
-        *mpElementFile << "\n";
-    }
+    *mpNodeFile << "\n";
+    *mpElementFile << "\n";
 }
 
 
