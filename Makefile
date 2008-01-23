@@ -109,7 +109,8 @@ TestMeinekeLabellingExperimentsRunner: TestMeinekeLabellingExperimentsRunner.o $
 	# Need to copy across the starting state of the simulation
 	mkdir ${FRESH_DIR}/MeinekeLabellingExperiment; mkdir ${FRESH_DIR}/MeinekeLabellingExperiment/archive ;\
 	cd ${FRESH_DIR}/MeinekeLabellingExperiment/archive ;\
-	cp ../../../projects/GaryM/test/data/SteadyStateSimpleWnt/sunter1_archive/* . ;\
+	cp ../../../projects/GaryM/test/data/SteadyStateIngeSwat/hypothesis1_sunter1_archive/mesh_300.* . ;\
+	cp ../../../projects/GaryM/test/data/SteadyStateIngeSwat/hypothesis1_sunter1_archive/tissue_sim_at_time_300.arch . ;\
 	cd ../.. ;\
 	# Finished copying archives across.
 	cp TestMeinekeLabellingExperimentsRunner ${FRESH_DIR} ;\

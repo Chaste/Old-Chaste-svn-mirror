@@ -50,14 +50,16 @@ public:
         bool cylindrical = false;
         unsigned thickness_of_ghost_layer = 1;
                 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical, crypt_width/cells_across);
+        HoneycombMeshGenerator* p_gen = new HoneycombMeshGenerator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical, crypt_width/cells_across);
         
-        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = p_gen->GetMesh();
         
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
         
-        std::set<unsigned> ghosts = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghosts = p_gen->GetGhostNodeIndices();
         TS_ASSERT_EQUALS(ghosts.size(), 12u);
+        
+        delete p_gen;
     }
 
     void TestHoneycombMeshGeneratorCylindricalRelaxed() throw(Exception)

@@ -213,6 +213,9 @@ private:
     
 public:
 
+    /**
+     * Destructor - deletes the mesh object and pointer.
+     */
     ~HoneycombMeshGenerator()
     {
         delete mpMesh;
@@ -241,11 +244,12 @@ public:
         mCryptWidth = numNodesAlongWidth*scaleFactor; //*1 because cells are considered to be size one
         mGhostNodeIndices.empty();
         
-        mMeshFilename = "2D_temporary_periodic_crypt_mesh";
+        std::stringstream pid; // Gives a unique filename
+        pid << getpid();
+        mMeshFilename = "2D_temporary_periodic_crypt_mesh_" + pid.str();
         Make2dPeriodicCryptMesh(mCryptWidth,ghosts);
-        std::string output_dir;
         OutputFileHandler output_file_handler("");
-        output_dir = output_file_handler.GetOutputDirectoryFullPath();
+        std::string output_dir = output_file_handler.GetOutputDirectoryFullPath();
         
         TrianglesMeshReader<2,2> mesh_reader(output_dir+ mMeshFilename);
         
@@ -260,6 +264,16 @@ public:
             mpMesh->ConstructFromMeshReader(mesh_reader);
             NodeMap map(mpMesh->GetNumNodes());
             mpMesh->ReMesh(map); // This makes the mesh cylindrical
+        }
+        
+        // Delete the temporary files.
+        std::string command = "rm " + output_dir + mMeshFilename + ".*";
+        int return_value = system(command.c_str()); 
+        if (return_value != 0)
+        {   // Can't figure out how to make this throw but seems as if it should be here?
+            #define COVERAGE_IGNORE
+            EXCEPTION("HoneycombMeshGenerator cannot delete temporary files\n");   
+            #undef COVERAGE_IGNORE
         }
                 
         CancerParameters::Instance()->SetCryptLength(mCryptDepth);

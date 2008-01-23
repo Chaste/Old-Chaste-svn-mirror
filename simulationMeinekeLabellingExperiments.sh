@@ -13,6 +13,6 @@ cp -r MeinekeLabellingExperiment $CHASTE_TEST_OUTPUT
 ./TestMeinekeLabellingExperimentsRunner
 date
 #Copy results back and clean up
-cp -r $CHASTE_TEST_OUTPUT/MeinekeLabellingExperiment MeinekeLabellingExperimentAfter 
+cp -r $CHASTE_TEST_OUTPUT . 
 rm -rf $CHASTE_TEST_OUTPUT
 
