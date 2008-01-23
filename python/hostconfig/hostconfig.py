@@ -63,7 +63,7 @@ libpaths = []
 incpaths = []
 libraries = []
 
-def do_petsc(version, optimised, profile=False, production=False):
+def do_petsc(version, optimised, profile=False, production=False, includes_only=False):
     """Determine PETSc include and library paths.
 
     The locations vary depending on the version of PETSc, and possibly
@@ -110,9 +110,10 @@ def do_petsc(version, optimised, profile=False, production=False):
         libpath = os.path.join(petsc_base, 'lib', build_name)
         incpaths.append(os.path.join(petsc_base, 'bmake', build_name))
     incpaths.append(os.path.join(petsc_base, 'include'))
-    libpaths.append(libpath)
-    libraries.extend(['petscts', 'petscsnes', 'petscksp', 'petscdm', 
-                      'petscmat', 'petscvec', 'petsc'])
+    if not includes_only:
+        libpaths.append(libpath)
+        libraries.extend(['petscts', 'petscsnes', 'petscksp', 'petscdm', 
+                          'petscmat', 'petscvec', 'petsc'])
 
 def do_metis():
     """Add METIS include and library paths."""
@@ -132,11 +133,22 @@ def do_dealii(build):
     if conf.dealii_path is None:
         raise ValueError('Deal.II required, but no path given in the host config.')
     base = os.path.abspath(conf.dealii_path)
+    # Check Deal.II version
+    version = open(os.path.join(base, 'Version')).read()
+    if not version.startswith('6.'):
+        # Older Deal.II requires PETSc 2.2
+        do_petsc('2_2', build.is_optimised)
+    else:
+        # Just pick up the header files
+        do_petsc('2_3', build.is_optimised, includes_only=True)
+    # Add Deal.II libraries
     libpaths.append(os.path.join(base, 'lib'))
     relative_incpaths = ['base/include', 'lac/include', 'deal.II/include']
     incpaths.extend(map(lambda relpath: os.path.join(base, relpath),
                         relative_incpaths))
     libs = ['deal_II_1d', 'deal_II_2d', 'deal_II_3d', 'lac', 'base']
+    if version.startswith('6.'):
+        libs.append('petscall')
     if build.dealii_debugging:
         libs = map(lambda s: s + '.g', libs)
     libraries.extend(libs)
@@ -144,7 +156,6 @@ def do_dealii(build):
 def configure(build):
     """Given a build object (BuildTypes.BuildType instance), configure the build."""
     if build.using_dealii:
-        do_petsc('2_2', build.is_optimised) # Deal.II only supports PETSc 2.2
         do_dealii(build)
         do_metis()
         libraries.extend(['blas', 'lapack']) # Use versions provided with Deal.II

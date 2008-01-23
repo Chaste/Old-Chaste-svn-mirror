@@ -1092,7 +1092,15 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         std::string binary_name;
         if (SPACE_DIM==2)
         {
-            binary_name="triangle";
+            if (sizeof(long)==4)
+            {
+            	//32-bit machine, so use default binary.
+            	binary_name="triangle";
+            }
+            else
+            {
+            	binary_name="triangle_64";
+            }
         }
         else
         {
