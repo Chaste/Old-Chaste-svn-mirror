@@ -14,12 +14,19 @@
 
 class FaberRudy2000Version3 : public AbstractCardiacCell
 {
+private:
+    // for heterogeneities
+    double mScaleFactorGks;
+    double mScaleFactorIto;
 public:
     FaberRudy2000Version3(AbstractIvpOdeSolver *pSolver, double dt,
                               AbstractStimulusFunction *pIntracellularStimulus,
                               AbstractStimulusFunction *pExtracellularStimulus=NULL)
         : AbstractCardiacCell(pSolver, 25, 0, dt, pIntracellularStimulus, pExtracellularStimulus)
     {
+        
+        mScaleFactorGks=1.0;
+        mScaleFactorIto=0.0;
         // Time units: second
 
         mVariableNames.push_back("V");
@@ -128,6 +135,18 @@ public:
 
     ~FaberRudy2000Version3(void)
     {
+    }
+    
+    void SetScaleFactorGks(double sfgks)
+    {
+        assert(sfgks>=0.0);
+        mScaleFactorGks=sfgks;
+    }
+    
+    void SetScaleFactorIto(double sfito)
+    {
+        assert(sfito>=0.0);
+        mScaleFactorIto=sfito;
     }
 
     void VerifyGatingVariables() {}
@@ -261,7 +280,7 @@ public:
         double var_slow_delayed_rectifier_potassium_current__Cai = var_calcium_dynamics__Cai;
         double var_slow_delayed_rectifier_potassium_current__g_Ks = 0.433 * (1.0 + (0.6 / (1.0 + pow(3.8e-05 / var_slow_delayed_rectifier_potassium_current__Cai, 1.4))));
         double var_slow_delayed_rectifier_potassium_current__V = var_membrane__V;
-        double var_slow_delayed_rectifier_potassium_current__i_Ks = var_slow_delayed_rectifier_potassium_current__g_Ks * var_slow_delayed_rectifier_potassium_current__xs1 * var_slow_delayed_rectifier_potassium_current__xs2 * (var_slow_delayed_rectifier_potassium_current__V - var_slow_delayed_rectifier_potassium_current__E_Ks);
+        double var_slow_delayed_rectifier_potassium_current__i_Ks = mScaleFactorGks*var_slow_delayed_rectifier_potassium_current__g_Ks * var_slow_delayed_rectifier_potassium_current__xs1 * var_slow_delayed_rectifier_potassium_current__xs2 * (var_slow_delayed_rectifier_potassium_current__V - var_slow_delayed_rectifier_potassium_current__E_Ks);
         double var_membrane__i_Ks = var_slow_delayed_rectifier_potassium_current__i_Ks;
         double var_sodium_activated_potassium_current__V = var_membrane__V;
         double var_sodium_activated_potassium_current__pov = 0.8 - (0.65 / (1.0 + exp((var_sodium_activated_potassium_current__V + 125.0) / 15.0)));
@@ -287,7 +306,7 @@ public:
         double var_ATP_sensitive_potassium_current__E_K = var_time_independent_potassium_current__E_K;
         double var_ATP_sensitive_potassium_current__i_K_ATP = var_ATP_sensitive_potassium_current__GKbaraATP * (var_ATP_sensitive_potassium_current__V - var_ATP_sensitive_potassium_current__E_K);
         double var_membrane__i_K_ATP = var_ATP_sensitive_potassium_current__i_K_ATP;
-        double var_transient_outward_current__g_to = 0.0 * 0.5;
+        double var_transient_outward_current__g_to = mScaleFactorIto* 0.5;
         double var_transient_outward_current__V = var_membrane__V;
         double var_transient_outward_current__E_K = var_time_independent_potassium_current__E_K;
         double var_transient_outward_current__zdv = var_transient_outward_current_zdv_gate__zdv;
@@ -540,7 +559,7 @@ public:
         double var_slow_delayed_rectifier_potassium_current__Cai = var_calcium_dynamics__Cai;
         double var_slow_delayed_rectifier_potassium_current__g_Ks = 0.433 * (1.0 + (0.6 / (1.0 + pow(3.8e-05 / var_slow_delayed_rectifier_potassium_current__Cai, 1.4))));
         double var_slow_delayed_rectifier_potassium_current__V = var_membrane__V;
-        double var_slow_delayed_rectifier_potassium_current__i_Ks = var_slow_delayed_rectifier_potassium_current__g_Ks * var_slow_delayed_rectifier_potassium_current__xs1 * var_slow_delayed_rectifier_potassium_current__xs2 * (var_slow_delayed_rectifier_potassium_current__V - var_slow_delayed_rectifier_potassium_current__E_Ks);
+        double var_slow_delayed_rectifier_potassium_current__i_Ks = mScaleFactorGks*var_slow_delayed_rectifier_potassium_current__g_Ks * var_slow_delayed_rectifier_potassium_current__xs1 * var_slow_delayed_rectifier_potassium_current__xs2 * (var_slow_delayed_rectifier_potassium_current__V - var_slow_delayed_rectifier_potassium_current__E_Ks);
         double var_membrane__i_Ks = var_slow_delayed_rectifier_potassium_current__i_Ks;
         double var_sodium_activated_potassium_current__V = var_membrane__V;
         double var_sodium_activated_potassium_current__pov = 0.8 - (0.65 / (1.0 + exp((var_sodium_activated_potassium_current__V + 125.0) / 15.0)));
@@ -566,7 +585,7 @@ public:
         double var_ATP_sensitive_potassium_current__E_K = var_time_independent_potassium_current__E_K;
         double var_ATP_sensitive_potassium_current__i_K_ATP = var_ATP_sensitive_potassium_current__GKbaraATP * (var_ATP_sensitive_potassium_current__V - var_ATP_sensitive_potassium_current__E_K);
         double var_membrane__i_K_ATP = var_ATP_sensitive_potassium_current__i_K_ATP;
-        double var_transient_outward_current__g_to = 0.0 * 0.5;
+        double var_transient_outward_current__g_to = mScaleFactorIto* 0.5;
         double var_transient_outward_current__V = var_membrane__V;
         double var_transient_outward_current__E_K = var_time_independent_potassium_current__E_K;
         double var_transient_outward_current__zdv = var_transient_outward_current_zdv_gate__zdv;

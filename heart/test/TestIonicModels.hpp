@@ -308,6 +308,56 @@ public:
         TS_ASSERT_DELTA(fr2000_ode_system_opt.GetIIonic(), 0.0002, 1e-4);
     }
     
+    
+    void TestOdeSolverForFR2000WithVariablePotassiumCurrents(void)
+    {
+        // Set stimulus
+        double magnitude = -25.5;
+        double duration  = 2.0;  // ms
+        double when = 0.0; // ms
+        InitialStimulus stimulus(magnitude, duration, when);
+        
+        double end_time = 1000.0; //ms
+        double time_step = 0.007;
+        
+        EulerIvpOdeSolver solver;
+        FaberRudy2000Version3 fr2000_ode_system_endo(&solver, time_step, &stimulus);
+        fr2000_ode_system_endo.SetScaleFactorGks(0.462);
+        fr2000_ode_system_endo.SetScaleFactorIto(0.0);
+        
+        // Solve and write to file
+        RunOdeSolverWithIonicModel(&fr2000_ode_system_endo,
+                                   end_time,
+                                   "FR2000Endo",
+                                   500, false);
+        
+        CheckCellModelResults("FR2000Endo");
+        
+        FaberRudy2000Version3 fr2000_ode_system_mid(&solver, time_step, &stimulus);
+        fr2000_ode_system_mid.SetScaleFactorGks(1.154);
+        fr2000_ode_system_mid.SetScaleFactorIto(0.85);
+        
+        // Solve and write to file
+        RunOdeSolverWithIonicModel(&fr2000_ode_system_mid,
+                                   end_time,
+                                   "FR2000Mid",
+                                   500, false);
+        
+        CheckCellModelResults("FR2000Mid");
+        
+        FaberRudy2000Version3 fr2000_ode_system_epi(&solver, time_step, &stimulus);
+        fr2000_ode_system_epi.SetScaleFactorGks(1.154);
+        fr2000_ode_system_epi.SetScaleFactorIto(1.0);
+        
+        // Solve and write to file
+        RunOdeSolverWithIonicModel(&fr2000_ode_system_epi,
+                                   end_time,
+                                   "FR2000Epi",
+                                   500, false);
+        
+        CheckCellModelResults("FR2000Epi");
+    }
+    
         
     void TestOdeSolverForFox2002WithRegularStimulus(void) throw (Exception)
     {
