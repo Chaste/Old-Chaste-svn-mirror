@@ -1,4 +1,5 @@
 Test1dBidomainProblemForEfficiency.hpp
+Test1dFibreWithHeterogeneity.hpp
 TestConvergenceNightly.hpp
 TestBidomain3D.hpp
 TestBidomainWithShocks.hpp
