@@ -63,7 +63,7 @@ public:
             mpBidomainPde(NULL)
     {
         mFixedExtracellularPotentialNodes.resize(0);
-        mRowMeanPhiEZero = 1;
+        mRowMeanPhiEZero = INT_MAX;
     }
     
     /**

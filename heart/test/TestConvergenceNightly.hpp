@@ -101,8 +101,8 @@ public:
     //This is much longer (1 hour?) with default ksp
     void Test2DSpaceSymmLq() throw(Exception)
     {
-        //PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "jacobi");
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
         tester.KspRtol=5e-8;

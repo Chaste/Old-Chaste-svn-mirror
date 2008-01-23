@@ -34,8 +34,8 @@ public:
     //Copied from projects/jmpf
     void Test3DSpace10() throw(Exception)
     {
-        //PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "jacobi");
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
         tester.KspRtol=1e-10;

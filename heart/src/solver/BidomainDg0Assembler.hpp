@@ -61,6 +61,7 @@ private:
     double mIExtracellularStimulus;
     
     bool mNullSpaceCreated;
+
     Vec mExternalVoltageMask;
     std::vector<unsigned> mFixedExtracellularPotentialNodes;
     
@@ -231,109 +232,110 @@ private:
      *  FinaliseAssembleSystem
      * 
      *  Called by AbstractLinearAssmebler::AssembleSystem() after the system
-     *  has been assembled. Here, used to set up a null basis.
+     *  has been assembled. Here, used to avoid problems with phi_e drifting
+     *  by one of 3 methods: pinning nodes, using a null space, or using an
+     *  "average phi_e = 0" row.
      */
     virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime)
     {
-         //\todo #638 - this won't work in 3D with symmlq and bjacobi
-         if ( mFixedExtracellularPotentialNodes.size()==0) 
-         {
-            //Set average phi_e to zero            
-            unsigned matrix_size = this->mpLinearSystem->GetSize(); 
-            if (!this->mMatrixIsAssembled)
+        if (mFixedExtracellularPotentialNodes.empty())
+        {
+            // We're not pinning any nodes.
+            if (mRowMeanPhiEZero==INT_MAX)
             {
-                
-                // Set the mRowMeanPhiEZero-th matrix row to 0 1 0 1 ...
-                this->mpLinearSystem->ZeroMatrixRow(mRowMeanPhiEZero);
-                for (unsigned col_index=0; col_index<matrix_size; col_index++)
+                // We're not using the mean phi_e method, hence use a null space
+                if (!mNullSpaceCreated)
                 {
-                    if (col_index%2 == 1)
+                    // No null space set up, so create one and pass it to the linear system
+                    Vec nullbasis[1];
+                    nullbasis[0]=DistributedVector::CreateVec(2);
+                    DistributedVector dist_null_basis(nullbasis[0]);
+                    DistributedVector::Stripe null_basis_stripe_0(dist_null_basis,0);
+                    DistributedVector::Stripe null_basis_stripe_1(dist_null_basis,1);
+                    for (DistributedVector::Iterator index = DistributedVector::Begin();
+                         index != DistributedVector::End();
+                         ++index)
                     {
-                        this->mpLinearSystem->SetMatrixElement(mRowMeanPhiEZero, col_index, 1);
+                        null_basis_stripe_0[index] = 0;
+                        null_basis_stripe_1[index] = 1;
                     }
-                }
-                this->mpLinearSystem->AssembleFinalLhsMatrix();
-                
-            }
-            // Set the mRowMeanPhiEZero-th rhs vector row to 0
-            this->mpLinearSystem->SetRhsVectorElement(mRowMeanPhiEZero, 0);
-            
-            this->mpLinearSystem->AssembleRhsVector();
-            //Temporary - ignore the rest of this method
-         }
-         return;
-         
-        // if there are no fixed nodes then set up the null basis.
-        if ( (mFixedExtracellularPotentialNodes.size()==0) && (!mNullSpaceCreated) )
-        {
-            //create null space for matrix and pass to linear system
-            Vec nullbasis[1];
-            nullbasis[0]=DistributedVector::CreateVec(2);
-            DistributedVector dist_null_basis(nullbasis[0]);
-            DistributedVector::Stripe null_basis_stripe_0(dist_null_basis,0);
-            DistributedVector::Stripe null_basis_stripe_1(dist_null_basis,1);
-            for (DistributedVector::Iterator index = DistributedVector::Begin();
-                 index != DistributedVector::End();
-                 ++index)
-            {
-                null_basis_stripe_0[index] = 0;
-                null_basis_stripe_1[index] = 1;
-            }
-            dist_null_basis.Restore();
-
-            this->mpLinearSystem->SetNullBasis(nullbasis, 1);
-            
-            VecDestroy(nullbasis[0]);
-            mNullSpaceCreated = true;
-            
-            //Make a mask to use if we need to shift the external voltage
-            VecDuplicate(currentSolution, &mExternalVoltageMask);
-            DistributedVector mask(mExternalVoltageMask);
-            DistributedVector::Stripe v_m(mask,0);
-            DistributedVector::Stripe phi_e(mask,1);
-            for (DistributedVector::Iterator index = DistributedVector::Begin();
-                 index != DistributedVector::End();
-                 ++index)
-            {
-                v_m[index] = 0.0;
-                phi_e[index] = 1.0;
-            }
-            mask.Restore();
-            
-        }
+                    dist_null_basis.Restore();
         
-        if ( mFixedExtracellularPotentialNodes.size() == 0)
-        {
-            //Try to fudge the solution vector with respect to the external voltage
-            //Find the largest absolute value
-            double min, max;
-
+                    this->mpLinearSystem->SetNullBasis(nullbasis, 1);
+                    
+                    VecDestroy(nullbasis[0]);
+                    mNullSpaceCreated = true;
+                    
+                    //Make a mask to use if we need to shift the external voltage
+                    VecDuplicate(currentSolution, &mExternalVoltageMask);
+                    DistributedVector mask(mExternalVoltageMask);
+                    DistributedVector::Stripe v_m(mask,0);
+                    DistributedVector::Stripe phi_e(mask,1);
+                    for (DistributedVector::Iterator index = DistributedVector::Begin();
+                         index != DistributedVector::End();
+                         ++index)
+                    {
+                        v_m[index] = 0.0;
+                        phi_e[index] = 1.0;
+                    }
+                    mask.Restore();
+                }
+                //Try to fudge the solution vector with respect to the external voltage
+                //Find the largest absolute value
+                double min, max;
+    
 #if (PETSC_VERSION_MINOR == 2) //Old API
-            PetscInt position;
-            VecMax(currentSolution, &position, &max);  
-            VecMin(currentSolution, &position, &min);
+                PetscInt position;
+                VecMax(currentSolution, &position, &max);  
+                VecMin(currentSolution, &position, &min);
 #else
-            VecMax(currentSolution, PETSC_NULL, &max);  
-            VecMin(currentSolution, PETSC_NULL, &min);
+                VecMax(currentSolution, PETSC_NULL, &max);  
+                VecMin(currentSolution, PETSC_NULL, &min);
 #endif
-            if ( -min > max ) 
-            {
-                //Largest value is negative
-                max=min;
-            }  
-            //Standard transmembrane potentials are within +-100 mV
-            if (fabs(max) > 500)
-            {
+                if ( -min > max ) 
+                {
+                    //Largest value is negative
+                    max=min;
+                }  
+                //Standard transmembrane potentials are within +-100 mV
+                if (fabs(max) > 500)
+                {
 #define COVERAGE_IGNORE
-                // std::cout<<"warning: shifting phi_e by "<<-max<<"\n";
-                //Use mask currentSolution=currentSolution - max*mExternalVoltageMask
+                    // std::cout<<"warning: shifting phi_e by "<<-max<<"\n";
+                    //Use mask currentSolution=currentSolution - max*mExternalVoltageMask
 #if (PETSC_VERSION_MINOR == 2) //Old API
-                max *= -1;
-                VecAXPY(&max, mExternalVoltageMask, currentSolution);
+                    max *= -1;
+                    VecAXPY(&max, mExternalVoltageMask, currentSolution);
 #else
-                VecAXPY(currentSolution, -max, mExternalVoltageMask);
+                    VecAXPY(currentSolution, -max, mExternalVoltageMask);
 #endif
 #undef COVERAGE_IGNORE
+                }
+            }
+            else
+            {
+                // mRowMeanPhiEZero!=INT_MAX, i.e. we're using the mean phi_e method
+                //Set average phi_e to zero            
+                unsigned matrix_size = this->mpLinearSystem->GetSize(); 
+                if (!this->mMatrixIsAssembled)
+                {
+                    
+                    // Set the mRowMeanPhiEZero-th matrix row to 0 1 0 1 ...
+                    this->mpLinearSystem->ZeroMatrixRow(mRowMeanPhiEZero);
+                    for (unsigned col_index=0; col_index<matrix_size; col_index++)
+                    {
+                        if (col_index%2 == 1)
+                        {
+                            this->mpLinearSystem->SetMatrixElement(mRowMeanPhiEZero, col_index, 1);
+                        }
+                    }
+                    this->mpLinearSystem->AssembleFinalLhsMatrix();
+                    
+                }
+                // Set the mRowMeanPhiEZero-th rhs vector row to 0
+                this->mpLinearSystem->SetRhsVectorElement(mRowMeanPhiEZero, 0);
+                
+                this->mpLinearSystem->AssembleRhsVector();
             }
         }
     }
@@ -371,7 +373,7 @@ public:
         
         mFixedExtracellularPotentialNodes.resize(0);
         
-        mRowMeanPhiEZero = 1; //this->mpLinearSystem->GetSize() - 1;
+        mRowMeanPhiEZero = INT_MAX; //this->mpLinearSystem->GetSize() - 1;
         
     }
     

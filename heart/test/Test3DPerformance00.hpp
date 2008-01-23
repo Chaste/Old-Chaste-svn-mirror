@@ -22,8 +22,8 @@ public:
     void TestPerf() throw(Exception)
     {
         // solver and preconditioner options
-        //PetscOptionsSetValue("-ksp_type", "symmlq");
-        PetscOptionsSetValue("-pc_type", "jacobi");
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
 
         // write headings
