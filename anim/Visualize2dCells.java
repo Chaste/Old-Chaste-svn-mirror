@@ -39,6 +39,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static boolean drawCylinder = false;
     public static boolean drawCylinderOverride = true;
     public static boolean setupFilePresent = false;
+    public static boolean fibresFilePresent = false;
+    public static boolean nutrientFilePresent = false;
+    public static boolean betaCateninFilePresent = false;
+    public static boolean stressFilePresent = false;
     
     public static int timeStep = 0;
     public static int delay = 50;
@@ -175,6 +179,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             drawCells = state;
             if (state)
             {
+            	drawBetaCatenin = false;
+            	beta_catenin.setState(false);
             	drawCircles = false;
                 circles.setState(false);
             }
@@ -205,6 +211,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             drawBetaCatenin = state;
             if (state)
             {
+            	drawCells = false;
+            	cells.setState(false);
             	circles.setState(false);
             	circles.setVisible(false);
             	drawCircles = false;
@@ -411,6 +419,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             else if (args[i].equals("betacatenin"))
             {
             	drawBetaCatenin = true;
+            	drawCells = false;
+            	cells.setState(false);
                 beta_catenin.setState(true);
             }
             else if (args[i].equals("notcylindrical"))
@@ -444,11 +454,19 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             nutrient.setState(false);
             drawNutrient = false;
         }
+        else
+        {
+        	nutrientFilePresent = true;
+        }
         if (!beta_catenin_file.isFile())
         {
             beta_catenin.setVisible(false);
             beta_catenin.setState(false);
             drawBetaCatenin = false;
+        }
+        else
+        {
+        	betaCateninFilePresent = true;
         }
         if (!stress_file.isFile())
         {
@@ -464,7 +482,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         	average_stress.setState(true);
             difference_stress.setState(false);
             drawAverageStress = true;
-            drawDifferenceStress = false;        	
+            drawDifferenceStress = false;
+            stressFilePresent = false;
         }
     
         File fibre_file = new File(args[0]+"/vis_results/results.vizfibres");
@@ -476,7 +495,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         else 
         {
             fibre.setState(true);
-            drawFibres = true; 
+            drawFibres = true;
+            fibresFilePresent = true;
         }
         
         File setup_file = new File(args[0]+"/vis_results/results.vizsetup");
@@ -509,14 +529,26 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             numCells = new int[num_lines];
             numElements = new int[num_lines];
             element_nodes = new int[num_lines][];
-            image_cells = new int[num_lines][];            
-            fibres =  new RealPoint[num_lines][];
-            nutrient_values = new double[num_lines][]; 
-            beta_catenin_values = new double[num_lines][][]; 
-            stress_values = new double[num_lines][][]; 
+            image_cells = new int[num_lines][];
+            if (fibresFilePresent)
+            {
+            	fibres =  new RealPoint[num_lines][];
+            }
+            if (nutrientFilePresent)
+            {
+            	nutrient_values = new double[num_lines][];
+            }
+            if (betaCateninFilePresent)
+            {
+            	beta_catenin_values = new double[num_lines][][];
+            }
+            if (stressFilePresent)
+            {
+            	stress_values = new double[num_lines][][];
+            }
+            
             String line_fibre = "";
             BufferedReader in_fibre_file = null;
-
             if (drawFibres)
             {
                 fibres = new RealPoint[num_lines][]; 
@@ -552,6 +584,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     {
                         drawBetaCatenin = true;
                         beta_catenin.setState(true);
+                        drawCells = false;
+                        cells.setState(false);
                         circles.setVisible(false);
                     }
                     line_setup = in_setup_file.readLine();
@@ -559,31 +593,31 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             }
 
             String line_nutrient = "";
-            BufferedReader in_nutrient_file = null;
-            if (drawNutrient)
-            {
-                nutrient_values = new double[num_lines][]; 
-                in_nutrient_file = new BufferedReader(new FileReader(nutrient_file));
-                line_nutrient = in_nutrient_file.readLine();
-            }
-            
-            String line_beta_catenin = "";
-            BufferedReader in_beta_catenin_file = null;
-            if (drawBetaCatenin)
-            {
-                beta_catenin_values = new double[num_lines][][]; 
-                in_beta_catenin_file = new BufferedReader(new FileReader(beta_catenin_file));
-                line_beta_catenin = in_beta_catenin_file.readLine();
-            }
-            
-            String line_stress = "";
-            BufferedReader in_stress_file = null;
-            if (drawAverageStress || drawDifferenceStress)
-            {
-                stress_values = new double[num_lines][][]; 
-                in_stress_file = new BufferedReader(new FileReader(stress_file));
-                line_stress = in_stress_file.readLine();
-            }
+           	BufferedReader in_nutrient_file = null;
+           	if (drawNutrient)
+           	{
+               	nutrient_values = new double[num_lines][]; 
+               	in_nutrient_file = new BufferedReader(new FileReader(nutrient_file));
+               	line_nutrient = in_nutrient_file.readLine();
+           	}
+
+           	String line_beta_catenin = "";
+           	BufferedReader in_beta_catenin_file = null;
+           	if (drawBetaCatenin)
+           	{
+               	beta_catenin_values = new double[num_lines][][]; 
+               	in_beta_catenin_file = new BufferedReader(new FileReader(beta_catenin_file));
+               	line_beta_catenin = in_beta_catenin_file.readLine();
+           	}
+          
+           	String line_stress = "";
+           	BufferedReader in_stress_file = null;
+           	if (drawAverageStress || drawDifferenceStress)
+           	{
+               	stress_values = new double[num_lines][][]; 
+               	in_stress_file = new BufferedReader(new FileReader(stress_file));
+               	line_stress = in_stress_file.readLine();
+           	}
             
             BufferedReader in_node_file = new BufferedReader(new FileReader(node_file));
             BufferedReader in_element_file = new BufferedReader(new FileReader(element_file));
@@ -684,10 +718,22 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 
                 numElements[row] = st_element.countTokens()/3;
                 positions[row] = new RealPoint[memory_factor*numCells[row]];
-                fibres[row] = new RealPoint[numCells[row]];
-                nutrient_values[row] = new double[2*numCells[row]];
-                beta_catenin_values[row] = new double[2*numCells[row]][3];
-                stress_values[row] = new double[2*numCells[row]][2];
+                if (fibresFilePresent)
+                {
+                	fibres[row] = new RealPoint[numCells[row]];
+                }
+                if (nutrientFilePresent)
+                {
+                	nutrient_values[row] = new double[2*numCells[row]];
+                }
+                if (betaCateninFilePresent)
+                {
+                	beta_catenin_values[row] = new double[2*numCells[row]][3];
+                }
+                if (stressFilePresent)
+                {
+                	stress_values[row] = new double[2*numCells[row]][2];
+                }
                 cell_type[row]= new int[memory_factor*numCells[row]];
                 element_nodes[row] = new int[memory_factor*3*numElements[row]];
 
