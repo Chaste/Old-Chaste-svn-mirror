@@ -1050,6 +1050,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
 //    }
     std::stringstream pid;
     pid<<getpid();
+    
     OutputFileHandler handler("");
     std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp_"+pid.str()+".";
     
@@ -1127,9 +1128,12 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         	}
         }
     }
-    // Wait for the new mesh to be available
+    // Wait for the new mesh to be available and communicate its name
 #ifndef SPECIAL_SERIAL
-    PetscTools::Barrier();
+    char full_name_comm[200];
+    strcpy(full_name_comm, full_name.c_str());
+    MPI_Bcast(full_name_comm, 200, MPI_CHAR, 0, MPI_COMM_WORLD);
+    full_name=full_name_comm;
 #endif //SPECIAL_SERIAL
     
     // clear all current data
@@ -1139,8 +1143,11 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(full_name+"1");    
     ConstructFromMeshReader(mesh_reader);
     
-    std::string remove_command = "rm "+ full_name+"*";
-    system(remove_command.c_str());
+    if (handler.IsMaster())
+    {
+    	std::string remove_command = "rm "+ full_name+"*";
+        system(remove_command.c_str());
+    }
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
