@@ -25,6 +25,7 @@
 #include "SimulationTime.hpp"
 #include "AbstractCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
+#include "Meineke2001SpringSystem.hpp"
 
 class TestMakeNiceCryptSimsAlexW : public CxxTest::TestSuite
 {
@@ -179,12 +180,12 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
         // There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000);
         
-        std::string output_directory = "Noddy_WNT_No_Area_No_Length";
-        double time_of_each_run = 1.0; // for each run
+        std::string output_directory = "Noddy_WNT_Yes_Area_Yes_Length";
+        double time_of_each_run = 0.10; // for each run
         
-        unsigned cells_across = 23;
-        unsigned cells_up = 30;
-        double crypt_width = 20.1;
+        unsigned cells_across = 10;
+        unsigned cells_up = 15;
+        double crypt_width = 9.1;
         unsigned thickness_of_ghost_layer = 3;
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
@@ -204,12 +205,15 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
         WntGradient::Instance()->SetType(LINEAR);
         WntGradient::Instance()->SetTissue(crypt);
         
+//        AbstractDiscreteTissueMechanicsSystem<2>* p_spring_system;
+//        p_spring_system = new Meineke2001SpringSystem(crypt);
+//        Meineke2001SpringSystem<2> p_meineke_spring_system;
+//        p_meineke_spring_system = new Meineke2001SpringSystem(crypt);
+//        Meineke2001SpringSystem<2> meineke_spring_system(crypt);
+//        meineke_spring_system.SetAreaBasedViscosity(false);
+//        meineke_spring_system.SetEdgeBasedSpringConstant(false);
         
-        Meineke2001SpringSystem<2> meineke_spring_system(crypt);
-        //meineke_spring_system.SetAreaBasedViscosity(false);
-        //meineke_spring_system.SetEdgeBasedSpringConstant(false);
-        
-        CryptSimulation2d simulator(crypt), &meineke_spring_system, true, true);
+        CryptSimulation2d simulator(crypt);//, p_meineke_spring_system, false, true);
         simulator.SetOutputDirectory(output_directory);
         
         // Set simulation to output cell types
@@ -238,7 +242,7 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
         std::cout<< "About to solve " << output_directory << "\n" << std::flush;
         simulator.Solve();
         simulator.Save();
-        double end_of_simulation = 4.0; // hours
+        double end_of_simulation = 0.5; // hours
         
         std::cout<< "Going into loop \n" << std::flush;
         
@@ -249,15 +253,13 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
             p_simulator->SetEndTime(t+time_of_each_run);
             p_simulator->Solve();
             p_simulator->Save();
-            std::cout<< "Saved and stuff \n" << std::flush;
             delete p_simulator;
-            std::cout<< "deleted \n" << std::flush;
         }
-                
         delete p_cell_killer;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
         WntGradient::Destroy();
+        std::cout<< "Finished \n" << std::flush;
     }
 std::vector<unsigned> Label()
 {
