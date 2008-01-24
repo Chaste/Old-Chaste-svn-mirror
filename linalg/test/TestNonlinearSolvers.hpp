@@ -9,7 +9,7 @@
 #include "ReplicatableVector.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
-
+#include "limits.h"
 
 
 
@@ -17,12 +17,30 @@ PetscErrorCode ComputeTestResidual(SNES snes,Vec solution_guess,Vec residual,voi
 PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
 PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solution_guess,Vec residual,void *pContext);
 PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
-PetscErrorCode ComputeBadTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
 
 class TestNonlinearSolvers : public CxxTest::TestSuite
 {
 public:
-
+   void TestNonlinearProblemException(void) throw (Exception)
+    {
+        SimpleNewtonNonlinearSolver solver_newton;
+        
+        
+        // Set up solution guess for residuals
+        int length=2;
+        
+        // Set up initial Guess
+        Vec initial_guess;
+        VecCreate(PETSC_COMM_WORLD, &initial_guess);
+        VecSetSizes(initial_guess, PETSC_DECIDE,length);
+        VecSetFromOptions(initial_guess);
+        VecSetValue(initial_guess, 0, -1e16, INSERT_VALUES);
+        VecSetValue(initial_guess, 1, -1e8, INSERT_VALUES);
+        VecAssemblyBegin(initial_guess);
+        VecAssemblyEnd(initial_guess);
+        TS_ASSERT_THROWS_ANYTHING(solver_newton.Solve(&ComputeTestResidual, &(ComputeTestJacobian), initial_guess, NULL));
+    }
+  
     void TestOn2dNonlinearProblem(void) throw (Exception)
     {
         SimplePetscNonlinearSolver solver_petsc;
@@ -43,7 +61,6 @@ public:
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
-        
         // solve using petsc solver
         Vec answer_petsc = solver_petsc.Solve(&ComputeTestResidual, &ComputeTestJacobian,
                                               initial_guess, NULL);
@@ -52,8 +69,6 @@ public:
         Vec answer_newton = solver_newton.Solve(&ComputeTestResidual, &ComputeTestJacobian,
                                                 initial_guess, NULL);
                                                 
-        // cover the residual increases exception (note the ComputeBADTestJacobian is passed in here)
-        TS_ASSERT_THROWS_ANYTHING(solver_newton.Solve(&ComputeTestResidual, &ComputeBadTestJacobian, initial_guess, NULL));
         
         
         // replicate the answers so we can access them without worrying about parallel stuff
@@ -78,7 +93,7 @@ public:
     
     void TestOn3dNonlinearProblem(void) throw (Exception)
     {
-        SimplePetscNonlinearSolver solver_petsc;
+         SimplePetscNonlinearSolver solver_petsc;
         SimpleNewtonNonlinearSolver solver_newton;
         
         // Set up solution guess for residuals
@@ -134,7 +149,11 @@ public:
         VecDestroy(initial_guess);
         VecDestroy(answer_petsc);
         VecDestroy(answer_newton);
-    }
+    } 
+
+
+ 
+
 };
 
 
@@ -216,27 +235,6 @@ PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pP
     MatSetValue(*pJacobian, 2 , 0 , 0.0, INSERT_VALUES);
     MatSetValue(*pJacobian, 2 , 1 , 1.0, INSERT_VALUES);
     MatSetValue(*pJacobian, 2 , 2 , -1.0, INSERT_VALUES);
-    MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
-    MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
-    
-    return 0;
-}
-
-// bad jacobian (used to cover an exception)
-PetscErrorCode ComputeBadTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext)
-{
-    double x, y;
-    
-    ReplicatableVector input_replicated;
-    input_replicated.ReplicatePetscVector(input);
-    
-    x = input_replicated[0];
-    y = input_replicated[1];
-    
-    MatSetValue(*pJacobian, 0 , 0 , 35 , INSERT_VALUES);
-    MatSetValue(*pJacobian, 0 , 1 , 343, INSERT_VALUES);
-    MatSetValue(*pJacobian, 1 , 0 , 45, INSERT_VALUES);
-    MatSetValue(*pJacobian, 1 , 1 , 2343, INSERT_VALUES);
     MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
     
