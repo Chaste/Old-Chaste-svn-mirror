@@ -96,18 +96,19 @@ public:
     }
     
     /**
-     *  
-     * 
+     * Set which row of the linear system should be used to enforce the
+     * condition that the mean of phi_e is zero.  If not called, this
+     * condition will not be used.
      */    
     void SetRowForMeanPhiEToZero(unsigned rowMeanPhiEZero)
     {
-        // Row should be odd in C++-like indexing 
+        // Row should be odd in C++-like indexing
         if (rowMeanPhiEZero % 2 == 0)
         {
-            EXCEPTION("Row for meaning phi_e to zero should be odd in C++ like indexing");   
+            EXCEPTION("Row for enforcing mean phi_e = 0 should be odd in C++ style indexing");
         }
         
-        mRowMeanPhiEZero = rowMeanPhiEZero;      
+        mRowMeanPhiEZero = rowMeanPhiEZero;
     }
     
     /**

@@ -128,16 +128,18 @@ public:
         
         // Check rows 1, 51, 101, 151, 201, ...
         for (unsigned row_to_mean_phi=1; row_to_mean_phi<2*bidomain_problem.rGetMesh().GetNumNodes(); row_to_mean_phi=row_to_mean_phi+50)
-        {   
+        {
             bidomain_problem.Initialise();
-        
+            
             bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
             bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
             bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
             bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
-
-            bidomain_problem.SetRowForMeanPhiEToZero(row_to_mean_phi);     
-                            
+            
+            // First line is for coverage
+            TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetRowForMeanPhiEToZero(row_to_mean_phi-1));
+            bidomain_problem.SetRowForMeanPhiEToZero(row_to_mean_phi);
+            
             try
             {
                 bidomain_problem.Solve();
@@ -146,11 +148,11 @@ public:
             {
                 TS_FAIL(e.GetMessage());
             }
-           
+            
             DistributedVector striped_voltage(bidomain_problem.GetVoltage());
             DistributedVector::Stripe voltage(striped_voltage,0);
             DistributedVector::Stripe phi_e(striped_voltage,1);
-    
+            
             for (DistributedVector::Iterator index = DistributedVector::Begin();
                  index != DistributedVector::End();
                  ++index)
@@ -218,6 +220,13 @@ public:
             TS_ASSERT_DELTA(total_phi_e, 0, 1e-4);
             
         }
+
+	// Coverage of the exception in the assembler itself
+	BidomainDg0Assembler<1,1>* p_bidomain_assembler
+            = new BidomainDg0Assembler<1,1>(&bidomain_problem.rGetMesh(),
+					    bidomain_problem.GetBidomainPde(),
+					    2, 1e-9);
+	TS_ASSERT_THROWS_ANYTHING(p_bidomain_assembler->SetRowForMeanPhiEToZero(0));
     }    
 
     /*
