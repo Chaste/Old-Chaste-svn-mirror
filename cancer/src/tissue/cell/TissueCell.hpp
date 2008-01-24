@@ -28,7 +28,6 @@ private:
         archive & mCellType;
         archive & mMutationState;
         archive & mpCellCycleModel;
-
         archive & mNodeIndex;
         archive & mUndergoingApoptosis;
         archive & mDeathTime;

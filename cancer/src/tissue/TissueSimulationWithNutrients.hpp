@@ -43,15 +43,37 @@ private :
     	    mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");
     	    *this->mpSetupFile << "Nutrient \n" ;
     	}
+        double time = SimulationTime::Instance()->GetDimensionalisedTime();
+            
+        (*mpNutrientResultsFile) << time << "\t";
         
-        
+        unsigned global_index; 
+        double x;
+        double y;
+        double nutrient;
+
+        for (typename Tissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+             cell_iter != this->mrTissue.End();
+             ++cell_iter)
+        {
+            global_index = cell_iter.GetNode()->GetIndex();
+            x = cell_iter.rGetLocation()[0];
+            y = cell_iter.rGetLocation()[1];
+                
+            nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
+                
+            (*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
+        }            
+        (*mpNutrientResultsFile) << "\n";
     } 
     
     void WriteNutrient()
     {
     	if (PetscTools::AmMaster())
     	{
-    	    (*mpNutrientResultsFile) <<  SimulationTime::Instance()->GetDimensionalisedTime() << "\t";
+            double time = SimulationTime::Instance()->GetDimensionalisedTime() + SimulationTime::Instance()->GetTimeStep();
+    	    
+            (*mpNutrientResultsFile) << time << "\t";
             
     	    unsigned global_index; 
     	    double x;
@@ -71,15 +93,14 @@ private :
         		(*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
     	    }            
     	    (*mpNutrientResultsFile) << "\n";
-    	}
+        }
     }
         
     void SetupSolve()
     {
         if ( this->mrTissue.Begin() != this->mrTissue.End() )  // there are any cells
         {
-            SetupWriteNutrient();
-            WriteNutrient();            
+            SetupWriteNutrient();     
         }
     }
         
@@ -185,9 +206,9 @@ private :
             double oxygen_conc = result_repl[i];
             CellwiseData<DIM>::Instance()->SetValue(oxygen_conc, r_mesh.GetNode(i));
         }
-        
+   
         // Save results to file
-        if (SimulationTime::Instance()->GetTimeStepsElapsed()%this->mSamplingTimestepMultiple==0)
+        if ((SimulationTime::Instance()->GetTimeStepsElapsed()+1)%this->mSamplingTimestepMultiple==0)
         {
             WriteNutrient();
         }
@@ -262,7 +283,8 @@ public:
         *this->mpSetupFile << "FinalMeshSize\t" << std::max((this)->mrTissue.rGetMesh().GetWidth(0u),(this)->mrTissue.rGetMesh().GetWidth(1u));
         this->mpSetupFile->close();
     }
-    
+
+
     /**
      * Saves the whole tissue simulation for restarting later.
      *
@@ -279,9 +301,8 @@ public:
     {
         CommonSave(this);
     }
-    
 
-    /**
+     /**
      * Loads a saved tissue simulation to run further.
      *
      * @param rArchiveDirectory the name of the simulation to load

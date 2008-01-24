@@ -438,7 +438,7 @@ template<unsigned DIM>
 unsigned Tissue<DIM>::GetNumRealCells()
 {
 	unsigned counter = 0;
-	for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
+	for(Iterator cell_iter=Begin(); cell_iter!=End(); ++cell_iter)
 	{
 		counter++;
 	}

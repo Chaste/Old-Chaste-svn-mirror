@@ -364,7 +364,7 @@ std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNode
 
 
 /**
- * Main Solve method.
+ * Main Solve method
  */
 template<unsigned DIM> 
 void TissueSimulation<DIM>::Solve()
@@ -415,7 +415,7 @@ void TissueSimulation<DIM>::Solve()
      * Age the cells to the correct time (cells set up with negative birth dates
      * to give some that are almost ready to divide).
      * 
-     * TODO:For some strange reason this seems to take about 3 minutes for a realistic Wnt-Crypt.
+     * TODO: For some strange reason this seems to take about 3 minutes for a realistic Wnt-Crypt.
      * Not sure why - when the same code was evaluated in a test it seemed almost instant.
      */
     LOG(1, "Setting up cells...");
@@ -462,7 +462,9 @@ void TissueSimulation<DIM>::Solve()
     // Main time loop
     /////////////////////////////////////////////////////////////////////
     while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
-    {        
+    {           
+        PreSolve();        
+            
         LOG(1, "--TIME = " << p_simulation_time->GetDimensionalisedTime() << "\n");
         
         // Remove dead cells before doing birth
@@ -495,15 +497,14 @@ void TissueSimulation<DIM>::Solve()
         }
         CancerEventHandler::EndEvent(REMESH);
 
-
-        CancerEventHandler::BeginEvent(TESSELLATION);
+		CancerEventHandler::BeginEvent(TESSELLATION);
         if(mWriteVoronoiData || mpMechanicsSystem->NeedsVoronoiTessellation() || mWriteTissueAreas)
         {
             mrTissue.CreateVoronoiTessellation();
         }
         CancerEventHandler::EndEvent(TESSELLATION);
 
-        //  Calculate node velocities
+        // Calculate node velocities
         CancerEventHandler::BeginEvent(VELOCITY);
         std::vector<c_vector<double, DIM> >& drdt = mpMechanicsSystem->rCalculateVelocitiesOfEachNode();
         CancerEventHandler::EndEvent(VELOCITY);
@@ -513,6 +514,8 @@ void TissueSimulation<DIM>::Solve()
         UpdateNodePositions(drdt);
         CancerEventHandler::EndEvent(POSITION);
      
+        PostSolve();
+        
         // Increment simulation time here, so results files look sensible
         p_simulation_time->IncrementTimeOneStep();
         
@@ -533,8 +536,7 @@ void TissueSimulation<DIM>::Solve()
                 p_voronoi_data_writer->WriteTissueAreas();
             }
         }
-
-        PostSolve();
+        
         CancerEventHandler::EndEvent(OUTPUT);
     }
 

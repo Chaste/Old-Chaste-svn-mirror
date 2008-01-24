@@ -211,6 +211,13 @@ protected:
     virtual void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt);
     
     /** 
+     *  A method for subclasses to do something at the start of each timestep
+     */
+    virtual void PreSolve()
+    {
+    }
+    
+    /** 
      *  A method for subclasses to do something at the end of each timestep
      */
     virtual void PostSolve()

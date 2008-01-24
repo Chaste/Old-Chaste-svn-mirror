@@ -171,7 +171,7 @@ private :
     void WriteBetaCatenin()
     {
         SimulationTime *p_simulation_time = SimulationTime::Instance();
-        double time = p_simulation_time->GetDimensionalisedTime();
+        double time = p_simulation_time->GetDimensionalisedTime() + p_simulation_time->GetTimeStep();
         
         *mBetaCatResultsFile <<  time << "\t";
         
@@ -206,13 +206,41 @@ private :
             && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
         {
             SetupWriteBetaCatenin();
-            WriteBetaCatenin();
+            
+            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            
+            *mBetaCatResultsFile <<  time << "\t";
+            
+            double global_index;
+            double x;
+            double y;
+            double b_cat_membrane;
+            double b_cat_cytoplasm;
+            double b_cat_nuclear;
+            for (Tissue<2>::Iterator cell_iter = mrTissue.Begin();
+                 cell_iter != mrTissue.End();
+                 ++cell_iter)
+            {
+                // \todo: don't need this anymore since there'are no ghost nodes,
+                // but we'd need to change the visualizer before we take this out
+                global_index = (double) cell_iter.GetNode()->GetIndex();
+                x = cell_iter.rGetLocation()[0];
+                y = cell_iter.rGetLocation()[1];
+                b_cat_membrane = cell_iter->GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
+                b_cat_cytoplasm = cell_iter->GetCellCycleModel()->GetCytoplasmicBetaCateninLevel();
+                b_cat_nuclear = cell_iter->GetCellCycleModel()->GetNuclearBetaCateninLevel();
+                
+                *mBetaCatResultsFile << global_index << " " << x << " " << y << " " << b_cat_membrane << " " << b_cat_cytoplasm << " " << b_cat_nuclear << " ";
+            }
+    
+            *mBetaCatResultsFile << "\n";
         }
     }
     
     void PostSolve()
     {
-        if (SimulationTime::Instance()->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
+        if ((SimulationTime::Instance()->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple==0)
         {
             if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
                 && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
