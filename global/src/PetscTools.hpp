@@ -24,6 +24,12 @@ public :
      */
     static bool IsSequential()
     {
+        PetscTruth is_there;
+        PetscInitialized(&is_there);
+        if (!is_there)
+        {
+        	return true;
+        }
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
         return (num_procs==1);

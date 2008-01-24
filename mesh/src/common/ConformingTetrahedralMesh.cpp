@@ -1130,10 +1130,13 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     }
     // Wait for the new mesh to be available and communicate its name
 #ifndef SPECIAL_SERIAL
-    char full_name_comm[200];
-    strcpy(full_name_comm, full_name.c_str());
-    MPI_Bcast(full_name_comm, 200, MPI_CHAR, 0, MPI_COMM_WORLD);
-    full_name=full_name_comm;
+    if (!PetscTools::IsSequential())
+    {
+        char full_name_comm[200];
+ 	    strcpy(full_name_comm, full_name.c_str());
+        MPI_Bcast(full_name_comm, 200, MPI_CHAR, 0, MPI_COMM_WORLD);
+        full_name=full_name_comm;
+    }
 #endif //SPECIAL_SERIAL
     
     // clear all current data
