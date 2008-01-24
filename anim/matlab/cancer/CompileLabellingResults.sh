@@ -7,19 +7,20 @@
 # section below.
 
 # BEGIN SETUP
-results=/local/pmxgm/Simulation_Results/sunter1
-run[0]="2008-01-10-09-43"
-run[1]="2008-01-10-09-50"
-run[2]="2008-01-10-10-01"
-run[3]="2008-01-10-09-48"
-run[4]="2008-01-10-09-58"
+results=/local/pmxgm/
+run[0]="2008-01-23-18-35"
+run[1]="2008-01-23-18-37"
+run[2]="2008-01-23-18-39"
+run[3]="2008-01-23-18-47"
+run[4]="2008-01-23-18-49"
 first_experiment=300
-last_experiment=800
+last_experiment=790
 # END OF SETUP
 
 if cd $results; then
 	rm -f first_lines.txt
 	rm -f last_lines.txt
+	rm -rf compiled_results
 else
 	echo "Could not change directory! Aborting." 1>&2
 	exit 1
@@ -33,4 +34,14 @@ do
 		head -1 ${run[$j]}/MeinekeLabellingExperiment/results_from_time_"$i".667/vis_results/results.viznodes >> first_lines.txt
 		tail -1 ${run[$j]}/MeinekeLabellingExperiment/results_from_time_"$i".667/vis_results/results.viznodes >> last_lines.txt
 	done
+	j_plus_one=`expr "$j" "+" 1`
+	cp ${run[$j]}/MeinekeLabellingExperiment/results/labelled_t40_totals50_run_"$j_plus_one".dat .
+        cp ${run[$j]}/MeinekeLabellingExperiment/results/labelled_t9_totals50_run_"$j_plus_one".dat .
 done
+
+mkdir compiled_results
+mv labelled_* compiled_results/
+mv first_lines.txt compiled_results/
+mv last_lines.txt compiled_results/
+echo "Results compiled and written to directory ${results}compiled_results"
+
