@@ -390,9 +390,6 @@ public:
                        
         // Run tissue simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-        
-        // Record final mesh size for visualizer
-        TS_ASSERT_THROWS_NOTHING(simulator.WriteFinalMeshSizeForVisualizer());
                         
         // A few hardcoded tests to check nothing has changed
         std::vector<double> node_5_location = simulator.GetNodeLocation(5);
@@ -664,8 +661,6 @@ public:
 //        // Run tissue simulation 
 //        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 ////        
-////        // Record final mesh size for visualizer
-////        TS_ASSERT_THROWS_NOTHING(simulator.WriteFinalMeshSizeForVisualizer());
 //                        
 ////        // Test positions        
 ////        std::vector<double> node_5_location = simulator.GetNodeLocation(5);

@@ -265,26 +265,6 @@ public:
         mpPde = pPde;
     }
     
-    
-    /**
-     * Records the final size of the mesh, for use in the visualizer
-     */    
-    void WriteFinalMeshSizeForVisualizer()
-    {
-        double time_now = SimulationTime::Instance()->GetDimensionalisedTime();
-        std::ostringstream time_string;
-        time_string << time_now;
-            
-        std::string results_directory = (this)->mOutputDirectory +"/results_from_time_" + time_string.str();
-        
-        OutputFileHandler output_file_handler(results_directory+"/vis_results/",false);
-        this->mpSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
-        
-        *this->mpSetupFile << "FinalMeshSize\t" << std::max((this)->mrTissue.rGetMesh().GetWidth(0u),(this)->mrTissue.rGetMesh().GetWidth(1u));
-        this->mpSetupFile->close();
-    }
-
-
     /**
      * Saves the whole tissue simulation for restarting later.
      *
