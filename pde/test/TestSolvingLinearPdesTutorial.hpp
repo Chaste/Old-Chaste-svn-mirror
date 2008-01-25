@@ -233,7 +233,7 @@ public:
          * passed in is cleaned. To avoid this, {{{false}}} can be passed in as a second 
          * parameter
          */
-        OutputFileHandler output_file_handler("TestSolvingPdeTutorial");
+        OutputFileHandler output_file_handler("TestSolvingLinearPdeTutorial");
         
         /* Create an {{{out_stream}}}, which is a stream to a particular file. An {{{out_stream}}}
          * is a pointer to a ofstream */
@@ -252,7 +252,7 @@ public:
 
             /* Finally, write x, y and u to the output file. The solution could then be 
              * visualised in (eg) matlab, using the commands: 
-             * {{{sol=Load('linear_solution.txt'); plot3(sol(:,1),sol(:,2),sol(:,3),'.');}}}*/
+             * {{{sol=load('linear_solution.txt'); plot3(sol(:,1),sol(:,2),sol(:,3),'.');}}}*/
             (*p_file) << x << " " << y << " " << u << "\n"; 
         }
 
@@ -323,7 +323,7 @@ public:
         
         /* We can now compare the solution of the parabolic PDE at t=1 with the static solution,
          * to see if the static equilibrium solution was reached in the former. (Ideally we should 
-         * computing some relative error, but we just compute an absolute error for simplicity). */
+         * compute some relative error, but we just compute an absolute error for simplicity). */
         for(unsigned i=0; i<static_solution_repl.size(); i++)
         {
             TS_ASSERT_DELTA( solution_repl[i], static_solution_repl[i], 1e-3);
