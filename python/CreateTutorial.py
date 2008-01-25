@@ -32,12 +32,8 @@ if len(sys.argv)!=3:
 test_file = sys.argv[1]
 out_file_name = sys.argv[2]
 
-# todo: get rid of path in file name then do this
-#if test_file[:4]!='Test':
-#    print "Syntax error:",test_file,"does not appear to be a test file"
-#    sys.exit(1)
 
-if test_file[-4:]!='.hpp':
+if test_file[-4:] != '.hpp' or os.path.basename(test_file)[:4] != 'Test':
     print "Syntax error:",test_file,"does not appear to be a test file"
     sys.exit(1)
 
@@ -46,13 +42,16 @@ out_file = open(out_file_name, 'w')
 out_file.write('This tutorial is automatically generated from the file '+test_file+'.\n')
 out_file.write('Note that the code is given in full at the bottom of the page.\n\n\n')
 
-Parsing=False
-Parse_from_next_line=False
-Status=0 #0 for none, 1 for Text, 2 for Code.
-code_store=[''] # a store of every code-line, to print at the end
+# 'state machine' state variables
+Parsing = False
+ST_NONE, ST_TEXT, ST_CODE = 0, 1, 2 # Status codes
+Status = ST_NONE
+
+code_store = [] # a store of every code-line, to print at the end
 
 
 in_file = open(test_file)
+# TODO: Use a generator so this loop only processes interesting lines
 for line in in_file:
     # remove trailing whitespace, including '\n'
     line = line.rstrip()
@@ -60,73 +59,68 @@ for line in in_file:
     # We don't remove the initial whitespace as it will
     # be needed for code lines
     stripped_line = line.strip()
-	
-    # we start printing line AFTER the first #define..
-    if stripped_line.startswith('#define'):
-        Parse_from_next_line=True
 
-    # ..and stop after an #endif - if the test contains
-    # an #endif before the final one the script needs changing
+    # We stop processing input after an #endif - if the test contains
+    # an #endif before the final one the script needs changing.
     if stripped_line.startswith('#endif'):
-	if Status==2:
+	if Status is ST_CODE:
             # close code block
 	    out_file.write('}}}\n')
-        Parsing=False
+        Parsing = False
 
     # if in Parsing mode
     if Parsing:
-	if Status==1:
+	if Status is ST_TEXT:
 	    # we are still in a comment line, so strip it
 	    line = line.strip()
 	
 	# check if the line is a new text line
         if stripped_line.startswith('/*'):
 	    # assert not already text
-	    assert Status!=1, 'StatusError1' 
+	    assert Status is not ST_TEXT, 'Nested comment' 
 	    # remove all whitespace and the '/*'
+            line = line.strip()[2:]
 	    line = line.strip()
-	    line = line[2:]           
-	    line = line.strip()
-	    # if line line was code, print }}}
-            if Status==2:             
-     	        out_file.write('}}}\n') 
+	    # if the last line was code, print }}}
+            if Status is ST_CODE:
+     	        out_file.write('}}}\n')
 	    # set the status as text
-            Status=1
-	elif stripped_line.startswith('*') and Status==1:
+            Status = ST_TEXT
+	elif Status is ST_TEXT and stripped_line.startswith('*'):
             # we are in a comment, so get rid of whitespace and the initial '*'
+            line = line.strip()[1:]
 	    line = line.strip()
-	    line = line[1:]
-	    line = line.strip()
-	elif Status==0 and len(line.strip())!=0:
-	    # status=none, and newline isn't a comment=>code
+	elif Status is ST_NONE and len(line.strip()) > 0:
+	    # Line has content and isn't a comment => it's code
 	    out_file.write('{{{\n#!c\n')
-            Status=2        
+            Status = ST_CODE
 	
 	# check if comment ends
 	if stripped_line.endswith('*/'):
 	    # comment ended, verify was text
-	    assert Status==1, 'StatusError2'
+	    assert Status is ST_TEXT, 'Unexpected end comment'
 	    # get rid of whitespace and '*/'
-	    line = line.strip()
-	    line = line[:-2]
+            line = line.strip()[:-2]
 	    # set status as unknown 
-            Status=0                  
+            Status = ST_NONE
 
 	# if the line is a comment justing saying 'EMPTYLINE', we print a blank line
 	if line.strip()=='EMPTYLINE':
 	    out_file.write('\n') 
 	# else we print the line if is it non-empty
-	elif len(line.strip())!=0:
+	elif len(line.strip()) > 0:
             out_file.write(line+'\n')
 	
-	# if the line is a code line we store it, unless there would be two consecutive
-        # empty lines
-	if Status==2:
-            if not len(line.strip())==0 or not len(code_store[-1].strip())==0:
+	# if the line is a code line we store it,
+        # unless there would be two consecutive empty lines
+        if Status is ST_CODE:
+            if len(line.strip()) > 0 or len(code_store[-1].strip()) > 0:
 		code_store.append(line)
+	
+    # we start processing lines AFTER the first #define..
+    if stripped_line.startswith('#define'):
+        Parsing = True
 
-    if Parse_from_next_line:
-	Parsing=True
 
 in_file.close()
 
