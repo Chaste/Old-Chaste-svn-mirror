@@ -1,2 +1,3 @@
 TestSimpleDg0ParabolicAssemblerLong.hpp
 TestSolvingCoupledNonlinearPdes.hpp
+TestSolvingLinearPdesTutorial.hpp
