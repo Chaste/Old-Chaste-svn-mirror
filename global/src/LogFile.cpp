@@ -69,7 +69,7 @@ void LogFile::Close()
 
 void LogFile::WriteHeader(std::string simulationType)
 {
-    *this << "\nCHASTE " << simulationType << " simulation, on " << ctime(&mInitTime) << "\n";
+    *this << "\nChaste: " << simulationType << " simulation, on " << ctime(&mInitTime) << "\n";
 }
 
 void LogFile::WriteElapsedTime(std::string pre)

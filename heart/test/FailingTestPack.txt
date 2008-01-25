@@ -1,2 +1,2 @@
+Test1dFibreWithHeterogeneity.hpp
 TestBidomainCompareWithMemfem.hpp
-Test3DPerformance05.hpp

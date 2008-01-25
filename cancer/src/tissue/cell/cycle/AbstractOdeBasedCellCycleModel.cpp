@@ -80,7 +80,7 @@ void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
                 {
                     #define COVERAGE_IGNORE
                     std::cout << "Protein["<< i <<"] = "<< mpOdeSystem->rGetStateVariables()[i] << "\n";
-                    EXCEPTION("A protein concentration has gone negative\nCHASTE predicts that the CellCycleModel numerical method is probably unstable.");
+                    EXCEPTION("A protein concentration has gone negative\nChaste predicts that the CellCycleModel numerical method is probably unstable.");
                     #undef COVERAGE_IGNORE
                 }
             }

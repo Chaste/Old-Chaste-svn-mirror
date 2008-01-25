@@ -135,7 +135,7 @@ public:
             getline(ifs,line);
 
             // the date will change but the beginning of the line won't
-            std::string expected_beginning_of_line = "CHASTE Complete human simulation, on";
+            std::string expected_beginning_of_line = "Chaste: Complete human simulation, on";
             TS_ASSERT_EQUALS(line.substr(0,expected_beginning_of_line.size()),expected_beginning_of_line);
 
             // get the fourth line

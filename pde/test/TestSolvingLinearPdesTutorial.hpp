@@ -12,7 +12,7 @@
 /* 
  * = Introduction =
  * 
- * In this tutorial we show how CHASTE can be used to solve linear PDEs. The first test
+ * In this tutorial we show how Chaste can be used to solve linear PDEs. The first test
  * uses the {{{SimpleLinearEllipticAssembler}}} to solve a linear elliptic PDE, and the
  * second test uses the {{{SimpleDg0ParabolicAssembler}}} to solve a parabolic time-dependent 
  * linear PDE
