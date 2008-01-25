@@ -19,11 +19,15 @@
  * 
  * First we include the header needed to define this class as a test suite */
 #include <cxxtest/TestSuite.h>
+/*On some systems there is a clash between Boost Ublas includes and PETSc.  This can be
+ * resolved by making sure that Chaste's interface to the Boost libraries are included as early as possible.
+ */
+#include "UblasCustomFunctions.hpp"
 /* This is the class that is needed to solve a linear elliptic pde */
 #include "SimpleLinearEllipticAssembler.hpp"
 /* This is needed to read mesh datafiles of the 'Triangles' format */
 #include "TrianglesMeshReader.cpp"
-/* !PetscSetupAndFinalize.hpp must be included in every test that uses Petsc. It
+/* !PetscSetupAndFinalize.hpp must be included in every test that uses PETSc. It
  * cannot be included in the source code. */
 #include "PetscSetupAndFinalize.hpp"
 
