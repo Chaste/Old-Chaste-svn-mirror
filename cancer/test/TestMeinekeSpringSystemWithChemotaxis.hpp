@@ -37,7 +37,7 @@ public:
             cells.push_back(cell);
         }
 
-        Tissue<2> tissue(*p_mesh, cells);
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
         tissue.SetGhostNodes(ghost_node_indices);
         
         // Set up cellwisedata and associate it with the tissue

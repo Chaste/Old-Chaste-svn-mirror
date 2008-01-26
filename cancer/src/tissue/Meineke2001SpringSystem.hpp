@@ -4,7 +4,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 #include "AbstractVariableDampingMechanicsSystem.hpp"
 
 /**
@@ -86,7 +86,7 @@ protected :
 
 
 public :
-    Meineke2001SpringSystem(Tissue<DIM>& rTissue)
+    Meineke2001SpringSystem(MeshBasedTissue<DIM>& rTissue)
         : AbstractVariableDampingMechanicsSystem<DIM>(rTissue)
     {
         // edge-based springs
@@ -306,7 +306,7 @@ public :
             mDrDt[i]=zero_vector<double>(DIM);
         }
     
-        for(typename Tissue<DIM>::SpringIterator spring_iterator=this->mrTissue.SpringsBegin();
+        for(typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=this->mrTissue.SpringsBegin();
             spring_iterator!=this->mrTissue.SpringsEnd();
             ++spring_iterator)
         {
@@ -372,13 +372,6 @@ public :
         mUseNecroticSprings = useNecroticSprings;
     }
 
-    /**
-     *  Get the tissue. Needed for archiving
-     */
-    const Tissue<DIM>& rGetTissue() const
-    {
-        return this->mrTissue;
-    }
 };
 
 #include "TemplatedExport.hpp"
@@ -396,7 +389,7 @@ inline void save_construct_data(
     Archive & ar, const Meineke2001SpringSystem<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const Tissue<DIM> * p_tissue = &(t->rGetTissue());
+    const MeshBasedTissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
 }
 
@@ -408,7 +401,7 @@ inline void load_construct_data(
     Archive & ar, Meineke2001SpringSystem<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    Tissue<DIM>* p_tissue;
+    MeshBasedTissue<DIM>* p_tissue;
 
     ar >> p_tissue;
     // Invoke inplace constructor to initialize instance

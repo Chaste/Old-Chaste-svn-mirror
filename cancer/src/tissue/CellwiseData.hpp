@@ -5,7 +5,7 @@
 #include <boost/serialization/vector.hpp>
 
 #include <vector>
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 
 
 /**
@@ -23,7 +23,7 @@ private:
     static CellwiseData* mpInstance;
 
     /* a reference to a Tissue so a cell's node can be found */
-    Tissue<DIM>* mpTissue;
+    MeshBasedTissue<DIM>* mpTissue;
 
     /*< allocated memory for mData object */
     bool mAllocatedMemory;
@@ -88,12 +88,12 @@ public:
      *  Set the Tissue. Must be called before GetValue(). This calls 
      *  Tissue.Initialise()
      */
-    void SetTissue(Tissue<DIM>& rTissue);
+    void SetTissue(MeshBasedTissue<DIM>& rTissue);
     
     /**
      *  Gets the tissue used in data.
      */
-    Tissue<DIM>& rGetTissue();
+    MeshBasedTissue<DIM>& rGetTissue();
      
     /**
      *  Set the number of variables to be stored per cell. The constructor

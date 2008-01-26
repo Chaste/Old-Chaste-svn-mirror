@@ -45,7 +45,7 @@ private :
      * @return daughter_coords The coordinates for the daughter cell.
      * 
      */
-    c_vector<double, 2> CalculateDividingCellCentreLocations(Tissue<2>::Iterator parentCell)
+    c_vector<double, 2> CalculateDividingCellCentreLocations(MeshBasedTissue<2>::Iterator parentCell)
     {     
         double separation = CancerParameters::Instance()->GetDivisionSeparation();
         c_vector<double, 2> parent_coords = parentCell.rGetLocation();
@@ -111,7 +111,7 @@ private :
         mrTissue.UpdateGhostPositions(mDt);
         
         // Iterate over all cells to update their positions.
-        for (Tissue<2>::Iterator cell_iter = mrTissue.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter = mrTissue.Begin();
              cell_iter != mrTissue.End();
              ++cell_iter)
         {
@@ -181,7 +181,7 @@ private :
         double b_cat_membrane;
         double b_cat_cytoplasm;
         double b_cat_nuclear;
-        for (Tissue<2>::Iterator cell_iter = mrTissue.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter = mrTissue.Begin();
              cell_iter != mrTissue.End();
              ++cell_iter)
         {
@@ -218,7 +218,7 @@ private :
             double b_cat_membrane;
             double b_cat_cytoplasm;
             double b_cat_nuclear;
-            for (Tissue<2>::Iterator cell_iter = mrTissue.Begin();
+            for (MeshBasedTissue<2>::Iterator cell_iter = mrTissue.Begin();
                  cell_iter != mrTissue.End();
                  ++cell_iter)
             {
@@ -268,7 +268,7 @@ public :
      *  @param deleteTissue whether to delete the tissue on destruction to free up memory
      *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
-    CryptSimulation2d(Tissue<2>& rTissue, 
+    CryptSimulation2d(MeshBasedTissue<2>& rTissue, 
                       AbstractDiscreteTissueMechanicsSystem<2>* pMechanicsSystem=NULL, 
                       bool deleteTissue=false,
                       bool initialiseCells=true)
@@ -353,7 +353,7 @@ inline void save_construct_data(
     Archive & ar, const CryptSimulation2d * t, const BOOST_PFTO unsigned int file_version)
 {
     // save data required to construct instance
-    const Tissue<2> * p_tissue = &(t->rGetTissue());
+    const MeshBasedTissue<2> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     
     const AbstractDiscreteTissueMechanicsSystem<2> * p_spring_system = &(t->rGetMechanicsSystem());
@@ -368,7 +368,7 @@ inline void load_construct_data(
     Archive & ar, CryptSimulation2d * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
-    Tissue<2>* p_tissue;
+    MeshBasedTissue<2>* p_tissue;
     ar >> p_tissue;
     
     AbstractDiscreteTissueMechanicsSystem<2>* p_spring_system;

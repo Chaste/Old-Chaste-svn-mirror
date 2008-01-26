@@ -5,7 +5,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 #include "Meineke2001SpringSystem.hpp"
 #include "CellwiseData.cpp"
 #include "CellwiseDataGradient.hpp"
@@ -33,7 +33,7 @@ private:
     
 public:
 
-    MeinekeSpringSystemWithChemotaxis(Tissue<DIM>& rTissue)
+    MeinekeSpringSystemWithChemotaxis(MeshBasedTissue<DIM>& rTissue)
         : Meineke2001SpringSystem<DIM>(rTissue)
     {}
     
@@ -54,7 +54,7 @@ public:
         CellwiseDataGradient<DIM> gradients;        
         gradients.SetupGradients();
         
-        for (typename Tissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+        for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
              cell_iter != this->mrTissue.End();
              ++cell_iter)
         {
@@ -74,7 +74,7 @@ public:
             {
                 this->mDrDt[node_global_index] += (force_magnitude/(damping_constant*magnitude_of_gradient))*r_gradient;
             }
-            //else Fc=0
+            // else Fc=0
         }
 
         return this->mDrDt;

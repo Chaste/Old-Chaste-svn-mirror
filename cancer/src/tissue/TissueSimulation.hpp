@@ -11,7 +11,7 @@
 #include "CancerParameters.hpp"
 #include "RandomCellKiller.hpp"
 #include "TrianglesMeshReader.cpp"
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 #include "TissueVoronoiDataWriter.hpp"
 #include "WntGradient.hpp"
 #include <vector>
@@ -75,7 +75,7 @@ protected:
     double mEndTime;
 
     /** Facade encapsulating cells in the tissue being simulated */
-    Tissue<DIM>& mrTissue;
+    MeshBasedTissue<DIM>& mrTissue;
     
     /** Whether to delete the facade in our destructor */
     bool mDeleteTissue;
@@ -190,7 +190,7 @@ protected:
      * @return daughter_coords The coordinates for the daughter cell.
      * 
      */
-    virtual c_vector<double, DIM> CalculateDividingCellCentreLocations(typename Tissue<DIM>::Iterator parentCell);
+    virtual c_vector<double, DIM> CalculateDividingCellCentreLocations(typename MeshBasedTissue<DIM>::Iterator parentCell);
     
     /**
      * During a simulation time step, process any cell sloughing or death
@@ -246,7 +246,7 @@ public:
      *  @param deleteTissue Whether to delete the tissue on destruction to free up memory
      *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
-    TissueSimulation(Tissue<DIM>& rTissue, 
+    TissueSimulation(MeshBasedTissue<DIM>& rTissue, 
                      AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
                      bool deleteTissue=false, 
                      bool initialiseCells=true);
@@ -275,8 +275,8 @@ public:
 
     void Solve();
     
-    Tissue<DIM>& rGetTissue();
-    const Tissue<DIM>& rGetTissue() const;
+    MeshBasedTissue<DIM>& rGetTissue();
+    const MeshBasedTissue<DIM>& rGetTissue() const;
     
     
     /** 
@@ -319,7 +319,7 @@ inline void save_construct_data(
     Archive & ar, const TissueSimulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // save data required to construct instance
-    const Tissue<DIM> * p_tissue = &(t->rGetTissue());
+    const MeshBasedTissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     
     const AbstractDiscreteTissueMechanicsSystem<DIM> * p_spring_system = &(t->rGetMechanicsSystem());
@@ -334,7 +334,7 @@ inline void load_construct_data(
     Archive & ar, TissueSimulation<DIM> * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
-    Tissue<DIM>* p_tissue;
+    MeshBasedTissue<DIM>* p_tissue;
     ar >> p_tissue;
 
     AbstractDiscreteTissueMechanicsSystem<DIM>* p_spring_system;

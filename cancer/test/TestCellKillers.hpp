@@ -47,7 +47,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
-        Tissue<2> tissue(mesh, cells);
+        MeshBasedTissue<2> tissue(mesh, cells);
         
         // Get a reference to the cells held in tissue
         std::list<TissueCell>& r_cells = tissue.rGetCells();
@@ -135,7 +135,7 @@ public:
                 
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
-        Tissue<2> tissue(mesh, cells);
+        MeshBasedTissue<2> tissue(mesh, cells);
         
         p_params->SetCryptWidth(0.5);
         p_params->SetCryptLength(0.5);
@@ -143,7 +143,7 @@ public:
         SloughingCellKiller sloughing_cell_killer(&tissue, true);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
-        for(Tissue<2>::Iterator iter = tissue.Begin();
+        for(MeshBasedTissue<2>::Iterator iter = tissue.Begin();
             iter!=tissue.End();
             ++iter)
         {
@@ -162,7 +162,7 @@ public:
   
         tissue.RemoveDeadCells();
 
-        for(Tissue<2>::Iterator iter = tissue.Begin();
+        for(MeshBasedTissue<2>::Iterator iter = tissue.Begin();
             iter!=tissue.End();
             ++iter)
         {
@@ -195,7 +195,7 @@ public:
             cells.push_back(cell);
         }
         
-        Tissue<2> tissue(mesh, cells);
+        MeshBasedTissue<2> tissue(mesh, cells);
         
         p_params->SetCryptWidth(0.5);
         p_params->SetCryptLength(0.5);
@@ -203,7 +203,7 @@ public:
         SloughingCellKiller sloughing_cell_killer(&tissue);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
-        for(Tissue<2>::Iterator iter = tissue.Begin();
+        for(MeshBasedTissue<2>::Iterator iter = tissue.Begin();
             iter!=tissue.End();
             ++iter)
         {
@@ -220,7 +220,7 @@ public:
         
         tissue.RemoveDeadCells();
 
-        for(Tissue<2>::Iterator iter = tissue.Begin();
+        for(MeshBasedTissue<2>::Iterator iter = tissue.Begin();
             iter!=tissue.End();
             ++iter)
         {
@@ -254,14 +254,14 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
-        Tissue<2> tissue(mesh, cells);        
+        MeshBasedTissue<2> tissue(mesh, cells);        
 
 		// Set up cell killer
         RadialSloughingCellKiller radial_cell_killer(&tissue, centre, radius);
         radial_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
 		// Check that cells are being labelled for death correctly 
-        for(Tissue<2>::Iterator cell_iter = tissue.Begin();
+        for(MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
             cell_iter!=tissue.End();
             ++cell_iter)
         {
@@ -281,7 +281,7 @@ public:
         tissue.RemoveDeadCells();
 
 		// Check that we are correctly left with cells inside the circle of death
-        for(Tissue<2>::Iterator cell_iter = tissue.Begin();
+        for(MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
             cell_iter!=tissue.End();
             ++cell_iter)
         {
@@ -308,7 +308,7 @@ public:
         // Set up tissue        
         std::vector<TissueCell> cells;        
         CellsGenerator<2>::GenerateBasic(cells, mesh);
-        Tissue<2> tissue(mesh, cells);
+        MeshBasedTissue<2> tissue(mesh, cells);
         
         // Before we can do anything with the cell killer, we need to set up CellwiseData
         std::vector<double> oxygen_concentration;
@@ -323,7 +323,7 @@ public:
         std::list<TissueCell>& r_cells = tissue.rGetCells();
         
         // Reset cell types to STEM        
-        for(Tissue<2>::Iterator cell_iter = tissue.Begin();
+        for(MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
             cell_iter != tissue.End();
             ++cell_iter)
         {

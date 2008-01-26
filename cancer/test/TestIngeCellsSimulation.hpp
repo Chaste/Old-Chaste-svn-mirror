@@ -65,7 +65,7 @@ public:
             cells[i].SetBirthTime(-1.1); // Just to make the test run a bit quicker.
         }
         
-        Tissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         WntGradient::Instance()->SetType(LINEAR);

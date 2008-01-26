@@ -25,7 +25,7 @@
 #include "CellwiseData.cpp"
 
 template<unsigned DIM> 
-TissueSimulation<DIM>::TissueSimulation(Tissue<DIM>& rTissue, 
+TissueSimulation<DIM>::TissueSimulation(MeshBasedTissue<DIM>& rTissue, 
                                         AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem, 
                                         bool deleteTissue,
                                         bool initialiseCells)
@@ -105,7 +105,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
     unsigned num_births_this_step = 0;
 
     // Iterate over all cells, seeing if each one can be divided
-    for (typename Tissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
          cell_iter != mrTissue.End();
          ++cell_iter)
     {
@@ -152,7 +152,7 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
 
 
 template<unsigned DIM> 
-c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename Tissue<DIM>::Iterator parentCell)
+c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename MeshBasedTissue<DIM>::Iterator parentCell)
 {
     double separation = CancerParameters::Instance()->GetDivisionSeparation();
     c_vector<double, DIM> parent_coords = parentCell.rGetLocation();
@@ -205,7 +205,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
     mrTissue.UpdateGhostPositions(mDt);
 
     // Iterate over all cells to update their positions.
-    for (typename Tissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
          cell_iter != mrTissue.End();
          ++cell_iter)
     {
@@ -276,14 +276,14 @@ void TissueSimulation<DIM>::SetSamplingTimestepMultiple(unsigned samplingTimeste
 
 
 template<unsigned DIM> 
-Tissue<DIM>& TissueSimulation<DIM>::rGetTissue()
+MeshBasedTissue<DIM>& TissueSimulation<DIM>::rGetTissue()
 {
     return mrTissue;
 }
 
 
 template<unsigned DIM> 
-const Tissue<DIM>& TissueSimulation<DIM>::rGetTissue() const
+const MeshBasedTissue<DIM>& TissueSimulation<DIM>::rGetTissue() const
 {
     return mrTissue;
 }
@@ -419,7 +419,7 @@ void TissueSimulation<DIM>::Solve()
      * Not sure why - when the same code was evaluated in a test it seemed almost instant.
      */
     LOG(1, "Setting up cells...");
-    for (typename Tissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
          cell_iter != mrTissue.End();
          ++cell_iter)
     {
@@ -696,7 +696,7 @@ std::string TissueSimulation<DIM>::GetArchivePathname(const std::string& rArchiv
     
     std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/tissue_sim_at_time_"+time_stamp.str() +".arch";
     std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str();
-    Tissue<DIM>::meshPathname = mesh_filename;
+    MeshBasedTissue<DIM>::meshPathname = mesh_filename;
     return archive_filename;
 }
 

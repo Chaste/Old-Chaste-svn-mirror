@@ -64,7 +64,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC_WNT, true);
               
-        Tissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
                 
         WntGradient::Instance()->SetType(LINEAR);

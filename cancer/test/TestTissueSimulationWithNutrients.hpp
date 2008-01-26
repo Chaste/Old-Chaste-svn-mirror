@@ -10,15 +10,12 @@
 #include <iostream>
 #include "TissueSimulationWithNutrients.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "TrianglesMeshReader.cpp"
 #include <cmath>
 #include <vector>
 #include "FixedCellCycleModel.hpp"
 #include "ColumnDataReader.hpp"
-#include "SimulationTime.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
-#include "Meineke2001SpringSystem.hpp" 
 #include "AbstractCancerTestSuite.hpp"
 #include "CellsGenerator.hpp"
 
@@ -92,10 +89,10 @@ public:
 class PointwiseNutrientSinkPde : public AbstractLinearEllipticPde<2>
 {
 private:
-    Tissue<2>& mrTissue;
+    MeshBasedTissue<2>& mrTissue;
 
 public:
-    PointwiseNutrientSinkPde(Tissue<2>& rTissue)
+    PointwiseNutrientSinkPde(MeshBasedTissue<2>& rTissue)
         : mrTissue(rTissue)
     {
     }
@@ -189,7 +186,7 @@ public:
         }
         
         // Set up tissue        
-        Tissue<2> tissue(*p_mesh, cells);
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
         
         // Set up cellwisedata and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -225,7 +222,7 @@ public:
         simulator.Solve();                
         
         // Check the correct solution was obtained           
-        for (Tissue<2>::Iterator cell_iter = tissue.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {   
@@ -283,7 +280,7 @@ public:
         }
         
         // Set up tissue        
-        Tissue<2> tissue(*p_mesh, cells);
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
         
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -359,7 +356,7 @@ public:
         }
         
         // Set up tissue        
-        Tissue<2> tissue(*p_mesh, cells);
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
         
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -451,7 +448,7 @@ public:
             cells.push_back(cell);            
         }
                 
-        Tissue<2> tissue(*p_mesh, cells);
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
         
         // Set up CellwiseData and associate it with the tissue        
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -482,7 +479,7 @@ public:
                 
         // Just check that we do indeed have three necrotic cells
         unsigned num_necrotic_cells = 0;                   
-        for (Tissue<2>::Iterator cell_iter = tissue.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {
@@ -545,7 +542,7 @@ public:
         }
         
         // Set up tissue        
-        Tissue<2> tissue(*p_mesh, cells);
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
         
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -629,7 +626,7 @@ public:
 //        CellsGenerator<3>::GenerateBasic(cells, mesh);
 //        
 //        // Set up tissue        
-//        Tissue<3> tissue(mesh, cells);
+//        MeshBasedTissue<3> tissue(mesh, cells);
 //        
 //        // Set up CellwiseData and associate it with the tissue
 //        CellwiseData<3>* p_data = CellwiseData<3>::Instance();

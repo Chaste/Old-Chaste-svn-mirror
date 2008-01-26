@@ -75,7 +75,7 @@ public:
             cells.push_back(cell);
         }
         
-        Tissue<3> tissue(mesh,cells);
+        MeshBasedTissue<3> tissue(mesh,cells);
         TissueSimulation<3> simulator(tissue);
         
         unsigned num_births = simulator.DoCellBirth();
@@ -104,7 +104,7 @@ public:
         cell.SetBirthTime(-50.0);
         cells.push_back(cell);
         
-        Tissue<3> tissue(mesh,cells);
+        MeshBasedTissue<3> tissue(mesh,cells);
         TissueSimulation<3> simulator(tissue);
        
         TrianglesMeshWriter<3,3> mesh_writer1("Test3DCellBirth","StartMesh");
@@ -152,7 +152,7 @@ public:
             cells.push_back(cell);
         } 
         
-        Tissue<3> tissue(mesh,cells);
+        MeshBasedTissue<3> tissue(mesh,cells);
         TissueSimulation<3> simulator(tissue);
         simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
         
@@ -235,7 +235,7 @@ public:
         TS_ASSERT(ghost_node_indices.size() < num_cells);
         TS_ASSERT(ghost_node_indices.size() > 0)
         
-        Tissue<3> tissue(mesh,cells);
+        MeshBasedTissue<3> tissue(mesh,cells);
         tissue.SetGhostNodes(ghost_node_indices);        
 
         TissueSimulation<3> simulator(tissue);

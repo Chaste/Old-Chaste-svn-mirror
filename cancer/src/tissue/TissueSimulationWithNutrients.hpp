@@ -52,7 +52,7 @@ private :
         double y;
         double nutrient;
 
-        for (typename Tissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+        for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
              cell_iter != this->mrTissue.End();
              ++cell_iter)
         {
@@ -80,7 +80,7 @@ private :
     	    double y;
     	    double nutrient;
     
-    	    for (typename Tissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+    	    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
     		     cell_iter != this->mrTissue.End();
     		     ++cell_iter)
     	    {
@@ -137,7 +137,7 @@ private :
             VecGetSize(mOxygenSolution, &size_of_soln_previous_step);
         }
         
-        if(size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
+        if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
         {
             // We make an initial guess which gets copied by the Solve method of
             // SimpleLinearSolver, so we need to delete it too.
@@ -152,7 +152,7 @@ private :
         }
         else
         {
-            if(mOxygenSolution)
+            if (mOxygenSolution)
             {
                 VecDestroy(mOxygenSolution);
             }
@@ -234,7 +234,7 @@ public:
      *  @param deleteTissue whether to delete the tissue on destruction to free up memory
      *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
-    TissueSimulationWithNutrients(Tissue<DIM>& rTissue,
+    TissueSimulationWithNutrients(MeshBasedTissue<DIM>& rTissue,
                                   AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
                                   AbstractLinearEllipticPde<DIM>* pPde=NULL,
                                   bool deleteTissue=false,
@@ -340,7 +340,7 @@ inline void save_construct_data(
     Archive & ar, const TissueSimulationWithNutrients<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // save data required to construct instance
-    const Tissue<DIM> * p_tissue = &(t->rGetTissue());
+    const MeshBasedTissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     
     const AbstractDiscreteTissueMechanicsSystem<DIM> * p_spring_system = &(t->rGetMechanicsSystem());
@@ -355,7 +355,7 @@ inline void load_construct_data(
     Archive & ar, TissueSimulationWithNutrients<DIM> * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
-    Tissue<DIM>* p_tissue;
+    MeshBasedTissue<DIM>* p_tissue;
     ar >> p_tissue;
     
     AbstractDiscreteTissueMechanicsSystem<DIM>* p_spring_system;

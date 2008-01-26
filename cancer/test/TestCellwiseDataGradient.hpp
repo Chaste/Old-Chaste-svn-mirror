@@ -8,7 +8,7 @@
 
 #include <cmath>
 #include <vector>
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 #include "CellwiseData.cpp"
 #include "CellwiseDataGradient.hpp"
 #include "CellsGenerator.hpp"
@@ -29,7 +29,7 @@ public:
         // create a tissue
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
-        Tissue<2> tissue(mesh,cells);
+        MeshBasedTissue<2> tissue(mesh,cells);
 
         // set up data: C(x,y) = x^2
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -67,7 +67,7 @@ public:
         // create a tissue
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
-        Tissue<2> tissue(mesh,cells);
+        MeshBasedTissue<2> tissue(mesh,cells);
 
         //////////////////////////////////
         // C(x,y) = const
@@ -151,10 +151,10 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
-        Tissue<2> tissue(mesh,cells);
+        MeshBasedTissue<2> tissue(mesh,cells);
         // set boundary nodes to be ghosts
         std::set< unsigned > ghost_node_indices;
-        for (Tissue<2>::Iterator iter=tissue.Begin();
+        for (MeshBasedTissue<2>::Iterator iter=tissue.Begin();
              iter != tissue.End();
              ++iter)
         {

@@ -111,7 +111,7 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
     
     // loop over cells and add to the store if they are within a cell's radius of the
     // specified line  
-    for (Tissue<2>::Iterator cell_iter = mrCrypt.Begin();
+    for (MeshBasedTissue<2>::Iterator cell_iter = mrCrypt.Begin();
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {

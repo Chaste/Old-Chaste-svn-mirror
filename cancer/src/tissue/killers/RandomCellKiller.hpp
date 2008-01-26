@@ -2,7 +2,7 @@
 #define RANDOMCELLKILLER_HPP_
 
 #include "AbstractCellKiller.hpp"
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 #include "RandomNumberGenerator.hpp"
 
 #include <boost/serialization/access.hpp>
@@ -35,7 +35,7 @@ private:
     }
     
 public:
-    RandomCellKiller(Tissue<SPACE_DIM>* pTissue, double probabilityOfDeath)
+    RandomCellKiller(MeshBasedTissue<SPACE_DIM>* pTissue, double probabilityOfDeath)
         : AbstractCellKiller<SPACE_DIM>(pTissue),
           mProbabilityOfDeath(probabilityOfDeath)
     {
@@ -65,7 +65,7 @@ public:
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath()
     {
-        for (typename Tissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
+        for (typename MeshBasedTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
              cell_iter != this->mpTissue->End();
              ++cell_iter)
         {
@@ -89,8 +89,8 @@ template<class Archive, unsigned DIM>
 inline void save_construct_data(
     Archive & ar, const RandomCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
-    // save data required to construct instance
-    const Tissue<DIM>* const p_tissue = t->GetTissue();
+    // Save data required to construct instance
+    const MeshBasedTissue<DIM>* const p_tissue = t->GetTissue();
     ar << p_tissue;
     double prob = t->GetDeathProbability();
     ar << prob;
@@ -103,8 +103,8 @@ template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, RandomCellKiller<DIM> * t, const unsigned int file_version)
 {
-    // retrieve data from archive required to construct new instance
-    Tissue<DIM>* p_tissue;
+    // Retrieve data from archive required to construct new instance
+    MeshBasedTissue<DIM>* p_tissue;
     ar >> p_tissue;
     double prob;
     ar >> prob;

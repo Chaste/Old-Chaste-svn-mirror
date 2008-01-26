@@ -26,7 +26,7 @@ public:
      */ 
     void SetupGradients()
     {
-        Tissue<DIM>& r_tissue = CellwiseData<DIM>::Instance()->rGetTissue();
+        MeshBasedTissue<DIM>& r_tissue = CellwiseData<DIM>::Instance()->rGetTissue();
         ConformingTetrahedralMesh<DIM,DIM>& r_mesh = r_tissue.rGetMesh();
 
         // initialise gradients size        
@@ -88,7 +88,7 @@ public:
         }
         
         // divide to obtain average gradient
-        for (typename Tissue<DIM>::Iterator cell_iter = r_tissue.Begin();
+        for (typename MeshBasedTissue<DIM>::Iterator cell_iter = r_tissue.Begin();
              cell_iter != r_tissue.End();
              ++cell_iter)
         {

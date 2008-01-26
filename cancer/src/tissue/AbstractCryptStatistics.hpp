@@ -1,13 +1,13 @@
 #ifndef ABSTRACTCRYPTSTATISTICS_HPP_
 #define ABSTRACTCRYPTSTATISTICS_HPP_
 
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 #include "RandomNumberGenerator.hpp"
 
 class AbstractCryptStatistics
 {
 protected:
-    Tissue<2>& mrCrypt;    
+    MeshBasedTissue<2>& mrCrypt;    
         
 public:
 
@@ -16,7 +16,7 @@ public:
      * 
      *  @param rCrypt The crypt
      */
-    AbstractCryptStatistics(Tissue<2>& rCrypt)
+    AbstractCryptStatistics(MeshBasedTissue<2>& rCrypt)
         : mrCrypt(rCrypt) {}
         
     virtual ~AbstractCryptStatistics()
@@ -30,7 +30,7 @@ public:
      */ 
     void LabelSPhaseCells()
     {
-        for (Tissue<2>::Iterator cell_iter = mrCrypt.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter = mrCrypt.Begin();
              cell_iter != mrCrypt.End();
              ++cell_iter)
         {
@@ -48,7 +48,7 @@ public:
      */
     void LabelAllCellsAsHealthy()
     {
-        for (Tissue<2>::Iterator cell_iter = mrCrypt.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter = mrCrypt.Begin();
              cell_iter != mrCrypt.End();
              ++cell_iter)
         {

@@ -25,7 +25,7 @@ public:
      * 
      *  @param rCrypt  The crypt
      */
-    CryptProjectionStatistics(Tissue<2>& rCrypt)
+    CryptProjectionStatistics(MeshBasedTissue<2>& rCrypt)
         : AbstractCryptStatistics(rCrypt) 
     {}
     

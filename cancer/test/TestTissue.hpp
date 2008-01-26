@@ -15,7 +15,7 @@
 #include "WntCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
@@ -55,13 +55,13 @@ private:
         CellsGenerator<DIM>::GenerateBasic(cells, mesh);
 
         // Create the tissue
-        Tissue<DIM> tissue(mesh,cells);
+        MeshBasedTissue<DIM> tissue(mesh,cells);
         
         TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS(tissue.rGetCells().size(),cells.size());
         
         unsigned counter = 0;
-        for (typename Tissue<DIM>::Iterator cell_iter = tissue.Begin();
+        for (typename MeshBasedTissue<DIM>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {
@@ -115,7 +115,7 @@ public:
         cells[0].SetNodeIndex(1);
 
 		// Fails as no cell or ghost correponding to node 0        
-        TS_ASSERT_THROWS_ANYTHING(Tissue<2> tissue2(mesh, cells));
+        TS_ASSERT_THROWS_ANYTHING(MeshBasedTissue<2> tissue2(mesh, cells));
     }
     
     
@@ -135,11 +135,11 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);        
 
         // Create a tissue, with no ghost nodes at the moment
-        Tissue<2> tissue(*p_mesh,cells);
+        MeshBasedTissue<2> tissue(*p_mesh,cells);
 
         // Iterator should loop over all nodes
         unsigned counter = 0;
-        for (Tissue<2>::Iterator cell_iter = tissue.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {
@@ -165,7 +165,7 @@ public:
         
         // Check the iterator doesn't loop over ghost nodes
         counter = 0;
-        for (Tissue<2>::Iterator cell_iter = tissue.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {
@@ -192,14 +192,14 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, mesh);
 
         // Create a tissue, with no ghost nodes at the moment
-        Tissue<2> tissue(mesh, cells);
+        MeshBasedTissue<2> tissue(mesh, cells);
 
         //////////////////
         // Test move cell
         //////////////////
         
         // Move node 0 by a small amount
-        Tissue<2>::Iterator cell_iter = tissue.Begin();
+        MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
         c_vector<double,2> new_location = cell_iter.rGetLocation();
         new_location[0] += 1e-2;
         new_location[1] += 1e-2;
@@ -260,7 +260,7 @@ public:
         cells[27].StartApoptosis();
         
         // Create a tissue, with some random ghost nodes
-        Tissue<2> tissue(mesh,cells);
+        MeshBasedTissue<2> tissue(mesh,cells);
 
         // Set ghost nodes (using alternative constructor)
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
@@ -329,7 +329,7 @@ public:
         cells[27].StartApoptosis();
         
         // Create a tissue, with some random ghost nodes
-        Tissue<2> tissue(mesh,cells);
+        MeshBasedTissue<2> tissue(mesh,cells);
 
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
         for(unsigned i=0; i<10; i++)
@@ -388,7 +388,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
      
-        Tissue<2> tissue(mesh,cells);
+        MeshBasedTissue<2> tissue(mesh,cells);
         
         std::string output_directory = "TestTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
@@ -453,7 +453,7 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
         // Create a tissue, with no ghost nodes at the moment
-        Tissue<2> tissue(*p_mesh,cells);
+        MeshBasedTissue<2> tissue(*p_mesh,cells);
         
         // Set ghost nodes
         tissue.SetGhostNodes(ghost_node_indices);
@@ -461,7 +461,7 @@ public:
         // Check that we can iterate over the set of springs
         std::set< std::set< unsigned > > springs_visited;
         
-        for (Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+        for (MeshBasedTissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
              spring_iterator!=tissue.SpringsEnd();
              ++spring_iterator)
         {
@@ -492,7 +492,7 @@ public:
         CellsGenerator<3>::GenerateBasic(cells, mesh);
         
         // Create a tissue, with no ghost nodes at the moment
-        Tissue<3> tissue(mesh,cells);
+        MeshBasedTissue<3> tissue(mesh,cells);
         
         // Make nodes 0-10 ghost nodes
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(),false);
@@ -507,7 +507,7 @@ public:
         // Check that we can iterate over the set of springs
         std::set< std::set< unsigned > > springs_visited;
         
-        for (Tissue<3>::SpringIterator spring_iterator=tissue.SpringsBegin();
+        for (MeshBasedTissue<3>::SpringIterator spring_iterator=tissue.SpringsBegin();
              spring_iterator!=tissue.SpringsEnd();
              ++spring_iterator)
         {
@@ -564,10 +564,10 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
         // Create the tissue
-        Tissue<2> tissue(mesh, cells);        
+        MeshBasedTissue<2> tissue(mesh, cells);        
                 
         // Loop over nodes
-        for (Tissue<2>::Iterator cell_iter = tissue.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {
@@ -610,11 +610,11 @@ public:
             CellsGenerator<2>::GenerateBasic(cells, mesh);
             
             // Create the tissue
-            Tissue<2>* const p_tissue = new Tissue<2>(mesh, cells);
+            MeshBasedTissue<2>* const p_tissue = new MeshBasedTissue<2>(mesh, cells);
         
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // loop over them to run to time 0.0;
-            for(Tissue<2>::Iterator cell_iter = p_tissue->Begin();
+            for(MeshBasedTissue<2>::Iterator cell_iter = p_tissue->Begin();
              cell_iter != p_tissue->End();
              ++cell_iter)
             {                
@@ -643,7 +643,7 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
             p_simulation_time->IncrementTimeOneStep();
             
-            Tissue<2>* p_tissue;
+            MeshBasedTissue<2>* p_tissue;
                                                    
             // Restore the tissue
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -652,7 +652,7 @@ public:
             
             // WARNING! This is here because the loading of a tissue is only ever called
             // by TissueSimulation::Load() which has a line like this:
-            Tissue<2>::meshPathname = "mesh/test/data/square_4_elements";
+            MeshBasedTissue<2>::meshPathname = "mesh/test/data/square_4_elements";
             // This horribleness will go away when ticket:412 (proper mesh archiving) is done.
             
             input_arch >> p_tissue;
@@ -660,7 +660,7 @@ public:
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // this checks that individual cells and their models are archived.
             unsigned counter = 0u;
-            for(Tissue<2>::Iterator cell_iter = p_tissue->Begin();
+            for(MeshBasedTissue<2>::Iterator cell_iter = p_tissue->Begin();
              cell_iter != p_tissue->End();
              ++cell_iter)
             {
@@ -700,7 +700,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
-        Tissue<2> tissue(mesh, cells);
+        MeshBasedTissue<2> tissue(mesh, cells);
         
         // Mark some springs
         tissue.MarkSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2));
@@ -722,7 +722,7 @@ public:
         tissue.CheckTissueCellPointers();
                
         // Move cell 2
-        Tissue<2>::Iterator it=tissue.Begin();
+        MeshBasedTissue<2>::Iterator it=tissue.Begin();
         ++it;
         ++it;
         TS_ASSERT_EQUALS(it->GetNodeIndex(), 2u);
@@ -754,13 +754,13 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
-        Tissue<2> tissue(mesh, cells);
+        MeshBasedTissue<2> tissue(mesh, cells);
         
         // Test that the tissue makes all cells fix the node index as ancestor
         tissue.SetCellAncestorsToNodeIndices();
         
         unsigned counter = 0;
-        for(Tissue<2>::Iterator cell_iter = tissue.Begin();
+        for(MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {
@@ -774,7 +774,7 @@ public:
         TS_ASSERT_EQUALS(remaining_ancestors.size(), 5u);
         
         // Test that the set correctly represents a monoclonal population.
-        for(Tissue<2>::Iterator cell_iter = tissue.Begin();
+        for(MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {  

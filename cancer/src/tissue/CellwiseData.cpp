@@ -86,7 +86,7 @@ void CellwiseData<DIM>::SetValue(double value, Node<DIM>* pNode, unsigned variab
 }
 
 template<unsigned DIM>
-void CellwiseData<DIM>::SetTissue(Tissue<DIM>& rTissue)
+void CellwiseData<DIM>::SetTissue(MeshBasedTissue<DIM>& rTissue)
 {
     if(mAllocatedMemory == false)
     {
@@ -97,7 +97,7 @@ void CellwiseData<DIM>::SetTissue(Tissue<DIM>& rTissue)
 }
 
 template<unsigned DIM>
-Tissue<DIM>& CellwiseData<DIM>::rGetTissue()
+MeshBasedTissue<DIM>& CellwiseData<DIM>::rGetTissue()
 {
     return *mpTissue;
 }

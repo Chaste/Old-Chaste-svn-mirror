@@ -5,7 +5,7 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "CancerParameters.hpp"
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
@@ -46,7 +46,7 @@ private:
     /** 
      *  The Tissue which the Wnt Gradient is operating in
      */
-    Tissue<2>* mpTissue;
+    MeshBasedTissue<2>* mpTissue;
     
     /**
      *  Whether this WntGradient object has had its type set
@@ -118,7 +118,7 @@ public:
      *  Set the crypt. Must be called before GetWntLevel(). This calls 
      *  crypt.Initialise()
      */
-    void SetTissue(Tissue<2>& rTissue);
+    void SetTissue(MeshBasedTissue<2>& rTissue);
     
     /**
      *  Get the type of wnt gradient. 

@@ -1,7 +1,7 @@
 #ifndef TISSUEVORONOIDATAWRITER_HPP_
 #define TISSUEVORONOIDATAWRITER_HPP_
 
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 #include "OutputFileHandler.hpp"
 #include "CellTypes.hpp"
 
@@ -30,13 +30,13 @@ template<unsigned DIM>
 class TissueVoronoiDataWriter
 {
 private:
-    Tissue<DIM>& mrTissue;
+    MeshBasedTissue<DIM>& mrTissue;
     out_stream mOutStream;
     bool mFollowLoggedCell;
     
     
 public:
-    TissueVoronoiDataWriter(Tissue<DIM>& rTissue, std::string directory, std::string filename, bool followLoggedCell = false)
+    TissueVoronoiDataWriter(MeshBasedTissue<DIM>& rTissue, std::string directory, std::string filename, bool followLoggedCell = false)
         :mrTissue(rTissue),
          mFollowLoggedCell(followLoggedCell)
     {
@@ -56,7 +56,7 @@ public:
     void WriteData()
     {
         (*mOutStream)<< SimulationTime::Instance()->GetDimensionalisedTime() << " ";
-        for (typename Tissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+        for (typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
              cell_iter != mrTissue.End();
              ++cell_iter)
         {
@@ -90,7 +90,7 @@ public:
             
         double necrotic_area = 0.0;
         
-        for (typename Tissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+        for (typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
              cell_iter != mrTissue.End();
              ++cell_iter)
         {

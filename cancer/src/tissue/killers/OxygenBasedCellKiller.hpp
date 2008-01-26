@@ -4,7 +4,7 @@
 #include "AbstractCellKiller.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -31,7 +31,7 @@ private:
     }
     
 public:
-    OxygenBasedCellKiller(Tissue<SPACE_DIM>* pTissue, double concentration=CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration())
+    OxygenBasedCellKiller(MeshBasedTissue<SPACE_DIM>* pTissue, double concentration=CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration())
         : AbstractCellKiller<SPACE_DIM>(pTissue),
           mHypoxicConcentration(concentration)
     {
@@ -67,7 +67,7 @@ public:
      */
      virtual void TestAndLabelCellsForApoptosisOrDeath()
     {      
-        for( typename Tissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
+        for( typename MeshBasedTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
             cell_iter != this->mpTissue->End();
             ++cell_iter)
         {               
@@ -92,7 +92,7 @@ inline void save_construct_data(
     Archive & ar, const OxygenBasedCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // save data required to construct instance
-    const Tissue<DIM>* const p_tissue = t->GetTissue();
+    const MeshBasedTissue<DIM>* const p_tissue = t->GetTissue();
     ar << p_tissue;
     double conc = t->GetHypoxicConcentration();
     ar << conc;
@@ -106,7 +106,7 @@ inline void load_construct_data(
     Archive & ar, OxygenBasedCellKiller<DIM> * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
-    Tissue<DIM>* p_tissue;
+    MeshBasedTissue<DIM>* p_tissue;
     ar >> p_tissue;
     double conc;
     ar >> conc;

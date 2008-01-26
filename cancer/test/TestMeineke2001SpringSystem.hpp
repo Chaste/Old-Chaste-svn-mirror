@@ -54,7 +54,7 @@ public:
             cells.push_back(cell);
         }
 
-        Tissue<2> tissue(*p_mesh, cells);
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
         tissue.SetGhostNodes(ghost_node_indices);
 
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
@@ -157,7 +157,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        Tissue<2> tissue(*p_mesh, cells);               
+        MeshBasedTissue<2> tissue(*p_mesh, cells);               
         tissue.SetGhostNodes(ghost_node_indices);
 
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
@@ -165,7 +165,7 @@ public:
         // check that the force between nodes is correctly calculated when the spring constant is constant (!)
         meineke_spring_system.SetEdgeBasedSpringConstant(false);
                       
-        for(Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+        for(MeshBasedTissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
             spring_iterator!=tissue.SpringsEnd();
             ++spring_iterator)
         {        
@@ -181,7 +181,7 @@ public:
         tissue.CreateVoronoiTessellation();  // normally done in a simulation loop
         
         
-        for(Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+        for(MeshBasedTissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
             spring_iterator!=tissue.SpringsEnd();
             ++spring_iterator)
         {
@@ -232,15 +232,15 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        Tissue<2> tissue(*p_mesh, cells);               
+        MeshBasedTissue<2> tissue(*p_mesh, cells);               
         tissue.SetGhostNodes(ghost_node_indices);
 
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
        
-         // check that the force between nodes is correctly calculated when the spring constant is constant (!)
+        // Check that the force between nodes is correctly calculated when the spring constant is constant (!)
         meineke_spring_system.SetEdgeBasedSpringConstant(false);
                       
-        for(Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+        for(MeshBasedTissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
             spring_iterator!=tissue.SpringsEnd();
             ++spring_iterator)
         {
@@ -251,11 +251,12 @@ public:
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],6.25,1e-3);
         }
         
-        // check that the force between nodes is correctly calculated when the spring constant 
+        // Check that the force between nodes is correctly calculated when the spring constant 
         // is proportional to the length of the edge between adjacenet cells  
         meineke_spring_system.SetEdgeBasedSpringConstant(true); 
         tissue.CreateVoronoiTessellation();  
-        for(Tissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+        
+        for(MeshBasedTissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
             spring_iterator!=tissue.SpringsEnd();
             ++spring_iterator)
         {
@@ -289,7 +290,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        Tissue<2> crypt(*p_mesh, cells);               
+        MeshBasedTissue<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
         crypt.CreateVoronoiTessellation();  // normally done in a simulation loop
@@ -353,7 +354,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true); // true = mature cells
 
-        Tissue<2> tissue(*p_mesh, cells);               
+        MeshBasedTissue<2> tissue(*p_mesh, cells);               
         tissue.SetGhostNodes(ghost_node_indices);
 
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
@@ -387,7 +388,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
-        Tissue<2> tissue(mesh, cells);
+        MeshBasedTissue<2> tissue(mesh, cells);
         
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
         
@@ -430,7 +431,7 @@ public:
         std::vector<TissueCell> cells;                      
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_TWO, false);
         
-        Tissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);  
         
         WntGradient::Instance()->SetType(LINEAR);  
@@ -464,7 +465,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
-        Tissue<2> stretched_tissue(*p_mesh,cells);
+        MeshBasedTissue<2> stretched_tissue(*p_mesh,cells);
         stretched_tissue.SetGhostNodes(ghost_node_indices);        
                 
         // As there is no tissue simulation we must explicitly initialise the cells
@@ -493,7 +494,7 @@ public:
         std::vector<TissueCell> cells2;
         CellsGenerator<2>::GenerateBasic(cells2, *p_mesh2);
         
-        Tissue<2> squashed_tissue(*p_mesh2,cells2);
+        MeshBasedTissue<2> squashed_tissue(*p_mesh2,cells2);
         squashed_tissue.SetGhostNodes(ghost_node_indices2);
         squashed_tissue.InitialiseCells();
         
@@ -527,7 +528,7 @@ public:
             cells.push_back(cell);
         }
         
-        Tissue<3> tissue(mesh,cells);
+        MeshBasedTissue<3> tissue(mesh,cells);
         Meineke2001SpringSystem<3> meineke_spring_system(tissue);
 
         // Test forces on springs
@@ -584,7 +585,7 @@ public:
         //
         ConformingTetrahedralMesh<3,3> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
-        Tissue<3> tissue2(mesh2,cells);
+        MeshBasedTissue<3> tissue2(mesh2,cells);
         Meineke2001SpringSystem<3> meineke_spring_system2(tissue2);
 
         c_vector<double,3> old_point = mesh2.GetNode(0)->rGetLocation();
@@ -637,7 +638,7 @@ public:
                 cells.push_back(cell);
             }
         
-            Tissue<2> tissue(mesh,cells);
+            MeshBasedTissue<2> tissue(mesh,cells);
             Meineke2001SpringSystem<2> meineke_spring_system(tissue);
          
             std::ofstream ofs(archive_filename.c_str());
@@ -656,7 +657,7 @@ public:
         }
        
         {
-            Tissue<2>::meshPathname = "mesh/test/data/square_2_elements";
+            MeshBasedTissue<2>::meshPathname = "mesh/test/data/square_2_elements";
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);

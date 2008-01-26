@@ -8,7 +8,7 @@
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
 #include <vector>
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 #include "CryptStatistics.hpp"
 #include "CryptSimulation2d.hpp"
 #include "OutputFileHandler.hpp"
@@ -59,7 +59,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        Tissue<2> crypt(*p_mesh, cells);          
+        MeshBasedTissue<2> crypt(*p_mesh, cells);          
         crypt.InitialiseCells(); // must be called explicitly as there is no simulation     
         crypt.SetGhostNodes(ghost_node_indices);
 
@@ -159,7 +159,7 @@ public:
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC, true,
                                             0.3,2.0,3.0,4.0,true);
         
-        Tissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
                 
         CryptSimulation2d simulator(crypt, NULL, false, false);
@@ -208,8 +208,8 @@ public:
 
         // TEST crypt_statistics::LabelSPhaseCells
         
-        // First remove labels.
-        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
+        // First remove labels
+        for (MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -220,7 +220,7 @@ public:
 
         // Iterate over cells checking for correct labels
         unsigned counter = 0;
-        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -242,7 +242,7 @@ public:
         crypt_statistics.LabelAllCellsAsHealthy();
         // Iterate over cells checking for correct labels
         counter = 0;
-        for (Tissue<2>::Iterator cell_iter = crypt.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -262,7 +262,8 @@ public:
         // Set cells which are not in the crypt section to be in state APC_ONE_HIT, so that we can
         // see the section
         test_section=crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
-                for (Tissue<2>::Iterator cell_iter = crypt.Begin();
+
+        for (MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -347,7 +348,7 @@ public:
         std::vector<bool> labelled;    
                      
         CryptStatistics* p_crypt_statistics;
-        Tissue<2>* p_crypt;
+        MeshBasedTissue<2>* p_crypt;
         
         HoneycombMeshGenerator generator = HoneycombMeshGenerator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         ghost_node_indices = generator.GetGhostNodeIndices(); 
@@ -373,7 +374,7 @@ public:
                                                 0.3,2.0,3.0,4.0,true);
             
             // set up crypt      
-            p_crypt = new Tissue<2>(*p_mesh, cells);        
+            p_crypt = new MeshBasedTissue<2>(*p_mesh, cells);        
             (*p_crypt).SetGhostNodes(ghost_node_indices);
             
             // set up crypt simulation

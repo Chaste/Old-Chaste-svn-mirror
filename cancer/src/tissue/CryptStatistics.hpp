@@ -30,7 +30,7 @@ public :
      * 
      *  @param rCrypt The crypt
      */
-    CryptStatistics(Tissue<2>& rCrypt)
+    CryptStatistics(MeshBasedTissue<2>& rCrypt)
         : AbstractCryptStatistics(rCrypt) {};
     
     /**

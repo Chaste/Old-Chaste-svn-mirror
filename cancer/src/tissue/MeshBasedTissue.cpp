@@ -1,7 +1,7 @@
-#ifndef TISSUE_CPP
-#define TISSUE_CPP
+#ifndef MESHBASEDTISSUE_CPP
+#define MESHBASEDTISSUE_CPP
 
-#include "Tissue.hpp"
+#include "MeshBasedTissue.hpp"
 #include "CancerParameters.hpp"
 #include "VoronoiTessellation.cpp"
 
@@ -23,7 +23,7 @@ enum cell_colours
 // *cannot* be cells, making it more difficult to construct the cells.
 // also check cell.GetNodeIndices() is in the mesh, and covers the mesh, etc.
 template<unsigned DIM>
-Tissue<DIM>::Tissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
+MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
                   const std::vector<TissueCell>& rCells,
                   bool deleteMesh)
              : mrMesh(rMesh),
@@ -57,7 +57,7 @@ Tissue<DIM>::Tissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
 }
 
 template<unsigned DIM>
-Tissue<DIM>::Tissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh)
+MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh)
              : mrMesh(rMesh)
 {
     mpVoronoiTessellation = NULL;
@@ -65,7 +65,7 @@ Tissue<DIM>::Tissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh)
 }
 
 template<unsigned DIM>
-Tissue<DIM>::~Tissue()
+MeshBasedTissue<DIM>::~MeshBasedTissue()
 {
     if (mDeleteMesh)
     {
@@ -76,7 +76,7 @@ Tissue<DIM>::~Tissue()
 }
 
 template<unsigned DIM>
-void Tissue<DIM>::InitialiseCells()
+void MeshBasedTissue<DIM>::InitialiseCells()
 {
     for(std::list<TissueCell>::iterator iter = mCells.begin();
         iter != mCells.end();
@@ -91,7 +91,7 @@ void Tissue<DIM>::InitialiseCells()
 // (for the time being, we are allowing ghost nodes to also have cells 
 // associated with it, although this isn't very clean)
 template<unsigned DIM>
-void Tissue<DIM>::Validate()
+void MeshBasedTissue<DIM>::Validate()
 {
 	std::vector<bool> validated_node = mIsGhostNode; 
 	for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
@@ -112,13 +112,13 @@ void Tissue<DIM>::Validate()
 }
 
 template<unsigned DIM>
-TissueCell& Tissue<DIM>::rGetCellAtNodeIndex(unsigned nodeGlobalIndex)
+TissueCell& MeshBasedTissue<DIM>::rGetCellAtNodeIndex(unsigned nodeGlobalIndex)
 {
     return *(mNodeCellMap[nodeGlobalIndex]);
 }
 
 template<unsigned DIM>
-Node<DIM>* Tissue<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
+Node<DIM>* MeshBasedTissue<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
 {
     // Find the node to which this cell corresponds
     unsigned node_index = rCell.GetNodeIndex();
@@ -126,43 +126,43 @@ Node<DIM>* Tissue<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
 }
 
 template<unsigned DIM>
-c_vector<double, DIM> Tissue<DIM>::GetLocationOfCell(const TissueCell& rCell)
+c_vector<double, DIM> MeshBasedTissue<DIM>::GetLocationOfCell(const TissueCell& rCell)
 {
     return GetNodeCorrespondingToCell(rCell)->rGetLocation();
 }
 
 template<unsigned DIM>
-ConformingTetrahedralMesh<DIM, DIM>& Tissue<DIM>::rGetMesh()
+ConformingTetrahedralMesh<DIM, DIM>& MeshBasedTissue<DIM>::rGetMesh()
 {
     return mrMesh;
 }
 
 template<unsigned DIM>
-std::list<TissueCell>& Tissue<DIM>::rGetCells()
+std::list<TissueCell>& MeshBasedTissue<DIM>::rGetCells()
 {
     return mCells;
 }
 
 template<unsigned DIM>
-const ConformingTetrahedralMesh<DIM, DIM>& Tissue<DIM>::rGetMesh() const
+const ConformingTetrahedralMesh<DIM, DIM>& MeshBasedTissue<DIM>::rGetMesh() const
 {
     return mrMesh;
 }
 
 template<unsigned DIM>
-const std::list<TissueCell>& Tissue<DIM>::rGetCells() const
+const std::list<TissueCell>& MeshBasedTissue<DIM>::rGetCells() const
 {
     return mCells;
 }
 
 template<unsigned DIM>
-std::vector<bool>& Tissue<DIM>::rGetGhostNodes()
+std::vector<bool>& MeshBasedTissue<DIM>::rGetGhostNodes()
 {
     return mIsGhostNode;
 }
 
 template<unsigned DIM>
-std::set<unsigned> Tissue<DIM>::GetGhostNodeIndices()
+std::set<unsigned> MeshBasedTissue<DIM>::GetGhostNodeIndices()
 {
     std::set<unsigned> ghost_node_indices;
     for (unsigned i=0; i<mIsGhostNode.size(); i++)
@@ -176,13 +176,13 @@ std::set<unsigned> Tissue<DIM>::GetGhostNodeIndices()
 }
 
 template<unsigned DIM>
-void Tissue<DIM>::SetGhostNodes(const std::vector<bool>& rGhostNodes)
+void MeshBasedTissue<DIM>::SetGhostNodes(const std::vector<bool>& rGhostNodes)
 {
     mIsGhostNode = rGhostNodes;
 }
 
 template<unsigned DIM> 
-void Tissue<DIM>::SetGhostNodes(const std::set<unsigned>& ghostNodeIndices)
+void MeshBasedTissue<DIM>::SetGhostNodes(const std::set<unsigned>& ghostNodeIndices)
 {
     // Reinitialise all to false..
     mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
@@ -197,7 +197,7 @@ void Tissue<DIM>::SetGhostNodes(const std::set<unsigned>& ghostNodeIndices)
 }
 
 template<unsigned DIM>
-unsigned Tissue<DIM>::RemoveDeadCells()
+unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
 {
     unsigned num_removed = 0;
     for (std::list<TissueCell>::iterator it = mCells.begin();
@@ -245,7 +245,7 @@ unsigned Tissue<DIM>::RemoveDeadCells()
 }
 
 template<unsigned DIM>
-void Tissue<DIM>::UpdateGhostPositions(double dt)
+void MeshBasedTissue<DIM>::UpdateGhostPositions(double dt)
 {
     std::vector<c_vector<double, DIM> > drdt(mrMesh.GetNumAllNodes());
     for (unsigned i=0; i<drdt.size(); i++)
@@ -302,7 +302,7 @@ void Tissue<DIM>::UpdateGhostPositions(double dt)
  * @return The force exerted on Node A by Node B.
  */
 template<unsigned DIM> 
-c_vector<double, DIM> Tissue<DIM>::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
+c_vector<double, DIM> MeshBasedTissue<DIM>::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
 {
     assert(rNodeAGlobalIndex!=rNodeBGlobalIndex);
     c_vector<double, DIM> unit_difference;
@@ -322,14 +322,14 @@ c_vector<double, DIM> Tissue<DIM>::CalculateForceBetweenNodes(const unsigned& rN
 }
 
 template<unsigned DIM>
-void Tissue<DIM>::MoveCell(Iterator iter, ChastePoint<DIM>& rNewLocation)
+void MeshBasedTissue<DIM>::MoveCell(Iterator iter, ChastePoint<DIM>& rNewLocation)
 {
     unsigned index = iter.GetNode()->GetIndex();
     mrMesh.SetNode(index, rNewLocation, false);
 }
 
 template<unsigned DIM>  
-TissueCell* Tissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
+TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
 {
     Node<DIM>* p_new_node = new Node<DIM>(mrMesh.GetNumNodes(), newLocation, false);   // never on boundary
               
@@ -351,7 +351,7 @@ TissueCell* Tissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLoc
 }
 
 template<unsigned DIM>
-void Tissue<DIM>::ReMesh()
+void MeshBasedTissue<DIM>::ReMesh()
 {
     NodeMap map(mrMesh.GetNumAllNodes());
     mrMesh.ReMesh(map);
@@ -435,7 +435,7 @@ void Tissue<DIM>::ReMesh()
 }
 
 template<unsigned DIM>
-unsigned Tissue<DIM>::GetNumRealCells()
+unsigned MeshBasedTissue<DIM>::GetNumRealCells()
 {
 	unsigned counter = 0;
 	for(Iterator cell_iter=Begin(); cell_iter!=End(); ++cell_iter)
@@ -446,7 +446,7 @@ unsigned Tissue<DIM>::GetNumRealCells()
 }
 
 template<unsigned DIM> 
-void Tissue<DIM>::SetCellAncestorsToNodeIndices()
+void MeshBasedTissue<DIM>::SetCellAncestorsToNodeIndices()
 {
     for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
     {
@@ -455,7 +455,7 @@ void Tissue<DIM>::SetCellAncestorsToNodeIndices()
 }
 
 template<unsigned DIM> 
-void Tissue<DIM>::SetBottomCellAncestors()
+void MeshBasedTissue<DIM>::SetBottomCellAncestors()
 {
     unsigned index = 0;
     for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
@@ -468,7 +468,7 @@ void Tissue<DIM>::SetBottomCellAncestors()
 }
 
 template<unsigned DIM> 
-std::set<unsigned> Tissue<DIM>::GetCellAncestors()
+std::set<unsigned> MeshBasedTissue<DIM>::GetCellAncestors()
 {
     std::set<unsigned> remaining_ancestors;
     for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
@@ -483,40 +483,40 @@ std::set<unsigned> Tissue<DIM>::GetCellAncestors()
 //                             Iterator class                               // 
 //////////////////////////////////////////////////////////////////////////////
 template<unsigned DIM>
-TissueCell& Tissue<DIM>::Iterator::operator*()
+TissueCell& MeshBasedTissue<DIM>::Iterator::operator*()
 {
     assert(!IsAtEnd());
     return *mCellIter;
 }
 
 template<unsigned DIM>
-TissueCell* Tissue<DIM>::Iterator::operator->()
+TissueCell* MeshBasedTissue<DIM>::Iterator::operator->()
 {
     assert(!IsAtEnd());
     return &(*mCellIter);
 }
 
 template<unsigned DIM>
-Node<DIM>* Tissue<DIM>::Iterator::GetNode()
+Node<DIM>* MeshBasedTissue<DIM>::Iterator::GetNode()
 {
     assert(!IsAtEnd());
     return mrTissue.rGetMesh().GetNode(mNodeIndex);
 }
 
 template<unsigned DIM>
-const c_vector<double, DIM>& Tissue<DIM>::Iterator::rGetLocation()
+const c_vector<double, DIM>& MeshBasedTissue<DIM>::Iterator::rGetLocation()
 {
     return GetNode()->rGetLocation();
 }
 
 template<unsigned DIM>
-bool Tissue<DIM>::Iterator::operator!=(const Tissue<DIM>::Iterator& other)
+bool MeshBasedTissue<DIM>::Iterator::operator!=(const MeshBasedTissue<DIM>::Iterator& other)
 {
     return mCellIter != other.mCellIter;   
 }
 
 template<unsigned DIM>
-typename Tissue<DIM>::Iterator& Tissue<DIM>::Iterator::operator++()
+typename MeshBasedTissue<DIM>::Iterator& MeshBasedTissue<DIM>::Iterator::operator++()
 {
     do
     {
@@ -532,20 +532,20 @@ typename Tissue<DIM>::Iterator& Tissue<DIM>::Iterator::operator++()
 }
 
 template<unsigned DIM>
-bool Tissue<DIM>::Iterator::IsRealCell()
+bool MeshBasedTissue<DIM>::Iterator::IsRealCell()
 {
     assert(mrTissue.rGetGhostNodes().size() == mrTissue.rGetMesh().GetNumAllNodes() );
     return !(mrTissue.rGetGhostNodes()[mNodeIndex] || GetNode()->IsDeleted() || (*this)->IsDead());
 }
 
 template<unsigned DIM>
-bool Tissue<DIM>::Iterator::IsAtEnd()
+bool MeshBasedTissue<DIM>::Iterator::IsAtEnd()
 {
     return mCellIter == mrTissue.rGetCells().end();
 }
 
 template<unsigned DIM>
-Tissue<DIM>::Iterator::Iterator(Tissue& rTissue, std::list<TissueCell>::iterator cellIter)
+MeshBasedTissue<DIM>::Iterator::Iterator(MeshBasedTissue& rTissue, std::list<TissueCell>::iterator cellIter)
     : mrTissue(rTissue),
       mCellIter(cellIter)
 {
@@ -563,13 +563,13 @@ Tissue<DIM>::Iterator::Iterator(Tissue& rTissue, std::list<TissueCell>::iterator
 }
 
 template<unsigned DIM>
-typename Tissue<DIM>::Iterator Tissue<DIM>::Begin()
+typename MeshBasedTissue<DIM>::Iterator MeshBasedTissue<DIM>::Begin()
 {
     return Iterator(*this, mCells.begin());
 }
 
 template<unsigned DIM>
-typename Tissue<DIM>::Iterator Tissue<DIM>::End()
+typename MeshBasedTissue<DIM>::Iterator MeshBasedTissue<DIM>::End()
 {
     return Iterator(*this, mCells.end());
 }
@@ -580,13 +580,13 @@ typename Tissue<DIM>::Iterator Tissue<DIM>::End()
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM> 
-c_vector<unsigned,5> Tissue<DIM>::GetCellTypeCount()
+c_vector<unsigned,5> MeshBasedTissue<DIM>::GetCellTypeCount()
 {
     return mCellTypeCount;
 }
 
 template<unsigned DIM>
-void Tissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes)
+void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes)
 {
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpNodeFile = output_file_handler.OpenOutputFile("results.viznodes");
@@ -600,7 +600,7 @@ void Tissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOu
 }
 
 template<unsigned DIM>
-void Tissue<DIM>::CloseOutputFiles()
+void MeshBasedTissue<DIM>::CloseOutputFiles()
 {
     mpNodeFile->close();
     mpElementFile->close();
@@ -608,7 +608,7 @@ void Tissue<DIM>::CloseOutputFiles()
 }
 
 template<unsigned DIM>  
-void Tissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
+void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
 {
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
@@ -762,39 +762,39 @@ void Tissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
-Node<DIM>* Tissue<DIM>::SpringIterator::GetNodeA()
+Node<DIM>* MeshBasedTissue<DIM>::SpringIterator::GetNodeA()
 {
     return mEdgeIter.GetNodeA();
 }
 
 template<unsigned DIM>
-Node<DIM>* Tissue<DIM>::SpringIterator::GetNodeB()
+Node<DIM>* MeshBasedTissue<DIM>::SpringIterator::GetNodeB()
 {
     return mEdgeIter.GetNodeB();
 }
 
 template<unsigned DIM>
-TissueCell& Tissue<DIM>::SpringIterator::rGetCellA()
+TissueCell& MeshBasedTissue<DIM>::SpringIterator::rGetCellA()
 {
     assert((*this) != mrTissue.SpringsEnd());
     return mrTissue.rGetCellAtNodeIndex(mEdgeIter.GetNodeA()->GetIndex());
 }
 
 template<unsigned DIM>
-TissueCell& Tissue<DIM>::SpringIterator::rGetCellB()
+TissueCell& MeshBasedTissue<DIM>::SpringIterator::rGetCellB()
 {
     assert((*this) != mrTissue.SpringsEnd());
     return mrTissue.rGetCellAtNodeIndex(mEdgeIter.GetNodeB()->GetIndex());
 }
 
 template<unsigned DIM>
-bool Tissue<DIM>::SpringIterator::operator!=(const Tissue<DIM>::SpringIterator& other)
+bool MeshBasedTissue<DIM>::SpringIterator::operator!=(const MeshBasedTissue<DIM>::SpringIterator& other)
 {
     return (mEdgeIter != other.mEdgeIter);
 }
 
 template<unsigned DIM>
-typename Tissue<DIM>::SpringIterator& Tissue<DIM>::SpringIterator::operator++()
+typename MeshBasedTissue<DIM>::SpringIterator& MeshBasedTissue<DIM>::SpringIterator::operator++()
 {
     bool edge_is_ghost = false;
     
@@ -815,7 +815,7 @@ typename Tissue<DIM>::SpringIterator& Tissue<DIM>::SpringIterator::operator++()
 }
 
 template<unsigned DIM>
-Tissue<DIM>::SpringIterator::SpringIterator(Tissue& rTissue,
+MeshBasedTissue<DIM>::SpringIterator::SpringIterator(MeshBasedTissue& rTissue,
                                            typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edgeIter)
     : mrTissue(rTissue),
       mEdgeIter(edgeIter)
@@ -833,26 +833,26 @@ Tissue<DIM>::SpringIterator::SpringIterator(Tissue& rTissue,
 }
 
 template<unsigned DIM>
-typename Tissue<DIM>::SpringIterator Tissue<DIM>::SpringsBegin()
+typename MeshBasedTissue<DIM>::SpringIterator MeshBasedTissue<DIM>::SpringsBegin()
 {
     return SpringIterator(*this, mrMesh.EdgesBegin());
 }
 
 template<unsigned DIM>
-typename Tissue<DIM>::SpringIterator Tissue<DIM>::SpringsEnd()
+typename MeshBasedTissue<DIM>::SpringIterator MeshBasedTissue<DIM>::SpringsEnd()
 {
     return SpringIterator(*this, mrMesh.EdgesEnd());
 }
 
 template<unsigned DIM>
-void Tissue<DIM>::CreateVoronoiTessellation()
+void MeshBasedTissue<DIM>::CreateVoronoiTessellation()
 {
     delete mpVoronoiTessellation;
     mpVoronoiTessellation = new VoronoiTessellation<DIM>(mrMesh);
 }
 
 template<unsigned DIM>
-VoronoiTessellation<DIM>& Tissue<DIM>::rGetVoronoiTessellation()
+VoronoiTessellation<DIM>& MeshBasedTissue<DIM>::rGetVoronoiTessellation()
 {
     assert(mpVoronoiTessellation!=NULL);
     return *mpVoronoiTessellation;
@@ -860,7 +860,7 @@ VoronoiTessellation<DIM>& Tissue<DIM>::rGetVoronoiTessellation()
 
 #define COVERAGE_IGNORE
 template<unsigned DIM>
-void Tissue<DIM>::CheckTissueCellPointers()
+void MeshBasedTissue<DIM>::CheckTissueCellPointers()
 {
     bool res=true;
     for (std::list<TissueCell>::iterator it=mCells.begin();
@@ -937,7 +937,7 @@ void Tissue<DIM>::CheckTissueCellPointers()
 #undef COVERAGE_IGNORE
 
 template<unsigned DIM>
-std::set<TissueCell*> Tissue<DIM>::CreateCellPair(TissueCell& rCell1, TissueCell& rCell2)
+std::set<TissueCell*> MeshBasedTissue<DIM>::CreateCellPair(TissueCell& rCell1, TissueCell& rCell2)
 {
     std::set<TissueCell *> cell_pair;
     cell_pair.insert(&rCell1);
@@ -946,25 +946,25 @@ std::set<TissueCell*> Tissue<DIM>::CreateCellPair(TissueCell& rCell1, TissueCell
 }
 
 template<unsigned DIM>
-bool Tissue<DIM>::IsMarkedSpring(TissueCell& rCell1, TissueCell& rCell2)
+bool MeshBasedTissue<DIM>::IsMarkedSpring(TissueCell& rCell1, TissueCell& rCell2)
 {
     std::set<TissueCell *> cell_pair = CreateCellPair(rCell1, rCell2);
     return mMarkedSprings.find(cell_pair) != mMarkedSprings.end();
 }
 
 template<unsigned DIM>
-void Tissue<DIM>::MarkSpring(TissueCell& rCell1, TissueCell& rCell2)
+void MeshBasedTissue<DIM>::MarkSpring(TissueCell& rCell1, TissueCell& rCell2)
 {
     std::set<TissueCell *> cell_pair = CreateCellPair(rCell1, rCell2);
     mMarkedSprings.insert(cell_pair);
 }
 
 template<unsigned DIM>
-void Tissue<DIM>::UnmarkSpring(TissueCell& rCell1, TissueCell& rCell2)
+void MeshBasedTissue<DIM>::UnmarkSpring(TissueCell& rCell1, TissueCell& rCell2)
 {
     std::set<TissueCell *> cell_pair = CreateCellPair(rCell1, rCell2);
     mMarkedSprings.erase(cell_pair);
 }
 
-#endif //TISSUE_CPP
+#endif //MESHBASEDTISSUE_CPP
 

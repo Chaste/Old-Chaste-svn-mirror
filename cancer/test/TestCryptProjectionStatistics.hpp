@@ -8,7 +8,7 @@
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
 #include <vector>
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 #include "CryptProjectionStatistics.hpp"
 #include "TissueSimulation.cpp"
 #include "OutputFileHandler.hpp"
@@ -68,7 +68,7 @@ public:
         }
                                                           
         // Make a tissue
-        Tissue<2> crypt(*p_mesh, cells);         
+        MeshBasedTissue<2> crypt(*p_mesh, cells);         
         crypt.SetGhostNodes(ghost_node_indices);          
         
         // Set up the Wnt gradient 

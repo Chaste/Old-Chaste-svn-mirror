@@ -47,7 +47,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
-        Tissue<2> tissue(*p_mesh,cells);
+        MeshBasedTissue<2> tissue(*p_mesh,cells);
         tissue.SetGhostNodes(ghost_node_indices);
         tissue.CreateVoronoiTessellation();
         
@@ -81,7 +81,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
-        Tissue<2> tissue(*p_mesh,cells);
+        MeshBasedTissue<2> tissue(*p_mesh,cells);
         tissue.SetGhostNodes(ghost_node_indices);
         
         // Flag a cell
@@ -122,7 +122,7 @@ public:
         // Set one of the non-boundary cells to be necrotic
         cells[6].SetCellType(NECROTIC);
         
-        Tissue<2> tissue(*p_mesh,cells);
+        MeshBasedTissue<2> tissue(*p_mesh,cells);
         tissue.SetGhostNodes(ghost_node_indices);
         tissue.CreateVoronoiTessellation();
 

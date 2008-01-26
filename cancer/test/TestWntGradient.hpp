@@ -9,7 +9,7 @@
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
 #include "WntGradient.hpp"
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 #include "TissueCell.hpp"
 #include "WntCellCycleModel.hpp"
 
@@ -171,11 +171,11 @@ public:
         }
         
         // create a crypt
-        Tissue<2> crypt(mesh,cells);        
+        MeshBasedTissue<2> crypt(mesh,cells);        
         CancerParameters::Instance()->SetCryptLength(1.0);
         p_wnt_gradient->SetTissue(crypt);
         
-        Tissue<2>::Iterator cell_iter = crypt.Begin();
+        MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
         
         double wnt_gradient_at_cell0 = p_wnt_gradient->GetWntLevel(&(*cell_iter));
         
@@ -193,8 +193,7 @@ public:
         archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_grad.arch";
         
         // Create an ouput archive
-        {
-            
+        {            
             WntGradient::Instance()->SetType(LINEAR);
             
             std::ofstream ofs(archive_filename.c_str());
@@ -290,7 +289,7 @@ public:
         }
         
         // Create the crypt
-        Tissue<2> crypt(mesh,cells);
+        MeshBasedTissue<2> crypt(mesh,cells);
         
         CancerParameters::Instance()->SetCryptLength(1.0);
 
@@ -300,7 +299,7 @@ public:
         // As there is no tissue simulation we must explicitly initialise the cells
         crypt.InitialiseCells();
         
-        Tissue<2>::Iterator iter = crypt.Begin();
+        MeshBasedTissue<2>::Iterator iter = crypt.Begin();
         
         while(iter!=crypt.End())
         {

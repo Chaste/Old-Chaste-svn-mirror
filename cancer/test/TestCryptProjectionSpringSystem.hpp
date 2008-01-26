@@ -64,7 +64,7 @@ public:
         }
 
         // Create a tissue
-        Tissue<2> tissue(*p_mesh, cells);
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
         tissue.MarkSpring(tissue.rGetCellAtNodeIndex(4), tissue.rGetCellAtNodeIndex(5));
         tissue.SetGhostNodes(ghost_node_indices);
         
@@ -169,7 +169,7 @@ public:
         // Normally this would be set up at the start of rCalculateVelocitiesOfEachNode
         flat_crypt_spring_system.UpdateNode3dLocationMap();
                 
-        for(Tissue<2>::SpringIterator spring_iterator = tissue.SpringsBegin();
+        for(MeshBasedTissue<2>::SpringIterator spring_iterator = tissue.SpringsBegin();
             spring_iterator != tissue.SpringsEnd();
             ++spring_iterator)
         {        
@@ -212,7 +212,7 @@ public:
                 cells.push_back(cell);
             }
         
-            Tissue<2> crypt(mesh,cells);
+            MeshBasedTissue<2> crypt(mesh,cells);
             p_params->SetCryptProjectionParameterA(1.0);
             p_params->SetCryptProjectionParameterB(2.0);
             CryptProjectionSpringSystem spring_system(crypt);
@@ -229,7 +229,7 @@ public:
         }
        
         {
-            Tissue<2>::meshPathname = "mesh/test/data/square_2_elements";
+            MeshBasedTissue<2>::meshPathname = "mesh/test/data/square_2_elements";
             
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);

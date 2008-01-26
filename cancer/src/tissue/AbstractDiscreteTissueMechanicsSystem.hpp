@@ -4,7 +4,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
 
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 
 /**
  * An abstract discrete tissue mechanics system that contains basic 
@@ -24,11 +24,11 @@ private :
     	
 protected :
 	
-	Tissue<DIM>& mrTissue;
+	MeshBasedTissue<DIM>& mrTissue;
 
 public : 
 	
-    AbstractDiscreteTissueMechanicsSystem(Tissue<DIM>& rTissue)
+    AbstractDiscreteTissueMechanicsSystem(MeshBasedTissue<DIM>& rTissue)
         : mrTissue(rTissue)
     {
     }
@@ -59,13 +59,13 @@ public :
     /**
      *  Get the tissue. Needed for archiving
      */
-    const Tissue<DIM>& rGetTissue() const
+    const MeshBasedTissue<DIM>& rGetTissue() const
     {
         return mrTissue;
     }
     
     ///\ todo: named wrong
-    Tissue<DIM>& GetTissue()
+    MeshBasedTissue<DIM>& GetTissue()
     {
         return mrTissue;
     }

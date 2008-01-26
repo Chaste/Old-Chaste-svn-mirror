@@ -10,12 +10,12 @@
  *  returns a variable damping factor. The two ways that the damping is changed from
  *  the normal value - CancerParameters::GetDampingConstantNormal() - is if
  *  
- *  (a) a cell's is neither HEALTHY nor APC_ONE_HIT
+ *  (a) a cell's mutation state is neither HEALTHY nor APC_ONE_HIT
  *  (b) if mUseAreaBasedViscosity is turned on, in which case the damping = old_damping_const*(d0+d1*A),
  *  where A is the cell's voronoi area, and d0,d1 are constants (see code for values), and
  *  old_damping_const is whatever the damping constant would be in (a).
  * 
- *  \todo: make d0,d1 member variables, or allow the user to provide a functional form of
+ *  \todo: make d0, d1 member variables, or allow the user to provide a functional form of
  *  d(A), if this ever becomes needed.
  */
 template<unsigned DIM>
@@ -87,7 +87,7 @@ protected :
     
 
 public :
-    AbstractVariableDampingMechanicsSystem(Tissue<DIM>& rTissue)
+    AbstractVariableDampingMechanicsSystem(MeshBasedTissue<DIM>& rTissue)
         : AbstractDiscreteTissueMechanicsSystem<DIM>(rTissue)
     {
         mUseAreaBasedViscosity = false;

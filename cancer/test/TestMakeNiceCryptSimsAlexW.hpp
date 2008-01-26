@@ -120,7 +120,7 @@ public:
 //        std::vector<TissueCell> cells;
 //        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_TWO, true);
 //              
-//        Tissue<2> crypt(*p_mesh, cells);
+//        MeshBasedTissue<2> crypt(*p_mesh, cells);
 //        crypt.SetGhostNodes(ghost_node_indices);
 //                
 //        WntGradient::Instance()->SetType(LINEAR);
@@ -201,7 +201,7 @@ public:
 //        std::vector<TissueCell> cells;
 //        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, SIMPLE_WNT, true);
 //              
-//        Tissue<2> crypt(*p_mesh, cells);
+//        MeshBasedTissue<2> crypt(*p_mesh, cells);
 //        crypt.SetGhostNodes(ghost_node_indices);
 //                
 //        WntGradient::Instance()->SetType(LINEAR);
@@ -282,35 +282,32 @@ public:
     
     
 void TestAreaDependentAndLengthDependentCarryOn() throw (Exception)
+{
+    std::string output_directory = "Noddy_WNT_Yes_Area_Yes_Length";
+    
+    // The archive needs to be copied from cancer/test/data/<test_to_profile>
+    // to the testoutput directory to continue running the simulation.     
+    std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+    std::string test_data_directory = "cancer/test/data/" + output_directory +"/";
+    std::string command = "cp -Rf --remove-destination " + test_data_directory +" "+ test_output_directory +"/";     
+    int return_value = system(command.c_str());
+    TS_ASSERT_EQUALS(return_value, 0);
+    
+    double time_of_each_run = 0.50;
+    double end_of_simulation = 105.0;
+    double start_time = 103.0;
+    SimulationTime::Instance()->SetStartTime(start_time);
+    for (double t=start_time; t<end_of_simulation+0.5; t += time_of_each_run)
     {
-        
-        
-        std::string output_directory = "Noddy_WNT_Yes_Area_Yes_Length";
-        
-        // The archive needs to be copied from cancer/test/data/<test_to_profile>
-        // to the testoutput directory to continue running the simulation.     
-        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string test_data_directory = "cancer/test/data/" + output_directory +"/";
-        std::string command = "cp -Rf --remove-destination " + test_data_directory +" "+ test_output_directory +"/";     
-        int return_value = system(command.c_str());
-        TS_ASSERT_EQUALS(return_value, 0);
-        
-        
-        double time_of_each_run = 0.50;
-        double end_of_simulation = 105.0;
-        double start_time = 103.0;
-        SimulationTime::Instance()->SetStartTime(start_time);
-        for (double t=start_time; t<end_of_simulation+0.5; t += time_of_each_run)
-        {
-            std::cout<< "Results from time " << t << "\n" << std::flush;
-            CryptSimulation2d* p_simulator = CryptSimulation2d::Load(output_directory,t);
-            p_simulator->SetEndTime(t+time_of_each_run);
-            p_simulator->Solve();
-            p_simulator->Save();
-            delete p_simulator;
-        }
-        SimulationTime::Destroy();
+        std::cout<< "Results from time " << t << "\n" << std::flush;
+        CryptSimulation2d* p_simulator = CryptSimulation2d::Load(output_directory,t);
+        p_simulator->SetEndTime(t+time_of_each_run);
+        p_simulator->Solve();
+        p_simulator->Save();
+        delete p_simulator;
     }
+    SimulationTime::Destroy();
+}
     
     
 std::vector<unsigned> Label()

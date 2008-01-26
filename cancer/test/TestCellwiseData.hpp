@@ -8,7 +8,7 @@
 
 #include <cmath>
 #include <vector>
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 #include "CellwiseData.cpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -31,7 +31,7 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, mesh);
 
         // Create a tissue
-        Tissue<2> tissue(mesh,cells);
+        MeshBasedTissue<2> tissue(mesh,cells);
 
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
         
@@ -51,7 +51,7 @@ public:
         TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
         
         p_data->SetValue(1.23, mesh.GetNode(0));
-        Tissue<2>::Iterator iter = tissue.Begin();
+        MeshBasedTissue<2>::Iterator iter = tissue.Begin();
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter)), 1.23, 1e-12);
 
         p_data->SetValue(2.23, mesh.GetNode(1));
@@ -84,7 +84,7 @@ public:
         TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
         
         p_data->SetValue(3.23, mesh.GetNode(0), 1);
-        Tissue<2>::Iterator iter2 = tissue.Begin();
+        MeshBasedTissue<2>::Iterator iter2 = tissue.Begin();
         TS_ASSERT_DELTA( p_data->GetValue(&(*iter2), 1), 3.23, 1e-12);
 
         p_data->SetValue(4.23, mesh.GetNode(1), 1);
@@ -113,7 +113,7 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, mesh);
 
         // Create a tissue
-        Tissue<2> tissue(mesh,cells);
+        MeshBasedTissue<2> tissue(mesh,cells);
         
         // Work out where to put the archive
         OutputFileHandler handler("archive",false);
@@ -151,7 +151,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             
             // Restore from the archive
-            Tissue<2>::meshPathname = "mesh/test/data/square_4_elements";
+            MeshBasedTissue<2>::meshPathname = "mesh/test/data/square_4_elements";
             input_arch >> *p_data;
             
             // Check the data
@@ -159,7 +159,7 @@ public:
             TS_ASSERT(p_data->IsSetUp());
             TS_ASSERT(!p_data->mUseConstantDataForTesting);
             
-            for (Tissue<2>::Iterator iter = tissue.Begin();
+            for (MeshBasedTissue<2>::Iterator iter = tissue.Begin();
                  iter != tissue.End();
                  ++iter)
             {

@@ -4,7 +4,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "Tissue.cpp"
+#include "MeshBasedTissue.cpp"
 #include "AbstractVariableDampingMechanicsSystem.hpp"
 
 /**
@@ -84,7 +84,7 @@ private :
         c_vector<double, 3> node_location_3d;
 
         // only consider nodes corresponding to real cells                        
-        for (Tissue<2>::Iterator cell_iter = this->mrTissue.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter = this->mrTissue.Begin();
              cell_iter != this->mrTissue.End();
              ++cell_iter)
         {
@@ -203,7 +203,7 @@ private :
 
 public :
 
-    CryptProjectionSpringSystem(Tissue<2>& rTissue)
+    CryptProjectionSpringSystem(MeshBasedTissue<2>& rTissue)
         : AbstractVariableDampingMechanicsSystem<2>(rTissue)
     {                   
         // do not use a cutoff by default
@@ -277,7 +277,7 @@ public :
             mDrDt[i]=zero_vector<double>(2);
         }
         
-        for(Tissue<2>::SpringIterator spring_iterator=this->mrTissue.SpringsBegin();
+        for(MeshBasedTissue<2>::SpringIterator spring_iterator=this->mrTissue.SpringsBegin();
             spring_iterator!=this->mrTissue.SpringsEnd();
             ++spring_iterator)
         {
@@ -312,7 +312,7 @@ public :
     /**
      *  Get the tissue. Needed for archiving
      */
-    const Tissue<2>& rGetTissue() const
+    const MeshBasedTissue<2>& rGetTissue() const
     {
         return this->mrTissue;
     }
@@ -333,7 +333,7 @@ inline void save_construct_data(
     Archive & ar, const CryptProjectionSpringSystem * t, const BOOST_PFTO unsigned int file_version)
 {
     // save data required to construct instance
-    const Tissue<2> * p_tissue = &(t->rGetTissue());
+    const MeshBasedTissue<2> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     double a =  t->GetA();
     ar & a;
@@ -349,7 +349,7 @@ inline void load_construct_data(
     Archive & ar, CryptProjectionSpringSystem * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
-    Tissue<2>* p_tissue;
+    MeshBasedTissue<2>* p_tissue;
     double a, b;
     ar >> p_tissue;
     ar >> a;

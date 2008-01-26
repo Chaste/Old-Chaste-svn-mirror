@@ -1,5 +1,5 @@
-#ifndef TISSUE_HPP_
-#define TISSUE_HPP_
+#ifndef MESHBASEDTISSUE_HPP_
+#define MESHBASEDTISSUE_HPP_
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "TissueCell.hpp"
@@ -15,7 +15,7 @@
 
 
 /**
- * A facade class encapsulating a 'tissue'
+ * A facade class encapsulating a mesh-based 'tissue'
  * 
  * Contains a group of cells and maintains the associations between cells and
  * nodes in the mesh.
@@ -24,7 +24,7 @@
  * only ever deals with real cells.
  */
 template<unsigned DIM>
-class Tissue
+class MeshBasedTissue
 {
 private:
     
@@ -44,7 +44,7 @@ private:
     /** Map node indices back to cells. */
     std::map<unsigned, TissueCell*> mNodeCellMap;
     
-    /** Records whether a nodes is a ghost node or not */
+    /** Records whether a node is a ghost node or not */
     std::vector<bool> mIsGhostNode;
 
     /** Current cell type counts */
@@ -104,7 +104,7 @@ public:
      * @param cells TissueCells corresponding to the nodes of the mesh.
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
-    Tissue(ConformingTetrahedralMesh<DIM, DIM>&, const std::vector<TissueCell>&,
+    MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>&, const std::vector<TissueCell>&,
            bool deleteMesh=false);
           
     /**
@@ -112,9 +112,9 @@ public:
      * 
      * @param rMesh a conforming tetrahedral mesh.
      */
-    Tissue(ConformingTetrahedralMesh<DIM, DIM>&);
+    MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>&);
     
-    ~Tissue();
+    ~MeshBasedTissue();
     
     void InitialiseCells();
     
@@ -232,7 +232,7 @@ public:
         /**
          * Constructor for a new iterator.
          */
-        Iterator(Tissue& rTissue, std::list<TissueCell>::iterator cellIter);
+        Iterator(MeshBasedTissue& rTissue, std::list<TissueCell>::iterator cellIter);
         
     private:
     
@@ -249,7 +249,7 @@ public:
         */
        inline bool IsAtEnd();
     
-        Tissue& mrTissue;
+        MeshBasedTissue& mrTissue;
         std::list<TissueCell>::iterator mCellIter;
         unsigned mNodeIndex;
     };
@@ -354,14 +354,14 @@ public:
         /**
          * Constructor for a new iterator.
          */
-        SpringIterator(Tissue& rTissue, typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edgeIter);
+        SpringIterator(MeshBasedTissue& rTissue, typename ConformingTetrahedralMesh<DIM,DIM>::EdgeIterator edgeIter);
         
     private:
     
         /** Keep track of what edges have been visited */
         std::set<std::set<unsigned> > mSpringsVisited;
     
-        Tissue& mrTissue;
+        MeshBasedTissue& mrTissue;
         
         typename ConformingTetrahedralMesh<DIM, DIM>::EdgeIterator mEdgeIter;
     };
@@ -397,7 +397,7 @@ public:
 };
 
 template<unsigned DIM>
-std::string Tissue<DIM>::meshPathname = "";
+std::string MeshBasedTissue<DIM>::meshPathname = "";
 
 namespace boost
 {
@@ -408,7 +408,7 @@ namespace serialization
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
-    Archive & ar, const Tissue<DIM> * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const MeshBasedTissue<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
     const ConformingTetrahedralMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
@@ -421,25 +421,25 @@ inline void save_construct_data(
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
-    Archive & ar, Tissue<DIM> * t, const unsigned int file_version)
+    Archive & ar, MeshBasedTissue<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    assert(Tissue<DIM>::meshPathname.length() > 0);
+    assert(MeshBasedTissue<DIM>::meshPathname.length() > 0);
     ConformingTetrahedralMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
     
     // Re-initialise the mesh
     p_mesh->Clear();
-    TrianglesMeshReader<DIM,DIM> mesh_reader(Tissue<DIM>::meshPathname);
+    TrianglesMeshReader<DIM,DIM> mesh_reader(MeshBasedTissue<DIM>::meshPathname);
     p_mesh->ConstructFromMeshReader(mesh_reader);
     
     // Needed for cylindrical meshes at present; should be safe in any case.
     NodeMap map(p_mesh->GetNumNodes());
     p_mesh->ReMesh(map);
     // Invoke inplace constructor to initialize instance
-    ::new(t)Tissue<DIM>(*p_mesh);
+    ::new(t)MeshBasedTissue<DIM>(*p_mesh);
 }
 }
 } // namespace ...
 
-#endif /*TISSUE_HPP_*/
+#endif /*MESHBASEDTISSUE_HPP_*/
