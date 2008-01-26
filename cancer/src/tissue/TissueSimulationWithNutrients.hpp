@@ -43,6 +43,10 @@ private :
     	    mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");
     	    *this->mpSetupFile << "Nutrient \n" ;
     	}
+        
+        // Since there are no ghost nodes, the number of nodes must equal the number of real cells 
+        assert(this->mrTissue.rGetMesh().GetNumNodes()==this->mrTissue.GetNumRealCells());
+            
         double time = SimulationTime::Instance()->GetDimensionalisedTime();
             
         (*mpNutrientResultsFile) << time << "\t";
@@ -71,6 +75,9 @@ private :
     {
     	if (PetscTools::AmMaster())
     	{
+            // Since there are no ghost nodes, the number of nodes must equal the number of real cells 
+            assert(this->mrTissue.rGetMesh().GetNumNodes()==this->mrTissue.GetNumRealCells());
+            
             double time = SimulationTime::Instance()->GetDimensionalisedTime() + SimulationTime::Instance()->GetTimeStep();
     	    
             (*mpNutrientResultsFile) << time << "\t";
