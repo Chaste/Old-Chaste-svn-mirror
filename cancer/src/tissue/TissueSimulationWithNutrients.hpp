@@ -34,8 +34,18 @@ private :
     
     /** The file that the nutrient values are written out to. */ 
     out_stream mpNutrientResultsFile; 
-        
-    void SetupWriteNutrient() 
+    
+    void SetupSolve()
+    {
+        if (this->mrTissue.Begin() != this->mrTissue.End())
+        {
+            SetupWriteNutrient();           
+            double current_time = SimulationTime::Instance()->GetDimensionalisedTime();            
+            WriteNutrient(current_time);
+        }
+    }
+
+    void SetupWriteNutrient()
     { 
         OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false);
     	if (output_file_handler.IsMaster())
@@ -43,43 +53,15 @@ private :
     	    mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");
     	    *this->mpSetupFile << "Nutrient \n" ;
     	}
-        
-        // Since there are no ghost nodes, the number of nodes must equal the number of real cells 
-        assert(this->mrTissue.rGetMesh().GetNumNodes()==this->mrTissue.GetNumRealCells());
-            
-        double time = SimulationTime::Instance()->GetDimensionalisedTime();
-            
-        (*mpNutrientResultsFile) << time << "\t";
-        
-        unsigned global_index; 
-        double x;
-        double y;
-        double nutrient;
-
-        for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
-             cell_iter != this->mrTissue.End();
-             ++cell_iter)
-        {
-            global_index = cell_iter.GetNode()->GetIndex();
-            x = cell_iter.rGetLocation()[0];
-            y = cell_iter.rGetLocation()[1];
-                
-            nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
-                
-            (*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
-        }            
-        (*mpNutrientResultsFile) << "\n";
     } 
     
-    void WriteNutrient()
+    void WriteNutrient(double time)
     {
     	if (PetscTools::AmMaster())
     	{
             // Since there are no ghost nodes, the number of nodes must equal the number of real cells 
             assert(this->mrTissue.rGetMesh().GetNumNodes()==this->mrTissue.GetNumRealCells());
             
-            double time = SimulationTime::Instance()->GetDimensionalisedTime() + SimulationTime::Instance()->GetTimeStep();
-    	    
             (*mpNutrientResultsFile) << time << "\t";
             
     	    unsigned global_index; 
@@ -93,25 +75,16 @@ private :
     	    {
         		global_index = cell_iter.GetNode()->GetIndex();
         		x = cell_iter.rGetLocation()[0];
-        		y = cell_iter.rGetLocation()[1];
-                    
-        		nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
-                    
+        		y = cell_iter.rGetLocation()[1];                    
+        		nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));                    
+        		
         		(*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
     	    }            
     	    (*mpNutrientResultsFile) << "\n";
         }
     }
-        
-    void SetupSolve()
-    {
-        if ( this->mrTissue.Begin() != this->mrTissue.End() )  // there are any cells
-        {
-            SetupWriteNutrient();     
-        }
-    }
-        
-    void PostSolve()
+    
+    void SolveNutrientPde()
     {
         assert(mpPde);
         
@@ -206,18 +179,25 @@ private :
 //        mOxygenSolution = assembler.Solve(initial_guess);
 //        VecDestroy(initial_guess);
 //        ReplicatableVector result_repl(mOxygenSolution);
-          
+
         // Update cellwise data
         for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
         {
             double oxygen_conc = result_repl[i];
             CellwiseData<DIM>::Instance()->SetValue(oxygen_conc, r_mesh.GetNode(i));
         }
-   
+    }
+    
+
+    void PostSolve()
+    {
+        SolveNutrientPde();
         // Save results to file
-        if ((SimulationTime::Instance()->GetTimeStepsElapsed()+1)%this->mSamplingTimestepMultiple==0)
+        SimulationTime* p_time = SimulationTime::Instance();
+        if ((p_time->GetTimeStepsElapsed()+1)%this->mSamplingTimestepMultiple==0)
         {
-            WriteNutrient();
+            double time_next_step = p_time->GetDimensionalisedTime() + p_time->GetTimeStep();
+            WriteNutrient(time_next_step);
         }
     }
     

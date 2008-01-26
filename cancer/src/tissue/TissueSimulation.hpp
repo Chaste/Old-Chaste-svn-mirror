@@ -200,34 +200,28 @@ protected:
      * @return the number of deaths that occurred.
      */ 
     unsigned DoCellRemoval();
-   
-    
+       
     /**
      * Moves each node to a new position for this timestep
      *
      * @param rDrDt the x and y force components on each node.
      */
     virtual void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt);
-    
-    /** 
-     *  A method for subclasses to do something at the start of each timestep
-     */
-    virtual void PreSolve()
-    {
-    }
-    
+        
     /** 
      *  A method for subclasses to do something at the end of each timestep
      */
     virtual void PostSolve()
     {
     }
+    
     /** 
      *  A method for subclasses to do something at before the start of the time loop
      */
     virtual void SetupSolve()
     {
     }
+    
     /** 
      *  A method for subclasses to do something at the end of each time loop
      */

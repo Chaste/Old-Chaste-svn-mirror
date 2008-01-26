@@ -148,7 +148,7 @@ private:
 public:
 
     /* 
-     * A two-part test for the PreSolve() method.
+     * A two-part test for the PostSolve() method.
      * 
      * Firstly, test the PDE solver using the problem del squared C = 0.1 
      * on the unit disc, with boundary condition C=1 on r=1, which has 
@@ -157,7 +157,7 @@ public:
      * Secondly, test that cells' hypoxic durations are correctly updated when a 
      * nutrient distribution is prescribed.
      */
-    void TestPreSolveMethod() throw(Exception)
+    void TestPostSolveMethod() throw(Exception)
     {
         EXIT_IF_PARALLEL; //defined in PetscTools
         
@@ -192,12 +192,12 @@ public:
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
         p_data->SetTissue(tissue);
         
-//        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
-//        // we need to pass it some initial conditions to avoid memory errors  
-//        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-//        {
-//            p_data->SetValue(1.0, p_mesh->GetNode(i));
-//        }
+        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+        // we need to pass it some initial conditions to avoid memory errors  
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            p_data->SetValue(1.0, p_mesh->GetNode(i));
+        }
         
         // Set up PDE
         SimplePdeForTesting pde;
@@ -211,7 +211,7 @@ public:
               
         // Set up tissue simulation
         TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde); 
-        simulator.SetOutputDirectory("TestPreSolveMethod");
+        simulator.SetOutputDirectory("TestPostSolveMethod");
         simulator.SetEndTime(2.0/120.0);
         
         // Set up cell killer and pass into simulation
@@ -286,12 +286,12 @@ public:
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         p_data->SetTissue(tissue);
         
-//        // Since values are first passed in to CellwiseData before it is updated in PreSolve(),
-//        // we need to pass it some initial conditions to avoid memory errors 
-//        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-//        {
-//            p_data->SetValue(1.0, p_mesh->GetNode(i));
-//        }
+        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+        // we need to pass it some initial conditions to avoid memory errors 
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            p_data->SetValue(1.0, p_mesh->GetNode(i));
+        }
         
         // Set up PDE
         SimpleOxygenPde pde;
@@ -362,12 +362,12 @@ public:
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         p_data->SetTissue(tissue);
         
-//        // Since values are first passed in to CellwiseData before it is updated in PreSolve(),
-//        // we need to pass it some initial conditions to avoid memory errors
-//        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-//        {
-//            p_data->SetValue(1.0, p_mesh->GetNode(i));
-//        }
+        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+        // we need to pass it some initial conditions to avoid memory errors
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            p_data->SetValue(1.0, p_mesh->GetNode(i));
+        }
         
         // Set up PDE
         PointwiseNutrientSinkPde pde(tissue);
@@ -548,12 +548,12 @@ public:
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         p_data->SetTissue(tissue);
         
-//        // Since values are first passed in to CellwiseData before it is updated in PreSolve(),
-//        // we need to pass it some initial conditions to avoid memory errors
-//        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-//        {
-//            p_data->SetValue(1.0, p_mesh->GetNode(i));
-//        }
+        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+        // we need to pass it some initial conditions to avoid memory errors
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            p_data->SetValue(1.0, p_mesh->GetNode(i));
+        }
         
         // Set up PDE
         SimpleOxygenPde pde;
@@ -632,12 +632,12 @@ public:
 //        p_data->SetNumNodesAndVars(mesh.GetNumNodes(),1);
 //        p_data->SetTissue(tissue);
 //        
-////        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
-////        // we need to pass it some initial conditions to avoid memory errors  
-////        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-////        {
-////            p_data->SetValue(1.0, mesh.GetNode(i));
-////        }
+//        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+//        // we need to pass it some initial conditions to avoid memory errors  
+//        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+//        {
+//            p_data->SetValue(1.0, mesh.GetNode(i));
+//        }
 //        
 //        // Set up PDE
 //        SimpleOxygenPde3d pde;

@@ -463,8 +463,6 @@ void TissueSimulation<DIM>::Solve()
     /////////////////////////////////////////////////////////////////////
     while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
     {           
-        PreSolve();        
-            
         LOG(1, "--TIME = " << p_simulation_time->GetDimensionalisedTime() << "\n");
         
         // Remove dead cells before doing birth

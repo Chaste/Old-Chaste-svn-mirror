@@ -161,6 +161,7 @@ private :
         *mpSetupFile << "MeshWidth\t" << mrTissue.rGetMesh().GetWidth(0u);// get furthest distance between nodes in the x-direction
     }
     
+    
     void SetupWriteBetaCatenin()
     {
         OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false);
@@ -168,11 +169,9 @@ private :
         *mpSetupFile << "BetaCatenin\n";
     }
     
-    void WriteBetaCatenin()
+    
+    void WriteBetaCatenin(double time)
     {
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
-        double time = p_simulation_time->GetDimensionalisedTime() + p_simulation_time->GetTimeStep();
-        
         *mBetaCatResultsFile <<  time << "\t";
         
         double global_index;
@@ -181,12 +180,11 @@ private :
         double b_cat_membrane;
         double b_cat_cytoplasm;
         double b_cat_nuclear;
+        
         for (MeshBasedTissue<2>::Iterator cell_iter = mrTissue.Begin();
              cell_iter != mrTissue.End();
              ++cell_iter)
         {
-            // \todo: don't need this anymore since there'are no ghost nodes,
-            // but we'd need to change the visualizer before we take this out
             global_index = (double) cell_iter.GetNode()->GetIndex();
             x = cell_iter.rGetLocation()[0];
             y = cell_iter.rGetLocation()[1];
@@ -200,52 +198,30 @@ private :
         *mBetaCatResultsFile << "\n";
     }    
     
+    
     void SetupSolve()
     {
         if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
             && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
         {
-            SetupWriteBetaCatenin();
-            
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
-            double time = p_simulation_time->GetDimensionalisedTime();
-            
-            *mBetaCatResultsFile <<  time << "\t";
-            
-            double global_index;
-            double x;
-            double y;
-            double b_cat_membrane;
-            double b_cat_cytoplasm;
-            double b_cat_nuclear;
-            for (MeshBasedTissue<2>::Iterator cell_iter = mrTissue.Begin();
-                 cell_iter != mrTissue.End();
-                 ++cell_iter)
-            {
-                // \todo: don't need this anymore since there'are no ghost nodes,
-                // but we'd need to change the visualizer before we take this out
-                global_index = (double) cell_iter.GetNode()->GetIndex();
-                x = cell_iter.rGetLocation()[0];
-                y = cell_iter.rGetLocation()[1];
-                b_cat_membrane = cell_iter->GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
-                b_cat_cytoplasm = cell_iter->GetCellCycleModel()->GetCytoplasmicBetaCateninLevel();
-                b_cat_nuclear = cell_iter->GetCellCycleModel()->GetNuclearBetaCateninLevel();
-                
-                *mBetaCatResultsFile << global_index << " " << x << " " << y << " " << b_cat_membrane << " " << b_cat_cytoplasm << " " << b_cat_nuclear << " ";
-            }
-    
-            *mBetaCatResultsFile << "\n";
+            SetupWriteBetaCatenin();            
+            double current_time = SimulationTime::Instance()->GetDimensionalisedTime();            
+            WriteBetaCatenin(current_time);
         }
     }
     
+    
     void PostSolve()
     {
-        if ((SimulationTime::Instance()->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple==0)
+        SimulationTime *p_time = SimulationTime::Instance();
+                
+        if ((p_time->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple==0)
         {
             if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
                 && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
             {
-                WriteBetaCatenin();
+                double time_next_step = p_time->GetDimensionalisedTime() + p_time->GetTimeStep();
+                WriteBetaCatenin(time_next_step);
             }
         }        
     }
