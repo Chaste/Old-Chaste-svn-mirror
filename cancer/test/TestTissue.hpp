@@ -10,13 +10,11 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include "OutputFileHandler.hpp"
-#include "TissueCell.hpp"
+#include "MeshBasedTissue.cpp"
+#include "HoneycombMeshGenerator.hpp"
+#include "CellsGenerator.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-#include "HoneycombMeshGenerator.hpp"
-#include "SimulationTime.hpp"
-#include "MeshBasedTissue.cpp"
-#include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

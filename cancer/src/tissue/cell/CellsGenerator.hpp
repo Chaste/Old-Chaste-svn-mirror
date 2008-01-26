@@ -11,9 +11,7 @@
 #include "IngeWntSwatCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-#include "CancerParameters.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "SimulationTime.hpp"
 
 // Possible types of Cell Cycle Model (just for GenerateForCrypt method)
 typedef enum CellCycleType_

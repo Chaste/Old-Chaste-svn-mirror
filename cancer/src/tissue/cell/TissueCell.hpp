@@ -8,6 +8,7 @@
 #include "CellMutationStates.hpp"
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
+#include "CancerParameters.hpp"
 
 class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
 

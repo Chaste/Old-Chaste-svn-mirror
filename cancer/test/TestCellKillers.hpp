@@ -10,24 +10,22 @@
 #include <cmath>
 #include <vector>
 #include "OutputFileHandler.hpp"
+#include "ColumnDataReader.hpp"
 #include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-#include "WntCellCycleOdeSystem.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-#include "CancerParameters.hpp"
-#include "ColumnDataReader.hpp"
-#include "HoneycombMeshGenerator.hpp"
-#include "SimulationTime.hpp"
-#include "RandomNumberGenerator.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "RadialSloughingCellKiller.hpp"
 #include "OxygenBasedCellKiller.hpp"
+#include "CellwiseData.cpp"
+#include "RandomNumberGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
-#include "CellwiseData.cpp"
+
 
 class TestCellKillers : public AbstractCancerTestSuite
 {    

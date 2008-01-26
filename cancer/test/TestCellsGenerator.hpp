@@ -5,7 +5,6 @@
 #include "TissueCell.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
-#include "SimulationTime.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

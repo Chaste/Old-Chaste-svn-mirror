@@ -13,7 +13,6 @@
 #include "TrianglesMeshReader.cpp"
 #include "MeshBasedTissue.cpp"
 #include "TissueVoronoiDataWriter.hpp"
-#include "WntGradient.hpp"
 #include <vector>
 
 #include "AbstractDiscreteTissueMechanicsSystem.hpp"

@@ -3,7 +3,6 @@
 
 #include "MeshBasedTissue.hpp"
 #include "CancerParameters.hpp"
-#include "VoronoiTessellation.cpp"
 
 enum cell_colours
 {

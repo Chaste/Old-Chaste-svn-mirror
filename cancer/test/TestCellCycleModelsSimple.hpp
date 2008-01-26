@@ -14,7 +14,6 @@
 #include "StochasticCellCycleModel.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
-#include "CancerParameters.hpp"
 #include "WntGradient.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "AbstractCancerTestSuite.hpp"

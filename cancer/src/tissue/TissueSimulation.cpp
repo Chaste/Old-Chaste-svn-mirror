@@ -19,10 +19,10 @@
 #include "ColumnDataWriter.hpp"
 #include "WntCellCycleModel.hpp"
 #include "WntGradient.hpp"
+#include "CellwiseData.cpp"
 #include "OutputFileHandler.hpp"
 #include "LogFile.hpp"
-#include "VoronoiTessellation.cpp"
-#include "CellwiseData.cpp"
+
 
 template<unsigned DIM> 
 TissueSimulation<DIM>::TissueSimulation(MeshBasedTissue<DIM>& rTissue, 

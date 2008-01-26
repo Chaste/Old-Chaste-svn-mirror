@@ -16,9 +16,8 @@
 #include "ColumnDataReader.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
-#include "AbstractCancerTestSuite.hpp"
 #include "CellsGenerator.hpp"
-
+#include "AbstractCancerTestSuite.hpp"
 
 class SimplePdeForTesting : public AbstractLinearEllipticPde<2>
 {

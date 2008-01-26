@@ -1,7 +1,4 @@
 #include "TissueCell.hpp"
-#include "CellTypes.hpp"
-#include "FixedCellCycleModel.hpp"
-#include "CancerParameters.hpp"
 
 TissueCell::TissueCell(CellType cellType,
                        CellMutationState mutationState,

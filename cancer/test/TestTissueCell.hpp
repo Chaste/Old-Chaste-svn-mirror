@@ -15,8 +15,6 @@
 #include "StochasticCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-#include "CancerParameters.hpp"
-#include "SimulationTime.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include <iostream>
 

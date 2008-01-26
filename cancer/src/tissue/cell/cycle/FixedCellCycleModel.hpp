@@ -1,7 +1,6 @@
 #ifndef FIXEDCELLCYCLEMODEL_HPP_
 #define FIXEDCELLCYCLEMODEL_HPP_
 
-#include "AbstractSimpleCellCycleModel.hpp"
 #include "AbstractSimpleMeinekeCellCycleModel.hpp"
 
 /**

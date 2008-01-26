@@ -8,7 +8,6 @@
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
 #include <vector>
-#include "MeshBasedTissue.cpp"
 #include "CryptProjectionStatistics.hpp"
 #include "TissueSimulation.cpp"
 #include "OutputFileHandler.hpp"
