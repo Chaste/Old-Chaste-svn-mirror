@@ -297,9 +297,9 @@ public :
      */
     virtual std::vector<c_vector<double, DIM> >& rCalculateVelocitiesOfEachNode()
     {
-        // note: the following 4 lines are NOT equivalent to 
+        // Note: the following 4 lines are NOT equivalent to 
         // mDrDt.resize(this->mrTissue.rGetMesh().GetNumAllNodes(), zero_vector<double,DIM>),
-        // which would only *append* zeros is the size had increased
+        // which would only *append* zeros if the size had increased
         mDrDt.resize(this->mrTissue.rGetMesh().GetNumAllNodes());
         for (unsigned i=0; i<mDrDt.size(); i++)
         {

@@ -1,8 +1,6 @@
 #ifndef _TISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_
 #define _TISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_
 
-
-//#include <iostream>
 #include <vector>
 #include <petscvec.h>
 
@@ -11,12 +9,11 @@
 #include "GaussianQuadratureRule.hpp"
 
 
-
 /**
  *  TissueSimulationWithNutrientsAssembler
  * 
- * This is a purpose made elliptic assembler that interpolates the source terms 
- * from node onto gauss points, as for a nutrients simulation the source will only
+ *  This is a purpose made elliptic assembler that interpolates the source terms 
+ *  from node onto gauss points, as for a nutrients simulation the source will only
  *  be known at the cells (nodes), not the gauss points.
  */
 template<unsigned DIM>
@@ -25,7 +22,9 @@ class TissueSimulationWithNutrientsAssembler
 {
     typedef SimpleLinearEllipticAssembler<DIM, DIM, TissueSimulationWithNutrientsAssembler<DIM> > BaseClassType;
     friend class AbstractStaticAssembler<DIM, DIM, 1u, true, BaseClassType>;
+    
 private:
+
     /** The constant in u part of the source term, interpolated onto
      *  the current point 
      */
@@ -93,6 +92,7 @@ protected:
     
     
 public:
+
     /**
      * Constructor stores the mesh and pde and boundary conditions.
      */

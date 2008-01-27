@@ -236,7 +236,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.Translate(-0.5,-0.5);
         
-        //Get centre of mesh (we know it's at the origin, really)
+        // Get centre of mesh (we know it's at the origin, really)
         c_vector<double,2> centre(2);
         centre[0] = 0.0;
         centre[1] = 0.0;         

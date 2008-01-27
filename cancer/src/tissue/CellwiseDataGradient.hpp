@@ -29,23 +29,23 @@ public:
         MeshBasedTissue<DIM>& r_tissue = CellwiseData<DIM>::Instance()->rGetTissue();
         ConformingTetrahedralMesh<DIM,DIM>& r_mesh = r_tissue.rGetMesh();
 
-        // initialise gradients size        
+        // Initialise gradients size        
         unsigned num_nodes = r_tissue.rGetMesh().GetNumNodes();
         mGradients.resize(num_nodes, zero_vector<double>(DIM));
         
-        // the constant gradients at each element
+        // The constant gradients at each element
         std::vector<c_vector<double, DIM> > gradients_on_elements;
         unsigned num_elements = r_mesh.GetNumElements();
         gradients_on_elements.resize(num_elements, zero_vector<double>(DIM));
         
-        // the number of elements containing a given node (excl ghost elements)
+        // The number of elements containing a given node (excl ghost elements)
         std::vector<unsigned> num_real_elems_for_node(num_nodes, 0);
         
         for (unsigned elem_index=0; elem_index<num_elements; elem_index++)
         {
             Element<DIM,DIM>& r_elem = *(r_mesh.GetElement(elem_index));
 
-            // calculate the basis functions at any point (eg zero) in the element            
+            // Calculate the basis functions at any point (eg zero) in the element            
             const c_matrix<double, DIM, DIM> *p_inverse_jacobian = r_elem.GetInverseJacobian();
             const ChastePoint<DIM> zero_point; 
             c_matrix<double, DIM, DIM+1> grad_phi 
@@ -57,25 +57,25 @@ public:
             {
                 unsigned node_global_index = r_elem.GetNodeGlobalIndex(node_index);
 
-                // check whether ghost element
+                // Check whether ghost element
                 if( r_tissue.rGetGhostNodes()[node_global_index]==true )
                 {
                     is_ghost_element = true;
                     break;
                 }
 
-                // if no ghost element, get nutrient conc
+                // If no ghost element, get nutrient conc
                 TissueCell& r_cell = r_tissue.rGetCellAtNodeIndex(node_global_index);
                 double nutrient_concentration = CellwiseData<DIM>::Instance()->GetValue(&r_cell,0);
                 
-                // interpolate gradient
+                // Interpolate gradient
                 for (unsigned i=0; i<DIM; i++)
                 {
                     gradients_on_elements[elem_index](i) += nutrient_concentration* grad_phi(i, node_index);  
                 }                
             }
             
-            // add gradient at element to gradient at node
+            // Add gradient at element to gradient at node
             if(!is_ghost_element)
             {
                 for (unsigned node_index=0; node_index<DIM+1; node_index++)
@@ -87,7 +87,7 @@ public:
             }
         }
         
-        // divide to obtain average gradient
+        // Divide to obtain average gradient
         for (typename MeshBasedTissue<DIM>::Iterator cell_iter = r_tissue.Begin();
              cell_iter != r_tissue.End();
              ++cell_iter)
@@ -99,33 +99,33 @@ public:
             if  (!num_real_elems_for_node[node_global_index]>0)
             {
                 
-                // the node is real node which is not in any real element 
+                // The node is a real node which is not in any real element 
                 // but shoud be connect to some cells (if more than one cell in mesh)
                 Node<DIM> & this_node = *(cell_iter.GetNode());
         
                 mGradients[node_global_index]=zero_vector<double>(DIM);
                 unsigned num_real_adjacent_nodes=0;
         
-                // get all the adjacent nodes which correspond to real cells
+                // Get all the adjacent nodes which correspond to real cells
                 std::set < Node<DIM>* > real_adjacent_nodes;
                 real_adjacent_nodes.clear();
 
-                // first loop over containing elements
+                // First loop over containing elements
                 for (typename Node<DIM>::ContainingElementIterator element_iter = this_node.ContainingElementsBegin();
                      element_iter != this_node.ContainingElementsEnd();
                      ++element_iter)
                 {
-                    // then loop over nodes therein
+                    // Then loop over nodes therein
                     Element<DIM,DIM>& r_adjacent_elem = *(r_mesh.GetElement(*element_iter));
                     for (unsigned local_node_index=0; local_node_index<DIM+1; local_node_index++)
                     {            
                         unsigned adjacent_node_global_index = r_adjacent_elem.GetNodeGlobalIndex(local_node_index);
 
-                        // if not a ghost node and not the node we started with
+                        // If not a ghost node and not the node we started with
                         if( r_tissue.rGetGhostNodes()[adjacent_node_global_index]==false && adjacent_node_global_index != node_global_index )
                         {
                             
-                            // calculate the contribution of gradient from this node
+                            // Calculate the contribution of gradient from this node
                             Node<DIM> & adjacent_node= *(r_mesh.GetNode(adjacent_node_global_index));
                             
                             double this_cell_concentration = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter),0);

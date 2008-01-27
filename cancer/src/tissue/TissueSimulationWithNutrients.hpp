@@ -35,13 +35,20 @@ private :
     /** The file that the nutrient values are written out to. */ 
     out_stream mpNutrientResultsFile; 
     
+    /** The file that the average radial nutrient distribution is written out to. */ 
+    out_stream mpFinalAverageRadialNutrientResultsFile;
+    
+    bool mWriteFinalAverageRadialNutrientResults; 
+    
+    unsigned mNumRadialIntervals;
+    
     void SetupSolve()
     {
         if (this->mrTissue.Begin() != this->mrTissue.End())
         {
-            SetupWriteNutrient();           
+            SetupWriteNutrient();
             double current_time = SimulationTime::Instance()->GetDimensionalisedTime();            
-            WriteNutrient(current_time);
+            WriteNutrient(current_time);                        
         }
     }
 
@@ -52,7 +59,11 @@ private :
     	{
     	    mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");
     	    *this->mpSetupFile << "Nutrient \n" ;
-    	}
+            if (mWriteFinalAverageRadialNutrientResults)
+            {
+                mpFinalAverageRadialNutrientResultsFile = output_file_handler.OpenOutputFile("radial_dist.dat");                     
+            }
+    	}        
     } 
     
     void WriteNutrient(double time)
@@ -83,6 +94,78 @@ private :
     	    (*mpNutrientResultsFile) << "\n";
         }
     }
+    
+    
+    void WriteFinalAverageRadialNutrientDistribution(double time, unsigned num_intervals)
+    {
+        (*mpFinalAverageRadialNutrientResultsFile) << time << " "; 
+        
+        // Get reference to the mesh and its size
+        ConformingTetrahedralMesh<DIM,DIM>& r_mesh = this->mrTissue.rGetMesh();
+        unsigned num_nodes = r_mesh.GetNumNodes();
+        
+        // Calculate the centre of the tissue
+        c_vector<double,DIM> centre = zero_vector<double>(DIM);
+        for (unsigned i=0; i< num_nodes; i++)
+        {
+            centre += r_mesh.GetNode(i)->rGetLocation();    
+        }
+        centre /= (double) num_nodes;
+        
+        // Calculate the distance between each node and the centre 
+        // of the tissue, as well as the maximum of these
+        std::map<double, TissueCell*> distance_cell_map;
+        
+        double max_distance_from_centre = 0.0;
+                
+        for (unsigned i=0; i<this->mrTissue.GetNumRealCells(); i++)
+        {
+            double distance = norm_2(r_mesh.GetNode(i)->rGetLocation()-centre);            
+            distance_cell_map[distance] = &(this->mrTissue.rGetCellAtNodeIndex(i));
+            
+            if (distance > max_distance_from_centre)
+            {
+                max_distance_from_centre = distance;
+            }
+        }
+
+        // Create vector of radius intervals                                  
+        std::vector<double> radius_intervals;
+        for (unsigned i=0; i<num_intervals; i++)
+        {
+            double upper_radius = max_distance_from_centre*((double) i+1)/((double) num_intervals);
+            radius_intervals.push_back(upper_radius);       
+        }
+        
+        // Calculate nutrient concentration in each radial interval
+        double lower_radius = 0.0;
+        for (unsigned i=0; i<num_intervals; i++)
+        {   
+            unsigned counter = 0;
+            double average_conc = 0.0;
+            
+            for (std::map<double, TissueCell*>::iterator iter=distance_cell_map.begin();
+                 iter != distance_cell_map.end();
+                 ++iter)
+            {
+                if ((*iter).first > lower_radius && (*iter).first <= radius_intervals[i])
+                {
+                    average_conc += CellwiseData<DIM>::Instance()->GetValue((*iter).second); 
+                    counter++;
+                }
+            }
+            if (counter > 0)
+            {
+                average_conc /= (double) counter;
+            }
+            
+            // Write results to file
+            (*mpFinalAverageRadialNutrientResultsFile) << radius_intervals[i] << " " << average_conc << " ";
+            lower_radius = radius_intervals[i];
+        }
+        (*mpFinalAverageRadialNutrientResultsFile) << "\n";
+    }
+    
     
     void SolveNutrientPde()
     {
@@ -192,13 +275,15 @@ private :
     void PostSolve()
     {
         SolveNutrientPde();
+        
         // Save results to file
         SimulationTime* p_time = SimulationTime::Instance();
+        
         if ((p_time->GetTimeStepsElapsed()+1)%this->mSamplingTimestepMultiple==0)
         {
             double time_next_step = p_time->GetDimensionalisedTime() + p_time->GetTimeStep();
             WriteNutrient(time_next_step);
-        }
+        }        
     }
     
     
@@ -208,6 +293,13 @@ private :
 	    && PetscTools::AmMaster())
         {
             mpNutrientResultsFile->close();
+            
+            if (mWriteFinalAverageRadialNutrientResults)
+            {
+                WriteFinalAverageRadialNutrientDistribution(SimulationTime::Instance()->GetDimensionalisedTime(), 
+                                                            mNumRadialIntervals);
+                mpFinalAverageRadialNutrientResultsFile->close();
+            }
         }
     }
     
@@ -228,7 +320,8 @@ public:
                                   bool initialiseCells=true) 
         : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissue, initialiseCells), 
           mOxygenSolution(NULL),
-          mpPde(pPde)
+          mpPde(pPde),
+          mWriteFinalAverageRadialNutrientResults(false)
     {
     }
     
@@ -252,6 +345,14 @@ public:
         mpPde = pPde;
     }
     
+    
+    void SetWriteFinalAverageRadialNutrientResults(unsigned numRadialIntervals=10)
+    {
+        mWriteFinalAverageRadialNutrientResults = true;
+        mNumRadialIntervals = numRadialIntervals;
+    }
+    
+
     /**
      * Saves the whole tissue simulation for restarting later.
      *

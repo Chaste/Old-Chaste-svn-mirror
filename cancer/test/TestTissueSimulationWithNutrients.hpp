@@ -157,9 +157,9 @@ public:
      * Secondly, test that cells' hypoxic durations are correctly updated when a 
      * nutrient distribution is prescribed.
      */
-    void TestPostSolveMethod() throw(Exception)
+    void TestPostSolve() throw(Exception)
     {
-        EXIT_IF_PARALLEL; //defined in PetscTools
+        EXIT_IF_PARALLEL; // defined in PetscTools
         
         // Change the hypoxic concentration, just for this test
         CancerParameters::Instance()->SetHepaOneCellHypoxicConcentration(0.9);
@@ -212,7 +212,7 @@ public:
         // Set up tissue simulation
         TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde); 
         simulator.SetOutputDirectory("TestPostSolveMethod");
-        simulator.SetEndTime(2.0/120.0);
+        simulator.SetEndTime(2.0/120.0);        
         
         // Set up cell killer and pass into simulation
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
@@ -469,6 +469,7 @@ public:
         simulator.SetOutputDirectory("TestSpheroidStatistics");
         simulator.SetEndTime(1.0/120.0);
         simulator.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius   
+        simulator.SetWriteFinalAverageRadialNutrientResults(5);
         
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);        
@@ -505,9 +506,12 @@ public:
                        
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TestSpheroidStatistics",false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/Areas.dat";
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TestSpheroidStatistics/Areas.dat").c_str()), 0);
-          
+        std::string areas_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/Areas.dat";
+        TS_ASSERT_EQUALS(system(("diff " + areas_results_file + " cancer/test/data/TestSpheroidStatistics/Areas.dat").c_str()), 0);
+        
+        std::string dist_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/radial_dist.dat";
+        TS_ASSERT_EQUALS(system(("diff " + dist_results_file + " cancer/test/data/TestSpheroidStatistics/radial_dist.dat").c_str()), 0);
+        
         // Tidy up
         delete p_killer;
         CellwiseData<2>::Destroy();
