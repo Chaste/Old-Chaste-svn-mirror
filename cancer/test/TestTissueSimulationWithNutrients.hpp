@@ -408,7 +408,7 @@ public:
      */
     void TestWriteNutrient() throw (Exception)
     {
-        EXIT_IF_PARALLEL; //defined in PetscTools
+        EXIT_IF_PARALLEL; // defined in PetscTools
 
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TissueSimulationWithOxygen",false);
@@ -469,7 +469,7 @@ public:
         simulator.SetOutputDirectory("TestSpheroidStatistics");
         simulator.SetEndTime(1.0/120.0);
         simulator.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius   
-        simulator.SetWriteFinalAverageRadialNutrientResults(5);
+        simulator.SetWriteAverageRadialNutrientResults(5);
         
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);        
