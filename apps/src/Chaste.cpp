@@ -55,40 +55,6 @@ const double extracellular_cond = 7.0;
 // Scale factor because Chaste code expects lengths in cm, but params use mm.
 const double scale_factor = 1/10.0;
 
-class ChasteCuboid
-{
-private:
-    ChastePoint<3> mPointA;
-    ChastePoint<3> mPointB;
-    
-public:
-    ChasteCuboid(ChastePoint<3> pointA, ChastePoint<3> pointB): mPointA(pointA), mPointB(pointB)
-    {
-    }
-    
-    bool DoesContain(ChastePoint<3> pointToCheck)
-    {
-        for (unsigned dim=0; dim<3; dim++){
-            if (pointToCheck[dim] >= mPointA[dim])
-            {
-                if (pointToCheck[dim] > mPointB[dim])
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (pointToCheck[dim] < mPointB[dim])
-                {
-                    return false;  
-                }
-            }
-        }
-                        
-        return true;
-    }
-};
-
 
 class ChasteSlabCellFactory : public AbstractCardiacCellFactory<3>
 {

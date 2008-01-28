@@ -7,7 +7,7 @@
 	-->    
     <SimulationDuration>350.0</SimulationDuration>
     <Domain>Mono</Domain>
-    <IonicModel>FaberRudy2000Version3</IonicModel>
+    <IonicModel>FaberRudy2000Version3Optimised</IonicModel>
     
 	<!-- 
 		Mesh definition 
@@ -20,7 +20,7 @@
     	Stimuli (as many <Stimulus> definitions as needed) 
    	-->
   	<Stimulus> <!-- #1 -->
-		<Strength>-25500.0</Strength>
+		<Strength>-8000.0</Strength>
 		<Duration>0.5</Duration>
 		<Delay>0</Delay>
 		<Location>
@@ -29,9 +29,9 @@
 		</Location>
 	</Stimulus>	
 	<Stimulus> <!-- #2 -->
-		<Strength>-25500.0</Strength>
+		<Strength>-8000.0</Strength>
 		<Duration>0.5</Duration>
-		<Delay>200.0</Delay>
+		<Delay>230.0</Delay>
 		<Location>
 			<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
 			<CornerB X="0.0" Z="0.0" Y="0.125"/>
