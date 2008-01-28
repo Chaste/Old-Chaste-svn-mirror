@@ -43,7 +43,6 @@ std::vector<InitialStimulus> stimuli_applied;
 class ChasteCuboid; // forward definition
 std::vector<ChasteCuboid> stimuled_areas;
 
-
 // Parameters fixed at compile time
 const std::string  output_filename_prefix = "Run";
 const double ode_time_step = 0.005;     // ms
@@ -55,10 +54,6 @@ const double extracellular_cond = 7.0;
 
 // Scale factor because Chaste code expects lengths in cm, but params use mm.
 const double scale_factor = 1/10.0;
-
-
-
-
 
 class ChasteCuboid
 {
@@ -73,15 +68,11 @@ public:
     
     bool DoesContain(ChastePoint<3> pointToCheck)
     {
-        //std::cout << "\n\tpuntA " << mPointA[0] << ", " << mPointA[1] << ", " << mPointA[2];
-        //std::cout << "\n\tpuntB " << mPointB[0] << ", " << mPointB[1] << ", " << mPointB[2];
-        
         for (unsigned dim=0; dim<3; dim++){
             if (pointToCheck[dim] >= mPointA[dim])
             {
                 if (pointToCheck[dim] > mPointB[dim])
                 {
-                    //std::cout << "eixida 1 " << dim <<"\n";
                     return false;
                 }
             }
@@ -89,43 +80,11 @@ public:
             {
                 if (pointToCheck[dim] < mPointB[dim])
                 {
-                    //std::cout << "eixida 2 " << dim <<"\n";
                     return false;  
                 }
             }
         }
                         
-        //std::cout << "eixida 3\n";
-        return true;
-    }
-    
-    bool DoesContain(double coordX, double coordY, double coordZ)
-    {
-        assert(false);
-        
-        //std::cout << "\n\tpuntA " << mPointA[0] << ", " << mPointA[1] << ", " << mPointA[2];
-        //std::cout << "\n\tpuntB " << mPointB[0] << ", " << mPointB[1] << ", " << mPointB[2];
-        
-        for (unsigned dim=0; dim<3; dim++){
-            if (coordX >= mPointA[dim])
-            {
-                if (coordX > mPointB[dim])
-                {
-                    //std::cout << "eixida 1 " << dim <<"\n";
-                    return false;
-                }
-            }
-            else
-            {
-                if (coordX < mPointB[dim])
-                {
-                    //std::cout << "eixida 2 " << dim <<"\n";
-                    return false;  
-                }
-            }
-        }
-                        
-        //std::cout << "eixida 3\n";
         return true;
     }
 };
@@ -133,17 +92,9 @@ public:
 
 class ChasteSlabCellFactory : public AbstractCardiacCellFactory<3>
 {
-private:
-    InitialStimulus *mpStimulus;
-    InitialStimulus *mpStimulus2;
-    SumStimulus *mpSumStimulus;
-    
 public:
     ChasteSlabCellFactory() : AbstractCardiacCellFactory<3>(ode_time_step)
     {
-        mpStimulus = new InitialStimulus(-25.5*1000, 0.5);
-        mpStimulus2= new InitialStimulus(-25.5*1000, 0.5, quadrant_stimulus_delay);
-        mpSumStimulus = new SumStimulus(mpStimulus, mpStimulus2);
     }
 
     
@@ -180,63 +131,25 @@ public:
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {        
-        // nou estimul
+        // Memory leak, this pointers should freed somewhere
         MultiStimulus* node_specific_stimulus = new MultiStimulus();
         
-        // per a tots els estimuls existents prenguntar si esta dins de larea
-        double x=mpMesh->GetNode(node)->GetPoint()[0];
-//        double y=mpMesh->GetNode(node)->GetPoint()[1];
-        double z=mpMesh->GetNode(node)->GetPoint()[2];     
-        //std::cout << "node (" << x << ", " << y << ", " << z << ") in ";
+        // Check which of the defined stimuli contain the current node
         for (unsigned stimulus_index = 0;
              stimulus_index < stimuli_applied.size();
              ++stimulus_index)
         {
             if ( stimuled_areas[stimulus_index].DoesContain(mpMesh->GetNode(node)->GetPoint()) )
             {
-                //std::cout << stimulus_index <<" ";
-                //std::cout << stimulus_index << " esta!" << std::endl;
-                // anar sumant els estimuls amb algo tipo SumStimulus
                 node_specific_stimulus->AddStimulus(&stimuli_applied[stimulus_index]);               
             }
         }
-        //std::cout << std::endl;
         
-        return CreateCellWithIntracellularStimulus(node_specific_stimulus);
-                
-        // tal volta calga escriure una nova classe tipus MultiStimulus que 
-        // continga un contenidor de estimuls (std::vector<estimul>) i es puga
-        // anar afegint-se-li amb algun metode .push_back(estimul)
-        
-        if ( x <= inter_node_space*scale_factor*(face_stimulus_width-slab_width) )
-        {
-            if (x<=0 && z<=0)
-            {
-                return CreateCellWithIntracellularStimulus(mpSumStimulus);
-            }
-            else
-            {
-                return CreateCellWithIntracellularStimulus(mpStimulus);
-            }
-        }
-        else
-        {
-            if (x<=0 && z<=0)
-            {
-                return CreateCellWithIntracellularStimulus(mpStimulus2);
-            }
-            else
-            {
-                return CreateCellWithIntracellularStimulus(mpZeroStimulus);
-            }
-        }
+        return CreateCellWithIntracellularStimulus(node_specific_stimulus);                
     }
     
     ~ChasteSlabCellFactory(void)
     {
-        delete mpStimulus;
-        delete mpStimulus2;
-        delete mpSumStimulus;
     }
 };
 
@@ -249,8 +162,6 @@ void ReadParametersFromFile()
         slab_width = p_params->SlabWidth();     // mm
         slab_height = p_params->SlabHeight();   // mm
         inter_node_space = p_params->InterNodeSpace(); // mm
-        //face_stimulus_width = p_params->FaceStimulusWidth(); // mm
-        //quadrant_stimulus_delay = p_params->QuadrantStimulusDelay(); // ms
         output_directory = p_params->OutputDirectory();
         mesh_output_directory = p_params->MeshOutputDirectory();
         domain = p_params->Domain();
@@ -279,7 +190,6 @@ void ReadParametersFromFile()
             stimuli_applied.push_back( InitialStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
             stimuled_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
         }
-        //std::cout << std::endl;
     }
     catch (const xml_schema::exception& e)
     {
@@ -305,8 +215,8 @@ void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem,
 
 int main(int argc, char *argv[]) 
 {
-    //try
-    //{
+    try
+    {
         PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
         
         // solver and preconditioner options
@@ -368,16 +278,7 @@ int main(int argc, char *argv[])
             {
                 MonodomainProblem<3> mono_problem( &cell_factory );
                 SetupProblem(mono_problem, mesh);
-    
-//                mono_problem.SetMesh(&mesh);
-//                mono_problem.SetEndTime(simulation_duration);   // ms
-//                mono_problem.SetPdeTimeStep(pde_time_step); // ms
-//                mono_problem.SetPrintingTimeStep(printing_time_step); // ms
-//                mono_problem.SetOutputDirectory(output_directory+"/results");
-//                mono_problem.SetOutputFilenamePrefix("Chaste");
-//                mono_problem.SetCallChaste2Meshalyzer(false);  
-//                
-//                mono_problem.Initialise();
+
                 mono_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(intracellular_cond*identity_matrix<double>(3));
                 mono_problem.Solve();
                 break;
@@ -387,15 +288,6 @@ int main(int argc, char *argv[])
                 BidomainProblem<3> bi_problem( &cell_factory );
                 SetupProblem(bi_problem, mesh);
 
-//                bi_problem.SetMesh(&mesh);
-//                bi_problem.SetEndTime(simulation_duration);   // ms
-//                bi_problem.SetPdeTimeStep(pde_time_step); // ms
-//                bi_problem.SetPrintingTimeStep(printing_time_step); // ms
-//                bi_problem.SetOutputDirectory(output_directory+"/results");
-//                bi_problem.SetOutputFilenamePrefix("Chaste");
-//                bi_problem.SetCallChaste2Meshalyzer(false);  
-//                
-//                bi_problem.Initialise();
                 bi_problem.GetBidomainPde()->SetIntracellularConductivityTensor(intracellular_cond*identity_matrix<double>(3));
                 bi_problem.GetBidomainPde()->SetExtracellularConductivityTensor(extracellular_cond*identity_matrix<double>(3));               
                 bi_problem.Solve();            
@@ -405,12 +297,12 @@ int main(int argc, char *argv[])
                 EXCEPTION("Unknown domain type!!!");
         }
 
-//    }
-//    catch(Exception& e)
-//    {
-//        std::cerr << e.GetMessage() << "\n";
-//        return 1;
-//    }
+    }
+    catch(Exception& e)
+    {
+        std::cerr << e.GetMessage() << "\n";
+        return 1;
+    }
     
     EventHandler::Headings();
     EventHandler::Report();
