@@ -63,7 +63,7 @@ mRelativeTolerance(1e-6)
  */
 LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
 :mMatNullSpace(NULL),
-mDestroyPetscObjects(true),
+mDestroyPetscObjects(false),
 mKspIsSetup(false),
 mMatrixIsConstant(false),
 mRelativeTolerance(1e-6)
@@ -100,6 +100,10 @@ LinearSystem::~LinearSystem()
     if (mMatNullSpace)
     {
         MatNullSpaceDestroy(mMatNullSpace);
+    }
+    if (mKspIsSetup)
+    {
+        KSPDestroy(mKspSolver);
     }
 }
 
@@ -326,9 +330,9 @@ Vec LinearSystem::Solve(AbstractLinearSolver *solver, Vec lhsGuess)
 Vec LinearSystem::Solve(Vec lhsGuess)
 {
     /* The following lines are very useful for debugging
-     */    MatView(mLhsMatrix,    PETSC_VIEWER_STDOUT_WORLD);
-     /* */    VecView(mRhsVector,    PETSC_VIEWER_STDOUT_WORLD);
-     /* */
+     *    MatView(mLhsMatrix,    PETSC_VIEWER_STDOUT_WORLD);
+     *    VecView(mRhsVector,    PETSC_VIEWER_STDOUT_WORLD);
+     */
     //Double check that the non-zero pattern hasn't changed
     MatInfo mat_info;
     MatGetInfo(mLhsMatrix, MAT_GLOBAL_SUM, &mat_info);
