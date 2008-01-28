@@ -7,7 +7,7 @@
 #include "TimeStepper.hpp"
 #include "MeshalyzerMeshWriter.cpp"
 #include "TrianglesMeshWriter.cpp"
-#include "SumStimulus.hpp"
+#include "MultiStimulus.hpp"
 #include <ctime>
 
 #include "ChasteParameters.hpp"
@@ -56,30 +56,7 @@ const double extracellular_cond = 7.0;
 // Scale factor because Chaste code expects lengths in cm, but params use mm.
 const double scale_factor = 1/10.0;
 
-class MultiStimulus : public AbstractStimulusFunction
-{
-private:
-    std::vector<AbstractStimulusFunction*> mStimuli;
-        
-public:   
-    void AddStimulus(AbstractStimulusFunction* pStimulus)
-    {
-        mStimuli.push_back(pStimulus);
-    }
 
-    double GetStimulus(double time)
-    {
-        double total_stimulus = 0.0;
-        
-        for (unsigned current_stimulus = 0; current_stimulus < mStimuli.size(); ++current_stimulus)
-        {
-            total_stimulus += mStimuli[current_stimulus]->GetStimulus(time);
-        }
-        
-        return total_stimulus;
-    }
-    
-};
 
 
 
