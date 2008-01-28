@@ -138,7 +138,7 @@ public :
     }
     
     
-    void FailingTest_TestParabolicFlaggedMeshAssembler() throw (Exception)
+    void TestParabolicFlaggedMeshAssembler() throw (Exception)
     {
         EXIT_IF_PARALLEL; //defined in PetscTools
         
@@ -168,9 +168,9 @@ public :
         Vec initial_condition_everywhere = PetscTools::CreateVec(flagged_mesh.GetNumNodes(),1.0);
         flagged_assembler.SetInitialCondition(initial_condition_everywhere);
 
-        // solve //Ticket 487: Currently throws
+        // solve
         Vec result_flagged;
-        TS_ASSERT_THROWS_ANYTHING( result_flagged = flagged_assembler.Solve() );
+        result_flagged = flagged_assembler.Solve();
         ReplicatableVector result_flagged_repl(result_flagged);
 
 

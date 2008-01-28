@@ -327,12 +327,13 @@ void LinearSystem::SetMatrixIsConstant(bool matrixIsConstant)
 void LinearSystem::SetRelativeTolerance(double relativeTolerance)
 {
     mRelativeTolerance=relativeTolerance;
+    if (mKspIsSetup)
+    {
+        KSPSetTolerances(mKspSolver, mRelativeTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+    }        
+    
 }
-//Vec LinearSystem::Solve(AbstractLinearSolver *solver, Vec lhsGuess)
-//{
-//    return solver->Solve(mLhsMatrix, mRhsVector, mSize, mMatNullSpace, lhsGuess);
-//}    
-//    
+
 Vec LinearSystem::Solve(Vec lhsGuess)
 {
     /* The following lines are very useful for debugging
