@@ -3,7 +3,6 @@
 
 #include "LinearSystem.hpp"
 #include "AbstractNonlinearSolver.hpp"
-#include "SimpleLinearSolver.hpp"
 #include <vector>
 
 class SimpleNewtonNonlinearSolver : public AbstractNonlinearSolver

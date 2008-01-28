@@ -11,7 +11,6 @@
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "LinearSystem.hpp"
-#include "AbstractLinearSolver.hpp"
 #include "BidomainPde.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "AbstractDynamicAssemblerMixin.hpp"

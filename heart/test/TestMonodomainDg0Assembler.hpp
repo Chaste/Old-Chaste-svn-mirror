@@ -14,6 +14,7 @@
 #include "CheckMonoLr91Vars.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 
+
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:

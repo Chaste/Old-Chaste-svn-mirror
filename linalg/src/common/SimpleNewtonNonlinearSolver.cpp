@@ -47,10 +47,7 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
         std::cout << "Newton's method:\n  Initial ||residual||/N = " << scaled_residual_norm
         << "\n  Attempting to solve to tolerance " << mTolerance << "..\n";
     }
-    
-    
-    SimpleLinearSolver simple_linear_solver(mLinearSolverRelativeTolerance);
-    
+        
     double old_scaled_residual_norm;
     unsigned counter = 0;
     while (scaled_residual_norm > mTolerance)
@@ -63,7 +60,7 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
         // compute Jacobian and solve J dx = f for the (negative) update dx, (J the jacobian, f the residual)
         (*pComputeJacobian)(NULL, current_solution, &(linear_system.rGetLhsMatrix()), NULL, NULL, pContext);
         
-        Vec negative_update = linear_system.Solve(&simple_linear_solver);
+        Vec negative_update = linear_system.Solve();
         
         
         Vec test_vec;

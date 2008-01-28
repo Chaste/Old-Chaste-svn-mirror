@@ -7,7 +7,6 @@
 #include "ConstBoundaryCondition.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
-#include "SimpleLinearSolver.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
@@ -216,8 +215,7 @@ public:
         
         some_system.AssembleFinalLinearSystem();
         
-        SimpleLinearSolver solver(1e-6);
-        Vec solution = some_system.Solve(&solver);
+        Vec solution = some_system.Solve();
 
         DistributedVector::SetProblemSize(solution);
         DistributedVector d_solution( solution );
@@ -431,8 +429,8 @@ public:
         // and rhs vector looks like b=(-1, -2, -1, -2, ..., -1, -2, 2, 2)
         // so solution of Ax = b is  x=(-1, -2, -1, -2, ..., -1, -2, ?, ?)
         
-        SimpleLinearSolver solver(1e-6);
-        Vec solution = some_system.Solve(&solver);
+
+        Vec solution = some_system.Solve();
         DistributedVector::SetProblemSize(SIZE);
         DistributedVector d_solution(solution);
         DistributedVector::Stripe solution0(d_solution,0);
@@ -501,8 +499,7 @@ public:
         
         some_system.AssembleFinalLinearSystem();
         
-        SimpleLinearSolver solver(1e-6);
-        Vec solution = some_system.Solve(&solver);
+        Vec solution = some_system.Solve();
         
         DistributedVector::SetProblemSize(SIZE);
         DistributedVector d_solution(solution);

@@ -8,7 +8,6 @@
 #include "LinearPdeWithZeroSource.hpp"
 #include "EllipticPdeWithLinearSource.hpp"
 #include "EllipticPdeWithRadialLinearSource.hpp"
-#include "SimpleLinearSolver.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include <vector>
 #include <cmath>

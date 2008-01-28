@@ -3,7 +3,6 @@
 *
 */
 #include "LinearSystem.hpp"
-#include "AbstractLinearSolver.hpp"
 #include "PetscException.hpp"
 #include <iostream>
 #include "OutputFileHandler.hpp"
@@ -320,13 +319,20 @@ void LinearSystem::SetMatrixIsSymmetric()
     MatSetOption(mLhsMatrix, MAT_SYMMETRIC);
     MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL);
 }
-    
-
-Vec LinearSystem::Solve(AbstractLinearSolver *solver, Vec lhsGuess)
+void LinearSystem::SetMatrixIsConstant(bool matrixIsConstant)
 {
-    return solver->Solve(mLhsMatrix, mRhsVector, mSize, mMatNullSpace, lhsGuess);
-}    
+    mMatrixIsConstant=matrixIsConstant;
+}
     
+void LinearSystem::SetRelativeTolerance(double relativeTolerance)
+{
+    mRelativeTolerance=relativeTolerance;
+}
+//Vec LinearSystem::Solve(AbstractLinearSolver *solver, Vec lhsGuess)
+//{
+//    return solver->Solve(mLhsMatrix, mRhsVector, mSize, mMatNullSpace, lhsGuess);
+//}    
+//    
 Vec LinearSystem::Solve(Vec lhsGuess)
 {
     /* The following lines are very useful for debugging

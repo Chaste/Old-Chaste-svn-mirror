@@ -6,8 +6,6 @@
 #include <petscmat.h>
 #include <petscksp.h>
 
-class AbstractLinearSolver;
-
 #include <string>
 
 /**
@@ -57,6 +55,8 @@ public:
     void AssembleRhsVector();
     
     void SetMatrixIsSymmetric();
+    void SetMatrixIsConstant(bool matrixIsConstant);
+    void SetRelativeTolerance(double relativeTolerance);
     void DisplayMatrix();
     void DisplayRhs() ;
     void SetMatrixRow(PetscInt row, double value);
@@ -64,7 +64,6 @@ public:
     void ZeroLhsMatrix();
     void ZeroRhsVector();
     void ZeroLinearSystem();
-    Vec Solve(AbstractLinearSolver *pSolver, Vec lhsGuess=NULL);
     Vec Solve(Vec lhsGuess=NULL);
     void SetRhsVectorElement(PetscInt row, double value);
     void AddToRhsVectorElement(PetscInt row, double value);

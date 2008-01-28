@@ -18,7 +18,6 @@
 
 #include <sys/stat.h> // for mkdir
 
-#include "SimpleLinearSolver.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
 #include "ParallelColumnDataWriter.hpp"

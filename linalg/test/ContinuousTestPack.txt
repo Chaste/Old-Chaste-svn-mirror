@@ -1,4 +1,3 @@
-TestSimpleLinearSolver.hpp
 TestNonlinearSolvers.hpp
 TestLinearSystem.hpp
 TestUblasCustomFunctions.hpp

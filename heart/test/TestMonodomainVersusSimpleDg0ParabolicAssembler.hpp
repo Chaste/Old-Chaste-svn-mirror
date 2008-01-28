@@ -6,7 +6,6 @@
 #include <petsc.h>
 #include <vector>
 
-#include "SimpleLinearSolver.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
 #include "MonodomainDg0Assembler.hpp"

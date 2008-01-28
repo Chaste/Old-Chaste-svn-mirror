@@ -7,8 +7,7 @@
 #include <petscvec.h>
 
 #include "AbstractStaticAssembler.hpp"
-#include "AbstractLinearSolver.hpp"
-#include "SimpleLinearSolver.hpp"
+
 
 /**
  *  AbstractLinearAssembler. See AbstractAssembler for usage.
@@ -16,18 +15,15 @@
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
 class AbstractLinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>
 {
-
+private:
+    bool mMatrixIsConstant;
 protected:
-    /**
-     * The linear solver used to solve the linear system at each time step.
-     */
-    AbstractLinearSolver *mpLinearSolver;
     
     /** Hack for dynamic mixin */
     void SetMatrixIsConst(bool matrixIsConstant = true)
     {
-        mpLinearSolver->SetMatrixIsConstant();
-    }
+         mMatrixIsConstant = matrixIsConstant;
+     }
     
     /**
      * Apply Dirichlet boundary conditions to the linear system.
@@ -59,6 +55,9 @@ protected:
                 // LinearSystem. This is to avoid problems with VecScatter.
                 this->mpLinearSystem = new LinearSystem(initialSolution);
             }
+            this->mpLinearSystem->SetRelativeTolerance(this->mLinearSolverRelativeTolerance);
+            this->mpLinearSystem->SetMatrixIsConstant(mMatrixIsConstant);
+            
         }
     }
         
@@ -84,13 +83,13 @@ protected:
         }
         if (currentSolutionOrGuess && (unsigned)vec_size == this->mpLinearSystem->GetSize())
         {
-            return this->mpLinearSystem->Solve(this->mpLinearSolver, currentSolutionOrGuess);
+            return this->mpLinearSystem->Solve(currentSolutionOrGuess);
         }
         else
         {
             // When solving on a flagged mesh, the linear system is smaller than the current solution,
             // so we can't use the current solution as an initial guess for the linear solver.
-            return this->mpLinearSystem->Solve(this->mpLinearSolver);
+            return this->mpLinearSystem->Solve();
         }
     }
     
@@ -98,9 +97,10 @@ protected:
 public:
     AbstractLinearAssembler(unsigned numQuadPoints = 2,
                             double linearSolverRelativeTolerance = 1e-6) :
-            AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>(numQuadPoints)
+            AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>(numQuadPoints),
+            mMatrixIsConstant(true)
     {
-        mpLinearSolver = new SimpleLinearSolver(linearSolverRelativeTolerance);
+        this->mLinearSolverRelativeTolerance = linearSolverRelativeTolerance;
     }
     
     /**
@@ -108,7 +108,6 @@ public:
      */
     ~AbstractLinearAssembler()
     {
-        delete mpLinearSolver;
     }
     
     /**

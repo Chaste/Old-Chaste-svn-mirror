@@ -10,7 +10,6 @@
 #include "AbstractLinearAssembler.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include "AbstractLinearSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 
 #include <boost/mpl/void.hpp>

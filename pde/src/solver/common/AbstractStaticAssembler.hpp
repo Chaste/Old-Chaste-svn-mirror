@@ -98,6 +98,8 @@ protected:
      *  nonlinear problems
      */
     LinearSystem *mpLinearSystem;
+    double mLinearSolverRelativeTolerance;
+    
 
     /**
      *  Calculate the contribution of a single element to the linear system.

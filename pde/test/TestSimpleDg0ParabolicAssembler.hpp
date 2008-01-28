@@ -15,7 +15,6 @@
 #include <petsc.h>
 #include <vector>
 #include <cmath>
-#include "SimpleLinearSolver.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
 #include "ParallelColumnDataWriter.hpp"
