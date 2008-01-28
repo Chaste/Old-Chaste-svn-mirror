@@ -463,7 +463,8 @@ public:
         
     }
     
-    void TestSolverCannotHaveDifferentMatricesInput() throw (Exception)
+    // This was used in #487 - need to check if functionality is still needed after refactor
+    void xTestSolverCannotHaveDifferentMatricesInput() throw (Exception)
     {
         LinearSystem ls = LinearSystem(3);
         
