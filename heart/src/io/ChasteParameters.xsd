@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:simpleType name="domain_type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Mono"/>
+      <xs:enumeration value="Bi"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ionic_model_type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BackwardEulerFoxModel2002Modified"/>
+      <xs:enumeration value="BackwardEulerLuoRudyIModel1991"/>
+      <xs:enumeration value="LuoRudyIModel1991OdeSystem"/>
+      <xs:enumeration value="FaberRudy2000Version3Optimised"/>
+      <xs:enumeration value="FaberRudy2000Version3"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:complexType name="point_type">
+    <xs:attribute name="X" type="xs:double" use="required"/>
+    <xs:attribute name="Y" type="xs:double" use="optional"/>
+    <xs:attribute name="Z" type="xs:double" use="optional"/>
+  </xs:complexType>
+  
+  <xs:complexType name="box_type">
+    <xs:sequence>
+      <xs:element name="CornerA" type="point_type"/>
+      <xs:element name="CornerB" type="point_type"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="stimulus_type">
+    <xs:sequence>
+      <xs:element name="Strength" type="xs:double"/>
+      <xs:element name="Duration" type="xs:double"/>
+      <xs:element name="Delay" type="xs:double"/>
+      <xs:element name="Location" type="box_type"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="chaste_parameters_type">
+    <xs:sequence>
+      <xs:element name="SimulationDuration" type="xs:decimal"/>
+      <xs:element name="Domain" type="domain_type"/>
+      <xs:element name="IonicModel" type="ionic_model_type"/>
+      <xs:element name="SlabWidth" type="xs:decimal"/>
+      <xs:element name="SlabHeight" type="xs:decimal"/>
+      <xs:element name="InterNodeSpace" type="xs:decimal"/>
+	  <xs:element name="Stimulus" type="stimulus_type" maxOccurs="unbounded"/>
+      <xs:element name="OutputDirectory" type="xs:string"/>
+      <xs:element name="MeshOutputDirectory" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:element name="ChasteParameters" type="chaste_parameters_type"/>
+
+</xs:schema>
