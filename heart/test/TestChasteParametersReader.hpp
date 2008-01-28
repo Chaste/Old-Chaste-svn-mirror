@@ -15,19 +15,17 @@ public:
     {
         try
         {
-            auto_ptr<ChasteParameters::type> p (ChasteParameters("heart/test/data/ChasteParameters.xml"));
+            auto_ptr<chaste_parameters_type> p (ChasteParameters("heart/test/data/ChasteParameters.xml"));
             
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
             TS_ASSERT_EQUALS(p->SlabWidth(), 2.0);
             TS_ASSERT_EQUALS(p->SlabHeight(), 1.0);
             TS_ASSERT_EQUALS(p->InterNodeSpace(), 0.25);
-            TS_ASSERT_EQUALS(p->FaceStimulusWidth(), 0.25);
-            TS_ASSERT_EQUALS(p->QuadrantStimulusDelay(), 1.0);
-            TS_ASSERT_EQUALS(p->OutputDirectory(), "SpiralWave");
-            TS_ASSERT_EQUALS(p->MeshOutputDirectory(), "/tmp/Slab");
-            TS_ASSERT_EQUALS(p->Domain(), domain_type::Bi);
-            TS_ASSERT_EQUALS(p->IonicModel(), ionic_model_type::LuoRudyIModel1991OdeSystem);
+            TS_ASSERT_EQUALS(p->OutputDirectory(), "ChasteResults");
+            TS_ASSERT_EQUALS(p->MeshOutputDirectory(), "Slab");
+            TS_ASSERT_EQUALS(p->Domain(), domain_type::Mono);
+            TS_ASSERT_EQUALS(p->IonicModel(), ionic_model_type::FaberRudy2000Version3);
         }
         catch (const xml_schema::exception& e)
         {
@@ -41,19 +39,17 @@ public:
     {
         try
         {
-            auto_ptr<const ChasteParameters::type> p (ChasteParameters("heart/test/data/ChasteParameters.xml"));
+            auto_ptr<const chaste_parameters_type> p (ChasteParameters("heart/test/data/ChasteParameters.xml"));
             
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
             TS_ASSERT_EQUALS(p->SlabWidth(), 2.0);
             TS_ASSERT_EQUALS(p->SlabHeight(), 1.0);
             TS_ASSERT_EQUALS(p->InterNodeSpace(), 0.25);
-            TS_ASSERT_EQUALS(p->FaceStimulusWidth(), 0.25);
-            TS_ASSERT_EQUALS(p->QuadrantStimulusDelay(), 1.0);
-            TS_ASSERT_EQUALS(p->OutputDirectory(), "SpiralWave");
-            TS_ASSERT_EQUALS(p->MeshOutputDirectory(), "/tmp/Slab");
-            TS_ASSERT_EQUALS(p->Domain(), domain_type::Bi);
-            TS_ASSERT_EQUALS(p->IonicModel(), ionic_model_type::LuoRudyIModel1991OdeSystem);
+            TS_ASSERT_EQUALS(p->OutputDirectory(), "ChasteResults");
+            TS_ASSERT_EQUALS(p->MeshOutputDirectory(), "Slab");
+            TS_ASSERT_EQUALS(p->Domain(), domain_type::Mono);
+            TS_ASSERT_EQUALS(p->IonicModel(), ionic_model_type::FaberRudy2000Version3);
         }
         catch (const xml_schema::exception& e)
         {
