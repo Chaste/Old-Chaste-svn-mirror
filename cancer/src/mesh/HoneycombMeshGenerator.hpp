@@ -113,10 +113,12 @@ private:
                     double x = x0 + horizontal_spacing*((double)j + 0.25*(1.0+ pow(-1,i+1)));
                     
                     double y = y0 + vertical_spacing*(double)i;
-                    // Avoif floating point errors which upset CryptSimulation2d
+                    // Avoid floating point errors which upset CryptSimulation2d
                     if ( (y<0.0) && (y>-1e-12) )
-                    {
+                    {   // Difficult to cover - just corrects floating point errors that have occurred from time to time!
+                        #define COVERAGE_IGNORE
                         y=0.0;
+                        #undef COVERAGE_IGNORE
                     }
                     
                     (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << boundary << std::endl;
