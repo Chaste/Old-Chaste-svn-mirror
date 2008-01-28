@@ -522,8 +522,7 @@ public:
             
             double u = result_repl[2*i];
             double v = result_repl[2*i+1];
-            ;
-            
+
             TS_ASSERT_DELTA(u, x*x, 1e-2);
             TS_ASSERT_DELTA(v, y, 1e-2);
         }

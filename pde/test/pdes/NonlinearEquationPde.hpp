@@ -5,7 +5,7 @@
 #include "AbstractNonlinearEllipticPde.hpp"
 
 /**
- *  A simple nonlinear elliptic PDE used by tests; Grad.(u Grad u) + 1 = 0
+ *  A simple nonlinear elliptic PDE used by tests; Div.(u Grad u) + 1 = 0
  */
 template <int SPACE_DIM>
 class NonlinearEquationPde : public AbstractNonlinearEllipticPde<SPACE_DIM>
