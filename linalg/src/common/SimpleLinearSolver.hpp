@@ -10,6 +10,12 @@ class SimpleLinearSolver : public AbstractLinearSolver
 {
 private:
     double mRelativeTolerance;
+    bool mLinearSystemKnown;
+    bool mMatrixIsConstant;
+    KSP mSimpleSolver;
+    double mNonZerosUsed; //Yes, it really is stored as a double.
+    //double mMatrixNorm; //Temporary for debugging
+    void *mPointerToMatrix;//Temporary for debugging
     
 public:
 
@@ -33,13 +39,6 @@ public:
         mMatrixIsConstant = matrixIsConstant;
     }
     
-private:
-    bool mLinearSystemKnown;
-    bool mMatrixIsConstant;
-    KSP mSimpleSolver;
-    double mNonZerosUsed; //Yes, it really is stored as a double.
-    //double mMatrixNorm; //Temporary for debugging
-    void *mPointerToMatrix;//Temporary for debugging
 };
 
 #endif // _SIMPLELINEARSOLVER_H_

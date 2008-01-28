@@ -9,27 +9,26 @@
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
 #include <cassert>
-
+#include "EventHandler.hpp"
 
 
 
 LinearSystem::LinearSystem(PetscInt lhsVectorSize)
+:mMatNullSpace(NULL),
+mDestroyPetscObjects(true),
+mKspIsSetup(false),
+mMatrixIsConstant(false),
+mRelativeTolerance(1e-6)
 {
     VecCreate(PETSC_COMM_WORLD, &mRhsVector);
     VecSetSizes(mRhsVector, PETSC_DECIDE, lhsVectorSize);
     VecSetFromOptions(mRhsVector);
     
     PetscTools::SetupMat(mLhsMatrix, lhsVectorSize, lhsVectorSize);
-    
-    ///\todo: Sparsify matrices - get the allocation rule correct.
-    //MatMPIAIJSetPreallocation(mLhsMatrix, 5, PETSC_NULL, 5, PETSC_NULL);
-    
+        
     mSize = lhsVectorSize;
     
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
-    
-    mMatNullSpace = NULL;
-    mDestroyPetscObjects = true;
 }
 
 /**
@@ -40,6 +39,11 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize)
  * bidomain simulation results.
  */
 LinearSystem::LinearSystem(Vec templateVector)
+:mMatNullSpace(NULL),
+mDestroyPetscObjects(true),
+mKspIsSetup(false),
+mMatrixIsConstant(false),
+mRelativeTolerance(1e-6)
 {
     VecDuplicate(templateVector, &mRhsVector);
     VecGetSize(mRhsVector, &mSize);
@@ -48,8 +52,6 @@ LinearSystem::LinearSystem(Vec templateVector)
 
     PetscTools::SetupMat(mLhsMatrix, mSize, mSize, MATMPIAIJ, local_size, local_size);
 
-    mMatNullSpace = NULL;
-    mDestroyPetscObjects = true;
 }
 
 /**
@@ -60,6 +62,11 @@ LinearSystem::LinearSystem(Vec templateVector)
  * Useful for storing residuals and jacobians when solving nonlinear PDEs.
  */
 LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
+:mMatNullSpace(NULL),
+mDestroyPetscObjects(true),
+mKspIsSetup(false),
+mMatrixIsConstant(false),
+mRelativeTolerance(1e-6)
 {
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
@@ -80,10 +87,7 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
         mSize = (unsigned)mat_size; 
         MatGetOwnershipRange(mLhsMatrix, &mOwnershipRangeLo, &mOwnershipRangeHi);
     }
-    assert(!mRhsVector || !mLhsMatrix || vec_size == mat_size);
-    
-    mMatNullSpace = NULL;
-    mDestroyPetscObjects = false;
+    assert(!mRhsVector || !mLhsMatrix || vec_size == mat_size);   
 }
 
 LinearSystem::~LinearSystem()
@@ -99,21 +103,6 @@ LinearSystem::~LinearSystem()
     }
 }
 
-//bool LinearSystem::IsMatrixEqualTo(Mat testMatrix)
-//{
-//    PetscTruth testValue;
-//    MatEqual(mLhsMatrix,testMatrix,&testValue);
-//
-//    return(testValue == PETSC_TRUE);
-//}
-//
-//bool LinearSystem::IsRhsVectorEqualTo(Vec testVector)
-//{
-//   PetscTruth testValue;
-//   VecEqual(mRhsVector,testVector, &testValue);
-//
-//   return(testValue == PETSC_TRUE);
-//}
 void LinearSystem::SetMatrixElement(PetscInt row, PetscInt col, double value)
 {
     if (row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
@@ -247,10 +236,7 @@ void LinearSystem::ZeroLinearSystem()
     ZeroLhsMatrix();
 }
 
-Vec LinearSystem::Solve(AbstractLinearSolver *solver, Vec lhsGuess)
-{
-    return solver->Solve(mLhsMatrix, mRhsVector, mSize, mMatNullSpace, lhsGuess);
-}
+
 
 unsigned LinearSystem::GetSize()
 {
@@ -260,11 +246,6 @@ unsigned LinearSystem::GetSize()
 void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
 {
     PETSCEXCEPT( MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_FALSE, numberOfBases, nullBasis, &mMatNullSpace) );
-    
-    // uncomment following to test null basis is correct:
-    //AssembleIntermediateLinearSystem();
-    //AssembleFinalLinearSystem();
-    //PETSCEXCEPT( MatNullSpaceTest(mMatNullSpace, mLhsMatrix) );
 }
 
 /**
@@ -336,21 +317,116 @@ void LinearSystem::SetMatrixIsSymmetric()
     MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL);
 }
     
-/* BROKEN IN PARALLEL
-void LinearSystem::WriteLinearSystem(std::string matFile, std::string rhsVectorFile)
-{
-    OutputFileHandler output_file_handler("");
-    out_stream matrix_file = output_file_handler.OpenOutputFile(matFile);
-    out_stream vector_file = output_file_handler.OpenOutputFile(rhsVectorFile);
 
-    for(PetscInt i=0; i<mSize; i++)
+Vec LinearSystem::Solve(AbstractLinearSolver *solver, Vec lhsGuess)
+{
+    return solver->Solve(mLhsMatrix, mRhsVector, mSize, mMatNullSpace, lhsGuess);
+}    
+    
+Vec LinearSystem::Solve(Vec lhsGuess)
+{
+    /* The following lines are very useful for debugging
+     */    MatView(mLhsMatrix,    PETSC_VIEWER_STDOUT_WORLD);
+     /* */    VecView(mRhsVector,    PETSC_VIEWER_STDOUT_WORLD);
+     /* */
+    //Double check that the non-zero pattern hasn't changed
+    MatInfo mat_info;
+    MatGetInfo(mLhsMatrix, MAT_GLOBAL_SUM, &mat_info);
+    
+    if (!mKspIsSetup)
     {
-        for(PetscInt j=0; j<mSize; j++)
+        mPointerToMatrix=mLhsMatrix;
+        mNonZerosUsed=mat_info.nz_used;
+        //MatNorm(lhsMatrix, NORM_FROBENIUS, &mMatrixNorm);
+        PC prec; //Type of pre-conditioner
+        
+        KSPCreate(PETSC_COMM_WORLD, &mKspSolver);
+        //See
+        //http://www-unix.mcs.anl.gov/petsc/petsc-2/snapshots/petsc-current/docs/manualpages/KSP/KSPSetOperators.html
+        //The preconditioner flag (last argument) in the following calls says
+        //how to reuse the preconditioner on subsequent iterations
+        if (mMatrixIsConstant)
         {
-            (*matrix_file) << GetMatrixElement(i,j) << " ";
+            KSPSetOperators(mKspSolver, mLhsMatrix, mLhsMatrix, SAME_PRECONDITIONER);
         }
-        (*matrix_file) << "\n";
-        (*vector_file) << GetRhsVectorElement(i) << "\n";
+        else
+        {
+            KSPSetOperators(mKspSolver, mLhsMatrix, mLhsMatrix, SAME_NONZERO_PATTERN);
+        }
+        
+        // Default relative tolerance appears to be 1e-5.  This ain't so great.
+        KSPSetTolerances(mKspSolver, mRelativeTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+        
+        // Turn off pre-conditioning if the system size is very small
+        KSPGetPC(mKspSolver, &prec);
+        if (mSize <= 4)
+        {
+            PCSetType(prec, PCNONE);
+        }
+        else
+        {
+            PCSetType(prec, PCJACOBI);
+        }
+        
+        if (mMatNullSpace)
+        {
+            PETSCEXCEPT( KSPSetNullSpace(mKspSolver, mMatNullSpace) );
+        }
+        
+        if (lhsGuess)
+        {
+            //Assume that the user of this method will always be kind enough 
+            //to give us a reasonable guess.
+            KSPSetInitialGuessNonzero(mKspSolver,PETSC_TRUE);
+        }
+         
+        KSPSetFromOptions(mKspSolver) ;
+        KSPSetUp(mKspSolver);
+        
+        mKspIsSetup = true;
     }
-};
-*/
+    else
+    {
+        #define COVERAGE_IGNORE
+        if (mNonZerosUsed!=mat_info.nz_used)
+        {
+            EXCEPTION("SimpleLinearSolver doesn't allow the non-zero pattern of a matrix to change. (I think you changed it).");
+        }
+        
+        #undef COVERAGE_IGNORE
+    }
+    
+    // Create solution vector
+    //\todo Should it be compulsory for the caller to supply this and manage the memory?
+    Vec lhs_vector;
+    VecDuplicate(mRhsVector, &lhs_vector);//Sets the same size (doesn't copy)
+    if (lhsGuess)
+    {           
+        VecCopy(lhsGuess, lhs_vector);  
+    }
+    
+    try {
+        if (mPointerToMatrix!=mLhsMatrix)//Check that the matrix isn't wandering all over the place
+        {
+            EXCEPTION("Matrix location has changed");
+        }
+        EventHandler::BeginEvent(SOLVE_LINEAR_SYSTEM);
+        PETSCEXCEPT(KSPSolve(mKspSolver, mRhsVector, lhs_vector));
+        EventHandler::EndEvent(SOLVE_LINEAR_SYSTEM);
+    
+        // Check that solver converged and throw if not
+        KSPConvergedReason reason;
+        KSPGetConvergedReason(mKspSolver, &reason);
+        KSPEXCEPT(reason);
+    }
+    catch (const Exception& e)
+    {
+        // Destroy solution vector on error to avoid memory leaks
+        VecDestroy(lhs_vector);
+        throw e;
+    }
+    
+    return lhs_vector;
+}
+
+

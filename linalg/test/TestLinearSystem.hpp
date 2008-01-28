@@ -4,7 +4,6 @@
 
 #include <cxxtest/TestSuite.h>
 #include "LinearSystem.hpp"
-#include "SimpleLinearSolver.hpp"
 #include "DistributedVector.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
@@ -38,9 +37,8 @@ public:
         ls.DisplayMatrix();
         ls.DisplayRhs();
         
-        SimpleLinearSolver solver(1e-6);
         Vec solution_vector;
-        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
+        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
         
         int lo,hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
@@ -127,9 +125,8 @@ public:
         ls.AddToRhsVectorElement(0, 3.0);
         ls.AddToRhsVectorElement(1, 7.0);
         
-        SimpleLinearSolver solver(1e-6);
         Vec solution_vector;
-        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
+        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
         
         
         int lo,hi;
@@ -268,10 +265,8 @@ public:
         VecSetValue(good_guess, 2, 3.0, INSERT_VALUES);
         
         
-        SimpleLinearSolver solver(1e-6);
-        
         Vec solution_vector;
-        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver, good_guess));
+        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(good_guess));
         int lo,hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         PetscScalar *p_solution_elements_array;
@@ -297,7 +292,7 @@ public:
 #else
         VecSet(bad_guess, too_big);
 #endif
-        TS_ASSERT_THROWS_ANYTHING(solution_vector = ls.Solve(&solver, bad_guess));
+        TS_ASSERT_THROWS_ANYTHING(solution_vector = ls.Solve(bad_guess));
         
         VecDestroy(solution_vector);
         VecDestroy(good_guess);
@@ -379,10 +374,8 @@ public:
         ls.SetRhsVectorElement(1, 32.0);
         ls.SetRhsVectorElement(2, 50.0);
         
-        // solving should be fine
-        SimpleLinearSolver solver(1e-6);
         Vec solution_vector;
-        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
+        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
         
         double expected_solution[3]={25.0,0.0,7.0};
         PetscInt lo, hi;    
@@ -424,9 +417,8 @@ public:
         ls.SetRhsVectorElement(2, 50.0);
         
         // solving should be fine
-        SimpleLinearSolver solver(1e-6);
         Vec solution_vector;
-        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
+        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
         
 
         LinearSystem ls2 = LinearSystem(3);
@@ -443,8 +435,7 @@ public:
         
         // what happens when we solve?
         Vec solution_vector2;
-        SimpleLinearSolver solver2(1e-6);
-        solution_vector2 = ls2.Solve(&solver2);
+        solution_vector2 = ls2.Solve();
         
         //Check answers
         double expected_solution[3]={-68.0,6.0,80.0};
@@ -492,10 +483,9 @@ public:
         ls.SetRhsVectorElement(2, 50.0);
         
         // solving should be fine
-        SimpleLinearSolver solver(1e-6);
         Vec solution_vector;
-        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
-	VecDestroy(solution_vector);
+        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
+	    VecDestroy(solution_vector);
         
         //Do it all again
         LinearSystem ls2 = LinearSystem(3);
@@ -514,7 +504,7 @@ public:
         ls2.SetRhsVectorElement(0, 14.0);
         ls2.SetRhsVectorElement(1, 32.0);
         ls2.SetRhsVectorElement(2, 50.0);
-        TS_ASSERT_THROWS_ANYTHING(solution_vector = ls2.Solve(&solver));
+        TS_ASSERT_THROWS_ANYTHING(solution_vector = ls2.Solve());
     }
 };
 #endif //_TESTLINEARSYSTEM_HPP_

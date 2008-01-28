@@ -20,7 +20,6 @@ class LinearSystem
 private:
     Mat mLhsMatrix;
     Vec mRhsVector;
-    //Vec mLhsVector;
     PetscInt mSize;
     /** \todo
      * Verify claim that ownership range for Vec and Mat is same.
@@ -34,6 +33,12 @@ private:
     /** Whether we need to destroy the PETSc objects in our destructor */
     bool mDestroyPetscObjects;
     
+    KSP mKspSolver;
+    bool mKspIsSetup; //Used by Solve method to track whether KSP has been used
+    double mNonZerosUsed; //Yes, it really is stored as a double.
+    void *mPointerToMatrix;//Temporary for debugging
+    bool mMatrixIsConstant;
+    double mRelativeTolerance;
 public:
     LinearSystem(PetscInt lhsVectorSize);
     LinearSystem(Vec templateVector);
@@ -60,6 +65,7 @@ public:
     void ZeroRhsVector();
     void ZeroLinearSystem();
     Vec Solve(AbstractLinearSolver *pSolver, Vec lhsGuess=NULL);
+    Vec Solve(Vec lhsGuess=NULL);
     void SetRhsVectorElement(PetscInt row, double value);
     void AddToRhsVectorElement(PetscInt row, double value);
     unsigned GetSize();
@@ -72,7 +78,6 @@ public:
     void GetOwnershipRange(PetscInt &lo, PetscInt &hi);
     double GetMatrixElement(PetscInt row, PetscInt col);
     double GetRhsVectorElement(PetscInt row);
-    //void WriteLinearSystem(std::string matrixFile, std::string rhsVectorFile);
     
     
     /***
