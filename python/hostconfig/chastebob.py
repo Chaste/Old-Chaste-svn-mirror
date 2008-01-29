@@ -13,7 +13,7 @@ metis_path = '../../../metis-4.0/'
 intel_path = '/opt/intel/cce/9.1.039'
 
 other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd']
-other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/'),   '/opt/intel/mkl/9.1.023/lib/em64t']
+other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/'),  '../../../lib', '/opt/intel/mkl/9.1.023/lib/em64t']
 blas_lapack = ['f2clapack', 'f2cblas']
 blas_lapack_production = ['mkl_lapack', 'mkl']
 other_libraries = ['boost_serialization', 'xerces-c']
