@@ -21,14 +21,14 @@ public:
     /**
      * Combine a stimulus with the existing ones.
      * 
-     * @param pStimulus pointer to the stimulus to be added
+     * @param pStimulus pointer to the stimulus to be added.
      */   
      void AddStimulus(AbstractStimulusFunction* pStimulus);
 
     /**
      * Get the magnitude of the multiple stimuli at time 'time'
      *
-     * @return  Magnitude of stimulus at time 'time'
+     * @return  Magnitude of stimulus at time 'time'.
      */
      double GetStimulus(double time);
 };

@@ -3,7 +3,7 @@
 
 #include "ChastePoint.hpp"
 
-/*
+/**
  * This class defines a 3D cuboid and provides a method to check 
  * if a given point is contained in the volume.
  */
@@ -15,17 +15,17 @@ private:
     
 public:
     /**
-     * The cuboid is defined by any two space-diagonal opposite corners.
+     * The cuboid is defined by any of its two space-diagonal opposite corners.
      * 
-     * @param rPointA Any vertex of the cuboid
-     * @param rPointB The space-diagonal opposite corner of pointA
+     * @param rPointA Any vertex of the cuboid.
+     * @param rPointB The space-diagonal opposite corner of pointA.
      */   
     ChasteCuboid(ChastePoint<3>& rPointA, ChastePoint<3>& rPointB);
         
-    /*
+    /**
      * Checks if a given point is contained in the cuboid.
      * 
-     * @param pointToCheck Point to be checked to be contained in.
+     * @param rPointToCheck Point to be checked to be contained in the cuboid.
      */
     bool DoesContain(ChastePoint<3>& rPointToCheck);
 };
