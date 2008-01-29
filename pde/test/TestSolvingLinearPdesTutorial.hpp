@@ -183,12 +183,12 @@ public:
          * its {{{AbstractBoundaryCondition}}} objects), and then loop over surface elements, using the 
          * iterator provided by the mesh class. 
          */ 
-         ConstBoundaryCondition<2>* p_neumann_boundary_condition = new ConstBoundaryCondition<2>(0.0);
+        ConstBoundaryCondition<2>* p_neumann_boundary_condition = new ConstBoundaryCondition<2>(0.0);
          
-         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter 
-           = mesh.GetBoundaryElementIteratorBegin();
-         while (surf_iter < mesh.GetBoundaryElementIteratorEnd())
-         {  
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter 
+          = mesh.GetBoundaryElementIteratorBegin();
+        while (surf_iter < mesh.GetBoundaryElementIteratorEnd())
+        {
             /* Get the x and y values of any node (here, the 0th) in the element */
             unsigned node_index = (*surf_iter)->GetNodeGlobalIndex(0);
             double x = mesh.GetNode(node_index)->GetPoint()[0];
