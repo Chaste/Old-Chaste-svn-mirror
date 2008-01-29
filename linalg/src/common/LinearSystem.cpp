@@ -346,7 +346,6 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     
     if (!mKspIsSetup)
     {
-        mPointerToMatrix=mLhsMatrix;
         mNonZerosUsed=mat_info.nz_used;
         //MatNorm(lhsMatrix, NORM_FROBENIUS, &mMatrixNorm);
         PC prec; //Type of pre-conditioner
@@ -417,10 +416,6 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     }
     
     try {
-        if (mPointerToMatrix!=mLhsMatrix)//Check that the matrix isn't wandering all over the place
-        {
-            EXCEPTION("Matrix location has changed");
-        }
         EventHandler::BeginEvent(SOLVE_LINEAR_SYSTEM);
         PETSCEXCEPT(KSPSolve(mKspSolver, mRhsVector, lhs_vector));
         EventHandler::EndEvent(SOLVE_LINEAR_SYSTEM);

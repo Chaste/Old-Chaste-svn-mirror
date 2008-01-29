@@ -34,7 +34,6 @@ private:
     KSP mKspSolver;
     bool mKspIsSetup; //Used by Solve method to track whether KSP has been used
     double mNonZerosUsed; //Yes, it really is stored as a double.
-    void *mPointerToMatrix;//Temporary for debugging
     bool mMatrixIsConstant;
     double mRelativeTolerance;
 public:

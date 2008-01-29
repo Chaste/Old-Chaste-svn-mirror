@@ -31,6 +31,24 @@ public:
         TS_ASSERT_EQUALS(tester.MeshNum, 4u); ///Just to prove the thing works
     }
     
+    //Experiments with ksp_atol follow.  Note that the way that
+    //tester.KspRtol=1e-17; is set is a bit hacky, but it'll do for now.
+    //This first one has to be done before we've asked for    
+    void TestSpaceConvergencein1DWithAtol() throw(Exception)
+    {
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+        tester.KspRtol=1e-17;//Unreasonably small
+        
+        PetscOptionsSetValue("-ksp_atol", "1e-5");
+        PetscOptionsSetValue("-options_table", "");
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u);
+        TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05);
+        //Has to be at least as good as the 1D with Rtol=1e-7
+        //Note the final line fails with ksp_atol=1e-4
+    }
+ 
     //Copied from projects/jmpf
     void Test3DSpace10() throw(Exception)
     {
@@ -48,24 +66,9 @@ public:
         TS_ASSERT_EQUALS(tester.MeshNum, 3u);
     }
     
-    //Experiments with ksp_atol follow.  Note that the way that
-    //tester.KspRtol=1e-17; is set is a bit hacky, but it'll do for now.
-       
-    void TestSpaceConvergencein1DWithAtol() throw(Exception)
-    {
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
-        tester.KspRtol=1e-17;//Unreasonably small
-        
-        PetscOptionsSetValue("-ksp_atol", "1e-5");
-        PetscOptionsSetValue("-options_table", "");
-        tester.Converge();
-        TS_ASSERT(tester.Converged);
-        TS_ASSERT_EQUALS(tester.MeshNum, 5u);
-        TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05);
-        //Has to be at least as good as the 1D with Rtol=1e-7
-        //Note the final line fails with ksp_atol=1e-4
-    }
     
+    //More experiments with ksp_atol follow.  Note that the way that
+    //tester.KspRtol=1e-17; is set is a bit hacky, but it'll do for now.
     void TestSpaceConvergencein2DWithAtol() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
