@@ -167,7 +167,7 @@ public:
          * side of the square against the top right one, comparing voltage.
          */
         bool need_initialisation = true;
-        double probe_voltage;
+        double probe_voltage=0.0;
         
         need_initialisation = true;
         

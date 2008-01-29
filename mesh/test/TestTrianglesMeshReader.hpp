@@ -30,8 +30,7 @@ public:
     void TestFilesOpen(void)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
-        TS_ASSERT_THROWS_NOTHING(
-            p_mesh_reader=new READER_2D("mesh/test/data/disk_522_elements"));
+        p_mesh_reader=new READER_2D("mesh/test/data/disk_522_elements");
         delete p_mesh_reader;
     }
     
@@ -106,8 +105,7 @@ public:
     void Test3dDataRead(void)
     {
         AbstractMeshReader<3,3> *p_mesh_reader;
-        TS_ASSERT_THROWS_NOTHING(
-            p_mesh_reader=new READER_3D("mesh/test/data/slab_138_elements"));
+        p_mesh_reader=new READER_3D("mesh/test/data/slab_138_elements");
                             
         TS_ASSERT_EQUALS (p_mesh_reader->GetNumElements(), 138U);
         delete p_mesh_reader;
@@ -122,8 +120,7 @@ public:
     void TestIndexFromZero(void)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
-        TS_ASSERT_THROWS_NOTHING(
-            p_mesh_reader=new READER_2D("mesh/test/data/disk_522_elements"));
+        p_mesh_reader=new READER_2D("mesh/test/data/disk_522_elements");
                             
         TS_ASSERT_EQUALS(p_mesh_reader->GetMaxNodeIndex(), p_mesh_reader->GetNumNodes() - 1);
         
@@ -140,9 +137,8 @@ public:
     void TestIndexFromOne(void)
     {
         AbstractMeshReader<2,2> *p_mesh_reader;
-        TS_ASSERT_THROWS_NOTHING(
-            p_mesh_reader=new READER_2D(
-                            "mesh/test/data/disk_522_elements_indexed_from_1"));
+        p_mesh_reader=new READER_2D(
+                            "mesh/test/data/disk_522_elements_indexed_from_1");
                             
         TS_ASSERT_EQUALS(p_mesh_reader->GetMaxNodeIndex(), p_mesh_reader->GetNumNodes() - 1);
         

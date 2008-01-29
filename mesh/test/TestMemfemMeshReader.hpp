@@ -24,9 +24,8 @@ public:
     void TestFilesOpen(void)
     {
         MemfemMeshReader<3,3> *pMeshReader;
-        TS_ASSERT_THROWS_NOTHING(
-            pMeshReader = new READER_3D(
-                              "mesh/test/data/Memfem_slab"));
+        pMeshReader = new READER_3D(
+                              "mesh/test/data/Memfem_slab");
                               
         TS_ASSERT(pMeshReader->GetNumNodes() == 381U);
         TS_ASSERT(pMeshReader->GetNumElements() == 1030U);

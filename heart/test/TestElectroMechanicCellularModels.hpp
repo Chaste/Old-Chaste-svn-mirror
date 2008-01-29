@@ -64,7 +64,7 @@ public:
         // find out if electrophys model has CaTrop
         unsigned Ca_i_index = electrophys_model.GetStateVariableNumberByName("CaI");
         bool has_Ca_trop = false;
-        unsigned Ca_trop_index;
+        unsigned Ca_trop_index=0;
         
         try
         {
@@ -166,7 +166,7 @@ public:
         // find out if electrophys model has CaTrop
         unsigned Ca_i_index = electrophys_model.GetStateVariableNumberByName("CaI");
         bool has_Ca_trop = false;
-        unsigned Ca_trop_index;
+        unsigned Ca_trop_index=0;
         
         try
         {

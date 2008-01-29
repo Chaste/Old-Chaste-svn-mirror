@@ -32,7 +32,7 @@ public:
     {
     
     
-        int time_var_id, var1_id, var2_id;
+        int time_var_id=-1, var1_id=-1, var2_id=-1;
         
         //Make a parallel data writer
         TS_ASSERT_THROWS_NOTHING(mpParallelWriter = new ParallelColumnDataWriter("TestParallelColumnDataWriter","ParallelColumnWriter"));

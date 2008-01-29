@@ -39,7 +39,7 @@ public:
         ls.DisplayRhs();
         
         Vec solution_vector;
-        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
+        solution_vector = ls.Solve();
         
         int lo,hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
@@ -143,7 +143,7 @@ public:
         ls.AddToRhsVectorElement(1, 7.0);
         
         Vec solution_vector;
-        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
+        solution_vector = ls.Solve();
         
         
         int lo,hi;
@@ -283,7 +283,7 @@ public:
         
         
         Vec solution_vector;
-        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(good_guess));
+        solution_vector = ls.Solve(good_guess);
         int lo,hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         PetscScalar *p_solution_elements_array;
@@ -392,7 +392,7 @@ public:
         ls.SetRhsVectorElement(2, 50.0);
         
         Vec solution_vector;
-        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
+        solution_vector = ls.Solve();
         
         double expected_solution[3]={25.0,0.0,7.0};
         PetscInt lo, hi;    
@@ -435,7 +435,7 @@ public:
         
         // solving should be fine
         Vec solution_vector;
-        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
+        solution_vector = ls.Solve();
         
 
         LinearSystem ls2 = LinearSystem(3);
@@ -479,6 +479,7 @@ public:
        
         
     }
+    
     
 };
 #endif //_TESTLINEARSYSTEM_HPP_

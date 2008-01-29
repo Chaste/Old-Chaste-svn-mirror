@@ -43,7 +43,7 @@ public:
         ColumnDataReader simulation_data("MonoConductionVel",
                                          "NewMonodomainLR91_1d");
         PropagationPropertiesCalculator ppc(&simulation_data);
-        double velocity;
+        double velocity=0.0;
         
         // Check action potential propagated to node 95
         TS_ASSERT_THROWS_NOTHING(velocity=ppc.CalculateConductionVelocity(5,95,0.9));

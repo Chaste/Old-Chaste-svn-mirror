@@ -28,8 +28,7 @@ public:
         mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader);
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TRI_READ_3 *p_new_mesh_reader;
-        TS_ASSERT_THROWS_NOTHING(p_new_mesh_reader =
-                                     new TRI_READ_3(output_dir + "MeshFromMemfem"));
+        p_new_mesh_reader = new TRI_READ_3(output_dir + "MeshFromMemfem");
                                      
         delete p_new_mesh_reader;
     }
@@ -48,8 +47,7 @@ public:
         std::string output_dir = mesh_writer.GetOutputDirectory();
         
         TRI_READ_2 *p_new_mesh_reader;
-        TS_ASSERT_THROWS_NOTHING(p_new_mesh_reader =
-                                     new TRI_READ_2(output_dir + "MeshFromFemlab"));
+        p_new_mesh_reader =  new TRI_READ_2(output_dir + "MeshFromFemlab");
                                      
         delete p_new_mesh_reader;
     }
@@ -110,8 +108,7 @@ public:
         std::string output_dir = mesh_writer.GetOutputDirectory();
         
         TRI_READ_2 *p_new_mesh_reader;
-        TS_ASSERT_THROWS_NOTHING(p_new_mesh_reader =
-                                     new TRI_READ_2(output_dir + "MeshFromFemlabViaMesh"));
+        p_new_mesh_reader = new TRI_READ_2(output_dir + "MeshFromFemlabViaMesh");
                                      
         delete p_new_mesh_reader;
     }

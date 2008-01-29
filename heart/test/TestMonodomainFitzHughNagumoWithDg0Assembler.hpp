@@ -76,7 +76,7 @@ public:
         * side of the square against the top right one, comparing voltage.
         */
         bool need_initialisation = true;
-        double probe_voltage;
+        double probe_voltage=0.0;
         Vec voltage=monodomain_problem.GetVoltage();
         ReplicatableVector voltage_replicated;
         voltage_replicated.ReplicatePetscVector(voltage);

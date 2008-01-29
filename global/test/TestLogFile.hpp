@@ -96,7 +96,9 @@ public:
         
         p_log_file->Set(1, "TestLogFile", "log4.txt");
         
+#ifndef NDEBUG
         unsigned i=0;
+#endif
         LOG(1, "Level 1 info, will be written. i = " << i); 
         LOG(2, "Level 2 info, WONT be written. i = " << i); 
 
