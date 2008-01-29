@@ -2,14 +2,46 @@
 <ChasteParameters
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="ChasteParameters.xsd">
-    <SimulationDuration>4</SimulationDuration>
+
+	<!-- 
+		Problem definition 
+	-->    
+    <SimulationDuration>10.0</SimulationDuration>
+    <Domain>Bi</Domain>
+    <IonicModel>BackwardEulerFoxModel2002Modified</IonicModel>
+    
+	<!-- 
+		Mesh definition 
+	-->    
     <SlabWidth>10.0</SlabWidth>
     <SlabHeight>0.25</SlabHeight>
     <InterNodeSpace>0.25</InterNodeSpace>
-    <FaceStimulusWidth>0.25</FaceStimulusWidth>
-    <QuadrantStimulusDelay>2.0</QuadrantStimulusDelay>
-    <OutputDirectory>ChasteResults</OutputDirectory>
-    <MeshOutputDirectory>Slab</MeshOutputDirectory>
-    <Domain>Bi</Domain>
-    <IonicModel>BackwardEulerFoxModel2002Modified</IonicModel>
+    
+    <!-- 
+    	Stimuli (as many <Stimulus> definitions as needed) 
+   	-->
+  	<Stimulus> <!-- #1 -->
+		<Strength>-8000.0</Strength>
+		<Duration>0.5</Duration>
+		<Delay>0</Delay>
+		<Location>
+			<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
+			<CornerB X="-4.75" Z="5.0" Y="0.125"/>
+		</Location>
+	</Stimulus>	
+	<Stimulus> <!-- #2 -->
+		<Strength>-8000.0</Strength>
+		<Duration>0.5</Duration>
+		<Delay>2.0</Delay>
+		<Location>
+			<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
+			<CornerB X="0.0" Z="0.0" Y="0.125"/>
+		</Location>
+	</Stimulus>	
+	
+	<!-- 
+		Output 
+	-->
+	<OutputDirectory>ChasteResults</OutputDirectory>
+    <MeshOutputDirectory>Slab</MeshOutputDirectory>	
 </ChasteParameters>
