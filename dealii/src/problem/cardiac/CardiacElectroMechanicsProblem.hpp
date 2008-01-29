@@ -17,7 +17,6 @@ template<unsigned DIM>
 class CardiacElectroMechanicsProblem : public AbstractCardiacElectroMechanicsProblem<DIM>
 {
 private:
-    unsigned mNumElementsPerDimInElectricsMesh;
     unsigned mNumElementsPerDimInMechanicsMesh;
 
 public:
@@ -46,19 +45,18 @@ public:
                                                        nhsOdeTimeStep,
                                                        outputDirectory)
     {
-        //mNumElementsPerDimInElectricsMesh = numElementsPerDimInElectricsMesh;
         mNumElementsPerDimInMechanicsMesh = numElementsPerDimInMechanicsMesh;
     }
     
 
     void ConstructMeshes()
     {        
-        double width = 0.5;
+        double width = 1.0;
         
         // create electrics mesh
         this->mpElectricsMesh = new ConformingTetrahedralMesh<DIM,DIM>();
 
-        unsigned num_elem = 48; //mNumElementsPerDimInElectricsMesh;
+        unsigned num_elem = 96;
         this->mpElectricsMesh->ConstructRectangularMesh(num_elem,num_elem);
         this->mpElectricsMesh->Scale(width/num_elem,width/num_elem);
 
@@ -92,7 +90,6 @@ public:
         else
         {
             ImplicitCardiacMechanicsAssembler<DIM>* p_assembler = new ImplicitCardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir);
-            //p_assembler->SetScaling(10);
             this->mpCardiacMechAssembler = p_assembler;
         }
     }

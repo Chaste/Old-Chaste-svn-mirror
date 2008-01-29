@@ -68,17 +68,17 @@ public:
     {
         PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 
-        unsigned num=8;
-        for(unsigned i=0;i<2;i++)
+        unsigned num_nodes_in_each_dir=1;
+        for(unsigned i=0;i<7;i++)
         {
             std::stringstream name;
-            name << "CardiacElectroMech_Space_" << num;
+            name << "CardiacElectroMech_Space_NEW_" << num_nodes_in_each_dir;
             
-            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, num, false, 1, 0.01, name.str());
+            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, num_nodes_in_each_dir, false, 100, 1.0, name.str());
             implicit_problem.SetNoElectricsOutput();
             implicit_problem.Solve();
             
-            num *= 2;
+            num_nodes_in_each_dir *= 2;
         }
 
 //        double nhs_ode_time_step = 0.01;

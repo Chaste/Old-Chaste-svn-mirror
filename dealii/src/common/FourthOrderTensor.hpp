@@ -7,7 +7,6 @@
 #include <base/tensor.h>
 #include "Exception.hpp"
 
-using namespace dealii;
 
 /** 
  *  FourthOrderTensor

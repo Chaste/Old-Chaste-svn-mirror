@@ -9,11 +9,13 @@
 #include "AbstractElasticityAssembler.hpp"
 #include "TrianglesMeshWriter.cpp"
 #include "LogFile.hpp"
+#include "ImplicitCardiacMechanicsAssembler.hpp"
+
+//#include "NodewiseData.hpp"
 
 /* todos:
  * 
  * add comments
- * add tests
  * 
  * det F
  * 
@@ -111,7 +113,7 @@ protected :
      *  for that particular element.
      */
     std::vector<ElementAndWeights<DIM> > mElementAndWeightsForQuadPoints;
-
+  
     /*< Whether to use an explicit or implicit method */
     bool mUseExplicitMethod;
 
@@ -195,7 +197,7 @@ public :
         mpElectricsMesh = NULL;
         mpMechanicsMesh = NULL;
         mpCardiacMechAssembler = NULL;
-        
+                
         // Create the Logfile (note we have to do this after the output dir has been 
         // created, else the log file might get cleaned away
         std::string log_dir = mOutputDirectory; // just the TESTOUTPUT dir if mOutputDir="";
@@ -280,6 +282,20 @@ public :
             TrianglesMeshWriter<DIM,DIM> mesh_writer(mOutputDirectory,"electrics_mesh",false);
             mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
         }
+
+//        // get the assembler to compute which electrics nodes are in each mechanics mesh
+//        dynamic_cast<ImplicitCardiacMechanicsAssembler<DIM>*>(mpCardiacMechAssembler)->ComputeElementsContainingNodes(mpElectricsMesh);
+//        assert(DIM==2);
+//
+//        NodewiseData<DIM>::Instance()->AllocateMemory(mpElectricsMesh->GetNumNodes(), 3);
+//        std::vector<std::vector<double> >& r_c_inverse = NodewiseData<DIM>::Instance()->rGetData();
+//        for(unsigned i=0; i<r_c_inverse.size(); i++)
+//        {
+//            r_c_inverse[i][0] = 1.0;
+//            r_c_inverse[i][1] = 0.0;
+//            r_c_inverse[i][2] = 1.0;
+//        }
+
     }
 
     /** 
@@ -411,7 +427,7 @@ public :
                     forcing_quantity[i] = interpolated_Ca_I;
                 }
             }
-
+            
             if(mUseExplicitMethod)
             {
                 LOG(1, "  Setting active tension. max value = " << Max(forcing_quantity));
@@ -471,6 +487,10 @@ public :
                 }
             }
 
+//            // setup the Cinverse data;
+//            std::vector<std::vector<double> >& r_c_inverse = NodewiseData<DIM>::Instance()->rGetData();
+//            dynamic_cast<ImplicitCardiacMechanicsAssembler<DIM>*>(mpCardiacMechAssembler)->CalculateCinverseAtNodes(mpElectricsMesh, r_c_inverse);
+
             // write the total elapsed time..
             LogFile::Instance()->WriteElapsedTime("  ");
         }
@@ -503,6 +523,8 @@ public :
         }
 
         delete p_electrics_assembler;
+        
+        dynamic_cast<ImplicitCardiacMechanicsAssembler<DIM>*>(mpCardiacMechAssembler)->WriteLambda(mOutputDirectory,"lambda.dat");
     }
     
     

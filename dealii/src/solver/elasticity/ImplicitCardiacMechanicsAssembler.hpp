@@ -4,6 +4,7 @@
 #include "CardiacMechanicsAssembler.cpp"
 #include "NhsSystemWithImplicitSolver.hpp"
 #include "LogFile.hpp"
+#include "FiniteElasticityTools.hpp"
 #include <cfloat>
 
 
@@ -126,7 +127,7 @@ private:
     
         static QGauss<DIM>   quadrature_formula(this->mNumQuadPointsInEachDimension);
         
-        const unsigned n_q_points    = quadrature_formula.n_quadrature_points;
+        const unsigned n_q_points = quadrature_formula.n_quadrature_points;
         
         
         // would want this to be static too (slight speed up), but causes errors
@@ -468,6 +469,184 @@ private:
         
         first = false;
     }
-};
+
+
+
+
+public:
+//    std::vector<std::vector<unsigned> > mNodesContainedInElement;
+//
+//    void ComputeElementsContainingNodes(ConformingTetrahedralMesh<DIM,DIM>* pOtherMesh)
+//    {
+//        assert(DIM==2);
+//
+//        mNodesContainedInElement.resize(this->mpMesh->n_active_cells());
+//        
+//        unsigned element_number = 0;
+//        typename DoFHandler<DIM>::active_cell_iterator  element_iter = this->mDofHandler.begin_active();
+//   
+//        while (element_iter!=this->mDofHandler.end())  
+//        {
+//            double xmin = element_iter->vertex(0)(0); 
+//            double xmax = element_iter->vertex(1)(0); 
+//            double ymin = element_iter->vertex(0)(1); 
+//            double ymax = element_iter->vertex(3)(1);
+//
+//            assert(element_iter->vertex(2)(0)==xmax);
+//            assert(element_iter->vertex(2)(1)==ymax);
+//            
+//            for(unsigned i=0; i<pOtherMesh->GetNumNodes(); i++)
+//            {
+//                double x = pOtherMesh->GetNode(i)->rGetLocation()[0];
+//                double y = pOtherMesh->GetNode(i)->rGetLocation()[1];
+//                if((x>=xmin) && (x<=xmax) && (y>=ymin) && (y<=ymax)) 
+//                {
+//                    mNodesContainedInElement[element_number].push_back(i);
+//                }
+//            }
+//
+//            element_iter++;
+//            element_number++;
+//        }
+//    }
+
+    void WriteLambda(std::string directory, std::string fileName)
+    {
+        OutputFileHandler handler(directory,false);
+        out_stream p_file = handler.OpenOutputFile(fileName);
+        
+        std::vector<std::vector<double> > quad_point_posns
+           = FiniteElasticityTools<DIM>::GetQuadPointPositions(*(this->mpMesh), this->GetNumQuadPointsInEachDimension());
+        
+        
+        for(unsigned i=0; i<quad_point_posns.size(); i++)
+        {
+            (*p_file) << quad_point_posns[i][0] << " " << quad_point_posns[i][1] << " " 
+                      << mCellMechSystems[i].GetLambda() << "\n";
+        }
+    }
+//
+//
+//    void CalculateCinverseAtNodes(ConformingTetrahedralMesh<DIM,DIM>* pOtherMesh, std::vector<std::vector<double> >& rValuesAtNodes)
+//    {
+//        assert(DIM==2);
+//        rValuesAtNodes.resize(pOtherMesh->GetNumNodes());
+//        
+//        unsigned element_number = 0;
+//        
+//        static QTrapez<DIM>   trapezoid_quadrature_formula; //trapeziod rule - values at NODES
+//        const unsigned n_q_points = trapezoid_quadrature_formula.n_quadrature_points;
+//
+//        FEValues<DIM> fe_values(this->mFeSystem, trapezoid_quadrature_formula,
+//                                UpdateFlags(update_values    |
+//                                            update_gradients |
+//                                            update_q_points  |     // needed for interpolating u and u' on the quad point
+//                                            update_JxW_values));
+//                                        
+//        std::vector< Vector<double> >                  local_solution_values(n_q_points);
+//        std::vector< std::vector< Tensor<1,DIM> > >    local_solution_gradients(n_q_points);
+//    
+//        for (unsigned q_point=0; q_point<n_q_points; q_point++)
+//        {
+//            local_solution_values[q_point].reinit(DIM+1);
+//            local_solution_gradients[q_point].resize(DIM+1);
+//        }
+//
+//    
+//        Tensor<2,DIM> identity;
+//        for (unsigned i=0; i<DIM; i++)
+//        {
+//            for (unsigned j=0; j<DIM; j++)
+//            {
+//                identity[i][j] = i==j ? 1.0 : 0.0;
+//            }
+//        }
+//
+//        typename DoFHandler<DIM>::active_cell_iterator  element_iter = this->mDofHandler.begin_active();
+//   
+//        while (element_iter!=this->mDofHandler.end())  
+//        {
+//            double xmin = element_iter->vertex(0)(0); 
+//            double xmax = element_iter->vertex(1)(0); 
+//            double ymin = element_iter->vertex(0)(1); 
+//            double ymax = element_iter->vertex(3)(1);
+//            assert(element_iter->vertex(2)(0)==xmax);
+//            assert(element_iter->vertex(2)(1)==ymax);
+//            
+//            fe_values.reinit(element_iter); // compute fe values for this element
+//            fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
+//            fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
+//
+//            std::vector<Point<DIM> > quad_points =fe_values.get_quadrature_points(); 
+//
+//
+//            AbstractIncompressibleMaterialLaw<DIM>* p_material_law = this->GetMaterialLawForElement(element_iter);
+//                
+//            std::vector<Tensor<2,DIM> > inv_C_at_nodes(4);// 4=2^DIM    
+//
+//            for (unsigned q_point=0; q_point<n_q_points; q_point++)
+//            {
+//                const std::vector< Tensor<1,DIM> >& grad_u_p = local_solution_gradients[q_point];
+//                static Tensor<2,DIM> F;
+//                static Tensor<2,DIM> C;
+//                                
+//                for (unsigned i=0; i<DIM; i++)
+//                {
+//                    for (unsigned j=0; j<DIM; j++)
+//                    {
+//                        F[i][j] = identity[i][j] + grad_u_p[i][j];
+//                    }
+//                }
+//                    
+//                C = transpose(F) * F;
+//                inv_C_at_nodes[q_point] = invert(C);
+//            }
+//
+//
+///// QUAD POINT ORDER: (0,0), (1,0), (0,1), (1,1)
+////            std::cout << quad_points[0](0) << " " << quad_points[0](1) << "\n"; 
+////            std::cout << quad_points[1](0) << " " << quad_points[1](1) << "\n"; 
+////            std::cout << quad_points[2](0) << " " << quad_points[2](1) << "\n"; 
+////            std::cout << quad_points[3](0) << " " << quad_points[3](1) << "\n"; 
+////            std::cout << xmin << " " << ymin << " " << local_solution_values[0](0) << "\n";
+////            std::cout << xmin << " " << ymax << " " << local_solution_values[1](0) << "\n";
+////            std::cout << xmax << " " << ymin << " " << local_solution_values[2](0) << "\n";
+////            std::cout << xmax << " " << ymax << " " << local_solution_values[3](0) << "\n";
+//
+// 
+//
+//            for(unsigned j=0; j<mNodesContainedInElement[element_number].size(); j++)
+//            {
+//                unsigned node_num = mNodesContainedInElement[element_number][j];
+//                double x = pOtherMesh->GetNode(node_num)->rGetLocation()[0];
+//                double y = pOtherMesh->GetNode(node_num)->rGetLocation()[1];
+//                
+//                assert((x>=xmin) && (x<=xmax) && (y>=ymin) && (y<=ymax));
+//                double xi  = (x-xmin)/(xmax-xmin);
+//                double eta = (y-ymin)/(ymax-ymin);
+//                assert((0<=xi) && (x<=1) && (0<=eta) && (eta<=1));
+//
+//                rValuesAtNodes[node_num][0] = InterpolateCinverse(xi,eta,inv_C_at_nodes,0,0);
+//                rValuesAtNodes[node_num][1] = InterpolateCinverse(xi,eta,inv_C_at_nodes,0,1);
+//                rValuesAtNodes[node_num][2] = InterpolateCinverse(xi,eta,inv_C_at_nodes,1,1);
+//            }
+//            
+//        
+//            element_iter++;
+//            element_number++;
+//        }
+//    }
+//    
+//    
+//    double InterpolateCinverse(const double xi, const double eta, 
+//                               const std::vector<Tensor<2,DIM> >& inverseCAtNodes,
+//                               unsigned i, unsigned j)
+//    {
+//        return    inverseCAtNodes[0][i][j] * (1-xi) * (1-eta)
+//                + inverseCAtNodes[1][i][j] * (1-xi) *   eta
+//                + inverseCAtNodes[2][i][j] *   xi   * (1-eta)
+//                + inverseCAtNodes[3][i][j] *   xi   *   eta;
+//    }
+ };
 
 #endif /*IMPLICITCARDIACMECHANICSASSEMBLER_HPP_*/

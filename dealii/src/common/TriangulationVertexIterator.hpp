@@ -6,7 +6,6 @@
 #include <grid/tria_iterator.h>
 #include <cassert>
 
-using namespace dealii;
 
 /**
  *  TriangulationVertexIterator
