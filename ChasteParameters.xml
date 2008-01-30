@@ -6,38 +6,59 @@
 	<!-- 
 		Problem definition 
 	-->    
-    <SimulationDuration>350.0</SimulationDuration>
+    <SimulationDuration>20.0</SimulationDuration>
     <Domain>Mono</Domain>
-    <IonicModel>FaberRudy2000Version3Optimised</IonicModel>
+    <IonicModel>FaberRudy2000Version3</IonicModel>
     
 	<!-- 
 		Mesh definition 
 	-->    
-    <SlabWidth>10.0</SlabWidth>
-    <SlabHeight>0.25</SlabHeight>
-    <InterNodeSpace>0.25</InterNodeSpace>
+    <SlabWidth>0.4</SlabWidth>
+    <SlabHeight>12.0</SlabHeight>
+    <InterNodeSpace>0.1</InterNodeSpace>
     
     <!-- 
     	Stimuli (as many <Stimulus> definitions as needed) 
    	-->
   	<Stimulus> <!-- #1 -->
-		<Strength>-8000.0</Strength>
+		<Strength>-35500.0</Strength>
 		<Duration>0.5</Duration>
 		<Delay>0</Delay>
 		<Location>
-			<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
-			<CornerB X="-4.75" Z="5.0" Y="0.125"/>
+			<CornerA X="-0.2" Y="-6.0" Z="-0.2"/>
+			<CornerB X="0.2" Y="-5.9" Z="0.2"/>
 		</Location>
 	</Stimulus>	
-	<Stimulus> <!-- #2 -->
-		<Strength>-8000.0</Strength>
-		<Duration>0.5</Duration>
-		<Delay>230.0</Delay>
+
+    <!-- 
+    	Heterogeneities (as many <Heterogeneity> definitions as needed) 
+   	-->
+  	<Heterogeneity> <!-- #1 -->
+		<ScaleFactorGks>0.462</ScaleFactorGks>
+		<ScaleFactorIto>0.0</ScaleFactorIto>
 		<Location>
-			<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
-			<CornerB X="0.0" Z="0.0" Y="0.125"/>
+			<CornerA X="-0.2" Y="-6.0" Z="-0.2"/>
+			<CornerB X="0.2" Y="-2.0" Z="0.2"/>
 		</Location>
-	</Stimulus>	
+	</Heterogeneity>	
+
+  	<Heterogeneity> <!-- #2 -->
+		<ScaleFactorGks>1.154</ScaleFactorGks>
+		<ScaleFactorIto>0.85</ScaleFactorIto>
+		<Location>
+			<CornerA X="-0.2" Y="-2.0" Z="-0.2"/>
+			<CornerB X="0.2" Y="2.0" Z="0.2"/>
+		</Location>
+	</Heterogeneity>	
+
+  	<Heterogeneity> <!-- #3 -->
+		<ScaleFactorGks>1.154</ScaleFactorGks>
+		<ScaleFactorIto>1.0</ScaleFactorIto>
+		<Location>
+			<CornerA X="-0.2" Y="2.0" Z="-0.2"/>
+			<CornerB X="0.2" Y="6.0" Z="0.2"/>
+		</Location>
+	</Heterogeneity>	
 	
 	<!-- 
 		Output 

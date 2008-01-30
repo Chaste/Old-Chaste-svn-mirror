@@ -1,5 +1,5 @@
 TestConformingTetrahedralMesh.hpp
-TestCuboid.hpp
+TestChasteCuboid.hpp
 TestFemlabMeshReader.hpp
 TestFace.hpp
 TestInventorVoronoiWriter.hpp

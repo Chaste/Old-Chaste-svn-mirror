@@ -40,6 +40,14 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name="heterogeneity_type">
+    <xs:sequence>
+      <xs:element name="ScaleFactorGks" type="xs:double"/>
+      <xs:element name="ScaleFactorIto" type="xs:double"/>
+      <xs:element name="Location" type="box_type"/>
+    </xs:sequence>
+  </xs:complexType>
+  
   <xs:complexType name="chaste_parameters_type">
     <xs:sequence>
       <xs:element name="SimulationDuration" type="xs:decimal"/>
@@ -49,6 +57,7 @@
       <xs:element name="SlabHeight" type="xs:decimal"/>
       <xs:element name="InterNodeSpace" type="xs:decimal"/>
 	  <xs:element name="Stimulus" type="stimulus_type" maxOccurs="unbounded"/>
+	  <xs:element name="Heterogeneity" type="heterogeneity_type" minOccurs="0" maxOccurs="unbounded" />
       <xs:element name="OutputDirectory" type="xs:string"/>
       <xs:element name="MeshOutputDirectory" type="xs:string"/>
     </xs:sequence>

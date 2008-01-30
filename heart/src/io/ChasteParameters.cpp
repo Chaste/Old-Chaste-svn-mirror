@@ -310,6 +310,70 @@ Location (::std::auto_ptr< Location::type > Location)
 }
 
 
+// heterogeneity_type
+// 
+
+const heterogeneity_type::ScaleFactorGks::type& heterogeneity_type::
+ScaleFactorGks () const
+{
+  return this->_xsd_ScaleFactorGks_.get ();
+}
+
+heterogeneity_type::ScaleFactorGks::type& heterogeneity_type::
+ScaleFactorGks ()
+{
+  return this->_xsd_ScaleFactorGks_.get ();
+}
+
+void heterogeneity_type::
+ScaleFactorGks (const ScaleFactorGks::type& ScaleFactorGks)
+{
+  this->_xsd_ScaleFactorGks_.set (ScaleFactorGks);
+}
+
+const heterogeneity_type::ScaleFactorIto::type& heterogeneity_type::
+ScaleFactorIto () const
+{
+  return this->_xsd_ScaleFactorIto_.get ();
+}
+
+heterogeneity_type::ScaleFactorIto::type& heterogeneity_type::
+ScaleFactorIto ()
+{
+  return this->_xsd_ScaleFactorIto_.get ();
+}
+
+void heterogeneity_type::
+ScaleFactorIto (const ScaleFactorIto::type& ScaleFactorIto)
+{
+  this->_xsd_ScaleFactorIto_.set (ScaleFactorIto);
+}
+
+const heterogeneity_type::Location::type& heterogeneity_type::
+Location () const
+{
+  return this->_xsd_Location_.get ();
+}
+
+heterogeneity_type::Location::type& heterogeneity_type::
+Location ()
+{
+  return this->_xsd_Location_.get ();
+}
+
+void heterogeneity_type::
+Location (const Location::type& Location)
+{
+  this->_xsd_Location_.set (Location);
+}
+
+void heterogeneity_type::
+Location (::std::auto_ptr< Location::type > Location)
+{
+  this->_xsd_Location_.set (Location);
+}
+
+
 // chaste_parameters_type
 // 
 
@@ -449,6 +513,24 @@ void chaste_parameters_type::
 Stimulus (const Stimulus::container& Stimulus)
 {
   this->_xsd_Stimulus_ = Stimulus;
+}
+
+const chaste_parameters_type::Heterogeneity::container& chaste_parameters_type::
+Heterogeneity () const
+{
+  return this->_xsd_Heterogeneity_;
+}
+
+chaste_parameters_type::Heterogeneity::container& chaste_parameters_type::
+Heterogeneity ()
+{
+  return this->_xsd_Heterogeneity_;
+}
+
+void chaste_parameters_type::
+Heterogeneity (const Heterogeneity::container& Heterogeneity)
+{
+  this->_xsd_Heterogeneity_ = Heterogeneity;
 }
 
 const chaste_parameters_type::OutputDirectory::type& chaste_parameters_type::
@@ -1025,6 +1107,144 @@ _clone (::xml_schema::flags f,
   return new stimulus_type (*this, f, c);
 }
 
+// heterogeneity_type
+//
+
+heterogeneity_type::
+heterogeneity_type (const ScaleFactorGks::type& _xsd_ScaleFactorGks,
+                    const ScaleFactorIto::type& _xsd_ScaleFactorIto,
+                    const Location::type& _xsd_Location)
+: ::xml_schema::type (),
+_xsd_ScaleFactorGks_ (_xsd_ScaleFactorGks,
+                      ::xml_schema::flags (),
+                      this),
+_xsd_ScaleFactorIto_ (_xsd_ScaleFactorIto,
+                      ::xml_schema::flags (),
+                      this),
+_xsd_Location_ (_xsd_Location,
+                ::xml_schema::flags (),
+                this)
+{
+}
+
+heterogeneity_type::
+heterogeneity_type (const heterogeneity_type& _xsd_heterogeneity_type,
+                    ::xml_schema::flags f,
+                    ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_heterogeneity_type, f, c),
+_xsd_ScaleFactorGks_ (_xsd_heterogeneity_type._xsd_ScaleFactorGks_,
+                      f | ::xml_schema::flags::not_root,
+                      this),
+_xsd_ScaleFactorIto_ (_xsd_heterogeneity_type._xsd_ScaleFactorIto_,
+                      f | ::xml_schema::flags::not_root,
+                      this),
+_xsd_Location_ (_xsd_heterogeneity_type._xsd_Location_,
+                f | ::xml_schema::flags::not_root,
+                this)
+{
+}
+
+heterogeneity_type::
+heterogeneity_type (const ::xercesc::DOMElement& e,
+                    ::xml_schema::flags f,
+                    ::xml_schema::type* c)
+: ::xml_schema::type (e, f, c),
+_xsd_ScaleFactorGks_ (f | ::xml_schema::flags::not_root, this),
+_xsd_ScaleFactorIto_ (f | ::xml_schema::flags::not_root, this),
+_xsd_Location_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void heterogeneity_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_elements ())
+  {
+    const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
+
+    // ScaleFactorGks
+    //
+    {
+      if (e.name () == "ScaleFactorGks" && e.namespace_ ().empty ())
+      {
+        if (_xsd_ScaleFactorGks_.present ())
+          continue;
+        this->ScaleFactorGks (
+          ScaleFactorGks::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
+
+    // ScaleFactorIto
+    //
+    {
+      if (e.name () == "ScaleFactorIto" && e.namespace_ ().empty ())
+      {
+        if (_xsd_ScaleFactorIto_.present ())
+          continue;
+        this->ScaleFactorIto (
+          ScaleFactorIto::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
+
+    // Location
+    //
+    {
+      if (e.name () == "Location" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< Location::type > r (
+          Location::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_Location_.present ())
+          continue;
+        this->Location (r);
+        continue;
+      }
+    }
+  }
+
+  if (!_xsd_ScaleFactorGks_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "ScaleFactorGks",
+      "");
+  }
+
+  if (!_xsd_ScaleFactorIto_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "ScaleFactorIto",
+      "");
+  }
+
+  if (!_xsd_Location_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "Location",
+      "");
+  }
+}
+
+heterogeneity_type* heterogeneity_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new heterogeneity_type (*this, f, c);
+}
+
 // chaste_parameters_type
 //
 
@@ -1057,6 +1277,7 @@ _xsd_InterNodeSpace_ (_xsd_InterNodeSpace,
                       ::xml_schema::flags (),
                       this),
 _xsd_Stimulus_ (::xml_schema::flags (), this),
+_xsd_Heterogeneity_ (::xml_schema::flags (), this),
 _xsd_OutputDirectory_ (_xsd_OutputDirectory,
                        ::xml_schema::flags (),
                        this),
@@ -1092,6 +1313,9 @@ _xsd_InterNodeSpace_ (_xsd_chaste_parameters_type._xsd_InterNodeSpace_,
 _xsd_Stimulus_ (_xsd_chaste_parameters_type._xsd_Stimulus_,
                 f | ::xml_schema::flags::not_root,
                 this),
+_xsd_Heterogeneity_ (_xsd_chaste_parameters_type._xsd_Heterogeneity_,
+                     f | ::xml_schema::flags::not_root,
+                     this),
 _xsd_OutputDirectory_ (_xsd_chaste_parameters_type._xsd_OutputDirectory_,
                        f | ::xml_schema::flags::not_root,
                        this),
@@ -1113,6 +1337,7 @@ _xsd_SlabWidth_ (f | ::xml_schema::flags::not_root, this),
 _xsd_SlabHeight_ (f | ::xml_schema::flags::not_root, this),
 _xsd_InterNodeSpace_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Stimulus_ (f | ::xml_schema::flags::not_root, this),
+_xsd_Heterogeneity_ (f | ::xml_schema::flags::not_root, this),
 _xsd_OutputDirectory_ (f | ::xml_schema::flags::not_root, this),
 _xsd_MeshOutputDirectory_ (f | ::xml_schema::flags::not_root, this)
 {
@@ -1240,6 +1465,22 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
             this));
 
         this->Stimulus ().push_back (r);
+        continue;
+      }
+    }
+
+    // Heterogeneity
+    //
+    {
+      if (e.name () == "Heterogeneity" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< Heterogeneity::type > r (
+          Heterogeneity::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        this->Heterogeneity ().push_back (r);
         continue;
       }
     }

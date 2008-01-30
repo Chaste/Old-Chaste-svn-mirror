@@ -203,6 +203,7 @@ class ionic_model_type;
 class point_type;
 class box_type;
 class stimulus_type;
+class heterogeneity_type;
 class chaste_parameters_type;
 
 #include <memory>    // std::auto_ptr
@@ -614,6 +615,102 @@ class stimulus_type: public ::xml_schema::type
   ::xsd::cxx::tree::one< Location::type > _xsd_Location_;
 };
 
+class heterogeneity_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_heterogeneity_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // ScaleFactorGks
+  // 
+  public:
+  struct ScaleFactorGks
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const ScaleFactorGks::type&
+  ScaleFactorGks () const;
+
+  ScaleFactorGks::type&
+  ScaleFactorGks ();
+
+  void
+  ScaleFactorGks (const ScaleFactorGks::type&);
+
+  // ScaleFactorIto
+  // 
+  public:
+  struct ScaleFactorIto
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const ScaleFactorIto::type&
+  ScaleFactorIto () const;
+
+  ScaleFactorIto::type&
+  ScaleFactorIto ();
+
+  void
+  ScaleFactorIto (const ScaleFactorIto::type&);
+
+  // Location
+  // 
+  public:
+  struct Location
+  {
+    typedef ::box_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Location::type&
+  Location () const;
+
+  Location::type&
+  Location ();
+
+  void
+  Location (const Location::type&);
+
+  void
+  Location (::std::auto_ptr< Location::type >);
+
+  // Constructors.
+  //
+  public:
+  heterogeneity_type (const ScaleFactorGks::type&,
+                      const ScaleFactorIto::type&,
+                      const Location::type&);
+
+  heterogeneity_type (const ::xercesc::DOMElement&,
+                      ::xml_schema::flags = 0,
+                      ::xml_schema::type* = 0);
+
+  heterogeneity_type (const heterogeneity_type&,
+                      ::xml_schema::flags = 0,
+                      ::xml_schema::type* = 0);
+
+  virtual heterogeneity_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< ScaleFactorGks::type > _xsd_ScaleFactorGks_;
+  ::xsd::cxx::tree::one< ScaleFactorIto::type > _xsd_ScaleFactorIto_;
+  ::xsd::cxx::tree::one< Location::type > _xsd_Location_;
+};
+
 class chaste_parameters_type: public ::xml_schema::type
 {
   public:
@@ -758,6 +855,27 @@ class chaste_parameters_type: public ::xml_schema::type
   void
   Stimulus (const Stimulus::container&);
 
+  // Heterogeneity
+  // 
+  public:
+  struct Heterogeneity
+  {
+    typedef ::heterogeneity_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::sequence< type > container;
+    typedef container::iterator iterator;
+    typedef container::const_iterator const_iterator;
+  };
+
+  const Heterogeneity::container&
+  Heterogeneity () const;
+
+  Heterogeneity::container&
+  Heterogeneity ();
+
+  void
+  Heterogeneity (const Heterogeneity::container&);
+
   // OutputDirectory
   // 
   public:
@@ -837,6 +955,7 @@ class chaste_parameters_type: public ::xml_schema::type
   ::xsd::cxx::tree::one< SlabHeight::type > _xsd_SlabHeight_;
   ::xsd::cxx::tree::one< InterNodeSpace::type > _xsd_InterNodeSpace_;
   ::xsd::cxx::tree::sequence< Stimulus::type > _xsd_Stimulus_;
+  ::xsd::cxx::tree::sequence< Heterogeneity::type > _xsd_Heterogeneity_;
   ::xsd::cxx::tree::one< OutputDirectory::type > _xsd_OutputDirectory_;
   ::xsd::cxx::tree::one< MeshOutputDirectory::type > _xsd_MeshOutputDirectory_;
 };

@@ -43,11 +43,15 @@ ionic_model_type ionic_model = ionic_model_type::LuoRudyIModel1991OdeSystem;
 std::vector<InitialStimulus> stimuli_applied;
 std::vector<ChasteCuboid> stimuled_areas;
 
+std::vector<double> scale_factor_gks;
+std::vector<double> scale_factor_ito;
+std::vector<ChasteCuboid> heterogeneity_areas;
+
 // Parameters fixed at compile time
 const std::string  output_filename_prefix = "Run";
 const double ode_time_step = 0.005;     // ms
 const double pde_time_step = 0.02;     // ms
-const double printing_time_step = 1; // ms
+const double printing_time_step = 0.1; // ms
 
 const double intracellular_cond = 1.75;
 const double extracellular_cond = 7.0;
@@ -64,7 +68,7 @@ public:
     }
 
     
-    AbstractCardiacCell* CreateCellWithIntracellularStimulus(AbstractStimulusFunction* intracellularStimulus)
+    AbstractCardiacCell* CreateCellWithIntracellularStimulus(AbstractStimulusFunction* intracellularStimulus, unsigned node)
     {
         switch(ionic_model)
         {
@@ -81,9 +85,24 @@ public:
                 break;
     
             case(ionic_model_type::FaberRudy2000Version3):
-                return new FaberRudy2000Version3(mpSolver, mTimeStep, intracellularStimulus, mpZeroStimulus);
-                break;
-
+                {
+                    FaberRudy2000Version3*  faber_rudy_instance = new FaberRudy2000Version3(mpSolver, mTimeStep, intracellularStimulus, mpZeroStimulus);
+                    
+                    for (unsigned ht_index = 0;
+                         ht_index < heterogeneity_areas.size();
+                         ++ht_index)
+                    {
+                        if ( heterogeneity_areas[ht_index].DoesContain(mpMesh->GetNode(node)->GetPoint()) )
+                        {
+                            faber_rudy_instance->SetScaleFactorGks(scale_factor_gks[ht_index]);
+                            faber_rudy_instance->SetScaleFactorIto(scale_factor_ito[ht_index]);     
+                        }            
+                    }
+                    
+                    return faber_rudy_instance;
+                    break;
+                }
+                
             case(ionic_model_type::FaberRudy2000Version3Optimised):
                 return new FaberRudy2000Version3Optimised(mpSolver, mTimeStep, intracellularStimulus, mpZeroStimulus);
                 break;
@@ -92,6 +111,7 @@ public:
                 EXCEPTION("Unknown ionic model!!!");
         }   
         
+        return NULL;
     }
     
     
@@ -107,11 +127,11 @@ public:
         {
             if ( stimuled_areas[stimulus_index].DoesContain(mpMesh->GetNode(node)->GetPoint()) )
             {
-                node_specific_stimulus->AddStimulus(&stimuli_applied[stimulus_index]);               
-            }
+                node_specific_stimulus->AddStimulus(&stimuli_applied[stimulus_index]);     
+            }            
         }
         
-        return CreateCellWithIntracellularStimulus(node_specific_stimulus);                
+        return CreateCellWithIntracellularStimulus(node_specific_stimulus, node);                
     }
     
     ~ChasteSlabCellFactory(void)
@@ -133,8 +153,8 @@ void ReadParametersFromFile()
         domain = p_params->Domain();
         ionic_model = p_params->IonicModel();
         
+        // Read and store Stimuli
         chaste_parameters_type::Stimulus::container& stimuli = p_params->Stimulus();
-        
         for (chaste_parameters_type::Stimulus::iterator i = stimuli.begin();
              i != stimuli.end();
              ++i)
@@ -156,6 +176,33 @@ void ReadParametersFromFile()
             stimuli_applied.push_back( InitialStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
             stimuled_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
         }
+
+        // Read and store Heterogeneities
+        chaste_parameters_type::Heterogeneity::container& hts = p_params->Heterogeneity();
+        for (chaste_parameters_type::Heterogeneity::iterator i = hts.begin();
+             i != hts.end();
+             ++i)
+        {                     
+            heterogeneity_type ht(*i);           
+            point_type point_a = ht.Location().CornerA();
+            point_type point_b = ht.Location().CornerB();
+            
+            // method get() should be called for Y and Z since they have been defined optional in the schema
+            // {Y,Z}.set() can be called to know if they have been defined
+            ChastePoint<3> chaste_point_a (scale_factor* point_a.X(), 
+                                           scale_factor*point_a.Y().get(),
+                                           scale_factor*point_a.Z().get());
+
+            ChastePoint<3> chaste_point_b (scale_factor*point_b.X(),
+                                           scale_factor*point_b.Y().get(),
+                                           scale_factor*point_b.Z().get());
+                        
+            scale_factor_gks.push_back (ht.ScaleFactorGks());
+            scale_factor_ito.push_back (ht.ScaleFactorIto());                                    
+            heterogeneity_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
+        }
+
+
     }
     catch (const xml_schema::exception& e)
     {
