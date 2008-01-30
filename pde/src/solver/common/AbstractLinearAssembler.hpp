@@ -145,6 +145,7 @@ public:
     void SetLinearSolverRelativeTolerance(double relativeTolerance)
     {
         assert(this->mpLinearSystem==NULL);
+        mUseLinearSolverAbsoluteTolerance = false;
         mLinearSolverRelativeTolerance = relativeTolerance;
     }
 

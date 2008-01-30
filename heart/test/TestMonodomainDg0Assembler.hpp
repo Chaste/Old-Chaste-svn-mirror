@@ -101,8 +101,12 @@ public:
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
         monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
+        monodomain_problem.SetLinearSolverAbsoluteTolerance(1e-5);
+        TS_ASSERT_DELTA(monodomain_problem.GetLinearSolverAbsoluteTolerance(),1e-5,1e-14);
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetLinearSolverRelativeTolerance());
         monodomain_problem.SetLinearSolverRelativeTolerance(1e-9);
         TS_ASSERT_DELTA(monodomain_problem.GetLinearSolverRelativeTolerance(),1e-9,1e-14);
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetLinearSolverAbsoluteTolerance());
         
         monodomain_problem.Solve();
         

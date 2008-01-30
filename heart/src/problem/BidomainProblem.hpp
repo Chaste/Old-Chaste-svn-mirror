@@ -39,7 +39,15 @@ protected:
             = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh, mpBidomainPde, 2);
         try
         {
-            p_bidomain_assembler->SetLinearSolverRelativeTolerance(this->mLinearSolverRelativeTolerance);
+            if (this->mUseLinearSolverAbsoluteTolerance)
+            {
+                p_bidomain_assembler->SetLinearSolverAbsoluteTolerance(this->mLinearSolverAbsoluteTolerance);       
+            }
+            else
+            {
+                p_bidomain_assembler->SetLinearSolverRelativeTolerance(this->mLinearSolverRelativeTolerance);    
+            }
+            
             p_bidomain_assembler->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
             p_bidomain_assembler->SetRowForMeanPhiEToZero(mRowMeanPhiEZero);
         }

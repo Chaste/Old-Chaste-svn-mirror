@@ -63,7 +63,7 @@ LinearSystem::LinearSystem(Vec templateVector)
  * Useful for storing residuals and jacobians when solving nonlinear PDEs.
  */
 LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
-   :mMatNullSpace(NULL),
+    :mMatNullSpace(NULL),
     mDestroyPetscObjects(false),
     mKspIsSetup(false),
     mMatrixIsConstant(false),
@@ -330,6 +330,7 @@ void LinearSystem::SetMatrixIsConstant(bool matrixIsConstant)
 void LinearSystem::SetRelativeTolerance(double relativeTolerance)
 {
     mRelativeTolerance=relativeTolerance;
+    mUseAbsoluteTolerance=false;
     if (mKspIsSetup)
     {
         KSPSetTolerances(mKspSolver, mRelativeTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);

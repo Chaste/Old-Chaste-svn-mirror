@@ -45,6 +45,8 @@ protected:
     
     Vec mVoltage; // Current solution
     double mLinearSolverRelativeTolerance;
+    double mLinearSolverAbsoluteTolerance;
+    bool mUseLinearSolverAbsoluteTolerance;
     
 
     /**
@@ -97,6 +99,7 @@ public:
         mpAssembler = NULL;
         mVoltage = NULL;
         mLinearSolverRelativeTolerance=1e-6;
+        mUseLinearSolverAbsoluteTolerance = false;
         mAllocatedMemoryForMesh = false;
         
         EventHandler::BeginEvent(EVERYTHING);
@@ -136,11 +139,33 @@ public:
     void SetLinearSolverRelativeTolerance(const double &rRelTol)
     {
         mLinearSolverRelativeTolerance = rRelTol;
+        mUseLinearSolverAbsoluteTolerance = false;        
     }
     
     double GetLinearSolverRelativeTolerance()
     {
+        if (mUseLinearSolverAbsoluteTolerance)
+        {
+            EXCEPTION("No relative tolerance because absolute tolerance set");
+        }
+        
         return mLinearSolverRelativeTolerance;
+    }
+    
+    void SetLinearSolverAbsoluteTolerance(const double &rAbsTol)
+    {
+        mLinearSolverAbsoluteTolerance = rAbsTol;
+        mUseLinearSolverAbsoluteTolerance = true;        
+    }
+    
+    double GetLinearSolverAbsoluteTolerance()
+    {
+        if (!mUseLinearSolverAbsoluteTolerance)
+        {
+            EXCEPTION("No absolute tolerance because relative tolerance set");
+        }
+        
+        return mLinearSolverAbsoluteTolerance;
     }
     
     void PreSolveChecks()

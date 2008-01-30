@@ -119,7 +119,7 @@ public:
         */
         
         // Final values to test against have been produced with ksp_rtol=1e-9
-        PetscOptionsSetValue("-ksp_rtol", "1e-9");
+        bidomain_problem.SetLinearSolverAbsoluteTolerance(1e-5);
         
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
