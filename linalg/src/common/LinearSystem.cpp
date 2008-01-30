@@ -13,11 +13,12 @@
 
 
 LinearSystem::LinearSystem(PetscInt lhsVectorSize)
-:mMatNullSpace(NULL),
-mDestroyPetscObjects(true),
-mKspIsSetup(false),
-mMatrixIsConstant(false),
-mRelativeTolerance(1e-6)
+   :mMatNullSpace(NULL),
+    mDestroyPetscObjects(true),
+    mKspIsSetup(false),
+    mMatrixIsConstant(false),
+    mRelativeTolerance(1e-6),
+    mUseAbsoluteTolerance(false)
 {
     VecCreate(PETSC_COMM_WORLD, &mRhsVector);
     VecSetSizes(mRhsVector, PETSC_DECIDE, lhsVectorSize);
@@ -38,11 +39,12 @@ mRelativeTolerance(1e-6)
  * bidomain simulation results.
  */
 LinearSystem::LinearSystem(Vec templateVector)
-:mMatNullSpace(NULL),
-mDestroyPetscObjects(true),
-mKspIsSetup(false),
-mMatrixIsConstant(false),
-mRelativeTolerance(1e-6)
+   :mMatNullSpace(NULL),
+    mDestroyPetscObjects(true),
+    mKspIsSetup(false),
+    mMatrixIsConstant(false),
+    mRelativeTolerance(1e-6),
+    mUseAbsoluteTolerance(false)
 {
     VecDuplicate(templateVector, &mRhsVector);
     VecGetSize(mRhsVector, &mSize);
@@ -61,11 +63,12 @@ mRelativeTolerance(1e-6)
  * Useful for storing residuals and jacobians when solving nonlinear PDEs.
  */
 LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
-:mMatNullSpace(NULL),
-mDestroyPetscObjects(false),
-mKspIsSetup(false),
-mMatrixIsConstant(false),
-mRelativeTolerance(1e-6)
+   :mMatNullSpace(NULL),
+    mDestroyPetscObjects(false),
+    mKspIsSetup(false),
+    mMatrixIsConstant(false),
+    mRelativeTolerance(1e-6),
+    mUseAbsoluteTolerance(false)
 {
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
@@ -334,6 +337,17 @@ void LinearSystem::SetRelativeTolerance(double relativeTolerance)
     
 }
 
+void LinearSystem::SetAbsoluteTolerance(double absoluteTolerance)
+{
+    mAbsoluteTolerance=absoluteTolerance;
+    mUseAbsoluteTolerance=true;
+    if (mKspIsSetup)
+    {
+        KSPSetTolerances(mKspSolver, DBL_EPSILON, mAbsoluteTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
+    }        
+    
+}
+
 Vec LinearSystem::Solve(Vec lhsGuess)
 {
     /* The following lines are very useful for debugging
@@ -364,8 +378,16 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPSetOperators(mKspSolver, mLhsMatrix, mLhsMatrix, SAME_NONZERO_PATTERN);
         }
         
-        // Default relative tolerance appears to be 1e-5.  This ain't so great.
-        KSPSetTolerances(mKspSolver, mRelativeTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+        // Set either absolute or relative tolerance of the KSP solver.
+        // The default is to use relative tolerance (1e-6)
+        if (mUseAbsoluteTolerance)
+        {
+            KSPSetTolerances(mKspSolver, DBL_EPSILON, mAbsoluteTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
+        }
+        else
+        {
+            KSPSetTolerances(mKspSolver, mRelativeTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+        }
         
         // Turn off pre-conditioning if the system size is very small
         KSPGetPC(mKspSolver, &prec);
@@ -390,7 +412,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPSetInitialGuessNonzero(mKspSolver,PETSC_TRUE);
         }
          
-        KSPSetFromOptions(mKspSolver) ;
+        KSPSetFromOptions(mKspSolver);
         KSPSetUp(mKspSolver);
         
         mKspIsSetup = true;
@@ -415,7 +437,8 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         VecCopy(lhsGuess, lhs_vector);  
     }
     
-    try {
+    try 
+    {
         EventHandler::BeginEvent(SOLVE_LINEAR_SYSTEM);
         PETSCEXCEPT(KSPSolve(mKspSolver, mRhsVector, lhs_vector));
         EventHandler::EndEvent(SOLVE_LINEAR_SYSTEM);

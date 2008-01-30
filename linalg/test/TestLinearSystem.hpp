@@ -73,6 +73,23 @@ public:
         }
         VecRestoreArray(solution_vector, &p_solution_elements_array);
         VecDestroy(solution_vector);
+
+        //SetAbsoluteTolerance
+        ls.SetAbsoluteTolerance(1e-5);
+        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
+        VecGetOwnershipRange(solution_vector,&lo,&hi);
+        VecGetArray(solution_vector, &p_solution_elements_array);
+        
+        for (int global_index=0; global_index<3; global_index++)
+        {
+            int local_index = global_index-lo;
+            if (lo<=global_index && global_index<hi)
+            {
+                TS_ASSERT_DELTA(p_solution_elements_array[local_index], global_index+1.0, 1e-8);
+            }
+        }
+        VecRestoreArray(solution_vector, &p_solution_elements_array);
+        VecDestroy(solution_vector);
         
     }
     
@@ -370,7 +387,7 @@ public:
     }
     
   
-  void TestSymmetricMatrix()
+    void TestSymmetricMatrix()
     {
         LinearSystem ls = LinearSystem(3);
         
@@ -414,7 +431,7 @@ public:
         
     }
 
-  void TestNonSymmetricMatrix()
+    void TestNonSymmetricMatrix()
     {
         LinearSystem ls = LinearSystem(3);
         

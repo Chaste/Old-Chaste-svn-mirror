@@ -36,6 +36,8 @@ private:
     double mNonZerosUsed; //Yes, it really is stored as a double.
     bool mMatrixIsConstant;
     double mRelativeTolerance;
+    double mAbsoluteTolerance;
+    bool mUseAbsoluteTolerance;
 public:
     LinearSystem(PetscInt lhsVectorSize);
     LinearSystem(Vec templateVector);
@@ -56,6 +58,7 @@ public:
     void SetMatrixIsSymmetric();
     void SetMatrixIsConstant(bool matrixIsConstant);
     void SetRelativeTolerance(double relativeTolerance);
+    void SetAbsoluteTolerance(double absoluteTolerance);
     void DisplayMatrix();
     void DisplayRhs() ;
     void SetMatrixRow(PetscInt row, double value);
