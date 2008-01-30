@@ -658,15 +658,10 @@ class IntelP3(Intel):
     self.build_dir = 'intel_p3'
 
 class IntelP4(Intel):
-  """Intel compilers optimised for Pentium 4.
-
-  TODO: Don't hardcode the library path for svml.
-  """
+  """Intel compilers optimised for Pentium 4."""
   def __init__(self, *args, **kwargs):
     Intel.__init__(self, *args, **kwargs)
-# -xN = P4 + SSE2 while -xW = P4 (suitable for AMD CPUs)   
-#    self._cc_flags.extend(['-xN', '-O3', '-ip', '-ipo0', '-ipo_obj', '-static'])
-#    self._link_flags.extend(['-ipo', '-lsvml', '-L/opt/intel_cc_80/lib', '-static'])
+# -xN = P4 + SSE2 while -xW = P4 (suitable for AMD CPUs)
     self._cc_flags.extend(['-xW', '-O3', '-ip', '-ipo0'])
     self._link_flags.extend(['-ipo'])
     self.build_dir = 'intel_p4'
@@ -678,6 +673,18 @@ class IntelProduction(IntelP4):
     self.build_dir = 'intel_production'
     self._cc_flags.append('-DNDEBUG')
     self.is_production = True
+
+class IntelProductionParallel4(IntelProduction):
+  """Intel production build, run tests in parallel on 4 nodes"""
+  def __init__(self, *args, **kwargs):
+    IntelProduction.__init__(self, *args, **kwargs)
+    self._test_packs = ['Parallel']
+    self._num_processes = 2
+  
+  def GetTestRunnerCommand(self, exefile, exeflags=''):
+    "Run test with a two processor environment"
+    return self.tools['mpirun'] + ' -np ' + str(self._num_processes) \
+      + ' ' + exefile + ' ' + exeflags
 
 class StyleCheck(GccDebug):
     """Check the code against Effective C++ style guidelines."""
