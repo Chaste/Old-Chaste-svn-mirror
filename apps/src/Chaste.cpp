@@ -15,6 +15,7 @@
 
 #include "AbstractStimulusFunction.hpp"
 #include "ChastePoint.hpp"
+#include "ChasteCuboid.hpp"
 
 #include "BackwardEulerFoxModel2002Modified.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
@@ -40,7 +41,6 @@ domain_type domain = domain_type::Mono;
 ionic_model_type ionic_model = ionic_model_type::LuoRudyIModel1991OdeSystem;
 
 std::vector<InitialStimulus> stimuli_applied;
-class ChasteCuboid; // forward definition
 std::vector<ChasteCuboid> stimuled_areas;
 
 // Parameters fixed at compile time

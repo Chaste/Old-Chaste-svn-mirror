@@ -27,7 +27,7 @@ public:
      * 
      * @param rPointToCheck Point to be checked to be contained in the cuboid.
      */
-    bool DoesContain(ChastePoint<3>& rPointToCheck);
+    bool DoesContain(const ChastePoint<3>& rPointToCheck);
 };
 
 

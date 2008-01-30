@@ -4,7 +4,7 @@ ChasteCuboid::ChasteCuboid(ChastePoint<3>& rPointA, ChastePoint<3>& rPointB): mr
 {
 }
 
-bool ChasteCuboid::DoesContain(ChastePoint<3>& rPointToCheck)
+bool ChasteCuboid::DoesContain(const ChastePoint<3>& rPointToCheck)
 {
     for (unsigned dim=0; dim<3; dim++)
     {
