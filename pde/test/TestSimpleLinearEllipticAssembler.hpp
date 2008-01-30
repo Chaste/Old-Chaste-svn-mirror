@@ -21,7 +21,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 {
 public:
 
-    void zzTestAssembleOnElement( void )
+    void TestAssembleOnElement( void )
     {
         SimplePoissonEquation<1> pde;
         std::vector<Node<1>*> nodes;
@@ -48,7 +48,7 @@ public:
         delete nodes[1];
     }
     
-    void zzTestAssembleOnElement2DCanonical ( void )
+    void TestAssembleOnElement2DCanonical ( void )
     {
         SimplePoissonEquation<2> pde;
         std::vector<Node<2>*> nodes;
@@ -86,7 +86,7 @@ public:
         delete nodes[2];
     }
     
-    void zzTestAssembleOnElement2DGeneral ( void )
+    void TestAssembleOnElement2DGeneral ( void )
     {
         SimplePoissonEquation<2> pde;
         std::vector<Node<2>*> nodes;
@@ -187,7 +187,7 @@ public:
         VecDestroy(result_abs);
     }
     
-    void zzTestWithHeatEquation2()
+    void TestWithHeatEquation2()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_5_elements");
@@ -224,7 +224,7 @@ public:
     }
     
     
-    void zzTestWithHeatEquationNonzeroNeumannCondition()
+    void TestWithHeatEquationNonzeroNeumannCondition()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_5_elements");
@@ -262,7 +262,7 @@ public:
         VecDestroy(result);
     }
     
-    void zzTest2dHeatEquationOnUnitSquare()
+    void Test2dHeatEquationOnUnitSquare()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -290,7 +290,7 @@ public:
         VecDestroy(result);
     }
     
-    void zzTestHeatEquationWithNeumannOnUnitDisc( void )
+    void TestHeatEquationWithNeumannOnUnitDisc( void )
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
@@ -332,7 +332,7 @@ public:
         VecDestroy(result);
     }
     
-    void zzTestVaryingPdeAndMeshReader1D()
+    void TestVaryingPdeAndMeshReader1D()
     {
         /// Create mesh from mesh reader \todo set to correct mesh file?
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_1_to_3");
@@ -457,7 +457,7 @@ public:
     
     
     //Test 3d data
-    void zzTest3dEllipticEquationDirichletCondition()
+    void Test3dEllipticEquationDirichletCondition()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -502,7 +502,7 @@ public:
     }
     
     //Test 3d data
-    void zzTest3dEllipticEquationNeumannCondition()
+    void Test3dEllipticEquationNeumannCondition()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -568,7 +568,7 @@ public:
     
     
     // solve u_xx + 4*u = 0, u(0)=1, u(1)=2 => u = a sin(2x) + cos(2x), where a = (2-cos2)/sin2
-    void zzTestWithLinearSourceTerm()
+    void TestWithLinearSourceTerm()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
@@ -608,7 +608,7 @@ public:
     
     // Picking the solution u=exp(xy), we solve the pde u_xx + u_yy = (x^2+y^2) u, with bcs
     // u = exp(xy) on the boundary
-    void zzTestWithLinearSourceTerm2d()
+    void TestWithLinearSourceTerm2d()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
