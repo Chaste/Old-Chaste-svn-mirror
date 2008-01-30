@@ -98,7 +98,6 @@ protected:
      *  nonlinear problems
      */
     LinearSystem *mpLinearSystem;
-    double mLinearSolverRelativeTolerance;
     
 
     /**

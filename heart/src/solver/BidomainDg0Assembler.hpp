@@ -347,10 +347,9 @@ public:
      */
     BidomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                          BidomainPde<SPACE_DIM>* pPde,
-                         unsigned numQuadPoints = 2,
-                         double linearSolverRelativeTolerance = 1e-6) :
+                         unsigned numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,2>(),
-            BaseClassType(numQuadPoints, linearSolverRelativeTolerance),
+            BaseClassType(numQuadPoints),
             AbstractDynamicAssemblerMixin<ELEMENT_DIM,SPACE_DIM,2>()
     {
         assert(pPde != NULL);
@@ -370,10 +369,7 @@ public:
         
         this->SetMatrixIsConstant();
         
-        mFixedExtracellularPotentialNodes.resize(0);
-        
         mRowMeanPhiEZero = INT_MAX; //this->mpLinearSystem->GetSize() - 1;
-        
     }
     
     /**

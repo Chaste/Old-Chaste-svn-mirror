@@ -17,6 +17,10 @@ class AbstractLinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM, SPAC
 {
 private:
     bool mMatrixIsConstant;
+    double mLinearSolverRelativeTolerance;
+    double mLinearSolverAbsoluteTolerance;
+    bool mUseLinearSolverAbsoluteTolerance;
+
 protected:
     
     /** Hack for dynamic mixin */
@@ -55,9 +59,16 @@ protected:
                 // LinearSystem. This is to avoid problems with VecScatter.
                 this->mpLinearSystem = new LinearSystem(initialSolution);
             }
-            this->mpLinearSystem->SetRelativeTolerance(this->mLinearSolverRelativeTolerance);
+
             this->mpLinearSystem->SetMatrixIsConstant(mMatrixIsConstant);
-            
+            if(mUseLinearSolverAbsoluteTolerance)
+            {
+                this->mpLinearSystem->SetAbsoluteTolerance(mLinearSolverAbsoluteTolerance);
+            }
+            else
+            {
+                this->mpLinearSystem->SetRelativeTolerance(mLinearSolverRelativeTolerance);
+            }
         }
     }
         
@@ -95,12 +106,12 @@ protected:
     
     
 public:
-    AbstractLinearAssembler(unsigned numQuadPoints = 2,
-                            double linearSolverRelativeTolerance = 1e-6) :
+    AbstractLinearAssembler(unsigned numQuadPoints = 2) :
             AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>(numQuadPoints),
-            mMatrixIsConstant(true)
+            mMatrixIsConstant(true),
+            mLinearSolverRelativeTolerance(1e-6),
+            mUseLinearSolverAbsoluteTolerance(false)
     {
-        this->mLinearSolverRelativeTolerance = linearSolverRelativeTolerance;
     }
     
     /**
@@ -128,6 +139,20 @@ public:
         this->PrepareForSolve();
         this->InitialiseForSolve(currentSolutionOrGuess);
         return this->StaticSolve(currentSolutionOrGuess, currentTime);
+    }
+    
+    
+    void SetLinearSolverRelativeTolerance(double relativeTolerance)
+    {
+        assert(this->mpLinearSystem==NULL);
+        mLinearSolverRelativeTolerance = relativeTolerance;
+    }
+
+    void SetLinearSolverAbsoluteTolerance(double absoluteTolerance)
+    {
+        assert(this->mpLinearSystem==NULL);
+        mUseLinearSolverAbsoluteTolerance = true;
+        mLinearSolverAbsoluteTolerance = absoluteTolerance;
     }
     
     /*

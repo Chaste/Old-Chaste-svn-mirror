@@ -220,13 +220,15 @@ public:
             TS_ASSERT_DELTA(total_phi_e, 0, 1e-4);
             
         }
-
-	// Coverage of the exception in the assembler itself
-	BidomainDg0Assembler<1,1>* p_bidomain_assembler
-            = new BidomainDg0Assembler<1,1>(&bidomain_problem.rGetMesh(),
-					    bidomain_problem.GetBidomainPde(),
-					    2, 1e-9);
-	TS_ASSERT_THROWS_ANYTHING(p_bidomain_assembler->SetRowForMeanPhiEToZero(0));
+    
+    	// Coverage of the exception in the assembler itself
+    	BidomainDg0Assembler<1,1>* p_bidomain_assembler
+                = new BidomainDg0Assembler<1,1>(&bidomain_problem.rGetMesh(),
+    					    bidomain_problem.GetBidomainPde(),
+    					    2);
+        p_bidomain_assembler->SetLinearSolverRelativeTolerance(1e-9);
+    
+    	TS_ASSERT_THROWS_ANYTHING(p_bidomain_assembler->SetRowForMeanPhiEToZero(0));
     }    
 
     /*

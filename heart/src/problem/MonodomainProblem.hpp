@@ -26,7 +26,10 @@ public:
     
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* CreateAssembler()
     {
-        return new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh, mpMonodomainPde, 2, this->mLinearSolverRelativeTolerance);
+        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_assembler 
+          = new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh, mpMonodomainPde, 2);
+        p_assembler->SetLinearSolverRelativeTolerance(this->mLinearSolverRelativeTolerance);
+        return p_assembler;
     }
 
 public:
