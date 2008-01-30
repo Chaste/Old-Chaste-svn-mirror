@@ -185,7 +185,7 @@ import TestRunner
 def test_description(target, source, env):
     return "running '%s'" % (source[0])
 test_action = Action(TestRunner.get_build_function(build, run_time_flags),
-                     test_description, ['buildsig'])
+                     test_description, varlist=['buildsig'])
 runtest = Builder(action=test_action)
 env['BUILDERS']['Test'] = test
 env['BUILDERS']['RunTest'] = runtest
