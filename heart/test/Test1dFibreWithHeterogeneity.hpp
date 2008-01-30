@@ -19,7 +19,7 @@ private:
     InitialStimulus* mpStimulus;
     
 public:
-    HeterogeneousCellFactory() : AbstractCardiacCellFactory<1>(0.01)//Ode timestep
+    HeterogeneousCellFactory() : AbstractCardiacCellFactory<1>(0.005)//Ode timestep
     {
         // set the new stimulus
         mpStimulus = new InitialStimulus(-600, 0.5);
