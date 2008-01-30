@@ -60,12 +60,13 @@ class AbstractUntemplatedConvergenceTester
 {
 
 protected:
-    double mMeshWidth;   
+    double mMeshWidth;
+    double mKspTolerance;
+    bool mUseKspAbsoluteTolerance;   
 public:
     double OdeTimeStep;
     double PdeTimeStep;
     unsigned MeshNum;
-    double KspRtol;
     double RelativeConvergenceCriterion;
     double LastDifference;
     double AbsoluteStimulus;
@@ -77,10 +78,11 @@ public:
     
     AbstractUntemplatedConvergenceTester()   
     : mMeshWidth(0.2),//cm
+      mKspTolerance(5e-7),//Justification from overlayed 1D time/space convergence plots with varied KSP tolerances
+      mUseKspAbsoluteTolerance(false),
       OdeTimeStep(0.0025),//Justification from 1D test with this->PdeTimeStep held at 0.01 (allowing two hits at convergence)
       PdeTimeStep(0.005),//Justification from 1D test with this->OdeTimeStep held at 0.0025
       MeshNum(5u),//Justification from 1D test
-      KspRtol(5e-7),//Justification from overlayed 1D time/space convergence plots with varied KSP tolerances
       RelativeConvergenceCriterion(1e-4),
       LastDifference(1),
       AbsoluteStimulus(-1e7),
@@ -93,6 +95,36 @@ public:
     }
     
     virtual void Converge()=0;   
+    
+    void SetKspRelativeTolerance(const double& relativeTolerance)
+    {
+       mKspTolerance = relativeTolerance;
+       mUseKspAbsoluteTolerance = false;   
+    }
+    
+    void SetKspAbsoluteTolerance(const double& absoluteTolerance)
+    {
+       mKspTolerance = absoluteTolerance;
+       mUseKspAbsoluteTolerance = true;   
+    }
+    
+    double GetKspAbsoluteTolerance()
+    {
+        if (!mUseKspAbsoluteTolerance)
+        {
+            EXCEPTION("Currently using relative tolerance");
+        }
+        return mKspTolerance;
+    }
+    
+    double GetKspRelativeTolerance()
+    {
+        if (mUseKspAbsoluteTolerance)
+        {
+            EXCEPTION("Currently using absolute tolerance");
+        }
+        return mKspTolerance;
+    }
     
     virtual ~AbstractUntemplatedConvergenceTester()
     {
@@ -162,7 +194,15 @@ public:
             cardiac_problem.SetOutputFilenamePrefix ("Results");
             
             cardiac_problem.SetEndTime(simulation_time);   // ms
-            cardiac_problem.SetLinearSolverRelativeTolerance(this->KspRtol);
+            
+            if (mUseKspAbsoluteTolerance)
+            {
+                cardiac_problem.SetLinearSolverAbsoluteTolerance(this->mKspTolerance);
+            }
+            else
+            {
+                cardiac_problem.SetLinearSolverRelativeTolerance(this->mKspTolerance);
+            }
     
             cardiac_problem.SetPdeTimeStep(this->PdeTimeStep);
             
@@ -333,7 +373,14 @@ public:
         std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << this->MeshNum << ")" << std::endl;
         std::cout<<"Solving with a time step of "<<this->PdeTimeStep<<" ms"<<std::endl;
         std::cout<<"Solving with an ode time step of "<<this->OdeTimeStep<<" ms"<<std::endl;
-        std::cout<<"Solving with a KSP relative tolerance of "<<this->KspRtol<<std::endl;
+        if (mUseKspAbsoluteTolerance)
+        {
+            std::cout<<"Solving with a KSP absolute tolerance of "<<this->mKspTolerance<<std::endl;
+        }
+        else
+        {
+            std::cout<<"Solving with a KSP relative tolerance of "<<this->mKspTolerance<<std::endl;
+        }
         std::cout<<"Solving with stimulating a quarter of the mesh? " << this->StimulateRegion<<std::endl;
         system("date");//To keep track of what Nightly things are doing
         //\todo The UseAbsoluteStimulus is temporary, while we are sorting out 

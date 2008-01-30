@@ -35,8 +35,7 @@ private:
     bool mKspIsSetup; //Used by Solve method to track whether KSP has been used
     double mNonZerosUsed; //Yes, it really is stored as a double.
     bool mMatrixIsConstant;
-    double mRelativeTolerance;
-    double mAbsoluteTolerance;
+    double mTolerance;
     bool mUseAbsoluteTolerance;
 public:
     LinearSystem(PetscInt lhsVectorSize);

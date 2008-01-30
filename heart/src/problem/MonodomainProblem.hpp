@@ -31,11 +31,11 @@ public:
         
         if (this->mUseLinearSolverAbsoluteTolerance)
         {
-            p_assembler->SetLinearSolverAbsoluteTolerance(this->mLinearSolverAbsoluteTolerance);       
+            p_assembler->SetLinearSolverAbsoluteTolerance(this->mLinearSolverTolerance);       
         }
         else
         {
-            p_assembler->SetLinearSolverRelativeTolerance(this->mLinearSolverRelativeTolerance);    
+            p_assembler->SetLinearSolverRelativeTolerance(this->mLinearSolverTolerance);    
         }
         
         return p_assembler;

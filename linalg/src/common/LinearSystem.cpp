@@ -17,7 +17,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize)
     mDestroyPetscObjects(true),
     mKspIsSetup(false),
     mMatrixIsConstant(false),
-    mRelativeTolerance(1e-6),
+    mTolerance(1e-6),
     mUseAbsoluteTolerance(false)
 {
     VecCreate(PETSC_COMM_WORLD, &mRhsVector);
@@ -43,7 +43,7 @@ LinearSystem::LinearSystem(Vec templateVector)
     mDestroyPetscObjects(true),
     mKspIsSetup(false),
     mMatrixIsConstant(false),
-    mRelativeTolerance(1e-6),
+    mTolerance(1e-6),
     mUseAbsoluteTolerance(false)
 {
     VecDuplicate(templateVector, &mRhsVector);
@@ -67,7 +67,7 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mDestroyPetscObjects(false),
     mKspIsSetup(false),
     mMatrixIsConstant(false),
-    mRelativeTolerance(1e-6),
+    mTolerance(1e-6),
     mUseAbsoluteTolerance(false)
 {
     assert(residualVector || jacobianMatrix);
@@ -329,22 +329,22 @@ void LinearSystem::SetMatrixIsConstant(bool matrixIsConstant)
     
 void LinearSystem::SetRelativeTolerance(double relativeTolerance)
 {
-    mRelativeTolerance=relativeTolerance;
+    mTolerance=relativeTolerance;
     mUseAbsoluteTolerance=false;
     if (mKspIsSetup)
     {
-        KSPSetTolerances(mKspSolver, mRelativeTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+        KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
     }        
     
 }
 
 void LinearSystem::SetAbsoluteTolerance(double absoluteTolerance)
 {
-    mAbsoluteTolerance=absoluteTolerance;
+    mTolerance=absoluteTolerance;
     mUseAbsoluteTolerance=true;
     if (mKspIsSetup)
     {
-        KSPSetTolerances(mKspSolver, DBL_EPSILON, mAbsoluteTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
+        KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
     }        
     
 }
@@ -383,11 +383,11 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         // The default is to use relative tolerance (1e-6)
         if (mUseAbsoluteTolerance)
         {
-            KSPSetTolerances(mKspSolver, DBL_EPSILON, mAbsoluteTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
+            KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
         }
         else
         {
-            KSPSetTolerances(mKspSolver, mRelativeTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+            KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
         }
         
         // Turn off pre-conditioning if the system size is very small

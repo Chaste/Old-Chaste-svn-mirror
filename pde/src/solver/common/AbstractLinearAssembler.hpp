@@ -17,8 +17,7 @@ class AbstractLinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM, SPAC
 {
 private:
     bool mMatrixIsConstant;
-    double mLinearSolverRelativeTolerance;
-    double mLinearSolverAbsoluteTolerance;
+    double mLinearSolverTolerance;
     bool mUseLinearSolverAbsoluteTolerance;
 
 protected:
@@ -63,11 +62,11 @@ protected:
             this->mpLinearSystem->SetMatrixIsConstant(mMatrixIsConstant);
             if(mUseLinearSolverAbsoluteTolerance)
             {
-                this->mpLinearSystem->SetAbsoluteTolerance(mLinearSolverAbsoluteTolerance);
+                this->mpLinearSystem->SetAbsoluteTolerance(mLinearSolverTolerance);
             }
             else
             {
-                this->mpLinearSystem->SetRelativeTolerance(mLinearSolverRelativeTolerance);
+                this->mpLinearSystem->SetRelativeTolerance(mLinearSolverTolerance);
             }
         }
     }
@@ -109,7 +108,7 @@ public:
     AbstractLinearAssembler(unsigned numQuadPoints = 2) :
             AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>(numQuadPoints),
             mMatrixIsConstant(true),
-            mLinearSolverRelativeTolerance(1e-6),
+            mLinearSolverTolerance(1e-6),
             mUseLinearSolverAbsoluteTolerance(false)
     {
     }
@@ -146,14 +145,14 @@ public:
     {
         assert(this->mpLinearSystem==NULL);
         mUseLinearSolverAbsoluteTolerance = false;
-        mLinearSolverRelativeTolerance = relativeTolerance;
+        mLinearSolverTolerance = relativeTolerance;
     }
 
     void SetLinearSolverAbsoluteTolerance(double absoluteTolerance)
     {
         assert(this->mpLinearSystem==NULL);
         mUseLinearSolverAbsoluteTolerance = true;
-        mLinearSolverAbsoluteTolerance = absoluteTolerance;
+        mLinearSolverTolerance = absoluteTolerance;
     }
     
     /*

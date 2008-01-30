@@ -60,11 +60,11 @@ public:
             RunConvergenceTester(&tester, stimulateRegion);    
             if (!stimulateRegion)
             {
-                TS_ASSERT_DELTA(tester.KspRtol, 1e-5, 1e-10);
+                TS_ASSERT_DELTA(tester.GetKspRelativeTolerance(), 1e-5, 1e-10);
             }
             else
             {
-                TS_ASSERT_DELTA(tester.KspRtol, 1e-6, 1e-10);
+                TS_ASSERT_DELTA(tester.GetKspRelativeTolerance(), 1e-6, 1e-10);
             }
         }
     
@@ -105,7 +105,7 @@ public:
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
-        tester.KspRtol=5e-8;
+        tester.SetKspRelativeTolerance(5e-8);
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
@@ -119,7 +119,7 @@ public:
         
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
         tester.StimulateRegion=true;
-        tester.KspRtol=1e-8;
+        tester.SetKspRelativeTolerance(1e-8);
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 6u); 
@@ -130,7 +130,7 @@ public:
     {
         
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
-        tester.KspRtol=1e-8;
+        tester.SetKspRelativeTolerance(1e-8);
         tester.RelativeConvergenceCriterion=4e-2;//Just to prove the thing works
         tester.Converge();
         TS_ASSERT(tester.Converged);

@@ -44,8 +44,7 @@ protected:
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
     
     Vec mVoltage; // Current solution
-    double mLinearSolverRelativeTolerance;
-    double mLinearSolverAbsoluteTolerance;
+    double mLinearSolverTolerance;
     bool mUseLinearSolverAbsoluteTolerance;
     
 
@@ -98,7 +97,7 @@ public:
         mpCardiacPde = NULL;
         mpAssembler = NULL;
         mVoltage = NULL;
-        mLinearSolverRelativeTolerance=1e-6;
+        mLinearSolverTolerance=1e-6;
         mUseLinearSolverAbsoluteTolerance = false;
         mAllocatedMemoryForMesh = false;
         
@@ -138,7 +137,7 @@ public:
     
     void SetLinearSolverRelativeTolerance(const double &rRelTol)
     {
-        mLinearSolverRelativeTolerance = rRelTol;
+        mLinearSolverTolerance = rRelTol;
         mUseLinearSolverAbsoluteTolerance = false;        
     }
     
@@ -149,12 +148,12 @@ public:
             EXCEPTION("No relative tolerance because absolute tolerance set");
         }
         
-        return mLinearSolverRelativeTolerance;
+        return mLinearSolverTolerance;
     }
     
     void SetLinearSolverAbsoluteTolerance(const double &rAbsTol)
     {
-        mLinearSolverAbsoluteTolerance = rAbsTol;
+        mLinearSolverTolerance = rAbsTol;
         mUseLinearSolverAbsoluteTolerance = true;        
     }
     
@@ -165,7 +164,7 @@ public:
             EXCEPTION("No absolute tolerance because relative tolerance set");
         }
         
-        return mLinearSolverAbsoluteTolerance;
+        return mLinearSolverTolerance;
     }
     
     void PreSolveChecks()
