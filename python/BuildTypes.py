@@ -679,7 +679,7 @@ class IntelProductionParallel4(IntelProduction):
   def __init__(self, *args, **kwargs):
     IntelProduction.__init__(self, *args, **kwargs)
     self._test_packs = ['Parallel']
-    self._num_processes = 2
+    self._num_processes = 4
   
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test with a two processor environment"
