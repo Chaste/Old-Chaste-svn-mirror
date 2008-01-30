@@ -47,9 +47,9 @@ MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh
         mNodeCellMap[node_index] = &(*it);
     }
     
-    for(unsigned i=0; i < 5; i++)
+    for(unsigned i=0; i<5; i++)
     {
-        mCellTypeCount[i] =0;
+        mCellTypeCount[i] = 0;
     }
         
 	Validate();
@@ -308,7 +308,7 @@ c_vector<double, DIM> MeshBasedTissue<DIM>::CalculateForceBetweenNodes(const uns
     c_vector<double, DIM> node_a_location = mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
     c_vector<double, DIM> node_b_location = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation();
     
-    // There is reason not to substract one position from the other (cyclidrical meshes). clever gary
+    // There is reason not to substract one position from the other (cylindrical meshes)
     unit_difference = mrMesh.GetVectorFromAtoB(node_a_location, node_b_location);   
     
     double distance_between_nodes = norm_2(unit_difference);
@@ -379,7 +379,7 @@ void MeshBasedTissue<DIM>::ReMesh()
         {
             unsigned old_node_index = it->GetNodeIndex();
             
-            // This shouldn't ever happen, as the cell vectors is only ever living cells
+            // This shouldn't ever happen, as the cell vector only contains living cells
             assert(!map.IsDeleted(old_node_index));
             unsigned new_node_index = map.GetNewIndex(old_node_index);
             it->SetNodeIndex(new_node_index);

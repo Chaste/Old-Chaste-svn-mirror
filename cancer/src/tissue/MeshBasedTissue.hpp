@@ -38,7 +38,7 @@ private:
      */
     bool mDeleteMesh;
     
-    /** list of cells */
+    /** List of cells */
     std::list<TissueCell> mCells;
     
     /** Map node indices back to cells. */
@@ -244,10 +244,10 @@ public:
          */
         inline bool IsRealCell();
 
-       /**
-        * Private helper function saying whether we're at the end of the cells.
-        */
-       inline bool IsAtEnd();
+        /**
+         * Private helper function saying whether we're at the end of the cells.
+         */
+        inline bool IsAtEnd();
     
         MeshBasedTissue& mrTissue;
         std::list<TissueCell>::iterator mCellIter;

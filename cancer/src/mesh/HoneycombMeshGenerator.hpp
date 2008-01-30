@@ -238,7 +238,7 @@ public:
      * Note: this class creates a cancer params instance and sets the crypt width and length
      * accordingly in the parameters class.
      */
-    HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=3, bool cylindrical = true, double scaleFactor = 1.0)
+    HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=3, bool cylindrical=true, double scaleFactor=1.0)
     {
         mCylindrical = cylindrical;
         mNumCellWidth = numNodesAlongWidth;

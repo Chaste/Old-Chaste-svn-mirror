@@ -1,5 +1,5 @@
-#ifndef TESTTISSUE_HPP_
-#define TESTTISSUE_HPP_
+#ifndef TESTMESHBASEDTISSUE_HPP_
+#define TESTMESHBASEDTISSUE_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
@@ -18,11 +18,10 @@
 #include "AbstractCancerTestSuite.hpp"
 
 
-class TestTissue : public AbstractCancerTestSuite
+class TestMeshBasedTissue : public AbstractCancerTestSuite
 {    
 private: 
 
-    // Test construction (without ghost nodes), accessors and iterator
     template<unsigned DIM>
     std::vector<TissueCell> SetUpCells(ConformingTetrahedralMesh<DIM,DIM>* pMesh)
     {
@@ -786,4 +785,4 @@ public:
 };
 
 
-#endif /*TESTTISSUE_HPP_*/
+#endif /*TESTMESHBASEDTISSUE_HPP_*/

@@ -86,25 +86,26 @@ protected :
 
 
 public :
+
     Meineke2001SpringSystem(MeshBasedTissue<DIM>& rTissue)
         : AbstractVariableDampingMechanicsSystem<DIM>(rTissue)
     {
-        // edge-based springs
+        // Edge-based springs
         mUseEdgeBasedSpringConstant = false;
 
-        // cell-type dependent springs
+        // Cell-type dependent springs
         mUseMutantSprings = false;
         mMutantMutantMultiplier = DOUBLE_UNSET;
         mNormalMutantMultiplier = DOUBLE_UNSET;
 
-        // beta-cat springs
+        // Beta-cat springs
         mUseBCatSprings = false;
         
-        // cutoff meineke
+        // Cutoff Meineke
         mUseCutoffPoint = false;
         mCutoffPoint = 1e10;
         
-        // necrotic springs
+        // Necrotic springs
         mUseNecroticSprings = false;
     }
 
@@ -121,12 +122,12 @@ public :
     c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex,unsigned nodeBGlobalIndex)
     {
         assert(nodeAGlobalIndex!=nodeBGlobalIndex);
-        c_vector<double, DIM> unit_difference;
+        
         c_vector<double, DIM> node_a_location = this->mrTissue.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
         c_vector<double, DIM> node_b_location = this->mrTissue.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
         
-        // There is reason not to substract one position from the other (cyclidrical meshes)
-        unit_difference = this->mrTissue.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
+        // There is reason not to substract one position from the other (cylindrical meshes)
+        c_vector<double, DIM> unit_difference = this->mrTissue.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
         
         double distance_between_nodes = norm_2(unit_difference);
         
@@ -148,13 +149,13 @@ public :
         TissueCell& r_cell_A = this->mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex);
         TissueCell& r_cell_B = this->mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex);
         
-        if (ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
+        if ( ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
         {
-            // Spring Rest Length Increases to normal rest length from ???? to normal rest length, 1.0, over 1 hour
+            // Spring rest length increases from ???? to normal rest length, 1.0, over 1 hour
             if (this->mrTissue.IsMarkedSpring(r_cell_A, r_cell_B))
             {   
-                double lambda=CancerParameters::Instance()->GetDivisionRestingSpringLength();
-                rest_length=(lambda+(1.0-lambda)*(ageA/(CancerParameters::Instance()->GetMDuration())));           
+                double lambda = CancerParameters::Instance()->GetDivisionRestingSpringLength();
+                rest_length = lambda + (1.0-lambda)*(ageA/(CancerParameters::Instance()->GetMDuration()));           
             }
             
             if (ageA+SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
@@ -164,8 +165,8 @@ public :
             }
         }
         
-        double a_rest_length=rest_length*0.5;
-        double b_rest_length=a_rest_length;    
+        double a_rest_length = rest_length*0.5;
+        double b_rest_length = a_rest_length;    
         
         if (this->mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).HasApoptosisBegun())
         {
@@ -209,7 +210,7 @@ public :
                 number_of_mutants++;
             }
             
-            switch  (number_of_mutants)
+            switch (number_of_mutants)
             {
                 case 1u:
                 {
@@ -303,7 +304,7 @@ public :
         mDrDt.resize(this->mrTissue.rGetMesh().GetNumAllNodes());
         for (unsigned i=0; i<mDrDt.size(); i++)
         {
-            mDrDt[i]=zero_vector<double>(DIM);
+            mDrDt[i] = zero_vector<double>(DIM);
         }
     
         for(typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=this->mrTissue.SpringsBegin();

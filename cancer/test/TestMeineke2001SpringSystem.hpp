@@ -108,7 +108,7 @@ public:
          ************************************************************************ 
          */
         
-        c_vector<double,2> force_on_spring ; // between nodes 59 and 60
+        c_vector<double,2> force_on_spring; // between nodes 59 and 60
         
         // Find one of the elements that nodes 59 and 60 live on
         ChastePoint<2> new_point2;
