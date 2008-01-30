@@ -11,9 +11,9 @@ TestCylindrical2dMesh.hpp
 TestHoneycombMeshGenerator.hpp
 TestIngeWntSwatCellCycleOdeSystem.hpp
 TestMeineke2001SpringSystem.hpp
+TestMeshBasedTissue.hpp
 TestPdeOnFlaggedMesh.hpp
 TestSimulationTime.hpp
-TestTissue.hpp
 TestTissueCell.hpp
 TestTissueSimulation3d.hpp
 TestTissueSimulationWithNutrients.hpp
