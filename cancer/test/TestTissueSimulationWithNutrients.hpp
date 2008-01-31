@@ -499,10 +499,6 @@ public:
         //
         // Since there are 3 necrotic cells, the correct necrotic radius is 
         // given by  sqrt((3*sqrt(3)/2)/pi).
-        //
-        // Unfortunately, the GetArea method has its own ideas as to areas
-        // (see comments on #555). Therefore we have a different spheroid
-        // radius for the time being.
                        
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TestSpheroidStatistics",false);
@@ -511,6 +507,9 @@ public:
         
         std::string dist_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/radial_dist.dat";
         TS_ASSERT_EQUALS(system(("diff " + dist_results_file + " cancer/test/data/TestSpheroidStatistics/radial_dist.dat").c_str()), 0);
+        
+        // Coverage
+        TS_ASSERT_THROWS_NOTHING(simulator.WriteAverageRadialNutrientDistribution(SimulationTime::Instance()->GetDimensionalisedTime(),5));
         
         // Tidy up
         delete p_killer;
@@ -611,7 +610,7 @@ public:
 
 
 ///// seems to work ok:
-//    void TestWithOxygen3D() throw(Exception)
+//    void xTestWithOxygen3D() throw(Exception)
 //    {
 //        EXIT_IF_PARALLEL; //defined in PetscTools
 //        
