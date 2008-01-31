@@ -299,6 +299,7 @@ private :
         if ( mWriteDailyAverageRadialNutrientResults &&
              (p_time->GetTimeStepsElapsed()+1)%2880==0 )
         {
+            std::cout<<"\a\aThis code is not covered in the default test pack (r3298)\n";
             WriteAverageRadialNutrientDistribution(time_next_step, mNumRadialIntervals);
         }
     }    

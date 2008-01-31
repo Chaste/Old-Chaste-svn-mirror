@@ -316,6 +316,7 @@ double VoronoiTessellation<DIM>::GetEdgeLength(unsigned node_index_1, unsigned n
     set_intersection( vertices_1.begin(), vertices_1.end(),
                       vertices_2.begin(), vertices_2.end(),
                       back_inserter(intersecting_vertices) );
+#define COVERAGE_IGNORE //Debug code from r3223
     if (intersecting_vertices.size() != 2)
     {
         std::cout<< "node 1 = " << node_index_1 << " node 2 = " << node_index_2 <<" \n" << std::flush;
@@ -333,7 +334,7 @@ double VoronoiTessellation<DIM>::GetEdgeLength(unsigned node_index_1, unsigned n
         }
         std::cout<< "size of common vertices = " << intersecting_vertices.size() << " \n" << std::flush;
     }
-    
+#undef COVERAGE_IGNORE    
     assert(intersecting_vertices.size()==2);
     
     c_vector<double, DIM> edge_vector = mrMesh.GetVectorFromAtoB( *(intersecting_vertices[0]),
