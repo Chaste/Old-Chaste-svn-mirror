@@ -346,7 +346,9 @@ double VoronoiTessellation<DIM>::GetEdgeLength(unsigned node_index_1, unsigned n
 template<unsigned DIM>
 double VoronoiTessellation<DIM>::GetFaceArea(unsigned index) const
 {
+#define COVERAGE_IGNORE    
     assert(DIM==2);
+#undef COVERAGE_IGNORE    
     Face<DIM>& face= *(mFaces[index]);
     assert(face.mVertices.size()>0);
     

@@ -295,13 +295,15 @@ private :
             WriteNutrient(time_next_step);
         }
         
+#define COVERAGE_IGNORE
         // Note: The number of timesteps per day is equal to 2880=24*120
         if ( mWriteDailyAverageRadialNutrientResults &&
              (p_time->GetTimeStepsElapsed()+1)%2880==0 )
         {
-            std::cout<<"\a\aThis code is not covered in the default test pack (r3298)\n";
             WriteAverageRadialNutrientDistribution(time_next_step, mNumRadialIntervals);
         }
+#undef COVERAGE_IGNORE
+
     }    
     
     void AfterSolve()
