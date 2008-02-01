@@ -472,8 +472,8 @@ private:
 
 
 
-
-public:
+//// DONT DELETE
+//public:
 //    std::vector<std::vector<unsigned> > mNodesContainedInElement;
 //
 //    void ComputeElementsContainingNodes(ConformingTetrahedralMesh<DIM,DIM>* pOtherMesh)
@@ -509,22 +509,22 @@ public:
 //            element_number++;
 //        }
 //    }
-
-    void WriteLambda(std::string directory, std::string fileName)
-    {
-        OutputFileHandler handler(directory,false);
-        out_stream p_file = handler.OpenOutputFile(fileName);
-        
-        std::vector<std::vector<double> > quad_point_posns
-           = FiniteElasticityTools<DIM>::GetQuadPointPositions(*(this->mpMesh), this->GetNumQuadPointsInEachDimension());
-        
-        
-        for(unsigned i=0; i<quad_point_posns.size(); i++)
-        {
-            (*p_file) << quad_point_posns[i][0] << " " << quad_point_posns[i][1] << " " 
-                      << mCellMechSystems[i].GetLambda() << "\n";
-        }
-    }
+//
+//    void WriteLambda(std::string directory, std::string fileName)
+//    {
+//        OutputFileHandler handler(directory,false);
+//        out_stream p_file = handler.OpenOutputFile(fileName);
+//        
+//        std::vector<std::vector<double> > quad_point_posns
+//           = FiniteElasticityTools<DIM>::GetQuadPointPositions(*(this->mpMesh), this->GetNumQuadPointsInEachDimension());
+//        
+//        
+//        for(unsigned i=0; i<quad_point_posns.size(); i++)
+//        {
+//            (*p_file) << quad_point_posns[i][0] << " " << quad_point_posns[i][1] << " " 
+//                      << mCellMechSystems[i].GetLambda() << "\n";
+//        }
+//    }
 //
 //
 //    void CalculateCinverseAtNodes(ConformingTetrahedralMesh<DIM,DIM>* pOtherMesh, std::vector<std::vector<double> >& rValuesAtNodes)

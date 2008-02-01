@@ -11,16 +11,13 @@
 #include "LogFile.hpp"
 #include "ImplicitCardiacMechanicsAssembler.hpp"
 
+// if including Cinv in monobidomain equations
 //#include "NodewiseData.hpp"
+
 
 /* todos:
  * 
  * add comments
- * 
- * det F
- * 
- * move mesh stuff out
- * 
  * think about architecture (of AbstractCardiacProblem) when this is done properly..
  */
 
@@ -393,6 +390,9 @@ public :
                 VecDestroy(initial_voltage);
                 initial_voltage = voltage;
             }
+
+
+//            p_electrics_assembler->SetMatrixIsNotAssembled();
             
             // compute Ca_I at each quad point (by interpolation, using the info on which
             // electrics element the quad point is in. Then: 
@@ -490,6 +490,12 @@ public :
 //            // setup the Cinverse data;
 //            std::vector<std::vector<double> >& r_c_inverse = NodewiseData<DIM>::Instance()->rGetData();
 //            dynamic_cast<ImplicitCardiacMechanicsAssembler<DIM>*>(mpCardiacMechAssembler)->CalculateCinverseAtNodes(mpElectricsMesh, r_c_inverse);
+//
+//            // write lambda
+//            std::stringstream file_name;
+//            file_name << "lambda_" << mech_writer_counter << ".dat";
+//            dynamic_cast<ImplicitCardiacMechanicsAssembler<DIM>*>(mpCardiacMechAssembler)->WriteLambda(mOutputDirectory,file_name.str());
+
 
             // write the total elapsed time..
             LogFile::Instance()->WriteElapsedTime("  ");
@@ -524,7 +530,6 @@ public :
 
         delete p_electrics_assembler;
         
-        dynamic_cast<ImplicitCardiacMechanicsAssembler<DIM>*>(mpCardiacMechAssembler)->WriteLambda(mOutputDirectory,"lambda.dat");
     }
     
     
