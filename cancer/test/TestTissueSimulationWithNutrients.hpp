@@ -1,17 +1,19 @@
 #ifndef TESTTISSUESIMULATIONWITHNUTRIENTS_HPP_
 #define TESTTISSUESIMULATIONWITHNUTRIENTS_HPP_
 
+#include <cxxtest/TestSuite.h>
 #include <stdio.h>
 #include <time.h>
-#include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
-#include <iostream>
-#include "TissueSimulationWithNutrients.hpp"
-#include "HoneycombMeshGenerator.hpp"
+
 #include <cmath>
 #include <vector>
+#include <iostream>
+
+#include "TissueSimulationWithNutrients.cpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "ColumnDataReader.hpp"
 #include "OxygenBasedCellKiller.hpp"
@@ -83,7 +85,7 @@ public:
 
 
 /*
- *  A pde which has a sink at non-necrotic cells
+ *  A PDE which has a sink at non-necrotic cells
  */
 class PointwiseNutrientSinkPde : public AbstractLinearEllipticPde<2>
 {
