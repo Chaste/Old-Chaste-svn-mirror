@@ -61,8 +61,6 @@ public:
     }   
 };
 
-
-
 class SimpleOxygenPde3d : public AbstractLinearEllipticPde<3>
 {
 public:
@@ -80,6 +78,50 @@ public:
     c_matrix<double,3,3> ComputeDiffusionTerm(const ChastePoint<3>& )
     {
         return identity_matrix<double>(3);
+    }   
+};
+
+class CoarseNutrientMeshPde : public AbstractLinearEllipticPde<2>
+{
+private:
+    MeshBasedTissue<2>& mrTissue;
+    double mCutOffDistance;
+
+public:
+    CoarseNutrientMeshPde(MeshBasedTissue<2>& rTissue)
+        : mrTissue(rTissue),
+          mCutOffDistance(1.5)
+    {
+    }
+
+    double ComputeConstantInUSourceTerm(const ChastePoint<2>& x)
+    {
+        return 0.0;
+    }
+    
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& x)
+    {
+        for (unsigned i=0; i<mrTissue.GetNumRealCells(); i++)
+        {
+            c_vector<double,2> x_location;
+            x_location[0] = x[0];
+            x_location[1] = x[1];
+
+// \todo: Ideally we would have this commented condition (see #630)                        
+//            if ( (norm_2(mrTissue.rGetMesh().GetNode(i)->rGetLocation() - x.rGetLocation()) < mCutOffDistance) 
+//                 && (mrTissue.rGetCellAtNodeIndex(i).GetCellType() != NECROTIC) )
+            if ( (norm_2(mrTissue.rGetMesh().GetNode(i)->rGetLocation() - x_location) < mCutOffDistance) 
+                && (mrTissue.rGetCellAtNodeIndex(i).GetCellType() != NECROTIC) )
+            {
+                return -0.1;
+            }
+        }
+        return 0.0;
+    }
+   
+    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& )
+    {
+        return identity_matrix<double>(2);
     }   
 };
 
@@ -318,8 +360,7 @@ public:
         delete p_killer;
         CellwiseData<2>::Destroy();
     }
-    
-        
+            
     void TestWithPointwiseNutrientSink() throw(Exception)
     {
         EXIT_IF_PARALLEL; //defined in PetscTools
@@ -424,7 +465,7 @@ public:
      */ 
     void TestSpheroidStatistics() throw (Exception)
     {
-        EXIT_IF_PARALLEL; //defined in PetscTools
+        EXIT_IF_PARALLEL; // defined in PetscTools
 
         // Set up a simple tissue
         CancerParameters::Instance()->SetHepaOneParameters();
@@ -518,6 +559,70 @@ public:
         CellwiseData<2>::Destroy();
     }
     
+    void TestCoarseNutrientMesh() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+        
+        CancerParameters::Instance()->SetHepaOneParameters();
+        
+        // Set up mesh
+        unsigned num_cells_depth = 5;
+        unsigned num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        
+        // Set up cells
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
+                                    (CancerParameters::Instance()->GetHepaOneCellG1Duration()
+                                    +CancerParameters::Instance()->GetSG2MDuration());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Set up tissue        
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
+
+        // Set up CellwiseData and associate it with the tissue
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
+        p_data->SetTissue(tissue);
+        
+        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+        // we need to pass it some initial conditions to avoid memory errors
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            p_data->SetValue(1.0, p_mesh->GetNode(i));
+        }
+        
+        // Set up PDE
+        CoarseNutrientMeshPde pde(tissue);
+
+        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
+        p_spring_system->UseCutoffPoint(1.5);
+                  
+        // Set up tissue simulation
+        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
+        simulator.SetOutputDirectory("TestCoarseNutrientMesh");
+        simulator.SetEndTime(0.5);
+        
+        // Set up cell killer and pass into simulation
+        AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
+        simulator.AddCellKiller(p_killer);
+        simulator.UseCoarseNutrientMesh(5.0);
+        
+        // Run tissue simulation
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        TS_ASSERT(simulator.mpCoarseNutrientMesh != NULL);
+        
+        // Tidy up
+        delete p_killer;
+        CellwiseData<2>::Destroy();
+    }
     
     void TestArchiving() throw (Exception)
     {
@@ -609,7 +714,6 @@ public:
         delete p_simulator;       
         CellwiseData<2>::Destroy();        
     }
-
 
 ///// seems to work ok:
 //    void xTestWithOxygen3D() throw(Exception)

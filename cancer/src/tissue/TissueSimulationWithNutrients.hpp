@@ -26,10 +26,13 @@ private :
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>      
         archive & boost::serialization::base_object<TissueSimulation<DIM> >(*this);
+        archive & mWriteAverageRadialNutrientResults;
+        archive & mWriteDailyAverageRadialNutrientResults;
+        archive & mNumRadialIntervals;
     }
 
     /** 
-     * The current nutrient concentration, for use as an initial guess 
+     * Current nutrient concentration, for use as an initial guess 
      * when solving the nutrient PDE.
      */  
     Vec mNutrientSolution;
@@ -40,12 +43,12 @@ private :
     AbstractLinearEllipticPde<DIM>* mpPde;  
 
     /** 
-     * The file that the nutrient values are written out to. 
+     * File that the nutrient values are written out to. 
      */ 
     out_stream mpNutrientResultsFile; 
 
     /**
-     * The file that the average radial nutrient distribution is written out to. 
+     * File that the average radial nutrient distribution is written out to. 
      */ 
     out_stream mpAverageRadialNutrientResultsFile;
 
@@ -58,13 +61,18 @@ private :
      * Whether to write the average radial nutrient distribution DAILY. 
      */
     bool mWriteDailyAverageRadialNutrientResults;
-
+    
     /** 
-     * The number of radial 'bins' used to calculate the average 
+     *  Number of radial 'bins' used to calculate the average 
      * radial nutrient distribution. 
      */
     unsigned mNumRadialIntervals;
-
+  
+    /**
+     * Coarse nutrient mesh on which to solve the nutrient PDE.
+     */
+    ConformingTetrahedralMesh<2,2>* mpCoarseNutrientMesh;
+    
     /**
      * Overridden SetupSolve() method. 
      */ 
@@ -104,29 +112,35 @@ private :
      * Overridden AfterSolve() method. 
      */
     void AfterSolve();
+    
+    /**
+     * Create a coarse mesh on which to solve the nutrient PDE.
+     */ 
+    void CreateCoarseNutrientMesh(double coarseGrainScaleFactor);
 
 public:
 
     /** 
-     *  Constructor
+     * Constructor
      * 
-     *  @param rTissue A tissue facade class (contains a mesh and cells)
-     *  @param deleteTissue whether to delete the tissue on destruction to free up memory
-     *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
+     * @param rTissue A tissue facade class (contains a mesh and cells)
+     * @param deleteTissue whether to delete the tissue on destruction to free up memory
+     * @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
-    TissueSimulationWithNutrients(MeshBasedTissue<DIM>& rTissue,
-                                  AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
-                                  AbstractLinearEllipticPde<DIM>* pPde=NULL,
-                                  bool deleteTissue=false,
-                                  bool initialiseCells=true) 
-        : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissue, initialiseCells), 
+     TissueSimulationWithNutrients(MeshBasedTissue<DIM>& rTissue,
+                                   AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
+                                   AbstractLinearEllipticPde<DIM>* pPde=NULL,
+                                   bool deleteTissue=false,
+                                   bool initialiseCells=true)
+        : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissue, initialiseCells),
           mNutrientSolution(NULL),
           mpPde(pPde),
           mWriteAverageRadialNutrientResults(false),
-          mWriteDailyAverageRadialNutrientResults(false)
+          mWriteDailyAverageRadialNutrientResults(false),
+          mpCoarseNutrientMesh(NULL)
     {
-    }    
-    
+    }
+
     /**
      * Destructor
      * 
@@ -138,6 +152,10 @@ public:
         if (mNutrientSolution)
         {
             VecDestroy(mNutrientSolution);
+        }
+        if (mpCoarseNutrientMesh)
+        {
+            delete mpCoarseNutrientMesh;
         }
     }    
     
@@ -155,12 +173,19 @@ public:
      * Write the final (and optionally also the daily) average 
      * radial nutrient distribution to file.
      *
-     *  @param numRadialIntervals The number of radial intervals in which the average nutrient concentration is calculated
-     *  @param writeDailyResults Whether to record the average radial nutrient distribution at the end of each day of the simulation 
+     * @param numRadialIntervals The number of radial intervals in which the average nutrient concentration is calculated
+     * @param writeDailyResults Whether to record the average radial nutrient distribution at the end of each day of the simulation 
      */ 
     
     void SetWriteAverageRadialNutrientResults(unsigned numRadialIntervals=10, 
                                               bool writeDailyResults=false);
+
+    /**
+     * Solve the nutrient PDE on a coarse mesh.
+     * 
+     * @param coarseGrainScaleFactor The ratio of the width of the coarse nutrient mesh to the initial width of the tissue
+     */ 
+    void UseCoarseNutrientMesh(double coarseGrainScaleFactor=10.0);
     
     /**
      * Saves the whole tissue simulation for restarting later.
