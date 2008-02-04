@@ -24,6 +24,8 @@ TestMeinekeSpringSystemWithChemotaxis.hpp
 TestPdeOnFlaggedMesh.hpp
 TestSimulationTime.hpp
 TestMeshBasedTissue.hpp
+TestSimpleTissue.hpp
+TestSimpleTissueMechanicsSystem.hpp
 TestTissueCell.hpp
 TestTissueSimulation3d.hpp
 TestTissueSimulationWithNutrients.hpp

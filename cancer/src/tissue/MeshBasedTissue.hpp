@@ -1,18 +1,12 @@
 #ifndef MESHBASEDTISSUE_HPP_
 #define MESHBASEDTISSUE_HPP_
 
+#include "AbstractTissue.cpp"
 #include "ConformingTetrahedralMesh.cpp"
-#include "TissueCell.hpp"
 #include "VoronoiTessellation.cpp"
 
-#include <list>
-
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/set.hpp>
-
+#include <boost/serialization/base_object.hpp>
 
 /**
  * A facade class encapsulating a mesh-based 'tissue'
@@ -24,7 +18,7 @@
  * only ever deals with real cells.
  */
 template<unsigned DIM>
-class MeshBasedTissue
+class MeshBasedTissue : public AbstractTissue<DIM>
 {
 private:
     
@@ -38,17 +32,8 @@ private:
      */
     bool mDeleteMesh;
     
-    /** List of cells */
-    std::list<TissueCell> mCells;
-    
-    /** Map node indices back to cells. */
-    std::map<unsigned, TissueCell*> mNodeCellMap;
-    
     /** Records whether a node is a ghost node or not */
     std::vector<bool> mIsGhostNode;
-
-    /** Current cell type counts */
-    c_vector<unsigned,5> mCellTypeCount;
         
     /**
      * Special springs that we want to keep track of for some reason.
@@ -57,11 +42,7 @@ private:
      */
     std::set<std::set<TissueCell*> > mMarkedSprings;
     
-    out_stream mpNodeFile;
-    
     out_stream mpElementFile;
-    
-    out_stream mpCellTypesFile;
     
     /** Helper method used by the spring marking routines */
     std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
@@ -78,8 +59,8 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & mCells;
-        archive & mNodeCellMap;
+        archive & boost::serialization::base_object<AbstractTissue<DIM> >(*this);
+        
         archive & mIsGhostNode;
                 
         // The Voronoi stuff can't be archived yet
@@ -116,12 +97,13 @@ public:
     
     ~MeshBasedTissue();
     
+    /** Initialise each cell's cell cycle model */
     void InitialiseCells();
     
     ConformingTetrahedralMesh<DIM, DIM>& rGetMesh();
-    std::list<TissueCell>& rGetCells();
+    
     const ConformingTetrahedralMesh<DIM, DIM>& rGetMesh() const;
-    const std::list<TissueCell>& rGetCells() const;
+    
     std::vector<bool>& rGetGhostNodes();
 
     std::set<unsigned> GetGhostNodeIndices();
@@ -177,18 +159,6 @@ public:
     c_vector<double, DIM> GetLocationOfCell(const TissueCell& rCell);
 
     Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell);
-    
-    /**
-     * Find out how many cells of each mutation state there are
-     * 
-     * @return The number of cells of each type (evaluated at each visualizer output)
-     * [0] = healthy count
-     * [1] = labelled cells
-     * [2] = APC one hit
-     * [3] = APC two hit
-     * [4] = beta catenin one hit
-     */
-    c_vector<unsigned,5> GetCellTypeCount();
     
     void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes);
     

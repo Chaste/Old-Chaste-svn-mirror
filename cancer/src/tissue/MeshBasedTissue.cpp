@@ -4,19 +4,6 @@
 #include "MeshBasedTissue.hpp"
 #include "CancerParameters.hpp"
 
-enum cell_colours
-{
-    STEM_COLOUR, // 0
-    TRANSIT_COLOUR, // 1
-    DIFFERENTIATED_COLOUR, // 2
-    EARLY_CANCER_COLOUR, // 3
-    LATE_CANCER_COLOUR, // 4
-    LABELLED_COLOUR, // 5
-    APOPTOSIS_COLOUR, // 6
-    INVISIBLE_COLOUR, // visualizer treats '7' as invisible
-    SPECIAL_LABEL_START
-};
-
 ///\todo: Make this constructor take in ghost nodes, and validate the three objects
 // are in sync ie num cells + num ghost nodes = num_nodes ? this would mean all ghosts
 // *cannot* be cells, making it more difficult to construct the cells.
@@ -25,8 +12,8 @@ template<unsigned DIM>
 MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
                   const std::vector<TissueCell>& rCells,
                   bool deleteMesh)
-             : mrMesh(rMesh),
-               mCells(rCells.begin(), rCells.end())
+             : AbstractTissue<DIM>(rCells),
+               mrMesh(rMesh)
 {
     mpVoronoiTessellation = NULL;
     
@@ -34,22 +21,22 @@ MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh
     mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
 
     // This must always be true    
-    assert( mCells.size() <= mrMesh.GetNumNodes() );
+    assert( this->mCells.size() <= mrMesh.GetNumNodes() );
 
     // Set up the node map
-    for (std::list<TissueCell>::iterator it = mCells.begin();
-         it != mCells.end();
+    for (std::list<TissueCell>::iterator it = this->mCells.begin();
+         it != this->mCells.end();
          ++it)
     {
         /// \todo Check it points to a real cell; if not do
-        /// it = mCells.erase(it); --it; continue;
+        /// it = this->mCells.erase(it); --it; continue;
         unsigned node_index = it->GetNodeIndex();
-        mNodeCellMap[node_index] = &(*it);
+        this->mNodeCellMap[node_index] = &(*it);
     }
     
     for(unsigned i=0; i<5; i++)
     {
-        mCellTypeCount[i] = 0;
+        this->mCellTypeCount[i] = 0;
     }
         
 	Validate();
@@ -77,8 +64,8 @@ MeshBasedTissue<DIM>::~MeshBasedTissue()
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::InitialiseCells()
 {
-    for(std::list<TissueCell>::iterator iter = mCells.begin();
-        iter != mCells.end();
+    for(std::list<TissueCell>::iterator iter = this->mCells.begin();
+        iter != this->mCells.end();
         ++iter)
     {
         iter->InitialiseCellCycleModel();
@@ -113,7 +100,7 @@ void MeshBasedTissue<DIM>::Validate()
 template<unsigned DIM>
 TissueCell& MeshBasedTissue<DIM>::rGetCellAtNodeIndex(unsigned nodeGlobalIndex)
 {
-    return *(mNodeCellMap[nodeGlobalIndex]);
+    return *(this->mNodeCellMap[nodeGlobalIndex]);
 }
 
 template<unsigned DIM>
@@ -137,21 +124,9 @@ ConformingTetrahedralMesh<DIM, DIM>& MeshBasedTissue<DIM>::rGetMesh()
 }
 
 template<unsigned DIM>
-std::list<TissueCell>& MeshBasedTissue<DIM>::rGetCells()
-{
-    return mCells;
-}
-
-template<unsigned DIM>
 const ConformingTetrahedralMesh<DIM, DIM>& MeshBasedTissue<DIM>::rGetMesh() const
 {
     return mrMesh;
-}
-
-template<unsigned DIM>
-const std::list<TissueCell>& MeshBasedTissue<DIM>::rGetCells() const
-{
-    return mCells;
 }
 
 template<unsigned DIM>
@@ -199,8 +174,8 @@ template<unsigned DIM>
 unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
 {
     unsigned num_removed = 0;
-    for (std::list<TissueCell>::iterator it = mCells.begin();
-         it != mCells.end();
+    for (std::list<TissueCell>::iterator it = this->mCells.begin();
+         it != this->mCells.end();
          ++it)
     {
         if (it->IsDead())
@@ -236,7 +211,7 @@ unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
             // Remove the node from the mesh
             num_removed++;
             mrMesh.DeleteNodePriorToReMesh(it->GetNodeIndex());
-            it = mCells.erase(it);
+            it = this->mCells.erase(it);
             --it;
         }
     }
@@ -335,10 +310,10 @@ TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DI
     unsigned new_node_index = mrMesh.AddNode(p_new_node);
 
     newCell.SetNodeIndex(new_node_index);
-    mCells.push_back(newCell);
+    this->mCells.push_back(newCell);
     
-    TissueCell *p_created_cell=&(mCells.back());
-    mNodeCellMap[new_node_index] = p_created_cell;
+    TissueCell *p_created_cell=&(this->mCells.back());
+    this->mNodeCellMap[new_node_index] = p_created_cell;
     
     // Update size of IsGhostNode if necessary
     if (mrMesh.GetNumNodes() > mIsGhostNode.size())
@@ -372,9 +347,9 @@ void MeshBasedTissue<DIM>::ReMesh()
         }
 
         // Fix up the mappings between cells and nodes
-        mNodeCellMap.clear();
-        for (std::list<TissueCell>::iterator it = mCells.begin();
-             it != mCells.end();
+        this->mNodeCellMap.clear();
+        for (std::list<TissueCell>::iterator it = this->mCells.begin();
+             it != this->mCells.end();
              ++it)
         {
             unsigned old_node_index = it->GetNodeIndex();
@@ -383,7 +358,7 @@ void MeshBasedTissue<DIM>::ReMesh()
             assert(!map.IsDeleted(old_node_index));
             unsigned new_node_index = map.GetNewIndex(old_node_index);
             it->SetNodeIndex(new_node_index);
-            mNodeCellMap[new_node_index] = &(*it);
+            this->mNodeCellMap[new_node_index] = &(*it);
         }
     }
     
@@ -564,13 +539,13 @@ MeshBasedTissue<DIM>::Iterator::Iterator(MeshBasedTissue& rTissue, std::list<Tis
 template<unsigned DIM>
 typename MeshBasedTissue<DIM>::Iterator MeshBasedTissue<DIM>::Begin()
 {
-    return Iterator(*this, mCells.begin());
+    return Iterator(*this, this->mCells.begin());
 }
 
 template<unsigned DIM>
 typename MeshBasedTissue<DIM>::Iterator MeshBasedTissue<DIM>::End()
 {
-    return Iterator(*this, mCells.end());
+    return Iterator(*this, this->mCells.end());
 }
 
 
@@ -578,32 +553,26 @@ typename MeshBasedTissue<DIM>::Iterator MeshBasedTissue<DIM>::End()
 //                             Output methods                               // 
 //////////////////////////////////////////////////////////////////////////////
 
-template<unsigned DIM> 
-c_vector<unsigned,5> MeshBasedTissue<DIM>::GetCellTypeCount()
-{
-    return mCellTypeCount;
-}
-
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes)
 {
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
-    mpNodeFile = output_file_handler.OpenOutputFile("results.viznodes");
+    this->mpNodeFile = output_file_handler.OpenOutputFile("results.viznodes");
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
-    mpCellTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
+    this->mpCellTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
     
     if (outputCellTypes)
     {
-        *mpCellTypesFile <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
+        *this->mpCellTypesFile <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
     }
 }
 
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::CloseOutputFiles()
 {
-    mpNodeFile->close();
+    this->mpNodeFile->close();
     mpElementFile->close();
-    mpCellTypesFile->close();
+    this->mpCellTypesFile->close();
 }
 
 template<unsigned DIM>  
@@ -618,12 +587,12 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
         cell_counter[i] =0;
     }
     
-    *mpNodeFile <<  time << "\t";
+    *this->mpNodeFile <<  time << "\t";
     *mpElementFile <<  time << "\t";
     
     if (outputCellTypes)
     {
-        *mpCellTypesFile <<  time << "\t";
+        *this->mpCellTypesFile <<  time << "\t";
     }
 
     // Write node files
@@ -639,15 +608,15 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
         {
             // Do nothing
         }
-        else if (mNodeCellMap[index]->GetAncestor()!=UNSIGNED_UNSET)
+        else if (this->mNodeCellMap[index]->GetAncestor()!=UNSIGNED_UNSET)
         {
-            TissueCell* p_cell = mNodeCellMap[index];
+            TissueCell* p_cell = this->mNodeCellMap[index];
             colour = SPECIAL_LABEL_START + p_cell->GetAncestor();
         }
 /// \todo remove this if - facade eventually shouldn't be able to have empty cells vector
-        else if (mCells.size()>0)
+        else if (this->mCells.size()>0)
         {
-            TissueCell* p_cell = mNodeCellMap[index];
+            TissueCell* p_cell = this->mNodeCellMap[index];
             
             CellType type = p_cell->GetCellType();
             CellMutationState mutation = p_cell->GetMutationState();
@@ -723,9 +692,9 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
             
             for(unsigned i=0; i<DIM; i++)
             {
-                *mpNodeFile << position[i] << " ";
+                *this->mpNodeFile << position[i] << " ";
             }
-            *mpNodeFile << colour << " ";
+            *this->mpNodeFile << colour << " ";
         }
     }
     
@@ -745,16 +714,15 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
     {
         for(unsigned i=0; i < 5; i++)
         {
-            mCellTypeCount[i] = cell_counter[i];
-            *mpCellTypesFile <<  cell_counter[i] << "\t";
+            this->mCellTypeCount[i] = cell_counter[i];
+            *this->mpCellTypesFile <<  cell_counter[i] << "\t";
         }
-        *mpCellTypesFile <<  "\n";
+        *this->mpCellTypesFile <<  "\n";
     }
     
-    *mpNodeFile << "\n";
+    *this->mpNodeFile << "\n";
     *mpElementFile << "\n";
 }
-
 
 //////////////////////////////////////////////////////////////////////////////
 //                          Spring iterator class                           // 
@@ -862,8 +830,8 @@ template<unsigned DIM>
 void MeshBasedTissue<DIM>::CheckTissueCellPointers()
 {
     bool res=true;
-    for (std::list<TissueCell>::iterator it=mCells.begin();
-        it!=mCells.end();
+    for (std::list<TissueCell>::iterator it=this->mCells.begin();
+        it!=this->mCells.end();
         ++it)
     {
         TissueCell* p_cell=&(*it);

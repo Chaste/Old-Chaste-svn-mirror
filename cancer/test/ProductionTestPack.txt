@@ -12,6 +12,8 @@ TestIngeWntSwatCellCycleOdeSystem.hpp
 TestMeineke2001SpringSystem.hpp
 TestMeshBasedTissue.hpp
 TestPdeOnFlaggedMesh.hpp
+TestSimpleTissue.hpp
+TestSimpleTissueMechanicsSystem.hpp
 TestSimulationTime.hpp
 TestTissueCell.hpp
 TestTissueSimulation3d.hpp
