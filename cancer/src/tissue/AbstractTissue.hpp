@@ -38,17 +38,20 @@ protected:
     
     /** Results file for cell types */
     out_stream mpCellTypesFile;
-    
-     /** Initialise each cell's cell cycle model */
-    virtual void InitialiseCells()=0;
+        
+    /** 
+     * Get the number of nodes in the tissue.
+     */
+    virtual unsigned GetNumNodes()=0;
     
     /**
-     * Check consistency of our internal data structures.
+     * Get a pointer to the node with a given index.
      */
-    virtual void Validate()=0;
+    virtual Node<DIM>* GetNode(unsigned index)=0;
     
-    virtual void WriteResultsToFiles(bool OutputCellTypes)=0;
-        
+    /**
+     * Get a pointer to the node corresponding to a given TissueCell.
+     */
     virtual Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell)=0;
     
     /**
@@ -59,22 +62,24 @@ protected:
      */
     virtual TissueCell*  AddCell(TissueCell cell, c_vector<double,DIM> newLocation)=0;
     
-    virtual void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes)=0;
-    
-    virtual void CloseOutputFiles()=0;
-    
     /** 
      * Remove all cells labelled as dead. 
      * 
      *  @return number of cells removed
      */
     virtual unsigned RemoveDeadCells()=0;
-    
-    /** 
-     *  Get the cell corresponding to a given node.
+        
+    /**
+     * Check consistency of our internal data structures.
      */
-    virtual TissueCell& rGetCellAtNodeIndex(unsigned)=0;
+    virtual void Validate()=0;
     
+    virtual void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes)=0;
+    
+    virtual void WriteResultsToFiles(bool OutputCellTypes)=0;
+        
+    virtual void CloseOutputFiles()=0;
+        
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -96,6 +101,11 @@ public:
     virtual ~AbstractTissue()
     {}
     
+    /** 
+     * Initialise each cell's cell cycle model.
+     */
+    void InitialiseCells();
+    
     std::list<TissueCell>& rGetCells();
     
     const std::list<TissueCell>& rGetCells() const;
@@ -111,6 +121,14 @@ public:
      * [4] = beta catenin one hit
      */
     c_vector<unsigned,5> GetCellTypeCount();
+    
+    /** 
+     *  Get the cell corresponding to a given node
+     *
+     *  Currently assumes there is one cell for each node, and they are ordered identically in their vectors. 
+     *  An assertion fails if not.
+     */
+    TissueCell& rGetCellAtNodeIndex(unsigned index);
     
 };
 

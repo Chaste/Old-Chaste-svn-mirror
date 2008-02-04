@@ -96,10 +96,7 @@ public:
     MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>&);
     
     ~MeshBasedTissue();
-    
-    /** Initialise each cell's cell cycle model */
-    void InitialiseCells();
-    
+
     ConformingTetrahedralMesh<DIM, DIM>& rGetMesh();
     
     const ConformingTetrahedralMesh<DIM, DIM>& rGetMesh() const;
@@ -147,15 +144,7 @@ public:
      *  @return number of cells removed
      */
     unsigned RemoveDeadCells();
-    
-    /** 
-     *  Get the cell corresponding to a given node
-     *
-     *  Currently assumes there is one cell for each node, and they are ordered identically in their vectors. 
-     *  An assertion fails if not.
-     */
-    TissueCell& rGetCellAtNodeIndex(unsigned);
-    
+
     c_vector<double, DIM> GetLocationOfCell(const TissueCell& rCell);
 
     Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell);
@@ -253,6 +242,10 @@ public:
 
     /** Get the number of real cells, (ie non-ghost nodes) */
     unsigned GetNumRealCells();
+    
+    Node<DIM>* GetNode(unsigned index);
+    
+    unsigned GetNumNodes();
     
     /** 
      * Sets the Ancestor index of all the cells at this time to be the

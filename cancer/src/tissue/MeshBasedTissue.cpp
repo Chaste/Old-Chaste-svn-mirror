@@ -57,21 +57,7 @@ MeshBasedTissue<DIM>::~MeshBasedTissue()
     {
         delete &mrMesh;
     }
-    
-    //delete mpVoronoiTessellation;
 }
-
-template<unsigned DIM>
-void MeshBasedTissue<DIM>::InitialiseCells()
-{
-    for(std::list<TissueCell>::iterator iter = this->mCells.begin();
-        iter != this->mCells.end();
-        ++iter)
-    {
-        iter->InitialiseCellCycleModel();
-    }
-}
-
 
 // Check every node either has a cell associated with it or is a ghost node
 // (for the time being, we are allowing ghost nodes to also have cells 
@@ -95,12 +81,6 @@ void MeshBasedTissue<DIM>::Validate()
             EXCEPTION(ss.str()); 
 		}
 	}
-}
-
-template<unsigned DIM>
-TissueCell& MeshBasedTissue<DIM>::rGetCellAtNodeIndex(unsigned nodeGlobalIndex)
-{
-    return *(this->mNodeCellMap[nodeGlobalIndex]);
 }
 
 template<unsigned DIM>
@@ -417,6 +397,18 @@ unsigned MeshBasedTissue<DIM>::GetNumRealCells()
 		counter++;
 	}
 	return counter;
+}
+
+template<unsigned DIM>
+Node<DIM>* MeshBasedTissue<DIM>::GetNode(unsigned index)
+{
+    return rGetMesh().GetNode(index);
+}
+
+template<unsigned DIM>
+unsigned MeshBasedTissue<DIM>::GetNumNodes()
+{
+    return rGetMesh().GetNumAllNodes();
 }
 
 template<unsigned DIM> 
@@ -842,7 +834,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
         // Check cell exists in tissue
         unsigned node_index = p_cell->GetNodeIndex();
         std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
-        TissueCell& r_cell = rGetCellAtNodeIndex(node_index);
+        TissueCell& r_cell = this->rGetCellAtNodeIndex(node_index);
         if (&r_cell != p_cell)
         {
             std::cout << "  Mismatch with tissue" << std::endl << std::flush;
@@ -884,7 +876,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
             }
             
             // Check cell exists in tissue
-            TissueCell& r_cell = rGetCellAtNodeIndex(node_index);
+            TissueCell& r_cell = this->rGetCellAtNodeIndex(node_index);
             if (&r_cell != p_cell)
             {
                 std::cout << "  Mismatch with tissue" << std::endl << std::flush;

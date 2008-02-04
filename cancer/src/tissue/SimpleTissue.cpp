@@ -51,17 +51,6 @@ void SimpleTissue<DIM>::Validate()
 }
 
 template<unsigned DIM>
-void SimpleTissue<DIM>::InitialiseCells()
-{
-    for(std::list<TissueCell>::iterator iter = this->mCells.begin();
-        iter != this->mCells.end();
-        ++iter)
-    {
-        iter->InitialiseCellCycleModel();
-    }
-}
-
-template<unsigned DIM>
 std::vector<Node<DIM> >& SimpleTissue<DIM>::rGetNodes()
 {
     return mNodes;
@@ -143,12 +132,6 @@ unsigned SimpleTissue<DIM>::RemoveDeadCells()
         }
     }
     return num_removed;
-}
-
-template<unsigned DIM>
-TissueCell& SimpleTissue<DIM>::rGetCellAtNodeIndex(unsigned index)
-{
-    return *(this->mNodeCellMap[index]);
 }
 
 template<unsigned DIM>
@@ -320,7 +303,6 @@ typename SimpleTissue<DIM>::Iterator SimpleTissue<DIM>::End()
 {
     return Iterator(*this, this->mCells.end());
 }
-
 
 //////////////////////////////////////////////////////////////////////////////
 //                             Output methods                               // 

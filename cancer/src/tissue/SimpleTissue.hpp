@@ -19,17 +19,30 @@ public:
     
     ~SimpleTissue() 
     {}
-    
-    /** Initialise each cell's cell cycle model */
-    void InitialiseCells();
-    
-    Node<DIM>* GetNode(unsigned index);
 
-    std::vector<Node<DIM> >& rGetNodes();
+    /** 
+     * Get the number of nodes in the tissue.
+     */
+    unsigned GetNumNodes();
     
-    /** Moves the node with an index to a new point in space */
-    void SetNode(unsigned index, ChastePoint<DIM> point);
-            
+    /**
+     * Get a pointer to the node with a given index.
+     */  
+    Node<DIM>* GetNode(unsigned index);
+    
+    /**
+     * Get a pointer to the node corresponding to a given TissueCell.
+     */
+    Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell);
+
+    /**
+     * Add a new cell to the tissue.
+     * @param cell  the cell to add
+     * @param newLocation  the position in space at which to put it
+     * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
+     */
+    TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
+    
     /** 
      * Remove all cells labelled as dead. 
      * 
@@ -41,49 +54,41 @@ public:
      */
     unsigned RemoveDeadCells();
     
-    /** 
-     *  Get the cell corresponding to a given node
-     *
-     *  Assumes there is one cell for each node, and they are ordered identically in their vectors. 
-     *  An assertion fails if not.
-     */
-    TissueCell& rGetCellAtNodeIndex(unsigned);
-    
-    Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell);
-    
-    c_vector<double, DIM> GetLocationOfCell(const TissueCell& rCell);
-    
     /**
      * Check consistency of our internal data structures.
      */
     void Validate();
-            
+    
     void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes);
     
     void WriteResultsToFiles(bool OutputCellTypes);
     
     void CloseOutputFiles();
     
-    /**
-     * Add a new cell to the tissue.
-     * @param cell  the cell to add
-     * @param newLocation  the position in space at which to put it
-     * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
-     */
-    TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
+    std::vector<Node<DIM> >& rGetNodes();
     
-    /** Add a new node to the tissue. */
+    /** 
+     * Move the node with a given index to a new point in space.
+     */
+    void SetNode(unsigned index, ChastePoint<DIM> point);
+    
+    c_vector<double, DIM> GetLocationOfCell(const TissueCell& rCell);
+        
+    /** 
+     * Add a new node to the tissue. 
+     */
     unsigned AddNode(Node<DIM> *pNewNode);
     
-    /** Update the correspondence between nodes and cells */
+    /** 
+     * Update the correspondence between nodes and cells.
+     */
     void UpdateNodeCellMap();
         
-    /** Get the number of real cells */
+    /** 
+     * Get the number of real cells.
+     */
     unsigned GetNumRealCells();
-    
-    /** Get the number of nodes */
-    unsigned GetNumNodes();
-        
+            
     /** 
      * Sets the Ancestor index of all the cells at this time to be the
      * same as their node index, can be used to trace clonal populations.
@@ -97,7 +102,9 @@ public:
      */
     std::set<unsigned> GetCellAncestors();
     
-    /** Remove a node */
+    /** 
+     * Remove the node with a given index.
+     */
     void RemoveNode(unsigned index);
     
     /**
