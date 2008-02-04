@@ -30,7 +30,7 @@ public:
      */ 
     void LabelSPhaseCells()
     {
-        for (MeshBasedTissue<2>::Iterator cell_iter = mrCrypt.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();
              cell_iter != mrCrypt.End();
              ++cell_iter)
         {
@@ -48,7 +48,7 @@ public:
      */
     void LabelAllCellsAsHealthy()
     {
-        for (MeshBasedTissue<2>::Iterator cell_iter = mrCrypt.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();
              cell_iter != mrCrypt.End();
              ++cell_iter)
         {

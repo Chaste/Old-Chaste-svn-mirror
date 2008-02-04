@@ -54,7 +54,7 @@ public:
         CellwiseDataGradient<DIM> gradients;        
         gradients.SetupGradients();
         
-        for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+        for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
              cell_iter != this->mrTissue.End();
              ++cell_iter)
         {

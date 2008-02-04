@@ -88,7 +88,7 @@ public:
         }
         
         // Divide to obtain average gradient
-        for (typename MeshBasedTissue<DIM>::Iterator cell_iter = r_tissue.Begin();
+        for (typename AbstractTissue<DIM>::Iterator cell_iter = r_tissue.Begin();
              cell_iter != r_tissue.End();
              ++cell_iter)
         {

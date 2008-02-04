@@ -102,6 +102,10 @@ public:
     const ConformingTetrahedralMesh<DIM, DIM>& rGetMesh() const;
     
     std::vector<bool>& rGetGhostNodes();
+    
+    unsigned GetGhostNodesSize();
+        
+    bool GetIsGhostNode(unsigned index);
 
     std::set<unsigned> GetGhostNodeIndices();
     
@@ -154,81 +158,11 @@ public:
     void CloseOutputFiles();
     
     /**
-     * Iterator class allows one to iterate over cells in the tissue.
-     * Dereferencing the iterator will give you the current cell.
-     * There are also methods to get the node in the mesh representing this cell,
-     * and the location of that node.
-     */ 
-    class Iterator
-    {
-    public:
-    
-        /**
-         * Dereference the iterator giving you a *reference* to the current cell.
-         * Make sure to use a reference for the result to avoid copying cells unnecessarily.
-         */
-        inline TissueCell& operator*();
-        
-        inline TissueCell* operator->();
-        
-        /**
-         * Get a pointer to the node in the mesh which represents this cell.
-         */
-        inline Node<DIM>* GetNode();
-        
-        /**
-         * Get the location in space of this cell.
-         */
-        inline const c_vector<double, DIM>& rGetLocation();
-        
-        inline bool operator!=(const Iterator& other);
-        
-        /**
-         * Prefix increment operator.
-         */
-        inline Iterator& operator++();
-        
-        /**
-         * Constructor for a new iterator.
-         */
-        Iterator(MeshBasedTissue& rTissue, std::list<TissueCell>::iterator cellIter);
-        
-    private:
-    
-        /**
-         * Private helper function which tells us if we're pointing at a real cell.
-         * Assumes we are within range (i.e. not at End).
-         * 
-         * Real cells are not ghosts or deleted.
-         */
-        inline bool IsRealCell();
-
-        /**
-         * Private helper function saying whether we're at the end of the cells.
-         */
-        inline bool IsAtEnd();
-    
-        MeshBasedTissue& mrTissue;
-        std::list<TissueCell>::iterator mCellIter;
-        unsigned mNodeIndex;
-    };
-
-    /**
-     * @return iterator pointing to the first cell in the tissue
-     */
-    Iterator Begin();
-    
-    /**
-     * @return iterator pointing to one past the last cell in the tissue
-     */
-    Iterator End();
-    
-    /**
      * Move a cell to a new location.
      * @param iter  pointer to the cell to move
      * @param rNewLocation  where to move it to
      */
-    void MoveCell(Iterator iter, ChastePoint<DIM>& rNewLocation);
+    void MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation);
     
     /**
      * Add a new cell to the tissue.
@@ -272,7 +206,7 @@ public:
     void Validate();
 
     void WriteResultsToFiles(bool OutputCellTypes);
-
+    
     /** Get a reference to a Voronoi Tessellation of the mesh */                         
     void CreateVoronoiTessellation();
 

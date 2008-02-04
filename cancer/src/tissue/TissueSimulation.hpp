@@ -189,7 +189,7 @@ protected:
      * @return daughter_coords The coordinates for the daughter cell.
      * 
      */
-    virtual c_vector<double, DIM> CalculateDividingCellCentreLocations(typename MeshBasedTissue<DIM>::Iterator parentCell);
+    virtual c_vector<double, DIM> CalculateDividingCellCentreLocations(typename AbstractTissue<DIM>::Iterator parentCell);
     
     /**
      * During a simulation time step, process any cell sloughing or death

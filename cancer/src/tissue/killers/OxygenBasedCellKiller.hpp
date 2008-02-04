@@ -67,7 +67,7 @@ public:
      */
      virtual void TestAndLabelCellsForApoptosisOrDeath()
     {      
-        for( typename MeshBasedTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
+        for( typename AbstractTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
             cell_iter != this->mpTissue->End();
             ++cell_iter)
         {               

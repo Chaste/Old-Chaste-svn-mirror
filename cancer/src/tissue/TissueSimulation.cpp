@@ -105,7 +105,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
     unsigned num_births_this_step = 0;
 
     // Iterate over all cells, seeing if each one can be divided
-    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
          cell_iter != mrTissue.End();
          ++cell_iter)
     {
@@ -152,7 +152,7 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
 
 
 template<unsigned DIM> 
-c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename MeshBasedTissue<DIM>::Iterator parentCell)
+c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename AbstractTissue<DIM>::Iterator parentCell)
 {
     double separation = CancerParameters::Instance()->GetDivisionSeparation();
     c_vector<double, DIM> parent_coords = parentCell.rGetLocation();
@@ -205,7 +205,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
     mrTissue.UpdateGhostPositions(mDt);
 
     // Iterate over all cells to update their positions.
-    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
          cell_iter != mrTissue.End();
          ++cell_iter)
     {
@@ -419,7 +419,7 @@ void TissueSimulation<DIM>::Solve()
      * Not sure why - when the same code was evaluated in a test it seemed almost instant.
      */
     LOG(1, "Setting up cells...");
-    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
          cell_iter != mrTissue.End();
          ++cell_iter)
     {

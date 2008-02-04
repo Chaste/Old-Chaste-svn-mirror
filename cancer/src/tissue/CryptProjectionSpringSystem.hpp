@@ -84,7 +84,7 @@ private :
         c_vector<double, 3> node_location_3d;
 
         // only consider nodes corresponding to real cells                        
-        for (MeshBasedTissue<2>::Iterator cell_iter = this->mrTissue.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = this->mrTissue.Begin();
              cell_iter != this->mrTissue.End();
              ++cell_iter)
         {

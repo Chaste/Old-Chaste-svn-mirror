@@ -66,7 +66,7 @@ template<unsigned DIM>
 void MeshBasedTissue<DIM>::Validate()
 {
 	std::vector<bool> validated_node = mIsGhostNode; 
-	for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
+	for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
 	{
 		unsigned node_index = cell_iter->GetNodeIndex();
 		validated_node[node_index] = true;
@@ -113,6 +113,18 @@ template<unsigned DIM>
 std::vector<bool>& MeshBasedTissue<DIM>::rGetGhostNodes()
 {
     return mIsGhostNode;
+}
+
+template<unsigned DIM>
+unsigned MeshBasedTissue<DIM>::GetGhostNodesSize()
+{
+    return mIsGhostNode.size();
+}
+
+template<unsigned DIM>
+bool MeshBasedTissue<DIM>::GetIsGhostNode(unsigned index)
+{
+    return mIsGhostNode[index];
 }
 
 template<unsigned DIM>
@@ -276,7 +288,7 @@ c_vector<double, DIM> MeshBasedTissue<DIM>::CalculateForceBetweenNodes(const uns
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::MoveCell(Iterator iter, ChastePoint<DIM>& rNewLocation)
+void MeshBasedTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)
 {
     unsigned index = iter.GetNode()->GetIndex();
     mrMesh.SetNode(index, rNewLocation, false);
@@ -392,7 +404,7 @@ template<unsigned DIM>
 unsigned MeshBasedTissue<DIM>::GetNumRealCells()
 {
 	unsigned counter = 0;
-	for(Iterator cell_iter=Begin(); cell_iter!=End(); ++cell_iter)
+	for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
 	{
 		counter++;
 	}
@@ -414,7 +426,7 @@ unsigned MeshBasedTissue<DIM>::GetNumNodes()
 template<unsigned DIM> 
 void MeshBasedTissue<DIM>::SetCellAncestorsToNodeIndices()
 {
-    for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
+    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
         cell_iter->SetAncestor(cell_iter->GetNodeIndex());
     }
@@ -424,7 +436,7 @@ template<unsigned DIM>
 void MeshBasedTissue<DIM>::SetBottomCellAncestors()
 {
     unsigned index = 0;
-    for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
+    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
         if (cell_iter.rGetLocation()[1] < 0.5)
         {
@@ -437,109 +449,12 @@ template<unsigned DIM>
 std::set<unsigned> MeshBasedTissue<DIM>::GetCellAncestors()
 {
     std::set<unsigned> remaining_ancestors;
-    for(Iterator cell_iter = Begin(); cell_iter!=End(); ++cell_iter)
+    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
         remaining_ancestors.insert(cell_iter->GetAncestor());
     }
     return remaining_ancestors;
 }
-
-
-//////////////////////////////////////////////////////////////////////////////
-//                             Iterator class                               // 
-//////////////////////////////////////////////////////////////////////////////
-template<unsigned DIM>
-TissueCell& MeshBasedTissue<DIM>::Iterator::operator*()
-{
-    assert(!IsAtEnd());
-    return *mCellIter;
-}
-
-template<unsigned DIM>
-TissueCell* MeshBasedTissue<DIM>::Iterator::operator->()
-{
-    assert(!IsAtEnd());
-    return &(*mCellIter);
-}
-
-template<unsigned DIM>
-Node<DIM>* MeshBasedTissue<DIM>::Iterator::GetNode()
-{
-    assert(!IsAtEnd());
-    return mrTissue.rGetMesh().GetNode(mNodeIndex);
-}
-
-template<unsigned DIM>
-const c_vector<double, DIM>& MeshBasedTissue<DIM>::Iterator::rGetLocation()
-{
-    return GetNode()->rGetLocation();
-}
-
-template<unsigned DIM>
-bool MeshBasedTissue<DIM>::Iterator::operator!=(const MeshBasedTissue<DIM>::Iterator& other)
-{
-    return mCellIter != other.mCellIter;   
-}
-
-template<unsigned DIM>
-typename MeshBasedTissue<DIM>::Iterator& MeshBasedTissue<DIM>::Iterator::operator++()
-{
-    do
-    {
-        ++mCellIter;
-        if (!IsAtEnd())
-        {
-            mNodeIndex = mCellIter->GetNodeIndex();
-        }
-    }
-    while (!IsAtEnd() && !IsRealCell());
-  
-    return (*this);
-}
-
-template<unsigned DIM>
-bool MeshBasedTissue<DIM>::Iterator::IsRealCell()
-{
-    assert(mrTissue.rGetGhostNodes().size() == mrTissue.rGetMesh().GetNumAllNodes() );
-    return !(mrTissue.rGetGhostNodes()[mNodeIndex] || GetNode()->IsDeleted() || (*this)->IsDead());
-}
-
-template<unsigned DIM>
-bool MeshBasedTissue<DIM>::Iterator::IsAtEnd()
-{
-    return mCellIter == mrTissue.rGetCells().end();
-}
-
-template<unsigned DIM>
-MeshBasedTissue<DIM>::Iterator::Iterator(MeshBasedTissue& rTissue, std::list<TissueCell>::iterator cellIter)
-    : mrTissue(rTissue),
-      mCellIter(cellIter)
-{
-    // Make sure the tissue isn't empty
-    assert(mrTissue.rGetCells().size() > 0);
-    if (!IsAtEnd())
-    {
-        mNodeIndex = cellIter->GetNodeIndex();
-    }
-    // Make sure we start at a real cell
-    if (mCellIter == mrTissue.rGetCells().begin() && !IsRealCell())
-    {
-        ++(*this);
-    }
-}
-
-template<unsigned DIM>
-typename MeshBasedTissue<DIM>::Iterator MeshBasedTissue<DIM>::Begin()
-{
-    return Iterator(*this, this->mCells.begin());
-}
-
-template<unsigned DIM>
-typename MeshBasedTissue<DIM>::Iterator MeshBasedTissue<DIM>::End()
-{
-    return Iterator(*this, this->mCells.end());
-}
-
 
 //////////////////////////////////////////////////////////////////////////////
 //                             Output methods                               // 

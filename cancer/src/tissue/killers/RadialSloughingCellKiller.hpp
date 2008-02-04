@@ -50,7 +50,7 @@ public:
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath()
     {
-        for (MeshBasedTissue<2>::Iterator cell_iter = this->mpTissue->Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = this->mpTissue->Begin();
              cell_iter != this->mpTissue->End();
              ++cell_iter)
         {

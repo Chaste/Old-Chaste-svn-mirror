@@ -29,7 +29,7 @@ protected:
     
     /** Map node indices back to cells */
     std::map<unsigned, TissueCell*> mNodeCellMap;
-    
+        
     /** Current cell type counts */
     c_vector<unsigned,5> mCellTypeCount;
     
@@ -53,7 +53,7 @@ protected:
      * Get a pointer to the node corresponding to a given TissueCell.
      */
     virtual Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell)=0;
-    
+        
     /**
      * Add a new cell to the tissue.
      * @param cell  the cell to add
@@ -122,6 +122,10 @@ public:
      */
     c_vector<unsigned,5> GetCellTypeCount();
     
+    virtual unsigned GetGhostNodesSize();
+      
+    virtual bool GetIsGhostNode(unsigned index);
+    
     /** 
      *  Get the cell corresponding to a given node
      *
@@ -129,6 +133,82 @@ public:
      *  An assertion fails if not.
      */
     TissueCell& rGetCellAtNodeIndex(unsigned index);
+    
+    /**
+     * Iterator class allows one to iterate over cells in the tissue.
+     * Dereferencing the iterator will give you the current cell.
+     * There are also methods to get the node representing this cell,
+     * and the location of that node.
+     */ 
+    class Iterator
+    {
+    public:
+    
+        /**
+         * Dereference the iterator giving you a *reference* to the current cell.
+         * Make sure to use a reference for the result to avoid copying cells unnecessarily.
+         */
+        inline TissueCell& operator*();
+        
+        inline TissueCell* operator->();
+        
+        /**
+         * Get a pointer to the node in the mesh which represents this cell.
+         */
+        inline Node<DIM>* GetNode();
+        
+        /**
+         * Get the location in space of this cell.
+         */
+        inline const c_vector<double, DIM>& rGetLocation();
+        
+        inline bool operator!=(const Iterator& other);
+        
+        /**
+         * Prefix increment operator.
+         */
+        inline Iterator& operator++();
+        
+        /**
+         * Constructor for a new iterator.
+         */
+        Iterator(AbstractTissue& rTissue, std::list<TissueCell>::iterator cellIter);
+        
+        /**
+         * Must have a virtual destructor.
+         */ 
+        virtual ~Iterator()
+        {}
+        
+    private:
+    
+        /**
+         * Private helper function which tells us if we're pointing at a real cell.
+         * Assumes we are within range (i.e. not at End).
+         * 
+         * Real cells are not deleted.
+         */
+        virtual inline bool IsRealCell();
+
+        /**
+         * Private helper function saying whether we're at the end of the cells.
+         */
+        inline bool IsAtEnd();
+    
+        AbstractTissue& mrTissue;
+        std::list<TissueCell>::iterator mCellIter;
+        unsigned mNodeIndex;
+    };
+    
+    /**
+     * @return iterator pointing to the first cell in the tissue
+     */
+    Iterator Begin();
+    
+    /**
+     * @return iterator pointing to one past the last cell in the tissue
+     */
+    Iterator End();
     
 };
 

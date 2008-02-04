@@ -45,7 +45,7 @@ private :
      * @return daughter_coords The coordinates for the daughter cell.
      * 
      */
-    c_vector<double, 2> CalculateDividingCellCentreLocations(MeshBasedTissue<2>::Iterator parentCell)
+    c_vector<double, 2> CalculateDividingCellCentreLocations(AbstractTissue<2>::Iterator parentCell)
     {     
         double separation = CancerParameters::Instance()->GetDivisionSeparation();
         c_vector<double, 2> parent_coords = parentCell.rGetLocation();
@@ -111,7 +111,7 @@ private :
         mrTissue.UpdateGhostPositions(mDt);
         
         // Iterate over all cells to update their positions.
-        for (MeshBasedTissue<2>::Iterator cell_iter = mrTissue.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = mrTissue.Begin();
              cell_iter != mrTissue.End();
              ++cell_iter)
         {
@@ -181,7 +181,7 @@ private :
         double b_cat_cytoplasm;
         double b_cat_nuclear;
         
-        for (MeshBasedTissue<2>::Iterator cell_iter = mrTissue.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = mrTissue.Begin();
              cell_iter != mrTissue.End();
              ++cell_iter)
         {

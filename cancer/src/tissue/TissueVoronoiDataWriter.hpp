@@ -56,7 +56,7 @@ public:
     void WriteData()
     {
         (*mOutStream)<< SimulationTime::Instance()->GetDimensionalisedTime() << " ";
-        for (typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+        for (typename AbstractTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
              cell_iter != mrTissue.End();
              ++cell_iter)
         {
@@ -90,7 +90,7 @@ public:
             
         double necrotic_area = 0.0;
         
-        for (typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+        for (typename AbstractTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
              cell_iter != mrTissue.End();
              ++cell_iter)
         {
