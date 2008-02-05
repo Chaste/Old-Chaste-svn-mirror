@@ -124,7 +124,7 @@ public:
         /*
          ******************************************
          ******************************************
-         *  test force with cutoff point
+         *  Test force with cutoff point
          ******************************************
          ******************************************
          */
@@ -174,7 +174,7 @@ public:
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],6.25,1e-3);
         }
         
-        // check that the force between nodes is correctly calculated when the spring constant 
+        // Check that the force between nodes is correctly calculated when the spring constant 
         // is proportional to the length of the edge between adjacent cells  
         meineke_spring_system.SetEdgeBasedSpringConstant(true); 
         tissue.CreateVoronoiTessellation();  // normally done in a simulation loop
@@ -190,22 +190,22 @@ public:
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
         }
         
-        // choose two interior neighbour nodes
+        // Choose two interior neighbour nodes
         c_vector<double, 2> force = meineke_spring_system.CalculateForceBetweenNodes(20u,21u);
         TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1],4.34027778,1e-3);
         
-        // now move node 21 a bit and check that the force calculation changes correctly
+        // Now move node 21 a bit and check that the force calculation changes correctly
         c_vector<double,2> shift;
         shift[0] = 0.01;
         shift[1] = 0.0;                 
         ChastePoint<2> new_point(p_mesh->GetNode(21u)->rGetLocation() + shift);
         p_mesh->SetNode(21u, new_point, false);
         
-        // check that the new force between nodes is correctly calculated
+        // Check that the new force between nodes is correctly calculated
         tissue.CreateVoronoiTessellation();  
         c_vector<double, 2> new_force = meineke_spring_system.CalculateForceBetweenNodes(20u,21u);
         
-        // force calculation: shift is along x-axis so we should have
+        // Force calculation: shift is along x-axis so we should have
         // new_edge_length = (5/6 + shift[0])*tan(0.5*arctan(5*sqrt(3)/(5 + 12*shift[0]))),
         // force^2 = mu^2 * (new_edge_length*sqrt(3))^2 * (1 - 5/6 - shift[0])^2
         TS_ASSERT_DELTA(new_force[0]*new_force[0] + new_force[1]*new_force[1], 3.83479824,1e-3);       
@@ -280,7 +280,7 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         
-        // scale the mesh in one direction
+        // Scale the mesh in one direction
         p_mesh->Scale(1.0,1.2);
         
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();      
@@ -301,14 +301,14 @@ public:
         
         for(unsigned i=0; i<velocities.size(); i++)
         {
-            //check if this is a real cell
+            // Check if this is a real cell
             if(ghost_node_indices.find(i)==ghost_node_indices.end())
             {
                 norm_vel.push_back(norm_2(velocities[i]));
             }  
         }
 
-        // now check that the velocities scale correctly when the viscosity is area-dependent
+        // Now check that the velocities scale correctly when the viscosity is area-dependent
         meineke_spring_system.SetAreaBasedViscosity(true);
         
         velocities = meineke_spring_system.rCalculateVelocitiesOfEachNode();
@@ -326,7 +326,7 @@ public:
                 
         TS_ASSERT(norm_vel.size() > 0);
         
-        // note that d0 and d1 are hardcoded in TissueSimulation::mpMechanicsSystem->rCalculateVelocitiesOfEachNode()  
+        // Note that d0 and d1 are hardcoded in TissueSimulation::mpMechanicsSystem->rCalculateVelocitiesOfEachNode()  
         for(unsigned i=0; i<norm_vel.size(); i++)
         {
             TS_ASSERT_DELTA(norm_vel_area[i], norm_vel[i]/(0.1 +  1.2*0.9), 1e-3);
@@ -375,7 +375,7 @@ public:
 
     void TestSpringConstantsForMutantCells()
     {        
-        // create a small tissue
+        // Create a small tissue
         std::vector<Node<2> *> nodes;
         nodes.push_back(new Node<2>(0, false, 0, 0));
         nodes.push_back(new Node<2>(1, false, 0, 2));
@@ -391,7 +391,7 @@ public:
         
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
         
-        // set cells mutation states
+        // Set cells mutation states
         tissue.rGetCellAtNodeIndex(0).SetMutationState(HEALTHY);
         tissue.rGetCellAtNodeIndex(1).SetMutationState(LABELLED);
         tissue.rGetCellAtNodeIndex(2).SetMutationState(APC_TWO_HIT);
@@ -663,10 +663,10 @@ public:
             
             Meineke2001SpringSystem<2>* p_meineke_spring_system;
             
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_meineke_spring_system;
             
-            // test the member data
+            // Test the member data
             TS_ASSERT_EQUALS(p_meineke_spring_system->mUseCutoffPoint,true);
             TS_ASSERT_DELTA(p_meineke_spring_system->mCutoffPoint,1.1,1e-12);            
             TS_ASSERT_EQUALS(p_meineke_spring_system->mUseEdgeBasedSpringConstant, false);

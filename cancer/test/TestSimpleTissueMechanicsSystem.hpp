@@ -41,10 +41,20 @@ public:
             CellMutationState mutation_state = HEALTHY;
             TissueCell cell(STEM, mutation_state, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
-            cell.SetBirthTime(-10);
+            
+            if (i==10 || i==11)
+            {
+                cell.SetBirthTime(-0.1);
+            }
+            else
+            {
+                cell.SetBirthTime(-10);
+            }
             cells.push_back(cell);
         }
 
+        cells[23].StartApoptosis();
+        
         // Create simple tissue
         SimpleTissue<2> simple_tissue(nodes, cells);
         
@@ -55,7 +65,20 @@ public:
         std::vector<c_vector<double,2> >& velocities_on_each_node = mechanics_system.rCalculateVelocitiesOfEachNode();
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
-            TS_ASSERT_DELTA(velocities_on_each_node[i][0], 0.0, 1e-4);
+            // Cells 10 and 11 are young and so the spring between them 
+            // temporarily has a smaller natural rest length
+            if (i==10)
+            {
+                TS_ASSERT_DELTA(velocities_on_each_node[i][0], 6.7499, 1e-4);
+            }
+            else if (i==11)
+            {
+                TS_ASSERT_DELTA(velocities_on_each_node[i][0], -6.7499, 1e-4);
+            }
+            else
+            {
+                TS_ASSERT_DELTA(velocities_on_each_node[i][0], 0.0, 1e-4);
+            }
             TS_ASSERT_DELTA(velocities_on_each_node[i][1], 0.0, 1e-4);
         }
                
