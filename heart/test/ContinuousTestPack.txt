@@ -3,6 +3,7 @@ TestBidomainProblem.hpp
 TestCellProperties.hpp
 TestCellularMechanicsOdeSystems.hpp
 TestConvergenceTester.hpp
+TestFibreOrientationTensors.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestIonicModels.hpp
 TestMonodomainConductionVelocity.hpp
