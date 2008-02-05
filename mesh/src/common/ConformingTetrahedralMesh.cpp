@@ -390,8 +390,10 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned inde
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNodePriorToReMesh(unsigned index)
 {
+#define COVERAGE_IGNORE
     // A ReMesh can only happen in 2D or 3D so
     assert(SPACE_DIM==2 || SPACE_DIM==3);
+#undef COVERAGE_IGNORE
     mNodes[index]->MarkAsDeleted();
     mDeletedNodeIndices.push_back(index);
 }
