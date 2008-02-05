@@ -1,10 +1,10 @@
 #ifndef CRYPTSIMULATION1D_HPP_
 #define CRYPTSIMULATION1D_HPP_
 
-#include "TissueCell.hpp"
 #include <vector>
+
+#include "TissueCell.hpp"
 #include "ConformingTetrahedralMesh.cpp"
-#include "CancerParameters.hpp"
 
 /**
  * Solve a crypt simulation based on the Meineke paper.

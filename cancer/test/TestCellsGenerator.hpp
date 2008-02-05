@@ -1,9 +1,9 @@
 #ifndef TESTCELLSGENERATOR_HPP_
 #define TESTCELLSGENERATOR_HPP_
+
 #include <cxxtest/TestSuite.h>
+
 #include "CellsGenerator.hpp"
-#include "TissueCell.hpp"
-#include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include "AbstractCancerTestSuite.hpp"
 

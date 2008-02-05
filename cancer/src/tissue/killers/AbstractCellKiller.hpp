@@ -1,7 +1,6 @@
 #ifndef ABSTRACTCELLKILLER_HPP_
 #define ABSTRACTCELLKILLER_HPP_
 
-#include "TissueCell.hpp"
 #include "MeshBasedTissue.cpp"
 
 #include <boost/serialization/access.hpp>

@@ -7,9 +7,6 @@
 
 #include "AbstractOdeBasedCellCycleModel.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
-#include "CancerParameters.hpp"
-#include "SimulationTime.hpp"
-#include "AbstractOdeSystem.hpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>

@@ -1,6 +1,8 @@
 #ifndef TESTCRYPTHONECOMBMESHGENERATOR_HPP_
 #define TESTCRYPTHONECOMBMESHGENERATOR_HPP_
+
 #include <cxxtest/TestSuite.h>
+
 #include "HoneycombMeshGenerator.hpp"
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshWriter.hpp"

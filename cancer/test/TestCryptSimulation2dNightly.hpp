@@ -5,7 +5,6 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include "CryptSimulation2d.hpp"
-#include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
 #include <vector>
@@ -15,12 +14,9 @@
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "WntGradient.hpp"
-#include "WntCellCycleOdeSystem.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "ColumnDataReader.hpp"
-#include "HoneycombMeshGenerator.hpp"
-#include "SimulationTime.hpp"
 #include "MeshBasedTissue.cpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"

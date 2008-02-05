@@ -1,7 +1,6 @@
 #include "WntCellCycleModel.hpp"
 #include "CellMutationStates.hpp"
 #include "Exception.hpp"
-#include "WntGradient.hpp"
 #include <iostream>
 #include <cassert>
 #include <cfloat>

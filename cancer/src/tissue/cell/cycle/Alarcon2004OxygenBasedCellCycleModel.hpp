@@ -9,8 +9,6 @@
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "CancerParameters.hpp"
-#include "SimulationTime.hpp"
 #include "CellwiseData.cpp"
 
 // Needs to be included last

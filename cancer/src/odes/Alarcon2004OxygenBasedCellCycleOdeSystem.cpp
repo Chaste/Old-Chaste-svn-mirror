@@ -1,9 +1,8 @@
-#include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
-#include "CellMutationStates.hpp"
-
 #include <cmath>
 #include <cassert>
 #include <vector>
+
+#include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 
 /**
  * Constructor.

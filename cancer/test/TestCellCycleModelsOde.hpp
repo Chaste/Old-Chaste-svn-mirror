@@ -5,18 +5,16 @@
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+
 #include <fstream>
 
-#include "ConformingTetrahedralMesh.cpp"
+#include "TysonNovakCellCycleModel.hpp"
+#include "IngeWntSwatCellCycleModel.hpp"
+#include "Alarcon2004OxygenBasedCellCycleModel.hpp"
+#include "WntCellCycleModel.hpp"
+#include "StochasticWntCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
 #include "OutputFileHandler.hpp"
-#include "IngeWntSwatCellCycleModel.hpp"
-#include "StochasticWntCellCycleModel.hpp"
-#include "CancerParameters.hpp"
-#include "TysonNovakCellCycleModel.hpp"
-#include "WntCellCycleModel.hpp"
-#include "Alarcon2004OxygenBasedCellCycleModel.hpp"
-#include "WntGradient.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

@@ -4,11 +4,12 @@
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+
 #include <cmath>
 #include <vector>
+
 #include "MeinekeSpringSystemWithChemotaxis.hpp"
 #include "TrianglesMeshReader.cpp"
-#include "HoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

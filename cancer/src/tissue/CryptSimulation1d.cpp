@@ -1,16 +1,12 @@
-#include "CryptSimulation1d.hpp"
-#include "CancerParameters.hpp"
-#include "SimulationTime.hpp"
-#include "StochasticCellCycleModel.hpp"
-#include "Exception.hpp"
-#include "ColumnDataWriter.hpp"
-
-#include "CellTypes.hpp"
-
 #include <cmath>
 #include <ctime>
 #include <iostream>
 
+#include "CryptSimulation1d.hpp"
+#include "StochasticCellCycleModel.hpp"
+#include "Exception.hpp"
+#include "ColumnDataWriter.hpp"
+#include "CellTypes.hpp"
 
 /** Constructor
  *  @param rMesh

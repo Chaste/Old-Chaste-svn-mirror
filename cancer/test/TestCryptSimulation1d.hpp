@@ -2,22 +2,17 @@
 #define TESTCRYPTSIMULATION1D_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
+
 #include <cmath>
-
 #include <vector>
-#include "OutputFileHandler.hpp"
-#include "CryptSimulation1d.hpp"
 
-#include "TissueCell.hpp"
+#include "CryptSimulation1d.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-
-#include "CancerParameters.hpp"
+#include "TrianglesMeshReader.cpp"
 #include "ColumnDataReader.hpp"
-
+#include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

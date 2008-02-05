@@ -7,14 +7,12 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <fstream>
 
-#include "ConformingTetrahedralMesh.cpp"
 #include "CellsGenerator.hpp"
-#include "OutputFileHandler.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
-#include "WntGradient.hpp"
+#include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

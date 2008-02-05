@@ -1,5 +1,4 @@
 #include "StochasticCellCycleModel.hpp"
-#include "CancerParameters.hpp"
 #include "Exception.hpp"
 #include <cassert>
 #include <iostream>

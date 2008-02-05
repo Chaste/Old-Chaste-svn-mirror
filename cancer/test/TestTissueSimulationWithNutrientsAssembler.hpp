@@ -2,15 +2,16 @@
 #define _TESTTISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.cpp"
 #include <petsc.h>
-#include <pde/test/pdes/SimplePoissonEquation.hpp>
-#include "SimpleLinearEllipticAssembler.hpp"
-#include "TissueSimulationWithNutrientsAssembler.hpp"
+
 #include <vector>
 #include <cmath>
-#include "TrianglesMeshReader.cpp"
+#include <pde/test/pdes/SimplePoissonEquation.hpp>
 
+#include "ConformingTetrahedralMesh.cpp"
+#include "SimpleLinearEllipticAssembler.hpp"
+#include "TissueSimulationWithNutrientsAssembler.hpp"
+#include "TrianglesMeshReader.cpp"
 #include "PetscSetupAndFinalize.hpp"
 
 class TestTissueSimulationWithNutrientsAssembler : public CxxTest::TestSuite

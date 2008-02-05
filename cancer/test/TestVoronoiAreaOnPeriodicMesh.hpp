@@ -7,7 +7,6 @@
 #include "VoronoiTessellation.cpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "CancerParameters.hpp"
 #include "Exception.hpp"
 #include "TrianglesMeshWriter.cpp"
 

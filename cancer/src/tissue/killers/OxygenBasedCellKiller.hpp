@@ -3,8 +3,6 @@
 
 #include "AbstractCellKiller.hpp"
 #include "CancerParameters.hpp"
-#include "SimulationTime.hpp"
-#include "MeshBasedTissue.cpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

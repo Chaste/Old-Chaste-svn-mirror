@@ -1,12 +1,11 @@
 #ifndef CRYPTHONEYCOMBMESHGENERATOR_HPP_
 #define CRYPTHONEYCOMBMESHGENERATOR_HPP_
 
-#include "Cylindrical2dMesh.cpp"
-#include "NodeMap.hpp"
-#include "TrianglesMeshReader.cpp"
 #include <cmath>
-
 #include <vector>
+
+#include "Cylindrical2dMesh.cpp"
+#include "TrianglesMeshReader.cpp"
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"

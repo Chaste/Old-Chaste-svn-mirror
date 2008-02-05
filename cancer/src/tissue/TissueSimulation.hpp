@@ -5,18 +5,13 @@
 #include <boost/serialization/vector.hpp> // for archiving std::vector
 #include <boost/serialization/string.hpp>
 
-#include "ColumnDataWriter.hpp"
-#include "TissueCell.hpp"
-#include "ConformingTetrahedralMesh.cpp"
-#include "CancerParameters.hpp"
-#include "RandomCellKiller.hpp"
-#include "TrianglesMeshReader.cpp"
-#include "MeshBasedTissue.cpp"
-#include "TissueVoronoiDataWriter.hpp"
 #include <vector>
-
-#include "AbstractDiscreteTissueMechanicsSystem.hpp"
+#include "MeshBasedTissue.cpp"
+#include "AbstractCellKiller.hpp"
 #include "Meineke2001SpringSystem.hpp"
+#include "TrianglesMeshReader.cpp"
+#include "ColumnDataWriter.hpp"
+#include "TissueVoronoiDataWriter.hpp"
 #include "CancerEventHandler.hpp"
 
 /**

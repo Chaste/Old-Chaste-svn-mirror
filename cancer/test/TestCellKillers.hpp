@@ -5,13 +5,11 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
 #include <cmath>
 #include <vector>
-#include "OutputFileHandler.hpp"
-#include "ColumnDataReader.hpp"
+
 #include "TissueCell.hpp"
+#include "CellsGenerator.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
@@ -21,9 +19,9 @@
 #include "RadialSloughingCellKiller.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "CellwiseData.cpp"
-#include "RandomNumberGenerator.hpp"
-#include "HoneycombMeshGenerator.hpp"
-#include "CellsGenerator.hpp"
+#include "TrianglesMeshReader.cpp"
+#include "ColumnDataReader.hpp"
+#include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

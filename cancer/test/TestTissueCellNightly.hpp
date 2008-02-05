@@ -7,16 +7,14 @@
 
 #include <fstream>
 
-#include "OutputFileHandler.hpp"
+#include "TissueCell.hpp"
 #include "CellTypes.hpp"
 #include "CellMutationStates.hpp"
-#include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-#include "CancerParameters.hpp"
-#include "SimulationTime.hpp"
+#include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include <iostream>
 

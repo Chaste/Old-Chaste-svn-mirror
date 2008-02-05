@@ -4,23 +4,18 @@
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
+
 #include <cmath>
 #include <vector>
-#include "MeshBasedTissue.cpp"
+
 #include "CryptStatistics.hpp"
 #include "CryptSimulation2d.hpp"
-#include "OutputFileHandler.hpp"
-#include "TissueCell.hpp"
-#include "CancerParameters.hpp"
-#include "ColumnDataReader.hpp"
-#include "HoneycombMeshGenerator.hpp"
-#include "SimulationTime.hpp"
-#include "SloughingCellKiller.hpp"
 #include "CellsGenerator.hpp"
+#include "SloughingCellKiller.hpp"
+#include "TrianglesMeshReader.cpp"
+#include "ColumnDataReader.hpp"
 #include "SimpleDataWriter.hpp"
-
+#include "OutputFileHandler.hpp"
 
 /**
  * Note that all these tests call setUp() and tearDown() before running,

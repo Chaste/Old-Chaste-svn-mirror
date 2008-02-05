@@ -3,8 +3,8 @@
 
 #include <cxxtest/TestSuite.h>
 #include <cmath>
+
 #include "AbstractCellCycleModel.hpp"
-#include "CancerParameters.hpp"
 
 void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel, double g1Duration)
 {   

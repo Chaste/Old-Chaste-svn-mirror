@@ -314,89 +314,6 @@ public:
         TS_ASSERT_EQUALS(simple_tissue.GetNumNodes(), 82u);
         TS_ASSERT_EQUALS(simple_tissue.GetNumRealCells(), 82u);
     }
-      
-    void TestSimpleTissueOutputWriters()
-    {        
-        // Create a simple mesh
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        // Get node vector from mesh
-        std::vector<Node<2> > nodes = SetUpNodes(&mesh);
-                
-        // Set up cells, one for each node. Get each a birth time of -node_index,
-        // so the age = node_index
-        std::vector<TissueCell> cells = SetUpCells(&mesh);
-
-        // Create a tissue
-        SimpleTissue<2> simple_tissue(nodes, cells);
-        
-        // For coverage of WriteResultsToFiles()
-        simple_tissue.rGetCellAtNodeIndex(0).SetCellType(TRANSIT);
-        simple_tissue.rGetCellAtNodeIndex(0).SetMutationState(LABELLED);
-        simple_tissue.rGetCellAtNodeIndex(1).SetCellType(DIFFERENTIATED);
-        simple_tissue.rGetCellAtNodeIndex(1).SetMutationState(APC_ONE_HIT);
-        simple_tissue.rGetCellAtNodeIndex(2).SetMutationState(APC_TWO_HIT);
-        simple_tissue.rGetCellAtNodeIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
-        simple_tissue.rGetCellAtNodeIndex(4).StartApoptosis();
-
-        std::string output_directory = "TestSimpleTissueWriters";
-        OutputFileHandler output_file_handler(output_directory, false);
-        
-        TS_ASSERT_THROWS_NOTHING(simple_tissue.CreateOutputFiles(output_directory, false, true));
-        
-        simple_tissue.WriteResultsToFiles(true);                         
-
-        TS_ASSERT_THROWS_NOTHING(simple_tissue.CloseOutputFiles());
-        
-        // Compare output with saved files of what they should look like                           
-        std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestSimpleTissueWriters/results.viznodes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "celltypes.dat     cancer/test/data/TestSimpleTissueWriters/celltypes.dat").c_str()), 0);
-        
-        // Test the GetCellTypeCount function
-        c_vector<unsigned,5> cell_types = simple_tissue.GetCellTypeCount();
-        for (unsigned i=1; i<5; i++)
-        {
-            TS_ASSERT_EQUALS(cell_types[i], 1u);
-        }         
-    }    
-    
-    void TestGetLocationOfCell() throw (Exception)
-    {        
-        // Create a simple mesh
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        // Get node vector from mesh
-        std::vector<Node<2> > nodes = SetUpNodes(&mesh);
-                
-        // Set up cells, one for each node. Get each a birth time of -node_index,
-        // so the age = node_index
-        std::vector<TissueCell> cells = SetUpCells(&mesh);
-                
-        // Create a tissue
-        SimpleTissue<2> simple_tissue(nodes, cells);
-                
-        // Loop over nodes
-        for (SimpleTissue<2>::Iterator cell_iter = simple_tissue.Begin();
-             cell_iter != simple_tissue.End();
-             ++cell_iter)
-        {
-            // Record node location
-            c_vector<double , 2> node_location = cell_iter.GetNode()->rGetLocation();
-            
-            // Get cell at each node
-            TissueCell& r_cell = simple_tissue.rGetCellAtNodeIndex(cell_iter.GetNode()->GetIndex());      
-            
-            // Test GetLocationOfCell()
-            TS_ASSERT_DELTA(node_location[0] , simple_tissue.GetLocationOfCell(r_cell)[0] , 1e-9);
-            TS_ASSERT_DELTA(node_location[1] , simple_tissue.GetLocationOfCell(r_cell)[1] , 1e-9);
-        }
-    }
     
     void TestSettingCellAncestors() throw (Exception)
     {        
@@ -445,6 +362,92 @@ public:
         TS_ASSERT_EQUALS(remaining_ancestors.size(), 1u);
     }
     
+    void TestGetLocationOfCell() throw (Exception)
+    {        
+        // Create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Get node vector from mesh
+        std::vector<Node<2> > nodes = SetUpNodes(&mesh);
+                
+        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // so the age = node_index
+        std::vector<TissueCell> cells = SetUpCells(&mesh);
+                
+        // Create a tissue
+        SimpleTissue<2> simple_tissue(nodes, cells);
+                
+        // Loop over nodes
+        for (SimpleTissue<2>::Iterator cell_iter = simple_tissue.Begin();
+             cell_iter != simple_tissue.End();
+             ++cell_iter)
+        {
+            // Record node location
+            c_vector<double , 2> node_location = cell_iter.GetNode()->rGetLocation();
+            
+            // Get cell at each node
+            TissueCell& r_cell = simple_tissue.rGetCellAtNodeIndex(cell_iter.GetNode()->GetIndex());      
+            
+            // Test GetLocationOfCell()
+            TS_ASSERT_DELTA(node_location[0] , simple_tissue.GetLocationOfCell(r_cell)[0] , 1e-9);
+            TS_ASSERT_DELTA(node_location[1] , simple_tissue.GetLocationOfCell(r_cell)[1] , 1e-9);
+        }
+    }
+      
+    void TestSimpleTissueOutputWriters()
+    {        
+        // Create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Get node vector from mesh
+        std::vector<Node<2> > nodes = SetUpNodes(&mesh);
+                
+        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // so the age = node_index
+        std::vector<TissueCell> cells = SetUpCells(&mesh);
+
+        // Create a tissue
+        SimpleTissue<2> simple_tissue(nodes, cells);
+        
+        // For coverage of WriteResultsToFiles()
+        simple_tissue.rGetCellAtNodeIndex(0).SetCellType(TRANSIT);
+        simple_tissue.rGetCellAtNodeIndex(0).SetMutationState(LABELLED);
+        simple_tissue.rGetCellAtNodeIndex(1).SetCellType(DIFFERENTIATED);
+        simple_tissue.rGetCellAtNodeIndex(1).SetMutationState(APC_ONE_HIT);
+        simple_tissue.rGetCellAtNodeIndex(2).SetMutationState(APC_TWO_HIT);
+        simple_tissue.rGetCellAtNodeIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
+        simple_tissue.rGetCellAtNodeIndex(4).StartApoptosis();
+        
+        std::string output_directory = "TestSimpleTissueWriters";
+        OutputFileHandler output_file_handler(output_directory, false);
+        
+        TS_ASSERT_THROWS_NOTHING(simple_tissue.CreateOutputFiles(output_directory, false, true));
+        
+        simple_tissue.WriteResultsToFiles(true);     
+
+        TS_ASSERT_THROWS_NOTHING(simple_tissue.CloseOutputFiles());
+        
+        // Compare output with saved files of what they should look like                           
+        std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestSimpleTissueWriters/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "celltypes.dat     cancer/test/data/TestSimpleTissueWriters/celltypes.dat").c_str()), 0);
+        
+        // Test the GetCellTypeCount function
+        c_vector<unsigned,5> cell_types = simple_tissue.GetCellTypeCount();
+        for (unsigned i=1; i<5; i++)
+        {
+            TS_ASSERT_EQUALS(cell_types[i], 1u);
+        }
+        
+        // For coverage
+        simple_tissue.SetCellAncestorsToNodeIndices();
+        TS_ASSERT_THROWS_NOTHING(simple_tissue.WriteResultsToFiles(true));
+    }    
     
 //    void TestArchivingTissue() throw (Exception)
 //    {    

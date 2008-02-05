@@ -2,7 +2,6 @@
 #define SIMPLEOXYGENBASEDCELLCYCLEMODEL_HPP_
 
 #include "AbstractSimpleCellCycleModel.hpp"
-#include "CancerParameters.hpp"
 #include "CellwiseData.cpp"
 
 /**

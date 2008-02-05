@@ -1,31 +1,26 @@
 #ifndef TESTARCHIVEFORMAT_HPP_
 #define TESTARCHIVEFORMAT_HPP_
 
-
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include "CryptSimulation2d.hpp"
 
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
 #include <cmath>
 #include <vector>
-#include "OutputFileHandler.hpp"
+
+#include "CryptSimulation2d.hpp"
+#include "HoneycombMeshGenerator.hpp"
+#include "SloughingCellKiller.hpp"
 #include "TissueCell.hpp"
-#include "WntCellCycleModel.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-#include "StochasticCellCycleModel.hpp"
-#include "CancerParameters.hpp"
+#include "TrianglesMeshReader.cpp"
 #include "ColumnDataReader.hpp"
-#include "HoneycombMeshGenerator.hpp"
-#include "SimulationTime.hpp"
-#include "AbstractCellKiller.hpp"
-#include "SloughingCellKiller.hpp"
+#include "OutputFileHandler.hpp"
+
 
 class TestArchiveFormat : public CxxTest::TestSuite
 {

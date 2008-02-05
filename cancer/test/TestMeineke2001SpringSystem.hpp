@@ -4,20 +4,19 @@
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+
 #include <cmath>
 #include <vector>
+
 #include "Meineke2001SpringSystem.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "CellsGenerator.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-#include "WntCellCycleOdeSystem.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-#include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
-#include "WntGradient.hpp"
 #include "VoronoiTessellation.cpp"
-#include "CellsGenerator.hpp"
+#include "TrianglesMeshReader.cpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

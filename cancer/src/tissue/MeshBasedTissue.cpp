@@ -2,7 +2,6 @@
 #define MESHBASEDTISSUE_CPP
 
 #include "MeshBasedTissue.hpp"
-#include "CancerParameters.hpp"
 
 ///\todo: Make this constructor take in ghost nodes, and validate the three objects
 // are in sync ie num cells + num ghost nodes = num_nodes ? this would mean all ghosts

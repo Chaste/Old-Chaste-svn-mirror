@@ -2,6 +2,7 @@
 #define TESTPDEONFLAGGEDMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include "HoneycombMeshGenerator.hpp"
 #include "ParabolicFlaggedMeshAssembler.hpp"
 #include "EllipticFlaggedMeshAssembler.hpp"

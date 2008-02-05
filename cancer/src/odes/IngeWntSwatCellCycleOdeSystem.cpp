@@ -1,10 +1,9 @@
-#include "IngeWntSwatCellCycleOdeSystem.hpp"
-#include "CellMutationStates.hpp"
-
 #include <cmath>
 #include <cassert>
 #include <vector>
 #include <iostream>
+
+#include "IngeWntSwatCellCycleOdeSystem.hpp"
 
 /**
  * Constructor.

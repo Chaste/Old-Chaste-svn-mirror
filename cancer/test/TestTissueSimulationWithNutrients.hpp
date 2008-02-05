@@ -13,12 +13,11 @@
 #include <iostream>
 
 #include "TissueSimulationWithNutrients.cpp"
-#include "HoneycombMeshGenerator.hpp"
 #include "FixedCellCycleModel.hpp"
-#include "ColumnDataReader.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
+#include "ColumnDataReader.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 class SimplePdeForTesting : public AbstractLinearEllipticPde<2>

@@ -4,18 +4,19 @@
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include "TissueSimulation.cpp"
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
+
 #include <cmath>
 #include <ctime>
 #include <vector>
-#include "OutputFileHandler.hpp"
+
+#include "CryptProjectionSpringSystem.hpp"
+#include "TissueSimulation.cpp"
+#include "TrianglesMeshReader.cpp"
 #include "ColumnDataReader.hpp"
+#include "OutputFileHandler.hpp"
 #include "RadialSloughingCellKiller.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "CryptProjectionSpringSystem.hpp"
 #include "AbstractCancerTestSuite.hpp"
     
 class TestCryptProjectionSimulation : public AbstractCancerTestSuite

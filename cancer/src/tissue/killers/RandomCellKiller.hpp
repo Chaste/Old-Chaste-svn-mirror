@@ -2,7 +2,6 @@
 #define RANDOMCELLKILLER_HPP_
 
 #include "AbstractCellKiller.hpp"
-#include "MeshBasedTissue.cpp"
 #include "RandomNumberGenerator.hpp"
 
 #include <boost/serialization/access.hpp>

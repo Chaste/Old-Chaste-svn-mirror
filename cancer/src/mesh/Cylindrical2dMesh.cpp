@@ -1,8 +1,11 @@
 #ifndef _CYLINDRICAL2DMESH_CPP_
 #define _CYLINDRICAL2DMESH_CPP_
-#include "Cylindrical2dMesh.hpp"
+
 #include <math.h>
+
+#include "Cylindrical2dMesh.hpp"
 #include "TrianglesMeshWriter.cpp"
+
 /**
  * @param pElement  
  * @param rImageNodes Left or right image nodes

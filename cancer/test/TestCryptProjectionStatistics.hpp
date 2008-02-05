@@ -4,19 +4,18 @@
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
+
 #include <cmath>
 #include <vector>
+
 #include "CryptProjectionStatistics.hpp"
 #include "TissueSimulation.cpp"
-#include "OutputFileHandler.hpp"
-#include "ColumnDataReader.hpp"
-#include "HoneycombMeshGenerator.hpp"
-#include "SimulationTime.hpp"
-#include "RadialSloughingCellKiller.hpp"
 #include "CellsGenerator.hpp"
+#include "RadialSloughingCellKiller.hpp"
+#include "TrianglesMeshReader.cpp"
+#include "ColumnDataReader.hpp"
 #include "SimpleDataWriter.hpp"
+#include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

@@ -5,13 +5,14 @@
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+
 #include <cmath>
 #include <vector>
+
 #include "CryptSimulation2d.hpp"
 #include "DiscreteSystemForceCalculator.hpp"
-#include "TrianglesMeshReader.cpp"
-#include "HoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
+#include "TrianglesMeshReader.cpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

@@ -4,20 +4,21 @@
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include "CryptSimulation2d.hpp"
+
 #include <cmath>
 #include <ctime>
 #include <vector>
-#include "OutputFileHandler.hpp"
+
+#include "CryptSimulation2d.hpp"
+#include "CellsGenerator.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
-#include "WntCellCycleModel.hpp"
-#include "WntCellCycleOdeSystem.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-#include "ColumnDataReader.hpp"
-#include "HoneycombMeshGenerator.hpp"
+#include "WntCellCycleModel.hpp"
+#include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
-#include "CellsGenerator.hpp"
+#include "ColumnDataReader.hpp"
+#include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

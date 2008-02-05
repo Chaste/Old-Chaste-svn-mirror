@@ -7,14 +7,13 @@
 
 #include <cmath>
 #include <vector>
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
-#include "OutputFileHandler.hpp"
+
 #include "MeshBasedTissue.cpp"
-#include "HoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
+#include "TrianglesMeshReader.cpp"
+#include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

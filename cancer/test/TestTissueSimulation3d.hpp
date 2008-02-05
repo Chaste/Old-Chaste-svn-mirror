@@ -2,21 +2,17 @@
 #define TESTTISSUESIMULATION3D_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "TissueSimulation.cpp"
 
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
-#include "TrianglesMeshWriter.cpp"
 #include <cmath>
 #include <ctime>
 #include <vector>
-#include "OutputFileHandler.hpp"
-#include "CancerParameters.hpp"
-#include "NodeMap.hpp"
-#include "TissueCell.hpp"
+
+#include "TissueSimulation.cpp"
 #include "FixedCellCycleModel.hpp"
+#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshWriter.cpp"
 #include "ColumnDataReader.hpp"
-#include "SimulationTime.hpp"
+#include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 
