@@ -1,13 +1,13 @@
-#ifndef TESTFIBREORIENTATIONTENSORS_HPP_
-#define TESTFIBREORIENTATIONTENSORS_HPP_
+#ifndef TESTELEMENTWISECONDUCTIVITYTENSORS_HPP_
+#define TESTELEMENTWISECONDUCTIVITYTENSORS_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "ElementwiseConductivityTensors.hpp"
 
-class TestFibreOrientationTensors : public CxxTest::TestSuite
+class TestElementwiseConductivityTensors : public CxxTest::TestSuite
 {
 public:
-    void TestConstTensor()
+    void TestConstantTensor()
     {
         double longitudinal_const = 2.1;
         double transverse_const = 0.135;        
