@@ -59,12 +59,8 @@ public:
      */
     void Validate();
     
-    void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes);
-    
     void WriteResultsToFiles(bool OutputCellTypes);
-    
-    void CloseOutputFiles();
-    
+        
     std::vector<Node<DIM> >& rGetNodes();
     
     /** 
@@ -83,25 +79,7 @@ public:
      * Update the correspondence between nodes and cells.
      */
     void UpdateNodeCellMap();
-        
-    /** 
-     * Get the number of real cells.
-     */
-    unsigned GetNumRealCells();
-            
-    /** 
-     * Sets the Ancestor index of all the cells at this time to be the
-     * same as their node index, can be used to trace clonal populations.
-     */   
-    void SetCellAncestorsToNodeIndices();
-        
-    /**
-     * Loops over cells and makes a list of the ancestors that 
-     * are part of the tissue.
-     * @return remaining_ancestors  The size of this set tells you how many clonal populations remain. 
-     */
-    std::set<unsigned> GetCellAncestors();
-    
+
     /** 
      * Remove the node with a given index.
      */

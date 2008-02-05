@@ -12,11 +12,10 @@ MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh
                   const std::vector<TissueCell>& rCells,
                   bool deleteMesh)
              : AbstractTissue<DIM>(rCells),
-               mrMesh(rMesh)
+               mrMesh(rMesh),
+               mpVoronoiTessellation(NULL),
+               mDeleteMesh(deleteMesh)
 {
-    mpVoronoiTessellation = NULL;
-    
-    mDeleteMesh = deleteMesh;
     mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
 
     // This must always be true    
@@ -255,7 +254,6 @@ void MeshBasedTissue<DIM>::UpdateGhostPositions(double dt)
     }
 }
 
-
 /**
  * Calculates the force between two nodes.
  * 
@@ -400,17 +398,6 @@ void MeshBasedTissue<DIM>::ReMesh()
 }
 
 template<unsigned DIM>
-unsigned MeshBasedTissue<DIM>::GetNumRealCells()
-{
-	unsigned counter = 0;
-	for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
-	{
-		counter++;
-	}
-	return counter;
-}
-
-template<unsigned DIM>
 Node<DIM>* MeshBasedTissue<DIM>::GetNode(unsigned index)
 {
     return rGetMesh().GetNode(index);
@@ -420,15 +407,6 @@ template<unsigned DIM>
 unsigned MeshBasedTissue<DIM>::GetNumNodes()
 {
     return rGetMesh().GetNumAllNodes();
-}
-
-template<unsigned DIM> 
-void MeshBasedTissue<DIM>::SetCellAncestorsToNodeIndices()
-{
-    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
-    {
-        cell_iter->SetAncestor(cell_iter->GetNodeIndex());
-    }
 }
 
 template<unsigned DIM> 
@@ -444,17 +422,6 @@ void MeshBasedTissue<DIM>::SetBottomCellAncestors()
     }
 }
 
-template<unsigned DIM> 
-std::set<unsigned> MeshBasedTissue<DIM>::GetCellAncestors()
-{
-    std::set<unsigned> remaining_ancestors;
-    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
-    {
-        remaining_ancestors.insert(cell_iter->GetAncestor());
-    }
-    return remaining_ancestors;
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //                             Output methods                               // 
 //////////////////////////////////////////////////////////////////////////////
@@ -462,23 +429,16 @@ std::set<unsigned> MeshBasedTissue<DIM>::GetCellAncestors()
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes)
 {
+    AbstractTissue<DIM>::CreateOutputFiles(rDirectory, rCleanOutputDirectory, outputCellTypes);
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
-    this->mpNodeFile = output_file_handler.OpenOutputFile("results.viznodes");
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
-    this->mpCellTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
-    
-    if (outputCellTypes)
-    {
-        *this->mpCellTypesFile <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
-    }
 }
 
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::CloseOutputFiles()
 {
-    this->mpNodeFile->close();
+    AbstractTissue<DIM>::CloseOutputFiles();
     mpElementFile->close();
-    this->mpCellTypesFile->close();
 }
 
 template<unsigned DIM>  

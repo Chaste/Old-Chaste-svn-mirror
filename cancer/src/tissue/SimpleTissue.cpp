@@ -177,65 +177,14 @@ void SimpleTissue<DIM>::UpdateNodeCellMap()
 }
 
 template<unsigned DIM>
-unsigned SimpleTissue<DIM>::GetNumRealCells()
-{
-    unsigned counter = 0;
-    for(typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
-    {
-        counter++;
-    }
-    return counter;
-}
-
-template<unsigned DIM>
 unsigned SimpleTissue<DIM>::GetNumNodes()
 {
     return mNodes.size();
 }
 
-template<unsigned DIM>
-void SimpleTissue<DIM>::SetCellAncestorsToNodeIndices()
-{
-    for(typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin(); cell_iter!=this->End(); ++cell_iter)
-    {
-        cell_iter->SetAncestor(cell_iter->GetNodeIndex());
-    }
-}
-
-template<unsigned DIM>
-std::set<unsigned> SimpleTissue<DIM>::GetCellAncestors()
-{
-    std::set<unsigned> remaining_ancestors;
-    for(typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin(); cell_iter!=this->End(); ++cell_iter)
-    {
-        remaining_ancestors.insert(cell_iter->GetAncestor());
-    }
-    return remaining_ancestors;
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //                             Output methods                               // 
 //////////////////////////////////////////////////////////////////////////////
-
-template<unsigned DIM>
-void SimpleTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes)
-{
-    OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
-    this->mpNodeFile = output_file_handler.OpenOutputFile("results.viznodes");
-    this->mpCellTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
-    
-    if (outputCellTypes)
-    {
-        *this->mpCellTypesFile <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
-    }
-}
-
-template<unsigned DIM>
-void SimpleTissue<DIM>::CloseOutputFiles()
-{
-    this->mpNodeFile->close();
-    this->mpCellTypesFile->close();
-}
 
 template<unsigned DIM>  
 void SimpleTissue<DIM>::WriteResultsToFiles(bool outputCellTypes)

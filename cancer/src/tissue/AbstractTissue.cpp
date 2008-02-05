@@ -46,6 +46,37 @@ const std::list<TissueCell>& AbstractTissue<DIM>::rGetCells() const
     return this->mCells;
 }
 
+template<unsigned DIM>
+unsigned AbstractTissue<DIM>::GetNumRealCells()
+{
+    unsigned counter = 0;
+    for(typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
+    {
+        counter++;
+    }
+    return counter;
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::SetCellAncestorsToNodeIndices()
+{
+    for(typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin(); cell_iter!=this->End(); ++cell_iter)
+    {
+        cell_iter->SetAncestor(cell_iter->GetNodeIndex());
+    }
+}
+
+template<unsigned DIM> 
+std::set<unsigned> AbstractTissue<DIM>::GetCellAncestors()
+{
+    std::set<unsigned> remaining_ancestors;
+    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
+    {
+        remaining_ancestors.insert(cell_iter->GetAncestor());
+    }
+    return remaining_ancestors;
+}
+
 template<unsigned DIM> 
 c_vector<unsigned,5> AbstractTissue<DIM>::GetCellTypeCount()
 {
@@ -153,7 +184,6 @@ AbstractTissue<DIM>::Iterator::Iterator(AbstractTissue& rTissue, std::list<Tissu
     }
 }
 
-
 template<unsigned DIM>
 typename AbstractTissue<DIM>::Iterator AbstractTissue<DIM>::Begin()
 {
@@ -166,6 +196,28 @@ typename AbstractTissue<DIM>::Iterator AbstractTissue<DIM>::End()
     return Iterator(*this, this->mCells.end());
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//                             Output methods                               // 
+//////////////////////////////////////////////////////////////////////////////
 
+template<unsigned DIM>
+void AbstractTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes)
+{
+    OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
+    mpNodeFile = output_file_handler.OpenOutputFile("results.viznodes");
+    mpCellTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
+    
+    if (outputCellTypes)
+    {
+        *mpCellTypesFile <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
+    }
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::CloseOutputFiles()
+{
+    mpNodeFile->close();
+    mpCellTypesFile->close();
+}
 
 #endif //ABSTRACTTISSUE_CPP

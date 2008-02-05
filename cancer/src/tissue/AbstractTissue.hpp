@@ -68,18 +68,12 @@ protected:
      *  @return number of cells removed
      */
     virtual unsigned RemoveDeadCells()=0;
-        
+    
     /**
      * Check consistency of our internal data structures.
      */
     virtual void Validate()=0;
-    
-    virtual void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes)=0;
-    
-    virtual void WriteResultsToFiles(bool OutputCellTypes)=0;
-        
-    virtual void CloseOutputFiles()=0;
-        
+            
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -127,12 +121,36 @@ public:
     virtual bool GetIsGhostNode(unsigned index);
     
     /** 
+     * Get the number of real cells.
+     */
+    unsigned GetNumRealCells();
+    
+    
+    /* Sets the Ancestor index of all the cells at this time to be the
+     * same as their node index, can be used to trace clonal populations.
+     */   
+    void SetCellAncestorsToNodeIndices();
+    
+    /**
+     * Loops over cells and makes a list of the ancestors that 
+     * are part of the tissue.
+     * @return remaining_ancestors  The size of this set tells you how many clonal populations remain. 
+     */
+    std::set<unsigned> GetCellAncestors();
+    
+    /** 
      *  Get the cell corresponding to a given node
      *
      *  Currently assumes there is one cell for each node, and they are ordered identically in their vectors. 
      *  An assertion fails if not.
      */
     TissueCell& rGetCellAtNodeIndex(unsigned index);
+    
+    virtual void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes);
+    
+    virtual void WriteResultsToFiles(bool OutputCellTypes)=0;
+        
+    virtual void CloseOutputFiles();
     
     /**
      * Iterator class allows one to iterate over cells in the tissue.

@@ -173,32 +173,16 @@ public:
     TissueCell*  AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
 
     void ReMesh();
-
-    /** Get the number of real cells, (ie non-ghost nodes) */
-    unsigned GetNumRealCells();
     
     Node<DIM>* GetNode(unsigned index);
     
     unsigned GetNumNodes();
     
     /** 
-     * Sets the Ancestor index of all the cells at this time to be the
-     * same as their node index, can be used to trace clonal populations.
-     */   
-    void SetCellAncestorsToNodeIndices();
-    
-    /** 
      * Sets the Ancestor index of all the cells at the bottom in order,
      * can be used to trace clonal populations.
      */   
     void SetBottomCellAncestors();
-    
-    /**
-     * Loops over cells and makes a list of the ancestors that 
-     * are part of the tissue.
-     * @return remaining_ancestors  The size of this set tells you how many clonal populations remain. 
-     */
-    std::set<unsigned> GetCellAncestors();
 
     /**
      * Check consistency of our internal data structures.
