@@ -496,9 +496,14 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
             {
                 colour = TRANSIT_COLOUR;
             }
-            else
+            else if (type == DIFFERENTIATED)
             {
                 colour = DIFFERENTIATED_COLOUR;
+            }
+            else
+            {
+                // Make necrotic and apoptotic cells have the same colour
+                colour = APOPTOSIS_COLOUR;
             }
             
             // Override colours for mutant or labelled cells.

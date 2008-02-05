@@ -744,9 +744,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
                     if (drawFibres)
                     {
-                        double f1= Double.valueOf(st_fibre.nextToken()).doubleValue();
-                        double f2= Double.valueOf(st_fibre.nextToken()).doubleValue();
-                        fibres[row][i]=new RealPoint(f1,f2);
+                        double f1 = Double.valueOf(st_fibre.nextToken()).doubleValue();
+                        double f2 = Double.valueOf(st_fibre.nextToken()).doubleValue();
+                        fibres[row][i] = new RealPoint(f1,f2);
                     }
                     
                     cell_type[row][i] = Integer.parseInt(st_node.nextToken());
@@ -804,10 +804,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         	skip = st_stress.nextToken(); // x
                         	skip = st_stress.nextToken(); // y
                         	
-                        	double stress_min= Double.valueOf(st_stress.nextToken()).doubleValue();
-                        	double stress_max= Double.valueOf(st_stress.nextToken()).doubleValue();
-                        	stress_values[0][index][0]= 0.5*(stress_min + stress_max);
-                        	stress_values[0][index][1]= 0.5*(stress_max - stress_min);                    	
+                        	double stress_min = Double.valueOf(st_stress.nextToken()).doubleValue();
+                        	double stress_max = Double.valueOf(st_stress.nextToken()).doubleValue();
+                        	stress_values[0][index][0] = 0.5*(stress_min + stress_max);
+                        	stress_values[0][index][1] = 0.5*(stress_max - stress_min);                    	
                     	}
                     }
                 }                
@@ -1822,15 +1822,16 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     };
     */
 
-    public static final int STEM_COLOUR=0;
-    public static final int TRANSIT_COLOUR=1;
-    public static final int DIFFERENTIATED_COLOUR=2;
-    public static final int EARLY_CANCER_COLOUR=3;
-    public static final int LATE_CANCER_COLOUR=4;
-    public static final int LABELLED_COLOUR=5;
-    public static final int APOPTOSIS_COLOUR=6;
-    public static final int INVISIBLE_COLOUR=7;
-    public static final int SPECIAL_LABEL_START=8;
+    public static final int STEM_COLOUR = 0;
+    public static final int TRANSIT_COLOUR = 1;
+    public static final int DIFFERENTIATED_COLOUR = 2;
+    public static final int EARLY_CANCER_COLOUR = 3;
+    public static final int LATE_CANCER_COLOUR = 4;
+    public static final int LABELLED_COLOUR = 5;
+    public static final int APOPTOSIS_COLOUR = 6;
+    public static final int INVISIBLE_COLOUR = 7;
+    public static final int SPECIAL_LABEL_START = 8;
+    
     void SetCellColour(int index)
     {
     	if (vis.drawNutrient)

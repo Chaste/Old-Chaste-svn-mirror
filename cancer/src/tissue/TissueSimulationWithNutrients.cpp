@@ -65,6 +65,7 @@ void TissueSimulationWithNutrients<DIM>::AfterSolve()
         
         if (mWriteAverageRadialNutrientResults)
         {
+            WriteAverageRadialNutrientDistribution(SimulationTime::Instance()->GetDimensionalisedTime(), mNumRadialIntervals);
             mpAverageRadialNutrientResultsFile->close();
         }
     }
