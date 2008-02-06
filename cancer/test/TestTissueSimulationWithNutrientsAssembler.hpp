@@ -1,6 +1,7 @@
 #ifndef _TESTTISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_
 #define _TESTTISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_
 
+#include "UblasCustomFunctions.hpp"
 #include <cxxtest/TestSuite.h>
 #include <petsc.h>
 
