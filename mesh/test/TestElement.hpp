@@ -49,6 +49,8 @@ public:
         {
             delete corner_nodes[i];
         }
+        
+        TS_ASSERT_DELTA(element.GetVolume(), 1.0/6.0,1e-5);
     }
     
     
@@ -116,7 +118,7 @@ public:
         Element<1,1> element1d(INDEX_IS_NOT_USED, nodes1d);
         const c_matrix<double, 1, 1> *J1d = element1d.GetJacobian();
         TS_ASSERT_DELTA((*J1d)(0,0), 0.5, 1e-12);
-        
+        TS_ASSERT_DELTA(element1d.GetVolume(), 0.5,1e-5);
         double Det1d = element1d.GetJacobianDeterminant();
         TS_ASSERT_DELTA(Det1d, 0.5, 1e-12);
         const c_matrix<double, 1, 1> *J1dinv = element1d.GetInverseJacobian();
@@ -136,7 +138,7 @@ public:
         TS_ASSERT_DELTA((*J2d)(0,1), 0.0, 1e-12);
         TS_ASSERT_DELTA((*J2d)(1,0), 0.0, 1e-12);
         TS_ASSERT_DELTA((*J2d)(1,1), 1.0, 1e-12);
-        
+        TS_ASSERT_DELTA(element2d.GetVolume(), 0.5 ,1e-5);
         delete nodes2d[0];
         delete nodes2d[1];
         delete nodes2d[2];

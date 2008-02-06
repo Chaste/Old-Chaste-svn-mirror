@@ -166,6 +166,23 @@ public:
         return mJacobianDeterminant;
     }
     
+    /** Get the volume of an element (or area in 2d, or length in 1d) */
+    double GetVolume(void) const
+    {
+        assert(SPACE_DIM == ELEMENT_DIM);
+        double scale_factor = 1.0;
+        
+        if (ELEMENT_DIM == 2)
+        {
+            scale_factor = 2.0;  // both the volume of the canonical triangle is 0.5 
+        }
+        else if (ELEMENT_DIM == 3)
+        {
+            scale_factor=  6.0; // both the volume of the canonical triangle is 1/6
+        }
+        return mJacobianDeterminant/scale_factor;
+    }
+    
     c_vector<double, SPACE_DIM> *pGetWeightedDirection(void)
     {
         if (ELEMENT_DIM >= SPACE_DIM)

@@ -11,6 +11,66 @@
 #include "CellwiseData.cpp"
 #include "PetscTools.hpp"
 
+/** A pde which calculates the source term by adding the number of cells
+ *  in the element containing that point and scaling by the element area
+ */
+template<unsigned DIM>
+class AveragedSinksPde : public AbstractLinearEllipticPde<DIM>
+{
+private:
+    MeshBasedTissue<DIM>& mrTissue;
+    double mCoefficient;
+    std::vector<double> mCellDensityOnCoarseElements;
+
+public:
+    AveragedSinksPde(MeshBasedTissue<DIM>& rTissue, double coefficient)
+        : mrTissue(rTissue),
+          mCoefficient(coefficient)
+    {
+    }
+
+    void SetupSourceTerms(ConformingTetrahedralMesh<DIM,DIM>& rCoarseMesh) // must be called before solve
+    {
+        // allocate memory
+        mCellDensityOnCoarseElements.resize(rCoarseMesh.GetNumNodes());
+        for(unsigned elem_index=0; elem_index<mCellDensityOnCoarseElements.size(); elem_index++)
+        {
+            mCellDensityOnCoarseElements[elem_index]=0.0;
+        } 
+        //loop over cells, find which coarse element it is in, and add 1 to the mSourceTermOnCoarseElements[elem_index];
+        for(typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+            cell_iter != mrTissue.End();
+            ++cell_iter)
+        {
+            const ChastePoint<DIM>& r_position_of_cell = cell_iter.rGetLocation();
+            unsigned elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
+            mCellDensityOnCoarseElements[elem_index] += 1.0;
+        }    
+        
+        // then divide each entry of mSourceTermOnCoarseElements by the element's area
+        for(unsigned elem_index=0; elem_index<mCellDensityOnCoarseElements.size(); elem_index++)
+        {
+            mCellDensityOnCoarseElements[elem_index]/= rCoarseMesh.GetElement(elem_index)->GetVolume();
+        }
+    
+    }
+
+    double ComputeConstantInUSourceTerm(const ChastePoint<DIM>& x)
+    {
+        return 0.0;
+    }
+    
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x) //, const Element<DIM>& rElement) // now takes in element
+    {
+        return mCoefficient*mCellDensityOnCoarseElements[0] ;//rElement.GetIndex()];
+    }
+   
+    c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& )
+    {
+        return identity_matrix<double>(DIM);
+    }   
+};
+
 template<unsigned DIM>
 class TissueSimulationWithNutrients : public TissueSimulation<DIM>
 {
@@ -40,7 +100,12 @@ private :
     /** 
      * Pointer to the PDE satisfied by the nutrient. 
      */ 
-    AbstractLinearEllipticPde<DIM>* mpPde;  
+    AbstractLinearEllipticPde<DIM>* mpPde;
+    
+    /** 
+     * Pointer to the averaged sink PDE satisfied by the nutrient. 
+     */ 
+    AveragedSinksPde<DIM>* mpAveragedSinksPde;  
 
     /** 
      * File that the nutrient values are written out to. 
@@ -71,7 +136,7 @@ private :
     /**
      * Coarse nutrient mesh on which to solve the nutrient PDE.
      */
-    ConformingTetrahedralMesh<2,2>* mpCoarseNutrientMesh;
+    ConformingTetrahedralMesh<DIM,DIM>* mpCoarseNutrientMesh;
     
     /**
      * Overridden SetupSolve() method. 
@@ -102,6 +167,8 @@ private :
      * Solve the nutrient PDE. 
      */
     void SolveNutrientPde();
+    
+    void SolveNutrientPdeUsingCoarseMesh();
 
     /**
      * Overridden PostSolve() method. 
@@ -124,17 +191,21 @@ public:
      * Constructor
      * 
      * @param rTissue A tissue facade class (contains a mesh and cells)
+     * @
      * @param deleteTissue whether to delete the tissue on destruction to free up memory
      * @param initialiseCells whether to initialise cells (set to false when loading from an archive)
+     * 
      */
      TissueSimulationWithNutrients(MeshBasedTissue<DIM>& rTissue,
                                    AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
                                    AbstractLinearEllipticPde<DIM>* pPde=NULL,
+                                   AveragedSinksPde<DIM>* pAveragedSinksPde = NULL,
                                    bool deleteTissue=false,
                                    bool initialiseCells=true)
         : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissue, initialiseCells),
           mNutrientSolution(NULL),
           mpPde(pPde),
+          mpAveragedSinksPde(pAveragedSinksPde),
           mWriteAverageRadialNutrientResults(false),
           mWriteDailyAverageRadialNutrientResults(false),
           mpCoarseNutrientMesh(NULL)
@@ -167,6 +238,16 @@ public:
     void SetPde(AbstractLinearEllipticPde<DIM>* pPde)
     {
         mpPde = pPde;
+    }
+    
+    /**
+     * A small hack until we fully archive this class - 
+     * needed to set the PDE after loading a simulation 
+     * from an archive.
+     */
+    void SetAveragedSinksPde(AveragedSinksPde<DIM>* pAveragedSinksPde)
+    {
+        mpAveragedSinksPde = pAveragedSinksPde;
     }
     
     /**
@@ -255,7 +336,7 @@ inline void load_construct_data(
     ar >> p_spring_system;
     
     // Invoke inplace constructor to initialize instance
-    ::new(t)TissueSimulationWithNutrients<DIM>(*p_tissue, p_spring_system, NULL, true, false);
+    ::new(t)TissueSimulationWithNutrients<DIM>(*p_tissue, p_spring_system, NULL,NULL, true, false);
 }
 }
 } // namespace ...

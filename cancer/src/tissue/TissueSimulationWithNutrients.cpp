@@ -5,6 +5,7 @@
 #include <boost/archive/text_iarchive.hpp>
 
 #include "TissueSimulationWithNutrients.hpp"
+#include "SimpleLinearEllipticAssembler.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 //                          Setup/AfterSolve methods                        //
@@ -39,6 +40,7 @@ void TissueSimulationWithNutrients<DIM>::SetupWriteNutrient()
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::UseCoarseNutrientMesh(double coarseGrainScaleFactor)
 {
+    assert(mpAveragedSinksPde);
     CreateCoarseNutrientMesh(coarseGrainScaleFactor);
 }    
 
@@ -47,6 +49,9 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
 {
     // Set up coarse nutrient mesh
 //    \todo: we could instead use the disk with 984 elements etc.
+//    \todo: translate the mesh so it's centre is over the centre of the 
+//           cells - could then also automatically calculate the scale 
+//           factor from the initial dimensions of the cells and the end time
     TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
     mpCoarseNutrientMesh = new ConformingTetrahedralMesh<2,2>;
     mpCoarseNutrientMesh->ConstructFromMeshReader(mesh_reader);
@@ -78,6 +83,12 @@ void TissueSimulationWithNutrients<DIM>::AfterSolve()
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
 {
+    if(mpCoarseNutrientMesh!=NULL)
+    {
+        SolveNutrientPdeUsingCoarseMesh();
+        return ;
+    }
+    assert(mpAveragedSinksPde == NULL);
     assert(mpPde);
     
     ConformingTetrahedralMesh<DIM,DIM>& r_mesh = this->mrTissue.rGetMesh();
@@ -134,45 +145,6 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
 
     ReplicatableVector result_repl(mNutrientSolution);
 
-////  Uncomment this for non-linear pdes and find&replace Linear for NonLinear
-//
-//        SimpleNonlinearEllipticAssembler<DIM,DIM> assembler(&r_mesh, mpPde, &bcc);
-//        
-//        // We cannot use the exact previous solution as initial guess 
-//        // as the size may be different (due to cell birth/death)
-//        Vec initial_guess;
-//        
-//        // If we have a previous solution, then use this as the basis 
-//        // for the initial guess
-//        if (mNutrientSolution)
-//        {
-//            // Get the size of the previous solution
-//            PetscInt isize;
-//            VecGetSize(mNutrientSolution, &isize);
-//            unsigned size_of_previous_solution = isize;
-//            
-//            if (size_of_previous_solution != r_mesh.GetNumNodes() )
-//            {
-//                initial_guess = assembler.CreateConstantInitialGuess(1.0);
-//            }
-//            else
-//            {
-//                VecDuplicate(mNutrientSolution, &initial_guess);
-//                VecCopy(mNutrientSolution, initial_guess);
-//            }
-//            // Free memory
-//            VecDestroy(mNutrientSolution);
-//        }
-//        else
-//        {
-//            initial_guess = assembler.CreateConstantInitialGuess(1.0);
-//        }
-//        
-//        // Solve the nutrient PDE
-//        mNutrientSolution = assembler.Solve(initial_guess);
-//        VecDestroy(initial_guess);
-//        ReplicatableVector result_repl(mNutrientSolution);
-
     // Update cellwise data
     for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
     {
@@ -180,6 +152,91 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
         CellwiseData<DIM>::Instance()->SetValue(oxygen_conc, r_mesh.GetNode(i));
     }
 }
+
+template<unsigned DIM>
+void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
+{
+    assert(mpPde==NULL);
+    assert(mpAveragedSinksPde);
+    
+    ConformingTetrahedralMesh<DIM,DIM>& r_mesh = *mpCoarseNutrientMesh;
+    CellwiseData<DIM>::Instance()->ReallocateMemory();
+
+    // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
+    std::set<unsigned> ghost_node_indices = this->mrTissue.GetGhostNodeIndices();
+    assert(ghost_node_indices.size()==0);
+            
+    // Set up boundary conditions
+    BoundaryConditionsContainer<DIM,DIM,1> bcc;
+    ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
+    for (typename ConformingTetrahedralMesh<DIM,DIM>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
+         node_iter != r_mesh.GetBoundaryNodeIteratorEnd();
+         ++node_iter)
+    {
+        bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
+    }
+    
+    PetscInt size_of_soln_previous_step = 0;
+    
+    if(mNutrientSolution)
+    {
+        VecGetSize(mNutrientSolution, &size_of_soln_previous_step);
+    }
+    
+    mpAveragedSinksPde->SetupSourceTerms(*mpCoarseNutrientMesh);
+    
+    SimpleLinearEllipticAssembler<DIM,DIM> assembler(mpCoarseNutrientMesh, mpAveragedSinksPde, &bcc);
+    
+    if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
+    {
+        // We make an initial guess which gets copied by the Solve method of
+        // SimpleLinearSolver, so we need to delete it too.
+        Vec initial_guess;
+        VecDuplicate(mNutrientSolution, &initial_guess);
+        VecCopy(mNutrientSolution, initial_guess);
+        
+        // Use current solution as the initial guess
+        VecDestroy(mNutrientSolution);    // Solve method makes its own mNutrientSolution
+        mNutrientSolution = assembler.Solve(initial_guess);
+        VecDestroy(initial_guess);
+    }
+    else
+    {
+        if (mNutrientSolution)
+        {
+            VecDestroy(mNutrientSolution);
+        }
+        mNutrientSolution = assembler.Solve();
+    }            
+
+    
+    // Update cellwise data - since the cells are not nodes on the coarse
+    // mesh we have to interpolate from the nodes of the coarse mesh onto
+    // the cell locations
+    ReplicatableVector nutrient_repl(mNutrientSolution);
+
+    for(typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+        cell_iter != this->mrTissue.End();
+        ++cell_iter)
+    {
+        const ChastePoint<DIM>& r_position_of_cell = cell_iter.rGetLocation();
+        unsigned elem_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_position_of_cell);
+
+        Element<DIM,DIM>* p_element = mpCoarseNutrientMesh->GetElement(elem_index);
+    
+        c_vector<double,DIM+1> weights = p_element->CalculateInterpolationWeights(r_position_of_cell);
+         
+        double interpolated_nutrient = 0.0;
+        for(unsigned i=0; i<DIM+1/*num_nodes*/; i++)
+        {         
+            double nodal_value = nutrient_repl[ p_element->GetNodeGlobalIndex(i) ];
+            interpolated_nutrient += nodal_value*weights(i);
+        }
+    
+        CellwiseData<DIM>::Instance()->SetValue( interpolated_nutrient, cell_iter.GetNode() );
+    }
+}
+
 
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::PostSolve()

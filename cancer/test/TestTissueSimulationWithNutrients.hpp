@@ -599,23 +599,25 @@ public:
         }
         
         // Set up PDE
-        CoarseNutrientMeshPde pde(tissue);
+        AveragedSinksPde<2> pde(tissue, 0.1);
 
         Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
         p_spring_system->UseCutoffPoint(1.5);
                   
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system,NULL, &pde);
         simulator.SetOutputDirectory("TestCoarseNutrientMesh");
         simulator.SetEndTime(0.5);
         
         // Set up cell killer and pass into simulation
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);
-        simulator.UseCoarseNutrientMesh(5.0);
+
+        simulator.UseCoarseNutrientMesh(10.0);
         
         // Run tissue simulation
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        //TS_ASSERT_THROWS_NOTHING(
+        simulator.Solve();//);
         TS_ASSERT(simulator.mpCoarseNutrientMesh != NULL);
         
         // Tidy up

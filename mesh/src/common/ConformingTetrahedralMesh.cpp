@@ -654,18 +654,10 @@ double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMeshVolume()
     
     while (it != GetElementIteratorEnd())
     {
-        mesh_volume += (*it)->GetJacobianDeterminant();
+        mesh_volume += (*it)->GetVolume();
         it++;
     }
     
-    if (ELEMENT_DIM == 2)
-    {
-        mesh_volume /= 2.0;
-    }
-    else if (ELEMENT_DIM == 3)
-    {
-        mesh_volume /= 6.0;
-    }
     return mesh_volume;
 }
 
