@@ -94,7 +94,8 @@ private:
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,2> &u,
-        c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */)
+        c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         // get bidomain parameters
         double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
@@ -153,7 +154,8 @@ private:
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,2> &u,
-        c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */)
+        c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         // get bidomain parameters
         double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();

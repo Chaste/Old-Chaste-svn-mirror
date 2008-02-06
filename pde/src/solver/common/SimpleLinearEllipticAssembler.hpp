@@ -49,15 +49,16 @@ protected:
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,1> &u,
-        c_matrix<double,1,SPACE_DIM> &rGradU)
+        c_matrix<double,1,SPACE_DIM> &rGradU,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpEllipticPde->ComputeDiffusionTerm(rX);
         
         // if statement just saves computing phi*phi^T if it is to be multiplied by zero
-        if(mpEllipticPde->ComputeLinearInUCoeffInSourceTerm(rX)!=0)
+        if(mpEllipticPde->ComputeLinearInUCoeffInSourceTerm(rX,pElement)!=0)
         {
             return   prod( trans(rGradPhi), c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) )
-                   - mpEllipticPde->ComputeLinearInUCoeffInSourceTerm(rX)*outer_prod(rPhi,rPhi);
+                   - mpEllipticPde->ComputeLinearInUCoeffInSourceTerm(rX,pElement)*outer_prod(rPhi,rPhi);
         }
         else
         {
@@ -74,7 +75,8 @@ protected:
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,1> &u,
-        c_matrix<double,1,SPACE_DIM> &rGradU)
+        c_matrix<double,1,SPACE_DIM> &rGradU,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         return mpEllipticPde->ComputeConstantInUSourceTerm(rX) * rPhi;
     }

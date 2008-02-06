@@ -85,10 +85,14 @@ public:
      */
     void AddDirichletBoundaryCondition( const Node<SPACE_DIM> *  pBoundaryNode,
                                         const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition,
-                                        unsigned indexOfUnknown=0)
+                                        unsigned indexOfUnknown=0,
+                                        bool checkIfBoundaryNode = true)
     {
         assert(indexOfUnknown < PROBLEM_DIM);
-        assert( pBoundaryNode->IsBoundaryNode() );
+        if (checkIfBoundaryNode)
+        {
+            assert( pBoundaryNode->IsBoundaryNode());
+        }
         
         (*(this->mpDirichletMap[indexOfUnknown]))[pBoundaryNode] = pBoundaryCondition;
     }

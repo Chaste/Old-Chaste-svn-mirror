@@ -54,7 +54,7 @@ public:
         return -1;
     }
     
-    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& )
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>&, Element<2,2>* )
     {
         return 0.0;
     }    

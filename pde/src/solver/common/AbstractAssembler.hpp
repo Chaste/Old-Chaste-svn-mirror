@@ -86,7 +86,8 @@ protected:
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,PROBLEM_DIM> &u,
-        c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU)=0;
+        c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)=0;
         
         
     /**
@@ -112,7 +113,8 @@ protected:
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,PROBLEM_DIM> &u,
-        c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU)=0;
+        c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)=0;
         
         
         

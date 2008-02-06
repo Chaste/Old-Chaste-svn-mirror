@@ -30,7 +30,7 @@ public:
         return x[0];
     }
     
-    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& )
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>&, Element<2,2>* )
     {
         return 0.0;
     }
@@ -68,7 +68,8 @@ private:
                                                                c_matrix<double, 2, 2+1> &rGradPhi,
                                                                ChastePoint<2> &rX,
                                                                c_vector<double,2> &u,
-                                                               c_matrix<double,2,2> &rGradU)
+                                                               c_matrix<double,2,2> &rGradU,
+                                                               Element<2,2>* pElement)
     {
         c_matrix<double,2*(2+1),2*(2+1)> ret = zero_matrix<double>(2*(2+1), 2*(2+1));
         
@@ -94,7 +95,8 @@ private:
                                                        c_matrix<double, 2, 2+1> &rGradPhi,
                                                        ChastePoint<2> &rX,
                                                        c_vector<double,2> &u,
-                                                       c_matrix<double,2,2> &rGradU)
+                                                       c_matrix<double,2,2> &rGradU,
+                                                       Element<2,2>* pElement)
     {
         c_vector<double,2*(2+1)> ret;
         
@@ -193,7 +195,8 @@ private:
                                                        c_matrix<double, 2, 2+1> &rGradPhi,
                                                        ChastePoint<2> &rX,
                                                        c_vector<double,2> &u,
-                                                       c_matrix<double,2,2> &rGradU)
+                                                       c_matrix<double,2,2> &rGradU,
+                                                       Element<2,2>* pElement)
     {
         c_vector<double,2*(2+1)> ret;
         

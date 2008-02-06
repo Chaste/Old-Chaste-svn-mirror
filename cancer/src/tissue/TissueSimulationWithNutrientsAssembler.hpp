@@ -46,7 +46,8 @@ protected:
         c_matrix<double, DIM, DIM+1> &rGradPhi,
         ChastePoint<DIM> &rX,
         c_vector<double,1>& rU,
-        c_matrix<double, 1, DIM> &rGradU /* not used */)
+        c_matrix<double, 1, DIM> &rGradU /* not used */,
+        Element<DIM,DIM>* pElement)
     {
         return mConstantInUSourceTerm * rPhi;
     }
@@ -60,7 +61,8 @@ protected:
         c_matrix<double, DIM, DIM+1> &rGradPhi,
         ChastePoint<DIM> &rX,
         c_vector<double,1> &u,
-        c_matrix<double,1,DIM> &rGradU)
+        c_matrix<double,1,DIM> &rGradU,
+        Element<DIM,DIM>* pElement)
     {
         c_matrix<double, DIM, DIM> pde_diffusion_term = this->mpEllipticPde->ComputeDiffusionTerm(rX);
         

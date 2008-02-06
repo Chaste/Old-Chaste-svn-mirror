@@ -60,9 +60,9 @@ public:
         return 0.0;
     }
     
-    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x) //, const Element<DIM>& rElement) // now takes in element
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x, Element<DIM,DIM>* pElement) // now takes in element
     {
-        return mCoefficient*mCellDensityOnCoarseElements[0] ;//rElement.GetIndex()];
+        return mCoefficient*mCellDensityOnCoarseElements[pElement->GetIndex()];
     }
    
     c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& )

@@ -51,7 +51,8 @@ protected:
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,1> &u,
-        c_matrix<double,1,SPACE_DIM> &rGradU /* not used */ )
+        c_matrix<double,1,SPACE_DIM> &rGradU /* not used */,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpParabolicPde->ComputeDiffusionTerm(rX);
         
@@ -67,7 +68,8 @@ protected:
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,1> &u,
-        c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */ )
+        c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
             
     {
         return (mpParabolicPde->ComputeNonlinearSourceTerm(rX, u(0)) + mpParabolicPde->ComputeLinearSourceTerm(rX)

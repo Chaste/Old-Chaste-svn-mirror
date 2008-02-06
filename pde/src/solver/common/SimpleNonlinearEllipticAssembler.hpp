@@ -59,7 +59,8 @@ private:
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,1> &u,
-        c_matrix<double,1,SPACE_DIM> &rGradU)
+        c_matrix<double,1,SPACE_DIM> &rGradU,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> ret;
         
@@ -98,7 +99,8 @@ private:
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,1> &u,
-        c_matrix<double,1,SPACE_DIM> &rGradU)
+        c_matrix<double,1,SPACE_DIM> &rGradU,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         c_vector<double, 1*(ELEMENT_DIM+1)> ret;
         

@@ -89,7 +89,7 @@ public:
 
     /* The second method which has to be implemented returns the coefficient in the linear-in-u 
      * part of the source term, which for our PDE is just 1.0 */
-    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& )
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>&, Element<2,2>* )
     {
         return 1.0;
     }    

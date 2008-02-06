@@ -45,7 +45,8 @@ private:
             c_matrix<double, DIM, DIM+1> &rGradPhi,
             ChastePoint<DIM> &rX,
             c_vector<double,2> &u,
-            c_matrix<double,2,DIM> &rGradU)
+            c_matrix<double,2,DIM> &rGradU,
+            Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         c_matrix<double,2*(DIM+1),2*(DIM+1)> ret = zero_matrix<double>(2*(DIM+1), 2*(DIM+1));
         
@@ -73,7 +74,8 @@ private:
                                                          c_matrix<double, DIM, DIM+1> &rGradPhi,
                                                          ChastePoint<DIM> &rX,
                                                          c_vector<double,2> &u,
-                                                         c_matrix<double,2,DIM> &rGradU)
+                                                         c_matrix<double,2,DIM> &rGradU,
+                                                         Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         c_vector<double,2*(DIM+1)> ret;
         
@@ -158,7 +160,8 @@ private:
                                                                c_matrix<double, 2, 2+1> &rGradPhi,
                                                                ChastePoint<2> &rX,
                                                                c_vector<double,2> &u,
-                                                               c_matrix<double,2,2> &rGradU)
+                                                               c_matrix<double,2,2> &rGradU,
+                                                               Element<2,2>* pElement)
     {
         c_matrix<double,2*(2+1),2*(2+1)> ret;
         
@@ -186,7 +189,8 @@ private:
                                                        c_matrix<double, 2, 2+1> &rGradPhi,
                                                        ChastePoint<2> &rX,
                                                        c_vector<double,2> &u,
-                                                       c_matrix<double,2,2> &rGradU)
+                                                       c_matrix<double,2,2> &rGradU,
+                                                       Element<2,2>* pElement)
     {
         c_vector<double,2*(2+1)> ret;
         

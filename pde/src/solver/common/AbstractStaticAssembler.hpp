@@ -235,12 +235,12 @@ protected:
             ////////////////////////////////////////////////////////////
             if (assembleMatrix)
             {
-                noalias(rAElem) += static_cast<typename AssemblerTraits<CONCRETE>::CMT_CLS *>(this)->ComputeMatrixTerm(phi, grad_phi, x, u, grad_u) * wJ;
+                noalias(rAElem) += static_cast<typename AssemblerTraits<CONCRETE>::CMT_CLS *>(this)->ComputeMatrixTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
             }
             
             if (assembleVector)
             {
-                noalias(rBElem) += static_cast<typename AssemblerTraits<CONCRETE>::CVT_CLS *>(this)->ComputeVectorTerm(phi, grad_phi, x, u, grad_u) * wJ;
+                noalias(rBElem) += static_cast<typename AssemblerTraits<CONCRETE>::CVT_CLS *>(this)->ComputeVectorTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
             }
         }
     }

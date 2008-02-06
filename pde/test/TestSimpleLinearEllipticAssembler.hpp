@@ -139,7 +139,7 @@ public:
         TS_ASSERT_DELTA(value1, value2, 1e-10);
 
         value1 = pde.ComputeLinearInUCoeffInSourceTermAtNode(*(mesh.GetNode(0)));
-        value2 = pde.ComputeLinearInUCoeffInSourceTerm(mesh.GetNode(0)->GetPoint());
+        value2 = pde.ComputeLinearInUCoeffInSourceTerm(mesh.GetNode(0)->GetPoint(), NULL);
         TS_ASSERT_DELTA(value1, value2, 1e-10);
 
         // Boundary conditions

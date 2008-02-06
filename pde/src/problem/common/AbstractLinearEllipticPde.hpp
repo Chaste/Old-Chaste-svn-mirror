@@ -4,6 +4,7 @@
 #include "UblasCustomFunctions.hpp"
 #include "ChastePoint.hpp"
 #include "Node.hpp"
+#include "Element.hpp"
 #include <petscvec.h>
 
 
@@ -49,7 +50,8 @@ public:
      *  Div(D Grad u)  +  f(x)u + g(x) = 0
      *  @param x The point in space 
      */
-    virtual double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<SPACE_DIM>& x)=0;
+    virtual double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<SPACE_DIM>& x,
+                                                     Element<SPACE_DIM,SPACE_DIM>* pElement)=0;
 
     /**
      * Compute Diffusion Term.
@@ -65,7 +67,7 @@ public:
     
     virtual double ComputeLinearInUCoeffInSourceTermAtNode(const Node<SPACE_DIM>& node)
     {
-        return ComputeLinearInUCoeffInSourceTerm(node.GetPoint());
+        return ComputeLinearInUCoeffInSourceTerm(node.GetPoint(), NULL);
     }
     
     virtual ~AbstractLinearEllipticPde()
