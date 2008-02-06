@@ -4,6 +4,7 @@
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <algorithm>
 
 #include "Cylindrical2dMesh.hpp"
 #include "HoneycombMeshGenerator.hpp"
@@ -755,6 +756,67 @@ public:
          * mesh.GetElement(element_index)->RefreshJacobianDeterminant();
          */
     }
+    
+     //\todo Fix this in #649
+    void FailingTestRemeshProblem()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/bad_cylindrical_9_1");
+        Cylindrical2dMesh mesh(9.1);
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        NodeMap map(0);
+        mesh.ReMesh(map);
+        assert(map.IsIdentityMap());
+        
+        for (unsigned node_index=0; node_index<mesh.GetNumAllNodes(); node_index++)
+        {
+            std::vector<unsigned> indices;
+            
+            
+            //Get the forward star from each node that isn't at the top or bottom boundary
+            Node<2> *p_node=mesh.GetNode(node_index);
+            if (p_node->rGetLocation()[1] < -2.5)
+            {
+                continue;
+            }
+            if (p_node->rGetLocation()[1] > 13.8)
+            {
+                continue;
+            }
+                
+            //Iterate over countaining elements to get the elements of the forward star
+            for (Node<2>::ContainingElementIterator it = p_node->ContainingElementsBegin();
+                it != p_node->ContainingElementsEnd();
+                ++it)
+            {
+                Element <2, 2> *p_element = mesh.GetElement(*it);
+                for (unsigned j=0; j<3; j++)
+                {
+                    unsigned index=p_element->GetNodeGlobalIndex(j);
+                    if (index != node_index)
+                    {
+                        indices.push_back(index);
+                    }
+                }
+                
+                
+            }
+            //Each node in the forward star should appear exactly twice.  Sort and test.
+            sort(indices.begin(), indices.end());
+            for (unsigned i=0; i<indices.size();i++)
+            {
+                if (i%2 == 0)
+                {
+                   TS_ASSERT_EQUALS(indices[i],indices[i+1])
+                }
+                
+            }
+                 
+        }
+            
+    }
+        
+        
 };
 
 #endif /*TESTCYLINDRICAL2DMESH_HPP_*/
