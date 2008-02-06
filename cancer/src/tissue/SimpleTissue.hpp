@@ -12,6 +12,7 @@
 template<unsigned DIM>
 class SimpleTissue : public AbstractTissue<DIM>
 {
+    friend class TestSimpleTissue;
 private:
 
     /** List of nodes */
@@ -32,6 +33,28 @@ private:
         
         Validate(); // paranoia
     }
+    
+            
+    /** 
+     * Add a new node to the tissue. 
+     */
+    unsigned AddNode(Node<DIM> *pNewNode);
+    
+    /** 
+     * Update the correspondence between nodes and cells.
+     */
+    void UpdateNodeCellMap();
+
+    /** 
+     * Remove the node with a given index.
+     */
+    void RemoveNode(unsigned index);
+    
+    /** 
+     * Move the node with a given index to a new point in space.
+     */
+    void SetNode(unsigned index, ChastePoint<DIM> point);
+    
 
 public:
     SimpleTissue(const std::vector<Node<DIM> >& rNodes, const std::vector<TissueCell>& rCells);
@@ -88,28 +111,6 @@ public:
     
     std::vector<Node<DIM> >& rGetNodes();
     const std::vector<Node<DIM> >& rGetNodes() const;
-    
-    /** 
-     * Move the node with a given index to a new point in space.
-     */
-    void SetNode(unsigned index, ChastePoint<DIM> point);
-    
-    c_vector<double, DIM> GetLocationOfCell(const TissueCell& rCell);
-        
-    /** 
-     * Add a new node to the tissue. 
-     */
-    unsigned AddNode(Node<DIM> *pNewNode);
-    
-    /** 
-     * Update the correspondence between nodes and cells.
-     */
-    void UpdateNodeCellMap();
-
-    /** 
-     * Remove the node with a given index.
-     */
-    void RemoveNode(unsigned index);
     
     /**
      * Move a cell to a new location.

@@ -57,7 +57,7 @@ const std::vector<Node<DIM> >& SimpleTissue<DIM>::rGetNodes() const
 template<unsigned DIM>
 Node<DIM>* SimpleTissue<DIM>::GetNode(unsigned index)
 {
-    return &(mNodes[index]);    
+    return &(mNodes[index]);
 }
 
 template<unsigned DIM>
@@ -65,13 +65,7 @@ Node<DIM>* SimpleTissue<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell
 {
     // Find the node to which this cell corresponds
     unsigned node_index = rCell.GetNodeIndex();
-    return GetNode(node_index);   
-}
-
-template<unsigned DIM>
-c_vector<double, DIM> SimpleTissue<DIM>::GetLocationOfCell(const TissueCell& rCell)
-{
-    return GetNodeCorrespondingToCell(rCell)->rGetLocation();
+    return GetNode(node_index);
 }
 
 template<unsigned DIM>

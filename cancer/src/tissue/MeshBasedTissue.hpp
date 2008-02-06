@@ -109,7 +109,7 @@ public:
     
     unsigned GetGhostNodesSize();
         
-    bool GetIsGhostNode(unsigned index);
+    bool IsGhostNode(unsigned index);
 
     std::set<unsigned> GetGhostNodeIndices();
     
@@ -152,8 +152,6 @@ public:
      *  @return number of cells removed
      */
     unsigned RemoveDeadCells();
-
-    c_vector<double, DIM> GetLocationOfCell(const TissueCell& rCell);
 
     Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell);
     

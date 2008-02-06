@@ -70,13 +70,7 @@ Node<DIM>* MeshBasedTissue<DIM>::GetNodeCorrespondingToCell(const TissueCell& rC
 {
     // Find the node to which this cell corresponds
     unsigned node_index = rCell.GetNodeIndex();
-    return mrMesh.GetNode(node_index);   
-}
-
-template<unsigned DIM>
-c_vector<double, DIM> MeshBasedTissue<DIM>::GetLocationOfCell(const TissueCell& rCell)
-{
-    return GetNodeCorrespondingToCell(rCell)->rGetLocation();
+    return mrMesh.GetNode(node_index);
 }
 
 template<unsigned DIM>
@@ -104,7 +98,7 @@ unsigned MeshBasedTissue<DIM>::GetGhostNodesSize()
 }
 
 template<unsigned DIM>
-bool MeshBasedTissue<DIM>::GetIsGhostNode(unsigned index)
+bool MeshBasedTissue<DIM>::IsGhostNode(unsigned index)
 {
     return mIsGhostNode[index];
 }

@@ -36,42 +36,7 @@ protected:
     
     /** Results file for cell types */
     out_stream mpCellTypesFile;
-        
-    /** 
-     * Get the number of nodes in the tissue.
-     */
-    virtual unsigned GetNumNodes()=0;
-    
-    /**
-     * Get a pointer to the node with a given index.
-     */
-    virtual Node<DIM>* GetNode(unsigned index)=0;
-    
-    /**
-     * Get a pointer to the node corresponding to a given TissueCell.
-     */
-    virtual Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell)=0;
-        
-    /**
-     * Add a new cell to the tissue.
-     * @param cell  the cell to add
-     * @param newLocation  the position in space at which to put it
-     * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
-     */
-    virtual TissueCell*  AddCell(TissueCell cell, c_vector<double,DIM> newLocation)=0;
-    
-    /** 
-     * Remove all cells labelled as dead. 
-     * 
-     *  @return number of cells removed
-     */
-    virtual unsigned RemoveDeadCells()=0;
-    
-    /**
-     * Check consistency of our internal data structures.
-     */
-    virtual void Validate()=0;
-    
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -103,9 +68,56 @@ public:
     void InitialiseCells();
     
     std::list<TissueCell>& rGetCells();
-    
     const std::list<TissueCell>& rGetCells() const;
+
+    /** 
+     * Get the number of nodes in the tissue.
+     */
+    virtual unsigned GetNumNodes()=0;
+    
+    /**
+     * Get a pointer to the node with a given index.
+     */
+    virtual Node<DIM>* GetNode(unsigned index)=0;
+    
+    /**
+     * Get a pointer to the node corresponding to a given TissueCell.
+     */
+    virtual Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell)=0;
+    
+    /**
+     * Find where the given cell is in space.
+     */
+    c_vector<double, DIM> GetLocationOfCell(const TissueCell& rCell);
         
+    /**
+     * Add a new cell to the tissue.
+     * @param cell  the cell to add
+     * @param newLocation  the position in space at which to put it
+     * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
+     */
+    virtual TissueCell*  AddCell(TissueCell cell, c_vector<double,DIM> newLocation)=0;
+    
+    /**
+     * Move a cell to a new location.
+     * @param iter  pointer to the cell to move
+     * @param rNewLocation  where to move it to
+     */
+    class Iterator; // Forward declaration; see below
+    virtual void MoveCell(AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)=0;
+    
+    /** 
+     * Remove all cells labelled as dead. 
+     * 
+     *  @return number of cells removed
+     */
+    virtual unsigned RemoveDeadCells()=0;
+    
+    /**
+     * Check consistency of our internal data structures.
+     */
+    virtual void Validate()=0;
+
     /**
      * Find out how many cells of each mutation state there are
      * 
@@ -120,7 +132,7 @@ public:
     
     virtual unsigned GetGhostNodesSize();
       
-    virtual bool GetIsGhostNode(unsigned index);
+    virtual bool IsGhostNode(unsigned index);
     
     /** 
      * Get the number of real cells.

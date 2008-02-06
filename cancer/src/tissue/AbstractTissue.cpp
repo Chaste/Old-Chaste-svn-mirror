@@ -74,6 +74,12 @@ unsigned AbstractTissue<DIM>::GetNumRealCells()
 }
 
 template<unsigned DIM>
+c_vector<double, DIM> AbstractTissue<DIM>::GetLocationOfCell(const TissueCell& rCell)
+{
+    return GetNodeCorrespondingToCell(rCell)->rGetLocation();
+}
+
+template<unsigned DIM>
 void AbstractTissue<DIM>::SetCellAncestorsToNodeIndices()
 {
     for(typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin(); cell_iter!=this->End(); ++cell_iter)
@@ -105,7 +111,7 @@ unsigned AbstractTissue<DIM>::GetGhostNodesSize()
     return GetNumNodes();
 }
 template<unsigned DIM> 
-bool AbstractTissue<DIM>::GetIsGhostNode(unsigned index)
+bool AbstractTissue<DIM>::IsGhostNode(unsigned index)
 {
     return false;
 }    
@@ -173,7 +179,7 @@ template<unsigned DIM>
 bool AbstractTissue<DIM>::Iterator::IsRealCell()
 {
     assert(mrTissue.GetGhostNodesSize() == mrTissue.GetNumNodes() );
-    return !(mrTissue.GetIsGhostNode(mNodeIndex) || GetNode()->IsDeleted() || (*this)->IsDead());
+    return !(mrTissue.IsGhostNode(mNodeIndex) || GetNode()->IsDeleted() || (*this)->IsDead());
 }
 
 template<unsigned DIM>

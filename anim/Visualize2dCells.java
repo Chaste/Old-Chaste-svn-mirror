@@ -699,7 +699,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
                 // Count the number of entries in the node file and check correct 
                 int entries = st_node.countTokens();
-                
                 if (entries%3 != 0)
                 {
                     System.out.println("Oi - I want the node file to look like: time,x,y,type,x,y,type...");
@@ -709,14 +708,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 
                 // Count the number of entries in the element file and check correct 
                 entries = st_element.countTokens();
-                
                 if (entries%3 != 0)
                 {
                     System.out.println("Oi - I want the element file to look like: time,n1,n2,n3,n1,n2,n3..");
                     System.exit(0);
                 }
+                numElements[row] = entries/3;
                 
-                numElements[row] = st_element.countTokens()/3;
                 positions[row] = new RealPoint[memory_factor*numCells[row]];
                 if (fibresFilePresent)
                 {
