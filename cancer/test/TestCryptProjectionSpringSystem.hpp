@@ -239,16 +239,16 @@ public:
             
             CryptProjectionSpringSystem* p_spring_system;
             
-            // restore from the archive
+            // Restore from the archive
             input_arch >> p_spring_system;
             
-            // test the member data
+            // Test the member data
             TS_ASSERT_EQUALS(p_spring_system->mUseCutoffPoint,true);
             TS_ASSERT_DELTA(p_spring_system->mCutoffPoint,1.1,1e-12);  
             TS_ASSERT_DELTA(p_spring_system->GetA(),1.0,1e-12); 
             TS_ASSERT_DELTA(p_spring_system->GetB(),2.0,1e-12);
             
-            delete &(p_spring_system->mrTissue);
+            delete p_spring_system->mpTissue;
             delete p_spring_system;
         }
     } 

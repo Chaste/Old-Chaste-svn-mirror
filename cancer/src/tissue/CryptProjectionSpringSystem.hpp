@@ -64,7 +64,7 @@ private :
 
     /** 
      * Whether to have zero force if the cells are far enough apart. 
-     * */
+     */
     bool mUseCutoffPoint;
     
     
@@ -83,22 +83,22 @@ private :
         c_vector<double, 2> node_location_2d;
         c_vector<double, 3> node_location_3d;
 
-        // only consider nodes corresponding to real cells                        
-        for (AbstractTissue<2>::Iterator cell_iter = this->mrTissue.Begin();
-             cell_iter != this->mrTissue.End();
+        // Only consider nodes corresponding to real cells                        
+        for (AbstractTissue<2>::Iterator cell_iter = this->mpTissue->Begin();
+             cell_iter != this->mpTissue->End();
              ++cell_iter)
         {
-            // get node index
+            // Get node index
             unsigned node_index = cell_iter->GetNodeIndex();
             
-            // get 3D location
-            node_location_2d = this->mrTissue.GetLocationOfCell(*cell_iter);
+            // Get 3D location
+            node_location_2d = this->mpTissue->GetLocationOfCell(*cell_iter);
             
             node_location_3d[0] = node_location_2d[0];
             node_location_3d[1] = node_location_2d[1];            
             node_location_3d[2] = CalculateCryptSurfaceHeightAtPoint(node_location_2d);
 
-            // add to map
+            // Add to map
             mNode3dLocationMap[node_index] = node_location_3d;
         }        
      }
@@ -120,8 +120,8 @@ private :
         assert(nodeAGlobalIndex!=nodeBGlobalIndex);
         
         // Get the node locations in 2D        
-        c_vector<double, 2> node_a_location_2d = this->mrTissue.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
-        c_vector<double, 2> node_b_location_2d = this->mrTissue.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
+        c_vector<double, 2> node_a_location_2d = this->mpTissue->GetNode(nodeAGlobalIndex)->rGetLocation();
+        c_vector<double, 2> node_b_location_2d = this->mpTissue->GetNode(nodeBGlobalIndex)->rGetLocation();
                                                   
         // Create a unit vector in the direction of the 3D spring (we don't need to worry about cyclidrical meshes)     
         c_vector<double, 3> unit_difference_3d = mNode3dLocationMap[nodeBGlobalIndex] - mNode3dLocationMap[nodeAGlobalIndex]; 
@@ -141,17 +141,17 @@ private :
         
         // Calculate of the 3D spring's rest length...
         double rest_length_3d = 1.0;            
-        double ageA = this->mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
-        double ageB = this->mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
+        double ageA = this->mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
+        double ageB = this->mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
         
-        TissueCell& r_cell_A = this->mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex);
-        TissueCell& r_cell_B = this->mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex);
+        TissueCell& r_cell_A = this->mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex);
+        TissueCell& r_cell_B = this->mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex);
         
         // ... a bit of code for recently born cells...
         if (ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
         {
             // Spring Rest Length Increases to normal rest length from ???? to normal rest length, 1.0, over 1 hour
-            if (this->mrTissue.IsMarkedSpring(r_cell_A, r_cell_B))
+            if ( (static_cast<MeshBasedTissue<2>*>(this->mpTissue))->IsMarkedSpring(r_cell_A, r_cell_B) )
             {   
                 double lambda = CancerParameters::Instance()->GetDivisionRestingSpringLength();
                 rest_length_3d = (lambda+(1.0-lambda)*(ageA/(CancerParameters::Instance()->GetMDuration())));           
@@ -160,7 +160,7 @@ private :
             if (ageA+SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
             {
                 // This spring is about to go out of scope
-                this->mrTissue.UnmarkSpring(r_cell_A, r_cell_B);
+                (static_cast<MeshBasedTissue<2>*>(this->mpTissue))->UnmarkSpring(r_cell_A, r_cell_B);
             }
         }        
         
@@ -271,14 +271,14 @@ public :
         UpdateNode3dLocationMap();
             
         // Reallocate memory     
-        mDrDt.resize(this->mrTissue.rGetMesh().GetNumAllNodes());
+        mDrDt.resize(this->mpTissue->GetNumNodes());
         for (unsigned i=0; i<mDrDt.size(); i++)
         {
             mDrDt[i]=zero_vector<double>(2);
         }
         
-        for(MeshBasedTissue<2>::SpringIterator spring_iterator=this->mrTissue.SpringsBegin();
-            spring_iterator!=this->mrTissue.SpringsEnd();
+        for (MeshBasedTissue<2>::SpringIterator spring_iterator=(static_cast<MeshBasedTissue<2>*>(this->mpTissue))->SpringsBegin();
+            spring_iterator!=(static_cast<MeshBasedTissue<2>*>(this->mpTissue))->SpringsEnd();
             ++spring_iterator)
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
@@ -314,7 +314,7 @@ public :
      */
     const MeshBasedTissue<2>& rGetTissue() const
     {
-        return this->mrTissue;
+        return *(static_cast<MeshBasedTissue<2>*>(mpTissue));
     }
 };
 

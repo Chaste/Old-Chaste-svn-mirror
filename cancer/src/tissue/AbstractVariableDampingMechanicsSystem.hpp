@@ -33,6 +33,7 @@ private :
     }
 
 protected :
+
     /** Whether to use a viscosity that is linear in the cell area, rather than constant */
     bool mUseAreaBasedViscosity;
 
@@ -47,10 +48,10 @@ protected :
         
         if (this->mUseAreaBasedViscosity)
         {
-            // the subclass had better have said is needs voronoi tessellations..
+            // The subclass had better have said is needs voronoi tessellations..
             assert(this->NeedsVoronoiTessellation());
             
-            //  use new_damping_const = old_damping_const * (d0+d1*A)
+            //  Use new_damping_const = old_damping_const * (d0+d1*A)
             //  where d0, d1 are params and A is the area, and old_damping_const
             //  is the damping const if not using mUseAreaBasedViscosity
             #define COVERAGE_IGNORE
@@ -60,15 +61,15 @@ protected :
             double rest_length = 1.0;
             double d0 = 0.1;
 
-            // this number is such that d0+A*d1=1, where A is the area of a equilibrium
+            // This number is such that d0+A*d1=1, where A is the area of a equilibrium
             // cell (=sqrt(3)/4 = a third of the area of a hexagon with edges of size 1)
-            double d1 = 2.0*(1.0-d0)/(sqrt(3)*rest_length*rest_length); 
-
-            VoronoiTessellation<DIM>& tess = this->mrTissue.rGetVoronoiTessellation();
+            double d1 = 2.0*(1.0-d0)/(sqrt(3)*rest_length*rest_length);
+            
+            VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(this->mpTissue))->rGetVoronoiTessellation();
         
             double area_cell = tess.GetFaceArea(rCell.GetNodeIndex());
             
-            // the areas should be order 1, this is just to avoid getting infinite areas
+            // The areas should be order 1, this is just to avoid getting infinite areas
             // if an area based viscosity option is chosen without ghost nodes.
             assert(area_cell < 1000);
             
@@ -88,8 +89,9 @@ protected :
 
 public :
     AbstractVariableDampingMechanicsSystem(MeshBasedTissue<DIM>& rTissue)
-        : AbstractDiscreteTissueMechanicsSystem<DIM>(rTissue)
+        : AbstractDiscreteTissueMechanicsSystem<DIM>()
     {
+        this->mpTissue = &rTissue;
         mUseAreaBasedViscosity = false;
     }
     

@@ -54,8 +54,8 @@ public:
         CellwiseDataGradient<DIM> gradients;        
         gradients.SetupGradients();
         
-        for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
-             cell_iter != this->mrTissue.End();
+        for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mpTissue->Begin();
+             cell_iter != this->mpTissue->End();
              ++cell_iter)
         {
             TissueCell& cell = *cell_iter;

@@ -29,7 +29,7 @@ private:
      */ 
     std::set<unsigned> GetNeighbouringNodeIndices(unsigned index)
     {
-        ConformingTetrahedralMesh<2,2>& r_mesh = mrMeinekeSpringSystem.GetTissue().rGetMesh();
+        ConformingTetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
         Node<2>* p_node = r_mesh.GetNode(index);
         
         std::set<unsigned> neighbouring_node_indices;
@@ -57,7 +57,7 @@ private:
      */ 
     std::vector<double> CalculateFtAndFn(unsigned index, double theta)
     {
-        ConformingTetrahedralMesh<2,2>& r_mesh = mrMeinekeSpringSystem.GetTissue().rGetMesh();
+        ConformingTetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
                 
         std::set<unsigned> neighbouring_node_indices = GetNeighbouringNodeIndices(index);
         
@@ -105,7 +105,7 @@ private:
      */  
     std::vector<double> GetSamplingAngles(unsigned index)
     {
-        ConformingTetrahedralMesh<2,2>& r_mesh = mrMeinekeSpringSystem.GetTissue().rGetMesh();
+        ConformingTetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
         std::set<unsigned> neighbouring_node_indices = GetNeighbouringNodeIndices(index);
         
         std::vector<double> sampling_angles(4*neighbouring_node_indices.size());
@@ -280,7 +280,7 @@ public:
     {
         std::vector< std::vector<double> > extremal_normal_forces;
         
-        ConformingTetrahedralMesh<2,2>& r_mesh = mrMeinekeSpringSystem.GetTissue().rGetMesh();
+        ConformingTetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
         
         std::vector<double> minimum_normal_forces(r_mesh.GetNumNodes());
         std::vector<double> maximum_normal_forces(r_mesh.GetNumNodes());
@@ -337,7 +337,7 @@ public:
         double minimum;
         double maximum;
 
-        ConformingTetrahedralMesh<2,2>& r_mesh = mrMeinekeSpringSystem.GetTissue().rGetMesh();
+        ConformingTetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(mrMeinekeSpringSystem.GetTissue()))->rGetMesh();
         
         std::vector< std::vector<double> > extremal_normal_forces = CalculateExtremalNormalForces();
                

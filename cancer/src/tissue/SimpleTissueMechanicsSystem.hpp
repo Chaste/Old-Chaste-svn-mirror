@@ -11,7 +11,7 @@
  * 
  */
 template<unsigned DIM>
-class SimpleTissueMechanicsSystem
+class SimpleTissueMechanicsSystem : public AbstractDiscreteTissueMechanicsSystem<DIM>
 {
     // Allow tests to access private members, in order to test computation of
     // private functions
@@ -19,7 +19,7 @@ class SimpleTissueMechanicsSystem
     
 private :
    
-    SimpleTissue<DIM>& mrTissue;
+    SimpleTissue<DIM>* mpTissue;
     
     /** Node velocities */
     std::vector<c_vector<double, DIM> > mDrDt;
@@ -45,8 +45,8 @@ private :
         
         CancerParameters* p_params = CancerParameters::Instance();
         
-        c_vector<double, DIM> node_a_location = mrTissue.GetNode(nodeAGlobalIndex)->rGetLocation();
-        c_vector<double, DIM> node_b_location = mrTissue.GetNode(nodeBGlobalIndex)->rGetLocation();
+        c_vector<double, DIM> node_a_location = mpTissue->GetNode(nodeAGlobalIndex)->rGetLocation();
+        c_vector<double, DIM> node_b_location = mpTissue->GetNode(nodeBGlobalIndex)->rGetLocation();
         c_vector<double, DIM> unit_difference = node_b_location - node_a_location;   
         
         double distance_between_nodes = norm_2(unit_difference);
@@ -57,8 +57,8 @@ private :
         }
         
         double rest_length = 1.0;
-        double ageA = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
-        double ageB = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
+        double ageA = mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
+        double ageB = mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
         
         if ( ageA<p_params->GetMDuration() && ageB<p_params->GetMDuration() )
         {
@@ -71,14 +71,14 @@ private :
         double a_rest_length = 0.5*rest_length;
         double b_rest_length = a_rest_length;    
         
-        if (mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).HasApoptosisBegun())
+        if (mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).HasApoptosisBegun())
         {
-            double time_until_death_a = mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).TimeUntilDeath();
+            double time_until_death_a = mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).TimeUntilDeath();
             a_rest_length = a_rest_length*(time_until_death_a)/(p_params->GetApoptosisTime());
         }
-        if (mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).HasApoptosisBegun())
+        if (mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).HasApoptosisBegun())
         {
-            double time_until_death_b = mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).TimeUntilDeath();
+            double time_until_death_b = mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).TimeUntilDeath();
             b_rest_length = b_rest_length*(time_until_death_b)/(p_params->GetApoptosisTime());
         }
         
@@ -104,8 +104,8 @@ private :
 public :
 
     SimpleTissueMechanicsSystem(SimpleTissue<DIM>& rTissue)
-        : mrTissue(rTissue)
     {
+        mpTissue = &rTissue;
         mCutoffPoint = 1.5;
         // \todo: add code for initialising member variables for mutant/necrotic springs here
     }
@@ -119,13 +119,13 @@ public :
     */
     const SimpleTissue<DIM>& rGetTissue() const
     {
-        return mrTissue;
+        return *mpTissue;
     }
     
     
     SimpleTissue<DIM>& rGetTissue()
     {
-        return mrTissue;
+        return *mpTissue;
     }
     
     /**
@@ -150,17 +150,17 @@ public :
         std::set<std::set<unsigned> > cell_pairs_checked; 
         
         // Initialise the vector of node velocities
-        mDrDt.resize(mrTissue.GetNumNodes());
+        mDrDt.resize(mpTissue->GetNumNodes());
         for (unsigned i=0; i<mDrDt.size(); i++)
         {
             mDrDt[i] = zero_vector<double>(DIM);
         }
         
         // Iterate over nodes
-        for (unsigned node_a_index=0; node_a_index<mrTissue.GetNumNodes(); node_a_index++)
+        for (unsigned node_a_index=0; node_a_index<mpTissue->GetNumNodes(); node_a_index++)
         {
             // Iterate over nodes
-            for (unsigned node_b_index=0; node_b_index<mrTissue.GetNumNodes(); node_b_index++)
+            for (unsigned node_b_index=0; node_b_index<mpTissue->GetNumNodes(); node_b_index++)
             {
                 // The two cells must not be the same
                 if (node_a_index != node_b_index)
@@ -184,8 +184,8 @@ public :
                         c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index);
                                                 
                         // Get the damping constant for each cell
-                        double damping_constantA = GetDampingConstant(mrTissue.rGetCellAtNodeIndex(node_a_index));
-                        double damping_constantB = GetDampingConstant(mrTissue.rGetCellAtNodeIndex(node_b_index));
+                        double damping_constantA = GetDampingConstant(mpTissue->rGetCellAtNodeIndex(node_a_index));
+                        double damping_constantB = GetDampingConstant(mpTissue->rGetCellAtNodeIndex(node_b_index));
                         
                         // Add the contribution to each node's velocity
                         mDrDt[node_a_index] += force/damping_constantA;

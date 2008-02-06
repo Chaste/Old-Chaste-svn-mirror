@@ -123,11 +123,11 @@ public :
     {
         assert(nodeAGlobalIndex!=nodeBGlobalIndex);
         
-        c_vector<double, DIM> node_a_location = this->mrTissue.rGetMesh().GetNode(nodeAGlobalIndex)->rGetLocation();
-        c_vector<double, DIM> node_b_location = this->mrTissue.rGetMesh().GetNode(nodeBGlobalIndex)->rGetLocation();
+        c_vector<double, DIM> node_a_location = this->mpTissue->GetNode(nodeAGlobalIndex)->rGetLocation();
+        c_vector<double, DIM> node_b_location = this->mpTissue->GetNode(nodeBGlobalIndex)->rGetLocation();
         
         // There is reason not to substract one position from the other (cylindrical meshes)
-        c_vector<double, DIM> unit_difference = this->mrTissue.rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
+        c_vector<double, DIM> unit_difference = (static_cast<MeshBasedTissue<DIM>*>(this->mpTissue))->rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);   
         
         double distance_between_nodes = norm_2(unit_difference);
         
@@ -143,16 +143,16 @@ public :
         
         double rest_length = 1.0;
             
-        double ageA = this->mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
-        double ageB = this->mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
+        double ageA = this->mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
+        double ageB = this->mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
         
-        TissueCell& r_cell_A = this->mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex);
-        TissueCell& r_cell_B = this->mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex);
+        TissueCell& r_cell_A = this->mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex);
+        TissueCell& r_cell_B = this->mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex);
         
         if ( ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
         {
             // Spring rest length increases from ???? to normal rest length, 1.0, over 1 hour
-            if (this->mrTissue.IsMarkedSpring(r_cell_A, r_cell_B))
+            if ( (static_cast<MeshBasedTissue<DIM>*>(this->mpTissue))->IsMarkedSpring(r_cell_A, r_cell_B) )
             {   
                 double lambda = CancerParameters::Instance()->GetDivisionRestingSpringLength();
                 rest_length = lambda + (1.0-lambda)*(ageA/(CancerParameters::Instance()->GetMDuration()));           
@@ -161,21 +161,21 @@ public :
             if (ageA+SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
             {
                 // This spring is about to go out of scope
-                this->mrTissue.UnmarkSpring(r_cell_A, r_cell_B);
+                (static_cast<MeshBasedTissue<DIM>*>(this->mpTissue))->UnmarkSpring(r_cell_A, r_cell_B);
             }
         }
         
         double a_rest_length = rest_length*0.5;
         double b_rest_length = a_rest_length;    
         
-        if (this->mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).HasApoptosisBegun())
+        if (this->mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).HasApoptosisBegun())
         {
-            double time_until_death_a = this->mrTissue.rGetCellAtNodeIndex(nodeAGlobalIndex).TimeUntilDeath();
+            double time_until_death_a = this->mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).TimeUntilDeath();
             a_rest_length = a_rest_length*(time_until_death_a)/(CancerParameters::Instance()->GetApoptosisTime());
         }
-        if (this->mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).HasApoptosisBegun())
+        if (this->mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).HasApoptosisBegun())
         {
-            double time_until_death_b = this->mrTissue.rGetCellAtNodeIndex(nodeBGlobalIndex).TimeUntilDeath();
+            double time_until_death_b = this->mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).TimeUntilDeath();
             b_rest_length = b_rest_length*(time_until_death_b)/(CancerParameters::Instance()->GetApoptosisTime());
         }
         
@@ -189,7 +189,7 @@ public :
         {
             assert(!mUseBCatSprings);   // don't want to do both (both account for edge length)
             
-            VoronoiTessellation<DIM>& tess = this->mrTissue.rGetVoronoiTessellation();
+            VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(this->mpTissue))->rGetVoronoiTessellation();
             
             multiplication_factor = tess.GetEdgeLength(nodeAGlobalIndex,nodeBGlobalIndex)*sqrt(3);
         }
@@ -231,7 +231,7 @@ public :
             double beta_cat_cell_1 = r_cell_A.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
             double beta_cat_cell_2 = r_cell_B.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
             
-            VoronoiTessellation<DIM>& tess = this->mrTissue.rGetVoronoiTessellation();
+            VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(this->mpTissue))->rGetVoronoiTessellation();
             
             double perim_cell_1 = tess.GetFacePerimeter(nodeAGlobalIndex);
             double perim_cell_2 = tess.GetFacePerimeter(nodeBGlobalIndex);
@@ -299,16 +299,16 @@ public :
     virtual std::vector<c_vector<double, DIM> >& rCalculateVelocitiesOfEachNode()
     {
         // Note: the following 4 lines are NOT equivalent to 
-        // mDrDt.resize(this->mrTissue.rGetMesh().GetNumAllNodes(), zero_vector<double,DIM>),
+        // mDrDt.resize(this->mpTissue->rGetMesh().GetNumAllNodes(), zero_vector<double,DIM>),
         // which would only *append* zeros if the size had increased
-        mDrDt.resize(this->mrTissue.rGetMesh().GetNumAllNodes());
+        mDrDt.resize(this->mpTissue->GetNumNodes());
         for (unsigned i=0; i<mDrDt.size(); i++)
         {
             mDrDt[i] = zero_vector<double>(DIM);
         }
     
-        for(typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=this->mrTissue.SpringsBegin();
-            spring_iterator!=this->mrTissue.SpringsEnd();
+        for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=(static_cast<MeshBasedTissue<DIM>*>(this->mpTissue))->SpringsBegin();
+            spring_iterator!=(static_cast<MeshBasedTissue<DIM>*>(this->mpTissue))->SpringsEnd();
             ++spring_iterator)
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
@@ -390,7 +390,7 @@ inline void save_construct_data(
     Archive & ar, const Meineke2001SpringSystem<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const MeshBasedTissue<DIM> * p_tissue = &(t->rGetTissue());
+    const AbstractTissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
 }
 
@@ -402,11 +402,11 @@ inline void load_construct_data(
     Archive & ar, Meineke2001SpringSystem<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    MeshBasedTissue<DIM>* p_tissue;
+    AbstractTissue<DIM>* p_tissue;
 
     ar >> p_tissue;
     // Invoke inplace constructor to initialize instance
-    ::new(t)Meineke2001SpringSystem<DIM>(*p_tissue);
+    ::new(t)Meineke2001SpringSystem<DIM>(*(static_cast<MeshBasedTissue<DIM>*>(p_tissue)));
 }
 }
 } // namespace ...

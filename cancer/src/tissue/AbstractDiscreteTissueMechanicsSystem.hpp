@@ -24,12 +24,12 @@ private :
     	
 protected :
 	
-	MeshBasedTissue<DIM>& mrTissue;
+	AbstractTissue<DIM>* mpTissue;
 
 public : 
 	
-    AbstractDiscreteTissueMechanicsSystem(MeshBasedTissue<DIM>& rTissue)
-        : mrTissue(rTissue)
+    AbstractDiscreteTissueMechanicsSystem()
+        : mpTissue(NULL)
     {
     }
     
@@ -54,20 +54,18 @@ public :
         return false;
     }
     #undef COVERAGE_IGNORE
-    
-    
+        
     /**
      *  Get the tissue. Needed for archiving
      */
-    const MeshBasedTissue<DIM>& rGetTissue() const
+    const AbstractTissue<DIM>& rGetTissue() const
     {
-        return mrTissue;
+        return *mpTissue;
     }
-    
-    ///\ todo: named wrong
-    MeshBasedTissue<DIM>& GetTissue()
+        
+    AbstractTissue<DIM>* GetTissue()
     {
-        return mrTissue;
+        return mpTissue;
     }
 };
 

@@ -677,7 +677,7 @@ public:
             TS_ASSERT_EQUALS(p_meineke_spring_system->mUseBCatSprings, true);
             TS_ASSERT_EQUALS(p_meineke_spring_system->mUseNecroticSprings, true);
             
-            delete &(p_meineke_spring_system->mrTissue);
+            delete p_meineke_spring_system->mpTissue;
             delete p_meineke_spring_system;
         }
     } 
