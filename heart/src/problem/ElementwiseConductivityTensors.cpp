@@ -6,51 +6,51 @@ void ElementwiseConductivityTensors::SetFibreOrientationFile(const std::string &
     mFibreOrientationFilename = rFibreOrientationFilename;       
 }
 
-void ElementwiseConductivityTensors::SetConstantConductivities(double constLongConduc, double constTransConduc)
+void ElementwiseConductivityTensors::SetConstantConductivities(double constLongConduc, double constTransConduc, double constNormalConduc)
 {
     mUseNonConstantConductivities=false;
     mConstLongConductivity = constLongConduc;
     mConstTransConductivity = constTransConduc;
+    mConstNormalConductivity = constNormalConduc;
 }
 
-void ElementwiseConductivityTensors::SetNonConstantConductivities(std::vector<double> &rLongitudinalConductivities, std::vector<double> &rTransverseConductivities)
+void ElementwiseConductivityTensors::SetNonConstantConductivities(
+			std::vector<double> &rLongitudinalConductivities, 
+			std::vector<double> &rTransverseConductivities,
+			std::vector<double> &rNormalConductivities)
 {
     assert(rLongitudinalConductivities.size()==mNumElements);
     assert(rTransverseConductivities.size()==mNumElements);
+    assert(rNormalConductivities.size()==mNumElements);
     
     mUseNonConstantConductivities=true;
     mLongitudinalConductivities=rLongitudinalConductivities;
     mTransverseConductivities=rTransverseConductivities;
+    mNormalConductivities=rNormalConductivities;
 }
 
 void ElementwiseConductivityTensors::Init()
 {
     std::ifstream data_file;
+
+    c_matrix<double, 3, 3> conductivity_matrix(zero_matrix<double>(3,3));
+    conductivity_matrix(0,0) = mConstLongConductivity;
+    conductivity_matrix(1,1) = mConstTransConductivity;
+    conductivity_matrix(2,2) = mConstNormalConductivity;          
     
     if (!mUseNonConstantConductivities && !mUseFibreOrientation)
     {
-        c_matrix<double,3,3> const_tensor(zero_matrix<double>(3,3));
-        const_tensor(0,0) = mConstLongConductivity;
-        const_tensor(1,1) = mConstTransConductivity;
-        const_tensor(2,2) = mConstTransConductivity; 
-        mTensors.push_back(const_tensor);
+    	// Constant tensor for every element
+        mTensors.push_back(conductivity_matrix);
     }
     else
     {
         // reserve() allocates all the memory at once, more efficient than relying 
         // on the automatic reallocation scheme.
         mTensors.reserve(mNumElements);
-        
-        c_matrix<double, 3, 3> conductivity_matrix(zero_matrix<double>(3,3));
+
         c_matrix<double,3,3> orientation_matrix(identity_matrix<double>(3));
-        
-        if (!mUseNonConstantConductivities)
-        {
-            conductivity_matrix(0,0) = mConstLongConductivity;
-            conductivity_matrix(1,1) = mConstTransConductivity;
-            conductivity_matrix(2,2) = mConstTransConductivity;          
-        }
-    
+                    
         if (mUseFibreOrientation)
         {
             data_file.open(mFibreOrientationFilename.c_str());
@@ -78,7 +78,8 @@ void ElementwiseConductivityTensors::Init()
              *              [z_i]
              * 
              *  g_f = longitudinal conductivity (constant or element specific)
-             *  g_l = g_n = transverse conductivity (constant or element specific)
+             *  g_l = transverse conductivity (constant or element specific)
+             *  g_n = normal conductivity (constant or element specific) 
              * 
              */
             
@@ -86,7 +87,7 @@ void ElementwiseConductivityTensors::Init()
             {
                 conductivity_matrix(0,0) = mLongitudinalConductivities[element_index];
                 conductivity_matrix(1,1) = mTransverseConductivities[element_index];
-                conductivity_matrix(2,2) = mTransverseConductivities[element_index];
+                conductivity_matrix(2,2) = mNormalConductivities[element_index];
             }      
             
             if (mUseFibreOrientation)
