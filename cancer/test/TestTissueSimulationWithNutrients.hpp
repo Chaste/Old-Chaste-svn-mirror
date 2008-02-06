@@ -102,15 +102,8 @@ public:
 //    {
 //        for (unsigned i=0; i<mrTissue.GetNumRealCells(); i++)
 //        {
-//            c_vector<double,2> x_location;
-//            x_location[0] = x[0];
-//            x_location[1] = x[1];
-//
-//// \todo: Ideally we would have this commented condition (see #630)                        
-////            if ( (norm_2(mrTissue.rGetMesh().GetNode(i)->rGetLocation() - x.rGetLocation()) < mCutOffDistance) 
-////                 && (mrTissue.rGetCellAtNodeIndex(i).GetCellType() != NECROTIC) )
-//            if ( (norm_2(mrTissue.rGetMesh().GetNode(i)->rGetLocation() - x_location) < mCutOffDistance) 
-//                && (mrTissue.rGetCellAtNodeIndex(i).GetCellType() != NECROTIC) )
+//            if ( (norm_2(mrTissue.rGetMesh().GetNode(i)->rGetLocation() - x.rGetLocation()) < mCutOffDistance) 
+//                 && (mrTissue.rGetCellAtNodeIndex(i).GetCellType() != NECROTIC) )
 //            {
 //                return -0.1;
 //            }

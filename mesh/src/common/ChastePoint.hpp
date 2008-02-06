@@ -66,6 +66,11 @@ public:
         return mLocation;
     }
     
+    const c_vector<double, DIM>& rGetLocation(void) const
+    {
+        return mLocation;
+    }
+    
     double operator[] (unsigned i) const
     {
         assert(i<DIM);
