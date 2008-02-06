@@ -85,8 +85,7 @@ public:
     void SetValue(double value, Node<DIM>* pNode, unsigned variableNumber=0);
     
     /**
-     *  Set the Tissue. Must be called before GetValue(). This calls 
-     *  Tissue.Initialise()
+     *  Set the Tissue. Must be called before GetValue().
      */
     void SetTissue(MeshBasedTissue<DIM>& rTissue);
     

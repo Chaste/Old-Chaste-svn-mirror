@@ -2,6 +2,8 @@
 #define TESTSIMPLETISSUE_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 #include <cmath>
 #include <vector>
@@ -449,97 +451,109 @@ public:
         TS_ASSERT_THROWS_NOTHING(simple_tissue.WriteResultsToFiles(true));
     }    
     
-//    void TestArchivingTissue() throw (Exception)
-//    {    
-//        OutputFileHandler handler("archive",false);
-//        std::string archive_filename;
-//        archive_filename = handler.GetOutputDirectoryFullPath() + "simpletissue.arch";
-//        
-//        // Archive a simple tissue 
-//        {
-//            // Need to set up time 
-//            unsigned num_steps = 10;
-//            SimulationTime* p_simulation_time = SimulationTime::Instance();
-//            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
-//            
-//            // Create a simple mesh
-//            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-//            ConformingTetrahedralMesh<2,2> mesh;
-//            mesh.ConstructFromMeshReader(mesh_reader);
-//            
-//            // Get node vector from mesh
-//            std::vector<Node<2> > nodes = SetUpNodes(&mesh);
-//                    
-//            // Set up cells, one for each node. Get each a birth time of -node_index,
-//            // so the age = node_index
-//            std::vector<TissueCell> cells = SetUpCells(&mesh);
-//                    
-//            // Create a tissue
-//            SimpleTissue<2>* const p_tissue = new SimpleTissue<2>(nodes, cells);
-//
-//            // Cells have been given birth times of 0, -1, -2, -3, -4.
-//            // loop over them to run to time 0.0;
-//            for(SimpleTissue<2>::Iterator cell_iter = p_tissue->Begin();
-//             cell_iter != p_tissue->End();
-//             ++cell_iter)
-//            {                
-//                cell_iter->ReadyToDivide();
-//            }
-//            
-//            // Create an output archive
-//            std::ofstream ofs(archive_filename.c_str());
-//            boost::archive::text_oarchive output_arch(ofs);
-//            
-//            // Write the tissue to the archive
-//            output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
-//            output_arch << p_tissue;
-//            SimulationTime::Destroy();
-//            delete p_tissue;
-//        }
-//        
-//        // Restore simple tissue
-//        {
-//            // Need to set up time 
-//            unsigned num_steps = 10;
-//            
-//            SimulationTime* p_simulation_time = SimulationTime::Instance();
-//            p_simulation_time->SetStartTime(0.0);
-//            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
-//            p_simulation_time->IncrementTimeOneStep();
-//            
-//            SimpleTissue<2>* p_tissue;
-//                                                   
-//            // Restore the tissue
-//            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-//            boost::archive::text_iarchive input_arch(ifs);
-//            
-//            input_arch >> *p_simulation_time;
-//            input_arch >> p_tissue;
-//            
-//            // Cells have been given birth times of 0, -1, -2, -3, -4.
-//            // this checks that individual cells and their models are archived.
-//            unsigned counter = 0u;
-//            
-//            for (SimpleTissue<2>::Iterator cell_iter = p_tissue->Begin();
-//             cell_iter != p_tissue->End();
-//             ++cell_iter)
-//            {
-//                TS_ASSERT_DELTA(cell_iter->GetAge(), (double)(counter), 1e-7);
-//                counter++;
-//            }
-//
-//            // Check the simulation time has been restored (through the cell)
-//            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.0);
-//            
-//            // Check the tissue has been restored
-//            TS_ASSERT_EQUALS(p_tissue->rGetCells().size(),5u);            
-//
-//            // This won't pass because of the mesh not being archived 
-//            TS_ASSERT_EQUALS(p_tissue->GetNumNodes(),5u);            
-//            
-//            delete p_tissue;
-//        }
-//    }
+    void TestArchivingTissue() throw (Exception)
+    {    
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "simpletissue.arch";
+        
+        // Archive a simple tissue 
+        {
+            // Need to set up time 
+            unsigned num_steps = 10;
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
+            
+            // Create a simple mesh
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+            ConformingTetrahedralMesh<2,2> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+            
+            // Get node vector from mesh
+            std::vector<Node<2> > nodes = SetUpNodes(&mesh);
+                    
+            // Set up cells, one for each node. Get each a birth time of -node_index,
+            // so the age = node_index
+            std::vector<TissueCell> cells = SetUpCells(&mesh);
+                    
+            // Create a tissue
+            SimpleTissue<2>* const p_tissue = new SimpleTissue<2>(nodes, cells);
+
+            // Cells have been given birth times of 0, -1, -2, -3, -4.
+            // loop over them to run to time 0.0;
+            for(SimpleTissue<2>::Iterator cell_iter = p_tissue->Begin();
+                cell_iter != p_tissue->End();
+                ++cell_iter)
+            {                
+                cell_iter->ReadyToDivide();
+            }
+            
+            // Create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            // Write the tissue to the archive
+            output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
+            output_arch << p_tissue;
+            SimulationTime::Destroy();
+            delete p_tissue;
+        }
+        
+        // Restore simple tissue
+        {
+            // Need to set up time 
+            unsigned num_steps = 10;
+            
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
+            p_simulation_time->IncrementTimeOneStep();
+            
+            SimpleTissue<2>* p_tissue;
+                                                   
+            // Restore the tissue
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            input_arch >> *p_simulation_time;
+            input_arch >> p_tissue;
+            
+            // Cells have been given birth times of 0, -1, -2, -3, -4.
+            // this checks that individual cells and their models are archived.
+            unsigned counter = 0u;
+            
+            for (SimpleTissue<2>::Iterator cell_iter = p_tissue->Begin();
+                 cell_iter != p_tissue->End();
+                 ++cell_iter)
+            {
+                TS_ASSERT_DELTA(cell_iter->GetAge(), (double)(counter), 1e-7);
+                counter++;
+            }
+
+            // Check the simulation time has been restored (through the cell)
+            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.0);
+            
+            // Check the tissue has been restored
+            TS_ASSERT_EQUALS(p_tissue->rGetCells().size(), 5u);
+
+            // Check number of nodes
+            std::vector<Node<2> > nodes = p_tissue->rGetNodes();
+            TS_ASSERT_EQUALS(nodes.size(), 5u);
+            // Check some node positions
+            TS_ASSERT_EQUALS(nodes[3].GetIndex(), 3u);
+            TS_ASSERT_EQUALS(nodes[4].GetIndex(), 4u);
+            
+            TS_ASSERT_DELTA(nodes[3].rGetLocation()[0], 0.0, 1e-9);
+            TS_ASSERT_DELTA(nodes[3].rGetLocation()[1], 1.0, 1e-9);
+            TS_ASSERT_DELTA(nodes[4].rGetLocation()[0], 0.5, 1e-9);
+            TS_ASSERT_DELTA(nodes[4].rGetLocation()[1], 0.5, 1e-9);
+            
+            TS_ASSERT_EQUALS(nodes[3].IsBoundaryNode(), true);
+            TS_ASSERT_EQUALS(nodes[4].IsBoundaryNode(), false);
+            
+            delete p_tissue;
+        }
+    }
     
 };
 

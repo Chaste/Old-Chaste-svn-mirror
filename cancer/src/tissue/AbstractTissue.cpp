@@ -21,6 +21,22 @@ template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
              : mCells(rCells.begin(), rCells.end())
 {
+    // Set up the node map
+    for (std::list<TissueCell>::iterator it = mCells.begin();
+         it != mCells.end();
+         ++it)
+    {
+        /// \todo Check it points to a real cell; if not do
+        /// it = this->mCells.erase(it); --it; continue;
+        unsigned node_index = it->GetNodeIndex();
+        mNodeCellMap[node_index] = &(*it);
+    }
+    
+    // Initialise cell counts to zero
+    for(unsigned i=0; i<5; i++)
+    {
+        mCellTypeCount[i] = 0;
+    }
 }
 
 template<unsigned DIM>

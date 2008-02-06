@@ -18,25 +18,9 @@ MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh
 {
     mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
 
-    // This must always be true    
+    // This must always be true
     assert( this->mCells.size() <= mrMesh.GetNumNodes() );
 
-    // Set up the node map
-    for (std::list<TissueCell>::iterator it = this->mCells.begin();
-         it != this->mCells.end();
-         ++it)
-    {
-        /// \todo Check it points to a real cell; if not do
-        /// it = this->mCells.erase(it); --it; continue;
-        unsigned node_index = it->GetNodeIndex();
-        this->mNodeCellMap[node_index] = &(*it);
-    }
-    
-    for(unsigned i=0; i<5; i++)
-    {
-        this->mCellTypeCount[i] = 0;
-    }
-        
 	Validate();
 }
 

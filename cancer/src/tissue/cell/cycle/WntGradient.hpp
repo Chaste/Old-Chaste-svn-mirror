@@ -115,8 +115,7 @@ public:
     double GetWntLevel(TissueCell* pCell);
     
     /**
-     *  Set the crypt. Must be called before GetWntLevel(). This calls 
-     *  crypt.Initialise()
+     *  Set the crypt. Must be called before GetWntLevel().
      */
     void SetTissue(MeshBasedTissue<2>& rTissue);
     

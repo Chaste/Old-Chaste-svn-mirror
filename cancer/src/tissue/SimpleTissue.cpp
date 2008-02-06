@@ -9,24 +9,16 @@ SimpleTissue<DIM>::SimpleTissue(const std::vector<Node<DIM> >& rNodes,
         : AbstractTissue<DIM>(rCells),
           mNodes(rNodes)
 {
-    // Set up the node map
-    for (std::list<TissueCell>::iterator it = this->mCells.begin();
-         it != this->mCells.end();
-         ++it)
-    {
-        // \todo Check it points to a real cell; if not do
-        // it = this->mCells.erase(it); --it; continue;
-        unsigned node_index = it->GetNodeIndex();
-        this->mNodeCellMap[node_index] = &(*it);
-    }
-    
-    for(unsigned i=0; i<5; i++)
-    {
-        this->mCellTypeCount[i]=0;
-    }
-    
     Validate();    
 }
+
+template<unsigned DIM>
+SimpleTissue<DIM>::SimpleTissue(const std::vector<Node<DIM> >& rNodes)
+        : AbstractTissue<DIM>(),
+          mNodes(rNodes)
+{
+}
+
 
 template<unsigned DIM>
 void SimpleTissue<DIM>::Validate()
@@ -52,6 +44,12 @@ void SimpleTissue<DIM>::Validate()
 
 template<unsigned DIM>
 std::vector<Node<DIM> >& SimpleTissue<DIM>::rGetNodes()
+{
+    return mNodes;
+}
+
+template<unsigned DIM>
+const std::vector<Node<DIM> >& SimpleTissue<DIM>::rGetNodes() const
 {
     return mNodes;
 }

@@ -7,6 +7,8 @@
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
+#include <boost/serialization/set.hpp>
+#include <boost/serialization/vector.hpp>
 
 /**
  * A facade class encapsulating a mesh-based 'tissue'
@@ -68,6 +70,8 @@ private:
         delete mpVoronoiTessellation;
         
         archive & mMarkedSprings;
+        
+        Validate(); // paranoia
     }
     
 public:
@@ -279,6 +283,9 @@ public:
 
 template<unsigned DIM>
 std::string MeshBasedTissue<DIM>::meshPathname = "";
+
+#include "TemplatedExport.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(MeshBasedTissue)
 
 namespace boost
 {

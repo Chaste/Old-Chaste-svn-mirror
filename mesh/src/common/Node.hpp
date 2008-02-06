@@ -203,12 +203,12 @@ public:
         return mBoundaryElementIndices;
     }
     
-    unsigned GetNumContainingElements()
+    unsigned GetNumContainingElements() const
     {
         return mElementIndices.size();
     }
     
-    unsigned GetNumBoundaryElements()
+    unsigned GetNumBoundaryElements() const
     {
         return mBoundaryElementIndices.size();
     }
@@ -221,7 +221,7 @@ public:
         mIsDeleted = true;
     }
     
-    bool IsDeleted()
+    bool IsDeleted() const
     {
         return mIsDeleted;
     }

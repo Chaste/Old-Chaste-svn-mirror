@@ -8,10 +8,8 @@
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
-#include <boost/serialization/set.hpp>
 
 /**
  * An abstract facade class encapsulating a tissue.
@@ -73,7 +71,7 @@ protected:
      * Check consistency of our internal data structures.
      */
     virtual void Validate()=0;
-            
+    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -86,6 +84,10 @@ public:
     
     AbstractTissue(const std::vector<TissueCell>& rCells);
     
+    /**
+     * Constructor for use by archiving - doesn't take in cells, since these are dealt
+     * with by the serialize method.
+     */    
     AbstractTissue()
     {}
     
@@ -229,5 +231,15 @@ public:
     Iterator End();
     
 };
+
+
+namespace boost {
+namespace serialization {
+template<unsigned DIM>
+struct is_abstract<AbstractTissue<DIM> > {
+    typedef mpl::bool_<true> type;
+    BOOST_STATIC_CONSTANT(bool, value = true);
+};
+}}
 
 #endif /*ABSTRACTTISSUE_HPP_*/
