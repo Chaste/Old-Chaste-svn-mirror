@@ -204,13 +204,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         }
     }
     
-//    for (typename ConformingTetrahedralMesh<DIM,DIM>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
-//         node_iter != r_mesh.GetBoundaryNodeIteratorEnd();
-//         ++node_iter)
-//    {
-//        bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
-//    }
-    
+
     PetscInt size_of_soln_previous_step = 0;
     
     if(mNutrientSolution)

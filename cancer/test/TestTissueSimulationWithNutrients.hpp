@@ -19,6 +19,7 @@
 #include "CellsGenerator.hpp"
 #include "ColumnDataReader.hpp"
 #include "AbstractCancerTestSuite.hpp"
+#include "CellsGenerator.hpp"
 
 class SimplePdeForTesting : public AbstractLinearEllipticPde<2>
 {
@@ -613,6 +614,53 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         TS_ASSERT(simulator.mpCoarseNutrientMesh != NULL);
         
+        ReplicatableVector nutrient_conc(simulator.GetNutrientSolution());
+
+        // test the nutrient concentration at the coarse mesh nodes is
+        // equal to 1.0 if the nodes is away from the cells 
+        for(unsigned i=0; i<nutrient_conc.size(); i++)
+        {
+            c_vector<double,2> centre;
+            centre(0) = 2.5; // assuming 5 by 5 honeycomb mesh
+            centre(1) = 2.5;
+            c_vector<double,2> posn = simulator.mpCoarseNutrientMesh->GetNode(i)->rGetLocation();
+            double dist = norm_2(centre-posn);
+            double u = nutrient_conc[i];
+            
+            if(dist > 4.0)
+            {
+                TS_ASSERT_DELTA(u, 1.0, 1e-5);
+            }
+        }
+
+        // loop over cells, find the coarse mesh element containing it, then
+        // check the interpolated nutrient concentration is between the min
+        // and max of the nutrient concentrations on the nodes of that element
+        for(MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
+            cell_iter != tissue.End();
+            ++cell_iter)
+        {
+            unsigned elem_index = simulator.mpCoarseNutrientMesh->GetContainingElementIndex(cell_iter.rGetLocation());
+            Element<2,2>* p_element = simulator.mpCoarseNutrientMesh->GetElement(elem_index);
+
+
+            double max = std::max(nutrient_conc[p_element->GetNodeGlobalIndex(0)],
+                                  nutrient_conc[p_element->GetNodeGlobalIndex(1)]);
+                                  
+            max = std::max(max, nutrient_conc[p_element->GetNodeGlobalIndex(2)]);
+
+            double min = std::min(nutrient_conc[p_element->GetNodeGlobalIndex(0)],
+                                  nutrient_conc[p_element->GetNodeGlobalIndex(1)]);
+
+            min = std::min(min, nutrient_conc[p_element->GetNodeGlobalIndex(2)]);
+
+                                  
+            double value_at_cell = CellwiseData<2>::Instance()->GetValue(&(*cell_iter), 0);
+
+            TS_ASSERT_LESS_THAN_EQUALS(min, value_at_cell);
+            TS_ASSERT_LESS_THAN_EQUALS(value_at_cell, max);
+        }
+        
         // Tidy up
         delete p_killer;
         CellwiseData<2>::Destroy();
@@ -708,6 +756,7 @@ public:
         delete p_simulator;       
         CellwiseData<2>::Destroy();        
     }
+    
 
 ///// seems to work ok:
 //    void xTestWithOxygen3D() throw(Exception)
@@ -782,5 +831,6 @@ public:
 //        CellwiseData<2>::Destroy();
 //    }
 
+   
 };
 #endif /*TESTTISSUESIMULATIONWITHNUTRIENTS_HPP_*/
