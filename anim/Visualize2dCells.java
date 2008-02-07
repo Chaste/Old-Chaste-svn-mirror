@@ -43,6 +43,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static boolean nutrientFilePresent = false;
     public static boolean betaCateninFilePresent = false;
     public static boolean stressFilePresent = false;
+    public static boolean elementFilePresent = true;
     
     public static int timeStep = 0;
     public static int delay = 50;
@@ -367,7 +368,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     
     public static void main(String args[]) 
     {
-        System.out.println("Copyright Gavaghan's goons");
+        System.out.println("Copyright The Chaste Project");
         cells.setState(true);
         output.setState(false);
         springs.setState(false);
@@ -445,8 +446,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         }
         if (!element_file.isFile())
         {
-            System.out.println("The file "+args[0]+"/vis_results/results.vizelements doesn't exist");
-            return;
+        	// If the results.vizelements does not exist, then the results have been 
+        	// generated using a SimpleTissue
+        	elementFilePresent = false;
         }
         if (!nutrient_file.isFile())
         {
@@ -526,10 +528,14 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             times = new double[num_lines];
             positions = new RealPoint[num_lines][];
             cell_type = new int [num_lines][];
-            numCells = new int[num_lines];
-            numElements = new int[num_lines];
-            element_nodes = new int[num_lines][];
+            numCells = new int[num_lines];            
             image_cells = new int[num_lines][];
+            
+            if (elementFilePresent)
+            {
+            	numElements = new int[num_lines];
+            	element_nodes = new int[num_lines][];
+            }
             if (fibresFilePresent)
             {
             	fibres =  new RealPoint[num_lines][];
@@ -620,10 +626,15 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
            	}
             
             BufferedReader in_node_file = new BufferedReader(new FileReader(node_file));
-            BufferedReader in_element_file = new BufferedReader(new FileReader(element_file));
-            
             String line_node = in_node_file.readLine(); // from console input example
-            String line_element = in_element_file.readLine();   // above
+            
+            BufferedReader in_element_file = null;
+            String line_element = null;
+            if (elementFilePresent)
+            {
+            	in_element_file = new BufferedReader(new FileReader(element_file));
+            	line_element = in_element_file.readLine();   // above
+            }
             
             // If line is not end of file continue
             boolean has_stress_line_been_read = false;
@@ -632,7 +643,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             {
             	// Create a StringTokenizer with a colon sign as a delimiter
                 StringTokenizer st_node = new StringTokenizer(line_node);
-                StringTokenizer st_element = new StringTokenizer(line_element);
+                StringTokenizer st_element = null;
+                if (elementFilePresent)
+                {
+                	st_element = new StringTokenizer(line_element);
+                }
                 StringTokenizer st_fibre = null;
                 StringTokenizer st_nutrient = null;
                 StringTokenizer st_beta_catenin = null;
@@ -640,7 +655,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 
                 if (drawFibres)
                 {
-                    st_fibre=new StringTokenizer(line_fibre);
+                    st_fibre = new StringTokenizer(line_fibre);
                     Double fibre_time = Double.valueOf(st_fibre.nextToken());
                 }
                 if (drawNutrient)
@@ -657,7 +672,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 }
                 if (drawBetaCatenin)
                 {
-                	st_beta_catenin=new StringTokenizer(line_beta_catenin);
+                	st_beta_catenin = new StringTokenizer(line_beta_catenin);
                     Double beta_catenin_time = Double.valueOf(st_beta_catenin.nextToken());
                     
                     // Count the number of entries in the bcat file to get num non ghosts and check correct 
@@ -687,12 +702,16 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 }
                 
                 Double time = Double.valueOf(st_node.nextToken());
-                Double element_time = Double.valueOf(st_element.nextToken());
                 
-                if (Math.abs(time-element_time)>1e-6) 
+                if (elementFilePresent)
                 {
-                    System.out.println("Oi - I want the element and node files with rows at the same times...");
-                    System.exit(0);
+                	Double element_time = Double.valueOf(st_element.nextToken());
+                    
+                    if (Math.abs(time - element_time) > 1e-6) 
+                    {
+                        System.out.println("Oi - I want the element and node files with rows at the same times...");
+                        System.exit(0);
+                    }               	
                 }
                 
                 times[row] = time.doubleValue();
@@ -706,15 +725,18 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 }
                 numCells[row] = entries/3; 
                 
-                // Count the number of entries in the element file and check correct 
-                entries = st_element.countTokens();
-                if (entries%3 != 0)
+                if (elementFilePresent)
                 {
-                    System.out.println("Oi - I want the element file to look like: time,n1,n2,n3,n1,n2,n3..");
-                    System.exit(0);
-                }
-                numElements[row] = entries/3;
-                
+                    // Count the number of entries in the element file and check correct 
+                    entries = st_element.countTokens();
+                    if (entries%3 != 0)
+                    {
+                        System.out.println("Oi - I want the element file to look like: time,n1,n2,n3,n1,n2,n3..");
+                        System.exit(0);
+                    }
+                    numElements[row] = entries/3;
+                    element_nodes[row] = new int[memory_factor*3*numElements[row]];
+                }                
                 positions[row] = new RealPoint[memory_factor*numCells[row]];
                 if (fibresFilePresent)
                 {
@@ -733,8 +755,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 	stress_values[row] = new double[2*numCells[row]][2];
                 }
                 cell_type[row]= new int[memory_factor*numCells[row]];
-                element_nodes[row] = new int[memory_factor*3*numElements[row]];
-
+                
                 for (int i = 0; i < numCells[row]; i++) 
                 {
                 	double d1 = Double.valueOf(st_node.nextToken()).doubleValue();
@@ -757,7 +778,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     {
                         max_cell_type = cell_type[row][i];
                     }
-                    positions[row][i]=new RealPoint(d1,d2);
+                    positions[row][i] = new RealPoint(d1,d2);
                     
                     if (drawNutrient)
                     {
@@ -810,13 +831,18 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     }
                 }                
                 
-                for (int i = 0; i < 3*numElements[row]; i++) 
+                if (elementFilePresent)
                 {
-                    int node = Integer.parseInt(st_element.nextToken());
-                    element_nodes[row][i] = node;
+                	for (int i = 0; i < 3*numElements[row]; i++) 
+                    {
+                        int node = Integer.parseInt(st_element.nextToken());
+                        element_nodes[row][i] = node;
+                    }                	
                 }
                 
                 // Read next line of the file
+                line_node = in_node_file.readLine();
+                
                 if (drawFibres)
                 {
                     line_fibre = in_fibre_file.readLine();
@@ -828,9 +854,12 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 if (drawBetaCatenin)
                 {
                 	line_beta_catenin = in_beta_catenin_file.readLine();
+                }                
+                if (elementFilePresent)
+                {
+                	line_element = in_element_file.readLine();
                 }
-                line_node = in_node_file.readLine();
-                line_element = in_element_file.readLine();
+                
                 row++;                
             } // end while not at end of file
             
@@ -890,42 +919,45 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static void ConvertCylindricalDataToPlane()
     {
         // Scan through each element
-        for (int time_index = 0; time_index < numSteps ; time_index++)
+        for (int time_index=0; time_index<numSteps ; time_index++)
         {
             image_cells[time_index] = new int[memory_factor*numCells[time_index]]; // reserve plenty of memory
             
             // Fill image_nodes with an identity map (at each time step each node maps to itself)            
-            for (int i=0 ; i<numCells[time_index] ; i++) 
+            for (int i=0; i<numCells[time_index]; i++) 
             {
                 image_cells[time_index][i] = i;
             }
             
-            // Draw elements first
-            for (int i = 0 ; i < numElements[time_index]; i++)
-            {   
-                // What nodes are we joining up?
-                int indexA = element_nodes[time_index][3*i];
-                int indexB = element_nodes[time_index][3*i+1];
-                int indexC = element_nodes[time_index][3*i+2];
-                
-                // Find the x-co-ords of each node
-                RealPoint rA = positions[time_index][indexA];
-                RealPoint rB = positions[time_index][indexB];
-                RealPoint rC = positions[time_index][indexC];
-                
-                // Identify edges that are oversized
-                if ((Math.abs(rA.x - rB.x) > 0.75*crypt_width)
-                    ||(Math.abs(rB.x - rC.x) > 0.75*crypt_width)
-                    ||(Math.abs(rA.x - rC.x) > 0.75*crypt_width))
-                {
-                    MakeNewImageCell(time_index,indexA);
-                    MakeNewImageCell(time_index,indexB);
-                    MakeNewImageCell(time_index,indexC);
+            if (elementFilePresent)
+            {
+                // Draw elements first
+                for (int i=0; i<numElements[time_index]; i++)
+                {   
+                    // What nodes are we joining up?
+                    int indexA = element_nodes[time_index][3*i];
+                    int indexB = element_nodes[time_index][3*i+1];
+                    int indexC = element_nodes[time_index][3*i+2];
                     
-                    // Break those elements into two separate elements
-                    SplitElement(time_index,i);
+                    // Find the x-co-ords of each node
+                    RealPoint rA = positions[time_index][indexA];
+                    RealPoint rB = positions[time_index][indexB];
+                    RealPoint rC = positions[time_index][indexC];
+                    
+                    // Identify edges that are oversized
+                    if ((Math.abs(rA.x - rB.x) > 0.75*crypt_width)
+                        ||(Math.abs(rB.x - rC.x) > 0.75*crypt_width)
+                        ||(Math.abs(rA.x - rC.x) > 0.75*crypt_width))
+                    {
+                        MakeNewImageCell(time_index,indexA);
+                        MakeNewImageCell(time_index,indexB);
+                        MakeNewImageCell(time_index,indexC);
+                        
+                        // Break those elements into two separate elements
+                        SplitElement(time_index,i);
+                    }
                 }
-            }
+            }            
         }
     }
 
@@ -976,8 +1008,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static void MakeNewImageCell(int time_index, int node_index)
     {   
     	//Only make a new cell if one hasn't already been made
-        if (image_cells[time_index][node_index]==node_index)
-        {   
+        if (image_cells[time_index][node_index] == node_index)
+        {	
         	// Make a new image of Cell A       
             RealPoint new_point = positions[time_index][node_index];
             RealPoint new_point2 = new RealPoint(0.0,0.0);
@@ -1158,270 +1190,273 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         g2.setColor(Color.black);
         Shape original_clip = g2.getClip();
         
-        // Draw elements first
-        for (int i=0 ; i < vis.numElements[vis.timeStep]; i++)
-        {       
-            // What nodes are we joining up?
-        	int index[] = new int[3];
-            index[0] = vis.element_nodes[vis.timeStep][3*i];
-            index[1] = vis.element_nodes[vis.timeStep][3*i+1];
-            index[2] = vis.element_nodes[vis.timeStep][3*i+2];
+        if (vis.elementFilePresent)
+        {        	
+	        // Draw elements first
+	        for (int i=0 ; i < vis.numElements[vis.timeStep]; i++)
+	        {       
+	            // What nodes are we joining up?
+	        	int index[] = new int[3];
+	            index[0] = vis.element_nodes[vis.timeStep][3*i];
+	            index[1] = vis.element_nodes[vis.timeStep][3*i+1];
+	            index[2] = vis.element_nodes[vis.timeStep][3*i+2];
+	            
+	            RealPoint r1 = vis.positions[vis.timeStep][index[0]];
+	            RealPoint r2 = vis.positions[vis.timeStep][index[1]];
+	            RealPoint r3 = vis.positions[vis.timeStep][index[2]];
+	            
+	            RealPoint circumcentre=DrawCircumcentre(r1,r2,r3);
+	            PlotPoint plotcircumcentre = scale(circumcentre);
+	            
+	            // Where are they? Convert to integer pixels
+	            PlotPoint vertex[] = new PlotPoint[3];
+	            vertex[0] = scale(r1);
+	            vertex[1] = scale(r2);
+	            vertex[2] = scale(r3);
+	
+	            PlotPoint midpoint[] = new PlotPoint[3];
+	            midpoint[2] = scale(new RealPoint(r1,r2));
+	            midpoint[0] = scale(new RealPoint(r2,r3));
+	            midpoint[1] = scale(new RealPoint(r3,r1));
+	            
+	            g2.setColor(Color.black);
+	            
+	            if (vis.drawCells)
+	            {
+	                int clipx[] = new int[3];
+	                int clipy[] = new int[3];
+	                for (int node=0; node<3; node++)
+	                {
+	                	clipx[node] = vertex[node].x;
+	                    clipy[node] = vertex[node].y;
+	                }
+	                Polygon clip = new Polygon(clipx,clipy,3);
+	                boolean clip_me = false;
+	                 
+	                // Is circumcentre in the triangle? If not, then we'll clip 
+	                // the next bit of drawing to fit inside the triangle 
+	                if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
+	                {
+	                	clip_me = true;
+	                    g2.setClip(clip);
+	                }
+	                for (int node=0; node<3; node++)
+	                {                	 
+	                    SetCellColour(index[node]);
+	                    int xs[] = new int[4];
+	                    int ys[] = new int[4];
+	                    xs[0] = plotcircumcentre.x;
+	                    ys[0] = plotcircumcentre.y;
+	                    xs[1] = midpoint[(node+1)%3].x;
+	                    ys[1] = midpoint[(node+1)%3].y;
+	                    xs[2] = vertex[node].x;
+	                    ys[2] = vertex[node].y;
+	                    xs[3] = midpoint[(node+2)%3].x;
+	                    ys[3] = midpoint[(node+2)%3].y;
+	                    g2.fillPolygon(xs,ys,4);
+	                }
+	                
+	                g2.setColor(Color.black);
+	                
+	                // Plot cell boundary lines
+	                if ( (vis.cell_type[vis.timeStep][index[0]]!= INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]]!= INVISIBLE_COLOUR) )
+	                {
+	                    g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
+	                }
+	                if ( (vis.cell_type[vis.timeStep][index[1]]!= INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[2]]!= INVISIBLE_COLOUR) )
+	                {
+	                    g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
+	                }
+	                if ( (vis.cell_type[vis.timeStep][index[2]]!= INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[0]]!= INVISIBLE_COLOUR) )
+	                {
+	                    g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
+	                }
+	                if (clip_me)
+	                {
+	                	g2.setClip(original_clip);
+	                }                
+	            }	        
             
-            RealPoint r1 = vis.positions[vis.timeStep][index[0]];
-            RealPoint r2 = vis.positions[vis.timeStep][index[1]];
-            RealPoint r3 = vis.positions[vis.timeStep][index[2]];
-            
-            RealPoint circumcentre=DrawCircumcentre(r1,r2,r3);
-            PlotPoint plotcircumcentre = scale(circumcentre);
-            
-            // Where are they? Convert to integer pixels
-            PlotPoint vertex[] = new PlotPoint[3];
-            vertex[0] = scale(r1);
-            vertex[1] = scale(r2);
-            vertex[2] = scale(r3);
-
-            PlotPoint midpoint[] = new PlotPoint[3];
-            midpoint[2] = scale(new RealPoint(r1,r2));
-            midpoint[0] = scale(new RealPoint(r2,r3));
-            midpoint[1] = scale(new RealPoint(r3,r1));
-            
-            g2.setColor(Color.black);
-            
-            if (vis.drawCells)
-            {
-                int clipx[] = new int[3];
-                int clipy[] = new int[3];
-                for (int node=0; node<3; node++)
-                {
-                	clipx[node] = vertex[node].x;
-                    clipy[node] = vertex[node].y;
-                }
-                Polygon clip = new Polygon(clipx,clipy,3);
-                boolean clip_me = false;
-                 
-                // Is circumcentre in the triangle? If not, then we'll clip 
-                // the next bit of drawing to fit inside the triangle 
-                if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
-                {
-                	clip_me = true;
-                    g2.setClip(clip);
-                }
-                for (int node=0; node<3; node++)
-                {                	 
-                    SetCellColour(index[node]);
-                    int xs[] = new int[4];
-                    int ys[] = new int[4];
-                    xs[0] = plotcircumcentre.x;
-                    ys[0] = plotcircumcentre.y;
-                    xs[1] = midpoint[(node+1)%3].x;
-                    ys[1] = midpoint[(node+1)%3].y;
-                    xs[2] = vertex[node].x;
-                    ys[2] = vertex[node].y;
-                    xs[3] = midpoint[(node+2)%3].x;
-                    ys[3] = midpoint[(node+2)%3].y;
-                    g2.fillPolygon(xs,ys,4);
-                }
-                
-                g2.setColor(Color.black);
-                
-                // Plot cell boundary lines
-                if ( (vis.cell_type[vis.timeStep][index[0]]!= INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]]!= INVISIBLE_COLOUR) )
-                {
-                    g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
-                }
-                if ( (vis.cell_type[vis.timeStep][index[1]]!= INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[2]]!= INVISIBLE_COLOUR) )
-                {
-                    g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
-                }
-                if ( (vis.cell_type[vis.timeStep][index[2]]!= INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[0]]!= INVISIBLE_COLOUR) )
-                {
-                    g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
-                }
-                if (clip_me)
-                {
-                	g2.setClip(original_clip);
-                }                
-            }    
-            
-            if (vis.drawNutrient)
-            {               	
-            	int clipx[]=new int[3];
-            	int clipy[]=new int[3];
-            	for (int node=0;node<3;node++)
-            	{
-            		clipx[node]=vertex[node].x;
-            		clipy[node]=vertex[node].y;
-            	}
-            	Polygon clip=new Polygon(clipx,clipy,3);
-            	boolean clip_me=false;
-            	// Is circumcentre in the triangle?
-            	// If not, then we'll clip the next bit of drawing to fit inside the triangle (ticket #432)
-            	if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
-            	{
-            		clip_me=true;
-            		g2.setClip(clip);
-            	}
-            	 	               
-            	for (int node=0;node<3;node++)
-            	{   
-            		SetCellColour(index[node]);
-            		int xs[]=new int[4];
-            	    int ys[]=new int[4];
-                    xs[0]=plotcircumcentre.x;
-            	    ys[0]=plotcircumcentre.y;
-            		xs[1]=midpoint[(node+1)%3].x;
-            		ys[1]=midpoint[(node+1)%3].y;
-          	        xs[2]=vertex[node].x;
-         	        ys[2]=vertex[node].y;
-          	        xs[3]=midpoint[(node+2)%3].x;
-          	        ys[3]=midpoint[(node+2)%3].y;
-           	        g2.fillPolygon(xs,ys,4);
-            	}
-            	 	           
-            	g2.setColor(Color.black);
-            	// Plot cell boundary lines
-            	if( (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR))
-            	{
-            		g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
-            	}
-            	if( (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR))
-            	{
-            		g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
-            	}
-            	if( (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR))
-            	{
-            		g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
-            	}
-            	if (clip_me)
-            	{
-            		g2.setClip(original_clip);
-            	}
-            }           
-                        
-            if (vis.drawBetaCatenin)
-            {                   
-                int clipx[] = new int[3];
-                int clipy[] = new int[3];
-                
-                for (int node=0; node<3; node++)
-                {
-                	clipx[node] = vertex[node].x;
-                	clipy[node] = vertex[node].y;
-                }
-                Polygon clip = new Polygon(clipx,clipy,3);
-                boolean clip_me = false;
-                
-                // Is circumcentre in the triangle? If not, then we'll clip 
-                // the next bit of drawing to fit inside the triangle 
-                if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
-                {
-                	clip_me = true;
-                	g2.setClip(clip);
-                } 
-                
-                // Plot membrane-bound beta catenin levels
-                for (int node=0; node<3; node++)
-                {    
-                	 SetCellBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][0], index[node]);
-                	 int xs[] = new int[4];
-                     int ys[]= new int[4];
-                     xs[0] = plotcircumcentre.x;
-                     ys[0] = plotcircumcentre.y;
-                     xs[1] = midpoint[(node+1)%3].x;
-                     ys[1] = midpoint[(node+1)%3].y;
-                     xs[2] = vertex[node].x;
-                     ys[2] = vertex[node].y;
-                     xs[3] = midpoint[(node+2)%3].x;
-                     ys[3] = midpoint[(node+2)%3].y;
-                     g2.fillPolygon(xs,ys,4);
-                }
-                
-                // Plot cytoplasmic beta catenin levels
-                for (int node=0; node<3; node++)
-                {    
-                	 SetCellBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][1], index[node]);
-                	 r1 = vis.positions[vis.timeStep][index[0]];
-                	 double cyto_scaler = 0.8;
-                	 double mid_cyto_scaler = (cyto_scaler)/2.0;
-                	 double circumcentre_for_vertex_x = (1-cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+cyto_scaler*circumcentre.x;
-                	 double circumcentre_for_vertex_y = (1-cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+cyto_scaler*circumcentre.y;
-                	 PlotPoint scaled_circumcentre_for_vertex = scale(circumcentre_for_vertex_x, circumcentre_for_vertex_y);
-                	 
-                	 double mid1_for_vertex_x = (1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+2)%3]].x;
-                	 double mid1_for_vertex_y = (1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+2)%3]].y;
-                	 PlotPoint scaled_mid1_for_vertex = scale(mid1_for_vertex_x, mid1_for_vertex_y);
-                	 
-                	 double mid2_for_vertex_x = (1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+1)%3]].x;
-                	 double mid2_for_vertex_y = (1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+1)%3]].y;
-                	 PlotPoint scaled_mid2_for_vertex = scale(mid2_for_vertex_x, mid2_for_vertex_y);
-                	 
-                     int xs[] = new int[4];
-                     int ys[] = new int[4];
-                     xs[0] = scaled_circumcentre_for_vertex.x;
-                     ys[0] = scaled_circumcentre_for_vertex.y;
-                     xs[1] = scaled_mid1_for_vertex.x;
-                     ys[1] = scaled_mid1_for_vertex.y;
-                     xs[2] = vertex[node].x;
-                     ys[2] = vertex[node].y;
-                     xs[3] = scaled_mid2_for_vertex.x;
-                     ys[3] = scaled_mid2_for_vertex.y;
-                     g2.fillPolygon(xs,ys,4);
-                }
-                
-                g2.setColor(Color.black);
-                
-                // Plot membrane-bound beta catenin levels
-                if ( (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) )
-                {
-                	g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
-                }
-                if ( (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) )
-                {
-                	g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
-                }
-                if ( (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) )
-                {
-                	g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
-                }
-                if (clip_me)
-                {
-                	g2.setClip(original_clip);
-                }
-            }       
-            
-            if (vis.drawSprings)
-            {
-                // Plot lines
-                if ( (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) )
-                {
-                    g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
-                }
-                if ( (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) )
-                {
-                    g2.drawLine(vertex[1].x, vertex[1].y, vertex[2].x, vertex[2].y);
-                }
-                if ( (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) )
-                {
-                    g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
-                }
-                if (vis.drawGhosts)
-                {
-                    g2.setColor(garysSpringsSilver);
-                    if ( (vis.cell_type[vis.timeStep][index[0]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[1]] == INVISIBLE_COLOUR) )
-                    {
-                        g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
-                    }
-                    if ( (vis.cell_type[vis.timeStep][index[1]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[2]] == INVISIBLE_COLOUR) )
-                    {
-                        g2.drawLine(vertex[1].x, vertex[1].y, vertex[2].x, vertex[2].y);
-                    }
-                    if ( (vis.cell_type[vis.timeStep][index[2]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[0]] == INVISIBLE_COLOUR) )
-                    {
-                        g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
-                    }
-                    g2.setColor(Color.black);
-                }
-            }
+	            if (vis.drawNutrient)
+	            {               	
+	            	int clipx[] = new int[3];
+	            	int clipy[] = new int[3];
+	            	for (int node=0; node<3; node++)
+	            	{
+	            		clipx[node] = vertex[node].x;
+	            		clipy[node] = vertex[node].y;
+	            	}
+	            	Polygon clip = new Polygon(clipx,clipy,3);
+	            	boolean clip_me = false;
+	            	// Is circumcentre in the triangle?
+	            	// If not, then we'll clip the next bit of drawing to fit inside the triangle (ticket #432)
+	            	if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
+	            	{
+	            		clip_me = true;
+	            		g2.setClip(clip);
+	            	}
+	            	 	               
+	            	for (int node=0; node<3; node++)
+	            	{   
+	            		SetCellColour(index[node]);
+	            		int xs[]=new int[4];
+	            	    int ys[]=new int[4];
+	                    xs[0]=plotcircumcentre.x;
+	            	    ys[0]=plotcircumcentre.y;
+	            		xs[1]=midpoint[(node+1)%3].x;
+	            		ys[1]=midpoint[(node+1)%3].y;
+	          	        xs[2]=vertex[node].x;
+	         	        ys[2]=vertex[node].y;
+	          	        xs[3]=midpoint[(node+2)%3].x;
+	          	        ys[3]=midpoint[(node+2)%3].y;
+	           	        g2.fillPolygon(xs,ys,4);
+	            	}
+	            	 	           
+	            	g2.setColor(Color.black);
+	            	// Plot cell boundary lines
+	            	if( (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR))
+	            	{
+	            		g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
+	            	}
+	            	if( (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR))
+	            	{
+	            		g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
+	            	}
+	            	if( (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR))
+	            	{
+	            		g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
+	            	}
+	            	if (clip_me)
+	            	{
+	            		g2.setClip(original_clip);
+	            	}
+	            }           
+	                        
+	            if (vis.drawBetaCatenin)
+	            {                   
+	                int clipx[] = new int[3];
+	                int clipy[] = new int[3];
+	                
+	                for (int node=0; node<3; node++)
+	                {
+	                	clipx[node] = vertex[node].x;
+	                	clipy[node] = vertex[node].y;
+	                }
+	                Polygon clip = new Polygon(clipx,clipy,3);
+	                boolean clip_me = false;
+	                
+	                // Is circumcentre in the triangle? If not, then we'll clip 
+	                // the next bit of drawing to fit inside the triangle 
+	                if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
+	                {
+	                	clip_me = true;
+	                	g2.setClip(clip);
+	                } 
+	                
+	                // Plot membrane-bound beta catenin levels
+	                for (int node=0; node<3; node++)
+	                {    
+	                	 SetCellBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][0], index[node]);
+	                	 int xs[] = new int[4];
+	                     int ys[]= new int[4];
+	                     xs[0] = plotcircumcentre.x;
+	                     ys[0] = plotcircumcentre.y;
+	                     xs[1] = midpoint[(node+1)%3].x;
+	                     ys[1] = midpoint[(node+1)%3].y;
+	                     xs[2] = vertex[node].x;
+	                     ys[2] = vertex[node].y;
+	                     xs[3] = midpoint[(node+2)%3].x;
+	                     ys[3] = midpoint[(node+2)%3].y;
+	                     g2.fillPolygon(xs,ys,4);
+	                }
+	                
+	                // Plot cytoplasmic beta catenin levels
+	                for (int node=0; node<3; node++)
+	                {    
+	                	 SetCellBetaCateninColour(vis.beta_catenin_values[vis.timeStep][index[node]][1], index[node]);
+	                	 r1 = vis.positions[vis.timeStep][index[0]];
+	                	 double cyto_scaler = 0.8;
+	                	 double mid_cyto_scaler = (cyto_scaler)/2.0;
+	                	 double circumcentre_for_vertex_x = (1-cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+cyto_scaler*circumcentre.x;
+	                	 double circumcentre_for_vertex_y = (1-cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+cyto_scaler*circumcentre.y;
+	                	 PlotPoint scaled_circumcentre_for_vertex = scale(circumcentre_for_vertex_x, circumcentre_for_vertex_y);
+	                	 
+	                	 double mid1_for_vertex_x = (1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+2)%3]].x;
+	                	 double mid1_for_vertex_y = (1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+2)%3]].y;
+	                	 PlotPoint scaled_mid1_for_vertex = scale(mid1_for_vertex_x, mid1_for_vertex_y);
+	                	 
+	                	 double mid2_for_vertex_x = (1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].x+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+1)%3]].x;
+	                	 double mid2_for_vertex_y = (1-mid_cyto_scaler)*vis.positions[vis.timeStep][index[node]].y+mid_cyto_scaler*vis.positions[vis.timeStep][index[(node+1)%3]].y;
+	                	 PlotPoint scaled_mid2_for_vertex = scale(mid2_for_vertex_x, mid2_for_vertex_y);
+	                	 
+	                     int xs[] = new int[4];
+	                     int ys[] = new int[4];
+	                     xs[0] = scaled_circumcentre_for_vertex.x;
+	                     ys[0] = scaled_circumcentre_for_vertex.y;
+	                     xs[1] = scaled_mid1_for_vertex.x;
+	                     ys[1] = scaled_mid1_for_vertex.y;
+	                     xs[2] = vertex[node].x;
+	                     ys[2] = vertex[node].y;
+	                     xs[3] = scaled_mid2_for_vertex.x;
+	                     ys[3] = scaled_mid2_for_vertex.y;
+	                     g2.fillPolygon(xs,ys,4);
+	                }
+	                
+	                g2.setColor(Color.black);
+	                
+	                // Plot membrane-bound beta catenin levels
+	                if ( (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) )
+	                {
+	                	g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
+	                }
+	                if ( (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) )
+	                {
+	                	g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
+	                }
+	                if ( (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) )
+	                {
+	                	g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
+	                }
+	                if (clip_me)
+	                {
+	                	g2.setClip(original_clip);
+	                }
+	            }       
+	            
+	            if (vis.drawSprings)
+	            {
+	                // Plot lines
+	                if ( (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) )
+	                {
+	                    g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
+	                }
+	                if ( (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) )
+	                {
+	                    g2.drawLine(vertex[1].x, vertex[1].y, vertex[2].x, vertex[2].y);
+	                }
+	                if ( (vis.cell_type[vis.timeStep][index[2]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) )
+	                {
+	                    g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
+	                }
+	                if (vis.drawGhosts)
+	                {
+	                    g2.setColor(garysSpringsSilver);
+	                    if ( (vis.cell_type[vis.timeStep][index[0]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[1]] == INVISIBLE_COLOUR) )
+	                    {
+	                        g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
+	                    }
+	                    if ( (vis.cell_type[vis.timeStep][index[1]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[2]] == INVISIBLE_COLOUR) )
+	                    {
+	                        g2.drawLine(vertex[1].x, vertex[1].y, vertex[2].x, vertex[2].y);
+	                    }
+	                    if ( (vis.cell_type[vis.timeStep][index[2]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[0]] == INVISIBLE_COLOUR) )
+	                    {
+	                        g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
+	                    }
+	                    g2.setColor(Color.black);
+	                }
+	            }
+	        }
         }
 
         // Draw nodes second so that dots are on top of lines
