@@ -121,7 +121,7 @@ private :
      */
     void AfterSolve();
     
-    /**p_meshp_mesh
+    /**
      * Create a coarse mesh on which to solve the nutrient PDE.
      */ 
     void CreateCoarseNutrientMesh(double coarseGrainScaleFactor);
