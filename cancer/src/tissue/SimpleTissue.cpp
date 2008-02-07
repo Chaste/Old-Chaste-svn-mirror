@@ -179,8 +179,9 @@ unsigned SimpleTissue<DIM>::GetNumNodes()
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>  
-void SimpleTissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
+void SimpleTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables)
 {
+    assert(outputCellVariables==false);// this hasn't been implemented yet for simple tisue
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
     double time = p_simulation_time->GetDimensionalisedTime();

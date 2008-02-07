@@ -37,6 +37,9 @@ protected:
     /** Results file for cell types */
     out_stream mpCellTypesFile;
 
+    /** Results file for cell variables */
+    out_stream mpCellVariablesFile;
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -162,7 +165,7 @@ public:
     
     virtual void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes);
     
-    virtual void WriteResultsToFiles(bool OutputCellTypes)=0;
+    virtual void WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables)=0;
         
     virtual void CloseOutputFiles();
     

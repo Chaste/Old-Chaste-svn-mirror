@@ -107,7 +107,7 @@ public:
      */
     void Validate();
     
-    void WriteResultsToFiles(bool OutputCellTypes);
+    void WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables);
     
     std::vector<Node<DIM> >& rGetNodes();
     const std::vector<Node<DIM> >& rGetNodes() const;

@@ -191,7 +191,7 @@ public:
      */
     void Validate();
 
-    void WriteResultsToFiles(bool OutputCellTypes);
+    void WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables);
     
     /** Get a reference to a Voronoi Tessellation of the mesh */                         
     void CreateVoronoiTessellation();

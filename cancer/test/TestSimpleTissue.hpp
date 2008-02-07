@@ -429,7 +429,7 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(simple_tissue.CreateOutputFiles(output_directory, false, true));
         
-        simple_tissue.WriteResultsToFiles(true);     
+        simple_tissue.WriteResultsToFiles(true, false);     
 
         TS_ASSERT_THROWS_NOTHING(simple_tissue.CloseOutputFiles());
         
@@ -448,7 +448,7 @@ public:
         
         // For coverage
         simple_tissue.SetCellAncestorsToNodeIndices();
-        TS_ASSERT_THROWS_NOTHING(simple_tissue.WriteResultsToFiles(true));
+        TS_ASSERT_THROWS_NOTHING(simple_tissue.WriteResultsToFiles(true, false));
     }    
     
     void TestArchivingTissue() throw (Exception)

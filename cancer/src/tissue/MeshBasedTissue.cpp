@@ -420,7 +420,7 @@ void MeshBasedTissue<DIM>::CloseOutputFiles()
 }
 
 template<unsigned DIM>  
-void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
+void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables)
 {
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
@@ -438,11 +438,18 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
     {
         *this->mpCellTypesFile <<  time << "\t";
     }
+    
+    if (outputCellVariables)
+    {
+        *this->mpCellVariablesFile <<  time << "\t";
+    }
 
     // Write node files
     for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
     {
         unsigned colour = STEM_COLOUR; // all green if no cells have been passed in
+
+        std::vector<double> proteins; // only used if outputCellVariables = true
          
         if (mIsGhostNode[index]==true)
         {
@@ -533,6 +540,11 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
                 // For any type of cell set the colour to this if it is undergoing apoptosis.
                 colour = APOPTOSIS_COLOUR;   
             }
+            
+            if (outputCellVariables)
+            {
+                proteins = p_cell->GetCellCycleModel()->GetProteinConcentrations();
+            } 
         }
         
         if (!mrMesh.GetNode(index)->IsDeleted())
@@ -544,6 +556,20 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
                 *this->mpNodeFile << position[i] << " ";
             }
             *this->mpNodeFile << colour << " ";
+                        
+            if (outputCellVariables)
+            {
+                //loop over cell positions
+                for(unsigned i=0; i<DIM; i++)
+                {
+                    *this->mpCellVariablesFile << position[i] << " ";
+                }
+                //loop over cell variables
+                for(unsigned i=0; i<proteins.size(); i++)
+                {
+                    *this->mpCellVariablesFile << proteins[i] << " " ;
+                }
+            } 
         }
     }
     
@@ -568,6 +594,13 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes)
         }
         *this->mpCellTypesFile <<  "\n";
     }
+    
+    if (outputCellVariables)
+    {
+        // new line at end of nodes
+        *this->mpCellVariablesFile <<  "\n";
+    }
+    
     
     *this->mpNodeFile << "\n";
     *mpElementFile << "\n";

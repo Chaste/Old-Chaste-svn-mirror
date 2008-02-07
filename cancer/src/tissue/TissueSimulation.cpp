@@ -48,7 +48,8 @@ TissueSimulation<DIM>::TissueSimulation(MeshBasedTissue<DIM>& rTissue,
     mOutputDirectory = "";
     mSimulationOutputDirectory = mOutputDirectory;
     mReMesh = true;
-    mOutputCellTypes = false ;
+    mOutputCellTypes = false;
+    mOutputCellVariables = false;
     mNoBirth = false;
     mNumBirths = 0;
     mNumDeaths = 0;
@@ -315,6 +316,14 @@ void TissueSimulation<DIM>::SetOutputCellTypes(bool outputCellTypes)
     mOutputCellTypes = outputCellTypes;
 }
 
+/**
+ * Set the simulation to Output the  cell variables.
+ */
+template<unsigned DIM> 
+void TissueSimulation<DIM>::SetOutputCellVariables(bool outputCellVariables)
+{
+    mOutputCellVariables = outputCellVariables;
+}
 
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell)
@@ -434,7 +443,7 @@ void TissueSimulation<DIM>::Solve()
     }
     mpSetupFile->close();    
 
-    mrTissue.WriteResultsToFiles(mOutputCellTypes);
+    mrTissue.WriteResultsToFiles(mOutputCellTypes,mOutputCellVariables);
 
     TissueVoronoiDataWriter<DIM>* p_voronoi_data_writer = NULL;
     if (mWriteVoronoiData)
@@ -519,7 +528,7 @@ void TissueSimulation<DIM>::Solve()
         // Write results to file
         if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
-            mrTissue.WriteResultsToFiles(mOutputCellTypes);
+            mrTissue.WriteResultsToFiles(mOutputCellTypes,mOutputCellVariables);
                                         
             if (mWriteVoronoiData)
             {

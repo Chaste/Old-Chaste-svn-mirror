@@ -85,6 +85,9 @@ protected:
     
     /** Whether to count the number of each cell type and output to file*/
     bool mOutputCellTypes;
+    
+    /** Whether to the cell variables to a file*/
+    bool mOutputCellVariables;
 
     /** Output directory (a subfolder of tmp/<USERNAME>/testoutput) */
     std::string mOutputDirectory;
@@ -251,7 +254,8 @@ public:
     void SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple);
     void SetNoBirth(bool nobirth);
     void SetOutputCellTypes(bool outputCellTypes);
-
+    void SetOutputCellVariables(bool outputCellVariables);
+    
     void SetReMeshRule(bool remesh); 
 
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);

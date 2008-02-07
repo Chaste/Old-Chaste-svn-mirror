@@ -391,7 +391,7 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false, false));
         
-        tissue.WriteResultsToFiles(true);                         
+        tissue.WriteResultsToFiles(true, false);                         
 
         TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles());
         

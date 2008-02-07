@@ -228,6 +228,7 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool 
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpNodeFile = output_file_handler.OpenOutputFile("results.viznodes");
     mpCellTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
+    mpCellVariablesFile = output_file_handler.OpenOutputFile("cellvariables.dat");
     
     if (outputCellTypes)
     {
@@ -240,6 +241,7 @@ void AbstractTissue<DIM>::CloseOutputFiles()
 {
     mpNodeFile->close();
     mpCellTypesFile->close();
+    mpCellVariablesFile->close();
 }
 
 #endif //ABSTRACTTISSUE_CPP

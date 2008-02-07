@@ -244,6 +244,15 @@ public:
      */
     virtual double GetNuclearBetaCateninLevel();
     
+     /**
+     * Returns the protein concentrations at the current time However in most Cell Cycle models this does not exist.
+     * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
+     * \todo may be better to use dynamic_cast and/or MI.   
+     *  
+     * NB: Will copy the vector - you can't use this to modify the concentrations.
+     */
+     virtual std::vector<double> GetProteinConcentrations() const;
+    
     /*
      * @return the current cell cycle phase
      */

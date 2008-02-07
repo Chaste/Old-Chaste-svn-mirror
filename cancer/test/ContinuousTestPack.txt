@@ -27,6 +27,7 @@ TestMeshBasedTissue.hpp
 TestSimpleTissue.hpp
 TestSimpleTissueMechanicsSystem.hpp
 TestTissueCell.hpp
+TestTissueSimulation.hpp
 TestTissueSimulation3d.hpp
 TestTissueSimulationWithNutrients.hpp
 TestTissueSimulationWithNutrientsAssembler.hpp
