@@ -83,7 +83,6 @@ void TissueSimulationWithNutrients<DIM>::AfterSolve()
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
 {
-    std::cout<< "\n 1) \n \n" << std::flush;
     if(mpCoarseNutrientMesh!=NULL)
     {
         SolveNutrientPdeUsingCoarseMesh();
@@ -91,7 +90,6 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
     }
     assert(mpAveragedSinksPde == NULL);
     assert(mpPde);
-    std::cout<< "\n 2) \n \n" << std::flush;
     ConformingTetrahedralMesh<DIM,DIM>& r_mesh = this->mrTissue.rGetMesh();
     CellwiseData<DIM>::Instance()->ReallocateMemory();
     std::set<unsigned> ghost_node_indices = this->mrTissue.GetGhostNodeIndices();
@@ -159,10 +157,8 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
 {
     assert(mpPde==NULL);
     assert(mpAveragedSinksPde);
-    std::cout<< "\n a) \n \n" << std::flush;
     ConformingTetrahedralMesh<DIM,DIM>& r_mesh = *mpCoarseNutrientMesh;
     CellwiseData<DIM>::Instance()->ReallocateMemory();
-    std::cout<< "\n b) \n \n" << std::flush;
     // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
     std::set<unsigned> ghost_node_indices = this->mrTissue.GetGhostNodeIndices();
     assert(ghost_node_indices.size()==0);
@@ -189,8 +185,6 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
             max_radius = radius;
         }
     }    
-    
-    std::cout<< "\n c) \n \n" << std::flush;        
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;
     ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
@@ -220,7 +214,6 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     mpAveragedSinksPde->SetupSourceTerms(*mpCoarseNutrientMesh);
     
     SimpleLinearEllipticAssembler<DIM,DIM> assembler(mpCoarseNutrientMesh, mpAveragedSinksPde, &bcc);
-    std::cout<< "\n d) \n \n" << std::flush;
     if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
     {
         // We make an initial guess which gets copied by the Solve method of
@@ -243,7 +236,6 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         mNutrientSolution = assembler.Solve();
     }            
 
-    std::cout<< "\n e) \n \n" << std::flush;
     // Update cellwise data - since the cells are not nodes on the coarse
     // mesh we have to interpolate from the nodes of the coarse mesh onto
     // the cell locations
@@ -269,7 +261,6 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     
         CellwiseData<DIM>::Instance()->SetValue( interpolated_nutrient, cell_iter.GetNode() );
     }
-    std::cout<< "\n f) \n \n" << std::flush;
 }
 
 

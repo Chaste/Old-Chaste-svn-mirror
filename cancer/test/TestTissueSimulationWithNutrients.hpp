@@ -552,7 +552,7 @@ public:
     }
     
     // Failing test - Memory error somewhere
-    void xTestCoarseNutrientMesh() throw(Exception)
+    void TestCoarseNutrientMesh() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
         
@@ -593,7 +593,7 @@ public:
         }
         
         // Set up PDE
-        AveragedSinksPde<2> pde(tissue, 0.1);
+        AveragedSinksPde<2> pde(tissue, -0.1);
 
         Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
         p_spring_system->UseCutoffPoint(1.5);
@@ -610,10 +610,7 @@ public:
         simulator.UseCoarseNutrientMesh(10.0);
         
         // Run tissue simulation
-        //TS_ASSERT_THROWS_NOTHING(
-        std::cout<< "\n Entering solve" << std::flush ;
-        simulator.Solve();//);
-        std::cout<< "\n Finished solve" << std::flush ;
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         TS_ASSERT(simulator.mpCoarseNutrientMesh != NULL);
         
         // Tidy up

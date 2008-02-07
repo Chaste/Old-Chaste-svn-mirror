@@ -32,7 +32,7 @@ public:
     void SetupSourceTerms(ConformingTetrahedralMesh<DIM,DIM>& rCoarseMesh) // must be called before solve
     {
         // allocate memory
-        mCellDensityOnCoarseElements.resize(rCoarseMesh.GetNumNodes());
+        mCellDensityOnCoarseElements.resize(rCoarseMesh.GetNumElements());
         for(unsigned elem_index=0; elem_index<mCellDensityOnCoarseElements.size(); elem_index++)
         {
             mCellDensityOnCoarseElements[elem_index]=0.0;
@@ -62,6 +62,7 @@ public:
     
     double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x, Element<DIM,DIM>* pElement) // now takes in element
     {
+        assert(mCellDensityOnCoarseElements.size()>0);
         return mCoefficient*mCellDensityOnCoarseElements[pElement->GetIndex()];
     }
    
