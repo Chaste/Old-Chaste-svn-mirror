@@ -153,10 +153,12 @@ inline void load(
     // Load deleted flag
     bool is_deleted;
     ar >> is_deleted;
+    #define COVERAGE_IGNORE
     if (is_deleted)
     {
         rNode.MarkAsDeleted();
     }
+    #undef COVERAGE_IGNORE
 }
 
 

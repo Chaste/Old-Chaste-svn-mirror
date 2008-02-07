@@ -471,7 +471,7 @@ public:
             
             // Get node vector from mesh
             std::vector<Node<2> > nodes = SetUpNodes(&mesh);
-                    
+            
             // Set up cells, one for each node. Get each a birth time of -node_index,
             // so the age = node_index
             std::vector<TissueCell> cells = SetUpCells(&mesh);
@@ -487,7 +487,7 @@ public:
             {                
                 cell_iter->ReadyToDivide();
             }
-            
+                        
             // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);

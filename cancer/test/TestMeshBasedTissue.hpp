@@ -547,7 +547,7 @@ public:
         TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
     }
     
-    void TestGetLocationOfCell() throw (Exception)
+    void TestGetLocationOfCellAndGetNodeCorrespondingToCell() throw (Exception)
     {        
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -568,7 +568,12 @@ public:
              ++cell_iter)
         {
             // Record node location
-            c_vector<double , 2> node_location = cell_iter.GetNode()->rGetLocation();
+            c_vector<double,2> node_location = cell_iter.GetNode()->rGetLocation();
+            
+            c_vector<double,2> node_location2 = tissue.GetNodeCorrespondingToCell(*cell_iter)->rGetLocation();
+            
+            TS_ASSERT_DELTA(node_location[0], node_location2[0], 1e-6);
+            TS_ASSERT_DELTA(node_location[1], node_location2[1], 1e-6);
             
             // Get cell at each node
             TissueCell& r_cell = tissue.rGetCellAtNodeIndex(cell_iter.GetNode()->GetIndex());      
@@ -769,12 +774,12 @@ public:
         std::set<unsigned> remaining_ancestors = tissue.GetCellAncestors();
         TS_ASSERT_EQUALS(remaining_ancestors.size(), 5u);
         
-        // Test that the set correctly represents a monoclonal population.
+        // Test that the set correctly represents a monoclonal population
         for(MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {  
-            // Set all cells to have the same ancestor...
+            // Set all cells to have the same ancestor
             cell_iter->SetAncestor(1u);
         }
         remaining_ancestors = tissue.GetCellAncestors();
