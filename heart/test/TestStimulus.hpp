@@ -138,22 +138,24 @@ public:
         TS_ASSERT_EQUALS( multi_stim.GetStimulus(1.0), 0.0);
 
         InitialStimulus init_stim_a(2,1,0);
-        InitialStimulus init_stim_b(3,1,30); 
-        RegularStimulus regular_stim(2.0, 1.0, 0.1, 1);
+        InitialStimulus init_stim_b(3,1,30);
+        // RegularStimulus result at a boundary point isn't the same for Default and IntelProduction build
+        // (in fact it gives different answers to "fmod" within the IntelProduction test) 
+        RegularStimulus regular_stim(2.0, 1.0, 0.15, 1);
         
         multi_stim.AddStimulus(&init_stim_a);
         multi_stim.AddStimulus(&init_stim_b);
         multi_stim.AddStimulus(&regular_stim);
 
-        
         TimeStepper t(0,100,1);
         while (!t.IsTimeAtEnd())
         {
+            double time=t.GetTime();
             // Stimulus equals to the sum of the individual stimuli
-            TS_ASSERT_EQUALS( multi_stim.GetStimulus(t.GetTime()),
-                              init_stim_a.GetStimulus(t.GetTime())+
-                              init_stim_b.GetStimulus(t.GetTime())+
-                              regular_stim.GetStimulus(t.GetTime())
+            TS_ASSERT_EQUALS( multi_stim.GetStimulus(time),
+                              init_stim_a.GetStimulus(time)+
+                              init_stim_b.GetStimulus(time)+
+                              regular_stim.GetStimulus(time)
                             );
             t.AdvanceOneTimeStep();
         }
