@@ -41,12 +41,12 @@ private:
     friend class AbstractStaticAssembler<DIM,DIM,2,true,SelfType>;
     
     double mLambda;
-    virtual c_matrix<double,2*(DIM+1),2*(DIM+1)> ComputeMatrixTerm(c_vector<double, DIM+1> &rPhi,
+    virtual c_matrix<double,2*(DIM+1),2*(DIM+1) > ComputeMatrixTerm(c_vector<double, DIM+1> &rPhi,
             c_matrix<double, DIM, DIM+1> &rGradPhi,
             ChastePoint<DIM> &rX,
             c_vector<double,2> &u,
             c_matrix<double,2,DIM> &rGradU,
-            Element<ELEMENT_DIM,SPACE_DIM>* pElement)
+            Element<DIM,DIM>* pElement)
     {
         c_matrix<double,2*(DIM+1),2*(DIM+1)> ret = zero_matrix<double>(2*(DIM+1), 2*(DIM+1));
         
@@ -75,7 +75,7 @@ private:
                                                          ChastePoint<DIM> &rX,
                                                          c_vector<double,2> &u,
                                                          c_matrix<double,2,DIM> &rGradU,
-                                                         Element<ELEMENT_DIM,SPACE_DIM>* pElement)
+                                                         Element<DIM,DIM>* pElement)
     {
         c_vector<double,2*(DIM+1)> ret;
         
