@@ -14,7 +14,7 @@ class CryptSimulation2d : public TissueSimulation<2>
 {
     // Allow tests to access private members, in order to test computation of
     // private functions eg. DoCellBirth
-    friend class TestCryptSimulation2d;    
+    friend class TestCryptSimulation2d;
 
 private :
     friend class boost::serialization::access;
@@ -33,6 +33,7 @@ private :
     /** The file that the values of beta catenin is written out to. */
     out_stream mBetaCatResultsFile;    
     
+    MeshBasedTissue<2>* mpStaticCastTissue;
     
     /**
      * Calculates the new locations of a dividing cell's cell centres.
@@ -108,7 +109,7 @@ private :
     void UpdateNodePositions(const std::vector< c_vector<double, 2> >& rDrDt)
     {
         // update ghost positions first because they do not affect the real cells
-        mrTissue.UpdateGhostPositions(mDt);
+        mpStaticCastTissue->UpdateGhostPositions(mDt);
         
         // Iterate over all cells to update their positions.
         for (AbstractTissue<2>::Iterator cell_iter = mrTissue.Begin();
@@ -118,7 +119,7 @@ private :
             TissueCell& cell = *cell_iter;
             unsigned index = cell.GetNodeIndex();
             
-            ChastePoint<2> new_point(mrTissue.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+            ChastePoint<2> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
                         
             bool is_wnt_included = WntGradient::Instance()->IsGradientSetUp();
             if (!is_wnt_included) WntGradient::Destroy();
@@ -126,8 +127,8 @@ private :
             // stem cells are fixed if no wnt, so reset the x-value to the old x-value           
             if ((cell.GetCellType()==STEM) && (!is_wnt_included))
             {
-                new_point.rGetLocation()[0] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[0];
-                new_point.rGetLocation()[1] = mrTissue.rGetMesh().GetNode(index)->rGetLocation()[1];
+                new_point.rGetLocation()[0] = mrTissue.GetNode(index)->rGetLocation()[0];
+                new_point.rGetLocation()[1] = mrTissue.GetNode(index)->rGetLocation()[1];
             }
             
             // for all cells - move up if below the bottom surface
@@ -158,7 +159,7 @@ private :
     
     void WriteVisualizerSetupFile()
     {
-        *mpSetupFile << "MeshWidth\t" << mrTissue.rGetMesh().GetWidth(0u);// get furthest distance between nodes in the x-direction
+        *mpSetupFile << "MeshWidth\t" << mpStaticCastTissue->rGetMesh().GetWidth(0u);// get furthest distance between nodes in the x-direction
     }
     
     
@@ -244,13 +245,14 @@ public :
      *  @param deleteTissue whether to delete the tissue on destruction to free up memory
      *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
-    CryptSimulation2d(MeshBasedTissue<2>& rTissue, 
+    CryptSimulation2d(AbstractTissue<2>& rTissue, 
                       AbstractDiscreteTissueMechanicsSystem<2>* pMechanicsSystem=NULL, 
                       bool deleteTissue=false,
                       bool initialiseCells=true)
         : TissueSimulation<2>(rTissue, pMechanicsSystem, deleteTissue, initialiseCells),
           mUseJiggledBottomCells(false)
     {
+        mpStaticCastTissue = static_cast<MeshBasedTissue<2>*>(&mrTissue);
     }
     
     
@@ -299,11 +301,11 @@ public :
         CryptSimulation2d* p_sim; 
         input_arch >> p_sim;
          
-        if (p_sim->rGetTissue().rGetMesh().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size()) 
+        if (p_sim->rGetTissue().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size()) 
         { 
             #define COVERAGE_IGNORE 
             std::stringstream string_stream; 
-            string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().rGetMesh().GetNumNodes() 
+            string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().GetNumNodes() 
                           << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size()  
                           << ")"; 
             EXCEPTION(string_stream.str()); 
@@ -329,7 +331,7 @@ inline void save_construct_data(
     Archive & ar, const CryptSimulation2d * t, const BOOST_PFTO unsigned int file_version)
 {
     // save data required to construct instance
-    const MeshBasedTissue<2> * p_tissue = &(t->rGetTissue());
+    const AbstractTissue<2> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     
     const AbstractDiscreteTissueMechanicsSystem<2> * p_spring_system = &(t->rGetMechanicsSystem());
@@ -344,7 +346,7 @@ inline void load_construct_data(
     Archive & ar, CryptSimulation2d * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
-    MeshBasedTissue<2>* p_tissue;
+    AbstractTissue<2>* p_tissue;
     ar >> p_tissue;
     
     AbstractDiscreteTissueMechanicsSystem<2>* p_spring_system;

@@ -7,6 +7,7 @@
 
 #include <vector>
 #include "MeshBasedTissue.cpp"
+#include "SimpleTissue.cpp"
 #include "AbstractCellKiller.hpp"
 #include "Meineke2001SpringSystem.hpp"
 #include "TrianglesMeshReader.cpp"
@@ -69,7 +70,7 @@ protected:
     double mEndTime;
 
     /** Facade encapsulating cells in the tissue being simulated */
-    MeshBasedTissue<DIM>& mrTissue;
+    AbstractTissue<DIM>& mrTissue;
     
     /** Whether to delete the facade in our destructor */
     bool mDeleteTissue;
@@ -86,7 +87,9 @@ protected:
     /** Whether to count the number of each cell type and output to file*/
     bool mOutputCellTypes;
     
-    /** Whether to the cell variables to a file*/
+    bool mAllocatedMemoryForMechanicsSystem;
+
+	/** Whether to the cell variables to a file*/
     bool mOutputCellVariables;
 
     /** Output directory (a subfolder of tmp/<USERNAME>/testoutput) */
@@ -154,6 +157,7 @@ protected:
         archive & mNumDeaths;
         archive & mCellKillers;
         archive & mOutputCellTypes;
+        archive & mOutputCellVariables;
         archive & mWriteVoronoiData;        
         archive & mFollowLoggedCell;
         archive & mWriteTissueAreas;
@@ -237,7 +241,7 @@ public:
      *  @param deleteTissue Whether to delete the tissue on destruction to free up memory
      *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
-    TissueSimulation(MeshBasedTissue<DIM>& rTissue, 
+    TissueSimulation(AbstractTissue<DIM>& rTissue, 
                      AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
                      bool deleteTissue=false, 
                      bool initialiseCells=true);
@@ -267,8 +271,8 @@ public:
 
     void Solve();
     
-    MeshBasedTissue<DIM>& rGetTissue();
-    const MeshBasedTissue<DIM>& rGetTissue() const;
+    AbstractTissue<DIM>& rGetTissue();
+    const AbstractTissue<DIM>& rGetTissue() const;
     
     
     /** 
@@ -311,7 +315,7 @@ inline void save_construct_data(
     Archive & ar, const TissueSimulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // save data required to construct instance
-    const MeshBasedTissue<DIM> * p_tissue = &(t->rGetTissue());
+    const AbstractTissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     
     const AbstractDiscreteTissueMechanicsSystem<DIM> * p_spring_system = &(t->rGetMechanicsSystem());
@@ -326,7 +330,7 @@ inline void load_construct_data(
     Archive & ar, TissueSimulation<DIM> * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
-    MeshBasedTissue<DIM>* p_tissue;
+    AbstractTissue<DIM>* p_tissue;
     ar >> p_tissue;
 
     AbstractDiscreteTissueMechanicsSystem<DIM>* p_spring_system;

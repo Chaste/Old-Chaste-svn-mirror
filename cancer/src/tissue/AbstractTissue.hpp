@@ -36,6 +36,9 @@ protected:
     
     /** Results file for cell types */
     out_stream mpCellTypesFile;
+    
+    /** Whether the tissue contains a mesh */
+    bool mTissueContainsMesh;
 
     /** Results file for cell variables */
     out_stream mpCellVariablesFile;
@@ -46,6 +49,7 @@ protected:
     {
         archive & mCells;
         archive & mNodeCellMap;
+        archive & mTissueContainsMesh;
     }
     
 public:
@@ -72,7 +76,9 @@ public:
     
     std::list<TissueCell>& rGetCells();
     const std::list<TissueCell>& rGetCells() const;
-
+    
+    bool GetTissueContainsMesh();
+    
     /** 
      * Get the number of nodes in the tissue.
      */

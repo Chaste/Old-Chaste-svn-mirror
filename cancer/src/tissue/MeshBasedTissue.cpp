@@ -21,6 +21,8 @@ MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh
     // This must always be true
     assert( this->mCells.size() <= mrMesh.GetNumNodes() );
 
+    this->mTissueContainsMesh = true;
+    
 	Validate();
 }
 
@@ -28,6 +30,7 @@ template<unsigned DIM>
 MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh)
              : mrMesh(rMesh)
 {
+    this->mTissueContainsMesh = true;
     mpVoronoiTessellation = NULL;
     mDeleteMesh = true;
 }

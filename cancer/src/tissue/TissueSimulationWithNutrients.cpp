@@ -86,13 +86,17 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
     if(mpCoarseNutrientMesh!=NULL)
     {
         SolveNutrientPdeUsingCoarseMesh();
-        return ;
+        return;
     }
+    
     assert(mpAveragedSinksPde == NULL);
     assert(mpPde);
-    ConformingTetrahedralMesh<DIM,DIM>& r_mesh = this->mrTissue.rGetMesh();
+    
+    // Note: If not using a coarse nutrient mesh, we MUST be using a MeshBasedTissue
+        
+    ConformingTetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
     CellwiseData<DIM>::Instance()->ReallocateMemory();
-    std::set<unsigned> ghost_node_indices = this->mrTissue.GetGhostNodeIndices();
+    std::set<unsigned> ghost_node_indices = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->GetGhostNodeIndices();
     
     // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
     assert(ghost_node_indices.size()==0);
@@ -157,10 +161,12 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
 {
     assert(mpPde==NULL);
     assert(mpAveragedSinksPde);
+
     ConformingTetrahedralMesh<DIM,DIM>& r_mesh = *mpCoarseNutrientMesh;
     CellwiseData<DIM>::Instance()->ReallocateMemory();
+
     // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
-    std::set<unsigned> ghost_node_indices = this->mrTissue.GetGhostNodeIndices();
+    std::set<unsigned> ghost_node_indices = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->GetGhostNodeIndices();
     assert(ghost_node_indices.size()==0);
     
     // Loop over cells and calculate centre of distribution
@@ -185,6 +191,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
             max_radius = radius;
         }
     }    
+      
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;
     ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
@@ -214,6 +221,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     mpAveragedSinksPde->SetupSourceTerms(*mpCoarseNutrientMesh);
     
     SimpleLinearEllipticAssembler<DIM,DIM> assembler(mpCoarseNutrientMesh, mpAveragedSinksPde, &bcc);
+    
     if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
     {
         // We make an initial guess which gets copied by the Solve method of
@@ -299,7 +307,7 @@ void TissueSimulationWithNutrients<DIM>::WriteNutrient(double time)
     if (PetscTools::AmMaster())
     {
         // Since there are no ghost nodes, the number of nodes must equal the number of real cells 
-        assert(this->mrTissue.rGetMesh().GetNumNodes()==this->mrTissue.GetNumRealCells());
+        assert(this->mrTissue.GetNumNodes()==this->mrTissue.GetNumRealCells());
         
         (*mpNutrientResultsFile) << time << "\t";
         
@@ -337,7 +345,7 @@ void TissueSimulationWithNutrients<DIM>::WriteAverageRadialNutrientDistribution(
     (*mpAverageRadialNutrientResultsFile) << time << " "; 
     
     // Get reference to the mesh and its size
-    ConformingTetrahedralMesh<DIM,DIM>& r_mesh = this->mrTissue.rGetMesh();
+    ConformingTetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
     unsigned num_nodes = r_mesh.GetNumNodes();
     
     // Calculate the centre of the tissue
@@ -427,11 +435,11 @@ TissueSimulationWithNutrients<DIM>* TissueSimulationWithNutrients<DIM>::Load(con
     TissueSimulationWithNutrients<DIM>* p_sim; 
     input_arch >> p_sim;
      
-    if (p_sim->rGetTissue().rGetMesh().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size()) 
+    if (p_sim->rGetTissue().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size()) 
     { 
         #define COVERAGE_IGNORE 
         std::stringstream string_stream; 
-        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().rGetMesh().GetNumNodes() 
+        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().GetNumNodes() 
                       << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size()  
                       << ")"; 
         EXCEPTION(string_stream.str()); 

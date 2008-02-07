@@ -10,6 +10,7 @@
 #include <fstream>
 #include <set>
 #include "TissueSimulation.hpp"
+#include "SimpleTissueMechanicsSystem.hpp"
 #include "Exception.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -22,7 +23,7 @@
 
 
 template<unsigned DIM> 
-TissueSimulation<DIM>::TissueSimulation(MeshBasedTissue<DIM>& rTissue, 
+TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue, 
                                         AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem, 
                                         bool deleteTissue,
                                         bool initialiseCells)
@@ -59,16 +60,26 @@ TissueSimulation<DIM>::TissueSimulation(MeshBasedTissue<DIM>& rTissue,
     mWriteTissueAreas = false;
     mFollowLoggedCell = false;
     
+    mAllocatedMemoryForMechanicsSystem = false;
+    
     if (pMechanicsSystem == NULL)
     {
-        pMechanicsSystem = new Meineke2001SpringSystem<DIM>(mrTissue);
+        mAllocatedMemoryForMechanicsSystem = true;
+        if (mrTissue.GetTissueContainsMesh())
+        {
+            pMechanicsSystem = new Meineke2001SpringSystem<DIM>(*(static_cast<MeshBasedTissue<DIM>*>(&mrTissue)));
+        }
+        else
+        {
+            pMechanicsSystem = new SimpleTissueMechanicsSystem<DIM>(*(static_cast<SimpleTissue<DIM>*>(&mrTissue)));
+        }
     }
     mpMechanicsSystem = pMechanicsSystem;    
     
     if (mInitialiseCells)
     {
         mrTissue.InitialiseCells();
-    }        
+    }
 }
 
 /**
@@ -88,7 +99,10 @@ TissueSimulation<DIM>::~TissueSimulation()
             delete *it;
         }
     }
-    delete mpMechanicsSystem;
+    if (mAllocatedMemoryForMechanicsSystem)
+    {
+        delete mpMechanicsSystem;
+    }
 }
 
 
@@ -110,7 +124,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
         TissueCell& cell = *cell_iter;
 
         // Check if this cell is ready to divide - if so create a new cell etc.
-        if (cell.GetAge()>0.0)
+        if (cell.GetAge() > 0.0)
         {
             if (cell.ReadyToDivide())
             {
@@ -120,8 +134,12 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
                 // Add a new node to the mesh
                 c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
                 
-                TissueCell *p_new_cell=mrTissue.AddCell(new_cell, new_location);
-                mrTissue.MarkSpring(cell, *p_new_cell);
+                TissueCell *p_new_cell = mrTissue.AddCell(new_cell, new_location);
+                
+                if (mrTissue.GetTissueContainsMesh())
+                {
+                    (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->MarkSpring(cell, *p_new_cell);
+                }
                 num_births_this_step++;
             } 
         }
@@ -199,8 +217,11 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 template<unsigned DIM> 
 void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt)
 {
-    // Update ghost positions first because they do not affect the real cells
-    mrTissue.UpdateGhostPositions(mDt);
+    if (mrTissue.GetTissueContainsMesh())
+    {
+        // Update ghost positions first because they do not affect the real cells
+        (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->UpdateGhostPositions(mDt);
+    }
 
     // Iterate over all cells to update their positions.
     for (typename AbstractTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
@@ -210,7 +231,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
         TissueCell& cell = *cell_iter;
         unsigned index = cell.GetNodeIndex();
         
-        ChastePoint<DIM> new_point(mrTissue.rGetMesh().GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+        ChastePoint<DIM> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
         mrTissue.MoveCell(cell_iter, new_point);    
     }
 }
@@ -222,8 +243,8 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetDt(double dt)
 {
-    assert(dt>0);
-    mDt=dt;
+    assert(dt > 0);
+    mDt = dt;
 }
 
 
@@ -243,8 +264,8 @@ double TissueSimulation<DIM>::GetDt()
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetEndTime(double endTime)
 {
-    assert(endTime>0);
-    mEndTime=endTime;
+    assert(endTime > 0);
+    mEndTime = endTime;
 }
 
 
@@ -274,14 +295,14 @@ void TissueSimulation<DIM>::SetSamplingTimestepMultiple(unsigned samplingTimeste
 
 
 template<unsigned DIM> 
-MeshBasedTissue<DIM>& TissueSimulation<DIM>::rGetTissue()
+AbstractTissue<DIM>& TissueSimulation<DIM>::rGetTissue()
 {
     return mrTissue;
 }
 
 
 template<unsigned DIM> 
-const MeshBasedTissue<DIM>& TissueSimulation<DIM>::rGetTissue() const
+const AbstractTissue<DIM>& TissueSimulation<DIM>::rGetTissue() const
 {
     return mrTissue;
 }
@@ -363,7 +384,7 @@ std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNode
     std::vector<double> location;
     for(unsigned i=0; i<DIM; i++)
     {
-        location.push_back( mrTissue.rGetMesh().GetNode(rNodeIndex)->rGetLocation()[i] );
+        location.push_back( mrTissue.GetNode(rNodeIndex)->rGetLocation()[i] );
     }
     return location;
 }
@@ -374,7 +395,7 @@ std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNode
  */
 template<unsigned DIM> 
 void TissueSimulation<DIM>::Solve()
-{ 
+{        
     CancerEventHandler::BeginEvent(SETUP);
 
     // Set up the simulation time
@@ -403,7 +424,7 @@ void TissueSimulation<DIM>::Solve()
     
     std::string results_directory = mOutputDirectory +"/results_from_time_" + time_string.str();
     mSimulationOutputDirectory = results_directory;
-    
+        
     ///////////////////////////////////////////////////////////
     // Set up Simulation
     ///////////////////////////////////////////////////////////
@@ -446,20 +467,24 @@ void TissueSimulation<DIM>::Solve()
     mrTissue.WriteResultsToFiles(mOutputCellTypes,mOutputCellVariables);
 
     TissueVoronoiDataWriter<DIM>* p_voronoi_data_writer = NULL;
-    if (mWriteVoronoiData)
-    {
-        p_voronoi_data_writer = new TissueVoronoiDataWriter<DIM>(mrTissue,
-                                                                 mSimulationOutputDirectory+"/vis_results/",
-                                                                 "results.visvoronoi",
-                                                                 mFollowLoggedCell);
-    }
     
-    if (mWriteTissueAreas)
+    if (mrTissue.GetTissueContainsMesh())
     {
-        p_voronoi_data_writer = new TissueVoronoiDataWriter<DIM>(mrTissue,
-                                                                 mSimulationOutputDirectory,
-                                                                 "Areas.dat",
-                                                                 false);
+        if (mWriteVoronoiData)
+        {
+            p_voronoi_data_writer = new TissueVoronoiDataWriter<DIM>(*(static_cast<MeshBasedTissue<DIM>*>(&mrTissue)),
+                                                                     mSimulationOutputDirectory+"/vis_results/",
+                                                                     "results.visvoronoi",
+                                                                     mFollowLoggedCell);
+        }
+        
+        if (mWriteTissueAreas)
+        {
+            p_voronoi_data_writer = new TissueVoronoiDataWriter<DIM>(*(static_cast<MeshBasedTissue<DIM>*>(&mrTissue)),
+                                                                     mSimulationOutputDirectory,
+                                                                     "Areas.dat",
+                                                                     false);
+        }
     }
 
     CancerEventHandler::EndEvent(SETUP);
@@ -485,26 +510,42 @@ void TissueSimulation<DIM>::Solve()
         LOG(1, "\tNum births = " << mNumBirths << "\n");
         CancerEventHandler::EndEvent(BIRTH);
         
-
-        if( (mNumBirths>0) || (mNumDeaths>0) )
-        {   
-            // If any nodes have been deleted or added we MUST call a ReMesh
-            assert(mReMesh);
+        if (mrTissue.GetTissueContainsMesh())
+        {
+            if( (mNumBirths>0) || (mNumDeaths>0) )
+            {   
+                // If any nodes have been deleted or added we MUST call a ReMesh
+                assert(mReMesh);
+            }
         }
 
         CancerEventHandler::BeginEvent(REMESH);
-        if(mReMesh)
+        
+        if (mrTissue.GetTissueContainsMesh())
         {
-            LOG(1, "\tRemeshing...");
-            mrTissue.ReMesh();
+            if(mReMesh)
+            {
+                LOG(1, "\tRemeshing...");
+                static_cast<MeshBasedTissue<DIM>*>(&mrTissue)->ReMesh();
+                LOG(1, "\tdone.\n");
+            }
+        }
+        else
+        {
+            LOG(1, "\tUpdating NodeCellMap...");
+            static_cast<SimpleTissue<DIM>*>(&mrTissue)->UpdateNodeCellMap();
             LOG(1, "\tdone.\n");
         }
         CancerEventHandler::EndEvent(REMESH);
+        
 
 		CancerEventHandler::BeginEvent(TESSELLATION);
-        if(mWriteVoronoiData || mpMechanicsSystem->NeedsVoronoiTessellation() || mWriteTissueAreas)
+        if (mrTissue.GetTissueContainsMesh())
         {
-            mrTissue.CreateVoronoiTessellation();
+            if(mWriteVoronoiData || mpMechanicsSystem->NeedsVoronoiTessellation() || mWriteTissueAreas)
+            {
+                (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->CreateVoronoiTessellation();
+            }
         }
         CancerEventHandler::EndEvent(TESSELLATION);
 
@@ -519,7 +560,6 @@ void TissueSimulation<DIM>::Solve()
         CancerEventHandler::EndEvent(POSITION);
      
         PostSolve();
-        
         // Increment simulation time here, so results files look sensible
         p_simulation_time->IncrementTimeOneStep();
         
@@ -545,7 +585,7 @@ void TissueSimulation<DIM>::Solve()
     }
 
     AfterSolve();
-    
+        
     // Write end state to tabulated files (not visualizer - this
     // is taken care of in the main loop).
     // Doesn't need to count cell types again as it is done in the last loop
@@ -604,16 +644,18 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
     std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue_sim_at_time_"+time_stamp.str()+".arch";
     std::string mesh_filename = std::string("mesh_") + time_stamp.str();
     
-    // Write the mesh to file.  Remesh first to ensure it's in a good state.
-    if(mReMesh)
+    if (mrTissue.GetTissueContainsMesh())
     {
-        mrTissue.ReMesh();
+        // Write the mesh to file.  Remesh first to ensure it's in a good state.
+        if(mReMesh)
+        {
+            (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->ReMesh();
+        }
+        
+        // The false is so the directory isn't cleaned
+        TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);
+        mesh_writer.WriteFilesUsingMesh((static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->rGetMesh());
     }
-    
-    // The false is so the directory isn't cleaned
-    TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);
-    mesh_writer.WriteFilesUsingMesh(mrTissue.rGetMesh());
-    
     // Create a new archive
     std::ofstream ofs(archive_filename.c_str());
     boost::archive::text_oarchive output_arch(ofs);
@@ -666,11 +708,11 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
     TissueSimulation<DIM>* p_sim;
     input_arch >> p_sim;
     
-    if (p_sim->rGetTissue().rGetMesh().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size())
+    if (p_sim->rGetTissue().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size())
     {
         #define COVERAGE_IGNORE
         std::stringstream string_stream;
-        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().rGetMesh().GetNumNodes()
+        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().GetNumNodes()
                       << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size() 
                       << ")";
         EXCEPTION(string_stream.str());

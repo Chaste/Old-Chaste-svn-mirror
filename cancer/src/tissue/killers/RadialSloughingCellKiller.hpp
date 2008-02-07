@@ -27,7 +27,7 @@ private:
     }
     
 public:
-    RadialSloughingCellKiller(MeshBasedTissue<2>* pTissue, c_vector<double,2> centre, double radius)
+    RadialSloughingCellKiller(AbstractTissue<2>* pTissue, c_vector<double,2> centre, double radius)
         : AbstractCellKiller<2>(pTissue),
           mCentre(centre), 
           mRadius(radius)
@@ -81,7 +81,7 @@ inline void save_construct_data(
     Archive & ar, const RadialSloughingCellKiller * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const MeshBasedTissue<2>* const p_tissue = t->GetTissue();
+    const AbstractTissue<2>* const p_tissue = t->GetTissue();
     ar << p_tissue;
     c_vector<double,2> centre = t->GetCentre();
     ar << centre[0];
@@ -98,7 +98,7 @@ inline void load_construct_data(
     Archive & ar, RadialSloughingCellKiller * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    MeshBasedTissue<2>* p_tissue;
+    AbstractTissue<2>* p_tissue;
     ar >> p_tissue;
     c_vector<double,2> centre;
     ar >> centre[0];

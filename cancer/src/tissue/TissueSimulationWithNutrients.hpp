@@ -197,7 +197,7 @@ public:
      * @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      * 
      */
-     TissueSimulationWithNutrients(MeshBasedTissue<DIM>& rTissue,
+     TissueSimulationWithNutrients(AbstractTissue<DIM>& rTissue,
                                    AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
                                    AbstractLinearEllipticPde<DIM>* pPde=NULL,
                                    AveragedSinksPde<DIM>* pAveragedSinksPde = NULL,
@@ -315,7 +315,7 @@ inline void save_construct_data(
     Archive & ar, const TissueSimulationWithNutrients<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const MeshBasedTissue<DIM> * p_tissue = &(t->rGetTissue());
+    const AbstractTissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     
     const AbstractDiscreteTissueMechanicsSystem<DIM> * p_spring_system = &(t->rGetMechanicsSystem());
@@ -330,7 +330,7 @@ inline void load_construct_data(
     Archive & ar, TissueSimulationWithNutrients<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    MeshBasedTissue<DIM>* p_tissue;
+    AbstractTissue<DIM>* p_tissue;
     ar >> p_tissue;
     
     AbstractDiscreteTissueMechanicsSystem<DIM>* p_spring_system;

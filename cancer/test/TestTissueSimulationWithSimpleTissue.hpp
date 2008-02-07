@@ -1,0 +1,108 @@
+#ifndef TESTTISSUESIMULATIONWITHSIMPLETISSUE_HPP_
+#define TESTTISSUESIMULATIONWITHSIMPLETISSUE_HPP_
+
+#include <cxxtest/TestSuite.h>
+
+#include <cmath>
+#include <ctime>
+#include <vector>
+
+#include "TissueSimulation.cpp"
+#include "RandomCellKiller.hpp" 
+#include "CellsGenerator.hpp"
+#include "ColumnDataReader.hpp"
+#include "OutputFileHandler.hpp"
+#include "AbstractCancerTestSuite.hpp"
+
+
+class TestTissueSimulationWithSimpleTissue : public AbstractCancerTestSuite
+{
+private:
+
+    template<unsigned DIM>
+    std::vector<Node<DIM> > SetUpNodes(ConformingTetrahedralMesh<DIM,DIM>* pMesh)
+    {
+        std::vector<Node<DIM> > nodes;
+        
+        for(unsigned i=0; i<pMesh->GetNumNodes(); i++)
+        {
+            nodes.push_back(*(pMesh->GetNode(i)));
+        }        
+        return nodes;
+    }
+    
+    template<unsigned DIM>
+    std::vector<TissueCell> SetUpCells(ConformingTetrahedralMesh<DIM,DIM>* pMesh)
+    {   
+        std::vector<TissueCell> cells;
+        for(unsigned i=0; i<pMesh->GetNumNodes(); i++)
+        {
+            double birth_time = RandomNumberGenerator::Instance()->ranf()*
+                                (CancerParameters::Instance()->GetStemCellG1Duration()
+                                    + CancerParameters::Instance()->GetSG2MDuration() );        
+            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(-birth_time);
+            cells.push_back(cell);
+        }        
+        return cells;
+    }
+
+    double mLastStartTime;
+    void setUp()
+    {
+        mLastStartTime = std::clock();
+        AbstractCancerTestSuite::setUp();
+    }
+    void tearDown()
+    {
+        double time = std::clock();
+        double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
+        std::cout << "Elapsed time: " << elapsed_time << std::endl;
+        AbstractCancerTestSuite::tearDown();
+    }
+
+public:
+
+    /** 
+     * Create a simulation of a SimpleTissue with a SimpleTissueMechanicsSystem
+     * and a RandomCellKiller. Test that no exceptions are thrown, and write the 
+     * results to file.
+     */ 
+
+    void TestSimpleMonolayer() throw (Exception)
+    {
+        // Create a simple mesh
+        int num_cells_depth = 5;
+        int num_cells_width = 5;        
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        
+        // Get node vector from mesh
+        std::vector<Node<2> > nodes = SetUpNodes(p_mesh);
+                
+        // Set up cells, one for each node. Get each a random birth time.
+        std::vector<TissueCell> cells = SetUpCells(p_mesh);
+
+        // Create a simple tissue
+        SimpleTissue<2> simple_tissue(nodes, cells);
+        
+        // Create simple tissue mechanics system (with default cutoff=1.5)
+        SimpleTissueMechanicsSystem<2> mechanics_system(simple_tissue);
+        
+        // Create a tissue simulation
+        TissueSimulation<2> simulator(simple_tissue, &mechanics_system);
+        simulator.SetOutputDirectory("TestSimpleMonolayer");
+        simulator.SetEndTime(1.0);
+        
+        // Add cell killer
+        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&simple_tissue, 0.01);
+        simulator.AddCellKiller(p_random_cell_killer);
+        
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+    }
+    
+};
+
+#endif /*TESTTISSUESIMULATIONWITHSIMPLETISSUE_HPP_*/
+

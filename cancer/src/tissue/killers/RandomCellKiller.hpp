@@ -34,7 +34,7 @@ private:
     }
     
 public:
-    RandomCellKiller(MeshBasedTissue<SPACE_DIM>* pTissue, double probabilityOfDeath)
+    RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double probabilityOfDeath)
         : AbstractCellKiller<SPACE_DIM>(pTissue),
           mProbabilityOfDeath(probabilityOfDeath)
     {
@@ -89,7 +89,7 @@ inline void save_construct_data(
     Archive & ar, const RandomCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const MeshBasedTissue<DIM>* const p_tissue = t->GetTissue();
+    const AbstractTissue<DIM>* const p_tissue = t->GetTissue();
     ar << p_tissue;
     double prob = t->GetDeathProbability();
     ar << prob;
@@ -103,7 +103,7 @@ inline void load_construct_data(
     Archive & ar, RandomCellKiller<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    MeshBasedTissue<DIM>* p_tissue;
+    AbstractTissue<DIM>* p_tissue;
     ar >> p_tissue;
     double prob;
     ar >> prob;

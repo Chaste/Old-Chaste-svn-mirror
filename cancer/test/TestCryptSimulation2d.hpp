@@ -346,7 +346,8 @@ public:
         Cylindrical2dMesh* p_mesh2=generator2.GetCylindricalMesh();
         
         // Compare
-        CompareMeshes(p_mesh2, &(p_simulator->rGetTissue().rGetMesh()));
+        ConformingTetrahedralMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(&(p_simulator->rGetTissue())))->rGetMesh();
+        CompareMeshes(p_mesh2, &r_mesh);
         
         delete p_simulator;
         WntGradient::Destroy();
@@ -465,14 +466,17 @@ public:
         
         //Save that then reload
         // and run from 0.2 to 0.25.
-        NodeMap map(0) ;
-        p_simulator1->rGetTissue().rGetMesh().ReMesh(map);
+        NodeMap map(0);
+        
+        ConformingTetrahedralMesh<2,2>& r_mesh1 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator1->rGetTissue())))->rGetMesh();
+        r_mesh1.ReMesh(map);
         p_simulator1->Save();
         
         CryptSimulation2d* p_simulator2 = CryptSimulation2d::Load("Crypt2DPeriodicSaveAndLoad", 0.2);
         
-        CompareMeshes(&(p_simulator1->rGetTissue().rGetMesh()),
-                      &(p_simulator2->rGetTissue().rGetMesh()));
+        ConformingTetrahedralMesh<2,2>& r_mesh2 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator2->rGetTissue())))->rGetMesh();
+        
+        CompareMeshes(&r_mesh1, &r_mesh2);
         
         p_simulator2->SetEndTime(0.25);
         p_simulator2->Solve();        
@@ -1125,13 +1129,13 @@ public:
         
         // Set simulation to output cell types
         simulator.SetOutputCellTypes(true);
-                
+
         // Set length of simulation here
         time_of_each_run = 10.0*simulator.GetDt(); // for each run
         simulator.SetEndTime(time_of_each_run);
         
         // Set up cell killer
-        p_cell_killer = new SloughingCellKiller(&simulator.rGetTissue(),0.01);
+        p_cell_killer = new SloughingCellKiller(&(simulator.rGetTissue()),0.01);
         simulator.AddCellKiller(p_cell_killer);
         
         simulator.UseJiggledBottomCells();

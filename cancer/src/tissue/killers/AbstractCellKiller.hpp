@@ -1,7 +1,7 @@
 #ifndef ABSTRACTCELLKILLER_HPP_
 #define ABSTRACTCELLKILLER_HPP_
 
-#include "MeshBasedTissue.cpp"
+#include "AbstractTissue.cpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
@@ -13,7 +13,7 @@ public:
     virtual ~AbstractCellKiller()
     {}
     
-    AbstractCellKiller(MeshBasedTissue<SPACE_DIM>* pTissue)
+    AbstractCellKiller(AbstractTissue<SPACE_DIM>* pTissue)
         : mpTissue(pTissue)
     {
     }
@@ -25,13 +25,13 @@ public:
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath()=0;
         
-    const MeshBasedTissue<SPACE_DIM>* GetTissue() const
+    const AbstractTissue<SPACE_DIM>* GetTissue() const
     {
         return mpTissue;
     }
     
 protected:
-    MeshBasedTissue<SPACE_DIM>* mpTissue;
+    AbstractTissue<SPACE_DIM>* mpTissue;
     
 private:
     friend class boost::serialization::access;

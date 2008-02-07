@@ -29,7 +29,7 @@ private:
     }
     
 public:
-    OxygenBasedCellKiller(MeshBasedTissue<SPACE_DIM>* pTissue, double concentration=CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration())
+    OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double concentration=CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration())
         : AbstractCellKiller<SPACE_DIM>(pTissue),
           mHypoxicConcentration(concentration)
     {
@@ -90,7 +90,7 @@ inline void save_construct_data(
     Archive & ar, const OxygenBasedCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // save data required to construct instance
-    const MeshBasedTissue<DIM>* const p_tissue = t->GetTissue();
+    const AbstractTissue<DIM>* const p_tissue = t->GetTissue();
     ar << p_tissue;
     double conc = t->GetHypoxicConcentration();
     ar << conc;
@@ -104,7 +104,7 @@ inline void load_construct_data(
     Archive & ar, OxygenBasedCellKiller<DIM> * t, const unsigned int file_version)
 {
     // retrieve data from archive required to construct new instance
-    MeshBasedTissue<DIM>* p_tissue;
+    AbstractTissue<DIM>* p_tissue;
     ar >> p_tissue;
     double conc;
     ar >> conc;

@@ -33,7 +33,7 @@ private:
     }
     
 public:
-    SloughingCellKiller(MeshBasedTissue<2>* pCrypt, bool sloughSides=false)
+    SloughingCellKiller(AbstractTissue<2>* pCrypt, bool sloughSides=false)
         : AbstractCellKiller<2>(pCrypt),
           mSloughSides(sloughSides)
     {}
@@ -82,7 +82,7 @@ inline void save_construct_data(
     Archive & ar, const SloughingCellKiller * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const MeshBasedTissue<2>* const p_crypt = t->GetTissue();
+    const AbstractTissue<2>* const p_crypt = t->GetTissue();
     ar << p_crypt;
     bool slough_sides = t->GetSloughSides();
     ar << slough_sides;
@@ -96,7 +96,7 @@ inline void load_construct_data(
     Archive & ar, SloughingCellKiller * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    MeshBasedTissue<2>* p_crypt;
+    AbstractTissue<2>* p_crypt;
     ar >> p_crypt;
     bool slough_sides;
     ar >> slough_sides;

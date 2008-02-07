@@ -33,18 +33,12 @@ private:
         
         Validate(); // paranoia
     }
-    
             
     /** 
      * Add a new node to the tissue. 
      */
     unsigned AddNode(Node<DIM> *pNewNode);
     
-    /** 
-     * Update the correspondence between nodes and cells.
-     */
-    void UpdateNodeCellMap();
-
     /** 
      * Remove the node with a given index.
      */
@@ -57,6 +51,7 @@ private:
     
 
 public:
+
     SimpleTissue(const std::vector<Node<DIM> >& rNodes, const std::vector<TissueCell>& rCells);
 
     /**
@@ -101,6 +96,11 @@ public:
      *  @return number of cells removed
      */
     unsigned RemoveDeadCells();
+    
+    /** 
+     * Update the correspondence between nodes and cells.
+     */
+    void UpdateNodeCellMap();
     
     /**
      * Check consistency of our internal data structures.

@@ -35,7 +35,7 @@ private :
     unsigned mNumber;
 
 public :
-    SingleCellCellKiller(MeshBasedTissue<2>* pTissue, unsigned number)
+    SingleCellCellKiller(AbstractTissue<2>* pTissue, unsigned number)
         : AbstractCellKiller<2>(pTissue),
           mNumber(number)
     {

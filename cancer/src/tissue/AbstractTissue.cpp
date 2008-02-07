@@ -19,7 +19,8 @@ enum cell_colours
 
 template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
-             : mCells(rCells.begin(), rCells.end())
+             : mCells(rCells.begin(), rCells.end()),
+               mTissueContainsMesh(false)
 {
     // Set up the node map
     for (std::list<TissueCell>::iterator it = mCells.begin();
@@ -60,6 +61,12 @@ template<unsigned DIM>
 const std::list<TissueCell>& AbstractTissue<DIM>::rGetCells() const
 {
     return this->mCells;
+}
+
+template<unsigned DIM>
+bool AbstractTissue<DIM>::GetTissueContainsMesh()
+{
+    return mTissueContainsMesh;
 }
 
 template<unsigned DIM>
