@@ -79,19 +79,18 @@ private :
         
         // \todo: add code for mutant here
         //double multiplication_factor = 1.0;
-//        if(distanceBetweenNodes-rest_length < -0.2*rest_length)
-//        {
+        if(distanceBetweenNodes > 0.8*rest_length)
+        {
             return p_params->GetSpringStiffness() * (distanceBetweenNodes - rest_length);
-//        }
-//        else
-//        {
-//            // following models a harder code of the cell with a made up model
-//            // if distance between nodes < 80% rest_length, use and exponential
-//            // law to push the cells away harder
-//            double alpha = 2.0;
-//            double A = -(p_params->GetSpringStiffness()*rest_length/5.0)*exp(-alpha*rest_length/5);
-//            return A*exp(-alpha*(rest_length-distanceBetweenNodes);
-//        }
+        }
+        else
+        {
+            // following models a harder code of the cell with a made up model
+            // if distance between nodes < 80% rest_length, use and exponential
+            // law to push the cells away harder
+            double alpha = 5;
+            return -0.2* p_params->GetSpringStiffness()*rest_length*exp(-alpha*(distanceBetweenNodes-0.8*rest_length));
+        }
     }
 
     /** 
@@ -177,7 +176,7 @@ public :
                     // Calculate the force between the two nodes
                     double force_magnitude = CalculateForceMagnitude(node_a_index, node_b_index, distance_between_nodes);
                     c_vector<double, DIM> force = (force_magnitude/distance_between_nodes)*difference; // ie force_magnitude*unit_difference
-                                                
+                    //std::cout << " " << distance_between_nodes << "\t " << force_magnitude << "\n" << std::flush;
                     // Get the damping constant for each cell
                     double damping_constantA = GetDampingConstant(mpTissue->rGetCellAtNodeIndex(node_a_index));
                     double damping_constantB = GetDampingConstant(mpTissue->rGetCellAtNodeIndex(node_b_index));
