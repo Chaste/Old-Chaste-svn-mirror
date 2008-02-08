@@ -1,5 +1,5 @@
-#ifndef TESTWNTGRADIENT_HPP_
-#define TESTWNTGRADIENT_HPP_
+#ifndef TESTWNTCONCENTRATION_HPP_
+#define TESTWNTCONCENTRATION_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
@@ -36,7 +36,7 @@ private:
     }
     
 public:    
-    void TestNoWntConcentration() throw(Exception)
+    void TestNoWnt() throw(Exception)
     {
         WntConcentration* p_wnt = WntConcentration::Instance();
         p_wnt->SetType(NONE);
@@ -48,6 +48,13 @@ public:
         wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
+                
+        c_vector<double,2> location;
+        location[0] = 1.5;
+        location[1] = 2.3;
+        
+        TS_ASSERT_DELTA(p_wnt->GetWntGradient(location)[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(p_wnt->GetWntGradient(location)[1], 0.0, 1e-12);
     }
     
     void TestLinearWntConcentration() throw(Exception)
@@ -55,7 +62,7 @@ public:
         WntConcentration* p_wnt = WntConcentration::Instance();
         p_wnt->SetType(LINEAR);
         
-        CancerParameters *params = CancerParameters::Instance();
+        CancerParameters *p_params = CancerParameters::Instance();
                 
         double height = 100;
         double wnt_level = 0.0;
@@ -70,12 +77,23 @@ public:
         height = 21.0;
         wnt_level = p_wnt->GetWntLevel(height);
         
-        TS_ASSERT_DELTA(wnt_level, 1.0-height/params->GetCryptLength(), 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 1.0-height/p_params->GetCryptLength(), 1e-9);
         
-        params->SetCryptLength(10.0);
+        p_params->SetCryptLength(10.0);
         wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
+        
+        // Test GetWntGradient() method
+        
+        p_params->Reset();
+        c_vector<double,2> location;
+        location[0] = 1.5;
+        location[1] = 2.3;
+        
+        TS_ASSERT_DELTA(p_wnt->GetWntGradient(location)[0], 0.0, 1e-12);
+        // This should be equal to -1/22 = -0.0454
+        TS_ASSERT_DELTA(p_wnt->GetWntGradient(location)[1], -0.0454, 1e-4);
     }
     
     
@@ -151,12 +169,12 @@ public:
                 
         // Test GetWntLevel(TissueCell*) method
                 
-        // create a simple mesh
+        // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        // translate mesh so that its centre is at (0,0)
+        // Translate mesh so that its centre is at (0,0)
         mesh.Translate(-0.5,-0.5); 
         
         std::vector<TissueCell> cells;
@@ -170,20 +188,35 @@ public:
             cells.push_back(cell);        
         }
         
-        // create a crypt
+        // Create a crypt
         MeshBasedTissue<2> crypt(mesh,cells);        
         CancerParameters::Instance()->SetCryptLength(1.0);
         p_wnt->SetTissue(crypt);
         
         MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
         
-        double wnt_gradient_at_cell0 = p_wnt->GetWntLevel(&(*cell_iter));
+        double wnt_at_cell0 = p_wnt->GetWntLevel(&(*cell_iter));
         
-        while(cell_iter!=crypt.End())
+        double a = CancerParameters::Instance()->GetCryptProjectionParameterA();
+        double b = CancerParameters::Instance()->GetCryptProjectionParameterB();
+            
+        while (cell_iter != crypt.End())
         {
-            TS_ASSERT_DELTA(p_wnt->GetWntLevel(&(*cell_iter)), wnt_gradient_at_cell0, 1e-12);
+            TS_ASSERT_DELTA(p_wnt->GetWntLevel(&(*cell_iter)), wnt_at_cell0, 1e-12);
+            
+            // Test GetWntGradient(TissueCell*) method
+            c_vector<double,2> cell_location = cell_iter.rGetLocation();
+            double r = norm_2(cell_location);
+           
+            c_vector<double,2> expected_wnt_gradient;            
+            expected_wnt_gradient[0] = -cell_location[0]*pow(r,b-1.0)/(a*r);
+            expected_wnt_gradient[1] = -cell_location[1]*pow(r,b-1.0)/(a*r);
+            
+            TS_ASSERT_DELTA(p_wnt->GetWntGradient(&(*cell_iter))[0],expected_wnt_gradient[0],1e-6);
+            TS_ASSERT_DELTA(p_wnt->GetWntGradient(&(*cell_iter))[1],expected_wnt_gradient[1],1e-6);
+            
             ++cell_iter;
-        }                
+        }         
     }
     
     void TestArchiveWntConcentration()
@@ -325,4 +358,4 @@ public:
     }
 };
 
-#endif /*TESTWNTGRADIENT_HPP_*/
+#endif /*TESTWNTCONCENTRATION_HPP_*/

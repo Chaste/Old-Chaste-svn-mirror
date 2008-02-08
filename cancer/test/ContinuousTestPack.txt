@@ -37,4 +37,4 @@ TestTissueVoronoiDataWriter.hpp
 TestTysonNovak2001OdeSystem.hpp
 TestVoronoiAreaOnPeriodicMesh.hpp
 TestWntCellCycleOdeSystem.hpp
-TestWntGradient.hpp
+TestWntConcentration.hpp

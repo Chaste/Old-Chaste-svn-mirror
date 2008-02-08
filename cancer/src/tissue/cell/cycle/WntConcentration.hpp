@@ -96,23 +96,36 @@ public:
     virtual ~WntConcentration();
     
     /** 
-     *  Destroy the current Wnt . Should be called at the end of a 
+     *  Destroy the current Wnt. Should be called at the end of a 
      *  simulation.
      */
     static void Destroy();
     
     /**
-     *  Get the wnt level at a given height in the crypt. Note the
-     *  CancerParameters::CryptLength() is used for this
+     *  Get the Wnt level at a given height in the crypt. Note the
+     *  CancerParameters::CryptLength() is used for this.
      */
     double GetWntLevel(double height);
     
     /**
-     *  Get the wnt level at a given cell in the crypt. The crypt
+     *  Get the Wnt level at a given cell in the crypt. The crypt
      *  must be set for this. Note the CancerParameters::CryptLength() 
      *  is used for this.
      */
     double GetWntLevel(TissueCell* pCell);
+    
+    /**
+     *  Get the Wnt gradient at a given height in the crypt. Note the
+     *  CancerParameters::CryptLength() is used for this.
+     */
+    c_vector<double,2> GetWntGradient(c_vector<double,2> location);
+    
+    /**
+     *  Get the Wnt gradient at a given cell in the crypt. The crypt
+     *  must be set for this. Note the CancerParameters::CryptLength() 
+     *  is used for this.
+     */
+    c_vector<double,2> GetWntGradient(TissueCell* pCell);
     
     /**
      *  Set the crypt. Must be called before GetWntLevel().
