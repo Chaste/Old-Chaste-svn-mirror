@@ -54,7 +54,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static int[][] element_nodes;
     public static int[][] cell_type;
     public static int[][] image_cells;
-    public static int max_cell_type = 0;
         
     public static double max_x = -1e12;
     public static double max_y = -1e12;
@@ -773,10 +772,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     {
                         System.out.println("I want a non-negative cell type");
                         System.exit(0);
-                    }
-                    if ( cell_type[row][i] > max_cell_type )
-                    {
-                        max_cell_type = cell_type[row][i];
                     }
                     positions[row][i] = new RealPoint(d1,d2);
                     
@@ -1863,7 +1858,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     public static final int LABELLED_COLOUR = 5;
     public static final int APOPTOSIS_COLOUR = 6;
     public static final int INVISIBLE_COLOUR = 7;
-    public static final int SPECIAL_LABEL_START = 8;
+    //Not needed now that we have hashing - public static final int SPECIAL_LABEL_START = 8;
     
     void SetCellColour(int index)
     {
@@ -1972,23 +1967,33 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         			g2.setColor(garysSexySilver);                    
         			break;
         		default: 
-                    int cell_color=vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START;
-                    int max_color=vis.max_cell_type-SPECIAL_LABEL_START;
-                    int scale=(127*cell_color)/max_color;
-                    //Mix them up - everyother index goes high
-                    if (cell_color%2 == 1)
-                    {
-                        scale += 128;
-                    }
-                    //System.out.println("colour of cell is "+cell_color );
-                    //System.out.println("max colour of cell is "+max_color );
-                    //System.out.println("scale is "+scale );
-                    g2.setColor(new Color(255-scale,scale,255));
+                    int cell_colour=vis.cell_type[vis.timeStep][index];//-SPECIAL_LABEL_START;
+                    //Map the colour uniquely into [0, 255]
+                    int r=hash32shiftmult(cell_colour, 256);
+                    int g=hash32shiftmult(cell_colour+1, 256);
+                    int b=hash32shiftmult(cell_colour*2, 256);
+                    
+                    g2.setColor(new Color(r,g,b));
                 break;
         	}
     	}
     }
-            
+
+    public int hash32shiftmult(int key, int range)
+    {
+      //Mostly copied from http://www.acme.com/resources/classes/Acme/IntHashtable.java
+      int c2=0x27d4eb2d; // a prime or an odd constant
+      key = (key ^ 61) ^ (key >>> 16);
+      key = key + (key << 3);
+      key = key ^ (key >>> 4);
+      key = key * c2;
+      key = key ^ (key >>> 15);
+      //We added the last two lines
+      key = key & 0x7FFFFFFF; //Make positive unsigned
+      return (key%range);//In 0<=key<range
+    }
+
+        
     void SetCellBetaCateninColour(double conc, int index)
     {
     	if (vis.cell_type[vis.timeStep][index] == INVISIBLE_COLOUR)
