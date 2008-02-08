@@ -39,22 +39,13 @@ private :
      * 
      * @return The force exerted on Node A by Node B.
      */
-    c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex)
+    double  CalculateForceMagnitude(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, double distanceBetweenNodes)
     {
         assert(nodeAGlobalIndex!=nodeBGlobalIndex);
         
         CancerParameters* p_params = CancerParameters::Instance();
         
-        c_vector<double, DIM> node_a_location = mpTissue->GetNode(nodeAGlobalIndex)->rGetLocation();
-        c_vector<double, DIM> node_b_location = mpTissue->GetNode(nodeBGlobalIndex)->rGetLocation();
-        c_vector<double, DIM> unit_difference = node_b_location - node_a_location;   
-        
-        double distance_between_nodes = norm_2(unit_difference);
-
-        if ( distance_between_nodes >= mCutoffPoint )
-        {
-            return zero_vector<double>(DIM);
-        }
+        assert(distanceBetweenNodes <= mCutoffPoint );
         
         double rest_length = 1.0;
         double ageA = mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
@@ -76,6 +67,7 @@ private :
             double time_until_death_a = mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).TimeUntilDeath();
             a_rest_length = a_rest_length*(time_until_death_a)/(p_params->GetApoptosisTime());
         }
+        
         if (mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).HasApoptosisBegun())
         {
             double time_until_death_b = mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).TimeUntilDeath();
@@ -85,9 +77,21 @@ private :
         rest_length = a_rest_length + b_rest_length;
         assert(rest_length <= 1.0 + 1e-12);
         
-        double multiplication_factor = 1.0;
-        // \todo: add code for mutant/necrotic springs here        
-        return multiplication_factor * p_params->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+        // \todo: add code for mutant here
+        //double multiplication_factor = 1.0;
+//        if(distanceBetweenNodes-rest_length < -0.2*rest_length)
+//        {
+            return p_params->GetSpringStiffness() * (distanceBetweenNodes - rest_length);
+//        }
+//        else
+//        {
+//            // following models a harder code of the cell with a made up model
+//            // if distance between nodes < 80% rest_length, use and exponential
+//            // law to push the cells away harder
+//            double alpha = 2.0;
+//            double A = -(p_params->GetSpringStiffness()*rest_length/5.0)*exp(-alpha*rest_length/5);
+//            return A*exp(-alpha*(rest_length-distanceBetweenNodes);
+//        }
     }
 
     /** 
@@ -160,37 +164,27 @@ public :
         for (unsigned node_a_index=0; node_a_index<mpTissue->GetNumNodes(); node_a_index++)
         {
             // Iterate over nodes
-            for (unsigned node_b_index=0; node_b_index<mpTissue->GetNumNodes(); node_b_index++)
+            for (unsigned node_b_index=node_a_index+1; node_b_index<mpTissue->GetNumNodes(); node_b_index++)
             {
-                // The two cells must not be the same
-                if (node_a_index != node_b_index)
-                {                    
-                    // Construct the current cell pair
-                    std::set<unsigned> current_cell_pair;
-                    current_cell_pair.insert(node_a_index);
-                    current_cell_pair.insert(node_b_index);
-                    
-                    // Find whether the current cell pair has been checked
-                    std::set<std::set<unsigned> >::iterator iter = cell_pairs_checked.find(current_cell_pair);
-                    
-                    // If the iterator gets to the end of the set of cell pairs already 
-                    // checked, then the current cell pair has not yet been checked
-                    if (iter == cell_pairs_checked.end())
-                    {
-                        // Add the current cell pair to the set of cell pairs already checked
-                        cell_pairs_checked.insert(current_cell_pair);
-                    
-                        // Calculate the force between the two nodes
-                        c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index);
+                c_vector<double, DIM> node_a_location = mpTissue->GetNode(node_a_index)->rGetLocation();
+                c_vector<double, DIM> node_b_location = mpTissue->GetNode(node_b_index)->rGetLocation();
+                c_vector<double, DIM> difference = node_b_location - node_a_location;   
+        
+                double distance_between_nodes = norm_2(difference);
+        
+                if ( distance_between_nodes < mCutoffPoint )
+                {
+                    // Calculate the force between the two nodes
+                    double force_magnitude = CalculateForceMagnitude(node_a_index, node_b_index, distance_between_nodes);
+                    c_vector<double, DIM> force = (force_magnitude/distance_between_nodes)*difference; // ie force_magnitude*unit_difference
                                                 
-                        // Get the damping constant for each cell
-                        double damping_constantA = GetDampingConstant(mpTissue->rGetCellAtNodeIndex(node_a_index));
-                        double damping_constantB = GetDampingConstant(mpTissue->rGetCellAtNodeIndex(node_b_index));
+                    // Get the damping constant for each cell
+                    double damping_constantA = GetDampingConstant(mpTissue->rGetCellAtNodeIndex(node_a_index));
+                    double damping_constantB = GetDampingConstant(mpTissue->rGetCellAtNodeIndex(node_b_index));
                         
-                        // Add the contribution to each node's velocity
-                        mDrDt[node_a_index] += force/damping_constantA;
-                        mDrDt[node_b_index] -= force/damping_constantB;                        
-                    }
+                    // Add the contribution to each node's velocity
+                    mDrDt[node_a_index] += force/damping_constantA;
+                    mDrDt[node_b_index] -= force/damping_constantB;
                 }
             }            
         }

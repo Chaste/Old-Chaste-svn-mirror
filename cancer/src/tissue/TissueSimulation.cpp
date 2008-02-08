@@ -65,7 +65,7 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     if (pMechanicsSystem == NULL)
     {
         mAllocatedMemoryForMechanicsSystem = true;
-        if (mrTissue.GetTissueContainsMesh())
+        if (mrTissue.HasMesh())
         {
             pMechanicsSystem = new Meineke2001SpringSystem<DIM>(*(static_cast<MeshBasedTissue<DIM>*>(&mrTissue)));
         }
@@ -136,7 +136,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
                 
                 TissueCell *p_new_cell = mrTissue.AddCell(new_cell, new_location);
                 
-                if (mrTissue.GetTissueContainsMesh())
+                if (mrTissue.HasMesh())
                 {
                     (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->MarkSpring(cell, *p_new_cell);
                 }
@@ -217,7 +217,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 template<unsigned DIM> 
 void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt)
 {
-    if (mrTissue.GetTissueContainsMesh())
+    if (mrTissue.HasMesh())
     {
         // Update ghost positions first because they do not affect the real cells
         (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->UpdateGhostPositions(mDt);
@@ -468,7 +468,7 @@ void TissueSimulation<DIM>::Solve()
 
     TissueVoronoiDataWriter<DIM>* p_voronoi_data_writer = NULL;
     
-    if (mrTissue.GetTissueContainsMesh())
+    if (mrTissue.HasMesh())
     {
         if (mWriteVoronoiData)
         {
@@ -510,7 +510,7 @@ void TissueSimulation<DIM>::Solve()
         LOG(1, "\tNum births = " << mNumBirths << "\n");
         CancerEventHandler::EndEvent(BIRTH);
         
-        if (mrTissue.GetTissueContainsMesh())
+        if (mrTissue.HasMesh())
         {
             if( (mNumBirths>0) || (mNumDeaths>0) )
             {   
@@ -521,7 +521,7 @@ void TissueSimulation<DIM>::Solve()
 
         CancerEventHandler::BeginEvent(REMESH);
         
-        if (mrTissue.GetTissueContainsMesh())
+        if (mrTissue.HasMesh())
         {
             if(mReMesh)
             {
@@ -540,7 +540,7 @@ void TissueSimulation<DIM>::Solve()
         
 
 		CancerEventHandler::BeginEvent(TESSELLATION);
-        if (mrTissue.GetTissueContainsMesh())
+        if (mrTissue.HasMesh())
         {
             if(mWriteVoronoiData || mpMechanicsSystem->NeedsVoronoiTessellation() || mWriteTissueAreas)
             {
@@ -644,7 +644,7 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
     std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue_sim_at_time_"+time_stamp.str()+".arch";
     std::string mesh_filename = std::string("mesh_") + time_stamp.str();
     
-    if (mrTissue.GetTissueContainsMesh())
+    if (mrTissue.HasMesh())
     {
         // Write the mesh to file.  Remesh first to ensure it's in a good state.
         if(mReMesh)

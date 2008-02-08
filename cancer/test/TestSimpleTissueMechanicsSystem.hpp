@@ -10,24 +10,20 @@
 #include "SimpleTissue.cpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
-
+#include "CellsGenerator.hpp"
 
 class TestSimpleTissueMechanicsSystem : public AbstractCancerTestSuite
 {    
 public:
-
-    void TestForceCalculations() throw (Exception)
+    void TestForceCalculationsBasic() throw (Exception)
     {
         // Set up simulation time
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
+        double stiffness = CancerParameters::Instance()->GetSpringStiffness();
         
-        // Create mesh
-        unsigned cells_across = 7;
-        unsigned cells_up = 5;
-        HoneycombMeshGenerator generator(cells_across, cells_up, 0, false);
+        // Create a mesh and get its nodes
+        HoneycombMeshGenerator generator(3, 3, 0, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
-        
-        // Get nodes
         std::vector<Node<2> > nodes;
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -36,49 +32,19 @@ public:
         
         // Create cells
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            CellMutationState mutation_state = HEALTHY;
-            TissueCell cell(STEM, mutation_state, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
-            
-            if (i==10 || i==11)
-            {
-                cell.SetBirthTime(-0.1);
-            }
-            else
-            {
-                cell.SetBirthTime(-10);
-            }
-            cells.push_back(cell);
-        }
+        CellsGenerator<2>::GenerateBasic(cells,*p_mesh);
 
-        cells[23].StartApoptosis();
-        
         // Create simple tissue
         SimpleTissue<2> simple_tissue(nodes, cells);
         
         // Create simple tissue mechanics system (with default cutoff=1.5)
-        SimpleTissueMechanicsSystem<2> mechanics_system(simple_tissue);        
+        SimpleTissueMechanicsSystem<2> mechanics_system(simple_tissue);
         
         // Test rCalculateVelocitiesOfEachNode() method
         std::vector<c_vector<double,2> >& velocities_on_each_node = mechanics_system.rCalculateVelocitiesOfEachNode();
-        for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            // Cells 10 and 11 are young and so the spring between them 
-            // temporarily has a smaller natural rest length
-            if (i==10)
-            {
-                TS_ASSERT_DELTA(velocities_on_each_node[i][0], 6.7499, 1e-4);
-            }
-            else if (i==11)
-            {
-                TS_ASSERT_DELTA(velocities_on_each_node[i][0], -6.7499, 1e-4);
-            }
-            else
-            {
-                TS_ASSERT_DELTA(velocities_on_each_node[i][0], 0.0, 1e-4);
-            }
+            TS_ASSERT_DELTA(velocities_on_each_node[i][0], 0.0, 1e-4);
             TS_ASSERT_DELTA(velocities_on_each_node[i][1], 0.0, 1e-4);
         }
                
@@ -89,24 +55,134 @@ public:
         // a distance sqrt(3) away
         velocities_on_each_node = mechanics_system.rCalculateVelocitiesOfEachNode();
         
-        // Node 0 is at (0,0), the bottom left corner, so experiences force 
-        // contributions from node 14 at (0,sqrt(3)) and node 8 at (1.5,sqrt(3)/2)
-        TS_ASSERT_DELTA(velocities_on_each_node[0][0], 16.4711, 1e-4);
-        TS_ASSERT_DELTA(velocities_on_each_node[0][1], 28.5288, 1e-4);
+        double force = stiffness*(sqrt(3)-1);//magnitude of force between any two nodes
+
+        double inv_damping = 1.0/CancerParameters::Instance()->GetDampingConstantNormal();
+
+        // Node 0 is at (0,0), has force contributions from two nodes (nodes 4 and 6)
+        // that are sqrt(3) away.
+        // All nodes are connected to two other nodes, sqrt(3) away
+        // Total force on a node is force*sqrt(3) in magnitude
+        TS_ASSERT_DELTA(velocities_on_each_node[0][0], inv_damping*force*sqrt(3)/2.0, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[0][1], inv_damping*force*3.0/2.0, 1e-4);
         
-        // Node 7 is at (0.5,sqrt(3)/2), on the left, so experiences force 
-        // contributions from node 2 at (2,0), node 16 at (2,sqrt(3))
-        // and node 21 at (0.5,1.5*sqrt(3))
-        TS_ASSERT_DELTA(velocities_on_each_node[7][0], 32.9422, 1e-4);
-        TS_ASSERT_DELTA(velocities_on_each_node[7][1], 19.0192  , 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[1][0], inv_damping*force*sqrt(3)/2.0, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[1][1], inv_damping*force*3.0/2.0, 1e-4);
+
+        TS_ASSERT_DELTA(velocities_on_each_node[2][0], -inv_damping*force*sqrt(3)/2.0, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[2][1],  inv_damping*force*3.0/2.0, 1e-4);
+
+        TS_ASSERT_DELTA(velocities_on_each_node[3][0], inv_damping*force*sqrt(3), 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[3][1], 0.0, 1e-4);
+
+        TS_ASSERT_DELTA(velocities_on_each_node[4][0], -inv_damping*force*sqrt(3), 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[4][1], 0.0, 1e-4);
+
+        TS_ASSERT_DELTA(velocities_on_each_node[5][0], -inv_damping*force*sqrt(3), 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[5][1], 0.0, 1e-4);
+
+        TS_ASSERT_DELTA(velocities_on_each_node[6][0], inv_damping*force*sqrt(3)/2.0, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[6][1], -inv_damping*force*3.0/2.0, 1e-4);
         
-        // Node 8 is at (1.5,sqrt(3)/2), on the left, so experiences force
-        // contributions from node 0 at (0,0), node 14 at (0,sqrt(3)) and 
-        // node 22 at (1.5,1.5*sqrt(3)), node 17 at (3,sqrt(3)) and node 3 at (3,0)
-        TS_ASSERT_DELTA(velocities_on_each_node[8][0], 0.0, 1e-4);
-        TS_ASSERT_DELTA(velocities_on_each_node[8][1], 19.0192, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[7][0], inv_damping*force*sqrt(3)/2.0, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[7][1], -inv_damping*force*3.0/2.0, 1e-4);
+
+        TS_ASSERT_DELTA(velocities_on_each_node[8][0], -inv_damping*force*sqrt(3)/2.0, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[8][1], -inv_damping*force*3.0/2.0, 1e-4);
     }
 
+
+    void TestForceCalculationsWithBirthAndDeath() throw (Exception)
+    {
+        // Set up simulation time
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,10);
+        CancerParameters* p_params = CancerParameters::Instance();
+        
+        // Create mesh
+        unsigned cells_across = 2;
+        unsigned cells_up = 2;
+        HoneycombMeshGenerator generator(cells_across, cells_up, 0, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        
+        // Get nodes
+        std::vector<Node<2> > nodes;
+        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            nodes.push_back(*(p_mesh->GetNode(i)));
+        }        
+        
+        // Create cells, making cells 0 and 1 young
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            CellMutationState mutation_state = HEALTHY;
+            TissueCell cell(STEM, mutation_state, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            
+            if (i==0 || i==1)
+            {
+                cell.SetBirthTime(-0.1);
+            }
+            else
+            {
+                cell.SetBirthTime(-10);
+            }
+            cells.push_back(cell);
+        }
+
+       
+        // Create simple tissue
+        SimpleTissue<2> simple_tissue(nodes, cells);
+        
+        // Create simple tissue mechanics system (with default cutoff=1.5)
+        SimpleTissueMechanicsSystem<2> mechanics_system(simple_tissue);        
+        
+        // Test rCalculateVelocitiesOfEachNode() method
+        std::vector<c_vector<double,2> >& velocities_on_each_node = mechanics_system.rCalculateVelocitiesOfEachNode();
+        for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
+        {
+            // Cells 0 and 1 are young and so the spring between them 
+            // temporarily has a smaller natural rest length
+            if (i==0)
+            {
+                TS_ASSERT_DELTA(velocities_on_each_node[i][0], 6.7499, 1e-4);
+            }
+            else if (i==1)
+            {
+                TS_ASSERT_DELTA(velocities_on_each_node[i][0], -6.7499, 1e-4);
+            }
+            else
+            {
+                TS_ASSERT_DELTA(velocities_on_each_node[i][0], 0.0, 1e-4);
+            }
+            TS_ASSERT_DELTA(velocities_on_each_node[i][1], 0.0, 1e-4);
+        }
+
+        // get cell 3 and start apoptosis on it          
+        SimpleTissue<2>::Iterator iter = simple_tissue.Begin();
+        ++iter;
+        ++iter;
+        ++iter;
+        
+        iter->StartApoptosis();
+        SimulationTime::Instance()->IncrementTimeOneStep();
+        double time_until_death = iter->TimeUntilDeath();
+        
+        double rest_length = 0.5*(1+(time_until_death)/(p_params->GetApoptosisTime()));
+        double stiffness = p_params->GetSpringStiffness();
+        double force = (1-rest_length)*stiffness;
+
+        velocities_on_each_node = mechanics_system.rCalculateVelocitiesOfEachNode();
+
+        double inv_damping = 1.0/CancerParameters::Instance()->GetDampingConstantNormal();
+
+        // the velocity on cells 2 and 3 are affected by the fact 3 is apoptosing.
+        TS_ASSERT_DELTA(velocities_on_each_node[2][0], inv_damping*force, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[2][1], 0.0, 1e-4);
+        
+        TS_ASSERT_DELTA(velocities_on_each_node[3][0], -inv_damping*1.5*force, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[3][1], -inv_damping*(sqrt(3)/2.0)*force, 1e-4);    
+    }
 };
 
 #endif /*TESTSIMPLETISSUEMECHANICSSYSTEM_HPP_*/

@@ -77,7 +77,7 @@ public:
     std::list<TissueCell>& rGetCells();
     const std::list<TissueCell>& rGetCells() const;
     
-    bool GetTissueContainsMesh();
+    bool HasMesh();
     
     /** 
      * Get the number of nodes in the tissue.
