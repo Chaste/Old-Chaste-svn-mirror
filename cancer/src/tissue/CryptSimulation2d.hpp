@@ -121,7 +121,7 @@ private :
             
             ChastePoint<2> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
                         
-            bool is_wnt_included = WntConcentration::Instance()->IsGradientSetUp();
+            bool is_wnt_included = WntConcentration::Instance()->IsWntSetUp();
             if (!is_wnt_included) WntConcentration::Destroy();
             
             // stem cells are fixed if no wnt, so reset the x-value to the old x-value           

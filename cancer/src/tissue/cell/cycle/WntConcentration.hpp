@@ -41,7 +41,7 @@ private:
      *  LINEAR - Goes from 1 to zero at height specified by CancerParameters::mTopOfLinearWntConcentration
      *  RADIAL - Goes from 1 to zero at height specified by CancerParameters::mTopOfLinearWntConcentration
      */
-    WntConcentrationType mGradientType;
+    WntConcentrationType mWntType;
     
     /** 
      *  The Tissue which the Wnt Gradient is operating in
@@ -71,7 +71,7 @@ private:
         mpCancerParams = CancerParameters::Instance();
         archive & *mpCancerParams;
         archive & mpCancerParams;
-        archive & mGradientType;
+        archive & mWntType;
         archive & mpTissue;
         archive & mTypeSet;
         archive & mConstantWntValueForTesting;
@@ -151,7 +151,7 @@ public:
     /**
      *  Whether a wnt concentration has been set up (for archiving, mainly)
      */
-    bool IsGradientSetUp();
+    bool IsWntSetUp();
     
 };
 

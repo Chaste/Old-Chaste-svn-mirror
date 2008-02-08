@@ -57,7 +57,7 @@ double WntConcentration::GetWntLevel(TissueCell* pCell)
     
     double height;
     
-    if (mGradientType==RADIAL)
+    if (mWntType==RADIAL)
     {
         double a = CancerParameters::Instance()->GetCryptProjectionParameterA();
         double b = CancerParameters::Instance()->GetCryptProjectionParameterB();
@@ -92,7 +92,7 @@ void WntConcentration::SetTissue(MeshBasedTissue<2>& rTissue)
 
 WntConcentrationType WntConcentration::GetType()
 {
-    return mGradientType;    
+    return mWntType;    
 }
 
 void WntConcentration::SetType(WntConcentrationType type)
@@ -101,7 +101,7 @@ void WntConcentration::SetType(WntConcentrationType type)
     {
         EXCEPTION("Destroy has not been called");
     }
-    mGradientType = type;
+    mWntType = type;
     mTypeSet = true;
 }
 
@@ -113,13 +113,13 @@ double WntConcentration::GetWntLevel(double height)
 {
     double wnt_level = -1.0;
     
-    if (mGradientType==NONE)
+    if (mWntType==NONE)
     {
         wnt_level=0.0;
     }
     
     // The first Wnt gradient to try
-    if (mGradientType==LINEAR || mGradientType==RADIAL)
+    if (mWntType==LINEAR || mWntType==RADIAL)
     {
         double crypt_height = mpCancerParams->GetCryptLength();
         double top_of_gradient = mpCancerParams->GetTopOfLinearWntConcentration(); // of crypt height.
@@ -147,12 +147,12 @@ c_vector<double,2> WntConcentration::GetWntGradient(c_vector<double,2> location)
 {
     c_vector<double,2> wnt_gradient = zero_vector<double>(2);
     
-    if (mGradientType!=NONE)
+    if (mWntType!=NONE)
     {
         double crypt_height = mpCancerParams->GetCryptLength();
         double top_of_gradient = mpCancerParams->GetTopOfLinearWntConcentration(); // of crypt height.
         
-        if (mGradientType==LINEAR)
+        if (mWntType==LINEAR)
         {
             if ((location[1] >= -1e-9) && (location[1] < top_of_gradient*crypt_height))
             {
@@ -186,7 +186,7 @@ c_vector<double,2> WntConcentration::GetWntGradient(c_vector<double,2> location)
  * 
  * @return result  True if the Wnt concentration is set up.
  */
-bool WntConcentration::IsGradientSetUp()
+bool WntConcentration::IsWntSetUp()
 {
     bool result = false;
     if (mTypeSet && mpTissue!=NULL)
@@ -207,6 +207,6 @@ void WntConcentration::SetConstantWntValueForTesting(double value)
     mUseConstantWntValueForTesting = true;
     if (!mTypeSet)
     {
-        mGradientType = NONE;
+        mWntType = NONE;
     }
 }

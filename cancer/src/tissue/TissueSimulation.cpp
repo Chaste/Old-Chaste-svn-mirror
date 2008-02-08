@@ -665,7 +665,7 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
     output_arch << *p_sim_time;
     
     // Archive the Wnt concentration if it's used
-    bool archive_wnt = WntConcentration::Instance()->IsGradientSetUp();
+    bool archive_wnt = WntConcentration::Instance()->IsWntSetUp();
     output_arch & archive_wnt;
     if (archive_wnt)
     {

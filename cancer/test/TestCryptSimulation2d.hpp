@@ -491,7 +491,7 @@ public:
         TS_ASSERT_DELTA(node_120_location[1], 0.1033 , 1e-4);
         
         // Test Wnt Gradient was set up correctly
-        TS_ASSERT_EQUALS(WntConcentration::Instance()->IsGradientSetUp(),true);
+        TS_ASSERT_EQUALS(WntConcentration::Instance()->IsWntSetUp(),true);
         
         // Test the Wnt gradient result
         TissueCell* p_cell = &(p_simulator2->rGetTissue().rGetCellAtNodeIndex(28));
