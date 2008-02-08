@@ -6,6 +6,7 @@
 
 #include "MeshBasedTissue.cpp"
 #include "AbstractVariableDampingMechanicsSystem.hpp"
+#include "WntConcentration.hpp"
 
 /**
  *  Spring system class for 2D crypt projection simulations.
@@ -36,6 +37,7 @@ private :
         archive & mCutoffPoint;
         archive & mA;
         archive & mB;
+        archive & mIncludeWntChemotaxis;
     }
     
     /**
@@ -54,24 +56,26 @@ private :
      *  Map node indices to 3D locations on the crypt surface. 
      */
     std::map<unsigned, c_vector<double, 3> > mNode3dLocationMap;
-      
-            
+         
     /**
      * Node velocities
      */
     std::vector<c_vector<double, 2> > mDrDt;
 
-
     /** 
      * Whether to have zero force if the cells are far enough apart. 
      */
     bool mUseCutoffPoint;
-    
-    
+        
     /** 
      * Have zero force if the cells are this distance apart (and mUseCutoffPoint==true).
      */
     double mCutoffPoint;
+    
+    /** 
+     * Whether to include Wnt-dependent chemotaxis for stem cells. 
+     */
+    bool mIncludeWntChemotaxis;
 
     /**
      * Fix up the mappings between node indices and 3D locations
@@ -211,6 +215,7 @@ public :
         mCutoffPoint = 1e10;        
         mA = CancerParameters::Instance()->GetCryptProjectionParameterA();
         mB = CancerParameters::Instance()->GetCryptProjectionParameterB();
+        mIncludeWntChemotaxis = false;
     }
 
     bool NeedsVoronoiTessellation()
@@ -227,6 +232,11 @@ public :
     {
         return mB;
     }
+    
+    void SetWntChemotaxis(bool includeWntChemotaxis)
+    {
+        mIncludeWntChemotaxis = includeWntChemotaxis;
+    }    
        
     /**
      *  Calculates the height of the crypt surface given by
@@ -289,8 +299,23 @@ public :
             double damping_constantA = this->GetDampingConstant(spring_iterator.rGetCellA());
             double damping_constantB = this->GetDampingConstant(spring_iterator.rGetCellB());
             
-            mDrDt[nodeB_global_index] -= force / damping_constantB;
-            mDrDt[nodeA_global_index] += force / damping_constantA;
+            mDrDt[nodeB_global_index] -= force/damping_constantB;
+            mDrDt[nodeA_global_index] += force/damping_constantA;
+        }
+        
+        if (mIncludeWntChemotaxis)
+        {
+            assert(WntConcentration::Instance()->IsWntSetUp());
+            
+            for (MeshBasedTissue<2>::Iterator cell_iter=(static_cast<MeshBasedTissue<2>*>(this->mpTissue))->Begin();
+                 cell_iter!=(static_cast<MeshBasedTissue<2>*>(this->mpTissue))->End();
+                 ++cell_iter)
+            {
+                c_vector<double, 2>  wnt_chemotactic_force = WntConcentration::Instance()->GetWntGradient(&(*cell_iter));
+                unsigned index = this->mpTissue->GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
+                
+                mDrDt[index] += wnt_chemotactic_force/(this->GetDampingConstant(*cell_iter));
+            }
         }
         
         return mDrDt;
