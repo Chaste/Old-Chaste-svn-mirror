@@ -416,7 +416,7 @@ public:
             
             cells.clear();
             labelled.clear();
-            WntGradient::Destroy();    
+            WntConcentration::Destroy();    
             
             //delete p_generator;
             delete p_crypt_statistics;

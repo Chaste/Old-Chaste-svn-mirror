@@ -13,7 +13,7 @@
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-#include "WntGradient.hpp"
+#include "WntConcentration.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "ColumnDataReader.hpp"
@@ -400,8 +400,8 @@ public:
         MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
-        WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetTissue(crypt);
+        WntConcentration::Instance()->SetType(LINEAR);
+        WntConcentration::Instance()->SetTissue(crypt);
 
         CryptSimulation2d simulator(crypt);
         
@@ -422,7 +422,7 @@ public:
         TS_ASSERT_EQUALS(number_of_nodes, 142u);
         
         delete p_sloughing_cell_killer;
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
         
         CancerEventHandler::Headings();
         CancerEventHandler::Report();
@@ -469,8 +469,8 @@ public:
         MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
-        WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetTissue(crypt);
+        WntConcentration::Instance()->SetType(LINEAR);
+        WntConcentration::Instance()->SetTissue(crypt);
 
         CryptSimulation2d simulator(crypt);
         
@@ -503,7 +503,7 @@ public:
         }
         
         delete p_sloughing_cell_killer;
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
         

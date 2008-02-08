@@ -161,7 +161,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
         TissueCell wnt_cell(TRANSIT, APC_ONE_HIT, new WntCellCycleModel());
          
@@ -217,7 +217,7 @@ public:
             }
         }
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     /*
@@ -237,7 +237,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 0.0;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
         TissueCell wnt_cell(TRANSIT, BETA_CATENIN_ONE_HIT, new WntCellCycleModel());
         wnt_cell.GetCellCycleModel()->SetGeneration(1);                          
@@ -292,7 +292,7 @@ public:
             }
         }
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     /*
@@ -312,7 +312,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 0.0;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
         TissueCell wnt_cell(TRANSIT, // type
                                   APC_TWO_HIT,//Mutation State
@@ -383,7 +383,7 @@ public:
             }
         }
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }    
 };
 

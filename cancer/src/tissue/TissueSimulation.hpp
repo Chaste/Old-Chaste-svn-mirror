@@ -308,7 +308,6 @@ namespace serialization
 /**
  * Serialize information required to construct a TissueSimulation.
  *
- * \todo Shouldn't saving the Wnt gradient happen *before* saving the Tissue?
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(

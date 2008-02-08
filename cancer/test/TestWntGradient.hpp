@@ -8,7 +8,7 @@
 
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
-#include "WntGradient.hpp"
+#include "WntConcentration.hpp"
 #include "MeshBasedTissue.cpp"
 #include "TissueCell.hpp"
 #include "WntCellCycleModel.hpp"
@@ -18,7 +18,7 @@
  * so if you copy them into a new test suite be sure to copy these methods
  * too.
  */
-class TestWntGradient : public CxxTest::TestSuite
+class TestWntConcentration : public CxxTest::TestSuite
 {
 private:
     
@@ -32,121 +32,121 @@ private:
     {        
         // Clear up singleton classes
         SimulationTime::Destroy();
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
 public:    
-    void TestNoWntGradient() throw(Exception)
+    void TestNoWntConcentration() throw(Exception)
     {
-        WntGradient* p_wnt_gradient = WntGradient::Instance();
-        p_wnt_gradient->SetType(NONE);
+        WntConcentration* p_wnt = WntConcentration::Instance();
+        p_wnt->SetType(NONE);
         
-        TS_ASSERT_EQUALS(p_wnt_gradient->GetType(), NONE);
+        TS_ASSERT_EQUALS(p_wnt->GetType(), NONE);
         
         double height = 5;
         double wnt_level = 0.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
     }
     
-    void TestLinearWntGradient() throw(Exception)
+    void TestLinearWntConcentration() throw(Exception)
     {
-        WntGradient* p_wnt_gradient = WntGradient::Instance();
-        p_wnt_gradient->SetType(LINEAR);
+        WntConcentration* p_wnt = WntConcentration::Instance();
+        p_wnt->SetType(LINEAR);
         
         CancerParameters *params = CancerParameters::Instance();
                 
         double height = 100;
         double wnt_level = 0.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
         
         height = -1e-12;    // for cells very close to 0 on negative side.
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 1.0, 1e-9);        
         
         height = 21.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level, 1.0-height/params->GetCryptLength(), 1e-9);
         
         params->SetCryptLength(10.0);
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
     }
     
     
-    void TestOffsetLinearWntGradient() throw(Exception)
+    void TestOffsetLinearWntConcentration() throw(Exception)
     {
-        WntGradient* p_wnt_gradient = WntGradient::Instance();
+        WntConcentration* p_wnt = WntConcentration::Instance();
         
-        p_wnt_gradient->SetType(LINEAR);
+        p_wnt->SetType(LINEAR);
         CancerParameters *params = CancerParameters::Instance();
-        params->SetTopOfLinearWntGradient(1.0/3.0);
+        params->SetTopOfLinearWntConcentration(1.0/3.0);
         
         double height = 100;
         double wnt_level = 0.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
         
         height = -1e-12;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 1.0, 1e-9);        
         
         height = 21.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level, 0.0 , 1e-9);
         
         params->SetCryptLength(10.0);
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
         // under a third of the way up the crypt.
         params->SetCryptLength(22.0);
         height = 7.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level , 1.0 - height/((1.0/3.0)*params->GetCryptLength()) , 1e-9);
         // more than a third of the way up the crypt.
         height = 10.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
     }
     
     
-    void TestRadialWntGradient() throw(Exception)
+    void TestRadialWntConcentration() throw(Exception)
     {
-        WntGradient* p_wnt_gradient = WntGradient::Instance();
-        p_wnt_gradient->SetType(RADIAL);
+        WntConcentration* p_wnt = WntConcentration::Instance();
+        p_wnt->SetType(RADIAL);
 
         CancerParameters *params = CancerParameters::Instance();
         
         // Test GetWntLevel(double) method
         double height = 100;
         double wnt_level = 0.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-4);
         
         height = -1e-12;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 1.0, 1e-4);        
         
         height = 21.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level, 0.0454 , 1e-4);
         
         params->SetCryptLength(10.0);
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
         
         params->SetCryptLength(22.0);
         height = 7.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.6818, 1e-4);
                 
         // Test GetWntLevel(TissueCell*) method
@@ -173,20 +173,20 @@ public:
         // create a crypt
         MeshBasedTissue<2> crypt(mesh,cells);        
         CancerParameters::Instance()->SetCryptLength(1.0);
-        p_wnt_gradient->SetTissue(crypt);
+        p_wnt->SetTissue(crypt);
         
         MeshBasedTissue<2>::Iterator cell_iter = crypt.Begin();
         
-        double wnt_gradient_at_cell0 = p_wnt_gradient->GetWntLevel(&(*cell_iter));
+        double wnt_gradient_at_cell0 = p_wnt->GetWntLevel(&(*cell_iter));
         
         while(cell_iter!=crypt.End())
         {
-            TS_ASSERT_DELTA(p_wnt_gradient->GetWntLevel(&(*cell_iter)), wnt_gradient_at_cell0, 1e-12);
+            TS_ASSERT_DELTA(p_wnt->GetWntLevel(&(*cell_iter)), wnt_gradient_at_cell0, 1e-12);
             ++cell_iter;
         }                
     }
     
-    void TestArchiveWntGradient()
+    void TestArchiveWntConcentration()
     {
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
@@ -194,18 +194,18 @@ public:
         
         // Create an ouput archive
         {            
-            WntGradient::Instance()->SetType(LINEAR);
+            WntConcentration::Instance()->SetType(LINEAR);
             
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
-            output_arch << static_cast<const WntGradient&>(*WntGradient::Instance());
+            output_arch << static_cast<const WntConcentration&>(*WntConcentration::Instance());
             
-            WntGradient::Destroy();
+            WntConcentration::Destroy();
         }
         
         {
-            WntGradient* p_wnt = WntGradient::Instance();
+            WntConcentration* p_wnt = WntConcentration::Instance();
             
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -222,47 +222,47 @@ public:
     }
     
     
-    void TestSingletonnessOfWntGradient()
+    void TestSingletonnessOfWntConcentration()
     {
         CancerParameters *params = CancerParameters::Instance();
         
-        WntGradient* p_wnt_gradient = WntGradient::Instance();
-        p_wnt_gradient->SetType(NONE);
+        WntConcentration* p_wnt = WntConcentration::Instance();
+        p_wnt->SetType(NONE);
         
         double height = 5;
         double wnt_level = 0.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
         
-        TS_ASSERT_THROWS_ANYTHING(p_wnt_gradient->SetType(NONE));
+        TS_ASSERT_THROWS_ANYTHING(p_wnt->SetType(NONE));
         
-        WntGradient::Destroy();   
+        WntConcentration::Destroy();   
  
-        p_wnt_gradient = WntGradient::Instance();
-        p_wnt_gradient->SetType(LINEAR);
+        p_wnt = WntConcentration::Instance();
+        p_wnt->SetType(LINEAR);
         
         height = 100;
         wnt_level = 0.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
         
         height = -1e-12;    // for cells very close to 0 on negative side.
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 1.0, 1e-9);        
         
         height = 21.0;
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level, 1.0-height/params->GetCryptLength(), 1e-9);
         
         params->SetCryptLength(10.0);
-        wnt_level = p_wnt_gradient->GetWntLevel(height);
+        wnt_level = p_wnt->GetWntLevel(height);
         
         TS_ASSERT_DELTA(wnt_level , 0.0 , 1e-9);
         
-        TS_ASSERT_THROWS_ANYTHING(p_wnt_gradient->SetConstantWntValueForTesting(-10));      
+        TS_ASSERT_THROWS_ANYTHING(p_wnt->SetConstantWntValueForTesting(-10));      
     }
     
     
@@ -293,8 +293,8 @@ public:
         
         CancerParameters::Instance()->SetCryptLength(1.0);
 
-        WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetTissue(crypt);
+        WntConcentration::Instance()->SetType(LINEAR);
+        WntConcentration::Instance()->SetTissue(crypt);
         
         // As there is no tissue simulation we must explicitly initialise the cells
         crypt.InitialiseCells();

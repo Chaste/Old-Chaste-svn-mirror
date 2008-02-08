@@ -113,7 +113,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);// 15.971 hours to go into S phase
                 
         double wnt_level = 1.0;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
         
@@ -139,7 +139,7 @@ public:
             {
                 wnt_level = 0.0;
             }
-            WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+            WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
             
             TS_ASSERT(result==false);
         }
@@ -167,7 +167,7 @@ public:
         TS_ASSERT_DELTA(test_results[6] , diff + 0.5*7.415537855270896e-03 , 1e-5);
         TS_ASSERT_DELTA(test_results[5] , 9.999999999999998e-01 , 1e-5);
                  
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     
@@ -182,7 +182,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);// 15.971 hours to go into S phase
                 
         double wnt_level = 1.0;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Cover exception
         TS_ASSERT_THROWS_ANYTHING(IngeWntSwatCellCycleModel model(0));
@@ -201,7 +201,7 @@ public:
         
         // Check the Inge model has changed the cell type correctly.
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
-        WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(1.0);
         for (int i=0; i<21*num_timesteps/30.0; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -293,7 +293,7 @@ public:
             {
                 wnt_level = 0.0;
             }
-            WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+            WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
             
             TS_ASSERT_EQUALS(result, false);
             TS_ASSERT_EQUALS(result2, false);
@@ -342,7 +342,7 @@ public:
         TS_ASSERT_DELTA(p_cell_model->GetCytoplasmicBetaCateninLevel(), cytoplasm_beta_cat, 1e-4);
         TS_ASSERT_DELTA(p_cell_model->GetNuclearBetaCateninLevel(), nuclear_beta_cat, 1e-4);
             
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     
@@ -353,7 +353,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps); // 15.971 hours to go into S phase
         
         double wnt_level = 1.0;        
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
                 
@@ -401,7 +401,7 @@ public:
             }
         }
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     
@@ -412,7 +412,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps); // 15.971 hours to go into S phase
 
         double wnt_level = 0.0;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
                 
@@ -444,7 +444,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, 7.82);
         }
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     
@@ -455,7 +455,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps); // 15.971 hours to go into S phase
         
         double wnt_level = 0.738; // This shouldn't matter for this kind of cell!
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
                 
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
         
@@ -484,7 +484,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, 3.9435);
         }
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     
@@ -495,7 +495,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
         
         double wnt_level = 1.0;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
                 
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
                 
@@ -524,7 +524,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_2, 5.971);
         }
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     
@@ -535,7 +535,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20, num_timesteps);// 15.971 hours to go into S phase
 
         double wnt_level = 1.0;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel();
                 
@@ -567,7 +567,7 @@ public:
             }
         }
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     
@@ -680,7 +680,7 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_cell_cycle.arch";
-        WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(1.0);
 
         // Create an ouput archive
         {
@@ -741,7 +741,7 @@ public:
             delete p_cell;
         }
 
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }   
     
     
@@ -750,7 +750,7 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "inge_wnt_swat_cell_cycle.arch";
-        WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(1.0);
 
         // Create an ouput archive
         {
@@ -809,7 +809,7 @@ public:
             delete p_cell;
         }
 
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }   
         
         
@@ -821,7 +821,7 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "stochastic_wnt_cell_cycle.arch";
-        WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(1.0);
         
         // Create an ouput archive
         {   // In this test the RandomNumberGenerator in existence 
@@ -917,7 +917,7 @@ public:
             delete p_stoc_cell;
             delete p_wnt_cell;
         }
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }    
     
     

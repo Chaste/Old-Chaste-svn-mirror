@@ -104,7 +104,7 @@ public:
      * 
      * By the time this is called, a Tissue will have been set up, so the model 
      * can know where its cell is located in space.  If relevant to the simulation, 
-     * the CellwiseData and WntGradient singletons will also have been initialised. 
+     * the CellwiseData and WntConcentration singletons will also have been initialised. 
      */ 
     virtual void Initialise() 
     {} 

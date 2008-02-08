@@ -70,8 +70,8 @@ public:
         crypt.SetGhostNodes(ghost_node_indices);          
         
         // Set up the Wnt gradient 
-        WntGradient::Instance()->SetType(RADIAL); 
-        WntGradient::Instance()->SetTissue(crypt);   
+        WntConcentration::Instance()->SetType(RADIAL); 
+        WntConcentration::Instance()->SetTissue(crypt);   
         
         CryptProjectionStatistics statistics(crypt);
         
@@ -132,7 +132,7 @@ public:
         crypt_projection_simulator.Solve();
         
         // Tidy up
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
 };
 

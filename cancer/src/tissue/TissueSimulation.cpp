@@ -16,7 +16,7 @@
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.cpp"
 #include "ColumnDataWriter.hpp"
-#include "WntGradient.hpp"
+#include "WntConcentration.hpp"
 #include "CellwiseData.cpp"
 #include "OutputFileHandler.hpp"
 #include "LogFile.hpp"
@@ -664,13 +664,13 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
     // singleton-ness on load.
     output_arch << *p_sim_time;
     
-    // Archive the Wnt gradient if it's used
-    bool archive_wnt = WntGradient::Instance()->IsGradientSetUp();
+    // Archive the Wnt concentration if it's used
+    bool archive_wnt = WntConcentration::Instance()->IsGradientSetUp();
     output_arch & archive_wnt;
     if (archive_wnt)
     {
-        WntGradient* p_wnt_gradient = WntGradient::Instance();
-        output_arch & *p_wnt_gradient;
+        WntConcentration* p_wnt = WntConcentration::Instance();
+        output_arch & *p_wnt;
     }
     
     // Archive the CellwiseData if it's used
@@ -760,13 +760,13 @@ void TissueSimulation<DIM>::CommonLoad(Archive& rInputArch)
     assert(p_simulation_time->IsStartTimeSetUp());
     rInputArch >> *p_simulation_time;
     
-    // Load Wnt gradient if it's used
+    // Load Wnt concentration if it's used
     bool archive_wnt;
     rInputArch & archive_wnt;
     if (archive_wnt)
     {
-        WntGradient* p_wnt_gradient = WntGradient::Instance();
-        rInputArch & *p_wnt_gradient;
+        WntConcentration* p_wnt = WntConcentration::Instance();
+        rInputArch & *p_wnt;
     }
     
     // Load CellwiseData if it's used

@@ -39,7 +39,7 @@ CancerParameters::CancerParameters()
  * mHepaOneCellHypoxicConcentration has no units
  * mWntTransitThreshold has no units
  * mWntStemThreshold has no units
- * mTopOfLinearWntGradient has no units (proportion of mCryptLength)
+ * mTopOfLinearWntConcentration has no units (proportion of mCryptLength)
  * mCriticalHypoxicDuration has units of hours
  * mCryptProjectionParameterA has no units
  * mCryptProjectionParameterB has no units
@@ -69,7 +69,7 @@ void CancerParameters::Reset()
     mHepaOneCellHypoxicConcentration = 0.4;
     mWntStemThreshold = 0.8;
     mWntTransitThreshold = 0.65;
-    mTopOfLinearWntGradient = 1.0;
+    mTopOfLinearWntConcentration = 1.0;
     mCriticalHypoxicDuration = 2.0;
     mCryptProjectionParameterA = 0.5;
     mCryptProjectionParameterB = 2.0;
@@ -165,9 +165,9 @@ double CancerParameters::GetWntStemThreshold()
 {
     return mWntStemThreshold;
 }
-double CancerParameters::GetTopOfLinearWntGradient()
+double CancerParameters::GetTopOfLinearWntConcentration()
 {
-    return mTopOfLinearWntGradient;
+    return mTopOfLinearWntConcentration;
 }
 double CancerParameters::GetCriticalHypoxicDuration()
 {
@@ -294,11 +294,11 @@ void CancerParameters::SetWntStemThreshold(double wntThreshold)
     assert(wntThreshold>=0.0);
     mWntStemThreshold = wntThreshold;
 }
-void CancerParameters::SetTopOfLinearWntGradient(double top)
+void CancerParameters::SetTopOfLinearWntConcentration(double top)
 {
     assert(top > 0.0);
     assert(top <= 1.0);
-    mTopOfLinearWntGradient = top;
+    mTopOfLinearWntConcentration = top;
 }
 void CancerParameters::SetCriticalHypoxicDuration(double criticalHypoxicDuration)
 {

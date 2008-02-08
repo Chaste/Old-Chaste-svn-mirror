@@ -1,27 +1,27 @@
-#include "WntGradient.hpp"
+#include "WntConcentration.hpp"
 #include "Exception.hpp"
 #include <iostream>
 #include <cassert>
 
 
 /** Pointer to the single instance */
-WntGradient* WntGradient::mpInstance = NULL;
+WntConcentration* WntConcentration::mpInstance = NULL;
 
 /*
- * Return a pointer to the WntGradient object.
+ * Return a pointer to the WntConcentration object.
  * The first time this is called, the object is created.
  */
-WntGradient* WntGradient::Instance()
+WntConcentration* WntConcentration::Instance()
 {
     if (mpInstance == NULL)
     {
-        mpInstance = new WntGradient;
+        mpInstance = new WntConcentration;
     }
     return mpInstance;
 }
 
 
-WntGradient::WntGradient()
+WntConcentration::WntConcentration()
  :  mpCancerParams(CancerParameters::Instance()),
     mpTissue(NULL),
     mTypeSet(false),
@@ -33,12 +33,12 @@ WntGradient::WntGradient()
 }
 
 
-WntGradient::~WntGradient()
+WntConcentration::~WntConcentration()
 {
 }
 
 
-void WntGradient::Destroy()
+void WntConcentration::Destroy()
 {
     if (mpInstance)
     {
@@ -48,7 +48,7 @@ void WntGradient::Destroy()
 }
 
 
-double WntGradient::GetWntLevel(TissueCell* pCell)
+double WntConcentration::GetWntLevel(TissueCell* pCell)
 {
     if(mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a tissue
     {
@@ -75,17 +75,17 @@ double WntGradient::GetWntLevel(TissueCell* pCell)
 }
 
 
-void WntGradient::SetTissue(MeshBasedTissue<2>& rTissue)
+void WntConcentration::SetTissue(MeshBasedTissue<2>& rTissue)
 {
     mpTissue = &rTissue;
 }
 
-WntGradientType WntGradient::GetType()
+WntConcentrationType WntConcentration::GetType()
 {
     return mGradientType;    
 }
 
-void WntGradient::SetType(WntGradientType type)
+void WntConcentration::SetType(WntConcentrationType type)
 {
     if(mTypeSet==true)
     {
@@ -100,7 +100,7 @@ void WntGradient::SetType(WntGradientType type)
  * @param height The height of the cell we want the Wnt concentration of
  * @return wnt_level The concentration of Wnt for this cell (dimensionless)
  */
-double WntGradient::GetWntLevel(double height)
+double WntConcentration::GetWntLevel(double height)
 {
     double wnt_level = -1.0;
     
@@ -113,7 +113,7 @@ double WntGradient::GetWntLevel(double height)
     if (mGradientType==LINEAR || mGradientType==RADIAL)
     {
         double crypt_height = mpCancerParams->GetCryptLength();
-        double top_of_gradient = mpCancerParams->GetTopOfLinearWntGradient(); // of crypt height.
+        double top_of_gradient = mpCancerParams->GetTopOfLinearWntConcentration(); // of crypt height.
         
         if ((height >= -1e-9) && (height < top_of_gradient*crypt_height))
         {
@@ -132,12 +132,12 @@ double WntGradient::GetWntLevel(double height)
 
 
 /**
- * This allows the TissueSimulation to ask whether a WntGradient has been set up or not
+ * This allows the TissueSimulation to ask whether a WntConcentration has been set up or not
  * To let it know whether it should move stem cells around!!
  * 
- * @return result  True if the wnt gradient is set up.
+ * @return result  True if the Wnt concentration is set up.
  */
-bool WntGradient::IsGradientSetUp()
+bool WntConcentration::IsGradientSetUp()
 {
     bool result = false;
     if (mTypeSet && mpTissue!=NULL)
@@ -148,11 +148,11 @@ bool WntGradient::IsGradientSetUp()
 }
 
 
-void WntGradient::SetConstantWntValueForTesting(double value)
+void WntConcentration::SetConstantWntValueForTesting(double value)
 {
     if (value < 0)
     {
-        EXCEPTION("WntGradient::SetConstantWntValueForTesting - Wnt value for testing should be non-negative.\n");   
+        EXCEPTION("WntConcentration::SetConstantWntValueForTesting - Wnt value for testing should be non-negative.\n");   
     }
     mConstantWntValueForTesting = value;
     mUseConstantWntValueForTesting = true;

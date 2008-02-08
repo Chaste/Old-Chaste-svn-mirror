@@ -112,9 +112,9 @@ public:
 //        MeshBasedTissue<2> crypt(*p_mesh, cells);
 //        crypt.SetGhostNodes(ghost_node_indices);
 //                
-//        WntGradient::Instance()->SetType(LINEAR);
-//        CancerParameters::Instance()->SetTopOfLinearWntGradient(1.0/3.0);
-//        WntGradient::Instance()->SetTissue(crypt);
+//        WntConcentration::Instance()->SetType(LINEAR);
+//        CancerParameters::Instance()->SetTopOfLinearWntConcentration(1.0/3.0);
+//        WntConcentration::Instance()->SetTissue(crypt);
 //        
 //        CryptSimulation2d simulator(crypt);
 //        simulator.SetOutputDirectory("IngeCellsNiceCryptSim_hyp2_long");
@@ -162,7 +162,7 @@ public:
 //        delete p_cell_killer;
 //        SimulationTime::Destroy();
 //        RandomNumberGenerator::Destroy();
-//        WntGradient::Destroy();
+//        WntConcentration::Destroy();
 //    }
 //void TestAreaDependentAndLengthDependent() throw (Exception)
 //    {
@@ -191,8 +191,8 @@ public:
 //        MeshBasedTissue<2> crypt(*p_mesh, cells);
 //        crypt.SetGhostNodes(ghost_node_indices);
 //                
-//        WntGradient::Instance()->SetType(LINEAR);
-//        WntGradient::Instance()->SetTissue(crypt);
+//        WntConcentration::Instance()->SetType(LINEAR);
+//        WntConcentration::Instance()->SetTissue(crypt);
 //        
 //        Meineke2001SpringSystem<2>* p_meineke_spring_system = new Meineke2001SpringSystem<2>(crypt);
 //        p_meineke_spring_system->SetAreaBasedViscosity(true);
@@ -243,7 +243,7 @@ public:
 //        delete p_cell_killer;
 //        SimulationTime::Destroy();
 //        RandomNumberGenerator::Destroy();
-//        WntGradient::Destroy();
+//        WntConcentration::Destroy();
 //        std::cout<< "Finished \n" << std::flush;
 //    }
 //    

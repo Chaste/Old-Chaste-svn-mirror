@@ -147,9 +147,9 @@ public:
         unsigned num_timesteps = 1000*(unsigned)end_time;     
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
         
-        // Set up the Wnt gradient
+        // Set up the Wnt concentration
         double wnt_level = 1.0;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
                 
         SimpleWntCellCycleModel* p_cycle_model = new SimpleWntCellCycleModel;
         TissueCell cell(STEM, HEALTHY, p_cycle_model);
@@ -175,7 +175,7 @@ public:
         
         // Now reduce the Wnt gradient
         wnt_level = 0.7;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         double division_time = SimulationTime::Instance()->GetDimensionalisedTime();
         
@@ -198,9 +198,9 @@ public:
                  
         division_time = SimulationTime::Instance()->GetDimensionalisedTime();                
                 
-        // Now reduce the Wnt gradient so only beta-cat or APC2 hit cells divide.
+        // Now reduce the Wnt concentration so only beta-cat or APC2 hit cells divide.
         wnt_level = 0.15;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         cell.SetMutationState(APC_ONE_HIT);
         cell2.SetMutationState(BETA_CATENIN_ONE_HIT);
@@ -245,9 +245,9 @@ public:
         
         // Set up the Wnt gradient
         wnt_level = p_params->GetWntStemThreshold() + 0.01;
-        WntGradient::Destroy();
-        WntGradient::Instance()->SetType(RADIAL);
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Destroy();
+        WntConcentration::Instance()->SetType(RADIAL);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
                 
         // Set up a cell cycle model and cell        
         SimpleWntCellCycleModel* p_cycle_model4 = new SimpleWntCellCycleModel;
@@ -265,7 +265,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model4, first_g1_duration);
         }
 
-        // We should still have a stem cell since the WntGradient exceeds mRadialWntThreshold
+        // We should still have a stem cell since the WntConcentration exceeds mRadialWntThreshold
         TS_ASSERT_EQUALS(cell4.GetCellType(), STEM);
         
         // Divide the cell
@@ -278,7 +278,7 @@ public:
             
         // Now reduce the Wnt gradient
         wnt_level = p_params->GetWntStemThreshold() - 0.01;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
               
         // The numbers for the G1 durations are taken from 
         // the first two random numbers generated
@@ -289,11 +289,11 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model4, new_g1_duration);
         }
         
-        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(&cell4), wnt_level, 1e-12);
+        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(&cell4), wnt_level, 1e-12);
         TS_ASSERT_EQUALS(cell4.GetCellType(), TRANSIT);
         TS_ASSERT_EQUALS(cell5.GetCellType(), TRANSIT);
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     
@@ -497,7 +497,7 @@ public:
         
         // Set up the Wnt gradient
         double wnt_level = 1.0;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         double random_number_test = 0;
         
@@ -603,8 +603,8 @@ public:
         
         // Set up the Wnt gradient
         wnt_level = p_params->GetWntStemThreshold() - 0.01;
-        WntGradient::Destroy();
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration::Destroy();
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
         
         random_number_test = 0;
         
@@ -704,7 +704,7 @@ public:
             delete p_cell;
         }
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }   
     
     

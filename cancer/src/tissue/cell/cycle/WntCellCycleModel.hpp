@@ -7,7 +7,7 @@
 
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 #include "WntCellCycleOdeSystem.hpp"
-#include "WntGradient.hpp"
+#include "WntConcentration.hpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>

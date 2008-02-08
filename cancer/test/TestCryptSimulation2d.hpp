@@ -278,8 +278,8 @@ public:
         MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);  
         
-        WntGradient::Instance()->SetType(LINEAR);             
-        WntGradient::Instance()->SetTissue(crypt);
+        WntConcentration::Instance()->SetType(LINEAR);             
+        WntConcentration::Instance()->SetTissue(crypt);
         
         CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DPeriodicWnt");
@@ -301,7 +301,7 @@ public:
         TS_ASSERT_DELTA(node_35_location[1], 4.33013 , 1e-4);
           
         delete p_sloughing_cell_killer;
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     // A better check that the loaded mesh is the same as that saved
@@ -322,8 +322,8 @@ public:
         MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
-        WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetTissue(crypt);
+        WntConcentration::Instance()->SetType(LINEAR);
+        WntConcentration::Instance()->SetTissue(crypt);
         
         CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DMeshArchive");
@@ -350,7 +350,7 @@ public:
         CompareMeshes(p_mesh2, &r_mesh);
         
         delete p_simulator;
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
 
     void TestStandardResultForArchivingTestsBelow() throw (Exception)
@@ -372,8 +372,8 @@ public:
 
         // We have a Wnt Gradient - but not Wnt dependent cells
         // so that the test runs quickly, but we test archiving of it!
-        WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetTissue(crypt);
+        WntConcentration::Instance()->SetType(LINEAR);
+        WntConcentration::Instance()->SetTissue(crypt);
         
         CryptSimulation2d simulator(crypt);
 
@@ -401,10 +401,10 @@ public:
         
         // Test the Wnt gradient result
         TissueCell* p_cell = &(crypt.rGetCellAtNodeIndex(28));
-        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
+        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
         p_cell = &(crypt.rGetCellAtNodeIndex(120));
-        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
-        WntGradient::Destroy();
+        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
+        WntConcentration::Destroy();
         
     }
 
@@ -426,8 +426,8 @@ public:
         MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
-        WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetTissue(crypt);
+        WntConcentration::Instance()->SetType(LINEAR);
+        WntConcentration::Instance()->SetTissue(crypt);
 
         CryptSimulation2d simulator(crypt);
 
@@ -445,7 +445,7 @@ public:
         simulator.Save();
         
         delete p_sloughing_cell_killer;
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
 
@@ -456,8 +456,8 @@ public:
         // run it from 0.1 to 0.2
         CryptSimulation2d* p_simulator1;
         
-        WntGradient::Instance();   // Make sure there is no existing Wnt Gradient before load.
-        WntGradient::Destroy();
+        WntConcentration::Instance();   // Make sure there is no existing Wnt Gradient before load.
+        WntConcentration::Destroy();
         
         p_simulator1 = CryptSimulation2d::Load("Crypt2DPeriodicSaveAndLoad", 0.1);
         
@@ -491,17 +491,17 @@ public:
         TS_ASSERT_DELTA(node_120_location[1], 0.1033 , 1e-4);
         
         // Test Wnt Gradient was set up correctly
-        TS_ASSERT_EQUALS(WntGradient::Instance()->IsGradientSetUp(),true);
+        TS_ASSERT_EQUALS(WntConcentration::Instance()->IsGradientSetUp(),true);
         
         // Test the Wnt gradient result
         TissueCell* p_cell = &(p_simulator2->rGetTissue().rGetCellAtNodeIndex(28));
-        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
+        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
         p_cell = &(p_simulator2->rGetTissue().rGetCellAtNodeIndex(120));
-        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
+        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
         
         delete p_simulator1;
         delete p_simulator2;        
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     /* 
@@ -553,8 +553,8 @@ public:
         cell_iterator->SetBirthTime(-1.0);
         cell_iterator->SetMutationState(BETA_CATENIN_ONE_HIT);
                 
-        WntGradient::Instance()->SetType(LINEAR);
-        WntGradient::Instance()->SetTissue(crypt);
+        WntConcentration::Instance()->SetType(LINEAR);
+        WntConcentration::Instance()->SetTissue(crypt);
                 
         CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DWntMatureCells");
@@ -589,7 +589,7 @@ public:
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.visvoronoi";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat").c_str()), 0);
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     // This is a strange test -- all cells divide within a quick time, it gives
@@ -958,8 +958,8 @@ public:
         MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);  
         
-        WntGradient::Instance()->SetType(LINEAR);             
-        WntGradient::Instance()->SetTissue(crypt);
+        WntConcentration::Instance()->SetType(LINEAR);             
+        WntConcentration::Instance()->SetTissue(crypt);
         
         CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("CryptBetaCatenin");
@@ -975,7 +975,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CryptBetaCatenin/results.vizbCat").c_str()), 0);    
         TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " cancer/test/data/CryptBetaCatenin/results.vizsetup").c_str()), 0);    
 
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }        
 
     void TestApoptosisSpringLengths() throw (Exception)
@@ -1140,7 +1140,7 @@ public:
         // Run for a bit
         simulator.Solve();            
         
-        WntGradient::Destroy(); 
+        WntConcentration::Destroy(); 
       
         delete p_crypt;
         delete p_cell_killer;        

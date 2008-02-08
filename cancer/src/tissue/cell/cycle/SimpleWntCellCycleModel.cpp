@@ -1,5 +1,5 @@
 #include "SimpleWntCellCycleModel.hpp"
-#include "WntGradient.hpp"
+#include "WntConcentration.hpp"
 #include "Exception.hpp"
 #include <iostream>
 #include <cassert>
@@ -41,7 +41,7 @@ void SimpleWntCellCycleModel::SetG1Duration()
 void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 {
     CancerParameters *p_params = CancerParameters::Instance();
-    WntGradient* p_wnt_gradient = WntGradient::Instance();
+    WntConcentration* p_wnt = WntConcentration::Instance();
     
     double wnt_stem_cell_threshold = DBL_MAX;
     double wnt_division_threshold = DBL_MAX;
@@ -49,7 +49,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
         
     // In the case of a RADIAL Wnt gradient, set up under what level 
     // of Wnt stimulus a cell will change type 
-    if (p_wnt_gradient->GetType()==RADIAL)
+    if (p_wnt->GetType()==RADIAL)
     {
         wnt_stem_cell_threshold = p_params->GetWntStemThreshold();
     }
@@ -79,13 +79,13 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     // If the Wnt stimulus exceeds the threshold, the cell is
     // of type TRANSIT, and hence its cell cycle phase depends
     // on its age, just as in AbstractSimpleCellCycleModel.
-    if (p_wnt_gradient->GetWntLevel(mpCell) >= wnt_division_threshold)
+    if (p_wnt->GetWntLevel(mpCell) >= wnt_division_threshold)
     {       
         CellType cell_type = TRANSIT;
         
-        if (p_wnt_gradient->GetType()==RADIAL)
+        if (p_wnt->GetType()==RADIAL)
         {
-            if (p_wnt_gradient->GetWntLevel(mpCell) > wnt_stem_cell_threshold)
+            if (p_wnt->GetWntLevel(mpCell) > wnt_stem_cell_threshold)
             {
                 cell_type = STEM;
             }
@@ -107,7 +107,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 void SimpleWntCellCycleModel::ResetForDivision()
 {
     AbstractSimpleCellCycleModel::ResetForDivision();
-    if (WntGradient::Instance()->GetType()==RADIAL)
+    if (WntConcentration::Instance()->GetType()==RADIAL)
     {        
         if (mGeneration == 1)
         {
@@ -118,7 +118,7 @@ void SimpleWntCellCycleModel::ResetForDivision()
 
 void SimpleWntCellCycleModel::InitialiseDaughterCell()
 {
-    if (WntGradient::Instance()->GetType()==RADIAL)
+    if (WntConcentration::Instance()->GetType()==RADIAL)
     {   
         mpCell->SetCellType(TRANSIT);
     }

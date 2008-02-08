@@ -263,7 +263,7 @@ public:
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
         
         // Test a Wnt dependent cell
-        WntGradient::Instance()->SetConstantWntValueForTesting(0.0);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(0.0);
         
         TissueCell wnt_cell(TRANSIT, HEALTHY, new WntCellCycleModel());
                                                      
@@ -277,7 +277,7 @@ public:
         
         TS_ASSERT_EQUALS(wnt_cell.GetCellType(),DIFFERENTIATED);
         
-        WntGradient::Instance()->SetConstantWntValueForTesting(1.0);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(1.0);
 
         // Go forward through time        
         for (unsigned i=0 ; i<20 ; i++)
@@ -289,7 +289,7 @@ public:
         
         TS_ASSERT_EQUALS(wnt_cell.GetCellType(),TRANSIT);
           
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     
@@ -699,7 +699,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         TissueCell wnt_cell(TRANSIT, HEALTHY, new WntCellCycleModel());
         wnt_cell.InitialiseCellCycleModel();
         wnt_cell.GetCellCycleModel()->SetGeneration(1);                             
@@ -709,7 +709,7 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
             
-            WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+            WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
             if (time>=5.971+SG2MDuration)
             {
                 TS_ASSERT(wnt_cell.ReadyToDivide()==true);
@@ -721,7 +721,7 @@ public:
         }
         
         p_simulation_time->IncrementTimeOneStep();
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
         TS_ASSERT(wnt_cell.ReadyToDivide()==true);
         
@@ -752,7 +752,7 @@ public:
             }
         }
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     /*
@@ -776,7 +776,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
         TissueCell wnt_cell(TRANSIT, HEALTHY, new StochasticWntCellCycleModel());
         wnt_cell.InitialiseCellCycleModel();
@@ -833,7 +833,7 @@ public:
             }            
         }
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     /*
@@ -1135,7 +1135,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
-        WntGradient::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
         
         TissueCell wnt_cell(TRANSIT, APC_ONE_HIT, new WntCellCycleModel());
         wnt_cell.InitialiseCellCycleModel();
@@ -1158,7 +1158,7 @@ public:
         TS_ASSERT_EQUALS(wnt_cell3.ReadyToDivide(),false);
         TS_ASSERT_EQUALS(wnt_cell4.ReadyToDivide(),false);
         
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
     void TestIsLogged()

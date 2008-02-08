@@ -433,8 +433,8 @@ public:
         MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);  
         
-        WntGradient::Instance()->SetType(LINEAR);  
-        WntGradient::Instance()->SetTissue(crypt);
+        WntConcentration::Instance()->SetType(LINEAR);  
+        WntConcentration::Instance()->SetTissue(crypt);
         
         // As there is no tissue simulation we must explicitly initialise the cells
         crypt.InitialiseCells();
@@ -451,7 +451,7 @@ public:
         CancerParameters::Instance()->SetBetaCatSpringScaler(20/6.0);
         TS_ASSERT_DELTA( norm_2(meineke_spring_system.CalculateForceBetweenNodes(20,21)), 1.5*8.59312/20.0, 1e-5);
         
-        WntGradient::Destroy(); 
+        WntConcentration::Destroy(); 
     }
     
     void TestSpringConstantsForNecroticCells()

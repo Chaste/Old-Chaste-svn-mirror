@@ -103,7 +103,7 @@ void WntCellCycleModel::Initialise()
 {
     assert(mpOdeSystem==NULL);
     assert(mpCell!=NULL);
-    mpOdeSystem = new WntCellCycleOdeSystem(WntGradient::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
+    mpOdeSystem = new WntCellCycleOdeSystem(WntConcentration::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
     ChangeCellTypeDueToCurrentBetaCateninLevel();   
 }    
@@ -114,7 +114,7 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
     double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
 
     // feed this time step's Wnt stimulus into the solver as a constant over this timestep.
-    mpOdeSystem->rGetStateVariables()[8] = WntGradient::Instance()->GetWntLevel(mpCell);
+    mpOdeSystem->rGetStateVariables()[8] = WntConcentration::Instance()->GetWntLevel(mpCell);
     // Use the cell's current mutation status as another input
     static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
 

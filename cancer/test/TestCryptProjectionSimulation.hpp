@@ -92,8 +92,8 @@ public:
         crypt.SetGhostNodes(ghost_node_indices);          
         
 	    // Set up the Wnt gradient 
-        WntGradient::Instance()->SetType(RADIAL); 
-        WntGradient::Instance()->SetTissue(crypt);   
+        WntConcentration::Instance()->SetType(RADIAL); 
+        WntConcentration::Instance()->SetTissue(crypt);   
         
         // Create the spring system
         CryptProjectionSpringSystem* p_spring_system = new CryptProjectionSpringSystem(crypt);
@@ -132,12 +132,12 @@ public:
 
         // Test the Wnt gradient result
         TissueCell* p_cell = &(crypt.rGetCellAtNodeIndex(302));
-        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9991, 1e-4);
+        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9991, 1e-4);
         p_cell = &(crypt.rGetCellAtNodeIndex(506));
-        TS_ASSERT_DELTA(WntGradient::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
+        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
         
         // Tidy up
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
 };

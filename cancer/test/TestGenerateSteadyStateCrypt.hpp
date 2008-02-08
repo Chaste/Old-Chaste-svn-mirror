@@ -33,7 +33,7 @@ public:
      * 
      * You need to specify :
      * the kind of cell cycle model to use on line 64,
-     * WntGradient on line 69,
+     * WntConcentration on line 69,
      * change any cancer parameters around line 90,
      * and give the simulator options around line 95.
      */
@@ -64,9 +64,9 @@ public:
         MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
                 
-        WntGradient::Instance()->SetType(LINEAR);
-        CancerParameters::Instance()->SetTopOfLinearWntGradient(1.0/3.0);
-        WntGradient::Instance()->SetTissue(crypt);
+        WntConcentration::Instance()->SetType(LINEAR);
+        CancerParameters::Instance()->SetTopOfLinearWntConcentration(1.0/3.0);
+        WntConcentration::Instance()->SetTissue(crypt);
         
         CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory(output_directory);
@@ -110,7 +110,7 @@ public:
         delete p_params;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
-        WntGradient::Destroy();
+        WntConcentration::Destroy();
     }
     
 };

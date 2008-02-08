@@ -1,5 +1,5 @@
-#ifndef WNTGRADIENT_HPP_
-#define WNTGRADIENT_HPP_
+#ifndef WNTCONCENTRATION_HPP_
+#define WNTCONCENTRATION_HPP_
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -11,26 +11,26 @@
 #include <boost/serialization/export.hpp>
 
 /**
- * Possible types of WntGradient, currently:
+ * Possible types of WntConcentration, currently:
  *  NONE - For testing/to remove Wnt dependence.
  *  LINEAR - For CryptSimulation2d.hpp.
  *  RADIAL - for CryptProjection model.
  */
-typedef enum WntGradientType_
+typedef enum WntConcentrationType_
 {
     NONE,
     LINEAR,
     RADIAL
-} WntGradientType;
+} WntConcentrationType;
 
 /**
- *  Singleton Wnt gradient object
+ *  Singleton Wnt concentration object
  */
-class WntGradient
+class WntConcentration
 {
 private:
-    /** Pointer to the singleton instance of WntGradient */
-    static WntGradient* mpInstance;
+    /** Pointer to the singleton instance of WntConcentration */
+    static WntConcentration* mpInstance;
     
     /** The cancer parameters */
     CancerParameters* mpCancerParams;
@@ -38,10 +38,10 @@ private:
     /** 
      * The type of Wnt Gradient current options are
      *  NONE - returns zero everywhere
-     *  LINEAR - Goes from 1 to zero at height specified by CancerParameters::mTopOfLinearWntGradient
-     *  RADIAL - Goes from 1 to zero at height specified by CancerParameters::mTopOfLinearWntGradient
+     *  LINEAR - Goes from 1 to zero at height specified by CancerParameters::mTopOfLinearWntConcentration
+     *  RADIAL - Goes from 1 to zero at height specified by CancerParameters::mTopOfLinearWntConcentration
      */
-    WntGradientType mGradientType;
+    WntConcentrationType mGradientType;
     
     /** 
      *  The Tissue which the Wnt Gradient is operating in
@@ -49,7 +49,7 @@ private:
     MeshBasedTissue<2>* mpTissue;
     
     /**
-     *  Whether this WntGradient object has had its type set
+     *  Whether this WntConcentration object has had its type set
      */
     bool mTypeSet;  
 
@@ -60,7 +60,7 @@ private:
     
     /**
      *  Whether to return the testing value
-     *  (when false WntGradient works with Tissue)
+     *  (when false WntConcentration works with Tissue)
      */
     bool mUseConstantWntValueForTesting;
     
@@ -82,21 +82,21 @@ protected:
     /**
      *  Protected constuctor. Not to be called, use Instance() instead
      */
-    WntGradient();
+    WntConcentration();
     
 public:
     /**
-     *  Get an instance of the wnt gradient
+     *  Get an instance of the Wnt concentration
      */
-    static WntGradient* Instance();
+    static WntConcentration* Instance();
     
     /**
      *  Destructor - frees up the singleton instance.
      */
-    virtual ~WntGradient();
+    virtual ~WntConcentration();
     
     /** 
-     *  Destroy the current wnt gradient. Should be called at the end of a 
+     *  Destroy the current Wnt . Should be called at the end of a 
      *  simulation.
      */
     static void Destroy();
@@ -120,14 +120,14 @@ public:
     void SetTissue(MeshBasedTissue<2>& rTissue);
     
     /**
-     *  Get the type of wnt gradient. 
+     *  Get the type of wnt concentration. 
      */
-    WntGradientType GetType();
+    WntConcentrationType GetType();
     
     /**
-     *  Set the type of wnt gradient. Must be called before GetWntLevel().
+     *  Set the type of wnt concentration. Must be called before GetWntLevel().
      */
-    void SetType(WntGradientType type);
+    void SetType(WntConcentrationType type);
     
     /**
      *  Force the wnt gradrient to return a given value for all cell
@@ -136,12 +136,12 @@ public:
     void SetConstantWntValueForTesting(double value);
     
     /**
-     *  Whether a wnt gradient has been set up (for archiving, mainly)
+     *  Whether a wnt concentration has been set up (for archiving, mainly)
      */
     bool IsGradientSetUp();
     
 };
 
-BOOST_CLASS_EXPORT(WntGradient);
+BOOST_CLASS_EXPORT(WntConcentration);
 
-#endif /*WNTGRADIENT_HPP_*/
+#endif /*WNTCONCENTRATION_HPP_*/

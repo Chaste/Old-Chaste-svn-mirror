@@ -16,7 +16,7 @@
  *  A mechanics system for discrete tissue models based on the Meineke 2001 spring system. 
  *  There is an additional chemotactic force term which couples the tissue to CellwiseData.  
  * 
- *  Uses Fc = chi(C,|gradC) gradC/|gradC|, where C is the nutrient concentration
+ *  Uses Fc = chi(C,|gradC|) gradC/|gradC|, where C is the nutrient concentration
  *  and chi is a specified function. If gradC=0, Fc=0
  */
 template<unsigned DIM>

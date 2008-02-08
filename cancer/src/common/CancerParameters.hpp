@@ -34,7 +34,7 @@ public:
     double GetHepaOneCellHypoxicConcentration();
     double GetWntTransitThreshold();
     double GetWntStemThreshold();
-    double GetTopOfLinearWntGradient();
+    double GetTopOfLinearWntConcentration();
     double GetCriticalHypoxicDuration();
     double GetCryptProjectionParameterA();
     double GetCryptProjectionParameterB();
@@ -60,7 +60,7 @@ public:
     void SetHepaOneCellHypoxicConcentration(double);
     void SetWntTransitThreshold(double); 
     void SetWntStemThreshold(double); 
-    void SetTopOfLinearWntGradient(double);
+    void SetTopOfLinearWntConcentration(double);
     void SetCriticalHypoxicDuration(double);
     void SetHepaOneParameters();
     void SetCryptProjectionParameterA(double);
@@ -188,7 +188,7 @@ private:
      * The proportion of the crypt that has a Wnt gradient
      * (i.e. the Wnt value goes to zero at this height up the crypt)
      */
-    double mTopOfLinearWntGradient;
+    double mTopOfLinearWntConcentration;
     
     /**
      * Non-dimensionalized critical hypoxic duration
@@ -243,7 +243,7 @@ private:
         archive & mHepaOneCellHypoxicConcentration;
         archive & mWntTransitThreshold;
         archive & mWntStemThreshold;
-        archive & mTopOfLinearWntGradient;
+        archive & mTopOfLinearWntConcentration;
         archive & mCriticalHypoxicDuration;
         archive & mCryptProjectionParameterA;
         archive & mCryptProjectionParameterB;
