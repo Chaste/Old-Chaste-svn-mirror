@@ -93,8 +93,6 @@ void WntGradient::SetType(WntGradientType type)
     }
     mGradientType = type;
     mTypeSet = true;
-    // No limit on number of generations in a Wnt Gradient...
-    CancerParameters::Instance()->SetMaxTransitGenerations(UINT_MAX);
 }
 
 

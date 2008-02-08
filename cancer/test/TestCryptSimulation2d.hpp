@@ -595,10 +595,7 @@ public:
     // This is a strange test -- all cells divide within a quick time, it gives
     // good testing of the periodic boundaries though... [comment no longer valid?]
     void TestWithTysonNovakCells() throw (Exception)
-    {
-        // There is no limit on transit cells in T&N
-        CancerParameters::Instance()->SetMaxTransitGenerations(1000);
-        
+    {        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;

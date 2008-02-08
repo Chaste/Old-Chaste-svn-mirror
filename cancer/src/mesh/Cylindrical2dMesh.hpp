@@ -30,6 +30,10 @@ private:
     std::vector<unsigned> mRightOriginals;
     // The image nodes relating to these right nodes (on left of mesh)
     std::vector<unsigned> mRightImages;
+    // The indices of elements which straddle the left periodic boundary
+    std::set<unsigned> mLeftPeriodicBoundaryElementIndices;
+    // The indices of elements which straddle the right periodic boundary
+    std::set<unsigned> mRightPeriodicBoundaryElementIndices;
     
     /** The indices of nodes on the top boundary */
     std::vector<unsigned > mTopHaloNodes;
@@ -44,7 +48,10 @@ private:
     void CreateMirrorNodes();
     void ReconstructCylindricalMesh();
     void DeleteHaloNodes();
-    
+    void CorrectNonPeriodicMesh();
+    void GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
+    unsigned GetCorrespondingNodeIndex(unsigned nodeIndex);
+    void UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements);
     
     friend class boost::serialization::access;
     template<class Archive>

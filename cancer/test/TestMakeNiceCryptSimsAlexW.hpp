@@ -89,8 +89,6 @@ public:
 //    {
 //        CancerParameters *p_params = CancerParameters::Instance();
 //        p_params->Reset();
-//        // There is no limit on transit cells in Wnt simulation
-//        p_params->SetMaxTransitGenerations(1000);
 //        
 //        
 //        double time_of_each_run = 30.0; // for each run
@@ -170,8 +168,6 @@ public:
 //    {
 //        CancerParameters *p_params = CancerParameters::Instance();
 //        p_params->Reset();
-//        // There is no limit on transit cells in Wnt simulation
-//        p_params->SetMaxTransitGenerations(1000);
 //        
 //        std::string output_directory = "Noddy_WNT_Yes_Area_Yes_Length";
 //        double time_of_each_run = 5.0; // for each run

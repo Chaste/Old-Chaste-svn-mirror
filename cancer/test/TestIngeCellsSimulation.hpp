@@ -32,15 +32,13 @@ public:
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
-        // There is no limit on transit cells in Wnt simulation
-        p_params->SetMaxTransitGenerations(1000);
                 
         //double end_of_simulation = 150.0; // hours
         double time_of_each_run = 0.01; // for each run
         
         unsigned cells_across = 4;
         unsigned cells_up = 25;
-        double crypt_width = 12.1;
+        double crypt_width = 4.1;
         unsigned thickness_of_ghost_layer = 3;
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);

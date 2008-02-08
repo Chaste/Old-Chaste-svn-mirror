@@ -83,6 +83,8 @@ void Cylindrical2dMesh::CreateMirrorNodes()
     mLeftImages.clear();
     mRightOriginals.clear();
     mRightImages.clear();
+    mLeftPeriodicBoundaryElementIndices.clear();
+    mRightPeriodicBoundaryElementIndices.clear();
 
     for (unsigned i=0; i<num_nodes; i++)
     {
@@ -230,8 +232,12 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
     // with its new boundary elements,
     // and removes the relevant nodes, elements and boundary elements
     // to leave a proper periodic mesh.
+    
+    GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
+    CorrectNonPeriodicMesh();
     ReconstructCylindricalMesh();
     DeleteHaloNodes();
+    
     // now call ReIndex to remove the temporary nodes which are marked as deleted. 
 	NodeMap reindex_map(GetNumAllNodes());
     ReIndex(reindex_map);
@@ -273,6 +279,7 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
         Element<2,2>* p_element = GetElement(elem_index);
         if (!p_element->IsDeleted())
         {
+            // left images are on the right of the mesh
             unsigned number_of_left_image_nodes = 0u;
             unsigned number_of_right_image_nodes = 0u;
             for (unsigned i=0; i<3; i++)
@@ -284,10 +291,12 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
                 if(IsThisIndexInList(this_node_index,mLeftImages))
                 {
                     this_node_a_left_image = true;
+//                    std::cout << "Node " << this_node_index << " is a left image\n";
                 }
                 if(IsThisIndexInList(this_node_index,mRightImages))
                 {
                     this_node_a_right_image = true;
+//                    std::cout << "Node " << this_node_index << " is a right image\n";
                 }
                 if(this_node_a_left_image)
                 {
@@ -298,19 +307,19 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
                     number_of_right_image_nodes++;
                 }
             }
-            
-            // Delete all the elements on the right hand side...
+            //std::cout << "Element found to be " << p_element->GetIndex() << " num images of left " << number_of_left_image_nodes <<" num images of right " << number_of_right_image_nodes << "\n" << std::flush;
+            // Delete all the elements on the left hand side (images of right)...
             if (number_of_right_image_nodes>=1u)
             {
-                //std::cout << "purely image element\n" << std::flush;
+                //std::cout << "\tright image element (on left) ... deleting\n" << std::flush;
                 p_element->MarkAsDeleted();
                 mDeletedElementIndices.push_back(p_element->GetIndex());
             }
             
-            // Delete only purely imaginary elements on the left
+            // Delete only purely imaginary elements on the right (images of left nodes)
             if (number_of_left_image_nodes==3u)
             {
-                //std::cout << "purely image element\n" << std::flush;
+                //std::cout << "\tpurely image element (on right) ... deleting\n" << std::flush;
                 p_element->MarkAsDeleted();
                 mDeletedElementIndices.push_back(p_element->GetIndex());
             }
@@ -318,15 +327,18 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
             /* 
              * If some are images then replace them with the real nodes.
              * 
-             * There can be elements with either two image nodes on the left (and one real)
-             * or one image node on the left (and two real).
+             * There can be elements with either two image nodes on the right (and one real)
+             * or one image node on the right (and two real).
              */
             if (number_of_left_image_nodes==1u || number_of_left_image_nodes==2u )
-            {   //std::cout << "Periodic element found \n" << std::flush;   
+            {   //
+                //std::cout << "\tPeriodic element with nodes\n" << std::flush;   
                 for (unsigned i=0; i<3; i++)
                 {
                     unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
+                    //std::cout << "this node index " << this_node_index << " replaced with ";
                     ReplaceImageWithRealNodeOnElement(p_element,mLeftImages,mLeftOriginals,this_node_index);
+                    //std::cout << p_element->GetNodeGlobalIndex(i) << "\n" << std::flush;
                 }
             }
         }
@@ -418,47 +430,10 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
 
 void Cylindrical2dMesh::DeleteHaloNodes()
 {
-//    for (unsigned i=0; i<mTopHaloNodes.size(); i++)
-//    {
-//        Node<2>* temp_node = mNodes[mTopHaloNodes[i]];
-//        double x = temp_node->rGetLocation()[0];
-//        double y = temp_node->rGetLocation()[1];
-//        std::cout << "Top Halo node " << mTopHaloNodes[i] << " is at x= " << x <<", y= " << y << "  \n" << std::flush;
-//        
-//    }
-//    for (unsigned i=0; i<mBottomHaloNodes.size(); i++)
-//    {
-//        Node<2>* temp_node = mNodes[mBottomHaloNodes[i]];
-//        double x = temp_node->rGetLocation()[0];
-//        double y = temp_node->rGetLocation()[1];
-//        std::cout << "Bottom Halo node " << mBottomHaloNodes[i] << " is at x= " << x <<", y= " << y << "  \n" << std::flush;
-//        
-//    }
-//    for (unsigned i=0; i<mNodes.size(); i++)
-//    {
-//        Node<2>* temp_node = mNodes[i];
-//        double x = temp_node->rGetLocation()[0];
-//        double y = temp_node->rGetLocation()[1];
-//        std::cout << "Actual node " << i << " is at x= " << x <<", y= " << y << "  \n" << std::flush;
-//        
-//    }
     for (unsigned i=0; i<mTopHaloNodes.size(); i++)
     {
-        
-//        std::stringstream namestream;
-//        namestream << "ZHaloNodesBefore" << i;
-//        std::string name = namestream.str();
-//        TrianglesMeshWriter<2,2> writer1("", name);
-//        writer1.WriteFilesUsingMesh(*this);
-//        
         DeleteBoundaryNodeAt(mTopHaloNodes[i]);
         DeleteBoundaryNodeAt(mBottomHaloNodes[i]);
-                
-//        std::stringstream namestream2;
-//        namestream2 << "ZHaloNodesAfter" << i;
-//        std::string name2 = namestream2.str();
-//        TrianglesMeshWriter<2,2> writer2("", name2);
-//        writer2.WriteFilesUsingMesh(*this);
     }
     // Create a random (!) boundary element between two nodes of the first element if it is not deleted.
     // This is a temporary measure to get around reindex crashing when there are no boundary elements ( J. Coopers idea )
@@ -606,6 +581,322 @@ unsigned Cylindrical2dMesh::AddNode(Node<2> *pNewNode)
     
     return node_index;
 }
+
+void Cylindrical2dMesh::CorrectNonPeriodicMesh()
+{
+    TrianglesMeshWriter<2,2> mesh_writer("","debug_periodic_mesh");
+    mesh_writer.WriteFilesUsingMesh(*this);
     
+    /* 
+     * Copy the member variables into new vectors which we modify by knocking out 
+     * a) halo elements...
+     * b) elements which pair up on each side
+     */
+    std::set<unsigned> temp_left_hand_side_elements = mLeftPeriodicBoundaryElementIndices;
+    std::set<unsigned> temp_right_hand_side_elements = mRightPeriodicBoundaryElementIndices;
+    
+    // Detect elements on right hand side containing halo nodes and removes them from temp_right_hand_side_elements.
+    for (std::set<unsigned>::iterator iter = mRightPeriodicBoundaryElementIndices.begin(); 
+         iter != mRightPeriodicBoundaryElementIndices.end(); 
+         ++iter)
+    {
+        unsigned elem_index = *iter;
+        Element<2,2>* p_element = GetElement(elem_index);
+        
+        bool has_a_halo_node = false;
+        c_vector<unsigned,3> original_element_node_indices;
+        for (unsigned i=0 ; i<3 ; i++)
+        {
+            original_element_node_indices[i] = p_element->GetNode(i)->GetIndex();
+            
+            if (IsThisIndexInList(original_element_node_indices[i], mTopHaloNodes) || IsThisIndexInList(original_element_node_indices[i],mBottomHaloNodes))
+            {
+                has_a_halo_node = true;
+                break;
+            }
+            
+        }
+        if (has_a_halo_node)
+        {
+            temp_right_hand_side_elements.erase(elem_index);         
+        }
+    }
+         
+    //also Detects elements on right hand side containing halo nodes and removes them from temp_right_hand_side_elements.
+    for (std::set<unsigned>::iterator left_iter = mLeftPeriodicBoundaryElementIndices.begin(); 
+         left_iter != mLeftPeriodicBoundaryElementIndices.end(); 
+         ++left_iter)
+    {
+        unsigned elem_index = *left_iter;
+        Element<2,2>* p_element = GetElement(elem_index);
+        
+        bool has_a_halo_node = false;
+        c_vector<unsigned,3> original_element_node_indices;
+        c_vector<unsigned,3> corresponding_element_node_indices;
+        for (unsigned i=0 ; i<3 ; i++)
+        {
+            original_element_node_indices[i] = p_element->GetNodeGlobalIndex(i);
+            if (IsThisIndexInList(original_element_node_indices[i], mTopHaloNodes) || IsThisIndexInList(original_element_node_indices[i],mBottomHaloNodes))
+            {
+                has_a_halo_node = true;
+                break;
+            }
+            corresponding_element_node_indices[i] = GetCorrespondingNodeIndex(original_element_node_indices[i]);
+        }
+        if(has_a_halo_node)
+        {
+            temp_left_hand_side_elements.erase(elem_index);
+        }
+        else
+        {
+            // search the right hand side sor the coresponding element 
+            for (std::set<unsigned>::iterator right_iter = mRightPeriodicBoundaryElementIndices.begin(); 
+            right_iter != mRightPeriodicBoundaryElementIndices.end(); 
+            ++right_iter)
+            {
+                
+                unsigned corresponding_elem_index = *right_iter;
+                Element<2,2>* p_corresponding_element = GetElement(corresponding_elem_index);
+                
+                bool is_coresponding_node = true;
+                     
+                for( unsigned i=0; i<3; i++)
+                {
+                    if( !(corresponding_element_node_indices[i] == p_corresponding_element->GetNodeGlobalIndex(0)) &&
+                        !(corresponding_element_node_indices[i] == p_corresponding_element->GetNodeGlobalIndex(1)) &&
+                        !(corresponding_element_node_indices[i] == p_corresponding_element->GetNodeGlobalIndex(2)) )
+                    {
+                        is_coresponding_node=false;
+                    }
+                }
+                
+                if (is_coresponding_node)
+                {
+                    // remove original and coresponding element from sets
+                    temp_left_hand_side_elements.erase(elem_index);
+                    temp_right_hand_side_elements.erase(corresponding_elem_index);
+                    break;
+                }
+            }
+        }
+    }
+    
+    /*
+     * If either of these ever throw you have more than one situation where the mesher has an option 
+     * of how to mesh. If it does ever throw you need to be cleverer and match up the 
+     * elements into as many pairs as possible on the left hand and right hand sides.
+     */ 
+    assert(temp_left_hand_side_elements.size()<=2u);   
+    assert(temp_right_hand_side_elements.size()<=2u);  
+
+    /*
+     * Now we just have to use the first pair of elements and copy their info over to the other side.
+     * 
+     * First we need to get hold of both elements on either side.
+     */
+    if (temp_left_hand_side_elements.size()==0u || temp_right_hand_side_elements.size()==0u)
+    {   
+        assert(temp_right_hand_side_elements.size()==0u);
+        assert(temp_left_hand_side_elements.size()==0u);
+        //std::cout << "No problem elements\n" << std::flush;
+    }
+    else
+    {
+        //std::cout << "Problem elements\n" << std::flush;
+        if (temp_left_hand_side_elements.size()==2u)
+        {   // Use the left hand side meshing
+            UseTheseElementsToDecideMeshing(temp_left_hand_side_elements);
+        }
+        else if (temp_right_hand_side_elements.size()==2u)
+        {   // Use the right hand side meshing
+            UseTheseElementsToDecideMeshing(temp_right_hand_side_elements);
+        }
+        else
+        {
+            NEVER_REACHED;   // If you get here there are more than two mixed up elements on the periodic edge.
+        }
+    }
+    
+}
+
+void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements)
+{
+    // We find the four nodes surrounding the dodgy meshing, on each side.
+    std::set<unsigned> main_four_nodes;
+    for (std::set<unsigned>::iterator left_iter = mainSideElements.begin(); 
+         left_iter != mainSideElements.end(); 
+         ++left_iter)
+    {
+        unsigned elem_index = *left_iter;
+        Element<2,2>* p_element = GetElement(elem_index);
+        for (unsigned i=0; i<3 ; i++)
+        {
+            unsigned index = p_element->GetNodeGlobalIndex(i);
+            main_four_nodes.insert(index);
+        }
+    }
+    assert(main_four_nodes.size()==4u);
+    std::set<unsigned> other_four_nodes;
+    for (std::set<unsigned>::iterator iter = main_four_nodes.begin(); 
+         iter != main_four_nodes.end(); 
+         ++iter)
+    {
+        other_four_nodes.insert(GetCorrespondingNodeIndex(*iter));
+    }
+    assert(other_four_nodes.size()==4u);
+    
+    // Find the elements surrounded by the nodes on the right 
+    // and change them to match the elements on the left
+    std::vector<unsigned> corresponding_elements;
+    // loop over all elements
+    for (unsigned elem_index = 0; elem_index<GetNumAllElements(); elem_index++)
+    {
+        Element<2,2>* p_element = GetElement(elem_index);
+        if (!p_element->IsDeleted())
+        {
+        // loop over the nodes of the element
+            if (!(other_four_nodes.find(p_element->GetNodeGlobalIndex(0))==other_four_nodes.end()) &&
+                !(other_four_nodes.find(p_element->GetNodeGlobalIndex(1))==other_four_nodes.end()) &&
+                !(other_four_nodes.find(p_element->GetNodeGlobalIndex(2))==other_four_nodes.end()) )
+            {
+                corresponding_elements.push_back(elem_index);
+                p_element->MarkAsDeleted();
+                mDeletedElementIndices.push_back(p_element->GetIndex());
+                NodeMap map(GetNumAllNodes());
+                this->ReIndex(map);
+            }
+        }
+    }
+    assert(corresponding_elements.size()==2u);
+    // Now corresponding_elements contains the two elements which are going to be replaced by mainSideElements
+    for (std::set<unsigned>::iterator iter = mainSideElements.begin(); 
+         iter != mainSideElements.end(); 
+         ++iter)
+    {
+        Element<2,2>* p_main_element = GetElement(*iter);
+        std::vector<Node<2>*> nodes;
+        // Put corresponding nodes into a std::vector.
+        for (unsigned i=0; i<3 ; i++)
+        {
+            unsigned main_node = p_main_element->GetNodeGlobalIndex(i);
+            nodes.push_back(this->GetNode(GetCorrespondingNodeIndex(main_node)));
+        }
+        
+        // Make a new element.                
+        Element<2,2>* p_new_element = new Element<2,2>(GetNumAllElements(), nodes);
+        this->mElements.push_back(p_new_element);
+    }
+}
+
+void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
+{
+    mLeftPeriodicBoundaryElementIndices.clear();
+    mRightPeriodicBoundaryElementIndices.clear();
+    
+    for (unsigned elem_index = 0; elem_index<GetNumAllElements(); elem_index++)
+    {
+        Element<2,2>* p_element = GetElement(elem_index);
+        if (!p_element->IsDeleted())
+        {
+            // left images are on the right of the mesh
+            unsigned number_of_left_image_nodes = 0u;
+            unsigned number_of_right_image_nodes = 0u;
+            for (unsigned i=0; i<3; i++)
+            {
+                unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
+                //std::cout << "Node " << this_node_index << "\t";
+                bool this_node_a_left_image = false;
+                bool this_node_a_right_image = false;
+                if(IsThisIndexInList(this_node_index,mLeftImages))
+                {
+                    this_node_a_left_image = true;
+                }
+                if(IsThisIndexInList(this_node_index,mRightImages))
+                {
+                    this_node_a_right_image = true;
+                }
+                if(this_node_a_left_image)
+                {
+                    number_of_left_image_nodes++;
+                }
+                if(this_node_a_right_image)
+                {
+                    number_of_right_image_nodes++;
+                }
+            }
+            
+            // elements on the left hand side (images of right)...
+            if (number_of_right_image_nodes==1u || number_of_right_image_nodes==2u)
+            {
+                mLeftPeriodicBoundaryElementIndices.insert(elem_index);
+            }
+            
+            // elements on the right (images of left nodes)
+            if (number_of_left_image_nodes==1u|| number_of_left_image_nodes==2u)
+            {
+                mRightPeriodicBoundaryElementIndices.insert(elem_index);
+            }
+        }
+    }
+}
+
+unsigned Cylindrical2dMesh::GetCorrespondingNodeIndex(unsigned nodeIndex)
+{
+    unsigned corresponding_node_index = UINT_MAX;
+    bool found = false;
+    if (IsThisIndexInList(nodeIndex, mTopHaloNodes) || IsThisIndexInList(nodeIndex,mBottomHaloNodes))
+    {
+        EXCEPTION("No corresponding node because the original node is a halo node\n");
+    }
+    
+    if (IsThisIndexInList(nodeIndex, mRightOriginals))
+    {
+        for (unsigned i=0 ; i<mRightOriginals.size() ; i++)
+        {
+            if (mRightOriginals[i]==nodeIndex)
+            {
+                corresponding_node_index = mRightImages[i];
+                found = true;
+            }   
+        }   
+    }
+    if (IsThisIndexInList(nodeIndex, mRightImages))
+    {
+        for (unsigned i=0 ; i<mRightImages.size() ; i++)
+        {
+            if (mRightImages[i]==nodeIndex)
+            {
+                corresponding_node_index = mRightOriginals[i];
+                found = true;
+            }   
+        }   
+    }
+    
+    if (IsThisIndexInList(nodeIndex, mLeftOriginals))
+    {
+        for (unsigned i=0 ; i<mLeftOriginals.size() ; i++)
+        {
+            if (mLeftOriginals[i]==nodeIndex)
+            {
+                corresponding_node_index = mLeftImages[i];
+                found = true;
+            }   
+        }   
+    }    
+    if (IsThisIndexInList(nodeIndex, mLeftImages))
+    {
+        for (unsigned i=0 ; i<mLeftImages.size() ; i++)
+        {
+            if (mLeftImages[i]==nodeIndex)
+            {
+                corresponding_node_index = mLeftOriginals[i];
+                found = true;
+            }   
+        }   
+    }
+    
+    assert(found);
+    return corresponding_node_index;
+}
 
 #endif //_CYLINDRICAL2DMESH_CPP_

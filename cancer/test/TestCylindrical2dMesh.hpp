@@ -83,7 +83,16 @@ public:
         // Check that we've got the correct number.
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),cells_across*cells_up*2);
         
-        //Output2DMeshToFile(p_mesh, "node_positions.dat");
+        // Cheat to put something into mTopHaloNodes to make exception throw.
+        p_mesh->mTopHaloNodes.push_back(234u);
+        unsigned corresponding_node_index = 0u;
+        TS_ASSERT_THROWS_ANYTHING(p_mesh->GetCorrespondingNodeIndex(234u));
+        
+        corresponding_node_index = p_mesh->GetCorrespondingNodeIndex(0u);
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->rGetLocation()[0]+crypt_width,p_mesh->GetNode(corresponding_node_index)->rGetLocation()[0],1e-9 );
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->rGetLocation()[1],p_mesh->GetNode(corresponding_node_index)->rGetLocation()[1],1e-9);
+        
+//Output2DMeshToFile(p_mesh, "node_positions.dat");
 //        
 //        /*
 //         * TEST FOR ALIGNMENT TESTER
@@ -757,8 +766,21 @@ public:
          */
     }
     
-     //\todo Fix this in #649
-    void FailingTestRemeshProblem()
+    void TestGenerateVectorsOfElementsStraddlingPeriodicBoundaries()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/bad_cylindrical_9_1");
+        Cylindrical2dMesh mesh(9.1);
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        NodeMap map(0);
+        mesh.ReMesh(map);
+        assert(map.IsIdentityMap());
+        
+        TS_ASSERT_EQUALS(mesh.mLeftPeriodicBoundaryElementIndices.size(), 48u);
+        TS_ASSERT_EQUALS(mesh.mRightPeriodicBoundaryElementIndices.size(), 48u);
+    }
+    
+    void TestCorrectNonPeriodicMesh()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/bad_cylindrical_9_1");
         Cylindrical2dMesh mesh(9.1);
