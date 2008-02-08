@@ -280,11 +280,11 @@ void TestAreaDependentAndLengthDependentCarryOn() throw (Exception)
     int return_value = system(command.c_str());
     TS_ASSERT_EQUALS(return_value, 0);
     
-    double time_of_each_run = 0.50;
-    double end_of_simulation = 105.0;
-    double start_time = 103.0;
+    double time_of_each_run = 1;
+    double end_of_simulation = 55.0;
+    double start_time = 52.0;
     SimulationTime::Instance()->SetStartTime(start_time);
-    for (double t=start_time; t<end_of_simulation+0.5; t += time_of_each_run)
+    for (double t=start_time; t<end_of_simulation; t += time_of_each_run)
     {
         std::cout<< "Results from time " << t << "\n" << std::flush;
         CryptSimulation2d* p_simulator = CryptSimulation2d::Load(output_directory,t);

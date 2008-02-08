@@ -142,7 +142,7 @@ void Cylindrical2dMesh::CreateHaloNodes()
     
     double compression_factor = 1.5;
     double halo_node_separation = 0.5;
-    unsigned num_halo_nodes = (unsigned)ceil(mWidth*compression_factor) +1;
+    unsigned num_halo_nodes = 2*((unsigned)ceil(mWidth*compression_factor) +1);
     double y_top_coordinate = mTop + halo_node_separation;
     double y_bottom_coordinate = mBottom - halo_node_separation;
     
@@ -150,7 +150,7 @@ void Cylindrical2dMesh::CreateHaloNodes()
     
     for (unsigned i=0; i< num_halo_nodes; i++)
     {
-       double x_coordinate = (double)i/(num_halo_nodes-1)*mWidth; 
+       double x_coordinate = (double)i/(num_halo_nodes-1)*2.0*mWidth - mWidth/2.0; 
        // Inserting top halo node in mesh
        location[0] = x_coordinate;
        location[1] = y_top_coordinate;
@@ -233,10 +233,32 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
     // and removes the relevant nodes, elements and boundary elements
     // to leave a proper periodic mesh.
     
+    DeleteHaloNodes();
     GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
     CorrectNonPeriodicMesh();
     ReconstructCylindricalMesh();
-    DeleteHaloNodes();
+    
+    // Create a random (!) boundary element between two nodes of the first element if it is not deleted.
+    // This is a temporary measure to get around reindex crashing when there are no boundary elements ( J. Coopers idea )
+    bool boundary_element_made = false;
+    unsigned elem_index = 0;
+    while (elem_index<GetNumAllElements() && !boundary_element_made)
+    {
+        Element<2,2>* p_element = GetElement(elem_index);
+        if (!p_element->IsDeleted())
+        {
+            boundary_element_made = true;
+            std::vector<Node<2>*> nodes;
+            nodes.push_back(p_element->GetNode(0));
+            nodes.push_back(p_element->GetNode(1));
+            BoundaryElement<1,2>* p_boundary_element = new BoundaryElement<1,2>(0, nodes);
+            p_boundary_element->RegisterWithNodes();
+            mBoundaryElements.push_back(p_boundary_element);
+            
+        }
+        elem_index++;   
+    }
+    
     
     // now call ReIndex to remove the temporary nodes which are marked as deleted. 
 	NodeMap reindex_map(GetNumAllNodes());
@@ -435,26 +457,6 @@ void Cylindrical2dMesh::DeleteHaloNodes()
         DeleteBoundaryNodeAt(mTopHaloNodes[i]);
         DeleteBoundaryNodeAt(mBottomHaloNodes[i]);
     }
-    // Create a random (!) boundary element between two nodes of the first element if it is not deleted.
-    // This is a temporary measure to get around reindex crashing when there are no boundary elements ( J. Coopers idea )
-    bool boundary_element_made = false;
-    unsigned elem_index = 0;
-    while (elem_index<GetNumAllElements() && !boundary_element_made)
-    {
-        Element<2,2>* p_element = GetElement(elem_index);
-        if (!p_element->IsDeleted())
-        {
-            boundary_element_made = true;
-            std::vector<Node<2>*> nodes;
-            nodes.push_back(p_element->GetNode(0));
-            nodes.push_back(p_element->GetNode(1));
-            BoundaryElement<1,2>* p_boundary_element = new BoundaryElement<1,2>(0, nodes);
-            p_boundary_element->RegisterWithNodes();
-            mBoundaryElements.push_back(p_boundary_element);
-            
-        }
-        elem_index++;   
-    }
 }
 
 
@@ -584,8 +586,8 @@ unsigned Cylindrical2dMesh::AddNode(Node<2> *pNewNode)
 
 void Cylindrical2dMesh::CorrectNonPeriodicMesh()
 {
-    TrianglesMeshWriter<2,2> mesh_writer("","debug_periodic_mesh");
-    mesh_writer.WriteFilesUsingMesh(*this);
+//    TrianglesMeshWriter<2,2> mesh_writer("","debug_periodic_mesh");
+//    mesh_writer.WriteFilesUsingMesh(*this);
     
     /* 
      * Copy the member variables into new vectors which we modify by knocking out 
@@ -649,12 +651,11 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
         }
         else
         {
-            // search the right hand side sor the coresponding element 
+            // search the right hand sides for the coresponding element 
             for (std::set<unsigned>::iterator right_iter = mRightPeriodicBoundaryElementIndices.begin(); 
             right_iter != mRightPeriodicBoundaryElementIndices.end(); 
             ++right_iter)
             {
-                
                 unsigned corresponding_elem_index = *right_iter;
                 Element<2,2>* p_corresponding_element = GetElement(corresponding_elem_index);
                 
@@ -675,7 +676,6 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
                     // remove original and coresponding element from sets
                     temp_left_hand_side_elements.erase(elem_index);
                     temp_right_hand_side_elements.erase(corresponding_elem_index);
-                    break;
                 }
             }
         }
@@ -721,6 +721,11 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
 
 void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements)
 {
+    assert(mainSideElements.size()==2u);
+    
+//    TrianglesMeshWriter<2,2> mesh_writer("","debug_periodic_mesh");
+//    mesh_writer.WriteFilesUsingMesh(*this);
+    
     // We find the four nodes surrounding the dodgy meshing, on each side.
     std::set<unsigned> main_four_nodes;
     for (std::set<unsigned>::iterator left_iter = mainSideElements.begin(); 
@@ -736,6 +741,7 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
         }
     }
     assert(main_four_nodes.size()==4u);
+    
     std::set<unsigned> other_four_nodes;
     for (std::set<unsigned>::iterator iter = main_four_nodes.begin(); 
          iter != main_four_nodes.end(); 
@@ -744,6 +750,7 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
         other_four_nodes.insert(GetCorrespondingNodeIndex(*iter));
     }
     assert(other_four_nodes.size()==4u);
+    
     
     // Find the elements surrounded by the nodes on the right 
     // and change them to match the elements on the left
@@ -762,12 +769,11 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
                 corresponding_elements.push_back(elem_index);
                 p_element->MarkAsDeleted();
                 mDeletedElementIndices.push_back(p_element->GetIndex());
-                NodeMap map(GetNumAllNodes());
-                this->ReIndex(map);
             }
         }
     }
     assert(corresponding_elements.size()==2u);
+    
     // Now corresponding_elements contains the two elements which are going to be replaced by mainSideElements
     for (std::set<unsigned>::iterator iter = mainSideElements.begin(); 
          iter != mainSideElements.end(); 
@@ -786,6 +792,13 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
         Element<2,2>* p_new_element = new Element<2,2>(GetNumAllElements(), nodes);
         this->mElements.push_back(p_new_element);
     }
+    
+    // Reindex to get rid of extra elements indices...
+    NodeMap map(GetNumAllNodes());
+    this->ReIndex(map);    
+    
+//    TrianglesMeshWriter<2,2> mesh_writer2("","debug_periodic_mesh.1");
+//    mesh_writer2.WriteFilesUsingMesh(*this);
 }
 
 void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
@@ -824,7 +837,6 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
                     number_of_right_image_nodes++;
                 }
             }
-            
             // elements on the left hand side (images of right)...
             if (number_of_right_image_nodes==1u || number_of_right_image_nodes==2u)
             {

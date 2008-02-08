@@ -538,7 +538,7 @@ public:
         
         // Halo of nodes is added 0.5 above and below the original mesh.
         TS_ASSERT_DELTA(original_mesh_height, new_mesh_height, 1.0 + 1e-5);
-        TS_ASSERT_EQUALS(new_num_nodes, original_num_nodes+2*9u);
+        TS_ASSERT_EQUALS(new_num_nodes, original_num_nodes+2*9*2u);
         
         NodeMap map(p_mesh->GetNumNodes());
         p_mesh->ConformingTetrahedralMesh<2,2>::ReMesh(map);   // recreates the boundary elements
@@ -551,10 +551,6 @@ public:
         
         TS_ASSERT_DELTA(original_mesh_height, p_mesh->GetWidth(1), 1e-6);
         TS_ASSERT_EQUALS(original_num_nodes, p_mesh->GetNumNodes());
-        
-        // Check that we still have a boundary element (for ReIndex)
-        TS_ASSERT(p_mesh->GetNumBoundaryElements() > 0u );
-        
     }
 
     void TestHaloNodeReMesh() throw (Exception)
@@ -772,12 +768,21 @@ public:
         Cylindrical2dMesh mesh(9.1);
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        NodeMap map(0);
-        mesh.ReMesh(map);
-        assert(map.IsIdentityMap());
+        // we now emulate the commands of the ReMesh function as far as it goes before Generating the lists.
+        {
+            mesh.CreateMirrorNodes();
+            mesh.CreateHaloNodes();
         
-        TS_ASSERT_EQUALS(mesh.mLeftPeriodicBoundaryElementIndices.size(), 48u);
-        TS_ASSERT_EQUALS(mesh.mRightPeriodicBoundaryElementIndices.size(), 48u);
+            NodeMap big_map(mesh.GetNumAllNodes()); 
+            mesh.ConformingTetrahedralMesh<2,2>::ReMesh(big_map);
+        
+            mesh.DeleteHaloNodes();
+        }
+        
+        mesh.GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
+    
+        TS_ASSERT_EQUALS(mesh.mLeftPeriodicBoundaryElementIndices.size(), 39u);
+        TS_ASSERT_EQUALS(mesh.mRightPeriodicBoundaryElementIndices.size(), 38u);
     }
     
     void TestCorrectNonPeriodicMesh()
