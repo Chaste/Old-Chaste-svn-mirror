@@ -12,6 +12,7 @@
 #include "DistributedVector.hpp"
 #include "EventHandler.hpp"
 #include "PetscTools.hpp"
+#include "ElementwiseConductivityTensors.hpp"
 
 /**
  *  Pde containing common functionality to mono and bidomain pdes.
@@ -48,7 +49,8 @@ protected:
      */
     double mSurfaceAreaToVolumeRatio;
     double mCapacitance;
-    c_matrix<double, SPACE_DIM, SPACE_DIM> mIntracellularConductivityTensor;
+    //c_matrix<double, SPACE_DIM, SPACE_DIM> mIntracellularConductivityTensor;
+    ElementwiseConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors, *mpDefaultIntracellularCondTensors;
     
     /** The vector of cells. Distributed. */
     std::vector< AbstractCardiacCell* > mCellsDistributed;
@@ -79,21 +81,30 @@ public:
         mNumNodes = pCellFactory->GetNumberOfCells();
         
         DistributedVector::SetProblemSize(mNumNodes);
-        
-        
+                
         // Reference: Trayanova (2002 - "Look inside the heart")
         mSurfaceAreaToVolumeRatio = 1400;            // 1/cm
         mCapacitance = 1.0;                          // uF/cm^2
-        double const_intra_conductivity = 1.75;      // mS/cm (Averaged)
+        
+        // Reference Clerc 1976 
+        double long_intra_conductivity = 1.75;      // mS/cm (Averaged)
+        double trans_intra_conductivity = 0.19;
+        double normal_intra_conductivity = 0.19;
         
         // Old parameter values used:
         //mSurfaceAreaToVolumeRatio = 1;
         //mCapacitance = 1;
         //double const_intra_conductivity = 0.0005;
         
-        mIntracellularConductivityTensor = const_intra_conductivity
-                                           * identity_matrix<double>(SPACE_DIM);
+        //mIntracellularConductivityTensor = const_intra_conductivity
+        //                                   * identity_matrix<double>(SPACE_DIM);
 
+        mpIntracellularConductivityTensors = new ElementwiseConductivityTensors<SPACE_DIM>;
+        mpIntracellularConductivityTensors->SetConstantConductivities(long_intra_conductivity, trans_intra_conductivity, normal_intra_conductivity);
+        mpIntracellularConductivityTensors->Init();
+        
+        // Keep a copy of the pointer to free it at the end (since mpIntracellularConductivityTensors may be changed from outside)
+        mpDefaultIntracellularCondTensors = mpIntracellularConductivityTensors;
         
         mCellsDistributed.resize(DistributedVector::End().Global-DistributedVector::Begin().Global);
         
@@ -121,6 +132,8 @@ public:
         {
             delete mCellsDistributed[index.Local];             
         }
+        
+        delete mpDefaultIntracellularCondTensors;
     }
     
     
@@ -141,10 +154,10 @@ public:
         }
         mCapacitance = capacitance;
     }
-    
-    void SetIntracellularConductivityTensor(c_matrix<double, SPACE_DIM, SPACE_DIM> intracellularConductivity)
-    {
-        mIntracellularConductivityTensor = intracellularConductivity;
+     
+    void SetIntracellularConductivityTensors(ElementwiseConductivityTensors<SPACE_DIM>* pIntracellularTensors)
+    {        
+        mpIntracellularConductivityTensors = pIntracellularTensors;
     }
     
     double GetSurfaceAreaToVolumeRatio()
@@ -157,9 +170,9 @@ public:
         return mCapacitance;
     }
     
-    const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetIntracellularConductivityTensor()
+    const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetIntracellularConductivityTensor(unsigned elementIndex)
     {
-        return mIntracellularConductivityTensor;
+        return (*mpIntracellularConductivityTensors)[elementIndex];        
     }
     
     /**

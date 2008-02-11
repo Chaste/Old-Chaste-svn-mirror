@@ -24,13 +24,14 @@ public:
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
+        bidomain_problem.SetIntracellularConductivities(0.0005);
+        bidomain_problem.SetExtracellularConductivities(0.0005);
+
         
         bidomain_problem.Initialise();
         
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
-        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
-        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         
         std::vector<unsigned> pinned_nodes;
 
@@ -125,6 +126,9 @@ public:
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
+        bidomain_problem.SetIntracellularConductivities(0.0005);
+        bidomain_problem.SetExtracellularConductivities(0.0005);
+        
         
         // Check rows 1, 51, 101, 151, 201, ...
         for (unsigned row_to_mean_phi=1; row_to_mean_phi<2*bidomain_problem.rGetMesh().GetNumNodes(); row_to_mean_phi=row_to_mean_phi+50)
@@ -133,8 +137,6 @@ public:
             
             bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
             bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
-            bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
-            bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
             
             // First line is for coverage
             TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetRowForMeanPhiEToZero(row_to_mean_phi-1));
@@ -251,13 +253,13 @@ public:
         monodomain_problem.SetOutputDirectory("Monodomain1d");
         monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
         monodomain_problem.SetCallChaste2Meshalyzer(true); // for coverage
+        monodomain_problem.SetIntracellularConductivities(0.0005);
         
         monodomain_problem.Initialise();
         
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
-        
+
         // now solve
         monodomain_problem.Solve();
         
@@ -271,16 +273,16 @@ public:
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("Bidomain1d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain1d");
-        
-        bidomain_problem.Initialise();
-        
+
         // set the intra conductivity to be the same as monodomain
         // and the extra conductivity to be very large in comparison
-        c_matrix<double,1,1> sigma_e = 1*identity_matrix<double>(1);
-        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(sigma_e);
+        bidomain_problem.SetIntracellularConductivities(0.0005);
+        bidomain_problem.SetExtracellularConductivities(1);
+                
+        bidomain_problem.Initialise();
+        
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
-        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         
         // now solve
         bidomain_problem.Solve();

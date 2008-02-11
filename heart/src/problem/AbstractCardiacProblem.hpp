@@ -32,7 +32,7 @@ private:
     bool mPrintOutput;
     bool mCallChaste2Meshalyzer;
  
-    AbstractCardiacPde<SPACE_DIM>* mpCardiacPde;
+    AbstractCardiacPde<SPACE_DIM>* mpCardiacPde;    
     
     /** data is not written if output directory or output file prefix are not set*/
     std::string  mOutputDirectory, mOutputFilenamePrefix;
@@ -42,6 +42,8 @@ protected:
 
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
+
+    ElementwiseConductivityTensors<SPACE_DIM> mIntracellullarConductivityTensors;
     
     Vec mVoltage; // Current solution
     double mLinearSolverTolerance;
@@ -132,7 +134,36 @@ public:
         mpCellFactory->SetMesh( mpMesh );
         
         delete mpCardiacPde; // In case we're called twice
-        mpCardiacPde = CreateCardiacPde();
+        mpCardiacPde = CreateCardiacPde();        
+    }
+    
+    void SetFibreOrientation(const std::string fileName)
+    {
+        mIntracellullarConductivityTensors.SetFibreOrientationFile(fileName);    
+    }
+    
+    /*
+     * Miguel: 2 optional parameters or 3 different functions (1D, 2D, 3D) ???
+     *         To do: check if the number of arguments provided matches SPACE_DIM as in 
+     *         ElementwiseConductivityTensors::SetConstantConductivities()
+     * 
+     *         One of the problems with 3 different functions is that if SetIntracellularConductivities 
+     *         is called from a class templated over SPACE_DIM the logic to choose the proper version
+     *         should be included.
+     * 
+     *         One of the problems with 2 optional parameters is that the compiler will not complain
+     *         about providing the wrong number of conductivities (X, Y and Z conductivities in a 2D
+     *         problem, only X conductivity in a 3D problem)
+     */
+    void SetIntracellularConductivities(double longConductivity, double transConductivity=-DBL_MAX, double normalConductivity=-DBL_MAX)
+    {
+        mIntracellullarConductivityTensors.SetConstantConductivities(longConductivity, transConductivity, normalConductivity);
+    }
+    
+    // Miguel: Idem
+    void SetIntracellularConductivities(std::vector<double>* longConductivity, std::vector<double>* transConductivity=NULL, std::vector<double>* normalConductivity=NULL)
+    {
+        mIntracellullarConductivityTensors.SetNonConstantConductivities(longConductivity, transConductivity, normalConductivity);
     }
     
     void SetLinearSolverRelativeTolerance(const double &rRelTol)

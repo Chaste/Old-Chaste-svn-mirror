@@ -60,12 +60,13 @@ public:
         monodomain_problem.SetEndTime(1.2);   // 1.2 ms
         monodomain_problem.SetOutputDirectory("FhnWithEdgeStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainFhn_2dWithEdgeStimulus");
-        
+        monodomain_problem.SetIntracellularConductivities(0.01, 0.01);
+                
         monodomain_problem.Initialise();
         
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.01*identity_matrix<double>(2));
+
         
         monodomain_problem.Solve();
         

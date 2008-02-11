@@ -60,12 +60,12 @@ public:
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
-        monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+        monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");        
+        monodomain_problem.SetIntracellularConductivities(0.0005);        
         monodomain_problem.Initialise();
         
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         
         monodomain_problem.Solve();
         
@@ -96,11 +96,11 @@ public:
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+        monodomain_problem.SetIntracellularConductivities(0.0005);
         monodomain_problem.Initialise();
         
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         monodomain_problem.SetLinearSolverAbsoluteTolerance(1e-5);
 
         monodomain_problem.SetLinearSolverRelativeTolerance(1e-9);
@@ -134,11 +134,11 @@ public:
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+        monodomain_problem.SetIntracellularConductivities(0.0005);        
         monodomain_problem.Initialise();
         
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         double atol=1e-1;
         monodomain_problem.SetLinearSolverAbsoluteTolerance(atol/4.0);
         TS_ASSERT_DELTA(monodomain_problem.GetLinearSolverAbsoluteTolerance(),atol/4.0,1e-14);
@@ -177,13 +177,13 @@ public:
         monodomain_problem.SetEndTime(2);   // 2 ms
         monodomain_problem.SetOutputDirectory("MonoDg02dWithEdgeStimulus");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithEdgeStimulus");
-        
+        monodomain_problem.SetIntracellularConductivities(0.0005,0.0005);
+                
         monodomain_problem.Initialise();
         
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(2));
-        
+                
         monodomain_problem.Solve();
         
         // test whether voltages and gating variables are in correct ranges
@@ -262,13 +262,13 @@ public:
         monodomain_problem.SetEndTime(1.3);   // 1.3 ms - needs to be 1.3 ms to pass test
         monodomain_problem.SetOutputDirectory("MonoDg02dWithPointStimulus");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithPointStimulus");
+        monodomain_problem.SetIntracellularConductivities(0.0005, 0.0005);        
         
         monodomain_problem.Initialise();
         
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(2));
-        
+
         monodomain_problem.Solve();
         
         // To time the solve

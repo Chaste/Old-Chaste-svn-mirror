@@ -31,7 +31,10 @@
 template <unsigned SPACE_DIM>
 class BidomainPde : public AbstractCardiacPde<SPACE_DIM>
 {
-    c_matrix<double, SPACE_DIM, SPACE_DIM> mExtracellularConductivityTensor;
+
+private:
+    ElementwiseConductivityTensors<SPACE_DIM> *mpExtracellularConductivityTensors, *mpDefaultExtracellularCondTensors;
+
     ReplicatableVector mExtracellularStimulusCacheReplicated;
     
 public:
@@ -46,27 +49,40 @@ public:
           *         capacitance                 : uF/cm^2,
           *         conductivity                : mS/cm.
           * 
-          *  Extracellular conductivity set 7.0 mS/cm (Ref: Trayanova 2002 - "Look inside the heart")
+          *  (Ref: Trayanova 2002 - "Look inside the heart")
           */
-        double const_extra_conductivity = 7.0;
+          
+          
+        // Reference Clerc 1976 
+        double long_intra_conductivity = 6.2;      // mS/cm (Averaged)
+        double trans_intra_conductivity = 2.4;
+        double normal_intra_conductivity = 2.4;
+                
+        mpExtracellularConductivityTensors = new ElementwiseConductivityTensors<SPACE_DIM>;
+        mpExtracellularConductivityTensors->SetConstantConductivities(long_intra_conductivity, trans_intra_conductivity, normal_intra_conductivity);
+        mpExtracellularConductivityTensors->Init();
         
-        mExtracellularConductivityTensor = const_extra_conductivity
-                                           * identity_matrix<double>(SPACE_DIM);
+        // Keep a copy of the pointer to free it at the end (since mpExtracellularConductivityTensors may be changed from outside)
+        mpDefaultExtracellularCondTensors = mpExtracellularConductivityTensors;
+                                                   
         
         mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
     }
     
     ~BidomainPde()
-    {}
-    
-    void SetExtracellularConductivityTensor(c_matrix<double, SPACE_DIM, SPACE_DIM> extracellularConductivity)
     {
-        mExtracellularConductivityTensor = extracellularConductivity;
+        delete mpDefaultExtracellularCondTensors;
     }
     
-    const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetExtracellularConductivityTensor()
+    void SetExtracellularConductivityTensors(ElementwiseConductivityTensors<SPACE_DIM>* pIntracellularTensors)
+    {        
+        mpExtracellularConductivityTensors = pIntracellularTensors;
+    }
+    
+    
+    const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetExtracellularConductivityTensor(unsigned elementIndex)
     {
-        return mExtracellularConductivityTensor;
+        return (*mpExtracellularConductivityTensors)[elementIndex];      
     }
     
     /**

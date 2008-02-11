@@ -3,6 +3,7 @@
 
 #include "AbstractLinearParabolicPde.hpp"
 #include "ChastePoint.hpp"
+#include "Element.hpp"
 
 /**
  * A simple parabolic PDE used in tests.
@@ -23,7 +24,7 @@ public:
         return 0.0;
     }
     
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& )
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& , Element<SPACE_DIM,SPACE_DIM>* pElement=NULL)
     {
         return identity_matrix<double>(SPACE_DIM);
     }

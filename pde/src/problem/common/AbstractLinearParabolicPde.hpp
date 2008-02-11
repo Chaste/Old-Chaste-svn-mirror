@@ -4,6 +4,7 @@
 #include "UblasCustomFunctions.hpp"
 #include "ChastePoint.hpp"
 #include "Node.hpp"
+#include "Element.hpp"
 #include <petscvec.h>
 
 
@@ -46,9 +47,10 @@ public:
     /**
      * Compute Diffusion Term.
      * @param x The point in space at which the Diffusion Term is computed.
+     * @param pElement The mesh element that x is contained in (optional).
      * @return A matrix. 
      */
-    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& x)=0;
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& x, Element<SPACE_DIM,SPACE_DIM>* pElement=NULL)=0;
     
     virtual double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& node)
     {

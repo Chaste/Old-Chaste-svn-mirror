@@ -21,6 +21,10 @@ public:
     AbstractCardiacPde<SPACE_DIM>* CreateCardiacPde()
     {
         mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
+
+        this->mIntracellullarConductivityTensors.Init();                
+        mpMonodomainPde->SetIntracellularConductivityTensors( & this->mIntracellullarConductivityTensors );
+
         return mpMonodomainPde;
     }
     

@@ -27,12 +27,12 @@ public:
         monodomain_problem.SetEndTime(30);   // 30 ms
         monodomain_problem.SetOutputDirectory("MonoConductionVel");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+        monodomain_problem.SetIntracellularConductivities(0.0005);
         
         monodomain_problem.Initialise();
         
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         
         monodomain_problem.Solve();
         
@@ -75,12 +75,12 @@ public:
         monodomain_problem.SetEndTime(1);   // 1 ms
         monodomain_problem.SetOutputDirectory("MonoConductionVel");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+        monodomain_problem.SetIntracellularConductivities(0.0005);
         monodomain_problem.Initialise();
         
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
-        
+
         // the mesh is too coarse, and this simulation will result in cell gating
         // variables going out of range. An exception should be thrown in the
         // EvaluateYDerivatives() method of the cell model

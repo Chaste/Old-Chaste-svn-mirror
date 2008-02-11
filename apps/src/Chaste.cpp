@@ -25,6 +25,8 @@
 #include "FaberRudy2000Version3.cpp"
 #include "FaberRudy2000Version3Optimised.hpp"
 
+#include "ElementwiseConductivityTensors.hpp"
+
 // Path to the parameter file
 std::string parameter_file;
 
@@ -51,7 +53,7 @@ std::vector<ChasteCuboid> heterogeneity_areas;
 const std::string  output_filename_prefix = "Run";
 const double ode_time_step = 0.005;     // ms
 const double pde_time_step = 0.02;     // ms
-const double printing_time_step = 0.1; // ms
+const double printing_time_step = 1; // ms
 
 const double intracellular_cond = 1.75;
 const double extracellular_cond = 7.0;
@@ -177,7 +179,7 @@ void ReadParametersFromFile()
             stimuled_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
         }
 
-        // Read and store Heterogeneities
+        // Read and store Cell Heterogeneities
         chaste_parameters_type::Heterogeneity::container& hts = p_params->Heterogeneity();
         for (chaste_parameters_type::Heterogeneity::iterator i = hts.begin();
              i != hts.end();
@@ -201,7 +203,8 @@ void ReadParametersFromFile()
             scale_factor_ito.push_back (ht.ScaleFactorIto());                                    
             heterogeneity_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
         }
-
+        
+        // Read and store Conductivity Heterogeneities
 
     }
     catch (const xml_schema::exception& e)
@@ -221,9 +224,10 @@ void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem,
     rProblem.SetPrintingTimeStep(printing_time_step); // ms
     rProblem.SetOutputDirectory(output_directory+"/results");
     rProblem.SetOutputFilenamePrefix("Chaste");
-    rProblem.SetCallChaste2Meshalyzer(false);  
+    rProblem.SetCallChaste2Meshalyzer(false);
     
-    rProblem.Initialise();
+    rProblem.SetFibreOrientation("constant_11520.fibres");
+    rProblem.SetIntracellularConductivities(1.7, 0.19, 0.19);     
 }
 
 int main(int argc, char *argv[]) 
@@ -290,9 +294,9 @@ int main(int argc, char *argv[])
             case domain_type::Mono :
             {
                 MonodomainProblem<3> mono_problem( &cell_factory );
-                SetupProblem(mono_problem, mesh);
+                SetupProblem(mono_problem, mesh);    
 
-                mono_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(intracellular_cond*identity_matrix<double>(3));
+                mono_problem.Initialise();  
                 mono_problem.Solve();
                 break;
             }
@@ -300,9 +304,10 @@ int main(int argc, char *argv[])
             {
                 BidomainProblem<3> bi_problem( &cell_factory );
                 SetupProblem(bi_problem, mesh);
+    
+                bi_problem.SetExtracellularConductivities(6.2, 2.4, 2.4);
 
-                bi_problem.GetBidomainPde()->SetIntracellularConductivityTensor(intracellular_cond*identity_matrix<double>(3));
-                bi_problem.GetBidomainPde()->SetExtracellularConductivityTensor(extracellular_cond*identity_matrix<double>(3));               
+                bi_problem.Initialise();
                 bi_problem.Solve();            
                 break;
             }    

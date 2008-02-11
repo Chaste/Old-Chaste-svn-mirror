@@ -208,6 +208,15 @@ public:
             
             assert(fabs(0.04/this->PdeTimeStep - round(0.04/this->PdeTimeStep)) <1e-15 );
             cardiac_problem.SetPrintingTimeStep(0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
+            
+            // The results of the tests were originally obtained with the following conductivity
+            // values. After implementing fibre orientation the defaults changed. Here we set
+            // the former ones to be used.
+            cardiac_problem.SetIntracellularConductivities(1.75, 1.75, 1.75);                 
+            
+            // Miguel: if template parameter CARDIAC_PROBLEM is any flavour of Bidomain extracellular conductivities should be set as well.
+            // cardiac_problem.SetExtracellularConductivities(7.0, 7.0, 7.0);
+
             cardiac_problem.Initialise();
             
       	    DisplayRun();

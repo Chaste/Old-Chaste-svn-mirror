@@ -24,12 +24,21 @@ private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */    
     unsigned mExtracelluarColumnId;
     
+    ElementwiseConductivityTensors<SPACE_DIM> mExtracellullarConductivityTensors;
+    
     unsigned mRowMeanPhiEZero;
     
 protected:
     AbstractCardiacPde<SPACE_DIM> *CreateCardiacPde()
     {
         mpBidomainPde = new BidomainPde<SPACE_DIM>(this->mpCellFactory);
+
+        this->mIntracellullarConductivityTensors.Init();                
+        mpBidomainPde->SetIntracellularConductivityTensors( &this->mIntracellullarConductivityTensors );
+        
+        mExtracellullarConductivityTensors.Init();                
+        mpBidomainPde->SetExtracellularConductivityTensors( &mExtracellullarConductivityTensors );
+        
         return mpBidomainPde;
     }
     
@@ -79,6 +88,16 @@ public:
      */
     ~BidomainProblem()
     {
+    }
+    
+    void SetExtracellularConductivities(double longConductivity, double transConductivity=-DBL_MAX, double normalConductivity=-DBL_MAX)
+    {
+        mExtracellullarConductivityTensors.SetConstantConductivities(longConductivity, transConductivity, normalConductivity);
+    }
+    
+    void SetExtracellularConductivities(std::vector<double>* longConductivity, std::vector<double>* transConductivity=NULL, std::vector<double>* normalConductivity=NULL)
+    {
+        mExtracellullarConductivityTensors.SetNonConstantConductivities(longConductivity, transConductivity, normalConductivity);
     }
     
     
