@@ -591,40 +591,11 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
     
     /* 
      * Copy the member variables into new vectors which we modify by knocking out 
-     * a) halo elements...
-     * b) elements which pair up on each side
+     * elements which pair up on each side
      */
     std::set<unsigned> temp_left_hand_side_elements = mLeftPeriodicBoundaryElementIndices;
     std::set<unsigned> temp_right_hand_side_elements = mRightPeriodicBoundaryElementIndices;
     
-    // Detect elements on right hand side containing halo nodes and removes them from temp_right_hand_side_elements.
-    for (std::set<unsigned>::iterator iter = mRightPeriodicBoundaryElementIndices.begin(); 
-         iter != mRightPeriodicBoundaryElementIndices.end(); 
-         ++iter)
-    {
-        unsigned elem_index = *iter;
-        Element<2,2>* p_element = GetElement(elem_index);
-        
-        bool has_a_halo_node = false;
-        c_vector<unsigned,3> original_element_node_indices;
-        for (unsigned i=0 ; i<3 ; i++)
-        {
-            original_element_node_indices[i] = p_element->GetNode(i)->GetIndex();
-            
-            if (IsThisIndexInList(original_element_node_indices[i], mTopHaloNodes) || IsThisIndexInList(original_element_node_indices[i],mBottomHaloNodes))
-            {
-                has_a_halo_node = true;
-                break;
-            }
-            
-        }
-        if (has_a_halo_node)
-        {
-            temp_right_hand_side_elements.erase(elem_index);         
-        }
-    }
-         
-    //also Detects elements on right hand side containing halo nodes and removes them from temp_right_hand_side_elements.
     for (std::set<unsigned>::iterator left_iter = mLeftPeriodicBoundaryElementIndices.begin(); 
          left_iter != mLeftPeriodicBoundaryElementIndices.end(); 
          ++left_iter)
@@ -632,51 +603,39 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
         unsigned elem_index = *left_iter;
         Element<2,2>* p_element = GetElement(elem_index);
         
-        bool has_a_halo_node = false;
         c_vector<unsigned,3> original_element_node_indices;
         c_vector<unsigned,3> corresponding_element_node_indices;
         for (unsigned i=0 ; i<3 ; i++)
         {
             original_element_node_indices[i] = p_element->GetNodeGlobalIndex(i);
-            if (IsThisIndexInList(original_element_node_indices[i], mTopHaloNodes) || IsThisIndexInList(original_element_node_indices[i],mBottomHaloNodes))
-            {
-                has_a_halo_node = true;
-                break;
-            }
             corresponding_element_node_indices[i] = GetCorrespondingNodeIndex(original_element_node_indices[i]);
         }
-        if(has_a_halo_node)
+    
+        // search the right hand sides for the coresponding element 
+        for (std::set<unsigned>::iterator right_iter = mRightPeriodicBoundaryElementIndices.begin(); 
+             right_iter != mRightPeriodicBoundaryElementIndices.end(); 
+             ++right_iter)
         {
-            temp_left_hand_side_elements.erase(elem_index);
-        }
-        else
-        {
-            // search the right hand sides for the coresponding element 
-            for (std::set<unsigned>::iterator right_iter = mRightPeriodicBoundaryElementIndices.begin(); 
-            right_iter != mRightPeriodicBoundaryElementIndices.end(); 
-            ++right_iter)
+            unsigned corresponding_elem_index = *right_iter;
+            Element<2,2>* p_corresponding_element = GetElement(corresponding_elem_index);
+            
+            bool is_coresponding_node = true;
+                 
+            for( unsigned i=0; i<3; i++)
             {
-                unsigned corresponding_elem_index = *right_iter;
-                Element<2,2>* p_corresponding_element = GetElement(corresponding_elem_index);
-                
-                bool is_coresponding_node = true;
-                     
-                for( unsigned i=0; i<3; i++)
+                if( !(corresponding_element_node_indices[i] == p_corresponding_element->GetNodeGlobalIndex(0)) &&
+                    !(corresponding_element_node_indices[i] == p_corresponding_element->GetNodeGlobalIndex(1)) &&
+                    !(corresponding_element_node_indices[i] == p_corresponding_element->GetNodeGlobalIndex(2)) )
                 {
-                    if( !(corresponding_element_node_indices[i] == p_corresponding_element->GetNodeGlobalIndex(0)) &&
-                        !(corresponding_element_node_indices[i] == p_corresponding_element->GetNodeGlobalIndex(1)) &&
-                        !(corresponding_element_node_indices[i] == p_corresponding_element->GetNodeGlobalIndex(2)) )
-                    {
-                        is_coresponding_node=false;
-                    }
+                    is_coresponding_node=false;
                 }
-                
-                if (is_coresponding_node)
-                {
-                    // remove original and coresponding element from sets
-                    temp_left_hand_side_elements.erase(elem_index);
-                    temp_right_hand_side_elements.erase(corresponding_elem_index);
-                }
+            }
+            
+            if (is_coresponding_node)
+            {
+                // remove original and coresponding element from sets
+                temp_left_hand_side_elements.erase(elem_index);
+                temp_right_hand_side_elements.erase(corresponding_elem_index);
             }
         }
     }
@@ -712,8 +671,8 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
             UseTheseElementsToDecideMeshing(temp_right_hand_side_elements);
         }
         else
-        {
-            NEVER_REACHED;   // If you get here there are more than two mixed up elements on the periodic edge.
+        {   // If you get here there are more than two mixed up elements on the periodic edge.
+            NEVER_REACHED;
         }
     }
     

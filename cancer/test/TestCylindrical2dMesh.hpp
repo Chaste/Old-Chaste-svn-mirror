@@ -783,9 +783,15 @@ public:
     
         TS_ASSERT_EQUALS(mesh.mLeftPeriodicBoundaryElementIndices.size(), 39u);
         TS_ASSERT_EQUALS(mesh.mRightPeriodicBoundaryElementIndices.size(), 38u);
+        
+        // TEST the GetCorrespondingNodeIndex() method
+        TS_ASSERT_EQUALS(mesh.GetCorrespondingNodeIndex(393), 187u);
+        TS_ASSERT_EQUALS(mesh.GetCorrespondingNodeIndex(188), 293u);
+        TS_ASSERT_EQUALS(mesh.GetCorrespondingNodeIndex(187), 393u);
+        TS_ASSERT_EQUALS(mesh.GetCorrespondingNodeIndex(293), 188u);
     }
     
-    void TestCorrectNonPeriodicMesh()
+    void TestCorrectNonPeriodicMeshMapLeftToRight()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/bad_cylindrical_9_1");
         Cylindrical2dMesh mesh(9.1);
@@ -841,8 +847,7 @@ public:
                  
         }
             
-    }
-        
+    }        
         
 };
 
