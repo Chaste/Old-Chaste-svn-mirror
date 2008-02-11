@@ -21,13 +21,13 @@ public:
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_1000_elements");
         bidomain_problem.SetEndTime(1);   // ms
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-7);
+        bidomain_problem.SetIntracellularConductivities(0.00005);
+        bidomain_problem.SetExtracellularConductivities(0.00005);
         
         bidomain_problem.Initialise();
         
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
-        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.00005*identity_matrix<double>(1));
-        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.00005*identity_matrix<double>(1));
         
         bidomain_problem.PrintOutput(false);
         

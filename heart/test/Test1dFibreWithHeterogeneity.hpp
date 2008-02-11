@@ -91,12 +91,12 @@ public:
         monodomain_problem.SetPrintingTimeStep(0.1);
         monodomain_problem.SetOutputDirectory("FibreWithHeterogeneity");
         monodomain_problem.SetOutputFilenamePrefix("Monodomain1d");
+        monodomain_problem.SetIntracellularConductivities(0.0005);
         
         monodomain_problem.Initialise();
         
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
-        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         
         monodomain_problem.Solve();
         

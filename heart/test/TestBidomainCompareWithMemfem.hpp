@@ -68,23 +68,12 @@ public:
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
         bidomain_problem.SetWriteInfo();
         
+        bidomain_problem.SetIntracellularConductivities(0.19, 0.19, 1.79);
+        bidomain_problem.SetExtracellularConductivities(2.36, 2.36, 6.25);
+        
         bidomain_problem.Initialise();
-        
-        c_matrix<double,3,3> sigma_i;
-        sigma_i.clear();
-        sigma_i(0,0) = 0.19; //0.000174;
-        sigma_i(1,1) = 0.19; //0.000019;
-        sigma_i(2,2) = 1.79; //0.000019;
-        
-        c_matrix<double,3,3> sigma_e;
-        sigma_e.clear();
-        sigma_e(0,0) = 2.36; //0.000625;
-        sigma_e(1,1) = 2.36; //0.000236;
-        sigma_e(2,2) = 6.25; //0.000236;
-        
+
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1500); //    1/cm
-        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(sigma_i);
-        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(sigma_e);
         
         try
         {

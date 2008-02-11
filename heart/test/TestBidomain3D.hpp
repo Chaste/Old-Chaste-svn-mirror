@@ -111,13 +111,13 @@ public:
         bidomain_problem.SetOutputDirectory("Bidomain3d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
         
-        bidomain_problem.Initialise();
-        
         // the bidomain equations reduce to the monodomain equations
         // if sigma_e is infinite (equivalent to saying the extra_cellular
         // space is grounded. sigma_e is set to be very large here:
-        c_matrix<double,3,3> sigma_i = bidomain_problem.GetBidomainPde()->rGetIntracellularConductivityTensor();
-        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(10000*sigma_i);
+        bidomain_problem.SetIntracellularConductivities(1, 1, 1);
+        bidomain_problem.SetExtracellularConductivities(1000, 1000, 1000);
+        
+        bidomain_problem.Initialise();
         
         // now solve
         bidomain_problem.Solve();
