@@ -1517,11 +1517,21 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, bool strict)
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, bool strict, std::set<unsigned> testElements)
 {
+    for(std::set<unsigned>::iterator iter=testElements.begin(); iter!=testElements.end(); iter++)
+    {
+        assert(*iter<GetNumElements());
+        ///\todo What if the element is deleted?
+        if (mElements[*iter]->IncludesPoint(testPoint, strict))
+        {
+            return *iter;
+        }
+    }        
+    
     ///\todo This ought to return a set of all elements that contain the point (if the point is a node in the mesh then it's contained in multiple elements)
     ///\todo Polling every element is unnecessary.  We ought to start from a likely place and hill climb
-    for (unsigned i=0; i < mElements.size();i++)
+    for (unsigned i=0; i<mElements.size(); i++)
     {
         ///\todo What if the element is deleted?
         if (mElements[i]->IncludesPoint(testPoint, strict))

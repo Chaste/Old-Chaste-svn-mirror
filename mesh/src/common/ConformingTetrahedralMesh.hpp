@@ -281,8 +281,10 @@ public:
      *  @param testPoint
      *  @param strict Should the element returned contain the point in the interior and
      *  not on an edge/face/vertex (default = not strict)
+     *  @param a set of guesses for the element (a set of element indices), to be checked
+     *  first for potential efficiency improvements. (default = empty set)
      */
-    unsigned GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, bool strict=false);
+    unsigned GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, bool strict=false, std::set<unsigned> testElements=std::set<unsigned>());
     
     /**
      *  Returns the element index for an element is closest to the testPoint

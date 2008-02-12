@@ -1878,6 +1878,15 @@ public:
         TS_ASSERT_EQUALS(indices[1], 2047U);
         TS_ASSERT_EQUALS(indices[5], 2286U);
         TS_ASSERT_EQUALS(indices[23], 3026U);
+        
+        // test when a suggested set of elements is given
+        std::set<unsigned> suggested_elements;
+        suggested_elements.insert(2991);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1,false,suggested_elements),2992U);
+        suggested_elements.insert(2992); // should find it quicker, but can't really test that
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1,false,suggested_elements),2992U);
+        suggested_elements.insert(2993);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1,false,suggested_elements),2992U);
     }
     
     
@@ -2051,8 +2060,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4U);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.3333, 1e-4);
-        
-        
     }
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_
