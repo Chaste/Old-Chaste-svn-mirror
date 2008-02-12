@@ -33,7 +33,7 @@ public:
         return -1;
     }
     
-    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& )
+    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>&, Element<2,2>* )
     {
         return identity_matrix<double>(2);
     }
