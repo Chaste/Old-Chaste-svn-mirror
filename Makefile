@@ -11,7 +11,7 @@ INCS += -I/opt/boost/include/boost-1_33_1
 
 LIBS=cancer/src/common/CancerParameters.o \
 cancer/src/common/CancerEventHandler.o \
-cancer/src/tissue/CryptStatistics.o \
+cancer/src/tissue/statistics/CryptStatistics.o \
 cancer/src/tissue/cell/cycle/AbstractCellCycleModel.o \
 cancer/src/tissue/cell/cycle/AbstractSimpleCellCycleModel.o \
 cancer/src/tissue/cell/cycle/AbstractSimpleMeinekeCellCycleModel.o \
@@ -27,7 +27,7 @@ cancer/src/tissue/cell/TissueCell.o \
 cancer/src/odes/WntCellCycleOdeSystem.o \
 cancer/src/odes/IngeWntSwatCellCycleOdeSystem.o \
 cancer/src/odes/TysonNovak2001OdeSystem.o \
-cancer/src/tissue/cell/cycle/WntGradient.o \
+cancer/src/tissue/cell/cycle/WntConcentration.o \
 global/src/LogFile.o \
 global/src/Exception.o  \
 global/src/OutputFileHandler.o \
