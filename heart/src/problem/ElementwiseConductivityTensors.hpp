@@ -9,7 +9,7 @@
 
 /**
  * 
- *  This class provides an abstraction for the definition of constant non-constant difussion tensors
+ *  This class provides an abstraction for the definition of constant/non-constant difussion tensors
  * associated to the different elements of the mesh.
  * 
  *  After instanciating the class any of SetFibreOrientationFile() or SetNonConstantConductivities()
@@ -86,10 +86,13 @@ public:
         
         switch (SPACE_DIM){
             case 3:
-                assert(mConstNormalConductivity != -DBL_MAX);
+                /*
+                 *  Miguel: assert or throw an exception?
+                 */
+                assert(constNormalConduc != -DBL_MAX);
                 mConstNormalConductivity = constNormalConduc;
             case 2:
-                assert(mConstTransConductivity != -DBL_MAX);
+                assert(constTransConduc != -DBL_MAX);
                 mConstTransConductivity = constTransConduc;
             case 1:            
                 mConstLongConductivity = constLongConduc;
