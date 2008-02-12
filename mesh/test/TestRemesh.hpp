@@ -408,12 +408,12 @@ public:
      
         triangulate("Qze", &in, &out, NULL);
     
-        TS_ASSERT_EQUALS(out.numberofpoints,            5u);
-        TS_ASSERT_EQUALS(out.numberofpointattributes,   0u);
-        TS_ASSERT_EQUALS(out.numberoftriangles,         4u);
-        TS_ASSERT_EQUALS(out.numberofcorners,           3u);
-        TS_ASSERT_EQUALS(out.numberoftriangleattributes,0u);
-        TS_ASSERT_EQUALS(out.numberofedges,             8u);
+        TS_ASSERT_EQUALS(out.numberofpoints,            5);
+        TS_ASSERT_EQUALS(out.numberofpointattributes,   0);
+        TS_ASSERT_EQUALS(out.numberoftriangles,         4);
+        TS_ASSERT_EQUALS(out.numberofcorners,           3);
+        TS_ASSERT_EQUALS(out.numberoftriangleattributes,0);
+        TS_ASSERT_EQUALS(out.numberofedges,             8);
         
         
         /* Free all allocated arrays, including those allocated by Triangle. */
