@@ -28,6 +28,8 @@ public:
         bidomain_problem.SetEndTime(150);   // ms
         bidomain_problem.PrintOutput(false);
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-7);
+        bidomain_problem.SetIntracellularConductivities(1.75, 1.75, 1.75);
+        bidomain_problem.SetExtracellularConductivities(7.0, 7.0, 7.0);
         
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");

@@ -64,6 +64,9 @@ public:
         bidomain_problem.SetEndTime(150);   // ms
         bidomain_problem.PrintOutput(false);
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
+        bidomain_problem.SetIntracellularConductivities(1.75, 1.75, 1.75);
+        bidomain_problem.SetExtracellularConductivities(7.0, 7.0, 7.0);
+        
         
         // This is default PetscOptionsSetValue("-ksp_type", "gmres");
         PetscOptionsSetValue("-pc_type", "jacobi");
