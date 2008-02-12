@@ -307,11 +307,13 @@ public :
         {
             assert(WntConcentration::Instance()->IsWntSetUp());
             
+            double wnt_chemotaxis_strength = CancerParameters::Instance()->GetWntChemotaxisStrength();
+            
             for (MeshBasedTissue<2>::Iterator cell_iter=(static_cast<MeshBasedTissue<2>*>(this->mpTissue))->Begin();
                  cell_iter!=(static_cast<MeshBasedTissue<2>*>(this->mpTissue))->End();
                  ++cell_iter)
             {
-                c_vector<double, 2>  wnt_chemotactic_force = WntConcentration::Instance()->GetWntGradient(&(*cell_iter));
+                c_vector<double, 2>  wnt_chemotactic_force = wnt_chemotaxis_strength*WntConcentration::Instance()->GetWntGradient(&(*cell_iter));
                 unsigned index = this->mpTissue->GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
                 
                 mDrDt[index] += wnt_chemotactic_force/(this->GetDampingConstant(*cell_iter));

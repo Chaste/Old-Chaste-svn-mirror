@@ -45,6 +45,7 @@ CancerParameters::CancerParameters()
  * mCryptProjectionParameterB has no units
  * mNecroticSpringTensionStiffness has the same units as mSpringStiffness
  * mNecroticSpringCompressionStiffness has the same units as mSpringStiffness
+ * mWntChemotaxisStrength has no units
  */
 void CancerParameters::Reset()
 {   
@@ -76,6 +77,8 @@ void CancerParameters::Reset()
     
     mNecroticSpringTensionStiffness = 0.25*mSpringStiffness;
     mNecroticSpringCompressionStiffness = 0.75*mSpringStiffness;
+    
+    mWntChemotaxisStrength = 100.0;
     
     // Calculated parameters
     // This was used in non-dimensional case
@@ -188,6 +191,10 @@ double CancerParameters::GetNecroticSpringTensionStiffness()
 double CancerParameters::GetNecroticSpringCompressionStiffness()
 {
     return mNecroticSpringCompressionStiffness;
+}
+double CancerParameters::GetWntChemotaxisStrength()
+{
+    return mWntChemotaxisStrength;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -329,4 +336,8 @@ void CancerParameters::SetNecroticSpringCompressionStiffness(double necroticSpri
     assert(necroticSpringCompressionStiffness>=0.0);
     mNecroticSpringCompressionStiffness = necroticSpringCompressionStiffness;
 }
-
+void CancerParameters::SetWntChemotaxisStrength(double wntChemotaxisStrength)
+{
+    assert(wntChemotaxisStrength>=0.0);
+    mWntChemotaxisStrength = wntChemotaxisStrength;
+}

@@ -187,7 +187,7 @@ public:
     }
     
     
-    void xTestWntChemotaxis() throw (Exception)
+    void TestWntChemotaxis() throw (Exception)
     {      
         CancerParameters* p_params = CancerParameters::Instance();
         
@@ -234,14 +234,24 @@ public:
         p_params->SetCryptProjectionParameterB(1.0);
         CryptProjectionSpringSystem spring_system(tissue);
         
+        spring_system.SetWntChemotaxis(false);
+        
+        // Store the velocity of a node without Wnt-chemotaxis
+        std::vector<c_vector<double,2> >& velocities_without_chemotaxis = spring_system.rCalculateVelocitiesOfEachNode();
+        c_vector<double,2> old_velocity = velocities_without_chemotaxis[11];
+                
+        // Now turn on Wnt-chemotaxis
         spring_system.SetWntChemotaxis(true);
         
-        // Test velocity calculation for a particular node
-        std::vector<c_vector<double, 2> >& velocities_on_each_node = spring_system.rCalculateVelocitiesOfEachNode();
-                
-        TS_ASSERT_DELTA(velocities_on_each_node[0][0], 0.0, 1e-4);
-        TS_ASSERT_DELTA(velocities_on_each_node[0][1], 0.0, 1e-4);
-       
+        // Store the velocity of the same node, but now with Wnt-chemotaxis
+        std::vector<c_vector<double,2> >& velocities_with_chemotaxis = spring_system.rCalculateVelocitiesOfEachNode();
+        c_vector<double,2> new_velocity = velocities_with_chemotaxis[11];
+        
+        double wnt_chemotaxis_strength = CancerParameters::Instance()->GetWntChemotaxisStrength();
+        c_vector<double,2> wnt_component = wnt_chemotaxis_strength*WntConcentration::Instance()->GetWntGradient(&(cells[11]));
+        
+        TS_ASSERT_DELTA(new_velocity[0], old_velocity[0]+wnt_component[0], 1e-4);
+        TS_ASSERT_DELTA(new_velocity[1], old_velocity[1]+wnt_component[1], 1e-4);       
     }
     
     

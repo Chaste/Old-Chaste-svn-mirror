@@ -40,6 +40,7 @@ public:
     double GetCryptProjectionParameterB();
     double GetNecroticSpringTensionStiffness();
     double GetNecroticSpringCompressionStiffness();
+    double GetWntChemotaxisStrength();
     
     void SetStemCellG1Duration(double);
     void SetTransitCellG1Duration(double);
@@ -67,7 +68,8 @@ public:
     void SetCryptProjectionParameterB(double);
     void SetNecroticSpringTensionStiffness(double);
     void SetNecroticSpringCompressionStiffness(double);
-      
+    void SetWntChemotaxisStrength(double);
+
     /** 
      *  Reset all parameters to their defaults
      */
@@ -216,6 +218,11 @@ private:
      * Non-dimensionalized 'stiffness' of a necrotic cell under compression
      */
     double mNecroticSpringCompressionStiffness;
+    
+    /**
+     * Strength of Wnt chemotactic force
+     */
+    double mWntChemotaxisStrength; 
       
     friend class boost::serialization::access;
     /**
@@ -248,7 +255,8 @@ private:
         archive & mCryptProjectionParameterA;
         archive & mCryptProjectionParameterB;
         archive & mNecroticSpringTensionStiffness;
-        archive & mNecroticSpringCompressionStiffness; 
+        archive & mNecroticSpringCompressionStiffness;
+        archive & mWntChemotaxisStrength;
     }
 };
 
