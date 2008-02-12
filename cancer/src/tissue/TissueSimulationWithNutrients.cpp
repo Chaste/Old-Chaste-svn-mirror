@@ -47,17 +47,31 @@ void TissueSimulationWithNutrients<DIM>::UseCoarseNutrientMesh(double coarseGrai
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseGrainScaleFactor)
 {
-    // Set up coarse nutrient mesh
+    
 //    \todo: we could instead use the disk with 984 elements etc.
-//    \todo: translate the mesh so it's centre is over the centre of the 
-//           cells - could then also automatically calculate the scale 
-//           factor from the initial dimensions of the cells and the end time
+//    \todo: automatically calculate the scale factor from the 
+//           initial dimensions of the cells and the end time
+
+    // Create coarse nutrient mesh
     TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
     mpCoarseNutrientMesh = new ConformingTetrahedralMesh<2,2>;
     mpCoarseNutrientMesh->ConstructFromMeshReader(mesh_reader);
     
     // Scale mesh
     mpCoarseNutrientMesh->Scale(coarseGrainScaleFactor, coarseGrainScaleFactor);
+    
+    // Find centre of tissue
+    ConformingTetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
+    c_vector<double,2> centre = zero_vector<double>(2);
+    
+    for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
+    {
+        centre += r_mesh.GetNode(i)->rGetLocation();
+    }
+    centre /= r_mesh.GetNumNodes();
+    
+    // Translate mesh so that its centre matches the centre of the tissue
+    mpCoarseNutrientMesh->Translate(centre[0],centre[1]);         
 }    
 
 template<unsigned DIM>
