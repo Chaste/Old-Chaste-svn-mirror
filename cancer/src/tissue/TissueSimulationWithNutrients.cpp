@@ -61,14 +61,13 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
     mpCoarseNutrientMesh->Scale(coarseGrainScaleFactor, coarseGrainScaleFactor);
     
     // Find centre of tissue
-    ConformingTetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
     c_vector<double,2> centre = zero_vector<double>(2);
     
-    for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
+    for (unsigned i=0; i<this->mrTissue.GetNumNodes(); i++)
     {
-        centre += r_mesh.GetNode(i)->rGetLocation();
+        centre += this->mrTissue.GetNode(i)->rGetLocation();
     }
-    centre /= r_mesh.GetNumNodes();
+    centre /= this->mrTissue.GetNumNodes();
     
     // Translate mesh so that its centre matches the centre of the tissue
     mpCoarseNutrientMesh->Translate(centre[0],centre[1]);         
