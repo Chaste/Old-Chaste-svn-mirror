@@ -1,5 +1,5 @@
 INCS = -I. -Icxxtest \
--Icancer/src -Icancer/src/common -Icancer/src/mesh -Icancer/src/odes -Icancer/src/tissue -Icancer/src/tissue/cell -Icancer/src/tissue/killers -Icancer/src/tissue/cell/cycle \
+-Icancer/src -Icancer/src/common -Icancer/src/mesh -Icancer/src/odes -Icancer/src/tissue -Icancer/src/tissue/mechanics -Icancer/src/tissue/cell -Icancer/src/tissue/killers -Icancer/src/tissue/cell/cycle \
 -Iglobal/src \
 -Ilinalg/src -Ilinalg/src/common \
 -Ipde/src -Ipde/src/problem -Ipde/src/common -Ipde/src/solver -Ipde/src/problem/elasticity -Ipde/src/problem/common -Ipde/src/solver/elasticity -Ipde/src/solver/common \
