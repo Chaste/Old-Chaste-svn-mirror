@@ -244,6 +244,7 @@ public :
 
         // initialise monodomain problem                        
         mpMonodomainProblem->SetMesh(mpElectricsMesh);
+        mpMonodomainProblem->SetIntracellularConductivities(1.75,1.75,1.75);
         mpMonodomainProblem->Initialise();
 
         // construct mechanics assembler 
