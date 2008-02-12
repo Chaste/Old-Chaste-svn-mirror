@@ -14,6 +14,10 @@
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::SetupSolve()
 {
+    if (mpCoarseNutrientMesh!=NULL)
+    {
+        InitialiseCoarseNutrientMesh();        
+    }
     if (this->mrTissue.Begin() != this->mrTissue.End())
     {
         SetupWriteNutrient();
@@ -46,8 +50,7 @@ void TissueSimulationWithNutrients<DIM>::UseCoarseNutrientMesh(double coarseGrai
 
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseGrainScaleFactor)
-{
-    
+{    
 //    \todo: we could instead use the disk with 984 elements etc.
 //    \todo: automatically calculate the scale factor from the 
 //           initial dimensions of the cells and the end time
@@ -70,8 +73,24 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
     centre /= this->mrTissue.GetNumNodes();
     
     // Translate mesh so that its centre matches the centre of the tissue
-    mpCoarseNutrientMesh->Translate(centre[0],centre[1]);         
+    mpCoarseNutrientMesh->Translate(centre[0],centre[1]);      
 }    
+
+template<unsigned DIM>
+void TissueSimulationWithNutrients<DIM>::InitialiseCoarseNutrientMesh()
+{   
+    mCellNutrientElementMap.clear();
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+        cell_iter != this->mrTissue.End();
+        ++cell_iter)
+    {
+        // Find the element of mpCoarseNutrientMesh that contains this cell
+        const ChastePoint<DIM>& r_position_of_cell = cell_iter.rGetLocation();
+        unsigned elem_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_position_of_cell);
+        
+        mCellNutrientElementMap[&(*cell_iter)] = elem_index;
+    }
+}   
 
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::AfterSolve()
@@ -277,7 +296,6 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         CellwiseData<DIM>::Instance()->SetValue( interpolated_nutrient, cell_iter.GetNode() );
     }
 }
-
 
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::PostSolve()

@@ -30,74 +30,80 @@ private :
         archive & mWriteAverageRadialNutrientResults;
         archive & mWriteDailyAverageRadialNutrientResults;
         archive & mNumRadialIntervals;
+        archive & mCellNutrientElementMap;
     }
 
     /** 
-     * Current nutrient concentration, for use as an initial guess 
-     * when solving the nutrient PDE.
+     *  Current nutrient concentration, for use as an initial guess 
+     *  when solving the nutrient PDE.
      */  
     Vec mNutrientSolution;
 
     /** 
-     * Pointer to the PDE satisfied by the nutrient. 
+     *  Pointer to the PDE satisfied by the nutrient. 
      */ 
     AbstractLinearEllipticPde<DIM>* mpPde;
     
     /** 
-     * Pointer to the averaged sink PDE satisfied by the nutrient. 
+     *  Pointer to the averaged sink PDE satisfied by the nutrient. 
      */ 
     AveragedSinksPde<DIM>* mpAveragedSinksPde;  
 
     /** 
-     * File that the nutrient values are written out to. 
+     *  File that the nutrient values are written out to. 
      */ 
     out_stream mpNutrientResultsFile; 
 
     /**
-     * File that the average radial nutrient distribution is written out to. 
+     *  File that the average radial nutrient distribution is written out to. 
      */ 
     out_stream mpAverageRadialNutrientResultsFile;
 
     /** 
-     * Whether to write to file the average radial nutrient distribution. 
+     *  Whether to write to file the average radial nutrient distribution. 
      */
     bool mWriteAverageRadialNutrientResults; 
 
     /** 
-     * Whether to write the average radial nutrient distribution DAILY. 
+     *  Whether to write the average radial nutrient distribution DAILY. 
      */
     bool mWriteDailyAverageRadialNutrientResults;
     
     /** 
      *  Number of radial 'bins' used to calculate the average 
-     * radial nutrient distribution. 
+     *  radial nutrient distribution. 
      */
     unsigned mNumRadialIntervals;
   
     /**
-     * Coarse nutrient mesh on which to solve the nutrient PDE.
+     *  Coarse nutrient mesh on which to solve the nutrient PDE.
      */
     ConformingTetrahedralMesh<DIM,DIM>* mpCoarseNutrientMesh;
     
     /**
-     * Overridden SetupSolve() method. 
+     * Map between cells and the elements of the coarse nutrient mesh containing them.
+     */
+    std::map<TissueCell*, unsigned> mCellNutrientElementMap;
+    
+    /**
+     *  Overridden SetupSolve() method. 
      */ 
     void SetupSolve();
     
     /**
-     * Set up the nutrient writer.
+     *  Set up the nutrient writer.
      */ 
     void SetupWriteNutrient();
     
     /**
-     * Write the nutrient distribution to file at a specified time.
+     *  Write the nutrient distribution to file at a specified time.
      * 
      * @param time The time at which to record the nutrient distribution
      */
     void WriteNutrient(double time);
 
     /**
-     * Write the average radial nutrient distribution to file at a specified time.
+     *  Write the average radial nutrient distribution to file at a specified time.
      * 
      * @param time The time at which to record the average radial nutrient distribution
      * @param numIntervals  The number of radial intervals in which the average nutrient concentration is calculated 
@@ -105,26 +111,31 @@ private :
     void WriteAverageRadialNutrientDistribution(double time, unsigned numIntervals);
     
     /**
-     * Solve the nutrient PDE. 
+     *  Solve the nutrient PDE. 
      */
     void SolveNutrientPde();
     
     void SolveNutrientPdeUsingCoarseMesh();
 
     /**
-     * Overridden PostSolve() method. 
+     *  Overridden PostSolve() method. 
      */
     void PostSolve();
     
     /**
-     * Overridden AfterSolve() method. 
+     *  Overridden AfterSolve() method. 
      */
     void AfterSolve();
     
     /**
-     * Create a coarse mesh on which to solve the nutrient PDE.
+     *  Create a coarse mesh on which to solve the nutrient PDE.
      */ 
     void CreateCoarseNutrientMesh(double coarseGrainScaleFactor);
+    
+    /**
+     *  Initialise the std::map mCellNutrientElementMap.
+     */ 
+    void InitialiseCoarseNutrientMesh();
 
 public:
 

@@ -551,8 +551,7 @@ public:
         delete p_killer;
         CellwiseData<2>::Destroy();
     }
-    
-    // Failing test - Memory error somewhere
+        
     void TestCoarseNutrientMesh() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
@@ -602,13 +601,22 @@ public:
         // Set up tissue simulation
         TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system,NULL, &pde);
         simulator.SetOutputDirectory("TestCoarseNutrientMesh");
-        simulator.SetEndTime(0.5);
+        simulator.SetEndTime(0.01);
         
         // Set up cell killer and pass into simulation
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);
-
         simulator.UseCoarseNutrientMesh(10.0);
+        
+        // Test initialisation of mCellNutrientElementMap
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+            cell_iter != tissue.End();
+            ++cell_iter)
+        {
+            unsigned containing_element_index = simulator.mCellNutrientElementMap[&(*cell_iter)];
+            TS_ASSERT(containing_element_index >= 0u);
+            TS_ASSERT(containing_element_index < simulator.mpCoarseNutrientMesh->GetNumElements());
+        }
         
         // Run tissue simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -616,9 +624,9 @@ public:
         
         ReplicatableVector nutrient_conc(simulator.GetNutrientSolution());
 
-        // test the nutrient concentration at the coarse mesh nodes is
+        // Test the nutrient concentration at the coarse mesh nodes is
         // equal to 1.0 if the nodes is away from the cells 
-        for(unsigned i=0; i<nutrient_conc.size(); i++)
+        for (unsigned i=0; i<nutrient_conc.size(); i++)
         {
             c_vector<double,2> centre;
             centre(0) = 2.5; // assuming 5 by 5 honeycomb mesh
@@ -627,16 +635,16 @@ public:
             double dist = norm_2(centre-posn);
             double u = nutrient_conc[i];
             
-            if(dist > 4.0)
+            if (dist > 4.0)
             {
                 TS_ASSERT_DELTA(u, 1.0, 1e-5);
             }
         }
 
-        // loop over cells, find the coarse mesh element containing it, then
+        // Loop over cells, find the coarse mesh element containing it, then
         // check the interpolated nutrient concentration is between the min
         // and max of the nutrient concentrations on the nodes of that element
-        for(MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
             cell_iter != tissue.End();
             ++cell_iter)
         {

@@ -12,7 +12,7 @@
 #include <vector>
 #include <iostream>
 
-#include "TissueSimulationWithNutrients.cpp"
+#include "TissueSimulation.cpp"
 #include "FixedCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
 #include "ColumnDataReader.hpp"
