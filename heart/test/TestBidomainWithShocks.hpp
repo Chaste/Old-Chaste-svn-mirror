@@ -145,6 +145,9 @@ public:
     fixed.push_back(100);
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed );
         
+        bidomain_problem.SetIntracellularConductivities(1.75, 1.75, 1.75);
+        bidomain_problem.SetExtracellularConductivities(7.0, 7.0, 7.0);        
+        
         bidomain_problem.Initialise();
         
         try
@@ -238,6 +241,9 @@ public:
         std::vector<unsigned> fixed ;
     fixed.push_back(120);
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed );
+
+        bidomain_problem.SetIntracellularConductivities(1.75, 1.75, 1.75);
+        bidomain_problem.SetExtracellularConductivities(7.0, 7.0, 7.0);
         
         bidomain_problem.Initialise();
         
@@ -316,6 +322,9 @@ public:
         bidomain_problem.SetEndTime(10);   // ms
         bidomain_problem.SetOutputDirectory("Bidomain3d_WithShock");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
+
+        bidomain_problem.SetIntracellularConductivities(1.75, 1.75, 1.75);
+        bidomain_problem.SetExtracellularConductivities(7.0, 7.0, 7.0);
         
         bidomain_problem.Initialise();
         

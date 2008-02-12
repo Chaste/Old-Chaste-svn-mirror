@@ -27,6 +27,9 @@ public:
         bidomain_problem.SetEndTime(4);   // ms
         bidomain_problem.SetOutputDirectory("Bidomain3d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
+        bidomain_problem.SetIntracellularConductivities(1.75, 1.75, 1.75);
+        bidomain_problem.SetExtracellularConductivities(7.0, 7.0, 7.0);
+        
         
         bidomain_problem.Initialise();
         
@@ -94,6 +97,7 @@ public:
         monodomain_problem.SetEndTime(1);   // 1 ms
         monodomain_problem.SetOutputDirectory("Monodomain3d");
         monodomain_problem.SetOutputFilenamePrefix("monodomain3d");
+        monodomain_problem.SetIntracellularConductivities(1.75, 1.75, 1.75);        
         
         monodomain_problem.Initialise();
         
@@ -114,8 +118,8 @@ public:
         // the bidomain equations reduce to the monodomain equations
         // if sigma_e is infinite (equivalent to saying the extra_cellular
         // space is grounded. sigma_e is set to be very large here:
-        bidomain_problem.SetIntracellularConductivities(1, 1, 1);
-        bidomain_problem.SetExtracellularConductivities(1000, 1000, 1000);
+        bidomain_problem.SetIntracellularConductivities(1.75, 1.75, 1.75);
+        bidomain_problem.SetExtracellularConductivities(17500, 17500, 17500);
         
         bidomain_problem.Initialise();
         

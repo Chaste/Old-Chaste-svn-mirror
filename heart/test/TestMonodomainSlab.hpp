@@ -29,6 +29,8 @@ public:
         monodomain_problem.SetEndTime(4);   // 4 ms
         monodomain_problem.SetOutputDirectory("MonoDg03dWithFaceStimulus");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_3dWithFaceStimulus");
+        monodomain_problem.SetIntracellularConductivities(1.75, 1.75, 1.75);
+        
         monodomain_problem.Initialise();
         
         monodomain_problem.Solve();
