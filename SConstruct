@@ -138,6 +138,7 @@ Export("other_libpaths", "other_libs")
 
 # Any extra CCFLAGS and LINKFLAGS
 extra_flags = build.CcFlags() + ' ' + hostconfig.ccflags() \
+              + ' -DTRILIBRARY -DANSI_DECLARATORS '\
               + ' -DCHASTE_ROOT=\'"' + Dir('#').abspath + '"\' '
 link_flags  = build.LinkFlags()
 

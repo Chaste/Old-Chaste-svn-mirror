@@ -125,7 +125,7 @@ public:
         }
         node_file->close();
         std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
-        std::string command   = "./bin/tetgen -e " + full_name + "node";
+        std::string command   = "./bin/tetgen -e " + full_name + "node" + " > /dev/null";
         system(command.c_str());
         
         TrianglesMeshReader<3,3> mesh_reader2(full_name+"1");
@@ -205,7 +205,7 @@ public:
         
         node_file->close();
         std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
-        std::string command   = "./bin/triangle -e " + full_name + "node";
+        std::string command   = "./bin/triangle -e " + full_name + "node" + " > /dev/null";
         system(command.c_str());
         
         TrianglesMeshReader<2,2> mesh_reader2(full_name+"1");
@@ -277,6 +277,45 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),area,1e-6);
     }
     
+    void todoTestRemeshWithLibraryMethod2D() throw (Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+        
+        ConformingTetrahedralMesh<2,2> mesh;
+        
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        double area=mesh.CalculateMeshVolume();
+        const int node_index=432;
+        const int target_index=206;
+        
+        unsigned num_nodes_before=mesh.GetNumNodes();
+        unsigned num_elements_before=mesh.GetNumElements();
+        unsigned num_boundary_elements_before=mesh.GetNumBoundaryElements();
+        
+        mesh.MoveMergeNode(node_index, target_index);
+        
+        
+        TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes()+1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
+        
+        NodeMap map(1);
+        mesh.ReMeshWithTriangleLibrary(map);
+        
+        TS_ASSERT_EQUALS(map.Size(),mesh.GetNumNodes()+1);//one node removed during remesh
+        
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements());
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
+        
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), num_elements_before-2);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), num_nodes_before-1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),area,1e-6);
+    }
+    
  
     
     
@@ -326,6 +365,68 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(),2u);
         
         TS_ASSERT_THROWS_ANYTHING(mesh.ReMesh(map));        
+    }
+    
+    void TestRawTriangleLibraryCall()
+    {
+        struct triangulateio in, out;
+
+        /* Define input points. */
+    
+        in.numberofpoints = 5;
+        in.numberofpointattributes = 0;
+        in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
+        in.pointlist[0] = 0.0;
+        in.pointlist[1] = 0.0;
+        in.pointlist[2] = 1.0;
+        in.pointlist[3] = 0.0;
+        in.pointlist[4] = 1.0;
+        in.pointlist[5] = 10.0;
+        in.pointlist[6] = 0.0;
+        in.pointlist[7] = 10.0;
+        in.pointlist[8] = 0.5;
+        in.pointlist[9] = 7.0;
+      
+        in.pointmarkerlist = NULL;
+        in.numberofsegments = 0;
+        in.numberofholes = 0;
+        in.numberofregions = 0;
+      
+    
+      
+      
+        out.pointlist =  NULL;            
+        out.pointattributelist = (REAL *) NULL;
+        out.pointmarkerlist = (int *) NULL; 
+        out.trianglelist = (int *) NULL;          
+        out.triangleattributelist = (REAL *) NULL;
+        out.edgelist = (int *) NULL;             
+        out.edgemarkerlist = (int *) NULL;  
+    
+     
+    
+     
+        triangulate("Qze", &in, &out, NULL);
+    
+        TS_ASSERT_EQUALS(out.numberofpoints,            5u);
+        TS_ASSERT_EQUALS(out.numberofpointattributes,   0u);
+        TS_ASSERT_EQUALS(out.numberoftriangles,         4u);
+        TS_ASSERT_EQUALS(out.numberofcorners,           3u);
+        TS_ASSERT_EQUALS(out.numberoftriangleattributes,0u);
+        TS_ASSERT_EQUALS(out.numberofedges,             8u);
+        
+        
+        /* Free all allocated arrays, including those allocated by Triangle. */
+        free(in.pointlist);
+      
+        free(out.pointlist);
+        free(out.pointattributelist);
+        free(out.pointmarkerlist);
+        free(out.trianglelist);
+        free(out.triangleattributelist);
+        free(out.edgelist);
+        free(out.edgemarkerlist);
+      
     }
 
 };

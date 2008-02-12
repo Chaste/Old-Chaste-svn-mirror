@@ -1011,7 +1011,35 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
     }
 }
 
-
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrary(NodeMap &map)
+{
+    struct triangulateio triangle_input;
+    //struct triangulateio triangle_output;
+    triangle_input.pointlist = (REAL *) malloc(GetNumNodes() * 2 * sizeof(REAL));
+    triangle_input.numberofpoints = GetNumNodes();
+    triangle_input.numberofpointattributes = 0;
+    unsigned new_index = 0;
+    map.Resize(GetNumAllNodes());        
+    for (unsigned i=0; i<GetNumAllNodes(); i++)
+    {
+        if (mNodes[i]->IsDeleted())
+        {
+            map.SetDeleted(i);
+        }
+        else
+        {
+            map.SetNewIndex(i,new_index);
+            triangle_input.pointlist[2*new_index]=mNodes[i]->rGetLocation()[0];
+            triangle_input.pointlist[2*new_index + 1]=mNodes[i]->rGetLocation()[1];
+            new_index++;
+           
+        }
+    }
+    //\todo - not yet implemented
+    //triangulate("ze", &triangle_input, &triangle_output, NULL);
+    free(triangle_input.pointlist);
+}
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
 {
@@ -1020,11 +1048,10 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     assert( SPACE_DIM==2 || SPACE_DIM==3 );
     assert( ELEMENT_DIM == SPACE_DIM );
     #undef COVERAGE_IGNORE
-    
     // avoid some triangle/tetgen errors:
     // need at least four nodes for tetgen, and at least three for triangle 
     // assert( GetNumNodes() > SPACE_DIM );
-        
+
     //Make sure the map is big enough
     map.Resize(GetNumAllNodes());
     

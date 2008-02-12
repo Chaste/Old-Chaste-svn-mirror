@@ -9,6 +9,12 @@
 #include <set>
 #include <algorithm>
 
+
+//Jonathan Shewchuk's triangle
+#define REAL double
+#define VOID void
+#include "triangle.h"
+
 #include "AbstractMeshReader.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "Element.hpp"
@@ -215,6 +221,12 @@ public:
      * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
      */
     virtual void ReMesh(NodeMap& map);
+    /**
+     * Re-mesh a mesh using triangle in 2D via library calls
+     * @param map is a NodeMap which associates the indices of nodes in the old mesh
+     * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
+     */
+    virtual void ReMeshWithTriangleLibrary(NodeMap& map);
     
     /**
      * Permute the nodes so that they appear in a different order in mNodes
