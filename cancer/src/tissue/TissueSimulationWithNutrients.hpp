@@ -115,7 +115,15 @@ private :
      */
     void SolveNutrientPde();
     
+    /**
+     *  Solve the nutrient PDE on a coarse mesh.
+     */
     void SolveNutrientPdeUsingCoarseMesh();
+    
+    /**
+     *  Find the index of the coarse mesh element containing rCell.
+     */  
+    unsigned FindElementContainingCell(TissueCell& rCell);
 
     /**
      *  Overridden PostSolve() method. 

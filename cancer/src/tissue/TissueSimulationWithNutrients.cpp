@@ -16,7 +16,7 @@ void TissueSimulationWithNutrients<DIM>::SetupSolve()
 {
     if (mpCoarseNutrientMesh!=NULL)
     {
-        InitialiseCoarseNutrientMesh();        
+        InitialiseCoarseNutrientMesh();
     }
     if (this->mrTissue.Begin() != this->mrTissue.End())
     {
@@ -234,8 +234,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         {
             bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(i), p_boundary_condition,0,false);
         }
-    }
-    
+    }    
 
     PetscInt size_of_soln_previous_step = 0;
     
@@ -275,26 +274,49 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     // the cell locations
     ReplicatableVector nutrient_repl(mNutrientSolution);
 
-    for(typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
-        const ChastePoint<DIM>& r_position_of_cell = cell_iter.rGetLocation();
-        unsigned elem_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_position_of_cell);
+        // Find coarse mesh element containing cell 
+        unsigned elem_index = FindElementContainingCell(*cell_iter);
 
         Element<DIM,DIM>* p_element = mpCoarseNutrientMesh->GetElement(elem_index);
-    
+        
+        const ChastePoint<DIM>& r_position_of_cell = cell_iter.rGetLocation();
+
         c_vector<double,DIM+1> weights = p_element->CalculateInterpolationWeights(r_position_of_cell);
          
         double interpolated_nutrient = 0.0;
-        for(unsigned i=0; i<DIM+1/*num_nodes*/; i++)
+        for (unsigned i=0; i<DIM+1/*num_nodes*/; i++)
         {         
             double nodal_value = nutrient_repl[ p_element->GetNodeGlobalIndex(i) ];
             interpolated_nutrient += nodal_value*weights(i);
         }
     
-        CellwiseData<DIM>::Instance()->SetValue( interpolated_nutrient, cell_iter.GetNode() );
+        CellwiseData<DIM>::Instance()->SetValue(interpolated_nutrient, cell_iter.GetNode());
     }
+}
+
+template<unsigned DIM>
+unsigned TissueSimulationWithNutrients<DIM>::FindElementContainingCell(TissueCell& rCell)
+{
+    // Get containing element at last timestep from mCellNutrientElementMap
+    unsigned old_element_index = mCellNutrientElementMap[&rCell];
+    
+    // Create a std::set of guesses for the current containing element
+//    \todo: find the neighbouring elements and add them to test_elements) 
+    std::set<unsigned> test_elements;
+    test_elements.insert(old_element_index);
+    
+    // Find new element, using the previous one as a guess
+    const ChastePoint<DIM>& r_cell_position = this->mrTissue.GetLocationOfCell(rCell);
+    unsigned new_element_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_cell_position, false, test_elements);
+    
+    // Update mCellNutrientElementMap
+    mCellNutrientElementMap[&rCell] = new_element_index;
+    
+    return new_element_index;
 }
 
 template<unsigned DIM>
