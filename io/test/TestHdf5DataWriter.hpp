@@ -76,9 +76,9 @@ public:
         H5Fclose(file_id);
     }
     
+    static const unsigned data_size=17;
     void TestPetscWriteDirectlyWithHdf5()
     {
-        const int data_size=17;
         
         //Initialise a PETSc vector
         Vec a_vec=PetscTools::CreateVec(data_size);
@@ -149,6 +149,41 @@ public:
         H5Fclose(file_id);
         
         VecDestroy(a_vec);
+    }
+    
+    void TestReadAndChecksumHdf5()
+    { 
+        // File to read
+        OutputFileHandler oh("hdf5", false);
+        double data[data_size];
+        std::string results_dir = oh.GetOutputDirectoryFullPath();
+        std::string file_name = results_dir + "vec.h5";
+        
+        hsize_t file_id = H5Fopen(file_name.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
+        hsize_t dataset_id = H5Dopen(file_id, "TheVector");
+        hsize_t dxpl = H5Pcreate(H5P_DATASET_XFER);
+        hsize_t edc = H5Pget_edc_check(dxpl);
+        TS_ASSERT_EQUALS(edc, (hsize_t) 1) //Checksum is enabled
+        
+        herr_t status = H5Dread(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, dxpl, 
+            data);
+       
+        TS_ASSERT_EQUALS(status, 0); 
+
+        //Check the index
+        for (unsigned i=0;i<data_size;i++)
+        {
+            TS_ASSERT_EQUALS(((unsigned)data[i]%100), i);
+        }
+        //Check the final component
+        int num_procs;
+        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+        //The last component was owned by processor "num_procs-1"
+        TS_ASSERT_EQUALS(((int)data[data_size-1]/100), num_procs-1);
+        
+        H5Pclose (dxpl);
+        H5Dclose(dataset_id);
+        H5Fclose(file_id);
     }
   
 };
