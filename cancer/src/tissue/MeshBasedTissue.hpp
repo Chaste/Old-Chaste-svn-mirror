@@ -44,8 +44,24 @@ private:
      */
     std::set<std::set<TissueCell*> > mMarkedSprings;
     
+    /** Whether to print out cell area and perimeter info */
+    bool mWriteVoronoiData;
+    
+    /** Whether to follow only the logged cell if writing voronoi data */
+    bool mFollowLoggedCell;
+    
+    /** Whether to print out tissue areas */
+    bool mWriteTissueAreas;
+    
+    /** Results file for elements */
     out_stream mpElementFile;
     
+    /** Results file for Voronoi data */
+    out_stream mpVoronoiFile;
+    
+    /** Results file for tissue area data */
+    out_stream mpTissueAreasFile;
+        
     /** Helper method used by the spring marking routines */
     std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
     
@@ -70,6 +86,9 @@ private:
         delete mpVoronoiTessellation;
         
         archive & mMarkedSprings;
+        archive & mWriteVoronoiData;
+        archive & mFollowLoggedCell;
+        archive & mWriteTissueAreas;
         
         Validate(); // paranoia
     }
@@ -130,6 +149,14 @@ public:
      * Forces are applied to ghost nodes from connected ghost and normal nodes.
      */
     void UpdateGhostPositions(double dt);
+    
+    bool GetWriteVoronoiData();
+    
+    bool GetWriteTissueAreas();
+    
+    void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
+    
+    void SetWriteTissueAreas(bool writeTissueAreas);
         
     /***
      * This method is used to calculate the force between GHOST nodes.
@@ -158,7 +185,7 @@ public:
     void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes);
     
     void CloseOutputFiles();
-    
+
     /**
      * Move a cell to a new location.
      * @param iter  pointer to the cell to move
@@ -192,6 +219,10 @@ public:
     void Validate();
 
     void WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables);
+    
+    void WriteVoronoiResultsToFile();
+    
+    void WriteTissueAreaResultsToFile();
     
     /** Get a reference to a Voronoi Tessellation of the mesh */                         
     void CreateVoronoiTessellation();

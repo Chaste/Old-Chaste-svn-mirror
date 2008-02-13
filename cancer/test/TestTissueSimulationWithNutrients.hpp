@@ -279,6 +279,7 @@ public:
         
         // Set up tissue        
         MeshBasedTissue<2> tissue(*p_mesh, cells);
+        tissue.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
         
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -302,7 +303,6 @@ public:
         TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithOxygen");
         simulator.SetEndTime(0.5);
-        simulator.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
                 
         // Set up cell killer and pass into simulation
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
@@ -354,6 +354,7 @@ public:
         
         // Set up tissue        
         MeshBasedTissue<2> tissue(*p_mesh, cells);
+        tissue.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
         
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -446,6 +447,7 @@ public:
         }
                 
         MeshBasedTissue<2> tissue(*p_mesh, cells);
+        tissue.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
         
         // Set up CellwiseData and associate it with the tissue        
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -466,7 +468,6 @@ public:
         TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
         simulator.SetOutputDirectory("TestSpheroidStatistics");
         simulator.SetEndTime(1.0/120.0);
-        simulator.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius   
         simulator.SetWriteAverageRadialNutrientResults(5);
         
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
@@ -500,7 +501,7 @@ public:
                        
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TestSpheroidStatistics",false);
-        std::string areas_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/Areas.dat";
+        std::string areas_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/Areas.dat";
         TS_ASSERT_EQUALS(system(("diff " + areas_results_file + " cancer/test/data/TestSpheroidStatistics/Areas.dat").c_str()), 0);
         
         std::string dist_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/radial_dist.dat";

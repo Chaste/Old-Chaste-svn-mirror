@@ -110,7 +110,7 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         cells[0].SetNodeIndex(1);
 
-		// Fails as no cell or ghost correponding to node 0        
+        // Fails as no cell or ghost correponding to node 0        
         TS_ASSERT_THROWS_ANYTHING(MeshBasedTissue<2> tissue2(mesh, cells));
     }
     
@@ -401,15 +401,12 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements  cancer/test/data/TestTissueWriters/results.vizelements").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
 
-        /*
-         * Test the GetCellTypeCount function
-         * There should only be healthy cells
-         */
-        c_vector<unsigned,5> cellTypes = tissue.GetCellTypeCount();
-        TS_ASSERT_EQUALS(cellTypes[0], tissue.GetNumRealCells());
-        for (unsigned i=1; i<5 ; i++)
+        // Test the GetCellTypeCount function: there should only be healthy cells
+        c_vector<unsigned,5> cell_types = tissue.GetCellTypeCount();
+        TS_ASSERT_EQUALS(cell_types[0], tissue.GetNumRealCells());
+        for (unsigned i=1; i<4 ; i++)
         {
-            TS_ASSERT_EQUALS(cellTypes[i], 0u);
+            TS_ASSERT_EQUALS(cell_types[i], 0u);
         }         
     }
     

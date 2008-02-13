@@ -2,6 +2,7 @@
 #define MESHBASEDTISSUE_CPP
 
 #include "MeshBasedTissue.hpp"
+#include "Exception.hpp"
 
 ///\todo: Make this constructor take in ghost nodes, and validate the three objects
 // are in sync ie num cells + num ghost nodes = num_nodes ? this would mean all ghosts
@@ -14,7 +15,10 @@ MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh
              : AbstractTissue<DIM>(rCells),
                mrMesh(rMesh),
                mpVoronoiTessellation(NULL),
-               mDeleteMesh(deleteMesh)
+               mDeleteMesh(deleteMesh),
+               mWriteVoronoiData(false),
+               mFollowLoggedCell(false),
+               mWriteTissueAreas(false)
 {
     mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
 
@@ -23,7 +27,7 @@ MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh
 
     this->mTissueContainsMesh = true;
     
-	Validate();
+    Validate();
 }
 
 template<unsigned DIM>
@@ -50,22 +54,22 @@ MeshBasedTissue<DIM>::~MeshBasedTissue()
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::Validate()
 {
-	std::vector<bool> validated_node = mIsGhostNode; 
-	for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
-	{
-		unsigned node_index = cell_iter->GetNodeIndex();
-		validated_node[node_index] = true;
-	}
-	
-	for(unsigned i=0; i<validated_node.size(); i++)
-	{
-		if(!validated_node[i])
-		{
-			std::stringstream ss;
-			ss << "Node " << i << " does not appear to be a ghost node or have a cell associated with it";
+    std::vector<bool> validated_node = mIsGhostNode; 
+    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
+    {
+        unsigned node_index = cell_iter->GetNodeIndex();
+        validated_node[node_index] = true;
+    }
+    
+    for (unsigned i=0; i<validated_node.size(); i++)
+    {
+        if (!validated_node[i])
+        {
+            std::stringstream ss;
+            ss << "Node " << i << " does not appear to be a ghost node or have a cell associated with it";
             EXCEPTION(ss.str()); 
-		}
-	}
+        }
+    }
 }
 
 template<unsigned DIM>
@@ -198,7 +202,7 @@ void MeshBasedTissue<DIM>::UpdateGhostPositions(double dt)
         drdt[i]=zero_vector<double>(DIM);
     }
 
-    for(typename ConformingTetrahedralMesh<DIM, DIM>::EdgeIterator edge_iterator=mrMesh.EdgesBegin();
+    for (typename ConformingTetrahedralMesh<DIM, DIM>::EdgeIterator edge_iterator=mrMesh.EdgesBegin();
         edge_iterator!=mrMesh.EdgesEnd();
         ++edge_iterator)
     {
@@ -403,6 +407,21 @@ void MeshBasedTissue<DIM>::SetBottomCellAncestors()
     }
 }
 
+template<unsigned DIM> 
+void MeshBasedTissue<DIM>::SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell)
+{
+    assert(DIM == 2);
+    mWriteVoronoiData = writeVoronoiData;
+    mFollowLoggedCell = followLoggedCell;
+}
+
+template<unsigned DIM> 
+void MeshBasedTissue<DIM>::SetWriteTissueAreas(bool writeTissueAreas)
+{
+    assert(DIM == 2);
+    mWriteTissueAreas = writeTissueAreas;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //                             Output methods                               // 
 //////////////////////////////////////////////////////////////////////////////
@@ -413,6 +432,8 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool
     AbstractTissue<DIM>::CreateOutputFiles(rDirectory, rCleanOutputDirectory, outputCellTypes);
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
+    mpVoronoiFile = output_file_handler.OpenOutputFile("results.visvoronoi");
+    mpTissueAreasFile = output_file_handler.OpenOutputFile("Areas.dat");
 }
 
 template<unsigned DIM>
@@ -420,6 +441,20 @@ void MeshBasedTissue<DIM>::CloseOutputFiles()
 {
     AbstractTissue<DIM>::CloseOutputFiles();
     mpElementFile->close();
+    mpVoronoiFile->close();
+    mpTissueAreasFile->close();
+}
+
+template<unsigned DIM>
+bool MeshBasedTissue<DIM>::GetWriteVoronoiData()
+{
+    return mWriteVoronoiData;        
+}
+
+template<unsigned DIM>
+bool MeshBasedTissue<DIM>::GetWriteTissueAreas()
+{
+    return mWriteTissueAreas;        
 }
 
 template<unsigned DIM>  
@@ -428,14 +463,14 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool output
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
     double time = p_simulation_time->GetDimensionalisedTime();
+    
     unsigned cell_counter[5];
     for(unsigned i=0; i < 5; i++)
     {
-        cell_counter[i] =0;
+        cell_counter[i] = 0;
     }
     
     *this->mpNodeFile <<  time << "\t";
-    *mpElementFile <<  time << "\t";
     
     if (outputCellTypes)
     {
@@ -446,101 +481,99 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool output
     {
         *this->mpCellVariablesFile <<  time << "\t";
     }
-
-    // Write node files
-    for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
+    
+    *mpElementFile <<  time << "\t";
+    
+    // Write node file
+    for (unsigned index=0; index<GetNumNodes(); index++)
     {
         unsigned colour = STEM_COLOUR; // all green if no cells have been passed in
 
         std::vector<double> proteins; // only used if outputCellVariables = true
          
-        if (mIsGhostNode[index]==true)
+        if (mIsGhostNode[index] == true)
         {
-            colour = INVISIBLE_COLOUR; // visualizer treats '7' as invisible
+            colour = INVISIBLE_COLOUR;
         }
-        else if (mrMesh.GetNode(index)->IsDeleted())
+        else if (GetNode(index)->IsDeleted())
         {
-            // Do nothing
+            // do nothing
         }
-        else if (this->mNodeCellMap[index]->GetAncestor()!=UNSIGNED_UNSET)
+        else if (this->mNodeCellMap[index]->GetAncestor() != UNSIGNED_UNSET)
         {
             TissueCell* p_cell = this->mNodeCellMap[index];
             colour = SPECIAL_LABEL_START + p_cell->GetAncestor();
         }
-/// \todo remove this if - facade eventually shouldn't be able to have empty cells vector
-        else if (this->mCells.size()>0)
+        else
         {
             TissueCell* p_cell = this->mNodeCellMap[index];
             
             CellType type = p_cell->GetCellType();
             CellMutationState mutation = p_cell->GetMutationState();
             
-            // Set colours dependent on Stem, Transit, Differentiate, HepaOne
-            if (type == STEM)
+            // Set colours dependent on cell type
+            switch (type)
             {
-                colour = STEM_COLOUR;
-            }
-            else if (type == TRANSIT)
-            {
-                colour = TRANSIT_COLOUR;
-            }
-            else if (type == DIFFERENTIATED)
-            {
-                colour = DIFFERENTIATED_COLOUR;
-            }
-            else
-            {
-                // Make necrotic and apoptotic cells have the same colour
-                colour = APOPTOSIS_COLOUR;
+                case STEM:
+                    colour = STEM_COLOUR;
+                    break;
+                case TRANSIT:
+                    colour = TRANSIT_COLOUR;
+                    break;
+                case DIFFERENTIATED:
+                    colour = DIFFERENTIATED_COLOUR;
+                    break;
+                default:
+                    colour = APOPTOSIS_COLOUR; // necrotic and apoptotic cells have the same colour
+                    break;
             }
             
-            // Override colours for mutant or labelled cells.
-            if (mutation != HEALTHY && mutation != ALARCON_NORMAL)
+            // Override colours for mutant or labelled cells and increment cell counters
+            switch (mutation)
             {
-                if (mutation == LABELLED || mutation == ALARCON_CANCER)
-                {
+                case HEALTHY:
+                case ALARCON_NORMAL:
+                    if (outputCellTypes)
+                    {
+                        cell_counter[0]++;
+                    }  
+                    break;
+                case LABELLED:
+                case ALARCON_CANCER:
                     colour = LABELLED_COLOUR;
                     if (outputCellTypes)
                     {
                         cell_counter[1]++;
                     }
-                }
-                if (mutation == APC_ONE_HIT)
-                {
+                    break; 
+                case APC_ONE_HIT:
                     colour = EARLY_CANCER_COLOUR;
                     if (outputCellTypes)
                     {
                         cell_counter[2]++;
                     }
-                }
-                if (mutation == APC_TWO_HIT )
-                {
+                    break;
+                case APC_TWO_HIT:
                     colour = LATE_CANCER_COLOUR;
                     if (outputCellTypes)
                     {
                         cell_counter[3]++;
-                    }  
-                }
-                if ( mutation == BETA_CATENIN_ONE_HIT)
-                {
+                    }
+                    break;
+                case BETA_CATENIN_ONE_HIT:
                     colour = LATE_CANCER_COLOUR;
                     if (outputCellTypes)
                     {
                         cell_counter[4]++;
-                    }  
-                }
-            }
-            else // It's healthy, or normal in the sense of the Alarcon model
-            {
-                if (outputCellTypes)
-                {
-                    cell_counter[0]++;
-                }  
+                    }
+                    break;
+                default:
+                    NEVER_REACHED; // this can't be reached - all mutation states are covered
             }
             
             if (p_cell->HasApoptosisBegun())
             {   
-                // For any type of cell set the colour to this if it is undergoing apoptosis.
+                // For any type of cell, set the colour to this if it is undergoing apoptosis
                 colour = APOPTOSIS_COLOUR;   
             }
             
@@ -550,11 +583,11 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool output
             } 
         }
         
-        if (!mrMesh.GetNode(index)->IsDeleted())
+        if ( !(GetNode(index)->IsDeleted()) )
         {
-            const c_vector<double,DIM>& position = mrMesh.GetNode(index)->rGetLocation();
+            const c_vector<double,DIM>& position = GetNode(index)->rGetLocation();
             
-            for(unsigned i=0; i<DIM; i++)
+            for (unsigned i=0; i<DIM; i++)
             {
                 *this->mpNodeFile << position[i] << " ";
             }
@@ -562,22 +595,22 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool output
                         
             if (outputCellVariables)
             {
-                //loop over cell positions
-                for(unsigned i=0; i<DIM; i++)
+                // Loop over cell positions
+                for (unsigned i=0; i<DIM; i++)
                 {
                     *this->mpCellVariablesFile << position[i] << " ";
                 }
-                //loop over cell variables
-                for(unsigned i=0; i<proteins.size(); i++)
+                // Loop over cell variables
+                for (unsigned i=0; i<proteins.size(); i++)
                 {
                     *this->mpCellVariablesFile << proteins[i] << " " ;
                 }
             } 
         }
     }
-    
+        
     // Write element data files
-    for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+    for (unsigned elem_index=0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
     {
         if (!mrMesh.GetElement(elem_index)->IsDeleted())
         {
@@ -590,7 +623,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool output
         
     if (outputCellTypes)
     {
-        for(unsigned i=0; i < 5; i++)
+        for (unsigned i=0; i<this->mCellTypeCount.size(); i++)
         {
             this->mCellTypeCount[i] = cell_counter[i];
             *this->mpCellTypesFile <<  cell_counter[i] << "\t";
@@ -602,11 +635,83 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool output
     {
         // new line at end of nodes
         *this->mpCellVariablesFile <<  "\n";
-    }
-    
+    }    
     
     *this->mpNodeFile << "\n";
-    *mpElementFile << "\n";
+    *mpElementFile << "\n";    
+    
+    if (mpVoronoiTessellation!=NULL)
+    {
+        // Write Voronoi data to file if required    
+        if (this->mWriteVoronoiData)
+        {
+            WriteVoronoiResultsToFile();
+        }
+        
+        // Write tissue area data to file if required
+        if (this->mWriteTissueAreas)
+        {
+            WriteTissueAreaResultsToFile();
+        }
+    }
+}
+
+template<unsigned DIM>  
+void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
+{
+    // Write time to file
+    *mpVoronoiFile << SimulationTime::Instance()->GetDimensionalisedTime() << " ";
+    
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
+         cell_iter != this->End();
+         ++cell_iter)
+    {
+        if ((!mFollowLoggedCell) || ((mFollowLoggedCell) && (cell_iter->IsLogged())))
+        {
+            unsigned node_index = cell_iter.GetNode()->GetIndex();
+            double x = cell_iter.rGetLocation()[0];
+            double y = cell_iter.rGetLocation()[1];
+        
+            double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
+            double cell_perimeter = rGetVoronoiTessellation().GetFacePerimeter(node_index);
+        
+            *mpVoronoiFile << node_index << " " << x << " " << y << " " << cell_area << " " << cell_perimeter << " ";
+            
+            if (mFollowLoggedCell)
+            {
+                break;
+            }
+        }
+    }
+    *mpVoronoiFile << "\n";
+}
+
+template<unsigned DIM>  
+void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
+{
+    // Write time to file
+    *mpTissueAreasFile << SimulationTime::Instance()->GetDimensionalisedTime() << " ";
+        
+    // Don't use the Voronoi tessellation to calculate the total area
+    // because it gives huge areas for boundary cells
+    double total_area = rGetMesh().CalculateMeshVolume();    
+        
+    double necrotic_area = 0.0;
+    
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
+         cell_iter != this->End();
+         ++cell_iter)
+    {
+        // Only bother calculating the cell area if it is necrotic
+        if (cell_iter->GetCellType() == NECROTIC)
+        {
+            unsigned node_index = cell_iter.GetNode()->GetIndex();                
+            double cell_area = rGetVoronoiTessellation().GetFace(node_index)->GetArea();
+            necrotic_area += cell_area;
+        }
+    }       
+    
+    *mpTissueAreasFile << total_area << " " << necrotic_area << "\n";
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -672,7 +777,7 @@ MeshBasedTissue<DIM>::SpringIterator::SpringIterator(MeshBasedTissue& rTissue,
     : mrTissue(rTissue),
       mEdgeIter(edgeIter)
 {
-    if(mEdgeIter!=mrTissue.mrMesh.EdgesEnd())
+    if (mEdgeIter!=mrTissue.mrMesh.EdgesEnd())
     {
         bool a_is_ghost = mrTissue.mIsGhostNode[mEdgeIter.GetNodeA()->GetIndex()];
         bool b_is_ghost = mrTissue.mIsGhostNode[mEdgeIter.GetNodeB()->GetIndex()];
@@ -714,10 +819,10 @@ VoronoiTessellation<DIM>& MeshBasedTissue<DIM>::rGetVoronoiTessellation()
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::CheckTissueCellPointers()
 {
-    bool res=true;
+    bool res = true;
     for (std::list<TissueCell>::iterator it=this->mCells.begin();
-        it!=this->mCells.end();
-        ++it)
+         it!=this->mCells.end();
+         ++it)
     {
         TissueCell* p_cell=&(*it);
         assert(p_cell);

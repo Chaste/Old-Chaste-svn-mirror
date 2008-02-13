@@ -27,7 +27,7 @@ protected:
     
     /** Map node indices back to cells */
     std::map<unsigned, TissueCell*> mNodeCellMap;
-        
+    
     /** Current cell type counts */
     c_vector<unsigned,5> mCellTypeCount;
     
@@ -42,7 +42,7 @@ protected:
 
     /** Results file for cell variables */
     out_stream mpCellVariablesFile;
-
+    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -107,12 +107,13 @@ public:
      */
     virtual TissueCell*  AddCell(TissueCell cell, c_vector<double,DIM> newLocation)=0;
     
+    class Iterator; // Forward declaration; see below
+    
     /**
      * Move a cell to a new location.
      * @param iter  pointer to the cell to move
      * @param rNewLocation  where to move it to
      */
-    class Iterator; // Forward declaration; see below
     virtual void MoveCell(AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)=0;
     
     /** 
@@ -126,6 +127,16 @@ public:
      * Check consistency of our internal data structures.
      */
     virtual void Validate()=0;
+    
+    virtual bool GetWriteVoronoiData()
+    {
+        return false;
+    }
+    
+    virtual bool GetWriteTissueAreas()
+    {
+        return false;        
+    }
 
     /**
      * Find out how many cells of each mutation state there are

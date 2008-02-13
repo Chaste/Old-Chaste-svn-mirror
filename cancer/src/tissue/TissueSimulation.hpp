@@ -12,7 +12,6 @@
 #include "Meineke2001SpringSystem.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "ColumnDataWriter.hpp"
-#include "TissueVoronoiDataWriter.hpp"
 #include "CancerEventHandler.hpp"
 
 /**
@@ -36,16 +35,16 @@
  * that the value we use for Meineke lambda is completely different because we have
  * nondimensionalised)
  *
- * The TissueSimulation currently only accepts a tissue (facade class) which is 
- * formed from a mesh, whose nodes are associated with TissueCells 
- * or are ghost nodes. The TissueSimulation then accesses only the 
- * TissueCells via an iterator in the tissue facade class.
+ * The TissueSimulation accepts a tissue (facade class), containing either a mesh or 
+ * just a vector of nodes, where nodes are associated with TissueCells or are ghost 
+ * nodes. The TissueSimulation then accesses only the TissueCells via an iterator in 
+ * the tissue facade class.
  * 
- * The mesh should be surrounded by at least one layer of ghost nodes.  These are 
- * nodes which do not correspond to a cell, but are necessary for remeshing (because 
- * the remesher tries to create a convex hull of the set of nodes) and visualising 
- * purposes. The tissue class deals with ghost nodes. SetGhostNodes() should have been called
- * on it.
+ * If using a MeshBasedTissue, the mesh should be surrounded by at least one layer of 
+ * ghost nodes.  These are nodes which do not correspond to a cell, but are necessary 
+ * for remeshing (because the remesher tries to create a convex hull of the set of nodes) 
+ * and visualising purposes. The tissue class deals with ghost nodes. SetGhostNodes() 
+ * should have been called on it.
  * 
  * Cells can divide (at a time governed by their cell cycle models)
  * 
@@ -89,7 +88,7 @@ protected:
     
     bool mAllocatedMemoryForMechanicsSystem;
 
-	/** Whether to the cell variables to a file*/
+    /** Whether to write the cell variables to a file */
     bool mOutputCellVariables;
 
     /** Output directory (a subfolder of tmp/<USERNAME>/testoutput) */
@@ -125,15 +124,6 @@ protected:
     /** The mechanics used to determine the new location of the cells */
     AbstractDiscreteTissueMechanicsSystem<DIM>* mpMechanicsSystem;
 
-    /** Whether to print out cell area and perimeter info */
-    bool mWriteVoronoiData;
-    
-    /** Whether to print out tissue areas */
-    bool mWriteTissueAreas;
-    
-    /** Whether to follow only the logged cell if writing voronoi data */
-    bool mFollowLoggedCell;
-
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -158,9 +148,6 @@ protected:
         archive & mCellKillers;
         archive & mOutputCellTypes;
         archive & mOutputCellVariables;
-        archive & mWriteVoronoiData;        
-        archive & mFollowLoggedCell;
-        archive & mWriteTissueAreas;
         archive & mSamplingTimestepMultiple;
     }
     
@@ -251,30 +238,27 @@ public:
      */                         
     virtual ~TissueSimulation();
     
-    void SetDt(double dt);
+    std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);    
+    c_vector<unsigned,5> GetCellTypeCount();
+        
     double GetDt();
+    
+    void SetDt(double dt);
     void SetEndTime(double endTime);
     void SetOutputDirectory(std::string outputDirectory);
     void SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple);
     void SetNoBirth(bool nobirth);
     void SetOutputCellTypes(bool outputCellTypes);
-    void SetOutputCellVariables(bool outputCellVariables);
-    
+    void SetOutputCellVariables(bool outputCellVariables);    
     void SetReMeshRule(bool remesh); 
 
-    void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
-    void SetWriteTissueAreas(bool writeTissueAreas);
-    
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
-    std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);    
-    c_vector<unsigned,5> GetCellTypeCount();
-
+    
     void Solve();
     
     AbstractTissue<DIM>& rGetTissue();
     const AbstractTissue<DIM>& rGetTissue() const;
-    
-    
+        
     /** 
      * Get access to the spring system.
      */
@@ -313,7 +297,7 @@ template<class Archive, unsigned DIM>
 inline void save_construct_data(
     Archive & ar, const TissueSimulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
-    // save data required to construct instance
+    // Save data required to construct instance
     const AbstractTissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     
@@ -328,14 +312,14 @@ template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, TissueSimulation<DIM> * t, const unsigned int file_version)
 {
-    // retrieve data from archive required to construct new instance
+    // Retrieve data from archive required to construct new instance
     AbstractTissue<DIM>* p_tissue;
     ar >> p_tissue;
 
     AbstractDiscreteTissueMechanicsSystem<DIM>* p_spring_system;
     ar >> p_spring_system;
     
-    // invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialize instance
     ::new(t)TissueSimulation<DIM>(*p_tissue, p_spring_system, true);
 }
 }

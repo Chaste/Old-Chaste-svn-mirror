@@ -209,7 +209,8 @@ public:
                 
         MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
-
+        crypt.SetWriteVoronoiData(true,true);
+        
         // Set the first cell to be logged
         crypt.Begin()->SetLogged();
 
@@ -217,8 +218,6 @@ public:
 
         simulator.SetOutputDirectory("Monolayer");
         simulator.SetEndTime(1);
-
-        simulator.SetWriteVoronoiData(true,true);
         
         simulator.Solve();
         

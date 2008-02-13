@@ -55,11 +55,6 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     mNumBirths = 0;
     mNumDeaths = 0;
     mSamplingTimestepMultiple = 1;
-    
-    mWriteVoronoiData = false;
-    mWriteTissueAreas = false;
-    mFollowLoggedCell = false;
-    
     mAllocatedMemoryForMechanicsSystem = false;
     
     if (pMechanicsSystem == NULL)
@@ -105,7 +100,6 @@ TissueSimulation<DIM>::~TissueSimulation()
     }
 }
 
-
 template<unsigned DIM>  
 unsigned TissueSimulation<DIM>::DoCellBirth()
 {
@@ -148,7 +142,6 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
     return num_births_this_step;
 }
 
-
 template<unsigned DIM> 
 unsigned TissueSimulation<DIM>::DoCellRemoval()
 {
@@ -165,7 +158,6 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
     
     return num_deaths_this_step;
 }
-
 
 template<unsigned DIM> 
 c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename AbstractTissue<DIM>::Iterator parentCell)
@@ -213,7 +205,6 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
     return daughter_coords;
 }
 
-
 template<unsigned DIM> 
 void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt)
 {
@@ -236,7 +227,6 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
     }
 }
 
-
 /**
  * Set the timestep of the simulation
  */
@@ -247,7 +237,6 @@ void TissueSimulation<DIM>::SetDt(double dt)
     mDt = dt;
 }
 
-
 /**
  * Get the timestep of the simulation
  */
@@ -256,7 +245,6 @@ double TissueSimulation<DIM>::GetDt()
 {
     return mDt;
 }
-
 
 /**
  * Sets the end time and resets the timestep to be endtime/100
@@ -267,7 +255,6 @@ void TissueSimulation<DIM>::SetEndTime(double endTime)
     assert(endTime > 0);
     mEndTime = endTime;
 }
-
 
 /**
  * Set the output directory of the simulation.
@@ -280,7 +267,6 @@ void TissueSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)
     mOutputDirectory = outputDirectory;
     mSimulationOutputDirectory = mOutputDirectory;
 }
-
     
 /**
  * Sets the ratio of the number of actual timesteps to the number of timesteps 
@@ -293,20 +279,17 @@ void TissueSimulation<DIM>::SetSamplingTimestepMultiple(unsigned samplingTimeste
     mSamplingTimestepMultiple = samplingTimestepMultiple;
 }
 
-
 template<unsigned DIM> 
 AbstractTissue<DIM>& TissueSimulation<DIM>::rGetTissue()
 {
     return mrTissue;
 }
 
-
 template<unsigned DIM> 
 const AbstractTissue<DIM>& TissueSimulation<DIM>::rGetTissue() const
 {
     return mrTissue;
 }
-
 
 /**
  * Set whether the mesh should be remeshed at every time step.
@@ -317,7 +300,6 @@ void TissueSimulation<DIM>::SetReMeshRule(bool remesh)
     mReMesh = remesh;
 }
 
-
 /**
  * Set the simulation to run with no birth.
  */
@@ -326,7 +308,6 @@ void TissueSimulation<DIM>::SetNoBirth(bool nobirth)
 {
     mNoBirth = nobirth;
 }
-
 
 /**
  * Set the simulation to Count and store the number of each cell type.
@@ -346,22 +327,6 @@ void TissueSimulation<DIM>::SetOutputCellVariables(bool outputCellVariables)
     mOutputCellVariables = outputCellVariables;
 }
 
-template<unsigned DIM> 
-void TissueSimulation<DIM>::SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell)
-{
-    assert(DIM == 2);
-    mWriteVoronoiData = writeVoronoiData;
-    mFollowLoggedCell = followLoggedCell;
-}
-
-template<unsigned DIM> 
-void TissueSimulation<DIM>::SetWriteTissueAreas(bool writeTissueAreas)
-{
-    assert(DIM == 2);
-    mWriteTissueAreas = writeTissueAreas;
-}
-
-
 /**
  * Add a cell killer to be used in this simulation
  */
@@ -370,7 +335,6 @@ void TissueSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
 {
     mCellKillers.push_back(pCellKiller);
 }
-
 
 /**
  * Get a node's location (ONLY FOR TESTING)
@@ -388,7 +352,6 @@ std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNode
     }
     return location;
 }
-
 
 /**
  * Main Solve method
@@ -450,7 +413,8 @@ void TissueSimulation<DIM>::Solve()
          cell_iter != mrTissue.End();
          ++cell_iter)
     {
-        /* We don't use the result; this call is just to force the cells 
+        /* 
+         * We don't use the result; this call is just to force the cells 
          * to age to current time running their cell cycle models to get there.
          */
         cell_iter->ReadyToDivide();
@@ -458,34 +422,13 @@ void TissueSimulation<DIM>::Solve()
     LOG(1, "\tdone\n");
      
     // Write initial conditions to file for the visualizer.
-    if(DIM==2)
+    if (DIM==2)
     {
         WriteVisualizerSetupFile();
     }
-    mpSetupFile->close();    
-
-    mrTissue.WriteResultsToFiles(mOutputCellTypes,mOutputCellVariables);
-
-    TissueVoronoiDataWriter<DIM>* p_voronoi_data_writer = NULL;
+    mpSetupFile->close();
     
-    if (mrTissue.HasMesh())
-    {
-        if (mWriteVoronoiData)
-        {
-            p_voronoi_data_writer = new TissueVoronoiDataWriter<DIM>(*(static_cast<MeshBasedTissue<DIM>*>(&mrTissue)),
-                                                                     mSimulationOutputDirectory+"/vis_results/",
-                                                                     "results.visvoronoi",
-                                                                     mFollowLoggedCell);
-        }
-        
-        if (mWriteTissueAreas)
-        {
-            p_voronoi_data_writer = new TissueVoronoiDataWriter<DIM>(*(static_cast<MeshBasedTissue<DIM>*>(&mrTissue)),
-                                                                     mSimulationOutputDirectory,
-                                                                     "Areas.dat",
-                                                                     false);
-        }
-    }
+    mrTissue.WriteResultsToFiles(mOutputCellTypes,mOutputCellVariables);
 
     CancerEventHandler::EndEvent(SETUP);
                                
@@ -539,10 +482,10 @@ void TissueSimulation<DIM>::Solve()
         CancerEventHandler::EndEvent(REMESH);
         
 
-		CancerEventHandler::BeginEvent(TESSELLATION);
+        CancerEventHandler::BeginEvent(TESSELLATION);
         if (mrTissue.HasMesh())
         {
-            if(mWriteVoronoiData || mpMechanicsSystem->NeedsVoronoiTessellation() || mWriteTissueAreas)
+            if (mrTissue.GetWriteVoronoiData() || mpMechanicsSystem->NeedsVoronoiTessellation() || mrTissue.GetWriteTissueAreas())
             {
                 (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->CreateVoronoiTessellation();
             }
@@ -568,39 +511,20 @@ void TissueSimulation<DIM>::Solve()
         // Write results to file
         if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
-            mrTissue.WriteResultsToFiles(mOutputCellTypes,mOutputCellVariables);
-                                        
-            if (mWriteVoronoiData)
-            {
-                p_voronoi_data_writer->WriteData();
-            }
-                                        
-            if (mWriteTissueAreas)
-            {
-                p_voronoi_data_writer->WriteTissueAreas();
-            }
+            mrTissue.WriteResultsToFiles(mOutputCellTypes, mOutputCellVariables);
         }
         
         CancerEventHandler::EndEvent(OUTPUT);
     }
 
     AfterSolve();
-        
-    // Write end state to tabulated files (not visualizer - this
-    // is taken care of in the main loop).
-    // Doesn't need to count cell types again as it is done in the last loop
-    CancerEventHandler::BeginEvent(OUTPUT);
-
-    mrTissue.CloseOutputFiles();
     
-    if (p_voronoi_data_writer!=NULL)
-    {
-        delete p_voronoi_data_writer;
-    }
+    CancerEventHandler::BeginEvent(OUTPUT);
+    mrTissue.CloseOutputFiles();
     CancerEventHandler::EndEvent(OUTPUT);
+    
     CancerEventHandler::EndEvent(CANCER_EVERYTHING);
 }
-
 
 /**
  * Saves the whole tissue simulation for restarting later.
@@ -616,7 +540,6 @@ void TissueSimulation<DIM>::Save()
 {
     CommonSave(this);
 }
-
 
 /**
  * The function that does the actual work.  Templated over the type
@@ -685,7 +608,6 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
     output_arch & pSim; // const-ness would be a pain here
 }
 
-
 /**
  * Loads a saved tissue simulation to run further.
  *
@@ -721,7 +643,6 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
     
     return p_sim;
 }
-
 
 /**
  * Find the right archive (and mesh) to load.  The files are contained within
@@ -778,7 +699,6 @@ void TissueSimulation<DIM>::CommonLoad(Archive& rInputArch)
         rInputArch & *p_cellwise_data;
     }
 }
-
 
 /**
  * Find out how many cells of each mutation state there are

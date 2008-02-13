@@ -19,9 +19,12 @@ enum cell_colours
 
 template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
-             : mCells(rCells.begin(), rCells.end()),
+             : mCells(rCells.begin(), rCells.end()),               
                mTissueContainsMesh(false)
 {
+    // There must be at least one cell
+    assert(mCells.size() > 0);
+    
     // Set up the node map
     for (std::list<TissueCell>::iterator it = mCells.begin();
          it != mCells.end();
@@ -34,7 +37,7 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
     }
     
     // Initialise cell counts to zero
-    for(unsigned i=0; i<5; i++)
+    for(unsigned i=0; i<mCellTypeCount.size(); i++)
     {
         mCellTypeCount[i] = 0;
     }

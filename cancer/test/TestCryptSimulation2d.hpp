@@ -530,16 +530,11 @@ public:
         std::vector<TissueCell> cells;        
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, true);
 
-        // cells[0].SetBirthTime(-1.0);   // Make cell cycle models do minimum work
-        // cells[1].SetBirthTime(-1.0);
-        // cells[1].SetMutationState(LABELLED);
-        // cells[2].SetBirthTime(-1.0);
-        // cells[2].SetMutationState(APC_ONE_HIT);
-        // cells[3].SetBirthTime(-1.0);
-        // cells[3].SetMutationState(BETA_CATENIN_ONE_HIT);
-
         MeshBasedTissue<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
+        
+        // Cover the write Voronoi data method
+        crypt.SetWriteVoronoiData(true, false);
         
         MeshBasedTissue<2>::Iterator cell_iterator = crypt.Begin();
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
@@ -564,9 +559,7 @@ public:
         
         simulator.SetEndTime(0.01);
         simulator.SetOutputCellTypes(true);   
-        
-        // Cover the write voronoi data method
-        simulator.SetWriteVoronoiData(true, false);     
+                
         simulator.Solve();
         
         // Check that nothing has moved below y=0
@@ -577,12 +570,12 @@ public:
             TS_ASSERT_LESS_THAN(-1e-15,p_mesh->GetNode(cell_iter->GetNodeIndex())->rGetLocation()[1]);
         }
         
-        c_vector<unsigned,5> cellTypeCount = simulator.GetCellTypeCount();
-        TS_ASSERT_EQUALS(cellTypeCount[0],1u);
-        TS_ASSERT_EQUALS(cellTypeCount[1],1u);
-        TS_ASSERT_EQUALS(cellTypeCount[2],1u);
-        TS_ASSERT_EQUALS(cellTypeCount[3],0u);  // No APC two hit, one of all the rest.
-        TS_ASSERT_EQUALS(cellTypeCount[4],1u);
+        c_vector<unsigned,5> cell_type_count = simulator.GetCellTypeCount();
+        TS_ASSERT_EQUALS(cell_type_count[0],1u);
+        TS_ASSERT_EQUALS(cell_type_count[1],1u);
+        TS_ASSERT_EQUALS(cell_type_count[2],1u);
+        TS_ASSERT_EQUALS(cell_type_count[3],0u);  // No APC two hit, one of all the rest.
+        TS_ASSERT_EQUALS(cell_type_count[4],1u);
         
         // Check writing of voronoi data
         OutputFileHandler handler("Crypt2DWntMatureCells",false);

@@ -196,6 +196,7 @@ public:
 //              
 //        MeshBasedTissue<2> crypt(*p_mesh, cells);
 //        crypt.SetGhostNodes(ghost_node_indices);
+//        crypt.SetWriteVoronoiData(true, false); //Writes Area and perimeter
 //                
 //        WntConcentration::Instance()->SetType(LINEAR);
 //        WntConcentration::Instance()->SetTissue(crypt);
@@ -227,7 +228,6 @@ public:
 //        // 0.3/30 = 0.01 (i.e. Meineke's values)
 //        
 //        simulator.UseJiggledBottomCells();
-//        simulator.SetWriteVoronoiData(true, false); //Writes Area and perimeter
 //        
 //        // END OF UNUSUAL SET UP! //////////////////////////////////
 //        std::cout<< "About to solve " << output_directory << "\n" << std::flush;

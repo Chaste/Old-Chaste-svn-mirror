@@ -74,6 +74,7 @@ public:
         
         // Set up tissue        
         MeshBasedTissue<2> tissue(*p_mesh, cells);
+        tissue.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
               
         Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
         p_spring_system->UseCutoffPoint(1.5);
@@ -82,7 +83,6 @@ public:
         TissueSimulation<2> simulator(tissue, p_spring_system);
         simulator.SetOutputDirectory("TissueSimulationWritingProteins");
         simulator.SetEndTime(0.5);
-        simulator.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
         simulator.SetOutputCellVariables(true);                               
 
         // Run tissue simulation 
