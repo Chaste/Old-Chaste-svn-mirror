@@ -17,3 +17,4 @@ TestPlaneStimulusCellFactory.hpp
 TestPropagationPropertiesCalculator.hpp
 TestChasteParametersReader.hpp
 TestStimulus.hpp
+TestStimulusBoundaryCondition.hpp

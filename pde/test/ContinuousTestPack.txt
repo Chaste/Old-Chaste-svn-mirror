@@ -7,6 +7,7 @@ TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp
 TestNonlinearHeatEquationPde.hpp
+TestPdeSimulationTime.hpp
 TestSimpleDg0ParabolicAssembler.hpp
 TestSimpleLinearEllipticAssembler.hpp
 TestSimpleNonlinearEllipticAssembler.hpp
