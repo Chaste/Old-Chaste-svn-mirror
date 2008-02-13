@@ -349,6 +349,7 @@ public:
      */
     BidomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                          BidomainPde<SPACE_DIM>* pPde,
+                         BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
                          unsigned numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,2>(),
             BaseClassType(numQuadPoints),
@@ -356,9 +357,12 @@ public:
     {
         assert(pPde != NULL);
         assert(pMesh != NULL);
+        assert(pBcc != NULL);
         
         mpBidomainPde = pPde;
         this->SetMesh(pMesh);
+        
+        this->mpBoundaryConditions = pBcc;
         
         mNullSpaceCreated = false;
         

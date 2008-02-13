@@ -94,11 +94,14 @@ public:
      */
     MonodomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                            MonodomainPde<SPACE_DIM>* pPde,
+                           BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBcc,
                            unsigned numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
             BaseClassType(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints)
     {
         mpMonodomainPde = pPde;
+        
+        this->mpBoundaryConditions = pBcc;
         
         this->SetMesh(pMesh);
         

@@ -45,8 +45,10 @@ protected:
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 2>* CreateAssembler()
     {
         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_bidomain_assembler
-            = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh, mpBidomainPde, 2);
-        p_bidomain_assembler->SetBoundaryConditionsContainer(this->mpBoundaryConditionsContainer);
+            = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh, 
+                                                            mpBidomainPde, 
+                                                            this->mpBoundaryConditionsContainer, 
+                                                            2);
         try
         {
             if (this->mUseLinearSolverAbsoluteTolerance)

@@ -227,6 +227,7 @@ public:
     	BidomainDg0Assembler<1,1>* p_bidomain_assembler
                 = new BidomainDg0Assembler<1,1>(&bidomain_problem.rGetMesh(),
     					    bidomain_problem.GetBidomainPde(),
+                            new BoundaryConditionsContainer<1, 1, 2>,
     					    2);
         p_bidomain_assembler->SetLinearSolverRelativeTolerance(1e-9);
     

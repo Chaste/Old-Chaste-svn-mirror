@@ -31,8 +31,11 @@ public:
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* CreateAssembler()
     {
         MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_assembler 
-          = new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh, mpMonodomainPde, 2);
-        p_assembler->SetBoundaryConditionsContainer(this->mpBoundaryConditionsContainer);
+          = new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh, 
+                                                            mpMonodomainPde, 
+                                                            this->mpBoundaryConditionsContainer, 
+                                                            2);
+        
         if (this->mUseLinearSolverAbsoluteTolerance)
         {
             p_assembler->SetLinearSolverAbsoluteTolerance(this->mLinearSolverTolerance);       
