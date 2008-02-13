@@ -156,7 +156,7 @@ public:
      * Secondly, test that cells' hypoxic durations are correctly updated when a 
      * nutrient distribution is prescribed.
      */
-    void xTestPostSolve() throw(Exception)
+    void TestPostSolve() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
         
@@ -251,7 +251,7 @@ public:
         CellwiseData<2>::Destroy();
     }
         
-    void xTestWithOxygen() throw(Exception)
+    void TestWithOxygen() throw(Exception)
     {
         EXIT_IF_PARALLEL; //defined in PetscTools
         
@@ -316,7 +316,7 @@ public:
         CellwiseData<2>::Destroy();
     }
             
-    void xTestWithPointwiseNutrientSink() throw(Exception)
+    void TestWithPointwiseNutrientSink() throw(Exception)
     {
         EXIT_IF_PARALLEL; //defined in PetscTools
         
@@ -404,7 +404,7 @@ public:
      * Note: if the previous test is changed we need to update the file 
      * this test refers to. 
      */
-    void xTestWriteNutrient() throw (Exception)
+    void TestWriteNutrient() throw (Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
@@ -418,7 +418,7 @@ public:
      * This test compares the visualizer output from the previous test 
      * with a known file.
      */ 
-    void xTestSpheroidStatistics() throw (Exception)
+    void TestSpheroidStatistics() throw (Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
@@ -662,7 +662,7 @@ public:
         CellwiseData<2>::Destroy();
     }
     
-    void xTestArchiving() throw (Exception)
+    void TestArchiving() throw (Exception)
     {
         EXIT_IF_PARALLEL; //defined in PetscTools
         
