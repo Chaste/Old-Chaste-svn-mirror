@@ -165,7 +165,7 @@ private :
     
     void SetupWriteBetaCatenin()
     {
-        OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false);
+        OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/",false);
         mBetaCatResultsFile = output_file_handler.OpenOutputFile("results.vizbCat");
         *mpSetupFile << "BetaCatenin\n";
     }

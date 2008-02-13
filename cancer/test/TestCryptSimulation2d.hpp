@@ -579,7 +579,7 @@ public:
         
         // Check writing of voronoi data
         OutputFileHandler handler("Crypt2DWntMatureCells",false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.visvoronoi";
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizvoronoi";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat").c_str()), 0);
         
         WntConcentration::Destroy();
@@ -648,7 +648,7 @@ public:
     {
         // Work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DPeriodicTysonNovak",false);
-        std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results";
+        std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizelements").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.viznodes cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.viznodes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizsetup").c_str()), 0);
@@ -962,8 +962,8 @@ public:
 
         // Check writing of beta-catenin data
         OutputFileHandler handler("CryptBetaCatenin",false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizbCat";
-        std::string results_setup_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizsetup";
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizbCat";
+        std::string results_setup_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizsetup";
         
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CryptBetaCatenin/results.vizbCat").c_str()), 0);    
         TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " cancer/test/data/CryptBetaCatenin/results.vizsetup").c_str()), 0);    
@@ -1062,7 +1062,8 @@ public:
         
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 2u);
     }
-        void TestAncestorCryptSimulations() throw (Exception)
+    
+    void TestAncestorCryptSimulations() throw (Exception)
     {        
         std::string output_directory = "AncestorCrypt";
         
@@ -1140,8 +1141,8 @@ public:
         
         // ... and checking visualization of labelled cells against previous run
         OutputFileHandler handler("AncestorCrypt",false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznodes";
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/AncestorCrypt/results_from_time_0/vis_results/results.viznodes").c_str()), 0);
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/AncestorCrypt/results.viznodes").c_str()), 0);
         
         delete p_params;       
         RandomNumberGenerator::Destroy();

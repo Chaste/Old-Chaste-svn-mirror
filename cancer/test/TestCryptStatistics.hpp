@@ -198,8 +198,8 @@ public:
 
         // ... and checking visualization of labelled cells against previous run
         OutputFileHandler handler("MakeMeinekeGraphs",false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznodes";
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/MakeMeinekeGraphs/results_from_time_0/vis_results/results.viznodes").c_str()), 0);
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/MakeMeinekeGraphs/results.viznodes").c_str()), 0);
 
         // TEST crypt_statistics::LabelSPhaseCells
         

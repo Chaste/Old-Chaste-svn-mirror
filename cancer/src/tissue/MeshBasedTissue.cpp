@@ -432,7 +432,7 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool
     AbstractTissue<DIM>::CreateOutputFiles(rDirectory, rCleanOutputDirectory, outputCellTypes);
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
-    mpVoronoiFile = output_file_handler.OpenOutputFile("results.visvoronoi");
+    mpVoronoiFile = output_file_handler.OpenOutputFile("results.vizvoronoi");
     mpTissueAreasFile = output_file_handler.OpenOutputFile("Areas.dat");
 }
 

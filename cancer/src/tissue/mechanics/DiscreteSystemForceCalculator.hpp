@@ -326,7 +326,7 @@ public:
         time_string << time;
         std::string results_directory = simulationOutputDirectory +"/results_from_time_" + time_string.str();
             
-        OutputFileHandler output_file_handler2(results_directory+"/vis_results/",false); 
+        OutputFileHandler output_file_handler2(results_directory+"/",false); 
         mpStressResultsFile = output_file_handler2.OpenOutputFile("results.vizstress");
         
         (*mpStressResultsFile) <<  time << "\t";

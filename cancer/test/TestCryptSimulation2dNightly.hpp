@@ -140,10 +140,10 @@ public:
         
         // Work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DSprings",false);
-        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznodes";
+        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
         TS_ASSERT_EQUALS(system(("diff " + node_results_file + " cancer/test/data/Crypt2DSpringsResults/results.viznodes").c_str()), 0);
          
-        std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizelements";
+        std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
         TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cancer/test/data/Crypt2DSpringsResults/results.vizelements").c_str()), 0);          
     }
     
@@ -180,10 +180,10 @@ public:
         
         // Work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DHoneycombMesh",false);
-        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.viznodes";
+        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
         TS_ASSERT_EQUALS(system(("diff " + node_results_file + " cancer/test/data/Crypt2DHoneycombMeshResults/results.viznodes").c_str()), 0);
          
-        std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizelements";
+        std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
         TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cancer/test/data/Crypt2DHoneycombMeshResults/results.vizelements").c_str()), 0);          
            
         delete p_sloughing_cell_killer;     
@@ -223,7 +223,7 @@ public:
         
         //Check writing of voronoi data
         OutputFileHandler handler("Monolayer",false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.visvoronoi";
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizvoronoi";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Monolayer/VoronoiAreaAndPerimeter.dat").c_str()), 0);
     }
     

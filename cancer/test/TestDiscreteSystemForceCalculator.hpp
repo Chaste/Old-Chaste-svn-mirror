@@ -207,7 +207,7 @@ public:
         
         // Compare output with saved files of what they should look like 
         OutputFileHandler handler(output_directory, false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/vis_results/results.vizstress";         
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizstress";         
         
         TS_ASSERT_EQUALS(system(("cmp " + results_file + " cancer/test/data/TestDiscreteSystemForceCalculator/results.vizstress").c_str()), 0);
                 

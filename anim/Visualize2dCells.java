@@ -432,15 +432,15 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 System.out.println("Input option not recognised");
             }
         }
-        File node_file = new File(args[0]+"/vis_results/results.viznodes");
-        File element_file = new File(args[0]+"/vis_results/results.vizelements");
-        File nutrient_file = new File(args[0]+"/vis_results/results.viznutrient");
-        File beta_catenin_file = new File(args[0]+"/vis_results/results.vizbCat");
-        File stress_file = new File(args[0]+"/vis_results/results.vizstress");
+        File node_file = new File(args[0]+"/results.viznodes");
+        File element_file = new File(args[0]+"/results.vizelements");
+        File nutrient_file = new File(args[0]+"/results.viznutrient");
+        File beta_catenin_file = new File(args[0]+"/results.vizbCat");
+        File stress_file = new File(args[0]+"/results.vizstress");
                 
         if (!node_file.isFile())
         {
-            System.out.println("The file "+args[0]+"/vis_results/results.viznodes doesn't exist");
+            System.out.println("The file "+args[0]+"/results.viznodes doesn't exist");
             return;
         }
         if (!element_file.isFile())
@@ -487,7 +487,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             stressFilePresent = false;
         }
     
-        File fibre_file = new File(args[0]+"/vis_results/results.vizfibres");
+        File fibre_file = new File(args[0]+"/results.vizfibres");
         if (!fibre_file.isFile())
         {
             fibre.setVisible(false);
@@ -500,10 +500,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             fibresFilePresent = true;
         }
         
-        File setup_file = new File(args[0]+"/vis_results/results.vizsetup");
+        File setup_file = new File(args[0]+"/results.vizsetup");
         if (!setup_file.isFile())
         {
-            System.out.println("The file "+args[0]+"/vis_results/results.vizsetup doesn't exist");
+            System.out.println("The file "+args[0]+"/results.vizsetup doesn't exist");
         }
         else 
         {

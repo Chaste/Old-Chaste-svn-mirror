@@ -29,7 +29,7 @@ void TissueSimulationWithNutrients<DIM>::SetupSolve()
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::SetupWriteNutrient()
 { 
-    OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/vis_results/",false);
+    OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/",false);
     if (output_file_handler.IsMaster())
     {
         mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");

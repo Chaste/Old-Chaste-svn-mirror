@@ -258,8 +258,6 @@ void TissueSimulation<DIM>::SetEndTime(double endTime)
 
 /**
  * Set the output directory of the simulation.
- * 
- * Note that results go into the /vis_results subfolder.
  */
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)
@@ -393,9 +391,9 @@ void TissueSimulation<DIM>::Solve()
     ///////////////////////////////////////////////////////////
    
     // Create output files for the visualizer
-    OutputFileHandler output_file_handler(results_directory+"/vis_results/", false);
+    OutputFileHandler output_file_handler(results_directory+"/", false);
     
-    mrTissue.CreateOutputFiles(results_directory+"/vis_results/", false, mOutputCellTypes);
+    mrTissue.CreateOutputFiles(results_directory+"/", false, mOutputCellTypes);
     
     mpSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
 
