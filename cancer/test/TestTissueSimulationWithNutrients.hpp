@@ -616,7 +616,6 @@ public:
             ++cell_iter)
         {   
             unsigned containing_element_index = simulator.mCellNutrientElementMap[&(*cell_iter)];
-            TS_ASSERT(containing_element_index >= 0u);
             TS_ASSERT(containing_element_index < simulator.mpCoarseNutrientMesh->GetNumElements());
             TS_ASSERT_EQUALS(containing_element_index, simulator.FindElementContainingCell(*cell_iter));
         }
