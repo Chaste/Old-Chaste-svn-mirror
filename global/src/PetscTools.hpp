@@ -35,6 +35,16 @@ public :
         return (num_procs==1);
     }
     /**
+     *  Return our rank.
+     *  Assumes PETSc has been initialized
+     */
+    static int GetMyRank()
+    {
+        PetscInt my_rank;
+        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+        return my_rank;
+    }
+    /**
      *  Just returns whether it is the master process or not
      */
     static bool AmMaster()
