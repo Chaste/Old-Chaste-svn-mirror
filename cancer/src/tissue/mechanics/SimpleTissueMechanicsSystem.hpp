@@ -2,7 +2,7 @@
 #define SIMPLETISSUEMECHANICSSYSTEM_HPP_
 
 #include "AbstractDiscreteTissueMechanicsSystem.hpp"
-#include "SimpleTissue.hpp"
+#include "SimpleTissue.cpp"
 
 /** 
  *  SimpleTissueMechanicsSystem
