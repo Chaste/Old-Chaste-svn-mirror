@@ -54,7 +54,7 @@ public:
         // reset the mesh
         p_mesh = generator.GetCylindricalMesh();
         p_mesh->CreateMirrorNodes();
-
+        
         // Check the vectors are the right size...
         TS_ASSERT_EQUALS(p_mesh->mLeftOriginals.size(),36u);
         TS_ASSERT_EQUALS(p_mesh->mRightOriginals.size(),36u);
@@ -86,8 +86,7 @@ public:
         // Cheat to put something into mTopHaloNodes to make exception throw.
         p_mesh->mTopHaloNodes.push_back(234u);
         unsigned corresponding_node_index = 0u;
-        TS_ASSERT_THROWS_ANYTHING(p_mesh->GetCorrespondingNodeIndex(234u));
-        
+
         corresponding_node_index = p_mesh->GetCorrespondingNodeIndex(0u);
         TS_ASSERT_DELTA(p_mesh->GetNode(0)->rGetLocation()[0]+crypt_width,p_mesh->GetNode(corresponding_node_index)->rGetLocation()[0],1e-9 );
         TS_ASSERT_DELTA(p_mesh->GetNode(0)->rGetLocation()[1],p_mesh->GetNode(corresponding_node_index)->rGetLocation()[1],1e-9);
@@ -533,24 +532,43 @@ public:
 //        TrianglesMeshWriter<2,2> writer2("","HaloNodes.1");
 //        writer2.WriteFilesUsingMesh(*p_mesh);
         
+        unsigned num_original_halo_nodes = p_mesh->GetNumNodes() - original_num_nodes;
+        
+        p_mesh->CreateMirrorNodes();
+        
+//        TrianglesMeshWriter<2,2> writer3("","HaloNodes.2");
+//        writer3.WriteFilesUsingMesh(*p_mesh);
+        
         double new_mesh_height = p_mesh->GetWidth(1);
         unsigned new_num_nodes = p_mesh->GetNumNodes();
         
         // Halo of nodes is added 0.5 above and below the original mesh.
         TS_ASSERT_DELTA(original_mesh_height, new_mesh_height, 1.0 + 1e-5);
-        TS_ASSERT_EQUALS(new_num_nodes, original_num_nodes+2*9*2u);
+        TS_ASSERT_EQUALS(new_num_nodes, original_num_nodes*2+2*num_original_halo_nodes);
         
         NodeMap map(p_mesh->GetNumNodes());
         p_mesh->ConformingTetrahedralMesh<2,2>::ReMesh(map);   // recreates the boundary elements
         
+//        TrianglesMeshWriter<2,2> writer4("","HaloNodes.3");
+//        writer4.WriteFilesUsingMesh(*p_mesh);
+        
         /*
          * TEST HALO NODE REMOVAL 
          */
+        p_mesh->GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
+        p_mesh->CorrectNonPeriodicMesh();
+        p_mesh->ReconstructCylindricalMesh();
+        
+//        TrianglesMeshWriter<2,2> writer5("","HaloNodes.4");
+//        writer5.WriteFilesUsingMesh(*p_mesh);
         
         p_mesh->DeleteHaloNodes();
         
+//        TrianglesMeshWriter<2,2> writer6("","HaloNodes.5");
+//        writer6.WriteFilesUsingMesh(*p_mesh);
+        
         TS_ASSERT_DELTA(original_mesh_height, p_mesh->GetWidth(1), 1e-6);
-        TS_ASSERT_EQUALS(original_num_nodes, p_mesh->GetNumNodes());
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), original_num_nodes);
     }
 
     void TestHaloNodeReMesh() throw (Exception)
@@ -770,25 +788,27 @@ public:
         
         // we now emulate the commands of the ReMesh function as far as it goes before Generating the lists.
         {
-            mesh.CreateMirrorNodes();
             mesh.CreateHaloNodes();
-        
+            mesh.CreateMirrorNodes();
+            
             NodeMap big_map(mesh.GetNumAllNodes()); 
             mesh.ConformingTetrahedralMesh<2,2>::ReMesh(big_map);
-        
-            mesh.DeleteHaloNodes();
         }
         
         mesh.GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
     
-        TS_ASSERT_EQUALS(mesh.mLeftPeriodicBoundaryElementIndices.size(), 39u);
-        TS_ASSERT_EQUALS(mesh.mRightPeriodicBoundaryElementIndices.size(), 38u);
+        TS_ASSERT_EQUALS(mesh.mLeftPeriodicBoundaryElementIndices.size(), 43u);
+        TS_ASSERT_EQUALS(mesh.mRightPeriodicBoundaryElementIndices.size(), 42u);
         
         // TEST the GetCorrespondingNodeIndex() method
-        TS_ASSERT_EQUALS(mesh.GetCorrespondingNodeIndex(393), 187u);
-        TS_ASSERT_EQUALS(mesh.GetCorrespondingNodeIndex(188), 293u);
-        TS_ASSERT_EQUALS(mesh.GetCorrespondingNodeIndex(187), 393u);
-        TS_ASSERT_EQUALS(mesh.GetCorrespondingNodeIndex(293), 188u);
+        TS_ASSERT_EQUALS(mesh.GetCorrespondingNodeIndex(393), 84u);
+        TS_ASSERT_EQUALS(mesh.GetCorrespondingNodeIndex(84), 393u);
+        TS_ASSERT_EQUALS(mesh.GetCorrespondingNodeIndex(188), 329u);
+        TS_ASSERT_EQUALS(mesh.GetCorrespondingNodeIndex(329), 188u);
+        
+        mesh.CorrectNonPeriodicMesh();
+
+        mesh.DeleteHaloNodes();
     }
     
     void TestCorrectNonPeriodicMeshMapLeftToRight()
