@@ -147,9 +147,9 @@ public:
         H5Sclose(memspace);
         H5Pclose(plist_id);
         H5Fclose(file_id);
-
-
-       
+        
+        VecDestroy(a_vec);
     }
+  
 };
 #endif /*TESTHDF5DATAWRITER_HPP_*/
