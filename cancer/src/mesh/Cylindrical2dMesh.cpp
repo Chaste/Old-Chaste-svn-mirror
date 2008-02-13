@@ -668,13 +668,13 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
     else
     {
         //std::cout << "Problem elements\n" << std::flush;
-        if (temp_left_hand_side_elements.size()==2u)
-        {   // Use the left hand side meshing
-            UseTheseElementsToDecideMeshing(temp_left_hand_side_elements);
-        }
-        else if (temp_right_hand_side_elements.size()==2u)
-        {   // Use the right hand side meshing
+        if (temp_right_hand_side_elements.size()==2u)
+        {   // Use the right hand side meshing and map to left
             UseTheseElementsToDecideMeshing(temp_right_hand_side_elements);
+        }
+        else if (temp_left_hand_side_elements.size()==2u)
+        {   // Use the left hand side meshing and map to right
+            UseTheseElementsToDecideMeshing(temp_left_hand_side_elements);
         }
         else
         {   // If you get here there are more than two mixed up elements on the periodic edge.
