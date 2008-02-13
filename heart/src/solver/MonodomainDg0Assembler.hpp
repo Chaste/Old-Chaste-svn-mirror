@@ -102,20 +102,11 @@ public:
         
         this->SetMesh(pMesh);
         
-        // set up boundary conditions
-        this->SetBoundaryConditionsContainer(new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>);
-        this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh);
-        
         this->SetMatrixIsConstant();
     }
     
-    /**
-     * Free boundary conditions container, allocated by our constructor.
-     */
     ~MonodomainDg0Assembler()
     {
-        // Let's hope no user called SetBCC!
-        delete this->mpBoundaryConditions;
     }
 };
 

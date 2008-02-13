@@ -11,6 +11,7 @@ TestMonodomainDg0Assembler.hpp
 TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 TestMonodomainPde.hpp
 TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
+TestNeumannHeartStimulus.hpp
 TestNhsSystemWithImplicitSolver.hpp
 TestPlaneStimulusCellFactory.hpp
 TestPropagationPropertiesCalculator.hpp

@@ -360,13 +360,6 @@ public:
         mpBidomainPde = pPde;
         this->SetMesh(pMesh);
         
-        // set up boundary conditions
-        this->SetBoundaryConditionsContainer(new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>);
-        
-        // define zero neumann boundary conditions everywhere
-        this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,0); // first unknown, ie voltage
-        this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,1); // second unknown, ie phi_e
-        
         mNullSpaceCreated = false;
         
         this->SetMatrixIsConstant();
@@ -374,13 +367,8 @@ public:
         mRowMeanPhiEZero = INT_MAX; //this->mpLinearSystem->GetSize() - 1;
     }
     
-    /**
-     * Free boundary conditions container, allocated by our constructor.
-     */
     ~BidomainDg0Assembler()
     {
-        // This was allocated by our constructor.  Let's hope no user called SetBCC!
-        delete this->mpBoundaryConditions;
         if (mNullSpaceCreated)
         {
             VecDestroy(mExternalVoltageMask);            

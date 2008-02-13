@@ -108,6 +108,7 @@ public:
         
         // Assembler
         MonodomainDg0Assembler<1,1> monodomain_assembler(&mesh,&pde);
+        monodomain_assembler.SetBoundaryConditionsContainer(&bcc);
         SimpleDg0ParabolicAssembler<1,1, true> simple_assembler(&mesh,&pde,&bcc);
         
         // initial condition;
@@ -185,6 +186,7 @@ public:
         
         // Assembler
         MonodomainDg0Assembler<2,2> monodomain_assembler(&mesh,&pde);
+        monodomain_assembler.SetBoundaryConditionsContainer(&bcc);
         SimpleDg0ParabolicAssembler<2,2, true> simple_assembler(&mesh,&pde,&bcc);
         
         // initial condition;

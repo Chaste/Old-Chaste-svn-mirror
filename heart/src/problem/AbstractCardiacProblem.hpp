@@ -34,10 +34,13 @@ private:
  
     AbstractCardiacPde<SPACE_DIM>* mpCardiacPde;    
     
+
+    
     /** data is not written if output directory or output file prefix are not set*/
     std::string  mOutputDirectory, mOutputFilenamePrefix;
 
 protected:
+    BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditionsContainer;
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler; 
 
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
@@ -85,6 +88,7 @@ public:
             : mMeshFilename(""),     // i.e. undefined
               mOutputDirectory(""),  // i.e. undefined
               mOutputFilenamePrefix(""),   // i.e. undefined
+              mpBoundaryConditionsContainer(NULL),
               mpCellFactory(pCellFactory),
               mpMesh(NULL),
               mpWriter(NULL)
@@ -135,6 +139,11 @@ public:
         
         delete mpCardiacPde; // In case we're called twice
         mpCardiacPde = CreateCardiacPde();        
+    }
+    
+    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM> *bcc)
+    {
+        this->mpBoundaryConditionsContainer = bcc;
     }
     
     void SetFibreOrientation(const std::string fileName)
@@ -400,14 +409,22 @@ public:
     void Solve()
     {
         PreSolveChecks();
-        mpAssembler = CreateAssembler();
-        Vec initial_condition = CreateInitialCondition();
         
-//        DistributedVector ic = DistributedVector(initial_condition);
-//        DistributedVector::Stripe transmembrane_ic(initial_condition, 0);
+        // set default bcc if required
+        BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM> default_bcc;       
+        if(mpBoundaryConditionsContainer == NULL) // the user didnt supply a bcc
+        {
+            for (unsigned problem_index=0; problem_index<PROBLEM_DIM; problem_index++)
+            {
+                default_bcc.DefineZeroNeumannOnMeshBoundary(mpMesh, problem_index);
+            }
+            mpBoundaryConditionsContainer = &default_bcc;
+        }
+        
+        mpAssembler = CreateAssembler(); // passes mpBoundaryConditionsContainer to assember
+        Vec initial_condition = CreateInitialCondition(); 
 
         TimeStepper stepper(mStartTime, mEndTime, mPrintingTimeStep);
-
         if (mPrintOutput)
         {
             EventHandler::BeginEvent(WRITE_OUTPUT);

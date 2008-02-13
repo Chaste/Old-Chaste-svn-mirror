@@ -46,6 +46,7 @@ protected:
     {
         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_bidomain_assembler
             = new BidomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh, mpBidomainPde, 2);
+        p_bidomain_assembler->SetBoundaryConditionsContainer(this->mpBoundaryConditionsContainer);
         try
         {
             if (this->mUseLinearSolverAbsoluteTolerance)
