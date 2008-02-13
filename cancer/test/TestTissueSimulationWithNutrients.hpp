@@ -81,44 +81,6 @@ public:
     }   
 };
 
-//class CoarseNutrientMeshPde : public AbstractLinearEllipticPde<2>
-//{
-//private:
-//    MeshBasedTissue<2>& mrTissue;
-//    double mCutOffDistance;
-//
-//public:
-//    CoarseNutrientMeshPde(MeshBasedTissue<2>& rTissue)
-//        : mrTissue(rTissue),
-//          mCutOffDistance(1.5)
-//    {
-//    }
-//
-//    double ComputeConstantInUSourceTerm(const ChastePoint<2>& x)
-//    {
-//        return 0.0;
-//    }
-//    
-//    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& x, Element<2,2>*)
-//    {
-//        for (unsigned i=0; i<mrTissue.GetNumRealCells(); i++)
-//        {
-//            if ( (norm_2(mrTissue.rGetMesh().GetNode(i)->rGetLocation() - x.rGetLocation()) < mCutOffDistance) 
-//                 && (mrTissue.rGetCellAtNodeIndex(i).GetCellType() != NECROTIC) )
-//            {
-//                return -0.1;
-//            }
-//        }
-//        return 0.0;
-//    }
-//   
-//    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& )
-//    {
-//        return identity_matrix<double>(2);
-//    }   
-//};
-
-
 /*
  *  A PDE which has a sink at non-necrotic cells
  */
@@ -194,7 +156,7 @@ public:
      * Secondly, test that cells' hypoxic durations are correctly updated when a 
      * nutrient distribution is prescribed.
      */
-    void TestPostSolve() throw(Exception)
+    void xTestPostSolve() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
         
@@ -289,7 +251,7 @@ public:
         CellwiseData<2>::Destroy();
     }
         
-    void TestWithOxygen() throw(Exception)
+    void xTestWithOxygen() throw(Exception)
     {
         EXIT_IF_PARALLEL; //defined in PetscTools
         
@@ -354,7 +316,7 @@ public:
         CellwiseData<2>::Destroy();
     }
             
-    void TestWithPointwiseNutrientSink() throw(Exception)
+    void xTestWithPointwiseNutrientSink() throw(Exception)
     {
         EXIT_IF_PARALLEL; //defined in PetscTools
         
@@ -442,7 +404,7 @@ public:
      * Note: if the previous test is changed we need to update the file 
      * this test refers to. 
      */
-    void TestWriteNutrient() throw (Exception)
+    void xTestWriteNutrient() throw (Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
@@ -456,7 +418,7 @@ public:
      * This test compares the visualizer output from the previous test 
      * with a known file.
      */ 
-    void TestSpheroidStatistics() throw (Exception)
+    void xTestSpheroidStatistics() throw (Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
@@ -599,14 +561,38 @@ public:
         p_spring_system->UseCutoffPoint(1.5);
                   
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system,NULL, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, NULL, &pde);
         simulator.SetOutputDirectory("TestCoarseNutrientMesh");
         simulator.SetEndTime(0.05);
         
         // Set up cell killer and pass into simulation
         AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
         simulator.AddCellKiller(p_killer);
+        
+        // Test creation of mpCoarseNutrientMesh
         simulator.UseCoarseNutrientMesh(10.0);
+        
+        // Find centre of tissue
+        c_vector<double,2> centre_of_tissue = zero_vector<double>(2);
+        
+        for (unsigned i=0; i<simulator.rGetTissue().GetNumNodes(); i++)
+        {
+            centre_of_tissue += simulator.rGetTissue().GetNode(i)->rGetLocation();
+        }
+        centre_of_tissue /= simulator.rGetTissue().GetNumNodes();
+        
+        // Find centre of nutrient mesh
+        c_vector<double,2> centre_of_nutrient_mesh = zero_vector<double>(2);
+        
+        for (unsigned i=0; i<simulator.mpCoarseNutrientMesh->GetNumNodes(); i++)
+        {
+            centre_of_nutrient_mesh += simulator.mpCoarseNutrientMesh->GetNode(i)->rGetLocation();
+        }
+        centre_of_nutrient_mesh /= simulator.mpCoarseNutrientMesh->GetNumNodes();
+        
+        // Test that the two centres match
+        TS_ASSERT_DELTA(centre_of_tissue[0], centre_of_nutrient_mesh[0], 1e-4);
+        TS_ASSERT_DELTA(centre_of_tissue[1], centre_of_nutrient_mesh[1], 1e-4);
         
         // Test FindElementContainingCell and initialisation of mCellNutrientElementMap
         simulator.InitialiseCoarseNutrientMesh();
@@ -676,7 +662,7 @@ public:
         CellwiseData<2>::Destroy();
     }
     
-    void TestArchiving() throw (Exception)
+    void xTestArchiving() throw (Exception)
     {
         EXIT_IF_PARALLEL; //defined in PetscTools
         

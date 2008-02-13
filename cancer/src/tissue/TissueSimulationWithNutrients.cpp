@@ -13,9 +13,9 @@
 
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::SetupSolve()
-{
+{ 
     if (mpCoarseNutrientMesh!=NULL)
-    {
+    { 
         InitialiseCoarseNutrientMesh();
     }
     if (this->mrTissue.Begin() != this->mrTissue.End())
@@ -23,7 +23,7 @@ void TissueSimulationWithNutrients<DIM>::SetupSolve()
         SetupWriteNutrient();
         double current_time = SimulationTime::Instance()->GetDimensionalisedTime();            
         WriteNutrient(current_time);                      
-    }
+    } 
 }
 
 template<unsigned DIM>
@@ -64,22 +64,33 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
     mpCoarseNutrientMesh->Scale(coarseGrainScaleFactor, coarseGrainScaleFactor);
     
     // Find centre of tissue
-    c_vector<double,2> centre = zero_vector<double>(2);
+    c_vector<double,2> centre_of_tissue = zero_vector<double>(2);
     
     for (unsigned i=0; i<this->mrTissue.GetNumNodes(); i++)
     {
-        centre += this->mrTissue.GetNode(i)->rGetLocation();
+        centre_of_tissue += this->mrTissue.GetNode(i)->rGetLocation();
     }
-    centre /= this->mrTissue.GetNumNodes();
+    centre_of_tissue /= this->mrTissue.GetNumNodes();
+    
+    // Find centre of nutrient mesh
+    c_vector<double,2> centre_of_nutrient_mesh = zero_vector<double>(2);
+    
+    for (unsigned i=0; i<mpCoarseNutrientMesh->GetNumNodes(); i++)
+    {
+        centre_of_nutrient_mesh += mpCoarseNutrientMesh->GetNode(i)->rGetLocation();
+    }
+    centre_of_nutrient_mesh /= mpCoarseNutrientMesh->GetNumNodes();
     
     // Translate mesh so that its centre matches the centre of the tissue
-    mpCoarseNutrientMesh->Translate(centre[0],centre[1]);      
+    mpCoarseNutrientMesh->Translate(centre_of_tissue[0]-centre_of_nutrient_mesh[0],
+                                    centre_of_tissue[1]-centre_of_nutrient_mesh[1]); 
 }    
 
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::InitialiseCoarseNutrientMesh()
-{   
+{    
     mCellNutrientElementMap.clear();
+    
     for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
         cell_iter != this->mrTissue.End();
         ++cell_iter)
@@ -87,8 +98,7 @@ void TissueSimulationWithNutrients<DIM>::InitialiseCoarseNutrientMesh()
         // Find the element of mpCoarseNutrientMesh that contains this cell
         const ChastePoint<DIM>& r_position_of_cell = cell_iter.rGetLocation();
         unsigned elem_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_position_of_cell);
-        
-        mCellNutrientElementMap[&(*cell_iter)] = elem_index;
+        mCellNutrientElementMap[&(*cell_iter)] = elem_index;      
     }
 }   
 
@@ -342,6 +352,7 @@ void TissueSimulationWithNutrients<DIM>::PostSolve()
         WriteAverageRadialNutrientDistribution(time_next_step, mNumRadialIntervals);
     }
 #undef COVERAGE_IGNORE
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

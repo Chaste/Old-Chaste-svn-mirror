@@ -159,7 +159,7 @@ public:
      TissueSimulationWithNutrients(AbstractTissue<DIM>& rTissue,
                                    AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
                                    AbstractLinearEllipticPde<DIM>* pPde=NULL,
-                                   AveragedSinksPde<DIM>* pAveragedSinksPde = NULL,
+                                   AveragedSinksPde<DIM>* pAveragedSinksPde=NULL,
                                    bool deleteTissue=false,
                                    bool initialiseCells=true)
         : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissue, initialiseCells),

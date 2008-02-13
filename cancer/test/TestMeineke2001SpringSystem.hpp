@@ -114,7 +114,7 @@ public:
         new_point2.rGetLocation()[0] = new_point[0] + 0.01;
         new_point2.rGetLocation()[1] = new_point[1] + 0.01 ;
         
-        unsigned elem_index = p_mesh->GetContainingElementIndex(new_point2,false);
+        unsigned elem_index = p_mesh->GetContainingElementIndex(new_point2, false);
         Element<2,2>* p_element = p_mesh->GetElement(elem_index);
         
         force_on_spring = meineke_spring_system.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),p_element->GetNodeGlobalIndex(0));
