@@ -50,7 +50,7 @@ public:
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoNeumanConst");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");        
-        monodomain_problem.SetIntracellularConductivities(0.0005);        
+        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));        
         monodomain_problem.Initialise();
         
         // create boundary conditions container
@@ -109,7 +109,7 @@ public:
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoNeumanSquare");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");        
-        monodomain_problem.SetIntracellularConductivities(0.0005);        
+        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));        
         monodomain_problem.Initialise();
         
         // create boundary conditions container
