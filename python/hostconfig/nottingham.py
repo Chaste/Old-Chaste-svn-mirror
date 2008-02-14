@@ -8,10 +8,10 @@ dealii_path = None
 metis_path = None
 intel_path = None
 
-other_includepaths = ['/opt/boost/include/boost-1_33_1']
-other_libpaths = ['/opt/boost/lib/']
+other_includepaths = ['/opt/boost/include/boost-1_33_1','/opt/hdf5/include']
+other_libpaths = ['/opt/boost/lib/','/opt/hdf5/lib']
 blas_lapack = ['lapack', 'blas']
-other_libraries = ['boost_serialization-gcc', 'xerces-c']
+other_libraries = ['boost_serialization-gcc', 'xerces-c', 'z', 'hdf5']
 
 tools = {'mpirun': '/opt/mpi/bin/mpirun',
          'mpicxx': '/opt/mpi/bin/mpicxx'}
