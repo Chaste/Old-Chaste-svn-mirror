@@ -214,6 +214,15 @@ T SecondInvariant(const c_matrix<T,3,3> &m)
               - m(1,0)*m(1,0) - m(2,1)*m(2,1) - m(2,0)*m(2,0);
 }
 
+/**
+ * Convenience functions for quickly creating test vectors.
+ */
+c_vector<double, 1> Create_c_vector(double x);
+
+c_vector<double, 2> Create_c_vector(double x, double y);
+
+c_vector<double, 3> Create_c_vector(double x, double y, double z);
+
 
 #endif /*UBLASCUSTOMFUNCTIONS_HPP_*/
 

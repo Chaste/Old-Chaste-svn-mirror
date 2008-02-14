@@ -27,7 +27,8 @@ public:
         monodomain_problem.SetEndTime(30);   // 30 ms
         monodomain_problem.SetOutputDirectory("MonoConductionVel");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
-        monodomain_problem.SetIntracellularConductivities(0.0005);
+        
+        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
         
         monodomain_problem.Initialise();
         
@@ -75,7 +76,9 @@ public:
         monodomain_problem.SetEndTime(1);   // 1 ms
         monodomain_problem.SetOutputDirectory("MonoConductionVel");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
-        monodomain_problem.SetIntracellularConductivities(0.0005);
+        
+        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
+        
         monodomain_problem.Initialise();
         
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);

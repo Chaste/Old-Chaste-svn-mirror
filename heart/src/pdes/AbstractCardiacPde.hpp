@@ -49,7 +49,7 @@ protected:
      */
     double mSurfaceAreaToVolumeRatio;
     double mCapacitance;
-    //c_matrix<double, SPACE_DIM, SPACE_DIM> mIntracellularConductivityTensor;
+    
     ElementwiseConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors, *mpDefaultIntracellularCondTensors;
     
     /** The vector of cells. Distributed. */
@@ -86,21 +86,17 @@ public:
         mSurfaceAreaToVolumeRatio = 1400;            // 1/cm
         mCapacitance = 1.0;                          // uF/cm^2
         
-        // Reference Clerc 1976 
-        double long_intra_conductivity = 1.75;      // mS/cm (Averaged)
-        double trans_intra_conductivity = 0.19;
-        double normal_intra_conductivity = 0.19;
+        // Reference Clerc 1976 (x,y,z)
+        double default_intra_conductivities[] = {1.75, 0.19, 0.19};      // mS/cm (Averaged)
         
-        // Old parameter values used:
-        //mSurfaceAreaToVolumeRatio = 1;
-        //mCapacitance = 1;
-        //double const_intra_conductivity = 0.0005;
-        
-        //mIntracellularConductivityTensor = const_intra_conductivity
-        //                                   * identity_matrix<double>(SPACE_DIM);
+        c_vector<double, SPACE_DIM> intra_conductivities;    
+        for (unsigned dim=0; dim<SPACE_DIM; dim++)
+        {
+            intra_conductivities[dim] = default_intra_conductivities[dim];
+        }
 
         mpIntracellularConductivityTensors = new ElementwiseConductivityTensors<SPACE_DIM>;
-        mpIntracellularConductivityTensors->SetConstantConductivities(long_intra_conductivity, trans_intra_conductivity, normal_intra_conductivity);
+        mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
         mpIntracellularConductivityTensors->Init();
         
         // Keep a copy of the pointer to free it at the end (since mpIntracellularConductivityTensors may be changed from outside)

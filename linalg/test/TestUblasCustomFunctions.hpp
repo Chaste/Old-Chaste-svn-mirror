@@ -220,6 +220,21 @@ public:
         TS_ASSERT_EQUALS(a(1,2), row1(2));
     }
 
+    void TestCreate_c_vector()
+    {
+        c_vector<double, 1> v1 = Create_c_vector(1);
+        TS_ASSERT_EQUALS( v1[0], 1);    
+        
+        c_vector<double, 2> v2 = Create_c_vector(1,2);
+        TS_ASSERT_EQUALS( v2[0], 1);
+        TS_ASSERT_EQUALS( v2[1], 2);
+
+        c_vector<double, 3> v3 = Create_c_vector(1,2,3);
+        TS_ASSERT_EQUALS( v3[0], 1);
+        TS_ASSERT_EQUALS( v3[1], 2);
+        TS_ASSERT_EQUALS( v3[2], 3);        
+    }
+
 };
 
 #endif /*TESTUBLASCUSTOMFUNCTIONS_HPP_*/

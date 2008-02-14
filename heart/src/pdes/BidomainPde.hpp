@@ -53,13 +53,17 @@ public:
           */
           
           
-        // Reference Clerc 1976 
-        double long_intra_conductivity = 6.2;      // mS/cm (Averaged)
-        double trans_intra_conductivity = 2.4;
-        double normal_intra_conductivity = 2.4;
+        // Reference Clerc 1976 (x,y,z)
+        double default_extra_conductivities[] = {6.2, 2.4, 2.4}; // mS/cm (Averaged) 
+
+        c_vector<double, SPACE_DIM> extra_conductivities;    
+        for (unsigned dim=0; dim<SPACE_DIM; dim++)
+        {
+            extra_conductivities[dim] = default_extra_conductivities[dim];
+        }
                 
         mpExtracellularConductivityTensors = new ElementwiseConductivityTensors<SPACE_DIM>;
-        mpExtracellularConductivityTensors->SetConstantConductivities(long_intra_conductivity, trans_intra_conductivity, normal_intra_conductivity);
+        mpExtracellularConductivityTensors->SetConstantConductivities(extra_conductivities);
         mpExtracellularConductivityTensors->Init();
         
         // Keep a copy of the pointer to free it at the end (since mpExtracellularConductivityTensors may be changed from outside)

@@ -24,8 +24,8 @@ public:
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
-        bidomain_problem.SetIntracellularConductivities(0.0005);
-        bidomain_problem.SetExtracellularConductivities(0.0005);
+        bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
+        bidomain_problem.SetExtracellularConductivities(Create_c_vector(0.0005));
 
         
         bidomain_problem.Initialise();
@@ -126,8 +126,8 @@ public:
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
-        bidomain_problem.SetIntracellularConductivities(0.0005);
-        bidomain_problem.SetExtracellularConductivities(0.0005);
+        bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
+        bidomain_problem.SetExtracellularConductivities(Create_c_vector(0.0005));
         
         
         // Check rows 1, 51, 101, 151, 201, ...
@@ -254,7 +254,7 @@ public:
         monodomain_problem.SetOutputDirectory("Monodomain1d");
         monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
         monodomain_problem.SetCallChaste2Meshalyzer(true); // for coverage
-        monodomain_problem.SetIntracellularConductivities(0.0005);
+        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
         
         monodomain_problem.Initialise();
         
@@ -277,8 +277,8 @@ public:
 
         // set the intra conductivity to be the same as monodomain
         // and the extra conductivity to be very large in comparison
-        bidomain_problem.SetIntracellularConductivities(0.0005);
-        bidomain_problem.SetExtracellularConductivities(1);
+        bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
+        bidomain_problem.SetExtracellularConductivities(Create_c_vector(1));
                 
         bidomain_problem.Initialise();
         

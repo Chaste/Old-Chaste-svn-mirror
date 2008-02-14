@@ -151,28 +151,15 @@ public:
         mIntracellullarConductivityTensors.SetFibreOrientationFile(fileName);    
     }
     
-    /*
-     * Miguel: 2 optional parameters or 3 different functions (1D, 2D, 3D) ???
-     *         To do: check if the number of arguments provided matches SPACE_DIM as in 
-     *         ElementwiseConductivityTensors::SetConstantConductivities()
-     * 
-     *         One of the problems with 3 different functions is that if SetIntracellularConductivities 
-     *         is called from a class templated over SPACE_DIM the logic to choose the proper version
-     *         should be included.
-     * 
-     *         One of the problems with 2 optional parameters is that the compiler will not complain
-     *         about providing the wrong number of conductivities (X, Y and Z conductivities in a 2D
-     *         problem, only X conductivity in a 3D problem)
-     */
-    void SetIntracellularConductivities(double longConductivity, double transConductivity=-DBL_MAX, double normalConductivity=-DBL_MAX)
+    void SetIntracellularConductivities(c_vector<double, SPACE_DIM> constantConductivities)
     {
-        mIntracellullarConductivityTensors.SetConstantConductivities(longConductivity, transConductivity, normalConductivity);
+                
+        mIntracellullarConductivityTensors.SetConstantConductivities(constantConductivities);
     }
     
-    // Miguel: Idem
-    void SetIntracellularConductivities(std::vector<double>* longConductivity, std::vector<double>* transConductivity=NULL, std::vector<double>* normalConductivity=NULL)
+    void SetIntracellularConductivities(std::vector< c_vector<double, SPACE_DIM> > nonConstantConductivities)
     {
-        mIntracellullarConductivityTensors.SetNonConstantConductivities(longConductivity, transConductivity, normalConductivity);
+        mIntracellullarConductivityTensors.SetNonConstantConductivities(nonConstantConductivities);
     }
     
     void SetLinearSolverRelativeTolerance(const double &rRelTol)

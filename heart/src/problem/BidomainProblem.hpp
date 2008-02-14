@@ -93,14 +93,14 @@ public:
     {
     }
     
-    void SetExtracellularConductivities(double longConductivity, double transConductivity=-DBL_MAX, double normalConductivity=-DBL_MAX)
+    void SetExtracellularConductivities(c_vector<double, SPACE_DIM> constantConductivities)
     {
-        mExtracellullarConductivityTensors.SetConstantConductivities(longConductivity, transConductivity, normalConductivity);
+        mExtracellullarConductivityTensors.SetConstantConductivities(constantConductivities);
     }
     
-    void SetExtracellularConductivities(std::vector<double>* longConductivity, std::vector<double>* transConductivity=NULL, std::vector<double>* normalConductivity=NULL)
+    void SetExtracellularConductivities(std::vector< c_vector<double, SPACE_DIM> > nonConstantConductivities)
     {
-        mExtracellullarConductivityTensors.SetNonConstantConductivities(longConductivity, transConductivity, normalConductivity);
+        mExtracellullarConductivityTensors.SetNonConstantConductivities(nonConstantConductivities);
     }
     
     

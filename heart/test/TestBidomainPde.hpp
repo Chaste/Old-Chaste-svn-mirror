@@ -87,8 +87,8 @@ public:
         ElementwiseConductivityTensors<1> sigma_i;
         ElementwiseConductivityTensors<1> sigma_e;
 
-        sigma_i.SetConstantConductivities(314);
-        sigma_e.SetConstantConductivities(218);
+        sigma_i.SetConstantConductivities(Create_c_vector(314));
+        sigma_e.SetConstantConductivities(Create_c_vector(218));
 
         sigma_i.Init();
         sigma_e.Init();

@@ -132,6 +132,41 @@ public:
     
 };
 
+/**
+ * Use template specialization to set the appropriate conductivities for the problem.
+ */
+template<class CARDIAC_PROBLEM, unsigned DIM>
+void SetConductivities(CARDIAC_PROBLEM& rCardiacProblem);
+
+template<unsigned DIM>
+void SetConductivities(BidomainProblem<DIM>& rProblem)
+{
+    c_vector<double, DIM> conductivities;
+    for (unsigned i=0; i<DIM; i++)
+    {
+        conductivities[i] = 1.75;
+    }
+    rProblem.SetIntracellularConductivities(conductivities);
+    for (unsigned i=0; i<DIM; i++)
+    {
+        conductivities[i] = 7.0;
+    }
+    rProblem.SetExtracellularConductivities(conductivities);
+}
+
+template<unsigned DIM>
+void SetConductivities(MonodomainProblem<DIM>& rProblem)
+{
+    c_vector<double, DIM> conductivities;
+    for (unsigned i=0; i<DIM; i++)
+    {
+        conductivities[i] = 1.75;
+    }
+    rProblem.SetIntracellularConductivities(conductivities);
+}
+
+
+
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
 class AbstractConvergenceTester : public AbstractUntemplatedConvergenceTester
 {
@@ -212,10 +247,7 @@ public:
             // The results of the tests were originally obtained with the following conductivity
             // values. After implementing fibre orientation the defaults changed. Here we set
             // the former ones to be used.
-            cardiac_problem.SetIntracellularConductivities(1.75, 1.75, 1.75);                 
-            
-            // Miguel: if template parameter CARDIAC_PROBLEM is any flavour of Bidomain extracellular conductivities should be set as well.
-            // cardiac_problem.SetExtracellularConductivities(7.0, 7.0, 7.0);
+            SetConductivities(cardiac_problem);
 
             cardiac_problem.Initialise();
             

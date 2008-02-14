@@ -21,8 +21,8 @@ public:
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_1000_elements");
         bidomain_problem.SetEndTime(1);   // ms
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-7);
-        bidomain_problem.SetIntracellularConductivities(0.00005);
-        bidomain_problem.SetExtracellularConductivities(0.00005);
+        bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.00005));
+        bidomain_problem.SetExtracellularConductivities(Create_c_vector(0.00005));
         
         bidomain_problem.Initialise();
         

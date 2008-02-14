@@ -36,14 +36,10 @@ private:
     bool mUseFibreOrientation;
 
     // Constant Conductivities
-    double mConstLongConductivity; // mS/cm
-    double mConstTransConductivity; // mS/cm
-    double mConstNormalConductivity; // mS/cm
+    c_vector<double, SPACE_DIM> mConstantConductivities; // mS/cm
 
     // Non-constant Conductivities
-    std::vector<double>* mpLongitudinalConductivities; // mS/cm
-    std::vector<double>* mpTransverseConductivities; // mS/cm
-    std::vector<double>* mpNormalConductivities; // mS/cm
+    std::vector<c_vector<double, SPACE_DIM> >* mpNonConstantConductivities; // mS/cm
 
     // Container for Tensors (single or multiple)
     std::vector< c_matrix<double,SPACE_DIM,SPACE_DIM> > mTensors;
@@ -56,11 +52,14 @@ public:
         : mNumElements(1),          
           mUseNonConstantConductivities(false),
           mUseFibreOrientation(false),
-          mConstLongConductivity(7.0),
-          mConstTransConductivity(3.5),
-          mConstNormalConductivity(1.75),
           mInitialised(false)           
-    {      
+    {
+        double init_data[]={7.0, 3.5, 1.75};
+        
+        for (unsigned dim=0; dim<SPACE_DIM; dim++)
+        {
+             mConstantConductivities[dim] = init_data[dim];   
+        }      
     }
     /**
      *  Sets a file for reading the fibre orientation from.
@@ -79,25 +78,42 @@ public:
      *  @param constLongConduc Longitudinal conductivity (x axis)
      *  @param constTransConduc Transverse conductivity (y axis)
      *  @param constNormalConduc Normal conductivity (z axis)
+     * 
+     *  Explain problem with c_vector and SPACE_DIM
      */   
-    void SetConstantConductivities(double constLongConduc, double constTransConduc=-DBL_MAX, double constNormalConduc=-DBL_MAX)
-    {
-        mUseNonConstantConductivities=false;
-        
-        switch (SPACE_DIM){
-            case 3:
-                /*
-                 *  Miguel: assert or throw an exception?
-                 */
-                assert(constNormalConduc != -DBL_MAX);
-                mConstNormalConductivity = constNormalConduc;
-            case 2:
-                assert(constTransConduc != -DBL_MAX);
-                mConstTransConductivity = constTransConduc;
-            case 1:            
-                mConstLongConductivity = constLongConduc;
+    void SetConstantConductivities(c_vector<double, 1> constantConductivities)
+    {       
+        if (SPACE_DIM != 1)
+        {
+            EXCEPTION("Wrong number of conductivities provided");
         }
+        
+        mUseNonConstantConductivities = false;        
+        mConstantConductivities = constantConductivities;        
     }
+    
+    void SetConstantConductivities(c_vector<double, 2> constantConductivities)
+    {
+        if (SPACE_DIM != 2)
+        {
+            EXCEPTION("Wrong number of conductivities provided");
+        }
+        
+        mUseNonConstantConductivities = false;        
+        mConstantConductivities = constantConductivities;        
+    }
+
+    void SetConstantConductivities(c_vector<double, 3> constantConductivities)
+    {
+        if (SPACE_DIM != 3)
+        {
+            EXCEPTION("Wrong number of conductivities provided");
+        }
+          
+        mUseNonConstantConductivities = false;        
+        mConstantConductivities = constantConductivities;        
+    }
+    
 
     /**
      *  Sets a different longitudinal and transverse conductivity for every elements of the mesh.
@@ -106,23 +122,10 @@ public:
      *  @param rTransverseConductivities Vector containing transverse conductivities of the elements (y axis)
      *  @param rNormalConductivities Vector containing normal conductivities of the elements (z axis)
      */      
-    void SetNonConstantConductivities(
-    			std::vector<double> *pLongitudinalConductivities, 
-    			std::vector<double> *pTransverseConductivities=NULL,
-    			std::vector<double> *pNormalConductivities=NULL)
+    void SetNonConstantConductivities(std::vector<c_vector<double, SPACE_DIM> >* pNonConstantConductivities)
     {
-        mUseNonConstantConductivities=true;
-        
-        switch (SPACE_DIM){
-            case 3:
-                assert(pNormalConductivities != NULL);        
-                mpNormalConductivities=pNormalConductivities;
-            case 2:
-                assert(pTransverseConductivities != NULL);
-                mpTransverseConductivities=pTransverseConductivities;
-            case 1:            
-                mpLongitudinalConductivities=pLongitudinalConductivities;
-        }
+        mUseNonConstantConductivities = true;
+        mpNonConstantConductivities = pNonConstantConductivities;
     }                
     
     /**
@@ -133,16 +136,10 @@ public:
         std::ifstream data_file;
     
         c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
-        
-        switch (SPACE_DIM){
-            case 3:
-                conductivity_matrix(2,2) = mConstNormalConductivity;
-            case 2: 
-                conductivity_matrix(1,1) = mConstTransConductivity;
-            case 1:
-                conductivity_matrix(0,0) = mConstLongConductivity;
+        for (unsigned dim=0; dim<SPACE_DIM; dim++)
+        {
+            conductivity_matrix(dim,dim) = mConstantConductivities(dim);     
         }
-          
         
         if (!mUseNonConstantConductivities && !mUseFibreOrientation)
         {
@@ -151,9 +148,7 @@ public:
         }
         else
         {
-            //c_matrix<double,SPACE_DIM,SPACE_DIM> orientation_matrix(identity_matrix<double>(SPACE_DIM));
-            c_matrix<double,SPACE_DIM,SPACE_DIM> orientation_matrix;
-            orientation_matrix = identity_matrix<double>(SPACE_DIM);
+            c_matrix<double,SPACE_DIM,SPACE_DIM> orientation_matrix((identity_matrix<double>(SPACE_DIM)));
                         
             if (mUseFibreOrientation)
             {
@@ -163,7 +158,7 @@ public:
             }
             else
             {
-                mNumElements = mpLongitudinalConductivities->size();
+                mNumElements = mpNonConstantConductivities->size();
             }
                 
             // reserve() allocates all the memory at once, more efficient than relying 
@@ -171,7 +166,7 @@ public:
             mTensors.reserve(mNumElements);
                            
             for (unsigned element_index=0; element_index<mNumElements; element_index++)
-                {
+            {
                 /*
                  *  For every element of the mesh we compute its tensor like (from 
                  * "Laminar Arrangement of VentricularMyocites Influences Electrical 
@@ -185,22 +180,18 @@ public:
                  *  where a_i = [y_i], i={f,l,n} are read from the fibre orientation file and
                  *              [z_i]
                  * 
-                 *  g_f = longitudinal conductivity (constant or element specific)
-                 *  g_l = transverse conductivity (constant or element specific)
+                 *  g_f = fibre/longitudinal conductivity (constant or element specific)
+                 *  g_l = laminar/transverse conductivity (constant or element specific)
                  *  g_n = normal conductivity (constant or element specific) 
                  * 
                  */
                 
-                if(mUseNonConstantConductivities)
+                if (mUseNonConstantConductivities)
                 {
-                    switch (SPACE_DIM){
-                        case 3:
-                            conductivity_matrix(2,2) = (*mpNormalConductivities)[element_index];
-                        case 2:
-                            conductivity_matrix(1,1) = (*mpTransverseConductivities)[element_index];
-                        case 1:    
-                            conductivity_matrix(0,0) = (*mpLongitudinalConductivities)[element_index];
-                    }                                       
+                    for (unsigned dim=0; dim<SPACE_DIM; dim++)
+                    {
+                        conductivity_matrix(dim,dim) = (*mpNonConstantConductivities)[element_index][dim];     
+                    }                    
                 }      
                 
                 if (mUseFibreOrientation)
@@ -219,7 +210,7 @@ public:
                 mTensors.push_back( prod(temp, trans(orientation_matrix) ) );   
             }
             
-            if(mUseNonConstantConductivities)
+            if (mUseNonConstantConductivities)
             {
                 data_file.close();
             }

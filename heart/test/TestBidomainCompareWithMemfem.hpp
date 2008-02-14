@@ -68,8 +68,8 @@ public:
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
         bidomain_problem.SetWriteInfo();
         
-        bidomain_problem.SetIntracellularConductivities(0.19, 0.19, 1.79);
-        bidomain_problem.SetExtracellularConductivities(2.36, 2.36, 6.25);
+        bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.19, 0.19, 1.79));
+        bidomain_problem.SetExtracellularConductivities(Create_c_vector(2.36, 2.36, 6.25));
         
         bidomain_problem.Initialise();
 
