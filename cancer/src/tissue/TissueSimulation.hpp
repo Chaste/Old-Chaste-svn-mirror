@@ -300,9 +300,8 @@ inline void save_construct_data(
     // Save data required to construct instance
     const AbstractTissue<DIM> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
-    
-    const AbstractDiscreteTissueMechanicsSystem<DIM> * p_spring_system = &(t->rGetMechanicsSystem());
-    ar & p_spring_system;
+    const AbstractDiscreteTissueMechanicsSystem<DIM> * p_mech_system = &(t->rGetMechanicsSystem());
+    ar & p_mech_system;
 }
 
 /**
@@ -315,12 +314,10 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     AbstractTissue<DIM>* p_tissue;
     ar >> p_tissue;
-
-    AbstractDiscreteTissueMechanicsSystem<DIM>* p_spring_system;
-    ar >> p_spring_system;
-    
+    AbstractDiscreteTissueMechanicsSystem<DIM>* p_mech_system;
+    ar >> p_mech_system;
     // Invoke inplace constructor to initialize instance
-    ::new(t)TissueSimulation<DIM>(*p_tissue, p_spring_system, true);
+    ::new(t)TissueSimulation<DIM>(*p_tissue, p_mech_system, true);
 }
 }
 } // namespace ...

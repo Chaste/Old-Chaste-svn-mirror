@@ -2,6 +2,8 @@
 #define TESTTISSUESIMULATIONWITHSIMPLETISSUE_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 #include <cmath>
 #include <ctime>
@@ -65,9 +67,8 @@ private:
 public:
 
     /** 
-     * Create a simulation of a SimpleTissue with a SimpleTissueMechanicsSystem
-     * and a RandomCellKiller. Test that no exceptions are thrown, and write the 
-     * results to file.
+     * Create a simulation of a SimpleTissue with a SimpleTissueMechanicsSystem. 
+     * Test that no exceptions are thrown, and write the results to file.
      */ 
 
     void TestSimpleMonolayer() throw (Exception)
@@ -92,13 +93,8 @@ public:
 
         // Create a tissue simulation
         TissueSimulation<2> simulator(simple_tissue, &mechanics_system);
-        simulator.SetOutputDirectory("TestSimpleMonolayer");
-        simulator.SetEndTime(1);
-
-//// TODO! - DOESN'T WORK WITH DEATH        
-        // Add cell killer
-       // AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&simple_tissue, 0.01);
-       // simulator.AddCellKiller(p_random_cell_killer);
+        simulator.SetOutputDirectory("TestTissueSimulationWithSimpleTissue");
+        simulator.SetEndTime(1.0);
         
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
@@ -135,6 +131,85 @@ public:
 //        
 //        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 //    }
+    
+    /** 
+     * Create a simulation of a SimpleTissue with a SimpleTissueMechanicsSystem
+     * and a CellKiller. Test that no exceptions are thrown, and write the results to file.
+     */ 
+
+    void xTestCellDeath() throw (Exception)
+    {
+        // Create a simple mesh
+        int num_cells_depth = 5;
+        int num_cells_width = 5;        
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        
+        // Get node vector from mesh
+        std::vector<Node<2> > nodes = SetUpNodes(p_mesh);
+                
+        // Set up cells, one for each node. Get each a random birth time.
+        std::vector<TissueCell> cells = SetUpCells(p_mesh);
+
+        // Create a simple tissue
+        SimpleTissue<2> simple_tissue(nodes, cells);
+        
+        // Create simple tissue mechanics system (with default cutoff=1.5)
+        SimpleTissueMechanicsSystem<2> mechanics_system(simple_tissue);
+
+        // Create a tissue simulation
+        TissueSimulation<2> simulator(simple_tissue, &mechanics_system);
+        simulator.SetOutputDirectory("TestTissueSimulationWithSimpleTissueCellDeath");
+        simulator.SetEndTime(1.0);
+      
+        // Add cell killer
+        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&simple_tissue, 0.01);
+        simulator.AddCellKiller(p_random_cell_killer);
+        
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+    }
+
+    /**
+     * Test archiving of a TissueSimulation that uses a SimpleTissue.
+     */  
+    void TestArchiving() throw (Exception)
+    {        
+        // Create a simple mesh
+        int num_cells_depth = 5;
+        int num_cells_width = 5;        
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        
+        // Get node vector from mesh
+        std::vector<Node<2> > nodes = SetUpNodes(p_mesh);
+                
+        // Set up cells, one for each node. Get each a random birth time.
+        std::vector<TissueCell> cells = SetUpCells(p_mesh);
+
+        // Create a simple tissue
+        SimpleTissue<2> simple_tissue(nodes, cells);
+        
+        // Create simple tissue mechanics system (with default cutoff=1.5)
+        SimpleTissueMechanicsSystem<2> mechanics_system(simple_tissue);
+
+        // Create a tissue simulation
+        TissueSimulation<2> simulator(simple_tissue, &mechanics_system);
+        simulator.SetOutputDirectory("TestTissueSimulationWithSimpleTissueSaveAndLoad");
+        simulator.SetEndTime(0.5);
+        
+        simulator.Solve();
+        
+        TS_ASSERT_THROWS_NOTHING(simulator.Save());
+
+        TissueSimulation<2>* p_simulator = TissueSimulation<2>::Load("TestTissueSimulationWithSimpleTissueSaveAndLoad", 0.5);
+        
+        p_simulator->SetEndTime(1.0);
+        
+        TS_ASSERT_THROWS_NOTHING(p_simulator->Solve());
+        
+//        \todo: test results against previous test, once cell death 
+//               and a stable force law are implemented
+    }
     
 };
 

@@ -2,6 +2,8 @@
 #define TESTSIMPLETISSUEMECHANICSSYSTEM_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 #include <cmath>
 #include <vector>
@@ -135,7 +137,7 @@ public:
         SimpleTissue<2> simple_tissue(nodes, cells);
         
         // Create simple tissue mechanics system (with default cutoff=1.5)
-        SimpleTissueMechanicsSystem<2> mechanics_system(simple_tissue);        
+        SimpleTissueMechanicsSystem<2> mechanics_system(simple_tissue);
         
         // Test rCalculateVelocitiesOfEachNode() method
         std::vector<c_vector<double,2> >& velocities_on_each_node = mechanics_system.rCalculateVelocitiesOfEachNode();
@@ -183,6 +185,73 @@ public:
         TS_ASSERT_DELTA(velocities_on_each_node[3][0], -inv_damping*1.5*force, 1e-4);
         TS_ASSERT_DELTA(velocities_on_each_node[3][1], -inv_damping*(sqrt(3)/2.0)*force, 1e-4);    
     }
+    
+    void TestArchiving() throw (Exception)
+    {   
+        OutputFileHandler handler("archive", false);    // don't erase contents of folder
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "simple_mech_system.arch";
+
+        {
+            // Set up SimulationTime
+            SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
+            
+            // Create mesh
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");        
+            ConformingTetrahedralMesh<2,2> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+            
+            // Get nodes
+            std::vector<Node<2> > nodes;
+            for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+            {
+                nodes.push_back(*(mesh.GetNode(i)));
+            }
+
+            std::vector<TissueCell> cells;
+            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+            {
+                cell.SetNodeIndex(i);
+                cell.SetBirthTime(-50.0);
+                cells.push_back(cell);                
+            }
+        
+            // Create simple tissue
+            SimpleTissue<2> simple_tissue(nodes, cells);
+            
+            // Create simple tissue mechanics system (with default cutoff=1.5)
+            SimpleTissueMechanicsSystem<2> mechanics_system(simple_tissue);
+                     
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Serialize via pointer
+            SimpleTissueMechanicsSystem<2> * const p_mech_system = &mechanics_system;  
+            
+            p_mech_system->SetCutoffPoint(1.1);
+            
+            output_arch << p_mech_system;
+        }
+       
+        {
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            SimpleTissueMechanicsSystem<2>* p_mech_system;
+            
+            // Restore from the archive
+            input_arch >> p_mech_system;
+            
+            // Test the member data
+            TS_ASSERT_DELTA(p_mech_system->mCutoffPoint,1.1,1e-12);
+            
+            delete p_mech_system->mpTissue;
+            delete p_mech_system;
+        }
+    } 
+    
 };
 
 #endif /*TESTSIMPLETISSUEMECHANICSSYSTEM_HPP_*/

@@ -460,8 +460,7 @@ void TissueSimulation<DIM>::Solve()
             }
         }
 
-        CancerEventHandler::BeginEvent(REMESH);
-        
+        CancerEventHandler::BeginEvent(REMESH);        
         if (mrTissue.HasMesh())
         {
             if(mReMesh)
@@ -577,6 +576,7 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
         TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);
         mesh_writer.WriteFilesUsingMesh((static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->rGetMesh());
     }
+    
     // Create a new archive
     std::ofstream ofs(archive_filename.c_str());
     boost::archive::text_oarchive output_arch(ofs);
@@ -601,8 +601,7 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
     {
         CellwiseData<DIM>* p_cellwise_data = CellwiseData<DIM>::Instance();
         output_arch & *p_cellwise_data;
-    }
-    
+    }    
     output_arch & pSim; // const-ness would be a pain here
 }
 
@@ -627,7 +626,7 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
     
     TissueSimulation<DIM>* p_sim;
     input_arch >> p_sim;
-    
+
     if (p_sim->rGetTissue().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size())
     {
         #define COVERAGE_IGNORE
@@ -638,7 +637,7 @@ TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDi
         EXCEPTION(string_stream.str());
         #undef COVERAGE_IGNORE
     }
-    
+
     return p_sim;
 }
 

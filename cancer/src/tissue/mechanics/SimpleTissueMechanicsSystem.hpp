@@ -1,6 +1,9 @@
 #ifndef SIMPLETISSUEMECHANICSSYSTEM_HPP_
 #define SIMPLETISSUEMECHANICSSYSTEM_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractDiscreteTissueMechanicsSystem.hpp"
 #include "SimpleTissue.cpp"
 
@@ -18,6 +21,16 @@ class SimpleTissueMechanicsSystem : public AbstractDiscreteTissueMechanicsSystem
     friend class TestSimpleTissueMechanicsSystem;
     
 private :
+
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // If Archive is an output archive, then '&' resolves to '<<'
+        // If Archive is an input archive, then '&' resolves to '>>'
+        archive & boost::serialization::base_object<AbstractDiscreteTissueMechanicsSystem<DIM> >(*this);
+        archive & mCutoffPoint;
+    }
    
     SimpleTissue<DIM>* mpTissue;
     
@@ -191,6 +204,42 @@ public :
     }
     
 };
+
+#include "TemplatedExport.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(SimpleTissueMechanicsSystem)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a Meineke2001SpringSystem.
+ */
+template<class Archive, unsigned DIM>
+inline void save_construct_data(
+    Archive & ar, const SimpleTissueMechanicsSystem<DIM> * t, const BOOST_PFTO unsigned int file_version)
+{
+    // Save data required to construct instance
+    const AbstractTissue<DIM> * p_tissue = &(t->rGetTissue());
+    ar & p_tissue;
+}
+
+/**
+ * De-serialize constructor parameters and initialise Tissue.
+ */
+template<class Archive, unsigned DIM>
+inline void load_construct_data(
+    Archive & ar, SimpleTissueMechanicsSystem<DIM> * t, const unsigned int file_version)
+{
+    // Retrieve data from archive required to construct new instance
+    AbstractTissue<DIM>* p_tissue;
+
+    ar >> p_tissue;
+    // Invoke inplace constructor to initialize instance
+    ::new(t)SimpleTissueMechanicsSystem<DIM>(*(static_cast<SimpleTissue<DIM>*>(p_tissue)));
+}
+}
+} // namespace ...
 
 
 #endif /*SIMPLETISSUEMECHANICSSYSTEM_HPP_*/

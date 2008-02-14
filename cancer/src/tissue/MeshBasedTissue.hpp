@@ -157,7 +157,9 @@ public:
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
     
     void SetWriteTissueAreas(bool writeTissueAreas);
-        
+    
+    
+    void Update();
     /***
      * This method is used to calculate the force between GHOST nodes.
      */

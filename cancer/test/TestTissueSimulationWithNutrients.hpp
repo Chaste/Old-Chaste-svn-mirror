@@ -727,7 +727,7 @@ public:
         p_simulator->SetPde(&pde);
         
         p_simulator->SetEndTime(0.5);
-        p_simulator->Solve();        
+        p_simulator->Solve();
         
         // These results are from time 0.5 in TestWithOxygen.
         std::vector<double> node_5_location = p_simulator->GetNodeLocation(5);

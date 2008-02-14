@@ -680,7 +680,7 @@ public:
             delete p_meineke_spring_system->mpTissue;
             delete p_meineke_spring_system;
         }
-    } 
+    }
 };
 
 #endif /*TESTMEINEKE2001SPRINGSYSTEM_HPP_*/
