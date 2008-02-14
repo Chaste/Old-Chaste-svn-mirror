@@ -88,10 +88,12 @@ class PointwiseNutrientSinkPde : public AbstractLinearEllipticPde<2>
 {
 private:
     MeshBasedTissue<2>& mrTissue;
-
+    double mCoefficient;
+    
 public:
-    PointwiseNutrientSinkPde(MeshBasedTissue<2>& rTissue)
-        : mrTissue(rTissue)
+    PointwiseNutrientSinkPde(MeshBasedTissue<2>& rTissue, double coefficient)
+        : mrTissue(rTissue),
+          mCoefficient(coefficient)
     {
     }
 
@@ -111,7 +113,7 @@ public:
         TissueCell& r_cell = mrTissue.rGetCellAtNodeIndex(rNode.GetIndex());
         if(r_cell.GetCellType()!=NECROTIC)
         {
-            return -0.1;
+            return -mCoefficient;
         }
         else
         {
@@ -369,7 +371,7 @@ public:
         }
         
         // Set up PDE
-        PointwiseNutrientSinkPde pde(tissue);
+        PointwiseNutrientSinkPde pde(tissue, 0.1);
         
         Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
         p_spring_system->UseCutoffPoint(1.5);

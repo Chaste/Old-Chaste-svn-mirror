@@ -181,8 +181,6 @@ public:
      *  @return number of cells removed
      */
     unsigned RemoveDeadCells();
-
-    Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell);
     
     void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes);
     

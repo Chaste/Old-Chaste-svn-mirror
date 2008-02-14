@@ -156,7 +156,26 @@ public:
         TS_ASSERT_DELTA(simple_tissue.GetNode(0)->rGetLocation()[0], new_location[0], 1e-12);
         TS_ASSERT_DELTA(simple_tissue.GetNode(0)->rGetLocation()[1], new_location[1], 1e-12);
 
-        // Test add cell
+        // Test AddNode
+
+        ChastePoint<2> new_point;
+        new_point.rGetLocation()[0] = 1.71;
+        new_point.rGetLocation()[1] = 1.72;
+        
+        unsigned num_nodes = simple_tissue.GetNumNodes();
+        
+        Node<2>* p_node = new Node<2>(num_nodes, new_point, false);
+        unsigned new_node_index = simple_tissue.AddNode(p_node);
+        
+        TS_ASSERT_EQUALS(new_node_index, num_nodes);
+        TS_ASSERT_DELTA(simple_tissue.GetNode(num_nodes)->rGetLocation()[0], 1.71, 1e-12);
+        TS_ASSERT_DELTA(simple_tissue.GetNode(num_nodes)->rGetLocation()[1], 1.72, 1e-12);
+        
+        simple_tissue.mNodes.pop_back();        
+        
+//        \todo: testRemoveNode
+ 
+        // Test AddCell
 
         unsigned old_num_nodes = simple_tissue.rGetNodes().size();
         unsigned old_num_cells = simple_tissue.rGetCells().size();

@@ -88,11 +88,8 @@ public:
         // Create a simple tissue
         SimpleTissue<2> simple_tissue(nodes, cells);
         
-        // Create simple tissue mechanics system (with default cutoff=1.5)
-        SimpleTissueMechanicsSystem<2> mechanics_system(simple_tissue);
-
-        // Create a tissue simulation
-        TissueSimulation<2> simulator(simple_tissue, &mechanics_system);
+        // For coverage, construct tissue simulation without passing in a mechanics system
+        TissueSimulation<2> simulator(simple_tissue);
         simulator.SetOutputDirectory("TestTissueSimulationWithSimpleTissue");
         simulator.SetEndTime(1.0);
         

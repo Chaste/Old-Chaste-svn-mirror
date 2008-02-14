@@ -315,9 +315,22 @@ unsigned TissueSimulationWithNutrients<DIM>::FindElementContainingCell(TissueCel
     unsigned old_element_index = mCellNutrientElementMap[&rCell];
     
     // Create a std::set of guesses for the current containing element
-//    \todo: find the neighbouring elements and add them to test_elements) 
     std::set<unsigned> test_elements;
     test_elements.insert(old_element_index);
+    
+    Element<DIM,DIM>* p_element = mpCoarseNutrientMesh->GetElement(old_element_index);
+    
+    for (unsigned local_index=0; local_index<DIM+1; local_index++)
+    {
+        std::set<unsigned> element_indices = p_element->GetNode(local_index)->rGetContainingElementIndices();
+        
+        for (std::set<unsigned>::iterator iter = element_indices.begin(); 
+             iter != element_indices.end(); 
+             ++iter)
+        {
+            test_elements.insert(*iter);
+        }
+    }
     
     // Find new element, using the previous one as a guess
     const ChastePoint<DIM>& r_cell_position = this->mrTissue.GetLocationOfCell(rCell);

@@ -92,7 +92,7 @@ public:
     /**
      * Get a pointer to the node corresponding to a given TissueCell.
      */
-    virtual Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell)=0;
+    Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell);
     
     /**
      * Find where the given cell is in space.
@@ -128,16 +128,6 @@ public:
      */
     virtual void Validate()=0;
     
-    virtual bool GetWriteVoronoiData()
-    {
-        return false;
-    }
-    
-    virtual bool GetWriteTissueAreas()
-    {
-        return false;        
-    }
-
     /**
      * Find out how many cells of each mutation state there are
      * 
@@ -182,7 +172,7 @@ public:
     
     virtual void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes);
     
-    virtual void WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables)=0;
+    virtual void WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables);
         
     virtual void CloseOutputFiles();
     

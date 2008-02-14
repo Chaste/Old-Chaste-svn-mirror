@@ -76,11 +76,18 @@ template<unsigned DIM>
 unsigned AbstractTissue<DIM>::GetNumRealCells()
 {
     unsigned counter = 0;
-    for(typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
+    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
         counter++;
     }
     return counter;
+}
+
+template<unsigned DIM>
+Node<DIM>* AbstractTissue<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
+{
+    unsigned node_index = rCell.GetNodeIndex();
+    return GetNode(node_index);
 }
 
 template<unsigned DIM>
@@ -252,6 +259,175 @@ void AbstractTissue<DIM>::CloseOutputFiles()
     mpNodeFile->close();
     mpCellTypesFile->close();
     mpCellVariablesFile->close();
+}
+
+template<unsigned DIM>  
+void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables)
+{   
+    // Write current simulation time
+    SimulationTime *p_simulation_time = SimulationTime::Instance();
+    double time = p_simulation_time->GetDimensionalisedTime();
+    
+    // Set up cell type counter
+    unsigned cell_counter[5];
+    for(unsigned i=0; i<5; i++)
+    {
+        cell_counter[i] = 0;
+    }
+    
+    *mpNodeFile <<  time << "\t";
+    
+    if (outputCellTypes)
+    {
+        *mpCellTypesFile <<  time << "\t";
+    }
+    
+    if (outputCellVariables)
+    {
+        *mpCellVariablesFile <<  time << "\t";
+    }
+
+    // Write node data to file
+    for (unsigned index=0; index<GetNumNodes(); index++)
+    {
+        unsigned colour = STEM_COLOUR; // all green if no cells have been passed in
+        
+        std::vector<double> proteins; // only used if outputCellVariables = true
+        
+        if (IsGhostNode(index) == true)
+        {
+            colour = INVISIBLE_COLOUR;
+        }
+        else if (GetNode(index)->IsDeleted())
+        {
+            // Do nothing
+        }
+        else if (mNodeCellMap[index]->GetAncestor()!=UNSIGNED_UNSET)
+        {
+            TissueCell* p_cell = mNodeCellMap[index];
+            colour = SPECIAL_LABEL_START + p_cell->GetAncestor();
+        }
+        else if (mCells.size() > 0)
+        {
+            TissueCell* p_cell = mNodeCellMap[index];
+            
+            CellType type = p_cell->GetCellType();
+            CellMutationState mutation = p_cell->GetMutationState();
+            
+            // Set colours dependent on Stem, Transit, Differentiated, HepaOne
+            if (type == STEM)
+            {
+                colour = STEM_COLOUR;
+            }
+            else if (type == TRANSIT)
+            {
+                colour = TRANSIT_COLOUR;
+            }
+            else
+            {
+                colour = DIFFERENTIATED_COLOUR;       
+            }
+            
+            // Override colours for mutant or labelled cells.
+            if (mutation != HEALTHY && mutation != ALARCON_NORMAL)
+            {
+                if (mutation == LABELLED || mutation == ALARCON_CANCER)
+                {
+                    colour = LABELLED_COLOUR;
+                    if (outputCellTypes)
+                    {
+                        cell_counter[1]++;
+                    }
+                }
+                if (mutation == APC_ONE_HIT)
+                {
+                    colour = EARLY_CANCER_COLOUR;
+                    if (outputCellTypes)
+                    {
+                        cell_counter[2]++;
+                    }
+                }
+                if (mutation == APC_TWO_HIT )
+                {
+                    colour = LATE_CANCER_COLOUR;
+                    if (outputCellTypes)
+                    {
+                        cell_counter[3]++;
+                    }  
+                }
+                if ( mutation == BETA_CATENIN_ONE_HIT)
+                {
+                    colour = LATE_CANCER_COLOUR;
+                    if (outputCellTypes)
+                    {
+                        cell_counter[4]++;
+                    }  
+                }
+            }
+            else // It's healthy, or normal in the sense of the Alarcon model
+            {
+                if (outputCellTypes)
+                {
+                    cell_counter[0]++;
+                }  
+            }
+            
+            if (p_cell->HasApoptosisBegun())
+            {   
+                // For any type of cell set the colour to this if it is undergoing apoptosis.
+                colour = APOPTOSIS_COLOUR;   
+            }
+            
+            if (outputCellVariables)
+            {
+                proteins = p_cell->GetCellCycleModel()->GetProteinConcentrations();
+            } 
+            
+        }        
+        if ( !(GetNode(index)->IsDeleted()) )
+        {
+            const c_vector<double,DIM>& position = GetNode(index)->rGetLocation();
+            
+            for (unsigned i=0; i<DIM; i++)
+            {
+                *mpNodeFile << position[i] << " ";
+            }
+            *mpNodeFile << colour << " ";
+            
+            // Write cell variable data to file if required
+            if (outputCellVariables)
+            {
+                // Loop over cell positions
+                for (unsigned i=0; i<DIM; i++)
+                {
+                    *mpCellVariablesFile << position[i] << " ";
+                }
+                // Loop over cell variables
+                for (unsigned i=0; i<proteins.size(); i++)
+                {
+                    *mpCellVariablesFile << proteins[i] << " " ;
+                }
+            }
+        }
+    }
+    
+    *mpNodeFile << "\n";
+   
+    // Write cell type data to file if required
+    if (outputCellTypes)
+    {
+        for(unsigned i=0; i < 5; i++)
+        {
+            mCellTypeCount[i] = cell_counter[i];
+            *mpCellTypesFile <<  cell_counter[i] << "\t";
+        }
+        *mpCellTypesFile <<  "\n";
+    }
+    
+    if (outputCellVariables)
+    {
+        *mpCellVariablesFile <<  "\n";
+    }
 }
 
 #endif //ABSTRACTTISSUE_CPP

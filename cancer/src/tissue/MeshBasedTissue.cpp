@@ -73,14 +73,6 @@ void MeshBasedTissue<DIM>::Validate()
 }
 
 template<unsigned DIM>
-Node<DIM>* MeshBasedTissue<DIM>::GetNodeCorrespondingToCell(const TissueCell& rCell)
-{
-    // Find the node to which this cell corresponds
-    unsigned node_index = rCell.GetNodeIndex();
-    return mrMesh.GetNode(node_index);
-}
-
-template<unsigned DIM>
 ConformingTetrahedralMesh<DIM, DIM>& MeshBasedTissue<DIM>::rGetMesh()
 {
     return mrMesh;
@@ -346,8 +338,8 @@ void MeshBasedTissue<DIM>::ReMesh()
         assert(r_pair.size() == 2);
         TissueCell* p_cell_1 = *(r_pair.begin());
         TissueCell* p_cell_2 = *(++r_pair.begin());
-        Node<DIM>* p_node_1 = GetNodeCorrespondingToCell(*p_cell_1);
-        Node<DIM>* p_node_2 = GetNodeCorrespondingToCell(*p_cell_2);
+        Node<DIM>* p_node_1 = this->GetNodeCorrespondingToCell(*p_cell_1);
+        Node<DIM>* p_node_2 = this->GetNodeCorrespondingToCell(*p_cell_2);
         
         bool joined = false;
         // For each element containing node1, if it also contains node2 then the cells are joined
@@ -460,156 +452,12 @@ bool MeshBasedTissue<DIM>::GetWriteTissueAreas()
 template<unsigned DIM>  
 void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables)
 {
-    // Write current simulation time
-    SimulationTime *p_simulation_time = SimulationTime::Instance();
-    double time = p_simulation_time->GetDimensionalisedTime();
+    AbstractTissue<DIM>::WriteResultsToFiles(outputCellTypes, outputCellVariables);
     
-    unsigned cell_counter[5];
-    for(unsigned i=0; i < 5; i++)
-    {
-        cell_counter[i] = 0;
-    }
+    // Write element data to file
     
-    *this->mpNodeFile <<  time << "\t";
+    *mpElementFile <<  SimulationTime::Instance()->GetDimensionalisedTime() << "\t";
     
-    if (outputCellTypes)
-    {
-        *this->mpCellTypesFile <<  time << "\t";
-    }
-    
-    if (outputCellVariables)
-    {
-        *this->mpCellVariablesFile <<  time << "\t";
-    }
-    
-    *mpElementFile <<  time << "\t";
-    
-    // Write node file
-    for (unsigned index=0; index<GetNumNodes(); index++)
-    {
-        unsigned colour = STEM_COLOUR; // all green if no cells have been passed in
-
-        std::vector<double> proteins; // only used if outputCellVariables = true
-         
-        if (mIsGhostNode[index] == true)
-        {
-            colour = INVISIBLE_COLOUR;
-        }
-        else if (GetNode(index)->IsDeleted())
-        {
-            // do nothing
-        }
-        else if (this->mNodeCellMap[index]->GetAncestor() != UNSIGNED_UNSET)
-        {
-            TissueCell* p_cell = this->mNodeCellMap[index];
-            colour = SPECIAL_LABEL_START + p_cell->GetAncestor();
-        }
-        else
-        {
-            TissueCell* p_cell = this->mNodeCellMap[index];
-            
-            CellType type = p_cell->GetCellType();
-            CellMutationState mutation = p_cell->GetMutationState();
-            
-            // Set colours dependent on cell type
-            switch (type)
-            {
-                case STEM:
-                    colour = STEM_COLOUR;
-                    break;
-                case TRANSIT:
-                    colour = TRANSIT_COLOUR;
-                    break;
-                case DIFFERENTIATED:
-                    colour = DIFFERENTIATED_COLOUR;
-                    break;
-                default:
-                    colour = APOPTOSIS_COLOUR; // necrotic and apoptotic cells have the same colour
-                    break;
-            }
-            
-            // Override colours for mutant or labelled cells and increment cell counters
-            switch (mutation)
-            {
-                case HEALTHY:
-                case ALARCON_NORMAL:
-                    if (outputCellTypes)
-                    {
-                        cell_counter[0]++;
-                    }  
-                    break;
-                case LABELLED:
-                case ALARCON_CANCER:
-                    colour = LABELLED_COLOUR;
-                    if (outputCellTypes)
-                    {
-                        cell_counter[1]++;
-                    }
-                    break; 
-                case APC_ONE_HIT:
-                    colour = EARLY_CANCER_COLOUR;
-                    if (outputCellTypes)
-                    {
-                        cell_counter[2]++;
-                    }
-                    break;
-                case APC_TWO_HIT:
-                    colour = LATE_CANCER_COLOUR;
-                    if (outputCellTypes)
-                    {
-                        cell_counter[3]++;
-                    }
-                    break;
-                case BETA_CATENIN_ONE_HIT:
-                    colour = LATE_CANCER_COLOUR;
-                    if (outputCellTypes)
-                    {
-                        cell_counter[4]++;
-                    }
-                    break;
-                default:
-                    NEVER_REACHED; // this can't be reached - all mutation states are covered
-            }
-            
-            if (p_cell->HasApoptosisBegun())
-            {   
-                // For any type of cell, set the colour to this if it is undergoing apoptosis
-                colour = APOPTOSIS_COLOUR;   
-            }
-            
-            if (outputCellVariables)
-            {
-                proteins = p_cell->GetCellCycleModel()->GetProteinConcentrations();
-            } 
-        }
-        
-        if ( !(GetNode(index)->IsDeleted()) )
-        {
-            const c_vector<double,DIM>& position = GetNode(index)->rGetLocation();
-            
-            for (unsigned i=0; i<DIM; i++)
-            {
-                *this->mpNodeFile << position[i] << " ";
-            }
-            *this->mpNodeFile << colour << " ";
-                        
-            if (outputCellVariables)
-            {
-                // Loop over cell positions
-                for (unsigned i=0; i<DIM; i++)
-                {
-                    *this->mpCellVariablesFile << position[i] << " ";
-                }
-                // Loop over cell variables
-                for (unsigned i=0; i<proteins.size(); i++)
-                {
-                    *this->mpCellVariablesFile << proteins[i] << " " ;
-                }
-            } 
-        }
-    }
-        
-    // Write element data files
     for (unsigned elem_index=0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
     {
         if (!mrMesh.GetElement(elem_index)->IsDeleted())
@@ -620,24 +468,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool output
             }
         }
     }
-        
-    if (outputCellTypes)
-    {
-        for (unsigned i=0; i<this->mCellTypeCount.size(); i++)
-        {
-            this->mCellTypeCount[i] = cell_counter[i];
-            *this->mpCellTypesFile <<  cell_counter[i] << "\t";
-        }
-        *this->mpCellTypesFile <<  "\n";
-    }
     
-    if (outputCellVariables)
-    {
-        // new line at end of nodes
-        *this->mpCellVariablesFile <<  "\n";
-    }    
-    
-    *this->mpNodeFile << "\n";
     *mpElementFile << "\n";    
     
     if (mpVoronoiTessellation!=NULL)

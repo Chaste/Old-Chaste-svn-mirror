@@ -74,11 +74,6 @@ public:
     Node<DIM>* GetNode(unsigned index);
     
     /**
-     * Get a pointer to the node corresponding to a given TissueCell.
-     */
-    Node<DIM>* GetNodeCorrespondingToCell(const TissueCell& rCell);
-
-    /**
      * Add a new cell to the tissue.
      * @param cell  the cell to add
      * @param newLocation  the position in space at which to put it
@@ -106,8 +101,6 @@ public:
      * Check consistency of our internal data structures.
      */
     void Validate();
-    
-    void WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables);
     
     std::vector<Node<DIM> >& rGetNodes();
     const std::vector<Node<DIM> >& rGetNodes() const;
