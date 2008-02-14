@@ -3,7 +3,7 @@ INCS = -I. -Icxxtest \
 -Iglobal/src \
 -Ilinalg/src -Ilinalg/src/common \
 -Ipde/src -Ipde/src/problem -Ipde/src/common -Ipde/src/solver -Ipde/src/problem/elasticity -Ipde/src/problem/common -Ipde/src/solver/elasticity -Ipde/src/solver/common \
--Imesh/src -Imesh/src/common -Imesh/src/voronoi -Imesh/src/writer -Imesh/src/reader  \
+-Imesh/src -Imesh/src/common -Imesh/src/voronoi -Imesh/src/writer -Imesh/src/reader -Imesh/src/triangle \
 -Iio/src -Iio/src/writer -Iio/src/reader \
 -Iode/src -Iode/src/problem -Iode/src/common -Iode/src/solver -Iode/src/problem/cardiac \
 
