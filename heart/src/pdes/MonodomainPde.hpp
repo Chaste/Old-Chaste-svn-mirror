@@ -6,22 +6,6 @@
 #include "AbstractCardiacPde.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 
-/*
-const double rMyo = 150;                                // myoplasmic resistance, ohm*cm
-const double rG = 1.5;                                  // gap junction resistance, ohm*cm^2
-const double RADIUS = 0.00011;                          // radius of cell, cm
-const double LENGTH = 0.01;                             // length of cell, cm
-//const double BETA = 2*(RADIUS+LENGTH)/(RADIUS*LENGTH);  // surface to volume ratio
-const double rA = rMyo + rG / LENGTH;// BETA;
-//const double DIFFUSION_CONST = 0.5*RADIUS/(2*rA);
-//const double DIFFUSION_CONST = 0.0;
-//const double DIFFUSION_CONST = 0.0005;
-
-//memfem:
-//const double DIFFUSION_CONST = 0.000019;
-const double BETA = 0.00014;
-*/
-
 
 /**
  * MonodomainPde class.
