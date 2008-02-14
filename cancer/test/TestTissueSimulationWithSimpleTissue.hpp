@@ -39,12 +39,12 @@ private:
         std::vector<TissueCell> cells;
         for(unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
-            double birth_time = RandomNumberGenerator::Instance()->ranf()*
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                 (CancerParameters::Instance()->GetStemCellG1Duration()
                                     + CancerParameters::Instance()->GetSG2MDuration() );        
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
-            cell.SetBirthTime(-birth_time);
+            cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }        
         return cells;
@@ -102,10 +102,9 @@ public:
     // results: with a few cells and small end times, Simple was twice as fast as meineke
     //          with 10000 cells, and t_end=0.05, (fixed cell cycle) takes 6.5 mins
     //          => 2 hours real time to do 1hr simulation time
-    //   run commented test before to see how meineke does with 10000 cells 
-     
+    //   run commented test before to see how meineke does with 10000 cells     
 
-//    void TestSimpleMonolayer2() throw (Exception)
+//    void xTestSimpleMonolayer2() throw (Exception)
 //    {
 //        // Create a simple mesh
 //        int num_cells_depth = 100;
@@ -135,8 +134,7 @@ public:
     /** 
      * Create a simulation of a SimpleTissue with a SimpleTissueMechanicsSystem
      * and a CellKiller. Test that no exceptions are thrown, and write the results to file.
-     */ 
-
+     */
     void xTestCellDeath() throw (Exception)
     {
         // Create a simple mesh
@@ -160,13 +158,15 @@ public:
         // Create a tissue simulation
         TissueSimulation<2> simulator(simple_tissue, &mechanics_system);
         simulator.SetOutputDirectory("TestTissueSimulationWithSimpleTissueCellDeath");
-        simulator.SetEndTime(1.0);
+        simulator.SetEndTime(0.5);
       
         // Add cell killer
-        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&simple_tissue, 0.01);
+        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&simple_tissue, 0.05);
         simulator.AddCellKiller(p_random_cell_killer);
         
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        simulator.Solve();
+        
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumNodes(), simulator.rGetTissue().GetNumRealCells());      
     }
 
     /**
