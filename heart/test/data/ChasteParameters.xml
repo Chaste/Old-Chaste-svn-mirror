@@ -12,9 +12,17 @@
 	<!-- 
 		Mesh definition 
 	-->    
-    <SlabWidth>2.0</SlabWidth>
-    <SlabHeight>1.0</SlabHeight>
-    <InterNodeSpace>0.25</InterNodeSpace>
+    <SlabX>4.0</SlabX>
+    <SlabY>0.1</SlabY>
+    <SlabZ>2.0</SlabZ>
+    <InterNodeSpace>0.1</InterNodeSpace>
+
+    <!--
+        Intracellular conductivities
+    -->
+    <LongitudinalConductivity>1.75</LongitudinalConductivity>
+    <TransverseConductivity>1.75</TransverseConductivity>
+    <NormalConductivity>1.75</NormalConductivity>   
     
     <!-- 
     	Stimuli (as many <Stimulus> definitions as needed) 

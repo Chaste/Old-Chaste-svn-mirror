@@ -32,11 +32,15 @@ std::string parameter_file;
 
 // User-modifiable parameters.  Real values will be read from a config file.
 double simulation_duration = -1; // ms
-double slab_width = -1;          // mm
-double slab_height= -1;          // mm
+double slab_x = -1;          // mm
+double slab_y = -1;          // mm
+double slab_z = -1;          // mm
 double inter_node_space = -1;    // mm
-double face_stimulus_width = -1; // mm
-double quadrant_stimulus_delay = -1; // ms
+
+double intra_x_cond = 1.75;
+double intra_y_cond = 1.75;
+double intra_z_cond = 1.75;
+
 std::string  output_directory = "/";      // Location to put simulation results
 std::string  mesh_output_directory = "/"; // Location for generated mesh files
 domain_type domain = domain_type::Mono;
@@ -47,16 +51,17 @@ std::vector<ChasteCuboid> stimuled_areas;
 
 std::vector<double> scale_factor_gks;
 std::vector<double> scale_factor_ito;
-std::vector<ChasteCuboid> heterogeneity_areas;
+std::vector<ChasteCuboid> cell_heterogeneity_areas;
+
+std::vector< c_vector<double,3> > specific_conductivities;
+std::vector<ChasteCuboid> conductivity_heterogeneity_areas;
+
 
 // Parameters fixed at compile time
 const std::string  output_filename_prefix = "Run";
 const double ode_time_step = 0.005;     // ms
 const double pde_time_step = 0.02;     // ms
 const double printing_time_step = 1; // ms
-
-const double intracellular_cond = 1.75;
-const double extracellular_cond = 7.0;
 
 // Scale factor because Chaste code expects lengths in cm, but params use mm.
 const double scale_factor = 1/10.0;
@@ -91,10 +96,10 @@ public:
                     FaberRudy2000Version3*  faber_rudy_instance = new FaberRudy2000Version3(mpSolver, mTimeStep, intracellularStimulus, mpZeroStimulus);
                     
                     for (unsigned ht_index = 0;
-                         ht_index < heterogeneity_areas.size();
+                         ht_index < cell_heterogeneity_areas.size();
                          ++ht_index)
                     {
-                        if ( heterogeneity_areas[ht_index].DoesContain(mpMesh->GetNode(node)->GetPoint()) )
+                        if ( cell_heterogeneity_areas[ht_index].DoesContain(mpMesh->GetNode(node)->GetPoint()) )
                         {
                             faber_rudy_instance->SetScaleFactorGks(scale_factor_gks[ht_index]);
                             faber_rudy_instance->SetScaleFactorIto(scale_factor_ito[ht_index]);     
@@ -147,9 +152,13 @@ void ReadParametersFromFile()
     {
         std::auto_ptr<chaste_parameters_type> p_params(ChasteParameters(parameter_file));
         simulation_duration = p_params->SimulationDuration();
-        slab_width = p_params->SlabWidth();     // mm
-        slab_height = p_params->SlabHeight();   // mm
+        slab_x = p_params->SlabX();     // mm
+        slab_y = p_params->SlabY();   // mm
+        slab_z = p_params->SlabZ();   // mm
         inter_node_space = p_params->InterNodeSpace(); // mm
+        intra_x_cond = p_params->LongitudinalConductivity();
+        intra_y_cond = p_params->TransverseConductivity();
+        intra_z_cond = p_params->NormalConductivity();                
         output_directory = p_params->OutputDirectory();
         mesh_output_directory = p_params->MeshOutputDirectory();
         domain = p_params->Domain();
@@ -180,12 +189,12 @@ void ReadParametersFromFile()
         }
 
         // Read and store Cell Heterogeneities
-        chaste_parameters_type::Heterogeneity::container& hts = p_params->Heterogeneity();
-        for (chaste_parameters_type::Heterogeneity::iterator i = hts.begin();
+        chaste_parameters_type::CellHeterogeneity::container& hts = p_params->CellHeterogeneity();
+        for (chaste_parameters_type::CellHeterogeneity::iterator i = hts.begin();
              i != hts.end();
              ++i)
         {                     
-            heterogeneity_type ht(*i);           
+            cell_heterogeneity_type ht(*i);           
             point_type point_a = ht.Location().CornerA();
             point_type point_b = ht.Location().CornerB();
             
@@ -201,7 +210,7 @@ void ReadParametersFromFile()
                         
             scale_factor_gks.push_back (ht.ScaleFactorGks());
             scale_factor_ito.push_back (ht.ScaleFactorIto());                                    
-            heterogeneity_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
+            cell_heterogeneity_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
         }
         
         // Read and store Conductivity Heterogeneities
@@ -226,8 +235,8 @@ void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem,
     rProblem.SetOutputFilenamePrefix("Chaste");
     rProblem.SetCallChaste2Meshalyzer(false);
     
-    rProblem.SetFibreOrientation("constant_11520.fibres");
-    rProblem.SetIntracellularConductivities(1.7, 0.19, 0.19);     
+    //rProblem.SetFibreOrientation("constant_11520.fibres");
+    rProblem.SetIntracellularConductivities(Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond));     
 }
 
 int main(int argc, char *argv[]) 
@@ -252,18 +261,19 @@ int main(int argc, char *argv[])
         ReadParametersFromFile();
         
         // construct mesh. Note that mesh is measured in cm
-        unsigned slab_nodes_width = (unsigned)round(slab_width/inter_node_space);
-        unsigned slab_nodes_height = (unsigned)round(slab_height/inter_node_space);
+        unsigned slab_nodes_x = (unsigned)round(slab_x/inter_node_space);
+        unsigned slab_nodes_y = (unsigned)round(slab_y/inter_node_space);
+        unsigned slab_nodes_z = (unsigned)round(slab_z/inter_node_space);        
        
         ConformingTetrahedralMesh<3,3> mesh;
-        mesh.ConstructCuboid(slab_nodes_width,
-                             slab_nodes_height,
-                             slab_nodes_width,
+        mesh.ConstructCuboid(slab_nodes_x,
+                             slab_nodes_y,
+                             slab_nodes_z,
                              true);
         // place at origin
-        mesh.Translate(-(double)slab_nodes_width/2.0,
-                       -(double)slab_nodes_height/2.0,
-                       -(double)slab_nodes_width/2.0);
+        mesh.Translate(-(double)slab_nodes_x/2.0,
+                       -(double)slab_nodes_y/2.0,
+                       -(double)slab_nodes_z/2.0);
         // scale
         double mesh_scale_factor = inter_node_space*scale_factor;
         mesh.Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
@@ -305,7 +315,7 @@ int main(int argc, char *argv[])
                 BidomainProblem<3> bi_problem( &cell_factory );
                 SetupProblem(bi_problem, mesh);
     
-                bi_problem.SetExtracellularConductivities(6.2, 2.4, 2.4);
+                bi_problem.SetExtracellularConductivities(Create_c_vector(6.2, 2.4, 2.4));
 
                 bi_problem.Initialise();
                 bi_problem.Solve();            

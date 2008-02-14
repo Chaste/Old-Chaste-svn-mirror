@@ -19,9 +19,10 @@ public:
             
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
-            TS_ASSERT_EQUALS(p->SlabWidth(), 2.0);
-            TS_ASSERT_EQUALS(p->SlabHeight(), 1.0);
-            TS_ASSERT_EQUALS(p->InterNodeSpace(), 0.25);
+            TS_ASSERT_EQUALS(p->SlabX(), 4.0);
+            TS_ASSERT_EQUALS(p->SlabY(), 0.1);
+            TS_ASSERT_EQUALS(p->SlabZ(), 2.0);            
+            TS_ASSERT_EQUALS(p->InterNodeSpace(), 0.1);
             TS_ASSERT_EQUALS(p->OutputDirectory(), "ChasteResults");
             TS_ASSERT_EQUALS(p->MeshOutputDirectory(), "Slab");
             TS_ASSERT_EQUALS(p->Domain(), domain_type::Mono);
@@ -43,9 +44,10 @@ public:
             
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
             TS_ASSERT_EQUALS(p->SimulationDuration(), 10.0);
-            TS_ASSERT_EQUALS(p->SlabWidth(), 2.0);
-            TS_ASSERT_EQUALS(p->SlabHeight(), 1.0);
-            TS_ASSERT_EQUALS(p->InterNodeSpace(), 0.25);
+            TS_ASSERT_EQUALS(p->SlabX(), 4.0);
+            TS_ASSERT_EQUALS(p->SlabY(), 0.1);
+            TS_ASSERT_EQUALS(p->SlabZ(), 2.0);            
+            TS_ASSERT_EQUALS(p->InterNodeSpace(), 0.1);
             TS_ASSERT_EQUALS(p->OutputDirectory(), "ChasteResults");
             TS_ASSERT_EQUALS(p->MeshOutputDirectory(), "Slab");
             TS_ASSERT_EQUALS(p->Domain(), domain_type::Mono);

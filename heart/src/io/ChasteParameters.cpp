@@ -310,64 +310,146 @@ Location (::std::auto_ptr< Location::type > Location)
 }
 
 
-// heterogeneity_type
+// cell_heterogeneity_type
 // 
 
-const heterogeneity_type::ScaleFactorGks::type& heterogeneity_type::
+const cell_heterogeneity_type::ScaleFactorGks::type& cell_heterogeneity_type::
 ScaleFactorGks () const
 {
   return this->_xsd_ScaleFactorGks_.get ();
 }
 
-heterogeneity_type::ScaleFactorGks::type& heterogeneity_type::
+cell_heterogeneity_type::ScaleFactorGks::type& cell_heterogeneity_type::
 ScaleFactorGks ()
 {
   return this->_xsd_ScaleFactorGks_.get ();
 }
 
-void heterogeneity_type::
+void cell_heterogeneity_type::
 ScaleFactorGks (const ScaleFactorGks::type& ScaleFactorGks)
 {
   this->_xsd_ScaleFactorGks_.set (ScaleFactorGks);
 }
 
-const heterogeneity_type::ScaleFactorIto::type& heterogeneity_type::
+const cell_heterogeneity_type::ScaleFactorIto::type& cell_heterogeneity_type::
 ScaleFactorIto () const
 {
   return this->_xsd_ScaleFactorIto_.get ();
 }
 
-heterogeneity_type::ScaleFactorIto::type& heterogeneity_type::
+cell_heterogeneity_type::ScaleFactorIto::type& cell_heterogeneity_type::
 ScaleFactorIto ()
 {
   return this->_xsd_ScaleFactorIto_.get ();
 }
 
-void heterogeneity_type::
+void cell_heterogeneity_type::
 ScaleFactorIto (const ScaleFactorIto::type& ScaleFactorIto)
 {
   this->_xsd_ScaleFactorIto_.set (ScaleFactorIto);
 }
 
-const heterogeneity_type::Location::type& heterogeneity_type::
+const cell_heterogeneity_type::Location::type& cell_heterogeneity_type::
 Location () const
 {
   return this->_xsd_Location_.get ();
 }
 
-heterogeneity_type::Location::type& heterogeneity_type::
+cell_heterogeneity_type::Location::type& cell_heterogeneity_type::
 Location ()
 {
   return this->_xsd_Location_.get ();
 }
 
-void heterogeneity_type::
+void cell_heterogeneity_type::
 Location (const Location::type& Location)
 {
   this->_xsd_Location_.set (Location);
 }
 
-void heterogeneity_type::
+void cell_heterogeneity_type::
+Location (::std::auto_ptr< Location::type > Location)
+{
+  this->_xsd_Location_.set (Location);
+}
+
+
+// conductivity_heterogeneity_type
+// 
+
+const conductivity_heterogeneity_type::Longitudinal::type& conductivity_heterogeneity_type::
+Longitudinal () const
+{
+  return this->_xsd_Longitudinal_.get ();
+}
+
+conductivity_heterogeneity_type::Longitudinal::type& conductivity_heterogeneity_type::
+Longitudinal ()
+{
+  return this->_xsd_Longitudinal_.get ();
+}
+
+void conductivity_heterogeneity_type::
+Longitudinal (const Longitudinal::type& Longitudinal)
+{
+  this->_xsd_Longitudinal_.set (Longitudinal);
+}
+
+const conductivity_heterogeneity_type::Transverse::type& conductivity_heterogeneity_type::
+Transverse () const
+{
+  return this->_xsd_Transverse_.get ();
+}
+
+conductivity_heterogeneity_type::Transverse::type& conductivity_heterogeneity_type::
+Transverse ()
+{
+  return this->_xsd_Transverse_.get ();
+}
+
+void conductivity_heterogeneity_type::
+Transverse (const Transverse::type& Transverse)
+{
+  this->_xsd_Transverse_.set (Transverse);
+}
+
+const conductivity_heterogeneity_type::Normal::type& conductivity_heterogeneity_type::
+Normal () const
+{
+  return this->_xsd_Normal_.get ();
+}
+
+conductivity_heterogeneity_type::Normal::type& conductivity_heterogeneity_type::
+Normal ()
+{
+  return this->_xsd_Normal_.get ();
+}
+
+void conductivity_heterogeneity_type::
+Normal (const Normal::type& Normal)
+{
+  this->_xsd_Normal_.set (Normal);
+}
+
+const conductivity_heterogeneity_type::Location::type& conductivity_heterogeneity_type::
+Location () const
+{
+  return this->_xsd_Location_.get ();
+}
+
+conductivity_heterogeneity_type::Location::type& conductivity_heterogeneity_type::
+Location ()
+{
+  return this->_xsd_Location_.get ();
+}
+
+void conductivity_heterogeneity_type::
+Location (const Location::type& Location)
+{
+  this->_xsd_Location_.set (Location);
+}
+
+void conductivity_heterogeneity_type::
 Location (::std::auto_ptr< Location::type > Location)
 {
   this->_xsd_Location_.set (Location);
@@ -443,40 +525,58 @@ IonicModel (::std::auto_ptr< IonicModel::type > IonicModel)
   this->_xsd_IonicModel_.set (IonicModel);
 }
 
-const chaste_parameters_type::SlabWidth::type& chaste_parameters_type::
-SlabWidth () const
+const chaste_parameters_type::SlabX::type& chaste_parameters_type::
+SlabX () const
 {
-  return this->_xsd_SlabWidth_.get ();
+  return this->_xsd_SlabX_.get ();
 }
 
-chaste_parameters_type::SlabWidth::type& chaste_parameters_type::
-SlabWidth ()
+chaste_parameters_type::SlabX::type& chaste_parameters_type::
+SlabX ()
 {
-  return this->_xsd_SlabWidth_.get ();
-}
-
-void chaste_parameters_type::
-SlabWidth (const SlabWidth::type& SlabWidth)
-{
-  this->_xsd_SlabWidth_.set (SlabWidth);
-}
-
-const chaste_parameters_type::SlabHeight::type& chaste_parameters_type::
-SlabHeight () const
-{
-  return this->_xsd_SlabHeight_.get ();
-}
-
-chaste_parameters_type::SlabHeight::type& chaste_parameters_type::
-SlabHeight ()
-{
-  return this->_xsd_SlabHeight_.get ();
+  return this->_xsd_SlabX_.get ();
 }
 
 void chaste_parameters_type::
-SlabHeight (const SlabHeight::type& SlabHeight)
+SlabX (const SlabX::type& SlabX)
 {
-  this->_xsd_SlabHeight_.set (SlabHeight);
+  this->_xsd_SlabX_.set (SlabX);
+}
+
+const chaste_parameters_type::SlabY::type& chaste_parameters_type::
+SlabY () const
+{
+  return this->_xsd_SlabY_.get ();
+}
+
+chaste_parameters_type::SlabY::type& chaste_parameters_type::
+SlabY ()
+{
+  return this->_xsd_SlabY_.get ();
+}
+
+void chaste_parameters_type::
+SlabY (const SlabY::type& SlabY)
+{
+  this->_xsd_SlabY_.set (SlabY);
+}
+
+const chaste_parameters_type::SlabZ::type& chaste_parameters_type::
+SlabZ () const
+{
+  return this->_xsd_SlabZ_.get ();
+}
+
+chaste_parameters_type::SlabZ::type& chaste_parameters_type::
+SlabZ ()
+{
+  return this->_xsd_SlabZ_.get ();
+}
+
+void chaste_parameters_type::
+SlabZ (const SlabZ::type& SlabZ)
+{
+  this->_xsd_SlabZ_.set (SlabZ);
 }
 
 const chaste_parameters_type::InterNodeSpace::type& chaste_parameters_type::
@@ -497,6 +597,60 @@ InterNodeSpace (const InterNodeSpace::type& InterNodeSpace)
   this->_xsd_InterNodeSpace_.set (InterNodeSpace);
 }
 
+const chaste_parameters_type::LongitudinalConductivity::type& chaste_parameters_type::
+LongitudinalConductivity () const
+{
+  return this->_xsd_LongitudinalConductivity_.get ();
+}
+
+chaste_parameters_type::LongitudinalConductivity::type& chaste_parameters_type::
+LongitudinalConductivity ()
+{
+  return this->_xsd_LongitudinalConductivity_.get ();
+}
+
+void chaste_parameters_type::
+LongitudinalConductivity (const LongitudinalConductivity::type& LongitudinalConductivity)
+{
+  this->_xsd_LongitudinalConductivity_.set (LongitudinalConductivity);
+}
+
+const chaste_parameters_type::TransverseConductivity::type& chaste_parameters_type::
+TransverseConductivity () const
+{
+  return this->_xsd_TransverseConductivity_.get ();
+}
+
+chaste_parameters_type::TransverseConductivity::type& chaste_parameters_type::
+TransverseConductivity ()
+{
+  return this->_xsd_TransverseConductivity_.get ();
+}
+
+void chaste_parameters_type::
+TransverseConductivity (const TransverseConductivity::type& TransverseConductivity)
+{
+  this->_xsd_TransverseConductivity_.set (TransverseConductivity);
+}
+
+const chaste_parameters_type::NormalConductivity::type& chaste_parameters_type::
+NormalConductivity () const
+{
+  return this->_xsd_NormalConductivity_.get ();
+}
+
+chaste_parameters_type::NormalConductivity::type& chaste_parameters_type::
+NormalConductivity ()
+{
+  return this->_xsd_NormalConductivity_.get ();
+}
+
+void chaste_parameters_type::
+NormalConductivity (const NormalConductivity::type& NormalConductivity)
+{
+  this->_xsd_NormalConductivity_.set (NormalConductivity);
+}
+
 const chaste_parameters_type::Stimulus::container& chaste_parameters_type::
 Stimulus () const
 {
@@ -515,22 +669,40 @@ Stimulus (const Stimulus::container& Stimulus)
   this->_xsd_Stimulus_ = Stimulus;
 }
 
-const chaste_parameters_type::Heterogeneity::container& chaste_parameters_type::
-Heterogeneity () const
+const chaste_parameters_type::CellHeterogeneity::container& chaste_parameters_type::
+CellHeterogeneity () const
 {
-  return this->_xsd_Heterogeneity_;
+  return this->_xsd_CellHeterogeneity_;
 }
 
-chaste_parameters_type::Heterogeneity::container& chaste_parameters_type::
-Heterogeneity ()
+chaste_parameters_type::CellHeterogeneity::container& chaste_parameters_type::
+CellHeterogeneity ()
 {
-  return this->_xsd_Heterogeneity_;
+  return this->_xsd_CellHeterogeneity_;
 }
 
 void chaste_parameters_type::
-Heterogeneity (const Heterogeneity::container& Heterogeneity)
+CellHeterogeneity (const CellHeterogeneity::container& CellHeterogeneity)
 {
-  this->_xsd_Heterogeneity_ = Heterogeneity;
+  this->_xsd_CellHeterogeneity_ = CellHeterogeneity;
+}
+
+const chaste_parameters_type::ConductivityHeterogeneity::container& chaste_parameters_type::
+ConductivityHeterogeneity () const
+{
+  return this->_xsd_ConductivityHeterogeneity_;
+}
+
+chaste_parameters_type::ConductivityHeterogeneity::container& chaste_parameters_type::
+ConductivityHeterogeneity ()
+{
+  return this->_xsd_ConductivityHeterogeneity_;
+}
+
+void chaste_parameters_type::
+ConductivityHeterogeneity (const ConductivityHeterogeneity::container& ConductivityHeterogeneity)
+{
+  this->_xsd_ConductivityHeterogeneity_ = ConductivityHeterogeneity;
 }
 
 const chaste_parameters_type::OutputDirectory::type& chaste_parameters_type::
@@ -1107,13 +1279,13 @@ _clone (::xml_schema::flags f,
   return new stimulus_type (*this, f, c);
 }
 
-// heterogeneity_type
+// cell_heterogeneity_type
 //
 
-heterogeneity_type::
-heterogeneity_type (const ScaleFactorGks::type& _xsd_ScaleFactorGks,
-                    const ScaleFactorIto::type& _xsd_ScaleFactorIto,
-                    const Location::type& _xsd_Location)
+cell_heterogeneity_type::
+cell_heterogeneity_type (const ScaleFactorGks::type& _xsd_ScaleFactorGks,
+                         const ScaleFactorIto::type& _xsd_ScaleFactorIto,
+                         const Location::type& _xsd_Location)
 : ::xml_schema::type (),
 _xsd_ScaleFactorGks_ (_xsd_ScaleFactorGks,
                       ::xml_schema::flags (),
@@ -1127,27 +1299,27 @@ _xsd_Location_ (_xsd_Location,
 {
 }
 
-heterogeneity_type::
-heterogeneity_type (const heterogeneity_type& _xsd_heterogeneity_type,
-                    ::xml_schema::flags f,
-                    ::xml_schema::type* c)
-: ::xml_schema::type (_xsd_heterogeneity_type, f, c),
-_xsd_ScaleFactorGks_ (_xsd_heterogeneity_type._xsd_ScaleFactorGks_,
+cell_heterogeneity_type::
+cell_heterogeneity_type (const cell_heterogeneity_type& _xsd_cell_heterogeneity_type,
+                         ::xml_schema::flags f,
+                         ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_cell_heterogeneity_type, f, c),
+_xsd_ScaleFactorGks_ (_xsd_cell_heterogeneity_type._xsd_ScaleFactorGks_,
                       f | ::xml_schema::flags::not_root,
                       this),
-_xsd_ScaleFactorIto_ (_xsd_heterogeneity_type._xsd_ScaleFactorIto_,
+_xsd_ScaleFactorIto_ (_xsd_cell_heterogeneity_type._xsd_ScaleFactorIto_,
                       f | ::xml_schema::flags::not_root,
                       this),
-_xsd_Location_ (_xsd_heterogeneity_type._xsd_Location_,
+_xsd_Location_ (_xsd_cell_heterogeneity_type._xsd_Location_,
                 f | ::xml_schema::flags::not_root,
                 this)
 {
 }
 
-heterogeneity_type::
-heterogeneity_type (const ::xercesc::DOMElement& e,
-                    ::xml_schema::flags f,
-                    ::xml_schema::type* c)
+cell_heterogeneity_type::
+cell_heterogeneity_type (const ::xercesc::DOMElement& e,
+                         ::xml_schema::flags f,
+                         ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
 _xsd_ScaleFactorGks_ (f | ::xml_schema::flags::not_root, this),
 _xsd_ScaleFactorIto_ (f | ::xml_schema::flags::not_root, this),
@@ -1156,7 +1328,7 @@ _xsd_Location_ (f | ::xml_schema::flags::not_root, this)
   parse (e, f);
 }
 
-void heterogeneity_type::
+void cell_heterogeneity_type::
 parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
 {
   ::xsd::cxx::xml::dom::parser< char > p (e);
@@ -1238,11 +1410,180 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
   }
 }
 
-heterogeneity_type* heterogeneity_type::
+cell_heterogeneity_type* cell_heterogeneity_type::
 _clone (::xml_schema::flags f,
         ::xml_schema::type* c) const
 {
-  return new heterogeneity_type (*this, f, c);
+  return new cell_heterogeneity_type (*this, f, c);
+}
+
+// conductivity_heterogeneity_type
+//
+
+conductivity_heterogeneity_type::
+conductivity_heterogeneity_type (const Longitudinal::type& _xsd_Longitudinal,
+                                 const Transverse::type& _xsd_Transverse,
+                                 const Normal::type& _xsd_Normal,
+                                 const Location::type& _xsd_Location)
+: ::xml_schema::type (),
+_xsd_Longitudinal_ (_xsd_Longitudinal,
+                    ::xml_schema::flags (),
+                    this),
+_xsd_Transverse_ (_xsd_Transverse,
+                  ::xml_schema::flags (),
+                  this),
+_xsd_Normal_ (_xsd_Normal,
+              ::xml_schema::flags (),
+              this),
+_xsd_Location_ (_xsd_Location,
+                ::xml_schema::flags (),
+                this)
+{
+}
+
+conductivity_heterogeneity_type::
+conductivity_heterogeneity_type (const conductivity_heterogeneity_type& _xsd_conductivity_heterogeneity_type,
+                                 ::xml_schema::flags f,
+                                 ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_conductivity_heterogeneity_type, f, c),
+_xsd_Longitudinal_ (_xsd_conductivity_heterogeneity_type._xsd_Longitudinal_,
+                    f | ::xml_schema::flags::not_root,
+                    this),
+_xsd_Transverse_ (_xsd_conductivity_heterogeneity_type._xsd_Transverse_,
+                  f | ::xml_schema::flags::not_root,
+                  this),
+_xsd_Normal_ (_xsd_conductivity_heterogeneity_type._xsd_Normal_,
+              f | ::xml_schema::flags::not_root,
+              this),
+_xsd_Location_ (_xsd_conductivity_heterogeneity_type._xsd_Location_,
+                f | ::xml_schema::flags::not_root,
+                this)
+{
+}
+
+conductivity_heterogeneity_type::
+conductivity_heterogeneity_type (const ::xercesc::DOMElement& e,
+                                 ::xml_schema::flags f,
+                                 ::xml_schema::type* c)
+: ::xml_schema::type (e, f, c),
+_xsd_Longitudinal_ (f | ::xml_schema::flags::not_root, this),
+_xsd_Transverse_ (f | ::xml_schema::flags::not_root, this),
+_xsd_Normal_ (f | ::xml_schema::flags::not_root, this),
+_xsd_Location_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void conductivity_heterogeneity_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_elements ())
+  {
+    const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
+
+    // Longitudinal
+    //
+    {
+      if (e.name () == "Longitudinal" && e.namespace_ ().empty ())
+      {
+        if (_xsd_Longitudinal_.present ())
+          continue;
+        this->Longitudinal (
+          Longitudinal::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
+
+    // Transverse
+    //
+    {
+      if (e.name () == "Transverse" && e.namespace_ ().empty ())
+      {
+        if (_xsd_Transverse_.present ())
+          continue;
+        this->Transverse (
+          Transverse::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
+
+    // Normal
+    //
+    {
+      if (e.name () == "Normal" && e.namespace_ ().empty ())
+      {
+        if (_xsd_Normal_.present ())
+          continue;
+        this->Normal (
+          Normal::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
+
+    // Location
+    //
+    {
+      if (e.name () == "Location" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< Location::type > r (
+          Location::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_Location_.present ())
+          continue;
+        this->Location (r);
+        continue;
+      }
+    }
+  }
+
+  if (!_xsd_Longitudinal_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "Longitudinal",
+      "");
+  }
+
+  if (!_xsd_Transverse_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "Transverse",
+      "");
+  }
+
+  if (!_xsd_Normal_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "Normal",
+      "");
+  }
+
+  if (!_xsd_Location_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "Location",
+      "");
+  }
+}
+
+conductivity_heterogeneity_type* conductivity_heterogeneity_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new conductivity_heterogeneity_type (*this, f, c);
 }
 
 // chaste_parameters_type
@@ -1252,9 +1593,13 @@ chaste_parameters_type::
 chaste_parameters_type (const SimulationDuration::type& _xsd_SimulationDuration,
                         const Domain::type& _xsd_Domain,
                         const IonicModel::type& _xsd_IonicModel,
-                        const SlabWidth::type& _xsd_SlabWidth,
-                        const SlabHeight::type& _xsd_SlabHeight,
+                        const SlabX::type& _xsd_SlabX,
+                        const SlabY::type& _xsd_SlabY,
+                        const SlabZ::type& _xsd_SlabZ,
                         const InterNodeSpace::type& _xsd_InterNodeSpace,
+                        const LongitudinalConductivity::type& _xsd_LongitudinalConductivity,
+                        const TransverseConductivity::type& _xsd_TransverseConductivity,
+                        const NormalConductivity::type& _xsd_NormalConductivity,
                         const OutputDirectory::type& _xsd_OutputDirectory,
                         const MeshOutputDirectory::type& _xsd_MeshOutputDirectory)
 : ::xml_schema::type (),
@@ -1267,17 +1612,30 @@ _xsd_Domain_ (_xsd_Domain,
 _xsd_IonicModel_ (_xsd_IonicModel,
                   ::xml_schema::flags (),
                   this),
-_xsd_SlabWidth_ (_xsd_SlabWidth,
-                 ::xml_schema::flags (),
-                 this),
-_xsd_SlabHeight_ (_xsd_SlabHeight,
-                  ::xml_schema::flags (),
-                  this),
+_xsd_SlabX_ (_xsd_SlabX,
+             ::xml_schema::flags (),
+             this),
+_xsd_SlabY_ (_xsd_SlabY,
+             ::xml_schema::flags (),
+             this),
+_xsd_SlabZ_ (_xsd_SlabZ,
+             ::xml_schema::flags (),
+             this),
 _xsd_InterNodeSpace_ (_xsd_InterNodeSpace,
                       ::xml_schema::flags (),
                       this),
+_xsd_LongitudinalConductivity_ (_xsd_LongitudinalConductivity,
+                                ::xml_schema::flags (),
+                                this),
+_xsd_TransverseConductivity_ (_xsd_TransverseConductivity,
+                              ::xml_schema::flags (),
+                              this),
+_xsd_NormalConductivity_ (_xsd_NormalConductivity,
+                          ::xml_schema::flags (),
+                          this),
 _xsd_Stimulus_ (::xml_schema::flags (), this),
-_xsd_Heterogeneity_ (::xml_schema::flags (), this),
+_xsd_CellHeterogeneity_ (::xml_schema::flags (), this),
+_xsd_ConductivityHeterogeneity_ (::xml_schema::flags (), this),
 _xsd_OutputDirectory_ (_xsd_OutputDirectory,
                        ::xml_schema::flags (),
                        this),
@@ -1301,21 +1659,36 @@ _xsd_Domain_ (_xsd_chaste_parameters_type._xsd_Domain_,
 _xsd_IonicModel_ (_xsd_chaste_parameters_type._xsd_IonicModel_,
                   f | ::xml_schema::flags::not_root,
                   this),
-_xsd_SlabWidth_ (_xsd_chaste_parameters_type._xsd_SlabWidth_,
-                 f | ::xml_schema::flags::not_root,
-                 this),
-_xsd_SlabHeight_ (_xsd_chaste_parameters_type._xsd_SlabHeight_,
-                  f | ::xml_schema::flags::not_root,
-                  this),
+_xsd_SlabX_ (_xsd_chaste_parameters_type._xsd_SlabX_,
+             f | ::xml_schema::flags::not_root,
+             this),
+_xsd_SlabY_ (_xsd_chaste_parameters_type._xsd_SlabY_,
+             f | ::xml_schema::flags::not_root,
+             this),
+_xsd_SlabZ_ (_xsd_chaste_parameters_type._xsd_SlabZ_,
+             f | ::xml_schema::flags::not_root,
+             this),
 _xsd_InterNodeSpace_ (_xsd_chaste_parameters_type._xsd_InterNodeSpace_,
                       f | ::xml_schema::flags::not_root,
                       this),
+_xsd_LongitudinalConductivity_ (_xsd_chaste_parameters_type._xsd_LongitudinalConductivity_,
+                                f | ::xml_schema::flags::not_root,
+                                this),
+_xsd_TransverseConductivity_ (_xsd_chaste_parameters_type._xsd_TransverseConductivity_,
+                              f | ::xml_schema::flags::not_root,
+                              this),
+_xsd_NormalConductivity_ (_xsd_chaste_parameters_type._xsd_NormalConductivity_,
+                          f | ::xml_schema::flags::not_root,
+                          this),
 _xsd_Stimulus_ (_xsd_chaste_parameters_type._xsd_Stimulus_,
                 f | ::xml_schema::flags::not_root,
                 this),
-_xsd_Heterogeneity_ (_xsd_chaste_parameters_type._xsd_Heterogeneity_,
-                     f | ::xml_schema::flags::not_root,
-                     this),
+_xsd_CellHeterogeneity_ (_xsd_chaste_parameters_type._xsd_CellHeterogeneity_,
+                         f | ::xml_schema::flags::not_root,
+                         this),
+_xsd_ConductivityHeterogeneity_ (_xsd_chaste_parameters_type._xsd_ConductivityHeterogeneity_,
+                                 f | ::xml_schema::flags::not_root,
+                                 this),
 _xsd_OutputDirectory_ (_xsd_chaste_parameters_type._xsd_OutputDirectory_,
                        f | ::xml_schema::flags::not_root,
                        this),
@@ -1333,11 +1706,16 @@ chaste_parameters_type (const ::xercesc::DOMElement& e,
 _xsd_SimulationDuration_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Domain_ (f | ::xml_schema::flags::not_root, this),
 _xsd_IonicModel_ (f | ::xml_schema::flags::not_root, this),
-_xsd_SlabWidth_ (f | ::xml_schema::flags::not_root, this),
-_xsd_SlabHeight_ (f | ::xml_schema::flags::not_root, this),
+_xsd_SlabX_ (f | ::xml_schema::flags::not_root, this),
+_xsd_SlabY_ (f | ::xml_schema::flags::not_root, this),
+_xsd_SlabZ_ (f | ::xml_schema::flags::not_root, this),
 _xsd_InterNodeSpace_ (f | ::xml_schema::flags::not_root, this),
+_xsd_LongitudinalConductivity_ (f | ::xml_schema::flags::not_root, this),
+_xsd_TransverseConductivity_ (f | ::xml_schema::flags::not_root, this),
+_xsd_NormalConductivity_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Stimulus_ (f | ::xml_schema::flags::not_root, this),
-_xsd_Heterogeneity_ (f | ::xml_schema::flags::not_root, this),
+_xsd_CellHeterogeneity_ (f | ::xml_schema::flags::not_root, this),
+_xsd_ConductivityHeterogeneity_ (f | ::xml_schema::flags::not_root, this),
 _xsd_OutputDirectory_ (f | ::xml_schema::flags::not_root, this),
 _xsd_MeshOutputDirectory_ (f | ::xml_schema::flags::not_root, this)
 {
@@ -1405,15 +1783,15 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       }
     }
 
-    // SlabWidth
+    // SlabX
     //
     {
-      if (e.name () == "SlabWidth" && e.namespace_ ().empty ())
+      if (e.name () == "SlabX" && e.namespace_ ().empty ())
       {
-        if (_xsd_SlabWidth_.present ())
+        if (_xsd_SlabX_.present ())
           continue;
-        this->SlabWidth (
-          SlabWidth::traits::create (
+        this->SlabX (
+          SlabX::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
@@ -1421,15 +1799,31 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       }
     }
 
-    // SlabHeight
+    // SlabY
     //
     {
-      if (e.name () == "SlabHeight" && e.namespace_ ().empty ())
+      if (e.name () == "SlabY" && e.namespace_ ().empty ())
       {
-        if (_xsd_SlabHeight_.present ())
+        if (_xsd_SlabY_.present ())
           continue;
-        this->SlabHeight (
-          SlabHeight::traits::create (
+        this->SlabY (
+          SlabY::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
+
+    // SlabZ
+    //
+    {
+      if (e.name () == "SlabZ" && e.namespace_ ().empty ())
+      {
+        if (_xsd_SlabZ_.present ())
+          continue;
+        this->SlabZ (
+          SlabZ::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
@@ -1453,6 +1847,54 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       }
     }
 
+    // LongitudinalConductivity
+    //
+    {
+      if (e.name () == "LongitudinalConductivity" && e.namespace_ ().empty ())
+      {
+        if (_xsd_LongitudinalConductivity_.present ())
+          continue;
+        this->LongitudinalConductivity (
+          LongitudinalConductivity::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
+
+    // TransverseConductivity
+    //
+    {
+      if (e.name () == "TransverseConductivity" && e.namespace_ ().empty ())
+      {
+        if (_xsd_TransverseConductivity_.present ())
+          continue;
+        this->TransverseConductivity (
+          TransverseConductivity::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
+
+    // NormalConductivity
+    //
+    {
+      if (e.name () == "NormalConductivity" && e.namespace_ ().empty ())
+      {
+        if (_xsd_NormalConductivity_.present ())
+          continue;
+        this->NormalConductivity (
+          NormalConductivity::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
+
     // Stimulus
     //
     {
@@ -1469,18 +1911,34 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       }
     }
 
-    // Heterogeneity
+    // CellHeterogeneity
     //
     {
-      if (e.name () == "Heterogeneity" && e.namespace_ ().empty ())
+      if (e.name () == "CellHeterogeneity" && e.namespace_ ().empty ())
       {
-        ::std::auto_ptr< Heterogeneity::type > r (
-          Heterogeneity::traits::create (
+        ::std::auto_ptr< CellHeterogeneity::type > r (
+          CellHeterogeneity::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
 
-        this->Heterogeneity ().push_back (r);
+        this->CellHeterogeneity ().push_back (r);
+        continue;
+      }
+    }
+
+    // ConductivityHeterogeneity
+    //
+    {
+      if (e.name () == "ConductivityHeterogeneity" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< ConductivityHeterogeneity::type > r (
+          ConductivityHeterogeneity::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        this->ConductivityHeterogeneity ().push_back (r);
         continue;
       }
     }
@@ -1543,17 +2001,24 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       "");
   }
 
-  if (!_xsd_SlabWidth_.present ())
+  if (!_xsd_SlabX_.present ())
   {
     throw ::xsd::cxx::tree::expected_element< char > (
-      "SlabWidth",
+      "SlabX",
       "");
   }
 
-  if (!_xsd_SlabHeight_.present ())
+  if (!_xsd_SlabY_.present ())
   {
     throw ::xsd::cxx::tree::expected_element< char > (
-      "SlabHeight",
+      "SlabY",
+      "");
+  }
+
+  if (!_xsd_SlabZ_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "SlabZ",
       "");
   }
 
@@ -1561,6 +2026,27 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
   {
     throw ::xsd::cxx::tree::expected_element< char > (
       "InterNodeSpace",
+      "");
+  }
+
+  if (!_xsd_LongitudinalConductivity_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "LongitudinalConductivity",
+      "");
+  }
+
+  if (!_xsd_TransverseConductivity_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "TransverseConductivity",
+      "");
+  }
+
+  if (!_xsd_NormalConductivity_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "NormalConductivity",
       "");
   }
 

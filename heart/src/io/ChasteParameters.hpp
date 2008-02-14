@@ -203,7 +203,8 @@ class ionic_model_type;
 class point_type;
 class box_type;
 class stimulus_type;
-class heterogeneity_type;
+class cell_heterogeneity_type;
+class conductivity_heterogeneity_type;
 class chaste_parameters_type;
 
 #include <memory>    // std::auto_ptr
@@ -615,11 +616,11 @@ class stimulus_type: public ::xml_schema::type
   ::xsd::cxx::tree::one< Location::type > _xsd_Location_;
 };
 
-class heterogeneity_type: public ::xml_schema::type
+class cell_heterogeneity_type: public ::xml_schema::type
 {
   public:
 
-  struct _xsd_heterogeneity_type
+  struct _xsd_cell_heterogeneity_type
   {
     typedef ::xml_schema::type base_;
   };
@@ -684,19 +685,19 @@ class heterogeneity_type: public ::xml_schema::type
   // Constructors.
   //
   public:
-  heterogeneity_type (const ScaleFactorGks::type&,
-                      const ScaleFactorIto::type&,
-                      const Location::type&);
+  cell_heterogeneity_type (const ScaleFactorGks::type&,
+                           const ScaleFactorIto::type&,
+                           const Location::type&);
 
-  heterogeneity_type (const ::xercesc::DOMElement&,
-                      ::xml_schema::flags = 0,
-                      ::xml_schema::type* = 0);
+  cell_heterogeneity_type (const ::xercesc::DOMElement&,
+                           ::xml_schema::flags = 0,
+                           ::xml_schema::type* = 0);
 
-  heterogeneity_type (const heterogeneity_type&,
-                      ::xml_schema::flags = 0,
-                      ::xml_schema::type* = 0);
+  cell_heterogeneity_type (const cell_heterogeneity_type&,
+                           ::xml_schema::flags = 0,
+                           ::xml_schema::type* = 0);
 
-  virtual heterogeneity_type*
+  virtual cell_heterogeneity_type*
   _clone (::xml_schema::flags = 0,
           ::xml_schema::type* = 0) const;
 
@@ -708,6 +709,122 @@ class heterogeneity_type: public ::xml_schema::type
 
   ::xsd::cxx::tree::one< ScaleFactorGks::type > _xsd_ScaleFactorGks_;
   ::xsd::cxx::tree::one< ScaleFactorIto::type > _xsd_ScaleFactorIto_;
+  ::xsd::cxx::tree::one< Location::type > _xsd_Location_;
+};
+
+class conductivity_heterogeneity_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_conductivity_heterogeneity_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // Longitudinal
+  // 
+  public:
+  struct Longitudinal
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Longitudinal::type&
+  Longitudinal () const;
+
+  Longitudinal::type&
+  Longitudinal ();
+
+  void
+  Longitudinal (const Longitudinal::type&);
+
+  // Transverse
+  // 
+  public:
+  struct Transverse
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Transverse::type&
+  Transverse () const;
+
+  Transverse::type&
+  Transverse ();
+
+  void
+  Transverse (const Transverse::type&);
+
+  // Normal
+  // 
+  public:
+  struct Normal
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Normal::type&
+  Normal () const;
+
+  Normal::type&
+  Normal ();
+
+  void
+  Normal (const Normal::type&);
+
+  // Location
+  // 
+  public:
+  struct Location
+  {
+    typedef ::box_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Location::type&
+  Location () const;
+
+  Location::type&
+  Location ();
+
+  void
+  Location (const Location::type&);
+
+  void
+  Location (::std::auto_ptr< Location::type >);
+
+  // Constructors.
+  //
+  public:
+  conductivity_heterogeneity_type (const Longitudinal::type&,
+                                   const Transverse::type&,
+                                   const Normal::type&,
+                                   const Location::type&);
+
+  conductivity_heterogeneity_type (const ::xercesc::DOMElement&,
+                                   ::xml_schema::flags = 0,
+                                   ::xml_schema::type* = 0);
+
+  conductivity_heterogeneity_type (const conductivity_heterogeneity_type&,
+                                   ::xml_schema::flags = 0,
+                                   ::xml_schema::type* = 0);
+
+  virtual conductivity_heterogeneity_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< Longitudinal::type > _xsd_Longitudinal_;
+  ::xsd::cxx::tree::one< Transverse::type > _xsd_Transverse_;
+  ::xsd::cxx::tree::one< Normal::type > _xsd_Normal_;
   ::xsd::cxx::tree::one< Location::type > _xsd_Location_;
 };
 
@@ -780,48 +897,66 @@ class chaste_parameters_type: public ::xml_schema::type
   void
   IonicModel (::std::auto_ptr< IonicModel::type >);
 
-  // SlabWidth
+  // SlabX
   // 
   public:
-  struct SlabWidth
+  struct SlabX
   {
-    typedef ::xml_schema::decimal type;
+    typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const SlabWidth::type&
-  SlabWidth () const;
+  const SlabX::type&
+  SlabX () const;
 
-  SlabWidth::type&
-  SlabWidth ();
+  SlabX::type&
+  SlabX ();
 
   void
-  SlabWidth (const SlabWidth::type&);
+  SlabX (const SlabX::type&);
 
-  // SlabHeight
+  // SlabY
   // 
   public:
-  struct SlabHeight
+  struct SlabY
   {
-    typedef ::xml_schema::decimal type;
+    typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const SlabHeight::type&
-  SlabHeight () const;
+  const SlabY::type&
+  SlabY () const;
 
-  SlabHeight::type&
-  SlabHeight ();
+  SlabY::type&
+  SlabY ();
 
   void
-  SlabHeight (const SlabHeight::type&);
+  SlabY (const SlabY::type&);
+
+  // SlabZ
+  // 
+  public:
+  struct SlabZ
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const SlabZ::type&
+  SlabZ () const;
+
+  SlabZ::type&
+  SlabZ ();
+
+  void
+  SlabZ (const SlabZ::type&);
 
   // InterNodeSpace
   // 
   public:
   struct InterNodeSpace
   {
-    typedef ::xml_schema::decimal type;
+    typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
@@ -833,6 +968,60 @@ class chaste_parameters_type: public ::xml_schema::type
 
   void
   InterNodeSpace (const InterNodeSpace::type&);
+
+  // LongitudinalConductivity
+  // 
+  public:
+  struct LongitudinalConductivity
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const LongitudinalConductivity::type&
+  LongitudinalConductivity () const;
+
+  LongitudinalConductivity::type&
+  LongitudinalConductivity ();
+
+  void
+  LongitudinalConductivity (const LongitudinalConductivity::type&);
+
+  // TransverseConductivity
+  // 
+  public:
+  struct TransverseConductivity
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const TransverseConductivity::type&
+  TransverseConductivity () const;
+
+  TransverseConductivity::type&
+  TransverseConductivity ();
+
+  void
+  TransverseConductivity (const TransverseConductivity::type&);
+
+  // NormalConductivity
+  // 
+  public:
+  struct NormalConductivity
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const NormalConductivity::type&
+  NormalConductivity () const;
+
+  NormalConductivity::type&
+  NormalConductivity ();
+
+  void
+  NormalConductivity (const NormalConductivity::type&);
 
   // Stimulus
   // 
@@ -855,26 +1044,47 @@ class chaste_parameters_type: public ::xml_schema::type
   void
   Stimulus (const Stimulus::container&);
 
-  // Heterogeneity
+  // CellHeterogeneity
   // 
   public:
-  struct Heterogeneity
+  struct CellHeterogeneity
   {
-    typedef ::heterogeneity_type type;
+    typedef ::cell_heterogeneity_type type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
     typedef ::xsd::cxx::tree::sequence< type > container;
     typedef container::iterator iterator;
     typedef container::const_iterator const_iterator;
   };
 
-  const Heterogeneity::container&
-  Heterogeneity () const;
+  const CellHeterogeneity::container&
+  CellHeterogeneity () const;
 
-  Heterogeneity::container&
-  Heterogeneity ();
+  CellHeterogeneity::container&
+  CellHeterogeneity ();
 
   void
-  Heterogeneity (const Heterogeneity::container&);
+  CellHeterogeneity (const CellHeterogeneity::container&);
+
+  // ConductivityHeterogeneity
+  // 
+  public:
+  struct ConductivityHeterogeneity
+  {
+    typedef ::conductivity_heterogeneity_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::sequence< type > container;
+    typedef container::iterator iterator;
+    typedef container::const_iterator const_iterator;
+  };
+
+  const ConductivityHeterogeneity::container&
+  ConductivityHeterogeneity () const;
+
+  ConductivityHeterogeneity::container&
+  ConductivityHeterogeneity ();
+
+  void
+  ConductivityHeterogeneity (const ConductivityHeterogeneity::container&);
 
   // OutputDirectory
   // 
@@ -924,9 +1134,13 @@ class chaste_parameters_type: public ::xml_schema::type
   chaste_parameters_type (const SimulationDuration::type&,
                           const Domain::type&,
                           const IonicModel::type&,
-                          const SlabWidth::type&,
-                          const SlabHeight::type&,
+                          const SlabX::type&,
+                          const SlabY::type&,
+                          const SlabZ::type&,
                           const InterNodeSpace::type&,
+                          const LongitudinalConductivity::type&,
+                          const TransverseConductivity::type&,
+                          const NormalConductivity::type&,
                           const OutputDirectory::type&,
                           const MeshOutputDirectory::type&);
 
@@ -951,11 +1165,16 @@ class chaste_parameters_type: public ::xml_schema::type
   ::xsd::cxx::tree::one< SimulationDuration::type > _xsd_SimulationDuration_;
   ::xsd::cxx::tree::one< Domain::type > _xsd_Domain_;
   ::xsd::cxx::tree::one< IonicModel::type > _xsd_IonicModel_;
-  ::xsd::cxx::tree::one< SlabWidth::type > _xsd_SlabWidth_;
-  ::xsd::cxx::tree::one< SlabHeight::type > _xsd_SlabHeight_;
+  ::xsd::cxx::tree::one< SlabX::type > _xsd_SlabX_;
+  ::xsd::cxx::tree::one< SlabY::type > _xsd_SlabY_;
+  ::xsd::cxx::tree::one< SlabZ::type > _xsd_SlabZ_;
   ::xsd::cxx::tree::one< InterNodeSpace::type > _xsd_InterNodeSpace_;
+  ::xsd::cxx::tree::one< LongitudinalConductivity::type > _xsd_LongitudinalConductivity_;
+  ::xsd::cxx::tree::one< TransverseConductivity::type > _xsd_TransverseConductivity_;
+  ::xsd::cxx::tree::one< NormalConductivity::type > _xsd_NormalConductivity_;
   ::xsd::cxx::tree::sequence< Stimulus::type > _xsd_Stimulus_;
-  ::xsd::cxx::tree::sequence< Heterogeneity::type > _xsd_Heterogeneity_;
+  ::xsd::cxx::tree::sequence< CellHeterogeneity::type > _xsd_CellHeterogeneity_;
+  ::xsd::cxx::tree::sequence< ConductivityHeterogeneity::type > _xsd_ConductivityHeterogeneity_;
   ::xsd::cxx::tree::one< OutputDirectory::type > _xsd_OutputDirectory_;
   ::xsd::cxx::tree::one< MeshOutputDirectory::type > _xsd_MeshOutputDirectory_;
 };

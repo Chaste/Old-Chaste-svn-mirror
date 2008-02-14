@@ -62,10 +62,10 @@
       <xs:element name="SimulationDuration" type="xs:decimal"/>
       <xs:element name="Domain" type="domain_type"/>
       <xs:element name="IonicModel" type="ionic_model_type"/>
-      <xs:element name="SlabX" type="xs:decimal"/>
-      <xs:element name="SlabY" type="xs:decimal"/>
-      <xs:element name="SlabZ" type="xs:decimal"/>
-      <xs:element name="InterNodeSpace" type="xs:decimal"/>
+      <xs:element name="SlabX" type="xs:double"/>
+      <xs:element name="SlabY" type="xs:double"/>
+      <xs:element name="SlabZ" type="xs:double"/>
+      <xs:element name="InterNodeSpace" type="xs:double"/>
       <xs:element name="LongitudinalConductivity" type="xs:double"/>
       <xs:element name="TransverseConductivity" type="xs:double"/>
       <xs:element name="NormalConductivity" type="xs:double"/>

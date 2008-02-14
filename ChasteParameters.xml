@@ -13,9 +13,17 @@
 	<!-- 
 		Mesh definition 
 	-->    
-    <SlabWidth>0.4</SlabWidth>
-    <SlabHeight>12.0</SlabHeight>
+    <SlabX>4.0</SlabX>
+    <SlabY>0.1</SlabY>
+    <SlabZ>2.0</SlabZ>
     <InterNodeSpace>0.1</InterNodeSpace>
+
+    <!--
+        Intracellular conductivities
+    -->
+    <LongitudinalConductivity>1.75</LongitudinalConductivity>
+    <TransverseConductivity>1.75</TransverseConductivity>
+    <NormalConductivity>1.75</NormalConductivity>   
     
     <!-- 
     	Stimuli (as many <Stimulus> definitions as needed) 
@@ -25,40 +33,40 @@
 		<Duration>0.5</Duration>
 		<Delay>0</Delay>
 		<Location>
-			<CornerA X="-0.2" Y="-6.0" Z="-0.2"/>
-			<CornerB X="0.2" Y="-5.9" Z="0.2"/>
+			<CornerA X="-2.0" Y="-0.1" Z="-1.0"/>
+			<CornerB X="-1.9" Y="0.1" Z="1.0"/>
 		</Location>
 	</Stimulus>	
 
     <!-- 
-    	Heterogeneities (as many <Heterogeneity> definitions as needed) 
+    	Ionic cell model heterogeneities (as many <CellHeterogeneity> definitions as needed) 
    	-->
-  	<Heterogeneity> <!-- #1 -->
+  	<CellHeterogeneity> <!-- #1 -->
 		<ScaleFactorGks>0.462</ScaleFactorGks>
 		<ScaleFactorIto>0.0</ScaleFactorIto>
 		<Location>
-			<CornerA X="-0.2" Y="-6.0" Z="-0.2"/>
-			<CornerB X="0.2" Y="-2.0" Z="0.2"/>
+			<CornerA X="-2.0" Y="-0.1" Z="-1.0"/>
+			<CornerB X="-0.5" Y="0.1" Z="1.0"/>
 		</Location>
-	</Heterogeneity>	
+	</CellHeterogeneity>	
 
-  	<Heterogeneity> <!-- #2 -->
+  	<CellHeterogeneity> <!-- #2 -->
 		<ScaleFactorGks>1.154</ScaleFactorGks>
 		<ScaleFactorIto>0.85</ScaleFactorIto>
 		<Location>
-			<CornerA X="-0.2" Y="-2.0" Z="-0.2"/>
-			<CornerB X="0.2" Y="2.0" Z="0.2"/>
+			<CornerA X="-0.5" Y="-0.1" Z="-1.0"/>
+			<CornerB X="0.5" Y="0.1" Z="1.0"/>
 		</Location>
-	</Heterogeneity>	
+	</CellHeterogeneity>	
 
-  	<Heterogeneity> <!-- #3 -->
+  	<CellHeterogeneity> <!-- #3 -->
 		<ScaleFactorGks>1.154</ScaleFactorGks>
 		<ScaleFactorIto>1.0</ScaleFactorIto>
 		<Location>
-			<CornerA X="-0.2" Y="2.0" Z="-0.2"/>
-			<CornerB X="0.2" Y="6.0" Z="0.2"/>
+			<CornerA X="0.5" Y="-0.1" Z="-1.0"/>
+			<CornerB X="2.0" Y="0.1" Z="1.0"/>
 		</Location>
-	</Heterogeneity>	
+	</CellHeterogeneity>	
 	
 	<!-- 
 		Output 
