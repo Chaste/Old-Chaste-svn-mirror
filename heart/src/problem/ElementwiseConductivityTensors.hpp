@@ -30,8 +30,6 @@ class ElementwiseConductivityTensors
 private:
     unsigned mNumElements;
 
-    std::string mFibreOrientationFilename;
-
     bool mUseNonConstantConductivities;
     bool mUseFibreOrientation;
 
@@ -45,6 +43,100 @@ private:
     std::vector< c_matrix<double,SPACE_DIM,SPACE_DIM> > mTensors;
     
     bool mInitialised;
+
+    std::string mFibreOrientationFilename;
+    std::ifstream mDataFile;
+
+
+    void OpenFibreOrientationFile()
+    {
+        mDataFile.open(mFibreOrientationFilename.c_str());
+        if (!mDataFile.is_open())
+        {
+            EXCEPTION("Wrong fibre orientation file name.");    
+        }    
+    }
+    
+    void CloseFibreOrientationFile()
+    {
+        mDataFile.close();        
+    }
+
+    template<class ITEMS_TYPE>
+    unsigned GetTokensAtNextLine(std::vector<ITEMS_TYPE>& items)
+    {
+        std::string line;
+
+        bool comment_line;
+        bool blank_line;
+         
+        do
+        {
+            getline(mDataFile, line);                       
+
+            if (mDataFile.eof())
+            {
+                CloseFibreOrientationFile();
+                EXCEPTION("Fibre orientation file contains less fibre definitions than the number of elements in the mesh");    
+            }
+
+            comment_line = (line.find('#',0) != std::string::npos);
+            blank_line = (line.find_first_not_of(" \t",0) == std::string::npos);
+        }
+        while(comment_line || blank_line);
+         
+ 
+        std::stringstream line_stream(line);
+    
+        // Read all the numbers from the line
+        while (!line_stream.eof())
+        {
+            ITEMS_TYPE item;
+            line_stream >> item;
+            items.push_back(item);
+        }        
+        
+        return items.size();                
+    }
+
+    unsigned GetNumElementsFromFile()
+    {
+        std::vector<unsigned> items;
+        
+        if (GetTokensAtNextLine<unsigned>(items) != 1)
+        {
+            CloseFibreOrientationFile();
+            EXCEPTION("First (non comment) line of the fibre orientation file should contain the number of elements of the mesh (and nothing else)");    
+        }
+
+        return items[0];
+    }
+
+    void ReadOrientationMatrixFromFile (c_matrix<double,SPACE_DIM,SPACE_DIM>& orientMatrix)
+    {
+        std::vector<double> items;        
+        unsigned num_elems = GetTokensAtNextLine<double>(items);
+                    
+        if (num_elems == 3 && SPACE_DIM == 3)
+        {
+            CloseFibreOrientationFile();
+            EXCEPTION("Fibre orientation file looks like a CARP ttlon file. Support not implemented yet");      
+        }
+
+        if (num_elems != SPACE_DIM*SPACE_DIM)
+        {
+            CloseFibreOrientationFile();
+            EXCEPTION("Number of vectors in file and size of them should match SPACE_DIM");                
+        }
+
+        for (unsigned vector_index=0; vector_index<SPACE_DIM; vector_index++)
+        {
+            for (unsigned component_index=0; component_index<SPACE_DIM; component_index++)
+            {
+                orientMatrix(component_index, vector_index) = items[vector_index*SPACE_DIM + component_index];
+            }                        
+        }
+    }
     
 public:
 
@@ -131,10 +223,8 @@ public:
     /**
      *  Computes the tensors based in all the info set
      */
-    void Init()
+    void Init() throw (Exception)
     {
-        std::ifstream data_file;
-    
         c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
         for (unsigned dim=0; dim<SPACE_DIM; dim++)
         {
@@ -152,9 +242,8 @@ public:
                         
             if (mUseFibreOrientation)
             {
-                data_file.open(mFibreOrientationFilename.c_str());
-                assert(data_file.is_open());    
-                data_file >> mNumElements;    
+                OpenFibreOrientationFile();
+                mNumElements = GetNumElementsFromFile();
             }
             else
             {
@@ -196,13 +285,7 @@ public:
                 
                 if (mUseFibreOrientation)
                 {
-                    for (unsigned vector_index=0; vector_index<SPACE_DIM; vector_index++)
-                    {
-                        for (unsigned component_index=0; component_index<SPACE_DIM; component_index++)
-                        {
-                            data_file >> orientation_matrix(component_index, vector_index);
-                        }                        
-                    }
+                    ReadOrientationMatrixFromFile(orientation_matrix);                    
                 }                    
                 
                 c_matrix<double,SPACE_DIM,SPACE_DIM> temp;
@@ -210,9 +293,9 @@ public:
                 mTensors.push_back( prod(temp, trans(orientation_matrix) ) );   
             }
             
-            if (mUseNonConstantConductivities)
+            if (mUseFibreOrientation)
             {
-                data_file.close();
+                CloseFibreOrientationFile();
             }
         }
         

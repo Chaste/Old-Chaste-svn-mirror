@@ -41,13 +41,29 @@ public:
         TS_ASSERT_THROWS_ANYTHING(simple_3d_tensors.SetConstantConductivities(constant_conductivities));                     
     }
 
+    void TestFibreOrientationFileExceptions() throw (Exception)
+    {
+        ElementwiseConductivityTensors<3> simple_tensors;
+        simple_tensors.SetFibreOrientationFile("non_existing_file.fibres");        
+        TS_ASSERT_THROWS_ANYTHING(simple_tensors.Init()); // non existing file 
+        
+        simple_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation2D.fibres");
+        TS_ASSERT_THROWS_ANYTHING(simple_tensors.Init()); // mismatching SPACE_DIM and # vectors in file        
+
+        simple_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation2DWrongFormat.fibres");
+        TS_ASSERT_THROWS_ANYTHING(simple_tensors.Init()); // wrong file format
+
+        simple_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation3DShortFile.fibres");
+        TS_ASSERT_THROWS_ANYTHING(simple_tensors.Init()); // short file
+    }
+
     void TestFibreOrientationTensor3D()
     {   
         c_vector<double, 3> constant_conductivities(Create_c_vector(2.1,0.8,0.135));
         
         ElementwiseConductivityTensors<3> simple_tensors;
         simple_tensors.SetConstantConductivities(constant_conductivities);
-    	simple_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation3D.fibres");
+        simple_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation3D.fibres");
         simple_tensors.Init();
         
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
@@ -62,6 +78,16 @@ public:
             TS_ASSERT_EQUALS(simple_tensors[tensor_index](2,1), 0.0);
             TS_ASSERT_EQUALS(simple_tensors[tensor_index](2,2), constant_conductivities[2]);
         }    
+    }
+    
+    void TestFibreOrientationCARP3D()
+    {
+        c_vector<double, 3> constant_conductivities(Create_c_vector(2.1,0.8,0.135));
+        
+        ElementwiseConductivityTensors<3> simple_tensors;
+        simple_tensors.SetConstantConductivities(constant_conductivities);
+        simple_tensors.SetFibreOrientationFile("heart/test/data/SimpleCARPLikeOrientation.ttlon");
+        TS_ASSERT_THROWS_ANYTHING(simple_tensors.Init());                    
     }
     
     void TestHeterogeneousConductivitiesTensor3D()
