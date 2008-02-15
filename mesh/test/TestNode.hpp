@@ -1,7 +1,6 @@
 #ifndef _TESTNODE_HPP_
 #define _TESTNODE_HPP_
 
-#include "ChastePoint.hpp"
 #include "Node.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include <cxxtest/TestSuite.h>

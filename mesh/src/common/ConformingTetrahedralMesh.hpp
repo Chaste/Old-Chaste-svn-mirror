@@ -14,6 +14,7 @@
 #define REAL double
 #define VOID void
 #include "triangle.h"
+#undef REAL
 
 #include "AbstractMeshReader.hpp"
 #include "TrianglesMeshReader.cpp"

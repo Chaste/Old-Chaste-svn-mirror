@@ -1016,7 +1016,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrar
 {
     struct triangulateio triangle_input;
     //struct triangulateio triangle_output;
-    triangle_input.pointlist = (REAL *) malloc(GetNumNodes() * 2 * sizeof(REAL));
+    triangle_input.pointlist = (double *) malloc(GetNumNodes() * 2 * sizeof(double));
     triangle_input.numberofpoints = GetNumNodes();
     triangle_input.numberofpointattributes = 0;
     unsigned new_index = 0;

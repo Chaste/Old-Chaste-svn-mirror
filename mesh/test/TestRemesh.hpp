@@ -375,7 +375,7 @@ public:
     
         in.numberofpoints = 5;
         in.numberofpointattributes = 0;
-        in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
+        in.pointlist = (double *) malloc(in.numberofpoints * 2 * sizeof(double));
         in.pointlist[0] = 0.0;
         in.pointlist[1] = 0.0;
         in.pointlist[2] = 1.0;
@@ -396,10 +396,10 @@ public:
       
       
         out.pointlist =  NULL;            
-        out.pointattributelist = (REAL *) NULL;
+        out.pointattributelist = (double *) NULL;
         out.pointmarkerlist = (int *) NULL; 
         out.trianglelist = (int *) NULL;          
-        out.triangleattributelist = (REAL *) NULL;
+        out.triangleattributelist = (double *) NULL;
         out.edgelist = (int *) NULL;             
         out.edgemarkerlist = (int *) NULL;  
     
