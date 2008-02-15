@@ -51,28 +51,37 @@ void TissueSimulationWithNutrients<DIM>::UseCoarseNutrientMesh(double coarseGrai
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseGrainScaleFactor)
 {    
-//    \todo: we could instead use the disk with 984 elements etc.
-//    \todo: automatically calculate the scale factor from the 
-//           initial dimensions of the cells and the end time
+//    \todo: we could instead use e.g. the disk with 984 elements
 
     // Create coarse nutrient mesh
     TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
     mpCoarseNutrientMesh = new ConformingTetrahedralMesh<2,2>;
     mpCoarseNutrientMesh->ConstructFromMeshReader(mesh_reader);
-    
-    // Scale mesh
-    mpCoarseNutrientMesh->Scale(coarseGrainScaleFactor, coarseGrainScaleFactor);
-    
+        
     // Find centre of tissue
     c_vector<double,2> centre_of_tissue = zero_vector<double>(2);
-    
-    for (unsigned i=0; i<this->mrTissue.GetNumNodes(); i++)
+    for (typename MeshBasedTissue<2>::Iterator cell_iter = this->mrTissue.Begin();
+        cell_iter != this->mrTissue.End();
+        ++cell_iter)
     {
-        centre_of_tissue += this->mrTissue.GetNode(i)->rGetLocation();
+        centre_of_tissue += cell_iter.rGetLocation();
     }
-    centre_of_tissue /= this->mrTissue.GetNumNodes();
+    centre_of_tissue /= this->mrTissue.GetNumRealCells();
     
-    // Find centre of nutrient mesh
+    // Find max radius of tissue
+    double max_tissue_radius = 0.0;
+    for(typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+        cell_iter != this->mrTissue.End();
+        ++cell_iter)
+    {
+        double radius = norm_2(centre_of_tissue - cell_iter.rGetLocation() ) ;
+        if (radius > max_tissue_radius)
+        {
+            max_tissue_radius = radius;
+        }
+    }
+    
+    // Find centre of coarse nutrient mesh
     c_vector<double,2> centre_of_nutrient_mesh = zero_vector<double>(2);
     
     for (unsigned i=0; i<mpCoarseNutrientMesh->GetNumNodes(); i++)
@@ -81,9 +90,26 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
     }
     centre_of_nutrient_mesh /= mpCoarseNutrientMesh->GetNumNodes();
     
-    // Translate mesh so that its centre matches the centre of the tissue
-    mpCoarseNutrientMesh->Translate(centre_of_tissue[0]-centre_of_nutrient_mesh[0],
-                                    centre_of_tissue[1]-centre_of_nutrient_mesh[1]); 
+    // Find max radius of coarse nutrient mesh
+    double max_mesh_radius = 0.0;
+    for (unsigned i=0; i<mpCoarseNutrientMesh->GetNumNodes(); i++)
+    {
+        double radius = norm_2(centre_of_nutrient_mesh - mpCoarseNutrientMesh->GetNode(i)->rGetLocation()) ;
+        if (radius > max_mesh_radius)
+        {
+            max_mesh_radius = radius;
+        }
+    }
+    
+    // Translate centre of coarse nutrient mesh to the origin
+    mpCoarseNutrientMesh->Translate(-centre_of_nutrient_mesh[0], -centre_of_nutrient_mesh[1]);
+    
+    // Scale nutrient mesh
+    double scale_factor = (max_tissue_radius/max_mesh_radius)*coarseGrainScaleFactor;    
+    mpCoarseNutrientMesh->Scale(scale_factor, scale_factor);
+    
+    // Translate centre of coarse nutrient mesh to centre of the tissue
+    mpCoarseNutrientMesh->Translate(centre_of_tissue[0], centre_of_tissue[1]); 
 }    
 
 template<unsigned DIM>
@@ -232,7 +258,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         {
             max_radius = radius;
         }
-    }    
+    }
       
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;

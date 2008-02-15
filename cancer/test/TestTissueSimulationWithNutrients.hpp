@@ -534,7 +534,7 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
-            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                     +CancerParameters::Instance()->GetSG2MDuration());
             cell.SetNodeIndex(i);
@@ -616,7 +616,7 @@ public:
         ReplicatableVector nutrient_conc(simulator.GetNutrientSolution());
 
         // Test the nutrient concentration at the coarse mesh nodes is
-        // equal to 1.0 if the nodes is away from the cells 
+        // equal to 1.0 if the nodes are away from the cells 
         for (unsigned i=0; i<nutrient_conc.size(); i++)
         {
             c_vector<double,2> centre;
