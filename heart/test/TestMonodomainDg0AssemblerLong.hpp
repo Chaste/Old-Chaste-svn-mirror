@@ -70,7 +70,7 @@ public:
         monodomain_problem.SetEndTime(500);   // 500 ms
         monodomain_problem.SetOutputDirectory("MonoDg02dWithPointStimulusLong");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithPointStimulusLong");
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005, 0.0005));
+        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
         monodomain_problem.Initialise();
         
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
