@@ -1,5 +1,5 @@
 INCS = -I. -Icxxtest \
--Icancer/src -Icancer/src/common -Icancer/src/mesh -Icancer/src/odes -Icancer/src/tissue -Icancer/src/tissue/mechanics -Icancer/src/tissue/cell -Icancer/src/tissue/killers -Icancer/src/tissue/cell/cycle \
+-Icancer/src -Icancer/src/common -Icancer/src/mesh -Icancer/src/odes -Icancer/src/tissue -Icancer/src/tissue/statistics -Icancer/src/tissue/mechanics -Icancer/src/tissue/cell -Icancer/src/tissue/killers -Icancer/src/tissue/cell/cycle \
 -Iglobal/src \
 -Ilinalg/src -Ilinalg/src/common \
 -Ipde/src -Ipde/src/problem -Ipde/src/common -Ipde/src/solver -Ipde/src/problem/elasticity -Ipde/src/problem/common -Ipde/src/solver/elasticity -Ipde/src/solver/common \
@@ -109,8 +109,8 @@ TestMeinekeLabellingExperimentsRunner: TestMeinekeLabellingExperimentsRunner.o $
 	# Need to copy across the starting state of the simulation
 	mkdir ${FRESH_DIR}/MeinekeLabellingExperiment; mkdir ${FRESH_DIR}/MeinekeLabellingExperiment/archive ;\
 	cd ${FRESH_DIR}/MeinekeLabellingExperiment/archive ;\
-	cp ../../../projects/GaryM/test/data/SteadyStateIngeSwat/hypothesis1_sunter1_archive/mesh_300.* . ;\
-	cp ../../../projects/GaryM/test/data/SteadyStateIngeSwat/hypothesis1_sunter1_archive/tissue_sim_at_time_300.arch . ;\
+	cp ../../../projects/GaryM/test/data/SteadyStateIngeSwat/hypothesis2_sunter1_archive/mesh_300.* . ;\
+	cp ../../../projects/GaryM/test/data/SteadyStateIngeSwat/hypothesis2_sunter1_archive/tissue_sim_at_time_300.arch . ;\
 	cd ../.. ;\
 	# Finished copying archives across.
 	cp TestMeinekeLabellingExperimentsRunner ${FRESH_DIR} ;\
