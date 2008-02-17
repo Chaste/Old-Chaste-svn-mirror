@@ -1,11 +1,9 @@
 #ifndef MEINEKESPRINGSYSTEMWITHCHEMOTAXIS_HPP_
 #define MEINEKESPRINGSYSTEMWITHCHEMOTAXIS_HPP_
 
-
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "MeshBasedTissue.cpp"
 #include "Meineke2001SpringSystem.hpp"
 #include "CellwiseData.cpp"
 #include "CellwiseDataGradient.hpp"

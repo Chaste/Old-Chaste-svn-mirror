@@ -4,7 +4,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
 
-#include "MeshBasedTissue.cpp"
+#include "AbstractTissue.cpp"
 
 /**
  * An abstract discrete tissue mechanics system that contains basic 
@@ -20,17 +20,38 @@ private :
     void serialize(Archive & archive, const unsigned int version)
     {
         //archive & mrTissue; // done in load_construct_data of subclasses
+        archive & mUseCutoffPoint;
+        archive & mCutoffPoint;
     }
     	
 protected :
 	
 	AbstractTissue<DIM>* mpTissue;
+    
+    /** Whether to have zero force if the cells are far enough apart */
+    bool mUseCutoffPoint;
+    
+    /** Have zero force if the cells are this distance apart (and mUseCutoffPoint==true) */
+    double mCutoffPoint;
 
 public : 
 	
     AbstractDiscreteTissueMechanicsSystem()
         : mpTissue(NULL)
     {
+        mUseCutoffPoint = false;
+        mCutoffPoint = 1e10;
+    }
+    
+    /**
+     * Use a cutoff point, ie specify zero force if two cells are greater 
+     * than the cutoff distance apart
+     */
+    void UseCutoffPoint(double cutoffPoint)
+    {
+        assert(cutoffPoint > 0.0);
+        mUseCutoffPoint = true;
+        mCutoffPoint = cutoffPoint;
     }
     
     /**

@@ -51,7 +51,7 @@ public:
         }
                
         // Test rCalculateVelocitiesOfEachNode() further with an increased cutoff
-        mechanics_system.SetCutoffPoint(1.9);
+        mechanics_system.UseCutoffPoint(1.9);
         
         // Now each node will experience a non-zero force from any node 
         // a distance sqrt(3) away
@@ -229,7 +229,7 @@ public:
             // Serialize via pointer
             SimpleTissueMechanicsSystem<2> * const p_mech_system = &mechanics_system;  
             
-            p_mech_system->SetCutoffPoint(1.1);
+            p_mech_system->UseCutoffPoint(1.1);
             
             output_arch << p_mech_system;
         }

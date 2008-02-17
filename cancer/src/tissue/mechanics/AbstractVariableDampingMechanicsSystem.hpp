@@ -1,6 +1,7 @@
 #ifndef ABSTRACTVARIABLEDAMPINGMECHANICSSYSTEM_HPP_
 #define ABSTRACTVARIABLEDAMPINGMECHANICSSYSTEM_HPP_
 
+#include "MeshBasedTissue.cpp"
 #include "AbstractDiscreteTissueMechanicsSystem.hpp"
 
 /** 
@@ -88,13 +89,13 @@ protected :
     
 
 public :
+
     AbstractVariableDampingMechanicsSystem(MeshBasedTissue<DIM>& rTissue)
         : AbstractDiscreteTissueMechanicsSystem<DIM>()
     {
         this->mpTissue = &rTissue;
         mUseAreaBasedViscosity = false;
     }
-    
 
     /**
      * Use an area based viscosity

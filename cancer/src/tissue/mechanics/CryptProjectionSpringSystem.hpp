@@ -4,7 +4,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "MeshBasedTissue.cpp"
 #include "AbstractVariableDampingMechanicsSystem.hpp"
 #include "WntConcentration.hpp"
 
@@ -33,8 +32,6 @@ private :
         // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<AbstractVariableDampingMechanicsSystem<2> >(*this);
         
-        archive & mUseCutoffPoint;
-        archive & mCutoffPoint;
         archive & mA;
         archive & mB;
         archive & mIncludeWntChemotaxis;
@@ -61,16 +58,6 @@ private :
      * Node velocities
      */
     std::vector<c_vector<double, 2> > mDrDt;
-
-    /** 
-     * Whether to have zero force if the cells are far enough apart. 
-     */
-    bool mUseCutoffPoint;
-        
-    /** 
-     * Have zero force if the cells are this distance apart (and mUseCutoffPoint==true).
-     */
-    double mCutoffPoint;
     
     /** 
      * Whether to include Wnt-dependent chemotaxis for stem cells. 
@@ -134,9 +121,9 @@ private :
         unit_difference_3d /= distance_between_nodes_3d;
 
         // A bit of code for implementing a cutoff point
-        if(mUseCutoffPoint)
+        if (this->mUseCutoffPoint)
         {
-            if( distance_between_nodes_3d >= mCutoffPoint )
+            if (distance_between_nodes_3d >= this->mCutoffPoint)
             {
                 // Return zero force
                 return zero_vector<double>(2); 
@@ -209,10 +196,7 @@ public :
 
     CryptProjectionSpringSystem(MeshBasedTissue<2>& rTissue)
         : AbstractVariableDampingMechanicsSystem<2>(rTissue)
-    {                   
-        // do not use a cutoff by default
-        mUseCutoffPoint = false;
-        mCutoffPoint = 1e10;        
+    {    
         mA = CancerParameters::Instance()->GetCryptProjectionParameterA();
         mB = CancerParameters::Instance()->GetCryptProjectionParameterB();
         mIncludeWntChemotaxis = false;
@@ -321,20 +305,7 @@ public :
         }
         
         return mDrDt;
-    }
-    
-        
-    /**
-     * Use a cutoff point, ie specify zero force if two cells are greater 
-     * than the cutoff distance apart
-     */
-    void UseCutoffPoint(double cutoffPoint)
-    {
-        assert(cutoffPoint > 0.0);
-        mUseCutoffPoint = true;
-        mCutoffPoint = cutoffPoint;
-    }
-        
+    }        
 
     /**
      *  Get the tissue. Needed for archiving

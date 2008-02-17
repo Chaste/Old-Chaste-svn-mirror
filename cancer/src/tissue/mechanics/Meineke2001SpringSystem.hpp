@@ -4,7 +4,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "MeshBasedTissue.cpp"
 #include "AbstractVariableDampingMechanicsSystem.hpp"
 
 /**
@@ -45,8 +44,6 @@ private :
         // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<AbstractVariableDampingMechanicsSystem<DIM> >(*this);
         
-        archive & mUseCutoffPoint;
-        archive & mCutoffPoint;
         archive & mUseEdgeBasedSpringConstant;
         archive & mUseMutantSprings;
         archive & mMutantMutantMultiplier;
@@ -59,12 +56,6 @@ protected :
 
     /** Node velocities */
     std::vector<c_vector<double, DIM> > mDrDt;
-
-    /** Whether to have zero force if the cells are far enough apart */
-    bool mUseCutoffPoint;
-    
-    /** Have zero force if the cells are this distance apart (and mUseCutoffPoint==true) */
-    double mCutoffPoint;
 
     /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
     bool mUseEdgeBasedSpringConstant;
@@ -101,10 +92,6 @@ public :
         // Beta-cat springs
         mUseBCatSprings = false;
         
-        // Cutoff Meineke
-        mUseCutoffPoint = false;
-        mCutoffPoint = 1e10;
-        
         // Necrotic springs
         mUseNecroticSprings = false;
     }
@@ -133,9 +120,9 @@ public :
         
         unit_difference /= distance_between_nodes;
         
-        if(mUseCutoffPoint)
+        if (this->mUseCutoffPoint)
         {
-            if( distance_between_nodes >= mCutoffPoint )
+            if( distance_between_nodes >= this->mCutoffPoint )
             {
                 return zero_vector<double>(DIM); // c_vector<double,DIM>() is not guaranteed to be fresh memory
             }
@@ -325,18 +312,7 @@ public :
         
         return mDrDt;
     }
-    
-    /**
-     * Use a cutoff point, ie specify zero force if two cells are greater 
-     * than the cutoff distance apart
-     */
-    void UseCutoffPoint(double cutoffPoint)
-    {
-        assert(cutoffPoint > 0.0);
-        mUseCutoffPoint = true;
-        mCutoffPoint = cutoffPoint;
-    }
-    
+        
     /**
      * Use an edge-based spring constant
      */
