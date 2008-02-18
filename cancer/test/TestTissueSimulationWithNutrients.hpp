@@ -499,11 +499,11 @@ public:
         // the correct spheroid radius is given by sqrt((16*sqrt(3)/2)/pi).
         //
         // Since there are 3 necrotic cells, the correct necrotic radius is 
-        // given by  sqrt((3*sqrt(3)/2)/pi).
+        // given by sqrt((3*sqrt(3)/2)/pi).
                        
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TestSpheroidStatistics",false);
-        std::string areas_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/Areas.dat";
+        std::string areas_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/tissueareas.dat";
         TS_ASSERT_EQUALS(system(("diff " + areas_results_file + " cancer/test/data/TestSpheroidStatistics/Areas.dat").c_str()), 0);
         
         std::string dist_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/radial_dist.dat";
