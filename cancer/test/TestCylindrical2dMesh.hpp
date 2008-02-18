@@ -683,7 +683,6 @@ public:
             TS_ASSERT_EQUALS(p_mesh->GetNumAllNodes(), p_mesh2->GetNumAllNodes());
             TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), p_mesh2->GetNumNodes());
             TS_ASSERT_EQUALS(p_mesh->GetNumBoundaryNodes(), p_mesh2->GetNumBoundaryNodes());
-            TS_ASSERT_EQUALS(p_mesh->GetNumCornerNodes(), p_mesh2->GetNumCornerNodes());
             
             for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
             {

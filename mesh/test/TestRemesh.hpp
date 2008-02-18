@@ -125,7 +125,7 @@ public:
         }
         node_file->close();
         std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
-        std::string command   = "./bin/tetgen -e " + full_name + "node" + " > /dev/null";
+        std::string command   = "./bin/tetgen -Qe " + full_name + "node" + " > /dev/null";
         system(command.c_str());
         
         TrianglesMeshReader<3,3> mesh_reader2(full_name+"1");
@@ -205,7 +205,7 @@ public:
         
         node_file->close();
         std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
-        std::string command   = "./bin/triangle -e " + full_name + "node" + " > /dev/null";
+        std::string command   = "./bin/triangle -Qe " + full_name + "node" + " > /dev/null";
         system(command.c_str());
         
         TrianglesMeshReader<2,2> mesh_reader2(full_name+"1");
@@ -264,45 +264,6 @@ public:
         
         NodeMap map(1);
         mesh.ReMesh(map);
-        
-        TS_ASSERT_EQUALS(map.Size(),mesh.GetNumNodes()+1);//one node removed during remesh
-        
-        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements());
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes());
-        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
-        
-        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), num_elements_before-2);
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), num_nodes_before-1);
-        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),area,1e-6);
-    }
-    
-    void todoTestRemeshWithLibraryMethod2D() throw (Exception)
-    {
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        
-        ConformingTetrahedralMesh<2,2> mesh;
-        
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        double area=mesh.CalculateMeshVolume();
-        const int node_index=432;
-        const int target_index=206;
-        
-        unsigned num_nodes_before=mesh.GetNumNodes();
-        unsigned num_elements_before=mesh.GetNumElements();
-        unsigned num_boundary_elements_before=mesh.GetNumBoundaryElements();
-        
-        mesh.MoveMergeNode(node_index, target_index);
-        
-        
-        TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
-        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes()+1);
-        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
-        
-        NodeMap map(1);
-        mesh.ReMeshWithTriangleLibrary(map);
         
         TS_ASSERT_EQUALS(map.Size(),mesh.GetNumNodes()+1);//one node removed during remesh
         
@@ -428,6 +389,82 @@ public:
         free(out.edgemarkerlist);
       
     }
+
+
+    void TestRemeshWithLibraryMethodSimple() throw (Exception)
+    {
+        //Same data as previous test
+        std::vector<Node<2> *> nodes;
+        nodes.push_back(new Node<2>(0, true,  0.0,  0.0));
+        nodes.push_back(new Node<2>(1, true,  1.0,  0.0));
+        nodes.push_back(new Node<2>(2, true,  1.0,  10.0));
+        nodes.push_back(new Node<2>(3, true,  0.0,  10.0));
+        nodes.push_back(new Node<2>(4, true,  0.5,  7.0));
+        
+        ConformingTetrahedralMesh<2,2> mesh(nodes);
+        
+        
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 10.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 22.0, 1e-6);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4u);
+        
+        NodeMap map(1);
+        mesh.ReMeshWithTriangleLibrary(map);
+        
+        TS_ASSERT_EQUALS(map.Size(),mesh.GetNumNodes());
+        
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 10.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 22.0, 1e-6);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4u);
+    }
+    
+
+    void TestRemeshWithLibraryMethod2D() throw (Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+        
+        ConformingTetrahedralMesh<2,2> mesh;
+        
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        double area=mesh.CalculateMeshVolume();
+        const int node_index=432;
+        const int target_index=206;
+        
+        unsigned num_nodes_before=mesh.GetNumNodes();
+        unsigned num_elements_before=mesh.GetNumElements();
+        unsigned num_boundary_elements_before=mesh.GetNumBoundaryElements();
+        
+        mesh.MoveMergeNode(node_index, target_index);
+        
+        
+        TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes()+1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
+        
+        NodeMap map(1);
+        mesh.ReMeshWithTriangleLibrary(map);
+        
+        TS_ASSERT_EQUALS(map.Size(),mesh.GetNumNodes()+1);//one node removed during remesh
+        
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements());
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
+        
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), num_elements_before-2);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), num_nodes_before-1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),area,1e-6);
+    }
+    
+
+
+
 
 };
 

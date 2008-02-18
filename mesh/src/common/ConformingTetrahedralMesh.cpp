@@ -48,11 +48,11 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     }
 
     // Record number of corner nodes
-    mNumCornerNodes = rMeshReader.GetNumNodes();
+    unsigned num_nodes = rMeshReader.GetNumNodes();
     
     // Reserve memory for nodes, so we don't have problems with pointers stored in
     // elements becoming invalid.
-    mNodes.reserve(mNumCornerNodes);
+    mNodes.reserve(num_nodes);
     
     rMeshReader.Reset();
     
@@ -61,17 +61,17 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     
     // Add corner nodes
     std::vector<double> coords;
-    for (unsigned i=0; i < mNumCornerNodes; i++)
+    for (unsigned i=0; i < num_nodes; i++)
     {
         coords = rMeshReader.GetNextNode();
         mNodes.push_back(new Node<SPACE_DIM>(i, coords, false));
     }
     
-    unsigned new_node_index = mNumCornerNodes;
+    //unsigned new_node_index = mNumCornerNodes;
     
     rMeshReader.Reset();
     // Add elements
-    new_node_index = mNumCornerNodes;
+    //new_node_index = mNumCornerNodes;
     mElements.reserve(rMeshReader.GetNumElements());
     
     for (unsigned element_index=0; element_index < (unsigned) rMeshReader.GetNumElements(); element_index++)
@@ -262,11 +262,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllBoundaryEle
 }
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumCornerNodes()
-{
-    return mNumCornerNodes;
-}
+
 
 
 
@@ -1015,7 +1011,6 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrary(NodeMap &map)
 {
     struct triangulateio triangle_input;
-    //struct triangulateio triangle_output;
     triangle_input.pointlist = (double *) malloc(GetNumNodes() * 2 * sizeof(double));
     triangle_input.numberofpoints = GetNumNodes();
     triangle_input.numberofpointattributes = 0;
@@ -1036,9 +1031,87 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrar
            
         }
     }
-    //\todo - not yet implemented
-    //triangulate("ze", &triangle_input, &triangle_output, NULL);
+    
+    //Make structure for output
+    struct triangulateio triangle_output;
+    triangle_output.pointlist =  NULL;            
+    triangle_output.pointattributelist = (double *) NULL;
+    triangle_output.pointmarkerlist = (int *) NULL; 
+    triangle_output.trianglelist = (int *) NULL;          
+    triangle_output.triangleattributelist = (double *) NULL;
+    triangle_output.edgelist = (int *) NULL;             
+    triangle_output.edgemarkerlist = (int *) NULL;  
+
+    //Library call 
+    triangulate("Qze", &triangle_input, &triangle_output, NULL);
+    
+    assert(triangle_output.numberofcorners == 3);
+    
+    //Remove current data
+    Clear();
+    
+    //Construct the nodes
+    for (unsigned node_index=0; node_index<(unsigned)triangle_output.numberofpoints; node_index++)
+    {
+        if (triangle_output.pointmarkerlist[node_index] == 1)
+        {
+            mNodes.push_back(new Node<SPACE_DIM>(node_index, true, 
+              triangle_output.pointlist[node_index * 2], 
+              triangle_output.pointlist[node_index * 2+1]));
+        }
+        else
+        {
+            mNodes.push_back(new Node<SPACE_DIM>(node_index, false,
+              triangle_output.pointlist[node_index * 2], 
+              triangle_output.pointlist[node_index * 2+1]));
+        }
+        
+    }
+    
+    //Construct the elements
+    mElements.reserve(triangle_output.numberoftriangles);
+    for (unsigned element_index=0; element_index < (unsigned)triangle_output.numberoftriangles; element_index++)
+    {
+        std::vector<Node<SPACE_DIM>*> nodes;
+        for (unsigned j = 0; j < 3; j++) 
+        {
+            unsigned global_node_index=triangle_output.trianglelist[element_index*3 + j];
+            assert(global_node_index <  mNodes.size());
+            nodes.push_back(mNodes[global_node_index]);
+        }
+        mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes));
+    }
+    
+    //Construct the edges
+    //too big mBoundaryElements.reserve(triangle_output.numberoftriangles);
+    for (unsigned boundary_element_index=0; boundary_element_index < (unsigned)triangle_output.numberofedges; boundary_element_index++)
+    {
+        if (triangle_output.edgemarkerlist[boundary_element_index] == 1)
+        {
+            std::vector<Node<SPACE_DIM>*> nodes;
+            for (unsigned j = 0; j < 2; j++) 
+            {
+                unsigned global_node_index=triangle_output.edgelist[boundary_element_index*2 + j];
+                assert(global_node_index <  mNodes.size());
+                nodes.push_back(mNodes[global_node_index]);
+            }
+            mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(boundary_element_index, nodes));
+        }
+    }
+     
+      
+    
+    
     free(triangle_input.pointlist);
+    
+    free(triangle_output.pointlist);
+    free(triangle_output.pointattributelist);
+    free(triangle_output.pointmarkerlist);
+    free(triangle_output.trianglelist);
+    free(triangle_output.triangleattributelist);
+    free(triangle_output.edgelist);
+    free(triangle_output.edgemarkerlist);
+    
 }
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
@@ -1128,9 +1201,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         {
             binary_name="tetgen";
         }
-        std::string command =   "./bin/"+ binary_name +" -e "
-                              + full_name + "node"
-                              + " > /dev/null";
+        std::string command =   "./bin/"+ binary_name +" -Qe "
+                              + full_name + "node";
         
         
         int return_value = system(command.c_str());
@@ -1138,15 +1210,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         
         if (return_value != 0)
         {
-            // try remeshing again, this time without sending the output to /dev/null 
-            // (just so the error message is displayed in std output)
-            std::string command = "./bin/"+ binary_name +" -e " + full_name + "node";
-        	//std::cout<<"ConformingTetrahedralMesh::ReMesh Warning. First attempt failed.  Showing output from meshing program in second attempt\n";
-            return_value = system(command.c_str());
-        	if (return_value != 0)
-        	{
-            	EXCEPTION("The triangle/tetgen mesher did not suceed in remeshing.");
-        	}
+          	EXCEPTION("The triangle/tetgen mesher did not suceed in remeshing.");
         }
     }
     // Wait for the new mesh to be available and communicate its name
@@ -1869,8 +1933,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
     mDeletedNodeIndices.clear();
     mBoundaryNodes.clear();
     mAddedNodes = false;
-    
-    mNumCornerNodes = 0;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

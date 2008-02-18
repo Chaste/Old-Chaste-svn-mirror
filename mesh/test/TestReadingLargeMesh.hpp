@@ -20,7 +20,7 @@ public:
         mesh.ConstructFromMeshReader(meshReader);
         
         // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 63885U);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 63885U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 322267U);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 41812U);
     }

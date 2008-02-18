@@ -85,7 +85,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 543U);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 984U);
         
         // Check some node co-ordinates
@@ -118,7 +118,7 @@ public:
         }
         
         // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 51U);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 51U);
         //TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 543);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 136U);
         
@@ -1370,7 +1370,6 @@ public:
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(),0u);
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),0u);
-        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(),0u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(),0u);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(),0u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),0u);

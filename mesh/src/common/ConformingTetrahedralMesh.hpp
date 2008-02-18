@@ -56,7 +56,7 @@ protected:  // Give access of these variables to subclasses
     std::vector< Node<SPACE_DIM> *> mBoundaryNodes;
     
 private:    
-    unsigned mNumCornerNodes;
+    //unsigned mNumCornerNodes;
    
     std::map<unsigned, unsigned> mSmasrmIndexMap;
     
@@ -97,7 +97,7 @@ public:
     unsigned GetNumAllElements();
     unsigned GetNumAllBoundaryElements();
     unsigned GetNumBoundaryNodes();
-    unsigned GetNumCornerNodes();
+    
     
     /** 
      * Add a node to the mesh.
