@@ -162,7 +162,7 @@ public:
         double time_of_each_run = simulator.GetDt(); // for each run
         
         // Set simulation to output cell types
-        simulator.SetOutputCellTypes(true);
+        simulator.SetOutputCellMutationStates(true);
                 
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
@@ -377,7 +377,7 @@ public:
             simulator.SetOutputDirectory(output_directory);
             
             // Set simulation to output cell types
-            simulator.SetOutputCellTypes(true);
+            simulator.SetOutputCellMutationStates(true);
                     
             // Set length of simulation here
             time_of_each_run = 10.0*simulator.GetDt(); // for each run

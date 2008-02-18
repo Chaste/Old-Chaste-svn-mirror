@@ -49,6 +49,7 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     mOutputDirectory = "";
     mSimulationOutputDirectory = mOutputDirectory;
     mReMesh = true;
+    mOutputCellMutationStates = false;
     mOutputCellTypes = false;
     mOutputCellVariables = false;
     mNoBirth = false;
@@ -308,6 +309,15 @@ void TissueSimulation<DIM>::SetNoBirth(bool nobirth)
 }
 
 /**
+ * Set the simulation to Count and store the number of each cell mutation state.
+ */
+template<unsigned DIM> 
+void TissueSimulation<DIM>::SetOutputCellMutationStates(bool outputCellMutationStates)
+{
+    mOutputCellMutationStates = outputCellMutationStates;
+}
+
+/**
  * Set the simulation to Count and store the number of each cell type.
  */
 template<unsigned DIM> 
@@ -393,7 +403,7 @@ void TissueSimulation<DIM>::Solve()
     // Create output files for the visualizer
     OutputFileHandler output_file_handler(results_directory+"/", false);
     
-    mrTissue.CreateOutputFiles(results_directory+"/", false, mOutputCellTypes);
+    mrTissue.CreateOutputFiles(results_directory+"/", false, mOutputCellMutationStates);
     
     mpSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
 
@@ -426,7 +436,7 @@ void TissueSimulation<DIM>::Solve()
     }
     mpSetupFile->close();
     
-    mrTissue.WriteResultsToFiles(mOutputCellTypes,mOutputCellVariables);
+    mrTissue.WriteResultsToFiles(mOutputCellMutationStates, mOutputCellTypes, mOutputCellVariables);
 
     CancerEventHandler::EndEvent(SETUP);
                                
@@ -510,7 +520,7 @@ void TissueSimulation<DIM>::Solve()
         // Write results to file
         if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
-            mrTissue.WriteResultsToFiles(mOutputCellTypes, mOutputCellVariables);
+            mrTissue.WriteResultsToFiles(mOutputCellMutationStates, mOutputCellTypes, mOutputCellVariables);
         }
         
         CancerEventHandler::EndEvent(OUTPUT);
@@ -702,7 +712,7 @@ void TissueSimulation<DIM>::CommonLoad(Archive& rInputArch)
 /**
  * Find out how many cells of each mutation state there are
  * 
- * @return The number of cells of each type (evaluated at each visualizer output)
+ * @return The number of cells of each mutation state (evaluated at each visualizer output)
  * [0] = healthy count
  * [1] = labelled cells
  * [2] = APC one hit
@@ -710,7 +720,22 @@ void TissueSimulation<DIM>::CommonLoad(Archive& rInputArch)
  * [4] = beta catenin one hit
  */
 template<unsigned DIM>
-c_vector<unsigned,5> TissueSimulation<DIM>::GetCellTypeCount()
+c_vector<unsigned,5> TissueSimulation<DIM>::GetCellMutationStateCount()
+{
+    return mrTissue.GetCellMutationStateCount();
+}
+
+/**
+ * Find out how many cells of each type there are
+ * 
+ * @return The number of cells of each type (evaluated at each visualizer output)
+ * [0] = STEM
+ * [1] = TRANSIT
+ * [2] = DIFFERENTIATED
+ * [3] = NECROTIC
+ */
+template<unsigned DIM>
+c_vector<unsigned,4> TissueSimulation<DIM>::GetCellTypeCount()
 {
     return mrTissue.GetCellTypeCount();
 }

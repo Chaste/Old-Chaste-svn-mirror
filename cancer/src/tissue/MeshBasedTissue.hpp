@@ -182,7 +182,7 @@ public:
      */
     unsigned RemoveDeadCells();
     
-    void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes);
+    void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellMutationStates);
     
     void CloseOutputFiles();
 
@@ -218,7 +218,7 @@ public:
      */
     void Validate();
 
-    void WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables);
+    void WriteResultsToFiles(bool outputCellMutationStates, bool outputCellTypes, bool outputCellVariables);
     
     void WriteVoronoiResultsToFile();
     

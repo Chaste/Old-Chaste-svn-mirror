@@ -161,7 +161,7 @@ public:
         
         simulator.SetEndTime(0.1);
         
-        simulator.SetOutputCellTypes(true);
+        simulator.SetOutputCellMutationStates(true);
                 
         // These are for coverage and use the defaults
         simulator.SetDt(1.0/120.0);
@@ -557,7 +557,7 @@ public:
         // (it is too small for it to figure out what's happening on its own).
         
         simulator.SetEndTime(0.01);
-        simulator.SetOutputCellTypes(true);   
+        simulator.SetOutputCellMutationStates(true);   
                 
         simulator.Solve();
         
@@ -569,12 +569,18 @@ public:
             TS_ASSERT_LESS_THAN(-1e-15,p_mesh->GetNode(cell_iter->GetNodeIndex())->rGetLocation()[1]);
         }
         
+        c_vector<unsigned,5> cell_mutation_state_count = simulator.GetCellMutationStateCount();
+        TS_ASSERT_EQUALS(cell_mutation_state_count[0], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count[1], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count[2], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count[3], 0u);  // No APC two hit, one of all the rest.
+        TS_ASSERT_EQUALS(cell_mutation_state_count[4], 1u);
+        
         c_vector<unsigned,5> cell_type_count = simulator.GetCellTypeCount();
-        TS_ASSERT_EQUALS(cell_type_count[0],1u);
-        TS_ASSERT_EQUALS(cell_type_count[1],1u);
-        TS_ASSERT_EQUALS(cell_type_count[2],1u);
-        TS_ASSERT_EQUALS(cell_type_count[3],0u);  // No APC two hit, one of all the rest.
-        TS_ASSERT_EQUALS(cell_type_count[4],1u);
+        TS_ASSERT_EQUALS(cell_type_count[0], 0u);
+        TS_ASSERT_EQUALS(cell_type_count[1], 0u);
+        TS_ASSERT_EQUALS(cell_type_count[2], 0u);
+        TS_ASSERT_EQUALS(cell_type_count[3], 0u);
         
         // Check writing of voronoi data
         OutputFileHandler handler("Crypt2DWntMatureCells",false);
@@ -618,7 +624,7 @@ public:
         simulator.rGetTissue().rGetCellAtNodeIndex(56).SetMutationState(APC_ONE_HIT);
         simulator.rGetTissue().rGetCellAtNodeIndex(51).SetMutationState(APC_TWO_HIT);
         simulator.rGetTissue().rGetCellAtNodeIndex(63).SetMutationState(BETA_CATENIN_ONE_HIT);
-        simulator.SetOutputCellTypes(true);             
+        simulator.SetOutputCellMutationStates(true);             
         simulator.Solve();
         
         // Test we have the same number of cells and nodes at the end of each time
@@ -1118,7 +1124,7 @@ public:
         simulator.SetOutputDirectory(output_directory);
         
         // Set simulation to output cell types
-        simulator.SetOutputCellTypes(true);
+        simulator.SetOutputCellMutationStates(true);
 
         // Set length of simulation here
         time_of_each_run = 10.0*simulator.GetDt(); // for each run

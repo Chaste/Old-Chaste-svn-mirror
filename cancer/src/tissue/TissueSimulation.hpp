@@ -83,6 +83,9 @@ protected:
     /** Whether to remesh at each timestep or not (defaults to true).*/
     bool mReMesh;
     
+    /** Whether to count the number of each cell mutation state and output to file*/
+    bool mOutputCellMutationStates;
+    
     /** Whether to count the number of each cell type and output to file*/
     bool mOutputCellTypes;
     
@@ -146,6 +149,7 @@ protected:
         archive & mNumBirths;
         archive & mNumDeaths;
         archive & mCellKillers;
+        archive & mOutputCellMutationStates;
         archive & mOutputCellTypes;
         archive & mOutputCellVariables;
         archive & mSamplingTimestepMultiple;
@@ -238,8 +242,9 @@ public:
      */                         
     virtual ~TissueSimulation();
     
-    std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);    
-    c_vector<unsigned,5> GetCellTypeCount();
+    std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
+    c_vector<unsigned,5> GetCellMutationStateCount(); 
+    c_vector<unsigned,4> GetCellTypeCount();
         
     double GetDt();
     
@@ -248,6 +253,7 @@ public:
     void SetOutputDirectory(std::string outputDirectory);
     void SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple);
     void SetNoBirth(bool nobirth);
+    void SetOutputCellMutationStates(bool outputCellMutationStates);
     void SetOutputCellTypes(bool outputCellTypes);
     void SetOutputCellVariables(bool outputCellVariables);    
     void SetReMeshRule(bool remesh); 

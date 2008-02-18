@@ -120,7 +120,7 @@ public:
 //        simulator.SetOutputDirectory("IngeCellsNiceCryptSim_hyp2_long");
 //        
 //        // Set simulation to output cell types
-//        simulator.SetOutputCellTypes(true);
+//        simulator.SetOutputCellMutationStates(true);
 //                
 //        // Set length of simulation here
 //        simulator.SetEndTime(time_of_each_run);
@@ -209,7 +209,7 @@ public:
 //        simulator.SetOutputDirectory(output_directory);
 //        
 //        // Set simulation to output cell types
-//        simulator.SetOutputCellTypes(true);
+//        simulator.SetOutputCellMutationStates(true);
 //                
 //        // Set length of simulation here
 //        simulator.SetEndTime(time_of_each_run);

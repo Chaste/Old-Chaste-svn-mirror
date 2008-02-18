@@ -36,8 +36,12 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
         mNodeCellMap[node_index] = &(*it);
     }
     
-    // Initialise cell counts to zero
-    for(unsigned i=0; i<mCellTypeCount.size(); i++)
+    // Initialise cell counts to zero    
+    for(unsigned i=0; i<5; i++)
+    {
+        mCellMutationStateCount[i] = 0;
+    }
+    for(unsigned i=0; i<4; i++)
     {
         mCellTypeCount[i] = 0;
     }
@@ -117,7 +121,13 @@ std::set<unsigned> AbstractTissue<DIM>::GetCellAncestors()
 }
 
 template<unsigned DIM> 
-c_vector<unsigned,5> AbstractTissue<DIM>::GetCellTypeCount()
+c_vector<unsigned, 5> AbstractTissue<DIM>::GetCellMutationStateCount()
+{
+    return mCellMutationStateCount;
+}
+
+template<unsigned DIM> 
+c_vector<unsigned, 4> AbstractTissue<DIM>::GetCellTypeCount()
 {
     return mCellTypeCount;
 }
@@ -240,16 +250,17 @@ typename AbstractTissue<DIM>::Iterator AbstractTissue<DIM>::End()
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes)
+void AbstractTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellMutationStates)
 {
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpNodeFile = output_file_handler.OpenOutputFile("results.viznodes");
+    mpCellMutationStatesFile = output_file_handler.OpenOutputFile("cellmutationstates.dat");
     mpCellTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
     mpCellVariablesFile = output_file_handler.OpenOutputFile("cellvariables.dat");
     
-    if (outputCellTypes)
+    if (outputCellMutationStates)
     {
-        *mpCellTypesFile <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
+        *mpCellMutationStatesFile <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
     }
 }
 
@@ -257,25 +268,38 @@ template<unsigned DIM>
 void AbstractTissue<DIM>::CloseOutputFiles()
 {
     mpNodeFile->close();
+    mpCellMutationStatesFile->close();
     mpCellTypesFile->close();
     mpCellVariablesFile->close();
 }
 
 template<unsigned DIM>  
-void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables)
+void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, bool outputCellTypes, bool outputCellVariables)
 {   
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
     double time = p_simulation_time->GetDimensionalisedTime();
     
     // Set up cell type counter
-    unsigned cell_counter[5];
-    for(unsigned i=0; i<5; i++)
+    unsigned cell_type_counter[4];
+    for (unsigned i=0; i<4; i++)
     {
-        cell_counter[i] = 0;
+        cell_type_counter[i] = 0;
+    }
+    
+    // Set up cell mutation state counter
+    unsigned cell_mutation_state_counter[5];
+    for (unsigned i=0; i<5; i++)
+    {
+        cell_mutation_state_counter[i] = 0;
     }
     
     *mpNodeFile <<  time << "\t";
+    
+    if (outputCellMutationStates)
+    {
+        *mpCellMutationStatesFile <<  time << "\t";
+    }
     
     if (outputCellTypes)
     {
@@ -310,22 +334,41 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool outputC
         else if (mCells.size() > 0)
         {
             TissueCell* p_cell = mNodeCellMap[index];
-            
-            CellType type = p_cell->GetCellType();
             CellMutationState mutation = p_cell->GetMutationState();
             
-            // Set colours dependent on Stem, Transit, Differentiated, HepaOne
-            if (type == STEM)
+            // Set colours dependent on cell type
+            switch (p_cell->GetCellType())
             {
-                colour = STEM_COLOUR;
-            }
-            else if (type == TRANSIT)
-            {
-                colour = TRANSIT_COLOUR;
-            }
-            else
-            {
-                colour = DIFFERENTIATED_COLOUR;       
+                case STEM:
+                    colour = STEM_COLOUR;
+                    if (outputCellTypes)
+                    {
+                        cell_type_counter[0]++;
+                    }
+                    break;
+                case TRANSIT:
+                    colour = TRANSIT_COLOUR;
+                    if (outputCellTypes)
+                    {
+                        cell_type_counter[1]++;
+                    }
+                    break;
+                case DIFFERENTIATED:
+                    colour = DIFFERENTIATED_COLOUR;
+                    if (outputCellTypes)
+                    {
+                        cell_type_counter[2]++;
+                    }
+                    break;
+                case NECROTIC:
+                    colour = APOPTOSIS_COLOUR; // paint necrotic and apoptotic cells the same colour
+                    if (outputCellTypes)
+                    {
+                        cell_type_counter[3]++;
+                    }
+                    break;    
+                default:
+                    NEVER_REACHED;
             }
             
             // Override colours for mutant or labelled cells.
@@ -334,41 +377,41 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool outputC
                 if (mutation == LABELLED || mutation == ALARCON_CANCER)
                 {
                     colour = LABELLED_COLOUR;
-                    if (outputCellTypes)
+                    if (outputCellMutationStates)
                     {
-                        cell_counter[1]++;
+                        cell_mutation_state_counter[1]++;
                     }
                 }
                 if (mutation == APC_ONE_HIT)
                 {
                     colour = EARLY_CANCER_COLOUR;
-                    if (outputCellTypes)
+                    if (outputCellMutationStates)
                     {
-                        cell_counter[2]++;
+                        cell_mutation_state_counter[2]++;
                     }
                 }
                 if (mutation == APC_TWO_HIT )
                 {
                     colour = LATE_CANCER_COLOUR;
-                    if (outputCellTypes)
+                    if (outputCellMutationStates)
                     {
-                        cell_counter[3]++;
+                        cell_mutation_state_counter[3]++;
                     }  
                 }
                 if ( mutation == BETA_CATENIN_ONE_HIT)
                 {
                     colour = LATE_CANCER_COLOUR;
-                    if (outputCellTypes)
+                    if (outputCellMutationStates)
                     {
-                        cell_counter[4]++;
+                        cell_mutation_state_counter[4]++;
                     }  
                 }
             }
-            else // It's healthy, or normal in the sense of the Alarcon model
+            else // The cell is healthy, or normal in the sense of the Alarcon model
             {
-                if (outputCellTypes)
+                if (outputCellMutationStates)
                 {
-                    cell_counter[0]++;
+                    cell_mutation_state_counter[0]++;
                 }  
             }
             
@@ -413,13 +456,24 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool outputC
     
     *mpNodeFile << "\n";
    
+    // Write cell mutation state data to file if required
+    if (outputCellMutationStates)
+    {
+        for(unsigned i=0; i<5; i++)
+        {
+            mCellMutationStateCount[i] = cell_mutation_state_counter[i];
+            *mpCellMutationStatesFile <<  cell_mutation_state_counter[i] << "\t";
+        }
+        *mpCellMutationStatesFile <<  "\n";
+    }
+    
     // Write cell type data to file if required
     if (outputCellTypes)
     {
-        for(unsigned i=0; i < 5; i++)
+        for(unsigned i=0; i<4; i++)
         {
-            mCellTypeCount[i] = cell_counter[i];
-            *mpCellTypesFile <<  cell_counter[i] << "\t";
+            mCellTypeCount[i] = cell_type_counter[i];
+            *mpCellTypesFile <<  cell_type_counter[i] << "\t";
         }
         *mpCellTypesFile <<  "\n";
     }

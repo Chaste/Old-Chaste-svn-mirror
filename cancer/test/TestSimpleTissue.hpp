@@ -448,7 +448,7 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(simple_tissue.CreateOutputFiles(output_directory, false, true));
         
-        simple_tissue.WriteResultsToFiles(true, false);     
+        simple_tissue.WriteResultsToFiles(true, true, false);     
 
         TS_ASSERT_THROWS_NOTHING(simple_tissue.CloseOutputFiles());
         
@@ -456,18 +456,24 @@ public:
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestSimpleTissueWriters/results.viznodes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "celltypes.dat     cancer/test/data/TestSimpleTissueWriters/celltypes.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     cancer/test/data/TestSimpleTissueWriters/celltypes.dat").c_str()), 0);
         
-        // Test the GetCellTypeCount function
-        c_vector<unsigned,5> cell_types = simple_tissue.GetCellTypeCount();
+        // Test the GetCellMutationStateCount function
+        c_vector<unsigned,5> cell_mutation_states = simple_tissue.GetCellMutationStateCount();
         for (unsigned i=1; i<5; i++)
         {
-            TS_ASSERT_EQUALS(cell_types[i], 1u);
+            TS_ASSERT_EQUALS(cell_mutation_states[i], 1u);
         }
+         // Test the GetCellTypeCount function
+        c_vector<unsigned,5> cell_types = simple_tissue.GetCellTypeCount();
+        TS_ASSERT_EQUALS(cell_types[0], 3u);
+        TS_ASSERT_EQUALS(cell_types[1], 1u);
+        TS_ASSERT_EQUALS(cell_types[2], 1u);
+        TS_ASSERT_EQUALS(cell_types[3], 0u);
         
         // For coverage
         simple_tissue.SetCellAncestorsToNodeIndices();
-        TS_ASSERT_THROWS_NOTHING(simple_tissue.WriteResultsToFiles(true, false));
+        TS_ASSERT_THROWS_NOTHING(simple_tissue.WriteResultsToFiles(true, false, false));
     }    
     
     void TestArchivingTissue() throw (Exception)

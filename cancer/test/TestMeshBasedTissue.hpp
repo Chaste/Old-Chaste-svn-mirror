@@ -373,7 +373,7 @@ public:
     }
 
 
-    // Test update ghost node positions    
+    // Test update ghost node positions
     void TestOutputWriters()
     {        
         // Create a simple mesh
@@ -391,7 +391,7 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false, false));
         
-        tissue.WriteResultsToFiles(true, false);                         
+        tissue.WriteResultsToFiles(true, true, false);
 
         TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles());
         
@@ -401,13 +401,20 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements  cancer/test/data/TestTissueWriters/results.vizelements").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
 
-        // Test the GetCellTypeCount function: there should only be healthy cells
-        c_vector<unsigned,5> cell_types = tissue.GetCellTypeCount();
-        TS_ASSERT_EQUALS(cell_types[0], tissue.GetNumRealCells());
+        // Test the GetCellMutationStateCount function: there should only be healthy cells
+        c_vector<unsigned,5> cell_mutation_states = tissue.GetCellMutationStateCount();
+        TS_ASSERT_EQUALS(cell_mutation_states[0], tissue.GetNumRealCells());
         for (unsigned i=1; i<4 ; i++)
         {
-            TS_ASSERT_EQUALS(cell_types[i], 0u);
-        }         
+            TS_ASSERT_EQUALS(cell_mutation_states[i], 0u);
+        }
+        
+        // Test the GetCellTypeCount function - we should just have stem cells
+        c_vector<unsigned,5> cell_types = tissue.GetCellTypeCount();
+        TS_ASSERT_EQUALS(cell_types[0], 5u);
+        TS_ASSERT_EQUALS(cell_types[1], 0u);
+        TS_ASSERT_EQUALS(cell_types[2], 0u);
+        TS_ASSERT_EQUALS(cell_types[3], 0u);
     }
     
     
@@ -438,7 +445,7 @@ public:
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghosts, false);
 
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells

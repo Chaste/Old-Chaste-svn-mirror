@@ -28,11 +28,17 @@ protected:
     /** Map node indices back to cells */
     std::map<unsigned, TissueCell*> mNodeCellMap;
     
+    /** Current cell mutation state counts */
+    c_vector<unsigned,5> mCellMutationStateCount;
+    
     /** Current cell type counts */
-    c_vector<unsigned,5> mCellTypeCount;
+    c_vector<unsigned,4> mCellTypeCount;
     
     /** Results file for nodes */
     out_stream mpNodeFile;
+    
+    /** Results file for cell mutation states */
+    out_stream mpCellMutationStatesFile;
     
     /** Results file for cell types */
     out_stream mpCellTypesFile;
@@ -131,14 +137,25 @@ public:
     /**
      * Find out how many cells of each mutation state there are
      * 
-     * @return The number of cells of each type (evaluated at each visualizer output)
+     * @return The number of cells of each mutation state (evaluated at each visualizer output)
      * [0] = healthy count
      * [1] = labelled cells
      * [2] = APC one hit
      * [3] = APC two hit
      * [4] = beta catenin one hit
      */
-    c_vector<unsigned,5> GetCellTypeCount();
+    c_vector<unsigned, 5> GetCellMutationStateCount();
+     
+     /**
+     * Find out how many cells of each type there are
+     * 
+     * @return The number of cells of each type (evaluated at each visualizer output)
+     * [0] = STEM
+     * [1] = TRANSIT
+     * [2] = DIFFERENTIATED
+     * [3] = NECROTIC
+     */
+    c_vector<unsigned, 4> GetCellTypeCount();
     
     virtual unsigned GetGhostNodesSize();
       
@@ -170,9 +187,9 @@ public:
      */
     TissueCell& rGetCellAtNodeIndex(unsigned index);
     
-    virtual void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes);
+    virtual void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellMutationStates);
     
-    virtual void WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables);
+    virtual void WriteResultsToFiles(bool outputCellMutationStates, bool outputCellTypes, bool outputCellVariables);
         
     virtual void CloseOutputFiles();
     

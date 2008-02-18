@@ -419,13 +419,13 @@ void MeshBasedTissue<DIM>::SetWriteTissueAreas(bool writeTissueAreas)
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellTypes)
+void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellMutationStates)
 {
-    AbstractTissue<DIM>::CreateOutputFiles(rDirectory, rCleanOutputDirectory, outputCellTypes);
+    AbstractTissue<DIM>::CreateOutputFiles(rDirectory, rCleanOutputDirectory, outputCellMutationStates);
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
     mpVoronoiFile = output_file_handler.OpenOutputFile("results.vizvoronoi");
-    mpTissueAreasFile = output_file_handler.OpenOutputFile("Areas.dat");
+    mpTissueAreasFile = output_file_handler.OpenOutputFile("tissueareas.dat");
 }
 
 template<unsigned DIM>
@@ -450,9 +450,9 @@ bool MeshBasedTissue<DIM>::GetWriteTissueAreas()
 }
 
 template<unsigned DIM>  
-void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellTypes, bool outputCellVariables)
+void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, bool outputCellTypes, bool outputCellVariables)
 {
-    AbstractTissue<DIM>::WriteResultsToFiles(outputCellTypes, outputCellVariables);
+    AbstractTissue<DIM>::WriteResultsToFiles(outputCellMutationStates, outputCellTypes, outputCellVariables);
     
     // Write element data to file
     
