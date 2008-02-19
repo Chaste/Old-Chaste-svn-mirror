@@ -441,6 +441,7 @@ public:
         simple_tissue.rGetCellAtNodeIndex(1).SetMutationState(APC_ONE_HIT);
         simple_tissue.rGetCellAtNodeIndex(2).SetMutationState(APC_TWO_HIT);
         simple_tissue.rGetCellAtNodeIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
+        simple_tissue.rGetCellAtNodeIndex(4).SetCellType(NECROTIC);
         simple_tissue.rGetCellAtNodeIndex(4).StartApoptosis();
         
         std::string output_directory = "TestSimpleTissueWriters";
@@ -466,10 +467,10 @@ public:
         }
          // Test the GetCellTypeCount function
         c_vector<unsigned,5> cell_types = simple_tissue.GetCellTypeCount();
-        TS_ASSERT_EQUALS(cell_types[0], 3u);
+        TS_ASSERT_EQUALS(cell_types[0], 2u);
         TS_ASSERT_EQUALS(cell_types[1], 1u);
         TS_ASSERT_EQUALS(cell_types[2], 1u);
-        TS_ASSERT_EQUALS(cell_types[3], 0u);
+        TS_ASSERT_EQUALS(cell_types[3], 1u);
         
         // For coverage
         simple_tissue.SetCellAncestorsToNodeIndices();
