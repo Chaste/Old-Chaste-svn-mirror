@@ -409,6 +409,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 4u);
         
         NodeMap map(1);
         mesh.ReMeshWithTriangleLibrary(map);
@@ -420,6 +421,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 4u);
     }
     
 

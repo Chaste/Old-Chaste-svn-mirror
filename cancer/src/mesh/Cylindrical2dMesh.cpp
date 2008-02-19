@@ -201,7 +201,8 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
     // Call the normal re-mesh
     // note that the mesh now has lots of extra nodes which will be deleted, hence the name 'big_map'
     NodeMap big_map(GetNumAllNodes()); 
-    ConformingTetrahedralMesh<2,2>::ReMesh(big_map);
+    ConformingTetrahedralMesh<2,2>::ReMeshWithTriangleLibrary(big_map);
+    //ConformingTetrahedralMesh<2,2>::ReMesh(big_map);
     // if the big_map isn't the identity map, the little map ('map') needs to be
     // altered accordingly before being passed to the user. not sure how this all works,
     // so deal with this bridge when we get to it 

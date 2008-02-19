@@ -1014,6 +1014,11 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrar
     triangle_input.pointlist = (double *) malloc(GetNumNodes() * 2 * sizeof(double));
     triangle_input.numberofpoints = GetNumNodes();
     triangle_input.numberofpointattributes = 0;
+    triangle_input.pointmarkerlist = NULL;
+    triangle_input.numberofsegments = 0;
+    triangle_input.numberofholes = 0;
+    triangle_input.numberofregions = 0;
+    
     unsigned new_index = 0;
     map.Resize(GetNumAllNodes());        
     for (unsigned i=0; i<GetNumAllNodes(); i++)
@@ -1055,9 +1060,12 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrar
     {
         if (triangle_output.pointmarkerlist[node_index] == 1)
         {
-            mNodes.push_back(new Node<SPACE_DIM>(node_index, true, 
+            //Boundary node
+            Node<SPACE_DIM> *p_node=new Node<SPACE_DIM>(node_index, true, 
               triangle_output.pointlist[node_index * 2], 
-              triangle_output.pointlist[node_index * 2+1]));
+              triangle_output.pointlist[node_index * 2+1]);
+            mNodes.push_back(p_node);
+            mBoundaryNodes.push_back(p_node);
         }
         else
         {
@@ -1084,6 +1092,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrar
     
     //Construct the edges
     //too big mBoundaryElements.reserve(triangle_output.numberoftriangles);
+    unsigned next_boundary_element_index=0;
     for (unsigned boundary_element_index=0; boundary_element_index < (unsigned)triangle_output.numberofedges; boundary_element_index++)
     {
         if (triangle_output.edgemarkerlist[boundary_element_index] == 1)
@@ -1095,7 +1104,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrar
                 assert(global_node_index <  mNodes.size());
                 nodes.push_back(mNodes[global_node_index]);
             }
-            mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(boundary_element_index, nodes));
+            mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(next_boundary_element_index++, nodes));
         }
     }
      
