@@ -37,11 +37,11 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
     }
     
     // Initialise cell counts to zero    
-    for(unsigned i=0; i<5; i++)
+    for(unsigned i=0; i<mCellMutationStateCount.size(); i++)
     {
         mCellMutationStateCount[i] = 0;
     }
-    for(unsigned i=0; i<4; i++)
+    for(unsigned i=0; i<mCellTypeCount.size(); i++)
     {
         mCellTypeCount[i] = 0;
     }
@@ -281,15 +281,15 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, boo
     double time = p_simulation_time->GetDimensionalisedTime();
     
     // Set up cell type counter
-    unsigned cell_type_counter[4];
-    for (unsigned i=0; i<4; i++)
+    unsigned cell_type_counter[mCellTypeCount.size()];
+    for (unsigned i=0; i<mCellTypeCount.size(); i++)
     {
         cell_type_counter[i] = 0;
     }
     
     // Set up cell mutation state counter
-    unsigned cell_mutation_state_counter[5];
-    for (unsigned i=0; i<5; i++)
+    unsigned cell_mutation_state_counter[mCellMutationStateCount.size()];
+    for (unsigned i=0; i<mCellMutationStateCount.size(); i++)
     {
         cell_mutation_state_counter[i] = 0;
     }
@@ -459,7 +459,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, boo
     // Write cell mutation state data to file if required
     if (outputCellMutationStates)
     {
-        for(unsigned i=0; i<5; i++)
+        for(unsigned i=0; i<mCellMutationStateCount.size(); i++)
         {
             mCellMutationStateCount[i] = cell_mutation_state_counter[i];
             *mpCellMutationStatesFile <<  cell_mutation_state_counter[i] << "\t";
@@ -470,7 +470,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, boo
     // Write cell type data to file if required
     if (outputCellTypes)
     {
-        for(unsigned i=0; i<4; i++)
+        for(unsigned i=0; i<mCellTypeCount.size(); i++)
         {
             mCellTypeCount[i] = cell_type_counter[i];
             *mpCellTypesFile <<  cell_type_counter[i] << "\t";
