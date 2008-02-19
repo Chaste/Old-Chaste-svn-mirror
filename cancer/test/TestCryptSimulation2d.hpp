@@ -655,7 +655,7 @@ public:
         OutputFileHandler handler("Crypt2DPeriodicTysonNovak",false);
         std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizelements").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.viznodes cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("ndiff -abserr 1e-14 " + results_dir + "/results.viznodes cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.viznodes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizsetup").c_str()), 0);
     }
    

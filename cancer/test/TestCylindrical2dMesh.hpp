@@ -567,7 +567,7 @@ public:
 //        TrianglesMeshWriter<2,2> writer6("","HaloNodes.5");
 //        writer6.WriteFilesUsingMesh(*p_mesh);
         
-        TS_ASSERT_DELTA(original_mesh_height, p_mesh->GetWidth(1), 1e-6);
+        TS_ASSERT_DELTA(original_mesh_height, p_mesh->GetWidth(1), 1.1e-6);
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), original_num_nodes);
     }
 
