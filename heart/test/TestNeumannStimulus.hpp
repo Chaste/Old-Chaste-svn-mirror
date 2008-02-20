@@ -207,7 +207,91 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[2*10], -60.6728, atol);
               
     }
+    void TestBidomain2d() throw(Exception)
+    {
+        ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
+        BidomainProblem<2> bidomain_problem( &cell_factory );
+        
+        bidomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_200_elements");
+        bidomain_problem.SetEndTime(2);   // ms
+        bidomain_problem.SetOutputDirectory("BiNeuman2d");
+        bidomain_problem.SetOutputFilenamePrefix("results");        
 
+        // this parameters are a bit arbitrary, and chosen to get a good spread of voltages
+        bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75));
+        // \todo the default intracellular conductivity in the Pde is overridden by the Problem
+        
+        bidomain_problem.Initialise();
+        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
+
+        //Double check to confirm the default values for conductivity
+        c_matrix<double, 2,2> intra_tensor=bidomain_problem.GetBidomainPde()->rGetIntracellularConductivityTensor(0);
+        TS_ASSERT_DELTA(intra_tensor(0,0), 1.75, 1e-10);
+        c_matrix<double, 2,2> extra_tensor=bidomain_problem.GetBidomainPde()->rGetExtracellularConductivityTensor(0);
+        TS_ASSERT_DELTA(extra_tensor(0,0), 7.0, 1e-10);
+        
+        // create boundary conditions container
+        BoundaryConditionsContainer<2, 2, 2> bcc;
+        InitialStimulus stim(10000.0, 0.5);
+        StimulusBoundaryCondition<2> *p_bc_stim = new StimulusBoundaryCondition<2>(&stim);
+        ConstBoundaryCondition<2> *p_bc_no_flux = new ConstBoundaryCondition<2>(0);
+                
+        // get mesh
+        ConformingTetrahedralMesh<2,2>& r_mesh = bidomain_problem.rGetMesh();
+        // loop over boundary elements
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter;
+        iter = r_mesh.GetBoundaryElementIteratorBegin();
+        while (iter != r_mesh.GetBoundaryElementIteratorEnd())
+        {
+            if (((*iter)->CalculateCentroid()[0])==0.0)
+            {
+                bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim);
+            }
+            else
+            {
+                bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux);
+            }
+            
+            // add zero-flux boundary condition for the extracellular potential
+            bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux, 1);
+            iter++;
+        }
+        
+        // pass the bcc to the monodomain problem
+        bidomain_problem.SetBoundaryConditionsContainer(&bcc);
+        
+        bidomain_problem.Solve();
+        
+        // check some voltages    
+        ReplicatableVector voltage_replicated(bidomain_problem.GetVoltage());
+        double atol=2.0;
+
+        for (unsigned node_index = 0; node_index < r_mesh.GetNumNodes(); node_index++)
+        {
+            double x = r_mesh.GetNode(node_index)->rGetLocation()[0];
+            
+            if (fabs(x)<1e-10)
+            {
+                TS_ASSERT_DELTA(voltage_replicated[2*node_index], 21.0, atol)
+            }
+            if (fabs(x-0.05)<1e-10)
+            {
+                TS_ASSERT_DELTA(voltage_replicated[2*node_index], 23.5, atol)
+            }
+            if (fabs(x-0.1)<1e-10)
+            {
+                TS_ASSERT_DELTA(voltage_replicated[2*node_index], -68.5, 2*atol)
+            }            
+        } 
+        
+//        TS_ASSERT_DELTA(voltage_replicated[2*1], 23.6028, atol);
+//        TS_ASSERT_DELTA(voltage_replicated[2*3], 23.3720, atol);
+//        TS_ASSERT_DELTA(voltage_replicated[2*5], 23.9703, atol);
+//        TS_ASSERT_DELTA(voltage_replicated[2*7], 20.7020, atol);
+//        TS_ASSERT_DELTA(voltage_replicated[2*9], -41.3815, atol);
+//        TS_ASSERT_DELTA(voltage_replicated[2*10], -60.6728, atol);
+              
+    }
 };
 
 #endif //_TESTNEUMANNSTIMULUS_HPP_
