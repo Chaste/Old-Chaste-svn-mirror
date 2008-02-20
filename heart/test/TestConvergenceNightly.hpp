@@ -37,13 +37,13 @@ public:
     void ConvergeInVarious(bool stimulateRegion)
     {
        {
-            PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+            PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
             RunConvergenceTester(&tester, stimulateRegion);           
             TS_ASSERT_DELTA(tester.PdeTimeStep, 5.0e-3, 1e-10);
         }
     
         {
-            SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+            SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
             RunConvergenceTester(&tester, stimulateRegion);   
             if (!stimulateRegion)
             {
@@ -56,7 +56,7 @@ public:
         }
             
         {
-            KspConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+            KspConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
             RunConvergenceTester(&tester, stimulateRegion);    
             if (!stimulateRegion)
             {
@@ -69,13 +69,13 @@ public:
         }
     
         {
-            OdeConvergenceTester<LuoRudyIModel1991OdeSystem, BidomainProblem<1>, 1> tester;
+            OdeConvergenceTester<LuoRudyIModel1991OdeSystem, BidomainProblem<1>, 1, 2> tester;
             RunConvergenceTester(&tester, stimulateRegion);    
             TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);
         }
         
         {
-            OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+            OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
             tester.PdeTimeStep=0.01;
             RunConvergenceTester(&tester, stimulateRegion);    
             TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);
@@ -104,7 +104,7 @@ public:
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.SetKspRelativeTolerance(5e-8);
         tester.Converge();
         TS_ASSERT(tester.Converged);
@@ -117,7 +117,7 @@ public:
     void Test2DSpaceWithRegion() throw(Exception)
     {
         
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.StimulateRegion=true;
         tester.SetKspRelativeTolerance(1e-8);
         tester.Converge();
@@ -129,7 +129,7 @@ public:
     void Test3DSpace() throw(Exception)
     {
         
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         tester.SetKspRelativeTolerance(1e-8);
         tester.RelativeConvergenceCriterion=4e-2;//Just to prove the thing works
         tester.Converge();

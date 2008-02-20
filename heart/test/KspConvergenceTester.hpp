@@ -1,8 +1,8 @@
 #ifndef KSPCONVERGENCETESTER_HPP_
 #define KSPCONVERGENCETESTER_HPP_
 
-template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
-class KspConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PROBLEM, DIM>
+template<class CELL, class CARDIAC_PROBLEM, unsigned DIM, unsigned PROBLEM_DIM>
+class KspConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PROBLEM, DIM, PROBLEM_DIM>
 {
 public:
     void SetInitialConvergenceParameters()

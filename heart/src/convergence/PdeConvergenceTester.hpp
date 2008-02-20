@@ -3,8 +3,8 @@
 
 #include "AbstractConvergenceTester.hpp"
 
-template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
-class PdeConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PROBLEM, DIM>
+template<class CELL, class CARDIAC_PROBLEM, unsigned DIM, unsigned PROBLEM_DIM>
+class PdeConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PROBLEM, DIM, PROBLEM_DIM>
 {
 public:
     void SetInitialConvergenceParameters()

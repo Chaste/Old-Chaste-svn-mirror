@@ -1,5 +1,6 @@
 Test1dBidomainProblemForEfficiency.hpp
 TestConvergenceNightly.hpp
+TestConvergenceNeumannStimulus.hpp
 TestBidomain3D.hpp
 TestBidomainWithShocks.hpp
 TestMonodomainDg0AssemblerLong.hpp

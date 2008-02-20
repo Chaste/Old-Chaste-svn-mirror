@@ -50,7 +50,7 @@ protected:
     double mSurfaceAreaToVolumeRatio;
     double mCapacitance;
     
-    ElementwiseConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors, *mpDefaultIntracellularCondTensors;
+    ElementwiseConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors;
     
     /** The vector of cells. Distributed. */
     std::vector< AbstractCardiacCell* > mCellsDistributed;
@@ -88,7 +88,7 @@ public:
         
         // Reference Clerc 1976 (x,y,z)
         double default_intra_conductivities[] = {1.75, 0.19, 0.19};      // mS/cm (Averaged)
-        
+
         c_vector<double, SPACE_DIM> intra_conductivities;    
         for (unsigned dim=0; dim<SPACE_DIM; dim++)
         {
@@ -99,8 +99,6 @@ public:
         mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
         mpIntracellularConductivityTensors->Init();
         
-        // Keep a copy of the pointer to free it at the end (since mpIntracellularConductivityTensors may be changed from outside)
-        mpDefaultIntracellularCondTensors = mpIntracellularConductivityTensors;
         
         mCellsDistributed.resize(DistributedVector::End().Global-DistributedVector::Begin().Global);
         
@@ -129,7 +127,6 @@ public:
             delete mCellsDistributed[index.Local];             
         }
         
-        delete mpDefaultIntracellularCondTensors;
     }
     
     
@@ -168,6 +165,7 @@ public:
     
     const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetIntracellularConductivityTensor(unsigned elementIndex)
     {
+        assert( mpIntracellularConductivityTensors);
         return (*mpIntracellularConductivityTensors)[elementIndex];        
     }
     

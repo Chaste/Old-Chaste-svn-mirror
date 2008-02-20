@@ -19,6 +19,10 @@
 #include "GeneralPlaneStimulusCellFactory.hpp"
 #include "CuboidMeshConstructor.hpp"
 #include "OutputFileHandler.hpp"
+#include "ZeroStimulusCellFactory.hpp"
+#include "InitialStimulus.hpp"
+#include "ConstBoundaryCondition.hpp"
+#include "StimulusBoundaryCondition.hpp"
 
 const double simulation_time = 8.0; //ms
 
@@ -73,6 +77,7 @@ public:
     bool PopulatedResult;
     bool FixedResult;
     bool UseAbsoluteStimulus;
+    bool UseNeumannStimulus;
     bool Converged;
     bool StimulateRegion;
     
@@ -89,6 +94,7 @@ public:
       PopulatedResult(false),
       FixedResult(false),
       UseAbsoluteStimulus(false),
+      UseNeumannStimulus(false),
       Converged(false),
       StimulateRegion(false)
     {
@@ -167,7 +173,7 @@ void SetConductivities(MonodomainProblem<DIM>& rProblem)
 
 
 
-template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
+template<class CELL, class CARDIAC_PROBLEM, unsigned DIM, unsigned PROBLEM_DIM>
 class AbstractConvergenceTester : public AbstractUntemplatedConvergenceTester
 {
 public:    
@@ -192,6 +198,7 @@ public:
         do
         {
             CuboidMeshConstructor<DIM> constructor;
+            
 
             if (this->MeshNum!=prev_mesh_num)
             {
@@ -201,7 +208,11 @@ public:
             unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
             
             AbstractCardiacCellFactory<DIM>* p_cell_factory;
-            if (!this->StimulateRegion)
+            if (this->UseNeumannStimulus)
+            {
+                p_cell_factory = new ZeroStimulusCellFactory<CELL, DIM>(this->OdeTimeStep);
+            }
+            else if (!this->StimulateRegion)
             {
                 //\todo The UseAbsoluteStimulus is temporary, while we are sorting out 
                 //3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
@@ -250,6 +261,41 @@ public:
             SetConductivities(cardiac_problem);
 
             cardiac_problem.Initialise();
+            
+            BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM> bcc;
+            InitialStimulus stim(4000.0, 0.5);
+            if (UseNeumannStimulus)
+            {
+                
+                StimulusBoundaryCondition<DIM> *p_bc_stim = new StimulusBoundaryCondition<DIM>(&stim);
+                ConstBoundaryCondition<DIM> *p_bc_no_flux = new ConstBoundaryCondition<DIM>(0);
+                        
+                // get mesh
+                ConformingTetrahedralMesh<DIM, DIM> &r_mesh = cardiac_problem.rGetMesh();
+                // loop over boundary elements
+                typename ConformingTetrahedralMesh<DIM, DIM>::BoundaryElementIterator iter;
+                iter = r_mesh.GetBoundaryElementIteratorBegin();
+                while (iter != r_mesh.GetBoundaryElementIteratorEnd())
+                {
+                    double x = ((*iter)->CalculateCentroid())[0];
+                    if (x*x<=1e-10)
+                    {
+                        bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim);
+                    }
+                    else
+                    {
+                        bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux);
+                    }
+                    
+                    if (PROBLEM_DIM==2)
+                    {
+                        bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux, 1);
+                    }
+                    iter++;
+                }
+                // pass the bcc to the problem
+                cardiac_problem.SetBoundaryConditionsContainer(&bcc);
+            }
             
       	    DisplayRun();
             double time_before=MPI_Wtime();

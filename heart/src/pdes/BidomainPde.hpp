@@ -53,6 +53,7 @@ public:
           */
           
           
+
         // Reference Clerc 1976 (x,y,z)
         double default_extra_conductivities[] = {6.2, 2.4, 2.4}; // mS/cm (Averaged) 
 
@@ -64,6 +65,7 @@ public:
                 
         mpExtracellularConductivityTensors = new ElementwiseConductivityTensors<SPACE_DIM>;
         mpExtracellularConductivityTensors->SetConstantConductivities(extra_conductivities);
+
         mpExtracellularConductivityTensors->Init();
         
         // Keep a copy of the pointer to free it at the end (since mpExtracellularConductivityTensors may be changed from outside)
@@ -78,9 +80,9 @@ public:
         delete mpDefaultExtracellularCondTensors;
     }
     
-    void SetExtracellularConductivityTensors(ElementwiseConductivityTensors<SPACE_DIM>* pIntracellularTensors)
+    void SetExtracellularConductivityTensors(ElementwiseConductivityTensors<SPACE_DIM>* pExtracellularTensors)
     {        
-        mpExtracellularConductivityTensors = pIntracellularTensors;
+        mpExtracellularConductivityTensors = pExtracellularTensors;
     }
     
     

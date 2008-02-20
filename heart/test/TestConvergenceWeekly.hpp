@@ -23,7 +23,7 @@ public:
     void xxTest3DSpace() throw(Exception)
     {
         
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         tester.SetKspRelativeTolerance(1e-8);
         tester.SetMeshWidth(0.15);//cm
         tester.Converge();
@@ -35,7 +35,7 @@ public:
     //This first one has to be done before we've asked for symmlq    
     void TestSpaceConvergencein1DWithAtol() throw(Exception)
     {
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.SetKspAbsoluteTolerance(1e-5);
         tester.Converge();
         TS_ASSERT(tester.Converged);
@@ -51,7 +51,7 @@ public:
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         tester.SetKspRelativeTolerance(1e-10);
         tester.OdeTimeStep /= 2.0;
         tester.PdeTimeStep /= 2.0;
@@ -66,7 +66,7 @@ public:
     //More experiments with ksp_atol follow.  
     void TestSpaceConvergencein2DWithAtol() throw(Exception)
     {
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.SetKspAbsoluteTolerance(1e-5);
         tester.Converge();
         TS_ASSERT(tester.Converged);
@@ -80,7 +80,7 @@ public:
     //Copied from projects/jmpf since this converges on mesh4
     void Test3DSpaceRelaxWidthWithAtol() throw(Exception)
     {
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         tester.SetKspAbsoluteTolerance(1e-3);        
         
         tester.SetMeshWidth(0.15);//cm

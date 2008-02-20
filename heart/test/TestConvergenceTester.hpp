@@ -22,7 +22,7 @@ class TestConvergenceTester : public CxxTest::TestSuite
 public:
     void Test1DOdeTime() throw(Exception)
     {
-        OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+        OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.MeshNum=1;
         tester.Converge();
         TS_ASSERT(tester.Converged);
@@ -32,7 +32,7 @@ public:
     
     void Test1DPdeTime() throw(Exception)
     {
-        PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1> tester;
+        PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.MeshNum=1;
         tester.RelativeConvergenceCriterion=7e-4;
         tester.Converge();
@@ -41,7 +41,7 @@ public:
     }
     void Test1DPdeTimePlane() throw(Exception)
     {
-        PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1> tester;
+        PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.MeshNum=1;
         tester.StimulateRegion=true;
         tester.RelativeConvergenceCriterion=5e-4;
@@ -51,7 +51,7 @@ public:
     }
     void Test1DSpace() throw(Exception)
     {
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1> tester;
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.RelativeConvergenceCriterion=2e-2;
         tester.Converge();
         TS_ASSERT(tester.IsConverged());
@@ -62,7 +62,7 @@ public:
     }
     void Test2DOdeTime() throw(Exception)
     {
-        OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<2>, 2> tester;
+        OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<2>, 2, 1> tester;
         tester.MeshNum=0;
         tester.RelativeConvergenceCriterion=8e-5;
         tester.Converge();
@@ -72,7 +72,7 @@ public:
     
     void TestSpaceConvergencein1DWithRelativeTolerance() throw(Exception)
     {
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.SetKspRelativeTolerance(1e-4);
         TS_ASSERT_DELTA(tester.GetKspRelativeTolerance(), 1e-4, 1e-10);
         TS_ASSERT_THROWS_ANYTHING(tester.GetKspAbsoluteTolerance());
@@ -85,7 +85,7 @@ public:
     }
     void TestSpaceConvergencein1DWithAbsoluteTolerance() throw(Exception)
     {
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1> tester;
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.SetKspAbsoluteTolerance(1e-4);
         TS_ASSERT_DELTA(tester.GetKspAbsoluteTolerance(), 1e-4, 1e-10);
         TS_ASSERT_THROWS_ANYTHING(tester.GetKspRelativeTolerance());
