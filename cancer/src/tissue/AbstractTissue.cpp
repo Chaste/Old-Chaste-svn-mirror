@@ -37,11 +37,11 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
     }
     
     // Initialise cell counts to zero    
-    for(unsigned i=0; i<mCellMutationStateCount.size(); i++)
+    for(unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
     {
         mCellMutationStateCount[i] = 0;
     }
-    for(unsigned i=0; i<mCellTypeCount.size(); i++)
+    for(unsigned i=0; i<NUM_CELL_TYPES; i++)
     {
         mCellTypeCount[i] = 0;
     }
@@ -50,7 +50,7 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
 template<unsigned DIM>
 void AbstractTissue<DIM>::InitialiseCells()
 {
-    for(std::list<TissueCell>::iterator iter = mCells.begin();
+    for (std::list<TissueCell>::iterator iter = mCells.begin();
         iter != mCells.end();
         ++iter)
     {
@@ -121,13 +121,13 @@ std::set<unsigned> AbstractTissue<DIM>::GetCellAncestors()
 }
 
 template<unsigned DIM> 
-c_vector<unsigned, 5> AbstractTissue<DIM>::GetCellMutationStateCount()
+c_vector<unsigned, NUM_CELL_MUTATION_STATES> AbstractTissue<DIM>::GetCellMutationStateCount()
 {
     return mCellMutationStateCount;
 }
 
 template<unsigned DIM> 
-c_vector<unsigned, 4> AbstractTissue<DIM>::GetCellTypeCount()
+c_vector<unsigned, NUM_CELL_TYPES> AbstractTissue<DIM>::GetCellTypeCount()
 {
     return mCellTypeCount;
 }
@@ -282,14 +282,14 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, boo
     
     // Set up cell type counter
     unsigned cell_type_counter[mCellTypeCount.size()];
-    for (unsigned i=0; i<mCellTypeCount.size(); i++)
+    for (unsigned i=0; i<NUM_CELL_TYPES; i++)
     {
         cell_type_counter[i] = 0;
     }
     
     // Set up cell mutation state counter
     unsigned cell_mutation_state_counter[mCellMutationStateCount.size()];
-    for (unsigned i=0; i<mCellMutationStateCount.size(); i++)
+    for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
     {
         cell_mutation_state_counter[i] = 0;
     }
@@ -371,48 +371,45 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, boo
                     NEVER_REACHED;
             }
             
-            // Override colours for mutant or labelled cells.
-            if (mutation != HEALTHY && mutation != ALARCON_NORMAL)
+            // Override colours for mutant or labelled cells
+            switch (mutation)
             {
-                if (mutation == LABELLED || mutation == ALARCON_CANCER)
-                {
-                    colour = LABELLED_COLOUR;
+                case HEALTHY:
                     if (outputCellMutationStates)
                     {
-                        cell_mutation_state_counter[1]++;
+                        cell_mutation_state_counter[0]++;
                     }
-                }
-                if (mutation == APC_ONE_HIT)
-                {
+                    break;                
+                case APC_ONE_HIT:
                     colour = EARLY_CANCER_COLOUR;
                     if (outputCellMutationStates)
                     {
                         cell_mutation_state_counter[2]++;
                     }
-                }
-                if (mutation == APC_TWO_HIT )
-                {
+                    break;
+                case APC_TWO_HIT:
                     colour = LATE_CANCER_COLOUR;
                     if (outputCellMutationStates)
                     {
                         cell_mutation_state_counter[3]++;
-                    }  
-                }
-                if ( mutation == BETA_CATENIN_ONE_HIT)
-                {
+                    }
+                    break;
+                case BETA_CATENIN_ONE_HIT:
                     colour = LATE_CANCER_COLOUR;
                     if (outputCellMutationStates)
                     {
                         cell_mutation_state_counter[4]++;
-                    }  
-                }
-            }
-            else // The cell is healthy, or normal in the sense of the Alarcon model
-            {
-                if (outputCellMutationStates)
-                {
-                    cell_mutation_state_counter[0]++;
-                }  
+                    }
+                    break;
+                case LABELLED:
+                    colour = LABELLED_COLOUR;
+                    if (outputCellMutationStates)
+                    {
+                        cell_mutation_state_counter[1]++;
+                    }
+                    break;
+                default:
+                    NEVER_REACHED;
             }
             
             if (p_cell->HasApoptosisBegun())
@@ -459,7 +456,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, boo
     // Write cell mutation state data to file if required
     if (outputCellMutationStates)
     {
-        for(unsigned i=0; i<mCellMutationStateCount.size(); i++)
+        for(unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
         {
             mCellMutationStateCount[i] = cell_mutation_state_counter[i];
             *mpCellMutationStatesFile <<  cell_mutation_state_counter[i] << "\t";
@@ -470,7 +467,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, boo
     // Write cell type data to file if required
     if (outputCellTypes)
     {
-        for(unsigned i=0; i<mCellTypeCount.size(); i++)
+        for(unsigned i=0; i<NUM_CELL_TYPES; i++)
         {
             mCellTypeCount[i] = cell_type_counter[i];
             *mpCellTypesFile <<  cell_type_counter[i] << "\t";

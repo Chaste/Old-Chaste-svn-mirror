@@ -8,7 +8,9 @@
 #include "CellMutationStates.hpp"
 
 /**
- * Represents the Alarcon et al. (2004) system of ODEs (see ticket #461).
+ * Represents the Alarcon et al. (2004) system of ODEs (see ticket #461). Here 
+ * the cell mutation state HEALTHY corresponds to a 'normal' state, while 
+ * LABELLED corresponds to a 'cancer' state.
  *
  * The variables are
  *

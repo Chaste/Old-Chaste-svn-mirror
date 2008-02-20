@@ -720,7 +720,7 @@ void TissueSimulation<DIM>::CommonLoad(Archive& rInputArch)
  * [4] = beta catenin one hit
  */
 template<unsigned DIM>
-c_vector<unsigned,5> TissueSimulation<DIM>::GetCellMutationStateCount()
+c_vector<unsigned, NUM_CELL_MUTATION_STATES> TissueSimulation<DIM>::GetCellMutationStateCount()
 {
     return mrTissue.GetCellMutationStateCount();
 }
@@ -735,7 +735,7 @@ c_vector<unsigned,5> TissueSimulation<DIM>::GetCellMutationStateCount()
  * [3] = NECROTIC
  */
 template<unsigned DIM>
-c_vector<unsigned,4> TissueSimulation<DIM>::GetCellTypeCount()
+c_vector<unsigned, NUM_CELL_TYPES> TissueSimulation<DIM>::GetCellTypeCount()
 {
     return mrTissue.GetCellTypeCount();
 }

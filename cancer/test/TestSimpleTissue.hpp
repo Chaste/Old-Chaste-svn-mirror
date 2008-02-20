@@ -461,7 +461,7 @@ public:
         
         // Test the GetCellMutationStateCount function
         c_vector<unsigned,5> cell_mutation_states = simple_tissue.GetCellMutationStateCount();
-        for (unsigned i=1; i<5; i++)
+        for (unsigned i=1; i<NUM_CELL_MUTATION_STATES; i++)
         {
             TS_ASSERT_EQUALS(cell_mutation_states[i], 1u);
         }
@@ -507,7 +507,7 @@ public:
 
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // loop over them to run to time 0.0;
-            for(SimpleTissue<2>::Iterator cell_iter = p_tissue->Begin();
+            for (SimpleTissue<2>::Iterator cell_iter = p_tissue->Begin();
                 cell_iter != p_tissue->End();
                 ++cell_iter)
             {                

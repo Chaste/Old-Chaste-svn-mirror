@@ -21,8 +21,8 @@ public:
     void TestAlarcon2004Equations()
     {        
         double oxygen_concentration = 1.0;
-        Alarcon2004OxygenBasedCellCycleOdeSystem normal_system(oxygen_concentration,ALARCON_NORMAL);
-        Alarcon2004OxygenBasedCellCycleOdeSystem cancer_system(oxygen_concentration,ALARCON_CANCER);
+        Alarcon2004OxygenBasedCellCycleOdeSystem normal_system(oxygen_concentration, HEALTHY);
+        Alarcon2004OxygenBasedCellCycleOdeSystem cancer_system(oxygen_concentration, LABELLED);
         
         double time = 0.0;
         std::vector<double> initial_conditions = normal_system.GetInitialConditions();
@@ -53,8 +53,8 @@ public:
         // to see any difference)    
         oxygen_concentration = 0.1;
         
-        Alarcon2004OxygenBasedCellCycleOdeSystem normal_system2(oxygen_concentration,ALARCON_NORMAL);
-        Alarcon2004OxygenBasedCellCycleOdeSystem cancer_system2(oxygen_concentration,ALARCON_CANCER);
+        Alarcon2004OxygenBasedCellCycleOdeSystem normal_system2(oxygen_concentration,HEALTHY);
+        Alarcon2004OxygenBasedCellCycleOdeSystem cancer_system2(oxygen_concentration,LABELLED);
               
         std::vector<double> normal_derivs2(initial_conditions.size());
         normal_system2.SetInitialConditionsComponent(2, 0.1);
@@ -87,7 +87,7 @@ public:
     void TestAlarcon2004Solver() throw(Exception)
     {
         double oxygen_concentration = 1.0;
-        Alarcon2004OxygenBasedCellCycleOdeSystem alarcon_system(oxygen_concentration,ALARCON_NORMAL);
+        Alarcon2004OxygenBasedCellCycleOdeSystem alarcon_system(oxygen_concentration,HEALTHY);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         

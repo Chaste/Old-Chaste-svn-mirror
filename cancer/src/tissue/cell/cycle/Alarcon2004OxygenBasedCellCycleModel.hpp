@@ -51,12 +51,16 @@ public:
    
 
     Alarcon2004OxygenBasedCellCycleModel(AbstractOdeSystem* pParentOdeSystem, 
-                              const CellMutationState& rMutationState, double birthTime, 
-                              double lastTime, 
-                              bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation);
+                                         const CellMutationState& rMutationState, 
+                                         double birthTime, 
+                                         double lastTime, 
+                                         bool inSG2MPhase, 
+                                         bool readyToDivide, 
+                                         double divideTime, 
+                                         unsigned generation);
 
     Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations, 
-                              const CellMutationState& rMutationState); 
+                                         const CellMutationState& rMutationState); 
                           
     virtual void ResetForDivision();
     
@@ -107,7 +111,7 @@ inline void load_construct_data(
     {
         state_vars.push_back(0.0);
     }
-    ::new(t)Alarcon2004OxygenBasedCellCycleModel(state_vars, ALARCON_NORMAL);
+    ::new(t)Alarcon2004OxygenBasedCellCycleModel(state_vars, HEALTHY);
 }
 }
 } // namespace ...

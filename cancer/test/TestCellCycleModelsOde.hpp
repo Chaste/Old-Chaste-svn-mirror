@@ -368,11 +368,7 @@ public:
                 
         TissueCell stem_cell_1(STEM, APC_ONE_HIT, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
-        
-        // Wnt cells not set up to deal with unknown mutations...
-        TissueCell cell(STEM, ALARCON_NORMAL, new WntCellCycleModel());
-        TS_ASSERT_THROWS_ANYTHING(cell.InitialiseCellCycleModel());
-                
+                        
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 4.804 hrs and then finish dividing
         // 10 hours later at 14.804 hours.
@@ -588,11 +584,11 @@ public:
         Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
         
         // Create cell 
-        TissueCell cell(STEM, ALARCON_NORMAL, p_cell_model);
+        TissueCell cell(STEM, HEALTHY, p_cell_model);
         
         // Coverage of cell cycle model copying without an ODE system set up
         TissueCell stem_cell2 = cell;
-        TS_ASSERT_EQUALS(stem_cell2.GetMutationState(), ALARCON_NORMAL);
+        TS_ASSERT_EQUALS(stem_cell2.GetMutationState(), HEALTHY);
                                
         cell.InitialiseCellCycleModel();
         
@@ -603,7 +599,7 @@ public:
         // Divide a cell    
         Alarcon2004OxygenBasedCellCycleModel *p_cell_model2 = static_cast <Alarcon2004OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
         
-        TissueCell cell2(STEM, ALARCON_NORMAL, p_cell_model2);
+        TissueCell cell2(STEM, HEALTHY, p_cell_model2);
         
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(),false)
@@ -940,7 +936,7 @@ public:
             
             Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
             
-            TissueCell cell(STEM, ALARCON_NORMAL, p_cell_model);
+            TissueCell cell(STEM, HEALTHY, p_cell_model);
             cell.InitialiseCellCycleModel();  
             cell.GetCellCycleModel()->SetBirthTime(-10.0);
             

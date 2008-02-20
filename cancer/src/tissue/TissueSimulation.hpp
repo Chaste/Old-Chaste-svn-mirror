@@ -243,8 +243,8 @@ public:
     virtual ~TissueSimulation();
     
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
-    c_vector<unsigned,5> GetCellMutationStateCount(); 
-    c_vector<unsigned,4> GetCellTypeCount();
+    c_vector<unsigned, NUM_CELL_MUTATION_STATES> GetCellMutationStateCount(); 
+    c_vector<unsigned, NUM_CELL_TYPES> GetCellTypeCount();
         
     double GetDt();
     

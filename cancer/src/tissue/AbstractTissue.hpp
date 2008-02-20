@@ -29,10 +29,10 @@ protected:
     std::map<unsigned, TissueCell*> mNodeCellMap;
     
     /** Current cell mutation state counts */
-    c_vector<unsigned,5> mCellMutationStateCount;
+    c_vector<unsigned, NUM_CELL_MUTATION_STATES> mCellMutationStateCount;
     
     /** Current cell type counts */
-    c_vector<unsigned,4> mCellTypeCount;
+    c_vector<unsigned, NUM_CELL_TYPES> mCellTypeCount;
     
     /** Results file for nodes */
     out_stream mpNodeFile;
@@ -144,7 +144,7 @@ public:
      * [3] = APC two hit
      * [4] = beta catenin one hit
      */
-    c_vector<unsigned, 5> GetCellMutationStateCount();
+    c_vector<unsigned, NUM_CELL_MUTATION_STATES> GetCellMutationStateCount();
      
      /**
      * Find out how many cells of each type there are
@@ -155,7 +155,7 @@ public:
      * [2] = DIFFERENTIATED
      * [3] = NECROTIC
      */
-    c_vector<unsigned, 4> GetCellTypeCount();
+    c_vector<unsigned, NUM_CELL_TYPES> GetCellTypeCount();
     
     virtual unsigned GetGhostNodesSize();
       
