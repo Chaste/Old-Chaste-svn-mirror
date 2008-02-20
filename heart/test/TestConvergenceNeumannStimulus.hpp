@@ -28,14 +28,7 @@ public:
         tester.UseNeumannStimulus=true;
         tester.Converge();
         TS_ASSERT(tester.Converged);
-    }
-
-    void xTestConvergenceMonodomain2d()
-    {
-        PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<2>, 2, 1> tester;
-        tester.UseNeumannStimulus=true;
-        tester.Converge();
-        TS_ASSERT(tester.Converged);
+        TS_ASSERT_DELTA(tester.PdeTimeStep, 5.0e-3, 1e-10);
     }
 
     void TestConvergenceBidomain1d()
@@ -44,9 +37,17 @@ public:
         tester.UseNeumannStimulus=true;
         tester.Converge();
         TS_ASSERT(tester.Converged);
+        TS_ASSERT_DELTA(tester.PdeTimeStep, 5.0e-3, 1e-10);
     }
 
-
+    void TestSpaceConvergence1d()
+    {
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
+        tester.UseNeumannStimulus=true;
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
+    }
 };
 
 #endif /*TESTCONVERGENCENEUMANNSTIMULUS_HPP_*/
