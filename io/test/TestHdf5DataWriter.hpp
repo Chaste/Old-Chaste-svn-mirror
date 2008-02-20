@@ -7,7 +7,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
-//#include "Hdf5DataWriter.hpp"
+#include "HDF5DataWriter.hpp"
 
 class TestHdf5DataWriter : public CxxTest::TestSuite
 {
@@ -67,6 +67,32 @@ public:
     
         herr_t status = H5Dwrite(dset_id, H5T_NATIVE_INT, memspace, filespace, plist_id, data);
         TS_ASSERT_EQUALS(status, 0);
+        
+        // Create dataspace for the name, unit attribute
+        hsize_t columns[2] = {Y, 21};
+        hid_t colspace = H5Screate_simple(1, columns, NULL);
+        
+        //Create attribute
+        char col_data[5][21];
+        strcpy(col_data[0], "Noughth");
+        strcpy(col_data[1], "First");
+        strcpy(col_data[2], "Second");
+        strcpy(col_data[3], "Third");
+        strcpy(col_data[4], "Fourth");
+        
+        // create the type 'char'
+        hid_t char_type = H5Tcopy(H5T_C_S1);
+        //H5Tset_strpad(char_type, H5T_STR_NULLPAD);
+        H5Tset_size(char_type, 21 );
+        hid_t attr = H5Acreate(dset_id, "Name", char_type, colspace, H5P_DEFAULT  );
+        // Write to the attribute        
+        status = H5Awrite(attr, char_type, col_data); 
+               
+
+        
+        //Close dataspace & attribute
+        H5Sclose(colspace);
+        H5Aclose(attr);
         
         // Release resources and close the file
         H5Dclose(dset_id);
@@ -160,6 +186,7 @@ public:
         std::string file_name = results_dir + "vec.h5";
         
         hsize_t file_id = H5Fopen(file_name.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
+        //H5Tget_nmembers(file_id);
         hsize_t dataset_id = H5Dopen(file_id, "TheVector");
         hsize_t dxpl = H5Pcreate(H5P_DATASET_XFER);
         hsize_t edc = H5Pget_edc_check(dxpl);
@@ -186,5 +213,23 @@ public:
         H5Fclose(file_id);
     }
   
+    void TestHDF5DataWriterPut() throw(Exception)
+    {
+        HDF5DataWriter writer("", "hdf5_test");
+        writer.DefineFixedDimension("Node","dimensionless",4);
+       // int ik_id = 
+        writer.DefineVariable("I_K","milliamperes");
+
+//// get an error in the H5Pset_fapl_mpio() call in the following method
+//        writer.EndDefineMode();
+//
+//        writer.PutVariable(ik_id,  0.0, 0);
+//        writer.PutVariable(ik_id, 10.0, 1);
+//        writer.PutVariable(ik_id, 20.0, 2);
+//        writer.PutVariable(ik_id, 30.0, 3);
+        
+        writer.Close();
+        
+    }
 };
 #endif /*TESTHDF5DATAWRITER_HPP_*/
