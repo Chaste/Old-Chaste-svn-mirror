@@ -449,7 +449,7 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(simple_tissue.CreateOutputFiles(output_directory, false, true));
         
-        simple_tissue.WriteResultsToFiles(true, true, false);     
+        simple_tissue.WriteResultsToFiles(true, true, false, false);     
 
         TS_ASSERT_THROWS_NOTHING(simple_tissue.CloseOutputFiles());
         
@@ -474,7 +474,7 @@ public:
         
         // For coverage
         simple_tissue.SetCellAncestorsToNodeIndices();
-        TS_ASSERT_THROWS_NOTHING(simple_tissue.WriteResultsToFiles(true, false, false));
+        TS_ASSERT_THROWS_NOTHING(simple_tissue.WriteResultsToFiles(true, false, false, false));
     }    
     
     void TestArchivingTissue() throw (Exception)
@@ -565,6 +565,7 @@ public:
             // Check number of nodes
             std::vector<Node<2> > nodes = p_tissue->rGetNodes();
             TS_ASSERT_EQUALS(nodes.size(), 5u);
+            
             // Check some node positions
             TS_ASSERT_EQUALS(nodes[3].GetIndex(), 3u);
             TS_ASSERT_EQUALS(nodes[4].GetIndex(), 4u);

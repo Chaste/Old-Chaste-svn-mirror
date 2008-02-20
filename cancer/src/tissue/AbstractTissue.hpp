@@ -34,6 +34,9 @@ protected:
     /** Current cell type counts */
     c_vector<unsigned, NUM_CELL_TYPES> mCellTypeCount;
     
+    /** Current cell cycle phase counts */
+    c_vector<unsigned, 5> mCellCyclePhaseCount;
+    
     /** Results file for nodes */
     out_stream mpNodeFile;
     
@@ -42,6 +45,9 @@ protected:
     
     /** Results file for cell types */
     out_stream mpCellTypesFile;
+    
+    /** Results file for cell cycle phases */
+    out_stream mpCellCyclePhasesFile;
     
     /** Whether the tissue contains a mesh */
     bool mTissueContainsMesh;
@@ -157,6 +163,18 @@ public:
      */
     c_vector<unsigned, NUM_CELL_TYPES> GetCellTypeCount();
     
+    /**
+     * Find out how many cells in each cell cycle phase there are
+     * 
+     * @return The number of cells of each phase (evaluated at each visualizer output)
+     * [0] = G_ZERO_PHASE
+     * [1] = G_ONE_PHASE
+     * [2] = S_PHASE
+     * [3] = G_TWO_PHASE
+     * [4] = M_PHASE
+     */
+    c_vector<unsigned, 5> GetCellCyclePhaseCount();
+    
     virtual unsigned GetGhostNodesSize();
       
     virtual bool IsGhostNode(unsigned index);
@@ -187,9 +205,14 @@ public:
      */
     TissueCell& rGetCellAtNodeIndex(unsigned index);
     
-    virtual void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellMutationStates);
+    virtual void CreateOutputFiles(const std::string &rDirectory, 
+                                   bool rCleanOutputDirectory, 
+                                   bool outputCellMutationStates);
     
-    virtual void WriteResultsToFiles(bool outputCellMutationStates, bool outputCellTypes, bool outputCellVariables);
+    virtual void WriteResultsToFiles(bool outputCellMutationStates, 
+                                     bool outputCellTypes, 
+                                     bool outputCellVariables,
+                                     bool outputCellCyclePhases);
         
     virtual void CloseOutputFiles();
     

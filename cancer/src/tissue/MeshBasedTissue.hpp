@@ -218,7 +218,10 @@ public:
      */
     void Validate();
 
-    void WriteResultsToFiles(bool outputCellMutationStates, bool outputCellTypes, bool outputCellVariables);
+    void WriteResultsToFiles(bool outputCellMutationStates, 
+                             bool outputCellTypes, 
+                             bool outputCellVariables,
+                             bool outputCellCyclePhases);
     
     void WriteVoronoiResultsToFile();
     

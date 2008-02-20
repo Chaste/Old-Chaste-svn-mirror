@@ -93,6 +93,9 @@ protected:
 
     /** Whether to write the cell variables to a file */
     bool mOutputCellVariables;
+    
+    /** Whether to write the cell cycle phases to a file */
+    bool mOutputCellCyclePhases;
 
     /** Output directory (a subfolder of tmp/<USERNAME>/testoutput) */
     std::string mOutputDirectory;
@@ -152,6 +155,7 @@ protected:
         archive & mOutputCellMutationStates;
         archive & mOutputCellTypes;
         archive & mOutputCellVariables;
+        archive & mOutputCellCyclePhases;
         archive & mSamplingTimestepMultiple;
     }
     
@@ -245,6 +249,7 @@ public:
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
     c_vector<unsigned, NUM_CELL_MUTATION_STATES> GetCellMutationStateCount(); 
     c_vector<unsigned, NUM_CELL_TYPES> GetCellTypeCount();
+    c_vector<unsigned, 5> GetCellCyclePhaseCount();
         
     double GetDt();
     
@@ -255,7 +260,8 @@ public:
     void SetNoBirth(bool nobirth);
     void SetOutputCellMutationStates(bool outputCellMutationStates);
     void SetOutputCellTypes(bool outputCellTypes);
-    void SetOutputCellVariables(bool outputCellVariables);    
+    void SetOutputCellVariables(bool outputCellVariables);   
+    void SetOutputCellCyclePhases(bool outputCellCyclePhases);
     void SetReMeshRule(bool remesh); 
 
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);

@@ -391,7 +391,7 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false, false));
         
-        tissue.WriteResultsToFiles(true, true, false);
+        tissue.WriteResultsToFiles(true, true, false, true);
 
         TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles());
         
@@ -404,7 +404,7 @@ public:
         // Test the GetCellMutationStateCount function: there should only be healthy cells
         c_vector<unsigned,5> cell_mutation_states = tissue.GetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_states[0], tissue.GetNumRealCells());
-        for (unsigned i=1; i<4 ; i++)
+        for (unsigned i=1; i<NUM_CELL_MUTATION_STATES; i++)
         {
             TS_ASSERT_EQUALS(cell_mutation_states[i], 0u);
         }
@@ -415,6 +415,14 @@ public:
         TS_ASSERT_EQUALS(cell_types[1], 0u);
         TS_ASSERT_EQUALS(cell_types[2], 0u);
         TS_ASSERT_EQUALS(cell_types[3], 0u);
+        
+        // Test the GetCellCyclePhaseCount function
+        c_vector<unsigned,5> cell_cycle_phases = tissue.GetCellCyclePhaseCount();
+        TS_ASSERT_EQUALS(cell_cycle_phases[0], 0u);
+        TS_ASSERT_EQUALS(cell_cycle_phases[1], 0u);
+        TS_ASSERT_EQUALS(cell_cycle_phases[2], 0u);
+        TS_ASSERT_EQUALS(cell_cycle_phases[3], 0u);
+        TS_ASSERT_EQUALS(cell_cycle_phases[4], 0u);
     }
     
     

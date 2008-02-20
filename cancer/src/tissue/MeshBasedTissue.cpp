@@ -450,9 +450,15 @@ bool MeshBasedTissue<DIM>::GetWriteTissueAreas()
 }
 
 template<unsigned DIM>  
-void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, bool outputCellTypes, bool outputCellVariables)
+void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, 
+                                               bool outputCellTypes, 
+                                               bool outputCellVariables,
+                                               bool outputCellCyclePhases)
 {
-    AbstractTissue<DIM>::WriteResultsToFiles(outputCellMutationStates, outputCellTypes, outputCellVariables);
+    AbstractTissue<DIM>::WriteResultsToFiles(outputCellMutationStates, 
+                                             outputCellTypes, 
+                                             outputCellVariables,
+                                             outputCellCyclePhases);
     
     // Write element data to file
     

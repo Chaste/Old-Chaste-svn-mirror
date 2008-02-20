@@ -52,6 +52,7 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     mOutputCellMutationStates = false;
     mOutputCellTypes = false;
     mOutputCellVariables = false;
+    mOutputCellCyclePhases = false;
     mNoBirth = false;
     mNumBirths = 0;
     mNumDeaths = 0;
@@ -309,7 +310,7 @@ void TissueSimulation<DIM>::SetNoBirth(bool nobirth)
 }
 
 /**
- * Set the simulation to Count and store the number of each cell mutation state.
+ * Set the simulation to count and store the number of each cell mutation state.
  */
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetOutputCellMutationStates(bool outputCellMutationStates)
@@ -318,7 +319,7 @@ void TissueSimulation<DIM>::SetOutputCellMutationStates(bool outputCellMutationS
 }
 
 /**
- * Set the simulation to Count and store the number of each cell type.
+ * Set the simulation to count and store the number of each cell type.
  */
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetOutputCellTypes(bool outputCellTypes)
@@ -327,12 +328,21 @@ void TissueSimulation<DIM>::SetOutputCellTypes(bool outputCellTypes)
 }
 
 /**
- * Set the simulation to Output the  cell variables.
+ * Set the simulation to output the cell variables.
  */
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetOutputCellVariables(bool outputCellVariables)
 {
     mOutputCellVariables = outputCellVariables;
+}
+
+/**
+ * Set the simulation to output the cell cycle phases.
+ */
+template<unsigned DIM> 
+void TissueSimulation<DIM>::SetOutputCellCyclePhases(bool outputCellCyclePhases)
+{
+    mOutputCellCyclePhases = outputCellCyclePhases;
 }
 
 /**
@@ -436,7 +446,10 @@ void TissueSimulation<DIM>::Solve()
     }
     mpSetupFile->close();
     
-    mrTissue.WriteResultsToFiles(mOutputCellMutationStates, mOutputCellTypes, mOutputCellVariables);
+    mrTissue.WriteResultsToFiles(mOutputCellMutationStates, 
+                                 mOutputCellTypes, 
+                                 mOutputCellVariables, 
+                                 mOutputCellCyclePhases);
 
     CancerEventHandler::EndEvent(SETUP);
                                
@@ -520,7 +533,10 @@ void TissueSimulation<DIM>::Solve()
         // Write results to file
         if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
-            mrTissue.WriteResultsToFiles(mOutputCellMutationStates, mOutputCellTypes, mOutputCellVariables);
+            mrTissue.WriteResultsToFiles(mOutputCellMutationStates, 
+                                         mOutputCellTypes, 
+                                         mOutputCellVariables, 
+                                         mOutputCellCyclePhases);
         }
         
         CancerEventHandler::EndEvent(OUTPUT);
@@ -739,5 +755,22 @@ c_vector<unsigned, NUM_CELL_TYPES> TissueSimulation<DIM>::GetCellTypeCount()
 {
     return mrTissue.GetCellTypeCount();
 }
+
+/**
+ * Find out how many cells in each cell cycle phase there are
+ * 
+ * @return The number of cells of each phase (evaluated at each visualizer output)
+ * [0] = G_ZERO_PHASE
+ * [1] = G_ONE_PHASE
+ * [2] = S_PHASE
+ * [3] = G_TWO_PHASE
+ * [4] = M_PHASE
+ */
+template<unsigned DIM>
+c_vector<unsigned, 5> TissueSimulation<DIM>::GetCellCyclePhaseCount()
+{
+    return mrTissue.GetCellCyclePhaseCount();
+}
+
 
 #endif //_TISSUESIMULATION_CPP_

@@ -63,7 +63,7 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;        
         
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new TysonNovakCellCycleModel());
             double birth_time = -1.0*p_gen->ranf();
@@ -83,7 +83,8 @@ public:
         TissueSimulation<2> simulator(tissue, p_spring_system);
         simulator.SetOutputDirectory("TissueSimulationWritingProteins");
         simulator.SetEndTime(0.5);
-        simulator.SetOutputCellVariables(true);                               
+        simulator.SetOutputCellVariables(true);
+        simulator.SetOutputCellCyclePhases(true);
 
         // Run tissue simulation 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
