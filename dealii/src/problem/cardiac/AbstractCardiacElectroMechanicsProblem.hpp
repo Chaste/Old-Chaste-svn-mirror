@@ -244,7 +244,16 @@ public :
 
         // initialise monodomain problem                        
         mpMonodomainProblem->SetMesh(mpElectricsMesh);
-        mpMonodomainProblem->SetIntracellularConductivities(Create_c_vector(1.75,1.75,1.75));
+        if(DIM==2)
+        {
+            mpMonodomainProblem->SetIntracellularConductivities(Create_c_vector(1.75,1.75));
+        }
+        else
+        {
+            assert(DIM==3);
+            mpMonodomainProblem->SetIntracellularConductivities(Create_c_vector(1.75,1.75,1.75));
+        }
+
         mpMonodomainProblem->Initialise();
 
         // construct mechanics assembler 
@@ -307,6 +316,10 @@ public :
             Initialise();
         }
         
+        BoundaryConditionsContainer<DIM,DIM,1> bcc;       
+        bcc.DefineZeroNeumannOnMeshBoundary(mpElectricsMesh, 0);
+        mpMonodomainProblem->SetBoundaryConditionsContainer(&bcc);
+
         // get an electrics assembler from the problem. Note that we don't call
         // Solve() on the CardiacProblem class, we do the looping here.
         AbstractDynamicAssemblerMixin<DIM,DIM,1>* p_electrics_assembler 

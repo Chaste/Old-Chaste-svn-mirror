@@ -443,7 +443,7 @@ protected:
         ////////////////////////////////////////////////////////
         // loop over surface elements
         ////////////////////////////////////////////////////////
-        
+        assert(this->mpBoundaryConditions!=NULL);
         // note, the following condition is not true of Bidomain or Monodomain
         if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true && assembleVector)
         {
