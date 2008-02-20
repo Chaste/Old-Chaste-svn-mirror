@@ -7,7 +7,7 @@
 
 /** 
  *  A PDE which calculates the source term by adding the number of cells
- *  in the element containing that point and scaling by the element area
+ *  in the element containing that point and scaling by the element area.
  */
 template<unsigned DIM>
 class AveragedSinksPde : public AbstractLinearEllipticPde<DIM>
@@ -34,7 +34,7 @@ public:
         }
         
         // Loop over cells, find which coarse element it is in, and add 1 to the mSourceTermOnCoarseElements[elem_index];
-        for(typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
+        for (typename MeshBasedTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
             cell_iter != mrTissue.End();
             ++cell_iter)
         {

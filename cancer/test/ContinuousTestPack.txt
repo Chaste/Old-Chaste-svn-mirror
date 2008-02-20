@@ -1,6 +1,5 @@
 TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 TestArchiveFormat.hpp
-TestAveragedSinksPde.hpp
 TestCancerEventHandler.hpp
 TestCancerParameters.hpp
 TestCellCycleModelsOde.hpp
@@ -23,6 +22,7 @@ TestIngeWntSwatCellCycleOdeSystem.hpp
 TestMeineke2001SpringSystem.hpp
 TestMeinekeSpringSystemWithChemotaxis.hpp
 TestMeshBasedTissue.hpp
+TestNutrientPdes.hpp
 TestPdeOnFlaggedMesh.hpp
 TestSimpleTissue.hpp
 TestSimpleTissueMechanicsSystem.hpp

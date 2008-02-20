@@ -20,6 +20,8 @@
 #include "ColumnDataReader.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "CellsGenerator.hpp"
+#include "SimpleNutrientPde.hpp"
+#include "CellwiseNutrientSinkPde.hpp"
 
 class SimplePdeForTesting : public AbstractLinearEllipticPde<2>
 {
@@ -40,93 +42,6 @@ public:
     }
     
 };
-
-class SimpleOxygenPde : public AbstractLinearEllipticPde<2>
-{
-public:
-
-    double ComputeConstantInUSourceTerm(const ChastePoint<2>& x)
-    {
-        return 0.0;
-    }
-    
-    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& x, Element<2,2>*)
-    {
-        return -0.1;
-    }
-    
-    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& )
-    {
-        return identity_matrix<double>(2);
-    }   
-};
-
-class SimpleOxygenPde3d : public AbstractLinearEllipticPde<3>
-{
-public:
-
-    double ComputeConstantInUSourceTerm(const ChastePoint<3>& x)
-    {
-        return 0.0;
-    }
-    
-    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<3>& x, Element<3,3>*)
-    {
-        return -0.1;
-    }
-    
-    c_matrix<double,3,3> ComputeDiffusionTerm(const ChastePoint<3>& )
-    {
-        return identity_matrix<double>(3);
-    }   
-};
-
-/*
- *  A PDE which has a sink at non-necrotic cells
- */
-class PointwiseNutrientSinkPde : public AbstractLinearEllipticPde<2>
-{
-private:
-    MeshBasedTissue<2>& mrTissue;
-    double mCoefficient;
-    
-public:
-    PointwiseNutrientSinkPde(MeshBasedTissue<2>& rTissue, double coefficient)
-        : mrTissue(rTissue),
-          mCoefficient(coefficient)
-    {
-    }
-
-    double ComputeConstantInUSourceTerm(const ChastePoint<2>& x)
-    {
-        return 0.0;
-    }
-    
-    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& x, Element<2,2>*)
-    {
-        NEVER_REACHED;
-        return 0.0;
-    }
-   
-    double ComputeLinearInUCoeffInSourceTermAtNode(const Node<2>& rNode)
-    {
-        TissueCell& r_cell = mrTissue.rGetCellAtNodeIndex(rNode.GetIndex());
-        if(r_cell.GetCellType()!=NECROTIC)
-        {
-            return -mCoefficient;
-        }
-        else
-        {
-            return 0.0;
-        }
-    }
-    
-    c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& )
-    {
-        return identity_matrix<double>(2);
-    }   
-};
-
 
 class TestTissueSimulationWithNutrients : public AbstractCancerTestSuite
 {
@@ -296,7 +211,7 @@ public:
         }
         
         // Set up PDE
-        SimpleOxygenPde pde;
+        SimpleNutrientPde<2> pde(0.1);
         
         Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
         p_spring_system->UseCutoffPoint(1.5);
@@ -371,7 +286,7 @@ public:
         }
         
         // Set up PDE
-        PointwiseNutrientSinkPde pde(tissue, 0.1);
+        CellwiseNutrientSinkPde<2> pde(tissue, 0.1);
         
         Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
         p_spring_system->UseCutoffPoint(1.5);
@@ -462,7 +377,7 @@ public:
         }
         
         // Set up tissue simulation        
-        SimpleOxygenPde pde;        
+        SimpleNutrientPde<2> pde(0.1);    
         
         Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
         p_spring_system->UseCutoffPoint(1.5);   
@@ -707,7 +622,7 @@ public:
         }
         
         // Set up PDE
-        SimpleOxygenPde pde;
+        SimpleNutrientPde<2> pde(0.1);
         
         Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
         p_spring_system->UseCutoffPoint(1.5);
@@ -791,7 +706,7 @@ public:
 //        }
 //        
 //        // Set up PDE
-//        SimpleOxygenPde3d pde;
+//        SimpleNutrientPde<3> pde(0.1);
 //        
 //        Meineke2001SpringSystem<3>* p_spring_system = new Meineke2001SpringSystem<3>(tissue);
 //        p_spring_system->UseCutoffPoint(1.5);
