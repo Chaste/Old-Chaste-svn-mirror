@@ -100,14 +100,14 @@ private:
 public:
 
     // Test construction, accessors and Iterator
-    void xTestSimpleTissue1d2d3d() throw(Exception)
+    void TestSimpleTissue1d2d3d() throw(Exception)
     {
         TestSimpleSimpleTissue<1>("mesh/test/data/1D_0_to_1_10_elements");
         TestSimpleSimpleTissue<2>("mesh/test/data/square_4_elements");
         TestSimpleSimpleTissue<3>("mesh/test/data/cube_136_elements");
     }
         
-    void xTestValidate()
+    void TestValidate()
     {        
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -127,7 +127,7 @@ public:
     }
     
     
-    void xTestMoveCellAndAddCell()
+    void TestMoveCellAndAddCell()
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -205,7 +205,7 @@ public:
     }
     
     
-    void xTestRemoveDeadCellsAndUpdateNodeCellMap()
+    void TestRemoveDeadCellsAndUpdateNodeCellMap()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
@@ -274,7 +274,7 @@ public:
         }
     }
     
-    void xTestAddAndRemoveAndAddWithOutUpdatingNodeCellMap()
+    void TestAddAndRemoveAndAddWithOutUpdatingNodeCellMap()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
@@ -336,7 +336,7 @@ public:
         TS_ASSERT_EQUALS(simple_tissue.GetNumRealCells(), 82u);
     }
     
-    void xTestSettingCellAncestors() throw (Exception)
+    void TestSettingCellAncestors() throw (Exception)
     {        
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -383,7 +383,7 @@ public:
         TS_ASSERT_EQUALS(remaining_ancestors.size(), 1u);
     }
     
-    void xTestGetLocationOfCell() throw (Exception)
+    void TestGetLocationOfCell() throw (Exception)
     {        
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -417,7 +417,7 @@ public:
         }
     }
       
-    void xTestSimpleTissueOutputWriters()
+    void TestSimpleTissueOutputWriters()
     {        
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -543,7 +543,7 @@ public:
         TS_ASSERT_EQUALS(cell_cycle_phases[4], 1u);
    }
     
-    void xTestArchivingTissue() throw (Exception)
+    void TestArchivingTissue() throw (Exception)
     {    
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
