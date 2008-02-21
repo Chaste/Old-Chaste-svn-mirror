@@ -415,16 +415,8 @@ public:
         TS_ASSERT_EQUALS(cell_types[1], 0u);
         TS_ASSERT_EQUALS(cell_types[2], 0u);
         TS_ASSERT_EQUALS(cell_types[3], 0u);
-        
-        // Test the GetCellCyclePhaseCount function
-        c_vector<unsigned,5> cell_cycle_phases = tissue.GetCellCyclePhaseCount();
-        TS_ASSERT_EQUALS(cell_cycle_phases[0], 0u);
-        TS_ASSERT_EQUALS(cell_cycle_phases[1], 0u);
-        TS_ASSERT_EQUALS(cell_cycle_phases[2], 0u);
-        TS_ASSERT_EQUALS(cell_cycle_phases[3], 0u);
-        TS_ASSERT_EQUALS(cell_cycle_phases[4], 0u);
     }
-    
+        
     
     void TestSpringIterator2d() throw(Exception)
     {

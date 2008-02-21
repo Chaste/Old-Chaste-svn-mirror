@@ -309,7 +309,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
         cell_mutation_state_counter[i] = 0;
     }
     
-    // Set up cell-cycle phase counter
+    // Set up cell cycle phase counter
     unsigned cell_cycle_phase_counter[5];
     for (unsigned i=0; i<5; i++)
     {
@@ -353,102 +353,9 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
         {
             // Do nothing
         }
-        else if (mNodeCellMap[index]->GetAncestor()!=UNSIGNED_UNSET)
+        else 
         {
             TissueCell* p_cell = mNodeCellMap[index];
-            colour = SPECIAL_LABEL_START + p_cell->GetAncestor();
-        }
-        else if (mCells.size() > 0)
-        {
-            TissueCell* p_cell = mNodeCellMap[index];
-            CellMutationState mutation = p_cell->GetMutationState();
-            
-            // Set colours dependent on cell type
-            switch (p_cell->GetCellType())
-            {
-                case STEM:
-                    colour = STEM_COLOUR;
-                    if (outputCellTypes)
-                    {
-                        cell_type_counter[0]++;
-                    }
-                    break;
-                case TRANSIT:
-                    colour = TRANSIT_COLOUR;
-                    if (outputCellTypes)
-                    {
-                        cell_type_counter[1]++;
-                    }
-                    break;
-                case DIFFERENTIATED:
-                    colour = DIFFERENTIATED_COLOUR;
-                    if (outputCellTypes)
-                    {
-                        cell_type_counter[2]++;
-                    }
-                    break;
-                case NECROTIC:
-                    colour = APOPTOSIS_COLOUR; // paint necrotic and apoptotic cells the same colour
-                    if (outputCellTypes)
-                    {
-                        cell_type_counter[3]++;
-                    }
-                    break;    
-                default:
-                    NEVER_REACHED;
-            }
-            
-            // Override colours for mutant or labelled cells
-            switch (mutation)
-            {
-                case HEALTHY:
-                    if (outputCellMutationStates)
-                    {
-                        cell_mutation_state_counter[0]++;
-                    }
-                    break;                
-                case APC_ONE_HIT:
-                    colour = EARLY_CANCER_COLOUR;
-                    if (outputCellMutationStates)
-                    {
-                        cell_mutation_state_counter[2]++;
-                    }
-                    break;
-                case APC_TWO_HIT:
-                    colour = LATE_CANCER_COLOUR;
-                    if (outputCellMutationStates)
-                    {
-                        cell_mutation_state_counter[3]++;
-                    }
-                    break;
-                case BETA_CATENIN_ONE_HIT:
-                    colour = LATE_CANCER_COLOUR;
-                    if (outputCellMutationStates)
-                    {
-                        cell_mutation_state_counter[4]++;
-                    }
-                    break;
-                case LABELLED:
-                    colour = LABELLED_COLOUR;
-                    if (outputCellMutationStates)
-                    {
-                        cell_mutation_state_counter[1]++;
-                    }
-                    break;
-                default:
-                    NEVER_REACHED;
-            }
-            
-            if (p_cell->HasApoptosisBegun())
-            {   
-                // For any type of cell set the colour to this if it is undergoing apoptosis.
-                colour = APOPTOSIS_COLOUR;   
-            }
-            
-            if (outputCellVariables)
-            {
-                proteins = p_cell->GetCellCycleModel()->GetProteinConcentrations();
-            }
             
             if (outputCellCyclePhases)
             {
@@ -474,7 +381,103 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                 }
             }
             
-        }        
+            if (mNodeCellMap[index]->GetAncestor()!=UNSIGNED_UNSET)
+            {
+                colour = SPECIAL_LABEL_START + p_cell->GetAncestor();
+            }
+            else if (mCells.size() > 0)
+            {
+                CellMutationState mutation = p_cell->GetMutationState();
+                
+                // Set colours dependent on cell type
+                switch (p_cell->GetCellType())
+                {
+                    case STEM:
+                        colour = STEM_COLOUR;
+                        if (outputCellTypes)
+                        {
+                            cell_type_counter[0]++;
+                        }
+                        break;
+                    case TRANSIT:
+                        colour = TRANSIT_COLOUR;
+                        if (outputCellTypes)
+                        {
+                            cell_type_counter[1]++;
+                        }
+                        break;
+                    case DIFFERENTIATED:
+                        colour = DIFFERENTIATED_COLOUR;
+                        if (outputCellTypes)
+                        {
+                            cell_type_counter[2]++;
+                        }
+                        break;
+                    case NECROTIC:
+                        colour = APOPTOSIS_COLOUR; // paint necrotic and apoptotic cells the same colour
+                        if (outputCellTypes)
+                        {
+                            cell_type_counter[3]++;
+                        }
+                        break;    
+                    default:
+                        NEVER_REACHED;
+                }
+            
+                // Override colours for mutant or labelled cells
+                switch (mutation)
+                {
+                    case HEALTHY:
+                        if (outputCellMutationStates)
+                        {
+                            cell_mutation_state_counter[0]++;
+                        }
+                        break;                
+                    case APC_ONE_HIT:
+                        colour = EARLY_CANCER_COLOUR;
+                        if (outputCellMutationStates)
+                        {
+                            cell_mutation_state_counter[2]++;
+                        }
+                        break;
+                    case APC_TWO_HIT:
+                        colour = LATE_CANCER_COLOUR;
+                        if (outputCellMutationStates)
+                        {
+                            cell_mutation_state_counter[3]++;
+                        }
+                        break;
+                    case BETA_CATENIN_ONE_HIT:
+                        colour = LATE_CANCER_COLOUR;
+                        if (outputCellMutationStates)
+                        {
+                            cell_mutation_state_counter[4]++;
+                        }
+                        break;
+                    case LABELLED:
+                        colour = LABELLED_COLOUR;
+                        if (outputCellMutationStates)
+                        {
+                            cell_mutation_state_counter[1]++;
+                        }
+                        break;
+                    default:
+                        NEVER_REACHED;
+                }
+                
+                if (p_cell->HasApoptosisBegun())
+                {   
+                    // For any type of cell set the colour to this if it is undergoing apoptosis.
+                    colour = APOPTOSIS_COLOUR;   
+                }
+                
+                if (outputCellVariables)
+                {
+                    proteins = p_cell->GetCellCycleModel()->GetProteinConcentrations();
+                }
+            }
+        }
+        
         if ( !(GetNode(index)->IsDeleted()) )
         {
             const c_vector<double,DIM>& position = GetNode(index)->rGetLocation();
@@ -531,15 +534,15 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
         *mpCellVariablesFile <<  "\n";
     }
     
-     // Write cell cycle phase data to file if required
+    // Write cell cycle phase data to file if required
     if (outputCellCyclePhases)
     {
-        for (unsigned i=0; i<NUM_CELL_TYPES; i++)
+        for (unsigned i=0; i<5; i++)
         {
             mCellCyclePhaseCount[i] = cell_cycle_phase_counter[i];
-            *mpCellCyclePhasesFile <<  cell_cycle_phase_counter[i] << "\t";
-            *mpCellCyclePhasesFile <<  "\n";
+            *mpCellCyclePhasesFile <<  cell_cycle_phase_counter[i] << "\t";            
         }
+        *mpCellCyclePhasesFile <<  "\n";
     }
 }
 
