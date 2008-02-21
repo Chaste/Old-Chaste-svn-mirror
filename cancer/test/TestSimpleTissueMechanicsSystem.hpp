@@ -57,7 +57,7 @@ public:
         // a distance sqrt(3) away
         velocities_on_each_node = mechanics_system.rCalculateVelocitiesOfEachNode();
         
-        double force = stiffness*(sqrt(3)-1);//magnitude of force between any two nodes
+        double force = stiffness*(sqrt(3)-1)*exp(-5.0*(sqrt(3)-1)); //magnitude of force between any two nodes
 
         double inv_damping = 1.0/CancerParameters::Instance()->GetDampingConstantNormal();
 
@@ -98,7 +98,6 @@ public:
     {
         // Set up simulation time
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,10);
-        CancerParameters* p_params = CancerParameters::Instance();
         
         // Create mesh
         unsigned cells_across = 2;
@@ -140,6 +139,8 @@ public:
         SimpleTissueMechanicsSystem<2> mechanics_system(simple_tissue);
         
         // Test rCalculateVelocitiesOfEachNode() method
+        
+        // TODO: improve this test!
         std::vector<c_vector<double,2> >& velocities_on_each_node = mechanics_system.rCalculateVelocitiesOfEachNode();
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
@@ -147,11 +148,11 @@ public:
             // temporarily has a smaller natural rest length
             if (i==0)
             {
-                TS_ASSERT_DELTA(velocities_on_each_node[i][0], 6.7499, 1e-4);
+                TS_ASSERT_DELTA(velocities_on_each_node[i][0], 0.7114, 1e-4);
             }
             else if (i==1)
             {
-                TS_ASSERT_DELTA(velocities_on_each_node[i][0], -6.7499, 1e-4);
+                TS_ASSERT_DELTA(velocities_on_each_node[i][0], -0.7114, 1e-4);
             }
             else
             {
@@ -160,7 +161,7 @@ public:
             TS_ASSERT_DELTA(velocities_on_each_node[i][1], 0.0, 1e-4);
         }
 
-        // get cell 3 and start apoptosis on it          
+        // Get cell 3 and start apoptosis on it          
         SimpleTissue<2>::Iterator iter = simple_tissue.Begin();
         ++iter;
         ++iter;
@@ -168,22 +169,15 @@ public:
         
         iter->StartApoptosis();
         SimulationTime::Instance()->IncrementTimeOneStep();
-        double time_until_death = iter->TimeUntilDeath();
         
-        double rest_length = 0.5*(1+(time_until_death)/(p_params->GetApoptosisTime()));
-        double stiffness = p_params->GetSpringStiffness();
-        double force = (1-rest_length)*stiffness;
-
         velocities_on_each_node = mechanics_system.rCalculateVelocitiesOfEachNode();
 
-        double inv_damping = 1.0/CancerParameters::Instance()->GetDampingConstantNormal();
-
-        // the velocity on cells 2 and 3 are affected by the fact 3 is apoptosing.
-        TS_ASSERT_DELTA(velocities_on_each_node[2][0], inv_damping*force, 1e-4);
+        // The velocities of cells 2 and 3 are affected by the fact that cell 3 is apoptosing.
+        TS_ASSERT_DELTA(velocities_on_each_node[2][0], 1.1036, 1e-4);
         TS_ASSERT_DELTA(velocities_on_each_node[2][1], 0.0, 1e-4);
         
-        TS_ASSERT_DELTA(velocities_on_each_node[3][0], -inv_damping*1.5*force, 1e-4);
-        TS_ASSERT_DELTA(velocities_on_each_node[3][1], -inv_damping*(sqrt(3)/2.0)*force, 1e-4);    
+        TS_ASSERT_DELTA(velocities_on_each_node[3][0], -1.6554, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[3][1], -0.9557, 1e-4);    
     }
     
     void TestArchiving() throw (Exception)

@@ -205,16 +205,22 @@ public:
      */
     TissueCell& rGetCellAtNodeIndex(unsigned index);
     
-    virtual void CreateOutputFiles(const std::string &rDirectory, 
+    virtual void CreateOutputFiles(const std::string &rDirectory,
                                    bool rCleanOutputDirectory, 
-                                   bool outputCellMutationStates);
+                                   bool outputCellMutationStates,
+                                   bool outputCellTypes,
+                                   bool outputCellVariables,
+                                   bool outputCellCyclePhases);
     
-    virtual void WriteResultsToFiles(bool outputCellMutationStates, 
-                                     bool outputCellTypes, 
+    virtual void WriteResultsToFiles(bool outputCellMutationStates,
+                                     bool outputCellTypes,
                                      bool outputCellVariables,
                                      bool outputCellCyclePhases);
         
-    virtual void CloseOutputFiles();
+    virtual void CloseOutputFiles(bool outputCellMutationStates,
+                                  bool outputCellTypes,
+                                  bool outputCellVariables,
+                                  bool outputCellCyclePhases);
     
     /**
      * Iterator class allows one to iterate over cells in the tissue.

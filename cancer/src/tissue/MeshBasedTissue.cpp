@@ -50,7 +50,7 @@ MeshBasedTissue<DIM>::~MeshBasedTissue()
 
 // Check every node either has a cell associated with it or is a ghost node
 // (for the time being, we are allowing ghost nodes to also have cells 
-// associated with it, although this isn't very clean)
+// associated with them, although this isn't very clean)
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::Validate()
 {
@@ -419,22 +419,53 @@ void MeshBasedTissue<DIM>::SetWriteTissueAreas(bool writeTissueAreas)
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellMutationStates)
+void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, 
+                                             bool rCleanOutputDirectory, 
+                                             bool outputCellMutationStates,
+                                             bool outputCellTypes,
+                                             bool outputCellVariables,
+                                             bool outputCellCyclePhases)
 {
-    AbstractTissue<DIM>::CreateOutputFiles(rDirectory, rCleanOutputDirectory, outputCellMutationStates);
+    AbstractTissue<DIM>::CreateOutputFiles(rDirectory, 
+                                           rCleanOutputDirectory, 
+                                           outputCellMutationStates,
+                                           outputCellTypes,
+                                           outputCellVariables,
+                                           outputCellCyclePhases);
+                                           
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
-    mpVoronoiFile = output_file_handler.OpenOutputFile("results.vizvoronoi");
-    mpTissueAreasFile = output_file_handler.OpenOutputFile("tissueareas.dat");
+    
+    if (mWriteVoronoiData)
+    {
+        mpVoronoiFile = output_file_handler.OpenOutputFile("results.vizvoronoi");
+    }
+    if (mWriteTissueAreas)
+    {
+        mpTissueAreasFile = output_file_handler.OpenOutputFile("tissueareas.dat");
+    }
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::CloseOutputFiles()
+void MeshBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
+                                            bool outputCellTypes,
+                                            bool outputCellVariables,
+                                            bool outputCellCyclePhases)
 {
-    AbstractTissue<DIM>::CloseOutputFiles();
+    AbstractTissue<DIM>::CloseOutputFiles(outputCellMutationStates,
+                                          outputCellTypes,
+                                          outputCellVariables,
+                                          outputCellCyclePhases);
     mpElementFile->close();
-    mpVoronoiFile->close();
-    mpTissueAreasFile->close();
+    
+    if (mWriteVoronoiData)
+    {
+        mpVoronoiFile->close();
+    }
+    if (mWriteTissueAreas)
+    {
+        mpTissueAreasFile->close();
+    }
 }
 
 template<unsigned DIM>
@@ -480,13 +511,13 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
     if (mpVoronoiTessellation!=NULL)
     {
         // Write Voronoi data to file if required    
-        if (this->mWriteVoronoiData)
+        if (mWriteVoronoiData)
         {
             WriteVoronoiResultsToFile();
         }
         
         // Write tissue area data to file if required
-        if (this->mWriteTissueAreas)
+        if (mWriteTissueAreas)
         {
             WriteTissueAreaResultsToFile();
         }

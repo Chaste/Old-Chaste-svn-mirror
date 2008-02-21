@@ -260,29 +260,58 @@ typename AbstractTissue<DIM>::Iterator AbstractTissue<DIM>::End()
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellMutationStates)
+void AbstractTissue<DIM>::CreateOutputFiles(const std::string &rDirectory, 
+                                            bool rCleanOutputDirectory, 
+                                            bool outputCellMutationStates,
+                                            bool outputCellTypes,
+                                            bool outputCellVariables,
+                                            bool outputCellCyclePhases)
 {
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpNodeFile = output_file_handler.OpenOutputFile("results.viznodes");
-    mpCellMutationStatesFile = output_file_handler.OpenOutputFile("cellmutationstates.dat");
-    mpCellTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
-    mpCellCyclePhasesFile = output_file_handler.OpenOutputFile("cellcyclephases.dat");
-    mpCellVariablesFile = output_file_handler.OpenOutputFile("cellvariables.dat");
     
     if (outputCellMutationStates)
     {
+        mpCellMutationStatesFile = output_file_handler.OpenOutputFile("cellmutationstates.dat");
         *mpCellMutationStatesFile <<   "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
+    }
+    if (outputCellTypes)
+    {
+        mpCellTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
+    }
+    if (outputCellVariables)
+    {
+        mpCellVariablesFile = output_file_handler.OpenOutputFile("cellvariables.dat");
+    }
+    if (outputCellCyclePhases)
+    {
+        mpCellCyclePhasesFile = output_file_handler.OpenOutputFile("cellcyclephases.dat");
     }
 }
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::CloseOutputFiles()
+void AbstractTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
+                                           bool outputCellTypes,
+                                           bool outputCellVariables,
+                                           bool outputCellCyclePhases)
 {
     mpNodeFile->close();
-    mpCellMutationStatesFile->close();
-    mpCellTypesFile->close();
-    mpCellCyclePhasesFile->close();
-    mpCellVariablesFile->close();
+    if (outputCellMutationStates)
+    {
+        mpCellMutationStatesFile->close();
+    }
+    if (outputCellTypes)
+    {
+        mpCellTypesFile->close();
+    }
+    if (outputCellVariables)
+    {
+        mpCellVariablesFile->close();
+    }
+    if (outputCellCyclePhases)
+    {
+        mpCellCyclePhasesFile->close();
+    }
 }
 
 template<unsigned DIM>  
@@ -510,7 +539,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
     // Write cell mutation state data to file if required
     if (outputCellMutationStates)
     {
-        for(unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
+        for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
         {
             mCellMutationStateCount[i] = cell_mutation_state_counter[i];
             *mpCellMutationStatesFile <<  cell_mutation_state_counter[i] << "\t";

@@ -446,18 +446,18 @@ public:
         
         std::string output_directory = "TestSimpleTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
-        
-        TS_ASSERT_THROWS_NOTHING(simple_tissue.CreateOutputFiles(output_directory, false, true));
-        
-        simple_tissue.WriteResultsToFiles(true, true, false, false);     
+                
+        TS_ASSERT_THROWS_NOTHING(simple_tissue.CreateOutputFiles(output_directory, false, true, true, false, true));
 
-        TS_ASSERT_THROWS_NOTHING(simple_tissue.CloseOutputFiles());
-        
+        simple_tissue.WriteResultsToFiles(true, true, false, true);
+
+        TS_ASSERT_THROWS_NOTHING(simple_tissue.CloseOutputFiles(true, true, false, true));
+
         // Compare output with saved files of what they should look like                           
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestSimpleTissueWriters/results.viznodes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     cancer/test/data/TestSimpleTissueWriters/celltypes.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     cancer/test/data/TestSimpleTissueWriters/cellmutationstates.dat").c_str()), 0);
         
         // Test the GetCellMutationStateCount function
         c_vector<unsigned,5> cell_mutation_states = simple_tissue.GetCellMutationStateCount();
@@ -531,8 +531,9 @@ public:
         std::string output_directory = "TestWritingCellCyclePhases";
         OutputFileHandler output_file_handler(output_directory, false); 
                
-        simple_tissue.CreateOutputFiles(output_directory, false, true);        
+        simple_tissue.CreateOutputFiles(output_directory, false, false, false, false, true);        
         simple_tissue.WriteResultsToFiles(false, false, false, true);
+        simple_tissue.CloseOutputFiles(false, false, false, true);
         
         // Test the GetCellCyclePhaseCount function
         c_vector<unsigned,5> cell_cycle_phases = simple_tissue.GetCellCyclePhaseCount();

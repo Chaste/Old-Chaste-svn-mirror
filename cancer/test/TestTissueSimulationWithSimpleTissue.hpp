@@ -69,8 +69,7 @@ public:
     /** 
      * Create a simulation of a SimpleTissue with a SimpleTissueMechanicsSystem. 
      * Test that no exceptions are thrown, and write the results to file.
-     */ 
-
+     */
     void TestSimpleMonolayer() throw (Exception)
     {
         // Create a simple mesh
@@ -91,9 +90,27 @@ public:
         // For coverage, construct tissue simulation without passing in a mechanics system
         TissueSimulation<2> simulator(simple_tissue);
         simulator.SetOutputDirectory("TestTissueSimulationWithSimpleTissue");
-        simulator.SetEndTime(1.0);
+        simulator.SetEndTime(10.0);
         
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        
+        // Check that nothing's gone badly wrong by testing that nodes 
+        // aren't too close together
+        double min_distance_between_cells = 1.0; 
+        
+        for (unsigned i=0; i<simulator.rGetTissue().GetNumNodes(); i++)
+        {
+            for (unsigned j=i+1; j<simulator.rGetTissue().GetNumNodes(); j++)
+            {
+                double distance = norm_2(simulator.rGetTissue().GetNode(i)->rGetLocation()-simulator.rGetTissue().GetNode(j)->rGetLocation());
+                if (distance < min_distance_between_cells)
+                {
+                    min_distance_between_cells = distance;
+                }
+            }
+        }
+        
+        TS_ASSERT(min_distance_between_cells > CancerParameters::Instance()->GetDivisionSeparation() );
     }
 
     // results: with a few cells and small end times, Simple was twice as fast as meineke

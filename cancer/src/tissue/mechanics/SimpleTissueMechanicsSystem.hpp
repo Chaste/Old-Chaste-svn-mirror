@@ -85,18 +85,16 @@ private :
         assert(rest_length <= 1.0 + 1e-12);
         
         // \todo: add code for mutant here
-        //double multiplication_factor = 1.0;
-        if (distanceBetweenNodes > 0.8*rest_length)
+        
+        // A reasonably stable simple force law        
+        if (distanceBetweenNodes > rest_length)
         {
-            return p_params->GetSpringStiffness() * (distanceBetweenNodes - rest_length);
-        }
-        else
-        {
-            // following models a harder code of the cell with a made up model
-            // if distance between nodes < 80% rest_length, use and exponential
-            // law to push the cells away harder
             double alpha = 5;
-            return -0.2* p_params->GetSpringStiffness()*rest_length*exp(-alpha*(distanceBetweenNodes-0.8*rest_length));
+            return p_params->GetSpringStiffness() * (distanceBetweenNodes - rest_length)*exp(-alpha*(distanceBetweenNodes-rest_length));
+        }        
+        else
+        {            
+            return p_params->GetSpringStiffness() * log (1 + distanceBetweenNodes - rest_length);
         }
     }
 

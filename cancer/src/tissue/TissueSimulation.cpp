@@ -413,7 +413,12 @@ void TissueSimulation<DIM>::Solve()
     // Create output files for the visualizer
     OutputFileHandler output_file_handler(results_directory+"/", false);
     
-    mrTissue.CreateOutputFiles(results_directory+"/", false, mOutputCellMutationStates);
+    mrTissue.CreateOutputFiles(results_directory+"/",
+                               false,
+                               mOutputCellMutationStates,
+                               mOutputCellTypes,
+                               mOutputCellVariables,
+                               mOutputCellCyclePhases);
     
     mpSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
 
@@ -446,9 +451,9 @@ void TissueSimulation<DIM>::Solve()
     }
     mpSetupFile->close();
     
-    mrTissue.WriteResultsToFiles(mOutputCellMutationStates, 
-                                 mOutputCellTypes, 
-                                 mOutputCellVariables, 
+    mrTissue.WriteResultsToFiles(mOutputCellMutationStates,
+                                 mOutputCellTypes,
+                                 mOutputCellVariables,
                                  mOutputCellCyclePhases);
 
     CancerEventHandler::EndEvent(SETUP);
@@ -533,9 +538,9 @@ void TissueSimulation<DIM>::Solve()
         // Write results to file
         if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
-            mrTissue.WriteResultsToFiles(mOutputCellMutationStates, 
-                                         mOutputCellTypes, 
-                                         mOutputCellVariables, 
+            mrTissue.WriteResultsToFiles(mOutputCellMutationStates,
+                                         mOutputCellTypes,
+                                         mOutputCellVariables,
                                          mOutputCellCyclePhases);
         }
         
@@ -545,7 +550,10 @@ void TissueSimulation<DIM>::Solve()
     AfterSolve();
     
     CancerEventHandler::BeginEvent(OUTPUT);
-    mrTissue.CloseOutputFiles();
+    mrTissue.CloseOutputFiles(mOutputCellMutationStates,
+                              mOutputCellTypes,
+                              mOutputCellVariables,
+                              mOutputCellCyclePhases);
     CancerEventHandler::EndEvent(OUTPUT);
     
     CancerEventHandler::EndEvent(CANCER_EVERYTHING);

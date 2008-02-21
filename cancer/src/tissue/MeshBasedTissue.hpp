@@ -182,9 +182,17 @@ public:
      */
     unsigned RemoveDeadCells();
     
-    void CreateOutputFiles(const std::string &rDirectory, bool rCleanOutputDirectory, bool outputCellMutationStates);
+    void CreateOutputFiles(const std::string &rDirectory, 
+                           bool rCleanOutputDirectory,
+                           bool outputCellMutationStates,
+                           bool outputCellTypes,
+                           bool outputCellVariables,
+                           bool outputCellCyclePhases);
     
-    void CloseOutputFiles();
+    void CloseOutputFiles(bool outputCellMutationStates,
+                          bool outputCellTypes,
+                          bool outputCellVariables,
+                          bool outputCellCyclePhases);
 
     /**
      * Move a cell to a new location.
