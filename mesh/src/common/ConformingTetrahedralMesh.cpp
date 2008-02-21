@@ -1213,7 +1213,11 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         std::string command =   "./bin/"+ binary_name +" -Qe "
                               + full_name + "node";
         
-        
+        if (SPACE_DIM == 3)
+        {
+            //Tetgen's quiet mode isn't as quiet as Triangle's
+            command += " > /dev/null";
+        }
         int return_value = system(command.c_str());
         
         
