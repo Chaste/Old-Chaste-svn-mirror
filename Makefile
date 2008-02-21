@@ -39,7 +39,7 @@ ode/src/solver/AbstractOneStepIvpOdeSolver.o \
 ode/src/solver/RungeKutta4IvpOdeSolver.o \
 ode/src/common/AbstractOdeSystem.o \
 
-CXXFLAGS = -DSPECIAL_SERIAL -O3 -march=opteron ${INCS} 
+CXXFLAGS = -DTRILIBRARY -DANSI_DECLARATORS -DSPECIAL_SERIAL -O3 -march=opteron ${INCS} 
 #On userpc44
 #LDFLAGS =   -lboost_serialization
 
