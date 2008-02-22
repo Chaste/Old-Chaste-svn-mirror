@@ -8,7 +8,7 @@
 RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, double period, double startTime)
 {
     assert(period > 0);
-    assert(period >= mDuration);
+    assert(period >= duration);
 
     mMagnitudeOfStimulus = magnitudeOfStimulus;
     mDuration = duration;
