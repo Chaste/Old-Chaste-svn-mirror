@@ -10,7 +10,6 @@
 #include "NhsCellularMechanicsOdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "InitialStimulus.hpp"
-#include "RegularStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "SimpleDataWriter.hpp"

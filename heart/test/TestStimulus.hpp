@@ -61,12 +61,12 @@ public:
     {
         double magnitude_of_stimulus = 1.0;
         double duration_of_stimulus  = 0.5;  // ms
-        double frequency = 1.0/1000.0; // 1Hz
+        double period = 1000.0; // 1s
         double when = 100.0;
 
         RegularStimulus regular_stimulus(magnitude_of_stimulus,
                                          duration_of_stimulus,
-                                         frequency,
+                                         period,
                                          when);
 
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(0.0), 
@@ -141,7 +141,7 @@ public:
         InitialStimulus init_stim_b(3,1,30);
         // RegularStimulus result at a boundary point isn't the same for Default and IntelProduction build
         // (in fact it gives different answers to "fmod" within the IntelProduction test) 
-        RegularStimulus regular_stim(2.0, 1.0, 0.15, 1);
+        RegularStimulus regular_stim(2.0, 1.0, 1.0/0.15, 1);
         
         multi_stim.AddStimulus(&init_stim_a);
         multi_stim.AddStimulus(&init_stim_b);

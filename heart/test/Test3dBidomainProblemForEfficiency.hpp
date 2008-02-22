@@ -11,7 +11,6 @@
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
 #include "BidomainFaceStimulusCellFactory.hpp"
-#include "RegularStimulus.hpp"
 #include "RandomNumberGenerator.hpp"
 
 class Test3dBidomainProblemForEfficiency :  public CxxTest::TestSuite

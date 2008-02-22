@@ -17,7 +17,7 @@ public:
     //Odetime step set below to 0.001 (10:1)
     BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.001)
     {
-        mpRegStimulus = new RegularStimulus(-900.0*1000, 0.5, 1.0/100.0, 0.0);//Same as above, but every 100ms
+        mpRegStimulus = new RegularStimulus(-900.0*1000, 0.5, 100.0, 0.0);//Same as above, but every 100ms
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)

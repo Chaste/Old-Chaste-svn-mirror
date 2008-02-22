@@ -28,11 +28,11 @@ public:
          */
         double magnitude_of_stimulus = -80.0;
         double duration_of_stimulus  = 0.5 ;  // ms
-        double frequency = 1.0/1000.0; // 1Hz
+        double period = 1000.0; // 1s
         double when = 100.0;
         RegularStimulus stimulus(magnitude_of_stimulus,
                                  duration_of_stimulus,
-                                 frequency,
+                                 period,
                                  when);
                                  
         EulerIvpOdeSolver solver;

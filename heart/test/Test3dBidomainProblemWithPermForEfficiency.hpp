@@ -10,7 +10,6 @@
 #include <petscvec.h>
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
-#include "RegularStimulus.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "BidomainFaceStimulusCellFactory.hpp"
 

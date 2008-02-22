@@ -13,11 +13,11 @@ class RegularStimulus : public AbstractStimulusFunction
 private:
     double mMagnitudeOfStimulus;
     double mDuration;
-    double mFrequency;
+    double mPeriod;
     double mStartTime;
     
 public:
-    RegularStimulus(double magnitudeOfStimulus, double duration, double frequency, double startTime);
+    RegularStimulus(double magnitudeOfStimulus, double duration, double period, double startTime);
     ~RegularStimulus();
     double GetStimulus(double time);
     

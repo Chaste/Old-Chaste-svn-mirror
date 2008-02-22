@@ -5,16 +5,16 @@
 /**
  * Constructor
  */
-RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, double frequency, double startTime)
+RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, double period, double startTime)
 {
-    assert(frequency > 0);
+    assert(period > 0);
+    assert(period >= mDuration);
+
     mMagnitudeOfStimulus = magnitudeOfStimulus;
     mDuration = duration;
-    mFrequency = frequency;
+    mPeriod = period;
     mStartTime = startTime;
   
-    double period = 1.0/mFrequency;
-    assert(period >= mDuration);
     //Swell duration to avoid rounding issues   
     mDuration += period*DBL_EPSILON;
 }
@@ -34,9 +34,7 @@ RegularStimulus::~RegularStimulus()
  */
 double RegularStimulus::GetStimulus(double time)
 {
-    double period = 1.0/mFrequency;
-    
-    double beatTime = fmod(time-mStartTime,period);
+    double beatTime = fmod(time-mStartTime,mPeriod);
     
     if (beatTime >=0 && beatTime <= mDuration)
     {

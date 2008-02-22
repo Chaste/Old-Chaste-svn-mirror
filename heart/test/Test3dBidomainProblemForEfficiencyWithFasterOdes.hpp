@@ -27,7 +27,7 @@ public:
     BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.01)
     {
         mpStimulus = new InitialStimulus(-900.0*1000, 0.5);
-        mpRegStimulus = new RegularStimulus(-900.0*1000, 0.5, 1.0/100.0, 0.0);//Same as above, but every 100ms
+        mpRegStimulus = new RegularStimulus(-900.0*1000, 0.5, 100.0, 0.0);//Same as above, but every 100ms
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)

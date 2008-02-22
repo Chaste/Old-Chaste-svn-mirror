@@ -171,8 +171,8 @@ public:
         double magnitude = -25.5;
         double duration  = 2.0  ;  // ms
         double start = 50.0; // ms
-        double frequency = 1.0/500; // ms^-1
-        RegularStimulus stimulus(magnitude, duration, frequency, start);
+        double period = 500; // ms
+        RegularStimulus stimulus(magnitude, duration, period, start);
         
         double end_time = 1000.0; //One second in milliseconds
         double time_step = 0.01;  //1e-5 seconds in milliseconds
@@ -367,8 +367,8 @@ public:
         double magnitude = -80.0;
         double duration  = 1.0  ;  // ms
         double start = 50.0; // ms
-        double frequency = 1.0/500; // ms^-1
-        RegularStimulus stimulus(magnitude, duration, frequency, start);
+        double period = 500; // ms
+        RegularStimulus stimulus(magnitude, duration, period, start);
         
         double end_time = 200.0;  // milliseconds
         double time_step = 0.002; //2e-6 seconds in milliseconds
