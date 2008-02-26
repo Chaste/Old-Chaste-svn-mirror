@@ -35,13 +35,14 @@ global/src/RandomNumberGenerator.o \
 global/src/SimulationTime.o \
 global/src/TimeStepper.o \
 io/src/writer/ColumnDataWriter.o \
+mesh/src/triangle/triangle.o \
 ode/src/solver/AbstractOneStepIvpOdeSolver.o \
 ode/src/solver/RungeKutta4IvpOdeSolver.o \
 ode/src/common/AbstractOdeSystem.o \
 
 CXXFLAGS = -DTRILIBRARY -DANSI_DECLARATORS -DSPECIAL_SERIAL -O3 -march=opteron ${INCS} 
 #On userpc44
-#LDFLAGS =   -lboost_serialization
+LDFLAGS =   -lboost_serialization
 
 #On engels in Nottingham
 LDFLAGS =   -L/opt/boost/lib -lboost_serialization-gcc
