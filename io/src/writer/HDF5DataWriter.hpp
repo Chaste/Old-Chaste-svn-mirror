@@ -32,6 +32,9 @@ protected:
     void CheckUnitsName(std::string name); /**< Check units name is allowed, i.e. contains only alphanumeric & _ */
 
     hid_t mFileId;
+    hid_t mDsetId;
+    
+    long mCurrentTimeStep;
 
 public:
     HDF5DataWriter(std::string directory, std::string baseName, bool cleanDirectory=true);
@@ -41,7 +44,8 @@ public:
     virtual void EndDefineMode();
     
     void PutVector(int variableID, Vec petscVector);
-
+    int DefineUnlimitedDimension(std::string variableName, std::string variableUnits);
+    void AdvanceAlongUnlimitedDimension();
     void Close();
 };
 

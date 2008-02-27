@@ -532,10 +532,10 @@ public:
     {
         if (mpWriter->AmMaster())
         {
-            for (unsigned node = 0; node < mpMesh->GetNumNodes(); node++)
-            {
-                mpWriter->PutVariable(mNodeColumnId, node, node);
-            }
+//            for (unsigned node = 0; node < mpMesh->GetNumNodes(); node++)
+//            {
+//                mpWriter->PutVariable(mNodeColumnId, node, node);
+//            }
             mpWriter->PutVariable(mTimeColumnId, time);
         }
         DistributedVector::Stripe transmembrane(voltageVec, 0);

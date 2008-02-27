@@ -211,85 +211,41 @@ public:
         H5Pclose (dxpl);
         H5Dclose(dataset_id);
         H5Fclose(file_id);
-    }
-  
-    void TestHDF5DataWriterPutVector() throw(Exception)
+    } 
+
+    void TestHDF5DataWriterMultipleColumns() throw(Exception)
     {
-        int data_size=100;
+        int number_nodes=100;
+        DistributedVector::SetProblemSize(number_nodes);
+               
+        HDF5DataWriter writer("hdf5", "hdf5_test_multi_column", false);
+        writer.DefineFixedDimension("Node","dimensionless",number_nodes);
         
-        HDF5DataWriter writer("hdf5", "hdf5_test", false);
-        writer.DefineFixedDimension("Node","dimensionless",data_size);
-        int ik_id = writer.DefineVariable("I_K","milliamperes");
-
-        writer.EndDefineMode();
-
-        //Initialise a PETSc vector
-        Vec data=PetscTools::CreateVec(data_size);
-        double* p_data;
-        VecGetArray(data, &p_data);
-        int lo, hi;
-        VecGetOwnershipRange(data, &lo, &hi);
-        for (int global_index=lo; global_index<hi; global_index++)
-        {
-            unsigned local_index = global_index - lo;
-            p_data[local_index] = global_index;
-        }
-        VecRestoreArray(data, &p_data);
-        VecAssemblyBegin(data);
-        VecAssemblyEnd(data);
-
-        // write the vector
-        writer.PutVector(ik_id, data);
-        
-        writer.Close();
-        
-        if(PetscTools::AmMaster())
-        {
-            // call h5dump to take the binary hdf5 output file and print it
-            // to a text file. Note that the first line of the txt file would
-            // be the directory it has been printed to, but is this line is
-            // removed by piping the output through sed to delete the first line  
-            OutputFileHandler handler("hdf5",false);
-            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test.h5";
-            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_dumped.txt";
-            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
-            
-            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_dumped.txt").c_str()), 0);
-        }
-
-        VecDestroy(data);
-    }
-    
-
-    void TestHDF5DataWriterMultiplePutVector() throw(Exception)
-    {
-        int data_size=100;
-        
-        HDF5DataWriter writer("hdf5", "hdf5_test_multi_vector", false);
-        writer.DefineFixedDimension("Node","dimensionless",data_size);
         int ik_id = writer.DefineVariable("I_K","milliamperes");
         int ina_id = writer.DefineVariable("I_Na","milliamperes");
 
         writer.EndDefineMode();
-
-        //Initialise a PETSc vector
-        Vec data=PetscTools::CreateVec(data_size);
-        double* p_data;
-        VecGetArray(data, &p_data);
-        int lo, hi;
-        VecGetOwnershipRange(data, &lo, &hi);
-        for (int global_index=lo; global_index<hi; global_index++)
+      
+        Vec petsc_data_1=DistributedVector::CreateVec();
+        DistributedVector distributed_vector_1(petsc_data_1);
+        
+        Vec petsc_data_2=DistributedVector::CreateVec();
+        DistributedVector distributed_vector_2(petsc_data_2);
+        
+        // write some values
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index!= DistributedVector::End();
+             ++index)
         {
-            unsigned local_index = global_index - lo;
-            p_data[local_index] = global_index;
+            distributed_vector_1[index] =  index.Global;
+            distributed_vector_2[index] =  2*index.Global;
         }
-        VecRestoreArray(data, &p_data);
-        VecAssemblyBegin(data);
-        VecAssemblyEnd(data);
+        distributed_vector_1.Restore();
+        distributed_vector_2.Restore();
 
         // write the vector
-        writer.PutVector(ik_id, data);
-        writer.PutVector(ina_id, data);
+        writer.PutVector(ik_id, petsc_data_1);
+        writer.PutVector(ina_id, petsc_data_2);
         
         writer.Close();
         
@@ -300,15 +256,80 @@ public:
             // be the directory it has been printed to, but is this line is
             // removed by piping the output through sed to delete the first line  
             OutputFileHandler handler("hdf5",false);
-            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_vector.h5";
-            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_vector_dumped.txt";
+            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_column.h5";
+            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_column_dumped.txt";
             system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
             
-            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_multi_vector_dumped.txt").c_str()), 0);
+            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_multi_column_dumped.txt").c_str()), 0);
         }
 
-        VecDestroy(data);
+        VecDestroy(petsc_data_1);
+        VecDestroy(petsc_data_2);
+
     }    
+
+
+    void TestHDF5DataWriterFullFormat() throw(Exception)
+    {
+        int number_nodes=100;
+        DistributedVector::SetProblemSize(number_nodes);
+               
+        HDF5DataWriter writer("hdf5", "hdf5_test_multi_column", false);
+        writer.DefineFixedDimension("Node","dimensionless",number_nodes);
+        
+        int ik_id = writer.DefineVariable("I_K","milliamperes");
+        int ina_id = writer.DefineVariable("I_Na","milliamperes");
+        //int time_id = 
+        writer.DefineUnlimitedDimension("Time", "msec");
+
+        writer.EndDefineMode();
+      
+        Vec petsc_data_1=DistributedVector::CreateVec();
+        DistributedVector distributed_vector_1(petsc_data_1);
+        
+        Vec petsc_data_2=DistributedVector::CreateVec();
+        DistributedVector distributed_vector_2(petsc_data_2);
+        
+        for (unsigned time_step=0; time_step<10; time_step++)
+        {
+            // write some values
+            for (DistributedVector::Iterator index = DistributedVector::Begin();
+                 index!= DistributedVector::End();
+                 ++index)
+            {
+                distributed_vector_1[index] =  time_step*1000 + index.Global;
+                distributed_vector_2[index] =  time_step*1000 + 2*index.Global;
+            }
+            distributed_vector_1.Restore();
+            distributed_vector_2.Restore();
+    
+            // write the vector
+            writer.PutVector(ik_id, petsc_data_1);
+            writer.PutVector(ina_id, petsc_data_2);
+            writer.AdvanceAlongUnlimitedDimension();
+        }
+        
+        writer.Close();
+        
+        if(PetscTools::AmMaster())
+        {
+            // call h5dump to take the binary hdf5 output file and print it
+            // to a text file. Note that the first line of the txt file would
+            // be the directory it has been printed to, but is this line is
+            // removed by piping the output through sed to delete the first line  
+            OutputFileHandler handler("hdf5",false);
+            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_column.h5";
+            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_column_dumped.txt";
+            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
+            
+            //TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_multi_column_dumped.txt").c_str()), 0);
+        }
+
+        VecDestroy(petsc_data_1);
+        VecDestroy(petsc_data_2);
+
+    }    
+
     
 };
 #endif /*TESTHDF5DATAWRITER_HPP_*/
