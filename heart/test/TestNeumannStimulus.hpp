@@ -149,10 +149,6 @@ public:
         bidomain_problem.SetEndTime(2);   // ms
         bidomain_problem.SetOutputDirectory("BiNeuman1d");
         bidomain_problem.SetOutputFilenamePrefix("results");        
-
-        // this parameters are a bit arbitrary, and chosen to get a good spread of voltages
-        bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75));
-        // \todo the default intracellular conductivity in the Pde is overridden by the Problem
         
         bidomain_problem.Initialise();
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
@@ -161,7 +157,7 @@ public:
         c_matrix<double, 1,1> intra_tensor=bidomain_problem.GetBidomainPde()->rGetIntracellularConductivityTensor(0);
         TS_ASSERT_DELTA(intra_tensor(0,0), 1.75, 1e-10);
         c_matrix<double, 1,1> extra_tensor=bidomain_problem.GetBidomainPde()->rGetExtracellularConductivityTensor(0);
-        TS_ASSERT_DELTA(extra_tensor(0,0), 7.0, 1e-10);
+        TS_ASSERT_DELTA(extra_tensor(0,0), 6.2, 1e-10);
         
         // create boundary conditions container
         BoundaryConditionsContainer<1,1,2> bcc;
@@ -199,15 +195,15 @@ public:
         ReplicatableVector voltage_replicated(bidomain_problem.GetVoltage());
         double atol=5e-3;
         
-        TS_ASSERT_DELTA(voltage_replicated[2*1], 23.6028, atol);
-        TS_ASSERT_DELTA(voltage_replicated[2*3], 23.3720, atol);
-        TS_ASSERT_DELTA(voltage_replicated[2*5], 23.9703, atol);
-        TS_ASSERT_DELTA(voltage_replicated[2*7], 20.7020, atol);
-        TS_ASSERT_DELTA(voltage_replicated[2*9], -41.3815, atol);
-        TS_ASSERT_DELTA(voltage_replicated[2*10], -60.6728, atol);
+        TS_ASSERT_DELTA(voltage_replicated[2*1], 23.7349, atol);
+        TS_ASSERT_DELTA(voltage_replicated[2*3], 23.4607, atol);
+        TS_ASSERT_DELTA(voltage_replicated[2*5], 24.0685, atol);
+        TS_ASSERT_DELTA(voltage_replicated[2*7], 19.4519, atol);
+        TS_ASSERT_DELTA(voltage_replicated[2*9], -46.0072, atol);
+        TS_ASSERT_DELTA(voltage_replicated[2*10], -64.1003, atol);
               
     }
-    void TestBidomain2d() throw(Exception)
+    void TestBidomain2d() throw(Exception) 
     {
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
         BidomainProblem<2> bidomain_problem( &cell_factory );
@@ -216,10 +212,8 @@ public:
         bidomain_problem.SetEndTime(2);   // ms
         bidomain_problem.SetOutputDirectory("BiNeuman2d");
         bidomain_problem.SetOutputFilenamePrefix("results");        
-
-        // this parameters are a bit arbitrary, and chosen to get a good spread of voltages
-        bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75));
-        // \todo the default intracellular conductivity in the Pde is overridden by the Problem
+        bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75,1.75));
+        bidomain_problem.SetExtracellularConductivities(Create_c_vector(6.2,6.2));
         
         bidomain_problem.Initialise();
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
@@ -227,8 +221,10 @@ public:
         //Double check to confirm the default values for conductivity
         c_matrix<double, 2,2> intra_tensor=bidomain_problem.GetBidomainPde()->rGetIntracellularConductivityTensor(0);
         TS_ASSERT_DELTA(intra_tensor(0,0), 1.75, 1e-10);
+        TS_ASSERT_DELTA(intra_tensor(1,1), 1.75, 1e-10);
         c_matrix<double, 2,2> extra_tensor=bidomain_problem.GetBidomainPde()->rGetExtracellularConductivityTensor(0);
-        TS_ASSERT_DELTA(extra_tensor(0,0), 7.0, 1e-10);
+        TS_ASSERT_DELTA(extra_tensor(0,0), 6.2, 1e-10);
+        TS_ASSERT_DELTA(extra_tensor(1,1), 6.2, 1e-10);
         
         // create boundary conditions container
         BoundaryConditionsContainer<2, 2, 2> bcc;

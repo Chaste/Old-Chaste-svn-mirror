@@ -46,7 +46,7 @@ protected:
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
-    ElementwiseConductivityTensors<SPACE_DIM> mIntracellullarConductivityTensors;
+    ElementwiseConductivityTensors<SPACE_DIM> mIntracellularConductivityTensors;
     
     Vec mVoltage; // Current solution
     double mLinearSolverTolerance;
@@ -107,6 +107,17 @@ public:
         mUseLinearSolverAbsoluteTolerance = false;
         mAllocatedMemoryForMesh = false;
         
+        // Reference Clerc 1976 (x,y,z)
+        double default_intra_conductivities[] = {1.75, 0.19, 0.19};      // mS/cm (Averaged)
+
+        c_vector<double, SPACE_DIM> intra_conductivities;    
+        for (unsigned dim=0; dim<SPACE_DIM; dim++)
+        {
+            intra_conductivities[dim] = default_intra_conductivities[dim];
+        }
+
+        mIntracellularConductivityTensors.SetConstantConductivities(intra_conductivities);
+        
         EventHandler::BeginEvent(EVERYTHING);
     }
     
@@ -148,18 +159,18 @@ public:
     
     void SetFibreOrientation(const std::string fileName)
     {
-        mIntracellullarConductivityTensors.SetFibreOrientationFile(fileName);    
+        mIntracellularConductivityTensors.SetFibreOrientationFile(fileName);    
     }
     
     void SetIntracellularConductivities(c_vector<double, SPACE_DIM> constantConductivities)
     {
                 
-        mIntracellullarConductivityTensors.SetConstantConductivities(constantConductivities);
+        mIntracellularConductivityTensors.SetConstantConductivities(constantConductivities);
     }
     
     void SetIntracellularConductivities(std::vector< c_vector<double, SPACE_DIM> > nonConstantConductivities)
     {
-        mIntracellullarConductivityTensors.SetNonConstantConductivities(nonConstantConductivities);
+        mIntracellularConductivityTensors.SetNonConstantConductivities(nonConstantConductivities);
     }
     
     void SetLinearSolverRelativeTolerance(const double &rRelTol)

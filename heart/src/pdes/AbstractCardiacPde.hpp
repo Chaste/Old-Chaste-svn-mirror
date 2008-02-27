@@ -85,21 +85,7 @@ public:
         // Reference: Trayanova (2002 - "Look inside the heart")
         mSurfaceAreaToVolumeRatio = 1400;            // 1/cm
         mCapacitance = 1.0;                          // uF/cm^2
-        
-        // Reference Clerc 1976 (x,y,z)
-        double default_intra_conductivities[] = {1.75, 0.19, 0.19};      // mS/cm (Averaged)
-
-        c_vector<double, SPACE_DIM> intra_conductivities;    
-        for (unsigned dim=0; dim<SPACE_DIM; dim++)
-        {
-            intra_conductivities[dim] = default_intra_conductivities[dim];
-        }
-
-        mpIntracellularConductivityTensors = new ElementwiseConductivityTensors<SPACE_DIM>;
-        mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
-        mpIntracellularConductivityTensors->Init();
-        
-        
+                  
         mCellsDistributed.resize(DistributedVector::End().Global-DistributedVector::Begin().Global);
         
         for (DistributedVector::Iterator index = DistributedVector::Begin();

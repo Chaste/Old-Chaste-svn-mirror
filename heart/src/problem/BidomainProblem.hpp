@@ -24,7 +24,7 @@ private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */    
     unsigned mExtracelluarColumnId;
     
-    ElementwiseConductivityTensors<SPACE_DIM> mExtracellullarConductivityTensors;
+    ElementwiseConductivityTensors<SPACE_DIM> mExtracellularConductivityTensors;
     
     unsigned mRowMeanPhiEZero;
     
@@ -33,11 +33,11 @@ protected:
     {
         mpBidomainPde = new BidomainPde<SPACE_DIM>(this->mpCellFactory);
 
-        this->mIntracellullarConductivityTensors.Init();                
-        mpBidomainPde->SetIntracellularConductivityTensors( &this->mIntracellullarConductivityTensors );
+        this->mIntracellularConductivityTensors.Init();                
+        mpBidomainPde->SetIntracellularConductivityTensors( &this->mIntracellularConductivityTensors );
         
-        mExtracellullarConductivityTensors.Init();                
-        mpBidomainPde->SetExtracellularConductivityTensors( &mExtracellullarConductivityTensors );
+        mExtracellularConductivityTensors.Init();                
+        mpBidomainPde->SetExtracellularConductivityTensors( &mExtracellularConductivityTensors );
         
         return mpBidomainPde;
     }
@@ -84,6 +84,17 @@ public:
     {
         mFixedExtracellularPotentialNodes.resize(0);
         mRowMeanPhiEZero = INT_MAX;
+        
+        // Reference Clerc 1976 (x,y,z)
+        double default_extra_conductivities[] = {6.2, 2.4, 2.4}; // mS/cm (Averaged) 
+
+        c_vector<double, SPACE_DIM> extra_conductivities;    
+        for (unsigned dim=0; dim<SPACE_DIM; dim++)
+        {
+            extra_conductivities[dim] = default_extra_conductivities[dim];
+        }
+
+        mExtracellularConductivityTensors.SetConstantConductivities(extra_conductivities);        
     }
     
     /**
@@ -95,12 +106,12 @@ public:
     
     void SetExtracellularConductivities(c_vector<double, SPACE_DIM> constantConductivities)
     {
-        mExtracellullarConductivityTensors.SetConstantConductivities(constantConductivities);
+        mExtracellularConductivityTensors.SetConstantConductivities(constantConductivities);
     }
     
     void SetExtracellularConductivities(std::vector< c_vector<double, SPACE_DIM> > nonConstantConductivities)
     {
-        mExtracellullarConductivityTensors.SetNonConstantConductivities(nonConstantConductivities);
+        mExtracellularConductivityTensors.SetNonConstantConductivities(nonConstantConductivities);
     }
     
     

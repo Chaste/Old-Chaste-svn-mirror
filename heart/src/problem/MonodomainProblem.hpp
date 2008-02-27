@@ -22,8 +22,8 @@ public:
     {
         mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
 
-        this->mIntracellullarConductivityTensors.Init();                
-        mpMonodomainPde->SetIntracellularConductivityTensors( & this->mIntracellullarConductivityTensors );
+        this->mIntracellularConductivityTensors.Init();                
+        mpMonodomainPde->SetIntracellularConductivityTensors( & this->mIntracellularConductivityTensors );
 
         return mpMonodomainPde;
     }
