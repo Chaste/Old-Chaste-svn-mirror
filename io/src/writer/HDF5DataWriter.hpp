@@ -3,6 +3,7 @@
 
 #include <hdf5.h>
 #include <petscvec.h>
+#include <cassert>
 #include "Exception.hpp"
 #include "AbstractDataWriter.hpp"
 #include "DataWriterVariable.hpp"
@@ -39,7 +40,8 @@ public:
     int DefineVariable(std::string variableName, std::string variableUnits);
     virtual void EndDefineMode();
     
-    void PutVariable(int variableID, double variableValue, long dimensionPosition = -1);
+    void PutVector(int variableID, Vec petscVector);
+
     void Close();
 };
 
