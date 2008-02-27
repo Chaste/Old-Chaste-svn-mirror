@@ -202,6 +202,8 @@ public:
         // Check the index of the new cell
         TissueCell& new_cell = simple_tissue.rGetCells().back();
         TS_ASSERT_EQUALS(new_cell.GetNodeIndex(), old_num_nodes);
+        
+        delete p_node;
     }
     
     

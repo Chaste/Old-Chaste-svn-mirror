@@ -163,8 +163,9 @@ public:
         }     
         
         // Tidy up
-        delete p_mesh;
+        delete p_spring_system;
         delete p_killer;
+        delete p_mesh;
         CellwiseData<2>::Destroy();
     }
         
@@ -229,6 +230,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         
         // Tidy up
+        delete p_spring_system;
         delete p_killer;
         CellwiseData<2>::Destroy();
     }
@@ -312,6 +314,7 @@ public:
         
         // Tidy up
         delete p_killer;
+        delete p_spring_system;
         CellwiseData<2>::Destroy();
     }
     
@@ -429,6 +432,7 @@ public:
         
         // Tidy up
         delete p_killer;
+        delete p_spring_system;
         CellwiseData<2>::Destroy();
     }
         
@@ -576,6 +580,7 @@ public:
         }
         
         // Tidy up
+        delete p_spring_system;
         delete p_killer;
         CellwiseData<2>::Destroy();
     }
@@ -666,6 +671,7 @@ public:
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
         
         // Tidy up
+        delete p_spring_system;
         delete p_killer;
         delete p_simulator;       
         CellwiseData<2>::Destroy();        
@@ -741,6 +747,7 @@ public:
 ////        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
 //                                
 //        // Tidy up
+//        delete p_spring_system;
 //        delete p_killer;
 //        CellwiseData<2>::Destroy();
 //    }

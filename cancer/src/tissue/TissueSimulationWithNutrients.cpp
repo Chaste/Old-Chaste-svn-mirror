@@ -238,7 +238,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     assert(ghost_node_indices.size()==0);
     
     // Loop over cells and calculate centre of distribution
-    c_vector<double, DIM> centre;
+    c_vector<double, DIM> centre = zero_vector<double>(DIM);
     for(typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
         cell_iter != this->mrTissue.End();
         ++cell_iter)
@@ -263,7 +263,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;
     ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
-    for (unsigned i=0; i< r_mesh.GetNumNodes(); i++)
+    for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
     {
         double distance_from_centre = norm_2(r_mesh.GetNode(i)->rGetLocation() - centre);
         if( distance_from_centre > max_radius )

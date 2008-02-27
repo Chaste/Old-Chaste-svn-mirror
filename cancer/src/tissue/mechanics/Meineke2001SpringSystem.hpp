@@ -379,7 +379,6 @@ inline void load_construct_data(
 {
     // Retrieve data from archive required to construct new instance
     AbstractTissue<DIM>* p_tissue;
-
     ar >> p_tissue;
     // Invoke inplace constructor to initialize instance
     ::new(t)Meineke2001SpringSystem<DIM>(*(static_cast<MeshBasedTissue<DIM>*>(p_tissue)));

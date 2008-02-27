@@ -77,9 +77,9 @@ template<unsigned DIM>
 TissueCell* SimpleTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> newLocation)
 {
     // Create a new node
-    Node<DIM>* p_new_node = new Node<DIM>(GetNumNodes(), newLocation, false); // never on boundary
+    Node<DIM> new_node(GetNumNodes(), newLocation, false); // never on boundary
     
-    unsigned new_node_index = AddNode(p_new_node);
+    unsigned new_node_index = AddNode(&new_node); //Uses copy constructor (so it doesn't matter that new_node goes out of scope)
 
     // Associate the new cell with the node
     newCell.SetNodeIndex(new_node_index);
@@ -87,7 +87,7 @@ TissueCell* SimpleTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> 
     
     TissueCell *p_created_cell = &(this->mCells.back());
     this->mNodeCellMap[new_node_index] = p_created_cell;
-        
+    
     return p_created_cell;
 }
 

@@ -92,6 +92,8 @@ public:
         OutputFileHandler handler("TissueSimulationWritingProteins",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellvariables.dat";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TissueSimulationWritingProteins/cellvariables.dat").c_str()), 0);
+        
+        delete p_spring_system;
     }
 };
 #endif /*TESTTISSUESIMULATION_HPP_*/
