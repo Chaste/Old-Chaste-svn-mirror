@@ -449,6 +449,7 @@ protected:
         // boundary conditions rather than an array of maps.
         ////////////////////////////////////////////////////////
         assert(this->mpBoundaryConditions!=NULL);
+        EventHandler::BeginEvent(NEUMANN_BCS);
         if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions() && assembleVector)
         {
             typename BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::NeumannMapIterator
@@ -468,6 +469,7 @@ protected:
                 ++neumann_iterator;
             }
         }
+        EventHandler::EndEvent(NEUMANN_BCS);
         
         if (assembleVector)
         {

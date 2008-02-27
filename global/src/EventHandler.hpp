@@ -13,6 +13,7 @@ typedef enum EventType_
     SOLVE_ODES,
     COMMUNICATION,
     ASSEMBLE_RHS,
+    NEUMANN_BCS,
     SOLVE_LINEAR_SYSTEM,
     WRITE_OUTPUT,
     EVERYTHING
@@ -22,7 +23,7 @@ typedef enum EventType_
 class EventHandler
 {
 public:
-    const static unsigned NUM_EVENTS=8;
+    const static unsigned NUM_EVENTS=9;
     const static char* EVENT_NAME[NUM_EVENTS];
     static PetscEvent mPetscEvent[NUM_EVENTS];
     static double mCpuTime[NUM_EVENTS];
