@@ -133,6 +133,9 @@ public:
         
         // Tidy up
         WntConcentration::Destroy();
+        
+        // Really, really tidy up
+        delete p_spring_system;
     }
 };
 
