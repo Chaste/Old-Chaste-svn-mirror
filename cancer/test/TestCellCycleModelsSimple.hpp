@@ -233,6 +233,10 @@ public:
         SimpleWntCellCycleModel* p_cycle_model1 = new SimpleWntCellCycleModel;
         TissueCell cell1(DIFFERENTIATED, HEALTHY, p_cycle_model1);
         cell1.InitialiseCellCycleModel();
+        
+        SimpleWntCellCycleModel* p_another_cycle_model = new SimpleWntCellCycleModel(true);
+        TissueCell another_cell(STEM, HEALTHY, p_another_cycle_model);
+        another_cell.InitialiseCellCycleModel();
         // ...end of coverage
         
         

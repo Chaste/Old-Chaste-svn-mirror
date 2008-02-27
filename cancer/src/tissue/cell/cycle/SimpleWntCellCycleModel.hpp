@@ -19,9 +19,18 @@ private:
        
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
+        
+        archive & mUseCellTypeDependentG1Duration;
     }
-    
+
+    /**
+     * Whether to use different mean G1 durations for different cell types.
+     * For use in SetG1Duration().
+     */
+    bool mUseCellTypeDependentG1Duration;
+        
 protected:
+
     /**
      * Stochastically set the G1 duration.  Called on cell creation at 
      * the start of a simulation, and for both parent and daughter 
@@ -32,8 +41,9 @@ protected:
     /**
      * Private constructor for identical cells.
      */
-    SimpleWntCellCycleModel(double g1Duration, unsigned generation) 
-        : AbstractSimpleCellCycleModel(g1Duration, generation) 
+    SimpleWntCellCycleModel(double g1Duration, unsigned generation, bool useCellTypeDependentG1Duration=false) 
+        : AbstractSimpleCellCycleModel(g1Duration, generation),
+          mUseCellTypeDependentG1Duration(useCellTypeDependentG1Duration)
     {} 
         
 public:
@@ -42,7 +52,8 @@ public:
      * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
      * mG1Duration is set very high, it is set for the individual cells when InitialiseDaughterCell is called
      */
-    SimpleWntCellCycleModel() 
+    SimpleWntCellCycleModel(bool useCellTypeDependentG1Duration=false)
+        : mUseCellTypeDependentG1Duration(useCellTypeDependentG1Duration)
     {}
     
     /** 

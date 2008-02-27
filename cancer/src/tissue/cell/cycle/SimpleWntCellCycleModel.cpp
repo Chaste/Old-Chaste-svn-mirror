@@ -6,8 +6,8 @@
 
 AbstractCellCycleModel *SimpleWntCellCycleModel::CreateDaughterCellCycleModel()
 {
-    // use a private constructor that doesn't reset mG1Duration.
-    return new SimpleWntCellCycleModel(mG1Duration, mGeneration);  
+    // Use a private constructor that doesn't reset mG1Duration.
+    return new SimpleWntCellCycleModel(mG1Duration, mGeneration, mUseCellTypeDependentG1Duration);  
 }
 
 /** 
@@ -24,8 +24,17 @@ void SimpleWntCellCycleModel::SetG1Duration()
     
     switch (mpCell->GetCellType())
     {
-        case STEM:  // STEM cells should behave just like transit cells in a Wnt simulation
-            mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(),1.0);            
+        case STEM:  
+        
+            if (mUseCellTypeDependentG1Duration)
+            {
+                mG1Duration = p_gen->NormalRandomDeviate(p_params->GetStemCellG1Duration(),1.0);
+            }
+            else
+            {
+                // Normally STEM cells should behave just like transit cells in a Wnt simulation
+                mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(),1.0);
+            }            
             break;
         case TRANSIT:
             mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(),1.0);
