@@ -213,7 +213,7 @@ public:
         H5Fclose(file_id);
     }
   
-    void TestHDF5DataWriterPut() throw(Exception)
+    void TestHDF5DataWriterPutVector() throw(Exception)
     {
         int data_size=100;
         
@@ -232,7 +232,7 @@ public:
         for (int global_index=lo; global_index<hi; global_index++)
         {
             unsigned local_index = global_index - lo;
-            p_data[local_index] = global_index + 100*PetscTools::GetMyRank();
+            p_data[local_index] = global_index;
         }
         VecRestoreArray(data, &p_data);
         VecAssemblyBegin(data);
@@ -259,5 +259,6 @@ public:
 
         VecDestroy(data);
     }
+    
 };
 #endif /*TESTHDF5DATAWRITER_HPP_*/
