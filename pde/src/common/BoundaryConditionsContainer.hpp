@@ -417,6 +417,16 @@ public:
         }
         return ret;
     }
+    
+    NeumannMapIterator BeginNeumann()
+    {
+        return mpNeumannMap[0]->begin();
+    }
+    
+    NeumannMapIterator EndNeumann()
+    {
+        return mpNeumannMap[0]->end();
+    }
 };
 
 #endif //_BOUNDARYCONDITIONSCONTAINER_HPP_

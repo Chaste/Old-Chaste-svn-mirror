@@ -402,7 +402,7 @@ protected:
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
             iter = this->mpMesh->GetElementIteratorBegin();
         
-        const size_t STENCIL_SIZE=PROBLEM_DIM*(ELEMENT_DIM+1);      
+        const size_t STENCIL_SIZE=PROBLEM_DIM*(ELEMENT_DIM+1);
         c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
         c_vector<double, STENCIL_SIZE> b_elem;
         
@@ -441,39 +441,31 @@ protected:
         
         
         ////////////////////////////////////////////////////////
-        // loop over surface elements
+        // Apply any Neumann boundary conditions
+        //
+        // NB. We assume that if an element has a boundary condition on any unknown there is a boundary condition
+        // on unknown 0. This can be so for any problem by adding zero constant conditions where required
+        // although this is a bit inefficient. Proper solution involves changing BCC to have a map of arrays
+        // boundary conditions rather than an array of maps.
         ////////////////////////////////////////////////////////
         assert(this->mpBoundaryConditions!=NULL);
-        // note, the following condition is not true of Bidomain or Monodomain
-        if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true && assembleVector)
+        if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions() && assembleVector)
         {
-            if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
+            typename BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::NeumannMapIterator
+                neumann_iterator = this->mpBoundaryConditions->BeginNeumann();
+            c_vector<double, PROBLEM_DIM*ELEMENT_DIM> b_surf_elem;
+  
+            // Iterate over defined conditions
+            while (neumann_iterator != this->mpBoundaryConditions->EndNeumann())
             {
-                const unsigned num_surf_nodes = (*surf_iter)->GetNumNodes();
-                c_vector<double, PROBLEM_DIM*ELEMENT_DIM> b_surf_elem;
+                const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = *(neumann_iterator->first);
+                AssembleOnSurfaceElement(surf_element, b_surf_elem);
                 
-                while (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
-                {
-                    const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
-                    
-                    ///\todo Check surf_element is in the Neumann surface in an efficient manner
-                    /// e.g. by iterating over boundary conditions!
-                    if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
-                    {
-                        AssembleOnSurfaceElement(surf_element, b_surf_elem);
-                        
-                        for (unsigned i=0; i<num_surf_nodes; i++)
-                        {
-                            unsigned node_index = surf_element.GetNodeGlobalIndex(i);
-                            
-                            for (unsigned k=0; k<PROBLEM_DIM; k++)
-                            {
-                                mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node_index + k, b_surf_elem(PROBLEM_DIM*i+k));
-                            }
-                        }
-                    }
-                    surf_iter++;
-                }
+                const size_t STENCIL_SIZE=PROBLEM_DIM*ELEMENT_DIM;
+                unsigned p_indices[STENCIL_SIZE];
+                surf_element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
+                mpLinearSystem->AddRhsMultipleValues(p_indices, b_surf_elem);
+                ++neumann_iterator;
             }
         }
         

@@ -271,7 +271,7 @@ public:
      * @param pIndices where to store results: an unsigned array with ELEMENT_DIM+1 entries.
      * 
      */
-    void GetStiffnessMatrixGlobalIndices(unsigned problemDim, unsigned* pIndices)
+    void GetStiffnessMatrixGlobalIndices(unsigned problemDim, unsigned* pIndices) const
     {
         
         for (unsigned local_index=0; local_index<ELEMENT_DIM+1; local_index++)
