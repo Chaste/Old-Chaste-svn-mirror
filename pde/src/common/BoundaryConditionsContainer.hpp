@@ -20,17 +20,22 @@
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class BoundaryConditionsContainer : public AbstractBoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>
 {
+public:
+    /// Type of a read-only iterator over Neumann conditions
+    typedef typename std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
+        NeumannMapIterator;
+
 private:
 
     std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >
-    *mpNeumannMap[PROBLEM_DIM]; /**< List (map) of Neumann boundary conditions */
-    
-    typename std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
-    mNeumannIterator; /**< Internal iterator over neumann boundary conditions */
+        *mpNeumannMap[PROBLEM_DIM]; /**< List (map) of Neumann boundary conditions */
+
+    NeumannMapIterator mLastNeumannCondition[PROBLEM_DIM];
     
     bool mAnyNonZeroNeumannConditionsForUnknown[PROBLEM_DIM];
     
 public:
+
     /**
      * Constructor calls base constuctor and allocates memory for the neumann boundary 
      * conditions lists.
@@ -40,9 +45,10 @@ public:
     {
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
-            mpNeumannMap[index_of_unknown]  =  new std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*>;
+            mpNeumannMap[index_of_unknown] = new std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*>;
             
             mAnyNonZeroNeumannConditionsForUnknown[index_of_unknown] = false;
+            mLastNeumannCondition[index_of_unknown] = mpNeumannMap[index_of_unknown]->begin();
         }
     }
     
@@ -56,15 +62,15 @@ public:
         std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deleted_conditions;
         for (unsigned i=0; i<PROBLEM_DIM; i++)
         {
-            mNeumannIterator = mpNeumannMap[i]->begin();
-            while (mNeumannIterator != mpNeumannMap[i]->end() )
+            NeumannMapIterator neumann_iterator = mpNeumannMap[i]->begin();
+            while (neumann_iterator != mpNeumannMap[i]->end() )
             {
-                if (deleted_conditions.count(mNeumannIterator->second) == 0)
+                if (deleted_conditions.count(neumann_iterator->second) == 0)
                 {
-                    deleted_conditions.insert(mNeumannIterator->second);
-                    delete mNeumannIterator->second;
+                    deleted_conditions.insert(neumann_iterator->second);
+                    delete neumann_iterator->second;
                 }
-                mNeumannIterator++;
+                neumann_iterator++;
             }
             
             delete(mpNeumannMap[i]);
@@ -364,10 +370,21 @@ public:
     {
         assert(indexOfUnknown < PROBLEM_DIM);
         
-        mNeumannIterator = mpNeumannMap[indexOfUnknown]->find(pSurfaceElement);
-        assert(mNeumannIterator!=mpNeumannMap[indexOfUnknown]->end());
-        
-        return mNeumannIterator->second->GetValue(x);
+        // Did we see this condition on the last search we did?
+        if (mLastNeumannCondition[indexOfUnknown] == mpNeumannMap[indexOfUnknown]->end() ||
+            mLastNeumannCondition[indexOfUnknown]->first != pSurfaceElement)
+        {
+            mLastNeumannCondition[indexOfUnknown] = mpNeumannMap[indexOfUnknown]->find(pSurfaceElement);
+        }
+        if (mLastNeumannCondition[indexOfUnknown] == mpNeumannMap[indexOfUnknown]->end())
+        {
+            // No Neumann condition is equivalent to a zero Neumann condition
+            return 0.0;
+        }
+        else
+        {
+            return mLastNeumannCondition[indexOfUnknown]->second->GetValue(x);
+        }
     }
     
     /**
@@ -382,9 +399,9 @@ public:
     {
         assert(indexOfUnknown < PROBLEM_DIM);
         
-        mNeumannIterator = mpNeumannMap[indexOfUnknown]->find(pSurfaceElement);
+        mLastNeumannCondition[indexOfUnknown] = mpNeumannMap[indexOfUnknown]->find(pSurfaceElement);
         
-        return (mNeumannIterator != mpNeumannMap[indexOfUnknown]->end());
+        return (mLastNeumannCondition[indexOfUnknown] != mpNeumannMap[indexOfUnknown]->end());
     }
     
     

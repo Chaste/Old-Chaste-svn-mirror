@@ -268,7 +268,6 @@ public:
             {
                 
                 StimulusBoundaryCondition<DIM> *p_bc_stim = new StimulusBoundaryCondition<DIM>(&stim);
-                ConstBoundaryCondition<DIM> *p_bc_no_flux = new ConstBoundaryCondition<DIM>(0);
                         
                 // get mesh
                 ConformingTetrahedralMesh<DIM, DIM> &r_mesh = cardiac_problem.rGetMesh();
@@ -281,15 +280,6 @@ public:
                     if (x*x<=1e-10)
                     {
                         bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim);
-                    }
-                    else
-                    {
-                        bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux);
-                    }
-                    
-                    if (PROBLEM_DIM==2)
-                    {
-                        bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux, 1);
                     }
                     iter++;
                 }

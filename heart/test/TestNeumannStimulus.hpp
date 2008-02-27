@@ -39,7 +39,6 @@ public:
         // create boundary conditions container
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1> *p_bc_stim = new ConstBoundaryCondition<1>(2*1.75/0.0005);
-        ConstBoundaryCondition<1> *p_bc_no_flux = new ConstBoundaryCondition<1>(0);
                 
         // get mesh
         ConformingTetrahedralMesh<1,1> &mesh = monodomain_problem.rGetMesh();
@@ -48,19 +47,13 @@ public:
         iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
+            // if the element is on the left of the mesh, add a stimulus to the bcc
             if (((*iter)->GetNodeLocation(0))[0]==0.0)
             {
                 bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim);
             }
-            else
-            {
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux);
-            }
-            
-            //AddDirichletBoundaryCondition(*iter, p_boundary_condition, indexOfUnknown);
             iter++;
         }
-            // if the element is on the left of the mesh, add a stimulus to the bcc
         
         // pass the bcc to the monodomain problem
         monodomain_problem.SetBoundaryConditionsContainer(&bcc);
@@ -99,7 +92,6 @@ public:
         BoundaryConditionsContainer<1,1,1> bcc;
         InitialStimulus stim(4*1.75/0.0005, 0.5);
         StimulusBoundaryCondition<1> *p_bc_stim = new StimulusBoundaryCondition<1>(&stim);
-        ConstBoundaryCondition<1> *p_bc_no_flux = new ConstBoundaryCondition<1>(0);
                 
         // get mesh
         ConformingTetrahedralMesh<1,1> &mesh = monodomain_problem.rGetMesh();
@@ -108,19 +100,13 @@ public:
         iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
+            // if the element is on the left of the mesh, add a stimulus to the bcc
             if (((*iter)->GetNodeLocation(0))[0]==0.0)
             {
                 bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim);
             }
-            else
-            {
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux);
-            }
-            
-            //AddDirichletBoundaryCondition(*iter, p_boundary_condition, indexOfUnknown);
             iter++;
         }
-            // if the element is on the left of the mesh, add a stimulus to the bcc
         
         // pass the bcc to the monodomain problem
         monodomain_problem.SetBoundaryConditionsContainer(&bcc);
@@ -163,7 +149,6 @@ public:
         BoundaryConditionsContainer<1,1,2> bcc;
         InitialStimulus stim(4*1.75/0.0005, 0.5);
         StimulusBoundaryCondition<1> *p_bc_stim = new StimulusBoundaryCondition<1>(&stim);
-        ConstBoundaryCondition<1> *p_bc_no_flux = new ConstBoundaryCondition<1>(0);
                 
         // get mesh
         ConformingTetrahedralMesh<1,1>& r_mesh = bidomain_problem.rGetMesh();
@@ -176,13 +161,6 @@ public:
             {
                 bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim);
             }
-            else
-            {
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux);
-            }
-            
-            // add zero-flux boundary condition for the extracellular potential
-            bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux, 1);
             iter++;
         }
         
@@ -230,7 +208,7 @@ public:
         BoundaryConditionsContainer<2, 2, 2> bcc;
         InitialStimulus stim(10000.0, 0.5);
         StimulusBoundaryCondition<2> *p_bc_stim = new StimulusBoundaryCondition<2>(&stim);
-        ConstBoundaryCondition<2> *p_bc_no_flux = new ConstBoundaryCondition<2>(0);
+        //ConstBoundaryCondition<2> *p_bc_no_flux = new ConstBoundaryCondition<2>(0);
                 
         // get mesh
         ConformingTetrahedralMesh<2,2>& r_mesh = bidomain_problem.rGetMesh();
@@ -243,13 +221,13 @@ public:
             {
                 bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim);
             }
-            else
-            {
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux);
-            }
+            //else
+            //{
+            //    bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux);
+            //}
             
             // add zero-flux boundary condition for the extracellular potential
-            bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux, 1);
+            //bcc.AddNeumannBoundaryCondition(*iter, p_bc_no_flux, 1);
             iter++;
         }
         
