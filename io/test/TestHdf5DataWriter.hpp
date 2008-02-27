@@ -217,7 +217,7 @@ public:
     {
         int data_size=100;
         
-        HDF5DataWriter writer("hdf5", "hdf5_test");
+        HDF5DataWriter writer("hdf5", "hdf5_test", false);
         writer.DefineFixedDimension("Node","dimensionless",data_size);
         int ik_id = writer.DefineVariable("I_K","milliamperes");
 
@@ -259,6 +259,56 @@ public:
 
         VecDestroy(data);
     }
+    
+
+    void TestHDF5DataWriterMultiplePutVector() throw(Exception)
+    {
+        int data_size=100;
+        
+        HDF5DataWriter writer("hdf5", "hdf5_test_multi_vector", false);
+        writer.DefineFixedDimension("Node","dimensionless",data_size);
+        int ik_id = writer.DefineVariable("I_K","milliamperes");
+        int ina_id = writer.DefineVariable("I_Na","milliamperes");
+
+        writer.EndDefineMode();
+
+        //Initialise a PETSc vector
+        Vec data=PetscTools::CreateVec(data_size);
+        double* p_data;
+        VecGetArray(data, &p_data);
+        int lo, hi;
+        VecGetOwnershipRange(data, &lo, &hi);
+        for (int global_index=lo; global_index<hi; global_index++)
+        {
+            unsigned local_index = global_index - lo;
+            p_data[local_index] = global_index;
+        }
+        VecRestoreArray(data, &p_data);
+        VecAssemblyBegin(data);
+        VecAssemblyEnd(data);
+
+        // write the vector
+        writer.PutVector(ik_id, data);
+        writer.PutVector(ina_id, data);
+        
+        writer.Close();
+        
+        if(PetscTools::AmMaster())
+        {
+            // call h5dump to take the binary hdf5 output file and print it
+            // to a text file. Note that the first line of the txt file would
+            // be the directory it has been printed to, but is this line is
+            // removed by piping the output through sed to delete the first line  
+            OutputFileHandler handler("hdf5",false);
+            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_vector.h5";
+            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_vector_dumped.txt";
+            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
+            
+            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_multi_vector_dumped.txt").c_str()), 0);
+        }
+
+        VecDestroy(data);
+    }    
     
 };
 #endif /*TESTHDF5DATAWRITER_HPP_*/
