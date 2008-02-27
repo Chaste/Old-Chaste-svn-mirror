@@ -39,6 +39,7 @@ public:
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         TS_ASSERT_THROWS_ANYTHING(solver_newton.Solve(&ComputeTestResidual, &(ComputeTestJacobian), initial_guess, NULL));
+        VecDestroy(initial_guess);
     }
   
     void TestOn2dNonlinearProblem(void) throw (Exception)

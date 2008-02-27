@@ -42,6 +42,7 @@ MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh
 template<unsigned DIM>
 MeshBasedTissue<DIM>::~MeshBasedTissue()
 {
+    delete mpVoronoiTessellation;
     if (mDeleteMesh)
     {
         delete &mrMesh;
