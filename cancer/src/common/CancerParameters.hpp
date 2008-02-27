@@ -41,6 +41,7 @@ public:
     double GetNecroticSpringTensionStiffness();
     double GetNecroticSpringCompressionStiffness();
     double GetWntChemotaxisStrength();
+    double GetSymmetricDivisionProbability();
     
     void SetStemCellG1Duration(double);
     void SetTransitCellG1Duration(double);
@@ -69,7 +70,8 @@ public:
     void SetNecroticSpringTensionStiffness(double);
     void SetNecroticSpringCompressionStiffness(double);
     void SetWntChemotaxisStrength(double);
-
+    void SetSymmetricDivisionProbability(double);
+    
     /** 
      *  Reset all parameters to their defaults
      */
@@ -222,7 +224,12 @@ private:
     /**
      * Strength of Wnt chemotactic force
      */
-    double mWntChemotaxisStrength; 
+    double mWntChemotaxisStrength;
+    
+    /**
+     * Probability of symmetric division
+     */
+    double mSymmetricDivisionProbability;
       
     friend class boost::serialization::access;
     /**
@@ -257,6 +264,7 @@ private:
         archive & mNecroticSpringTensionStiffness;
         archive & mNecroticSpringCompressionStiffness;
         archive & mWntChemotaxisStrength;
+        archive & mSymmetricDivisionProbability;
     }
 };
 

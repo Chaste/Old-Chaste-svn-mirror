@@ -46,6 +46,7 @@ CancerParameters::CancerParameters()
  * mNecroticSpringTensionStiffness has the same units as mSpringStiffness
  * mNecroticSpringCompressionStiffness has the same units as mSpringStiffness
  * mWntChemotaxisStrength has no units
+ * mSymmetricDivisionProbability has no units
  */
 void CancerParameters::Reset()
 {   
@@ -79,6 +80,7 @@ void CancerParameters::Reset()
     mNecroticSpringCompressionStiffness = 0.75*mSpringStiffness;
     
     mWntChemotaxisStrength = 100.0;
+    mSymmetricDivisionProbability = 0.0;
     
     // Calculated parameters
     // This was used in non-dimensional case
@@ -195,6 +197,10 @@ double CancerParameters::GetNecroticSpringCompressionStiffness()
 double CancerParameters::GetWntChemotaxisStrength()
 {
     return mWntChemotaxisStrength;
+}
+double CancerParameters::GetSymmetricDivisionProbability()
+{
+    return mSymmetricDivisionProbability;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -340,4 +346,10 @@ void CancerParameters::SetWntChemotaxisStrength(double wntChemotaxisStrength)
 {
     assert(wntChemotaxisStrength>=0.0);
     mWntChemotaxisStrength = wntChemotaxisStrength;
+}
+void CancerParameters::SetSymmetricDivisionProbability(double symmetricDivisionProbability)
+{
+    assert(symmetricDivisionProbability<=1.0);
+    assert(symmetricDivisionProbability>=0.0);
+    mSymmetricDivisionProbability = symmetricDivisionProbability;
 }

@@ -40,7 +40,8 @@ private:
         TS_ASSERT_DELTA(inst->GetCryptProjectionParameterB(), 2.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetNecroticSpringTensionStiffness(), 0.25*15.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetNecroticSpringCompressionStiffness(), 0.75*15.0, 1e-12);
-        TS_ASSERT_DELTA(inst->GetWntChemotaxisStrength(), 100.0, 1e-12);        
+        TS_ASSERT_DELTA(inst->GetWntChemotaxisStrength(), 100.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetSymmetricDivisionProbability(), 0.0, 1e-12);
     }
 
 public:
@@ -75,7 +76,7 @@ public:
         inst->SetCryptProjectionParameterA(0.8);
         inst->SetCryptProjectionParameterB(1.3);
         inst->SetWntChemotaxisStrength(1.9);
-        
+        inst->SetSymmetricDivisionProbability(0.1);
         inst->Reset();
 
         CheckValuesAreTheDefaultValues();
@@ -109,6 +110,7 @@ public:
         inst1->SetNecroticSpringTensionStiffness(1.3);
         inst1->SetNecroticSpringCompressionStiffness(1.2);
         inst1->SetWntChemotaxisStrength(1.9);
+        inst1->SetSymmetricDivisionProbability(0.1);
         
         CancerParameters *inst2 = CancerParameters::Instance();
         
@@ -136,6 +138,7 @@ public:
         TS_ASSERT_DELTA(inst2->GetNecroticSpringTensionStiffness(), 1.3, 1e-12);
         TS_ASSERT_DELTA(inst2->GetNecroticSpringCompressionStiffness(), 1.2, 1e-12);
         TS_ASSERT_DELTA(inst2->GetWntChemotaxisStrength(), 1.9, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetSymmetricDivisionProbability(), 0.1, 1e-12);
     }
     
     void TestArchiveCancerParameters()
@@ -171,7 +174,8 @@ public:
             inst1->SetNecroticSpringTensionStiffness(1.3);
             inst1->SetNecroticSpringCompressionStiffness(1.2);
             inst1->SetWntChemotaxisStrength(1.9);
-        
+            inst1->SetSymmetricDivisionProbability(0.1);
+            
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             // save messed up parameters
@@ -206,6 +210,7 @@ public:
             inst1->SetNecroticSpringTensionStiffness(0.0);
             inst1->SetNecroticSpringCompressionStiffness(0.0);
             inst1->SetWntChemotaxisStrength(100.0);
+            inst1->SetWntChemotaxisStrength(0.0);
         
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -238,6 +243,7 @@ public:
             TS_ASSERT_DELTA(inst1->GetNecroticSpringTensionStiffness(), 1.3, 1e-12);
             TS_ASSERT_DELTA(inst1->GetNecroticSpringCompressionStiffness(), 1.2, 1e-12);
             TS_ASSERT_DELTA(inst1->GetWntChemotaxisStrength(), 1.9, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetSymmetricDivisionProbability(), 0.1, 1e-12);
         }
     }
     
