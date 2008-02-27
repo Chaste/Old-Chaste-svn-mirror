@@ -309,7 +309,23 @@ if ARGUMENTS.get('exe', 0):
         libpath = '#lib'
     else:
         libpath = '#linklib'
+    exes = []
     for main_cpp in glob.glob('apps/src/*.cpp'):
-	    env.Program(main_cpp,
-    	            LIBS=['heart'] + comp_deps['heart'] + other_libs,
-        	        LIBPATH=[libpath] + other_libpaths)
+        exes.append(env.Program(main_cpp,
+                                LIBS=['heart'] + comp_deps['heart'] + other_libs,
+                                LIBPATH=[libpath] + other_libpaths))
+
+    if not compile_only:
+        # Run acceptance tests
+        print "Running acceptance tests", exes
+        checkout_dir = Dir('#').abspath
+        texttest = build.tools['texttest'] + ' -d ' + checkout_dir + '/apps/texttest/chaste'
+        output = build.output_dir + '/chaste.unknown.0'
+        env.Command(output, exes,
+                    [texttest + ' -b -c ' + checkout_dir,
+                     texttest + ' -s batch.GenerateHistoricalReport default',
+                     Delete(output),
+                     Copy(output, env['ENV']['CHASTE_TEST_OUTPUT']+'/texttest_reports/chaste')])
+        env.Depends('apps', output)
+        if test_summary:
+            env.Depends(summary_index, output)
