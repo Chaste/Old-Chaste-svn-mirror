@@ -19,24 +19,26 @@
 //#include "StimulusConvergenceTester.hpp"
 
 class TestConvergenceNightly : public CxxTest::TestSuite
-{   
+{
+    bool mUseNeumannStimulus;
 public:
 
     void RunConvergenceTester(AbstractUntemplatedConvergenceTester *pTester, bool stimulateRegion)
     {
-            pTester->StimulateRegion=stimulateRegion;
-            if ( stimulateRegion )
-            {
-                pTester->MeshNum = 6u;    
-            }
-            
-            pTester->Converge();
-            TS_ASSERT(pTester->Converged);
+        pTester->UseNeumannStimulus = mUseNeumannStimulus;
+        pTester->StimulateRegion=stimulateRegion;
+        if ( stimulateRegion )
+        {
+            pTester->MeshNum = 6u;    
+        }
+        
+        pTester->Converge();
+        TS_ASSERT(pTester->Converged);
     }
 
     void ConvergeInVarious(bool stimulateRegion)
     {
-       {
+        {
             PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
             RunConvergenceTester(&tester, stimulateRegion);           
             TS_ASSERT_DELTA(tester.PdeTimeStep, 5.0e-3, 1e-10);
@@ -87,14 +89,22 @@ public:
 
     void TestStimulatePlanein1D() throw(Exception)
     {
+        mUseNeumannStimulus = false;
         ConvergeInVarious(false);
     }
 
     void TestStimulateRegionin1D() throw(Exception)
     {
+        mUseNeumannStimulus = false;
         ConvergeInVarious(true);
     }
 
+    void TestVariousWithNeumannStimulus() throw(Exception)
+    {
+        mUseNeumannStimulus = true;
+        ConvergeInVarious(false);
+        ConvergeInVarious(true);
+    }
 
 
     //Current test takes about 20 mins.
@@ -113,25 +123,58 @@ public:
         //TS_ASSERT_EQUALS(tester.GetMeshNum(), 4); 
         //TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0023 /*cm*/, 1e-4 /*Allowed error*/);     
     }
-
-    void Test2DSpaceWithRegion() throw(Exception)
+    void Test2DSpaceSymmLqWithNeumannStimulus() throw(Exception)
     {
-        
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
+        PetscOptionsSetValue("-options_table", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
-        tester.StimulateRegion=true;
+        tester.SetKspRelativeTolerance(5e-8);
+        tester.UseNeumannStimulus = true;
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
+        TS_ASSERT(tester.IsConverged());
+        //TS_ASSERT_EQUALS(tester.GetMeshNum(), 4); 
+        //TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0023 /*cm*/, 1e-4 /*Allowed error*/);     
+    }
+
+    void Test2DSpaceWithRegionAndNeumannStimulus() throw(Exception)
+    {
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
+        tester.StimulateRegion = true;
         tester.SetKspRelativeTolerance(1e-8);
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 6u); 
-    }       
+    }
+    void Test2DSpaceWithRegion() throw(Exception)
+    {
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
+        tester.StimulateRegion = true;
+        tester.UseNeumannStimulus = true;
+        tester.SetKspRelativeTolerance(1e-8);
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 6u); 
+    }
     
     //Currently takes about 3 minutes to do mesh0 and mesh1
     void Test3DSpace() throw(Exception)
     {
-        
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         tester.SetKspRelativeTolerance(1e-8);
         tester.RelativeConvergenceCriterion=4e-2;//Just to prove the thing works
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 1u); ///Just to prove the thing works
+    }
+    void Test3DSpaceWithNeumannStimulus() throw(Exception)
+    {
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
+        tester.SetKspRelativeTolerance(1e-8);
+        tester.RelativeConvergenceCriterion = 4e-2;//Just to prove the thing works
+        tester.UseNeumannStimulus = true;
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 1u); ///Just to prove the thing works

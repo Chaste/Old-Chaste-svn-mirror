@@ -48,6 +48,28 @@ public:
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
     }
+    
+    void xTestSpaceConvergence2d()
+    {
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<2>, 2, 1> tester;
+        tester.UseNeumannStimulus=true;
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
+    }
+    
+    void xTestSpaceConvergence3d()
+    {
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
+        tester.SetKspAbsoluteTolerance(1e-3); 
+        tester.UseNeumannStimulus=true;
+        tester.SetMeshWidth(0.15);//cm
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 4u);
+        EventHandler::Headings();
+        EventHandler::Report();
+    }
 };
 
 #endif /*TESTCONVERGENCENEUMANNSTIMULUS_HPP_*/
