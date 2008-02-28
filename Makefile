@@ -121,6 +121,32 @@ TestMeinekeLabellingExperimentsRunner: TestMeinekeLabellingExperimentsRunner.o $
 	cp ../simulationMeinekeLabellingExperiments.sh .  ;\
 	mv simulationMeinekeLabellingExperiments.sh simulation.sh
 
+# This runs the test which generates MeinekeLabellingExperiment for AlexWdata.
+
+TestMeinekeLabellingAlexWRunner.cpp:	projects/GaryM/test/TestSimpleWntLabellingExperimentsSunterDataAlexW.hpp
+	cxxtest/cxxtestgen.py  --error-printer -o TestMeinekeLabellingAlexWRunner.cpp projects/GaryM/test/TestSimpleWntLabellingExperimentsSunterDataAlexW.hpp
+
+TestMeinekeLabellingAlexWRunner: TestMeinekeLabellingAlexWRunner.o ${LIBS}
+	g++ TestMeinekeLabellingAlexWRunner.o ${LIBS} -o TestMeinekeLabellingAlexWRunner ${LDFLAGS};\
+	echo "Making new experiment in ${FRESH_DIR} " ;\
+	echo "Do scp -r -C ${FRESH_DIR} pmxaw@deimos.nottingham.ac.uk:" ;\
+	echo "Then qsub simulation.sh on deimos";\
+	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
+	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
+	# Need to copy across the starting state of the simulation
+	mkdir ${FRESH_DIR}/MeinekeLabellingAlexW; mkdir ${FRESH_DIR}/MeinekeLabellingAlexW/archive ;\
+	cd ${FRESH_DIR}/MeinekeLabellingAlexW/archive ;\
+	cp ../../../projects/GaryM/test/data/SteadyStateIngeSwat/hypothesis2_sunter1_archive/mesh_300.* . ;\
+	cp ../../../projects/GaryM/test/data/SteadyStateIngeSwat/hypothesis2_sunter1_archive/tissue_sim_at_time_300.arch . ;\
+	cd ../.. ;\
+	# Finished copying archives across.
+	cp TestMeinekeLabellingAlexWRunner ${FRESH_DIR} ;\
+	cd ${FRESH_DIR}/bin ;\
+	cp ../../bin/triangle triangle ;\
+	cd .. ;\
+	cp ../simulationMeinekeLabellingAlexW.sh .  ;\
+	mv simulationMeinekeLabellingAlexW.sh simulation.sh
+
 # A more useful test to label a cell near the bottom at random and follow mutation's progress.
 
 TestMutationSpreadRunner.cpp:	projects/GaryM/test/TestMutationSpread.hpp
