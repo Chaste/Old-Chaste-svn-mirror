@@ -26,6 +26,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public Frame frame = new Frame();
 
     public static boolean parsed_all_files = false;
+    public static boolean drawAxes = true;
     public static boolean drawCells = true;
     public static boolean drawSprings = false;
     public static boolean drawCircles = false;
@@ -83,6 +84,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static Checkbox beta_catenin = new Checkbox("Beta catenin");
     public static Checkbox average_stress = new Checkbox("Average Stress");
     public static Checkbox difference_stress = new Checkbox("Difference Stress");
+    public static Checkbox axes = new Checkbox("Axes");
     
     public static JLabel nearest_label = new JLabel();
                 
@@ -203,7 +205,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         else if (cb == nutrient)
         {
             drawNutrient = state;
-            drawCells = false;
+            if (state)
+            {
+            	drawCells = false;
+            	cells.setState(false);
+            }
             System.out.println("Drawing nutrient = "+drawNutrient); 
         }
         else if (cb == beta_catenin)
@@ -242,6 +248,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             	average_stress.setState(false);
             }
             System.out.println("Drawing difference stress = "+drawDifferenceStress); 
+        }
+        else if (cb == axes)
+        {
+            drawAxes = state;
+            System.out.println("Drawing axes = "+drawAxes); 
         }
         canvas.drawBufferedImage();
         canvas.repaint();
@@ -346,6 +357,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         beta_catenin.addItemListener(this);
         average_stress.addItemListener(this);
         difference_stress.addItemListener(this);
+        axes.addItemListener(this);
         
         checkPanel.add(output);
         checkPanel.add(springs);
@@ -357,6 +369,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         checkPanel.add(fibre);
         checkPanel.add(average_stress);
         checkPanel.add(difference_stress);
+        checkPanel.add(axes);
         checkPanel.add(nearest_label);
                 
         JPanel southPanel = new JPanel(new GridLayout(2,0));
@@ -378,6 +391,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         beta_catenin.setState(false);
         average_stress.setState(false);
         difference_stress.setState(false);
+        axes.setState(true);
         
         for (int i=1; i<args.length; i++)
         {
@@ -415,6 +429,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             {
                 drawNutrient = true;
                 nutrient.setState(true);
+                drawCells = false;
+            	cells.setState(false);
             }
             else if (args[i].equals("betacatenin"))
             {
@@ -426,6 +442,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             else if (args[i].equals("notcylindrical"))
             {
                 drawCylinderOverride = false;
+            }
+            else if (args[i].equals("axes"))
+            {
+                drawAxes = true;
+                axes.setState(true);
             }
             else
             {
@@ -868,7 +889,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             System.out.println("Drawing cells = "+drawCells);
             System.out.println("Drawing ghost nodes = "+drawGhosts);
             System.out.println("Drawing cylindrically = "+ drawCylinder);
-                        
+            System.out.println("Drawing axes = "+ drawAxes);
+            
             if (drawCylinder) 
             {
             	ConvertCylindricalDataToPlane();
@@ -1181,6 +1203,23 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	            }
 	        }        
         }
+        
+        if (vis.drawNutrient && vis.drawCircles)
+        {
+            // Draw cell circle interiors
+	        for (int i=0; i<vis.numCells[vis.timeStep]; i++ ) 
+	        {
+	        	SetCellColour(i); 
+	            PlotPoint p = scale(vis.positions[vis.timeStep][i]);
+	            int rx = (int) (0.5* width /(vis.max_x - vis.min_x));
+	            int ry = (int) (0.5 * height /(vis.max_y - vis.min_y));
+	            
+	            if (vis.cell_type[vis.timeStep][i] != INVISIBLE_COLOUR) // if not a ghost node
+	            {
+	            	g2.fillOval(p.x-rx, p.y-ry, 2*rx, 2*ry);
+	            }
+	        }
+        }
               
         g2.setColor(Color.black);
         Shape original_clip = g2.getClip();
@@ -1272,8 +1311,8 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	                }                
 	            }	        
             
-	            if (vis.drawNutrient)
-	            {               	
+	            if (vis.drawNutrient && !vis.drawCircles)
+	            {                    
 	            	int clipx[] = new int[3];
 	            	int clipy[] = new int[3];
 	            	for (int node=0; node<3; node++)
@@ -1470,6 +1509,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         	}
         	if (!vis.drawNutrient)
         	{
+        		// \todo: Larger simulations would be clearer with smaller nodes
         		g2.fillOval(p.x - node_radius, p.y - node_radius, 2 * node_radius, 2 * node_radius);
         	}
 
@@ -1481,8 +1521,12 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         	}
         }
         g2.setColor(Color.black);
-        drawXAxis(tick_length);
-        drawYAxis(tick_length);
+        
+        if (vis.drawAxes)
+        {
+        	drawXAxis(tick_length);
+        	drawYAxis(tick_length);
+        }
         
         if (vis.drawNutrient)
         {
