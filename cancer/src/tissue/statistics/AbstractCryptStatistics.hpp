@@ -27,6 +27,13 @@ public:
      * 
      * Cells which are in S phase have their mutation state changed 
      * from 'HEALTHY' to 'LABELLED'.
+     * 
+     * In Owen Sansom's experiments this is called twice; once at the
+     * beginning and once at the end of an hour to simulate uptake of the 
+     * label over an hour, so some cells will already be labelled when this
+     * is called the second time.
+     * 
+     * (assumption that S phase lasts longer than one hour is pretty sound)
      */ 
     void LabelSPhaseCells()
     {
@@ -35,8 +42,8 @@ public:
              ++cell_iter)
         {
             if ((*cell_iter).GetCellCycleModel()->GetCurrentCellCyclePhase()== S_PHASE)
-            {
-                assert((*cell_iter).GetMutationState() == HEALTHY);
+            {   // This should only be done for healthy or labelled populations, not mutants (at the moment anyway)
+                assert((*cell_iter).GetMutationState() == HEALTHY || (*cell_iter).GetMutationState() == LABELLED);
                 (*cell_iter).SetMutationState(LABELLED);
             }
         } 
