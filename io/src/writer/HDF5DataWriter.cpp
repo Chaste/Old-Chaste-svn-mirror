@@ -2,7 +2,7 @@
 * Implementation file for HDF5DataWriter class.
 *
 */
-
+#include <iostream>
 #include "HDF5DataWriter.hpp"
 
 
@@ -135,6 +135,18 @@ void HDF5DataWriter::CheckUnitsName(std::string name)
 
 void HDF5DataWriter::EndDefineMode()
 {
+    //Check that at least one variable has been defined
+    if (mVariables.size() < 1)
+    {
+        EXCEPTION("Cannot end define mode. No variables have been defined.");
+    }
+
+    //Check that a fixed dimension has been defined
+    if (mIsFixedDimensionSet == false)
+    {
+        EXCEPTION("Cannot end define mode. One fixed dimension should be defined.");
+    }
+    
     mIsInDefineMode = false;
     
     OutputFileHandler output_file_handler(mDirectory, mCleanDirectory);
@@ -150,15 +162,33 @@ void HDF5DataWriter::EndDefineMode()
     mFileId = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, property_list_id);
     H5Pclose(property_list_id);
     
-    // Create the dataspace for the dataset.
-    const unsigned DIMS = 2;
-    hsize_t dataset_dims[DIMS]; // dataset dimensions
-    dataset_dims[0] = mFixedDimensionSize;
-    dataset_dims[1] = mVariables.size();
-    hid_t filespace = H5Screate_simple(DIMS, dataset_dims, NULL);
+    // Create the dataspace for the dataset.       
+    mDatasetDims[0] = 1; // While developing we got a non-documented "only the first dimension can be extendible" error. 
+    mDatasetDims[1] = mFixedDimensionSize;
+    mDatasetDims[2] = mVariables.size();
     
-    // Create the dataset with default properties and close filespace.
-    mDsetId = H5Dcreate(mFileId, "Data", H5T_NATIVE_DOUBLE, filespace, H5P_DEFAULT);
+    hsize_t* max_dims=NULL;
+    hsize_t dataset_max_dims[DATASET_DIMS]; // dataset max dimensions
+    
+    hid_t cparms=H5P_DEFAULT;
+    
+    if (mIsUnlimitedDimensionSet)
+    {
+        dataset_max_dims[0] = H5S_UNLIMITED;
+        dataset_max_dims[1] = mDatasetDims[1];
+        dataset_max_dims[2] = mDatasetDims[2];        
+        max_dims = dataset_max_dims;
+
+        // Modify dataset creation properties to enable chunking.
+        hsize_t chunk_dims[DATASET_DIMS] ={1, mDatasetDims[1], mDatasetDims[2]};
+        cparms = H5Pcreate (H5P_DATASET_CREATE);
+        assert( 0 <= H5Pset_chunk( cparms, DATASET_DIMS, chunk_dims));    
+    }
+        
+    hid_t filespace = H5Screate_simple(DATASET_DIMS, mDatasetDims, max_dims);
+    
+    // Create the dataset and close filespace.
+    mDsetId = H5Dcreate(mFileId, "Data", H5T_NATIVE_DOUBLE, filespace, cparms);
     H5Sclose(filespace);    
 
     // Create dataspace for the name, unit attribute
@@ -192,18 +222,18 @@ void HDF5DataWriter::EndDefineMode()
 }
 
 void HDF5DataWriter::PutVector(int variableID, Vec petscVector)
-{
-    static const int DIM=2;
-    
+{   
     int lo, hi;
     VecGetOwnershipRange(petscVector, &lo, &hi);
     
     // Define a dataset in memory for this process
-    hsize_t count[DIM] = {hi-lo,1};
-    hid_t memspace = H5Screate_simple(DIM, count, NULL);
+    hsize_t v_size[1] = {hi-lo};
+    hid_t memspace = H5Screate_simple(1, v_size, NULL);
+    
     
     // Select hyperslab in the file.
-    hsize_t offset[DIM] = {lo, variableID};
+    hsize_t count[DATASET_DIMS] = {1,hi-lo,1};
+    hsize_t offset[DATASET_DIMS] = {mCurrentTimeStep,lo, variableID};
     hid_t hyperslab_space = H5Dget_space(mDsetId);
     H5Sselect_hyperslab(hyperslab_space, H5S_SELECT_SET, offset, NULL, count, NULL);
     
@@ -216,10 +246,49 @@ void HDF5DataWriter::PutVector(int variableID, Vec petscVector)
     H5Dwrite(mDsetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, p_petsc_vector);
     VecRestoreArray(petscVector, &p_petsc_vector);
 
-
     H5Sclose(hyperslab_space);
     H5Sclose(memspace);
     H5Pclose(property_list_id); 
+}
+
+void HDF5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector)
+{   
+    int NUM_STRIPES=2;
+    
+    // currently the method only works with consecutive columns, can be extended if needed.
+    if (secondVariableID-firstVariableID != 1)
+    {
+        EXCEPTION("Columns should be consecutive. Try reordering them.");
+    }
+    
+    int lo, hi;
+    VecGetOwnershipRange(petscVector, &lo, &hi);
+    
+    // Define a dataset in memory for this process
+    hsize_t v_size[1] = {hi-lo};
+    hid_t memspace = H5Screate_simple(1, v_size, NULL);
+    
+    // Select hyperslab in the file.
+    hsize_t start[DATASET_DIMS] = {mCurrentTimeStep, lo/NUM_STRIPES, firstVariableID};
+    hsize_t stride[DATASET_DIMS] = {1, 1, secondVariableID-firstVariableID};
+    hsize_t block_size[DATASET_DIMS] = {1, (hi-lo)/NUM_STRIPES, 1};
+    hsize_t number_blocks[DATASET_DIMS] = {1, 1, NUM_STRIPES}; 
+
+    hid_t hyperslab_space = H5Dget_space(mDsetId);
+    H5Sselect_hyperslab(hyperslab_space, H5S_SELECT_SET, start, stride, number_blocks, block_size);
+    
+    // Create property list for collective dataset write, and write!  Finally.
+    hid_t property_list_id = H5Pcreate(H5P_DATASET_XFER);
+    H5Pset_dxpl_mpio(property_list_id, H5FD_MPIO_COLLECTIVE);
+
+    double* p_petsc_vector;
+    VecGetArray(petscVector, &p_petsc_vector);
+    H5Dwrite(mDsetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, p_petsc_vector);
+    VecRestoreArray(petscVector, &p_petsc_vector);
+
+    H5Sclose(hyperslab_space);
+    H5Sclose(memspace);
+    H5Pclose(property_list_id);  
 }
 
 void HDF5DataWriter::Close()
@@ -231,13 +300,32 @@ void HDF5DataWriter::Close()
 
 int HDF5DataWriter::DefineUnlimitedDimension(std::string variableName, std::string variableUnits)
 {
+    if (mIsUnlimitedDimensionSet)
+    {
+        EXCEPTION("Unlimited dimension already set. Cannot be defined twice");
+    }
+    
+    if (!mIsInDefineMode)
+    {
+        EXCEPTION("Cannot define variables when not in Define mode");
+    }
+    
     mIsUnlimitedDimensionSet = true;  
     
-    return 0;          
+    return -1;          
 }
 
 void HDF5DataWriter::AdvanceAlongUnlimitedDimension()
 {
+    if (!mIsUnlimitedDimensionSet)
+    {
+        EXCEPTION("Trying to advance along an unlimited dimension without having defined any");    
+    }
+    
+    // Extend the dataset.
+    mDatasetDims[0]++; 
+    H5Dextend (mDsetId, mDatasetDims);    
+    
     mCurrentTimeStep++;    
 }
 

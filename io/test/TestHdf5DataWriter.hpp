@@ -11,6 +11,9 @@
 
 class TestHdf5DataWriter : public CxxTest::TestSuite
 {
+private:
+    HDF5DataWriter *mpTestWriter;    
+    
 public:
     void TestSimpleParallelWriteDirectlyWithHdf5()
     {
@@ -238,7 +241,7 @@ public:
              ++index)
         {
             distributed_vector_1[index] =  index.Global;
-            distributed_vector_2[index] =  2*index.Global;
+            distributed_vector_2[index] =  1000 + index.Global;
         }
         distributed_vector_1.Restore();
         distributed_vector_2.Restore();
@@ -274,12 +277,11 @@ public:
         int number_nodes=100;
         DistributedVector::SetProblemSize(number_nodes);
                
-        HDF5DataWriter writer("hdf5", "hdf5_test_multi_column", false);
+        HDF5DataWriter writer("hdf5", "hdf5_test_full_format", false);
         writer.DefineFixedDimension("Node","dimensionless",number_nodes);
         
         int ik_id = writer.DefineVariable("I_K","milliamperes");
         int ina_id = writer.DefineVariable("I_Na","milliamperes");
-        //int time_id = 
         writer.DefineUnlimitedDimension("Time", "msec");
 
         writer.EndDefineMode();
@@ -298,7 +300,7 @@ public:
                  ++index)
             {
                 distributed_vector_1[index] =  time_step*1000 + index.Global;
-                distributed_vector_2[index] =  time_step*1000 + 2*index.Global;
+                distributed_vector_2[index] =  time_step*1000 + 100 + index.Global;
             }
             distributed_vector_1.Restore();
             distributed_vector_2.Restore();
@@ -318,11 +320,11 @@ public:
             // be the directory it has been printed to, but is this line is
             // removed by piping the output through sed to delete the first line  
             OutputFileHandler handler("hdf5",false);
-            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_column.h5";
-            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_column_dumped.txt";
+            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format.h5";
+            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_dumped.txt";
             system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
             
-            //TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_multi_column_dumped.txt").c_str()), 0);
+            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_dumped.txt").c_str()), 0);
         }
 
         VecDestroy(petsc_data_1);
@@ -330,6 +332,236 @@ public:
 
     }    
 
+
+    void TestHDF5DataWriterFullFormatStriped() throw(Exception)
+    {
+        int number_nodes=100;
+               
+        HDF5DataWriter writer("hdf5", "hdf5_test_full_format_striped", false);
+        writer.DefineFixedDimension("Node","dimensionless",number_nodes);
+        
+        int vm_id = writer.DefineVariable("V_m","millivolts"); assert(vm_id >= 0);  
+        int phi_e_id = writer.DefineVariable("Phi_e","millivolts"); assert(phi_e_id >= 0);
+        int ina_id = writer.DefineVariable("I_Na","milliamperes"); assert(ina_id >= 0);
+        
+        writer.DefineUnlimitedDimension("Time", "msec");
+
+        writer.EndDefineMode();   
+
+        DistributedVector::SetProblemSize(number_nodes);
+        Vec petsc_data_short=DistributedVector::CreateVec();
+        DistributedVector distributed_vector_short(petsc_data_short);      
+
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index!= DistributedVector::End();
+             ++index)
+        {
+            distributed_vector_short[index] =  -0.5;
+        }
+        distributed_vector_short.Restore();
+
+        DistributedVector::SetProblemSize(2*number_nodes);
+        Vec petsc_data_long=DistributedVector::CreateVec();
+        DistributedVector distributed_vector_long(petsc_data_long);      
+        
+        for (unsigned time_step=0; time_step<10; time_step++)
+        {
+            for (DistributedVector::Iterator index = DistributedVector::Begin();
+                 index!= DistributedVector::End();
+                 ++index)
+            {
+                distributed_vector_long[index] =  time_step*1000 + index.Global;
+            }
+            distributed_vector_long.Restore();
+                   
+            writer.PutVector(ina_id, petsc_data_short);
+            writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long);
+            writer.AdvanceAlongUnlimitedDimension();
+        }
+        
+        writer.Close();
+        
+        if(PetscTools::AmMaster())
+        {
+            // call h5dump to take the binary hdf5 output file and print it
+            // to a text file. Note that the first line of the txt file would
+            // be the directory it has been printed to, but is this line is
+            // removed by piping the output through sed to delete the first line  
+            OutputFileHandler handler("hdf5",false);
+            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_striped.h5";
+            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_striped_dumped.txt";
+            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
+            
+            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_striped_dumped.txt").c_str()), 0);
+        }
+
+        VecDestroy(petsc_data_long);
+        VecDestroy(petsc_data_short);
+    }
+    
+    void TestNonImplementedFeatures( void )
+    {
+        int number_nodes=100;
+               
+        HDF5DataWriter writer("hdf5", "hdf5_test_non_implemented", false);
+        writer.DefineFixedDimension("Node","dimensionless",number_nodes);
+        
+        int vm_id = writer.DefineVariable("V_m","millivolts"); assert(vm_id >= 0);  
+        int ina_id = writer.DefineVariable("I_Na","milliamperes"); assert(ina_id >= 0);
+        int phi_e_id = writer.DefineVariable("Phi_e","millivolts"); assert(phi_e_id >= 0);
+        
+        writer.EndDefineMode();   
+
+        DistributedVector::SetProblemSize(number_nodes);
+        Vec petsc_data_short=DistributedVector::CreateVec();
+        DistributedVector distributed_vector_short(petsc_data_short);      
+
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index!= DistributedVector::End();
+             ++index)
+        {
+            distributed_vector_short[index] =  -0.5;
+        }
+        distributed_vector_short.Restore();
+
+        DistributedVector::SetProblemSize(2*number_nodes);
+        Vec petsc_data_long=DistributedVector::CreateVec();
+        DistributedVector distributed_vector_long(petsc_data_long);      
+        
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index!= DistributedVector::End();
+             ++index)
+        {
+            distributed_vector_long[index] =  index.Global;
+        }
+        distributed_vector_long.Restore();
+               
+        writer.PutVector(ina_id, petsc_data_short);
+        TS_ASSERT_THROWS_ANYTHING(writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long));
+                
+        writer.Close();
+        
+        VecDestroy(petsc_data_long);
+        VecDestroy(petsc_data_short);        
+    }    
+
+/**
+ *   Tests copied (with some minor modifications) from TestColumnDataReaderWriter: to be refactored at some point
+ */ 
+    void TestDefineUnlimitedDimension( void )
+    {
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","m secs"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("T,i,m,e","msecs"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("","msecs"));
+        
+        delete mpTestWriter;
+    }
+    
+    void TestDefineFixedDimension( void )
+    {
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
+        
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node ","dimensionless", 5000));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimension.less", 5000));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("*Node*","dimensionless", 5000));
+        
+        delete mpTestWriter;
+    }
+    
+    void TestDefineVariable( void )
+    {
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "test"));
+        int ina_var_id = 0;
+        int ik_var_id = 0;
+        
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        
+        mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000);
+        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("Node","dimensionless"));
+        
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineVariable("Dummy",""));
+        
+        // Bad variable names/units
+        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milli amperes"));
+        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I   K","milliamperes"));
+        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I.K","milliamperes"));
+        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("","milliamperes"));
+        
+        TS_ASSERT_EQUALS(ina_var_id, 0);
+        TS_ASSERT_EQUALS(ik_var_id, 1);
+        
+        delete mpTestWriter;
+    }
+    
+    void TestEndDefineMode( void )
+    {
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "testdefine"));
+      
+        //ending define mode without having defined at least a variable and a fixed dimension should raise an exception
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
+        
+        int ina_var_id = 0;
+        int ik_var_id = 0;
+        
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
+        
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
+        
+        //In HDF5 a fixed dimension should be defined always
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
+        
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineVariable("I_Ca","milli amperes"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
+        
+        mpTestWriter->Close();
+        delete mpTestWriter;                             
+    }
+    
+    void TestCantAddUnlimitedAfterEndDefine ( void )
+    {
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "testdefine"));
+        int ina_var_id = 0;
+        int ik_var_id = 0;
+        
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 0));
+        mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000);
+        
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
+        
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        mpTestWriter->Close();
+        delete mpTestWriter;
+    }
+ 
+    void TestAdvanceAlongUnlimitedDimension ( void )
+    {   
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "testdefine"));
+        
+        int ina_var_id;
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));        
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
+        
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
+        
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->AdvanceAlongUnlimitedDimension());
+        
+        mpTestWriter->Close();
+        delete mpTestWriter;
+    }
     
 };
 #endif /*TESTHDF5DATAWRITER_HPP_*/

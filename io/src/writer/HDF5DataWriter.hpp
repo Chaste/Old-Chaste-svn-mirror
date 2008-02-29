@@ -35,17 +35,22 @@ protected:
     hid_t mDsetId;
     
     long mCurrentTimeStep;
-
+    
+    const static unsigned DATASET_DIMS=3;
+    hsize_t mDatasetDims[DATASET_DIMS]; 
+    
 public:
     HDF5DataWriter(std::string directory, std::string baseName, bool cleanDirectory=true);
     virtual ~HDF5DataWriter();
     int DefineFixedDimension(std::string dimensionName, std::string dimensionUnits, long dimensionSize);
+    int DefineUnlimitedDimension(std::string variableName, std::string variableUnits);
+    void AdvanceAlongUnlimitedDimension();
     int DefineVariable(std::string variableName, std::string variableUnits);
     virtual void EndDefineMode();
     
     void PutVector(int variableID, Vec petscVector);
-    int DefineUnlimitedDimension(std::string variableName, std::string variableUnits);
-    void AdvanceAlongUnlimitedDimension();
+    void PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector);
+    
     void Close();
 };
 
