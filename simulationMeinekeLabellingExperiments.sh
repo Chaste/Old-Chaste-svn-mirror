@@ -1,4 +1,4 @@
-$ -j y
+#$ -j y
 #$ -cwd
 #$ -m be 
 #$ -M gary.mirams@gmail.com
