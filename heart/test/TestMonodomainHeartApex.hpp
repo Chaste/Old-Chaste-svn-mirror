@@ -129,6 +129,8 @@ public:
         
         monodomain_problem.SetWriteInfo();
         
+        monodomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
+        
         monodomain_problem.Initialise();
         monodomain_problem.Solve();
         

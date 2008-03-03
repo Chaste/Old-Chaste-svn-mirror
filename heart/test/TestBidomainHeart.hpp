@@ -208,6 +208,9 @@ public:
         PetscOptionsSetValue("-options_table", "");
         
         bidomain_problem.SetWriteInfo();
+
+        bidomain_problem.SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
+        bidomain_problem.SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
         
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
