@@ -22,3 +22,6 @@ default:$CHASTE_TEST_OUTPUT/texttest_output
 
 [historical_report_location]
 default:$CHASTE_TEST_OUTPUT/texttest_reports
+
+[run_dependent_text]
+output:(milliseconds)

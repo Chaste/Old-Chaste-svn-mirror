@@ -6,32 +6,40 @@
 	<!-- 
 		Problem definition 
 	-->    
-    <SimulationDuration>10.0</SimulationDuration>
+    <SimulationDuration>4.0</SimulationDuration>
     <Domain>Bi</Domain>
     <IonicModel>BackwardEulerFoxModel2002Modified</IonicModel>
     
 	<!-- 
 		Mesh definition 
 	-->    
-    <SlabWidth>10.0</SlabWidth>
-    <SlabHeight>0.25</SlabHeight>
+    <SlabX>10.0</SlabX>
+    <SlabY>0.25</SlabY>
+    <SlabZ>10.0</SlabZ>
     <InterNodeSpace>0.25</InterNodeSpace>
+
+    <!--
+        Intracellular conductivities
+    -->
+    <LongitudinalConductivity>1.75</LongitudinalConductivity>
+    <TransverseConductivity>1.75</TransverseConductivity>
+    <NormalConductivity>1.75</NormalConductivity>   
     
     <!-- 
     	Stimuli (as many <Stimulus> definitions as needed) 
    	-->
   	<Stimulus> <!-- #1 -->
-		<Strength>-8000.0</Strength>
-		<Duration>0.5</Duration>
+		<Strength>-80000.0</Strength>
+		<Duration>1.0</Duration>
 		<Delay>0</Delay>
 		<Location>
 			<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
-			<CornerB X="-4.75" Z="5.0" Y="0.125"/>
+			<CornerB X="-4.50" Z="5.0" Y="0.125"/>
 		</Location>
 	</Stimulus>	
 	<Stimulus> <!-- #2 -->
-		<Strength>-8000.0</Strength>
-		<Duration>0.5</Duration>
+		<Strength>-80000.0</Strength>
+		<Duration>1.0</Duration>
 		<Delay>2.0</Delay>
 		<Location>
 			<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>

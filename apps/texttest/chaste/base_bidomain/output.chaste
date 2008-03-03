@@ -1,2 +1,2 @@
-InMesh	AssSys	   Ode	 Comms	AssRhs	   Ksp	Output	 Total	
-0.0e+00	2.7e+02	3.0e+04	1.2e+02	1.7e+04	3.6e+03	6.3e+02	5.1e+04	(milliseconds) 
+InMesh	AssSys	   Ode	 Comms	AssRhs	NeuBCs	   Ksp	Output	 Total	
+0.0e+00	9.6e+02	1.5e+04	8.0e+01	1.6e+04	0.0e+00	2.6e+03	4.3e+02	3.6e+04	(milliseconds) 

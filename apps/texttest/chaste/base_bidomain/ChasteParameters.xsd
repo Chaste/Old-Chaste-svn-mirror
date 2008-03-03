@@ -40,16 +40,39 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name="cell_heterogeneity_type">
+    <xs:sequence>
+      <xs:element name="ScaleFactorGks" type="xs:double"/>
+      <xs:element name="ScaleFactorIto" type="xs:double"/>
+      <xs:element name="Location" type="box_type"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="conductivity_heterogeneity_type">
+    <xs:sequence>
+      <xs:element name="Longitudinal" type="xs:double"/>
+      <xs:element name="Transverse" type="xs:double"/>
+      <xs:element name="Normal" type="xs:double"/>
+      <xs:element name="Location" type="box_type"/>
+    </xs:sequence>
+  </xs:complexType>
+  
   <xs:complexType name="chaste_parameters_type">
     <xs:sequence>
       <xs:element name="SimulationDuration" type="xs:decimal"/>
       <xs:element name="Domain" type="domain_type"/>
       <xs:element name="IonicModel" type="ionic_model_type"/>
-      <xs:element name="SlabWidth" type="xs:decimal"/>
-      <xs:element name="SlabHeight" type="xs:decimal"/>
-      <xs:element name="InterNodeSpace" type="xs:decimal"/>
+      <xs:element name="SlabX" type="xs:double"/>
+      <xs:element name="SlabY" type="xs:double"/>
+      <xs:element name="SlabZ" type="xs:double"/>
+      <xs:element name="InterNodeSpace" type="xs:double"/>
+      <xs:element name="LongitudinalConductivity" type="xs:double"/>
+      <xs:element name="TransverseConductivity" type="xs:double"/>
+      <xs:element name="NormalConductivity" type="xs:double"/>
 	  <xs:element name="Stimulus" type="stimulus_type" maxOccurs="unbounded"/>
-      <xs:element name="OutputDirectory" type="xs:string"/>
+	  <xs:element name="CellHeterogeneity" type="cell_heterogeneity_type" minOccurs="0" maxOccurs="unbounded" />
+	  <xs:element name="ConductivityHeterogeneity" type="conductivity_heterogeneity_type" minOccurs="0" maxOccurs="unbounded" />
+	  <xs:element name="OutputDirectory" type="xs:string"/>
       <xs:element name="MeshOutputDirectory" type="xs:string"/>
     </xs:sequence>
   </xs:complexType>
