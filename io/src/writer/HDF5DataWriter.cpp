@@ -182,7 +182,7 @@ void HDF5DataWriter::EndDefineMode()
         // Modify dataset creation properties to enable chunking.
         hsize_t chunk_dims[DATASET_DIMS] ={1, mDatasetDims[1], mDatasetDims[2]};
         cparms = H5Pcreate (H5P_DATASET_CREATE);
-        assert( 0 <= H5Pset_chunk( cparms, DATASET_DIMS, chunk_dims));    
+        H5Pset_chunk( cparms, DATASET_DIMS, chunk_dims);    
     }
         
     hid_t filespace = H5Screate_simple(DATASET_DIMS, mDatasetDims, max_dims);
