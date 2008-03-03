@@ -82,6 +82,11 @@ public:
         mMatrixIsConstant = matrixIsConstant;
         this->SetMatrixIsConst(mMatrixIsConstant);
     }
+
+    void SetMatrixIsNotAssembled() 
+    { 
+        mMatrixIsAssembled = false; 
+    } 
     
     /**
      *  Solve a dynamic PDE over the time period specified through SetTimes()
