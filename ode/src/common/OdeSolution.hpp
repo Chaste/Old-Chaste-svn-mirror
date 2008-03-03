@@ -77,16 +77,35 @@ public:
 
         int time_var_id = writer.DefineUnlimitedDimension("Time",timeUnits);
     
+        // Either: the ODE system should have no names&units defined, or it should
+        // the same number as the number of solutions per timestep.
+        assert( pOdeSystem->rGetVariableNames().size()==0 ||
+                (pOdeSystem->rGetVariableNames().size()==mSolutions[0].size()) );
+
+        unsigned num_vars = mSolutions[0].size();
+
         std::vector<int> var_ids;
-        var_ids.reserve(pOdeSystem->rGetVariableNames().size());
-        for (unsigned i=0; i<pOdeSystem->rGetVariableNames().size(); i++)
+        var_ids.reserve(num_vars);
+        if(pOdeSystem->rGetVariableNames().size() > 0)
         {
-            var_ids.push_back(writer.DefineVariable(pOdeSystem->rGetVariableNames()[i],
-                                                    pOdeSystem->rGetVariableUnits()[i]));
+            for (unsigned i=0; i<num_vars; i++)
+            {
+                var_ids.push_back(writer.DefineVariable(pOdeSystem->rGetVariableNames()[i],
+                                                        pOdeSystem->rGetVariableUnits()[i]));
+            }
         }
+        else
+        {
+            for (unsigned i=0; i<num_vars; i++)
+            {
+                std::stringstream string_stream;
+                string_stream << "var_"<< i;
+                var_ids.push_back(writer.DefineVariable(string_stream.str(),""));
+            }
+        }
+            
         writer.EndDefineMode();
 
-        
         for (unsigned i=0; i<mSolutions.size(); i+=stepPerRow)
         {
             writer.PutVariable(time_var_id, mTimes[i]);
