@@ -164,100 +164,101 @@ public:
 //        RandomNumberGenerator::Destroy();
 //        WntConcentration::Destroy();
 //    }
-//void TestAreaDependentAndLengthDependent() throw (Exception)
-//    {
-//        CancerParameters *p_params = CancerParameters::Instance();
-//        p_params->Reset();
-//        
-//        std::string output_directory = "Noddy_WNT_Yes_Area_Yes_Length";
-//        double time_of_each_run = 9.0; // for each run
-//        
-//        unsigned cells_across = 23;
-//        unsigned cells_up = 30;
-//        double crypt_width = 20.1;
-//        unsigned thickness_of_ghost_layer = 3;
-//        
-//        p_params->SetSDuration(6.2);
-//        p_params->SetG2Duration(1.8);
-//        p_params->SetMDuration(0.5);
-//        p_params->SetTransitCellG1Duration(7.0);
-//        p_params->SetStemCellG1Duration(7.0);
-//        
-//        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-//        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-//        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-//        
-//        SimulationTime* p_simulation_time = SimulationTime::Instance();
-//        p_simulation_time->SetStartTime(0.0);
-//        
-//        // Set up cells
-//        std::vector<TissueCell> cells;
-//        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, SIMPLE_WNT, true);
-//              
-//        MeshBasedTissue<2> crypt(*p_mesh, cells);
-//        crypt.SetGhostNodes(ghost_node_indices);
-//        crypt.SetWriteVoronoiData(true, false); //Writes Area and perimeter
-//                
-//        WntConcentration::Instance()->SetType(LINEAR);
-//        WntConcentration::Instance()->SetTissue(crypt);
-//        
-//        Meineke2001SpringSystem<2>* p_meineke_spring_system = new Meineke2001SpringSystem<2>(crypt);
-//        p_meineke_spring_system->SetAreaBasedViscosity(true);
-//        p_meineke_spring_system->SetEdgeBasedSpringConstant(true);
-//        
-//        CryptSimulation2d simulator(crypt, p_meineke_spring_system, false, true);
-//        simulator.SetOutputDirectory(output_directory);
-//        
-//        // Set simulation to output cell types
-//        simulator.SetOutputCellMutationStates(true);
-//                
-//        // Set length of simulation here
-//        simulator.SetEndTime(time_of_each_run);
-//
-//        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetTissue(),0.01);
-//        simulator.AddCellKiller(p_cell_killer);
-//        
-//        // UNUSUAL SET UP HERE /////////////////////////////////////
-//        
-//        p_params->SetDampingConstantNormal(1.0);    // normally 1
-//
-//        // Do not give mutant cells any different movement properties to normal ones
-//        p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
-//        
-//        p_params->SetSpringStiffness(30.0); //normally 15.0;
-//        // 0.3/30 = 0.01 (i.e. Meineke's values)
-//        
-//        simulator.UseJiggledBottomCells();
-//        
-//        // END OF UNUSUAL SET UP! //////////////////////////////////
-//        std::cout<< "About to solve " << output_directory << "\n" << std::flush;
-//        simulator.Solve();
-//        simulator.Save();
-//        double end_of_simulation = 450; // hours
-//        
-//        std::cout<< "Going into loop \n" << std::flush;
-//        
-//        for (double t=time_of_each_run; t<end_of_simulation+0.5; t += time_of_each_run)
-//        {
-//            std::cout<< "Results from time " << t << "\n" << std::flush;
-//            CryptSimulation2d* p_simulator = CryptSimulation2d::Load(output_directory,t);
-//            p_simulator->SetEndTime(t+time_of_each_run);
-//            p_simulator->Solve();
-//            p_simulator->Save();
-//            delete p_simulator;
-//        }
-//        delete p_cell_killer;
-//        SimulationTime::Destroy();
-//        RandomNumberGenerator::Destroy();
-//        WntConcentration::Destroy();
-//        std::cout<< "Finished \n" << std::flush;
-//    }
-//    
-//    
-//    
+void TestAreaDependentAndLengthDependent() throw (Exception)
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
+        
+        std::string output_directory = "Noddy_WNT_Yes_Area_Yes_Length";
+        double time_of_each_run = 5.0; // for each run
+        
+        unsigned cells_across = 23;
+        unsigned cells_up = 30;
+        double crypt_width = 20.1;
+        unsigned thickness_of_ghost_layer = 3;
+        
+        p_params->SetSDuration(6.2);
+        p_params->SetG2Duration(1.8);
+        p_params->SetMDuration(0.5);
+        p_params->SetTransitCellG1Duration(7.0);
+        p_params->SetStemCellG1Duration(7.0);
+        
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Set up cells
+        std::vector<TissueCell> cells;
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, SIMPLE_WNT, true);
+              
+        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+        crypt.SetWriteVoronoiData(true, false); //Writes Area and perimeter
+                
+        WntConcentration::Instance()->SetType(LINEAR);
+        WntConcentration::Instance()->SetTissue(crypt);
+        
+        Meineke2001SpringSystem<2>* p_meineke_spring_system = new Meineke2001SpringSystem<2>(crypt);
+        p_meineke_spring_system->SetAreaBasedViscosity(true);
+        p_meineke_spring_system->SetEdgeBasedSpringConstant(true);
+        
+        CryptSimulation2d simulator(crypt, p_meineke_spring_system, false, true);
+        simulator.SetOutputDirectory(output_directory);
+        
+        // Set simulation to output cell types
+        simulator.SetOutputCellMutationStates(true);
+                
+        // Set length of simulation here
+        simulator.SetEndTime(time_of_each_run);
+        simulator.SetSamplingTimestepMultiple(10);
+
+        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetTissue(),0.01);
+        simulator.AddCellKiller(p_cell_killer);
+        
+        // UNUSUAL SET UP HERE /////////////////////////////////////
+        
+        p_params->SetDampingConstantNormal(1.0);    // normally 1
+
+        // Do not give mutant cells any different movement properties to normal ones
+        p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
+        
+        p_params->SetSpringStiffness(30.0); //normally 15.0;
+        // 0.3/30 = 0.01 (i.e. Meineke's values)
+        
+        simulator.UseJiggledBottomCells();
+        
+        // END OF UNUSUAL SET UP! //////////////////////////////////
+        std::cout<< "About to solve " << output_directory << "\n" << std::flush;
+        simulator.Solve();
+        simulator.Save();
+        double end_of_simulation = 600; // hours
+        
+        std::cout<< "Going into loop \n" << std::flush;
+        
+        for (double t=time_of_each_run; t<end_of_simulation+0.5; t += time_of_each_run)
+        {
+            std::cout<< "Results from time " << t << "\n" << std::flush;
+            CryptSimulation2d* p_simulator = CryptSimulation2d::Load(output_directory,t);
+            p_simulator->SetEndTime(t+time_of_each_run);
+            p_simulator->Solve();
+            p_simulator->Save();
+            delete p_simulator;
+        }
+        delete p_cell_killer;
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+        WntConcentration::Destroy();
+        std::cout<< "Finished \n" << std::flush;
+    }
     
     
-void TestAreaDependentAndLengthDependentCarryOn() throw (Exception)
+    
+    
+    
+void xTestAreaDependentAndLengthDependentCarryOn() throw (Exception)
 {
     std::string output_directory = "Noddy_WNT_Yes_Area_Yes_Length";
     
@@ -269,9 +270,9 @@ void TestAreaDependentAndLengthDependentCarryOn() throw (Exception)
     int return_value = system(command.c_str());
     TS_ASSERT_EQUALS(return_value, 0);
     
-    double time_of_each_run = 1;
-    double end_of_simulation = 12.0;
-    double start_time = 9.0;
+    double time_of_each_run = 5;
+    double end_of_simulation = 270;
+    double start_time = 260;
     SimulationTime::Instance()->SetStartTime(start_time);
     for (double t=start_time; t<end_of_simulation; t += time_of_each_run)
     {
