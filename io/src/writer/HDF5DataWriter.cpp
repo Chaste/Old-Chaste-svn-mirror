@@ -24,6 +24,17 @@ HDF5DataWriter::HDF5DataWriter(string directory, string baseName, bool cleanDire
         mFixedDimensionSize(-1),
         mCurrentTimeStep(0)
 {
+    int my_rank;
+    
+    MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+    if (my_rank==0)
+    {
+        mAmMaster=true;
+    }
+    else
+    {
+        mAmMaster=false;
+    }
 }
 
 HDF5DataWriter::~HDF5DataWriter()
@@ -31,15 +42,21 @@ HDF5DataWriter::~HDF5DataWriter()
 }
 
 /**
+ * @returns True if this is the rank 0 process
+ */
+bool HDF5DataWriter::AmMaster() const
+{
+    return mAmMaster;
+}
+
+/**
 *
 *  Define the fixed dimension.
 *
-*  @param dimensionName The name of the dimension
-*  @param dimensionUnits The physical units of the dimension
 *  @param dimensionSize The size of the dimension
 *
 */
-int HDF5DataWriter::DefineFixedDimension(string dimensionName, string dimensionUnits, long dimensionSize)
+void HDF5DataWriter::DefineFixedDimension(long dimensionSize)
 {
     if (!mIsInDefineMode)
     {
@@ -49,20 +66,13 @@ int HDF5DataWriter::DefineFixedDimension(string dimensionName, string dimensionU
     {
         EXCEPTION("Fixed dimension must be at least 1 long");
     }
-    
-    CheckVariableName(dimensionName);
-    CheckUnitsName(dimensionUnits);
-    
-    mFixedDimensionName = dimensionName;
-    mFixedDimensionUnits = dimensionUnits;
-    mFixedDimensionSize = dimensionSize;
-    
+    if (mIsFixedDimensionSet)
+    {
+        EXCEPTION("Fixed dimension already set");
+    }    
+
+    mFixedDimensionSize = dimensionSize;   
     mIsFixedDimensionSet = true;
-    
-    //mpFixedDimensionVariable = new DataWriterVariable;
-    //mpFixedDimensionVariable->mVariableName = dimensionName;
-    //mpFixedDimensionVariable->mVariableUnits = dimensionUnits;
-    return FIXED_DIMENSION_VAR_ID;
 }
 
 /**
@@ -71,7 +81,6 @@ int HDF5DataWriter::DefineFixedDimension(string dimensionName, string dimensionU
 *
 *  @param variableName The name of the dimension
 *  @param variableUnits The physical units of the dimension
-*  @param variableDimensions The dimensions along which this variable will be stored
 *
 *  @return The identifier of the variable
 */
@@ -84,29 +93,26 @@ int HDF5DataWriter::DefineVariable(string variableName, string variableUnits)
     
     CheckVariableName(variableName);
     CheckUnitsName(variableUnits);
+
+    // Check for the variable being already defined
+    for (unsigned index=0; index<mVariables.size(); index++)
+    {
+        if (mVariables[index].mVariableName == variableName)
+        {
+            EXCEPTION("Variable name already exists");
+        }   
+    }
     
     DataWriterVariable new_variable;
     new_variable.mVariableName = variableName;
     new_variable.mVariableUnits = variableUnits;
     int variable_id;
     
-//    if (variableName == mUnlimitedDimensionName)
-//    {
-//        EXCEPTION("Variable name: " + variableName + " already in use as unlimited dimension");
-//    }
-//    else 
-    if (variableName == mFixedDimensionName)
-    {
-        EXCEPTION("Variable name: " + variableName + " already in use as fixed dimension");
-    }
-    else //ordinary variable
-    {
-        //add the variable to the variable vector
-        mVariables.push_back(new_variable);
-        //use the index of the variable vector as the variable ID.
-        //this is ok since there is no way to remove variables.
-        variable_id = mVariables.size()-1;
-    }
+    //add the variable to the variable vector
+    mVariables.push_back(new_variable);
+    //use the index of the variable vector as the variable ID.
+    //this is ok since there is no way to remove variables.
+    variable_id = mVariables.size()-1;
     
     return variable_id;
 }
@@ -298,7 +304,7 @@ void HDF5DataWriter::Close()
 }
 
 
-int HDF5DataWriter::DefineUnlimitedDimension(std::string variableName, std::string variableUnits)
+void HDF5DataWriter::DefineUnlimitedDimension(std::string variableName, std::string variableUnits)
 {
     if (mIsUnlimitedDimensionSet)
     {
@@ -311,8 +317,6 @@ int HDF5DataWriter::DefineUnlimitedDimension(std::string variableName, std::stri
     }
     
     mIsUnlimitedDimensionSet = true;  
-    
-    return -1;          
 }
 
 void HDF5DataWriter::AdvanceAlongUnlimitedDimension()

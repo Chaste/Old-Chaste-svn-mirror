@@ -222,8 +222,9 @@ public:
         DistributedVector::SetProblemSize(number_nodes);
                
         HDF5DataWriter writer("hdf5", "hdf5_test_multi_column", false);
-        writer.DefineFixedDimension("Node","dimensionless",number_nodes);
+        writer.DefineFixedDimension(number_nodes);
         
+        int node_id = writer.DefineVariable("Node","dimensionless");
         int ik_id = writer.DefineVariable("I_K","milliamperes");
         int ina_id = writer.DefineVariable("I_Na","milliamperes");
 
@@ -247,6 +248,7 @@ public:
         distributed_vector_2.Restore();
 
         // write the vector
+        writer.PutVector(node_id, petsc_data_1);
         writer.PutVector(ik_id, petsc_data_1);
         writer.PutVector(ina_id, petsc_data_2);
         
@@ -278,8 +280,9 @@ public:
         DistributedVector::SetProblemSize(number_nodes);
                
         HDF5DataWriter writer("hdf5", "hdf5_test_full_format", false);
-        writer.DefineFixedDimension("Node","dimensionless",number_nodes);
+        writer.DefineFixedDimension(number_nodes);
         
+        int node_id = writer.DefineVariable("Node","dimensionless");
         int ik_id = writer.DefineVariable("I_K","milliamperes");
         int ina_id = writer.DefineVariable("I_Na","milliamperes");
         writer.DefineUnlimitedDimension("Time", "msec");
@@ -291,6 +294,9 @@ public:
         
         Vec petsc_data_2=DistributedVector::CreateVec();
         DistributedVector distributed_vector_2(petsc_data_2);
+
+        Vec petsc_data_3=DistributedVector::CreateVec();
+        DistributedVector distributed_vector_3(petsc_data_3);
         
         for (unsigned time_step=0; time_step<10; time_step++)
         {
@@ -299,15 +305,18 @@ public:
                  index!= DistributedVector::End();
                  ++index)
             {
-                distributed_vector_1[index] =  time_step*1000 + index.Global;
+                distributed_vector_1[index] =  index.Global;
                 distributed_vector_2[index] =  time_step*1000 + 100 + index.Global;
+                distributed_vector_3[index] =  time_step*1000 + 200 + index.Global;
             }
             distributed_vector_1.Restore();
             distributed_vector_2.Restore();
-    
+            distributed_vector_3.Restore();
+                
             // write the vector
-            writer.PutVector(ik_id, petsc_data_1);
-            writer.PutVector(ina_id, petsc_data_2);
+            writer.PutVector(node_id, petsc_data_1);
+            writer.PutVector(ik_id, petsc_data_2);
+            writer.PutVector(ina_id, petsc_data_3);
             writer.AdvanceAlongUnlimitedDimension();
         }
         
@@ -329,7 +338,7 @@ public:
 
         VecDestroy(petsc_data_1);
         VecDestroy(petsc_data_2);
-
+        VecDestroy(petsc_data_3);
     }    
 
 
@@ -338,28 +347,36 @@ public:
         int number_nodes=100;
                
         HDF5DataWriter writer("hdf5", "hdf5_test_full_format_striped", false);
-        writer.DefineFixedDimension("Node","dimensionless",number_nodes);
+        writer.DefineFixedDimension(number_nodes);
         
-        int vm_id = writer.DefineVariable("V_m","millivolts"); assert(vm_id >= 0);  
-        int phi_e_id = writer.DefineVariable("Phi_e","millivolts"); assert(phi_e_id >= 0);
-        int ina_id = writer.DefineVariable("I_Na","milliamperes"); assert(ina_id >= 0);
+        int node_id = writer.DefineVariable("Node","dimensionless");
+        int vm_id = writer.DefineVariable("V_m","millivolts");  
+        int phi_e_id = writer.DefineVariable("Phi_e","millivolts");
+        int ina_id = writer.DefineVariable("I_Na","milliamperes");
         
         writer.DefineUnlimitedDimension("Time", "msec");
 
         writer.EndDefineMode();   
 
         DistributedVector::SetProblemSize(number_nodes);
+
         Vec petsc_data_short=DistributedVector::CreateVec();
         DistributedVector distributed_vector_short(petsc_data_short);      
+
+        Vec node_number=DistributedVector::CreateVec();
+        DistributedVector distributed_node_number(node_number);      
+
 
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index!= DistributedVector::End();
              ++index)
         {
+            distributed_node_number[index] = index.Global;
             distributed_vector_short[index] =  -0.5;
         }
+        distributed_node_number.Restore();
         distributed_vector_short.Restore();
-
+        
         DistributedVector::SetProblemSize(2*number_nodes);
         Vec petsc_data_long=DistributedVector::CreateVec();
         DistributedVector distributed_vector_long(petsc_data_long);      
@@ -373,7 +390,8 @@ public:
                 distributed_vector_long[index] =  time_step*1000 + index.Global;
             }
             distributed_vector_long.Restore();
-                   
+            
+            writer.PutVector(node_id, node_number);                   
             writer.PutVector(ina_id, petsc_data_short);
             writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long);
             writer.AdvanceAlongUnlimitedDimension();
@@ -395,6 +413,7 @@ public:
             TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_striped_dumped.txt").c_str()), 0);
         }
 
+        VecDestroy(node_number);
         VecDestroy(petsc_data_long);
         VecDestroy(petsc_data_short);
     }
@@ -404,7 +423,7 @@ public:
         int number_nodes=100;
                
         HDF5DataWriter writer("hdf5", "hdf5_test_non_implemented", false);
-        writer.DefineFixedDimension("Node","dimensionless",number_nodes);
+        writer.DefineFixedDimension(number_nodes);
         
         int vm_id = writer.DefineVariable("V_m","millivolts"); assert(vm_id >= 0);  
         int ina_id = writer.DefineVariable("I_Na","milliamperes"); assert(ina_id >= 0);
@@ -464,11 +483,9 @@ public:
     void TestDefineFixedDimension( void )
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "test"));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(5000));
         
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node ","dimensionless", 5000));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimension.less", 5000));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("*Node*","dimensionless", 5000));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(5000));
         
         delete mpTestWriter;
     }
@@ -478,15 +495,17 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "test"));
         int ina_var_id = 0;
         int ik_var_id = 0;
+        int ik2_var_id = 0;
         
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
         
-        mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000);
-        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("Node","dimensionless"));
-        
+        mpTestWriter->DefineFixedDimension(5000);       
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineVariable("Dummy",""));
+        
+        // defined twice
+        TS_ASSERT_THROWS_ANYTHING(ik2_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
         
         // Bad variable names/units
         TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milli amperes"));
@@ -518,12 +537,12 @@ public:
         
         //In HDF5 a fixed dimension should be defined always
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(5000));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
         
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineVariable("I_Ca","milli amperes"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(5000));
         
         mpTestWriter->Close();
         delete mpTestWriter;                             
@@ -535,8 +554,8 @@ public:
         int ina_var_id = 0;
         int ik_var_id = 0;
         
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 0));
-        mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000);
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(0));
+        mpTestWriter->DefineFixedDimension(5000);
         
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
@@ -552,7 +571,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "testdefine"));
         
         int ina_var_id;
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));        
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(5000));        
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
         
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
