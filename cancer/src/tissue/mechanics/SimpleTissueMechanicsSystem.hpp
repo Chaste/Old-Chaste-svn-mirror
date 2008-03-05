@@ -140,10 +140,7 @@ public :
     /**
      * Calculates the forces on each node
      *
-     * @return the velocity components on each node. Of size NUM_NODES x DIM.
-     * 
-     * Note - a loop over cells is used, so if there are ghost nodes the velocity
-     * of these nodes will be returned as zero.
+     * @return the velocity components on each node. Of size NUM_NODES x DIM. 
      */
     std::vector<c_vector<double, DIM> >& rCalculateVelocitiesOfEachNode()
     {

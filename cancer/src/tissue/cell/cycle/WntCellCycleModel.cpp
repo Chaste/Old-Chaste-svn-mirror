@@ -87,7 +87,7 @@ void WntCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
     assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
     double beta_catenin_level = mpOdeSystem->rGetStateVariables()[6] + mpOdeSystem->rGetStateVariables()[7];
-    //std::cout << "beta-catenin level = " << beta_catenin_level << "\n" << std::flush;        
+
     CellType cell_type=TRANSIT;
                 
     // For mitogenic stimulus of 6x10^-4 in Wnt equations
@@ -124,5 +124,4 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
     UpdateCellType();
     return msSolver.StoppingEventOccured();
 }
-    
 

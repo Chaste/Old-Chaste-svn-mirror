@@ -123,8 +123,7 @@ void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std:
 
     for(unsigned i=0 ; i<rY.size() ; i++)
     {
-        assert( rY[i] >= 0.0 );// all protein concentrations are positive...
-        //std::cout << "rY["<<i<<"] = " << rY[i] << std::endl;
+        assert( rY[i] >= 0.0 ); // all protein concentrations are positive...
     }
 
     // Easy Ones - A.32, A.37, A.34, A.35

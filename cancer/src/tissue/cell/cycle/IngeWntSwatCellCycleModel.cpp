@@ -96,8 +96,8 @@ void IngeWntSwatCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
                                 + mpOdeSystem->rGetStateVariables()[17] 
                                 + mpOdeSystem->rGetStateVariables()[18] 
                                 + mpOdeSystem->rGetStateVariables()[19];
-    //std::cout << "beta-catenin level = " << beta_catenin_level << "\n" << std::flush;        
-    CellType cell_type=TRANSIT;
+
+    CellType cell_type = TRANSIT;
                 
     // For mitogenic stimulus of 1/25.0 in Wnt equations
     if (beta_catenin_level < 10.188)
