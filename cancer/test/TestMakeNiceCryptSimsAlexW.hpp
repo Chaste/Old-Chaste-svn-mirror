@@ -170,7 +170,7 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
         p_params->Reset();
         
         std::string output_directory = "Noddy_WNT_Yes_Area_Yes_Length";
-        double time_of_each_run = 5.0; // for each run
+        double time_of_each_run = 0.1;//5.0; // for each run
         
         unsigned cells_across = 23;
         unsigned cells_up = 30;
@@ -234,7 +234,7 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
         std::cout<< "About to solve " << output_directory << "\n" << std::flush;
         simulator.Solve();
         simulator.Save();
-        double end_of_simulation = 600; // hours
+        double end_of_simulation = 1;//600; // hours
         
         std::cout<< "Going into loop \n" << std::flush;
         
