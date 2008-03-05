@@ -88,7 +88,7 @@ public:
         
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         monodomain_problem.SetEndTime(300);   // ms
-        monodomain_problem.SetPrintingTimeStep(0.1);
+        monodomain_problem.SetPdeAndPrintingTimeSteps(0.01, 0.1);
         monodomain_problem.SetOutputDirectory("FibreWithHeterogeneity");
         monodomain_problem.SetOutputFilenamePrefix("Monodomain1d");
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));

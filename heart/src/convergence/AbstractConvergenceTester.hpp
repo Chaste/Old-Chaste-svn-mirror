@@ -264,10 +264,8 @@ public:
                 cardiac_problem.SetLinearSolverRelativeTolerance(this->mKspTolerance);
             }
     
-            cardiac_problem.SetPdeTimeStep(this->PdeTimeStep);
-            
             assert(fabs(0.04/this->PdeTimeStep - round(0.04/this->PdeTimeStep)) <1e-15 );
-            cardiac_problem.SetPrintingTimeStep(0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
+            cardiac_problem.SetPdeAndPrintingTimeSteps(this->PdeTimeStep, 0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
             
             // The results of the tests were originally obtained with the following conductivity
             // values. After implementing fibre orientation the defaults changed. Here we set

@@ -197,8 +197,7 @@ public:
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_Heart");
         
         bidomain_problem.SetEndTime(end_time);
-        bidomain_problem.SetPdeTimeStep(pde_time_step);
-        bidomain_problem.SetPrintingTimeStep(printing_time_step);
+        bidomain_problem.SetPdeAndPrintingTimeSteps(pde_time_step, printing_time_step);
         
         bidomain_problem.SetLinearSolverRelativeTolerance(5e-7);
         PetscOptionsSetValue("-ksp_type", "symmlq");
@@ -231,8 +230,7 @@ public:
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_HeartMetis");
         
         bidomain_problem.SetEndTime(end_time);
-        bidomain_problem.SetPdeTimeStep(pde_time_step);
-        bidomain_problem.SetPrintingTimeStep(printing_time_step);
+        bidomain_problem.SetPdeAndPrintingTimeSteps(pde_time_step, printing_time_step);
         
         //bidomain_problem.SetLinearSolverRelativeTolerance(5e-7);
         //PetscOptionsSetValue("-ksp_type", "symmlq");

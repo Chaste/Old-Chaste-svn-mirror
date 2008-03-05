@@ -222,10 +222,7 @@ public:
                 EXCEPTION("Either explicitly specify not to print output (call PrintOutput(false)) or specify the output directory and filename prefix");
             }
         }
-        if (  mPrintingTimeStep < mPdeTimeStep - 1e-10)
-        {
-            EXCEPTION("Printing time step is less than Pde time step");
-        }
+        assert(  mPrintingTimeStep >= mPdeTimeStep);
     }
     
     // Perhaps this should be a method of AbstractCardiacPde??)
@@ -269,41 +266,50 @@ public:
         mEndTime = rEndTime;
     }
     
+     
     /**
-     * Set the PDE time step.
-     * \todo SetPdeAndPrintingTimeStep
-     * Note that the printing time step should also set with this call.
+     *  Sets both the PDE timestep and the printing time step.
+     *  Does all the necessary checks to ensure that the timestepping 
+     *  logic in the Solve method works correctly
      */
-    void SetPdeTimeStep(double pdeTimeStep)
+    void SetPdeAndPrintingTimeSteps(double pdeTimeStep, double printingTimeStep=0.0)
     {
         if (pdeTimeStep <= 0)
         {
             EXCEPTION("Pde time step should be positive");
         }
-        mPdeTimeStep = pdeTimeStep;
-    }
-    
-    /** 
-     * Set the times to print output. The printing time step must be
-     * a multiple of the pde timestep. If SetPdeTimeStep is used it should be called
-     * before SetPrintingTimeStep.
-     */
-    void SetPrintingTimeStep(double printingTimeStep)
-    {
         if (printingTimeStep <= 0.0)
         {
             EXCEPTION("Printing time step should be positive");
         }
+        if (pdeTimeStep>printingTimeStep)
+        {
+            EXCEPTION("Printing time step should not be smaller than PDE time step");
+        }
+        
+        if (fmod(printingTimeStep, pdeTimeStep) > DBL_EPSILON)
+        {
+            EXCEPTION("Printing time step should a multiple of PDE time step");
+        }
+        mPdeTimeStep = pdeTimeStep;
         mPrintingTimeStep = printingTimeStep;
+     
     }
     
-    /** Set the simulation to print every n timesteps. Only set this
-     *  AFTER setting the pde timestep!
+    
+    /** Set the simulation to print every n timesteps. 
      */
-    void PrintEveryNthTimeStep(unsigned n)
+    void SetPdeTimeStepAndPrintEveryNthTimeStep(double pdeTimeStep, unsigned n=1)
     {
+        if (pdeTimeStep <= 0)
+        {
+            EXCEPTION("Pde time step should be positive");
+        }
+        assert(n!=0);
+        mPdeTimeStep = pdeTimeStep;
         mPrintingTimeStep = n*mPdeTimeStep;
     }
+    
     
     double GetPdeTimeStep()
     {

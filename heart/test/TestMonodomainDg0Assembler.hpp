@@ -327,8 +327,7 @@ public:
 
         
         p_monodomain_problem->SetEndTime(0.30);          // ms
-        p_monodomain_problem->SetPdeTimeStep(0.01);      // ms
-        p_monodomain_problem->SetPrintingTimeStep(0.1);  // every 0.1ms
+        p_monodomain_problem->SetPdeAndPrintingTimeSteps(0.01, 0.1);  // ms
         
         p_monodomain_problem->SetOutputDirectory("MonoDg01d");
         p_monodomain_problem->SetOutputFilenamePrefix("mono_testPrintTimes");
@@ -356,8 +355,7 @@ public:
         p_monodomain_problem->SetOutputDirectory("MonoDg01d");
         p_monodomain_problem->SetOutputFilenamePrefix("mono_testPrintTimes");
         
-        p_monodomain_problem->SetPdeTimeStep(0.01);
-        p_monodomain_problem->PrintEveryNthTimeStep(17);  // every 17 timesteps
+        p_monodomain_problem->SetPdeTimeStepAndPrintEveryNthTimeStep(0.01, 17);  // every 17 timesteps
         
         p_monodomain_problem->SetWriteInfo(); // just to have SetWriteInfo() covered in the tests
         
@@ -387,10 +385,10 @@ public:
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
         
         // throws because argument is negative
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetPdeTimeStep(-1));
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetPdeAndPrintingTimeSteps(-1,  1));
         
         // throws because argument is negative
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetPrintingTimeStep(-1));
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetPdeAndPrintingTimeSteps( 1, -1));
         
         // Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Initialise());

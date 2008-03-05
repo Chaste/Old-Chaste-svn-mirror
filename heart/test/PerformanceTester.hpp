@@ -80,10 +80,8 @@ public:
         cardiac_problem.SetEndTime(SimTime);   // ms
         cardiac_problem.SetLinearSolverRelativeTolerance(KspRtol);
 
-        cardiac_problem.SetPdeTimeStep(PdeTimeStep);
-        
         assert(fabs(0.04/PdeTimeStep - round(0.04/PdeTimeStep)) <1e-15 );
-        cardiac_problem.SetPrintingTimeStep(PrintingTimeStep);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
+        cardiac_problem.SetPdeAndPrintingTimeSteps(PdeTimeStep, PrintingTimeStep);
         cardiac_problem.Initialise();
 
         //// use this to get some info printed out

@@ -124,8 +124,7 @@ public:
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_HeartApex");
         
         monodomain_problem.SetEndTime(end_time);
-        monodomain_problem.SetPdeTimeStep(pde_time_step);
-        monodomain_problem.SetPrintingTimeStep(printing_time_step);
+        monodomain_problem.SetPdeAndPrintingTimeSteps(pde_time_step, printing_time_step);
         
         monodomain_problem.SetWriteInfo();
         
