@@ -26,6 +26,13 @@
 
 const double simulation_time = 8.0; //ms
 
+typedef enum StimulusType_
+{
+    PLANE=0,
+    REGION,
+    NEUMANN
+} StimulusType;
+
 template <class CELL, unsigned DIM>
 class QuarterStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 {
@@ -77,9 +84,10 @@ public:
     bool PopulatedResult;
     bool FixedResult;
     bool UseAbsoluteStimulus;
-    bool UseNeumannStimulus;
+    //bool UseNeumannStimulus;
     bool Converged;
-    bool StimulateRegion;
+    //bool StimulateRegion;
+    StimulusType Stimulus;
     
     AbstractUntemplatedConvergenceTester()   
     : mMeshWidth(0.2),//cm
@@ -94,9 +102,10 @@ public:
       PopulatedResult(false),
       FixedResult(false),
       UseAbsoluteStimulus(false),
-      UseNeumannStimulus(false),
+      //UseNeumannStimulus(false),
       Converged(false),
-      StimulateRegion(false)
+      //StimulateRegion(false)
+      Stimulus(PLANE)
     {
     }
     
@@ -179,7 +188,7 @@ class AbstractConvergenceTester : public AbstractUntemplatedConvergenceTester
 public:    
     void Converge()
     {
-        
+        std::cout << "=========================== Beginning Test...==================================\n";
         // Create the meshes on which the test will be based
         const std::string mesh_dir = "ConvergenceMesh";
         OutputFileHandler output_file_handler(mesh_dir);
@@ -208,30 +217,35 @@ public:
             unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
             
             AbstractCardiacCellFactory<DIM>* p_cell_factory;
-            if (this->UseNeumannStimulus)
+            
+            switch (this->Stimulus)
             {
-                p_cell_factory = new ZeroStimulusCellFactory<CELL, DIM>(this->OdeTimeStep);
-            }
-            else if (!this->StimulateRegion)
-            {
-                //\todo The UseAbsoluteStimulus is temporary, while we are sorting out 
-                //3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
-          
-                if (this->UseAbsoluteStimulus)
+                case NEUMANN:
                 {
-                    #define COVERAGE_IGNORE
-                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, 0, this->AbsoluteStimulus, true);
-                    #undef COVERAGE_IGNORE                
+                    p_cell_factory = new ZeroStimulusCellFactory<CELL, DIM>(this->OdeTimeStep);
+                    break;
                 }
-                else
+                case PLANE:
                 {
-                    p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, num_ele_across, constructor.GetWidth());                
+                    if (this->UseAbsoluteStimulus)
+                    {
+                        #define COVERAGE_IGNORE
+                        p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, 0, this->AbsoluteStimulus, true);
+                        #undef COVERAGE_IGNORE                
+                    }
+                    else
+                    {
+                        p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, num_ele_across, constructor.GetWidth());                
+                    }
+                    break;
+                }               
+                case REGION:
+                {
+                    p_cell_factory = new QuarterStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, constructor.GetWidth());
+                    break;
                 }
             }
-            else
-            {
-                p_cell_factory = new QuarterStimulusCellFactory<CELL, DIM>(this->OdeTimeStep, constructor.GetWidth());
-            }
+            
             
             CARDIAC_PROBLEM cardiac_problem(p_cell_factory);
             
@@ -264,7 +278,7 @@ public:
             
             BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM> bcc;
             InitialStimulus stim(4000.0, 0.5);
-            if (UseNeumannStimulus)
+            if (Stimulus==NEUMANN)
             {
                 
                 StimulusBoundaryCondition<DIM> *p_bc_stim = new StimulusBoundaryCondition<DIM>(&stim);
@@ -458,7 +472,21 @@ public:
         {
             std::cout<<"Solving with a KSP relative tolerance of "<<this->mKspTolerance<<std::endl;
         }
-        std::cout<<"Solving with stimulating a quarter of the mesh? " << this->StimulateRegion<<std::endl;
+        switch (this->Stimulus)
+        {
+            case PLANE:
+            std::cout<<"Stimulus = Plane\n";
+            break;
+            
+            case REGION:
+            std::cout<<"Stimulus = Region\n";
+            break;
+            
+            case NEUMANN:
+            std::cout<<"Stimulus = Neumann\n";
+            break;
+            
+        }
         system("date");//To keep track of what Nightly things are doing
         //\todo The UseAbsoluteStimulus is temporary, while we are sorting out 
         //3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)

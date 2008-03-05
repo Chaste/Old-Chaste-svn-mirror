@@ -15,7 +15,6 @@
 #include "SpaceConvergenceTester.hpp"
 #include "KspConvergenceTester.hpp"
 #include "OdeConvergenceTester.hpp"
-//#include "StimulusConvergenceTester.hpp"
 
 class TestConvergenceTester : public CxxTest::TestSuite
 {   
@@ -39,16 +38,29 @@ public:
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.01); 
     }
-    void Test1DPdeTimePlane() throw(Exception)
+    
+    void Test1DPdeTimeRegion() throw(Exception)
     {
         PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.MeshNum=1;
-        tester.StimulateRegion=true;
+        tester.Stimulus=REGION;
         tester.RelativeConvergenceCriterion=5e-4;
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.01); 
     }
+    
+    void Test1DPdeTimeNeumann() throw(Exception)
+    {
+        PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
+        tester.MeshNum=1;
+        tester.Stimulus=NEUMANN;
+        tester.RelativeConvergenceCriterion=5e-4;
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.02); 
+    }
+
     void Test1DSpace() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
@@ -57,9 +69,8 @@ public:
         TS_ASSERT(tester.IsConverged());
         TS_ASSERT_EQUALS(tester.GetMeshNum(), 2); 
         TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0125, 1e-8); 
-        //TS_ASSERT_EQUALS(tester.GetMeshNum(), 5); 
-        //TS_ASSERT_DELTA(tester.GetSpaceStep(), 1.5625e-3, 1e-8); 
     }
+    
     void Test2DOdeTime() throw(Exception)
     {
         OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<2>, 2, 1> tester;
@@ -83,6 +94,7 @@ public:
         TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0125, 1e-8);
         TS_ASSERT_LESS_THAN(tester.LastDifference, 3.1e-3);
     }
+    
     void TestSpaceConvergencein1DWithAbsoluteTolerance() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
@@ -96,7 +108,6 @@ public:
         TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0125, 1e-8);
         TS_ASSERT_LESS_THAN(tester.LastDifference, 2.9e-3);
      }
-    
 };
 
 #endif /*TESTCONVERGENCETESTER_HPP_*/

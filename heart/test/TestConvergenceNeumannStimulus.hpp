@@ -25,7 +25,7 @@ public:
     void TestConvergenceMonodomain1d()
     {
         PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
-        tester.UseNeumannStimulus=true;
+        tester.Stimulus=NEUMANN;
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_DELTA(tester.PdeTimeStep, 5.0e-3, 1e-10);
@@ -34,7 +34,7 @@ public:
     void TestConvergenceBidomain1d()
     {
         PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
-        tester.UseNeumannStimulus=true;
+        tester.Stimulus=NEUMANN;
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_DELTA(tester.PdeTimeStep, 5.0e-3, 1e-10);
@@ -43,16 +43,25 @@ public:
     void TestSpaceConvergence1d()
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
-        tester.UseNeumannStimulus=true;
+        tester.Stimulus=NEUMANN;
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
     }
     
-    void xTestSpaceConvergence2d()
+    void TestSpaceConvergence2d()
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<2>, 2, 1> tester;
-        tester.UseNeumannStimulus=true;
+        tester.Stimulus=NEUMANN;
+        tester.Converge();
+        TS_ASSERT(tester.Converged);
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
+    }
+    
+    void TestSpaceConvergence2dBidomain()
+    {
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
+        tester.Stimulus=NEUMANN;
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
@@ -62,7 +71,7 @@ public:
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         tester.SetKspAbsoluteTolerance(1e-3); 
-        tester.UseNeumannStimulus=true;
+        tester.Stimulus=NEUMANN;
         tester.SetMeshWidth(0.15);//cm
         tester.Converge();
         TS_ASSERT(tester.Converged);
