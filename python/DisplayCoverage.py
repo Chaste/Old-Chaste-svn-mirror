@@ -100,6 +100,9 @@ def coverage_ignore(src_file):
     by COVERAGE_IGNORE.
     """
     ignore = False
+    if src_file['file'] == 'triangle.cpp':
+        # We don't try to cover other people's code
+        ignore = True
     if src_file['file'][-4:] == '.hpp':
         ignore = True
         fp = open(os.path.join(src_file['dir'], src_file['file']))

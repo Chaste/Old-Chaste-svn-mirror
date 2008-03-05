@@ -238,7 +238,7 @@ public:
      */
     TissueSimulation(AbstractTissue<DIM>& rTissue, 
                      AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
-                     bool deleteTissue=false, 
+                     bool deleteTissueAndMechanicsSystem=false, 
                      bool initialiseCells=true);
     
     /**

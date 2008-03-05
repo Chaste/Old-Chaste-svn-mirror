@@ -25,7 +25,7 @@
 template<unsigned DIM> 
 TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue, 
                                         AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem, 
-                                        bool deleteTissue,
+                                        bool deleteTissueAndMechanicsSystem,
                                         bool initialiseCells)
   :  mrTissue(rTissue)
 {
@@ -35,7 +35,7 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     
     CancerEventHandler::BeginEvent(CANCER_EVERYTHING);
 
-    mDeleteTissue = deleteTissue;
+    mDeleteTissue = deleteTissueAndMechanicsSystem;
     mInitialiseCells = initialiseCells;
     
     mpParams = CancerParameters::Instance();
@@ -57,7 +57,7 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     mNumBirths = 0;
     mNumDeaths = 0;
     mSamplingTimestepMultiple = 1;
-    mAllocatedMemoryForMechanicsSystem = false;
+    mAllocatedMemoryForMechanicsSystem = deleteTissueAndMechanicsSystem;
     
     if (pMechanicsSystem == NULL)
     {

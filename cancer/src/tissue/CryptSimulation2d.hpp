@@ -24,7 +24,10 @@ private :
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>      
         archive & boost::serialization::base_object<TissueSimulation<2> >(*this);
-        archive & mUseJiggledBottomCells;   
+        archive & mUseJiggledBottomCells;
+        
+        assert((mpMechanicsSystem == NULL) ||
+               (&(mpMechanicsSystem->rGetTissue()) == &mrTissue));
     }
     
     /** Whether to use a flat bottom surface or to jiggle the cells on the bottom surface */
@@ -247,9 +250,9 @@ public :
      */
     CryptSimulation2d(AbstractTissue<2>& rTissue, 
                       AbstractDiscreteTissueMechanicsSystem<2>* pMechanicsSystem=NULL, 
-                      bool deleteTissue=false,
+                      bool deleteTissueAndMechanicsSystem=false,
                       bool initialiseCells=true)
-        : TissueSimulation<2>(rTissue, pMechanicsSystem, deleteTissue, initialiseCells),
+        : TissueSimulation<2>(rTissue, pMechanicsSystem, deleteTissueAndMechanicsSystem, initialiseCells),
           mUseJiggledBottomCells(false)
     {
         mpStaticCastTissue = static_cast<MeshBasedTissue<2>*>(&mrTissue);
@@ -351,6 +354,7 @@ inline void load_construct_data(
     
     AbstractDiscreteTissueMechanicsSystem<2>* p_spring_system;
     ar >> p_spring_system;
+    
     
     // invoke inplace constructor to initialize instance
     ::new(t)CryptSimulation2d(*p_tissue, p_spring_system, true, false);

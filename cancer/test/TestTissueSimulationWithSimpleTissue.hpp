@@ -223,6 +223,7 @@ public:
         
 //        \todo: test results against previous test, once cell death 
 //               and a stable force law are implemented
+        delete p_simulator;
     }
     
 };

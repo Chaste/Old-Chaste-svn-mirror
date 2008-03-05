@@ -160,14 +160,15 @@ public:
                                    AbstractDiscreteTissueMechanicsSystem<DIM>* pMechanicsSystem=NULL,
                                    AbstractLinearEllipticPde<DIM>* pPde=NULL,
                                    AveragedSinksPde<DIM>* pAveragedSinksPde=NULL,
-                                   bool deleteTissue=false,
+                                   bool deleteTissueAndMechanicsSystem=false,
                                    bool initialiseCells=true)
-        : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissue, initialiseCells),
+        : TissueSimulation<DIM>(rTissue, pMechanicsSystem, deleteTissueAndMechanicsSystem, initialiseCells),
           mNutrientSolution(NULL),
           mpPde(pPde),
           mpAveragedSinksPde(pAveragedSinksPde),
           mWriteAverageRadialNutrientResults(false),
           mWriteDailyAverageRadialNutrientResults(false),
+          mNumRadialIntervals(0), // 'unset' value
           mpCoarseNutrientMesh(NULL)
     {
     }
