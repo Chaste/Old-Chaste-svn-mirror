@@ -104,16 +104,17 @@ GROUP "/" {
       (0,98,0): 98, 98, 1098,
       (0,99,0): 99, 99, 1099
       }
-      ATTRIBUTE "Name" {
+      ATTRIBUTE "Variable Details" {
          DATATYPE  H5T_STRING {
-               STRSIZE 21;
+               STRSIZE 100;
                STRPAD H5T_STR_NULLTERM;
                CSET H5T_CSET_ASCII;
                CTYPE H5T_C_S1;
             }
          DATASPACE  SIMPLE { ( 3 ) / ( 3 ) }
          DATA {
-         (0): "Node", "I_K", "I_Na"
+         (0): "Node(dimensionless)", "I_K(milliamperes)",
+         (2): "I_Na(milliamperes)"
          }
       }
    }

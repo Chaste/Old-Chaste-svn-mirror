@@ -1,3 +1,6 @@
+#ifndef DATAWRITERVARIABLE_HPP_
+#define DATAWRITERVARIABLE_HPP_
+
 /**
 * DataWriter variable object.
 *
@@ -13,3 +16,5 @@ struct DataWriterVariable
     bool mVariesWithFixedDimension;
     bool mVariesWithUnlimitedDimension;
 };
+
+#endif //DATAWRITERVARIABLE_HPP_

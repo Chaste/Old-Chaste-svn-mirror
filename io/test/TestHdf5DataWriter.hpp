@@ -317,6 +317,7 @@ public:
             writer.PutVector(node_id, petsc_data_1);
             writer.PutVector(ik_id, petsc_data_2);
             writer.PutVector(ina_id, petsc_data_3);
+            writer.PutUnlimitedVariable(time_step);
             writer.AdvanceAlongUnlimitedDimension();
         }
         
@@ -394,6 +395,7 @@ public:
             writer.PutVector(node_id, node_number);                   
             writer.PutVector(ina_id, petsc_data_short);
             writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long);
+            writer.PutUnlimitedVariable(time_step);
             writer.AdvanceAlongUnlimitedDimension();
         }
         
