@@ -413,10 +413,9 @@ public:
         
         // throws because argument is negative
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeAndPrintingTimeSteps(-1,  1));
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeAndPrintingTimeSteps( 1, -1));
-
-        //\todo The next two no longer throw on solve -- check coverage here
-        //Change exception to assertion if necessary
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeAndPrintingTimeSteps( 1));
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeTimeStepAndPrintEveryNthTimeStep(-1));
+        
         //Throws when we try to print more often than the pde time step 
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeAndPrintingTimeSteps(0.2, 0.1));
          //Throws when printing step is not a multiple of pde time step 

@@ -186,9 +186,6 @@ for src_file in src_files:
         if src_file['file'][-4:] == '.hpp' and \
             os.path.exists(os.path.join(src_file['dir'], src_file['file'][:-3]+'cpp')):
             status = '' # So output file will be deleted
-        elif coverage_ignore(src_file):
-            # Other special case ignorable files
-            status = ''
         else:
             out_file.write("This source file wasn't used at all!\n\nFailed 1 of 1 test\n")
             status = "1_1"
@@ -203,6 +200,10 @@ for src_file in src_files:
             status = 'warn_' + status
         if ignore:
             status = 'ignore_' + status
+    if coverage_ignore(src_file):
+        # All special case ignorable files (not just ones with partial coverage)
+        status = ''
+    
     # Close all files
     [fp.close() for fp in gcov_fps]
     out_file.close()

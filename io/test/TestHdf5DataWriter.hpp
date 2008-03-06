@@ -254,7 +254,7 @@ public:
         
         writer.Close();
         
-        if(PetscTools::AmMaster())
+        if(writer.AmMaster())
         {
             // call h5dump to take the binary hdf5 output file and print it
             // to a text file. Note that the first line of the txt file would
@@ -471,10 +471,12 @@ public:
  */ 
     void TestDefineUnlimitedDimension( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "test"));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        mpTestWriter = new HDF5DataWriter("", "test");
+
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutUnlimitedVariable(0.0)); 
+
+        mpTestWriter->DefineUnlimitedDimension("Time","msecs");
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
-        
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","m secs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("T,i,m,e","msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("","msecs"));
