@@ -353,7 +353,7 @@ public:
     }
 
     // A check that save and load works when a voronoi tesselation is involved
-    void xTestMeshSurvivesSaveLoadWithBellsAndWhistles() throw (Exception)
+    void TestMeshSurvivesSaveLoadWithBellsAndWhistles() throw (Exception)
     {
         unsigned cells_across = 6;
         unsigned cells_up = 12;

@@ -86,19 +86,19 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
 template<unsigned DIM> 
 TissueSimulation<DIM>::~TissueSimulation()
 {
+    if (mAllocatedMemoryForMechanicsSystem)
+    {
+        delete mpMechanicsSystem;
+    }
     if (mDeleteTissue)
     {
-        delete &mrTissue;
         for (typename std::vector<AbstractCellKiller<DIM>*>::iterator it=mCellKillers.begin();
              it != mCellKillers.end();
              ++it)
         {
             delete *it;
         }
-    }
-    if (mAllocatedMemoryForMechanicsSystem)
-    {
-        delete mpMechanicsSystem;
+        delete &mrTissue;
     }
 }
 

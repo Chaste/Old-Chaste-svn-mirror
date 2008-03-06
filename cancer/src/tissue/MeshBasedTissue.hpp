@@ -84,6 +84,7 @@ private:
         // The Voronoi stuff can't be archived yet
         //archive & mpVoronoiTessellation
         delete mpVoronoiTessellation;
+        mpVoronoiTessellation = NULL;
         
         archive & mMarkedSprings;
         archive & mWriteVoronoiData;
