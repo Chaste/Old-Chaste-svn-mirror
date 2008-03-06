@@ -164,7 +164,7 @@ public:
 //        RandomNumberGenerator::Destroy();
 //        WntConcentration::Destroy();
 //    }
-void TestAreaDependentAndLengthDependent() throw (Exception)
+    void xTestAreaDependentAndLengthDependent() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
@@ -258,33 +258,95 @@ void TestAreaDependentAndLengthDependent() throw (Exception)
     
     
     
-void xTestAreaDependentAndLengthDependentCarryOn() throw (Exception)
-{
-    std::string output_directory = "Noddy_WNT_Yes_Area_Yes_Length";
-    
-    // The archive needs to be copied from cancer/test/data/<test_to_profile>
-    // to the testoutput directory to continue running the simulation.     
-    std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-    std::string test_data_directory = "cancer/test/data/" + output_directory +"/";
-    std::string command = "cp -Rf --remove-destination " + test_data_directory +" "+ test_output_directory +"/";     
-    int return_value = system(command.c_str());
-    TS_ASSERT_EQUALS(return_value, 0);
-    
-    double time_of_each_run = 5;
-    double end_of_simulation = 270;
-    double start_time = 260;
-    SimulationTime::Instance()->SetStartTime(start_time);
-    for (double t=start_time; t<end_of_simulation; t += time_of_each_run)
+    void xTestAreaDependentAndLengthDependentCarryOn() throw (Exception)
     {
-        std::cout<< "Results from time " << t << "\n" << std::flush;
-        CryptSimulation2d* p_simulator = CryptSimulation2d::Load(output_directory,t);
-        p_simulator->SetEndTime(t+time_of_each_run);
+        std::string output_directory = "Noddy_WNT_Yes_Area_Yes_Length";
+        
+        // The archive needs to be copied from cancer/test/data/<test_to_profile>
+        // to the testoutput directory to continue running the simulation.     
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string test_data_directory = "cancer/test/data/" + output_directory +"/";
+        std::string command = "cp -Rf --remove-destination " + test_data_directory +" "+ test_output_directory +"/";     
+        int return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value, 0);
+        
+        double time_of_each_run = 5;
+        double end_of_simulation = 270;
+        double start_time = 260;
+        SimulationTime::Instance()->SetStartTime(start_time);
+        for (double t=start_time; t<end_of_simulation; t += time_of_each_run)
+        {
+            std::cout<< "Results from time " << t << "\n" << std::flush;
+            CryptSimulation2d* p_simulator = CryptSimulation2d::Load(output_directory,t);
+            p_simulator->SetEndTime(t+time_of_each_run);
+            p_simulator->Solve();
+            p_simulator->Save();
+            delete p_simulator;
+        }
+        SimulationTime::Destroy();
+    }
+
+    void TestLoadSteadyStateResultsAndRunSimulations() throw (Exception)
+    {        
+        // CHANGE THIS NUMBER TO RESEED THE RANDOM NUMBER GENERATOR
+        // IN DIFFERENT SIMULATIONS...
+        unsigned experiment_run = 1;
+        
+        /*
+         * We load the steady state that the profiled test uses
+         */
+        std::string test_to_run = "MeinekeLabellingExperiment";
+        
+        // The archive needs to be copied from cancer/test/data/<test_to_profile>
+        // to the testoutput directory to continue running the simulation.     
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::cout<< "output directory " << test_output_directory << "\n" << std::flush;
+        std::string test_data_directory = "cancer/test/data/" + test_to_run +"/";
+        std::string command = "cp -Rf --remove-destination " + test_data_directory +" "+ test_output_directory +"/";     
+        int return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value, 0);
+        
+        LogFile::Instance()->Set(1, test_to_run,"log.dat");
+        
+        // Set up simulation time to any old rubbish (overwritten on load)
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 10);
+        
+        double load_time = 300;   // this is the folder and time that the stored results were archived (needed to know foldernames)
+        double randomise_time = 50.0;
+        double number_of_experiments = 50;
+        const double time_of_each_run = 10; // run for 10 hours - Crucial value for loop below 
+        
+        double start_experiments = load_time + randomise_time;
+        double end_of_simulation = start_experiments + number_of_experiments*time_of_each_run;
+        if (end_of_simulation < load_time + randomise_time + time_of_each_run)
+        {
+            EXCEPTION("End of simulation needs to be later, crypt not allowed to settle to random state\n");   
+        }
+                
+        // write out to file which cell it was
+        OutputFileHandler results_handler(test_to_run,false);
+        out_stream file=results_handler.OpenOutputFile("overall_results.dat");
+
+        (*file) << "Starting experiments\n"<<std::flush;  
+        
+        // Here we run the simulation for a little while using the new 
+        // random number to get a different starting point for each set
+        // of simulations.
+        CryptSimulation2d* p_simulator = CryptSimulation2d::Load(test_to_run,load_time);
+        RandomNumberGenerator::Instance()->Reseed(experiment_run);
+        p_simulator->SetOutputDirectory(test_to_run); // needs resetting from archive to this folder.
+        p_simulator->SetEndTime(load_time+1.0);
         p_simulator->Solve();
         p_simulator->Save();
         delete p_simulator;
     }
-    SimulationTime::Destroy();
-}
+
+
+
+
+
 //    
 //    
 //std::vector<unsigned> Label()
