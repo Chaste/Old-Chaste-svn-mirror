@@ -1144,20 +1144,11 @@ public:
         ghost_node_indices = generator.GetGhostNodeIndices(); 
         
         Cylindrical2dMesh* p_mesh;
-        
-        SimulationTime* p_simulation_time;
-        
         p_mesh=generator.GetCylindricalMesh();
-        
-        // Reset start time
-        SimulationTime::Destroy();
-        p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells                       
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC, true,
                                             0.3,2.0,3.0,4.0,true);
-        
         // Set up crypt      
         p_crypt = new MeshBasedTissue<2>(*p_mesh, cells);        
         (*p_crypt).SetGhostNodes(ghost_node_indices);
@@ -1193,10 +1184,7 @@ public:
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/AncestorCrypt/results.viznodes").c_str()), 0);
         
-        delete p_params;       
-        RandomNumberGenerator::Destroy();
-        SimulationTime::Destroy();
-        
+        delete p_params;               
     } 
 };
 
