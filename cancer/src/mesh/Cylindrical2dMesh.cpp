@@ -671,7 +671,10 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
         //std::cout << "Problem elements\n" << std::flush;
         if (temp_right_hand_side_elements.size()==2u)
         {   // Use the right hand side meshing and map to left
+            #define COVERAGE_IGNORE
             UseTheseElementsToDecideMeshing(temp_right_hand_side_elements);
+            #undef COVERAGE_IGNORE
+            
         }
         else if (temp_left_hand_side_elements.size()==2u)
         {   // Use the left hand side meshing and map to right
