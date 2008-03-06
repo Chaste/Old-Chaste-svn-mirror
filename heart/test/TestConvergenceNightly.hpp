@@ -130,14 +130,12 @@ public:
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
-        tester.SetKspRelativeTolerance(5e-8);
+        tester.SetKspRelativeTolerance(1e-9);
         tester.Stimulus = NEUMANN;
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
-        TS_ASSERT(tester.IsConverged());
-        //TS_ASSERT_EQUALS(tester.GetMeshNum(), 4); 
-        //TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0023 /*cm*/, 1e-4 /*Allowed error*/);     
+        TS_ASSERT(tester.IsConverged()); 
     }
 
     void Test2DSpaceWithRegionStimulus() throw(Exception)
@@ -157,7 +155,7 @@ public:
         tester.SetKspRelativeTolerance(1e-8);
         tester.Converge();
         TS_ASSERT(tester.Converged);
-        TS_ASSERT_EQUALS(tester.MeshNum, 6u); 
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
     }
     
     //Currently takes about 3 minutes to do mesh0 and mesh1
@@ -179,7 +177,7 @@ public:
         tester.Stimulus = NEUMANN; 
         tester.Converge();
         TS_ASSERT(tester.Converged);
-        TS_ASSERT_EQUALS(tester.MeshNum, 1u); ///Just to prove the thing works
+        TS_ASSERT_EQUALS(tester.MeshNum, 2u); ///Just to prove the thing works
     }
 };
 
