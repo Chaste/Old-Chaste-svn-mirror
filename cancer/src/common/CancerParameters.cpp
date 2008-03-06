@@ -29,9 +29,9 @@ CancerParameters::CancerParameters()
  * mMaxTransitGenerations has no units
  * mCryptWidth has units of cell size at equilibrium rest length
  * mCryptLength has units of cell size at equilibrium rest length
- * mSpringStiffness has units of ???
- * mDampingConstantNormal has units of ??? 
- * mDampingConstantMutant has units of ???
+ * mSpringStiffness has units of N/m  = kg s^-2
+ * mDampingConstantNormal has units of kg s^-1
+ * mDampingConstantMutant has units of kg s^-1
  * mBetaCatSpringScaler has no units
  * mApoptosisTime has units of hours
  * mDivisionRestingSpringLength has units of cell size at equilibrium rest length
