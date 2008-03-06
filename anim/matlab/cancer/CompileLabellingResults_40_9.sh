@@ -7,14 +7,14 @@
 # section below.
 
 # BEGIN SETUP
-results=/local/pmxgm/
-run[0]="2008-01-23-18-35"
-run[1]="2008-01-23-18-37"
-run[2]="2008-01-23-18-39"
-run[3]="2008-01-23-18-47"
-run[4]="2008-01-23-18-49"
-first_experiment=300
-last_experiment=790
+results=/local/pmxgm/Simulation_Results
+run[0]="2008-02-04-11-40"
+run[1]="2008-02-04-11-43"
+run[2]="2008-02-04-11-45"
+run[3]="2008-02-04-11-55"
+run[4]="2008-02-04-11-59"
+first_experiment=350
+last_experiment=840
 # END OF SETUP
 
 if cd $results; then
@@ -43,5 +43,5 @@ mkdir compiled_results
 mv labelled_* compiled_results/
 mv first_lines.txt compiled_results/
 mv last_lines.txt compiled_results/
-echo "Results compiled and written to directory ${results}compiled_results"
+echo "Results compiled and written to directory ${results}/compiled_results"
 
