@@ -352,6 +352,50 @@ public:
         WntConcentration::Destroy();
     }
 
+    // A check that save and load works when a voronoi tesselation is involved
+    void xTestMeshSurvivesSaveLoadWithBellsAndWhistles() throw (Exception)
+    {
+        unsigned cells_across = 6;
+        unsigned cells_up = 12;
+        unsigned thickness_of_ghost_layer = 4;
+        
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        
+        // Set up a simulation
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<TissueCell> cells;
+                
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
+        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+        
+        WntConcentration::Instance()->SetType(LINEAR);
+        WntConcentration::Instance()->SetTissue(crypt);
+        
+        Meineke2001SpringSystem<2>* p_meineke_spring_system = new Meineke2001SpringSystem<2>(crypt);
+        p_meineke_spring_system->SetAreaBasedViscosity(true);
+        p_meineke_spring_system->SetEdgeBasedSpringConstant(true);
+        
+        CryptSimulation2d simulator(crypt, p_meineke_spring_system, false, true);
+        simulator.SetOutputDirectory("Crypt2DMeshArchive2");
+        simulator.SetEndTime(0.1);     
+        
+        simulator.Solve();
+        // Save
+        simulator.Save();
+        
+        // Load
+        CryptSimulation2d* p_simulator;
+        p_simulator = CryptSimulation2d::Load("Crypt2DMeshArchive2", 0.1);
+        p_simulator->SetEndTime(0.15);
+        p_simulator->Solve();
+        
+        delete p_simulator;
+        WntConcentration::Destroy();
+    }
+
+
     void TestStandardResultForArchivingTestsBelow() throw (Exception)
     {
         unsigned cells_across = 6;
@@ -1151,6 +1195,8 @@ public:
         
         delete p_params;       
         RandomNumberGenerator::Destroy();
+        SimulationTime::Destroy();
+        
     } 
 };
 
