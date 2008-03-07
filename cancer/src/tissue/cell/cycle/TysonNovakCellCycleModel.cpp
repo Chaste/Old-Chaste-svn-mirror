@@ -30,21 +30,22 @@ void TysonNovakCellCycleModel::ResetForDivision()
     AbstractOdeBasedCellCycleModel::ResetForDivision();
     
     assert(mpOdeSystem!=NULL);
-    // This model needs the protein concentrations and phase resetting to G0/G1.
-    // This model should cycle itself and nothing needs to be reset,
-    // but at the moment we are resetting to initial conditions because it
-    // breaks after a while and will not converge.
     
-    //\TODO:Figure out why this goes unstable after a while...
-    // Halve the mass of the cell
-    if (false)
-    {
-        mpOdeSystem->rGetStateVariables()[5] = mpOdeSystem->rGetStateVariables()[5]/2.0;
-    }
-    else
-    {
-        mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
-    }    
+    /**
+     * This model needs the protein concentrations and phase resetting to G0/G1.
+     * 
+     * In theory, the solution to the Tyson-Novak equations should exhibit stable 
+     * oscillations, and we only need to halve the mass of the cell each period. 
+     * 
+     * However, the backward Euler solver used to solve the equations 
+     * currently returns a solution that diverges after long times (see #316), so 
+     * we must reset the initial conditions each period.
+     */ 
+
+//     \todo: Uncomment this line and comment the line after once #316 is fixed
+//    mpOdeSystem->rGetStateVariables()[5] = mpOdeSystem->rGetStateVariables()[5]/2.0;
+
+    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 }
 
 void TysonNovakCellCycleModel::InitialiseDaughterCell()

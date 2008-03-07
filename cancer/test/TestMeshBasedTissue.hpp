@@ -264,7 +264,7 @@ public:
         {
             is_ghost_node[i] = true;
         }
-        is_ghost_node[80]=true;
+        is_ghost_node[80] = true;
         tissue.SetGhostNodes(is_ghost_node);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
@@ -290,22 +290,42 @@ public:
 
         tissue.ReMesh();
 
-        // Num real cells should be num_new_nodes (80) - num_ghosts (11)
+        // Num real cells should be new_num_nodes (80) - num_ghosts (11)
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 69u);
 
-        // Test size of ghost nodes vector is correct - mesh.GetNumNodes() ?
+        // Test size of ghost nodes vector is correct
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh.GetNumAllNodes()); 
         TS_ASSERT_EQUALS(tissue.rGetGhostNodes().size(), mesh.GetNumNodes()); 
         
         // Nodes 0-9 should not been renumbered so are still ghost nodes.
         // the ghost node at node 80 is now at 79 as node 27 was deleted..
-        for(unsigned i=0; i<tissue.rGetGhostNodes().size(); i++)
+        for (unsigned i=0; i<tissue.rGetGhostNodes().size(); i++)
         {
-            // true (ie should be a ghost) if i<10 or i==79, else false
+            // True (ie should be a ghost) if i<10 or i==79, else false
             TS_ASSERT_EQUALS(tissue.rGetGhostNodes()[i], ((i<10)||(i==79))); 
         }
         
-        // \todo: Finally, check the cells node indices have updated
+        // Finally, check the cells node indices have updated
+        
+        // We expect the cell node indices to be {10,11,...,79}                
+        std::set<unsigned> expected_node_indices;
+        for (unsigned i=0; i<tissue.GetNumRealCells(); i++)
+        {
+            expected_node_indices.insert(i+10);
+        }
+        
+        // Get actual cell node indices
+        std::set<unsigned> node_indices;
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
+        {
+            // Record node index corresponding to cell            
+            unsigned node_index = tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
+            node_indices.insert(node_index);
+        }
+        
+        TS_ASSERT_EQUALS(node_indices, expected_node_indices);
     }
     
     
@@ -332,7 +352,7 @@ public:
         {
             is_ghost_node[i] = true;
         }
-        is_ghost_node[80]=true;
+        is_ghost_node[80] = true;
         
         tissue.SetGhostNodes(is_ghost_node);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);

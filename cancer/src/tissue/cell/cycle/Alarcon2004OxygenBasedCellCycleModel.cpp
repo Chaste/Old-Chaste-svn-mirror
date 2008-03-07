@@ -131,6 +131,3 @@ double Alarcon2004OxygenBasedCellCycleModel::GetOdeStopTime()
     assert(msSolver.StoppingEventOccured());
     return msSolver.GetStoppingTime();    
 }
-    
-    
- 

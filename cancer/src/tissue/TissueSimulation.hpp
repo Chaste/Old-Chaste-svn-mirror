@@ -51,7 +51,6 @@
  * Cells can die - at a time/position specified by cell killers which can be 
  * added to the simulation.
  * 
- * \todo Move the spring calculations into a separate class?
  */
 template<unsigned DIM>  
 class TissueSimulation

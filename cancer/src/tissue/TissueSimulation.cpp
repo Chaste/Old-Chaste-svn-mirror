@@ -424,27 +424,20 @@ void TissueSimulation<DIM>::Solve()
 
     SetupSolve();
     
-    /* 
-     * Age the cells to the correct time (cells set up with negative birth dates
-     * to give some that are almost ready to divide).
-     * 
-     * TODO: For some strange reason this seems to take about 3 minutes for a realistic Wnt-Crypt.
-     * Not sure why - when the same code was evaluated in a test it seemed almost instant.
-     */
+    // Age the cells to the correct time. Note that cells are created with
+    // negative birth times so that some are initially almost ready to divide.
     LOG(1, "Setting up cells...");
     for (typename AbstractTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
          cell_iter != mrTissue.End();
          ++cell_iter)
     {
-        /* 
-         * We don't use the result; this call is just to force the cells 
-         * to age to current time running their cell cycle models to get there.
-         */
+        // We don't use the result; this call is just to force the cells to age 
+        // to the current time running their cell cycle models to get there
         cell_iter->ReadyToDivide();
     }
     LOG(1, "\tdone\n");
      
-    // Write initial conditions to file for the visualizer.
+    // Write initial conditions to file for the visualizer
     if (DIM==2)
     {
         WriteVisualizerSetupFile();
@@ -465,9 +458,9 @@ void TissueSimulation<DIM>::Solve()
     {           
         LOG(1, "--TIME = " << p_simulation_time->GetDimensionalisedTime() << "\n");
         
-        // Remove dead cells before doing birth
-        // neither of these functions use any element information so they 
-        // just delete and create nodes
+        // Remove dead cells then implement cell birth. Note that neither
+        // of these methods use any element information, they just delete
+        // and create nodes
         CancerEventHandler::BeginEvent(DEATH);
         mNumDeaths += DoCellRemoval();
         LOG(1, "\tNum deaths = " << mNumDeaths << "\n");
@@ -530,6 +523,7 @@ void TissueSimulation<DIM>::Solve()
         CancerEventHandler::EndEvent(POSITION);
      
         PostSolve();
+        
         // Increment simulation time here, so results files look sensible
         p_simulation_time->IncrementTimeOneStep();
         

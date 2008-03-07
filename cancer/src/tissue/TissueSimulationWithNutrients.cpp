@@ -50,10 +50,8 @@ void TissueSimulationWithNutrients<DIM>::UseCoarseNutrientMesh(double coarseGrai
 
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseGrainScaleFactor)
-{    
-//    \todo: we could instead use e.g. the disk with 984 elements
-
-    // Create coarse nutrient mesh
+{
+    // Create coarse nutrient mesh (can use a larger mesh if required, e.g. disk_984_elements)
     TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
     mpCoarseNutrientMesh = new ConformingTetrahedralMesh<2,2>;
     mpCoarseNutrientMesh->ConstructFromMeshReader(mesh_reader);

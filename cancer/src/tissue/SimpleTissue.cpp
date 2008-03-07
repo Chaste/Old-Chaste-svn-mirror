@@ -138,7 +138,7 @@ void SimpleTissue<DIM>::UpdateNodeCellMap()
     }
     
     // Get the actual set of node indices
-    std::set<unsigned> node_indices;    
+    std::set<unsigned> node_indices;
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
         unsigned node_index = cell_iter->GetNodeIndex();

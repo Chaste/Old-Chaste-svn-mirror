@@ -181,7 +181,7 @@ public :
             {
                 cell_type = STEM;
                 generation = 0;
-                if(randomBirthTimes)
+                if (randomBirthTimes)
                 {
                     birth_time = -p_random_num_gen->ranf()*typical_stem_cycle_time; // hours
                 }
@@ -190,7 +190,7 @@ public :
             {
                 cell_type = TRANSIT;
                 generation = 1;
-                if(randomBirthTimes)
+                if (randomBirthTimes)
                 {
                     birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
                 }
@@ -199,7 +199,7 @@ public :
             {
                 cell_type = TRANSIT;
                 generation = 2;
-                if(randomBirthTimes)
+                if (randomBirthTimes)
                 {
                     birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
                 }
@@ -208,18 +208,18 @@ public :
             {
                 cell_type = TRANSIT;
                 generation = 3;
-                if(randomBirthTimes)
+                if (randomBirthTimes)
                 {
                     birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
                 }
             }
             else
             {
-                if(randomBirthTimes)
+                if (randomBirthTimes)
                 {
                     birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
                 }
-                if(cycleType!=FIXED && cycleType!=STOCHASTIC)
+                if (cycleType!=FIXED && cycleType!=STOCHASTIC)
                 {
                     // There are no fully differentiated cells!
                     cell_type = TRANSIT;                    

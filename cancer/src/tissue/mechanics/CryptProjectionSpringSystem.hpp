@@ -114,7 +114,7 @@ private :
         c_vector<double, 2> node_a_location_2d = this->mpTissue->GetNode(nodeAGlobalIndex)->rGetLocation();
         c_vector<double, 2> node_b_location_2d = this->mpTissue->GetNode(nodeBGlobalIndex)->rGetLocation();
                                                   
-        // Create a unit vector in the direction of the 3D spring (we don't need to worry about cyclidrical meshes)     
+        // Create a unit vector in the direction of the 3D spring (we don't need to worry about cylindrical meshes)     
         c_vector<double, 3> unit_difference_3d = mNode3dLocationMap[nodeBGlobalIndex] - mNode3dLocationMap[nodeAGlobalIndex]; 
         double distance_between_nodes_3d = norm_2(unit_difference_3d); 
                
