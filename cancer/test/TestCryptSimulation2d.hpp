@@ -392,6 +392,8 @@ public:
         p_simulator->Solve();
         
         delete p_simulator;
+        delete p_meineke_spring_system;
+        
         WntConcentration::Destroy();
     }
 
