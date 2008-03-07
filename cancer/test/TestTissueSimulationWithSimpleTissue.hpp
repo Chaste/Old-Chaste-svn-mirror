@@ -175,8 +175,8 @@ public:
         simulator.SetEndTime(0.5);
       
         // Add cell killer
-        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&simple_tissue, 0.05);
-        simulator.AddCellKiller(p_random_cell_killer);
+        RandomCellKiller<2> random_cell_killer(&simple_tissue, 0.05);
+        simulator.AddCellKiller(&random_cell_killer);
         
         simulator.Solve();
         

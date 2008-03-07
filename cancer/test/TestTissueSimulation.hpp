@@ -76,11 +76,11 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
         tissue.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
               
-        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
-        p_spring_system->UseCutoffPoint(1.5);
+        Meineke2001SpringSystem<2> spring_system(tissue);
+        spring_system.UseCutoffPoint(1.5);
                   
         // Set up tissue simulation
-        TissueSimulation<2> simulator(tissue, p_spring_system);
+        TissueSimulation<2> simulator(tissue, &spring_system);
         simulator.SetOutputDirectory("TissueSimulationWritingProteins");
         simulator.SetEndTime(0.5);
         simulator.SetOutputCellVariables(true);
@@ -92,8 +92,6 @@ public:
         OutputFileHandler handler("TissueSimulationWritingProteins",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellvariables.dat";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/TissueSimulationWritingProteins/cellvariables.dat").c_str()), 0);
-        
-        delete p_spring_system;
     }
 };
 #endif /*TESTTISSUESIMULATION_HPP_*/

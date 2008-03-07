@@ -27,7 +27,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
         
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         std::vector<TissueCell> cells;

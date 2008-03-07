@@ -169,8 +169,8 @@ public:
         simulator.SetNoBirth(false);
         simulator.SetOutputDirectory("Crypt2DCylindrical");
         
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
-        simulator.AddCellKiller(p_sloughing_cell_killer);
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
 
         simulator.Solve();
 
@@ -188,8 +188,6 @@ public:
         simulator.SetEndTime(10.0);
         simulator.SetOutputDirectory("");
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
-
-        delete p_sloughing_cell_killer;
     }
     
     
@@ -222,8 +220,8 @@ public:
 
         CryptSimulation2d simulator(crypt);
         
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true); 
-        simulator.AddCellKiller(p_sloughing_cell_killer); 
+        SloughingCellKiller sloughing_cell_killer(&crypt, true); 
+        simulator.AddCellKiller(&sloughing_cell_killer);  
 
         simulator.SetOutputDirectory("Crypt2DCylindricalMultipleDivisions");        
         simulator.SetEndTime(0.6);
@@ -250,7 +248,7 @@ public:
              TS_ASSERT(cell_iter->GetCellType() != DIFFERENTIATED);
         }
         
-        delete p_sloughing_cell_killer;
+
         
         // Close the log file opened in this test
         LogFile::Close();
@@ -286,8 +284,8 @@ public:
         // Set length of simulation here
         simulator.SetEndTime(0.3); 
         
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
-        simulator.AddCellKiller(p_sloughing_cell_killer);
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer); 
         
         simulator.Solve();
         
@@ -299,7 +297,6 @@ public:
         // Variable spring lengths now only associated with cell division.
         TS_ASSERT_DELTA(node_35_location[1], 4.33013 , 1e-4);
           
-        delete p_sloughing_cell_killer;
         WntConcentration::Destroy();
     }
     
@@ -427,8 +424,8 @@ public:
         // Our full end time is 0.25
         simulator.SetEndTime(0.25);
 
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
-        simulator.AddCellKiller(p_sloughing_cell_killer);
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer); 
 
         simulator.Solve();
         
@@ -442,7 +439,7 @@ public:
         TS_ASSERT_DELTA(node_120_location[0], 4.2035 , 1e-4);
         TS_ASSERT_DELTA(node_120_location[1], 0.1033 , 1e-4);
                 
-        delete p_sloughing_cell_killer;
+
         
         // Test the Wnt gradient result
         TissueCell* p_cell = &(crypt.rGetCellAtNodeIndex(28));
@@ -481,15 +478,15 @@ public:
         // Our full end time is 0.25, here we run until 0.1 then load and run more below.
         simulator.SetEndTime(0.1);
         
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
-        simulator.AddCellKiller(p_sloughing_cell_killer);
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer); 
 
         simulator.Solve();
         
         // Save the results..
         simulator.Save();
         
-        delete p_sloughing_cell_killer;
+
         WntConcentration::Destroy();
     }
     
@@ -657,8 +654,8 @@ public:
         
         CryptSimulation2d simulator(crypt); 
                
-        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&crypt);
-        simulator.AddCellKiller(p_cell_killer);
+        SloughingCellKiller sloughing_cell_killer(&crypt);
+        simulator.AddCellKiller(&sloughing_cell_killer);
                 
         simulator.SetOutputDirectory("Crypt2DPeriodicTysonNovak");
         simulator.SetEndTime(0.05);
@@ -681,8 +678,6 @@ public:
         TS_ASSERT_EQUALS(number_of_nodes,ghost_cells.size());
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 75u);
         TS_ASSERT_EQUALS(number_of_nodes, 123u);
-
-        delete p_cell_killer;
     }
     
     /*
@@ -728,8 +723,8 @@ public:
         
         CryptSimulation2d simulator(crypt);
         
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
-        simulator.AddCellKiller(p_sloughing_cell_killer);
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer); 
         
         unsigned num_deaths = simulator.DoCellRemoval();
         unsigned num_births = simulator.DoCellBirth();
@@ -737,7 +732,7 @@ public:
         TS_ASSERT_EQUALS(num_births, 1u);
         TS_ASSERT_EQUALS(num_deaths,11u);
                
-        delete p_sloughing_cell_killer;       
+       
     }
     
     void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
@@ -901,8 +896,8 @@ public:
         simulator.SetReMeshRule(true);
         simulator.SetNoBirth(true);
         
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
-        simulator.AddCellKiller(p_sloughing_cell_killer);
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer); 
 
         simulator.Solve();
 
@@ -914,7 +909,7 @@ public:
         TS_ASSERT_EQUALS(number_of_cells, cells_across*cells_up); 
         TS_ASSERT_EQUALS(number_of_nodes, number_of_cells+thickness_of_ghost_layer*2*cells_across); 
 
-        delete p_sloughing_cell_killer;
+
     }
     
 
@@ -943,15 +938,13 @@ public:
         simulator.SetOutputDirectory("Crypt2DRandomDeathNonPeriodic");
         simulator.SetEndTime(0.6);
 
-        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&crypt, 0.1);
-        simulator.AddCellKiller(p_random_cell_killer);
+        RandomCellKiller<2> random_cell_killer(&crypt, 0.1);
+        simulator.AddCellKiller(&random_cell_killer);
 
         simulator.Solve();
         
         // There should be no cells left after this amount of time
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
-    
-        delete p_random_cell_killer;
     }
     
     void TestUsingJiggledBottomSurface()
@@ -1030,7 +1023,7 @@ public:
         double crypt_width = num_cells_width-0.0;
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         CancerParameters* p_params = CancerParameters::Instance();
@@ -1137,7 +1130,6 @@ public:
         std::vector<TissueCell> cells;
         
         double time_of_each_run;
-        AbstractCellKiller<2>* p_cell_killer;
         std::vector<bool> labelled;    
                      
         MeshBasedTissue<2>* p_crypt;
@@ -1146,7 +1138,7 @@ public:
         ghost_node_indices = generator.GetGhostNodeIndices(); 
         
         Cylindrical2dMesh* p_mesh;
-        p_mesh=generator.GetCylindricalMesh();
+        p_mesh = generator.GetCylindricalMesh();
         
         // Set up cells                       
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC, true,
@@ -1168,8 +1160,8 @@ public:
         simulator.SetEndTime(time_of_each_run);
         
         // Set up cell killer
-        p_cell_killer = new SloughingCellKiller(&(simulator.rGetTissue()),0.01);
-        simulator.AddCellKiller(p_cell_killer);
+        SloughingCellKiller killer(&(simulator.rGetTissue()),0.01);
+        simulator.AddCellKiller(&killer);
         
         simulator.UseJiggledBottomCells();
         
@@ -1179,7 +1171,6 @@ public:
         WntConcentration::Destroy(); 
       
         delete p_crypt;
-        delete p_cell_killer;        
         
         // ... and checking visualization of labelled cells against previous run
         OutputFileHandler handler("AncestorCrypt",false);

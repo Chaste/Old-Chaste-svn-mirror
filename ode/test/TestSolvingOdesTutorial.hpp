@@ -1,6 +1,6 @@
 /*
  * 
- *  Chaste Pde Tutorial - this page get automatically changed to a wiki page
+ *  Chaste tutorial - this page get automatically changed to a wiki page
  *  DO NOT remove the comments below, and if the code has to be changed in
  *  order to run, please check the comments are still accurate
  * 

@@ -99,7 +99,7 @@ public:
 //        unsigned thickness_of_ghost_layer = 3;
 //        
 //        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-//        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+//        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 //        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 //        
 //        SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -164,6 +164,8 @@ public:
 //        RandomNumberGenerator::Destroy();
 //        WntConcentration::Destroy();
 //    }
+
+
     void xTestAreaDependentAndLengthDependent() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -215,8 +217,8 @@ public:
         simulator.SetEndTime(time_of_each_run);
         simulator.SetSamplingTimestepMultiple(10);
 
-        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetTissue(),0.01);
-        simulator.AddCellKiller(p_cell_killer);
+        SloughingCellKiller cell_killer(&simulator.rGetTissue(),0.01);
+        simulator.AddCellKiller(&cell_killer);
         
         // UNUSUAL SET UP HERE /////////////////////////////////////
         
@@ -247,15 +249,12 @@ public:
             p_simulator->Save();
             delete p_simulator;
         }
-        delete p_cell_killer;
+
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
         WntConcentration::Destroy();
         std::cout<< "Finished \n" << std::flush;
     }
-    
-    
-    
     
     
     void xTestAreaDependentAndLengthDependentCarryOn() throw (Exception)
@@ -342,9 +341,6 @@ public:
         p_simulator->Save();
         delete p_simulator;
     }
-
-
-
 
 
 //    

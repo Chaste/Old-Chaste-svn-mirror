@@ -96,10 +96,10 @@ public:
         WntConcentration::Instance()->SetTissue(crypt);   
         
         // Create the spring system
-        CryptProjectionSpringSystem* p_spring_system = new CryptProjectionSpringSystem(crypt);
+        CryptProjectionSpringSystem spring_system(crypt);
                 
         // Make a tissue simulation
-        TissueSimulation<2> crypt_projection_simulator(crypt, p_spring_system, false, false);
+        TissueSimulation<2> crypt_projection_simulator(crypt, &spring_system, false, false);
         
         // Create a radial cell killer and pass it in to the tissue simulation
         c_vector<double,2> centre = zero_vector<double>(2);
@@ -138,8 +138,6 @@ public:
         
         // Tidy up
         WntConcentration::Destroy();
-        // Really, really tidy up
-        delete p_spring_system;
     }
     
 };

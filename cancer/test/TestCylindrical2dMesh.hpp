@@ -129,7 +129,7 @@ public:
 
         // Set up a mesh which can be mirrored (no ghosts in this case)
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
         // Create a mirrored load of nodes for the normal remesher to work with.
         p_mesh->CreateMirrorNodes();
@@ -400,7 +400,7 @@ public:
         unsigned thickness_of_ghost_layer = 2;
         
         HoneycombMeshGenerator generator(cells_across,cells_up,thickness_of_ghost_layer,true,crypt_width/cells_across);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
         /*
          * New test to check that the top and bottom rows move together
@@ -510,7 +510,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
         
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
         c_vector<double, 2>& rLocation1 = p_mesh->GetNode(1)->rGetModifiableLocation();
         rLocation1[1] -= 0.5;
@@ -581,7 +581,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
         
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
         c_vector<double, 2>& rLocation1 = p_mesh->GetNode(1)->rGetModifiableLocation();
         rLocation1[1] -= 0.5;
@@ -632,7 +632,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
     
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
-        ConformingTetrahedralMesh<2,2> * const p_mesh=generator.GetCylindricalMesh();
+        ConformingTetrahedralMesh<2,2> * const p_mesh = generator.GetCylindricalMesh();
         // You need the const above to stop a BOOST_STATIC_ASSERTION failure.
         // This is because the serialization library only allows you to save tracked
         // objects while the compiler considers them const, to prevent the objects changing

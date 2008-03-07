@@ -155,7 +155,7 @@ public:
         double crypt_width = num_cells_width-1.0;
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         CancerParameters::Instance()->SetCryptLength(crypt_length);
@@ -173,8 +173,8 @@ public:
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(12.0);
         
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
-        simulator.AddCellKiller(p_sloughing_cell_killer);
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
        
         simulator.Solve();
         
@@ -184,9 +184,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + node_results_file + " cancer/test/data/Crypt2DHoneycombMeshResults/results.viznodes").c_str()), 0);
          
         std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
-        TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cancer/test/data/Crypt2DHoneycombMeshResults/results.vizelements").c_str()), 0);          
-           
-        delete p_sloughing_cell_killer;     
+        TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cancer/test/data/Crypt2DHoneycombMeshResults/results.vizelements").c_str()), 0);   
     }
     
     void TestMonolayer() throw (Exception)
@@ -197,7 +195,7 @@ public:
         double crypt_width = num_cells_width-1.0;
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         CancerParameters::Instance()->SetCryptLength(crypt_length);
@@ -246,7 +244,7 @@ public:
         int num_cells_depth = 5;
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         double crypt_width = num_cells_width - 1.0;
@@ -292,8 +290,8 @@ public:
         simulator.SetOutputDirectory("Crypt2DSpringsCorrectCellNumbers");
         simulator.SetEndTime(40); // hours
         
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
-        simulator.AddCellKiller(p_sloughing_cell_killer);
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
         
         simulator.Solve();
         
@@ -332,9 +330,9 @@ public:
         
         TS_ASSERT_LESS_THAN(num_differentiated, 25u);
         TS_ASSERT_LESS_THAN(15u, num_differentiated);
-        
-        delete p_sloughing_cell_killer;
     }
+    
+    
     
 ////////////////////////////////////////////////////////////////////////////
 // PERIODIC TESTS
@@ -350,7 +348,7 @@ public:
         unsigned thickness_of_ghost_layer = 4;
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
        
         // Set up cells
@@ -365,8 +363,8 @@ public:
         simulator.SetOutputDirectory("Crypt2DPeriodicNightly");
         simulator.SetEndTime(12.0);
         
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
-        simulator.AddCellKiller(p_sloughing_cell_killer);
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
        
         simulator.Solve();
         
@@ -377,8 +375,6 @@ public:
         
         TS_ASSERT_EQUALS(number_of_cells, 85u);
         TS_ASSERT_EQUALS(number_of_nodes, 133u);
-        
-        delete p_sloughing_cell_killer;
     }
     
     
@@ -389,7 +385,7 @@ public:
         unsigned thickness_of_ghost_layer = 4;
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
@@ -408,8 +404,8 @@ public:
         
         simulator.SetEndTime(24.0);
         
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
-        simulator.AddCellKiller(p_sloughing_cell_killer);
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
        
         simulator.Solve();
         
@@ -419,8 +415,7 @@ public:
         unsigned number_of_nodes = crypt.rGetMesh().GetNumNodes();
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 94u);
         TS_ASSERT_EQUALS(number_of_nodes, 142u);
-        
-        delete p_sloughing_cell_killer;
+
         WntConcentration::Destroy();
         
         CancerEventHandler::Headings();
@@ -438,7 +433,7 @@ public:
         unsigned thickness_of_ghost_layer = 4;
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
@@ -476,8 +471,8 @@ public:
         simulator.SetOutputDirectory("Crypt2DPeriodicMutant");        
         simulator.SetEndTime(12.0);
         
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
-        simulator.AddCellKiller(p_sloughing_cell_killer);
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
         
         simulator.Solve();
         
@@ -500,8 +495,7 @@ public:
                 number_of_mutant_cells++;
             }
         }
-        
-        delete p_sloughing_cell_killer;
+ 
         WntConcentration::Destroy();
     }
     
@@ -514,7 +508,7 @@ public:
         unsigned thickness_of_ghost_layer = 4;
         
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
@@ -529,15 +523,13 @@ public:
         simulator.SetOutputDirectory("Crypt2DRandomDeathPeriodic");
         simulator.SetEndTime(4.6);
 
-        AbstractCellKiller<2>* p_random_cell_killer = new RandomCellKiller<2>(&crypt, 0.01);
-        simulator.AddCellKiller(p_random_cell_killer);
+        RandomCellKiller<2> random_cell_killer(&crypt, 0.01);
+        simulator.AddCellKiller(&random_cell_killer);
     
         simulator.Solve();
         
         // There should be no cells left after this amount of time
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
-    
-        delete p_random_cell_killer;
     }
     
   
@@ -550,7 +542,7 @@ public:
         unsigned thickness_of_ghost_layer = 4;
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
@@ -565,12 +557,10 @@ public:
         simulator.SetOutputDirectory("Crypt2DSloughingDeathNonPeriodic");
         simulator.SetEndTime(4.0);
 
-        AbstractCellKiller<2>* p_sloughing_cell_killer = new SloughingCellKiller(&crypt, true);
-        simulator.AddCellKiller(p_sloughing_cell_killer);
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
         
         simulator.Solve();
-    
-        delete p_sloughing_cell_killer;
     }
 
 
@@ -582,7 +572,7 @@ public:
         unsigned thickness_of_ghost_layer = 4;
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer,true,crypt_width/cells_across);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
@@ -597,8 +587,8 @@ public:
         simulator.SetOutputDirectory("Crypt2DSloughingDeathPeriodic");
         simulator.SetEndTime(4.0);
 
-        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&crypt);
-        simulator.AddCellKiller(p_cell_killer);
+        SloughingCellKiller cell_killer(&crypt);
+        simulator.AddCellKiller(&cell_killer);
                
         simulator.Solve();
         
@@ -618,8 +608,6 @@ public:
         // There should be this number of cells left after this amount of time
         // (we have lost two rows of 7 but had a bit of birth too)
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 85u);
-    
-        delete p_cell_killer;
     }
 
 
@@ -632,7 +620,7 @@ public:
         unsigned thickness_of_ghost_layer = 4;
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
@@ -648,11 +636,11 @@ public:
 
         // These killers are defined in this test. They kill the first and second
         // available cell, respectively.
-        AbstractCellKiller<2>* p_cell_killer1 = new SingleCellCellKiller(&crypt,0);
-        AbstractCellKiller<2>* p_cell_killer2 = new SingleCellCellKiller(&crypt,1);
+        SingleCellCellKiller cell_killer1(&crypt,0);
+        SingleCellCellKiller cell_killer2(&crypt,1);
 
-        simulator.AddCellKiller(p_cell_killer1);
-        simulator.AddCellKiller(p_cell_killer2);
+        simulator.AddCellKiller(&cell_killer1);
+        simulator.AddCellKiller(&cell_killer2);
 
         // Just enough time to kill off all the cells, as two are killed per timestep
         double dt = 0.01;
@@ -677,9 +665,6 @@ public:
 
         // All cells should have been removed in this time
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
-    
-        delete p_cell_killer1;
-        delete p_cell_killer2;
     }
         
         
@@ -691,7 +676,7 @@ public:
         double crypt_width = num_cells_width-1.0;
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         CancerParameters::Instance()->SetCryptLength(crypt_length);
@@ -705,10 +690,10 @@ public:
         crypt.SetGhostNodes(ghost_node_indices);
 
         // Set up crypt simulation
-        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(crypt);
-        p_spring_system->UseCutoffPoint(sqrt(2)); // root2 is a sensible choice
+        Meineke2001SpringSystem<2> spring_system(crypt);
+        spring_system.UseCutoffPoint(sqrt(2)); // root2 is a sensible choice
         
-        CryptSimulation2d simulator(crypt, p_spring_system);
+        CryptSimulation2d simulator(crypt, &spring_system);
 
         simulator.SetOutputDirectory("MonolayerCutoffPointNoGhosts");
         simulator.SetEndTime(12.0);

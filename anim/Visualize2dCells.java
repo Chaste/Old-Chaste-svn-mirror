@@ -1557,10 +1557,10 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         {       
             // Calculate colour 
             double conc = (double)(num_blocks - i)/(double)(num_blocks);
-            int g = (int)(255.0 * conc);
-            int b = (int)(200.0 - 80.0*conc); 
-            
-            Color colour = new Color(0,g,b);
+        	int r = Math.min( Math.max( (int)(50 + 150*conc),0) , 255 );
+        	int g = Math.min( Math.max( (int)(50 + 150*conc),0) , 255 );            	
+            int b = Math.min( Math.max( (int)(50 + 150*conc),0) , 255 );
+            Color colour = new Color(r,g,b);
             g2.setColor(colour);
             
             g2.fillRect(panelWidth, i*blockHeight, blockWidth, blockHeight);
@@ -1913,15 +1913,16 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     		switch (vis.cell_type[vis.timeStep][index]) 
         	{
         		case APOPTOSIS_COLOUR: // apoptotic cell
-        			g2.setColor(ozzysDirtyGrey); 
+                    Color colour1 = new Color(5,5,5);
+        			g2.setColor(colour1); 
         			break;
         		case INVISIBLE_COLOUR: // sloughed cell
         			g2.setColor(garysSexySilver); 
         			break;
         		default: // any other cell type
-                	int r = 0;
-                	int g = Math.min( Math.max((int)(255*conc),0) , 255 );            	
-                    int b = Math.min( Math.max( (int)(200 - 80*conc),0) , 255);                  
+                	int r = Math.min( Math.max( (int)(50 + 150*conc),0) , 255 );
+                	int g = Math.min( Math.max( (int)(50 + 150*conc),0) , 255 );            	
+                    int b = Math.min( Math.max( (int)(50 + 150*conc),0) , 255);                  
                     Color colour = new Color(r,g,b);
                     g2.setColor(colour);
         		    break;

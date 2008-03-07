@@ -82,14 +82,14 @@ public:
         CancerParameters::Instance()->SetHepaOneParameters();
 
         // Set up mesh
-        ConformingTetrahedralMesh<2,2>* p_mesh = new ConformingTetrahedralMesh<2,2>;
+        ConformingTetrahedralMesh<2,2> mesh;
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-        p_mesh->ConstructFromMeshReader(mesh_reader);
+        mesh.ConstructFromMeshReader(mesh_reader);
             
         // Set up cells
         std::vector<TissueCell> cells;        
         
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
@@ -101,38 +101,38 @@ public:
         }
         
         // Set up tissue        
-        MeshBasedTissue<2> tissue(*p_mesh, cells);
+        MeshBasedTissue<2> tissue(mesh, cells);
         
         // Set up cellwisedata and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
+        p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
         p_data->SetTissue(tissue);
         
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors  
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, p_mesh->GetNode(i));
+            p_data->SetValue(1.0, mesh.GetNode(i));
         }
         
         // Set up PDE
         SimplePdeForTesting pde;
         
-        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
+        Meineke2001SpringSystem<2> spring_system(tissue);
         
         // Use an extremely small cutoff so that no cells interact 
         // - this is to ensure that in the Solve method, the cells don't move
         // (we need to call Solve to set up the .viznutrient file)
-        p_spring_system->UseCutoffPoint(0.0001); 
+        spring_system.UseCutoffPoint(0.0001); 
               
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde); 
+        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde); 
         simulator.SetOutputDirectory("TestPostSolveMethod");
         simulator.SetEndTime(2.0/120.0);        
         
         // Set up cell killer and pass into simulation
-        AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
-        simulator.AddCellKiller(p_killer);
+        OxygenBasedCellKiller<2> killer(&tissue);
+        simulator.AddCellKiller(&killer);
         
         simulator.Solve();                
         
@@ -162,10 +162,6 @@ public:
             } 
         }     
         
-        // Tidy up
-        delete p_spring_system;
-        delete p_killer;
-        delete p_mesh;
         CellwiseData<2>::Destroy();
     }
         
@@ -214,24 +210,21 @@ public:
         // Set up PDE
         SimpleNutrientPde<2> pde(0.1);
         
-        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
-        p_spring_system->UseCutoffPoint(1.5);
+        Meineke2001SpringSystem<2> spring_system(tissue);
+        spring_system.UseCutoffPoint(1.5);
                   
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithOxygen");
         simulator.SetEndTime(0.5);
                 
         // Set up cell killer and pass into simulation
-        AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
-        simulator.AddCellKiller(p_killer);
+        OxygenBasedCellKiller<2> killer(&tissue);
+        simulator.AddCellKiller(&killer);
                        
         // Run tissue simulation 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         
-        // Tidy up
-        delete p_spring_system;
-        delete p_killer;
         CellwiseData<2>::Destroy();
     }
             
@@ -290,17 +283,17 @@ public:
         // Set up PDE
         CellwiseNutrientSinkPde<2> pde(tissue, 0.1);
         
-        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
-        p_spring_system->UseCutoffPoint(1.5);
+        Meineke2001SpringSystem<2> spring_system(tissue);
+        spring_system.UseCutoffPoint(1.5);
                   
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithPointwiseNutrientSink");
         simulator.SetEndTime(0.5);
         
         // Set up cell killer and pass into simulation
-        AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
-        simulator.AddCellKiller(p_killer);
+        OxygenBasedCellKiller<2> killer(&tissue);
+        simulator.AddCellKiller(&killer);
                        
         // Run tissue simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -311,10 +304,7 @@ public:
         TS_ASSERT_DELTA(node_5_location[1], 1.1358, 1e-4);
         TissueCell* p_cell = &(simulator.rGetTissue().rGetCellAtNodeIndex(5));
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9702, 1e-4);
-        
-        // Tidy up
-        delete p_killer;
-        delete p_spring_system;
+
         CellwiseData<2>::Destroy();
     }
     
@@ -382,16 +372,16 @@ public:
         // Set up tissue simulation        
         SimpleNutrientPde<2> pde(0.1);    
         
-        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
-        p_spring_system->UseCutoffPoint(1.5);   
+        Meineke2001SpringSystem<2> spring_system(tissue);
+        spring_system.UseCutoffPoint(1.5);   
         
-        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
         simulator.SetOutputDirectory("TestSpheroidStatistics");
         simulator.SetEndTime(1.0/120.0);
         simulator.SetWriteAverageRadialNutrientResults(5);
         
-        AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
-        simulator.AddCellKiller(p_killer);        
+        OxygenBasedCellKiller<2> killer(&tissue);
+        simulator.AddCellKiller(&killer);        
         
         // Solve for one timestep
         simulator.Solve();
@@ -430,9 +420,6 @@ public:
         // Coverage
         TS_ASSERT_THROWS_NOTHING(simulator.WriteAverageRadialNutrientDistribution(SimulationTime::Instance()->GetDimensionalisedTime(),5));
         
-        // Tidy up
-        delete p_killer;
-        delete p_spring_system;
         CellwiseData<2>::Destroy();
     }
         
@@ -479,17 +466,17 @@ public:
         // Set up PDE
         AveragedSinksPde<2> pde(tissue, -0.1);
 
-        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
-        p_spring_system->UseCutoffPoint(1.5);
+        Meineke2001SpringSystem<2> spring_system(tissue);
+        spring_system.UseCutoffPoint(1.5);
                   
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, NULL, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, NULL, &pde);
         simulator.SetOutputDirectory("TestCoarseNutrientMesh");
         simulator.SetEndTime(0.05);
         
         // Set up cell killer and pass into simulation
-        AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
-        simulator.AddCellKiller(p_killer);
+        OxygenBasedCellKiller<2> killer(&tissue);
+        simulator.AddCellKiller(&killer);
         
         // Test creation of mpCoarseNutrientMesh
         simulator.UseCoarseNutrientMesh(10.0);
@@ -579,9 +566,6 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS(value_at_cell, max);
         }
         
-        // Tidy up
-        delete p_spring_system;
-        delete p_killer;
         CellwiseData<2>::Destroy();
     }
     
@@ -595,7 +579,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
                     
         // Set up cells
         std::vector<TissueCell> cells;        
@@ -629,17 +613,17 @@ public:
         // Set up PDE
         SimpleNutrientPde<2> pde(0.1);
         
-        Meineke2001SpringSystem<2>* p_spring_system = new Meineke2001SpringSystem<2>(tissue);
-        p_spring_system->UseCutoffPoint(1.5);
+        Meineke2001SpringSystem<2> spring_system(tissue);
+        spring_system.UseCutoffPoint(1.5);
                   
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, p_spring_system, &pde);
+        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
         simulator.SetOutputDirectory("TissueSimulationWithNutrientsSaveAndLoad");
         simulator.SetEndTime(0.2);
         
         // Set up cell killer and pass into simulation
-        AbstractCellKiller<2>* p_killer = new OxygenBasedCellKiller<2>(&tissue);
-        simulator.AddCellKiller(p_killer);
+        OxygenBasedCellKiller<2> killer(&tissue);
+        simulator.AddCellKiller(&killer);
         
         simulator.Solve();
         
@@ -670,9 +654,6 @@ public:
         p_cell = &(p_simulator->rGetTissue().rGetCellAtNodeIndex(15));
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
         
-        // Tidy up
-        delete p_spring_system;
-        delete p_killer;
         delete p_simulator;       
         CellwiseData<2>::Destroy();        
     }

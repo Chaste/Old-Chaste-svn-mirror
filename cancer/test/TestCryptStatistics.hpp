@@ -166,8 +166,8 @@ public:
                 
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
-        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller(&simulator.rGetTissue(),0.01);
-        simulator.AddCellKiller(p_cell_killer);
+        SloughingCellKiller cell_killer(&simulator.rGetTissue(),0.01);
+        simulator.AddCellKiller(&cell_killer);
         
         // UNUSUAL SET UP HERE /////////////////////////////////////
         
@@ -295,8 +295,6 @@ public:
                 TS_ASSERT(!labelled[vector_index]);
             }
         }
-        
-        delete p_cell_killer;
         RandomNumberGenerator::Destroy();
     }
     
@@ -357,7 +355,7 @@ public:
         {   
             
             // create new structures for each simulation   
-            p_mesh=generator.GetCylindricalMesh();
+            p_mesh = generator.GetCylindricalMesh();
             
             // reset start time
             SimulationTime::Destroy();

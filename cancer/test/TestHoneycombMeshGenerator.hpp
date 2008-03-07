@@ -52,16 +52,14 @@ public:
         bool cylindrical = false;
         unsigned thickness_of_ghost_layer = 1;
                 
-        HoneycombMeshGenerator* p_gen = new HoneycombMeshGenerator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical, crypt_width/cells_across);
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical, crypt_width/cells_across);
         
-        ConformingTetrahedralMesh<2,2>* p_mesh = p_gen->GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
         
-        std::set<unsigned> ghosts = p_gen->GetGhostNodeIndices();
+        std::set<unsigned> ghosts = generator.GetGhostNodeIndices();
         TS_ASSERT_EQUALS(ghosts.size(), 12u);
-        
-        delete p_gen;
     }
 
     void TestHoneycombMeshGeneratorCylindricalRelaxed() throw(Exception)
@@ -73,7 +71,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts);
       
         
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();             
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();             
         // check the mesh
         
         ConformingTetrahedralMesh<2,2>* p_mesh2;
@@ -138,7 +136,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, true, width/num_cells_width);
         
                 
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();             
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();             
         // check the mesh
         
         ConformingTetrahedralMesh<2,2>* p_mesh2;
@@ -204,9 +202,9 @@ public:
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
         
         // check the mesh
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         
-        TS_ASSERT_THROWS_ANYTHING(p_mesh=generator.GetCylindricalMesh());
+        TS_ASSERT_THROWS_ANYTHING(p_mesh = generator.GetCylindricalMesh());
         
         TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(),(num_cells_width+2*ghosts)*(num_cells_depth+2*ghosts));
         
@@ -268,9 +266,9 @@ public:
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
         
         // check the mesh
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         
-        TS_ASSERT_THROWS_ANYTHING(p_mesh=generator.GetCylindricalMesh());
+        TS_ASSERT_THROWS_ANYTHING(p_mesh = generator.GetCylindricalMesh());
         
         TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(),(num_cells_width+2*ghosts)*(num_cells_depth+2*ghosts));
         

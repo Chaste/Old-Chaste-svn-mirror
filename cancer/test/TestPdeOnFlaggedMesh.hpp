@@ -82,7 +82,7 @@ public:
         int num_cells_width = 6;
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         //for testing on a fine mesh
