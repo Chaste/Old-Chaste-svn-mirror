@@ -123,8 +123,8 @@ TestMeinekeLabellingExperimentsRunner: TestMeinekeLabellingExperimentsRunner.o $
 
 # This runs the test which generates MeinekeLabellingExperiment for AlexWdata.
 
-TestMeinekeLabellingAlexWRunner.cpp:	projects/Alex_W_proj/test/TestSimpleWntLabellingExperimentsSunterDataAlexW.hpp
-	cxxtest/cxxtestgen.py  --error-printer -o TestMeinekeLabellingAlexWRunner.cpp projects/Alex_W_proj/test/TestSimpleWntLabellingExperimentsSunterDataAlexW.hpp
+TestMeinekeLabellingAlexWRunner.cpp:	projects/AlexW_New/test/TestSimpleWntLabellingExperimentsSunterDataAlexW.hpp
+	cxxtest/cxxtestgen.py  --error-printer -o TestMeinekeLabellingAlexWRunner.cpp projects/AlexW_New/test/TestSimpleWntLabellingExperimentsSunterDataAlexW.hpp
 
 TestMeinekeLabellingAlexWRunner: TestMeinekeLabellingAlexWRunner.o ${LIBS}
 	g++ TestMeinekeLabellingAlexWRunner.o ${LIBS} -o TestMeinekeLabellingAlexWRunner ${LDFLAGS};\
@@ -136,8 +136,8 @@ TestMeinekeLabellingAlexWRunner: TestMeinekeLabellingAlexWRunner.o ${LIBS}
 	# Need to copy across the starting state of the simulation
 	mkdir ${FRESH_DIR}/MeinekeLabellingAlexW; mkdir ${FRESH_DIR}/MeinekeLabellingAlexW/archive ;\
 	cd ${FRESH_DIR}/MeinekeLabellingAlexW/archive ;\
-	cp ../../../projects/Alex_W_proj/test/data/SteadyStateSimpleWnt/sunter1_archive/mesh_300.* . ;\
-	cp ../../../projects/Alex_W_proj/test/data/SteadyStateSimpleWnt/sunter1_archive/tissue_sim_at_time_300.arch . ;\
+	cp ../../../projects/AlexW_New/test/data/SteadyStateSimpleWnt/sunter1_archive/mesh_300.* . ;\
+	cp ../../../projects/AlexW_New/test/data/SteadyStateSimpleWnt/sunter1_archive/tissue_sim_at_time_300.arch . ;\
 	cd ../.. ;\
 	# Finished copying archives across.
 	cp TestMeinekeLabellingAlexWRunner ${FRESH_DIR} ;\
