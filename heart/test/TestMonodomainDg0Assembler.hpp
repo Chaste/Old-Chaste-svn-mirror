@@ -384,6 +384,9 @@ public:
         // Throws because we've not called initialise
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
         
+        //Makes sure that Weekly test won't throw
+        monodomain_problem.SetPdeAndPrintingTimeSteps(0.01,  1);
+        
         // throws because argument is negative
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetPdeAndPrintingTimeSteps(-1,  1));
         

@@ -287,7 +287,11 @@ public:
             EXCEPTION("Printing time step should not be smaller than PDE time step");
         }
         
-        if (fmod(printingTimeStep, pdeTimeStep) > DBL_EPSILON)
+        //If pde divides printing then the floating remainder ought to be close to
+        //zero(+a smidge) or pde-a smidge
+        double remainder=fmod(printingTimeStep, pdeTimeStep);
+        
+        if ( remainder > DBL_EPSILON && remainder < pdeTimeStep-DBL_EPSILON)
         {
             EXCEPTION("Printing time step should a multiple of PDE time step");
         }
