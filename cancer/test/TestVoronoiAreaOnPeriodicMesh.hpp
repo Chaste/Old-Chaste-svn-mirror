@@ -23,16 +23,17 @@ public:
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 6.0;
-        unsigned thickness_of_ghost_layer = 0;
-        
+        unsigned thickness_of_ghost_layer = 0;        
         
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
         TS_ASSERT(p_mesh->CheckVoronoi());
         TS_ASSERT_DELTA(p_params->GetCryptWidth(),6.0,1e-6);
+        
         // Create Voronoi Tesselation
         VoronoiTessellation<2> tessellation(*p_mesh);
+        
         //  Get two neighbouring nodes on boundary 48 and 53.
         //  Check that they have a common edge
         //  check it is a reasonable length (O(1)?)
@@ -55,10 +56,10 @@ public:
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(48u, 49u), pow(3.0, -0.5), 1e-4);
         
         TS_ASSERT_DELTA(common_edge_between48and53,  pow(3.0, -0.5), 1e-4);
-        //  check that both cells have a reasonable sized area 
+        
+        //  Check that both cells have a reasonable sized area 
         TS_ASSERT_DELTA(tessellation.GetFaceArea(44u),  0.5 * pow(3.0, 0.5), 1e-4);
         TS_ASSERT_DELTA(tessellation.GetFacePerimeter(44u), 2 * pow(3.0, 0.5), 1e-4);
-        
         
         TS_ASSERT_DELTA(tessellation.GetFaceArea(48u),  0.5 * pow(3.0, 0.5), 1e-4);
         TS_ASSERT_DELTA(tessellation.GetFacePerimeter(48u), 2 * pow(3.0, 0.5), 1e-4);

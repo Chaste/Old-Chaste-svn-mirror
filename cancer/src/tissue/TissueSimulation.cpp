@@ -18,7 +18,6 @@
 #include "ColumnDataWriter.hpp"
 #include "WntConcentration.hpp"
 #include "CellwiseData.cpp"
-#include "OutputFileHandler.hpp"
 #include "LogFile.hpp"
 
 

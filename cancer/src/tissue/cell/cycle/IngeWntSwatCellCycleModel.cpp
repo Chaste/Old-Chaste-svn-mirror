@@ -122,14 +122,15 @@ bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
     // WE ARE IN G0 or G1 PHASE - running cell cycle ODEs
     double dt = 0.00005; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
 
-    // feed this time step's Wnt stimulus into the solver as a constant over this timestep.
+    // Feed this time step's Wnt stimulus into the solver as a constant over this timestep.
     mpOdeSystem->rGetStateVariables()[21] = WntConcentration::Instance()->GetWntLevel(mpCell);
+    
     // Use the cell's current mutation status as another input
     static_cast<IngeWntSwatCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
 
     msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
 
-    mLastTime = currentTime;// normally done in Abstract class, but no harm in doing it here to prevent following line throwing an error.
+    mLastTime = currentTime; // normally done in Abstract class, but no harm in doing it here to prevent following line throwing an error.
     UpdateCellType();
     return msSolver.StoppingEventOccured();
 }

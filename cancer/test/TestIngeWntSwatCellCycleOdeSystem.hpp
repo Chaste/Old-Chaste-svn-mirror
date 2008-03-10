@@ -30,7 +30,8 @@ public:
         std::vector<double> initial_conditions = wnt_cell_cycle_system.GetInitialConditions();
         TS_ASSERT_EQUALS(initial_conditions.size(), 22u);
         std::vector<double> derivs(initial_conditions.size());
-        // test ICs are being set up properly (quite intricate equations themselves!)
+        
+        // Test initial conditions are being set up properly
         TS_ASSERT_DELTA(initial_conditions[0], 7.357000000000000e-01, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[1], 1.713000000000000e-01, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[2], 6.900000000000001e-02, 1e-7);
@@ -54,13 +55,15 @@ public:
         TS_ASSERT_DELTA(initial_conditions[20], 2.235636835087720e+00, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[21], 1.000000000000000e+00, 1e-7);
         
-        wnt_cell_cycle_system.SetMutationState(HEALTHY);    // for coverage.
+        wnt_cell_cycle_system.SetMutationState(HEALTHY);    // for coverage
         wnt_cell_cycle_system.EvaluateYDerivatives(time, initial_conditions, derivs);
+        
         // Test derivatives are correct at t=0 for these initial conditions
+        
         // Swat's
         TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
         TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
-        TS_ASSERT_DELTA(derivs[2],5.676110199115955e+00, 1e-5); // changes due to new beta-catenin levels...
+        TS_ASSERT_DELTA(derivs[2],5.676110199115955e+00, 1e-5); // changes due to new beta-catenin levels
         TS_ASSERT_DELTA(derivs[3],-7.449833887043188e-03, 1e-5);
         TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
         
@@ -81,7 +84,8 @@ public:
         std::vector<double> initial_conditions = wnt_cell_cycle_system.GetInitialConditions();
         TS_ASSERT_EQUALS(initial_conditions.size(), 22u);
         std::vector<double> derivs(initial_conditions.size());
-        // test ICs are being set up properly (quite intricate equations themselves!)
+        
+        // Test initial conditions are being set up properly
         TS_ASSERT_DELTA(initial_conditions[0], 7.357000000000000e-01, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[1], 1.713000000000000e-01, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[2], 6.900000000000001e-02, 1e-7);
@@ -106,11 +110,13 @@ public:
         TS_ASSERT_DELTA(initial_conditions[21], 1.000000000000000e+00, 1e-7);
        
         wnt_cell_cycle_system.EvaluateYDerivatives(time, initial_conditions, derivs);
+        
         // Test derivatives are correct at t=0 for these initial conditions
+        
         // Swat's
         TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
         TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
-        TS_ASSERT_DELTA(derivs[2],5.676110199115955e+00, 1e-5); // changes due to new beta-catenin levels...
+        TS_ASSERT_DELTA(derivs[2],5.676110199115955e+00, 1e-5); // changes due to new beta-catenin levels
         TS_ASSERT_DELTA(derivs[3],-7.449833887043188e-03, 1e-5);
         TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
         
@@ -120,18 +126,19 @@ public:
             TS_ASSERT_DELTA(derivs[i],0.0, 1e-9);
         }
     }
-        
+    
+    /**
+     * And the same for a healthy cell at a low Wnt level
+     */
     void TestIngeWntSwatCellCycleEquationsLowWnt()
-    {
-        /**
-         * And the same for a healthy cell at a low Wnt level
-         */
+    {        
         double time = 0.0;
         double wnt_level = 0.0;
         IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system2(1, wnt_level,LABELLED);
         std::vector<double> initial_conditions = wnt_cell_cycle_system2.GetInitialConditions();
         std::vector<double> derivs(initial_conditions.size());
-        // test ICs are being set up properly (quite intricate equations themselves!)
+        
+        // Test initial conditions are being set up properly
         TS_ASSERT_DELTA(initial_conditions[0], 7.357000000000000e-01, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[1], 1.713000000000000e-01, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[2], 6.900000000000001e-02, 1e-7);
@@ -171,18 +178,21 @@ public:
         }
     }
     
+    /**
+     * A test for the case mutation = 1
+     * (An APC +/- mutation)
+     */
     void TestIngeWntSwatCellCycleEquationsAPCOneHit()  
-    {  
-        /**
-         * A test for the case mutation = 1
-         * (An APC +/- mutation)
-         */
+    {
         double time = 0.0;
-        CellMutationState mutation = APC_ONE_HIT;
         double wnt_level = 0.5;
+        
+        CellMutationState mutation = APC_ONE_HIT;
+        
         IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system3(1, wnt_level,mutation);
+        
         std::vector<double> initial_conditions = wnt_cell_cycle_system3.GetInitialConditions();
-        //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
+        
         std::vector<double> derivs(initial_conditions.size());
 
         TS_ASSERT_DELTA(initial_conditions[0], 7.357000000000000e-01, 1e-7);
@@ -224,17 +234,21 @@ public:
         
     }
     
+    /**
+     * A test for the case mutation = 2
+     * (A beta-cat delta45 mutation)
+     */
     void TestIngeWntSwatCellCycleEquationsBetaCatOneHit()  
-    {  /**
-         * A test for the case mutation = 2
-         * (A beta-cat delta45 mutation)
-         */
+    {  
         double time = 0.0;
-        CellMutationState mutation = BETA_CATENIN_ONE_HIT;
         double wnt_level = 1.0;
+        
+        CellMutationState mutation = BETA_CATENIN_ONE_HIT;
+        
         IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system4(1, wnt_level,mutation);
+       
         std::vector<double> initial_conditions = wnt_cell_cycle_system4.GetInitialConditions();
-        //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
+        
         std::vector<double> derivs(initial_conditions.size());
         
         TS_ASSERT_DELTA(initial_conditions[0], 7.357000000000000e-01, 1e-7);
@@ -275,24 +289,27 @@ public:
         TS_ASSERT_DELTA(derivs[8], -12.5, 1e-5);
         TS_ASSERT_DELTA(derivs[9], 0, 1e-5);
         TS_ASSERT_DELTA(derivs[10], 12.5, 1e-5);
-        for (unsigned i=11; i<initial_conditions.size() ; i++)
+        
+        for (unsigned i=11; i<initial_conditions.size(); i++)
         {
             TS_ASSERT_DELTA(derivs[i],0.0, 1e-9);
         }
     }
-    
+    /**
+     * A test for the case mutation = 3
+     * (An APC -/- mutation)
+     */
     void TestIngeWntSwatCellCycleEquationsAPCTwoHit()  
-    {   /**
-         * A test for the case mutation = 3
-         * (An APC -/- mutation)
-         */
+    {   
         double time = 0.0;
-        CellMutationState mutation = APC_TWO_HIT;
         double wnt_level = 1.0;
+        
+        CellMutationState mutation = APC_TWO_HIT;
+        
         IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system5(1, wnt_level,mutation);
+        
         std::vector<double> initial_conditions = wnt_cell_cycle_system5.GetInitialConditions();
-        //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
-
+        
         TS_ASSERT_DELTA(initial_conditions[0], 7.357000000000000e-01, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[1], 1.713000000000000e-01, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[2], 6.900000000000001e-02, 1e-7);
@@ -317,6 +334,7 @@ public:
         TS_ASSERT_DELTA(initial_conditions[21], 1, 1e-7);
         
         std::vector<double> derivs(initial_conditions.size());
+        
         wnt_cell_cycle_system5.EvaluateYDerivatives(time, initial_conditions, derivs);
         
         // Test derivatives are correct at t=0 for these initial conditions
@@ -327,7 +345,7 @@ public:
         TS_ASSERT_DELTA(derivs[3],-7.449833887043188e-03, 1e-5);
         TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
                 
-        for (unsigned i=5; i<initial_conditions.size() ; i++)
+        for (unsigned i=5; i<initial_conditions.size(); i++)
         {
             TS_ASSERT_DELTA(derivs[i],0.0, 1e-9);
         }
@@ -336,18 +354,19 @@ public:
     void TestIngeWntSwatCellCycleSolver() throw(Exception)
     {
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level,LABELLED);
-        // Solve system using rk4 solver
-        // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
+        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level, LABELLED);
         
-        double h_value=0.0001;
+        // Solve system using rk4 solver
+        
+        // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits
+        
+        double h_value = 0.0001;
         
         RungeKutta4IvpOdeSolver rk4_solver;
         RungeKuttaFehlbergIvpOdeSolver rkf_solver;
         BackwardEulerIvpOdeSolver back_solver(9);
         
         OdeSolution solutions;
-        //OdeSolution solutions2;
         
         std::vector<double> initial_conditions = wnt_system.GetInitialConditions();
                 
@@ -358,11 +377,14 @@ public:
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
         
-        // Test solutions are OK for a small time increase...
+        // Test solutions are correct for a small time increase
         int end = solutions.rGetSolutions().size() - 1;
-        // Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
-        TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 6.193774457302713 , 1e-2);
-        // Proper values from MatLab ode15s - shocking tolerances to pass though.
+        
+        // Test the simulation is ending at the right time (entering S phase at 5.971 hours)
+        TS_ASSERT_DELTA(solutions.rGetTimes()[end], 6.193774457302713, 1e-2);
+        
+        // Proper values calculated using the MatLab stiff ODE solver ode15s. Note that 
+        // large tolerances are required for the tests to pass (see #238 and #316).
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 2.937457584307182e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 1.000117721173146e+00, 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 2.400566063511684e+00, 1e-3);
@@ -391,10 +413,12 @@ public:
     {
         double wnt_level = 1.0;
         IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level,APC_ONE_HIT);
+        
         // Solve system using rk4 solver
+        
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
-        double h_value=0.0001;
+        double h_value = 0.0001;
         
         RungeKutta4IvpOdeSolver rk4_solver;        
         OdeSolution solutions;
@@ -403,11 +427,14 @@ public:
                 
         solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
         
-        // Test solutions are OK for a small time increase...
+        // Test solutions are correct for a small time increase
         int end = solutions.rGetSolutions().size() - 1;
-        // Tests the simulation is ending at the right time...(going into S phase at 3.94 hours)
+        
+        // Test the simulation is ending at the right time (entering S phase at 3.94 hours)
         TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 4.722377242770206e+00 , 1e-2);
-        // Proper values from MatLab ode15s - shocking tolerances to pass though.
+        
+        // Proper values calculated using the MatLab stiff ODE solver ode15s. Note that 
+        // large tolerances are required for the tests to pass (see #238 and #316).
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 2.449671985497571e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 1.00, 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 2.970519972449688e+00, 1e-3);
@@ -436,10 +463,12 @@ public:
     {
         double wnt_level = 1.0;
         IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level,BETA_CATENIN_ONE_HIT);
+        
         // Solve system using rk4 solver
+        
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
-        double h_value=0.0001;
+        double h_value = 0.0001;
         
         RungeKutta4IvpOdeSolver rk4_solver;        
         OdeSolution solutions;
@@ -448,11 +477,14 @@ public:
         
         solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
         
-        // Test solutions are OK for a small time increase...
+        // Test solutions are correct for a small time increase
         int end = solutions.rGetSolutions().size() - 1;
-        // Tests the simulation is ending at the right time...(going into S phase at 7.81 hours)
+        
+        // Test the simulation is ending at the right time (entering S phase at 7.81 hours)
         TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 6.109381124487460, 1e-2);
-        // Proper values from MatLab ode15s - shocking tolerances to pass though.
+        
+        // Proper values calculated using the MatLab stiff ODE solver ode15s. Note that 
+        // large tolerances are required for the tests to pass (see #238 and #316).
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 2.885925504994788e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 1.0, 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 2.461454077577112e+00, 1e-3);
@@ -481,10 +513,12 @@ public:
     {
         double wnt_level = 1.0;
         IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level,APC_TWO_HIT);
+        
         // Solve system using rk4 solver
+        
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
-        double h_value=0.0001;
+        double h_value = 0.0001;
         
         RungeKutta4IvpOdeSolver rk4_solver;        
         OdeSolution solutions;
@@ -493,11 +527,14 @@ public:
         
         solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
         
-        // Test solutions are OK for a small time increase...
+        // Test solutions are correct for a small time increase
         int end = solutions.rGetSolutions().size() - 1;
-        // Tests the simulation is ending at the right time...(going into S phase at 3.94 hours)
+        
+        // Test the simulation is ending at the right time (entering S phase at 3.94 hours)
         TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 3.912928619944499e+00 , 1e-2);
-        // Proper values from MatLab ode15s - shocking tolerances to pass though.
+        
+        // Proper values calculated using the MatLab stiff ODE solver ode15s. Note that 
+        // large tolerances are required for the tests to pass (see #238 and #316).
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 2.040531616988712e-01, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 1.000000000000046e+00 , 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 3.738096511672503e+00, 1e-3);
@@ -519,8 +556,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][18], 0, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][19], 0, 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][20], 3.333333333333310e+00, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][21], 1, 1e-3);
-     
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][21], 1, 1e-3);     
     }
     
 };

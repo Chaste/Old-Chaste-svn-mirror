@@ -38,7 +38,7 @@ private:
     }
     
     template<unsigned DIM>
-    void TestSimpleTissue(std::string meshFilename)
+    void TestSmallMeshBasedTissue(std::string meshFilename)
     {        
         // Create a simple mesh
         TrianglesMeshReader<DIM,DIM> mesh_reader(meshFilename);
@@ -89,11 +89,11 @@ private:
 public:
 
     // Test construction, accessors and Iterator
-    void TestSimpleTissue1d2d3d() throw(Exception)
+    void TestSmallMeshBasedTissue1d2d3d() throw(Exception)
     {
-        TestSimpleTissue<1>("mesh/test/data/1D_0_to_1_10_elements");
-        TestSimpleTissue<2>("mesh/test/data/square_4_elements");
-        TestSimpleTissue<3>("mesh/test/data/cube_136_elements");
+        TestSmallMeshBasedTissue<1>("mesh/test/data/1D_0_to_1_10_elements");
+        TestSmallMeshBasedTissue<2>("mesh/test/data/square_4_elements");
+        TestSmallMeshBasedTissue<3>("mesh/test/data/cube_136_elements");
     }
     
     
@@ -113,9 +113,8 @@ public:
         // Fails as no cell or ghost correponding to node 0        
         TS_ASSERT_THROWS_ANYTHING(MeshBasedTissue<2> tissue2(mesh, cells));
     }
-    
-    
-    // Test with ghost nodes, incl the Iterator doesn't loop over ghost nodes
+        
+    // Test with ghost nodes, checking that the Iterator doesn't loop over ghost nodes
     void TestTissueWithGhostNodes() throw(Exception)
     {
         unsigned num_cells_depth = 11;
@@ -175,8 +174,7 @@ public:
         // Check counter = num_nodes - num_ghost_nodes
         TS_ASSERT_EQUALS(counter + ghost_node_indices.size(), p_mesh->GetNumNodes());
     }
-    
-    
+        
     void TestMoveCellAndAddCell()
     {             
         // Create a simple mesh
@@ -236,8 +234,7 @@ public:
         // Check the index of the new cell
         TissueCell& new_cell = tissue.rGetCells().back();
         TS_ASSERT_EQUALS(new_cell.GetNodeIndex(), old_num_nodes);
-    }
-    
+    }    
     
     void TestRemoveDeadCellsAndReMesh()
     {
@@ -327,8 +324,7 @@ public:
         
         TS_ASSERT_EQUALS(node_indices, expected_node_indices);
     }
-    
-    
+        
     void TestAddAndRemoveAndAddWithOutRemesh()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -392,7 +388,6 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 71u);
     }
 
-
     // Test update ghost node positions
     void TestOutputWriters()
     {        
@@ -435,8 +430,7 @@ public:
         TS_ASSERT_EQUALS(cell_types[1], 0u);
         TS_ASSERT_EQUALS(cell_types[2], 0u);
         TS_ASSERT_EQUALS(cell_types[3], 0u);
-    }
-        
+    }        
     
     void TestSpringIterator2d() throw(Exception)
     {
@@ -607,11 +601,10 @@ public:
             TS_ASSERT_DELTA(node_location[1] , tissue.GetLocationOfCell(r_cell)[1] , 1e-9);
         }
     }
-    
-    
+        
     // At the moment the tissue cannot be properly archived since the mesh cannot be. This test
     // just checks that the cells are correctly archived.
-    void TestArchivingTissue() throw (Exception)
+    void TestArchivingMeshBasedTissue() throw (Exception)
     {    
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
@@ -708,8 +701,7 @@ public:
             delete p_tissue;
         }
     }
-    
-    
+        
     void TestSpringMarking()
     {        
         // Create a small tissue
@@ -762,8 +754,7 @@ public:
         // Check there is no marked spring between nodes 1 & 2
         TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellAtNodeIndex(1), tissue.rGetCellAtNodeIndex(2)));
     }
-    
-    
+        
     void TestSettingCellAncestors() throw (Exception)
     {        
         // Create a small tissue

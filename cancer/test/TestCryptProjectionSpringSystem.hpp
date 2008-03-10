@@ -186,8 +186,11 @@ public:
         }
     }
     
-    
-    void TestWntChemotaxis() throw (Exception)
+    /** 
+     * Note: WntBasedChemotaxis should be possible in other spring systems. If/when
+     * this is implemented, this test should be moved to somewhere more appropriate.
+     */ 
+    void TestWntBasedChemotaxis() throw (Exception)
     {      
         CancerParameters* p_params = CancerParameters::Instance();
         
@@ -253,9 +256,7 @@ public:
         TS_ASSERT_DELTA(new_velocity[0], old_velocity[0]+wnt_component[0], 1e-4);
         TS_ASSERT_DELTA(new_velocity[1], old_velocity[1]+wnt_component[1], 1e-4);       
     }
-    
-    
-    
+        
     void TestArchiving() throw (Exception)
     {   
         CancerParameters* p_params = CancerParameters::Instance();
@@ -323,6 +324,5 @@ public:
     } 
 
 };
-
 
 #endif /*TESTCRYPTPROJECTIONSPRINGSYSTEM_HPP_*/

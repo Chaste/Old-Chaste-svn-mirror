@@ -23,17 +23,17 @@
 class TestIngeCellsSimulation : public CxxTest::TestSuite
 {
 public:
-    // Test to check that none of the protein concentrations become -ve for different Wnt stimuli
-    // See ticket 629 and bodge in IngeWntSwatCellCycleModel.cpp in initial conditions
-    // Note this is fairly random on which Wnt stimuli make protein conc 9 and 17 go -ve.
-    // !!Don't change the crypt height on this test unless you know that the bodge is being used.!! 
-    
+
+    /**
+     * Test to check that none of the protein concentrations become negative for different 
+     * Wnt stimuli (see ticket #629). Note: don't change the crypt height on this test unless 
+     * you know that the bodge is being used.
+     */
     void TestIngeBetaCatVis() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->Reset();
-                
-        //double end_of_simulation = 150.0; // hours
+        
         double time_of_each_run = 0.01; // for each run
         
         unsigned cells_across = 4;
@@ -54,7 +54,7 @@ public:
         
         for (unsigned i=0; i<cells.size(); i++)
         {
-            cells[i].SetBirthTime(-1.1); // Just to make the test run a bit quicker.
+            cells[i].SetBirthTime(-1.1); // just to make the test run a bit quicker
         }
         
         MeshBasedTissue<2> crypt(*p_mesh, cells);
@@ -84,8 +84,5 @@ public:
         WntConcentration::Destroy();
     }
 };
-
-
-
 
 #endif /*TESTINGECELLSSIMULATION_HPP_*/

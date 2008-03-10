@@ -8,7 +8,6 @@ TestCellKillers.hpp
 TestCellsGenerator.hpp
 TestCellwiseData.hpp
 TestCellwiseDataGradient.hpp
-TestCryptProjectionSimulation.hpp
 TestCryptProjectionSpringSystem.hpp
 TestCryptProjectionStatistics.hpp
 TestCryptSimulation1d.hpp

@@ -43,19 +43,19 @@ public:
     {
         double WntLevel = 1.0;
         Lee2003WntSignallingOdeSystem lee_system(WntLevel);
+        
         // Solve system using rk4 solver
+        
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         
-        double h_value=0.0001;
+        double h_value = 0.0001;
         
         RungeKutta4IvpOdeSolver rk4_solver;
         
         OdeSolution solutions;
-        //OdeSolution solutions2;
         
         std::vector<double> initial_conditions = lee_system.GetInitialConditions();
-        
-        
+                
         double start_time, end_time, elapsed_time = 0.0;
         start_time = std::clock();
         solutions = rk4_solver.Solve(&lee_system, initial_conditions, 0.0, 100.0, h_value, h_value);
@@ -93,12 +93,14 @@ public:
 //        }
 //        MPI_Barrier(PETSC_COMM_WORLD);
         
-        // Test solutions are OK for a new steady state...
+        // Test solutions are correct for a new steady state
         int end = solutions.rGetSolutions().size() - 1;
-        // Tests the simulation is ending at the right time..
-        TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 100.0 , 1e-2);
-        // Proper values from MatLab ode15s - shocking tolerances to pass though.
-
+        
+        // Test the simulation is ending at the right time
+        TS_ASSERT_DELTA(solutions.rGetTimes()[end], 100.0, 1e-2);
+        
+        // Proper values calculated using the MatLab stiff ODE solver ode15s. Note that 
+        // large tolerances are required for the tests to pass (see #238 and #316).
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],9.090909090909091e+01, 1e-5);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],7.275154952501657e-04, 1e-5);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],1.862484031071281e-03, 1e-5);

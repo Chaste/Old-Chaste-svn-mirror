@@ -128,13 +128,143 @@ public:
         TissueCell hepa_one_cell(STEM, HEALTHY, p_hepa_one_model);
         hepa_one_cell.InitialiseCellCycleModel();
                 
-        for (unsigned i = 0 ; i< num_steps ; i++)
+        for (unsigned i=0; i< num_steps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             CheckReadyToDivideAndPhaseIsUpdated(p_hepa_one_model, 4.1324);
         }        
     }
     
+    void TestSimpleOxygenBasedCellCycleModel(void) throw(Exception)
+    {           
+        CancerParameters *p_params = CancerParameters::Instance();
+        p_params->SetHepaOneParameters();
+        
+        // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration are 
+        // updated correctly
+        SimulationTime *p_simulation_time = SimulationTime::Instance();  
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
+        
+        SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
+        TissueCell cell(STEM, HEALTHY, p_model);
+        cell.InitialiseCellCycleModel();
+        
+        // Set up constant oxygen_concentration     
+        std::vector<double> low_oxygen_concentration;
+        std::vector<double> high_oxygen_concentration;
+        low_oxygen_concentration.push_back(0.0);
+        high_oxygen_concentration.push_back(1.0);
+        
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(low_oxygen_concentration);
+        
+        p_model->ReadyToDivide();                
+        TS_ASSERT_DELTA(p_model->GetCurrentHypoxicDuration(), 0.0, 1e-12);
+        TS_ASSERT_DELTA(p_model->GetCurrentHypoxiaOnsetTime(), 0.0, 1e-12);
+        
+        p_simulation_time->IncrementTimeOneStep(); // t=1.0
+        p_model->ReadyToDivide(); 
+        TS_ASSERT_DELTA(p_model->GetCurrentHypoxicDuration(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(p_model->GetCurrentHypoxiaOnsetTime(), 0.0, 1e-12);
+        
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(high_oxygen_concentration);
+        
+        p_simulation_time->IncrementTimeOneStep(); // t=2.0
+        p_model->ReadyToDivide(); 
+        TS_ASSERT_DELTA(p_model->GetCurrentHypoxicDuration(), 0.0, 1e-12);
+        TS_ASSERT_DELTA(p_model->GetCurrentHypoxiaOnsetTime(), 2.0, 1e-12);
+        
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(low_oxygen_concentration);
+        p_simulation_time->IncrementTimeOneStep(); // t=3.0
+        p_model->ReadyToDivide(); 
+        TS_ASSERT_DELTA(p_model->GetCurrentHypoxicDuration(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(p_model->GetCurrentHypoxiaOnsetTime(), 2.0, 1e-12);
+        
+        // Set up SimulationTime       
+        SimulationTime::Destroy();  
+        p_simulation_time = SimulationTime::Instance();   
+                
+        unsigned num_steps = 100;
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
+            4.0*(p_params->GetHepaOneCellG1Duration()
+                  +p_params->GetSG2MDuration()     ), num_steps);
+        
+        // Set up constant oxygen_concentration     
+        std::vector<double> oxygen_concentration;
+        oxygen_concentration.push_back(1.0);
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+
+        TS_ASSERT_THROWS_NOTHING(SimpleOxygenBasedCellCycleModel model);
+        
+        // Create cell cycle model
+        SimpleOxygenBasedCellCycleModel* p_hepa_one_model = new SimpleOxygenBasedCellCycleModel();
+        SimpleOxygenBasedCellCycleModel* p_diff_model = new SimpleOxygenBasedCellCycleModel();
+        
+        // Create cell 
+        TissueCell hepa_one_cell(STEM, HEALTHY, p_hepa_one_model);
+        hepa_one_cell.InitialiseCellCycleModel();
+        
+        TissueCell diff_cell(DIFFERENTIATED, HEALTHY, p_diff_model);
+        diff_cell.InitialiseCellCycleModel();
+        
+        // Check that the cell cycle phase and ready to divide
+        // are updated correctly        
+        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),false);        
+        TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),M_PHASE);
+        
+        TS_ASSERT_EQUALS(p_diff_model->ReadyToDivide(),false);
+        TS_ASSERT_EQUALS(p_diff_model->GetCurrentCellCyclePhase(),G_ZERO_PHASE);
+                
+        for (unsigned i=0; i<num_steps; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            
+            // Note that we need to pass in the updated G1 duration            
+            CheckReadyToDivideAndPhaseIsUpdated(p_hepa_one_model, p_hepa_one_model->GetG1Duration());         
+        }
+        
+        TS_ASSERT_DELTA(p_hepa_one_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
+        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),true);  
+
+        // Check that cell division correctly resets the cell cycle phase
+        SimpleOxygenBasedCellCycleModel *p_hepa_one_model2 = static_cast <SimpleOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateCellCycleModel());
+        
+        TissueCell hepa_one_cell2(STEM, HEALTHY, p_hepa_one_model2);
+        TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);        
+        TS_ASSERT_EQUALS(p_hepa_one_model2->GetCurrentCellCyclePhase(), M_PHASE);
+        
+        TS_ASSERT_THROWS_NOTHING(p_hepa_one_model->ResetForDivision());     
+        
+        // Set up SimulationTime         
+        SimulationTime::Destroy();
+        p_simulation_time = SimulationTime::Instance();                  
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*CancerParameters::Instance()->GetCriticalHypoxicDuration(), num_steps);
+        
+        // Create a cell with a simple oxygen-based cell cycle model
+        SimpleOxygenBasedCellCycleModel* p_cell_model = new SimpleOxygenBasedCellCycleModel();
+        TissueCell necrotic_cell(STEM, HEALTHY, p_cell_model);
+        
+        // Set up constant oxygen_concentration     
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(low_oxygen_concentration);
+                          
+        // Force the cell to be necrotic
+        for (unsigned i=0; i<num_steps; i++)
+        {
+            TS_ASSERT(necrotic_cell.GetCellType()!=NECROTIC || 
+                      p_simulation_time->GetDimensionalisedTime() >= CancerParameters::Instance()->GetCriticalHypoxicDuration());
+            p_simulation_time->IncrementTimeOneStep();
+            
+            // Note that we need to pass in the updated G1 duration            
+            necrotic_cell.ReadyToDivide();
+        }
+        
+        // Test that the cell type is updated to be NECROTIC        
+        TS_ASSERT(necrotic_cell.GetCellType()==NECROTIC);          
+        TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
+                  
+        CellwiseData<2>::Destroy();
+    }
     
     void TestSimpleWntCellCycleModel() throw(Exception)
     {
@@ -709,139 +839,8 @@ public:
         }
         
         WntConcentration::Destroy();
-    }   
-    
-    
-    void TestSimpleOxygenBasedCellCycleModel(void) throw(Exception)
-    {           
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->SetHepaOneParameters();
-        
-        // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration are 
-        // updated correctly
-        SimulationTime *p_simulation_time = SimulationTime::Instance();  
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
-        
-        SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
-        TissueCell cell(STEM, HEALTHY, p_model);
-        cell.InitialiseCellCycleModel();
-        
-        // Set up constant oxygen_concentration     
-        std::vector<double> low_oxygen_concentration;
-        std::vector<double> high_oxygen_concentration;
-        low_oxygen_concentration.push_back(0.0);
-        high_oxygen_concentration.push_back(1.0);
-        
-        CellwiseData<2>::Instance()->SetConstantDataForTesting(low_oxygen_concentration);
-        
-        p_model->ReadyToDivide();                
-        TS_ASSERT_DELTA(p_model->GetCurrentHypoxicDuration(), 0.0, 1e-12);
-        TS_ASSERT_DELTA(p_model->GetCurrentHypoxiaOnsetTime(), 0.0, 1e-12);
-        
-        p_simulation_time->IncrementTimeOneStep(); // t=1.0
-        p_model->ReadyToDivide(); 
-        TS_ASSERT_DELTA(p_model->GetCurrentHypoxicDuration(), 1.0, 1e-12);
-        TS_ASSERT_DELTA(p_model->GetCurrentHypoxiaOnsetTime(), 0.0, 1e-12);
-        
-        CellwiseData<2>::Instance()->SetConstantDataForTesting(high_oxygen_concentration);
-        
-        p_simulation_time->IncrementTimeOneStep(); // t=2.0
-        p_model->ReadyToDivide(); 
-        TS_ASSERT_DELTA(p_model->GetCurrentHypoxicDuration(), 0.0, 1e-12);
-        TS_ASSERT_DELTA(p_model->GetCurrentHypoxiaOnsetTime(), 2.0, 1e-12);
-        
-        CellwiseData<2>::Instance()->SetConstantDataForTesting(low_oxygen_concentration);
-        p_simulation_time->IncrementTimeOneStep(); // t=3.0
-        p_model->ReadyToDivide(); 
-        TS_ASSERT_DELTA(p_model->GetCurrentHypoxicDuration(), 1.0, 1e-12);
-        TS_ASSERT_DELTA(p_model->GetCurrentHypoxiaOnsetTime(), 2.0, 1e-12);
-        
-        // Set up SimulationTime       
-        SimulationTime::Destroy();  
-        p_simulation_time = SimulationTime::Instance();   
-                
-        unsigned num_steps = 100;
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
-            4.0*(p_params->GetHepaOneCellG1Duration()
-                  +p_params->GetSG2MDuration()     ), num_steps);
-        
-        // Set up constant oxygen_concentration     
-        std::vector<double> oxygen_concentration;
-        oxygen_concentration.push_back(1.0);
-        CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
-
-        TS_ASSERT_THROWS_NOTHING(SimpleOxygenBasedCellCycleModel model);
-        
-        // Create cell cycle model
-        SimpleOxygenBasedCellCycleModel* p_hepa_one_model = new SimpleOxygenBasedCellCycleModel();
-        SimpleOxygenBasedCellCycleModel* p_diff_model = new SimpleOxygenBasedCellCycleModel();
-        
-        // Create cell 
-        TissueCell hepa_one_cell(STEM, HEALTHY, p_hepa_one_model);
-        hepa_one_cell.InitialiseCellCycleModel();
-        
-        TissueCell diff_cell(DIFFERENTIATED, HEALTHY, p_diff_model);
-        diff_cell.InitialiseCellCycleModel();
-        
-        // Check that the cell cycle phase and ready to divide
-        // are updated correctly        
-        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),false);        
-        TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),M_PHASE);
-        
-        TS_ASSERT_EQUALS(p_diff_model->ReadyToDivide(),false);
-        TS_ASSERT_EQUALS(p_diff_model->GetCurrentCellCyclePhase(),G_ZERO_PHASE);
-                
-        for (unsigned i = 0 ; i< num_steps ; i++)
-        {
-            p_simulation_time->IncrementTimeOneStep();
-            
-            // Note that we need to pass in the updated G1 duration            
-            CheckReadyToDivideAndPhaseIsUpdated(p_hepa_one_model, p_hepa_one_model->GetG1Duration());         
-        }
-        
-        TS_ASSERT_DELTA(p_hepa_one_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
-        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),true);  
-
-        // Check that cell division correctly resets the cell cycle phase
-        SimpleOxygenBasedCellCycleModel *p_hepa_one_model2 = static_cast <SimpleOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateCellCycleModel());
-        
-        TissueCell hepa_one_cell2(STEM, HEALTHY, p_hepa_one_model2);
-        TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);        
-        TS_ASSERT_EQUALS(p_hepa_one_model2->GetCurrentCellCyclePhase(), M_PHASE);
-        
-        TS_ASSERT_THROWS_NOTHING(p_hepa_one_model->ResetForDivision());     
-        
-        // Set up SimulationTime         
-        SimulationTime::Destroy();
-        p_simulation_time = SimulationTime::Instance();                  
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*CancerParameters::Instance()->GetCriticalHypoxicDuration(), num_steps);
-        
-        // Create a cell with a simple oxygen-based cell cycle model
-        SimpleOxygenBasedCellCycleModel* p_cell_model = new SimpleOxygenBasedCellCycleModel();
-        TissueCell necrotic_cell(STEM, HEALTHY, p_cell_model);
-        
-        // Set up constant oxygen_concentration     
-        CellwiseData<2>::Instance()->SetConstantDataForTesting(low_oxygen_concentration);
-                          
-        // Force the cell to be necrotic
-        for (unsigned i = 0 ; i< num_steps ; i++)
-        {
-            TS_ASSERT(necrotic_cell.GetCellType()!=NECROTIC || 
-                      p_simulation_time->GetDimensionalisedTime() >= CancerParameters::Instance()->GetCriticalHypoxicDuration());
-            p_simulation_time->IncrementTimeOneStep();
-            
-            // Note that we need to pass in the updated G1 duration            
-            necrotic_cell.ReadyToDivide();
-        }
-        
-        // Test that the cell type is updated to be NECROTIC        
-        TS_ASSERT(necrotic_cell.GetCellType()==NECROTIC);          
-        TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
-                  
-        CellwiseData<2>::Destroy();
-    }    
+    }
+  
 };
 
 #endif /*TESTCELLCYCLEMODELSSIMPLE_HPP_*/

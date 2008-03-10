@@ -12,7 +12,6 @@
 #include "PetscTools.hpp"
 
 
-
 /*
  *  A simple oxygen diffusion pde, with parameters chosen for the scaling in tissue simulations
  *  
@@ -145,8 +144,7 @@ public:
             u2.push_back(result_elliptic_repl[smasrm_index]);
 
             map_iter2++;
-        }
-        
+        }        
 
         std::vector<std::vector<double> > data2;
         data2.push_back(x2);

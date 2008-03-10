@@ -48,8 +48,10 @@ public:
     void TestTysonNovakSolver() throw(Exception)
     {
         TysonNovak2001OdeSystem tyson_novak_system;
+        
         // Solve system using backward Euler solver
-        // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
+        
+        // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits
         
         double dt=0.1/60.0;
         
@@ -67,13 +69,11 @@ public:
         start_time = std::clock();
         solutions = backward_euler_solver.Solve(&tyson_novak_system, state_variables, 0.0, 75.8350/60.0, dt, dt);
         end_time = std::clock();
-        //solutions2 = rk4_solver.Solve(&tyson_novak_system, state_variables, 0.0, 75.8350/60.0, h_value, h_value);
-        //TS_ASSERT_EQUALS(solutions.GetNumberOfTimeSteps(), 10);
+        
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "1. Elapsed time = " << elapsed_time << "\n";
-        
-        
-        // If you run it up to about 75min  the ode will stop, anything less and it will not and this test will fail
+                
+        // If you run it up to about 75min the ODE will stop, anything less and it will not and this test will fail
         TS_ASSERT(backward_euler_solver.StoppingEventOccured());
         
         unsigned end = solutions.rGetSolutions().size() - 1;    
@@ -124,8 +124,6 @@ public:
         
         // Test backward euler solutions are OK for a very small time increase...
         
-        
-        
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],0.59995781827316, 1e-5);
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.09406711653612, 1e-5);
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],1.50003361032032, 1e-5);
@@ -134,7 +132,8 @@ public:
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],0.85000777753272, 1e-5);
 //
 
-        // Proper values from MatLab ode15s - shocking tolerances to pass though.
+        // Proper values calculated using the MatLab stiff ODE solver ode15s. Note that 
+        // large tolerances are required for the tests to pass (see #238 and #316).
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],0.10000000000000, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.98913684535843, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],1.54216806705641, 1e-2);

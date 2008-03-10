@@ -349,8 +349,8 @@ public:
         WntConcentration::Destroy();
     }
 
-    // A check that save and load works when a voronoi tesselation is involved
-    void TestMeshSurvivesSaveLoadWithBellsAndWhistles() throw (Exception)
+    // A check that save and load works when a Voronoi tessellation is involved
+    void TestMeshSurvivesSaveLoadWithVoroniTessellation() throw (Exception)
     {
         unsigned cells_across = 6;
         unsigned cells_up = 12;
