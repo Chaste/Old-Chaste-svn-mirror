@@ -24,7 +24,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     Button run;
     
     public Frame frame = new Frame();
-
+    
     public static boolean parsed_all_files = false;
     public static boolean drawAxes = true;
     public static boolean drawCells = true;
@@ -466,8 +466,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         }
         if (!element_file.isFile())
         {
-        	// If the results.vizelements does not exist, then the results have been 
-        	// generated using a SimpleTissue
+        	// If the results.vizelements does not exist, then assume the results 
+        	// were generated using a SimpleTissue
         	elementFilePresent = false;
         }
         if (!nutrient_file.isFile())
@@ -581,7 +581,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 in_fibre_file = new BufferedReader(new FileReader(fibre_file));
                 line_fibre = in_fibre_file.readLine();
             }
-                        
+
             if (setupFilePresent)
             {
                 BufferedReader in_setup_file = new BufferedReader(new FileReader(setup_file));
@@ -655,6 +655,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             	in_element_file = new BufferedReader(new FileReader(element_file));
             	line_element = in_element_file.readLine();   // above
             }
+            else
+            {
+            	System.out.println("No vizelement file found - plotting node locations only");
+            }
             
             // If line is not end of file continue
             boolean has_stress_line_been_read = false;
@@ -673,23 +677,27 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 StringTokenizer st_beta_catenin = null;
                 StringTokenizer st_stress = null;
                 
+                Double time = Double.valueOf(st_node.nextToken());
+                
                 if (drawFibres)
                 {
                     st_fibre = new StringTokenizer(line_fibre);
                     Double fibre_time = Double.valueOf(st_fibre.nextToken());
                 }
+                
                 if (drawNutrient)
                 {
                 	st_nutrient = new StringTokenizer(line_nutrient);
                     Double nutrient_time = Double.valueOf(st_nutrient.nextToken());
                     
-	                int nutrient_entries = st_nutrient.countTokens();	                
+	                int nutrient_entries = st_nutrient.countTokens();
 	                if (nutrient_entries%4 != 0)
 	                {
-	                    System.out.println("Oi - I want the nutrient file to look like: time,index,x,y,nutrient,index,x,y,nutrient,...");
-	                    System.exit(0);
+	                	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the nutrient file is not of the required form: time,index,x,y,nutrient,index,x,y,nutrient,...");
+	                	break;
 	                }
                 }
+                
                 if (drawBetaCatenin)
                 {
                 	st_beta_catenin = new StringTokenizer(line_beta_catenin);
@@ -700,13 +708,14 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 	            
 	                if (beta_catenin_entries%6 != 0)
 	                {
-	                    System.out.println("Oi - I want the beta catenin file to look like: time,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,...");
-	                    System.exit(0);
+	                	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the beta catenin file is not of the required form: time,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,...");
+	                	break;
 	                }
                 }
+                
                 if ((drawAverageStress || drawDifferenceStress) && !has_stress_line_been_read)
                 {
-                	st_stress=new StringTokenizer(line_stress);
+                	st_stress = new StringTokenizer(line_stress);
                     stress_time = Double.valueOf(st_stress.nextToken());
                     
                     // Count the number of entries in the bcat file to get num non ghosts and check correct 
@@ -714,14 +723,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 	            
 	                if (stress_entries%5 != 0)
 	                {
-	                    System.out.println("Oi - I want the stress file to look like: time,index,x,y,min_stress,max_stress,index,x,y,min_stress,max_stress,...");
-	                    System.exit(0);
+	                	throw new Exception("The stress file must take the form: time,index,x,y,min_stress,max_stress,index,x,y,min_stress,max_stress,...");
 	                }
-	                System.out.println("My stress file is for time = " + stress_time);
+	                System.out.println("The stress file is for time = " + stress_time);
 	                has_stress_line_been_read = true;
                 }
-                
-                Double time = Double.valueOf(st_node.nextToken());
                 
                 if (elementFilePresent)
                 {
@@ -729,8 +735,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     
                     if (Math.abs(time - element_time) > 1e-6) 
                     {
-                        System.out.println("Oi - I want the element and node files with rows at the same times...");
-                        System.exit(0);
+                    	throw new Exception("Error: The time corresponding to each line of the element file must match that of the node file");
                     }               	
                 }
                 
@@ -738,10 +743,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
                 // Count the number of entries in the node file and check correct 
                 int entries = st_node.countTokens();
+                                
                 if (entries%3 != 0)
                 {
-                    System.out.println("Oi - I want the node file to look like: time,x,y,type,x,y,type...");
-                    System.exit(0);
+                	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the node file is not of the required form: time,x,y,type,x,y,type...");
+                	break;
                 }
                 numCells[row] = entries/3; 
                 
@@ -751,8 +757,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     entries = st_element.countTokens();
                     if (entries%3 != 0)
                     {
-                        System.out.println("Oi - I want the element file to look like: time,n1,n2,n3,n1,n2,n3..");
-                        System.exit(0);
+                    	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the element file is not of the required form: time,n1,n2,n3,n1,n2,n3..");
+                    	break;
                     }
                     numElements[row] = entries/3;
                     element_nodes[row] = new int[memory_factor*3*numElements[row]];
@@ -774,9 +780,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 {
                 	stress_values[row] = new double[2*numCells[row]][2];
                 }
-                cell_type[row]= new int[memory_factor*numCells[row]];
+                cell_type[row] = new int[memory_factor*numCells[row]];
                 
-                for (int i = 0; i < numCells[row]; i++) 
+                for (int i=0; i<numCells[row]; i++) 
                 {
                 	double d1 = Double.valueOf(st_node.nextToken()).doubleValue();
                     double d2 = Double.valueOf(st_node.nextToken()).doubleValue();
@@ -789,9 +795,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     }
                     
                     cell_type[row][i] = Integer.parseInt(st_node.nextToken());
-                    if ( cell_type[row][i]<0 )
+                    if ( cell_type[row][i] < 0 )
                     {
-                        System.out.println("I want a non-negative cell type");
+                        System.out.println("Error: Cell type must be a non-negative integer");
                         System.exit(0);
                     }
                     positions[row][i] = new RealPoint(d1,d2);
@@ -812,19 +818,19 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     
                     if (drawBetaCatenin)
                     {
-                    	if (cell_type[row][i]!=canvas.INVISIBLE_COLOUR)	// if this is not a ghost cell
+                    	if (cell_type[row][i] != canvas.INVISIBLE_COLOUR)	// if this is not a ghost cell
                     	{
                     		String skip; 
                         	int index = Integer.parseInt(st_beta_catenin.nextToken()); // index
                         	skip = st_beta_catenin.nextToken(); // x
                         	skip = st_beta_catenin.nextToken(); // y
                         	
-                        	double beta_catenin_membrane= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
-                        	double beta_catenin_cytoplasm= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
-                        	double beta_catenin_nuclear= Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
-                        	beta_catenin_values[row][index][0]= beta_catenin_membrane;
-                        	beta_catenin_values[row][index][1]= beta_catenin_cytoplasm;
-                        	beta_catenin_values[row][index][2]= beta_catenin_nuclear;
+                        	double beta_catenin_membrane = Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
+                        	double beta_catenin_cytoplasm = Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
+                        	double beta_catenin_nuclear = Double.valueOf(st_beta_catenin.nextToken()).doubleValue();
+                        	beta_catenin_values[row][index][0] = beta_catenin_membrane;
+                        	beta_catenin_values[row][index][1] = beta_catenin_cytoplasm;
+                        	beta_catenin_values[row][index][2] = beta_catenin_nuclear;
                         }
                     }	
                     
@@ -909,9 +915,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     
     public static void CalculateCanvasDimensions()
     {
-        for (int row=0 ; row<numSteps ; row++)
+        for (int row=0 ; row<numSteps; row++)
         {
-            for (int i = 0; i < numCells[row]; i++) 
+            for (int i=0; i < numCells[row]; i++) 
             {
                 if (positions[row][i].x > max_x) 
                 {
