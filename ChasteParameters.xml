@@ -6,8 +6,8 @@
 	<!-- 
 		Problem definition 
 	-->    
-    <SimulationDuration>200.0</SimulationDuration>
-    <Domain>Bi</Domain>
+    <SimulationDuration>50.0</SimulationDuration>
+    <Domain>Mono</Domain>
     <IonicModel>FaberRudy2000Version3</IonicModel>
     
 	<!-- 

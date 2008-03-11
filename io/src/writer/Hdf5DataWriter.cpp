@@ -1,9 +1,9 @@
 /**
-* Implementation file for HDF5DataWriter class.
+* Implementation file for Hdf5DataWriter class.
 *
 */
 #include <iostream>
-#include "HDF5DataWriter.hpp"
+#include "Hdf5DataWriter.hpp"
 
 
 using std::string;
@@ -13,7 +13,7 @@ using std::string;
 * destination directory.
 *
 */
-HDF5DataWriter::HDF5DataWriter(string directory, string baseName, bool cleanDirectory) :
+Hdf5DataWriter::Hdf5DataWriter(string directory, string baseName, bool cleanDirectory) :
         mDirectory(directory),
         mBaseName(baseName),
         mCleanDirectory(cleanDirectory),
@@ -36,14 +36,14 @@ HDF5DataWriter::HDF5DataWriter(string directory, string baseName, bool cleanDire
     }
 }
 
-HDF5DataWriter::~HDF5DataWriter()
+Hdf5DataWriter::~Hdf5DataWriter()
 {
 }
 
 /**
  * @returns True if this is the rank 0 process
  */
-bool HDF5DataWriter::AmMaster() const
+bool Hdf5DataWriter::AmMaster() const
 {
     return mAmMaster;
 }
@@ -55,7 +55,7 @@ bool HDF5DataWriter::AmMaster() const
 *  @param dimensionSize The size of the dimension
 *
 */
-void HDF5DataWriter::DefineFixedDimension(long dimensionSize)
+void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
 {
     if (!mIsInDefineMode)
     {
@@ -83,7 +83,7 @@ void HDF5DataWriter::DefineFixedDimension(long dimensionSize)
 *
 *  @return The identifier of the variable
 */
-int HDF5DataWriter::DefineVariable(string variableName, string variableUnits)
+int Hdf5DataWriter::DefineVariable(string variableName, string variableUnits)
 {
     if (!mIsInDefineMode)
     {
@@ -117,7 +117,7 @@ int HDF5DataWriter::DefineVariable(string variableName, string variableUnits)
 }
 
 
-void HDF5DataWriter::CheckVariableName(std::string name)
+void Hdf5DataWriter::CheckVariableName(std::string name)
 {
     if (name.length() == 0)
     {
@@ -126,7 +126,7 @@ void HDF5DataWriter::CheckVariableName(std::string name)
     CheckUnitsName(name);
 }
 
-void HDF5DataWriter::CheckUnitsName(std::string name)
+void Hdf5DataWriter::CheckUnitsName(std::string name)
 {
     for (unsigned i=0; i<name.length(); i++)
     {
@@ -138,7 +138,7 @@ void HDF5DataWriter::CheckUnitsName(std::string name)
     }
 }
 
-void HDF5DataWriter::EndDefineMode()
+void Hdf5DataWriter::EndDefineMode()
 {
     //Check that at least one variable has been defined
     if (mVariables.size() < 1)
@@ -159,34 +159,14 @@ void HDF5DataWriter::EndDefineMode()
     std::string file_name = results_dir + mBaseName + ".h5";
         
     // Set up a property list saying how we'll open the file
-    hid_t property_list_id = H5Pcreate(H5P_FILE_ACCESS);
-   
+    hid_t property_list_id = H5Pcreate(H5P_FILE_ACCESS);   
     H5Pset_fapl_mpio(property_list_id, PETSC_COMM_WORLD, MPI_INFO_NULL);
         
     // Create a file (collectively) and free the property list
     mFileId = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, property_list_id);
     H5Pclose(property_list_id);
     
-    /*
-     *  Create "Time" dataset 
-     */
-    if (mIsUnlimitedDimensionSet)
-    {
-        hsize_t time_dataset_dims[1] = {1};
-        hsize_t time_dataset_max_dims[1] = {H5S_UNLIMITED};
         
-        // Modify dataset creation properties to enable chunking.
-        hsize_t time_chunk_dims[1] ={1};
-        hid_t time_cparms = H5Pcreate (H5P_DATASET_CREATE);
-        H5Pset_chunk( time_cparms, 1, time_chunk_dims);
-        
-        hid_t time_filespace = H5Screate_simple(1, time_dataset_dims, time_dataset_max_dims);
-    
-        // Create the dataset and close filespace.
-        mTimeDatasetId = H5Dcreate(mFileId, mUnlimitedDimensionName.c_str(), H5T_NATIVE_DOUBLE, time_filespace, time_cparms);
-        H5Sclose(time_filespace);    
-    }
-    
     /*
      *  Create "Data" dataset
      */    
@@ -221,7 +201,7 @@ void HDF5DataWriter::EndDefineMode()
 
     // Create dataspace for the name, unit attribute
     const unsigned MAX_STRING_SIZE=100;
-    hsize_t columns[2] = {mVariables.size(), MAX_STRING_SIZE};
+    hsize_t columns[1] = {mVariables.size()};
     hid_t colspace = H5Screate_simple(1, columns, NULL);
     
     //Create attribute
@@ -235,22 +215,58 @@ void HDF5DataWriter::EndDefineMode()
         col_data_offset += sizeof(char) * MAX_STRING_SIZE;
     }
     
-    // create the type 'char'
-    hid_t char_type = H5Tcopy(H5T_C_S1);
-    //H5Tset_strpad(char_type, H5T_STR_NULLPAD);
-    H5Tset_size(char_type, MAX_STRING_SIZE );
-    hid_t attr = H5Acreate(mDatasetId, "Variable Details", char_type, colspace, H5P_DEFAULT  );
+    // create the type 'string'
+    hid_t string_type = H5Tcopy(H5T_C_S1);
+    H5Tset_size(string_type, MAX_STRING_SIZE );
+    hid_t attr = H5Acreate(mDatasetId, "Variable Details", string_type, colspace, H5P_DEFAULT  );
     // Write to the attribute
-    H5Awrite(attr, char_type, col_data); 
-    
+    H5Awrite(attr, string_type, col_data); 
+
     //Close dataspace & attribute
     free(col_data);
     H5Sclose(colspace);
     H5Aclose(attr);
 
+    
+    /*
+     *  Create "Time" dataset 
+     */
+    if (mIsUnlimitedDimensionSet)
+    {
+        hsize_t time_dataset_dims[1] = {1};
+        hsize_t time_dataset_max_dims[1] = {H5S_UNLIMITED};
+        
+        // Modify dataset creation properties to enable chunking.
+        hsize_t time_chunk_dims[1] ={1};
+        hid_t time_cparms = H5Pcreate (H5P_DATASET_CREATE);
+        H5Pset_chunk( time_cparms, 1, time_chunk_dims);
+        
+        hid_t time_filespace = H5Screate_simple(1, time_dataset_dims, time_dataset_max_dims);
+    
+        // Create the dataset
+        mTimeDatasetId = H5Dcreate(mFileId, mUnlimitedDimensionName.c_str(), H5T_NATIVE_DOUBLE, time_filespace, time_cparms);
+    
+        // Create the dataspace for the attribute
+        hsize_t one = 1;
+        hid_t one_column_space = H5Screate_simple(1, &one, NULL);
+        
+        // Create an attribute for the time unit
+        hid_t unit_attr = H5Acreate(mTimeDatasetId, "Unit", string_type, one_column_space, H5P_DEFAULT);        
+
+        // Copy the unit to a string MAX_STRING_SIZE long and write it
+        char unit_string[MAX_STRING_SIZE];
+        strcpy(unit_string, mUnlimitedDimensionUnit.c_str());
+        H5Awrite(unit_attr, string_type, unit_string); 
+
+        // Close the filespace
+        H5Sclose(one_column_space);
+        H5Aclose(unit_attr);
+        H5Sclose(time_filespace);
+    }
+        
 }
 
-void HDF5DataWriter::PutVector(int variableID, Vec petscVector)
+void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
 {   
     int lo, hi;
     VecGetOwnershipRange(petscVector, &lo, &hi);
@@ -279,7 +295,7 @@ void HDF5DataWriter::PutVector(int variableID, Vec petscVector)
     H5Pclose(property_list_id); 
 }
 
-void HDF5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector)
+void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector)
 {   
     int NUM_STRIPES=2;
     
@@ -319,7 +335,7 @@ void HDF5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
     H5Pclose(property_list_id);  
 }
 
-void HDF5DataWriter::PutUnlimitedVariable(double value)
+void Hdf5DataWriter::PutUnlimitedVariable(double value)
 {
     if(!mIsUnlimitedDimensionSet)
     {
@@ -347,7 +363,7 @@ void HDF5DataWriter::PutUnlimitedVariable(double value)
 }
 
 
-void HDF5DataWriter::Close()
+void Hdf5DataWriter::Close()
 {
     H5Dclose(mDatasetId);
     
@@ -360,7 +376,7 @@ void HDF5DataWriter::Close()
 }
 
 
-void HDF5DataWriter::DefineUnlimitedDimension(std::string variableName, std::string variableUnits)
+void Hdf5DataWriter::DefineUnlimitedDimension(std::string variableName, std::string variableUnits)
 {
     if (mIsUnlimitedDimensionSet)
     {
@@ -373,10 +389,11 @@ void HDF5DataWriter::DefineUnlimitedDimension(std::string variableName, std::str
     }
     
     mIsUnlimitedDimensionSet = true;      
-    mUnlimitedDimensionName = variableName + "(" + variableUnits + ")";
+    mUnlimitedDimensionName = variableName;
+    mUnlimitedDimensionUnit = variableUnits;
 }
 
-void HDF5DataWriter::AdvanceAlongUnlimitedDimension()
+void Hdf5DataWriter::AdvanceAlongUnlimitedDimension()
 {
     if (!mIsUnlimitedDimensionSet)
     {

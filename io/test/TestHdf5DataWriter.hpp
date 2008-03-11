@@ -7,12 +7,12 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
-#include "HDF5DataWriter.hpp"
+#include "Hdf5DataWriter.hpp"
 
 class TestHdf5DataWriter : public CxxTest::TestSuite
 {
 private:
-    HDF5DataWriter *mpTestWriter;    
+    Hdf5DataWriter *mpTestWriter;    
     
 public:
     void TestSimpleParallelWriteDirectlyWithHdf5()
@@ -216,12 +216,12 @@ public:
         H5Fclose(file_id);
     } 
 
-    void TestHDF5DataWriterMultipleColumns() throw(Exception)
+    void TestHdf5DataWriterMultipleColumns() throw(Exception)
     {
         int number_nodes=100;
         DistributedVector::SetProblemSize(number_nodes);
                
-        HDF5DataWriter writer("hdf5", "hdf5_test_multi_column", false);
+        Hdf5DataWriter writer("hdf5", "hdf5_test_multi_column", false);
         writer.DefineFixedDimension(number_nodes);
         
         int node_id = writer.DefineVariable("Node","dimensionless");
@@ -254,7 +254,7 @@ public:
         
         writer.Close();
         
-        if(writer.AmMaster())
+        if(PetscTools::AmMaster())
         {
             // call h5dump to take the binary hdf5 output file and print it
             // to a text file. Note that the first line of the txt file would
@@ -274,12 +274,12 @@ public:
     }    
 
 
-    void TestHDF5DataWriterFullFormat() throw(Exception)
+    void TestHdf5DataWriterFullFormat() throw(Exception)
     {
         int number_nodes=100;
         DistributedVector::SetProblemSize(number_nodes);
                
-        HDF5DataWriter writer("hdf5", "hdf5_test_full_format", false);
+        Hdf5DataWriter writer("hdf5", "hdf5_test_full_format", false);
         writer.DefineFixedDimension(number_nodes);
         
         int node_id = writer.DefineVariable("Node","dimensionless");
@@ -343,11 +343,11 @@ public:
     }    
 
 
-    void TestHDF5DataWriterFullFormatStriped() throw(Exception)
+    void TestHdf5DataWriterFullFormatStriped() throw(Exception)
     {
         int number_nodes=100;
                
-        HDF5DataWriter writer("hdf5", "hdf5_test_full_format_striped", false);
+        Hdf5DataWriter writer("hdf5", "hdf5_test_full_format_striped", false);
         writer.DefineFixedDimension(number_nodes);
         
         int node_id = writer.DefineVariable("Node","dimensionless");
@@ -424,7 +424,7 @@ public:
     {
         int number_nodes=100;
                
-        HDF5DataWriter writer("hdf5", "hdf5_test_non_implemented", false);
+        Hdf5DataWriter writer("hdf5", "hdf5_test_non_implemented", false);
         writer.DefineFixedDimension(number_nodes);
         
         int vm_id = writer.DefineVariable("V_m","millivolts"); assert(vm_id >= 0);  
@@ -471,12 +471,10 @@ public:
  */ 
     void TestDefineUnlimitedDimension( void )
     {
-        mpTestWriter = new HDF5DataWriter("", "test");
-
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutUnlimitedVariable(0.0)); 
-
-        mpTestWriter->DefineUnlimitedDimension("Time","msecs");
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter("", "test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","m secs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("T,i,m,e","msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("","msecs"));
@@ -486,7 +484,7 @@ public:
     
     void TestDefineFixedDimension( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter("", "test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(5000));
         
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(5000));
@@ -496,7 +494,7 @@ public:
     
     void TestDefineVariable( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter("", "test"));
         int ina_var_id = 0;
         int ik_var_id = 0;
         int ik2_var_id = 0;
@@ -525,7 +523,7 @@ public:
     
     void TestEndDefineMode( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "testdefine"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter("", "testdefine"));
       
         //ending define mode without having defined at least a variable and a fixed dimension should raise an exception
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
@@ -539,7 +537,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
         
-        //In HDF5 a fixed dimension should be defined always
+        //In Hdf5 a fixed dimension should be defined always
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(5000));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
@@ -554,7 +552,7 @@ public:
     
     void TestCantAddUnlimitedAfterEndDefine ( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "testdefine"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter("", "testdefine"));
         int ina_var_id = 0;
         int ik_var_id = 0;
         
@@ -572,7 +570,7 @@ public:
  
     void TestAdvanceAlongUnlimitedDimension ( void )
     {   
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new HDF5DataWriter("", "testdefine"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter("", "testdefine"));
         
         int ina_var_id;
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(5000));        

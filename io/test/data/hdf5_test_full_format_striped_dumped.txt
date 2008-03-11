@@ -1118,11 +1118,23 @@ GROUP "/" {
          }
       }
    }
-   DATASET "Time(msec)" {
+   DATASET "Time" {
       DATATYPE  H5T_IEEE_F64LE
       DATASPACE  SIMPLE { ( 11 ) / ( H5S_UNLIMITED ) }
       DATA {
       (0): 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
+      }
+      ATTRIBUTE "Unit" {
+         DATATYPE  H5T_STRING {
+               STRSIZE 100;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_ASCII;
+               CTYPE H5T_C_S1;
+            }
+         DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
+         DATA {
+         (0): "msec"
+         }
       }
    }
 }

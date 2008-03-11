@@ -9,7 +9,7 @@
 #include "DataWriterVariable.hpp"
 #include "OutputFileHandler.hpp"
 
-class HDF5DataWriter// : public AbstractDataWriter
+class Hdf5DataWriter//  : public AbstractDataWriter
 {
 private:
     bool mAmMaster;          /**< set to true in constructor for process is the rank 0 process*/
@@ -21,6 +21,7 @@ private:
     bool mIsFixedDimensionSet; /**< Is the fixed dimension set */
     bool mIsUnlimitedDimensionSet; /**< Is the unlimited dimension set */
     std::string mUnlimitedDimensionName;
+    std::string mUnlimitedDimensionUnit;
     long mFixedDimensionSize; /**< The size of the fixed dimension */    
 
     std::vector<DataWriterVariable> mVariables; /**< The data variables */
@@ -38,8 +39,8 @@ private:
     hsize_t mDatasetDims[DATASET_DIMS]; 
     
 public:
-    HDF5DataWriter(std::string directory, std::string baseName, bool cleanDirectory=true);
-    virtual ~HDF5DataWriter();
+    Hdf5DataWriter(std::string directory, std::string baseName, bool cleanDirectory=true);
+    virtual ~Hdf5DataWriter();
     bool AmMaster() const;
     void DefineFixedDimension(long dimensionSize);
     void DefineUnlimitedDimension(std::string variableName, std::string variableUnits);
