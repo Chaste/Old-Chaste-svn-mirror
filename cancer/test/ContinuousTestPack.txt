@@ -16,7 +16,6 @@ TestCryptStatistics.hpp
 TestCylindrical2dMesh.hpp
 TestDiscreteSystemForceCalculator.hpp
 TestHoneycombMeshGenerator.hpp
-TestIngeCellsSimulation.hpp
 TestIngeWntSwatCellCycleOdeSystem.hpp
 TestMeineke2001SpringSystem.hpp
 TestMeinekeSpringSystemWithChemotaxis.hpp

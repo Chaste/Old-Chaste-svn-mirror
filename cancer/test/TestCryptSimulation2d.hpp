@@ -11,10 +11,6 @@
 
 #include "CryptSimulation2d.hpp"
 #include "CellsGenerator.hpp"
-#include "FixedCellCycleModel.hpp"
-#include "StochasticCellCycleModel.hpp"
-#include "TysonNovakCellCycleModel.hpp"
-#include "WntCellCycleModel.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "ColumnDataReader.hpp"
@@ -1178,7 +1174,8 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/AncestorCrypt/results.viznodes").c_str()), 0);
         
         delete p_params;               
-    } 
+    }
+    
 };
 
 #endif /*TESTCRYPTSIMULATION2D_HPP_*/

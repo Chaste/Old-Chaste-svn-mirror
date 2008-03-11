@@ -1,12 +1,20 @@
 #ifndef TESTINGEWNTSWATCELLCYCLEODESYSTEM_HPP_
 #define TESTINGEWNTSWATCELLCYCLEODESYSTEM_HPP_
 
+#include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include <stdio.h>
 #include <time.h>
-#include <cxxtest/TestSuite.h>
-#include "IngeWntSwatCellCycleOdeSystem.hpp"
+
 #include <vector>
 #include <iostream>
+
+#include "IngeWntSwatCellCycleOdeSystem.hpp"
+#include "CryptSimulation2d.hpp"
+#include "SloughingCellKiller.hpp"
+#include "CellsGenerator.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
@@ -556,7 +564,67 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][18], 0, 1e-3);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][19], 0, 1.01e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][20], 3.333333333333310e+00, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][21], 1, 1e-3);     
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][21], 1, 1e-3);
+    }
+    
+    /**
+     * Test to check that none of the protein concentrations in the 
+     * IngeWntSwatCellCycleModel go negative in a crypt simulation
+     * (see ticket #629).
+     */
+    void TestIngeWntOdeSolutionDoesNotGoNegative() throw (Exception)
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        p_params->Reset();
+        
+        double time_of_each_run = 0.01; // for each run
+        
+        unsigned cells_across = 4;
+        unsigned cells_up = 25;
+        double crypt_width = 4.1;
+        unsigned thickness_of_ghost_layer = 3;
+        
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Set up cells
+        std::vector<TissueCell> cells;
+        CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_ONE, true);
+        
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            cells[i].SetBirthTime(-1.1); // just to make the test run a bit quicker
+        }
+        
+        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        crypt.SetGhostNodes(ghost_node_indices);
+        
+        WntConcentration::Instance()->SetType(LINEAR);
+        CancerParameters::Instance()->SetTopOfLinearWntConcentration(1.0/3.0);
+        WntConcentration::Instance()->SetTissue(crypt);
+        
+        CryptSimulation2d simulator(crypt);
+        simulator.SetOutputDirectory("IngeCellsNiceCryptSim_long");
+        
+        // Set simulation to output cell types
+        simulator.SetOutputCellMutationStates(true);
+                
+        // Set length of simulation here
+        simulator.SetEndTime(time_of_each_run);
+
+        SloughingCellKiller cell_killer(&simulator.rGetTissue(),0.01);
+        simulator.AddCellKiller(&cell_killer);
+        
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        simulator.Save();
+
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+        WntConcentration::Destroy();
     }
     
 };
