@@ -72,8 +72,8 @@ TestGenerateSteadyStateCryptRunner: TestGenerateSteadyStateCryptRunner.o ${LIBS}
 
 # This test generates Inge cells crypt
 
-TestMakeNiceCryptSimsAlexWRunner.cpp:	cancer/test/TestMakeNiceCryptSimsAlexW.hpp
-	cxxtest/cxxtestgen.py  --error-printer -o TestMakeNiceCryptSimsAlexWRunner.cpp cancer/test/TestMakeNiceCryptSimsAlexW.hpp
+TestMakeNiceCryptSimsAlexWRunner.cpp:	projects/AlexW_New/test/TestMakeNiceCryptSimsAlexW_proj.hpp
+	cxxtest/cxxtestgen.py  --error-printer -o TestMakeNiceCryptSimsAlexWRunner.cpp projects/AlexW_New/test/TestMakeNiceCryptSimsAlexW_proj.hpp
 
 TestMakeNiceCryptSimsAlexWRunner: TestMakeNiceCryptSimsAlexWRunner.o ${LIBS}
 	g++ TestMakeNiceCryptSimsAlexWRunner.o ${LIBS} -o TestMakeNiceCryptSimsAlexWRunner ${LDFLAGS};\
@@ -89,7 +89,58 @@ TestMakeNiceCryptSimsAlexWRunner: TestMakeNiceCryptSimsAlexWRunner.o ${LIBS}
 	cp ../simulationMakeNiceCryptSimsAlexW.sh .  ;\
 	mv simulationMakeNiceCryptSimsAlexW.sh simulation.sh
 	
+# This test generates is same as above but with copying for yes area-drag, yes edge-based springs
 
+TestMakeYesYesRunner.cpp:	projects/AlexW_New/test/TestMakeNiceCryptSimsAlexW_proj.hpp
+	cxxtest/cxxtestgen.py  --error-printer -o TestMakeYesYesRunner.cpp projects/AlexW_New/test/TestMakeNiceCryptSimsAlexW_proj.hpp
+
+TestMakeYesYesRunner: TestMakeYesYesRunner.o ${LIBS}
+	g++ TestMakeYesYesRunner.o ${LIBS} -o TestMakeYesYesRunner ${LDFLAGS};\
+	echo "Making new experiment in ${FRESH_DIR} " ;\
+	echo "Do scp -r -C ${FRESH_DIR} pmxaw@deimos.nottingham.ac.uk:" ;\
+	echo "Then qsub simulation.sh on deimos";\
+	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
+	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
+	# Need to copy across the starting state of the simulation
+	mkdir ${FRESH_DIR}/Noddy_Yes_Yes; mkdir ${FRESH_DIR}/Noddy_Yes_Yes/archive ;\
+	cd ${FRESH_DIR}/Noddy_Yes_Yes/archive ;\
+	cp ../../../projects/AlexW_New/test/data/SteadyStateSimpleWnt/Noddy_Yes_Yes/archive/mesh_300.* . ;\
+	cp ../../../projects/AlexW_New/test/data/SteadyStateSimpleWnt/Noddy_Yes_Yes/archive/tissue_sim_at_time_300.arch . ;\
+	cd ../.. ;\
+	# Finished copying archives across.
+	cp TestMakeYesYesRunner ${FRESH_DIR} ;\
+	cd ${FRESH_DIR}/bin ;\
+	cp ../../bin/triangle triangle ;\
+	cd .. ;\
+	cp ../simulationMakeYesYes.sh .  ;\
+	mv simulationMakeYesYes.sh simulation.sh
+	
+# This test generates is same as above but with copying for No area-drag, No edge-based springs
+
+TestMakeNoNoRunner.cpp:	projects/AlexW_New/test/TestMakeNiceCryptSimsAlexW_proj.hpp
+	cxxtest/cxxtestgen.py  --error-printer -o TestMakeNoNoRunner.cpp projects/AlexW_New/test/TestMakeNiceCryptSimsAlexW_proj.hpp
+
+TestMakeNoNoRunner: TestMakeNoNoRunner.o ${LIBS}
+	g++ TestMakeNoNoRunner.o ${LIBS} -o TestMakeNoNoRunner ${LDFLAGS};\
+	echo "Making new experiment in ${FRESH_DIR} " ;\
+	echo "Do scp -r -C ${FRESH_DIR} pmxaw@deimos.nottingham.ac.uk:" ;\
+	echo "Then qsub simulation.sh on deimos";\
+	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
+	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
+	# Need to copy across the starting state of the simulation
+	mkdir ${FRESH_DIR}/Noddy_No_No; mkdir ${FRESH_DIR}/Noddy_No_No/archive ;\
+	cd ${FRESH_DIR}/Noddy_No_No/archive ;\
+	cp ../../../projects/AlexW_New/test/data/SteadyStateSimpleWnt/Noddy_No_No/archive/mesh_300.* . ;\
+	cp ../../../projects/AlexW_New/test/data/SteadyStateSimpleWnt/Noddy_No_No/archive/tissue_sim_at_time_300.arch . ;\
+	cd ../.. ;\
+	# Finished copying archives across.
+	cp TestMakeNoNoRunner ${FRESH_DIR} ;\
+	cd ${FRESH_DIR}/bin ;\
+	cp ../../bin/triangle triangle ;\
+	cd .. ;\
+	cp ../simulationMakeNoNo.sh .  ;\
+	mv simulationMakeNoNo.sh simulation.sh	
+	
 TestCryptSimulation2dRunner.cpp:	cancer/test/TestCryptSimulation2d.hpp
 	cxxtest/cxxtestgen.py  --error-printer  -o TestCryptSimulation2dRunner.cpp cancer/test/TestCryptSimulation2d.hpp
 
