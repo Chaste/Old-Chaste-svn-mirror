@@ -94,7 +94,7 @@ public:
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         tester.SetKspAbsoluteTolerance(1e-3); 
         tester.Stimulus=NEUMANN;
-        tester.SetMeshWidth(0.15);//cm
+        tester.SetMeshWidth(0.14);//cm
         tester.Converge();
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 4u);
