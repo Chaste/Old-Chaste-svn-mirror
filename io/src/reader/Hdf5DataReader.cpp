@@ -74,8 +74,8 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName) :
         std::string column_name_unit(&string_array[MAX_STRING_SIZE*index]);
         
         // Find beginning of unit definition.
-        unsigned name_length = column_name_unit.find('(');
-        unsigned unit_length = column_name_unit.find(')') - name_length - 1;
+        size_t name_length = column_name_unit.find('(');
+        size_t unit_length = column_name_unit.find(')') - name_length - 1;
         
         if (name_length == std::string::npos)
         {
