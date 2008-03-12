@@ -213,6 +213,9 @@ public:
         
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
+        
+        EventHandler::Headings();
+        EventHandler::Report();
     }
     
        void xTestBidomainDg0HeartMetis() throw (Exception)
