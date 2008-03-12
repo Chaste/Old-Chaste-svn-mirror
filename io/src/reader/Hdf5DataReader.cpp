@@ -18,11 +18,6 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName) :
     hid_t variables_dataspace = H5Dget_space(mVariablesDatasetId);
     mVariablesDatasetRank = H5Sget_simple_extent_ndims(variables_dataspace);
     
-    if (mVariablesDatasetRank > MAX_DATASET_RANK)
-    {
-        EXCEPTION("Wrong variables Dataset format, its rank is greater than " + MAX_DATASET_RANK);    
-    } 
-    
     // Get the dataset/dataspace dimensions
     hsize_t dataset_max_sizes[MAX_DATASET_RANK];
     H5Sget_simple_extent_dims(variables_dataspace, mVariablesDatasetSizes, dataset_max_sizes);       
@@ -36,11 +31,6 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName) :
         hid_t timestep_dataspace = H5Dget_space(mTimeDatasetId);
         unsigned timestep_dataspace_rank = H5Sget_simple_extent_ndims(timestep_dataspace);
         
-        if (timestep_dataspace_rank != 1)
-        {
-            EXCEPTION("Wrong timestep Dataset format, its rank is greater than 1");    
-        } 
-        
         // Get the dataset/dataspace dimensions
         H5Sget_simple_extent_dims(timestep_dataspace, &mNumberTimesteps, NULL);       
                     
@@ -53,10 +43,6 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName) :
     hid_t attribute_type  = H5Aget_type(attribute_id);
     hid_t attribute_space = H5Aget_space(attribute_id);
     unsigned rank = H5Sget_simple_extent_ndims(attribute_space);
-    if (rank != 1)
-    {
-        EXCEPTION("Wrong attribute format in "+file_name);            
-    }
     hsize_t attr_dataspace_dim;
     H5Sget_simple_extent_dims(attribute_space, &attr_dataspace_dim, NULL);
 
@@ -76,11 +62,6 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName) :
         // Find beginning of unit definition.
         size_t name_length = column_name_unit.find('(');
         size_t unit_length = column_name_unit.find(')') - name_length - 1;
-        
-        if (name_length == std::string::npos)
-        {
-            EXCEPTION("Unit not especified for at least one of the variables in "+file_name);
-        }
         
         std::string column_name = column_name_unit.substr(0, name_length);
         std::string column_unit = column_name_unit.substr(name_length+1, unit_length);
