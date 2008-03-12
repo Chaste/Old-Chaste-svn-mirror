@@ -7,7 +7,7 @@
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "PropagationPropertiesCalculator.hpp"
-#include "ColumnDataReader.hpp"
+#include "Hdf5DataReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 #include "CheckMonoLr91Vars.hpp"
@@ -41,7 +41,7 @@ public:
         CheckMonoLr91Vars<1>(monodomain_problem);
         
         // Calculate the conduction velocity
-        ColumnDataReader simulation_data("MonoConductionVel",
+        Hdf5DataReader simulation_data("MonoConductionVel",
                                          "NewMonodomainLR91_1d");
         PropagationPropertiesCalculator ppc(&simulation_data);
         double velocity=0.0;

@@ -201,9 +201,8 @@ public:
     
     virtual void WriteOneStep(double time, Vec voltageVec)
     {
-        AbstractCardiacProblem<SPACE_DIM,2>::WriteOneStep(time, voltageVec);
-        DistributedVector::Stripe extracellular(voltageVec, 1);
-        this->mpWriter->PutVectorStripe(mExtracelluarColumnId, extracellular);
+        this->mpWriter->PutUnlimitedVariable(time);
+        this->mpWriter->PutStripedVector(this->mVoltageColumnId, mExtracelluarColumnId, voltageVec);        
     }
     
 };

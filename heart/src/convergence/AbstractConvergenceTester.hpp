@@ -15,7 +15,7 @@
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshWriter.cpp"
 #include "PropagationPropertiesCalculator.hpp"
-#include "ColumnDataReader.hpp"
+#include "Hdf5DataReader.hpp"
 #include "GeneralPlaneStimulusCellFactory.hpp"
 #include "CuboidMeshConstructor.hpp"
 #include "OutputFileHandler.hpp"
@@ -360,13 +360,12 @@ public:
                 assert(tqn->rGetLocation()[coord]==0.5*mesh_width);
             }
             #endif
-            
+
             OutputFileHandler results_handler("Convergence", false);
-            ColumnDataReader results_reader(results_handler.GetOutputDirectoryFullPath(), "Results", false);
-            
+            Hdf5DataReader results_reader("Convergence", "Results");          
             
             {
-                std::vector<double> transmembrane_potential=results_reader.GetValues("V", third_quadrant_node);
+                std::vector<double> transmembrane_potential=results_reader.GetVariableOverTime("V", third_quadrant_node);
                 std::vector<double> time_series = results_reader.GetUnlimitedDimensionValues();
                 
                 // Write out the time series for the node at third quadrant
@@ -428,7 +427,7 @@ public:
             // Write time series for first quadrant node
             if (results_handler.IsMaster())
             {
-                std::vector<double> transmembrane_potential=results_reader.GetValues("V", first_quadrant_node);
+                std::vector<double> transmembrane_potential=results_reader.GetVariableOverTime("V", first_quadrant_node);
                 std::vector<double> time_series = results_reader.GetUnlimitedDimensionValues();
                 OutputFileHandler plot_file_handler("ConvergencePlots", false);
                 std::stringstream plot_file_name_stream;

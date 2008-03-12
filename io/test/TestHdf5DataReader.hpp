@@ -350,6 +350,13 @@ public:
                 
         }
 
+        std::vector<double> unlimited_values = reader.GetUnlimitedDimensionValues();
+        
+        for (unsigned i=0; i< unlimited_values.size(); i++)
+        {
+            TS_ASSERT_EQUALS(unlimited_values[i], i); 
+        }
+
         reader.Close();
     }
     
@@ -395,6 +402,7 @@ public:
         
         writer.Close();
      
+        TS_ASSERT_THROWS_ANYTHING(Hdf5DataReader reader2("hdf5_reader", "hdf5_wrong_name"));     
         Hdf5DataReader reader("hdf5_reader", "hdf5_test_overtime_exceptions");
                
         TS_ASSERT_THROWS_NOTHING(reader.GetVariableOverTime("Node", 99/*node*/));

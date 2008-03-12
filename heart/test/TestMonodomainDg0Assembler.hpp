@@ -9,7 +9,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "ColumnDataReader.hpp"
+#include "Hdf5DataReader.hpp"
 #include "ReplicatableVector.hpp"
 #include "CheckMonoLr91Vars.hpp"
 #include "PlaneStimulusCellFactory.hpp"
@@ -338,7 +338,7 @@ public:
         delete p_monodomain_problem;
         
         // read data entries for the time file and check correct
-        ColumnDataReader data_reader1("MonoDg01d", "mono_testPrintTimes");
+        Hdf5DataReader data_reader1("MonoDg01d", "mono_testPrintTimes");
         std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
         
         TS_ASSERT_EQUALS( times.size(), 4u);
@@ -363,7 +363,7 @@ public:
         p_monodomain_problem->Solve();
         
         // read data entries for the time file and check correct
-        ColumnDataReader data_reader2("MonoDg01d", "mono_testPrintTimes");
+        Hdf5DataReader data_reader2("MonoDg01d", "mono_testPrintTimes");
         times = data_reader2.GetUnlimitedDimensionValues();
         
         TS_ASSERT_EQUALS( times.size(), 4u);

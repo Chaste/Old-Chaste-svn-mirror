@@ -1,14 +1,14 @@
 #ifndef _PROPAGATIONPROPERTIESCALCULATOR_HPP_
 #define _PROPAGATIONPROPERTIESCALCULATOR_HPP_
 
-#include "ColumnDataReader.hpp"
+#include "Hdf5DataReader.hpp"
 #include <string>
 
 class PropagationPropertiesCalculator
 {
 private:
     /**< Reader to get the data from which we use to calculate properties. */
-    ColumnDataReader *mpDataReader;
+    Hdf5DataReader *mpDataReader;
     /**< Name of the variable representing the membrane potential. */
     const std::string mVoltageName;
 public:
@@ -19,7 +19,7 @@ public:
      * @param voltageName  Optionally the name of the variable representing the
      *     membrane potential.  Defaults to "V".
      */
-    PropagationPropertiesCalculator(ColumnDataReader *pDataReader,
+    PropagationPropertiesCalculator(Hdf5DataReader *pDataReader,
                                     const std::string voltageName = "V");
     virtual ~PropagationPropertiesCalculator();
     

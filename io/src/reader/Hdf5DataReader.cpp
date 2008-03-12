@@ -1,15 +1,29 @@
 #include "Hdf5DataReader.hpp"
 
-Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName) :
+Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool make_absolute) :
         mDirectory(directory),
         mBaseName(baseName),
         mIsUnlimitedDimensionSet(false),
         mNumberTimesteps(1)
 {
-    // Get the absolute path of the file
-    OutputFileHandler output_file_handler(mDirectory, false);
-    std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-    std::string file_name = results_dir + mBaseName + ".h5";
+    std::string results_dir;
+    
+    // Find out where files are really stored
+    if (make_absolute)
+    {
+        OutputFileHandler output_file_handler(directory, false);
+        results_dir = output_file_handler.GetOutputDirectoryFullPath();
+    }
+    else
+    {
+        // Add a trailing slash if needed
+        if ( !(*(directory.end()-1) == '/'))
+        {
+            results_dir = directory + "/";
+        }
+    }
+       
+    std::string file_name = results_dir + mBaseName + ".h5";  
                
     // Open the file and the main dataset
     mFileId = H5Fopen(file_name.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
@@ -29,7 +43,6 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName) :
         mTimeDatasetId = H5Dopen(mFileId, "Time");
         
         hid_t timestep_dataspace = H5Dget_space(mTimeDatasetId);
-        unsigned timestep_dataspace_rank = H5Sget_simple_extent_ndims(timestep_dataspace);
         
         // Get the dataset/dataspace dimensions
         H5Sget_simple_extent_dims(timestep_dataspace, &mNumberTimesteps, NULL);       
@@ -42,7 +55,7 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName) :
     // Get attribute datatype, dataspace, rank, and dimensions.     
     hid_t attribute_type  = H5Aget_type(attribute_id);
     hid_t attribute_space = H5Aget_space(attribute_id);
-    unsigned rank = H5Sget_simple_extent_ndims(attribute_space);
+
     hsize_t attr_dataspace_dim;
     H5Sget_simple_extent_dims(attribute_space, &attr_dataspace_dim, NULL);
 
@@ -165,6 +178,26 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data, std::string variableName, un
 
     H5Sclose(hyperslab_space);
     H5Sclose(memspace);            
+}
+
+std::vector<double> Hdf5DataReader::GetUnlimitedDimensionValues()
+{
+    // Define hyperslab in the dataset. 
+    hid_t time_dataspace = H5Dget_space(mTimeDatasetId);
+
+    // Define a simple memory dataspace
+    hid_t memspace = H5Screate_simple(1, &mNumberTimesteps ,NULL);   
+
+    // Data buffer to return
+    std::vector<double> ret(mNumberTimesteps);
+
+    // Read data from hyperslab in the file into the hyperslab in memory 
+    H5Dread(mTimeDatasetId, H5T_NATIVE_DOUBLE, memspace, time_dataspace, H5P_DEFAULT, &ret[0]);
+
+    H5Sclose(time_dataspace);
+    H5Sclose(memspace);
+
+    return ret;    
 }
 
 void Hdf5DataReader::Close()

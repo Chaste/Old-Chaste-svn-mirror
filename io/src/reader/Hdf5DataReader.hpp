@@ -34,11 +34,13 @@ private:
     
 public:
 
-    Hdf5DataReader(std::string directory, std::string baseName);
+    Hdf5DataReader(std::string directory, std::string baseName, bool make_absolute=true);
     
     std::vector<double> GetVariableOverTime(std::string variableName, unsigned nodeIndex);
     
     void GetVariableOverNodes(Vec data, std::string variableName, unsigned timestep=0);
+    
+    std::vector<double> GetUnlimitedDimensionValues();
     
     void Close();
 

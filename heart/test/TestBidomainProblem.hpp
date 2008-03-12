@@ -5,7 +5,7 @@
 #include <cxxtest/TestSuite.h>
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
-#include "ColumnDataReader.hpp"
+#include "Hdf5DataReader.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include <petscvec.h>
 #include <vector>
@@ -344,7 +344,7 @@ public:
         delete p_bidomain_problem;
         
         // read data entries for the time file and check correct
-        ColumnDataReader data_reader1("Bidomain1d", "bidomain_testPrintTimes");
+        Hdf5DataReader data_reader1("Bidomain1d", "bidomain_testPrintTimes");
         std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
         
         TS_ASSERT_EQUALS( times.size(), (unsigned) 4);
@@ -372,7 +372,7 @@ public:
         
         
         // read data entries for the time file and check correct
-        ColumnDataReader data_reader2("Bidomain1d", "bidomain_testPrintTimes");
+        Hdf5DataReader data_reader2("Bidomain1d", "bidomain_testPrintTimes");
         times = data_reader2.GetUnlimitedDimensionValues();
         
         TS_ASSERT_EQUALS( times.size(), (unsigned) 4);
@@ -391,7 +391,7 @@ public:
         p_bidomain_problem->Initialise();
         p_bidomain_problem->Solve();
         
-        ColumnDataReader data_reader3("Bidomain1d", "bidomain_testPrintTimes");
+        Hdf5DataReader data_reader3("Bidomain1d", "bidomain_testPrintTimes");
         times = data_reader3.GetUnlimitedDimensionValues();
         
         TS_ASSERT_EQUALS( times.size(), (unsigned) 4);
