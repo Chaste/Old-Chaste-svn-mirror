@@ -10,6 +10,7 @@
 class TestHoneycombMeshGenerator : public CxxTest::TestSuite
 {
 private:
+
     void Output2DNodesToFile(ConformingTetrahedralMesh<2,2>* p_mesh, std::string fileName)
     {
         OutputFileHandler handler("");
@@ -342,8 +343,25 @@ public:
                 num_non_boundary_nodes++;
             }
         }
-        TS_ASSERT_EQUALS(num_non_boundary_nodes, 4u);
+        TS_ASSERT_EQUALS(num_non_boundary_nodes, 4u);        
+    }
+    
+    void TestGetCircularMesh() throw(Exception)
+    {
+        unsigned num_cells_depth = 10;
+        unsigned num_cells_width = 10;
+        double radius = 3.5;
         
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetCircularMesh(radius);
+        
+        double epsilon = 1e-5;        
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            TS_ASSERT_LESS_THAN_EQUALS(norm_2(p_mesh->GetNode(i)->rGetLocation()), radius+epsilon);
+        }
+        Output2DNodesToFile(p_mesh, "circular_mesh.dat");
     }
     
 };

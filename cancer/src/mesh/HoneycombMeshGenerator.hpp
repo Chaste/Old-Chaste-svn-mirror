@@ -83,11 +83,12 @@ private:
 
             (*p_node_file) << num_nodes << "\t2\t0\t1" << std::endl;
             unsigned node = 0;
-            for (unsigned i = 0; i < numNodesAlongLength; i++)
+            
+            for (unsigned i=0; i<numNodesAlongLength; i++)
             {
-                for (unsigned j = 0; j < numNodesAlongWidth; j++)
+                for (unsigned j=0; j<numNodesAlongWidth; j++)
                 {
-                    if ( i < ghosts || i >= (ghosts+mNumCellLength))
+                    if ( i<ghosts || i>=(ghosts+mNumCellLength))
                     {
                         mGhostNodeIndices.insert(node);
                     }
@@ -219,7 +220,6 @@ public:
     {
         delete mpMesh;
     }
-
     
     /**
      * Crypt Periodic Honeycomb Mesh Generator
@@ -246,7 +246,7 @@ public:
         std::stringstream pid; // Gives a unique filename
         pid << getpid();
         mMeshFilename = "2D_temporary_periodic_crypt_mesh_" + pid.str();
-        Make2dPeriodicCryptMesh(mCryptWidth,ghosts);
+        Make2dPeriodicCryptMesh(mCryptWidth, ghosts);
         OutputFileHandler output_file_handler("");
         std::string output_dir = output_file_handler.GetOutputDirectoryFullPath();
         
@@ -269,7 +269,8 @@ public:
         std::string command = "rm " + output_dir + mMeshFilename + ".*";
         int return_value = system(command.c_str()); 
         if (return_value != 0)
-        {   // Can't figure out how to make this throw but seems as if it should be here?
+        {   
+            // Can't figure out how to make this throw but seems as if it should be here?
             #define COVERAGE_IGNORE
             EXCEPTION("HoneycombMeshGenerator cannot delete temporary files\n");   
             #undef COVERAGE_IGNORE
@@ -296,10 +297,39 @@ public:
         }
         return (Cylindrical2dMesh*) mpMesh;
     }
-    
+
     std::set<unsigned> GetGhostNodeIndices()
     {
         return mGhostNodeIndices;
+    }
+
+    ConformingTetrahedralMesh<2,2>* GetCircularMesh(double radius)
+    {
+        // Centre the mesh at (0,0)
+        c_vector<double,2> centre = zero_vector<double>(2);
+        for (unsigned i=0; i<mpMesh->GetNumNodes(); i++)
+        {
+            centre += mpMesh->GetNode(i)->rGetLocation();
+        }
+        centre /= (double)mpMesh->GetNumNodes();
+                
+        mpMesh->Translate(-centre[0], -centre[1]);
+        
+        // Iterate over nodes, deleting any that lie more 
+        // than the specified radius from (0,0)
+        for (unsigned i=0; i<mpMesh->GetNumAllNodes(); i++)
+        {
+            if ( norm_2(mpMesh->GetNode(i)->rGetLocation()) >= radius)
+            {
+                mpMesh->DeleteNodePriorToReMesh(i);
+            }
+        }
+        
+        // Remesh
+        NodeMap map(mpMesh->GetNumNodes());
+        mpMesh->ReMesh(map);
+        
+        return mpMesh;
     }
 };
 #endif /*CRYPTHONEYCOMBMESHGENERATOR_HPP_*/
