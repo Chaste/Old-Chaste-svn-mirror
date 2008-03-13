@@ -62,13 +62,10 @@ TestGenerateSteadyStateCryptRunner: TestGenerateSteadyStateCryptRunner.o ${LIBS}
 	echo "Do scp -r -C ${FRESH_DIR} pmxgm@deimos.nottingham.ac.uk:" ;\
 	echo "Then qsub simulation.sh on deimos";\
 	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
-	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
+	mkdir ${FRESH_DIR} ;\
 	cp TestGenerateSteadyStateCryptRunner ${FRESH_DIR} ;\
-	cd ${FRESH_DIR}/bin ;\
-	cp ../../bin/triangle triangle ;\
-	cd .. ;\
-	cp ../simulationGenerateSteadyStateCrypt.sh .  ;\
-	mv simulationGenerateSteadyStateCrypt.sh simulation.sh
+	cp simulationGenerateSteadyStateCrypt.sh ${FRESH_DIR}  ;\
+	mv ${FRESH_DIR}/simulationGenerateSteadyStateCrypt.sh ${FRESH_DIR}/simulation.sh
 
 # This test generates Inge cells crypt
 
@@ -81,13 +78,10 @@ TestMakeNiceCryptSimsAlexWRunner: TestMakeNiceCryptSimsAlexWRunner.o ${LIBS}
 	echo "Do scp -r -C ${FRESH_DIR} pmxaw@deimos.nottingham.ac.uk:" ;\
 	echo "Then qsub simulation.sh on deimos";\
 	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
-	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
+	mkdir ${FRESH_DIR} ;\
 	cp TestMakeNiceCryptSimsAlexWRunner ${FRESH_DIR} ;\
-	cd ${FRESH_DIR}/bin ;\
-	cp ../../bin/triangle triangle ;\
-	cd .. ;\
-	cp ../simulationMakeNiceCryptSimsAlexW.sh .  ;\
-	mv simulationMakeNiceCryptSimsAlexW.sh simulation.sh
+	cp simulationMakeNiceCryptSimsAlexW.sh ${FRESH_DIR}  ;\
+	mv ${FRESH_DIR}/simulationMakeNiceCryptSimsAlexW.sh ${FRESH_DIR}/simulation.sh
 	
 # This test generates is same as above but with copying for yes area-drag, yes edge-based springs
 
@@ -100,7 +94,7 @@ TestMakeYesYesRunner: TestMakeYesYesRunner.o ${LIBS}
 	echo "Do scp -r -C ${FRESH_DIR} pmxaw@deimos.nottingham.ac.uk:" ;\
 	echo "Then qsub simulation.sh on deimos";\
 	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
-	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
+	mkdir ${FRESH_DIR} ;
 	# Need to copy across the starting state of the simulation
 	mkdir ${FRESH_DIR}/Noddy_Yes_Yes; mkdir ${FRESH_DIR}/Noddy_Yes_Yes/archive ;\
 	cd ${FRESH_DIR}/Noddy_Yes_Yes/archive ;\
@@ -109,11 +103,8 @@ TestMakeYesYesRunner: TestMakeYesYesRunner.o ${LIBS}
 	cd ../.. ;\
 	# Finished copying archives across.
 	cp TestMakeYesYesRunner ${FRESH_DIR} ;\
-	cd ${FRESH_DIR}/bin ;\
-	cp ../../bin/triangle triangle ;\
-	cd .. ;\
-	cp ../simulationMakeYesYes.sh .  ;\
-	mv simulationMakeYesYes.sh simulation.sh
+	cp simulationMakeYesYes.sh ${FRESH_DIR}  ;\
+	mv ${FRESH_DIR}/simulationMakeYesYes.sh ${FRESH_DIR}/simulation.sh
 	
 # This test generates is same as above but with copying for No area-drag, No edge-based springs
 
@@ -126,7 +117,7 @@ TestMakeNoNoRunner: TestMakeNoNoRunner.o ${LIBS}
 	echo "Do scp -r -C ${FRESH_DIR} pmxaw@deimos.nottingham.ac.uk:" ;\
 	echo "Then qsub simulation.sh on deimos";\
 	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
-	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
+	mkdir ${FRESH_DIR} ;\
 	# Need to copy across the starting state of the simulation
 	mkdir ${FRESH_DIR}/Noddy_No_No; mkdir ${FRESH_DIR}/Noddy_No_No/archive ;\
 	cd ${FRESH_DIR}/Noddy_No_No/archive ;\
@@ -135,11 +126,8 @@ TestMakeNoNoRunner: TestMakeNoNoRunner.o ${LIBS}
 	cd ../.. ;\
 	# Finished copying archives across.
 	cp TestMakeNoNoRunner ${FRESH_DIR} ;\
-	cd ${FRESH_DIR}/bin ;\
-	cp ../../bin/triangle triangle ;\
-	cd .. ;\
-	cp ../simulationMakeNoNo.sh .  ;\
-	mv simulationMakeNoNo.sh simulation.sh	
+	cp simulationMakeNoNo.sh  ${FRESH_DIR} ;\
+	mv ${FRESH_DIR}/simulationMakeNoNo.sh ${FRESH_DIR}/simulation.sh	
 	
 TestCryptSimulation2dRunner.cpp:	cancer/test/TestCryptSimulation2d.hpp
 	cxxtest/cxxtestgen.py  --error-printer  -o TestCryptSimulation2dRunner.cpp cancer/test/TestCryptSimulation2d.hpp
@@ -157,7 +145,7 @@ TestMeinekeLabellingExperimentsRunner: TestMeinekeLabellingExperimentsRunner.o $
 	echo "Do scp -r -C ${FRESH_DIR} pmxgm@deimos.nottingham.ac.uk:" ;\
 	echo "Then qsub simulation.sh on deimos";\
 	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
-	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
+	mkdir ${FRESH_DIR} ;\
 	# Need to copy across the starting state of the simulation
 	mkdir ${FRESH_DIR}/MeinekeLabellingExperiment; mkdir ${FRESH_DIR}/MeinekeLabellingExperiment/archive ;\
 	cd ${FRESH_DIR}/MeinekeLabellingExperiment/archive ;\
@@ -166,11 +154,8 @@ TestMeinekeLabellingExperimentsRunner: TestMeinekeLabellingExperimentsRunner.o $
 	cd ../.. ;\
 	# Finished copying archives across.
 	cp TestMeinekeLabellingExperimentsRunner ${FRESH_DIR} ;\
-	cd ${FRESH_DIR}/bin ;\
-	cp ../../bin/triangle triangle ;\
-	cd .. ;\
-	cp ../simulationMeinekeLabellingExperiments.sh .  ;\
-	mv simulationMeinekeLabellingExperiments.sh simulation.sh
+	cp simulationMeinekeLabellingExperiments.sh ${FRESH_DIR} ;\
+	mv ${FRESH_DIR}/simulationMeinekeLabellingExperiments.sh ${FRESH_DIR}/simulation.sh
 
 # This runs the test which generates MeinekeLabellingExperiment for AlexWdata.
 
@@ -183,7 +168,7 @@ TestMeinekeLabellingAlexWRunner: TestMeinekeLabellingAlexWRunner.o ${LIBS}
 	echo "Do scp -r -C ${FRESH_DIR} pmxaw@deimos.nottingham.ac.uk:" ;\
 	echo "Then qsub simulation.sh on deimos";\
 	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
-	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
+	mkdir ${FRESH_DIR} ;\
 	# Need to copy across the starting state of the simulation
 	mkdir ${FRESH_DIR}/MeinekeLabellingAlexW; mkdir ${FRESH_DIR}/MeinekeLabellingAlexW/archive ;\
 	cd ${FRESH_DIR}/MeinekeLabellingAlexW/archive ;\
@@ -192,11 +177,8 @@ TestMeinekeLabellingAlexWRunner: TestMeinekeLabellingAlexWRunner.o ${LIBS}
 	cd ../.. ;\
 	# Finished copying archives across.
 	cp TestMeinekeLabellingAlexWRunner ${FRESH_DIR} ;\
-	cd ${FRESH_DIR}/bin ;\
-	cp ../../bin/triangle triangle ;\
-	cd .. ;\
-	cp ../simulationMeinekeLabellingAlexW.sh .  ;\
-	mv simulationMeinekeLabellingAlexW.sh simulation.sh
+	cp simulationMeinekeLabellingAlexW.sh .  ;\
+	mv ${FRESH_DIR}/simulationMeinekeLabellingAlexW.sh ${FRESH_DIR}/simulation.sh
 
 # A more useful test to label a cell near the bottom at random and follow mutation's progress.
 
@@ -209,7 +191,7 @@ TestMutationSpreadRunner: TestMutationSpreadRunner.o ${LIBS}
 	echo "Do scp -r -C ${FRESH_DIR} pmxgm@deimos.nottingham.ac.uk:" ;\
 	echo "Then qsub simulation.sh on deimos";\
 	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
-	mkdir ${FRESH_DIR} ; mkdir ${FRESH_DIR}/bin ;\
+	mkdir ${FRESH_DIR} ;
 # Need to copy across the starting state of the simulation
 	mkdir ${FRESH_DIR}/MutationSpread; mkdir ${FRESH_DIR}/MutationSpread/archive ;\
 	cd ${FRESH_DIR}/MutationSpread/archive ;\
@@ -217,11 +199,8 @@ TestMutationSpreadRunner: TestMutationSpreadRunner.o ${LIBS}
 	cd ../.. ;\
 # Finished copying archives across.
 	cp TestMutationSpreadRunner ${FRESH_DIR} ;\
-	cd ${FRESH_DIR}/bin ;\
-	cp ../../bin/triangle triangle ;\
-	cd .. ;\
-	cp ../simulationMutationSpread.sh . ;\
-	mv simulationMutationSpread.sh simulation.sh 
+	cp simulationMutationSpread.sh ${FRESH_DIR} ;\
+	mv ${FRESH_DIR}/simulationMutationSpread.sh ${FRESH_DIR}/simulation.sh 
 # End of different test.
 
 
