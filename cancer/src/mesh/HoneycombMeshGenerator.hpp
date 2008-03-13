@@ -262,7 +262,7 @@ public:
             mpMesh = new Cylindrical2dMesh(mCryptWidth);
             mpMesh->ConstructFromMeshReader(mesh_reader);
             NodeMap map(mpMesh->GetNumNodes());
-            mpMesh->ReMesh(map); // This makes the mesh cylindrical
+            mpMesh->ReMesh(map); // This makes the mesh cylindrical (uses Triangle library mode inside this ReMesh call).
         }
         
         // Delete the temporary files.
@@ -305,6 +305,8 @@ public:
 
     ConformingTetrahedralMesh<2,2>* GetCircularMesh(double radius)
     {
+        assert(!mCylindrical); // Following call only safe if is not a cylindrical mesh
+
         // Centre the mesh at (0,0)
         c_vector<double,2> centre = zero_vector<double>(2);
         for (unsigned i=0; i<mpMesh->GetNumNodes(); i++)
@@ -327,7 +329,7 @@ public:
         
         // Remesh
         NodeMap map(mpMesh->GetNumNodes());
-        mpMesh->ReMesh(map);
+        mpMesh->ReMeshWithTriangleLibrary(map); 
         
         return mpMesh;
     }
