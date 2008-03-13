@@ -54,7 +54,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        MeshBasedTissue<2> crypt(*p_mesh, cells);          
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);          
         crypt.InitialiseCells(); // must be called explicitly as there is no simulation     
         crypt.SetGhostNodes(ghost_node_indices);
 
@@ -154,7 +154,7 @@ public:
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC, true,
                                             0.3,2.0,3.0,4.0,true);
         
-        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
                 
         CryptSimulation2d simulator(crypt, NULL, false, false);
@@ -319,7 +319,7 @@ public:
         
         std::vector<unsigned> labelled_cells_counter(max_length_of_crypt_section);
         
-        for(unsigned i=0; i< max_length_of_crypt_section;i++)
+        for (unsigned i=0; i< max_length_of_crypt_section;i++)
         {
             labelled_cells_counter[i] = 0u;
         }
@@ -341,7 +341,7 @@ public:
         std::vector<bool> labelled;    
                      
         CryptStatistics* p_crypt_statistics;
-        MeshBasedTissue<2>* p_crypt;
+        MeshBasedTissueWithGhostNodes<2>* p_crypt;
         
         HoneycombMeshGenerator generator = HoneycombMeshGenerator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         ghost_node_indices = generator.GetGhostNodeIndices(); 
@@ -353,7 +353,6 @@ public:
         // Loop over the number of simulations        
         for (unsigned simulation_index=0; simulation_index< num_simulations; simulation_index++)
         {   
-            
             // create new structures for each simulation   
             p_mesh = generator.GetCylindricalMesh();
             
@@ -367,7 +366,7 @@ public:
                                                 0.3,2.0,3.0,4.0,true);
             
             // set up crypt      
-            p_crypt = new MeshBasedTissue<2>(*p_mesh, cells);        
+            p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells);        
             (*p_crypt).SetGhostNodes(ghost_node_indices);
             
             // set up crypt simulation

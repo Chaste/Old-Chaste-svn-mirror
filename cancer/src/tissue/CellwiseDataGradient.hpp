@@ -58,7 +58,7 @@ public:
                 unsigned node_global_index = r_elem.GetNodeGlobalIndex(node_index);
 
                 // Check whether ghost element
-                if( r_tissue.rGetGhostNodes()[node_global_index]==true )
+                if ( r_tissue.IsGhostNode(node_global_index)==true )
                 {
                     is_ghost_element = true;
                     break;
@@ -76,7 +76,7 @@ public:
             }
             
             // Add gradient at element to gradient at node
-            if(!is_ghost_element)
+            if (!is_ghost_element)
             {
                 for (unsigned node_index=0; node_index<DIM+1; node_index++)
                 {
@@ -122,7 +122,7 @@ public:
                         unsigned adjacent_node_global_index = r_adjacent_elem.GetNodeGlobalIndex(local_node_index);
 
                         // If not a ghost node and not the node we started with
-                        if( r_tissue.rGetGhostNodes()[adjacent_node_global_index]==false && adjacent_node_global_index != node_global_index )
+                        if ( r_tissue.IsGhostNode(adjacent_node_global_index)==false && adjacent_node_global_index != node_global_index )
                         {
                             
                             // Calculate the contribution of gradient from this node
@@ -164,7 +164,7 @@ public:
      */    
     c_vector<double, DIM>& rGetGradient(unsigned nodeIndex)
     {
-        assert( !(CellwiseData<DIM>::Instance()->rGetTissue().rGetGhostNodes()[nodeIndex]) );
+        assert( !(CellwiseData<DIM>::Instance()->rGetTissue().IsGhostNode(nodeIndex)) );
         return mGradients[nodeIndex];
     }
 };

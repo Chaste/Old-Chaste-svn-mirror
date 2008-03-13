@@ -8,7 +8,7 @@
 #include <cmath>
 #include <vector>
 
-#include "MeshBasedTissue.cpp"
+#include "MeshBasedTissueWithGhostNodes.cpp"
 #include "CellsGenerator.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
@@ -130,7 +130,7 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);        
 
         // Create a tissue, with no ghost nodes at the moment
-        MeshBasedTissue<2> tissue(*p_mesh,cells);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh,cells);
 
         // Iterator should loop over all nodes
         unsigned counter = 0;
@@ -173,6 +173,9 @@ public:
         
         // Check counter = num_nodes - num_ghost_nodes
         TS_ASSERT_EQUALS(counter + ghost_node_indices.size(), p_mesh->GetNumNodes());
+        
+        // Test overridden GetGhostNodesSize() method
+        TS_ASSERT_EQUALS(tissue.GetGhostNodesSize(), p_mesh->GetNumNodes());
     }
         
     void TestMoveCellAndAddCell()
@@ -248,81 +251,145 @@ public:
         
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<2>::GenerateBasic(cells, mesh);
-        
+        CellsGenerator<2>::GenerateBasic(cells, mesh);        
         cells[27].StartApoptosis();
         
-        // Create a tissue, with some random ghost nodes
+        // Create a tissue without ghost nodes
         MeshBasedTissue<2> tissue(mesh,cells);
-
-        // Set ghost nodes (using alternative constructor)
-        std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
-        for(unsigned i=0; i<10; i++)
-        {
-            is_ghost_node[i] = true;
-        }
-        is_ghost_node[80] = true;
-        tissue.SetGhostNodes(is_ghost_node);
-
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
-        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 81u);
-
-        // Num real cells should be num_nodes (81) - num_ghosts (11) = 70
-        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 70u);
         
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);        
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 81u);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 81u);
+                
         p_simulation_time->IncrementTimeOneStep();
         
         unsigned num_removed = tissue.RemoveDeadCells();
         
-        TS_ASSERT_EQUALS(num_removed, 1u);
-        
+        TS_ASSERT_EQUALS(num_removed, 1u);        
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 80u);
-        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 80u);
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 80u);        
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 80u);
         TS_ASSERT_DIFFERS(tissue.rGetCells().size(), cells.size()); // Tissue now copies cells
         
-        // Num real cells should be num_nodes (81) - num_ghosts (11) - One deleted node = 69
-        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 69u);
-        
-        TS_ASSERT_EQUALS(tissue.rGetGhostNodes().size(), mesh.GetNumAllNodes()); 
-
         tissue.ReMesh();
+        tissue.Validate();
 
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 80u);        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh.GetNumAllNodes());
+        
+        for (unsigned i=0; i<mesh.GetNumAllNodes(); i++)
+        {
+            TS_ASSERT_EQUALS(tissue.IsGhostNode(i), false);
+        }
+        
+        // Finally, check the cells node indices have updated
+        
+        // We expect the cell node indices to be {0,11,...,79}                
+        std::set<unsigned> expected_node_indices;
+        for (unsigned i=0; i<tissue.GetNumRealCells(); i++)
+        {
+            expected_node_indices.insert(i);
+        }
+        
+        // Get actual cell node indices
+        std::set<unsigned> node_indices;
+        
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
+        {
+            // Record node index corresponding to cell            
+            unsigned node_index = tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex();            
+            node_indices.insert(node_index);
+        }
+        
+        TS_ASSERT_EQUALS(node_indices, expected_node_indices);
+    }
+    
+    void TestRemoveDeadCellsAndReMeshWithGhostNodes()
+    {
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
+        
+        // Create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+                
+        // Set up cells
+        std::vector<TissueCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, mesh);        
+        cells[27].StartApoptosis();
+                
+        // Create a tissue, with some random ghost nodes
+        MeshBasedTissueWithGhostNodes<2> tissue_with_ghost_nodes(mesh,cells);
+
+        // Set ghost nodes (using alternative constructor)
+        std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
+        for (unsigned i=0; i<10; i++)
+        {
+            is_ghost_node[i] = true;
+        }
+        is_ghost_node[80] = true;
+        tissue_with_ghost_nodes.SetGhostNodes(is_ghost_node);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
+                
+        // Num real cells should be num_nodes (81) - num_ghosts (11) = 70 
+        TS_ASSERT_EQUALS(tissue_with_ghost_nodes.rGetCells().size(), 81u);
+        TS_ASSERT_EQUALS(tissue_with_ghost_nodes.GetNumRealCells(), 70u);
+        
+        p_simulation_time->IncrementTimeOneStep();
+        
+        unsigned num_removed_with_ghost_nodes = tissue_with_ghost_nodes.RemoveDeadCells();
+        
+        TS_ASSERT_EQUALS(num_removed_with_ghost_nodes, 1u);        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 80u);        
+        TS_ASSERT_EQUALS(tissue_with_ghost_nodes.rGetCells().size(), 80u);
+        TS_ASSERT_DIFFERS(tissue_with_ghost_nodes.rGetCells().size(), cells.size()); // Tissue now copies cells
+        
+        // Num real cells should be num_nodes (81) - num_ghosts (11) - 1 deleted node = 69
+        TS_ASSERT_EQUALS(tissue_with_ghost_nodes.GetNumRealCells(), 69u);        
+        TS_ASSERT_EQUALS(tissue_with_ghost_nodes.rGetGhostNodes().size(), mesh.GetNumAllNodes());
+
+        tissue_with_ghost_nodes.ReMesh();
+        tissue_with_ghost_nodes.ValidateWithGhostNodes();
+        
         // Num real cells should be new_num_nodes (80) - num_ghosts (11)
-        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 69u);
-
-        // Test size of ghost nodes vector is correct
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh.GetNumAllNodes()); 
-        TS_ASSERT_EQUALS(tissue.rGetGhostNodes().size(), mesh.GetNumNodes()); 
+        TS_ASSERT_EQUALS(tissue_with_ghost_nodes.GetNumRealCells(), 69u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh.GetNumAllNodes());        
+        TS_ASSERT_EQUALS(tissue_with_ghost_nodes.rGetGhostNodes().size(), mesh.GetNumNodes());
         
         // Nodes 0-9 should not been renumbered so are still ghost nodes.
         // the ghost node at node 80 is now at 79 as node 27 was deleted..
-        for (unsigned i=0; i<tissue.rGetGhostNodes().size(); i++)
+        for (unsigned i=0; i<mesh.GetNumAllNodes(); i++)
         {
             // True (ie should be a ghost) if i<10 or i==79, else false
-            TS_ASSERT_EQUALS(tissue.rGetGhostNodes()[i], ((i<10)||(i==79))); 
+            TS_ASSERT_EQUALS(tissue_with_ghost_nodes.IsGhostNode(i), ((i<10)||(i==79))); 
         }
         
         // Finally, check the cells node indices have updated
         
         // We expect the cell node indices to be {10,11,...,79}                
         std::set<unsigned> expected_node_indices;
-        for (unsigned i=0; i<tissue.GetNumRealCells(); i++)
+        for (unsigned i=0; i<tissue_with_ghost_nodes.GetNumRealCells(); i++)
         {
             expected_node_indices.insert(i+10);
         }
         
         // Get actual cell node indices
-        std::set<unsigned> node_indices;
-        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        std::set<unsigned> node_indices_with_ghost_nodes;
+        
+        for (AbstractTissue<2>::Iterator cell_iter = tissue_with_ghost_nodes.Begin();
+             cell_iter != tissue_with_ghost_nodes.End();
              ++cell_iter)
         {
-            // Record node index corresponding to cell            
-            unsigned node_index = tissue.GetNodeCorrespondingToCell(*cell_iter)->GetIndex();
-            node_indices.insert(node_index);
+            // Record node index corresponding to cell
+            unsigned node_index_with_ghost_nodes = tissue_with_ghost_nodes.GetNodeCorrespondingToCell(*cell_iter)->GetIndex();            
+            node_indices_with_ghost_nodes.insert(node_index_with_ghost_nodes);
         }
         
-        TS_ASSERT_EQUALS(node_indices, expected_node_indices);
+        TS_ASSERT_EQUALS(node_indices_with_ghost_nodes, expected_node_indices);
     }
         
     void TestAddAndRemoveAndAddWithOutRemesh()
@@ -341,7 +408,7 @@ public:
         cells[27].StartApoptosis();
         
         // Create a tissue, with some random ghost nodes
-        MeshBasedTissue<2> tissue(mesh,cells);
+        MeshBasedTissueWithGhostNodes<2> tissue(mesh,cells);
 
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
         for(unsigned i=0; i<10; i++)
@@ -467,7 +534,7 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
         // Create a tissue, with no ghost nodes at the moment
-        MeshBasedTissue<2> tissue(*p_mesh,cells);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh,cells);
         
         // Set ghost nodes
         tissue.SetGhostNodes(ghost_node_indices);
@@ -506,7 +573,7 @@ public:
         CellsGenerator<3>::GenerateBasic(cells, mesh);
         
         // Create a tissue, with no ghost nodes at the moment
-        MeshBasedTissue<3> tissue(mesh,cells);
+        MeshBasedTissueWithGhostNodes<3> tissue(mesh,cells);
         
         // Make nodes 0-10 ghost nodes
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(),false);
@@ -748,6 +815,7 @@ public:
         
         // Remesh
         tissue.ReMesh(); 
+        tissue.Validate();
                
         tissue.CheckTissueCellPointers();
         

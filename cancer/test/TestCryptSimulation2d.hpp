@@ -92,7 +92,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
         
-        MeshBasedTissue<2> tissue(*p_mesh, cells);          
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells);          
         tissue.SetGhostNodes(ghost_node_indices);
 
         CryptSimulation2d simulator(tissue);
@@ -150,7 +150,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        MeshBasedTissue<2> crypt(*p_mesh, cells);               
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
         CryptSimulation2d simulator(crypt);
@@ -211,7 +211,7 @@ public:
             cells[i].SetBirthTime(-11.5);
         }
               
-        MeshBasedTissue<2> crypt(*p_mesh, cells);               
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
         CryptSimulation2d simulator(crypt);
@@ -268,7 +268,7 @@ public:
         std::vector<TissueCell> cells;                      
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
         
-        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);  
         
         WntConcentration::Instance()->SetType(LINEAR);             
@@ -311,7 +311,7 @@ public:
         std::vector<TissueCell> cells;
                 
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
-        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         WntConcentration::Instance()->SetType(LINEAR);
@@ -328,7 +328,7 @@ public:
 
         // Save
         simulator.Save();
-        
+                
         // Load
         CryptSimulation2d* p_simulator;
         p_simulator = CryptSimulation2d::Load("Crypt2DMeshArchive", 0.0);
@@ -360,7 +360,7 @@ public:
         std::vector<TissueCell> cells;
                 
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
-        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         WntConcentration::Instance()->SetType(LINEAR);
@@ -405,7 +405,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
         
-        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         // We have a Wnt Gradient - but not Wnt dependent cells
@@ -434,9 +434,7 @@ public:
         std::vector<double> node_120_location = simulator.GetNodeLocation(120);
         TS_ASSERT_DELTA(node_120_location[0], 4.2035 , 1e-4);
         TS_ASSERT_DELTA(node_120_location[1], 0.1033 , 1e-4);
-                
 
-        
         // Test the Wnt gradient result
         TissueCell* p_cell = &(crypt.rGetCellAtNodeIndex(28));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
@@ -461,7 +459,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
         
-        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         WntConcentration::Instance()->SetType(LINEAR);
@@ -482,7 +480,6 @@ public:
         // Save the results..
         simulator.Save();
         
-
         WntConcentration::Destroy();
     }
     
@@ -568,7 +565,7 @@ public:
         std::vector<TissueCell> cells;        
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, true);
 
-        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         // Cover the write Voronoi data method
@@ -596,7 +593,7 @@ public:
         // (it is too small for it to figure out what's happening on its own).
         
         simulator.SetEndTime(0.01);
-        simulator.SetOutputCellMutationStates(true);   
+        simulator.SetOutputCellMutationStates(true);
                 
         simulator.Solve();
         
@@ -645,7 +642,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, TYSONNOVAK, true);
         
-        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
         
         CryptSimulation2d simulator(crypt); 
@@ -715,7 +712,7 @@ public:
         
         cells[60].SetBirthTime(-50.0);
         
-        MeshBasedTissue<2> crypt(mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> crypt(mesh, cells);
         
         CryptSimulation2d simulator(crypt);
         
@@ -726,9 +723,7 @@ public:
         unsigned num_births = simulator.DoCellBirth();
                                                                 
         TS_ASSERT_EQUALS(num_births, 1u);
-        TS_ASSERT_EQUALS(num_deaths,11u);
-               
-       
+        TS_ASSERT_EQUALS(num_deaths,11u);       
     }
     
     void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
@@ -738,9 +733,9 @@ public:
         CancerParameters::Instance()->SetDivisionSeparation(0.1);
         
         // Make a parent node
-        c_vector<double ,2> location;
-        location[0]=1.0;
-        location[1]=1.0;
+        c_vector<double,2> location;
+        location[0] = 1.0;
+        location[1] = 1.0;
         Node<2>* p_node = new Node<2>(0u,location, false);
 
         ConformingTetrahedralMesh<2,2> conf_mesh;
@@ -762,16 +757,15 @@ public:
         TS_ASSERT_DELTA(norm_2(parent_to_daughter), 
             CancerParameters::Instance()->GetDivisionSeparation(),
             1e-7);
-
     }
     
 
     void TestCalculateDividingCellCentreLocationsConfMeshStemCell() throw (Exception)
     {
         // Make a parent node
-        c_vector<double ,2> location;
-        location[0]=1.0;
-        location[1]=0.0; // <- y=0
+        c_vector<double,2> location;
+        location[0] = 1.0;
+        location[1] = 0.0; // <- y=0
         Node<2>* p_node = new Node<2>(0u,location, false);
         ConformingTetrahedralMesh<2,2> conf_mesh;
         conf_mesh.AddNode(p_node);
@@ -808,9 +802,9 @@ public:
     void TestCalculateDividingCellCentreLocationsCylindricalMesh() throw (Exception)
     {
         // Make a mesh
-        c_vector<double ,2> location;
-        location[0]=1.0;
-        location[1]=1.0;
+        c_vector<double,2> location;
+        location[0] = 1.0;
+        location[1] = 1.0;
         Node<2>* p_node = new Node<2>(0u,location, false);
         Cylindrical2dMesh cyl_mesh(6.0);
         cyl_mesh.AddNode(p_node);
@@ -834,9 +828,9 @@ public:
     void TestCalculateDividingCellCentreLocationsCylindricalMeshStemCell() throw (Exception)
     {
         // Make a mesh
-        c_vector<double ,2> location;
-        location[0]=1.0;
-        location[1]=0.0; // <- y=0
+        c_vector<double,2> location;
+        location[0] = 1.0;
+        location[1] = 0.0; // <- y=0
         Node<2>* p_node = new Node<2>(0u,location, false);
         Cylindrical2dMesh cyl_mesh(6.0);
         cyl_mesh.AddNode(p_node);
@@ -849,9 +843,9 @@ public:
         MeshBasedTissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
         CryptSimulation2d simulator(cyl_crypt);                
-        c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(cyl_iter);
-        c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
-        c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
+        c_vector<double,2> daughter_location = simulator.CalculateDividingCellCentreLocations(cyl_iter);
+        c_vector<double,2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
+        c_vector<double,2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
         
         // The parent stem cell should stay where it is and the daughter be introduced at positive y.
         TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
@@ -879,7 +873,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        MeshBasedTissue<2> crypt(*p_mesh, cells);               
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);               
         crypt.SetGhostNodes(ghost_node_indices);
 
         CryptSimulation2d simulator(crypt);
@@ -926,7 +920,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
               
-        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         CryptSimulation2d simulator(crypt);
@@ -954,7 +948,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
               
-        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);
 
         CryptSimulation2d simulator(crypt);
@@ -988,7 +982,7 @@ public:
         std::vector<TissueCell> cells;                      
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_ONE, false);
         
-        MeshBasedTissue<2> crypt(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
         crypt.SetGhostNodes(ghost_node_indices);  
         
         WntConcentration::Instance()->SetType(LINEAR);             
@@ -1038,7 +1032,7 @@ public:
             cells.push_back(cell);
         }
                 
-        MeshBasedTissue<2> tissue(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells);
         tissue.SetGhostNodes(ghost_node_indices);
 
         TissueSimulation<2> simulator(tissue);
@@ -1126,9 +1120,7 @@ public:
         std::vector<TissueCell> cells;
         
         double time_of_each_run;
-        std::vector<bool> labelled;    
-                     
-        MeshBasedTissue<2>* p_crypt;
+        std::vector<bool> labelled;
         
         HoneycombMeshGenerator generator = HoneycombMeshGenerator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         ghost_node_indices = generator.GetGhostNodeIndices(); 
@@ -1140,10 +1132,11 @@ public:
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC, true,
                                             0.3,2.0,3.0,4.0,true);
         // Set up crypt      
-        p_crypt = new MeshBasedTissue<2>(*p_mesh, cells);        
+        MeshBasedTissueWithGhostNodes<2>* p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells);        
         (*p_crypt).SetGhostNodes(ghost_node_indices);
         
         p_crypt->SetBottomCellAncestors();
+        
         // Set up crypt simulation
         CryptSimulation2d simulator(*p_crypt, NULL, false, false);
         simulator.SetOutputDirectory(output_directory);

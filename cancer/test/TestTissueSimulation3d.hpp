@@ -231,7 +231,7 @@ public:
         TS_ASSERT(ghost_node_indices.size() < num_cells);
         TS_ASSERT(ghost_node_indices.size() > 0)
         
-        MeshBasedTissue<3> tissue(mesh,cells);
+        MeshBasedTissueWithGhostNodes<3> tissue(mesh,cells);
         tissue.SetGhostNodes(ghost_node_indices);        
 
         TissueSimulation<3> simulator(tissue);
@@ -255,8 +255,8 @@ public:
         TissueSimulation<3>* p_simulator = TissueSimulation<3>::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
         unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
         
-        TS_ASSERT_EQUALS(num_cells, 8u);      
-        TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 0.1, 1e-9);  
+        TS_ASSERT_EQUALS(num_cells, 8u);
+        TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 0.1, 1e-9);
         
         delete p_simulator;
     }

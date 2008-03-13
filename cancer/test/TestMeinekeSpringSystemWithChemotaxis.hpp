@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "MeinekeSpringSystemWithChemotaxis.hpp"
+#include "MeshBasedTissueWithGhostNodes.cpp"
 #include "TrianglesMeshReader.cpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -39,7 +40,7 @@ public:
             cells.push_back(cell);
         }
 
-        MeshBasedTissue<2> tissue(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells);
         tissue.SetGhostNodes(ghost_node_indices);
         
         // Set up cellwisedata and associate it with the tissue

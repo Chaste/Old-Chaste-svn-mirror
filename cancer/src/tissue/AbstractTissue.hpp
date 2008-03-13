@@ -51,6 +51,9 @@ protected:
     
     /** Whether the tissue contains a mesh */
     bool mTissueContainsMesh;
+    
+    /** Whether the tissue contains ghost nodes */
+    bool mTissueContainsGhostNodes;
 
     /** Results file for cell variables */
     out_stream mpCellVariablesFile;
@@ -62,6 +65,7 @@ protected:
         archive & mCells;
         archive & mNodeCellMap;
         archive & mTissueContainsMesh;
+        archive & mTissueContainsGhostNodes;
     }
     
 public:
@@ -90,6 +94,8 @@ public:
     const std::list<TissueCell>& rGetCells() const;
     
     bool HasMesh();
+    
+    bool HasGhostNodes();
     
     /** 
      * Get the number of nodes in the tissue.

@@ -20,7 +20,8 @@ enum cell_colours
 template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells)
              : mCells(rCells.begin(), rCells.end()),               
-               mTissueContainsMesh(false)
+               mTissueContainsMesh(false),
+               mTissueContainsGhostNodes(false)
 {
     // There must be at least one cell
     assert(mCells.size() > 0);
@@ -78,6 +79,12 @@ template<unsigned DIM>
 bool AbstractTissue<DIM>::HasMesh()
 {
     return mTissueContainsMesh;
+}
+
+template<unsigned DIM>
+bool AbstractTissue<DIM>::HasGhostNodes()
+{
+    return mTissueContainsGhostNodes;
 }
 
 template<unsigned DIM>
@@ -147,6 +154,7 @@ unsigned AbstractTissue<DIM>::GetGhostNodesSize()
 {
     return GetNumNodes();
 }
+
 template<unsigned DIM> 
 bool AbstractTissue<DIM>::IsGhostNode(unsigned index)
 {
@@ -215,7 +223,8 @@ typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator+
 template<unsigned DIM>
 bool AbstractTissue<DIM>::Iterator::IsRealCell()
 {
-    assert(mrTissue.GetGhostNodesSize() == mrTissue.GetNumNodes() );
+    // TODO: move this assertion elsewhere, after mIsGhostNode has been deserialized! 
+    // assert(mrTissue.GetGhostNodesSize() == mrTissue.GetNumNodes());
     return !(mrTissue.IsGhostNode(mNodeIndex) || GetNode()->IsDeleted() || (*this)->IsDead());
 }
 

@@ -36,7 +36,7 @@ private :
     /** The file that the values of beta catenin is written out to. */
     out_stream mBetaCatResultsFile;    
     
-    MeshBasedTissue<2>* mpStaticCastTissue;
+    MeshBasedTissueWithGhostNodes<2>* mpStaticCastTissue;
     
     /**
      * Calculates the new locations of a dividing cell's cell centres.
@@ -111,7 +111,7 @@ private :
      */
     void UpdateNodePositions(const std::vector< c_vector<double, 2> >& rDrDt)
     {
-        // update ghost positions first because they do not affect the real cells
+        // Update ghost positions first because they do not affect the real cells
         mpStaticCastTissue->UpdateGhostPositions(mDt);
         
         // Iterate over all cells to update their positions.
@@ -255,7 +255,7 @@ public :
         : TissueSimulation<2>(rTissue, pMechanicsSystem, deleteTissueAndMechanicsSystem, initialiseCells),
           mUseJiggledBottomCells(false)
     {
-        mpStaticCastTissue = static_cast<MeshBasedTissue<2>*>(&mrTissue);
+        mpStaticCastTissue = static_cast<MeshBasedTissueWithGhostNodes<2>*>(&mrTissue);
     }
     
     
@@ -293,17 +293,17 @@ public :
      */
     static CryptSimulation2d* Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
     {
-	    std::string archive_filename = TissueSimulation<2>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
+        std::string archive_filename = TissueSimulation<2>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
 
         // Create an input archive
         std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
         boost::archive::text_iarchive input_arch(ifs);
 
 	    TissueSimulation<2>::CommonLoad(input_arch);
-
+        
         CryptSimulation2d* p_sim; 
         input_arch >> p_sim;
-         
+                 
         if (p_sim->rGetTissue().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size()) 
         { 
             #define COVERAGE_IGNORE 
@@ -319,7 +319,7 @@ public :
     }       
 };
 
-// declare identifier for the serializer
+// Declare identifier for the serializer
 BOOST_CLASS_EXPORT(CryptSimulation2d)
 
 namespace boost
@@ -333,7 +333,7 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const CryptSimulation2d * t, const BOOST_PFTO unsigned int file_version)
 {
-    // save data required to construct instance
+    // Save data required to construct instance
     const AbstractTissue<2> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     
@@ -348,15 +348,14 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, CryptSimulation2d * t, const unsigned int file_version)
 {
-    // retrieve data from archive required to construct new instance
+    // Retrieve data from archive required to construct new instance
     AbstractTissue<2>* p_tissue;
     ar >> p_tissue;
     
     AbstractDiscreteTissueMechanicsSystem<2>* p_spring_system;
-    ar >> p_spring_system;
+    ar >> p_spring_system;    
     
-    
-    // invoke inplace constructor to initialize instance
+    // Invoke inplace constructor to initialize instance
     ::new(t)CryptSimulation2d(*p_tissue, p_spring_system, true, false);
 }
 }

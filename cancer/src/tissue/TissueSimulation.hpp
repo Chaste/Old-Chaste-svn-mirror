@@ -6,7 +6,7 @@
 #include <boost/serialization/string.hpp>
 
 #include <vector>
-#include "MeshBasedTissue.cpp"
+#include "MeshBasedTissueWithGhostNodes.cpp"
 #include "SimpleTissue.cpp"
 #include "AbstractCellKiller.hpp"
 #include "Meineke2001SpringSystem.hpp"

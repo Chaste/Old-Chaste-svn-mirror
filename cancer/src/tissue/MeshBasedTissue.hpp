@@ -16,13 +16,11 @@
  * Contains a group of cells and maintains the associations between cells and
  * nodes in the mesh.
  * 
- * Also hides the 'ghost nodes' concept from the simulation class, so the latter
- * only ever deals with real cells.
  */
 template<unsigned DIM>
 class MeshBasedTissue : public AbstractTissue<DIM>
 {
-private:
+protected:
     
     ConformingTetrahedralMesh<DIM, DIM>& mrMesh;
     
@@ -33,9 +31,6 @@ private:
      * Needed if this tissue has been de-serialized.
      */
     bool mDeleteMesh;
-    
-    /** Records whether a node is a ghost node or not */
-    std::vector<bool> mIsGhostNode;
         
     /**
      * Special springs that we want to keep track of for some reason.
@@ -64,7 +59,7 @@ private:
         
     /** Helper method used by the spring marking routines */
     std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
-    
+        
     friend class boost::serialization::access;
     /**
      * Serialize the facade.
@@ -78,9 +73,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractTissue<DIM> >(*this);
-        
-        archive & mIsGhostNode;
-                
+  
         // The Voronoi stuff can't be archived yet
         //archive & mpVoronoiTessellation
         delete mpVoronoiTessellation;
@@ -91,19 +84,22 @@ private:
         archive & mFollowLoggedCell;
         archive & mWriteTissueAreas;
         
-        Validate(); // paranoia
+        // In its present form, a call to MeshBasedTissue::Validate() here
+        // would result in a seg fault in the situation where we are actually loading 
+        // a MeshBasedTissueWithGhostNodes. Commenting out this call breaks no tests.
+           
+        // Validate();
     }
-    
+
 public:
 
     /** Hack until meshes are fully archived using boost::serialization */
     static std::string meshPathname;
-    
+
     /**
      * Create a new tissue facade from a mesh and collection of cells.
      * 
-     * At present there must be precisely 1 cell for each node of the mesh.
-     * (This will change in future so that you don't need cells for ghost nodes.)
+     * There must be precisely 1 cell for each node of the mesh.
      * 
      * @param rMesh a conforming tetrahedral mesh.
      * @param cells TissueCells corresponding to the nodes of the mesh.
@@ -111,61 +107,28 @@ public:
      */
     MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>&, const std::vector<TissueCell>&,
            bool deleteMesh=false);
-          
+
     /**
      * Constructor for use by the de-serializer.
      * 
      * @param rMesh a conforming tetrahedral mesh.
      */
     MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>&);
-    
+
     ~MeshBasedTissue();
 
     ConformingTetrahedralMesh<DIM, DIM>& rGetMesh();
-    
+
     const ConformingTetrahedralMesh<DIM, DIM>& rGetMesh() const;
-    
-    std::vector<bool>& rGetGhostNodes();
-    
-    unsigned GetGhostNodesSize();
-        
-    bool IsGhostNode(unsigned index);
 
-    std::set<unsigned> GetGhostNodeIndices();
-    
-    /** 
-     *  Set the ghost nodes, by taking in a vector of bools saying whether each 
-     *  node is a ghost or not. Won't generally be needed to be called, see 
-     *  alternate version of SetGhostNodes which takes in the ghost node indices
-     */
-    void SetGhostNodes(const std::vector<bool>& isGhostNode);
-
-    /**
-     *  Set the ghost nodes by taking in a set of which nodes are ghosts.
-     */
-    void SetGhostNodes(const std::set<unsigned>& ghostNodeIndices);
-    
-    /**
-     * Update the GhostNode positions using the spring force model with rest length=1.
-     * Forces are applied to ghost nodes from connected ghost and normal nodes.
-     */
-    void UpdateGhostPositions(double dt);
-    
     bool GetWriteVoronoiData();
-    
+
     bool GetWriteTissueAreas();
-    
+
     void SetWriteVoronoiData(bool writeVoronoiData, bool followLoggedCell);
-    
+
     void SetWriteTissueAreas(bool writeTissueAreas);
-    
-    
-    void Update();
-    /***
-     * This method is used to calculate the force between GHOST nodes.
-     */
-    c_vector<double, DIM> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
-        
+
     /** 
      * Remove all cells labelled as dead. 
      * 
@@ -182,14 +145,14 @@ public:
      *  @return number of cells removed
      */
     unsigned RemoveDeadCells();
-    
+
     void CreateOutputFiles(const std::string &rDirectory, 
                            bool rCleanOutputDirectory,
                            bool outputCellMutationStates,
                            bool outputCellTypes,
                            bool outputCellVariables,
                            bool outputCellCyclePhases);
-    
+
     void CloseOutputFiles(bool outputCellMutationStates,
                           bool outputCellTypes,
                           bool outputCellVariables,
@@ -201,7 +164,7 @@ public:
      * @param rNewLocation  where to move it to
      */
     void MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation);
-    
+
     /**
      * Add a new cell to the tissue.
      * @param cell  the cell to add
@@ -210,12 +173,12 @@ public:
      */
     TissueCell*  AddCell(TissueCell cell, c_vector<double,DIM> newLocation);
 
-    void ReMesh();
-    
+    virtual void ReMesh();
+
     Node<DIM>* GetNode(unsigned index);
-    
+
     unsigned GetNumNodes();
-    
+
     /** 
      * Sets the Ancestor index of all the cells at the bottom in order,
      * can be used to trace clonal populations.
@@ -223,23 +186,29 @@ public:
     void SetBottomCellAncestors();
 
     /**
-     * Check consistency of our internal data structures.
+     * Check consistency of our internal data structures. Each node must
+     * have a cell associated with it.
      */
-    void Validate();
+    virtual void Validate();
 
     void WriteResultsToFiles(bool outputCellMutationStates, 
                              bool outputCellTypes, 
                              bool outputCellVariables,
                              bool outputCellCyclePhases);
-    
+
     void WriteVoronoiResultsToFile();
-    
+
     void WriteTissueAreaResultsToFile();
-    
+
     /** Get a reference to a Voronoi Tessellation of the mesh */                         
     void CreateVoronoiTessellation();
 
     VoronoiTessellation<DIM>& rGetVoronoiTessellation();
+    
+    /**
+     * Update mIsGhostNode if required by a remesh.
+     */ 
+    virtual void UpdateGhostNodesAfterReMesh(NodeMap& rMap);
 
     /**
      * Iterator over edges in the mesh, which correspond to springs between cells.

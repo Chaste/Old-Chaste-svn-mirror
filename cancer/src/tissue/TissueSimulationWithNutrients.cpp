@@ -162,10 +162,9 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
         
     ConformingTetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
     CellwiseData<DIM>::Instance()->ReallocateMemory();
-    std::set<unsigned> ghost_node_indices = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->GetGhostNodeIndices();
     
     // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
-    assert(ghost_node_indices.size()==0);
+    assert(this->mrTissue.HasGhostNodes()==false);
             
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;
@@ -232,8 +231,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     CellwiseData<DIM>::Instance()->ReallocateMemory();
 
     // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
-    std::set<unsigned> ghost_node_indices = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->GetGhostNodeIndices();
-    assert(ghost_node_indices.size()==0);
+    assert(this->mrTissue.HasGhostNodes()==false);
     
     // Loop over cells and calculate centre of distribution
     c_vector<double, DIM> centre = zero_vector<double>(DIM);

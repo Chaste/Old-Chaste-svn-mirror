@@ -8,7 +8,7 @@
 
 #include <cmath>
 #include <vector>
-#include "MeshBasedTissue.cpp"
+#include "MeshBasedTissueWithGhostNodes.cpp"
 #include "CellwiseData.cpp"
 #include "CellwiseDataGradient.hpp"
 #include "CellsGenerator.hpp"
@@ -21,17 +21,17 @@ class TestCellwiseDataGradient : public AbstractCancerTestSuite
 public:
     void TestCellwiseDataGradientVerySmallMesh() throw(Exception)
     {        
-        // create a simple mesh
+        // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        // create a tissue
+        // Create a tissue
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         MeshBasedTissue<2> tissue(mesh,cells);
 
-        // set up data: C(x,y) = x^2
+        // Set up data: C(x,y) = x^2
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
         p_data->SetTissue(tissue);     
@@ -59,12 +59,12 @@ public:
 
     void TestCellwiseDataGradientFineMesh() throw(Exception)
     {        
-        // create a mesh: [0,2]x[0,2]
+        // Create a mesh: [0,2]x[0,2]
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        // create a tissue
+        // Create a tissue
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         MeshBasedTissue<2> tissue(mesh,cells);
@@ -84,13 +84,12 @@ public:
         CellwiseDataGradient<2> gradient;
         gradient.SetupGradients();
         
-        // check gradient 
+        // Check gradient 
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TS_ASSERT_DELTA( gradient.rGetGradient(i)(0), 0.0, 1e-9);
             TS_ASSERT_DELTA( gradient.rGetGradient(i)(1), 0.0, 1e-9);
         }
-
 
         //////////////////////////////////
         // C(x,y) = x-y
@@ -102,7 +101,7 @@ public:
             p_data->SetValue(x-y, mesh.GetNode(i));
         }
 
-        // check gradient 
+        // Check gradient 
         gradient.SetupGradients();
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -120,7 +119,7 @@ public:
             p_data->SetValue(x*x - y*y, mesh.GetNode(i));
         }
 
-        // check gradient - here there is some numerical error
+        // Check gradient - here there is some numerical error
         gradient.SetupGradients();
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -142,18 +141,19 @@ public:
     
     void TestCellwiseDataGradientWithGhostNodes() throw(Exception)
     {        
-        // create a mesh: [0,2]x[0,2]
+        // Create a mesh: [0,2]x[0,2]
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        // create a tissue
+        // Create a tissue
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         
-        MeshBasedTissue<2> tissue(mesh,cells);
-        // set boundary nodes to be ghosts
-        std::set< unsigned > ghost_node_indices;
+        MeshBasedTissueWithGhostNodes<2> tissue(mesh,cells);
+        
+        // Set boundary nodes to be ghosts
+        std::set<unsigned> ghost_node_indices;
         for (MeshBasedTissue<2>::Iterator iter=tissue.Begin();
              iter != tissue.End();
              ++iter)
@@ -161,15 +161,13 @@ public:
             if (iter.GetNode()->IsBoundaryNode())
             {
                 ghost_node_indices.insert( iter.GetNode()->GetIndex() );
-//                std::cout << iter.GetNode()->GetIndex() << " ";
             }
         }
         tissue.SetGhostNodes(ghost_node_indices);
         
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
-        p_data->SetTissue(tissue);     
-    
+        p_data->SetTissue(tissue);
 
         //////////////////////////////////
         // C(x,y) = x^2 - y^2
@@ -188,9 +186,9 @@ public:
             }
         }
 
-        // check gradient - here there is some numerical error
+        // Check gradient - here there is some numerical error
         
-        // the corner nodes are special because the have no adjacent real elements
+        // The corner nodes are special because they have no adjacent real elements
         CellwiseDataGradient<2> gradient;
         gradient.SetupGradients();
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -198,10 +196,11 @@ public:
             double x = mesh.GetNode(i)->rGetLocation()[0];
             double y = mesh.GetNode(i)->rGetLocation()[1];
 
-            if ( !mesh.GetNode(i)->IsBoundaryNode() )//ie not ghost
+            if ( !mesh.GetNode(i)->IsBoundaryNode() ) // ie not ghost
             {
                 int x_corner=0;
-                // work out if on left or right
+                
+                // Work out if on left or right
                 if (x==0.03125)
                 {
                     x_corner = -1;
@@ -211,7 +210,8 @@ public:
                     x_corner = 1;
                 }
                 int y_corner=0;
-                // work out if on top or bottom
+                
+                // Work out if on top or bottom
                 if (y==0.03125)
                 {
                     y_corner = -1;
@@ -238,9 +238,7 @@ public:
                     default:
                         break;
                 }
-                
-            }
-                
+            }   
         }
 
         CellwiseData<2>::Destroy();

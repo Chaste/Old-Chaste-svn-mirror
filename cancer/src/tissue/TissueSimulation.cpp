@@ -209,10 +209,10 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 template<unsigned DIM> 
 void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt)
 {
-    if (mrTissue.HasMesh())
+    if (mrTissue.HasGhostNodes())
     {
         // Update ghost positions first because they do not affect the real cells
-        (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->UpdateGhostPositions(mDt);
+        (static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue))->UpdateGhostPositions(mDt);
     }
 
     // Iterate over all cells to update their positions.
@@ -483,10 +483,19 @@ void TissueSimulation<DIM>::Solve()
         CancerEventHandler::BeginEvent(REMESH);        
         if (mrTissue.HasMesh())
         {
-            if(mReMesh)
+            if (mReMesh)
             {
                 LOG(1, "\tRemeshing...");
-                static_cast<MeshBasedTissue<DIM>*>(&mrTissue)->ReMesh();
+                if (mrTissue.HasGhostNodes())
+                {
+                    static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue)->ReMesh();
+                    static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue)->ValidateWithGhostNodes();
+                }
+                else
+                {
+                    static_cast<MeshBasedTissue<DIM>*>(&mrTissue)->ReMesh();
+                    static_cast<MeshBasedTissue<DIM>*>(&mrTissue)->Validate();
+                }
                 LOG(1, "\tdone.\n");
             }
         }
@@ -497,7 +506,6 @@ void TissueSimulation<DIM>::Solve()
             LOG(1, "\tdone.\n");
         }
         CancerEventHandler::EndEvent(REMESH);
-        
 
         CancerEventHandler::BeginEvent(TESSELLATION);
         if (mrTissue.HasMesh())
@@ -592,15 +600,24 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
     OutputFileHandler handler(archive_directory, false);
     std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue_sim_at_time_"+time_stamp.str()+".arch";
     std::string mesh_filename = std::string("mesh_") + time_stamp.str();
-    
+
     if (mrTissue.HasMesh())
     {
         // Write the mesh to file.  Remesh first to ensure it's in a good state.
-        if(mReMesh)
+        if (mReMesh)
         {
-            (static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->ReMesh();
+            if (mrTissue.HasGhostNodes())
+            {
+                static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue)->ReMesh();
+                static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue)->ValidateWithGhostNodes();
+            }
+            else
+            {
+                static_cast<MeshBasedTissue<DIM>*>(&mrTissue)->ReMesh();
+                static_cast<MeshBasedTissue<DIM>*>(&mrTissue)->Validate();
+            }
         }
-        
+
         // The false is so the directory isn't cleaned
         TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);
         mesh_writer.WriteFilesUsingMesh((static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->rGetMesh());
@@ -644,7 +661,7 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
  */
 template<unsigned DIM> 
 TissueSimulation<DIM>* TissueSimulation<DIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
-{
+{    
     std::string archive_filename = TissueSimulation<DIM>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
 
     // Create an input archive

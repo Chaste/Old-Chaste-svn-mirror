@@ -32,7 +32,7 @@ public:
         std::vector<TissueCell> cells;
         cells_generator.GenerateBasic(cells, *p_mesh);
         
-        MeshBasedTissue<2> tissue(*p_mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells);
         tissue.SetGhostNodes(ghost_node_indices);
 
         // Need to create a spring system explicitly so we can pass 
@@ -117,14 +117,12 @@ public:
                 
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
         ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = mesh_generator.GetGhostNodeIndices();
                 
         CellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;
         cells_generator.GenerateBasic(cells, *p_mesh);
         
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.SetGhostNodes(ghost_node_indices);
 
         // Need to create a spring system explicitly so we can pass it in to the force calculator
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
@@ -186,14 +184,12 @@ public:
                 
         HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
         ConformingTetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = mesh_generator.GetGhostNodeIndices();
-                
+
         CellsGenerator<2> cells_generator;
         std::vector<TissueCell> cells;
         cells_generator.GenerateBasic(cells, *p_mesh);
         
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.SetGhostNodes(ghost_node_indices);
 
         // Need to create a spring system explicitly so we can pass it in 
         // to the force calculator

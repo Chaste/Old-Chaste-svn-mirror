@@ -36,14 +36,13 @@ public:
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
                
         // Centre the mesh at (0,0)
         c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);
         c_vector<double,2> height_extremes = p_mesh->GetWidthExtremes(1u);  
               
-        double width_of_mesh = (num_cells_width/(num_cells_width + 2.0*thickness_of_ghost_layer))*(width_extremes[1] - width_extremes[0]);
-        double height_of_mesh = (num_cells_depth/(num_cells_depth + 2.0*thickness_of_ghost_layer))*(height_extremes[1] - height_extremes[0]);
+        double width_of_mesh = (num_cells_width/num_cells_width)*(width_extremes[1] - width_extremes[0]);
+        double height_of_mesh = (num_cells_depth/num_cells_depth)*(height_extremes[1] - height_extremes[0]);
                 
         p_mesh->Translate(-width_of_mesh/2, -height_of_mesh/2);
                 
@@ -68,7 +67,6 @@ public:
         // Create a tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
         tissue.MarkSpring(tissue.rGetCellAtNodeIndex(4), tissue.rGetCellAtNodeIndex(5));
-        tissue.SetGhostNodes(ghost_node_indices);
         
         // Test it is possible to construct a spring system
         TS_ASSERT_THROWS_NOTHING(CryptProjectionSpringSystem spring_system(tissue));
@@ -203,14 +201,13 @@ public:
         
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
-        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
                
         // Centre the mesh at (0,0)
         c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);
         c_vector<double,2> height_extremes = p_mesh->GetWidthExtremes(1u);  
               
-        double width_of_mesh = (num_cells_width/(num_cells_width + 2.0*thickness_of_ghost_layer))*(width_extremes[1] - width_extremes[0]);
-        double height_of_mesh = (num_cells_depth/(num_cells_depth + 2.0*thickness_of_ghost_layer))*(height_extremes[1] - height_extremes[0]);
+        double width_of_mesh = (num_cells_width/num_cells_width)*(width_extremes[1] - width_extremes[0]);
+        double height_of_mesh = (num_cells_depth/num_cells_depth)*(height_extremes[1] - height_extremes[0]);
                 
         p_mesh->Translate(-width_of_mesh/2, -height_of_mesh/2);
                 
@@ -227,7 +224,6 @@ public:
         // Create a tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
         tissue.MarkSpring(tissue.rGetCellAtNodeIndex(4), tissue.rGetCellAtNodeIndex(5));
-        tissue.SetGhostNodes(ghost_node_indices);
         
         WntConcentration::Instance()->SetType(RADIAL); 
         WntConcentration::Instance()->SetTissue(tissue);  

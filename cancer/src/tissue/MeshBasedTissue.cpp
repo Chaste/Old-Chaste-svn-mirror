@@ -4,10 +4,7 @@
 #include "MeshBasedTissue.hpp"
 #include "Exception.hpp"
 
-///\todo: Make this constructor take in ghost nodes, and validate the three objects
-// are in sync ie num cells + num ghost nodes = num_nodes ? this would mean all ghosts
-// *cannot* be cells, making it more difficult to construct the cells.
-// also check cell.GetNodeIndices() is in the mesh, and covers the mesh, etc.
+
 template<unsigned DIM>
 MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
                   const std::vector<TissueCell>& rCells,
@@ -20,8 +17,6 @@ MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh
                mFollowLoggedCell(false),
                mWriteTissueAreas(false)
 {
-    mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
-
     // This must always be true
     assert( this->mCells.size() <= mrMesh.GetNumNodes() );
 
@@ -49,25 +44,23 @@ MeshBasedTissue<DIM>::~MeshBasedTissue()
     }
 }
 
-// Check every node either has a cell associated with it or is a ghost node
-// (for the time being, we are allowing ghost nodes to also have cells 
-// associated with them, although this isn't very clean)
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::Validate()
-{
-    std::vector<bool> validated_node = mIsGhostNode; 
+{    
+    std::vector<bool> validated_node = std::vector<bool>(this->GetNumNodes(), false);
+    
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
         unsigned node_index = cell_iter->GetNodeIndex();
         validated_node[node_index] = true;
-    }
+    }    
     
     for (unsigned i=0; i<validated_node.size(); i++)
     {
         if (!validated_node[i])
         {
             std::stringstream ss;
-            ss << "Node " << i << " does not appear to be a ghost node or have a cell associated with it";
+            ss << "Node " << i << " does not appear to have a cell associated with it";
             EXCEPTION(ss.str()); 
         }
     }
@@ -83,59 +76,6 @@ template<unsigned DIM>
 const ConformingTetrahedralMesh<DIM, DIM>& MeshBasedTissue<DIM>::rGetMesh() const
 {
     return mrMesh;
-}
-
-template<unsigned DIM>
-std::vector<bool>& MeshBasedTissue<DIM>::rGetGhostNodes()
-{
-    return mIsGhostNode;
-}
-
-template<unsigned DIM>
-unsigned MeshBasedTissue<DIM>::GetGhostNodesSize()
-{
-    return mIsGhostNode.size();
-}
-
-template<unsigned DIM>
-bool MeshBasedTissue<DIM>::IsGhostNode(unsigned index)
-{
-    return mIsGhostNode[index];
-}
-
-template<unsigned DIM>
-std::set<unsigned> MeshBasedTissue<DIM>::GetGhostNodeIndices()
-{
-    std::set<unsigned> ghost_node_indices;
-    for (unsigned i=0; i<mIsGhostNode.size(); i++)
-    {
-        if (mIsGhostNode[i])
-        {
-            ghost_node_indices.insert(i);    
-        }        
-    }
-    return ghost_node_indices;        
-}
-
-template<unsigned DIM>
-void MeshBasedTissue<DIM>::SetGhostNodes(const std::vector<bool>& rGhostNodes)
-{
-    mIsGhostNode = rGhostNodes;
-}
-
-template<unsigned DIM> 
-void MeshBasedTissue<DIM>::SetGhostNodes(const std::set<unsigned>& ghostNodeIndices)
-{
-    // Reinitialise all to false..
-    mIsGhostNode = std::vector<bool>(mrMesh.GetNumNodes(), false);
-
-    // ..then update which ones are ghosts
-    std::set<unsigned>::iterator iter = ghostNodeIndices.begin();
-    while(iter!=ghostNodeIndices.end())
-    {
-        mIsGhostNode[*iter]=true;
-        iter++;
-    }
 }
 
 template<unsigned DIM>
@@ -187,82 +127,6 @@ unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::UpdateGhostPositions(double dt)
-{
-    std::vector<c_vector<double, DIM> > drdt(mrMesh.GetNumAllNodes());
-    for (unsigned i=0; i<drdt.size(); i++)
-    {
-        drdt[i]=zero_vector<double>(DIM);
-    }
-
-    for (typename ConformingTetrahedralMesh<DIM, DIM>::EdgeIterator edge_iterator=mrMesh.EdgesBegin();
-        edge_iterator!=mrMesh.EdgesEnd();
-        ++edge_iterator)
-    {
-        unsigned nodeA_global_index = edge_iterator.GetNodeA()->GetIndex();
-        unsigned nodeB_global_index = edge_iterator.GetNodeB()->GetIndex();
-
-        c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index,nodeB_global_index);
-         
-        double damping_constant = CancerParameters::Instance()->GetDampingConstantNormal();
-        
-        
-        if (!mIsGhostNode[nodeA_global_index])
-        {
-            drdt[nodeB_global_index] -= force / damping_constant;
-        }
-        else
-        {
-            drdt[nodeA_global_index] += force / damping_constant;
-                
-            if (mIsGhostNode[nodeB_global_index])
-            {
-                drdt[nodeB_global_index] -= force / damping_constant;
-            }
-        }
-    }
-    
-    for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
-    {
-        if ((!mrMesh.GetNode(index)->IsDeleted()) && mIsGhostNode[index])
-        {
-            ChastePoint<DIM> new_point(mrMesh.GetNode(index)->rGetLocation() + dt*drdt[index]);
-            mrMesh.SetNode(index, new_point, false);
-        }
-    }
-}
-
-/**
- * Calculates the force between two nodes.
- * 
- * Note that this assumes they are connected
- * 
- * @param NodeAGlobalIndex
- * @param NodeBGlobalIndex
- * 
- * @return The force exerted on Node A by Node B.
- */
-template<unsigned DIM> 
-c_vector<double, DIM> MeshBasedTissue<DIM>::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
-{
-    assert(rNodeAGlobalIndex!=rNodeBGlobalIndex);
-    c_vector<double, DIM> unit_difference;
-    c_vector<double, DIM> node_a_location = mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
-    c_vector<double, DIM> node_b_location = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation();
-    
-    // There is reason not to substract one position from the other (cylindrical meshes)
-    unit_difference = mrMesh.GetVectorFromAtoB(node_a_location, node_b_location);   
-    
-    double distance_between_nodes = norm_2(unit_difference);
-    
-    unit_difference /= distance_between_nodes;
-    
-    double rest_length = 1.0;
-    
-    return CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
-}
-
-template<unsigned DIM>
 void MeshBasedTissue<DIM>::MoveCell(typename AbstractTissue<DIM>::Iterator iter, ChastePoint<DIM>& rNewLocation)
 {
     unsigned index = iter.GetNode()->GetIndex();
@@ -279,15 +143,9 @@ TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DI
     newCell.SetNodeIndex(new_node_index);
     this->mCells.push_back(newCell);
     
-    TissueCell *p_created_cell=&(this->mCells.back());
+    TissueCell *p_created_cell = &(this->mCells.back());
     this->mNodeCellMap[new_node_index] = p_created_cell;
     
-    // Update size of IsGhostNode if necessary
-    if (mrMesh.GetNumNodes() > mIsGhostNode.size())
-    {
-        mIsGhostNode.resize(mrMesh.GetNumNodes());
-        mIsGhostNode[new_node_index] = false;
-    }
     return p_created_cell;
 }
 
@@ -297,22 +155,10 @@ void MeshBasedTissue<DIM>::ReMesh()
     NodeMap map(mrMesh.GetNumAllNodes());
     mrMesh.ReMesh(map);
 
-    if(!map.IsIdentityMap())
+    if (!map.IsIdentityMap())
     {
-        // Copy mIsGhostNode. nodes bool
-        std::vector<bool> ghost_nodes_before_remesh = mIsGhostNode;    
-        mIsGhostNode.clear();
-        mIsGhostNode.resize(mrMesh.GetNumNodes());
+        UpdateGhostNodesAfterReMesh(map);
         
-        for(unsigned old_index=0; old_index<map.Size(); old_index++)
-        {
-            if(!map.IsDeleted(old_index))
-            {
-                unsigned new_index = map.GetNewIndex(old_index);
-                mIsGhostNode[new_index] = ghost_nodes_before_remesh[old_index];
-            }
-        }
-
         // Fix up the mappings between cells and nodes
         this->mNodeCellMap.clear();
         for (std::list<TissueCell>::iterator it = this->mCells.begin();
@@ -343,6 +189,7 @@ void MeshBasedTissue<DIM>::ReMesh()
         Node<DIM>* p_node_2 = this->GetNodeCorrespondingToCell(*p_cell_2);
         
         bool joined = false;
+        
         // For each element containing node1, if it also contains node2 then the cells are joined
         std::set<unsigned> node2_elements = p_node_2->rGetContainingElementIndices();
         for (typename Node<DIM>::ContainingElementIterator elt_it = p_node_1->ContainingElementsBegin();
@@ -363,6 +210,7 @@ void MeshBasedTissue<DIM>::ReMesh()
             springs_to_remove.push_back(&r_pair);
         }
     }
+    
     // Remove any springs necessary
     for (std::vector<const std::set<TissueCell*>* >::iterator spring_it = springs_to_remove.begin();
          spring_it != springs_to_remove.end();
@@ -370,9 +218,6 @@ void MeshBasedTissue<DIM>::ReMesh()
     {
         mMarkedSprings.erase(**spring_it);
     }
-    
-    
-    Validate();
 }
 
 template<unsigned DIM>
@@ -413,6 +258,11 @@ void MeshBasedTissue<DIM>::SetWriteTissueAreas(bool writeTissueAreas)
 {
     assert(DIM == 2);
     mWriteTissueAreas = writeTissueAreas;
+}
+
+template<unsigned DIM>
+void MeshBasedTissue<DIM>::UpdateGhostNodesAfterReMesh(NodeMap& rMap)
+{    
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -627,15 +477,15 @@ typename MeshBasedTissue<DIM>::SpringIterator& MeshBasedTissue<DIM>::SpringItera
     do
     {
         ++mEdgeIter;
-        if(*this !=mrTissue.SpringsEnd())
+        if (*this != mrTissue.SpringsEnd())
         {
-            bool a_is_ghost = mrTissue.mIsGhostNode[mEdgeIter.GetNodeA()->GetIndex()];
-            bool b_is_ghost = mrTissue.mIsGhostNode[mEdgeIter.GetNodeB()->GetIndex()];
+            bool a_is_ghost = mrTissue.IsGhostNode(mEdgeIter.GetNodeA()->GetIndex());
+            bool b_is_ghost = mrTissue.IsGhostNode(mEdgeIter.GetNodeB()->GetIndex());
 
             edge_is_ghost = (a_is_ghost || b_is_ghost);
         }
     }
-    while( *this!=mrTissue.SpringsEnd() && edge_is_ghost ); 
+    while (*this!=mrTissue.SpringsEnd() && edge_is_ghost); 
 
     return (*this);
 }
@@ -648,10 +498,10 @@ MeshBasedTissue<DIM>::SpringIterator::SpringIterator(MeshBasedTissue& rTissue,
 {
     if (mEdgeIter!=mrTissue.mrMesh.EdgesEnd())
     {
-        bool a_is_ghost = mrTissue.mIsGhostNode[mEdgeIter.GetNodeA()->GetIndex()];
-        bool b_is_ghost = mrTissue.mIsGhostNode[mEdgeIter.GetNodeB()->GetIndex()];
+        bool a_is_ghost = mrTissue.IsGhostNode(mEdgeIter.GetNodeA()->GetIndex());
+        bool b_is_ghost = mrTissue.IsGhostNode(mEdgeIter.GetNodeB()->GetIndex());
 
-        if(a_is_ghost || b_is_ghost)
+        if (a_is_ghost || b_is_ghost)
         {
             ++(*this);
         }
