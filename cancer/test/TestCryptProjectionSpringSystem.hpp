@@ -41,8 +41,8 @@ public:
         c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);
         c_vector<double,2> height_extremes = p_mesh->GetWidthExtremes(1u);  
               
-        double width_of_mesh = (num_cells_width/num_cells_width)*(width_extremes[1] - width_extremes[0]);
-        double height_of_mesh = (num_cells_depth/num_cells_depth)*(height_extremes[1] - height_extremes[0]);
+        double width_of_mesh = width_extremes[1] - width_extremes[0];
+        double height_of_mesh = height_extremes[1] - height_extremes[0];
                 
         p_mesh->Translate(-width_of_mesh/2, -height_of_mesh/2);
                 
