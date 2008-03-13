@@ -20,7 +20,6 @@
 #include "OxygenBasedCellKiller.hpp"
 #include "CellwiseData.cpp"
 #include "TrianglesMeshReader.cpp"
-#include "ColumnDataReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

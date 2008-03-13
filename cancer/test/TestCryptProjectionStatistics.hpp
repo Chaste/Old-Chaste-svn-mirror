@@ -13,8 +13,6 @@
 #include "CellsGenerator.hpp"
 #include "RadialSloughingCellKiller.hpp"
 #include "TrianglesMeshReader.cpp"
-#include "ColumnDataReader.hpp"
-#include "SimpleDataWriter.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

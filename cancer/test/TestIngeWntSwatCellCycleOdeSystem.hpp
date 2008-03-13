@@ -18,7 +18,6 @@
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "ColumnDataWriter.hpp"
 #include "CellMutationStates.hpp"
 
 

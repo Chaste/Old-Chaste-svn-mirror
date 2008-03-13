@@ -12,7 +12,6 @@
 #include "TissueSimulation.cpp"
 #include "RandomCellKiller.hpp" 
 #include "CellsGenerator.hpp"
-#include "ColumnDataReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

@@ -15,7 +15,6 @@
 #include "RandomNumberGenerator.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.cpp"
-#include "ColumnDataWriter.hpp"
 #include "WntConcentration.hpp"
 #include "CellwiseData.cpp"
 #include "LogFile.hpp"

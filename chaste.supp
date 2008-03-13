@@ -207,3 +207,46 @@
    fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
 }
 
+#
+# HDF5 free lists (see http://hdf.ncsa.uiuc.edu/HDF5/faq/valgrind.html )
+#
+
+{
+   HDF5-free-lists-variant1
+   Memcheck:Param
+   write(buf)
+   fun:__write_nocancel
+   fun:ADIOI_GEN_WriteContig
+   fun:MPIOI_File_write
+   fun:PMPI_File_write_at
+   fun:H5FD_mpio_write
+   fun:H5FD_write
+   fun:H5F_write_superblock
+   fun:H5F_flush
+   fun:H5F_try_close
+   fun:H5F_close
+   fun:H5I_dec_ref
+   fun:H5Fclose
+}
+
+{
+   HDF5-free-lists-variant2
+   Memcheck:Param
+   write(buf)
+   fun:__write_nocancel
+   fun:ADIOI_GEN_WriteContig
+   fun:MPIOI_File_write
+   fun:PMPI_File_write_at
+   fun:H5FD_mpio_write
+   fun:H5FD_write
+   fun:H5F_block_write
+   fun:H5B_flush
+   fun:H5C_flush_single_entry
+   fun:H5C_flush_cache
+   fun:H5AC_flush
+   fun:H5F_flush
+   fun:H5F_try_close
+   fun:H5F_close
+   fun:H5I_dec_ref
+   fun:H5Fclose
+}

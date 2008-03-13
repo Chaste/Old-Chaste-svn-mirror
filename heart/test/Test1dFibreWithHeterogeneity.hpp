@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "ConformingTetrahedralMesh.cpp"
-#include "ColumnDataReader.hpp"
+#include "Hdf5DataReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 
@@ -103,13 +103,13 @@ public:
         
         // write out results for node 20 (and 50 and 80)
         OutputFileHandler results_handler("FibreWithHeterogeneity", false);
-        ColumnDataReader results_reader(results_handler.GetOutputDirectoryFullPath(), "Monodomain1d", false);
+        Hdf5DataReader results_reader(results_handler.GetOutputDirectoryFullPath(), "Monodomain1d", false);
             
         unsigned relevant_nodes[3]={20,50,80};
         
         for (unsigned i=0; i<3; i++)    
         {
-            std::vector<double> transmembrane_potential=results_reader.GetValues("V", relevant_nodes[i]);
+            std::vector<double> transmembrane_potential=results_reader.GetVariableOverTime("V", relevant_nodes[i]);
             std::vector<double> time_series = results_reader.GetUnlimitedDimensionValues();
             
             // Write out the time series for the node at third quadrant

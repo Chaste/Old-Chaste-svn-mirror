@@ -27,6 +27,11 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
                
     // Open the file and the main dataset
     mFileId = H5Fopen(file_name.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    
+    if (mFileId <=0 )
+    {
+        EXCEPTION("Hdf5DataReader could not open file.");
+    }
     mVariablesDatasetId = H5Dopen(mFileId, "Data");
     
     hid_t variables_dataspace = H5Dget_space(mVariablesDatasetId);

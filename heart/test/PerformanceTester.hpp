@@ -15,7 +15,7 @@
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshWriter.cpp"
 #include "PropagationPropertiesCalculator.hpp"
-#include "ColumnDataReader.hpp"
+#include "Hdf5DataReader.hpp"
 #include "GeneralPlaneStimulusCellFactory.hpp"
 #include "CuboidMeshConstructor.hpp"
 

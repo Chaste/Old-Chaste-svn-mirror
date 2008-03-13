@@ -17,7 +17,6 @@
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
-#include "ColumnDataReader.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "CellsGenerator.hpp"
 #include "SimpleNutrientPde.hpp"

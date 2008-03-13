@@ -11,7 +11,6 @@
 #include "AbstractCellKiller.hpp"
 #include "Meineke2001SpringSystem.hpp"
 #include "TrianglesMeshReader.cpp"
-#include "ColumnDataWriter.hpp"
 #include "CancerEventHandler.hpp"
 
 /**

@@ -9,7 +9,6 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "ColumnDataReader.hpp"
 
 
 class PointStimulusHeartCellFactory : public AbstractCardiacCellFactory<3>

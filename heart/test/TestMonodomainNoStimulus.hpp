@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "PropagationPropertiesCalculator.hpp"
-#include "ColumnDataReader.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"

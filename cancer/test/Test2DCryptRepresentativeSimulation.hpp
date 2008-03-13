@@ -17,7 +17,6 @@
 #include "StochasticWntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
-#include "ColumnDataReader.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
 

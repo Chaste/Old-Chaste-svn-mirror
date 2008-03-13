@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include "PropagationPropertiesCalculator.hpp"
-#include "ColumnDataReader.hpp"
+
 
 class TestPropagationPropertiesCalculator : public CxxTest::TestSuite
 {

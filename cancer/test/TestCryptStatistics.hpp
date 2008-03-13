@@ -13,7 +13,6 @@
 #include "CellsGenerator.hpp"
 #include "SloughingCellKiller.hpp"
 #include "TrianglesMeshReader.cpp"
-#include "ColumnDataReader.hpp"
 #include "SimpleDataWriter.hpp"
 #include "OutputFileHandler.hpp"
 

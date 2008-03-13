@@ -15,7 +15,6 @@
 #include "TissueSimulation.cpp"
 #include "FixedCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
-#include "ColumnDataReader.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"

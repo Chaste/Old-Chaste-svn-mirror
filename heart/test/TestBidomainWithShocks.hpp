@@ -11,7 +11,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "ColumnDataReader.hpp"
+#include "Hdf5DataReader.hpp"
 
 
 class PointStimulusWithShockCellFactory : public AbstractCardiacCellFactory<1>
@@ -159,13 +159,13 @@ public:
             std::cout << e.GetMessage() << std::endl << std::flush;
         }
         
-        ColumnDataReader data_reader("Bidomain1d_with_shock","bidomain1d_with_shock");
+        Hdf5DataReader data_reader("Bidomain1d_with_shock","bidomain1d_with_shock");
         
         std::vector<double> times = data_reader.GetUnlimitedDimensionValues();
-        std::vector<double> voltage_values_at_node_0   = data_reader.GetValues("V", 0);
-        std::vector<double> phi_e_values_at_node_0     = data_reader.GetValues("Phi_e", 0);
-        std::vector<double> voltage_values_at_node_100 = data_reader.GetValues("V", 100);
-        std::vector<double> phi_e_values_at_node_100   = data_reader.GetValues("Phi_e", 100);
+        std::vector<double> voltage_values_at_node_0   = data_reader.GetVariableOverTime("V", 0);
+        std::vector<double> phi_e_values_at_node_0     = data_reader.GetVariableOverTime("Phi_e", 0);
+        std::vector<double> voltage_values_at_node_100 = data_reader.GetVariableOverTime("V", 100);
+        std::vector<double> phi_e_values_at_node_100   = data_reader.GetVariableOverTime("Phi_e", 100);
         
         unsigned num_printed_times = voltage_values_at_node_0.size();
         
@@ -258,11 +258,11 @@ public:
         }
         
         
-        ColumnDataReader data_reader("Bidomain2d_with_shock","bidomain2d_with_shock");
+        Hdf5DataReader data_reader("Bidomain2d_with_shock","bidomain2d_with_shock");
         std::vector<double> times = data_reader.GetUnlimitedDimensionValues();
-        std::vector<double> voltage_values_at_node_0   = data_reader.GetValues("V", 0);
-        std::vector<double> phi_e_values_at_node_0     = data_reader.GetValues("Phi_e", 0);
-        std::vector<double> voltage_values_at_node_120 = data_reader.GetValues("V", 120);
+        std::vector<double> voltage_values_at_node_0   = data_reader.GetVariableOverTime("V", 0);
+        std::vector<double> phi_e_values_at_node_0     = data_reader.GetVariableOverTime("Phi_e", 0);
+        std::vector<double> voltage_values_at_node_120 = data_reader.GetVariableOverTime("V", 120);
         
         
         unsigned num_printed_times = voltage_values_at_node_0.size();

@@ -285,7 +285,9 @@ private:
                 writer.AdvanceAlongUnlimitedDimension();
             }
         }
-        
+        VecDestroy(petsc_data_1);
+        VecDestroy(petsc_data_2);
+        VecDestroy(petsc_data_3);
         writer.Close();
     }
 
@@ -357,6 +359,9 @@ public:
             TS_ASSERT_EQUALS(unlimited_values[i], i); 
         }
 
+        VecDestroy(petsc_data_1);
+        VecDestroy(petsc_data_2);
+        VecDestroy(petsc_data_3);
         reader.Close();
     }
     
@@ -401,7 +406,7 @@ public:
         writer.AdvanceAlongUnlimitedDimension();
         
         writer.Close();
-     
+
         TS_ASSERT_THROWS_ANYTHING(Hdf5DataReader reader2("hdf5_reader", "hdf5_wrong_name"));     
         Hdf5DataReader reader("hdf5_reader", "hdf5_test_overtime_exceptions");
                

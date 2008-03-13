@@ -11,7 +11,6 @@
 #include "FixedCellCycleModel.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "TrianglesMeshWriter.cpp"
-#include "ColumnDataReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

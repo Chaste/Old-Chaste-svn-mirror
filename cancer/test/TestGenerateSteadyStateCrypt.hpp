@@ -19,7 +19,6 @@
 #include "CellsGenerator.hpp"
 #include "SloughingCellKiller.hpp"
 #include "TrianglesMeshReader.cpp"
-#include "ColumnDataReader.hpp"
 #include "OutputFileHandler.hpp"
 
 

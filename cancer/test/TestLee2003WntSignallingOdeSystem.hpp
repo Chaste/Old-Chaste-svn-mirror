@@ -9,7 +9,6 @@
 #include <iostream>
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "ColumnDataWriter.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 
@@ -63,35 +62,7 @@ public:
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
         
-//        int my_rank;
-//        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-//        if (my_rank==0) // if master process
-//        {
-//        
-//            int step_per_row = 1;
-//            ColumnDataWriter writer("LeeWntSystem","LeeWntSystem");
-//            int time_var_id = writer.DefineUnlimitedDimension("Time","s");
-//            
-//            std::vector<int> var_ids;
-//            for (unsigned i=0; i<lee_system.rGetVariableNames().size(); i++)
-//            {
-//                var_ids.push_back(writer.DefineVariable(lee_system.rGetVariableNames()[i],
-//                                                        lee_system.rGetVariableUnits()[i]));
-//            }
-//            writer.EndDefineMode();
-//            
-//            for (unsigned i = 0; i < solutions.rGetSolutions().size(); i+=step_per_row)
-//            {
-//                writer.PutVariable(time_var_id, solutions.rGetTimes()[i]);
-//                for (unsigned j=0; j<var_ids.size(); j++)
-//                {
-//                    writer.PutVariable(var_ids[j], solutions.rGetSolutions()[i][j]);
-//                }
-//                writer.AdvanceAlongUnlimitedDimension();
-//            }
-//            writer.Close();
-//        }
-//        MPI_Barrier(PETSC_COMM_WORLD);
+
         
         // Test solutions are correct for a new steady state
         int end = solutions.rGetSolutions().size() - 1;

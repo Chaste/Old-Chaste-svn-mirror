@@ -18,7 +18,6 @@
 #include "StochasticWntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "TrianglesMeshReader.cpp"
-#include "ColumnDataReader.hpp"
 #include "OutputFileHandler.hpp"
 
 

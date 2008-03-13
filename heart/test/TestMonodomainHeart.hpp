@@ -9,7 +9,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "ColumnDataReader.hpp"
+#include "Hdf5DataReader.hpp"
 
 
 class PointStimulusHeartCellFactory : public AbstractCardiacCellFactory<3>
@@ -117,12 +117,12 @@ public:
         // nodes was actually stimulated, and that the propagation spread to
         // a nearby node
         ///////////////////////////////////////////////////////////////////////
-        ColumnDataReader data_reader("MonoDg0Heart","MonodomainLR91_Heart");
+        Hdf5DataReader data_reader("MonoDg0Heart","MonodomainLR91_Heart");
         
         // get the voltage values at stimulated node
-        std::vector<double> voltage_values_at_node_37483 = data_reader.GetValues("V", 37484-1);
+        std::vector<double> voltage_values_at_node_37483 = data_reader.GetVariableOverTime("V", 37484-1);
         // get the voltage values at a nearby unstimulated node
-        std::vector<double> voltage_values_at_node_500 = data_reader.GetValues("V", 501-1);
+        std::vector<double> voltage_values_at_node_500 = data_reader.GetVariableOverTime("V", 501-1);
         bool stimulated_node_was_excited = false;
         bool unstimulated_node_was_excited = false;
         

@@ -9,7 +9,6 @@
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "FieldNoyesReactionSystem.hpp"
-#include "ColumnDataWriter.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 class TestSolvingStiffOdeSystems : public CxxTest::TestSuite

@@ -10,7 +10,6 @@
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "ColumnDataWriter.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "CellMutationStates.hpp"
 
@@ -190,36 +189,7 @@ public:
 //        std::cout <<  "1. BackwardEuler Elapsed time = " << elapsed_time << "\n";
 
 
-//        int my_rank;
-//        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-//        if (my_rank==0) // if master process
-//        {
-//        
-//            int step_per_row = 1;
-//            ColumnDataWriter writer("WntCellCycle","WntCellCycle");
-//            int time_var_id = writer.DefineUnlimitedDimension("Time","s");
-//            
-//            std::vector<int> var_ids;
-//            for (unsigned i=0; i<wnt_system.rGetVariableNames().size(); i++)
-//            {
-//                var_ids.push_back(writer.DefineVariable(wnt_system.rGetVariableNames()[i],
-//                                                        wnt_system.rGetVariableUnits()[i]));
-//            }
-//            writer.EndDefineMode();
-//            
-//            for (unsigned i = 0; i < solutions_rkf.rGetSolutions().size(); i+=step_per_row)
-//            {
-//                writer.PutVariable(time_var_id, solutions_rkf.rGetTimes()[i]);
-//                for (unsigned j=0; j<var_ids.size(); j++)
-//                {
-//                    writer.PutVariable(var_ids[j], solutions_rkf.rGetSolutions()[i][j]);
-//                }
-//                writer.AdvanceAlongUnlimitedDimension();
-//            }
-//            writer.Close();
-//        }
-//        MPI_Barrier(PETSC_COMM_WORLD);
-        
+
         
         // Testing RK4 solution
         // Test solutions are OK for a small time increase...
@@ -312,36 +282,7 @@ public:
         //elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         //std::cout <<  "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
         
-//        int my_rank;
-//        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-//        if (my_rank==0) // if master process
-//        {
 //
-//            int step_per_row = 1;
-//            ColumnDataWriter writer("WntCellCycleBetaCatHit","WntCellCycleBetaCatHit");
-//            int time_var_id = writer.DefineUnlimitedDimension("Time","s");
-//
-//            std::vector<int> var_ids;
-//            for (unsigned i=0; i<wnt_system.rGetVariableNames().size(); i++)
-//            {
-//                var_ids.push_back(writer.DefineVariable(wnt_system.rGetVariableNames()[i],
-//                                                    wnt_system.rGetVariableUnits()[i]));
-//            }
-//            writer.EndDefineMode();
-//
-//            for (unsigned i = 0; i < solutions.rGetSolutions().size(); i+=step_per_row)
-//            {
-//                writer.PutVariable(time_var_id, solutions.rGetTimes()[i]);
-//                for (unsigned j=0; j<var_ids.size(); j++)
-//                {
-//                    writer.PutVariable(var_ids[j], solutions.rGetSolutions()[i][j]);
-//                }
-//                writer.AdvanceAlongUnlimitedDimension();
-//            }
-//            writer.Close();
-//        }
-//        MPI_Barrier(PETSC_COMM_WORLD);
-
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
         // Tests the simulation is ending at the right time...(going into S phase at 7.81 hours)
@@ -377,35 +318,7 @@ public:
         
         solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
         
-//        int my_rank;
-//        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-//        if (my_rank==0) // if master process
-//        {
-//
-//            int step_per_row = 1;
-//            ColumnDataWriter writer("WntCellCycleAPC2Hit","WntCellCycleAPC2Hit");
-//            int time_var_id = writer.DefineUnlimitedDimension("Time","s");
-//
-//            std::vector<int> var_ids;
-//            for (unsigned i=0; i<wnt_system.rGetVariableNames().size(); i++)
-//            {
-//                var_ids.push_back(writer.DefineVariable(wnt_system.rGetVariableNames()[i],
-//                                                    wnt_system.rGetVariableUnits()[i]));
-//            }
-//            writer.EndDefineMode();
-//
-//            for (unsigned i = 0; i < solutions.rGetSolutions().size(); i+=step_per_row)
-//            {
-//                writer.PutVariable(time_var_id, solutions.rGetTimes()[i]);
-//                for (unsigned j=0; j<var_ids.size(); j++)
-//                {
-//                    writer.PutVariable(var_ids[j], solutions.rGetSolutions()[i][j]);
-//                }
-//                writer.AdvanceAlongUnlimitedDimension();
-//            }
-//            writer.Close();
-//        }
-//        MPI_Barrier(PETSC_COMM_WORLD);
+
 
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;

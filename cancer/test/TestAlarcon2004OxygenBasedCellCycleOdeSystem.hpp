@@ -10,7 +10,6 @@
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "ColumnDataWriter.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 
@@ -117,35 +116,6 @@ public:
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "2. Runge-Kutta-Fehlberg Elapsed time = " << elapsed_time << "\n";
         
-//        int my_rank;
-//        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-//        if (my_rank==0) // if master process
-//        {
-//        
-//            int step_per_row = 1;
-//            ColumnDataWriter writer("Alarcon2004CellCycle","Alarcon2004CellCycle");
-//            int time_var_id = writer.DefineUnlimitedDimension("Time","s");
-//            
-//            std::vector<int> var_ids;
-//            for (unsigned i=0; i<alarcon_system.rGetVariableNames().size(); i++)
-//            {
-//                var_ids.push_back(writer.DefineVariable(alarcon_system.rGetVariableNames()[i],
-//                                                        alarcon_system.rGetVariableUnits()[i]));
-//            }
-//            writer.EndDefineMode();
-//            
-//            for (unsigned i = 0; i < solutions.rGetSolutions().size(); i+=step_per_row)
-//            {
-//                writer.PutVariable(time_var_id, solutions.rGetTimes()[i]);
-//                for (unsigned j=0; j<var_ids.size(); j++)
-//                {
-//                    writer.PutVariable(var_ids[j], solutions.rGetSolutions()[i][j]);
-//                }
-//                writer.AdvanceAlongUnlimitedDimension();
-//            }
-//            writer.Close();
-//        }
-//        MPI_Barrier(PETSC_COMM_WORLD);
 
         // test solutions are OK for a small time increase
         int end = solutions.rGetSolutions().size() - 1;
