@@ -523,7 +523,7 @@ public:
         
         // Cells have been given birth times of 0, -1, -2, -3, -4.
         // loop over them to run to time 0.0;
-        for (MeshBasedTissue<2>::Iterator cell_iter = simple_tissue.Begin();
+        for (AbstractTissue<2>::Iterator cell_iter = simple_tissue.Begin();
              cell_iter != simple_tissue.End();
              ++cell_iter)
         {                

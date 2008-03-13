@@ -5,7 +5,7 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "CancerParameters.hpp"
-#include "MeshBasedTissue.cpp"
+#include "AbstractTissue.cpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
@@ -46,7 +46,7 @@ private:
     /** 
      *  The Tissue which the Wnt Gradient is operating in
      */
-    MeshBasedTissue<2>* mpTissue;
+    AbstractTissue<2>* mpTissue;
     
     /**
      *  Whether this WntConcentration object has had its type set
@@ -130,7 +130,7 @@ public:
     /**
      *  Set the crypt. Must be called before GetWntLevel().
      */
-    void SetTissue(MeshBasedTissue<2>& rTissue);
+    void SetTissue(AbstractTissue<2>& rTissue);
     
     /**
      *  Get the type of wnt concentration. 

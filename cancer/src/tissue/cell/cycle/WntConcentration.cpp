@@ -85,7 +85,7 @@ c_vector<double,2> WntConcentration::GetWntGradient(TissueCell* pCell)
     return GetWntGradient(location_of_cell);
 }
 
-void WntConcentration::SetTissue(MeshBasedTissue<2>& rTissue)
+void WntConcentration::SetTissue(AbstractTissue<2>& rTissue)
 {
     mpTissue = &rTissue;
 }
