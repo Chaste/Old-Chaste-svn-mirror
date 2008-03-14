@@ -6,8 +6,8 @@
  * 
  * 
  */  
-#ifndef TESTCRYPTSIMULATION2DTUTORIAL_HPP_
-#define TESTCRYPTSIMULATION2DTUTORIAL_HPP_
+#ifndef TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_
+#define TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_
 /* 
  * = Introduction =
  * 
@@ -33,7 +33,7 @@
 /* Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
  * and defines some test methods.
  */
-class TestCryptSimulation2dTutorial : public CxxTest::TestSuite
+class TestRunningCryptSimulationsTutorial : public CxxTest::TestSuite
 {
 public:
     /* EMPTYLINE
@@ -189,4 +189,4 @@ public:
         SimulationTime::Destroy();
     }
 };
-#endif /*TESTCRYPTSIMULATION2DTUTORIAL_HPP_*/
+#endif /*TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_*/
