@@ -224,8 +224,7 @@ public:
         TS_ASSERT(ghost_node_indices.size() < num_cells);
         TS_ASSERT(ghost_node_indices.size() > 0)
         
-        MeshBasedTissueWithGhostNodes<3> tissue(mesh,cells);
-        tissue.SetGhostNodes(ghost_node_indices);        
+        MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, ghost_node_indices);     
 
         TissueSimulation<3> simulator(tissue);
         simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");        

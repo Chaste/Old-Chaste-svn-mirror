@@ -91,8 +91,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
         
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells);          
-        tissue.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);          
 
         CryptSimulation2d simulator(tissue);
 
@@ -149,8 +148,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);               
-        crypt.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices); 
 
         CryptSimulation2d simulator(crypt);
         
@@ -210,8 +208,7 @@ public:
             cells[i].SetBirthTime(-11.5);
         }
               
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);               
-        crypt.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
         CryptSimulation2d simulator(crypt);
         
@@ -267,8 +264,7 @@ public:
         std::vector<TissueCell> cells;                      
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
         
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);  
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
         
         WntConcentration::Instance()->SetType(LINEAR);             
         WntConcentration::Instance()->SetTissue(crypt);
@@ -310,8 +306,7 @@ public:
         std::vector<TissueCell> cells;
                 
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
         
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
@@ -359,8 +354,7 @@ public:
         std::vector<TissueCell> cells;
                 
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, false);
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
         
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
@@ -404,8 +398,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
         
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
         // We have a Wnt Gradient - but not Wnt dependent cells
         // so that the test runs quickly, but we test archiving of it!
@@ -458,9 +451,8 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
         
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
-        
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+
         WntConcentration::Instance()->SetType(LINEAR);
         WntConcentration::Instance()->SetTissue(crypt);
 
@@ -564,9 +556,8 @@ public:
         std::vector<TissueCell> cells;        
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, true);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
-        
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+
         // Cover the write Voronoi data method
         crypt.SetWriteVoronoiData(true, false);
         
@@ -641,9 +632,8 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, TYSONNOVAK, true);
         
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
-        
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+
         CryptSimulation2d simulator(crypt); 
                
         SloughingCellKiller sloughing_cell_killer(&crypt);
@@ -872,8 +862,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);               
-        crypt.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);               
 
         CryptSimulation2d simulator(crypt);
 
@@ -917,8 +906,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
               
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
         CryptSimulation2d simulator(crypt);
         
@@ -945,8 +933,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);
               
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
 
         CryptSimulation2d simulator(crypt);
         
@@ -979,9 +966,8 @@ public:
         std::vector<TissueCell> cells;                      
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_ONE, false);
         
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);  
-        
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+
         WntConcentration::Instance()->SetType(LINEAR);             
         WntConcentration::Instance()->SetTissue(crypt);
         
@@ -1029,8 +1015,7 @@ public:
             cells.push_back(cell);
         }
                 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells);
-        tissue.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
 
         TissueSimulation<2> simulator(tissue);
 
@@ -1129,8 +1114,7 @@ public:
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC, true,
                                             0.3,2.0,3.0,4.0,true);
         // Set up crypt      
-        MeshBasedTissueWithGhostNodes<2>* p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells);        
-        (*p_crypt).SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2>* p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, ghost_node_indices);        
         
         p_crypt->SetBottomCellAncestors();
         

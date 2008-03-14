@@ -60,9 +60,8 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC_WNT, true);
               
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
-                
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+
         WntConcentration::Instance()->SetType(LINEAR);
         CancerParameters::Instance()->SetTopOfLinearWntConcentration(1.0/3.0);
         WntConcentration::Instance()->SetTissue(crypt);

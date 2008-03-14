@@ -64,8 +64,7 @@ public:
         }
                                                           
         // Make a tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);         
-        crypt.SetGhostNodes(ghost_node_indices);          
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
         
         // Set up the Wnt gradient 
         WntConcentration::Instance()->SetType(RADIAL); 

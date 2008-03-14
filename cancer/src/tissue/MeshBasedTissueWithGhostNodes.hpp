@@ -51,8 +51,10 @@ public:
      * @param cells TissueCells corresponding to the nodes of the mesh.
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
-    MeshBasedTissueWithGhostNodes(ConformingTetrahedralMesh<DIM, DIM>& rMesh, const std::vector<TissueCell>& rCells,
-           bool deleteMesh=false);
+    MeshBasedTissueWithGhostNodes(ConformingTetrahedralMesh<DIM, DIM>& rMesh, 
+                                  const std::vector<TissueCell>& rCells,
+                                  const std::set<unsigned> ghostNodeIndices = std::set<unsigned>(),
+                                  bool deleteMesh=false);
           
     /**
      * Constructor for use by the de-serializer.

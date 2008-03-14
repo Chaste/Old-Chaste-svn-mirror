@@ -32,8 +32,7 @@ public:
         std::vector<TissueCell> cells;
         cells_generator.GenerateBasic(cells, *p_mesh);
         
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells);
-        tissue.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
 
         // Need to create a spring system explicitly so we can pass 
         // it in to the force calculator

@@ -53,9 +53,8 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);          
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);          
         crypt.InitialiseCells(); // must be called explicitly as there is no simulation     
-        crypt.SetGhostNodes(ghost_node_indices);
 
         CryptStatistics crypt_statistics(crypt);
         
@@ -153,8 +152,7 @@ public:
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, STOCHASTIC, true,
                                             0.3,2.0,3.0,4.0,true);
         
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
                 
         CryptSimulation2d simulator(crypt, NULL, false, false);
         simulator.SetOutputDirectory(output_directory);
@@ -365,8 +363,7 @@ public:
                                                 0.3,2.0,3.0,4.0,true);
             
             // set up crypt      
-            p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells);        
-            (*p_crypt).SetGhostNodes(ghost_node_indices);
+            p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, ghost_node_indices);        
             
             // set up crypt simulation
             CryptSimulation2d simulator(*p_crypt, NULL, false, false);

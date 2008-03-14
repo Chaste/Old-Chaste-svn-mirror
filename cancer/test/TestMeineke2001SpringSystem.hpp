@@ -54,8 +54,7 @@ public:
             cells.push_back(cell);
         }
 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells);
-        tissue.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
 
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
         
@@ -157,8 +156,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells);               
-        tissue.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);               
 
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
                
@@ -232,9 +230,8 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells);               
-        tissue.SetGhostNodes(ghost_node_indices);
-
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);               
+        
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
        
         // Check that the force between nodes is correctly calculated when the spring constant is constant (!)
@@ -290,8 +287,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);               
-        crypt.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);               
 
         crypt.CreateVoronoiTessellation();  // normally done in a simulation loop
 
@@ -354,8 +350,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true); // true = mature cells
 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells);               
-        tissue.SetGhostNodes(ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);               
 
         Meineke2001SpringSystem<2> meineke_spring_system(tissue);
     
@@ -431,8 +426,7 @@ public:
         std::vector<TissueCell> cells;                      
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, INGE_WNT_SWAT_HYPOTHESIS_TWO, false);
         
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells);
-        crypt.SetGhostNodes(ghost_node_indices);  
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
         
         WntConcentration::Instance()->SetType(LINEAR);  
         WntConcentration::Instance()->SetTissue(crypt);
@@ -465,8 +459,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, *p_mesh);
         
-        MeshBasedTissueWithGhostNodes<2> stretched_tissue(*p_mesh,cells);
-        stretched_tissue.SetGhostNodes(ghost_node_indices);        
+        MeshBasedTissueWithGhostNodes<2> stretched_tissue(*p_mesh, cells, ghost_node_indices);      
                 
         // As there is no tissue simulation we must explicitly initialise the cells
         stretched_tissue.InitialiseCells();
@@ -494,8 +487,7 @@ public:
         std::vector<TissueCell> cells2;
         CellsGenerator<2>::GenerateBasic(cells2, *p_mesh2);
         
-        MeshBasedTissueWithGhostNodes<2> squashed_tissue(*p_mesh2,cells2);
-        squashed_tissue.SetGhostNodes(ghost_node_indices2);
+        MeshBasedTissueWithGhostNodes<2> squashed_tissue(*p_mesh2, cells2, ghost_node_indices2);
         squashed_tissue.InitialiseCells();
         
         squashed_tissue.rGetCellAtNodeIndex(6).SetCellType(NECROTIC);

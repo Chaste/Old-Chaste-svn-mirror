@@ -8,15 +8,15 @@
 // *cannot* be cells, making it more difficult to construct the cells.
 // also check cell.GetNodeIndices() is in the mesh, and covers the mesh, etc.
 template<unsigned DIM>
-MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
-                  const std::vector<TissueCell>& rCells,
-                  bool deleteMesh)
+MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
+     ConformingTetrahedralMesh<DIM, DIM>& rMesh,
+     const std::vector<TissueCell>& rCells,
+     const std::set<unsigned> ghostNodeIndices,
+     bool deleteMesh)
              : MeshBasedTissue<DIM>(rMesh, rCells, deleteMesh)
 {
-    mIsGhostNode = std::vector<bool>(this->GetNumNodes(), false);
-    
+    SetGhostNodes(ghostNodeIndices);
     this->mTissueContainsGhostNodes = true;
-    
     ValidateWithGhostNodes();
 }
 
