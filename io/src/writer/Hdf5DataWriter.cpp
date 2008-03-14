@@ -41,14 +41,6 @@ Hdf5DataWriter::~Hdf5DataWriter()
 }
 
 /**
- * @returns True if this is the rank 0 process
- */
-bool Hdf5DataWriter::AmMaster() const
-{
-    return mAmMaster;
-}
-
-/**
 *
 *  Define the fixed dimension.
 *
@@ -267,7 +259,12 @@ void Hdf5DataWriter::EndDefineMode()
 }
 
 void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
-{   
+{
+    if (mIsInDefineMode)
+    {
+        EXCEPTION("Cannot write data while in define mode.");    
+    }
+       
     int lo, hi;
     VecGetOwnershipRange(petscVector, &lo, &hi);
     
@@ -297,6 +294,11 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
 
 void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector)
 {   
+    if (mIsInDefineMode)
+    {
+        EXCEPTION("Cannot write data while in define mode.");    
+    }
+       
     int NUM_STRIPES=2;
     
     // currently the method only works with consecutive columns, can be extended if needed.
@@ -337,11 +339,17 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
 
 void Hdf5DataWriter::PutUnlimitedVariable(double value)
 {
+    if (mIsInDefineMode)
+    {
+        EXCEPTION("Cannot write data while in define mode.");    
+    }
+       
     if(!mIsUnlimitedDimensionSet)
     {
         EXCEPTION("PutUnlimitedVariable() called but no unlimited dimension has been set");
     }
 
+    // This data is only written by the master
     if(!mAmMaster)
     {
         return;

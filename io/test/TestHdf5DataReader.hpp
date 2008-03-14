@@ -385,7 +385,8 @@ public:
        
         Vec data=DistributedVector::CreateVec();
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "Node", 1/*timestep*/));        
-                
+
+        VecDestroy(data);                
         reader.Close();        
     }
 
@@ -419,6 +420,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "WrongName"));
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "I_K", 2/*timestep*/));
                 
+        VecDestroy(data);
         reader.Close();        
     }
 

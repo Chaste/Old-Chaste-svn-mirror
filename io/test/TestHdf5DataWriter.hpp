@@ -427,9 +427,9 @@ public:
         Hdf5DataWriter writer("hdf5", "hdf5_test_non_implemented", false);
         writer.DefineFixedDimension(number_nodes);
         
-        int vm_id = writer.DefineVariable("V_m","millivolts"); assert(vm_id >= 0);  
-        int ina_id = writer.DefineVariable("I_Na","milliamperes"); assert(ina_id >= 0);
-        int phi_e_id = writer.DefineVariable("Phi_e","millivolts"); assert(phi_e_id >= 0);
+        int vm_id = writer.DefineVariable("V_m","millivolts");  
+        int ina_id = writer.DefineVariable("I_Na","milliamperes");
+        int phi_e_id = writer.DefineVariable("Phi_e","millivolts");
         
         writer.EndDefineMode();   
 
@@ -578,10 +578,73 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
         
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutUnlimitedVariable(0.0));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->AdvanceAlongUnlimitedDimension());
         
         mpTestWriter->Close();
         delete mpTestWriter;
+    }
+    
+    void TestCantWriteDataWhileInDefineMode ( void )
+    {       
+        int number_nodes=100;
+               
+        Hdf5DataWriter writer("", "testdefine", false);
+//        writer.DefineFixedDimension(number_nodes);
+//        
+//        int node_id = writer.DefineVariable("Node","dimensionless");
+//        int vm_id = writer.DefineVariable("V_m","millivolts");  
+//        int phi_e_id = writer.DefineVariable("Phi_e","millivolts");
+//        int ina_id = writer.DefineVariable("I_Na","milliamperes");
+//        
+//        writer.DefineUnlimitedDimension("Time", "msec");
+
+//        writer.EndDefineMode();   
+
+        int node_id = 1;
+        int vm_id = 2;
+        int phi_e_id = 3;
+        int ina_id = 4;
+
+        DistributedVector::SetProblemSize(number_nodes);
+
+        Vec petsc_data_short=DistributedVector::CreateVec();
+        DistributedVector distributed_vector_short(petsc_data_short);      
+
+        Vec node_number=DistributedVector::CreateVec();
+        DistributedVector distributed_node_number(node_number);      
+
+
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index!= DistributedVector::End();
+             ++index)
+        {
+            distributed_node_number[index] = index.Global;
+            distributed_vector_short[index] =  -0.5;
+        }
+        distributed_node_number.Restore();
+        distributed_vector_short.Restore();
+        
+        DistributedVector::SetProblemSize(2*number_nodes);
+        Vec petsc_data_long=DistributedVector::CreateVec();
+        DistributedVector distributed_vector_long(petsc_data_long);      
+        
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index!= DistributedVector::End();
+             ++index)
+        {
+            distributed_vector_long[index] =  1000 + index.Global;
+        }
+        distributed_vector_long.Restore();
+        
+        TS_ASSERT_THROWS_ANYTHING(writer.PutVector(node_id, node_number));                   
+        TS_ASSERT_THROWS_ANYTHING(writer.PutVector(ina_id, petsc_data_short));
+        TS_ASSERT_THROWS_ANYTHING(writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long));
+        TS_ASSERT_THROWS_ANYTHING(writer.PutUnlimitedVariable(0.0));
+        TS_ASSERT_THROWS_ANYTHING(writer.AdvanceAlongUnlimitedDimension());
+        
+        writer.Close();
+        
     }
     
 };

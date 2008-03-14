@@ -41,7 +41,7 @@ private:
 public:
     Hdf5DataWriter(std::string directory, std::string baseName, bool cleanDirectory=true);
     virtual ~Hdf5DataWriter();
-    bool AmMaster() const;
+
     void DefineFixedDimension(long dimensionSize);
     void DefineUnlimitedDimension(std::string variableName, std::string variableUnits);
     void AdvanceAlongUnlimitedDimension();
