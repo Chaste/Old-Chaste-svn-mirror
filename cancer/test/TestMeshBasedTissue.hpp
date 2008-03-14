@@ -97,7 +97,7 @@ public:
     }
     
     
-    void TestValidate()
+    void TestValidateMeshBasedTissue()
     {        
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -113,9 +113,26 @@ public:
         // Fails as no cell or ghost correponding to node 0        
         TS_ASSERT_THROWS_ANYTHING(MeshBasedTissue<2> tissue2(mesh, cells));
     }
+    
+    void TestValidateMeshBasedTissueWithGhostNodes()
+    {        
+        // Create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // so the age = node_index
+        std::vector<TissueCell> cells;
+        CellsGenerator<2>::GenerateBasic(cells, mesh);
+        cells[0].SetNodeIndex(1);
+
+        // Fails as no cell or ghost correponding to node 0        
+        TS_ASSERT_THROWS_ANYTHING(MeshBasedTissueWithGhostNodes<2> tissue2(mesh, cells));
+    }
         
     // Test with ghost nodes, checking that the Iterator doesn't loop over ghost nodes
-    void TestTissueWithGhostNodes() throw(Exception)
+    void TestMeshBasedTissueWithGhostNodes() throw(Exception)
     {
         unsigned num_cells_depth = 11;
         unsigned num_cells_width = 6;
@@ -273,6 +290,11 @@ public:
         
         tissue.ReMesh();
         tissue.Validate();
+        
+        // For coverage
+        NodeMap map(mesh.GetNumAllNodes());
+        map.ResetToIdentity();
+        tissue.UpdateGhostNodesAfterReMesh(map);
 
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 80u);        
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh.GetNumAllNodes());
@@ -353,7 +375,12 @@ public:
         TS_ASSERT_EQUALS(tissue_with_ghost_nodes.rGetGhostNodes().size(), mesh.GetNumAllNodes());
 
         tissue_with_ghost_nodes.ReMesh();
-        tissue_with_ghost_nodes.ValidateWithGhostNodes();
+        tissue_with_ghost_nodes.Validate();
+        
+        // For coverage
+        NodeMap map(mesh.GetNumAllNodes());
+        map.ResetToIdentity();
+        tissue_with_ghost_nodes.UpdateGhostNodesAfterReMesh(map);
         
         // Num real cells should be new_num_nodes (80) - num_ghosts (11)
         TS_ASSERT_EQUALS(tissue_with_ghost_nodes.GetNumRealCells(), 69u);

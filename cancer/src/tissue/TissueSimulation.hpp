@@ -39,13 +39,13 @@
  * nodes. The TissueSimulation then accesses only the TissueCells via an iterator in 
  * the tissue facade class.
  * 
- * If using a MeshBasedTissue, the mesh should be surrounded by at least one layer of 
- * ghost nodes.  These are nodes which do not correspond to a cell, but are necessary 
- * for remeshing (because the remesher tries to create a convex hull of the set of nodes) 
- * and visualising purposes. The tissue class deals with ghost nodes. SetGhostNodes() 
- * should have been called on it.
+ * If simulating a crypt with a mesh-based tissue, the mesh should be surrounded by at 
+ * least one layer of ghost nodes. These are nodes which do not correspond to a cell, 
+ * but are necessary for remeshing (because the remesher tries to create a convex hull 
+ * of the set of nodes) and visualization purposes. The MeshBasedTissueWithGhostNodes 
+ * class deals with ghost nodes. SetGhostNodes() should have been called on it.
  * 
- * Cells can divide (at a time governed by their cell cycle models)
+ * Cells can divide (at a time governed by their cell cycle models).
  * 
  * Cells can die - at a time/position specified by cell killers which can be 
  * added to the simulation.

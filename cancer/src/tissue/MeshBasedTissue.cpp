@@ -218,6 +218,8 @@ void MeshBasedTissue<DIM>::ReMesh()
     {
         mMarkedSprings.erase(**spring_it);
     }
+    
+    Validate();
 }
 
 template<unsigned DIM>

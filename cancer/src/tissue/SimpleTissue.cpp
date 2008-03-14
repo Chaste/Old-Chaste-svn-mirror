@@ -139,6 +139,8 @@ void SimpleTissue<DIM>::ReMesh()
             new_node_index++;
         }
     }
+    
+    Validate();
 }
 
 template<unsigned DIM>

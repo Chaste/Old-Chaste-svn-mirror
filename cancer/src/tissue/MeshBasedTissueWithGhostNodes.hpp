@@ -117,7 +117,7 @@ public:
      * Check consistency of our internal data structures. Each node must
      * have a cell associated with it or be a ghost node. 
      */
-    void ValidateWithGhostNodes();
+    void Validate();
 
 };
 

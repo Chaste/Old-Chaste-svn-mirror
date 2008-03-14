@@ -493,24 +493,13 @@ void TissueSimulation<DIM>::Solve()
                 mReMesh = true;
             }
         }
-
-        CancerEventHandler::BeginEvent(REMESH);        
+        
+        // Remesh
+        CancerEventHandler::BeginEvent(REMESH);
         if (mReMesh)
         {
             LOG(1, "\tRemeshing...");
-            
-            // ReMesh
             mrTissue.ReMesh();
-            
-            // Check the remeshed tissue is consistent
-            if (mrTissue.HasGhostNodes())
-            {
-                static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue)->ValidateWithGhostNodes();
-            }
-            else
-            {
-                mrTissue.Validate();
-            }
             LOG(1, "\tdone.\n");
         }
         CancerEventHandler::EndEvent(REMESH);
@@ -609,30 +598,14 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
     std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue_sim_at_time_"+time_stamp.str()+".arch";
     std::string mesh_filename = std::string("mesh_") + time_stamp.str();
 
+    // Write the mesh to file.  Remesh first to ensure it's in a good state.
+    mrTissue.ReMesh();   
+    
     if (mrTissue.HasMesh())
     {
-        // Write the mesh to file.  Remesh first to ensure it's in a good state.
-        if (mReMesh)
-        {
-            if (mrTissue.HasGhostNodes())
-            {
-                mrTissue.ReMesh();
-                static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue)->ValidateWithGhostNodes();
-            }
-            else
-            {
-                mrTissue.ReMesh();
-                static_cast<MeshBasedTissue<DIM>*>(&mrTissue)->Validate();
-            }
-        }
-
         // The false is so the directory isn't cleaned
         TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);
         mesh_writer.WriteFilesUsingMesh((static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->rGetMesh());
-    }
-    else
-    {
-        mrTissue.ReMesh();
     }
     
     // Create a new archive

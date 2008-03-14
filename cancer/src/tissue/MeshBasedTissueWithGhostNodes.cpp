@@ -17,7 +17,7 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
 {
     SetGhostNodes(ghostNodeIndices);
     this->mTissueContainsGhostNodes = true;
-    ValidateWithGhostNodes();
+    Validate();
 }
 
 template<unsigned DIM>
@@ -175,7 +175,7 @@ TissueCell* MeshBasedTissueWithGhostNodes<DIM>::AddCell(TissueCell newCell, c_ve
 }
 
 template<unsigned DIM>
-void MeshBasedTissueWithGhostNodes<DIM>::ValidateWithGhostNodes()
+void MeshBasedTissueWithGhostNodes<DIM>::Validate()
 {    
     std::vector<bool> validated_node = mIsGhostNode; 
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
