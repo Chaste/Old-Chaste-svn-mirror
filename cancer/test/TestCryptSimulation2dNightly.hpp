@@ -108,7 +108,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, mesh, FIXED, false, 0.0, 3.0, 6.5, 8.0);
         
-        MeshBasedTissue<2> crypt(mesh, cells);
+        MeshBasedTissueWithGhostNodes<2> crypt(mesh, cells);
         CryptSimulation2d simulator(crypt);    
                 
         // Destroy the simulation time class because of failed solve
