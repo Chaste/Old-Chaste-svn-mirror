@@ -207,7 +207,7 @@ public:
     }
     
     
-    void TestRemoveDeadCellsAndUpdateNodeCellMap()
+    void TestRemoveDeadCellsAndReMesh()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
@@ -236,6 +236,7 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         
         unsigned num_removed = simple_tissue.RemoveDeadCells();
+        simple_tissue.ReMesh();
         
         // Test that one cell has been removed
         TS_ASSERT_EQUALS(num_removed, 1u);
@@ -243,30 +244,9 @@ public:
         
         // Test that one node has been removed
         TS_ASSERT_EQUALS(simple_tissue.GetNumNodes(), 80u);
-        
-        // Test that we have removed the correct node
-        unsigned index = 0;
-        for (SimpleTissue<2>::Iterator cell_iter = simple_tissue.Begin();
-             cell_iter != simple_tissue.End();
-             ++cell_iter)
-        {
-            if (index < 27)
-            {
-                TS_ASSERT_EQUALS(cell_iter->GetNodeIndex(), index);
-            }
-            else
-            {
-                TS_ASSERT_EQUALS(cell_iter->GetNodeIndex(), index+1);                
-            }
-            index++;
-        }
-        
+                
         // Test that each cell's node index has been correctly updated
-        // The cell at node 28 should now be at 27 as node 27 was deleted
-        simple_tissue.UpdateNodeCellMap();
-        
-        // Test that we have removed the correct node
-        index = 0;
+        unsigned index = 0;
         for (SimpleTissue<2>::Iterator cell_iter = simple_tissue.Begin();
              cell_iter != simple_tissue.End();
              ++cell_iter)
@@ -276,7 +256,7 @@ public:
         }
     }
     
-    void TestAddAndRemoveAndAddWithOutUpdatingNodeCellMap()
+    void TestAddAndRemoveAndAddWithOutRemovingDeletedNodes()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
@@ -320,6 +300,8 @@ public:
 
         // Test that the apoptotic cell has been removed
         unsigned num_removed = simple_tissue.RemoveDeadCells();
+        simple_tissue.ReMesh();
+        
         TS_ASSERT_EQUALS(num_removed, 1u);
         TS_ASSERT_EQUALS(simple_tissue.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(simple_tissue.GetNumRealCells(), 81u);

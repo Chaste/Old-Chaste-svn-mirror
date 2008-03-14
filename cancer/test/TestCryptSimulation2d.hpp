@@ -897,8 +897,6 @@ public:
                 
         TS_ASSERT_EQUALS(number_of_cells, cells_across*cells_up); 
         TS_ASSERT_EQUALS(number_of_nodes, number_of_cells+thickness_of_ghost_layer*2*cells_across); 
-
-
     }
     
 

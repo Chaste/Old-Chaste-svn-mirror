@@ -105,10 +105,7 @@ public:
         TrianglesMeshWriter<3,3> mesh_writer1("Test3DCellBirth","StartMesh");
         mesh_writer1.WriteFilesUsingMesh(mesh);
         
-        simulator.SetOutputDirectory("Test3DCellBirth");
-        
-        // Set to re-mesh
-        simulator.SetReMeshRule(true);
+        simulator.SetOutputDirectory("Test3DCellBirth");        
         simulator.SetEndTime(1.0);
         
         simulator.Solve();
@@ -156,10 +153,7 @@ public:
         simulator.SetSamplingTimestepMultiple(2);               
         TS_ASSERT_EQUALS(simulator.mSamplingTimestepMultiple, 2u);
         
-        // Set to re-mesh
-        simulator.SetReMeshRule(true);
-        simulator.SetEndTime(0.1);
-        
+        simulator.SetEndTime(0.1);        
         simulator.Solve();
         
         TrianglesMeshWriter<3,3> mesh_writer2("TestSolveMethodSpheroidSimulation3DMesh","EndMesh",false); 
@@ -234,10 +228,7 @@ public:
         tissue.SetGhostNodes(ghost_node_indices);        
 
         TissueSimulation<3> simulator(tissue);
-        simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");
-        
-        // Set to re-mesh
-        simulator.SetReMeshRule(true);
+        simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");        
         simulator.SetEndTime(0.1);
         
         simulator.Solve();

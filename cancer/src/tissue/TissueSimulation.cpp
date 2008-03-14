@@ -46,7 +46,16 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     // Defaults
     mOutputDirectory = "";
     mSimulationOutputDirectory = mOutputDirectory;
-    mReMesh = true;
+    
+    if (mrTissue.HasMesh())
+    {
+        mReMesh = true;
+    }
+    else
+    {
+        mReMesh = false;
+    }
+        
     mOutputCellMutationStates = false;
     mOutputCellTypes = false;
     mOutputCellVariables = false;
@@ -453,7 +462,7 @@ void TissueSimulation<DIM>::Solve()
     // Main time loop
     /////////////////////////////////////////////////////////////////////
     while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
-    {           
+    {
         LOG(1, "--TIME = " << p_simulation_time->GetDimensionalisedTime() << "\n");
         
         // Remove dead cells then implement cell birth. Note that neither
@@ -464,44 +473,44 @@ void TissueSimulation<DIM>::Solve()
         LOG(1, "\tNum deaths = " << mNumDeaths << "\n");
         CancerEventHandler::EndEvent(DEATH);
 
-
         CancerEventHandler::BeginEvent(BIRTH);
         mNumBirths += DoCellBirth();
         LOG(1, "\tNum births = " << mNumBirths << "\n");
         CancerEventHandler::EndEvent(BIRTH);
         
+        // If the tissue has a mesh, then we currently must call a ReMesh at
+        // each timestep. Otherwise, we only need to call a ReMesh after there 
+        // has been any cell birth or cell death.        
         if (mrTissue.HasMesh())
         {
-            if( (mNumBirths>0) || (mNumDeaths>0) )
+            assert(mReMesh);
+        }
+        else
+        {
+            mReMesh = false;
+            if ( (mNumBirths>0) || (mNumDeaths>0) )
             {   
-                // If any nodes have been deleted or added we MUST call a ReMesh
-                assert(mReMesh);
+                mReMesh = true;
             }
         }
 
         CancerEventHandler::BeginEvent(REMESH);        
-        if (mrTissue.HasMesh())
+        if (mReMesh)
         {
-            if (mReMesh)
+            LOG(1, "\tRemeshing...");
+            
+            // ReMesh
+            mrTissue.ReMesh();
+            
+            // Check the remeshed tissue is consistent
+            if (mrTissue.HasGhostNodes())
             {
-                LOG(1, "\tRemeshing...");
-                if (mrTissue.HasGhostNodes())
-                {
-                    static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue)->ReMesh();
-                    static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue)->ValidateWithGhostNodes();
-                }
-                else
-                {
-                    static_cast<MeshBasedTissue<DIM>*>(&mrTissue)->ReMesh();
-                    static_cast<MeshBasedTissue<DIM>*>(&mrTissue)->Validate();
-                }
-                LOG(1, "\tdone.\n");
+                static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue)->ValidateWithGhostNodes();
             }
-        }
-        else
-        {
-            LOG(1, "\tUpdating NodeCellMap...");
-            static_cast<SimpleTissue<DIM>*>(&mrTissue)->UpdateNodeCellMap();
+            else
+            {
+                mrTissue.Validate();
+            }
             LOG(1, "\tdone.\n");
         }
         CancerEventHandler::EndEvent(REMESH);
@@ -534,7 +543,7 @@ void TissueSimulation<DIM>::Solve()
         p_simulation_time->IncrementTimeOneStep();
         
         CancerEventHandler::BeginEvent(OUTPUT);
-        
+                
         // Write results to file
         if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
@@ -544,7 +553,7 @@ void TissueSimulation<DIM>::Solve()
                                          mOutputCellCyclePhases);
         }
         
-        CancerEventHandler::EndEvent(OUTPUT);
+        CancerEventHandler::EndEvent(OUTPUT);        
     }
 
     AfterSolve();
@@ -607,12 +616,12 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
         {
             if (mrTissue.HasGhostNodes())
             {
-                static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue)->ReMesh();
+                mrTissue.ReMesh();
                 static_cast<MeshBasedTissueWithGhostNodes<DIM>*>(&mrTissue)->ValidateWithGhostNodes();
             }
             else
             {
-                static_cast<MeshBasedTissue<DIM>*>(&mrTissue)->ReMesh();
+                mrTissue.ReMesh();
                 static_cast<MeshBasedTissue<DIM>*>(&mrTissue)->Validate();
             }
         }
@@ -620,6 +629,10 @@ void TissueSimulation<DIM>::CommonSave(SIM* pSim)
         // The false is so the directory isn't cleaned
         TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);
         mesh_writer.WriteFilesUsingMesh((static_cast<MeshBasedTissue<DIM>*>(&mrTissue))->rGetMesh());
+    }
+    else
+    {
+        mrTissue.ReMesh();
     }
     
     // Create a new archive

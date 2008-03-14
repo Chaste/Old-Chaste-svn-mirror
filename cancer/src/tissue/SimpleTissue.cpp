@@ -92,44 +92,25 @@ TissueCell* SimpleTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DIM> 
 }
 
 template<unsigned DIM>
-void SimpleTissue<DIM>::RemoveNode(unsigned index)
+void SimpleTissue<DIM>::ReMesh()
 {
-    mNodes.erase(mNodes.begin() + index);    
-}
-
-template<unsigned DIM>
-unsigned SimpleTissue<DIM>::RemoveDeadCells()
-{
-    unsigned num_removed = 0;
+    // Create and reserve space for a temporary vector
+    // \todo: reserve space equal to mNodes.size() for this vector 
+    std::vector<Node<DIM> > old_nodes;
     
-    for (std::list<TissueCell>::iterator it = this->mCells.begin();
-         it != this->mCells.end();
-         ++it)
+    // Store all non-deleted nodes in the temporary vector
+    for (unsigned i=0; i<mNodes.size(); i++)
     {
-        if (it->IsDead())
-        {   
-            // Remove the node from the mesh
-            num_removed++;
-            RemoveNode(it->GetNodeIndex());
-            it = this->mCells.erase(it);
-            --it;
+        if (mNodes[i].IsDeleted()==false)
+        {
+            old_nodes.push_back(mNodes[i]);
         }
     }
-    return num_removed;
-}
-
-template<unsigned DIM>
-unsigned SimpleTissue<DIM>::AddNode(Node<DIM> *pNewNode)
-{
-    // \todo: employ a std::vector of deleted node indices to re-use indices? 
-    pNewNode->SetIndex(mNodes.size());
-    mNodes.push_back(*pNewNode);        
-    return pNewNode->GetIndex();
-}    
-
-template<unsigned DIM>
-void SimpleTissue<DIM>::UpdateNodeCellMap()
-{
+    
+    // Update mNodes
+    mNodes = old_nodes;
+    
+    // Update the correspondence between nodes and cells.    
     // We expect the node indices to be {0,1,...,num_nodes}
     std::set<unsigned> expected_node_indices;    
     for (unsigned i=0; i<GetNumNodes(); i++)
@@ -145,7 +126,7 @@ void SimpleTissue<DIM>::UpdateNodeCellMap()
         node_indices.insert(node_index);       
     }
     
-    // If necessary, update the node cell map        
+    // If necessary, update the node cell map
     if (node_indices != expected_node_indices)
     {
         // Fix up the mappings between cells and nodes
@@ -159,6 +140,36 @@ void SimpleTissue<DIM>::UpdateNodeCellMap()
         }
     }
 }
+
+template<unsigned DIM>
+unsigned SimpleTissue<DIM>::RemoveDeadCells()
+{
+    unsigned num_removed = 0;
+    
+    for (std::list<TissueCell>::iterator cell_iter = this->mCells.begin();
+         cell_iter != this->mCells.end();
+         ++cell_iter)
+    {
+        if (cell_iter->IsDead())
+        {   
+            // Remove the node from the mesh
+            num_removed++;
+            this->GetNodeCorrespondingToCell(*cell_iter)->MarkAsDeleted();
+            cell_iter = this->mCells.erase(cell_iter);
+            --cell_iter;
+        }
+    }
+    return num_removed;
+}
+
+template<unsigned DIM>
+unsigned SimpleTissue<DIM>::AddNode(Node<DIM> *pNewNode)
+{
+    // \todo: employ a std::vector of deleted node indices to re-use indices? 
+    pNewNode->SetIndex(mNodes.size());
+    mNodes.push_back(*pNewNode);        
+    return pNewNode->GetIndex();
+}    
 
 template<unsigned DIM>
 unsigned SimpleTissue<DIM>::GetNumNodes()

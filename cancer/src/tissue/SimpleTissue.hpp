@@ -16,8 +16,7 @@ class SimpleTissue : public AbstractTissue<DIM>
 private:
 
     /** List of nodes */
-    std::vector<Node<DIM> > mNodes;
-    
+    std::vector<Node<DIM> > mNodes;    
     
     friend class boost::serialization::access;
     /**
@@ -38,11 +37,6 @@ private:
      * Add a new node to the tissue. 
      */
     unsigned AddNode(Node<DIM> *pNewNode);
-    
-    /** 
-     * Remove the node with a given index.
-     */
-    void RemoveNode(unsigned index);
     
     /** 
      * Move the node with a given index to a new point in space.
@@ -93,9 +87,9 @@ public:
     unsigned RemoveDeadCells();
     
     /** 
-     * Update the correspondence between nodes and cells.
+     * Remove nodes that have been marked as deleted and update the node cell map.
      */
-    void UpdateNodeCellMap();
+    void ReMesh();
     
     /**
      * Check consistency of our internal data structures.

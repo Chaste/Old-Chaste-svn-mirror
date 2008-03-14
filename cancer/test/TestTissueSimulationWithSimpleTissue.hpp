@@ -117,7 +117,7 @@ public:
     //          => 2 hours real time to do 1hr simulation time
     //   run commented test before to see how meineke does with 10000 cells     
 
-//    void xTestSimpleMonolayer2() throw (Exception)
+//    void TestSimpleMonolayer2() throw (Exception)
 //    {
 //        // Create a simple mesh
 //        int num_cells_depth = 100;
@@ -171,7 +171,7 @@ public:
         // Create a tissue simulation
         TissueSimulation<2> simulator(simple_tissue, &mechanics_system);
         simulator.SetOutputDirectory("TestTissueSimulationWithSimpleTissueCellDeath");
-        simulator.SetEndTime(0.5);
+        simulator.SetEndTime(0.5);    
       
         // Add cell killer
         RandomCellKiller<2> random_cell_killer(&simple_tissue, 0.05);
@@ -179,6 +179,7 @@ public:
         
         simulator.Solve();
         
+        // The first change in cell numbers is a death at t=0.258333
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumNodes(), simulator.rGetTissue().GetNumRealCells());      
     }
 
