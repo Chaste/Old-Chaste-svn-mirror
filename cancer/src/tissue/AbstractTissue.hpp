@@ -182,8 +182,6 @@ public:
      * [4] = M_PHASE
      */
     c_vector<unsigned, 5> GetCellCyclePhaseCount();
-    
-    virtual unsigned GetGhostNodesSize();
       
     virtual bool IsGhostNode(unsigned index);
     

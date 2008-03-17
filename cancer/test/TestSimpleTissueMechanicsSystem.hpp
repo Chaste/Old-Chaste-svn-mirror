@@ -140,7 +140,7 @@ public:
         
         // Test rCalculateVelocitiesOfEachNode() method
         
-        // \todo TODO: improve this test!
+        /// \todo Improve this test! (see #642)
         std::vector<c_vector<double,2> >& velocities_on_each_node = mechanics_system.rCalculateVelocitiesOfEachNode();
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
@@ -172,7 +172,7 @@ public:
         
         velocities_on_each_node = mechanics_system.rCalculateVelocitiesOfEachNode();
 
-        // The velocities of all cells 2 are affected by the fact that cells 0 and 3 are apoptosing.
+        // The velocities of all cells are affected by the fact that cells 0 and 3 are apoptosing.
         TS_ASSERT_DELTA(velocities_on_each_node[0][0], 1.1311, 1e-4);
         TS_ASSERT_DELTA(velocities_on_each_node[0][1], 0.9557, 1e-4);
         TS_ASSERT_DELTA(velocities_on_each_node[1][0], -0.0275, 1e-4);

@@ -65,8 +65,6 @@ public:
         
     std::vector<bool>& rGetGhostNodes();
     
-    unsigned GetGhostNodesSize();
-
     bool IsGhostNode(unsigned index);
 
     std::set<unsigned> GetGhostNodeIndices();

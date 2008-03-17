@@ -6,26 +6,25 @@
 
 AbstractCellCycleModel *SimpleWntCellCycleModel::CreateDaughterCellCycleModel()
 {
-    // Use a private constructor that doesn't reset mG1Duration.
-    return new SimpleWntCellCycleModel(mG1Duration, mGeneration, mUseCellTypeDependentG1Duration);  
+    // Use a private constructor that doesn't reset mG1Duration
+    return new SimpleWntCellCycleModel(mG1Duration, mGeneration, mUseCellTypeDependentG1Duration);
 }
 
-/** 
+/**
  * The G1 duration is taken from a normal distribution, whose mean is
- * the G1 duration given in CancerParameters for the cell type, and 
- * whose standard deviataion is 1. 
- */  
+ * the G1 duration given in CancerParameters for the cell type, and
+ * whose standard deviataion is 1.
+ */
 void SimpleWntCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
-    
-    CancerParameters* p_params = CancerParameters::Instance(); 
-    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance(); 
-    
+
+    CancerParameters* p_params = CancerParameters::Instance();
+    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+
     switch (mpCell->GetCellType())
     {
-        case STEM:  
-        
+        case STEM:
             if (mUseCellTypeDependentG1Duration)
             {
                 mG1Duration = p_gen->NormalRandomDeviate(p_params->GetStemCellG1Duration(),1.0);
@@ -34,7 +33,7 @@ void SimpleWntCellCycleModel::SetG1Duration()
             {
                 // Normally STEM cells should behave just like transit cells in a Wnt simulation
                 mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(),1.0);
-            }            
+            }
             break;
         case TRANSIT:
             mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(),1.0);
@@ -44,25 +43,25 @@ void SimpleWntCellCycleModel::SetG1Duration()
             break;
         default:
             NEVER_REACHED;
-    }        
+    }       
 }
 
 void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 {
     CancerParameters *p_params = CancerParameters::Instance();
     WntConcentration* p_wnt = WntConcentration::Instance();
-    
+
     double wnt_stem_cell_threshold = DBL_MAX;
     double wnt_division_threshold = DBL_MAX;
-    double healthy_threshold = p_params->GetWntTransitThreshold();    // cell will divide if Wnt level >= to this value.
-        
-    // In the case of a RADIAL Wnt gradient, set up under what level 
-    // of Wnt stimulus a cell will change type 
+    double healthy_threshold = p_params->GetWntTransitThreshold(); // cell will divide if Wnt level >= to this value
+
+    // In the case of a RADIAL Wnt gradient, set up under what level
+    // of Wnt stimulus a cell will change type
     if (p_wnt->GetType()==RADIAL)
     {
         wnt_stem_cell_threshold = p_params->GetWntStemThreshold();
     }
-    
+
     // Set up under what level of Wnt stimulus a cell will divide
     switch (mpCell->GetMutationState())
     {
@@ -78,20 +77,20 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
         case BETA_CATENIN_ONE_HIT:  // less than above value
             wnt_division_threshold = 0.155*healthy_threshold;
             break;
-        case APC_TWO_HIT:   // should be zero (no Wnt-dependence).
+        case APC_TWO_HIT:   // should be zero (no Wnt-dependence)
             wnt_division_threshold = 0.0;
             break;
         default:
             NEVER_REACHED;
     }
-    
+
     // If the Wnt stimulus exceeds the threshold, the cell is
     // of type TRANSIT, and hence its cell cycle phase depends
     // on its age, just as in AbstractSimpleCellCycleModel.
     if (p_wnt->GetWntLevel(mpCell) >= wnt_division_threshold)
-    {       
+    {
         CellType cell_type = TRANSIT;
-        
+
         if (p_wnt->GetType()==RADIAL)
         {
             if (p_wnt->GetWntLevel(mpCell) > wnt_stem_cell_threshold)
@@ -101,7 +100,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
         }
     	// Update the cell type to reflect the Wnt concentration
     	mpCell->SetCellType(cell_type);
-       
+
     	AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
     }
     else
@@ -117,10 +116,10 @@ void SimpleWntCellCycleModel::ResetForDivision()
 {
     AbstractSimpleCellCycleModel::ResetForDivision();
     if (WntConcentration::Instance()->GetType()==RADIAL)
-    {        
+    {
         if (mGeneration == 1)
         {
-            mGeneration = 0; 
+            mGeneration = 0;
         }
     }
 }
@@ -128,7 +127,7 @@ void SimpleWntCellCycleModel::ResetForDivision()
 void SimpleWntCellCycleModel::InitialiseDaughterCell()
 {
     if (WntConcentration::Instance()->GetType()==RADIAL)
-    {   
+    {
         mpCell->SetCellType(TRANSIT);
     }
     AbstractSimpleCellCycleModel::InitialiseDaughterCell();

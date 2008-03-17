@@ -158,7 +158,7 @@ public:
         
         // Get node vector from mesh
         std::vector<Node<2> > nodes = SetUpNodes(p_mesh);
-                
+
         // Set up cells, one for each node. Get each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
 
@@ -221,8 +221,8 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(p_simulator->Solve());
         
-//        \todo: test results against previous test, once cell death 
-//               and a stable force law are implemented
+        ///\todo: test results against previous test, once cell death 
+        ///       and a stable force law are implemented (see #642 and #678)
         delete p_simulator;
     }
     

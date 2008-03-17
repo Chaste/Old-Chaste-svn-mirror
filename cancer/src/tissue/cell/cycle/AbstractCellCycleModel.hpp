@@ -226,28 +226,28 @@ public:
     /**
      * @return the level of membrane bound beta-catenin. However in most Cell Cycle models this does not exist.
      * We have a "work-around" such that we throw an error if we try and access it for any other cell type.
-     * \todo may be better to use dynamic_cast and/or MI.
+     * \todo may be better to use dynamic_cast and/or MI (see #697)
      */
     virtual double GetMembraneBoundBetaCateninLevel();
     
     /**
      * @return the level of cytoplasm beta-catenin. However in most Cell Cycle models this does not exist.
      * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
-     * \todo may be better to use dynamic_cast and/or MI.
+     * \todo may be better to use dynamic_cast and/or MI (see #697)
      */
     virtual double GetCytoplasmicBetaCateninLevel();
     
     /**
      * @return the level of nuclear bound beta-catenin. However in most Cell Cycle models this does not exist.
      * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
-     * \todo may be better to use dynamic_cast and/or MI.
+     * \todo may be better to use dynamic_cast and/or MI (see #697)
      */
     virtual double GetNuclearBetaCateninLevel();
     
      /**
      * Returns the protein concentrations at the current time However in most Cell Cycle models this does not exist.
      * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
-     * \todo may be better to use dynamic_cast and/or MI.   
+     * \todo may be better to use dynamic_cast and/or MI (see #697)   
      *  
      * NB: Will copy the vector - you can't use this to modify the concentrations.
      */

@@ -17,7 +17,7 @@
  *  old_damping_const is whatever the damping constant would be in (a).
  * 
  *  \todo: make d0, d1 member variables, or allow the user to provide a functional form of
- *  d(A), if this ever becomes needed.
+ *  d(A), if this ever becomes needed (see #627)
  */
 template<unsigned DIM>
 class AbstractVariableDampingMechanicsSystem : public AbstractDiscreteTissueMechanicsSystem<DIM>

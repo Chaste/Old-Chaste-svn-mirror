@@ -150,12 +150,6 @@ c_vector<unsigned, 5> AbstractTissue<DIM>::GetCellCyclePhaseCount()
 }
 
 template<unsigned DIM> 
-unsigned AbstractTissue<DIM>::GetGhostNodesSize()
-{
-    return GetNumNodes();
-}
-
-template<unsigned DIM> 
 bool AbstractTissue<DIM>::IsGhostNode(unsigned index)
 {
     return false;
@@ -223,8 +217,6 @@ typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator+
 template<unsigned DIM>
 bool AbstractTissue<DIM>::Iterator::IsRealCell()
 {
-    // TODO: move this assertion elsewhere, after mIsGhostNode has been deserialized! 
-    // assert(mrTissue.GetGhostNodesSize() == mrTissue.GetNumNodes());
     return !(mrTissue.IsGhostNode(mNodeIndex) || GetNode()->IsDeleted() || (*this)->IsDead());
 }
 

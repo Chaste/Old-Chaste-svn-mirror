@@ -71,7 +71,7 @@ public :
      * @param y2  below this line cells are generation 2 (defaults to 3.0)
      * @param y3  below this line cells are generation 3 (defaults to 4.0)
      * 
-     * \todo Only give generation information to relevant models (#509)
+     * \todo Only give generation information to relevant models (see #509)
      */
     static void GenerateForCrypt(std::vector<TissueCell>& rCells, 
                                  ConformingTetrahedralMesh<2,2>& rMesh, 

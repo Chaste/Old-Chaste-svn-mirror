@@ -191,8 +191,7 @@ public:
         // Check counter = num_nodes - num_ghost_nodes
         TS_ASSERT_EQUALS(counter + ghost_node_indices.size(), p_mesh->GetNumNodes());
         
-        // Test overridden GetGhostNodesSize() method
-        TS_ASSERT_EQUALS(tissue.GetGhostNodesSize(), p_mesh->GetNumNodes());
+        TS_ASSERT_EQUALS(tissue.rGetGhostNodes().size(), p_mesh->GetNumNodes());
     }
         
     void TestMoveCellAndAddCell()

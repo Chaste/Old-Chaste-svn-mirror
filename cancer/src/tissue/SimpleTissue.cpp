@@ -95,7 +95,7 @@ template<unsigned DIM>
 void SimpleTissue<DIM>::ReMesh()
 {
     // Create and reserve space for a temporary vector
-    // \todo: reserve space equal to mNodes.size() for this vector 
+    /// \todo: reserve space equal to mNodes.size() for this vector (see #642)
     std::vector<Node<DIM> > old_nodes;
     
     // Store all non-deleted nodes in the temporary vector
@@ -167,7 +167,7 @@ unsigned SimpleTissue<DIM>::RemoveDeadCells()
 template<unsigned DIM>
 unsigned SimpleTissue<DIM>::AddNode(Node<DIM> *pNewNode)
 {
-    // \todo: employ a std::vector of deleted node indices to re-use indices? 
+    /// \todo: employ a std::vector of deleted node indices to re-use indices? 
     pNewNode->SetIndex(mNodes.size());
     mNodes.push_back(*pNewNode);        
     return pNewNode->GetIndex();

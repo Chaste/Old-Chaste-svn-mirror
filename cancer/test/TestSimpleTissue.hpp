@@ -173,7 +173,7 @@ public:
         
         simple_tissue.mNodes.pop_back();        
         
-//        \todo: testRemoveNode
+        /// \todo: testRemoveNode (see #642)
  
         // Test AddCell
 

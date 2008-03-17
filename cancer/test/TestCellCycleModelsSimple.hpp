@@ -57,7 +57,7 @@ public:
         TS_ASSERT_EQUALS(diff_cell.GetCellType(),DIFFERENTIATED);
         TS_ASSERT_EQUALS(p_diff_model->GetGeneration(), 0u);
                         
-        for (unsigned i = 0 ; i< num_steps ; i++)
+        for (unsigned i=0; i<num_steps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
 
@@ -77,7 +77,7 @@ public:
         TissueCell hepa_one_cell(STEM, HEALTHY, p_hepa_one_model);
         hepa_one_cell.InitialiseCellCycleModel();
                 
-        for (unsigned i = 0 ; i< num_steps ; i++)
+        for (unsigned i=0; i<num_steps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
 
@@ -112,7 +112,7 @@ public:
         TissueCell diff_cell(DIFFERENTIATED, HEALTHY, p_diff_model); 
         diff_cell.InitialiseCellCycleModel();
                                   
-        for (unsigned i = 0 ; i< num_steps ; i++)
+        for (unsigned i=0; i<num_steps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             
@@ -132,9 +132,9 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
             CheckReadyToDivideAndPhaseIsUpdated(p_hepa_one_model, 4.1324);
-        }        
+        }
     }
-    
+
     void TestSimpleOxygenBasedCellCycleModel(void) throw(Exception)
     {           
         CancerParameters *p_params = CancerParameters::Instance();
@@ -285,7 +285,7 @@ public:
         TissueCell cell(STEM, HEALTHY, p_cycle_model);
         cell.InitialiseCellCycleModel();
         
-        for (unsigned i = 0 ; i< num_timesteps/3 ; i++)
+        for (unsigned i=0; i<num_timesteps/3; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             
@@ -313,7 +313,7 @@ public:
         // the first two random numbers generated
         double new_g1_duration = 3.16316;
         double new_g1_duration2 = 1.2712;
-        for (unsigned i = 0 ; i< num_timesteps/3 ; i++)
+        for (unsigned i=0; i<num_timesteps/3; i++)
         {
             p_simulation_time->IncrementTimeOneStep();            
             CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model, new_g1_duration);
@@ -349,7 +349,7 @@ public:
         new_g1_duration = 1.22037;
         new_g1_duration2 = 0.74699;
         
-        for (unsigned i = 0 ; i< num_timesteps/3 ; i++)
+        for (unsigned i=0; i<num_timesteps/3; i++)
         {
             p_simulation_time->IncrementTimeOneStep();            
             CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model, new_g1_duration);
@@ -368,8 +368,7 @@ public:
         TissueCell another_cell(STEM, HEALTHY, p_another_cycle_model);
         another_cell.InitialiseCellCycleModel();
         // ...end of coverage
-        
-        
+                
         /*
          * Test the case of a radial Wnt gradient
          */ 
@@ -390,7 +389,7 @@ public:
         
         // Test the GetCurrentCellCyclePhase() and ReadyToDivide() methods
         double first_g1_duration = 1.0676;
-        for (unsigned i = 0 ; i< num_timesteps/3 ; i++)
+        for (unsigned i=0; i<num_timesteps/3; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             
@@ -417,7 +416,7 @@ public:
         // The numbers for the G1 durations are taken from 
         // the first two random numbers generated
         new_g1_duration = 3.16316;
-        for (unsigned i = 0 ; i< num_timesteps/3 ; i++)
+        for (unsigned i=0; i<num_timesteps/3; i++)
         {
             p_simulation_time->IncrementTimeOneStep();            
             CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model4, new_g1_duration);
