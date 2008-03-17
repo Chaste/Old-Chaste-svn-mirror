@@ -2015,10 +2015,8 @@ std::set<unsigned> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateB
     return boundary_of_flagged_region;
 }
 
-#define COVERAGE_IGNORE
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB)
-#undef COVERAGE_IGNORE
 {
     c_vector<double, SPACE_DIM> vector = rLocationB - rLocationA;
     
@@ -2055,10 +2053,9 @@ double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAngleBetweenNodes(u
 }
 
 
-#define COVERAGE_IGNORE    
+   
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension) const
-#undef COVERAGE_IGNORE
 {
     assert(rDimension < SPACE_DIM);
     c_vector<double,2> extremes = GetWidthExtremes(rDimension);

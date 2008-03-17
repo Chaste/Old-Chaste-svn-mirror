@@ -536,7 +536,6 @@ VoronoiTessellation<DIM>& MeshBasedTissue<DIM>::rGetVoronoiTessellation()
     return *mpVoronoiTessellation;
 }
 
-#define COVERAGE_IGNORE
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::CheckTissueCellPointers()
 {
@@ -612,7 +611,6 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
     }
     assert(res);
 }
-#undef COVERAGE_IGNORE
 
 template<unsigned DIM>
 std::set<TissueCell*> MeshBasedTissue<DIM>::CreateCellPair(TissueCell& rCell1, TissueCell& rCell2)
