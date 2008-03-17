@@ -614,7 +614,6 @@ public:
         Vec node_number=DistributedVector::CreateVec();
         DistributedVector distributed_node_number(node_number);      
 
-
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index!= DistributedVector::End();
              ++index)
@@ -644,6 +643,9 @@ public:
         TS_ASSERT_THROWS_ANYTHING(writer.AdvanceAlongUnlimitedDimension());
         
         writer.Close();
+        VecDestroy(petsc_data_short);
+        VecDestroy(node_number);
+        VecDestroy(petsc_data_long);
         
     }
     

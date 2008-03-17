@@ -140,7 +140,7 @@ public:
         
         // Test rCalculateVelocitiesOfEachNode() method
         
-        // TODO: improve this test!
+        // \todo TODO: improve this test!
         std::vector<c_vector<double,2> >& velocities_on_each_node = mechanics_system.rCalculateVelocitiesOfEachNode();
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
@@ -161,21 +161,24 @@ public:
             TS_ASSERT_DELTA(velocities_on_each_node[i][1], 0.0, 1e-4);
         }
 
-        // Get cell 3 and start apoptosis on it          
+        // Get cells 0 and 3 and start apoptosis on them          
         SimpleTissue<2>::Iterator iter = simple_tissue.Begin();
+        iter->StartApoptosis(); //cell 0
         ++iter;
         ++iter;
         ++iter;
-        
-        iter->StartApoptosis();
+        iter->StartApoptosis(); //cell 3
         SimulationTime::Instance()->IncrementTimeOneStep();
         
         velocities_on_each_node = mechanics_system.rCalculateVelocitiesOfEachNode();
 
-        // The velocities of cells 2 and 3 are affected by the fact that cell 3 is apoptosing.
-        TS_ASSERT_DELTA(velocities_on_each_node[2][0], 1.1036, 1e-4);
-        TS_ASSERT_DELTA(velocities_on_each_node[2][1], 0.0, 1e-4);
-        
+        // The velocities of all cells 2 are affected by the fact that cells 0 and 3 are apoptosing.
+        TS_ASSERT_DELTA(velocities_on_each_node[0][0], 1.1311, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[0][1], 0.9557, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[1][0], -0.0275, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[1][1], 0.9557, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[2][0], 0.5518, 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[2][1], -0.9557, 1e-4);
         TS_ASSERT_DELTA(velocities_on_each_node[3][0], -1.6554, 1e-4);
         TS_ASSERT_DELTA(velocities_on_each_node[3][1], -0.9557, 1e-4);    
     }

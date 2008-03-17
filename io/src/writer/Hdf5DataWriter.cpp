@@ -373,6 +373,10 @@ void Hdf5DataWriter::PutUnlimitedVariable(double value)
 
 void Hdf5DataWriter::Close()
 {
+    if (mIsInDefineMode)
+    {
+        return; //Should this throw an exception?  Is it an error to begin defining a writer and then to attempt to close it properly?
+    }
     H5Dclose(mDatasetId);
     
     if (mIsUnlimitedDimensionSet)
