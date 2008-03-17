@@ -20,7 +20,7 @@ public:
     static void Destroy();
     void Reseed(int seed)
     {
-    	mSeed = seed;
+        mSeed = seed;
         srandom(seed);
         mTimesCalled = 0;
     }
@@ -30,14 +30,14 @@ protected:
       */
     RandomNumberGenerator()
     {
-    	mSeed = 0;
-    	mTimesCalled = 0;
+        mSeed = 0;
+        mTimesCalled = 0;
         srandom(0);
     }
     
 private:
-	int mSeed;
-	unsigned mTimesCalled;
+    int mSeed;
+    unsigned mTimesCalled;
 
     static RandomNumberGenerator* mpInstance;
     
@@ -58,16 +58,19 @@ private:
     template<class Archive>
     void load(Archive & archive, const unsigned int version)
     {
-       	archive & mSeed;
-       	archive & mTimesCalled;
-		// reset the random number generator to use the correct seed
-		srandom(mSeed);
-		// call it the correct number of times to put it in the 
-		// same state as it used to be.
-       	for (unsigned i=0; i<mTimesCalled ; i++)
-       	{
-       		random();
-       	}
+        archive & mSeed;
+        archive & mTimesCalled;
+        // reset the random number generator to use the correct seed
+        srandom(mSeed);
+        // call it the correct number of times to put it in the 
+        // same state as it used to be.
+        // NOTE: This is only guaranteed to work if Normal random
+        // deviates are not used, since the methods to generate
+        // numbers from a normal distribution use static variables.
+        for (unsigned i=0; i<mTimesCalled; i++)
+        {
+            random();
+        }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
     
