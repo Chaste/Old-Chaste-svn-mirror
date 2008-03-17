@@ -19,6 +19,7 @@
 #include "TysonNovakCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "CryptProjectionSpringSystem.hpp"
+#include "RandomCellKiller.hpp"
 #include "RadialSloughingCellKiller.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 
@@ -189,6 +190,59 @@ public:
         
         // Tidy up
         WntConcentration::Destroy();
+    }
+    
+    /**
+     *  Test a tissue simulation with a cell killer.
+     * 
+     *  In this test, we solve a tissue simulation without ghost nodes and 
+     *  check that the numbers of nodes and cells match at the end of the 
+     *  simulation. 
+     * 
+     *  This test currently fails so is commented out. 
+     */
+    void xTestTissueSimulationWithCellDeath() throw (Exception)
+    {
+        // Create a simple mesh
+        int num_cells_depth = 5;
+        int num_cells_width = 5;        
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        
+        // Set up cells, one for each node. Give each cell a random birth time.
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
+                                (CancerParameters::Instance()->GetStemCellG1Duration()
+                                    + CancerParameters::Instance()->GetSG2MDuration() );        
+            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+        
+        // Create a tissue
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
+        
+        // Create a mechanics system
+        Meineke2001SpringSystem<2> spring_system(tissue);
+        spring_system.UseCutoffPoint(1.5);
+                  
+        // Set up tissue simulation
+        TissueSimulation<2> simulator(tissue, &spring_system);
+        simulator.SetOutputDirectory("TestTissueSimulationWithCellDeath");
+        simulator.SetEndTime(0.5);
+        
+        // Add cell killer
+        RandomCellKiller<2> random_cell_killer(&tissue, 0.05);
+        simulator.AddCellKiller(&random_cell_killer);
+
+        // Run tissue simulation 
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        
+        // Check that the number of nodes is equal to the number of cells
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumNodes(), simulator.rGetTissue().GetNumRealCells());
     }
     
 };
