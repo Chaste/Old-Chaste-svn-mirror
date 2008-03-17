@@ -517,7 +517,7 @@ public :
 
         if ((mWriteOutput) && (!mNoElectricsOutput))
         {
-            if( mpMonodomainProblem->mpWriter->AmMaster() ) // ie only if master process and results files were written
+            if( PetscTools::AmMaster() ) // ie only if master process and results files were written
             {
                 // call shell script which converts the data to meshalyzer format
                 std::string chaste_2_meshalyzer;
