@@ -220,7 +220,8 @@ protected:
     /** 
      *  Implements out cell birth, cell death and a remesh if necessary for a 
      *  final time. This method may be overridden in subclasses to do something 
-     *  at the end of each time loop.
+     *  at the end of each time loop. Note that each subclass should also call
+     *  the base class method.
      */
     virtual void AfterSolve();
     
