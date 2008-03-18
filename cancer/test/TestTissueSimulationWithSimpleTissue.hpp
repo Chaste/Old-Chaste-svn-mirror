@@ -148,7 +148,7 @@ public:
      * Create a simulation of a SimpleTissue with a SimpleTissueMechanicsSystem
      * and a CellKiller. Test that no exceptions are thrown, and write the results to file.
      */
-    void xTestCellDeath() throw (Exception)
+    void TestCellDeath() throw (Exception)
     {
         // Create a simple mesh
         int num_cells_depth = 5;

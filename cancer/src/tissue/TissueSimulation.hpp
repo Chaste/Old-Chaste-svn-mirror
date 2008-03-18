@@ -218,11 +218,11 @@ protected:
     }
     
     /** 
-     *  A method for subclasses to do something at the end of each time loop
+     *  Implements out cell birth, cell death and a remesh if necessary for a 
+     *  final time. This method may be overridden in subclasses to do something 
+     *  at the end of each time loop.
      */
-    virtual void AfterSolve()
-    {
-    }
+    virtual void AfterSolve();
     
 public:
 

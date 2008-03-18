@@ -157,7 +157,7 @@ public:
             }
             else
             {
-                TS_ASSERT_DELTA(p_oxygen_model->GetCurrentHypoxicDuration(), 1/120.0, 1e-5);
+                TS_ASSERT_DELTA(p_oxygen_model->GetCurrentHypoxicDuration(), 2/120.0, 1e-5);
             } 
         }     
         

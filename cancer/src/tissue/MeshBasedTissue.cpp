@@ -46,7 +46,7 @@ MeshBasedTissue<DIM>::~MeshBasedTissue()
 
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::Validate()
-{    
+{
     std::vector<bool> validated_node = std::vector<bool>(this->GetNumNodes(), false);
     
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
@@ -151,7 +151,7 @@ TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell newCell, c_vector<double,DI
 
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::ReMesh()
-{
+{    
     NodeMap map(mrMesh.GetNumAllNodes());
     mrMesh.ReMesh(map);
 

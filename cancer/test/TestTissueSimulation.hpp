@@ -201,7 +201,7 @@ public:
      * 
      *  This test currently fails so is commented out. 
      */
-    void xTestTissueSimulationWithCellDeath() throw (Exception)
+    void TestTissueSimulationWithCellDeath() throw (Exception)
     {
         // Create a simple mesh
         int num_cells_depth = 5;
@@ -238,8 +238,8 @@ public:
         RandomCellKiller<2> random_cell_killer(&tissue, 0.05);
         simulator.AddCellKiller(&random_cell_killer);
 
-        // Run tissue simulation 
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        // Run tissue simulation
+        simulator.Solve();
         
         // Check that the number of nodes is equal to the number of cells
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumNodes(), simulator.rGetTissue().GetNumRealCells());

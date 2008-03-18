@@ -237,6 +237,8 @@ private :
         {
             mBetaCatResultsFile->close();
         }
+        
+        TissueSimulation<2>::AfterSolve();
     }
     
 public :            

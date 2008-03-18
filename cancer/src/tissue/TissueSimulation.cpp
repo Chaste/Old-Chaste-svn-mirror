@@ -462,7 +462,7 @@ void TissueSimulation<DIM>::Solve()
     // Main time loop
     /////////////////////////////////////////////////////////////////////
     while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
-    {
+    {          
         LOG(1, "--TIME = " << p_simulation_time->GetDimensionalisedTime() << "\n");
         
         // Remove dead cells then implement cell birth. Note that neither
@@ -503,7 +503,7 @@ void TissueSimulation<DIM>::Solve()
             LOG(1, "\tdone.\n");
         }
         CancerEventHandler::EndEvent(REMESH);
-
+        
         CancerEventHandler::BeginEvent(TESSELLATION);
         if (mrTissue.HasMesh())
         {
@@ -527,7 +527,7 @@ void TissueSimulation<DIM>::Solve()
         CancerEventHandler::EndEvent(POSITION);
      
         PostSolve();
-        
+                          
         // Increment simulation time here, so results files look sensible
         p_simulation_time->IncrementTimeOneStep();
         
@@ -542,7 +542,7 @@ void TissueSimulation<DIM>::Solve()
                                          mOutputCellCyclePhases);
         }
         
-        CancerEventHandler::EndEvent(OUTPUT);        
+        CancerEventHandler::EndEvent(OUTPUT);
     }
 
     AfterSolve();
@@ -555,6 +555,44 @@ void TissueSimulation<DIM>::Solve()
     CancerEventHandler::EndEvent(OUTPUT);
     
     CancerEventHandler::EndEvent(CANCER_EVERYTHING);
+}
+
+template<unsigned DIM>
+void TissueSimulation<DIM>::AfterSolve()
+{
+    LOG(1, "--TIME = " << SimulationTime::Instance()->GetDimensionalisedTime() << "\n");
+    
+    // Remove dead cells then implement cell birth
+    CancerEventHandler::BeginEvent(DEATH);
+    mNumDeaths += DoCellRemoval();
+    LOG(1, "\tNum deaths = " << mNumDeaths << "\n");
+    CancerEventHandler::EndEvent(DEATH);
+
+    CancerEventHandler::BeginEvent(BIRTH);
+    mNumBirths += DoCellBirth();
+    LOG(1, "\tNum births = " << mNumBirths << "\n");
+    CancerEventHandler::EndEvent(BIRTH);
+    
+    // Carry out a final remesh if necessary
+    if (mrTissue.HasMesh())
+    {
+        assert(mReMesh);
+    }
+    else
+    {
+        mReMesh = false;
+        if ( (mNumBirths>0) || (mNumDeaths>0) )
+        {   
+            mReMesh = true;
+        }
+    }
+    
+    if (mReMesh)
+    {
+        LOG(1, "\tRemeshing...");
+        mrTissue.ReMesh();
+        LOG(1, "\tdone.\n");
+    }
 }
 
 /**

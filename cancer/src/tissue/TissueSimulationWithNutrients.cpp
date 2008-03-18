@@ -129,6 +129,8 @@ void TissueSimulationWithNutrients<DIM>::InitialiseCoarseNutrientMesh()
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::AfterSolve()
 {
+    TissueSimulation<DIM>::AfterSolve();
+    
     if (this->mrTissue.Begin() != this->mrTissue.End() // if there are any cells
     && PetscTools::AmMaster())
     {
