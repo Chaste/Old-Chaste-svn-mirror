@@ -366,16 +366,13 @@ public:
     
     void TestCircularMeshIsJacobian() throw(Exception)
     {
-        SimulationTime::Instance()->SetStartTime(0.0);
-        CancerParameters::Instance()->Reset();
-        
         HoneycombMeshGenerator generator(20, 20, 0u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetCircularMesh(10);
         
         NodeMap map(p_mesh->GetNumAllNodes());
         
         // This line fails
-        // p_mesh->ReMesh(map);
+        //p_mesh->ReMesh(map);
         
         // This line passes
         p_mesh->ReMeshWithTriangleLibrary(map);        
