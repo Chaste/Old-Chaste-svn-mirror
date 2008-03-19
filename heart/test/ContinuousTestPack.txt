@@ -2,8 +2,8 @@ TestBidomainPde.hpp
 TestBidomainProblem.hpp
 TestCellProperties.hpp
 TestCellularMechanicsOdeSystems.hpp
+TestConductivityTensors.hpp
 TestConvergenceTester.hpp
-TestElementwiseConductivityTensors.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestIonicModels.hpp
 TestMonodomainConductionVelocity.hpp

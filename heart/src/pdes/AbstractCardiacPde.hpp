@@ -12,7 +12,7 @@
 #include "DistributedVector.hpp"
 #include "EventHandler.hpp"
 #include "PetscTools.hpp"
-#include "ElementwiseConductivityTensors.hpp"
+#include "OrthotropicConductivityTensors.hpp"
 
 /**
  *  Pde containing common functionality to mono and bidomain pdes.
@@ -50,7 +50,7 @@ protected:
     double mSurfaceAreaToVolumeRatio;
     double mCapacitance;
     
-    ElementwiseConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors;
+    OrthotropicConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors;
     
     /** The vector of cells. Distributed. */
     std::vector< AbstractCardiacCell* > mCellsDistributed;
@@ -134,7 +134,7 @@ public:
         mCapacitance = capacitance;
     }
      
-    void SetIntracellularConductivityTensors(ElementwiseConductivityTensors<SPACE_DIM>* pIntracellularTensors)
+    void SetIntracellularConductivityTensors(OrthotropicConductivityTensors<SPACE_DIM>* pIntracellularTensors)
     {        
         mpIntracellularConductivityTensors = pIntracellularTensors;
     }

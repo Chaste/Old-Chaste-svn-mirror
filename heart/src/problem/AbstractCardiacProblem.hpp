@@ -46,7 +46,7 @@ protected:
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
-    ElementwiseConductivityTensors<SPACE_DIM> mIntracellularConductivityTensors;
+    OrthotropicConductivityTensors<SPACE_DIM> mIntracellularConductivityTensors;
     
     Vec mVoltage; // Current solution
     double mLinearSolverTolerance;

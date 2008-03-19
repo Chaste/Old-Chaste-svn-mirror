@@ -33,7 +33,7 @@ class BidomainPde : public AbstractCardiacPde<SPACE_DIM>
 {
 
 private:
-    ElementwiseConductivityTensors<SPACE_DIM> *mpExtracellularConductivityTensors;
+    OrthotropicConductivityTensors<SPACE_DIM> *mpExtracellularConductivityTensors;
 
     ReplicatableVector mExtracellularStimulusCacheReplicated;
     
@@ -45,7 +45,7 @@ public:
         mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
     }
     
-    void SetExtracellularConductivityTensors(ElementwiseConductivityTensors<SPACE_DIM>* pExtracellularTensors)
+    void SetExtracellularConductivityTensors(OrthotropicConductivityTensors<SPACE_DIM>* pExtracellularTensors)
     {        
         mpExtracellularConductivityTensors = pExtracellularTensors;
     }

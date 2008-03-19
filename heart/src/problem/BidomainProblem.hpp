@@ -24,7 +24,7 @@ private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */    
     unsigned mExtracelluarColumnId;
     
-    ElementwiseConductivityTensors<SPACE_DIM> mExtracellularConductivityTensors;
+    OrthotropicConductivityTensors<SPACE_DIM> mExtracellularConductivityTensors;
     
     unsigned mRowMeanPhiEZero;
     

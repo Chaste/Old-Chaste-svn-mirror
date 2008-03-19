@@ -1,8 +1,9 @@
-#ifndef ELEMENTWISECONDUCTIVITYTENSORS_HPP_
-#define ELEMENTWISECONDUCTIVITYTENSORS_HPP_
+#ifndef ORTHOTROPICCONDUCTIVITYTENSORS_HPP_
+#define ORTHOTROPICCONDUCTIVITYTENSORS_HPP_
 
 #include <vector>
 #include "UblasCustomFunctions.hpp"
+#include "AbstractConductivityTensors.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -25,107 +26,24 @@
  */
 
 template<unsigned SPACE_DIM>
-class ElementwiseConductivityTensors
+class OrthotropicConductivityTensors : public AbstractConductivityTensors<SPACE_DIM>
 {
 private:
-    unsigned mNumElements;
-
-    bool mUseNonConstantConductivities;
-    bool mUseFibreOrientation;
-
-    // Constant Conductivities
-    c_vector<double, SPACE_DIM> mConstantConductivities; // mS/cm
-
-    // Non-constant Conductivities
-    std::vector<c_vector<double, SPACE_DIM> >* mpNonConstantConductivities; // mS/cm
-
-    // Container for Tensors (single or multiple)
-    std::vector< c_matrix<double,SPACE_DIM,SPACE_DIM> > mTensors;
-    
-    bool mInitialised;
-
-    std::string mFibreOrientationFilename;
-    std::ifstream mDataFile;
-
-
-    void OpenFibreOrientationFile()
-    {
-        mDataFile.open(mFibreOrientationFilename.c_str());
-        if (!mDataFile.is_open())
-        {
-            EXCEPTION("Wrong fibre orientation file name.");    
-        }    
-    }
-    
-    void CloseFibreOrientationFile()
-    {
-        mDataFile.close();        
-    }
-
-    template<class ITEMS_TYPE>
-    unsigned GetTokensAtNextLine(std::vector<ITEMS_TYPE>& items)
-    {
-        std::string line;
-
-        bool comment_line;
-        bool blank_line;
-         
-        do
-        {
-            getline(mDataFile, line);                       
-
-            if (mDataFile.eof())
-            {
-                CloseFibreOrientationFile();
-                EXCEPTION("Fibre orientation file contains less fibre definitions than the number of elements in the mesh");    
-            }
-
-            comment_line = (line.find('#',0) != std::string::npos);
-            blank_line = (line.find_first_not_of(" \t",0) == std::string::npos);
-        }
-        while(comment_line || blank_line);
-         
- 
-        std::stringstream line_stream(line);
-    
-        // Read all the numbers from the line
-        while (!line_stream.eof())
-        {
-            ITEMS_TYPE item;
-            line_stream >> item;
-            items.push_back(item);
-        }        
-        
-        return items.size();                
-    }
-
-    unsigned GetNumElementsFromFile()
-    {
-        std::vector<unsigned> items;
-        
-        if (GetTokensAtNextLine<unsigned>(items) != 1)
-        {
-            CloseFibreOrientationFile();
-            EXCEPTION("First (non comment) line of the fibre orientation file should contain the number of elements of the mesh (and nothing else)");    
-        }
-
-        return items[0];
-    }
 
     void ReadOrientationMatrixFromFile (c_matrix<double,SPACE_DIM,SPACE_DIM>& orientMatrix)
     {
         std::vector<double> items;        
-        unsigned num_elems = GetTokensAtNextLine<double>(items);
+        unsigned num_elems = this->GetTokensAtNextLine(items);
                     
         if (num_elems == 3 && SPACE_DIM == 3)
         {
-            CloseFibreOrientationFile();
+            this->CloseFibreOrientationFile();
             EXCEPTION("Fibre orientation file looks like a CARP ttlon file. Support not implemented yet");      
         }
 
         if (num_elems != SPACE_DIM*SPACE_DIM)
         {
-            CloseFibreOrientationFile();
+            this->CloseFibreOrientationFile();
             EXCEPTION("Number of vectors in file and size of them should match SPACE_DIM");                
         }
 
@@ -140,32 +58,8 @@ private:
     
 public:
 
-    ElementwiseConductivityTensors()
-        : mNumElements(1),          
-          mUseNonConstantConductivities(false),
-          mUseFibreOrientation(false),
-          mInitialised(false)           
-    {
-        double init_data[]={7.0, 3.5, 1.75};
-        
-        for (unsigned dim=0; dim<SPACE_DIM; dim++)
-        {
-             mConstantConductivities[dim] = init_data[dim];   
-        }      
-    }
     /**
-     *  Sets a file for reading the fibre orientation from.
-     * 
-     *  @param rFibreOrientationFilename Relative path to the file defining the fibre orientation
-     */
-    void SetFibreOrientationFile(const std::string &rFibreOrientationFilename)
-    {
-        mUseFibreOrientation = true;
-        mFibreOrientationFilename = rFibreOrientationFilename;       
-    }
-
-    /**
-     *  Sets a constant longitudinal and transverse conductivity for all the elements of the mesh.
+     *  Sets constant conductivities for all the elements of the mesh.
      * 
      *  @param constLongConduc Longitudinal conductivity (x axis)
      *  @param constTransConduc Transverse conductivity (y axis)
@@ -180,8 +74,8 @@ public:
             EXCEPTION("Wrong number of conductivities provided");
         }
         
-        mUseNonConstantConductivities = false;        
-        mConstantConductivities = constantConductivities;        
+        this->mUseNonConstantConductivities = false;        
+        this->mConstantConductivities = constantConductivities;        
     }
     
     void SetConstantConductivities(c_vector<double, 2> constantConductivities)
@@ -191,8 +85,8 @@ public:
             EXCEPTION("Wrong number of conductivities provided");
         }
         
-        mUseNonConstantConductivities = false;        
-        mConstantConductivities = constantConductivities;        
+        this->mUseNonConstantConductivities = false;        
+        this->mConstantConductivities = constantConductivities;        
     }
 
     void SetConstantConductivities(c_vector<double, 3> constantConductivities)
@@ -202,8 +96,8 @@ public:
             EXCEPTION("Wrong number of conductivities provided");
         }
           
-        mUseNonConstantConductivities = false;        
-        mConstantConductivities = constantConductivities;        
+        this->mUseNonConstantConductivities = false;        
+        this->mConstantConductivities = constantConductivities;        
     }
     
 
@@ -216,9 +110,10 @@ public:
      */      
     void SetNonConstantConductivities(std::vector<c_vector<double, SPACE_DIM> >* pNonConstantConductivities)
     {
-        mUseNonConstantConductivities = true;
-        mpNonConstantConductivities = pNonConstantConductivities;
+        this->mUseNonConstantConductivities = true;
+        this->mpNonConstantConductivities = pNonConstantConductivities;
     }                
+
     
     /**
      *  Computes the tensors based in all the info set
@@ -228,33 +123,33 @@ public:
         c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
         for (unsigned dim=0; dim<SPACE_DIM; dim++)
         {
-            conductivity_matrix(dim,dim) = mConstantConductivities(dim);     
+            conductivity_matrix(dim,dim) = this->mConstantConductivities(dim);     
         }
         
-        if (!mUseNonConstantConductivities && !mUseFibreOrientation)
+        if (!this->mUseNonConstantConductivities && !this->mUseFibreOrientation)
         {
             // Constant tensor for every element
-            mTensors.push_back(conductivity_matrix);
+            this->mTensors.push_back(conductivity_matrix);
         }
         else
         {
             c_matrix<double,SPACE_DIM,SPACE_DIM> orientation_matrix((identity_matrix<double>(SPACE_DIM)));
                         
-            if (mUseFibreOrientation)
+            if (this->mUseFibreOrientation)
             {
-                OpenFibreOrientationFile();
-                mNumElements = GetNumElementsFromFile();
+                this->OpenFibreOrientationFile();
+                this->mNumElements = this->GetNumElementsFromFile();
             }
             else
             {
-                mNumElements = mpNonConstantConductivities->size();
+                this->mNumElements = this->mpNonConstantConductivities->size();
             }
                 
             // reserve() allocates all the memory at once, more efficient than relying 
             // on the automatic reallocation scheme.
-            mTensors.reserve(mNumElements);
+            this->mTensors.reserve(this->mNumElements);
                            
-            for (unsigned element_index=0; element_index<mNumElements; element_index++)
+            for (unsigned element_index=0; element_index<this->mNumElements; element_index++)
             {
                 /*
                  *  For every element of the mesh we compute its tensor like (from 
@@ -275,54 +170,33 @@ public:
                  * 
                  */
                 
-                if (mUseNonConstantConductivities)
+                if (this->mUseNonConstantConductivities)
                 {
                     for (unsigned dim=0; dim<SPACE_DIM; dim++)
                     {
-                        conductivity_matrix(dim,dim) = (*mpNonConstantConductivities)[element_index][dim];     
+                        conductivity_matrix(dim,dim) = (*this->mpNonConstantConductivities)[element_index][dim];     
                     }                    
                 }      
                 
-                if (mUseFibreOrientation)
+                if (this->mUseFibreOrientation)
                 {
                     ReadOrientationMatrixFromFile(orientation_matrix);                    
                 }                    
                 
                 c_matrix<double,SPACE_DIM,SPACE_DIM> temp;
                 noalias(temp) = prod(orientation_matrix, conductivity_matrix);  
-                mTensors.push_back( prod(temp, trans(orientation_matrix) ) );   
+                this->mTensors.push_back( prod(temp, trans(orientation_matrix) ) );   
             }
             
-            if (mUseFibreOrientation)
+            if (this->mUseFibreOrientation)
             {
-                CloseFibreOrientationFile();
+                this->CloseFibreOrientationFile();
             }
         }
         
-        mInitialised = true;
+        this->mInitialised = true;
     }
-    
-    
-    /**
-     *  Returns the diffussion tensor of the element number "index"
-     * 
-     *  @param index Index of the element of the mesh   
-     */    
-    c_matrix<double,SPACE_DIM,SPACE_DIM>& operator[](const unsigned index)
-    {
-        assert(mInitialised);    
         
-        if (!mUseNonConstantConductivities && !mUseFibreOrientation)
-        {
-            return mTensors[0];    
-        }
-        else
-        {
-            assert(index < mNumElements);
-            return mTensors[index];
-        }
-    }
-    
 };
 
-#endif /*ELEMENTWISECONDUCTIVITYTENSORS_HPP_*/
+#endif /*ORTHOTROPICCONDUCTIVITYTENSORS_HPP_*/

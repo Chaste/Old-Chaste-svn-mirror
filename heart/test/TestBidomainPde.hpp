@@ -84,8 +84,8 @@ public:
         bidomain_pde.SetCapacitance(2.718);
         TS_ASSERT_DELTA( bidomain_pde.GetCapacitance(), 2.718, 1e-10);
 
-        ElementwiseConductivityTensors<1> sigma_i;
-        ElementwiseConductivityTensors<1> sigma_e;
+        OrthotropicConductivityTensors<1> sigma_i;
+        OrthotropicConductivityTensors<1> sigma_e;
 
         sigma_i.SetConstantConductivities(Create_c_vector(314));
         sigma_e.SetConstantConductivities(Create_c_vector(218));
