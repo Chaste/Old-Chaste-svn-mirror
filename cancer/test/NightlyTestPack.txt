@@ -1,4 +1,5 @@
 TestCryptSimulation2dNightly.hpp
-TestRunningCryptSimulationsTutorial.hpp
 TestLee2003WntSignallingOdeSystem.hpp
+TestRunningCryptSimulationsTutorial.hpp
+TestRunningTumourSpheroidSimulationsTutorial.hpp
 TestTissueCellNightly.hpp
