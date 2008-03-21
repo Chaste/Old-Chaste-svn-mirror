@@ -14,7 +14,6 @@ enum cell_colours
     LABELLED_COLOUR, // 5
     APOPTOSIS_COLOUR, // 6
     INVISIBLE_COLOUR, // visualizer treats '7' as invisible
-    SPECIAL_LABEL_START
 };
 
 template<unsigned DIM>
@@ -266,11 +265,15 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
                                             bool outputCellMutationStates,
                                             bool outputCellTypes,
                                             bool outputCellVariables,
-                                            bool outputCellCyclePhases)
+                                            bool outputCellCyclePhases,
+                                            bool outputCellAncestors)
 {
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpNodeFile = output_file_handler.OpenOutputFile("results.viznodes");
-    
+    if (outputCellAncestors)
+    {
+        mpCellAncestorsFile = output_file_handler.OpenOutputFile("results.vizAncestors");   
+    }
     if (outputCellMutationStates)
     {
         mpCellMutationStatesFile = output_file_handler.OpenOutputFile("cellmutationstates.dat");
@@ -294,7 +297,8 @@ template<unsigned DIM>
 void AbstractTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
                                            bool outputCellTypes,
                                            bool outputCellVariables,
-                                           bool outputCellCyclePhases)
+                                           bool outputCellCyclePhases,
+                                           bool outputCellAncestors)
 {
     mpNodeFile->close();
     if (outputCellMutationStates)
@@ -313,13 +317,18 @@ void AbstractTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
     {
         mpCellCyclePhasesFile->close();
     }
+    if (outputCellAncestors)
+    {
+        mpCellAncestorsFile->close();   
+    }
 }
 
 template<unsigned DIM>  
 void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, 
                                               bool outputCellTypes, 
                                               bool outputCellVariables, 
-                                              bool outputCellCyclePhases)
+                                              bool outputCellCyclePhases,
+                                              bool outputCellAncestors)
 {   
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
@@ -347,6 +356,10 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
     }
     
     *mpNodeFile <<  time << "\t";
+    if (outputCellAncestors)
+    {
+        *mpCellAncestorsFile <<  time << "\t";
+    }
     
     if (outputCellMutationStates)
     {
@@ -411,12 +424,20 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                 }
             }
             
-            if (mNodeCellMap[index]->GetAncestor()!=UNSIGNED_UNSET)
+
+            if (mCells.size() > 0)
             {
-                colour = SPECIAL_LABEL_START + p_cell->GetAncestor();
-            }
-            else if (mCells.size() > 0)
-            {
+                if (outputCellAncestors)
+                {
+                    colour = p_cell->GetAncestor();
+                    if (colour == UNSIGNED_UNSET)
+                    {   // Set the file to -1 to mark this case.
+                        colour = 1;  
+                        *mpCellAncestorsFile << "-" ;
+                    }
+                    *mpCellAncestorsFile << colour << " ";
+                }
+                
                 CellMutationState mutation = p_cell->GetMutationState();
                 
                 // Set colours dependent on cell type
@@ -534,7 +555,10 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
             }
         }
     }
-    
+    if (outputCellAncestors)
+    {
+        *mpCellAncestorsFile << "\n";   
+    }
     *mpNodeFile << "\n";
    
     // Write cell mutation state data to file if required

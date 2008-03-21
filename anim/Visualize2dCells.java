@@ -17,7 +17,7 @@ import javax.swing.JLabel;
 
 public class Visualize2dCells implements ActionListener, AdjustmentListener, ItemListener, Runnable
 {
-	private Thread updateThread;
+    private Thread updateThread;
 
     static CustomCanvas2D canvas;
 
@@ -26,6 +26,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public Frame frame = new Frame();
     
     public static boolean parsed_all_files = false;
+    public static boolean drawAncestors = false;
     public static boolean drawAxes = true;
     public static boolean drawCells = true;
     public static boolean drawSprings = false;
@@ -40,6 +41,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static boolean drawCylinder = false;
     public static boolean drawCylinderOverride = true;
     public static boolean setupFilePresent = false;
+    public static boolean ancestorsFilePresent = false;
     public static boolean fibresFilePresent = false;
     public static boolean nutrientFilePresent = false;
     public static boolean betaCateninFilePresent = false;
@@ -52,6 +54,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static int memory_factor = 2;
     public static int[] numCells;
     public static int[] numElements;
+    public static int[][] ancestor_values;
     public static int[][] element_nodes;
     public static int[][] cell_type;
     public static int[][] image_cells;
@@ -84,6 +87,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static Checkbox beta_catenin = new Checkbox("Beta catenin");
     public static Checkbox average_stress = new Checkbox("Average Stress");
     public static Checkbox difference_stress = new Checkbox("Difference Stress");
+    public static Checkbox ancestors = new Checkbox("Clonal Populations");
     public static Checkbox axes = new Checkbox("Axes");
     
     public static JLabel nearest_label = new JLabel();
@@ -198,7 +202,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             drawCircles = state;
             if (state)
             {
-            	cells.setState(false);
+            	drawBetaCatenin = false;
+            	beta_catenin.setState(false);
+            	drawCells = false;
+                cells.setState(false);
             }
             System.out.println("Drawing cells as circles = "+drawCircles);    
         }
@@ -209,6 +216,12 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             {
             	drawCells = false;
             	cells.setState(false);
+            	drawAverageStress = false;
+            	average_stress.setState(false);
+            	drawDifferenceStress = false;
+            	difference_stress.setState(false);
+            	drawBetaCatenin = false;
+            	beta_catenin.setState(false);
             }
             System.out.println("Drawing nutrient = "+drawNutrient); 
         }
@@ -253,6 +266,20 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         {
             drawAxes = state;
             System.out.println("Drawing axes = "+drawAxes); 
+        }
+        else if (cb == ancestors)
+        {
+            drawAncestors = state;
+            if (state)
+            {
+            	drawBetaCatenin = false;
+            	beta_catenin.setState(false);
+            	drawAverageStress = false;
+            	average_stress.setState(false);
+            	drawDifferenceStress = false;
+            	difference_stress.setState(false);
+            }
+            System.out.println("Drawing clonal populations = " + drawAncestors); 
         }
         canvas.drawBufferedImage();
         canvas.repaint();
@@ -358,6 +385,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         average_stress.addItemListener(this);
         difference_stress.addItemListener(this);
         axes.addItemListener(this);
+        ancestors.addItemListener(this);
         
         checkPanel.add(output);
         checkPanel.add(springs);
@@ -370,6 +398,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         checkPanel.add(average_stress);
         checkPanel.add(difference_stress);
         checkPanel.add(axes);
+        checkPanel.add(ancestors);
         checkPanel.add(nearest_label);
                 
         JPanel southPanel = new JPanel(new GridLayout(2,0));
@@ -392,6 +421,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         average_stress.setState(false);
         difference_stress.setState(false);
         axes.setState(true);
+        ancestors.setState(false);
         
         for (int i=1; i<args.length; i++)
         {
@@ -448,6 +478,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 drawAxes = true;
                 axes.setState(true);
             }
+            else if (args[i].equals("ancestors"))
+            {
+                drawAncestors = true;
+                ancestors.setState(true);
+            }
             else
             {
                 System.out.println("Input option not recognised");
@@ -458,6 +493,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         File nutrient_file = new File(args[0]+"/results.viznutrient");
         File beta_catenin_file = new File(args[0]+"/results.vizbCat");
         File stress_file = new File(args[0]+"/results.vizstress");
+        File ancestors_file = new File(args[0]+"/results.vizAncestors");
                 
         if (!node_file.isFile())
         {
@@ -501,11 +537,24 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         }
         else
         {
-        	average_stress.setState(true);
+            average_stress.setState(true);
             difference_stress.setState(false);
             drawAverageStress = true;
             drawDifferenceStress = false;
             stressFilePresent = false;
+        }
+        
+        if (!ancestors_file.isFile())
+        {
+            ancestors.setVisible(false);
+            ancestors.setState(false);
+            drawAncestors = false;
+        }
+        else
+        {
+            ancestorsFilePresent = true;
+            ancestors.setState(true);
+            drawAncestors = true;
         }
     
         File fibre_file = new File(args[0]+"/results.vizfibres");
@@ -530,6 +579,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         {
             setupFilePresent = true;
         }
+             
         
         Visualize2dCells vis = new Visualize2dCells();
         
@@ -571,6 +621,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             if (stressFilePresent)
             {
             	stress_values = new double[num_lines][][];
+            }
+            if (ancestorsFilePresent)
+            {
+            	ancestor_values = new int[num_lines][];
             }
             
             String line_fibre = "";
@@ -619,31 +673,40 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             }
 
             String line_nutrient = "";
-           	BufferedReader in_nutrient_file = null;
-           	if (drawNutrient)
-           	{
+            BufferedReader in_nutrient_file = null;
+            if (drawNutrient)
+            {
                	nutrient_values = new double[num_lines][]; 
                	in_nutrient_file = new BufferedReader(new FileReader(nutrient_file));
                	line_nutrient = in_nutrient_file.readLine();
-           	}
+            }
+           	
+            String line_ancestors = "";
+            BufferedReader in_ancestors_file = null;
+            if (drawAncestors)
+            {
+               	ancestor_values = new int[num_lines][]; 
+               	in_ancestors_file = new BufferedReader(new FileReader(ancestors_file));
+               	line_ancestors = in_ancestors_file.readLine();
+            }
 
-           	String line_beta_catenin = "";
-           	BufferedReader in_beta_catenin_file = null;
-           	if (drawBetaCatenin)
-           	{
+            String line_beta_catenin = "";
+            BufferedReader in_beta_catenin_file = null;
+            if (drawBetaCatenin)
+            {
                	beta_catenin_values = new double[num_lines][][]; 
                	in_beta_catenin_file = new BufferedReader(new FileReader(beta_catenin_file));
                	line_beta_catenin = in_beta_catenin_file.readLine();
-           	}
+            }
           
-           	String line_stress = "";
-           	BufferedReader in_stress_file = null;
-           	if (drawAverageStress || drawDifferenceStress)
-           	{
+            String line_stress = "";
+            BufferedReader in_stress_file = null;
+            if (drawAverageStress || drawDifferenceStress)
+            {
                	stress_values = new double[num_lines][][]; 
                	in_stress_file = new BufferedReader(new FileReader(stress_file));
                	line_stress = in_stress_file.readLine();
-           	}
+            }
             
             BufferedReader in_node_file = new BufferedReader(new FileReader(node_file));
             String line_node = in_node_file.readLine(); // from console input example
@@ -674,6 +737,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 }
                 StringTokenizer st_fibre = null;
                 StringTokenizer st_nutrient = null;
+                StringTokenizer st_ancestors = null;
                 StringTokenizer st_beta_catenin = null;
                 StringTokenizer st_stress = null;
                 
@@ -687,51 +751,57 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 
                 if (drawNutrient)
                 {
-                	st_nutrient = new StringTokenizer(line_nutrient);
+                    st_nutrient = new StringTokenizer(line_nutrient);
                     Double nutrient_time = Double.valueOf(st_nutrient.nextToken());
                     
-	                int nutrient_entries = st_nutrient.countTokens();
-	                if (nutrient_entries%4 != 0)
-	                {
-	                	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the nutrient file is not of the required form: time,index,x,y,nutrient,index,x,y,nutrient,...");
-	                	break;
-	                }
+	            int nutrient_entries = st_nutrient.countTokens();
+	            if (nutrient_entries%4 != 0)
+	            {
+	            	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the nutrient file is not of the required form: time,index,x,y,nutrient,index,x,y,nutrient,...");
+	            	break;
+	            }
                 }
+                
+		if (drawAncestors)
+                {
+                    st_ancestors = new StringTokenizer(line_ancestors);
+                    Double ancestors_time = Double.valueOf(st_ancestors.nextToken());
+		}
                 
                 if (drawBetaCatenin)
                 {
-                	st_beta_catenin = new StringTokenizer(line_beta_catenin);
+                    st_beta_catenin = new StringTokenizer(line_beta_catenin);
                     Double beta_catenin_time = Double.valueOf(st_beta_catenin.nextToken());
                     
                     // Count the number of entries in the bcat file to get num non ghosts and check correct 
-	                int beta_catenin_entries = st_beta_catenin.countTokens();
+	            int beta_catenin_entries = st_beta_catenin.countTokens();
 	            
-	                if (beta_catenin_entries%6 != 0)
-	                {
-	                	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the beta catenin file is not of the required form: time,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,...");
-	                	break;
-	                }
+                    if (beta_catenin_entries%6 != 0)
+	            {
+                        System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the beta catenin file is not of the required form: time,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,...");
+	                break;
+	            }
                 }
                 
                 if ((drawAverageStress || drawDifferenceStress) && !has_stress_line_been_read)
                 {
-                	st_stress = new StringTokenizer(line_stress);
+                    st_stress = new StringTokenizer(line_stress);
                     stress_time = Double.valueOf(st_stress.nextToken());
                     
                     // Count the number of entries in the bcat file to get num non ghosts and check correct 
-	                int stress_entries = st_stress.countTokens();
+	            int stress_entries = st_stress.countTokens();
 	            
-	                if (stress_entries%5 != 0)
-	                {
-	                	throw new Exception("The stress file must take the form: time,index,x,y,min_stress,max_stress,index,x,y,min_stress,max_stress,...");
-	                }
-	                System.out.println("The stress file is for time = " + stress_time);
-	                has_stress_line_been_read = true;
+	            if (stress_entries%5 != 0)
+	            {
+	                throw new Exception("The stress file must take the form: time,index,x,y,min_stress,max_stress,index,x,y,min_stress,max_stress,...");
+	            }
+	            System.out.println("The stress file is for time = " + stress_time);
+	            has_stress_line_been_read = true;
                 }
                 
                 if (elementFilePresent)
                 {
-                	Double element_time = Double.valueOf(st_element.nextToken());
+                    Double element_time = Double.valueOf(st_element.nextToken());
                     
                     if (Math.abs(time - element_time) > 1e-6) 
                     {
@@ -750,7 +820,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 	break;
                 }
                 numCells[row] = entries/3; 
-                
+
+
                 if (elementFilePresent)
                 {
                     // Count the number of entries in the element file and check correct 
@@ -770,21 +841,26 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 }
                 if (nutrientFilePresent)
                 {
-                	nutrient_values[row] = new double[2*numCells[row]];
+                	nutrient_values[row] = new double[memory_factor*numCells[row]];
+                }
+                if (ancestorsFilePresent)
+                {
+                	ancestor_values[row] = new int[memory_factor*numCells[row]];
                 }
                 if (betaCateninFilePresent)
                 {
-                	beta_catenin_values[row] = new double[2*numCells[row]][3];
+                	beta_catenin_values[row] = new double[memory_factor*numCells[row]][3];
                 }
                 if (stressFilePresent)
                 {
-                	stress_values[row] = new double[2*numCells[row]][2];
+                	stress_values[row] = new double[memory_factor*numCells[row]][2];
                 }
                 cell_type[row] = new int[memory_factor*numCells[row]];
-                
+                System.out.println("Reading in row " + row);
+                        
                 for (int i=0; i<numCells[row]; i++) 
                 {
-                	double d1 = Double.valueOf(st_node.nextToken()).doubleValue();
+                    double d1 = Double.valueOf(st_node.nextToken()).doubleValue();
                     double d2 = Double.valueOf(st_node.nextToken()).doubleValue();
 
                     if (drawFibres)
@@ -813,6 +889,16 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         	
                         	double nutrient = Double.valueOf(st_nutrient.nextToken()).doubleValue();
                         	nutrient_values[row][index] = nutrient;
+                        }
+                    }	
+                    
+                    if (drawAncestors)
+                    {	// If this is a real cell then read in ancestor from row
+                    	if (cell_type[row][i]!=canvas.INVISIBLE_COLOUR)	// if this is not a ghost cell
+                    	{
+                    		String skip; // skips past unnecessary information
+                        	int ancestor_value = Integer.parseInt(st_ancestors.nextToken()); // index
+                        	ancestor_values[row][i] = ancestor_value;
                         }
                     }	
                     
@@ -876,7 +962,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 if (drawBetaCatenin)
                 {
                 	line_beta_catenin = in_beta_catenin_file.readLine();
-                }                
+                }     
+                if (drawAncestors)
+                {
+                	line_ancestors = in_ancestors_file.readLine();
+                }        
                 if (elementFilePresent)
                 {
                 	line_element = in_element_file.readLine();
@@ -896,6 +986,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             System.out.println("Drawing ghost nodes = "+drawGhosts);
             System.out.println("Drawing cylindrically = "+ drawCylinder);
             System.out.println("Drawing axes = "+ drawAxes);
+            System.out.println("Drawing clonal populations = "+ drawAncestors);
             
             if (drawCylinder) 
             {
@@ -1843,31 +1934,46 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
      
     void SetNodeColour(int index)
     { 
+        if (vis.cell_type[vis.timeStep][index]!=INVISIBLE_COLOUR && 
+            vis.drawAncestors && 
+            vis.ancestor_values[vis.timeStep][index]!=-1)
+        {
+            Color ancestor_colour = ancestorColourMap(vis.ancestor_values[vis.timeStep][index]);
+            int new_r = 0;
+            int new_g = 0;
+            int new_b = 0;
+            if (ancestor_colour.getRed() - 40 > new_r) new_r = ancestor_colour.getRed() - 40;
+            if (ancestor_colour.getGreen() - 40 > new_g) new_g = ancestor_colour.getGreen() - 40;
+            if (ancestor_colour.getBlue() - 40 > new_b) new_b = ancestor_colour.getBlue() - 40;
+            g2.setColor(new Color(new_r, new_g, new_b));
+        }
+        else
+        {
     	switch (vis.cell_type[vis.timeStep][index]) 
     	{
-    		case STEM_COLOUR: // stem cell
-    			g2.setColor(Color.green); 
-    			break;
-    		case TRANSIT_COLOUR: // transit cell
-    			g2.setColor(Color.orange); 
-    			break;
-    		case DIFFERENTIATED_COLOUR: // differentiated cell
-    			g2.setColor(Color.red); 
-    			break;
-    		case EARLY_CANCER_COLOUR: // early cancer
-    			g2.setColor(Color.gray); 
-    			break;
-    		case LATE_CANCER_COLOUR:  // late cancer
-    			g2.setColor(Color.black);
-    			break;
-    		case LABELLED_COLOUR: // labelled cell
-    			g2.setColor(Color.blue); 
-    			break;
-    		case APOPTOSIS_COLOUR: // apoptotic cell
-    			g2.setColor(Color.black); 
-    			break;
-    		case INVISIBLE_COLOUR: // sloughed cell
-    			if (!vis.drawGhosts)
+    	    case STEM_COLOUR: // stem cell
+                g2.setColor(Color.green); 
+                break;
+            case TRANSIT_COLOUR: // transit cell
+                g2.setColor(Color.orange); 
+                break;
+            case DIFFERENTIATED_COLOUR: // differentiated cell
+                g2.setColor(Color.red); 
+                break;
+            case EARLY_CANCER_COLOUR: // early cancer
+                g2.setColor(Color.gray); 
+                break;
+            case LATE_CANCER_COLOUR:  // late cancer
+                g2.setColor(Color.black);
+                break;
+            case LABELLED_COLOUR: // labelled cell
+                g2.setColor(Color.blue); 
+                break;
+            case APOPTOSIS_COLOUR: // apoptotic cell
+                g2.setColor(Color.black); 
+                break;
+            case INVISIBLE_COLOUR: // sloughed cell
+                if (!vis.drawGhosts)
                 {
                     g2.setColor(garysSexySilver);
                 }
@@ -1875,13 +1981,12 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                 {
                     g2.setColor(Color.lightGray);
                 } 
-    			break;
-    		default: 
-                //System.out.println("colour of cell is "+(vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START));
-                //g2.setColor(new Color(100,100,10*(vis.cell_type[vis.timeStep][index]-SPECIAL_LABEL_START)));
+                break;
+             default: 
                 g2.setColor(Color.white);
-     			break;
-    	}    	
+                break;
+    	}  
+        }  	
     }
  
      
@@ -1896,7 +2001,6 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         LABELLED_COLOUR,//5
         APOPTOSIS_COLOUR,//6
         INVISIBLE_COLOUR, // visualizer treats '7' as invisible
-        SPECIAL_LABEL_START
     };
     */
 
@@ -1908,7 +2012,6 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     public static final int LABELLED_COLOUR = 5;
     public static final int APOPTOSIS_COLOUR = 6;
     public static final int INVISIBLE_COLOUR = 7;
-    //Not needed now that we have hashing - public static final int SPECIAL_LABEL_START = 8;
     
     void SetCellColour(int index)
     {
@@ -1988,8 +2091,20 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                 g2.setColor(colour);
             }   	
     	}
-    	else // the default setting
-      	{
+    	else if (vis.drawAncestors && (vis.ancestor_values[vis.timeStep][index]!=-1))
+      	{	// If we are drawing ancestors and this cell's value has been set in simulation.
+    		if (vis.cell_type[vis.timeStep][index] == INVISIBLE_COLOUR)
+    		{
+    			g2.setColor(garysSexySilver);      			
+    		}
+    		else
+    		{
+                        Color ancestor_colour = ancestorColourMap(vis.ancestor_values[vis.timeStep][index]);
+    			g2.setColor(ancestor_colour);
+    		}
+      	}
+    	else
+        {
     		switch (vis.cell_type[vis.timeStep][index]) 
         	{
         		case STEM_COLOUR: // stem cell
@@ -2017,16 +2132,19 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         			g2.setColor(garysSexySilver);                    
         			break;
         		default: 
-                    int cell_colour=vis.cell_type[vis.timeStep][index];//-SPECIAL_LABEL_START;
-                    //Map the colour uniquely into [0, 255]
-                    int r=hash32shiftmult(cell_colour, 256);
-                    int g=hash32shiftmult(cell_colour+1, 256);
-                    int b=hash32shiftmult(cell_colour*2, 256);
-                    
-                    g2.setColor(new Color(r,g,b));
-                break;
+        			g2.setColor(garysSexySilver);                    
+        			break;
         	}
     	}
+    }
+
+    public Color ancestorColourMap(int ancestor)
+    {
+        //Map the colour uniquely into [0, 255]
+        int r=hash32shiftmult(ancestor, 256);
+        int g=hash32shiftmult(ancestor+1, 256);
+        int b=hash32shiftmult(ancestor*2, 256);
+        return new Color(r,g,b);
     }
 
     public int hash32shiftmult(int key, int range)

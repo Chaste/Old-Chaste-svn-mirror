@@ -649,7 +649,7 @@ public:
         simulator.rGetTissue().rGetCellAtNodeIndex(56).SetMutationState(APC_ONE_HIT);
         simulator.rGetTissue().rGetCellAtNodeIndex(51).SetMutationState(APC_TWO_HIT);
         simulator.rGetTissue().rGetCellAtNodeIndex(63).SetMutationState(BETA_CATENIN_ONE_HIT);
-        simulator.SetOutputCellMutationStates(true);             
+        simulator.SetOutputCellMutationStates(true);     
         simulator.Solve();
         
         // Test we have the same number of cells and nodes at the end of each time
@@ -1118,9 +1118,11 @@ public:
         
         p_crypt->SetBottomCellAncestors();
         
+        
         // Set up crypt simulation
         CryptSimulation2d simulator(*p_crypt, NULL, false, false);
         simulator.SetOutputDirectory(output_directory);
+        simulator.SetOutputCellAncestors(true);
         
         // Set simulation to output cell types
         simulator.SetOutputCellMutationStates(true);
@@ -1144,8 +1146,10 @@ public:
         
         // ... and checking visualization of labelled cells against previous run
         OutputFileHandler handler("AncestorCrypt",false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/AncestorCrypt/results.viznodes").c_str()), 0);
+        std::string results_file1 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
+        std::string results_file2 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizAncestors";
+        TS_ASSERT_EQUALS(system(("diff " + results_file1 + " cancer/test/data/AncestorCrypt/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " cancer/test/data/AncestorCrypt/results.vizAncestors").c_str()), 0);
         
         delete p_params;               
     }

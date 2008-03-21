@@ -84,6 +84,9 @@ protected:
     /** Whether to count the number of each cell mutation state and output to file*/
     bool mOutputCellMutationStates;
     
+    /** Whether to output the ancestor of each cell to a visualizer file*/
+    bool mOutputCellAncestors;
+    
     /** Whether to count the number of each cell type and output to file*/
     bool mOutputCellTypes;
     
@@ -151,6 +154,7 @@ protected:
         archive & mNumDeaths;
         archive & mCellKillers;
         archive & mOutputCellMutationStates;
+        archive & mOutputCellAncestors;
         archive & mOutputCellTypes;
         archive & mOutputCellVariables;
         archive & mOutputCellCyclePhases;
@@ -258,6 +262,7 @@ public:
     void SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple);
     void SetNoBirth(bool nobirth);
     void SetOutputCellMutationStates(bool outputCellMutationStates);
+    void SetOutputCellAncestors(bool outputCellAncestors);
     void SetOutputCellTypes(bool outputCellTypes);
     void SetOutputCellVariables(bool outputCellVariables);   
     void SetOutputCellCyclePhases(bool outputCellCyclePhases);

@@ -151,12 +151,14 @@ public:
                            bool outputCellMutationStates,
                            bool outputCellTypes,
                            bool outputCellVariables,
-                           bool outputCellCyclePhases);
+                           bool outputCellCyclePhases,
+                           bool outputCellAncestors);
 
     void CloseOutputFiles(bool outputCellMutationStates,
                           bool outputCellTypes,
                           bool outputCellVariables,
-                          bool outputCellCyclePhases);
+                          bool outputCellCyclePhases,
+                          bool outputCellAncestors);
 
     /**
      * Move a cell to a new location.
@@ -194,7 +196,8 @@ public:
     void WriteResultsToFiles(bool outputCellMutationStates, 
                              bool outputCellTypes, 
                              bool outputCellVariables,
-                             bool outputCellCyclePhases);
+                             bool outputCellCyclePhases,
+                             bool outputCellAncestors);
 
     void WriteVoronoiResultsToFile();
 

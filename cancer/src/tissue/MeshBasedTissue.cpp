@@ -277,14 +277,16 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
                                              bool outputCellMutationStates,
                                              bool outputCellTypes,
                                              bool outputCellVariables,
-                                             bool outputCellCyclePhases)
+                                             bool outputCellCyclePhases,
+                                             bool outputCellAncestors)
 {
     AbstractTissue<DIM>::CreateOutputFiles(rDirectory, 
                                            rCleanOutputDirectory, 
                                            outputCellMutationStates,
                                            outputCellTypes,
                                            outputCellVariables,
-                                           outputCellCyclePhases);
+                                           outputCellCyclePhases,
+                                           outputCellAncestors);
                                            
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
@@ -303,12 +305,14 @@ template<unsigned DIM>
 void MeshBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
                                             bool outputCellTypes,
                                             bool outputCellVariables,
-                                            bool outputCellCyclePhases)
+                                            bool outputCellCyclePhases,
+                                            bool outputCellAncestors)
 {
     AbstractTissue<DIM>::CloseOutputFiles(outputCellMutationStates,
                                           outputCellTypes,
                                           outputCellVariables,
-                                          outputCellCyclePhases);
+                                          outputCellCyclePhases,
+                                          outputCellAncestors);
     mpElementFile->close();
     
     if (mWriteVoronoiData)
@@ -337,12 +341,14 @@ template<unsigned DIM>
 void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates, 
                                                bool outputCellTypes, 
                                                bool outputCellVariables,
-                                               bool outputCellCyclePhases)
+                                               bool outputCellCyclePhases,
+                                               bool outputCellAncestors)
 {
     AbstractTissue<DIM>::WriteResultsToFiles(outputCellMutationStates, 
                                              outputCellTypes, 
                                              outputCellVariables,
-                                             outputCellCyclePhases);
+                                             outputCellCyclePhases,
+                                             outputCellAncestors);
     
     // Write element data to file
     

@@ -43,6 +43,9 @@ protected:
     /** Results file for cell mutation states */
     out_stream mpCellMutationStatesFile;
     
+    /** Results file for cell ancestors */
+    out_stream mpCellAncestorsFile;
+    
     /** Results file for cell types */
     out_stream mpCellTypesFile;
     
@@ -216,17 +219,20 @@ public:
                                    bool outputCellMutationStates,
                                    bool outputCellTypes,
                                    bool outputCellVariables,
-                                   bool outputCellCyclePhases);
+                                   bool outputCellCyclePhases,
+                                   bool outputCellAncestors);
     
     virtual void WriteResultsToFiles(bool outputCellMutationStates,
                                      bool outputCellTypes,
                                      bool outputCellVariables,
-                                     bool outputCellCyclePhases);
+                                     bool outputCellCyclePhases,
+                                     bool outputCellAncestors);
         
     virtual void CloseOutputFiles(bool outputCellMutationStates,
                                   bool outputCellTypes,
                                   bool outputCellVariables,
-                                  bool outputCellCyclePhases);
+                                  bool outputCellCyclePhases,
+                                  bool outputCellAncestors);
     
     /**
      * Iterator class allows one to iterate over cells in the tissue.

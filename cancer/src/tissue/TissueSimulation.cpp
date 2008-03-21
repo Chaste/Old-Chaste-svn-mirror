@@ -57,6 +57,7 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     }
         
     mOutputCellMutationStates = false;
+    mOutputCellAncestors = false;
     mOutputCellTypes = false;
     mOutputCellVariables = false;
     mOutputCellCyclePhases = false;
@@ -335,6 +336,15 @@ void TissueSimulation<DIM>::SetOutputCellTypes(bool outputCellTypes)
 }
 
 /**
+ * Set the simulation to output the cell ancestors if they are set.
+ */
+template<unsigned DIM> 
+void TissueSimulation<DIM>::SetOutputCellAncestors(bool outputCellAncestors)
+{
+    mOutputCellAncestors = outputCellAncestors;
+}
+
+/**
  * Set the simulation to output the cell variables.
  */
 template<unsigned DIM> 
@@ -425,7 +435,8 @@ void TissueSimulation<DIM>::Solve()
                                mOutputCellMutationStates,
                                mOutputCellTypes,
                                mOutputCellVariables,
-                               mOutputCellCyclePhases);
+                               mOutputCellCyclePhases,
+                               mOutputCellAncestors);
     
     mpSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
 
@@ -454,7 +465,8 @@ void TissueSimulation<DIM>::Solve()
     mrTissue.WriteResultsToFiles(mOutputCellMutationStates,
                                  mOutputCellTypes,
                                  mOutputCellVariables,
-                                 mOutputCellCyclePhases);
+                                 mOutputCellCyclePhases,
+                                 mOutputCellAncestors);
 
     CancerEventHandler::EndEvent(SETUP);
                                
@@ -539,7 +551,8 @@ void TissueSimulation<DIM>::Solve()
             mrTissue.WriteResultsToFiles(mOutputCellMutationStates,
                                          mOutputCellTypes,
                                          mOutputCellVariables,
-                                         mOutputCellCyclePhases);
+                                         mOutputCellCyclePhases,
+                                         mOutputCellAncestors);
         }
         
         CancerEventHandler::EndEvent(OUTPUT);
@@ -551,7 +564,9 @@ void TissueSimulation<DIM>::Solve()
     mrTissue.CloseOutputFiles(mOutputCellMutationStates,
                               mOutputCellTypes,
                               mOutputCellVariables,
-                              mOutputCellCyclePhases);
+                              mOutputCellCyclePhases,
+                              mOutputCellAncestors);
+                              
     CancerEventHandler::EndEvent(OUTPUT);
     
     CancerEventHandler::EndEvent(CANCER_EVERYTHING);

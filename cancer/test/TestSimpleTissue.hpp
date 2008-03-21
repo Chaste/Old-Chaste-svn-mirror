@@ -427,20 +427,22 @@ public:
         simple_tissue.rGetCellAtNodeIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
         simple_tissue.rGetCellAtNodeIndex(4).SetCellType(NECROTIC);
         simple_tissue.rGetCellAtNodeIndex(4).StartApoptosis();
+        simple_tissue.SetCellAncestorsToNodeIndices();
         
         std::string output_directory = "TestSimpleTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
                 
-        TS_ASSERT_THROWS_NOTHING(simple_tissue.CreateOutputFiles(output_directory, false, true, true, false, true));
+        TS_ASSERT_THROWS_NOTHING(simple_tissue.CreateOutputFiles(output_directory, false, true, true, false, true, true));
 
-        simple_tissue.WriteResultsToFiles(true, true, false, true);
+        simple_tissue.WriteResultsToFiles(true, true, false, true, true);
 
-        TS_ASSERT_THROWS_NOTHING(simple_tissue.CloseOutputFiles(true, true, false, true));
+        TS_ASSERT_THROWS_NOTHING(simple_tissue.CloseOutputFiles(true, true, false, true, true));
 
         // Compare output with saved files of what they should look like                           
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestSimpleTissueWriters/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizAncestors     cancer/test/data/TestSimpleTissueWriters/results.vizAncestors").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     cancer/test/data/TestSimpleTissueWriters/cellmutationstates.dat").c_str()), 0);
         
         // Test the GetCellMutationStateCount function
@@ -458,8 +460,7 @@ public:
         TS_ASSERT_EQUALS(cell_types[3], 1u);
         
         // For coverage
-        simple_tissue.SetCellAncestorsToNodeIndices();
-        TS_ASSERT_THROWS_NOTHING(simple_tissue.WriteResultsToFiles(true, false, false, true));
+        TS_ASSERT_THROWS_NOTHING(simple_tissue.WriteResultsToFiles(true, false, false, true, false));
     }
     
     void TestWritingCellCyclePhases()
@@ -515,9 +516,9 @@ public:
         std::string output_directory = "TestWritingCellCyclePhases";
         OutputFileHandler output_file_handler(output_directory, false); 
                
-        simple_tissue.CreateOutputFiles(output_directory, false, false, false, false, true);        
-        simple_tissue.WriteResultsToFiles(false, false, false, true);
-        simple_tissue.CloseOutputFiles(false, false, false, true);
+        simple_tissue.CreateOutputFiles(output_directory, false, false, false, false, true, false);        
+        simple_tissue.WriteResultsToFiles(false, false, false, true, false);
+        simple_tissue.CloseOutputFiles(false, false, false, true, false);
         
         // Test the GetCellCyclePhaseCount function
         c_vector<unsigned,5> cell_cycle_phases = simple_tissue.GetCellCyclePhaseCount();
