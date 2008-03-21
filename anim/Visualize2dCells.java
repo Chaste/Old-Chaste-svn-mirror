@@ -856,7 +856,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 	stress_values[row] = new double[memory_factor*numCells[row]][2];
                 }
                 cell_type[row] = new int[memory_factor*numCells[row]];
-                System.out.println("Reading in row " + row);
                         
                 for (int i=0; i<numCells[row]; i++) 
                 {
