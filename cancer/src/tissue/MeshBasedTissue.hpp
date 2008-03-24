@@ -105,8 +105,10 @@ public:
      * @param cells TissueCells corresponding to the nodes of the mesh.
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
-    MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>&, const std::vector<TissueCell>&,
-           bool deleteMesh=false);
+    MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>&, 
+                    const std::vector<TissueCell>&,
+                    bool deleteMesh=false, 
+                    bool validate=true);
 
     /**
      * Constructor for use by the de-serializer.

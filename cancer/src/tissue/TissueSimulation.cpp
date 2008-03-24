@@ -355,6 +355,8 @@ void TissueSimulation<DIM>::SetOutputCellVariables(bool outputCellVariables)
 
 /**
  * Set the simulation to output the cell cycle phases.
+ * 
+ * test for this is in TestCryptSimulation2d::TestStandardResultForArchivingTestsBelow().
  */
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetOutputCellCyclePhases(bool outputCellCyclePhases)

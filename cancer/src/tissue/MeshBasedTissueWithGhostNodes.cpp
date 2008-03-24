@@ -13,7 +13,7 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
      const std::vector<TissueCell>& rCells,
      const std::set<unsigned> ghostNodeIndices,
      bool deleteMesh)
-             : MeshBasedTissue<DIM>(rMesh, rCells, deleteMesh)
+             : MeshBasedTissue<DIM>(rMesh, rCells, deleteMesh, false)   // Do not call the base class Validate().
 {
     SetGhostNodes(ghostNodeIndices);
     this->mTissueContainsGhostNodes = true;

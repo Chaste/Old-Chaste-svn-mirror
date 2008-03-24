@@ -114,6 +114,13 @@ public:
         TS_ASSERT_THROWS_ANYTHING(MeshBasedTissue<2> tissue2(mesh, cells));
     }
     
+    /*
+     * Here we set up a test with 5 nodes, make a cell for each.
+     * We then set cell 0 to be associated with node 1 instead of node 0
+     * Validate throws an exception.
+     * We then set node 0 to be a ghost node
+     * Validate passes.
+     */
     void TestValidateMeshBasedTissueWithGhostNodes()
     {        
         // Create a simple mesh
@@ -126,9 +133,14 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         cells[0].SetNodeIndex(1);
-
+        
         // Fails as no cell or ghost correponding to node 0        
-        TS_ASSERT_THROWS_ANYTHING(MeshBasedTissueWithGhostNodes<2> tissue2(mesh, cells));
+        TS_ASSERT_THROWS_ANYTHING(MeshBasedTissueWithGhostNodes<2> tissue(mesh, cells));
+        
+        std::set<unsigned> ghost_nodes;
+        ghost_nodes.insert(0u);
+        // Passes as node 0 is a ghost node now.               
+        MeshBasedTissueWithGhostNodes<2> tissue2(mesh, cells, ghost_nodes);
     }
         
     // Test with ghost nodes, checking that the Iterator doesn't loop over ghost nodes

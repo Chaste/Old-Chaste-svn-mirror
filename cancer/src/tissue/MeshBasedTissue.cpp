@@ -8,7 +8,8 @@
 template<unsigned DIM>
 MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
                   const std::vector<TissueCell>& rCells,
-                  bool deleteMesh)
+                  bool deleteMesh,
+                  bool validate)
              : AbstractTissue<DIM>(rCells),
                mrMesh(rMesh),
                mpVoronoiTessellation(NULL),
@@ -22,7 +23,10 @@ MeshBasedTissue<DIM>::MeshBasedTissue(ConformingTetrahedralMesh<DIM, DIM>& rMesh
 
     this->mTissueContainsMesh = true;
     
-    Validate();
+    if (validate)
+    {
+        Validate();
+    }
 }
 
 template<unsigned DIM>

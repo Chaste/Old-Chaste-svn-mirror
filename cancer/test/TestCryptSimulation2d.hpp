@@ -414,7 +414,7 @@ public:
 
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer); 
-
+        simulator.SetOutputCellCyclePhases(true);// For coverage only...
         simulator.Solve();
         
         // These cells just divided and have been gradually moving apart.
@@ -434,6 +434,10 @@ public:
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
         WntConcentration::Destroy();
         
+        // Check writing of voronoi data
+        OutputFileHandler handler("Crypt2DPeriodicStandardResult",false);
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellcyclephases.dat";
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CellCyclePhaseOutput/cellcyclephases.dat").c_str()), 0);
     }
 
     // Testing Save 
