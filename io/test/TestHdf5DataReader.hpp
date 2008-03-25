@@ -12,7 +12,7 @@
 class TestHdf5DataReader : public CxxTest::TestSuite
 {
 private :
-    #define H5FILE_NAME "SDS.h5"
+    std::string h5file_name;
     #define DATASETNAME "IntArray"
 
     void WriteDataTestSimpleReadDirectlyWithHdf5()
@@ -21,6 +21,8 @@ private :
         int const NY = 6;
         int const RANK = 2;
 
+        h5file_name = OutputFileHandler::GetChasteTestOutputDirectory() + "SDS.h5";
+        
         hid_t       file, dataset;         /* file and dataset handles */
         hid_t       datatype, dataspace;   /* handles */
         hsize_t     dimsf[2];              /* dataset dimensions */
@@ -48,7 +50,7 @@ private :
          * default file creation properties, and default file
          * access properties.
          */
-        file = H5Fcreate(H5FILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+        file = H5Fcreate(h5file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     
         /*
          * Describe the size of the array and create the data space for fixed
@@ -138,7 +140,7 @@ public :
         /*
          * Open the file and the dataset.
          */
-        file = H5Fopen(H5FILE_NAME, H5F_ACC_RDONLY, H5P_DEFAULT);
+        file = H5Fopen(h5file_name.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
         dataset = H5Dopen(file, DATASETNAME);
     
         /*

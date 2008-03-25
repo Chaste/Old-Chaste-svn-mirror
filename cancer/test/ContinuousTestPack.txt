@@ -17,6 +17,7 @@ TestCylindrical2dMesh.hpp
 TestDiscreteSystemForceCalculator.hpp
 TestHoneycombMeshGenerator.hpp
 TestIngeWntSwatCellCycleOdeSystem.hpp
+TestLee2003WntSignallingOdeSystem.hpp
 TestMeineke2001SpringSystem.hpp
 TestMeinekeSpringSystemWithChemotaxis.hpp
 TestMeshBasedTissue.hpp

@@ -190,7 +190,6 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
     {
         VecGetSize(mNutrientSolution, &size_of_soln_previous_step);
     }
-    
     if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
     {
         // We make an initial guess which gets copied by the Solve method of
@@ -208,6 +207,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
     {
         if (mNutrientSolution)
         {
+            assert(size_of_soln_previous_step != 0);
             VecDestroy(mNutrientSolution);
         }
         mNutrientSolution = assembler.Solve();
@@ -296,10 +296,16 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     }
     else
     {
+        assert(mNutrientSolution == NULL);
+        /* Coarse mesh doesn't yet change size
+         * 
         if (mNutrientSolution)
         {
+            assert(0);
             VecDestroy(mNutrientSolution);
         }
+        *
+        */
         mNutrientSolution = assembler.Solve();
     }            
 

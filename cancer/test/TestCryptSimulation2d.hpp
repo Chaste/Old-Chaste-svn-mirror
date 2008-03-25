@@ -616,6 +616,15 @@ public:
         OutputFileHandler handler("Crypt2DWntMatureCells",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizvoronoi";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat").c_str()), 0);
+ 
+ 
+        //Cover writing logged cell
+        crypt.SetWriteVoronoiData(true, true);
+        simulator.SetEndTime(0.01 + 1./120.);
+        // Set the first cell to be logged
+        crypt.Begin()->SetLogged();
+        
+        simulator.Solve();
         
         WntConcentration::Destroy();
     }

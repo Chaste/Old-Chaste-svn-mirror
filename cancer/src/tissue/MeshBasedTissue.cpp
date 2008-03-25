@@ -407,7 +407,7 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
             double cell_perimeter = rGetVoronoiTessellation().GetFacePerimeter(node_index);
         
             *mpVoronoiFile << node_index << " " << x << " " << y << " " << cell_area << " " << cell_perimeter << " ";
-            
+			
             if (mFollowLoggedCell)
             {
                 break;
@@ -563,6 +563,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
         unsigned node_index = p_cell->GetNodeIndex();
         std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
         TissueCell& r_cell = this->rGetCellAtNodeIndex(node_index);
+#define COVERAGE_IGNORE //Debugging code.  Shouldn't fail under normal conditions 
         if (&r_cell != p_cell)
         {
             std::cout << "  Mismatch with tissue" << std::endl << std::flush;
@@ -577,6 +578,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
         }
     }
     assert(res);
+#undef COVERAGE_IGNORE 
     
     res = true;
     for (std::set<std::set<TissueCell*> >::iterator it1 = mMarkedSprings.begin();
@@ -596,6 +598,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
             unsigned node_index = p_cell->GetNodeIndex();
             std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
             
+#define COVERAGE_IGNORE //Debugging code.  Shouldn't fail under normal conditions 
             // Check cell is alive
             if (p_cell->IsDead())
             {
@@ -618,6 +621,7 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
                 res = false;
             }
         }
+#undef COVERAGE_IGNORE
     }
     assert(res);
 }
