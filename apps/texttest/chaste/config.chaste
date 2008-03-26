@@ -5,8 +5,7 @@ link_test_path:ChasteParameters.xml
 default_checkout:Chaste
 
 [collate_file]
-results_dat*:ChasteResults/results/Chaste*.dat
-results_info:ChasteResults/results/Chaste.info
+results_h5:ChasteResults/results/Chaste.h5
 mesh_node:ChasteResults/mesh/Slab.node
 mesh_face:ChasteResults/mesh/Slab.face
 mesh_ele:ChasteResults/mesh/Slab.ele
