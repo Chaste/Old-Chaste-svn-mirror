@@ -493,7 +493,7 @@ public:
     }
 
     // Testing Save 
-    void sTestSave() throw (Exception)
+    void TestSave() throw (Exception)
     {
         unsigned cells_across = 6;
         unsigned cells_up = 12;
