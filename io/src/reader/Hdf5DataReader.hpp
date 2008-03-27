@@ -29,8 +29,10 @@ private:
     hid_t mTimeDatasetId;
     hsize_t mNumberTimesteps;
     
-    std::map<std::string,unsigned>    mVariableToColumnIndex;  
-    std::map<std::string,std::string> mVariableToUnit;
+    std::map<std::string, unsigned>    mVariableToColumnIndex;  
+    std::vector<std::string>    mVariableNames;  
+    
+    std::map<std::string, std::string> mVariableToUnit;
     
 public:
 
@@ -41,6 +43,15 @@ public:
     void GetVariableOverNodes(Vec data, std::string variableName, unsigned timestep=0);
     
     std::vector<double> GetUnlimitedDimensionValues();
+    
+    std::vector<std::string> GetVariableNames()
+    {
+        return mVariableNames;
+    }
+    std::string GetUnit(std::string variableName)
+    {
+        return mVariableToUnit[variableName];
+    }
     
     void Close();
 

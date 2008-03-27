@@ -8,11 +8,95 @@
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
 #include "Hdf5DataWriter.hpp"
+#include "Hdf5DataReader.hpp"
 
 class TestHdf5DataWriter : public CxxTest::TestSuite
 {
 private:
-    Hdf5DataWriter *mpTestWriter;    
+    Hdf5DataWriter *mpTestWriter; 
+    bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1, bool makeAbsolute1,
+        std::string pathname2, std::string filename2, bool makeAbsolute2)
+    {
+        Hdf5DataReader reader1(pathname1, filename1, makeAbsolute1);
+        Hdf5DataReader reader2(pathname2, filename2, makeAbsolute2);
+        
+        //Check the variable names and units
+        std::vector<std::string> variable_names1=reader1.GetVariableNames();
+        std::vector<std::string> variable_names2=reader2.GetVariableNames();
+        unsigned num_vars=variable_names1.size();
+        if (num_vars != variable_names2.size())
+        {
+            std::cout<<"Number of variables "<<variable_names1.size()<<" and "<<variable_names2.size()<<" don't match\n";
+            return false;
+        }
+        for (unsigned var=0; var<num_vars; var++)
+        {
+            std::string var_name=variable_names1[var];
+            if (var_name != variable_names2[var])
+            {
+                std::cout<<"Variable names "<<var_name<< " and "<<
+                    variable_names2[var]<<" don't match\n";
+                   return false;
+            }
+            if (reader1.GetUnit(var_name) != reader2.GetUnit(var_name))
+            {
+                std::cout<<"Units names "<<reader1.GetUnit(var_name)<< " and "<<
+                    reader2.GetUnit(var_name)<<" don't match\n";
+                return false;
+            }
+        }
+        //Check the timestep vectors
+        std::vector<double> times1=reader1.GetUnlimitedDimensionValues();
+        std::vector<double> times2=reader2.GetUnlimitedDimensionValues();
+        
+        if (times1.size() != times2.size())
+        {
+            std::cout<<"Time step sizes "<<times1.size()<<" and "<<times2.size()<<" don't match\n";
+            return false;
+        }
+        
+        for (unsigned timestep=0; timestep<times1.size(); timestep++)
+        {
+            if (times1[timestep]!=times2[timestep])
+            {
+                   std::cout<<"Time steps "<<times1[timestep]<<" and "<<times2[timestep]<<" don't match\n";
+                   return false;
+            }
+        }
+        
+        Vec data1=DistributedVector::CreateVec();
+        Vec data2=DistributedVector::CreateVec();
+        
+        for (unsigned timestep=0; timestep<times1.size(); timestep++)
+        {
+            for (unsigned var=0; var<num_vars; var++)
+            {
+                
+                PetscTruth is_equal;
+                reader1.GetVariableOverNodes(data1, variable_names1[var], timestep);
+                reader2.GetVariableOverNodes(data2, variable_names2[var], timestep);
+                VecEqual(data1, data2, &is_equal);
+                /*
+                 * 
+                std::cout<<"timestep "<<timestep<< "variable_name "<< variable_names1[var]<<"\n";
+                std::cout<<"First------\n";
+                VecView(data1, 0);             
+                std::cout<<"Second-----\n";
+                VecView(data1, 0);             
+                */
+                
+                if (is_equal != PETSC_TRUE)
+                {
+                    return false;
+                }
+            }
+        }
+       VecDestroy(data1);
+       VecDestroy(data2);
+      
+       return true;
+    }
+           
     
 public:
     void TestSimpleParallelWriteDirectlyWithHdf5()
@@ -254,19 +338,23 @@ public:
         
         writer.Close();
         
-        if(PetscTools::AmMaster())
-        {
-            // call h5dump to take the binary hdf5 output file and print it
-            // to a text file. Note that the first line of the txt file would
-            // be the directory it has been printed to, but is this line is
-            // removed by piping the output through sed to delete the first line  
-            OutputFileHandler handler("hdf5",false);
-            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_column.h5";
-            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_column_dumped.txt";
-            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
-            
-            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_multi_column_dumped.txt").c_str()), 0);
-        }
+//        
+//        if(PetscTools::AmMaster())
+//        {
+//            // call h5dump to take the binary hdf5 output file and print it
+//            // to a text file. Note that the first line of the txt file would
+//            // be the directory it has been printed to, but is this line is
+//            // removed by piping the output through sed to delete the first line  
+//            OutputFileHandler handler("hdf5",false);
+//            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_column.h5";
+//            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_multi_column_dumped.txt";
+//            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
+//            
+//            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_multi_column_dumped.txt").c_str()), 0);
+//        }
+//       
+        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_multi_column", true,
+            "io/test/data", "hdf5_test_multi_column", false));
 
         VecDestroy(petsc_data_1);
         VecDestroy(petsc_data_2);
@@ -323,20 +411,22 @@ public:
         
         writer.Close();
         
-        if(PetscTools::AmMaster())
-        {
-            // call h5dump to take the binary hdf5 output file and print it
-            // to a text file. Note that the first line of the txt file would
-            // be the directory it has been printed to, but is this line is
-            // removed by piping the output through sed to delete the first line  
-            OutputFileHandler handler("hdf5",false);
-            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format.h5";
-            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_dumped.txt";
-            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
+//        if(PetscTools::AmMaster())
+//        {
+//            // call h5dump to take the binary hdf5 output file and print it
+//            // to a text file. Note that the first line of the txt file would
+//            // be the directory it has been printed to, but is this line is
+//            // removed by piping the output through sed to delete the first line  
+//            OutputFileHandler handler("hdf5",false);
+//            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format.h5";
+//            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_dumped.txt";
+//            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
+//            
+//            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_dumped.txt").c_str()), 0);
+//        }
+        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format", true,
+            "io/test/data", "hdf5_test_full_format", false));
             
-            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_dumped.txt").c_str()), 0);
-        }
-
         VecDestroy(petsc_data_1);
         VecDestroy(petsc_data_2);
         VecDestroy(petsc_data_3);
@@ -414,6 +504,9 @@ public:
             
             TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_striped_dumped.txt").c_str()), 0);
         }
+//\todo Requires GetStripedVector
+//        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_striped", true,
+//            "io/test/data", "hdf5_test_full_format_striped", false));
 
         VecDestroy(node_number);
         VecDestroy(petsc_data_long);

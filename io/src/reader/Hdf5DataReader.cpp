@@ -30,7 +30,7 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     
     if (mFileId <=0 )
     {
-        EXCEPTION("Hdf5DataReader could not open file.");
+        EXCEPTION("Hdf5DataReader could not open "+file_name);
     }
     mVariablesDatasetId = H5Dopen(mFileId, "Data");
     
@@ -84,6 +84,7 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
         std::string column_name = column_name_unit.substr(0, name_length);
         std::string column_unit = column_name_unit.substr(name_length+1, unit_length);
         
+        mVariableNames.push_back(column_name);
         mVariableToColumnIndex[column_name] = index;
         mVariableToUnit[column_name] = column_unit;
     }   
@@ -187,14 +188,22 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data, std::string variableName, un
 
 std::vector<double> Hdf5DataReader::GetUnlimitedDimensionValues()
 {
+    // Data buffer to return
+    std::vector<double> ret(mNumberTimesteps);
+
+    if (!mIsUnlimitedDimensionSet)
+    {
+        //Fake it
+        assert(mNumberTimesteps==1);
+        ret[0]=0.0;
+        return ret;
+    }    
     // Define hyperslab in the dataset. 
     hid_t time_dataspace = H5Dget_space(mTimeDatasetId);
 
     // Define a simple memory dataspace
     hid_t memspace = H5Screate_simple(1, &mNumberTimesteps ,NULL);   
 
-    // Data buffer to return
-    std::vector<double> ret(mNumberTimesteps);
 
     // Read data from hyperslab in the file into the hyperslab in memory 
     H5Dread(mTimeDatasetId, H5T_NATIVE_DOUBLE, memspace, time_dataspace, H5P_DEFAULT, &ret[0]);

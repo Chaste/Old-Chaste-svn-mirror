@@ -300,6 +300,15 @@ public:
         WriteMultiStepData();
         
         Hdf5DataReader reader("hdf5_reader", "hdf5_test_complete_format");
+        
+        std::vector<std::string> variable_names=reader.GetVariableNames();       
+        TS_ASSERT_EQUALS(variable_names.size(), 3U);
+        TS_ASSERT_EQUALS(variable_names[0], "Node");
+        TS_ASSERT_EQUALS(reader.GetUnit("Node"), "dimensionless");
+        TS_ASSERT_EQUALS(variable_names[1], "I_K");
+        TS_ASSERT_EQUALS(reader.GetUnit("I_K"), "milliamperes");
+        TS_ASSERT_EQUALS(variable_names[2], "I_Na");
+        TS_ASSERT_EQUALS(reader.GetUnit("I_Na"), "milliamperes");
 
         for (unsigned node_index=0; node_index<number_nodes; node_index++)
         {        
@@ -382,6 +391,11 @@ public:
         writer.Close();
      
         Hdf5DataReader reader("hdf5_reader", "hdf5_test_overtime_exceptions");
+        
+        //Unlimited dimension has a default return value
+        std::vector<double> times = reader.GetUnlimitedDimensionValues();
+        TS_ASSERT_EQUALS(times.size(),1U);
+        TS_ASSERT_EQUALS(times[0],0.0);
         
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverTime("Node", 99/*node*/));
        
