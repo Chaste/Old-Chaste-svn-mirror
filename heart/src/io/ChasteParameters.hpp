@@ -200,11 +200,15 @@ namespace xml_schema
 //
 class domain_type;
 class ionic_model_type;
+class anisotropic_type;
 class point_type;
 class box_type;
 class stimulus_type;
 class cell_heterogeneity_type;
 class conductivity_heterogeneity_type;
+class slab_type;
+class mesh_type;
+class conductivities_type;
 class chaste_parameters_type;
 
 #include <memory>    // std::auto_ptr
@@ -322,6 +326,58 @@ class ionic_model_type: public ::xml_schema::string
   static const _xsd_ionic_model_type _xsd_ionic_model_type_indexes_[5];
 };
 
+class anisotropic_type: public ::xml_schema::string
+{
+  public:
+  enum _xsd_anisotropic_type
+  {
+    Orthotropic,
+    Axisymmetric
+  };
+
+  anisotropic_type (_xsd_anisotropic_type);
+
+  anisotropic_type (const ::xml_schema::string&);
+
+  anisotropic_type (const ::xercesc::DOMElement&,
+                    ::xml_schema::flags = 0,
+                    ::xml_schema::type* = 0);
+
+  anisotropic_type (const ::xercesc::DOMAttr&,
+                    ::xml_schema::flags = 0,
+                    ::xml_schema::type* = 0);
+
+  anisotropic_type (const ::std::basic_string< char >&,
+                    const ::xercesc::DOMElement*,
+                    ::xml_schema::flags = 0,
+                    ::xml_schema::type* = 0);
+
+  anisotropic_type (const anisotropic_type&,
+                    ::xml_schema::flags = 0,
+                    ::xml_schema::type* = 0);
+
+  virtual anisotropic_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  anisotropic_type&
+  operator= (_xsd_anisotropic_type);
+
+  virtual
+  operator _xsd_anisotropic_type () const
+  {
+    return _xsd_anisotropic_type_convert ();
+  }
+
+  protected:
+  _xsd_anisotropic_type
+  _xsd_anisotropic_type_convert () const;
+
+  public:
+  static const char* const _xsd_anisotropic_type_literals_[2];
+  static const _xsd_anisotropic_type _xsd_anisotropic_type_indexes_[2];
+};
+
 class point_type: public ::xml_schema::type
 {
   public:
@@ -356,20 +412,16 @@ class point_type: public ::xml_schema::type
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
-    typedef ::xsd::cxx::tree::optional< type > container;
   };
 
-  const Y::container&
+  const Y::type&
   Y () const;
 
-  Y::container&
+  Y::type&
   Y ();
 
   void
   Y (const Y::type&);
-
-  void
-  Y (const Y::container&);
 
   // Z
   // 
@@ -378,25 +430,23 @@ class point_type: public ::xml_schema::type
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
-    typedef ::xsd::cxx::tree::optional< type > container;
   };
 
-  const Z::container&
+  const Z::type&
   Z () const;
 
-  Z::container&
+  Z::type&
   Z ();
 
   void
   Z (const Z::type&);
 
-  void
-  Z (const Z::container&);
-
   // Constructors.
   //
   public:
-  point_type (const X::type&);
+  point_type (const X::type&,
+              const Y::type&,
+              const Z::type&);
 
   point_type (const ::xercesc::DOMElement&,
               ::xml_schema::flags = 0,
@@ -417,8 +467,8 @@ class point_type: public ::xml_schema::type
   parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
 
   ::xsd::cxx::tree::one< X::type > _xsd_X_;
-  ::xsd::cxx::tree::optional< Y::type > _xsd_Y_;
-  ::xsd::cxx::tree::optional< Z::type > _xsd_Z_;
+  ::xsd::cxx::tree::one< Y::type > _xsd_Y_;
+  ::xsd::cxx::tree::one< Z::type > _xsd_Z_;
 };
 
 class box_type: public ::xml_schema::type
@@ -828,74 +878,14 @@ class conductivity_heterogeneity_type: public ::xml_schema::type
   ::xsd::cxx::tree::one< Location::type > _xsd_Location_;
 };
 
-class chaste_parameters_type: public ::xml_schema::type
+class slab_type: public ::xml_schema::type
 {
   public:
 
-  struct _xsd_chaste_parameters_type
+  struct _xsd_slab_type
   {
     typedef ::xml_schema::type base_;
   };
-
-  // SimulationDuration
-  // 
-  public:
-  struct SimulationDuration
-  {
-    typedef ::xml_schema::decimal type;
-    typedef ::xsd::cxx::tree::traits< type, char > traits;
-  };
-
-  const SimulationDuration::type&
-  SimulationDuration () const;
-
-  SimulationDuration::type&
-  SimulationDuration ();
-
-  void
-  SimulationDuration (const SimulationDuration::type&);
-
-  // Domain
-  // 
-  public:
-  struct Domain
-  {
-    typedef ::domain_type type;
-    typedef ::xsd::cxx::tree::traits< type, char > traits;
-  };
-
-  const Domain::type&
-  Domain () const;
-
-  Domain::type&
-  Domain ();
-
-  void
-  Domain (const Domain::type&);
-
-  void
-  Domain (::std::auto_ptr< Domain::type >);
-
-  // IonicModel
-  // 
-  public:
-  struct IonicModel
-  {
-    typedef ::ionic_model_type type;
-    typedef ::xsd::cxx::tree::traits< type, char > traits;
-  };
-
-  const IonicModel::type&
-  IonicModel () const;
-
-  IonicModel::type&
-  IonicModel ();
-
-  void
-  IonicModel (const IonicModel::type&);
-
-  void
-  IonicModel (::std::auto_ptr< IonicModel::type >);
 
   // SlabX
   // 
@@ -969,59 +959,435 @@ class chaste_parameters_type: public ::xml_schema::type
   void
   InterNodeSpace (const InterNodeSpace::type&);
 
-  // LongitudinalConductivity
+  // Constructors.
+  //
+  public:
+  slab_type (const SlabX::type&,
+             const SlabY::type&,
+             const SlabZ::type&,
+             const InterNodeSpace::type&);
+
+  slab_type (const ::xercesc::DOMElement&,
+             ::xml_schema::flags = 0,
+             ::xml_schema::type* = 0);
+
+  slab_type (const slab_type&,
+             ::xml_schema::flags = 0,
+             ::xml_schema::type* = 0);
+
+  virtual slab_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< SlabX::type > _xsd_SlabX_;
+  ::xsd::cxx::tree::one< SlabY::type > _xsd_SlabY_;
+  ::xsd::cxx::tree::one< SlabZ::type > _xsd_SlabZ_;
+  ::xsd::cxx::tree::one< InterNodeSpace::type > _xsd_InterNodeSpace_;
+};
+
+class mesh_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_mesh_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // Slab
   // 
   public:
-  struct LongitudinalConductivity
+  struct Slab
+  {
+    typedef ::slab_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::optional< type > container;
+  };
+
+  const Slab::container&
+  Slab () const;
+
+  Slab::container&
+  Slab ();
+
+  void
+  Slab (const Slab::type&);
+
+  void
+  Slab (const Slab::container&);
+
+  void
+  Slab (::std::auto_ptr< Slab::type >);
+
+  // LoadMesh
+  // 
+  public:
+  struct LoadMesh
+  {
+    struct _xsd_LoadMesh_
+    {
+      class LoadMesh: public ::xml_schema::type
+      {
+        public:
+
+        struct _xsd_LoadMesh
+        {
+          typedef ::xml_schema::type base_;
+        };
+
+        // name
+        // 
+        public:
+        struct name
+        {
+          typedef ::xml_schema::string type;
+          typedef ::xsd::cxx::tree::traits< type, char > traits;
+        };
+
+        const name::type&
+        name () const;
+
+        name::type&
+        name ();
+
+        void
+        name (const name::type&);
+
+        void
+        name (::std::auto_ptr< name::type >);
+
+        // media
+        // 
+        public:
+        struct media
+        {
+          typedef ::anisotropic_type type;
+          typedef ::xsd::cxx::tree::traits< type, char > traits;
+
+          static const type&
+          default_value ();
+
+          private:
+          static const type default_value_;
+        };
+
+        const media::type&
+        media () const;
+
+        media::type&
+        media ();
+
+        void
+        media (const media::type&);
+
+        void
+        media (::std::auto_ptr< media::type >);
+
+        // Constructors.
+        //
+        public:
+        LoadMesh (const name::type&);
+
+        LoadMesh (const ::xercesc::DOMElement&,
+                  ::xml_schema::flags = 0,
+                  ::xml_schema::type* = 0);
+
+        LoadMesh (const LoadMesh&,
+                  ::xml_schema::flags = 0,
+                  ::xml_schema::type* = 0);
+
+        virtual LoadMesh*
+        _clone (::xml_schema::flags = 0,
+                ::xml_schema::type* = 0) const;
+
+        // Implementation.
+        //
+        private:
+        void
+        parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+        ::xsd::cxx::tree::one< name::type > _xsd_name_;
+        ::xsd::cxx::tree::one< media::type > _xsd_media_;
+      };
+    };
+
+    typedef _xsd_LoadMesh_::LoadMesh type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::optional< type > container;
+  };
+
+  const LoadMesh::container&
+  LoadMesh () const;
+
+  LoadMesh::container&
+  LoadMesh ();
+
+  void
+  LoadMesh (const LoadMesh::type&);
+
+  void
+  LoadMesh (const LoadMesh::container&);
+
+  void
+  LoadMesh (::std::auto_ptr< LoadMesh::type >);
+
+  // Constructors.
+  //
+  public:
+  mesh_type ();
+
+  mesh_type (const ::xercesc::DOMElement&,
+             ::xml_schema::flags = 0,
+             ::xml_schema::type* = 0);
+
+  mesh_type (const mesh_type&,
+             ::xml_schema::flags = 0,
+             ::xml_schema::type* = 0);
+
+  virtual mesh_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::optional< Slab::type > _xsd_Slab_;
+  ::xsd::cxx::tree::optional< LoadMesh::type > _xsd_LoadMesh_;
+};
+
+class conductivities_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_conductivities_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // longi
+  // 
+  public:
+  struct longi
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const LongitudinalConductivity::type&
-  LongitudinalConductivity () const;
+  const longi::type&
+  longi () const;
 
-  LongitudinalConductivity::type&
-  LongitudinalConductivity ();
+  longi::type&
+  longi ();
 
   void
-  LongitudinalConductivity (const LongitudinalConductivity::type&);
+  longi (const longi::type&);
 
-  // TransverseConductivity
+  // trans
   // 
   public:
-  struct TransverseConductivity
+  struct trans
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const TransverseConductivity::type&
-  TransverseConductivity () const;
+  const trans::type&
+  trans () const;
 
-  TransverseConductivity::type&
-  TransverseConductivity ();
+  trans::type&
+  trans ();
 
   void
-  TransverseConductivity (const TransverseConductivity::type&);
+  trans (const trans::type&);
 
-  // NormalConductivity
+  // normal
   // 
   public:
-  struct NormalConductivity
+  struct normal
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const NormalConductivity::type&
-  NormalConductivity () const;
+  const normal::type&
+  normal () const;
 
-  NormalConductivity::type&
-  NormalConductivity ();
+  normal::type&
+  normal ();
 
   void
-  NormalConductivity (const NormalConductivity::type&);
+  normal (const normal::type&);
+
+  // Constructors.
+  //
+  public:
+  conductivities_type (const longi::type&,
+                       const trans::type&,
+                       const normal::type&);
+
+  conductivities_type (const ::xercesc::DOMElement&,
+                       ::xml_schema::flags = 0,
+                       ::xml_schema::type* = 0);
+
+  conductivities_type (const conductivities_type&,
+                       ::xml_schema::flags = 0,
+                       ::xml_schema::type* = 0);
+
+  virtual conductivities_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< longi::type > _xsd_longi_;
+  ::xsd::cxx::tree::one< trans::type > _xsd_trans_;
+  ::xsd::cxx::tree::one< normal::type > _xsd_normal_;
+};
+
+class chaste_parameters_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_chaste_parameters_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // SimulationDuration
+  // 
+  public:
+  struct SimulationDuration
+  {
+    typedef ::xml_schema::decimal type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const SimulationDuration::type&
+  SimulationDuration () const;
+
+  SimulationDuration::type&
+  SimulationDuration ();
+
+  void
+  SimulationDuration (const SimulationDuration::type&);
+
+  // Domain
+  // 
+  public:
+  struct Domain
+  {
+    typedef ::domain_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Domain::type&
+  Domain () const;
+
+  Domain::type&
+  Domain ();
+
+  void
+  Domain (const Domain::type&);
+
+  void
+  Domain (::std::auto_ptr< Domain::type >);
+
+  // IonicModel
+  // 
+  public:
+  struct IonicModel
+  {
+    typedef ::ionic_model_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const IonicModel::type&
+  IonicModel () const;
+
+  IonicModel::type&
+  IonicModel ();
+
+  void
+  IonicModel (const IonicModel::type&);
+
+  void
+  IonicModel (::std::auto_ptr< IonicModel::type >);
+
+  // Mesh
+  // 
+  public:
+  struct Mesh
+  {
+    typedef ::mesh_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Mesh::type&
+  Mesh () const;
+
+  Mesh::type&
+  Mesh ();
+
+  void
+  Mesh (const Mesh::type&);
+
+  void
+  Mesh (::std::auto_ptr< Mesh::type >);
+
+  // IntracellularConductivities
+  // 
+  public:
+  struct IntracellularConductivities
+  {
+    typedef ::conductivities_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const IntracellularConductivities::type&
+  IntracellularConductivities () const;
+
+  IntracellularConductivities::type&
+  IntracellularConductivities ();
+
+  void
+  IntracellularConductivities (const IntracellularConductivities::type&);
+
+  void
+  IntracellularConductivities (::std::auto_ptr< IntracellularConductivities::type >);
+
+  // ExtracellularConductivities
+  // 
+  public:
+  struct ExtracellularConductivities
+  {
+    typedef ::conductivities_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const ExtracellularConductivities::type&
+  ExtracellularConductivities () const;
+
+  ExtracellularConductivities::type&
+  ExtracellularConductivities ();
+
+  void
+  ExtracellularConductivities (const ExtracellularConductivities::type&);
+
+  void
+  ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type >);
 
   // Stimulus
   // 
@@ -1134,13 +1500,9 @@ class chaste_parameters_type: public ::xml_schema::type
   chaste_parameters_type (const SimulationDuration::type&,
                           const Domain::type&,
                           const IonicModel::type&,
-                          const SlabX::type&,
-                          const SlabY::type&,
-                          const SlabZ::type&,
-                          const InterNodeSpace::type&,
-                          const LongitudinalConductivity::type&,
-                          const TransverseConductivity::type&,
-                          const NormalConductivity::type&,
+                          const Mesh::type&,
+                          const IntracellularConductivities::type&,
+                          const ExtracellularConductivities::type&,
                           const OutputDirectory::type&,
                           const MeshOutputDirectory::type&);
 
@@ -1165,13 +1527,9 @@ class chaste_parameters_type: public ::xml_schema::type
   ::xsd::cxx::tree::one< SimulationDuration::type > _xsd_SimulationDuration_;
   ::xsd::cxx::tree::one< Domain::type > _xsd_Domain_;
   ::xsd::cxx::tree::one< IonicModel::type > _xsd_IonicModel_;
-  ::xsd::cxx::tree::one< SlabX::type > _xsd_SlabX_;
-  ::xsd::cxx::tree::one< SlabY::type > _xsd_SlabY_;
-  ::xsd::cxx::tree::one< SlabZ::type > _xsd_SlabZ_;
-  ::xsd::cxx::tree::one< InterNodeSpace::type > _xsd_InterNodeSpace_;
-  ::xsd::cxx::tree::one< LongitudinalConductivity::type > _xsd_LongitudinalConductivity_;
-  ::xsd::cxx::tree::one< TransverseConductivity::type > _xsd_TransverseConductivity_;
-  ::xsd::cxx::tree::one< NormalConductivity::type > _xsd_NormalConductivity_;
+  ::xsd::cxx::tree::one< Mesh::type > _xsd_Mesh_;
+  ::xsd::cxx::tree::one< IntracellularConductivities::type > _xsd_IntracellularConductivities_;
+  ::xsd::cxx::tree::one< ExtracellularConductivities::type > _xsd_ExtracellularConductivities_;
   ::xsd::cxx::tree::sequence< Stimulus::type > _xsd_Stimulus_;
   ::xsd::cxx::tree::sequence< CellHeterogeneity::type > _xsd_CellHeterogeneity_;
   ::xsd::cxx::tree::sequence< ConductivityHeterogeneity::type > _xsd_ConductivityHeterogeneity_;

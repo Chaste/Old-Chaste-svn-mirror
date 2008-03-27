@@ -25,7 +25,7 @@
 #include "FaberRudy2000Version3.cpp"
 #include "FaberRudy2000Version3Optimised.hpp"
 
-#include "ElementwiseConductivityTensors.hpp"
+#include "OrthotropicConductivityTensors.hpp"
 
 // Path to the parameter file
 std::string parameter_file;
@@ -37,9 +37,11 @@ double slab_y = -1;          // mm
 double slab_z = -1;          // mm
 double inter_node_space = -1;    // mm
 
-double intra_x_cond = 1.75;
-double intra_y_cond = 1.75;
-double intra_z_cond = 1.75;
+double intra_x_cond;
+double intra_y_cond;
+double intra_z_cond;
+
+std::string mesh_file_prefix;
 
 std::string  output_directory = "/";      // Location to put simulation results
 std::string  mesh_output_directory = "/"; // Location for generated mesh files
@@ -56,6 +58,8 @@ std::vector<ChasteCuboid> cell_heterogeneity_areas;
 std::vector< c_vector<double,3> > specific_conductivities;
 std::vector<ChasteCuboid> conductivity_heterogeneity_areas;
 
+bool create_slab;
+bool load_mesh;
 
 // Parameters fixed at compile time
 const std::string  output_filename_prefix = "Run";
@@ -152,13 +156,25 @@ void ReadParametersFromFile()
     {
         std::auto_ptr<chaste_parameters_type> p_params(ChasteParameters(parameter_file));
         simulation_duration = p_params->SimulationDuration();
-        slab_x = p_params->SlabX();     // mm
-        slab_y = p_params->SlabY();   // mm
-        slab_z = p_params->SlabZ();   // mm
-        inter_node_space = p_params->InterNodeSpace(); // mm
-        intra_x_cond = p_params->LongitudinalConductivity();
-        intra_y_cond = p_params->TransverseConductivity();
-        intra_z_cond = p_params->NormalConductivity();                
+        
+        create_slab = p_params->Mesh().Slab() != NULL;
+        load_mesh = p_params->Mesh().LoadMesh() != NULL; 
+        
+        if (create_slab)
+        {
+            slab_x = p_params->Mesh().Slab()->SlabX();     // mm
+            slab_y = p_params->Mesh().Slab()->SlabY();   // mm
+            slab_z = p_params->Mesh().Slab()->SlabZ();   // mm
+            inter_node_space = p_params->Mesh().Slab()->InterNodeSpace(); // mm
+        }
+        else // (load_mesh)
+        {
+            mesh_file_prefix = p_params->Mesh().LoadMesh()->name();
+        }
+        
+        intra_x_cond = p_params->IntracellularConductivities().longi();
+        intra_y_cond = p_params->IntracellularConductivities().trans();
+        intra_z_cond = p_params->IntracellularConductivities().normal();                
         output_directory = p_params->OutputDirectory();
         mesh_output_directory = p_params->MeshOutputDirectory();
         domain = p_params->Domain();
@@ -174,15 +190,13 @@ void ReadParametersFromFile()
             point_type point_a = stimulus.Location().CornerA();
             point_type point_b = stimulus.Location().CornerB();
             
-            // method get() should be called for Y and Z since they have been defined optional in the schema
-            // {Y,Z}.set() can be called to know if they have been defined
             ChastePoint<3> chaste_point_a (scale_factor* point_a.X(), 
-                                           scale_factor*point_a.Y().get(),
-                                           scale_factor*point_a.Z().get());
+                                           scale_factor* point_a.Y(),
+                                           scale_factor* point_a.Z());
 
-            ChastePoint<3> chaste_point_b (scale_factor*point_b.X(),
-                                           scale_factor*point_b.Y().get(),
-                                           scale_factor*point_b.Z().get());
+            ChastePoint<3> chaste_point_b (scale_factor* point_b.X(),
+                                           scale_factor* point_b.Y(),
+                                           scale_factor* point_b.Z());
                         
             stimuli_applied.push_back( InitialStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
             stimuled_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
@@ -201,12 +215,12 @@ void ReadParametersFromFile()
             // method get() should be called for Y and Z since they have been defined optional in the schema
             // {Y,Z}.set() can be called to know if they have been defined
             ChastePoint<3> chaste_point_a (scale_factor* point_a.X(), 
-                                           scale_factor*point_a.Y().get(),
-                                           scale_factor*point_a.Z().get());
+                                           scale_factor* point_a.Y(),
+                                           scale_factor* point_a.Z());
 
-            ChastePoint<3> chaste_point_b (scale_factor*point_b.X(),
-                                           scale_factor*point_b.Y().get(),
-                                           scale_factor*point_b.Z().get());
+            ChastePoint<3> chaste_point_b (scale_factor* point_b.X(),
+                                           scale_factor* point_b.Y(),
+                                           scale_factor* point_b.Z());
                         
             scale_factor_gks.push_back (ht.ScaleFactorGks());
             scale_factor_ito.push_back (ht.ScaleFactorIto());                                    
@@ -224,20 +238,57 @@ void ReadParametersFromFile()
 }
 
 template<unsigned PROBLEM_DIM>
-void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem,
-             ConformingTetrahedralMesh<3,3>& rMesh)
+void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem)
 {
-    rProblem.SetMesh(&rMesh);
     rProblem.SetEndTime(simulation_duration);   // ms
-    rProblem.SetPdeTimeStep(pde_time_step); // ms
-    rProblem.SetPrintingTimeStep(printing_time_step); // ms
+    rProblem.SetPdeTimeStepAndPrintEveryNthTimeStep(pde_time_step, (int) (printing_time_step/pde_time_step));
     rProblem.SetOutputDirectory(output_directory+"/results");
     rProblem.SetOutputFilenamePrefix("Chaste");
     rProblem.SetCallChaste2Meshalyzer(false);
     
     //rProblem.SetFibreOrientation("constant_11520.fibres");
-    rProblem.SetIntracellularConductivities(Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond));     
+    rProblem.SetIntracellularConductivities(Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond));
 }
+
+
+void CreateSlab(ConformingTetrahedralMesh<3,3>* pMesh)
+{
+    // construct mesh. Note that mesh is measured in cm
+    unsigned slab_nodes_x = (unsigned)round(slab_x/inter_node_space);
+    unsigned slab_nodes_y = (unsigned)round(slab_y/inter_node_space);
+    unsigned slab_nodes_z = (unsigned)round(slab_z/inter_node_space);        
+   
+    pMesh->ConstructCuboid(slab_nodes_x,
+                         slab_nodes_y,
+                         slab_nodes_z,
+                         true);
+    // place at origin
+    pMesh->Translate(-(double)slab_nodes_x/2.0,
+                   -(double)slab_nodes_y/2.0,
+                   -(double)slab_nodes_z/2.0);
+    // scale
+    double mesh_scale_factor = inter_node_space*scale_factor;
+    pMesh->Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
+
+    OutputFileHandler handler(output_directory,false);
+    std::string output_dir_full_path = handler.GetOutputDirectoryFullPath();
+
+
+    // write out the mesh that was used if we are the master process
+    if (PetscTools::AmMaster())
+    {
+        // Meshalyzer output format
+        //MeshalyzerMeshWriter<3,3> mesh_writer(output_directory+"/mesh", "Slab", false);
+        //mesh_writer.WriteFilesUsingMesh(mesh);
+        // Triangles output format
+        TrianglesMeshWriter<3,3> triangles_writer(output_directory+"/mesh", "Slab", false);
+        triangles_writer.WriteFilesUsingMesh(*pMesh);
+        
+        // copy input parameters file to results directory
+        //system(("cp " + parameter_file + " " + output_dir_full_path).c_str());
+    }    
+}
+
 
 int main(int argc, char *argv[]) 
 {
@@ -257,74 +308,62 @@ int main(int argc, char *argv[])
         }
         
         parameter_file = std::string(argv[1]);
-
         ReadParametersFromFile();
-        
-        // construct mesh. Note that mesh is measured in cm
-        unsigned slab_nodes_x = (unsigned)round(slab_x/inter_node_space);
-        unsigned slab_nodes_y = (unsigned)round(slab_y/inter_node_space);
-        unsigned slab_nodes_z = (unsigned)round(slab_z/inter_node_space);        
-       
+                
+        ChasteSlabCellFactory cell_factory;       
         ConformingTetrahedralMesh<3,3> mesh;
-        mesh.ConstructCuboid(slab_nodes_x,
-                             slab_nodes_y,
-                             slab_nodes_z,
-                             true);
-        // place at origin
-        mesh.Translate(-(double)slab_nodes_x/2.0,
-                       -(double)slab_nodes_y/2.0,
-                       -(double)slab_nodes_z/2.0);
-        // scale
-        double mesh_scale_factor = inter_node_space*scale_factor;
-        mesh.Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
-
-        OutputFileHandler handler(output_directory,false);
-        std::string output_dir_full_path = handler.GetOutputDirectoryFullPath();
-
-    
-        // write out the mesh that was used if we are the master process
-        if (PetscTools::AmMaster())
-        {
-            // Meshalyzer output format
-            //MeshalyzerMeshWriter<3,3> mesh_writer(output_directory+"/mesh", "Slab", false);
-            //mesh_writer.WriteFilesUsingMesh(mesh);
-            // Triangles output format
-            TrianglesMeshWriter<3,3> triangles_writer(output_directory+"/mesh", "Slab", false);
-            triangles_writer.WriteFilesUsingMesh(mesh);
-            
-            // copy input parameters file to results directory
-            //system(("cp " + parameter_file + " " + output_dir_full_path).c_str());
-        }
-    
-        ChasteSlabCellFactory cell_factory;
-        cell_factory.SetMesh( &mesh );
         
         switch(domain)
         {
             case domain_type::Mono :
-            {
+            {            
                 MonodomainProblem<3> mono_problem( &cell_factory );
-                SetupProblem(mono_problem, mesh);    
 
-                mono_problem.Initialise();  
+                SetupProblem(mono_problem);
+                                
+                if (create_slab)
+                {
+                    CreateSlab(&mesh);                               
+                    mono_problem.SetMesh(&mesh);     
+                }
+                else // (load_mesh) 
+                {
+                    mono_problem.SetMeshFilename("");
+                }
+                
+                mono_problem.Initialise();
                 mono_problem.Solve();
+        
                 break;
             }
+            
             case domain_type::Bi :
             {
-                BidomainProblem<3> bi_problem( &cell_factory );
-                SetupProblem(bi_problem, mesh);
-    
+                BidomainProblem<3> bi_problem( &cell_factory );                
+
+                SetupProblem(bi_problem);
                 bi_problem.SetExtracellularConductivities(Create_c_vector(6.2, 2.4, 2.4));
-
+                                
+                if (create_slab)
+                {   
+                    CreateSlab(&mesh);                            
+                    bi_problem.SetMesh(&mesh);     
+                }
+                else // (load_mesh) 
+                {
+                    bi_problem.SetMeshFilename("");
+                }
+                
                 bi_problem.Initialise();
-                bi_problem.Solve();            
-                break;
-            }    
-            default:
-                EXCEPTION("Unknown domain type!!!");
-        }
+                bi_problem.Solve();
 
+                break;
+            }
+                
+            default :
+                EXCEPTION("Unknown domain type!!!");
+        }        
+        
     }
     catch(Exception& e)
     {

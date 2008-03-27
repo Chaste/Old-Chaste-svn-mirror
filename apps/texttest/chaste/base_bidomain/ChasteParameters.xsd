@@ -18,10 +18,17 @@
     </xs:restriction>
   </xs:simpleType>
   
+  <xs:simpleType name="anisotropic_type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Orthotropic"/>
+      <xs:enumeration value="Axisymmetric"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
   <xs:complexType name="point_type">
     <xs:attribute name="X" type="xs:double" use="required"/>
-    <xs:attribute name="Y" type="xs:double" use="optional"/>
-    <xs:attribute name="Z" type="xs:double" use="optional"/>
+    <xs:attribute name="Y" type="xs:double" use="required"/>
+    <xs:attribute name="Z" type="xs:double" use="required"/>
   </xs:complexType>
   
   <xs:complexType name="box_type">
@@ -56,20 +63,44 @@
       <xs:element name="Location" type="box_type"/>
     </xs:sequence>
   </xs:complexType>
+
+  <xs:complexType name="slab_type">
+    <xs:sequence>
+      <xs:element name="SlabX" type="xs:double"/>
+      <xs:element name="SlabY" type="xs:double"/>
+      <xs:element name="SlabZ" type="xs:double"/>
+      <xs:element name="InterNodeSpace" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="mesh_type">
+  	<xs:choice>
+      <xs:element name="Slab" type="slab_type"/>
+      <xs:element name="LoadMesh">
+      	<xs:complexType>
+      		<xs:attribute name="name" type="xs:string" use="required"/>
+      		<xs:attribute name="media" type="anisotropic_type" default="Orthotropic"/>
+      	</xs:complexType>
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+  
+  <xs:complexType name="conductivities_type">
+    <xs:attribute name="longi" type="xs:double" use="required"/>
+    <xs:attribute name="trans" type="xs:double" use="required"/>
+    <xs:attribute name="normal" type="xs:double" use="required"/>        
+  </xs:complexType>
+  
   
   <xs:complexType name="chaste_parameters_type">
     <xs:sequence>
       <xs:element name="SimulationDuration" type="xs:decimal"/>
       <xs:element name="Domain" type="domain_type"/>
       <xs:element name="IonicModel" type="ionic_model_type"/>
-      <xs:element name="SlabX" type="xs:double"/>
-      <xs:element name="SlabY" type="xs:double"/>
-      <xs:element name="SlabZ" type="xs:double"/>
-      <xs:element name="InterNodeSpace" type="xs:double"/>
-      <xs:element name="LongitudinalConductivity" type="xs:double"/>
-      <xs:element name="TransverseConductivity" type="xs:double"/>
-      <xs:element name="NormalConductivity" type="xs:double"/>
-	  <xs:element name="Stimulus" type="stimulus_type" maxOccurs="unbounded"/>
+      <xs:element name="Mesh" type="mesh_type"/>
+      <xs:element name="IntracellularConductivities" type="conductivities_type"/>
+      <xs:element name="ExtracellularConductivities" type="conductivities_type" />
+      <xs:element name="Stimulus" type="stimulus_type" maxOccurs="unbounded"/>
 	  <xs:element name="CellHeterogeneity" type="cell_heterogeneity_type" minOccurs="0" maxOccurs="unbounded" />
 	  <xs:element name="ConductivityHeterogeneity" type="conductivity_heterogeneity_type" minOccurs="0" maxOccurs="unbounded" />
 	  <xs:element name="OutputDirectory" type="xs:string"/>

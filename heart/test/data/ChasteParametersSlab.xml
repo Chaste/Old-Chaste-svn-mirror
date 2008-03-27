@@ -1,51 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ChasteParameters
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:noNamespaceSchemaLocation="ChasteParameters.xsd">
-
+       xsi:noNamespaceSchemaLocation="../../src/io/ChasteParameters.xsd">
 	<!-- 
 		Problem definition 
 	-->    
-    <SimulationDuration>4.0</SimulationDuration>
-    <Domain>Bi</Domain>
-    <IonicModel>BackwardEulerFoxModel2002Modified</IonicModel>
+    <SimulationDuration>10.0</SimulationDuration>
+    <Domain>Mono</Domain>
+    <IonicModel>FaberRudy2000Version3</IonicModel>
     
 	<!-- 
 		Mesh definition 
-	-->    
+	-->
 	<Mesh>
 		<Slab>    
-	    	<SlabX>10.0</SlabX>
-	    	<SlabY>0.25</SlabY>
-	    	<SlabZ>10.0</SlabZ>
-	    	<InterNodeSpace>0.25</InterNodeSpace>
+	    	<SlabX>4.0</SlabX>
+	    	<SlabY>0.1</SlabY>
+	    	<SlabZ>2.0</SlabZ>
+	    	<InterNodeSpace>0.1</InterNodeSpace>
     	</Slab>
   	</Mesh>
-
-
 
     <!--
         Conductivities
     -->
     <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" />
-    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" />
+    <ExtracellularConductivities longi="7.0" trans="7.0" normal="7.0" />
     
     <!-- 
     	Stimuli (as many <Stimulus> definitions as needed) 
    	-->
   	<Stimulus> <!-- #1 -->
-		<Strength>-80000.0</Strength>
-		<Duration>1.0</Duration>
+		<Strength>-25500.0</Strength>
+		<Duration>0.5</Duration>
 		<Delay>0</Delay>
 		<Location>
 			<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
-			<CornerB X="-4.50" Z="5.0" Y="0.125"/>
+			<CornerB X="-4.75" Z="5.0" Y="0.125"/>
 		</Location>
 	</Stimulus>	
 	<Stimulus> <!-- #2 -->
-		<Strength>-80000.0</Strength>
-		<Duration>1.0</Duration>
-		<Delay>2.0</Delay>
+		<Strength>-25500.0</Strength>
+		<Duration>0.5</Duration>
+		<Delay>200.0</Delay>
 		<Location>
 			<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
 			<CornerB X="0.0" Z="0.0" Y="0.125"/>

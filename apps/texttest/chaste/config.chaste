@@ -10,6 +10,9 @@ mesh_node:ChasteResults/mesh/Slab.node
 mesh_face:ChasteResults/mesh/Slab.face
 mesh_ele:ChasteResults/mesh/Slab.ele
 
+[collate_script]
+results_h5:h5dump
+
 [checkout_location]
 Chaste:/home/chaste/eclipse/workspace/Chaste
 
@@ -24,3 +27,4 @@ default:$CHASTE_TEST_OUTPUT/texttest_reports
 
 [run_dependent_text]
 output:(milliseconds)
+results_h5:HDF5

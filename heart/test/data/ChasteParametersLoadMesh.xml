@@ -11,18 +11,16 @@
     
 	<!-- 
 		Mesh definition 
-	-->    
-    <SlabX>4.0</SlabX>
-    <SlabY>0.1</SlabY>
-    <SlabZ>2.0</SlabZ>
-    <InterNodeSpace>0.1</InterNodeSpace>
+	-->
+	<Mesh>
+		<LoadMesh name="foo"/>    
+  	</Mesh>
 
     <!--
-        Intracellular conductivities
+        Conductivities
     -->
-    <LongitudinalConductivity>1.75</LongitudinalConductivity>
-    <TransverseConductivity>1.75</TransverseConductivity>
-    <NormalConductivity>1.75</NormalConductivity>   
+    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" />
+    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" />
     
     <!-- 
     	Stimuli (as many <Stimulus> definitions as needed) 
