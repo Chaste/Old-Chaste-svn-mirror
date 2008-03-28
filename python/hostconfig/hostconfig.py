@@ -42,6 +42,8 @@ elif machine_fqdn == "zuse.osc.ox.ac.uk":
     import zuse as conf
 elif machine_fqdn.endswith(".comlab.ox.ac.uk"):
     import comlab as conf
+elif machine_fqdn.endswith(".dtc.ox.ac.uk"):
+    import chaste as conf
 elif machine_fqdn.startswith('finarfin'):
     import finarfin as conf
 elif machine_fqdn.endswith(".maths.nottingham.ac.uk"):
