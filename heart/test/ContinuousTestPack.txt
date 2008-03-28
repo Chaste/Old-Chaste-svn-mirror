@@ -4,6 +4,7 @@ TestCellProperties.hpp
 TestCellularMechanicsOdeSystems.hpp
 TestConductivityTensors.hpp
 TestConvergenceTester.hpp
+TestDistanceMapCalculator.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestIonicModels.hpp
 TestMonodomainConductionVelocity.hpp
