@@ -169,7 +169,7 @@ for src_file in src_files:
                              src_line_stripped[6] in [';', ' ']) or
                             (src_line_stripped.startswith('catch ') and #Line is catch(...)
                              src_line_stripped[-1] == ')')
-                             or src_line_stripped[-1] == ')' ): #Method definition (possibly). Currently overlaps with previous 'catch' ignore
+                             or (len(src_line_stripped)>0 and src_line_stripped[-1] == ')') ): #Method definition (possibly). Currently overlaps with previous 'catch' ignore
                         warn = False
                         aggregated_count = '#####'
                         #print 'Full details of coverage: ', src_line_stripped,'\t',src_file,'\t',aggregated_count,'\t', line_no,'\t', src_line

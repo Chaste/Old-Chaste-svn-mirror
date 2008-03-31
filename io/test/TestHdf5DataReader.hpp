@@ -435,8 +435,12 @@ public:
         TS_ASSERT_THROWS_NOTHING(reader.GetVariableOverNodes(data, "Node", 1/*timestep*/));
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "WrongName"));
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "I_K", 2/*timestep*/));
+        DistributedVector::SetProblemSize(number_nodes+1);
+        Vec data_too_big=DistributedVector::CreateVec();
+        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data_too_big, "Node", 1/*timestep*/));
                 
         VecDestroy(data);
+        VecDestroy(data_too_big);
         reader.Close();        
     }
 

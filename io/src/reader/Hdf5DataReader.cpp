@@ -161,6 +161,7 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data, std::string variableName, un
         EXCEPTION("The file doesn't contain data for timestep number" + timestep);
     }
 
+//\todo How do we tell if it's the right size?
     // Get range owned by each processor
     int lo, hi;
     VecGetOwnershipRange(data, &lo, &hi);
@@ -178,7 +179,12 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data, std::string variableName, un
 
     double* p_petsc_vector;
     VecGetArray(data, &p_petsc_vector);
-    H5Dread(mVariablesDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, H5P_DEFAULT, p_petsc_vector);
+    herr_t err;
+    err=H5Dread(mVariablesDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, H5P_DEFAULT, p_petsc_vector);
+    if (err)
+    {
+        EXCEPTION("Could not read data");
+    }
     VecRestoreArray(data, &p_petsc_vector);
 
 
