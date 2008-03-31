@@ -44,6 +44,11 @@ public:
     
     std::vector<double> GetUnlimitedDimensionValues();
     
+    unsigned GetNumberOfRows()
+    {
+        return mVariablesDatasetSizes[1];
+    }
+    
     std::vector<std::string> GetVariableNames()
     {
         return mVariableNames;

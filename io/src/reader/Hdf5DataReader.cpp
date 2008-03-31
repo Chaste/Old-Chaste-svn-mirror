@@ -36,11 +36,14 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     
     hid_t variables_dataspace = H5Dget_space(mVariablesDatasetId);
     mVariablesDatasetRank = H5Sget_simple_extent_ndims(variables_dataspace);
-    
     // Get the dataset/dataspace dimensions
     hsize_t dataset_max_sizes[MAX_DATASET_RANK];
     H5Sget_simple_extent_dims(variables_dataspace, mVariablesDatasetSizes, dataset_max_sizes);       
 
+    for (unsigned i=1; i<MAX_DATASET_RANK; i++)  //Zero is excluded since it may be unlimited
+    {
+        assert(mVariablesDatasetSizes[i] == dataset_max_sizes[i]);
+    }
     // Check if an unlimited dimension has been defined
     if (dataset_max_sizes[0] == H5S_UNLIMITED)
     {       
@@ -161,9 +164,14 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data, std::string variableName, un
         EXCEPTION("The file doesn't contain data for timestep number" + timestep);
     }
 
-//\todo How do we tell if it's the right size?
+    //\todo Use DistributedVector?
+    int lo, hi, size;
+    VecGetSize(data, &size);
+    if ((unsigned)size != mVariablesDatasetSizes[1])
+    {
+        EXCEPTION("Could not read data because Vec is the wrong size");
+    }
     // Get range owned by each processor
-    int lo, hi;
     VecGetOwnershipRange(data, &lo, &hi);
     
     // Define a dataset in memory for this process
@@ -181,10 +189,7 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data, std::string variableName, un
     VecGetArray(data, &p_petsc_vector);
     herr_t err;
     err=H5Dread(mVariablesDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, H5P_DEFAULT, p_petsc_vector);
-    if (err)
-    {
-        EXCEPTION("Could not read data");
-    }
+    assert(err==0);
     VecRestoreArray(data, &p_petsc_vector);
 
 

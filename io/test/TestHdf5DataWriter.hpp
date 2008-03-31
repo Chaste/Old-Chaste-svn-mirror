@@ -20,6 +20,13 @@ private:
         Hdf5DataReader reader1(pathname1, filename1, makeAbsolute1);
         Hdf5DataReader reader2(pathname2, filename2, makeAbsolute2);
         
+        unsigned number_nodes1=reader1.GetNumberOfRows();
+        unsigned number_nodes2=reader2.GetNumberOfRows();
+        if (number_nodes1 != number_nodes2)
+        {
+            std::cout<<"Number of nodes "<<number_nodes1<<" and "<<number_nodes2<<" don't match\n";
+            return false;
+        }
         //Check the variable names and units
         std::vector<std::string> variable_names1=reader1.GetVariableNames();
         std::vector<std::string> variable_names2=reader2.GetVariableNames();
@@ -63,7 +70,7 @@ private:
                    return false;
             }
         }
-        
+        DistributedVector::SetProblemSize(number_nodes1);
         Vec data1=DistributedVector::CreateVec();
         Vec data2=DistributedVector::CreateVec();
         
@@ -491,6 +498,8 @@ public:
         
         writer.Close();
         
+        /*
+         * 
         if(PetscTools::AmMaster())
         {
             // call h5dump to take the binary hdf5 output file and print it
@@ -504,9 +513,10 @@ public:
             
             TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_striped_dumped.txt").c_str()), 0);
         }
-//\todo Requires GetStripedVector
-//        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_striped", true,
-//            "io/test/data", "hdf5_test_full_format_striped", false));
+        *
+        */
+        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_striped", true,
+            "io/test/data", "hdf5_test_full_format_striped", false));
 
         VecDestroy(node_number);
         VecDestroy(petsc_data_long);

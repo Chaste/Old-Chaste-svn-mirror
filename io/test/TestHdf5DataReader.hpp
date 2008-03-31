@@ -328,7 +328,7 @@ public:
             }
         }
 
-        int number_nodes=100;
+        unsigned number_nodes=100;
         DistributedVector::SetProblemSize(number_nodes);
 
         Vec petsc_data_1=DistributedVector::CreateVec();
@@ -340,6 +340,7 @@ public:
         Vec petsc_data_3=DistributedVector::CreateVec();
         DistributedVector distributed_vector_3(petsc_data_3);
         
+        TS_ASSERT_EQUALS(reader.GetNumberOfRows(), number_nodes);
         for (unsigned time_step=0; time_step<10; time_step++)
         {
             reader.GetVariableOverNodes(petsc_data_1, "Node", time_step);
