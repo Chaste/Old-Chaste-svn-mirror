@@ -41,6 +41,7 @@
 
 // Begin prologue.
 //
+#define COVERAGE_IGNORE
 //
 // End prologue.
 
@@ -1640,6 +1641,7 @@ ChasteParameters (const ::xercesc::DOMDocument&,
 
 // Begin epilogue.
 //
+#undef COVERAGE_IGNORE
 //
 // End epilogue.
 
