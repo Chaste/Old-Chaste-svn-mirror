@@ -21,6 +21,7 @@ Hdf5DataWriter::Hdf5DataWriter(string directory, string baseName, bool cleanDire
         mIsFixedDimensionSet(false),
         mIsUnlimitedDimensionSet(false),
         mFixedDimensionSize(-1),
+        mIsDataComplete(true),
         mCurrentTimeStep(0)
 {
     int my_rank;
@@ -42,7 +43,7 @@ Hdf5DataWriter::~Hdf5DataWriter()
 
 /**
 *
-*  Define the fixed dimension.
+*  Define the fixed dimension, assuming complete data output (all the nodes)
 *
 *  @param dimensionSize The size of the dimension
 *
@@ -64,6 +65,43 @@ void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
 
     mFixedDimensionSize = dimensionSize;   
     mIsFixedDimensionSet = true;
+}
+
+/**
+ * 
+ * Define the fixed dimension, assuming incomplete data ouput (subset of the nodes)
+ * 
+ * @param nodesToOuput Node indexes to be output (precondition: to be monotonic increasing)
+ * 
+ */
+
+void Hdf5DataWriter::DefineFixedDimension(std::vector<unsigned> nodesToOuput)
+{
+    if (!mIsInDefineMode)
+    {
+        EXCEPTION("Cannot define data to be incomplete when not in Define mode");
+    }
+    if (mIsFixedDimensionSet)
+    {
+        EXCEPTION("Fixed dimension already set");
+    }
+        
+    unsigned vector_size = nodesToOuput.size();
+    
+    for (unsigned index=0; index < vector_size-1; index++)
+    {
+        if (nodesToOuput[index] >= nodesToOuput[index+1])
+        {
+            EXCEPTION("Input should be monotonic increasing");                
+        }             
+    }        
+    
+    mFixedDimensionSize = vector_size;   
+    mIsFixedDimensionSet = true;   
+
+    mIsDataComplete = false;
+    mIncompleteNodeIndices = nodesToOuput;
+    
 }
 
 /**
@@ -196,7 +234,7 @@ void Hdf5DataWriter::EndDefineMode()
     hsize_t columns[1] = {mVariables.size()};
     hid_t colspace = H5Screate_simple(1, columns, NULL);
     
-    //Create attribute
+    //Create attribute for variable names
     char* col_data = (char*) malloc(mVariables.size() * sizeof(char) * MAX_STRING_SIZE);
     
     char* col_data_offset = col_data;
@@ -218,7 +256,33 @@ void Hdf5DataWriter::EndDefineMode()
     free(col_data);
     H5Sclose(colspace);
     H5Aclose(attr);
+    
+    // Create "boolean" attribute telling the data to be incomplete or not
+    columns[0] = 1;
+    colspace = H5Screate_simple(1, columns, NULL);
+    attr = H5Acreate(mDatasetId, "IsDataComplete", H5T_NATIVE_HBOOL, colspace, H5P_DEFAULT  );
+   
+    // Write to the attribute
+    H5Awrite(attr, H5T_NATIVE_HBOOL, &mIsDataComplete); 
 
+    H5Sclose(colspace);
+    H5Aclose(attr);
+    
+    if (!mIsDataComplete)
+    {
+        //We need to write a map
+        // Create "unsigned" attribute with the map
+        columns[0] = mFixedDimensionSize;
+        colspace = H5Screate_simple(1, columns, NULL);
+        attr = H5Acreate(mDatasetId, "NodeMap", H5T_NATIVE_UINT, colspace, H5P_DEFAULT  );
+        
+        // Write to the attribute    
+        H5Awrite(attr, H5T_NATIVE_UINT, &mIncompleteNodeIndices[0]); 
+
+        H5Sclose(colspace);
+        H5Aclose(attr);
+    }
+    
     
     /*
      *  Create "Time" dataset 
@@ -264,32 +328,98 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     {
         EXCEPTION("Cannot write data while in define mode.");    
     }
+    
+    int vector_size;
+    VecGetSize(petscVector, &vector_size);
+    
+    if (mIsDataComplete)
+    {
+        if (vector_size != mFixedDimensionSize)
+        {
+            EXCEPTION("Vector size doesn't match fixed dimension");
+        }        
+    }
+    else
+    {
+        if ((int) mIncompleteNodeIndices.back() >= vector_size)
+        {
+            EXCEPTION("Vector size doesn't match nodes to ouput");
+        }
+    }
        
     int lo, hi;
     VecGetOwnershipRange(petscVector, &lo, &hi);
+
+    unsigned offset;
+    unsigned num_owned;
+    if (mIsDataComplete)
+    {
+        offset=lo;
+        num_owned=hi-lo;
+    }
+    else
+    {
+        offset=0;
+        num_owned=0;
+        //Compute the offset for writing the data
+        for (unsigned i=0;i<mIncompleteNodeIndices.size();i++)
+        {
+            int index=mIncompleteNodeIndices[i];
+            if (index < lo)
+            {
+                offset++;
+            }
+            else if(index<=hi)
+            {
+                num_owned++;
+            }
+        }
+     } 
+    
+
     
     // Define a dataset in memory for this process
-    hsize_t v_size[1] = {hi-lo};
+    hsize_t v_size[1] = {num_owned};
     hid_t memspace = H5Screate_simple(1, v_size, NULL);
-    
     // Select hyperslab in the file.
-    hsize_t count[DATASET_DIMS] = {1,hi-lo,1};
-    hsize_t offset[DATASET_DIMS] = {mCurrentTimeStep,lo, variableID};
-    hid_t hyperslab_space = H5Dget_space(mDatasetId);
-    H5Sselect_hyperslab(hyperslab_space, H5S_SELECT_SET, offset, NULL, count, NULL);
+    hsize_t count[DATASET_DIMS] = {1, num_owned, 1};
+    hsize_t offset_dims[DATASET_DIMS] = {mCurrentTimeStep, offset, variableID};
+    hid_t file_dataspace = H5Dget_space(mDatasetId);
+   
+
     
-    // Create property list for collective dataset write, and write!  Finally.
-    hid_t property_list_id = H5Pcreate(H5P_DATASET_XFER);
-    H5Pset_dxpl_mpio(property_list_id, H5FD_MPIO_COLLECTIVE);
+    if (mIsDataComplete)
+    {
+        H5Sselect_hyperslab(file_dataspace, H5S_SELECT_SET, offset_dims, NULL, count, NULL);
+    
+        // Create property list for collective dataset write, and write!  Finally.
+        hid_t property_list_id = H5Pcreate(H5P_DATASET_XFER);
+        H5Pset_dxpl_mpio(property_list_id, H5FD_MPIO_COLLECTIVE);
+        
+        double* p_petsc_vector;
+        VecGetArray(petscVector, &p_petsc_vector);
+        H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, file_dataspace, property_list_id, p_petsc_vector);
+        VecRestoreArray(petscVector, &p_petsc_vector);
+        H5Pclose(property_list_id); 
+    }
+    else //if (num_owned != 0)
+    {
+        //Make a local copy of the data
+        double* p_petsc_vector;
+        VecGetArray(petscVector, &p_petsc_vector);
+        double local_data[num_owned];
+        for (unsigned i=offset;i<offset+num_owned;i++)
+        {
+            local_data[i] = p_petsc_vector[ mIncompleteNodeIndices[i]-lo ];
+            
+        }    
+        VecRestoreArray(petscVector, &p_petsc_vector);
+    
+    }
+    
 
-    double* p_petsc_vector;
-    VecGetArray(petscVector, &p_petsc_vector);
-    H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, p_petsc_vector);
-    VecRestoreArray(petscVector, &p_petsc_vector);
-
-    H5Sclose(hyperslab_space);
+    H5Sclose(file_dataspace);
     H5Sclose(memspace);
-    H5Pclose(property_list_id); 
 }
 
 void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector)
@@ -307,6 +437,13 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
         EXCEPTION("Columns should be consecutive. Try reordering them.");
     }
     
+    int vector_size;
+    VecGetSize(petscVector, &vector_size);
+    
+    if (vector_size != NUM_STRIPES*mFixedDimensionSize)
+    {
+        EXCEPTION("Vector size doesn't match fixed dimension");        
+    }    
     int lo, hi;
     VecGetOwnershipRange(petscVector, &lo, &hi);
     

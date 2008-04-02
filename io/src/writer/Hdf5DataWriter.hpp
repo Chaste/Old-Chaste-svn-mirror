@@ -4,6 +4,7 @@
 #include <hdf5.h>
 #include <petscvec.h>
 #include <cassert>
+#include <vector>
 #include "Exception.hpp"
 #include "AbstractDataWriter.hpp"
 #include "DataWriterVariable.hpp"
@@ -22,7 +23,10 @@ private:
     bool mIsUnlimitedDimensionSet; /**< Is the unlimited dimension set */
     std::string mUnlimitedDimensionName;
     std::string mUnlimitedDimensionUnit;
-    long mFixedDimensionSize; /**< The size of the fixed dimension */    
+    long mFixedDimensionSize; /**< The size of the fixed dimension */ 
+    
+    bool mIsDataComplete;
+    std::vector<unsigned> mIncompleteNodeIndices;   
 
     std::vector<DataWriterVariable> mVariables; /**< The data variables */
     
@@ -43,6 +47,7 @@ public:
     virtual ~Hdf5DataWriter();
 
     void DefineFixedDimension(long dimensionSize);
+    void DefineFixedDimension(std::vector<unsigned> nodesToOuput);
     void DefineUnlimitedDimension(std::string variableName, std::string variableUnits);
     void AdvanceAlongUnlimitedDimension();
     int DefineVariable(std::string variableName, std::string variableUnits);
