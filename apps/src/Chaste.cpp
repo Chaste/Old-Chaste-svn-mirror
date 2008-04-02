@@ -311,6 +311,21 @@ void CreateSlab(ConformingTetrahedralMesh<3,3>* pMesh)
 
 int main(int argc, char *argv[]) 
 {
+    std::cout << "Copyright (C) Oxford University 2008 \n\n\
+\
+CHASTE is free software: you can redistribute it and/or modify \n\
+it under the terms of the Lesser GNU General Public License as published by \n\
+the Free Software Foundation, either version 2.1 of the License, or \n\
+(at your option) any later version. \n\n\
+\
+CHASTE is distributed in the hope that it will be useful, \n\
+but WITHOUT ANY WARRANTY; without even the implied warranty of \n\
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the \n\
+Lesser GNU General Public License for more details. \n\n\
+\
+You should have received a copy of the Lesser GNU General Public License \n\
+along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
+
     try
     {
         PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
