@@ -5,6 +5,7 @@ TestCellularMechanicsOdeSystems.hpp
 TestConductivityTensors.hpp
 TestConvergenceTester.hpp
 TestDistanceMapCalculator.hpp
+TestHdf5ToMeshalyzerConverter.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestIonicModels.hpp
 TestMonodomainConductionVelocity.hpp
