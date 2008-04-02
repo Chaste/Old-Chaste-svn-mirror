@@ -26,21 +26,16 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 
 class TestHdf5ToMeshalyzerConverter : public CxxTest::TestSuite
 {
-private:
-    // the setup method just creates the test directory that will be used 
-    void setUpWorld()
-    {
-        OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");
-    }
-
 public:
     
     void TestMonodomainConvertion() throw(Exception)
     {
+        OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");
+        
         // firstly, copy ./heart/test/data/MonoDg01d/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
         // as that is where the reader reads from.
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command = "cp heart/test/data/Monodomain1d/MonodomainLR91_1d.h5 " + test_output_directory +  "/TestHdf5ToMeshalyzerConverter";
+        std::string command = "cp heart/test/data/Monodomain1d/MonodomainLR91_1d.h5 " + test_output_directory +  "/TestHdf5ToMeshalyzerConverter/";
         int return_value = system(command.c_str());
         assert(return_value==0);
         
@@ -59,10 +54,12 @@ public:
 
     void TestBidomainConvertion() throw(Exception)
     {
+        OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");
+
         // firstly, copy ./heart/test/data/Bidomain1d/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
         // as that is where the reader reads from.
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command = "cp heart/test/data/Bidomain1d/bidomain.h5 " + test_output_directory +  "/TestHdf5ToMeshalyzerConverter";
+        std::string command = "cp heart/test/data/Bidomain1d/bidomain.h5 " + test_output_directory +  "/TestHdf5ToMeshalyzerConverter/";
         int return_value = system(command.c_str());
         assert(return_value==0);
 
