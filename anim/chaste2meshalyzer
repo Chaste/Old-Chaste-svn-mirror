@@ -1,11 +1,9 @@
-# Shell script to create animation following a simulation run
-# It will create both a PoinTS and TRIangles file that can be read by Meshalyzer
+# Shell script to convert a chaste mesh to meshalyzer mesh format (PoinTS and TRIangles files)
 #
 # arguments are:
 #   1. dimension (must be 1,2 or 3)
 #   2. the mesh path and prefix (relative to current directory, or absolute)
-#   3. the results path and prefix (relative to CHASTE_TEST_OUTPUT or /tmp/<username>/testoutput)
-#   4. the output prefix (relative to CHASTE_TEST_OUTPUT/anim or /tmp/<username>/testoutput/anim)
+#   3. the output prefix (relative to CHASTE_TEST_OUTPUT/anim or /tmp/<username>/testoutput/anim)
 
 if [ ${USER} == "bob" ] ; then
     exit
@@ -30,12 +28,14 @@ mkdir -p ${OUTPUT_DIR}
 
 DIMENSION=$1              
 MESH_PATH=$2
-RESULTS_PREFIX=$3
-OUTPUT_PREFIX=$4
+OUTPUT_PREFIX=$3
 
+OUTPUT_PATH=${OUTPUT_DIR}${OUTPUT_PREFIX}
+# echo "  Mesh path is "${MESH_PATH}
+# echo "  Output file path is "${OUTPUT_PATH}
 
 #######################################################################################
-#  error handling
+#  error checking
 #######################################################################################
 if [ -z "${DIMENSION}" ] || [ ${DIMENSION} -lt 1 ] || [ ${DIMENSION} -gt 3 ] ; then
 	echo "ERROR: expected first argument (dimension) to be 1, 2 or 3"
@@ -48,28 +48,10 @@ if [ -z "${MESH_PATH}" ] ; then
 	exit 2
 fi
 
-if [ -z "${RESULTS_PREFIX}" ] ; then
-	echo "ERROR: results file prefix is empty string"
-	exit 2
-fi
-
 if [ -z "${OUTPUT_PREFIX}" ] ; then
 	echo "ERROR: output file prefix is empty string"
 	exit 2
 fi
-
-
-#######################################################################################
-#  set up paths
-#######################################################################################
-
-# echo "  Mesh path is "${MESH_PATH}
-
-RESULTS_PATH=${TESTOUTPUT_DIR}${RESULTS_PREFIX}
-# echo "  Results path is "${RESULTS_PATH}
-
-OUTPUT_PATH=${OUTPUT_DIR}${OUTPUT_PREFIX}
-# echo "  Output file path is "${OUTPUT_PATH}
 
 
 #######################################################################################
@@ -93,16 +75,5 @@ if [ ${DIMENSION} -eq 3 ] ; then
 	cat ${MESH_PATH}.face | tail -n +2 | awk '{print $2 "\t" $3 "\t" $4 "\t" 1}' >> ${OUTPUT_PATH}.tri
 fi
 
-
-
-#######################################################################################
-#  create data files
-#######################################################################################
-rm -f ${OUTPUT_PATH}.dat
-rm -f ${OUTPUT_PATH}_voltage.dat
-rm -f ${OUTPUT_PATH}_extracell.dat
-for i in ${RESULTS_PATH}_0*.dat; do
-	tail -n +2 $i | awk '{print $2}' >> ${OUTPUT_PATH}.dat
-done
 
 #echo "  ..done!"
