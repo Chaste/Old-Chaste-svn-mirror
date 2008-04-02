@@ -48,7 +48,7 @@ public:
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoNeumannConst");
-        monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+        monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
 
         // this parameters are a bit arbitrary, and chosen to get a good spread of voltages
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(1.75));
@@ -100,7 +100,7 @@ public:
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoNeumannSquare");
-        monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");        
+        monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");        
         
         // this parameters are a bit arbitrary, and chosen to get a good spread of voltages
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(1.75));

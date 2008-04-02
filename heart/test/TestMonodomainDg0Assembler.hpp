@@ -79,7 +79,7 @@ public:
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
-        monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");        
+        monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");        
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));        
         monodomain_problem.Initialise();
         
@@ -114,7 +114,7 @@ public:
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
-        monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+        monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
         monodomain_problem.Initialise();
         
@@ -152,7 +152,7 @@ public:
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("MonoDg01d");
-        monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+        monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));        
         monodomain_problem.Initialise();
         
@@ -195,7 +195,7 @@ public:
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomain_problem.SetEndTime(2);   // 2 ms
         monodomain_problem.SetOutputDirectory("MonoDg02dWithEdgeStimulus");
-        monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithEdgeStimulus");
+        monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_2dWithEdgeStimulus");
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005,0.0005));
                 
         monodomain_problem.Initialise();
@@ -280,7 +280,7 @@ public:
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomain_problem.SetEndTime(1.3);   // 1.3 ms - needs to be 1.3 ms to pass test
         monodomain_problem.SetOutputDirectory("MonoDg02dWithPointStimulus");
-        monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithPointStimulus");
+        monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_2dWithPointStimulus");
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));        
         
         monodomain_problem.Initialise();

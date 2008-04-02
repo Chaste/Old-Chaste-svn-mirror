@@ -33,8 +33,8 @@ public:
 
     void TestConductionVelocity1D(void) throw (Exception)
     {
-        Hdf5DataReader simulation_data("heart/test/data/MonoDg01d",
-                                         "NewMonodomainLR91_1d", false);
+        Hdf5DataReader simulation_data("heart/test/data/Monodomain1d",
+                                       "MonodomainLR91_1d", false);
         PropagationPropertiesCalculator ppc(&simulation_data);
         double velocity=ppc.CalculateConductionVelocity(5,15,0.1);
         TS_ASSERT_DELTA(velocity, 0.0499, 0.001);
