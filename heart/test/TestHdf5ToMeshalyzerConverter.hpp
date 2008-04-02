@@ -37,7 +37,7 @@ private :
 
 public :
     
-    void xTestMonodomainConvertion() throw(Exception)
+    void TestMonodomainConvertion() throw(Exception)
     {
         OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");
         
@@ -57,7 +57,7 @@ public :
     }
 
 
-    void xTestBidomainConvertion() throw(Exception)
+    void TestBidomainConvertion() throw(Exception)
     {
         OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");
 
