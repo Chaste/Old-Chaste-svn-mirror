@@ -385,7 +385,6 @@ public:
         node_numbers.push_back(21);
         node_numbers.push_back(47);
         node_numbers.push_back(60);
-        
         writer.DefineFixedDimension(node_numbers);
 
         writer.EndDefineMode();
@@ -639,8 +638,12 @@ public:
         distributed_vector_long.Restore();
                
         writer.PutVector(ina_id, petsc_data_short);
+        //Try to write striped data in the wrong columns
         TS_ASSERT_THROWS_ANYTHING(writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long));
-                
+        //Try to write data of wrong size
+        TS_ASSERT_THROWS_ANYTHING(writer.PutVector(ina_id, petsc_data_long));  
+        TS_ASSERT_THROWS_ANYTHING(writer.PutStripedVector(vm_id, ina_id, petsc_data_short));
+             
         writer.Close();
         
         VecDestroy(petsc_data_long);
@@ -660,8 +663,14 @@ public:
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("T,i,m,e","msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("","msecs"));
         
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(5000));
-        
+         
+        std::vector<unsigned> node_numbers;
+        node_numbers.push_back(21);
+        node_numbers.push_back(47);
+        node_numbers.push_back(6);
+        //Data not increasing
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers));
+        mpTestWriter->DefineFixedDimension(5000);
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(5000));
         
         int ina_var_id = 0;
@@ -685,12 +694,6 @@ public:
         TS_ASSERT_EQUALS(ina_var_id, 0);
         TS_ASSERT_EQUALS(ik_var_id, 1);
         
-        std::vector<unsigned> node_numbers;
-        node_numbers.push_back(21);
-        node_numbers.push_back(47);
-        node_numbers.push_back(6);
-        //Data not increasing
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers));
         
         delete mpTestWriter;
     }
@@ -713,17 +716,26 @@ public:
         
         //In Hdf5 a fixed dimension should be defined always
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(5000));
+        std::vector<unsigned> node_numbers;
+        node_numbers.push_back(21);
+        node_numbers.push_back(47);
+        node_numbers.push_back(60);
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(node_numbers));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
         
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineVariable("I_Ca","milli amperes"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(5000));
-        std::vector<unsigned> node_numbers;
-        node_numbers.push_back(21);
-        node_numbers.push_back(47);
-        node_numbers.push_back(60);
+        //Can't call define fixed dimension again
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers));
+        
+        //Test that we can't write incomplete data from a vector that doesn't have
+        //the right entries (0 to 59)
+        DistributedVector::SetProblemSize(60);
+        Vec petsc_data_short=DistributedVector::CreateVec();
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVector(0, petsc_data_short));
+        VecDestroy(petsc_data_short);
+        
         mpTestWriter->Close();
         delete mpTestWriter;                             
     }
