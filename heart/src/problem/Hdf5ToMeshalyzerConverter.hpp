@@ -102,6 +102,7 @@ public:
         std::vector<std::string> variable_names = mpReader->GetVariableNames();
         if((variable_names.size()==0) || (variable_names.size()>2))
         {
+            delete mpReader;
             EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain"); 
         }
         
@@ -110,6 +111,7 @@ public:
         {
             if(variable_names[0]!="V")
             {
+                delete mpReader;
                 EXCEPTION("One variable, but it is not called 'V'");
             }
             
@@ -121,6 +123,7 @@ public:
         {
             if(variable_names[0]!="V" || variable_names[1]!="Phi_e")
             {
+                delete mpReader;
                 EXCEPTION("Two variables, but they are not called 'V' and 'Phi_e'");
             }
 
