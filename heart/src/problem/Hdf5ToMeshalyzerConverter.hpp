@@ -39,7 +39,8 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *  The files that are written are <base_name>_V.dat or <base_name>_Phi_e.dat,
  *  where <base_name> is the base name of the original .h5 file. The new files
- *  are written in the same directory as the .h5 file.
+ *  are written in the same directory as the .h5 file. All paths are relative
+ *  to the CHASTE_TEST_OUTPUT directory.
  */
 class Hdf5ToMeshalyzerConverter
 {
@@ -63,11 +64,11 @@ private:
         unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
 
         DistributedVector::SetProblemSize(num_nodes);
-        Vec petsc_data_V = DistributedVector::CreateVec();
+        Vec data = DistributedVector::CreateVec();
         for (unsigned time_step=0; time_step<num_timesteps; time_step++)
         {
-            mpReader->GetVariableOverNodes(petsc_data_V, type, time_step);
-            ReplicatableVector repl_data(petsc_data_V);
+            mpReader->GetVariableOverNodes(data, type, time_step);
+            ReplicatableVector repl_data(data);
             
             assert(repl_data.size()==num_nodes);
             
@@ -79,10 +80,16 @@ private:
                 }
             }
         }
+        VecDestroy(data);
     }
 
 
 public:
+    /** Constructor, which does the conversion. 
+     *  @param outputDirectory The output directory, relative to CHASTE_TEST_OUTPUT,
+     *  where the .h5 file is found, and where the output will be place
+     *  @param fileBaseName The base name of the data file.
+     */
     Hdf5ToMeshalyzerConverter(std::string outputDirectory, 
                               std::string fileBaseName)
     {

@@ -27,6 +27,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 class TestHdf5ToMeshalyzerConverter : public CxxTest::TestSuite
 {
 private :
+    // copies a file (relative to Chaste home to CHASTE_TEST_OUTPUT/dir
     void CopyToTestOutputDirectory(std::string file, std::string dir)
     {
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
@@ -35,8 +36,7 @@ private :
         assert(return_value==0);
     }
 
-public :
-    
+public :    
     void TestMonodomainConvertion() throw(Exception)
     {
         OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");
@@ -49,7 +49,7 @@ public :
         // convert
         Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "MonodomainLR91_1d");
         
-        // compare the voltage file
+        // compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/MonodomainLR91_1d_V.dat " 
                                      + "heart/test/data/Monodomain1d/MonodomainLR91_1d_V.dat";
@@ -95,12 +95,10 @@ public :
 
         TS_ASSERT_THROWS_ANYTHING( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_1") );
 
-
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
                                   "TestHdf5ToMeshalyzerConverter");
 
         TS_ASSERT_THROWS_ANYTHING( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_2") );
-
     }
 };
 #endif /*TESTHDF5TOMESHALYZERCONVERTER_HPP_*/
