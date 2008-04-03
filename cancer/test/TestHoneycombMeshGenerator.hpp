@@ -371,11 +371,14 @@ public:
         
         NodeMap map(p_mesh->GetNumAllNodes());
         
-        // This line fails
-        //p_mesh->ReMesh(map);
         
         // This line passes
-        p_mesh->ReMeshWithTriangleLibrary(map);        
+        p_mesh->ReMeshWithTriangleLibrary(map); 
+        //TrianglesMeshWriter<2,2> mesh_writer("","debug_this_mesh");    
+        //mesh_writer.WriteFilesUsingMesh(*p_mesh);
+        
+        // This line fails
+        p_mesh->ReMesh(map);
     }
     
 };
