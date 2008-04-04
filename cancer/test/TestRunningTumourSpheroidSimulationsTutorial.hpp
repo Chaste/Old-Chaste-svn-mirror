@@ -61,13 +61,14 @@ public:
          * reset the parameters. */
         SimulationTime::Instance()->SetStartTime(0.0);
         CancerParameters::Instance()->Reset();
+        CancerParameters::Instance()->SetHepaOneParameters();
 
         /* Now we want to create a ''non-periodic'' 'honeycomb' mesh.
          * We use the honeycomb mesh generator, as before, saying 10 cells wide
          * and 10 cells high. Note that the thickness of the ghost nodes layer is
          * 0, ie no ghost nodes, and the {{{false}}} indicates not cylindrical.
          */
-        HoneycombMeshGenerator generator(10, 10, 0u, false);
+        HoneycombMeshGenerator generator(10, 10, 0, false);
         /* Get the mesh. Note we call {{{GetMesh()}}} rather than {{{GetCyclindricalMesh}}},
          * and that a {{{ConformingTetrahedralMesh}}} is returned. */
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
@@ -80,9 +81,9 @@ public:
         /* then loop over the nodes... */        
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            /*.. then create a cell, saying it is a healty stem ('''todo:''') cell,
-             * and giving a particular cell cycle model - {{{SimpleOxygenBasedCellCycleModel}}}.
-             * The index of the node that this cell is related to also needs to be given. */ 
+            /*.. then create a cell, and giving a particular cell cycle model 
+             * - {{{SimpleOxygenBasedCellCycleModel}}}. The index of the node that 
+             * this cell is related to also needs to be given. */ 
             TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
             cell.SetNodeIndex(i);
             
@@ -90,8 +91,8 @@ public:
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration
              * of a !HepaOne cell, and t,,2,, is the basic S+G,,2,,+M phases duration. '''todo'''
              */ 
-            double birth_time = -1.0 -  RandomNumberGenerator::Instance()->ranf() 
-                                 *( CancerParameters::Instance()->GetHepaOneCellG1Duration()
+            double birth_time = - RandomNumberGenerator::Instance()->ranf() *
+                                 (  CancerParameters::Instance()->GetHepaOneCellG1Duration()
                                   + CancerParameters::Instance()->GetSG2MDuration() );
             /* .. then we set the birth time and push the cell back into the vector
              * of cells. */
@@ -104,8 +105,6 @@ public:
          * Again, the constructor takes in the mesh and the cells vector. */
         MeshBasedTissue<2> tissue(*p_mesh, cells);
         tissue.ReMesh();
-        
-        tissue.SetWriteTissueAreas(true); // record the spheroid radius and necrotic radius
         
         /* Recall that in the Wnt based crypt simulation, we defined a singleton class
          * which cell-cycles used to get the wnt concentration. Here, we do the same kind
@@ -126,7 +125,11 @@ public:
         }
         
         /* Next we instantiate an instance of the PDE class which we defined above. 
-         * This will be passed into the simulator. '''todo - describe PDE'''*/
+         * This will be passed into the simulator. The !CellwiseNutrientSinkPde is
+         * a Pde class which inherits from !AbstractLinearEllipticPde, and represents
+         * the PDE: u_xx + u_yy = k(x) u, where k(x) = 0.03 (the coefficient below) 
+         * if x is in a live cell, and k(x)=0 if x is within a necrotic cell
+         */
         CellwiseNutrientSinkPde<2> pde(tissue, 0.03);
         
         /* There are a several different cell-cell force laws possible, and 
@@ -135,27 +138,25 @@ public:
          * to determine which cells are connected, and assumes a linear spring
          * between any connected cells. We can the method {{{UseCutoffPoint}}}
          * on the spring system before passing it into the simulator. This tells
-         * it to return zero force if two cells are more than 1.5 units 
-         * (=1.5 cell widths) away from each other. This is necessary when no ghost 
+         * it to return zero force if two cells are more than 3 units 
+         * (=3 cell widths) away from each other. This is necessary when no ghost 
          * nodes are used.
          */
         Meineke2001SpringSystem<2> spring_system(tissue);
-        spring_system.UseCutoffPoint(3.0);   
+        spring_system.UseCutoffPoint(3);   
         
         /* 
          * The simulator object for these problems is 
          * {{{TissueSimulationWithNutrients}}}. This takes in a tissue, the
          * mechanics system, and the PDE.
-         */
+         */ 
         TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
         
         /* As with {{{CryptSimulation2d}}} (which inherits from the same base class
          * as {{{TissueSimulationWithNutrients}}}), we can set the output directory
-         * and end time. We also get the simulator to write some extra data. '''todo''' */
+         * and end time. */
         simulator.SetOutputDirectory("SpheroidTutorial");
         simulator.SetEndTime(10.0);
-
-        simulator.SetWriteAverageRadialNutrientResults(5);
                 
         /* Solve. */
         simulator.Solve();
