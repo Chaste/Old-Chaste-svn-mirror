@@ -87,11 +87,11 @@ public:
 
         /* Now we have a mesh, a set of cells to go with it, and ghost nodes indices, we can 
          * create the tissue, which for this test is of type {{{MeshBasedTissueWithGhostNodes}}}. 
-         * (We name this object 'crypt') */
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+         */
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
         
-        /* That's most of the setup. Now we just define the Simulation object, passing in the crypt. */
-        CryptSimulation2d simulator(crypt);
+        /* That's most of the setup. Now we just define the Simulation object, passing in the tissue. */
+        CryptSimulation2d simulator(tissue);
         
         /* Set the output directory on the simulator (NOTE: this is relative to
          * "/tmp/<USER_NAME>/testoutput"), and the end time (NOTE: in hours). 
@@ -109,7 +109,7 @@ public:
          * which provide rules on when cells should be killed. We will use
          * a {{{SloughingCellKiller}}}, which kills cells above a certain height.
          */
-        SloughingCellKiller killer(&crypt);
+        SloughingCellKiller killer(&tissue);
         simulator.AddCellKiller(&killer);
 
         /* To solve, just call Solve */
@@ -159,7 +159,7 @@ public:
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, WNT, true);
         
         /* Create the tissue, as before. */
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, ghost_node_indices);
 
         /* The other change needed: Cells with a Wnt-based cell cycle need to know
          * the concentration of Wnt wherever they are. To do this, we set up a {{{WntConcentration}}}
@@ -169,15 +169,15 @@ public:
          * from the bottom of the crypt to the top). We also need to inform the {{{WntConcentration}}}
          * of the tissue.*/
         WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration::Instance()->SetTissue(tissue);
         
         /* Create a simulator as before (except setting a different output directory). */
-        CryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(tissue);
         simulator.SetOutputDirectory("CryptTutorialWntCellCycle");
         simulator.SetEndTime(1);
 
         /* Create a killer, as before. */
-        SloughingCellKiller killer(&crypt);
+        SloughingCellKiller killer(&tissue);
         simulator.AddCellKiller(&killer);
 
         /* Solve. */
