@@ -77,7 +77,7 @@ public:
         /* Now, we create the ''Tissue'', which, in general, is a collection of cells
          * together with nodes or a mesh. First, we need to define a {{{std::vector}}} of 
          * {{{TissueCell}}}s. To do this, we can use a static method on the {{{CellsGenerator}}} 
-         * class. Note that the {{{<2>}}} below denotes the dimension Here, we create an empty 
+         * class. Note that the {{{<2>}}} below denotes the dimension. Here, we create an empty 
          * vector of cells, pass that into the method along with the 
          * mesh, 'FIXED' saying we want cells with a fixed cell cycle, and 'true' indicating
          * we want random birth times for the cells. The {{{cells}}} vector will be populated
