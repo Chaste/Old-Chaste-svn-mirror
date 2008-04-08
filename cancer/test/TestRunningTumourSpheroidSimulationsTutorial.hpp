@@ -74,8 +74,8 @@ public:
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
  
-        /* Next, we need to create some cells. Unlike, before, we don't just use
-         * the {{{CellGenerator}}} class, but do it manually, in a loop. First,
+        /* Next, we need to create some cells. Unlike before, we don't just use
+         * the {{{CellsGenerator}}} class, but do it manually, in a loop. First,
          * define the cells vector. */
         std::vector<TissueCell> cells;  
         /* then loop over the nodes... */        
@@ -89,7 +89,7 @@ public:
             
             /* Now, we define a random birth time, chosen from [-T,0], where
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration
-             * of a !HepaOne cell, and t,,2,, is the basic S+G,,2,,+M phases duration. '''todo'''
+             * of a !HepaOne cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */ 
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
                                  (  CancerParameters::Instance()->GetHepaOneCellG1Duration()
@@ -104,7 +104,6 @@ public:
          * is just a mesh-based tissue (ie not a {{{MeshBasedTissueWithGhostNodes()}}}. 
          * Again, the constructor takes in the mesh and the cells vector. */
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.ReMesh();
         
         /* Recall that in the Wnt based crypt simulation, we defined a singleton class
          * which cell-cycles used to get the wnt concentration. Here, we do the same kind
@@ -116,7 +115,7 @@ public:
          */
         CellwiseData<2>::Instance()->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         CellwiseData<2>::Instance()->SetTissue(tissue);
-        /* Then we have to initialise the oxygen concentration for each node, by
+        /* Then we have to initialise the oxygen concentration for each node (to 1.0), by
          * calling {{{SetValue}}}. This takes in the concentration, and the node
          * which this concentration is for .*/
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
@@ -132,8 +131,8 @@ public:
          */
         CellwiseNutrientSinkPde<2> pde(tissue, 0.03);
         
-        /* There are a several different cell-cell force laws possible, and 
-         * one needs to be passed into the simulator. Here, we
+        /* There are a several different cell-cell force laws possible, which can be
+         * passed into the simulator. Here, we
          * create a {{{Meineke2001SpringSystem}}}, which uses a triangulation
          * to determine which cells are connected, and assumes a linear spring
          * between any connected cells. We can the method {{{UseCutoffPoint}}}
@@ -147,7 +146,7 @@ public:
         
         /* 
          * The simulator object for these problems is 
-         * {{{TissueSimulationWithNutrients}}}. This takes in a tissue, the
+         * {{{TissueSimulationWithNutrients}}}. We pass in the tissue, the
          * mechanics system, and the PDE.
          */ 
         TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
