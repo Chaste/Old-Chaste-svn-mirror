@@ -12,6 +12,7 @@
 #include "StochasticCellCycleModel.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
+#include "StochasticDivisionRuleCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -86,8 +87,7 @@ public:
         
         TS_ASSERT_DELTA(p_hepa_one_model->GetAge() + hepa_one_cell_birth_time, p_simulation_time->GetDimensionalisedTime(), 1e-9);
     }
-    
-    
+        
     void TestStochasticCellCycleModel(void) throw(Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -429,7 +429,107 @@ public:
         WntConcentration::Destroy();
     }
     
-    
+    void TestStochasticDivisionRuleCellCycleModel() throw(Exception)
+    {   
+        // Set up the simulation time
+        SimulationTime *p_simulation_time = SimulationTime::Instance();        
+        double end_time = 72.0;         
+        unsigned num_timesteps = 1000*(unsigned)end_time;     
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
+
+        // Create a cell
+        StochasticDivisionRuleCellCycleModel* p_cycle_model1 = new StochasticDivisionRuleCellCycleModel;
+        TissueCell cell1(STEM, HEALTHY, p_cycle_model1);
+        cell1.InitialiseCellCycleModel();
+        
+        /**
+         * Test with asymmetric division
+         */ 
+        
+        CancerParameters::Instance()->SetSymmetricDivisionProbability(0.0);
+        
+        // Increment time
+        for (unsigned i=0; i<num_timesteps/3; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model1, 13.0676);
+        }
+
+        // This cell must have divided asymmetrically
+        TS_ASSERT_EQUALS(p_cycle_model1->DividedSymmetrically(), false);
+        TS_ASSERT_EQUALS(cell1.GetCellType(), STEM);
+        
+        TS_ASSERT_EQUALS(cell1.ReadyToDivide(), true);
+        TissueCell cell2 = cell1.Divide();
+        
+        TS_ASSERT_EQUALS(cell2.GetCellType(), TRANSIT);
+
+        /**
+         * Test with symmetric division
+         */ 
+        
+        CancerParameters::Instance()->SetSymmetricDivisionProbability(1.0);
+        CancerParameters::Instance()->SetMaxTransitGenerations(1);
+        
+        StochasticDivisionRuleCellCycleModel *p_cycle_model2 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell2.GetCellCycleModel());
+        
+        StochasticDivisionRuleCellCycleModel* p_cycle_model3 = new StochasticDivisionRuleCellCycleModel;
+        TissueCell cell3(STEM, HEALTHY, p_cycle_model3);
+        cell3.InitialiseCellCycleModel();
+                
+        // Increment time
+        for (unsigned i=0; i<num_timesteps/3; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model1, 13.2712);
+            CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model2, 1.22037);
+            CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model3, 12.747);
+        }
+        
+        // The stem cell cell1 must have divided symmetrically, and it 
+        // happens to have divided into two transit cells
+        TS_ASSERT_EQUALS(cell1.ReadyToDivide(), true);
+        TissueCell cell4 = cell1.Divide();
+        
+        TS_ASSERT_EQUALS(p_cycle_model1->DividedSymmetrically(), true);
+        TS_ASSERT_EQUALS(cell1.GetCellType(), STEM);
+        
+        StochasticDivisionRuleCellCycleModel *p_cycle_model4 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell4.GetCellCycleModel());
+        TS_ASSERT_EQUALS(p_cycle_model4->DividedSymmetrically(), true);
+        TS_ASSERT_EQUALS(cell4.GetCellType(), STEM);
+        
+        // The stem cell cell3 must have divided symmetrically. For coverage, 
+        // we iterate the random number generator so that it divides into two 
+        // stem cells
+        RandomNumberGenerator::Instance()->ranf();
+        
+        TS_ASSERT_EQUALS(cell3.ReadyToDivide(), true);
+        TissueCell cell5 = cell3.Divide();
+        
+        TS_ASSERT_EQUALS(p_cycle_model3->DividedSymmetrically(), true);
+        TS_ASSERT_EQUALS(cell3.GetCellType(), TRANSIT);
+        
+        StochasticDivisionRuleCellCycleModel *p_cycle_model5 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell5.GetCellCycleModel());
+        TS_ASSERT_EQUALS(p_cycle_model5->DividedSymmetrically(), true);
+        TS_ASSERT_EQUALS(cell5.GetCellType(), TRANSIT);
+        
+        // The transit cell cell2 divides into two differentiated cells
+        TS_ASSERT_EQUALS(cell2.ReadyToDivide(), true);
+        TissueCell cell6 = cell2.Divide();
+        
+        TS_ASSERT_EQUALS(p_cycle_model2->DividedSymmetrically(), false);
+        TS_ASSERT_EQUALS(cell2.GetCellType(), DIFFERENTIATED);
+        
+        StochasticDivisionRuleCellCycleModel *p_cycle_model6 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell6.GetCellCycleModel());
+        TS_ASSERT_EQUALS(p_cycle_model6->DividedSymmetrically(), false);
+        TS_ASSERT_EQUALS(cell6.GetCellType(), DIFFERENTIATED);
+        
+        // For coverage
+        StochasticDivisionRuleCellCycleModel* p_cycle_model7 = new StochasticDivisionRuleCellCycleModel;
+        TissueCell cell7(DIFFERENTIATED, HEALTHY, p_cycle_model7);
+        cell7.InitialiseCellCycleModel();
+    }
+        
     void TestArchiveFixedCellCycleModels() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
@@ -488,8 +588,7 @@ public:
             delete p_cell;
         }
     }
-    
-        
+            
     void TestArchiveStochasticCellCycleModels()
     {
         OutputFileHandler handler("archive", false);
@@ -566,8 +665,7 @@ public:
             delete p_cell;
         }
     }
-    
-    
+        
     void TestArchiveSimpleOxygenBasedCycleModels() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
@@ -612,14 +710,13 @@ public:
             // Restore from the archive
             input_arch >> model;
             
-            // Check that archiiving worked correctly
+            // Check that archiving worked correctly
             TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
             TS_ASSERT_DELTA(model.GetAge(),1.5,1e-12);
             TS_ASSERT_EQUALS(model.GetCurrentCellCyclePhase(),M_PHASE);     
         }
     }
-       
-    
+ 
     void TestArchiveSimpleWntCellCycleModel()
     {
         CancerParameters* p_params = CancerParameters::Instance();
@@ -838,6 +935,54 @@ public:
         }
         
         WntConcentration::Destroy();
+    }
+    
+    void TestArchiveStochasticDivisionRuleCellCycleModel() throw (Exception)
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "stoch_div_rule_cell_cycle.arch";
+             
+        // Create an ouput archive
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+            
+            StochasticDivisionRuleCellCycleModel model(true);
+            
+            p_simulation_time->IncrementTimeOneStep();
+            
+            model.SetBirthTime(-1.0);
+            
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);            
+                        
+            output_arch << static_cast<const StochasticDivisionRuleCellCycleModel&>(model);
+            
+            SimulationTime::Destroy();     
+        }
+        
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            
+            StochasticDivisionRuleCellCycleModel model;
+            model.SetBirthTime(-2.0);            
+            
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            // Restore from the archive
+            input_arch >> model;
+            
+            // Check that archiving worked correctly
+            TS_ASSERT_DELTA(model.GetBirthTime(), -1.0, 1e-12);
+            TS_ASSERT_DELTA(model.GetAge(), 1.5, 1e-12);
+            TS_ASSERT_EQUALS(model.GetCurrentCellCyclePhase(), M_PHASE);
+            TS_ASSERT_EQUALS(model.DividedSymmetrically(), true);
+        }
     }
   
 };
