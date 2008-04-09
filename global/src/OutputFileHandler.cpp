@@ -90,9 +90,6 @@ std::string OutputFileHandler::GetChasteTestOutputDirectory()
         }
     }
     
-    // TEMPORARY HACK for DTC chaste day -need to not write to /tmp/
-    directory_root = "./results/";
-    
     return directory_root;
 }
     
