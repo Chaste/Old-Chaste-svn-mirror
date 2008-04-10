@@ -430,7 +430,7 @@ void TissueSimulation<DIM>::Solve()
     ///////////////////////////////////////////////////////////
    
     // Create output files for the visualizer
-    OutputFileHandler output_file_handler(results_directory+"/", false);
+    OutputFileHandler output_file_handler(results_directory+"/", true);
     
     mrTissue.CreateOutputFiles(results_directory+"/",
                                false,
