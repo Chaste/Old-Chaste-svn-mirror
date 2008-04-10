@@ -21,7 +21,6 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #define LOGFILE_HPP_
 
 #include <string>
-#include "Exception.hpp"
 #include "OutputFileHandler.hpp"
 #include <cassert>
 

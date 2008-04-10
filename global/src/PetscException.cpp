@@ -99,7 +99,7 @@ void KspException(PetscInt kspError,
         // in future releases it might change. It is defined in
         // src/ksp/ksp/interface/dlregisksp.c         
         if (kspError >= -10 ) err_string = KSPConvergedReasons[kspError];
-        else err_string = "Unknown KSP error code";             
+        else err_string = "Unknown KSP error code";
   #endif
                  
         err_string+= " in function '";

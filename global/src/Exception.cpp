@@ -18,6 +18,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Exception.hpp"
+#include "LogFile.hpp"
 
 Exception::Exception(std::string message,
                      std::string filename, const unsigned rLineNumber)
@@ -26,6 +27,11 @@ Exception::Exception(std::string message,
     line_number << rLineNumber;
     
     mMessage = std::string("\nChaste error: ") + filename + ":"  + line_number.str()  + ": " + message;
+    
+    // no way of saying here whether this will be a fatal error, but write
+    // it to the log file (if one exists) in case it is.
+    std::string log_file_message = "Exception occurred (although possibly handled), error message:\n" + message;
+    LOG(1, log_file_message);
 }
 
 
