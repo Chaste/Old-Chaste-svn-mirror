@@ -158,15 +158,17 @@ public:
 
             // the date will change but the beginning of the line won't
             std::string expected_beginning_of_line = "Chaste: Complete human simulation, on";
-            TS_ASSERT_EQUALS(line.substr(0,expected_beginning_of_line.size()),expected_beginning_of_line);
+            TS_ASSERT_EQUALS(line.substr(0,expected_beginning_of_line.size()),
+                             expected_beginning_of_line);
 
             // get the fourth line
             getline(ifs,line);
             getline(ifs,line);
 
-            // hopefully it took less than one second to do a tiny bit of writing..
-            std::string expected_line = " -> Elapsed time is: 0h 0m 0s";
-            TS_ASSERT_EQUALS(line ,expected_line);
+            // hopefully it took less than one minute(!) to do a tiny bit of writing..
+            expected_beginning_of_line = " -> Elapsed time is: 0h 0m";
+            TS_ASSERT_EQUALS(line.substr(0,expected_beginning_of_line.size()),
+                             expected_beginning_of_line);
         }
         else
         {
