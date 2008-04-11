@@ -2,7 +2,7 @@
 #define CELLSGENERATOR_HPP_
 
 #include <vector>
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include "TissueCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"

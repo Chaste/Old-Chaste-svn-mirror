@@ -5,7 +5,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include "CryptSimulation2d.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include <cmath>
 #include <vector>
 #include "OutputFileHandler.hpp"

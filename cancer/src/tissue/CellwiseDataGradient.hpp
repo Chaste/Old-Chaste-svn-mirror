@@ -2,7 +2,7 @@
 #define CELLWISEDATAGRADIENT_HPP_
 
 #include "CellwiseData.hpp"
-#include "LinearBasisFunction.cpp"
+#include "LinearBasisFunction.hpp"
 
 /**
  *  A class for calculating the gradients of the CellwiseData.

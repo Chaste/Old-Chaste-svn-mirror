@@ -24,8 +24,8 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "AbstractCardiacCellFactory.hpp"
 #include "TimeStepper.hpp"
-#include "MeshalyzerMeshWriter.cpp"
-#include "TrianglesMeshWriter.cpp"
+#include "MeshalyzerMeshWriter.hpp"
+#include "TrianglesMeshWriter.hpp"
 #include "MultiStimulus.hpp"
 #include <ctime>
 

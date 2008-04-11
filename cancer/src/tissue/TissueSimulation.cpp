@@ -14,7 +14,7 @@
 #include "Exception.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "TrianglesMeshWriter.cpp"
+#include "TrianglesMeshWriter.hpp"
 #include "WntConcentration.hpp"
 #include "CellwiseData.cpp"
 #include "LogFile.hpp"

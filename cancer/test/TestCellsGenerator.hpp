@@ -4,7 +4,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "CellsGenerator.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

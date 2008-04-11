@@ -24,9 +24,9 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <fstream>
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
-#include "TrianglesMeshWriter.cpp"
+#include "ConformingTetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshWriter.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"

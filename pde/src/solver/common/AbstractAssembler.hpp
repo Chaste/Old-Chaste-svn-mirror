@@ -1,7 +1,7 @@
 #ifndef _ABSTRACTASSEMBLER_HPP_
 #define _ABSTRACTASSEMBLER_HPP_
 
-#include "LinearBasisFunction.cpp"
+#include "LinearBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"

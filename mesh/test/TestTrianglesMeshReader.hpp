@@ -28,7 +28,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #define _TESTTRIANGLESMESHREADER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 
 // these typedefs are just because can't have lines such as
 //  TS_ASSERT_THROWS_NOTHING(p_mesh_reader=new TrianglesMeshReader<2,2>(name));

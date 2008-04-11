@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "AbstractBoundaryCondition.hpp"
 #include "ConstBoundaryCondition.hpp"
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include "LinearSystem.hpp"
 #include "PetscException.hpp"
 

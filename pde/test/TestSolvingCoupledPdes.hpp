@@ -3,14 +3,14 @@
 
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include <petsc.h>
 #include <vector>
 #include <cmath>
 #include "PetscSetupAndFinalize.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "AbstractLinearAssembler.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 #include "ReplicatableVector.hpp"

@@ -36,7 +36,7 @@
 /* We will also solve this PDE */
 #include "SimplePoissonEquation.hpp"
 /* This is needed to read mesh datafiles of the 'Triangles' format */
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 /* !PetscSetupAndFinalize.hpp must be included in every test that uses PETSc. Note that it
  * cannot be included in the source code. */
 #include "PetscSetupAndFinalize.hpp"

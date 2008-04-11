@@ -4,8 +4,8 @@
 #include <cxxtest/TestSuite.h>
 
 #include "AbstractFunctionalCalculator.hpp"
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
+#include "ConformingTetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "DistributedVector.hpp"

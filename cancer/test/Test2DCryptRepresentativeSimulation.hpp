@@ -8,7 +8,7 @@
 #include <cmath>
 #include <vector>
 #include "CryptSimulation2d.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "WntCellCycleModel.hpp"
 #include "FixedCellCycleModel.hpp"

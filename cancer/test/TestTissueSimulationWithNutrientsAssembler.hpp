@@ -9,10 +9,9 @@
 #include <cmath>
 #include <pde/test/pdes/SimplePoissonEquation.hpp>
 
-#include "ConformingTetrahedralMesh.cpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "TissueSimulationWithNutrientsAssembler.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 class TestTissueSimulationWithNutrientsAssembler : public CxxTest::TestSuite

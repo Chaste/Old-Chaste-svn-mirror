@@ -1,9 +1,9 @@
 #ifndef ABSTRACTFUNCTIONALCALCULATOR_HPP_
 #define ABSTRACTFUNCTIONALCALCULATOR_HPP_
 
-#include "LinearBasisFunction.cpp"
+#include "LinearBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "ReplicatableVector.hpp"
 

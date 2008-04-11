@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include "Cylindrical2dMesh.hpp"
-#include "TrianglesMeshWriter.cpp"
+#include "TrianglesMeshWriter.hpp"
 
 /**
  * @param pElement  

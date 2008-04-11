@@ -8,7 +8,7 @@
 #include <cmath>
 #include <vector>
 #include "SimpleTissue.cpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "CellsGenerator.hpp"
 #include "FixedCellCycleModel.hpp"

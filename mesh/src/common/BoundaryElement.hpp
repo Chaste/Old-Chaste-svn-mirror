@@ -20,7 +20,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef _BOUNDARYELEMENT_HPP_
 #define _BOUNDARYELEMENT_HPP_
 
-#include "AbstractElement.cpp"
+#include "AbstractElement.hpp"
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BoundaryElement : public AbstractElement<ELEMENT_DIM, SPACE_DIM>

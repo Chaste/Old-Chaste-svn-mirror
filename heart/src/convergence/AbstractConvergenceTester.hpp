@@ -28,11 +28,11 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <math.h>
 
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "OutputFileHandler.hpp"
-#include "TrianglesMeshWriter.cpp"
+#include "TrianglesMeshWriter.hpp"
 #include "PropagationPropertiesCalculator.hpp"
 #include "Hdf5DataReader.hpp"
 #include "GeneralPlaneStimulusCellFactory.hpp"

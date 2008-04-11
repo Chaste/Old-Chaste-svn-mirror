@@ -1,8 +1,8 @@
 #ifndef TESTDISTANCEMAPCALCULATOR_
 #define TESTDISTANCEMAPCALCULATOR_
 
-#include "TrianglesMeshReader.cpp"
-#include "ConformingTetrahedralMesh.cpp"
+#include "TrianglesMeshReader.hpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include "DistanceMapCalculator.hpp"
 
 class TestDistanceMapCalculator : public CxxTest::TestSuite

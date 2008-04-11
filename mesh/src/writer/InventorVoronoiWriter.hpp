@@ -20,7 +20,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef INVENTORVORONOIWRITER_HPP_
 #define INVENTORVORONOIWRITER_HPP_
 
-#include "VoronoiTessellation.cpp"
+#include "VoronoiTessellation.hpp"
 #include "OutputFileHandler.hpp"
 
 

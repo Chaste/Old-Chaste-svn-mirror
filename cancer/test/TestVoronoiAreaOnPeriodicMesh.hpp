@@ -4,11 +4,11 @@
 #include "UblasCustomFunctions.hpp"
 #include <cxxtest/TestSuite.h>
 #include "VoronoiCell.hpp"
-#include "VoronoiTessellation.cpp"
-#include "ConformingTetrahedralMesh.cpp"
+#include "VoronoiTessellation.hpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "Exception.hpp"
-#include "TrianglesMeshWriter.cpp"
+#include "TrianglesMeshWriter.hpp"
 
 #include <cmath>
 #include <vector>

@@ -9,8 +9,8 @@
 
 #include "TissueSimulation.cpp"
 #include "FixedCellCycleModel.hpp"
-#include "TrianglesMeshReader.cpp"
-#include "TrianglesMeshWriter.cpp"
+#include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

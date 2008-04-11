@@ -28,7 +28,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #define _TESTFEMLABMESHREADER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "FemlabMeshReader.cpp"
+#include "FemlabMeshReader.hpp"
 
 typedef FemlabMeshReader<2,2> READER_2D;
 typedef FemlabMeshReader<1,1> READER_1D;

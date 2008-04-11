@@ -2,7 +2,7 @@
 #define SIMPLETISSUE_HPP_
 
 #include "AbstractTissue.cpp"
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

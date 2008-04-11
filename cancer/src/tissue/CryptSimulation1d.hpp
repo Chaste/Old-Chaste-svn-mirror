@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "TissueCell.hpp"
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 
 /**
  * Solve a crypt simulation based on the Meineke paper.

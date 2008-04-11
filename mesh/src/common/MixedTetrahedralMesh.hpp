@@ -17,13 +17,13 @@ You should have received a copy of the Lesser GNU General Public License
 along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _REFINEDTETRAHEDRALMESH_CPP_
-#define _REFINEDTETRAHEDRALMESH_CPP_
+#ifndef _REFINEDTETRAHEDRALMESH_HPP_
+#define _REFINEDTETRAHEDRALMESH_HPP_
 
 #include <boost/numeric/ublas/vector.hpp> // Needs to come before PETSc headers
 #include <petscvec.h>
 
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include "NodeMap.hpp"
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
@@ -381,4 +381,4 @@ void MixedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::UpdateCoarseSolutionOnFlaggedR
     }
 }
 
-#endif // _REFINEDTETRAHEDRALMESH_CPP_
+#endif // _REFINEDTETRAHEDRALMESH_HPP_

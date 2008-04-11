@@ -28,7 +28,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #define _TESTMEMFEMMESHREADER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "MemfemMeshReader.cpp"
+#include "MemfemMeshReader.hpp"
 
 typedef MemfemMeshReader<3,3> READER_3D;
 

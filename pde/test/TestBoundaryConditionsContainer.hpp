@@ -5,8 +5,8 @@
 
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
+#include "ConformingTetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 

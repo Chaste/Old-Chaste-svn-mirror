@@ -12,7 +12,7 @@
 #include "CellsGenerator.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

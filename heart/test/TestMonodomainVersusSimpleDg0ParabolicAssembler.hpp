@@ -21,14 +21,14 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #define _TESTMONODOMAINVERSUSSIMPLEDG0PARABOLICASSEMBLER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include <petsc.h>
 #include <vector>
 
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
 #include "MonodomainDg0Assembler.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "AbstractLinearParabolicPde.hpp"

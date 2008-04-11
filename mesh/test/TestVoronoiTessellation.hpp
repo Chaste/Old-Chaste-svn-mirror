@@ -24,12 +24,12 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 #include <cxxtest/TestSuite.h>
 #include "VoronoiCell.hpp"
-#include "VoronoiTessellation.cpp"
-#include "ConformingTetrahedralMesh.cpp"
+#include "VoronoiTessellation.hpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CancerParameters.hpp"
 #include "Exception.hpp"
-#include "TrianglesMeshWriter.cpp"
+#include "TrianglesMeshWriter.hpp"
 
 #include <cmath>
 #include <vector>

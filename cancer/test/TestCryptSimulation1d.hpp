@@ -10,7 +10,7 @@
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "ColumnDataReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"

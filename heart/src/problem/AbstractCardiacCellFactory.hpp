@@ -21,7 +21,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTCARDIACCELLFACTORY_HPP_
 
 #include "AbstractCardiacCell.hpp"
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include "ZeroStimulus.hpp"
 #include "InitialStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"

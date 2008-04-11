@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "Cylindrical2dMesh.cpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"

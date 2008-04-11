@@ -12,7 +12,7 @@
 #include "CryptSimulation2d.hpp"
 #include "DiscreteSystemForceCalculator.hpp"
 #include "CellsGenerator.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

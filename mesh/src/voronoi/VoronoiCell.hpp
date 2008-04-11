@@ -21,7 +21,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #define VORONOICELL_HPP_
 
 #include "UblasCustomFunctions.hpp"
-#include "Face.cpp"
+#include "Face.hpp"
 #include <cxxtest/TestSuite.h>
 
 #include <cmath>

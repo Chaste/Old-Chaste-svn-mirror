@@ -18,7 +18,7 @@
 #include "StochasticCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
 #include "SloughingCellKiller.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 
 

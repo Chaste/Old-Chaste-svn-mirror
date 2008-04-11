@@ -35,7 +35,7 @@
  */
 #include <cxxtest/TestSuite.h>
 #include "UblasCustomFunctions.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 /* This is the assembler for nonlinear elliptic PDEs */
 #include "SimpleNonlinearEllipticAssembler.hpp"

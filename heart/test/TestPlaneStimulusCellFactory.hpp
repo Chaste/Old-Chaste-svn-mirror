@@ -20,7 +20,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTPLANESTIMULUSCELLFACTORY_HPP_
 #define TESTPLANESTIMULUSCELLFACTORY_HPP_
 
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 
 class TestPlaneStimulusCellFactory : public CxxTest::TestSuite

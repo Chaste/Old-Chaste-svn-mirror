@@ -8,7 +8,7 @@
 
 #include "Cylindrical2dMesh.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "TrianglesMeshWriter.cpp"
+#include "TrianglesMeshWriter.hpp"
 
 class TestCylindrical2dMesh : public CxxTest::TestSuite
 {

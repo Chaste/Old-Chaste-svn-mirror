@@ -28,7 +28,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <petscvec.h>
 
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include "LinearSystem.hpp"
 #include "BidomainPde.hpp"
 #include "GaussianQuadratureRule.hpp"

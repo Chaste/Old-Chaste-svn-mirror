@@ -4,7 +4,7 @@
 #include <cxxtest/TestSuite.h>
 #include <vector>
 
-#include "LinearBasisFunction.cpp"
+#include "LinearBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "BasisFunctionsCheckers.hpp"
 #include "Element.hpp"

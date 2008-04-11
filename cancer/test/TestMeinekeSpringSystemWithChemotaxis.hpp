@@ -10,7 +10,7 @@
 
 #include "MeinekeSpringSystemWithChemotaxis.hpp"
 #include "MeshBasedTissueWithGhostNodes.cpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

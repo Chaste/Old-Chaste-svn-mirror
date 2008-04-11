@@ -21,9 +21,9 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #define TESTTRANSFORMATIONS_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
-#include "TrianglesMeshWriter.cpp"
+#include "ConformingTetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshWriter.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 #include <cmath>

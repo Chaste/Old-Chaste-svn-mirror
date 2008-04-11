@@ -20,7 +20,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ELEMENT_HPP_
 #define _ELEMENT_HPP_
 
-#include "AbstractElement.cpp"
+#include "AbstractElement.hpp"
 #include <set>
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

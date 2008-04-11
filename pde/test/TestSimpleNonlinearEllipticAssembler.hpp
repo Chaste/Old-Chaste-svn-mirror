@@ -4,7 +4,7 @@
 
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include <petsc.h>
 #include <vector>
 #include <cmath>
@@ -25,7 +25,7 @@
 #include "Example2DNonlinearEllipticPde.hpp"
 #include "NonlinearLinearEquation.hpp"
 #include "ExampleNasty2dNonlinearEllipticPde.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
 

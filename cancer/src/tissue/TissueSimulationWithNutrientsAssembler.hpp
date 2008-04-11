@@ -4,7 +4,7 @@
 #include <vector>
 #include <petscvec.h>
 
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "GaussianQuadratureRule.hpp"
 

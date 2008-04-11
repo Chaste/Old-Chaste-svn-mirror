@@ -2,7 +2,7 @@
 #define FLAGGEDMESHBOUNDARYCONDITIONSCONTAINER_HPP_
 
 #include "AbstractBoundaryConditionsContainer.hpp"
-#include "MixedTetrahedralMesh.cpp"
+#include "MixedTetrahedralMesh.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "ReplicatableVector.hpp"
 

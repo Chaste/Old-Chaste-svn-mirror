@@ -24,11 +24,11 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #include <cxxtest/TestSuite.h>
-#include "MemfemMeshReader.cpp"
-#include "FemlabMeshReader.cpp"
-#include "TrianglesMeshReader.cpp"
-#include "TrianglesMeshWriter.cpp"
-#include "MeshalyzerMeshWriter.cpp"
+#include "MemfemMeshReader.hpp"
+#include "FemlabMeshReader.hpp"
+#include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshWriter.hpp"
+#include "MeshalyzerMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
 #include <cmath>
 //#include <iostream>

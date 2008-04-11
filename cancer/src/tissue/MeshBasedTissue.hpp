@@ -2,8 +2,8 @@
 #define MESHBASEDTISSUE_HPP_
 
 #include "AbstractTissue.cpp"
-#include "ConformingTetrahedralMesh.cpp"
-#include "VoronoiTessellation.cpp"
+#include "ConformingTetrahedralMesh.hpp"
+#include "VoronoiTessellation.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

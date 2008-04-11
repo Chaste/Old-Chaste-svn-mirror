@@ -2,12 +2,12 @@
 #define TESTFLAGGEDMESHBOUNDARYCONDITIONSCONTAINER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include <petsc.h>
 #include <vector>
 #include <cmath>
 #include <iostream>
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "FlaggedMeshBoundaryConditionsContainer.hpp"
 #include "PetscTools.hpp"

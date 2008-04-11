@@ -20,8 +20,8 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACPROBLEM_HPP_
 #define ABSTRACTCARDIACPROBLEM_HPP_
 
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
+#include "ConformingTetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 #include "Hdf5DataWriter.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "DistributedVector.hpp"

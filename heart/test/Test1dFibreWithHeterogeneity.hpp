@@ -23,7 +23,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include <vector>
 
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include "Hdf5DataReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"

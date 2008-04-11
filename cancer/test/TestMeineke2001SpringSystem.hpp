@@ -16,8 +16,8 @@
 #include "WntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "SloughingCellKiller.hpp"
-#include "VoronoiTessellation.cpp"
-#include "TrianglesMeshReader.cpp"
+#include "VoronoiTessellation.hpp"
+#include "TrianglesMeshReader.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

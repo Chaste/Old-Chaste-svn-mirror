@@ -22,8 +22,8 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include "MixedTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
+#include "MixedTetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 #include "DistributedVector.hpp"
 
 #include "PetscSetupAndFinalize.hpp"

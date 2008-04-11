@@ -26,7 +26,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #include "NhsCellularMechanicsOdeSystem.hpp"
 #include "FiniteElasticityTools.hpp"
 #include "AbstractElasticityAssembler.hpp"
-#include "TrianglesMeshWriter.cpp"
+#include "TrianglesMeshWriter.hpp"
 #include "LogFile.hpp"
 #include "ImplicitCardiacMechanicsAssembler.hpp"
 

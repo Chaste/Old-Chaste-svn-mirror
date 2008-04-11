@@ -20,10 +20,10 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TESTELEMENT_HPP_
 #define _TESTELEMENT_HPP_
 
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 
 #include "Exception.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include <cxxtest/TestSuite.h>
 //#include <iostream>
 

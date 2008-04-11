@@ -12,7 +12,7 @@
 #include "CryptSimulation2d.hpp"
 #include "CellsGenerator.hpp"
 #include "SloughingCellKiller.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "SimpleDataWriter.hpp"
 #include "OutputFileHandler.hpp"
 

@@ -22,7 +22,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "UblasCustomFunctions.hpp"
 #include <cxxtest/TestSuite.h>
-#include "Face.cpp"
+#include "Face.hpp"
 
 
 class TestFace : public CxxTest::TestSuite

@@ -12,7 +12,7 @@
 #include "TissueSimulation.cpp"
 #include "CellsGenerator.hpp"
 #include "RadialSloughingCellKiller.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

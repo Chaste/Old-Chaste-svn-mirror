@@ -11,7 +11,7 @@
  */
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include <petsc.h>
 #include <vector>
 #include <cmath>
@@ -21,8 +21,8 @@
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
 #include "ParallelColumnDataWriter.hpp"
-#include "TrianglesMeshReader.cpp"
-#include "FemlabMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
+#include "FemlabMeshReader.hpp"
 #include "HeatEquation.hpp"
 #include "HeatEquationWithSourceTerm.hpp"
 #include "PetscTools.hpp"

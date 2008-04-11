@@ -21,7 +21,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #define _TESTNODE_HPP_
 
 #include "Node.hpp"
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include <cxxtest/TestSuite.h>
 
 class TestNode : public CxxTest::TestSuite

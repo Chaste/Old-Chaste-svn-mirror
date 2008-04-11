@@ -2,7 +2,7 @@
 #define _ABSTRACTSTATICASSEMBLER_HPP_
 
 #include "AbstractAssembler.hpp"
-#include "LinearBasisFunction.cpp"
+#include "LinearBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"

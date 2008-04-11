@@ -2,20 +2,20 @@
 #define TESTFLAGGEDMESHASSEMBLER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.cpp"
+#include "ConformingTetrahedralMesh.hpp"
 #include <petsc.h>
 #include <vector>
 #include <cmath>
 #include <iostream>
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "ParabolicFlaggedMeshAssembler.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
 #include "HeatEquation.hpp"
 #include "HeatEquationWithSourceTerm.hpp"
-#include "MixedTetrahedralMesh.cpp"
+#include "MixedTetrahedralMesh.hpp"
 #include "ParallelColumnDataWriter.hpp"
-#include "TrianglesMeshWriter.cpp"
+#include "TrianglesMeshWriter.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "PetscTools.hpp"
 #include "SimplePoissonEquation.hpp"

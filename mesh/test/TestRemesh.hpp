@@ -21,8 +21,8 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 #define TESTREMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.cpp"
+#include "ConformingTetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "NodeMap.hpp"
 #include <iostream>

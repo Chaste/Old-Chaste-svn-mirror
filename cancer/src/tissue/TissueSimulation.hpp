@@ -10,7 +10,7 @@
 #include "SimpleTissue.cpp"
 #include "AbstractCellKiller.hpp"
 #include "Meineke2001SpringSystem.hpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "CancerEventHandler.hpp"
 
 /**

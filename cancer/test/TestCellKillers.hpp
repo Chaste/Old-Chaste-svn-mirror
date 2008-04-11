@@ -19,7 +19,7 @@
 #include "RadialSloughingCellKiller.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "CellwiseData.cpp"
-#include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
