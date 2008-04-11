@@ -231,9 +231,15 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
     {
         TissueCell& cell = *cell_iter;
         unsigned index = cell.GetNodeIndex();
-        
+
         ChastePoint<DIM> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
-        mrTissue.MoveCell(cell_iter, new_point);    
+        mrTissue.MoveCell(cell_iter, new_point);
+
+        // a bit of error checking..
+        for(unsigned i=0; i<DIM; i++)
+        {
+            assert(!isnan(new_point[i]));
+        }
     }
 }
 

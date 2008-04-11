@@ -107,7 +107,8 @@ public:
     virtual void ComputeExceptVoltage(double tStart, double tEnd);
     
     /**
-     *  Check that none of the gating variables have gone out of range. Throws an
+     *  The implemented version of this pure method should check that none 
+     *  of the gating variables have gone out of range and throw an
      *  Exception if any have.
      */
     virtual void VerifyStateVariables()=0;

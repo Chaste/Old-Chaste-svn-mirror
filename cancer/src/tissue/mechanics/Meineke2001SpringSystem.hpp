@@ -5,6 +5,7 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractVariableDampingMechanicsSystem.hpp"
+#include "IngeWntSwatCellCycleModel.hpp"
 
 /**
  *  Meineke2001System
@@ -214,9 +215,14 @@ public :
         
         if (mUseBCatSprings)
         {
+            // if using beta-cat dependent springs, both cell-cycle models has better
+            // be IngeWntSwatCellCycleModel
+            IngeWntSwatCellCycleModel* p_model_A = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_A.GetCellCycleModel());
+            IngeWntSwatCellCycleModel* p_model_B = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_B.GetCellCycleModel());
+            
             assert(!mUseEdgeBasedSpringConstant);   // This already adapts for edge lengths - don't want to do it twice.
-            double beta_cat_cell_1 = r_cell_A.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
-            double beta_cat_cell_2 = r_cell_B.GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
+            double beta_cat_cell_1 = p_model_A->GetMembraneBoundBetaCateninLevel();
+            double beta_cat_cell_2 = p_model_B->GetMembraneBoundBetaCateninLevel();
             
             VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(this->mpTissue))->rGetVoronoiTessellation();
             

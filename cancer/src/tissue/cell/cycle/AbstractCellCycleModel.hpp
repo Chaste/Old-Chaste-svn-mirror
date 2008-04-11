@@ -222,30 +222,9 @@ public:
      * @return whether the cell cycle model uses beta-catenin levels in cell cycle model, ie Inge models.
      */
     virtual bool UsesBetaCat();
-
-    /**
-     * @return the level of membrane bound beta-catenin. However in most Cell Cycle models this does not exist.
-     * We have a "work-around" such that we throw an error if we try and access it for any other cell type.
-     * \todo may be better to use dynamic_cast and/or MI (see #697)
-     */
-    virtual double GetMembraneBoundBetaCateninLevel();
-    
-    /**
-     * @return the level of cytoplasm beta-catenin. However in most Cell Cycle models this does not exist.
-     * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
-     * \todo may be better to use dynamic_cast and/or MI (see #697)
-     */
-    virtual double GetCytoplasmicBetaCateninLevel();
-    
-    /**
-     * @return the level of nuclear bound beta-catenin. However in most Cell Cycle models this does not exist.
-     * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
-     * \todo may be better to use dynamic_cast and/or MI (see #697)
-     */
-    virtual double GetNuclearBetaCateninLevel();
     
      /**
-     * Returns the protein concentrations at the current time However in most Cell Cycle models this does not exist.
+     * Returns the protein concentrations at the current time. However in most Cell Cycle models this does not exist.
      * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
      * \todo may be better to use dynamic_cast and/or MI (see #697)   
      *  

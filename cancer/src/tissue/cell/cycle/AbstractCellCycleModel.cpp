@@ -39,28 +39,12 @@ CellCyclePhase AbstractCellCycleModel::GetCurrentCellCyclePhase()
 }
 
 #define COVERAGE_IGNORE
-double AbstractCellCycleModel::GetMembraneBoundBetaCateninLevel()
-{
-    EXCEPTION("Called GetMembraneBoundBetaCateninLevel() on model which does not implement it");
-    return 0.0;
-}
-
-double AbstractCellCycleModel::GetCytoplasmicBetaCateninLevel()
-{
-    EXCEPTION("Called GetCytoplasmicBetaCateninLevel() on model which does not implement it");
-    return 0.0;
-}
-
-double AbstractCellCycleModel::GetNuclearBetaCateninLevel()
-{
-    EXCEPTION("Called GetNuclearBetaCateninLevel() on model which does not implement it");
-    return 0.0;
-}
-
 std::vector<double> AbstractCellCycleModel::GetProteinConcentrations() const
 {
+    // this method will be overriden on those models which use protein concentrations 
+    // (ie ODE-based models)
     EXCEPTION("Called GetProteinConcentrations() on model which does not implement it");
-    std::vector<double> return_vec ;
+    std::vector<double> return_vec;
     return return_vec;
 }
 #undef COVERAGE_IGNORE 

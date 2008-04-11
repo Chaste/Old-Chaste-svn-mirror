@@ -6,6 +6,7 @@
 
 #include "TissueSimulation.cpp"
 #include "SimpleDataWriter.hpp"
+#include "IngeWntSwatCellCycleModel.hpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
@@ -192,9 +193,13 @@ private :
             global_index = (double) cell_iter.GetNode()->GetIndex();
             x = cell_iter.rGetLocation()[0];
             y = cell_iter.rGetLocation()[1];
-            b_cat_membrane = cell_iter->GetCellCycleModel()->GetMembraneBoundBetaCateninLevel();
-            b_cat_cytoplasm = cell_iter->GetCellCycleModel()->GetCytoplasmicBetaCateninLevel();
-            b_cat_nuclear = cell_iter->GetCellCycleModel()->GetNuclearBetaCateninLevel();
+
+            // if writing beta-catenin, the model has be be IngeWntSwatCellCycleModel
+            IngeWntSwatCellCycleModel* p_model = dynamic_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
+            
+            b_cat_membrane = p_model->GetMembraneBoundBetaCateninLevel();
+            b_cat_cytoplasm = p_model->GetCytoplasmicBetaCateninLevel();
+            b_cat_nuclear = p_model->GetNuclearBetaCateninLevel();
             
             *mBetaCatResultsFile << global_index << " " << x << " " << y << " " << b_cat_membrane << " " << b_cat_cytoplasm << " " << b_cat_nuclear << " ";
         }
