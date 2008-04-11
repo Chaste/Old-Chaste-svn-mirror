@@ -66,6 +66,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static boolean betaCateninFilePresent = false;
     public static boolean stressFilePresent = false;
     public static boolean elementFilePresent = true;
+    // by default the last timestep isn't read or visualised; this
+    // allows the visualiser to be run as a simulation is being run.
+    // To visualise the last timestep, use "showlaststep" as an argument
+    public static boolean showLastStep = false; 
     
     public static int timeStep = 0;
     public static int delay = 50;
@@ -110,7 +114,18 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static Checkbox axes = new Checkbox("Axes");
     
     public static JLabel nearest_label = new JLabel();
-                
+    
+    public static File node_file;
+    public static File element_file;
+    public static File nutrient_file;
+    public static File beta_catenin_file;
+    public static File stress_file;
+    public static File ancestors_file;
+    public static File fibre_file;
+    public static File setup_file;
+    
+    public static Button refresh;
+    
     public Visualize2dCells() 
     {
         frame.setSize(700, 700);
@@ -176,6 +191,14 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 fred.interrupt();
                 run.setLabel("Run");
             }
+        }
+        if (pressed == "Refresh")
+        {
+            refresh.setEnabled(false);
+        	LoadAllFiles();
+            canvas.drawBufferedImage();
+            canvas.repaint();
+            refresh.setEnabled(true);
         }
     }
     
@@ -345,7 +368,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
     public void addButtons(Frame frame) 
     {
-        JPanel buttonPanel = new JPanel(new GridLayout(0,3));
+        JPanel buttonPanel = new JPanel(new GridLayout(0,4));
         Button quit = new Button("Quit");
         quit.addActionListener(this);
 
@@ -355,9 +378,14 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         Button reset = new Button("Reset");
         reset.addActionListener(this);
         
+        refresh = new Button("Refresh");
+        refresh.setEnabled(true);
+        refresh.addActionListener(this);
+        
         buttonPanel.add(quit);
         buttonPanel.add(run);
         buttonPanel.add(reset);
+        buttonPanel.add(refresh);
                 
         JPanel scrollPanel = new JPanel();
         
@@ -411,12 +439,12 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         checkPanel.add(cells);
         checkPanel.add(ghost_nodes);
         checkPanel.add(circles);
+        checkPanel.add(axes);
         checkPanel.add(nutrient);
         checkPanel.add(beta_catenin);
         checkPanel.add(fibre);
         checkPanel.add(average_stress);
         checkPanel.add(difference_stress);
-        checkPanel.add(axes);
         checkPanel.add(ancestors);
         checkPanel.add(nearest_label);
                 
@@ -502,17 +530,21 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 drawAncestors = true;
                 ancestors.setState(true);
             }
+            else if (args[i].equals("showlaststep"))
+            {
+            	showLastStep = true;
+            }
             else
             {
                 System.out.println("Input option not recognised");
             }
         }
-        File node_file = new File(args[0]+"/results.viznodes");
-        File element_file = new File(args[0]+"/results.vizelements");
-        File nutrient_file = new File(args[0]+"/results.viznutrient");
-        File beta_catenin_file = new File(args[0]+"/results.vizbCat");
-        File stress_file = new File(args[0]+"/results.vizstress");
-        File ancestors_file = new File(args[0]+"/results.vizAncestors");
+        node_file = new File(args[0]+"/results.viznodes");
+        element_file = new File(args[0]+"/results.vizelements");
+        nutrient_file = new File(args[0]+"/results.viznutrient");
+        beta_catenin_file = new File(args[0]+"/results.vizbCat");
+        stress_file = new File(args[0]+"/results.vizstress");
+        ancestors_file = new File(args[0]+"/results.vizAncestors");
                 
         if (!node_file.isFile())
         {
@@ -576,7 +608,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             drawAncestors = true;
         }
     
-        File fibre_file = new File(args[0]+"/results.vizfibres");
+        fibre_file = new File(args[0]+"/results.vizfibres");
         if (!fibre_file.isFile())
         {
             fibre.setVisible(false);
@@ -589,7 +621,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             fibresFilePresent = true;
         }
         
-        File setup_file = new File(args[0]+"/results.vizsetup");
+        setup_file = new File(args[0]+"/results.vizsetup");
         if (!setup_file.isFile())
         {
             System.out.println("The file "+args[0]+"/results.vizsetup doesn't exist");
@@ -601,7 +633,17 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
              
         
         Visualize2dCells vis = new Visualize2dCells();
+
+        LoadAllFiles();
         
+        canvas.drawBufferedImage();
+        canvas.repaint();
+    }
+
+    
+    public static void LoadAllFiles()
+    {
+    	parsed_all_files = false;
         try 
         {
             BufferedReader skim_node_file = new BufferedReader(new FileReader(node_file));
@@ -610,6 +652,14 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             while (skim_node_file.readLine() != null) 
             {
                 num_lines++;
+            }
+            
+            // by default we don't read or print the final line, so
+            // the visualiser can be run as a simulation is being run,
+            // and the visualiser will work on incomplete data.
+            if(num_lines>1 && !showLastStep)
+            {
+            	num_lines -= 1;
             }
 
             numSteps = num_lines;
@@ -745,7 +795,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             // If line is not end of file continue
             boolean has_stress_line_been_read = false;
             int row = 0;
-            while (line_node != null) 
+            while (line_node != null && row<num_lines) 
             {
             	// Create a StringTokenizer with a colon sign as a delimiter
                 StringTokenizer st_node = new StringTokenizer(line_node);
@@ -773,19 +823,19 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     st_nutrient = new StringTokenizer(line_nutrient);
                     Double nutrient_time = Double.valueOf(st_nutrient.nextToken());
                     
-	            int nutrient_entries = st_nutrient.countTokens();
-	            if (nutrient_entries%4 != 0)
-	            {
-	            	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the nutrient file is not of the required form: time,index,x,y,nutrient,index,x,y,nutrient,...");
-	            	break;
-	            }
+                    int nutrient_entries = st_nutrient.countTokens();
+                    if (nutrient_entries%4 != 0)
+                    {
+                    	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the nutrient file is not of the required form: time,index,x,y,nutrient,index,x,y,nutrient,...");
+                    	break;
+                    }
                 }
                 
-		if (drawAncestors)
+                if (drawAncestors)
                 {
                     st_ancestors = new StringTokenizer(line_ancestors);
                     Double ancestors_time = Double.valueOf(st_ancestors.nextToken());
-		}
+                }
                 
                 if (drawBetaCatenin)
                 {
@@ -793,13 +843,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     Double beta_catenin_time = Double.valueOf(st_beta_catenin.nextToken());
                     
                     // Count the number of entries in the bcat file to get num non ghosts and check correct 
-	            int beta_catenin_entries = st_beta_catenin.countTokens();
+                    int beta_catenin_entries = st_beta_catenin.countTokens();
 	            
                     if (beta_catenin_entries%6 != 0)
-	            {
-                        System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the beta catenin file is not of the required form: time,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,...");
-	                break;
-	            }
+                    {
+                    	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the beta catenin file is not of the required form: time,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,index,x,y,bCat_mem,bCat_cyto,bCat_nuc,...");
+                    	break;
+                    }
                 }
                 
                 if ((drawAverageStress || drawDifferenceStress) && !has_stress_line_been_read)
@@ -808,14 +858,14 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     stress_time = Double.valueOf(st_stress.nextToken());
                     
                     // Count the number of entries in the bcat file to get num non ghosts and check correct 
-	            int stress_entries = st_stress.countTokens();
-	            
-	            if (stress_entries%5 != 0)
-	            {
-	                throw new Exception("The stress file must take the form: time,index,x,y,min_stress,max_stress,index,x,y,min_stress,max_stress,...");
-	            }
-	            System.out.println("The stress file is for time = " + stress_time);
-	            has_stress_line_been_read = true;
+		            int stress_entries = st_stress.countTokens();
+		            
+		            if (stress_entries%5 != 0)
+		            {
+		                throw new Exception("The stress file must take the form: time,index,x,y,min_stress,max_stress,index,x,y,min_stress,max_stress,...");
+		            }
+		            System.out.println("The stress file is for time = " + stress_time);
+		            has_stress_line_been_read = true;
                 }
                 
                 if (elementFilePresent)
@@ -853,27 +903,33 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     numElements[row] = entries/3;
                     element_nodes[row] = new int[memory_factor*3*numElements[row]];
                 }                
+
                 positions[row] = new RealPoint[memory_factor*numCells[row]];
                 if (fibresFilePresent)
                 {
                 	fibres[row] = new RealPoint[numCells[row]];
                 }
+                
                 if (nutrientFilePresent)
                 {
                 	nutrient_values[row] = new double[memory_factor*numCells[row]];
                 }
+                
                 if (ancestorsFilePresent)
                 {
                 	ancestor_values[row] = new int[memory_factor*numCells[row]];
                 }
+                
                 if (betaCateninFilePresent)
                 {
                 	beta_catenin_values[row] = new double[memory_factor*numCells[row]][3];
                 }
+                
                 if (stressFilePresent)
                 {
                 	stress_values[row] = new double[memory_factor*numCells[row]][2];
                 }
+                
                 cell_type[row] = new int[memory_factor*numCells[row]];
                         
                 for (int i=0; i<numCells[row]; i++) 
@@ -1013,14 +1069,15 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             
             CalculateCanvasDimensions();
             parsed_all_files = true;
-            canvas.drawBufferedImage();
-            canvas.repaint();
         } 
         catch (Exception e) 
         {
             System.out.println("Error occured. Exception message: "+e.getMessage());
         }
+    	
+    	
     }
+    
     
     public static void CalculateCanvasDimensions()
     {
