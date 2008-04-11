@@ -47,8 +47,8 @@ private:
     
     MatNullSpace mMatNullSpace;
     
-    /** Whether we need to destroy the PETSc objects in our destructor */
-    bool mDestroyPetscObjects;
+    /** Whether we need to destroy the Petsc matrix and vector in our destructor */
+    bool mDestroyMatAndVec;
     
     KSP mKspSolver;
     bool mKspIsSetup; //Used by Solve method to track whether KSP has been used
@@ -100,16 +100,13 @@ public:
     
     
     /***
-     * Add multiple values to a the linear system
+     * Add multiple values to the matrix of linear system
      * @param matrixRowAndColIndices mapping from index of the ublas matrix (see param below)
      *  to index of the Petsc matrix of this linear system
      * @param smallMatrix Ublas matrix containing the values to be added
      * 
      * N.B. Values which are not local (ie the row is not owned) will be skipped.
      */
-      
-
-    
     template<size_t MATRIX_SIZE>
     void AddLhsMultipleValues(unsigned* matrixRowAndColIndices, c_matrix<double, MATRIX_SIZE, MATRIX_SIZE>& smallMatrix)
     {
@@ -131,8 +128,6 @@ public:
             }
         }
         
-        
-    
         MatSetValues(mLhsMatrix,
                      num_rows_owned,
                      matrix_row_indices,
@@ -140,11 +135,17 @@ public:
                      (PetscInt*) matrixRowAndColIndices,
                      values,
                      ADD_VALUES);
-        
     };
 
 
-
+    /***
+     * Add multiple values to the RHS vector
+     * @param vectorIndices mapping from index of the ublas vector (see param below)
+     *  to index of the vector of this linear system
+     * @param smallVector Ublas vector containing the values to be added
+     * 
+     * N.B. Values which are not local (ie the row is not owned) will be skipped.
+     */
     template<size_t VECTOR_SIZE>
     void AddRhsMultipleValues(unsigned* VectorIndices, c_vector<double, VECTOR_SIZE>& smallVector)
     {
@@ -168,10 +169,7 @@ public:
                      indices_owned,
                      values,
                      ADD_VALUES);
-   
-    };
-    
-    
+    }
 };
 
 #endif //_LINEARSYSTEM_HPP_

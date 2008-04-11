@@ -17,10 +17,10 @@ You should have received a copy of the Lesser GNU General Public License
 along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** Linear System implementation.
-*
-*
-*/
+/** 
+ * Linear System implementation.
+ * 
+ */
 #include "LinearSystem.hpp"
 #include "PetscException.hpp"
 #include <iostream>
@@ -33,7 +33,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 
 LinearSystem::LinearSystem(PetscInt lhsVectorSize)
    :mMatNullSpace(NULL),
-    mDestroyPetscObjects(true),
+    mDestroyMatAndVec(true),
     mKspIsSetup(false),
     mMatrixIsConstant(false),
     mTolerance(1e-6),
@@ -59,7 +59,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize)
  */
 LinearSystem::LinearSystem(Vec templateVector)
    :mMatNullSpace(NULL),
-    mDestroyPetscObjects(true),
+    mDestroyMatAndVec(true),
     mKspIsSetup(false),
     mMatrixIsConstant(false),
     mTolerance(1e-6),
@@ -71,7 +71,6 @@ LinearSystem::LinearSystem(Vec templateVector)
     PetscInt local_size = mOwnershipRangeHi - mOwnershipRangeLo;
 
     PetscTools::SetupMat(mLhsMatrix, mSize, mSize, MATMPIAIJ, local_size, local_size);
-
 }
 
 /**
@@ -83,7 +82,7 @@ LinearSystem::LinearSystem(Vec templateVector)
  */
 LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     :mMatNullSpace(NULL),
-    mDestroyPetscObjects(false),
+    mDestroyMatAndVec(false),
     mKspIsSetup(false),
     mMatrixIsConstant(false),
     mTolerance(1e-6),
@@ -113,7 +112,7 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
 
 LinearSystem::~LinearSystem()
 {
-    if (mDestroyPetscObjects)
+    if (mDestroyMatAndVec)
     {
         VecDestroy(mRhsVector);
         MatDestroy(mLhsMatrix);
@@ -442,7 +441,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         #define COVERAGE_IGNORE
         if (mNonZerosUsed!=mat_info.nz_used)
         {
-            EXCEPTION("SimpleLinearSolver doesn't allow the non-zero pattern of a matrix to change. (I think you changed it).");
+            EXCEPTION("LinearSystem doesn't allow the non-zero pattern of a matrix to change. (I think you changed it).");
         }
         
         #undef COVERAGE_IGNORE
