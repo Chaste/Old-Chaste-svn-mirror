@@ -36,9 +36,7 @@
 #include "CellsGenerator.hpp"
 /* These are the classes that will be used in these tests. 
  * {{{TissueSimulationWithNutrients}}} is used for tumour spheroid
- * simulations. Note we include the '''cpp''' not the hpp. This is 
- * because the class is a template, and in that case, the program
- * won't be able to be linked if the cpp isn't included.
+ * simulations. 
  */
 #include "TissueSimulationWithNutrients.hpp"
 #include "OxygenBasedCellKiller.hpp"
