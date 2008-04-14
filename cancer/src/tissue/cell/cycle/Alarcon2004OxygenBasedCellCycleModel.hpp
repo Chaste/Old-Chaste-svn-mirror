@@ -9,7 +9,7 @@
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "CellwiseData.cpp"
+#include "CellwiseData.hpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>

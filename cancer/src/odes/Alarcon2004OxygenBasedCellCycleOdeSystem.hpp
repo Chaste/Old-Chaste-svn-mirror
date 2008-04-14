@@ -63,18 +63,12 @@ public:
      * @return mMutationState the mutation state of the cell defined by 
      * CellMutationStates.hpp
      */
-    CellMutationState& rGetMutationState()
-    {
-        return mMutationState;
-    }
+    CellMutationState& rGetMutationState();
     
     // Compute the RHS of the Alarcon et al. (2004) system of ODEs
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
     
-    bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
-    {        
-        return (rY[0] < mxThreshold && rY[1] > myThreshold);
-    }
+    bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
     
 };
 #endif //_ALARCON2004OXYGENBASEDCELLCYCLEODESYSTEM_HPP_

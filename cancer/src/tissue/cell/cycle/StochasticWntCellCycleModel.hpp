@@ -36,47 +36,26 @@ private:
      * 
      * @return the duration of the G2 phases of the cell cycle.
      */
-    void SetG2Duration()
-    {
-        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-        double mean = CancerParameters::Instance()->GetG2Duration();
-        double standard_deviation = 0.9;
-        mG2Duration = p_gen->NormalRandomDeviate(mean,standard_deviation);
-    }
+    void SetG2Duration();
     
     /// The duration of the G2 phase, set stochastically
     double mG2Duration;
         
 public:
-    void InitialiseDaughterCell()
-    {
-        SetG2Duration();
-    }
 
-    void Initialise()
-    {
-        WntCellCycleModel::Initialise();
-        SetG2Duration();
-    }
+    void InitialiseDaughterCell();
+
+    void Initialise();
     
-    void ResetForDivision()
-    {
-        AbstractWntOdeBasedCellCycleModel::ResetForDivision();
-        SetG2Duration();
-    }
+    void ResetForDivision();
     
-    double GetG2Duration()
-    {
-        return mG2Duration;
-    }
+    double GetG2Duration();
 
     /**
      * The standard constructor called in tests
      */
     StochasticWntCellCycleModel()
-      :  WntCellCycleModel()
-    {
-    }
+      :  WntCellCycleModel() {};
     
     /**
      * This is needed because a wnt model which is not to be run from the current time is 
@@ -88,9 +67,7 @@ public:
                                 bool inSG2MPhase, bool readyToDivide, double divideTime, unsigned generation, double g2Duration)
       : WntCellCycleModel(pParentOdeSystem, mutationState, birthTime, lastTime, 
                           inSG2MPhase, readyToDivide, divideTime, generation),
-        mG2Duration(g2Duration)
-    {
-    }
+        mG2Duration(g2Duration) {};
 
     /**
      * This is needed because a wnt model which is not to be run from the current time is 
@@ -98,9 +75,7 @@ public:
      */
     StochasticWntCellCycleModel(std::vector<double> proteinConcentrations, 
                                 CellMutationState mutationState)
-      : WntCellCycleModel(proteinConcentrations, mutationState)
-    {
-    }
+      : WntCellCycleModel(proteinConcentrations, mutationState) {};
     
     /**
      * Returns a new StochasticWntCellCycleModel created with the correct initial conditions.
@@ -108,13 +83,7 @@ public:
      * Should be called just after the parent cell cycle model has been .Reset().
      *
      */
-    AbstractCellCycleModel* CreateDaughterCellCycleModel()
-    {
-        assert(mpCell!=NULL);
-        // calls a cheeky version of the constructor which makes the new cell cycle model
-        // the same age as the old one - not a copy at this time.
-        return new StochasticWntCellCycleModel(mpOdeSystem, mpCell->GetMutationState(), mBirthTime, mLastTime, mFinishedRunningOdes, mReadyToDivide,mDivideTime, mGeneration, mG2Duration);
-    }
+    AbstractCellCycleModel* CreateDaughterCellCycleModel();
     
 };
 

@@ -43,19 +43,7 @@ public :
      * @param rMesh  The mesh the cells should be associated with.  
      */
     static void GenerateBasic(std::vector<TissueCell>& rCells, 
-                               ConformingTetrahedralMesh<DIM,DIM>& rMesh)
-    {
-        rCells.clear();
-        rCells.reserve(rMesh.GetNumNodes());
-        for(unsigned i=0; i<rMesh.GetNumNodes(); i++)
-        {
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
-            double birth_time = 0.0-i;
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            rCells.push_back(cell);
-        }
-    }
+                               ConformingTetrahedralMesh<DIM,DIM>& rMesh);
 
     /**
      * Generates cells of a specified cell cycle type under the correct 
@@ -81,168 +69,195 @@ public :
                                  double y1 = 2.0,
                                  double y2 = 3.0,
                                  double y3 = 4.0,
-                                 bool initialiseCells = false)
+                                 bool initialiseCells = false);
+};
+
+template<unsigned DIM>
+void CellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells, 
+                               ConformingTetrahedralMesh<DIM,DIM>& rMesh)
+{
+    rCells.clear();
+    rCells.reserve(rMesh.GetNumNodes());
+    for(unsigned i=0; i<rMesh.GetNumNodes(); i++)
     {
-        assert(DIM==2);
-        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
-        unsigned num_cells = rMesh.GetNumNodes();
+        TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+        double birth_time = 0.0-i;
+        cell.SetNodeIndex(i);
+        cell.SetBirthTime(birth_time);
+        rCells.push_back(cell);
+    }
+}
+
+template<unsigned DIM>
+void CellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCells, 
+                                 ConformingTetrahedralMesh<2,2>& rMesh, 
+                                 CellCycleType cycleType,
+                                 bool randomBirthTimes,
+                                 double y0,
+                                 double y1,
+                                 double y2,
+                                 double y3,
+                                 bool initialiseCells)
+{
+    assert(DIM==2);
+    RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
+    unsigned num_cells = rMesh.GetNumNodes();
+    
+    AbstractCellCycleModel* p_cell_cycle_model = NULL;
+    double typical_transit_cycle_time;
+    double typical_stem_cycle_time;
+    
+    CancerParameters* p_params = CancerParameters::Instance();
+    
+    rCells.clear();
+    rCells.reserve(num_cells);
+    
+    for (unsigned i=0; i<num_cells; i++)
+    {
+        CellType cell_type;
+        unsigned generation;
+
+        double y = rMesh.GetNode(i)->GetPoint().rGetLocation()[1];
         
-        AbstractCellCycleModel* p_cell_cycle_model = NULL;
-        double typical_transit_cycle_time;
-        double typical_stem_cycle_time;
-        
-        CancerParameters* p_params = CancerParameters::Instance();
-        
-        rCells.clear();
-        rCells.reserve(num_cells);
-        
-        for (unsigned i=0; i<num_cells; i++)
+        switch(cycleType)
         {
-            CellType cell_type;
-            unsigned generation;
+            case(FIXED):
+            {
+                p_cell_cycle_model = new FixedCellCycleModel();
+                typical_transit_cycle_time =    p_params->GetTransitCellG1Duration()
+                                              + p_params->GetSG2MDuration();
+                typical_stem_cycle_time =   p_params->GetStemCellG1Duration()
+                                          + p_params->GetSG2MDuration();
+                break;
+            }
+            case(STOCHASTIC):
+            {
+                p_cell_cycle_model = new StochasticCellCycleModel();
+                typical_transit_cycle_time =    p_params->GetTransitCellG1Duration()
+                                              + p_params->GetSG2MDuration();
+                typical_stem_cycle_time =   p_params->GetStemCellG1Duration()
+                                          + p_params->GetSG2MDuration();
+                break;
+            }
+            case(SIMPLE_WNT):
+            {
+                p_cell_cycle_model = new SimpleWntCellCycleModel();
+                typical_transit_cycle_time =    p_params->GetTransitCellG1Duration()
+                                              + p_params->GetSG2MDuration();
+                typical_stem_cycle_time =   p_params->GetStemCellG1Duration()
+                                          + p_params->GetSG2MDuration();
+                break;
+            }
+            case(WNT):
+            {
+                p_cell_cycle_model = new WntCellCycleModel();
+                typical_transit_cycle_time = 16.0;
+                typical_stem_cycle_time = typical_transit_cycle_time;
+                break;
+            }
+            case(INGE_WNT_SWAT_HYPOTHESIS_ONE):
+            {
+                p_cell_cycle_model = new IngeWntSwatCellCycleModel(1u);
+                typical_transit_cycle_time = 16.0;
+                typical_stem_cycle_time = typical_transit_cycle_time;
+                break;
+            }
+            case(INGE_WNT_SWAT_HYPOTHESIS_TWO):
+            {
+                p_cell_cycle_model = new IngeWntSwatCellCycleModel(2u);
+                typical_transit_cycle_time = 16.0;
+                typical_stem_cycle_time = typical_transit_cycle_time;
+                break;
+            }
+            case(STOCHASTIC_WNT):
+            {
+                p_cell_cycle_model = new StochasticWntCellCycleModel();
+                typical_transit_cycle_time = 16.0;
+                typical_stem_cycle_time = typical_transit_cycle_time;
+                break;
+            }
+            case(TYSONNOVAK):
+            {
+                p_cell_cycle_model = new TysonNovakCellCycleModel();
+                typical_transit_cycle_time = 1.25;
+                typical_stem_cycle_time = typical_transit_cycle_time;
+                break;
+            }
+            default:
+            { 
+                #define COVERAGE_IGNORE
+                EXCEPTION("Cell Cycle Type is not recognised");
+                #undef COVERAGE_IGNORE  
+            }
+        }
 
-            double y = rMesh.GetNode(i)->GetPoint().rGetLocation()[1];
-            
-            switch(cycleType)
+        double birth_time = 0.0;
+        
+        if (y <= y0)
+        {
+            cell_type = STEM;
+            generation = 0;
+            if (randomBirthTimes)
             {
-                case(FIXED):
-                {
-                    p_cell_cycle_model = new FixedCellCycleModel();
-                    typical_transit_cycle_time =    p_params->GetTransitCellG1Duration()
-                                                  + p_params->GetSG2MDuration();
-                    typical_stem_cycle_time =   p_params->GetStemCellG1Duration()
-                                              + p_params->GetSG2MDuration();
-                    break;
-                }
-                case(STOCHASTIC):
-                {
-                    p_cell_cycle_model = new StochasticCellCycleModel();
-                    typical_transit_cycle_time =    p_params->GetTransitCellG1Duration()
-                                                  + p_params->GetSG2MDuration();
-                    typical_stem_cycle_time =   p_params->GetStemCellG1Duration()
-                                              + p_params->GetSG2MDuration();
-                    break;
-                }
-                case(SIMPLE_WNT):
-                {
-                    p_cell_cycle_model = new SimpleWntCellCycleModel();
-                    typical_transit_cycle_time =    p_params->GetTransitCellG1Duration()
-                                                  + p_params->GetSG2MDuration();
-                    typical_stem_cycle_time =   p_params->GetStemCellG1Duration()
-                                              + p_params->GetSG2MDuration();
-                    break;
-                }
-                case(WNT):
-                {
-                    p_cell_cycle_model = new WntCellCycleModel();
-                    typical_transit_cycle_time = 16.0;
-                    typical_stem_cycle_time = typical_transit_cycle_time;
-                    break;
-                }
-                case(INGE_WNT_SWAT_HYPOTHESIS_ONE):
-                {
-                    p_cell_cycle_model = new IngeWntSwatCellCycleModel(1u);
-                    typical_transit_cycle_time = 16.0;
-                    typical_stem_cycle_time = typical_transit_cycle_time;
-                    break;
-                }
-                case(INGE_WNT_SWAT_HYPOTHESIS_TWO):
-                {
-                    p_cell_cycle_model = new IngeWntSwatCellCycleModel(2u);
-                    typical_transit_cycle_time = 16.0;
-                    typical_stem_cycle_time = typical_transit_cycle_time;
-                    break;
-                }
-                case(STOCHASTIC_WNT):
-                {
-                    p_cell_cycle_model = new StochasticWntCellCycleModel();
-                    typical_transit_cycle_time = 16.0;
-                    typical_stem_cycle_time = typical_transit_cycle_time;
-                    break;
-                }
-                case(TYSONNOVAK):
-                {
-                    p_cell_cycle_model = new TysonNovakCellCycleModel();
-                    typical_transit_cycle_time = 1.25;
-                    typical_stem_cycle_time = typical_transit_cycle_time;
-                    break;
-                }
-                default:
-                { 
-                    #define COVERAGE_IGNORE
-                    EXCEPTION("Cell Cycle Type is not recognised");
-                    #undef COVERAGE_IGNORE  
-                }
+                birth_time = -p_random_num_gen->ranf()*typical_stem_cycle_time; // hours
             }
-
-            double birth_time = 0.0;
-            
-            if (y <= y0)
+        }
+        else if (y < y1)
+        {
+            cell_type = TRANSIT;
+            generation = 1;
+            if (randomBirthTimes)
             {
-                cell_type = STEM;
-                generation = 0;
-                if (randomBirthTimes)
-                {
-                    birth_time = -p_random_num_gen->ranf()*typical_stem_cycle_time; // hours
-                }
+                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
             }
-            else if (y < y1)
+        }
+        else if (y < y2)
+        {
+            cell_type = TRANSIT;
+            generation = 2;
+            if (randomBirthTimes)
             {
-                cell_type = TRANSIT;
-                generation = 1;
-                if (randomBirthTimes)
-                {
-                    birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
-                }
+                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
             }
-            else if (y < y2)
+        }
+        else if (y < y3)
+        {
+            cell_type = TRANSIT;
+            generation = 3;
+            if (randomBirthTimes)
             {
-                cell_type = TRANSIT;
-                generation = 2;
-                if (randomBirthTimes)
-                {
-                    birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
-                }
+                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
             }
-            else if (y < y3)
+        }
+        else
+        {
+            if (randomBirthTimes)
             {
-                cell_type = TRANSIT;
-                generation = 3;
-                if (randomBirthTimes)
-                {
-                    birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
-                }
+                birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
+            }
+            if (cycleType!=FIXED && cycleType!=STOCHASTIC)
+            {
+                // There are no fully differentiated cells!
+                cell_type = TRANSIT;                    
             }
             else
             {
-                if (randomBirthTimes)
-                {
-                    birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
-                }
-                if (cycleType!=FIXED && cycleType!=STOCHASTIC)
-                {
-                    // There are no fully differentiated cells!
-                    cell_type = TRANSIT;                    
-                }
-                else
-                {
-                    cell_type = DIFFERENTIATED;
-                }                
-                generation = 4;
-            }
-            
-            p_cell_cycle_model->SetGeneration(generation);
-            TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
-            if (initialiseCells)
-            {
-                cell.InitialiseCellCycleModel();
-            }
-            
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            rCells.push_back(cell);
+                cell_type = DIFFERENTIATED;
+            }                
+            generation = 4;
         }
+        
+        p_cell_cycle_model->SetGeneration(generation);
+        TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
+        if (initialiseCells)
+        {
+            cell.InitialiseCellCycleModel();
+        }
+        
+        cell.SetNodeIndex(i);
+        cell.SetBirthTime(birth_time);
+        rCells.push_back(cell);
     }
-};
+}
 
 #endif /*CELLSGENERATOR_HPP_*/

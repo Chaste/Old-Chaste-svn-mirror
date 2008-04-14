@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "Meineke2001SpringSystem.hpp"
-#include "MeshBasedTissueWithGhostNodes.cpp"
+#include "MeshBasedTissueWithGhostNodes.hpp"
 #include "CellsGenerator.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"

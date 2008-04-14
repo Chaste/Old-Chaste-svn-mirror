@@ -2,7 +2,7 @@
 #define SIMPLEOXYGENBASEDCELLCYCLEMODEL_HPP_
 
 #include "AbstractSimpleCellCycleModel.hpp"
-#include "CellwiseData.cpp"
+#include "CellwiseData.hpp"
 
 /**
  *  Simple oxygen-based cell cycle model

@@ -9,7 +9,7 @@
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
 #include "WntConcentration.hpp"
-#include "MeshBasedTissue.cpp"
+#include "MeshBasedTissue.hpp"
 #include "TissueCell.hpp"
 #include "WntCellCycleModel.hpp"
 

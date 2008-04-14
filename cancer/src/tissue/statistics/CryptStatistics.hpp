@@ -79,8 +79,6 @@ public :
     std::vector<TissueCell*> GetCryptSectionPeriodic(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth(), 
                                              double yTop = CancerParameters::Instance()->GetCryptLength() + 2.0);
-    
-
 
 };
 

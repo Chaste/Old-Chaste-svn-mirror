@@ -111,20 +111,12 @@ public:
      * @return mMutationState the mutation state of the cell defined by 
      * CryptCellMutationStates.hpp
      */
-    CellMutationState& rGetMutationState()
-    {
-        return mMutationState;
-    }
+    CellMutationState& rGetMutationState();
     
     // Compute the RHS of the WntCellCycle system of ODEs
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
     
-    bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
-    {
-        std::vector<double> dy(rY.size());
-        EvaluateYDerivatives(time, rY, dy);
-        return (fabs(rY[1]-1.0) < 1.0e-2 && dy[1] > 0.0);
-    }
+    bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
         
 };
 #endif //_INGEWNTSWATCELLCYCLEODESYSTEM_HPP_

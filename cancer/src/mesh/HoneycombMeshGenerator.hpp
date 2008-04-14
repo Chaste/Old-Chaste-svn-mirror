@@ -1,5 +1,5 @@
-#ifndef CRYPTHONEYCOMBMESHGENERATOR_HPP_
-#define CRYPTHONEYCOMBMESHGENERATOR_HPP_
+#ifndef HONEYCOMBMESHGENERATOR_HPP_
+#define HONEYCOMBMESHGENERATOR_HPP_
 
 #include <cmath>
 #include <vector>
@@ -346,4 +346,4 @@ public:
         return mpMesh;
     }
 };
-#endif /*CRYPTHONEYCOMBMESHGENERATOR_HPP_*/
+#endif /*HONEYCOMBMESHGENERATOR_HPP_*/

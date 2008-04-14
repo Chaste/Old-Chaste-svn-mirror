@@ -289,3 +289,22 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     rDY[8] = 0.0; // Do not change the Wnt level.
 }
 
+CellMutationState& WntCellCycleOdeSystem::rGetMutationState()
+{
+    return mMutationState;
+}
+
+bool WntCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
+{
+    double r = rY[0];
+    double e = rY[1];
+    double p = rY[4];
+    double dY1 = mkpd+mk2d*(mad*mad+e*e)/(1+e*e)*mJ12d/(mJ12d+r)*mJ62d/(mJ62d+p) - e;
+    double factor = mPhiE2F1*60.0;  // Convert non-dimensional d/dt s to d/dt in hours.
+    dY1 = dY1*factor;
+
+    assert(!isnan(rY[1]));
+    assert(!isnan(dY1));
+    return (fabs(rY[1]-1.0) < 1.0e-2 && dY1 > 0.0);
+}
+

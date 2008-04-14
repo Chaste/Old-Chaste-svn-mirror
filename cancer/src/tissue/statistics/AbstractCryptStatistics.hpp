@@ -1,12 +1,13 @@
 #ifndef ABSTRACTCRYPTSTATISTICS_HPP_
 #define ABSTRACTCRYPTSTATISTICS_HPP_
 
-#include "MeshBasedTissue.cpp"
+#include "MeshBasedTissue.hpp"
 #include "RandomNumberGenerator.hpp"
 
 class AbstractCryptStatistics
 {
 protected:
+
     MeshBasedTissue<2>& mrCrypt;    
         
 public:
@@ -17,7 +18,8 @@ public:
      *  @param rCrypt The crypt
      */
     AbstractCryptStatistics(MeshBasedTissue<2>& rCrypt)
-        : mrCrypt(rCrypt) {}
+        : mrCrypt(rCrypt) 
+    {}
         
     virtual ~AbstractCryptStatistics()
     {}
@@ -35,33 +37,13 @@ public:
      * 
      * (assumption that S phase lasts longer than one hour is pretty sound)
      */ 
-    void LabelSPhaseCells()
-    {
-        for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();
-             cell_iter != mrCrypt.End();
-             ++cell_iter)
-        {
-            if ((*cell_iter).GetCellCycleModel()->GetCurrentCellCyclePhase()== S_PHASE)
-            {   // This should only be done for healthy or labelled populations, not mutants (at the moment anyway)
-                assert((*cell_iter).GetMutationState() == HEALTHY || (*cell_iter).GetMutationState() == LABELLED);
-                (*cell_iter).SetMutationState(LABELLED);
-            }
-        } 
-    }
+    void LabelSPhaseCells();
     
     /**
      * Sets all the cells in the crypt to have a mutation
      * state of 'HEALTHY'
      */
-    void LabelAllCellsAsHealthy()
-    {
-        for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();
-             cell_iter != mrCrypt.End();
-             ++cell_iter)
-        {
-            (*cell_iter).SetMutationState(HEALTHY);
-        }    
-    }
+    void LabelAllCellsAsHealthy();
     
     /**
      *  Get all cells within a cell width of the section defined as the line between points (xBottom,0)
@@ -75,24 +57,8 @@ public:
      * 
      * @return  a standard vector of booleans which states whether a labelled cell is present at a corresponding position.
      */
-    std::vector<bool> GetWhetherCryptSectionCellsAreLabelled(std::vector<TissueCell*> cryptSection)
-    {
-        std::vector<bool> crypt_section_labelled(cryptSection.size()) ;
-        
-        for (unsigned vector_index=0; vector_index<cryptSection.size(); vector_index++)
-        {
-            if (cryptSection[vector_index]->GetMutationState() == LABELLED)
-            {
-                crypt_section_labelled[vector_index]=true;
-            }
-            else
-            {   
-                crypt_section_labelled[vector_index]=false;
-            }
-        }
-                
-        return crypt_section_labelled;
-    }
+    std::vector<bool> GetWhetherCryptSectionCellsAreLabelled(std::vector<TissueCell*> cryptSection);
+
 };
 
 #endif /*ABSTRACTCRYPTSTATISTICS_HPP_*/

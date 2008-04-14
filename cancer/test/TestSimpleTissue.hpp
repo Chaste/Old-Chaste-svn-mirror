@@ -7,7 +7,7 @@
 
 #include <cmath>
 #include <vector>
-#include "SimpleTissue.cpp"
+#include "SimpleTissue.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "CellsGenerator.hpp"

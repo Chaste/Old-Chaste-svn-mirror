@@ -8,8 +8,8 @@
 
 #include <cmath>
 #include <vector>
-#include "MeshBasedTissueWithGhostNodes.cpp"
-#include "CellwiseData.cpp"
+#include "MeshBasedTissueWithGhostNodes.hpp"
+#include "CellwiseData.hpp"
 #include "CellwiseDataGradient.hpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"

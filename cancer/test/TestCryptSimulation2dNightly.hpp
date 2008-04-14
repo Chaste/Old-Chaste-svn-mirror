@@ -16,7 +16,7 @@
 #include "WntConcentration.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
-#include "MeshBasedTissue.cpp"
+#include "MeshBasedTissue.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "CellsGenerator.hpp"

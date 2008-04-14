@@ -27,42 +27,20 @@ private:
     }
     
 public:
-    RadialSloughingCellKiller(AbstractTissue<2>* pTissue, c_vector<double,2> centre, double radius)
-        : AbstractCellKiller<2>(pTissue),
-          mCentre(centre), 
-          mRadius(radius)
-    {    	
-    	      
-    }
+
+    RadialSloughingCellKiller(AbstractTissue<2>* pTissue, 
+                              c_vector<double,2> centre, 
+                              double radius);
     
-    c_vector<double,2> GetCentre() const
-    {
-        return mCentre;
-    }    
+    c_vector<double,2> GetCentre() const;
         
-    double GetRadius() const
-    {
-        return mRadius;
-    }
+    double GetRadius() const;
         
     /**
      *  Loops over cells and kills cells outside boundary.
      */
-    virtual void TestAndLabelCellsForApoptosisOrDeath()
-    {
-        for (AbstractTissue<2>::Iterator cell_iter = this->mpTissue->Begin();
-             cell_iter != this->mpTissue->End();
-             ++cell_iter)
-        {
-        	// get distance from centre
-            double r = norm_2(cell_iter.rGetLocation() - mCentre);
-            
-            if ( r > mRadius )
-            {
-                cell_iter->Kill();
-            }        
-        }        
-    }
+    virtual void TestAndLabelCellsForApoptosisOrDeath();
+
 };
 
 #include <boost/serialization/export.hpp>

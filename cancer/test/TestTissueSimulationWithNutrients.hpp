@@ -12,7 +12,7 @@
 #include <vector>
 #include <iostream>
 
-#include "TissueSimulationWithNutrients.cpp"
+#include "TissueSimulationWithNutrients.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"

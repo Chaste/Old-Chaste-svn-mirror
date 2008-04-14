@@ -1,7 +1,7 @@
 #ifndef ABSTRACTVARIABLEDAMPINGMECHANICSSYSTEM_HPP_
 #define ABSTRACTVARIABLEDAMPINGMECHANICSSYSTEM_HPP_
 
-#include "MeshBasedTissue.cpp"
+#include "MeshBasedTissue.hpp"
 #include "AbstractDiscreteTissueMechanicsSystem.hpp"
 
 /** 
@@ -43,67 +43,77 @@ protected :
      *  This depends on whether using area-based viscosity has been switched on, and 
      *  on whether the cell is a mutant or not
      */
-    double GetDampingConstant(TissueCell& rCell)
-    { 
-        double damping_multiplier = 1.0;
-        
-        if (this->mUseAreaBasedViscosity)
-        {
-            // The subclass had better have said is needs voronoi tessellations..
-            assert(this->NeedsVoronoiTessellation());
-            
-            //  Use new_damping_const = old_damping_const * (d0+d1*A)
-            //  where d0, d1 are params and A is the area, and old_damping_const
-            //  is the damping const if not using mUseAreaBasedViscosity
-            #define COVERAGE_IGNORE
-            assert(DIM==2);
-            #undef COVERAGE_IGNORE
-
-            double rest_length = 1.0;
-            double d0 = 0.1;
-
-            // This number is such that d0+A*d1=1, where A is the area of a equilibrium
-            // cell (=sqrt(3)/4 = a third of the area of a hexagon with edges of size 1)
-            double d1 = 2.0*(1.0-d0)/(sqrt(3)*rest_length*rest_length);
-            
-            VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(this->mpTissue))->rGetVoronoiTessellation();
-        
-            double area_cell = tess.GetFaceArea(rCell.GetNodeIndex());
-            
-            // The areas should be order 1, this is just to avoid getting infinite areas
-            // if an area based viscosity option is chosen without ghost nodes.
-            assert(area_cell < 1000);
-            
-            damping_multiplier = d0 + area_cell*d1;
-        }
-                
-        if( (rCell.GetMutationState()!=HEALTHY) && (rCell.GetMutationState()!=APC_ONE_HIT))
-        {            
-            return CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplier;            
-        }
-        else 
-        {
-            return CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplier;
-        }
-    } 
-    
+    double GetDampingConstant(TissueCell& rCell);    
 
 public :
 
-    AbstractVariableDampingMechanicsSystem(MeshBasedTissue<DIM>& rTissue)
-        : AbstractDiscreteTissueMechanicsSystem<DIM>()
-    {
-        this->mpTissue = &rTissue;
-        mUseAreaBasedViscosity = false;
-    }
+    AbstractVariableDampingMechanicsSystem(MeshBasedTissue<DIM>& rTissue);
 
     /**
      * Use an area based viscosity
      */
-    void SetAreaBasedViscosity(bool useAreaBasedViscosity)
-    {
-        assert(DIM == 2);
-        mUseAreaBasedViscosity = useAreaBasedViscosity;
-    }
+    void SetAreaBasedViscosity(bool useAreaBasedViscosity);
+    
 };
+
+template<unsigned DIM>
+AbstractVariableDampingMechanicsSystem<DIM>::AbstractVariableDampingMechanicsSystem(MeshBasedTissue<DIM>& rTissue)
+        : AbstractDiscreteTissueMechanicsSystem<DIM>()
+{
+    this->mpTissue = &rTissue;
+    mUseAreaBasedViscosity = false;
+}
+
+template<unsigned DIM>
+double AbstractVariableDampingMechanicsSystem<DIM>::GetDampingConstant(TissueCell& rCell)
+{ 
+    double damping_multiplier = 1.0;
+    
+    if (this->mUseAreaBasedViscosity)
+    {
+        // The subclass had better have said is needs voronoi tessellations..
+        assert(this->NeedsVoronoiTessellation());
+        
+        //  Use new_damping_const = old_damping_const * (d0+d1*A)
+        //  where d0, d1 are params and A is the area, and old_damping_const
+        //  is the damping const if not using mUseAreaBasedViscosity
+        #define COVERAGE_IGNORE
+        assert(DIM==2);
+        #undef COVERAGE_IGNORE
+
+        double rest_length = 1.0;
+        double d0 = 0.1;
+
+        // This number is such that d0+A*d1=1, where A is the area of a equilibrium
+        // cell (=sqrt(3)/4 = a third of the area of a hexagon with edges of size 1)
+        double d1 = 2.0*(1.0-d0)/(sqrt(3)*rest_length*rest_length);
+        
+        VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(this->mpTissue))->rGetVoronoiTessellation();
+    
+        double area_cell = tess.GetFaceArea(rCell.GetNodeIndex());
+        
+        // The areas should be order 1, this is just to avoid getting infinite areas
+        // if an area based viscosity option is chosen without ghost nodes.
+        assert(area_cell < 1000);
+        
+        damping_multiplier = d0 + area_cell*d1;
+    }
+            
+    if( (rCell.GetMutationState()!=HEALTHY) && (rCell.GetMutationState()!=APC_ONE_HIT))
+    {            
+        return CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplier;            
+    }
+    else 
+    {
+        return CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplier;
+    }
+}
+
+template<unsigned DIM>
+void AbstractVariableDampingMechanicsSystem<DIM>::SetAreaBasedViscosity(bool useAreaBasedViscosity)
+{
+    assert(DIM == 2);
+    mUseAreaBasedViscosity = useAreaBasedViscosity;
+}
+    
 #endif /*ABSTRACTVARIABLEDAMPINGMECHANICSSYSTEM_HPP_*/

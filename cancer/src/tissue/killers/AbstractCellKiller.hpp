@@ -1,7 +1,7 @@
 #ifndef ABSTRACTCELLKILLER_HPP_
 #define ABSTRACTCELLKILLER_HPP_
 
-#include "AbstractTissue.cpp"
+#include "AbstractTissue.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
@@ -10,13 +10,10 @@ template <unsigned SPACE_DIM>
 class AbstractCellKiller
 {
 public:
-    virtual ~AbstractCellKiller()
-    {}
     
-    AbstractCellKiller(AbstractTissue<SPACE_DIM>* pTissue)
-        : mpTissue(pTissue)
-    {
-    }
+    AbstractCellKiller(AbstractTissue<SPACE_DIM>* pTissue);
+        
+    virtual ~AbstractCellKiller() {};
 
     /**
      *  Pure method which should call StartApoptosis() on any cell
@@ -25,10 +22,7 @@ public:
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath()=0;
         
-    const AbstractTissue<SPACE_DIM>* GetTissue() const
-    {
-        return mpTissue;
-    }
+    const AbstractTissue<SPACE_DIM>* GetTissue() const;
     
 protected:
     AbstractTissue<SPACE_DIM>* mpTissue;
@@ -43,7 +37,18 @@ private:
     
 };
 
+template <unsigned SPACE_DIM>
+AbstractCellKiller<SPACE_DIM>::AbstractCellKiller(AbstractTissue<SPACE_DIM>* pTissue)
+        : mpTissue(pTissue) 
+{
+}
 
+template <unsigned SPACE_DIM>
+const AbstractTissue<SPACE_DIM>* AbstractCellKiller<SPACE_DIM>::GetTissue() const
+{
+    return mpTissue;
+}
+    
 namespace boost {
 namespace serialization {
 template<unsigned DIM>

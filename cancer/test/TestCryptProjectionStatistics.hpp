@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "CryptProjectionStatistics.hpp"
-#include "TissueSimulation.cpp"
+#include "TissueSimulation.hpp"
 #include "CellsGenerator.hpp"
 #include "RadialSloughingCellKiller.hpp"
 #include "TrianglesMeshReader.hpp"

@@ -18,7 +18,8 @@
 template <unsigned SPACE_DIM>
 class OxygenBasedCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
-private: 
+private:
+
     double mHypoxicConcentration;
      
     friend class boost::serialization::access;
@@ -28,22 +29,15 @@ private:
         archive & boost::serialization::base_object<AbstractCellKiller<SPACE_DIM> >(*this);        
     }
     
-public:
-    OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double concentration=CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration())
-        : AbstractCellKiller<SPACE_DIM>(pTissue),
-          mHypoxicConcentration(concentration)
-    {
-    }
     
-    void SetHypoxicConcentration(double hypoxicConcentration)
-    {
-        mHypoxicConcentration = hypoxicConcentration;    
-    }
+public:
+
+    OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue, 
+                          double concentration=CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration());
+    
+    void SetHypoxicConcentration(double hypoxicConcentration);
    
-    double GetHypoxicConcentration() const
-    {
-        return mHypoxicConcentration;
-    }
+    double GetHypoxicConcentration() const;
     
     /**
      *  Starts apoptosis if the cell has has been hypoxic for longer than 
@@ -51,29 +45,56 @@ public:
      *  is less than some probability of death (which scales linearly with the 
      *  local oxygen concentration).
      */  
-    void TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
-    {   
-        if (rCell.GetCellType()==NECROTIC && !(rCell.HasApoptosisBegun()))
-        {
-            rCell.StartApoptosis();
-        }          
-    }
+    void TestAndLabelSingleCellForApoptosis(TissueCell& rCell);
     
     /**
      * Loops over cells and starts apoptosis if the cell satisfies certain
      * conditions 
      */
-     virtual void TestAndLabelCellsForApoptosisOrDeath()
-    {      
-        for( typename AbstractTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
-            cell_iter != this->mpTissue->End();
-            ++cell_iter)
-        {               
-            TestAndLabelSingleCellForApoptosis(*cell_iter);
-        }
-    }     
+    virtual void TestAndLabelCellsForApoptosisOrDeath();
+
 };
 
+template <unsigned SPACE_DIM>
+OxygenBasedCellKiller<SPACE_DIM>::OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue, 
+                                                        double concentration)
+        : AbstractCellKiller<SPACE_DIM>(pTissue),
+          mHypoxicConcentration(concentration) 
+{
+}
+          
+template <unsigned SPACE_DIM>
+void OxygenBasedCellKiller<SPACE_DIM>::SetHypoxicConcentration(double hypoxicConcentration)
+{
+    mHypoxicConcentration = hypoxicConcentration;    
+}
+
+template <unsigned SPACE_DIM>
+double OxygenBasedCellKiller<SPACE_DIM>::GetHypoxicConcentration() const
+{
+    return mHypoxicConcentration;
+}
+
+template <unsigned SPACE_DIM>
+void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
+{   
+    if (rCell.GetCellType()==NECROTIC && !(rCell.HasApoptosisBegun()))
+    {
+        rCell.StartApoptosis();
+    }          
+}
+
+template <unsigned SPACE_DIM>
+void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelCellsForApoptosisOrDeath()
+{      
+    for( typename AbstractTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
+        cell_iter != this->mpTissue->End();
+        ++cell_iter)
+    {               
+        TestAndLabelSingleCellForApoptosis(*cell_iter);
+    }
+}     
+    
 #include "TemplatedExport.hpp"
 
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(OxygenBasedCellKiller)

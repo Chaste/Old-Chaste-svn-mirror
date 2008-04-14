@@ -4,7 +4,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
 
-#include "AbstractTissue.cpp"
+#include "AbstractTissue.hpp"
 
 /**
  * An abstract discrete tissue mechanics system that contains basic 
@@ -36,23 +36,13 @@ protected :
 
 public : 
 	
-    AbstractDiscreteTissueMechanicsSystem()
-        : mpTissue(NULL)
-    {
-        mUseCutoffPoint = false;
-        mCutoffPoint = 1e10;
-    }
+    AbstractDiscreteTissueMechanicsSystem();
     
     /**
      * Use a cutoff point, ie specify zero force if two cells are greater 
      * than the cutoff distance apart
      */
-    void UseCutoffPoint(double cutoffPoint)
-    {
-        assert(cutoffPoint > 0.0);
-        mUseCutoffPoint = true;
-        mCutoffPoint = cutoffPoint;
-    }
+    void UseCutoffPoint(double cutoffPoint);
     
     /**
      *  Pure method, overloaded in the concrete classes, which returns a reference 
@@ -65,31 +55,60 @@ public :
      */
     virtual std::vector<c_vector<double, DIM> >& rCalculateVelocitiesOfEachNode()=0;
     
-    virtual ~AbstractDiscreteTissueMechanicsSystem()
-    {
-    }
+    virtual ~AbstractDiscreteTissueMechanicsSystem();
 
-    #define COVERAGE_IGNORE
-    virtual bool NeedsVoronoiTessellation()
-    {
-        return false;
-    }
-    #undef COVERAGE_IGNORE
+    virtual bool NeedsVoronoiTessellation();
         
     /**
      *  Get the tissue. Needed for archiving
      */
-    const AbstractTissue<DIM>& rGetTissue() const
-    {
-        return *mpTissue;
-    }
+    const AbstractTissue<DIM>& rGetTissue() const;
         
-    AbstractTissue<DIM>* GetTissue()
-    {
-        return mpTissue;
-    }
+    AbstractTissue<DIM>* GetTissue();
+
 };
 
+template<unsigned DIM>
+AbstractDiscreteTissueMechanicsSystem<DIM>::AbstractDiscreteTissueMechanicsSystem()
+        : mpTissue(NULL)
+{
+    mUseCutoffPoint = false;
+    mCutoffPoint = 1e10;
+}
+
+template<unsigned DIM>
+void AbstractDiscreteTissueMechanicsSystem<DIM>::UseCutoffPoint(double cutoffPoint)
+{
+    assert(cutoffPoint > 0.0);
+    mUseCutoffPoint = true;
+    mCutoffPoint = cutoffPoint;
+}
+
+template<unsigned DIM>
+AbstractDiscreteTissueMechanicsSystem<DIM>::~AbstractDiscreteTissueMechanicsSystem()
+{
+}
+
+#define COVERAGE_IGNORE
+template<unsigned DIM>
+bool AbstractDiscreteTissueMechanicsSystem<DIM>::NeedsVoronoiTessellation()
+{
+    return false;
+}
+#undef COVERAGE_IGNORE
+        
+template<unsigned DIM>
+const AbstractTissue<DIM>& AbstractDiscreteTissueMechanicsSystem<DIM>::rGetTissue() const
+{
+    return *mpTissue;
+}
+
+template<unsigned DIM>  
+AbstractTissue<DIM>* AbstractDiscreteTissueMechanicsSystem<DIM>::GetTissue()
+{
+    return mpTissue;
+}
+    
 namespace boost 
 {
 namespace serialization 

@@ -234,5 +234,15 @@ void TysonNovak2001OdeSystem::AnalyticJacobian(const std::vector<double> &soluti
     jacobian[5][5] = 1-timeStep*df6_dx6;
 }
 
+bool TysonNovak2001OdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
+{
+    std::vector<double> dy(rY.size());
+    EvaluateYDerivatives(time, rY, dy);
+    // Only call this a stopping condition if the mass of the cell is over 0.6
+    // (normally cycles from 0.5-1.0 ish!)
+    return ( (rY[5] > 0.6 )&& (fabs(rY[0]-mCycB_threshold) < 1.0e-2 && dy[0] < 0.0));
+}
+    
+
 
 

@@ -8,8 +8,8 @@
 
 #include <cmath>
 #include <vector>
-#include "MeshBasedTissue.cpp"
-#include "CellwiseData.cpp"
+#include "MeshBasedTissue.hpp"
+#include "CellwiseData.hpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

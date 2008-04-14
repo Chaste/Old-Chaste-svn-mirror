@@ -18,6 +18,7 @@
 class SloughingCellKiller : public AbstractCellKiller<2>
 {
 private:
+
     bool mSloughSides;
     
     friend class boost::serialization::access;
@@ -33,37 +34,19 @@ private:
     }
     
 public:
+
     SloughingCellKiller(AbstractTissue<2>* pCrypt, bool sloughSides=false)
         : AbstractCellKiller<2>(pCrypt),
           mSloughSides(sloughSides)
     {}
     
-    bool GetSloughSides() const
-    {
-        return mSloughSides;
-    }
+    bool GetSloughSides() const;
     
     /**
      *  Loops over cells and kills cells outside boundary.
      */
-    virtual void TestAndLabelCellsForApoptosisOrDeath()
-    {
-        double crypt_length = CancerParameters::Instance()->GetCryptLength();
-        double crypt_width = CancerParameters::Instance()->GetCryptWidth();
-            
-        for (AbstractTissue<2>::Iterator cell_iter = this->mpTissue->Begin();
-             cell_iter != this->mpTissue->End();
-             ++cell_iter)
-        {
-            double x = cell_iter.rGetLocation()[0];
-            double y = cell_iter.rGetLocation()[1];
-            
-            if ( (y>crypt_length) ||  (mSloughSides && ((x<0.0) || (x>crypt_width))) )
-            {
-                cell_iter->Kill();
-            }        
-        }        
-    }
+    virtual void TestAndLabelCellsForApoptosisOrDeath();
+
 };
 
 #include <boost/serialization/export.hpp>

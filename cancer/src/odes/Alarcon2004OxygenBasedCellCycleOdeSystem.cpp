@@ -162,3 +162,14 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time,
     rDY[5] = 0.0; // do not change the oxygen concentration
 }
 
+CellMutationState& Alarcon2004OxygenBasedCellCycleOdeSystem::rGetMutationState()
+{
+    return mMutationState;
+}
+
+bool Alarcon2004OxygenBasedCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
+{        
+    return (rY[0] < mxThreshold && rY[1] > myThreshold);
+}
+    
+

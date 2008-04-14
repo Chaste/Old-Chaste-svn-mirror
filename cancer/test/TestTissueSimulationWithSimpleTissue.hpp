@@ -9,7 +9,7 @@
 #include <ctime>
 #include <vector>
 
-#include "TissueSimulation.cpp"
+#include "TissueSimulation.hpp"
 #include "RandomCellKiller.hpp" 
 #include "CellsGenerator.hpp"
 #include "OutputFileHandler.hpp"

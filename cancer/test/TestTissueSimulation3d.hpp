@@ -7,7 +7,7 @@
 #include <ctime>
 #include <vector>
 
-#include "TissueSimulation.cpp"
+#include "TissueSimulation.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"

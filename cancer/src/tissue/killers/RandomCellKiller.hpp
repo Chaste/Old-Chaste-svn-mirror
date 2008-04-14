@@ -19,6 +19,7 @@ template <unsigned SPACE_DIM>
 class RandomCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
 private:
+
     double mProbabilityOfDeath;
     
     friend class boost::serialization::access;
@@ -30,49 +31,62 @@ private:
         RandomNumberGenerator* p_random_generator = RandomNumberGenerator::Instance();
         archive & *p_random_generator;
         archive & p_random_generator;
-        // archive & mProbabilityOfDeath // not needed here - done in load_construct.
     }
     
 public:
-    RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double probabilityOfDeath)
-        : AbstractCellKiller<SPACE_DIM>(pTissue),
-          mProbabilityOfDeath(probabilityOfDeath)
-    {
-        if((mProbabilityOfDeath<0) || (mProbabilityOfDeath>1))
-        {
-            EXCEPTION("Probability of death must be between zero and one");
-        }
-    }
+
+    RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double probabilityOfDeath);
     
-    double GetDeathProbability() const
-    {
-        return mProbabilityOfDeath;
-    }
+    double GetDeathProbability() const;
     
-    void TestAndLabelSingleCellForApoptosis(TissueCell& cell)
-    {
-        if (!cell.HasApoptosisBegun() &&
-            RandomNumberGenerator::Instance()->ranf() < mProbabilityOfDeath)
-        {
-            cell.StartApoptosis();
-        }        
-    }
+    void TestAndLabelSingleCellForApoptosis(TissueCell& cell);
 
     /**
      *  Loops over cells and starts apoptosis randomly, based on the user-set 
      *  probability
      */
-    virtual void TestAndLabelCellsForApoptosisOrDeath()
-    {
-        for (typename AbstractTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
-             cell_iter != this->mpTissue->End();
-             ++cell_iter)
-        {
-            TestAndLabelSingleCellForApoptosis(*cell_iter);
-        }        
-    }
+    virtual void TestAndLabelCellsForApoptosisOrDeath();
+    
 };
 
+template <unsigned SPACE_DIM>
+RandomCellKiller<SPACE_DIM>::RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double probabilityOfDeath)
+        : AbstractCellKiller<SPACE_DIM>(pTissue),
+          mProbabilityOfDeath(probabilityOfDeath)
+{
+    if((mProbabilityOfDeath<0) || (mProbabilityOfDeath>1))
+    {
+        EXCEPTION("Probability of death must be between zero and one");
+    }
+}
+
+template <unsigned SPACE_DIM>
+double RandomCellKiller<SPACE_DIM>::GetDeathProbability() const
+{
+    return mProbabilityOfDeath;
+}
+
+template <unsigned SPACE_DIM>
+void RandomCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& cell)
+{
+    if (!cell.HasApoptosisBegun() &&
+        RandomNumberGenerator::Instance()->ranf() < mProbabilityOfDeath)
+    {
+        cell.StartApoptosis();
+    }        
+}
+
+template <unsigned SPACE_DIM>
+void RandomCellKiller<SPACE_DIM>::TestAndLabelCellsForApoptosisOrDeath()
+{
+    for (typename AbstractTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
+         cell_iter != this->mpTissue->End();
+         ++cell_iter)
+    {
+        TestAndLabelSingleCellForApoptosis(*cell_iter);
+    }        
+}
+    
 #include "TemplatedExport.hpp"
 
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(RandomCellKiller)

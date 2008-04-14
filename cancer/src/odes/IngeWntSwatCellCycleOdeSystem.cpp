@@ -438,3 +438,17 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     rDY[20] = (mSy*(Ct+Mt))/(Ct + Mt + mKt) - mDy*Y;
     rDY[21] = 0.0;  // don't interfere with Wnt stimulus.
 }
+
+CellMutationState& IngeWntSwatCellCycleOdeSystem::rGetMutationState()
+{
+    return mMutationState;
+}
+
+bool IngeWntSwatCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
+{
+    std::vector<double> dy(rY.size());
+    EvaluateYDerivatives(time, rY, dy);
+    return (fabs(rY[1]-1.0) < 1.0e-2 && dy[1] > 0.0);
+}
+
+

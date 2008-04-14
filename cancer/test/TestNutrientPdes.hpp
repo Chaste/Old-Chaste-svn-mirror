@@ -3,7 +3,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "MeshBasedTissue.cpp"
+#include "MeshBasedTissue.hpp"
 #include "SimpleNutrientPde.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
 #include "AveragedSinksPde.hpp"

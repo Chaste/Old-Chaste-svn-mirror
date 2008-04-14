@@ -18,7 +18,7 @@
 #include "SloughingCellKiller.hpp"
 #include "RadialSloughingCellKiller.hpp"
 #include "OxygenBasedCellKiller.hpp"
-#include "CellwiseData.cpp"
+#include "CellwiseData.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"

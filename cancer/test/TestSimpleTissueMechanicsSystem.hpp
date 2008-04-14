@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "SimpleTissueMechanicsSystem.hpp"
-#include "SimpleTissue.cpp"
+#include "SimpleTissue.hpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "CellsGenerator.hpp"

@@ -5,7 +5,7 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "CancerParameters.hpp"
-#include "AbstractTissue.cpp"
+#include "AbstractTissue.hpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
