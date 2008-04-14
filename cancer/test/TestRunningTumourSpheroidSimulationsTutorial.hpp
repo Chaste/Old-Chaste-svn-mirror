@@ -1,6 +1,6 @@
 /*
  * 
- *  Chaste tutorial - this page get automatically changed to a wiki page
+ *  Chaste tutorial - this page gets automatically changed to a wiki page
  *  DO NOT remove the comments below, and if the code has to be changed in
  *  order to run, please check the comments are still accurate
  * 
@@ -40,7 +40,7 @@
  * because the class is a template, and in that case, the program
  * won't be able to be linked if the cpp isn't included.
  */
-#include "TissueSimulationWithNutrients.cpp"   // cpp!! hot hpp
+#include "TissueSimulationWithNutrients.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
