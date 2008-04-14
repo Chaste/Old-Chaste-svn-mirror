@@ -50,201 +50,26 @@ private :
      * @return daughter_coords The coordinates for the daughter cell.
      * 
      */
-    c_vector<double, 2> CalculateDividingCellCentreLocations(AbstractTissue<2>::Iterator parentCell)
-    {     
-        double separation = CancerParameters::Instance()->GetDivisionSeparation();
-        c_vector<double, 2> parent_coords = parentCell.rGetLocation();
-        c_vector<double, 2> daughter_coords;
-            
-        // pick a random direction and move the parent cell backwards by 0.5*sep in that
-        // direction and return the position of the daughter cell (0.5*sep forwards in the
-        // random vector direction
-    
-        // Make a random direction vector of the required length
-        c_vector<double, 2> random_vector;        
-        
-        double random_angle = RandomNumberGenerator::Instance()->ranf();
-        random_angle *= 2.0*M_PI;
-        
-        random_vector(0) = 0.5*separation*cos(random_angle);
-        random_vector(1) = 0.5*separation*sin(random_angle);
-        
-        c_vector<double, 2> proposed_new_parent_coords = parent_coords-random_vector;
-        c_vector<double, 2> proposed_new_daughter_coords = parent_coords+random_vector;
-        
-        if (   (proposed_new_parent_coords(1) >= 0.0)
-            && (proposed_new_daughter_coords(1) >= 0.0))
-        {
-            // We are not too close to the bottom of the tissue
-            // move parent
-            parent_coords = proposed_new_parent_coords;
-            daughter_coords = proposed_new_daughter_coords;
-        }
-        else
-        {   
-            proposed_new_daughter_coords = parent_coords+2.0*random_vector;
-            while (proposed_new_daughter_coords(1) < 0.0)
-            {
-                random_angle = RandomNumberGenerator::Instance()->ranf();
-                random_angle *= 2.0*M_PI;
-                
-                random_vector(0) = separation*cos(random_angle);
-                random_vector(1) = separation*sin(random_angle);
-                proposed_new_daughter_coords = parent_coords+random_vector;
-            }
-            daughter_coords = proposed_new_daughter_coords;
-        }
-        
-        assert(daughter_coords(1)>=0.0); // to make sure dividing cells stay in the tissue
-        assert(parent_coords(1)>=0.0);   // to make sure dividing cells stay in the tissue
-                
-        // set the parent to use this location
-        ChastePoint<2> parent_coords_point(parent_coords);
-        mrTissue.MoveCell(parentCell, parent_coords_point);
-        return daughter_coords;           
-    }
-    
+    c_vector<double, 2> CalculateDividingCellCentreLocations(AbstractTissue<2>::Iterator parentCell);
     
     /**
      * Moves each node to a new position for this timestep
      *
      * @param rDrDt the x and y force components on each node.
      */
-    void UpdateNodePositions(const std::vector< c_vector<double, 2> >& rDrDt)
-    {
-        // Update ghost positions first because they do not affect the real cells
-        mpStaticCastTissue->UpdateGhostPositions(mDt);
-        
-        // Iterate over all cells to update their positions.
-        for (AbstractTissue<2>::Iterator cell_iter = mrTissue.Begin();
-             cell_iter != mrTissue.End();
-             ++cell_iter)
-        {
-            TissueCell& cell = *cell_iter;
-            unsigned index = cell.GetNodeIndex();
-            
-            ChastePoint<2> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
-                        
-            bool is_wnt_included = WntConcentration::Instance()->IsWntSetUp();
-            if (!is_wnt_included) WntConcentration::Destroy();
-            
-            // stem cells are fixed if no wnt, so reset the x-value to the old x-value           
-            if ((cell.GetCellType()==STEM) && (!is_wnt_included))
-            {
-                new_point.rGetLocation()[0] = mrTissue.GetNode(index)->rGetLocation()[0];
-                new_point.rGetLocation()[1] = mrTissue.GetNode(index)->rGetLocation()[1];
-            }
-            
-            // for all cells - move up if below the bottom surface
-            if (new_point.rGetLocation()[1] < 0.0) 
-            {
-                new_point.rGetLocation()[1] = 0.0; 
-                if (mUseJiggledBottomCells)
-                {
-                   /*  
-                    * Here we give the cell a push upwards so that it doesn't  
-                    * get stuck on y=0 for ever (ticket:422). 
-                    *  
-                    * Note that all stem cells may get moved to same height and  
-                    * random numbers try to ensure we aren't left with the same  
-                    * problem at a different height! 
-                    */ 
-                    new_point.rGetLocation()[1] = 0.05*mpRandomGenerator->ranf();
-                } 
-            } 
-            
-            // move the cell
-            assert(new_point[1]>=0.0);
-            mrTissue.MoveCell(cell_iter, new_point); 
-                    
-        }
-    }
+    void UpdateNodePositions(const std::vector< c_vector<double, 2> >& rDrDt);    
     
+    void WriteVisualizerSetupFile();
     
-    void WriteVisualizerSetupFile()
-    {
-        *mpSetupFile << "MeshWidth\t" << mpStaticCastTissue->rGetMesh().GetWidth(0u);// get furthest distance between nodes in the x-direction
-    }
+    void SetupWriteBetaCatenin();
     
+    void WriteBetaCatenin(double time);
     
-    void SetupWriteBetaCatenin()
-    {
-        OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/",false);
-        mBetaCatResultsFile = output_file_handler.OpenOutputFile("results.vizbCat");
-        *mpSetupFile << "BetaCatenin\n";
-    }
+    void SetupSolve();
     
-    
-    void WriteBetaCatenin(double time)
-    {
-        *mBetaCatResultsFile <<  time << "\t";
-        
-        double global_index;
-        double x;
-        double y;
-        double b_cat_membrane;
-        double b_cat_cytoplasm;
-        double b_cat_nuclear;
-        
-        for (AbstractTissue<2>::Iterator cell_iter = mrTissue.Begin();
-             cell_iter != mrTissue.End();
-             ++cell_iter)
-        {
-            global_index = (double) cell_iter.GetNode()->GetIndex();
-            x = cell_iter.rGetLocation()[0];
-            y = cell_iter.rGetLocation()[1];
+    void PostSolve();
 
-            // if writing beta-catenin, the model has be be IngeWntSwatCellCycleModel
-            IngeWntSwatCellCycleModel* p_model = dynamic_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
-            
-            b_cat_membrane = p_model->GetMembraneBoundBetaCateninLevel();
-            b_cat_cytoplasm = p_model->GetCytoplasmicBetaCateninLevel();
-            b_cat_nuclear = p_model->GetNuclearBetaCateninLevel();
-            
-            *mBetaCatResultsFile << global_index << " " << x << " " << y << " " << b_cat_membrane << " " << b_cat_cytoplasm << " " << b_cat_nuclear << " ";
-        }
-
-        *mBetaCatResultsFile << "\n";
-    }    
-    
-    
-    void SetupSolve()
-    {
-        if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
-            && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
-        {
-            SetupWriteBetaCatenin();            
-            double current_time = SimulationTime::Instance()->GetDimensionalisedTime();            
-            WriteBetaCatenin(current_time);
-        }
-    }
-    
-    
-    void PostSolve()
-    {
-        SimulationTime *p_time = SimulationTime::Instance();
-                
-        if ((p_time->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple==0)
-        {
-            if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
-                && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
-            {
-                double time_next_step = p_time->GetDimensionalisedTime() + p_time->GetTimeStep();
-                WriteBetaCatenin(time_next_step);
-            }
-        }        
-    }
-
-    void AfterSolve()
-    {
-        if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
-            && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
-        {
-            mBetaCatResultsFile->close();
-        }
-        
-        TissueSimulation<2>::AfterSolve();
-    }
+    void AfterSolve();
     
 public :            
 
@@ -258,18 +83,9 @@ public :
     CryptSimulation2d(AbstractTissue<2>& rTissue, 
                       AbstractDiscreteTissueMechanicsSystem<2>* pMechanicsSystem=NULL, 
                       bool deleteTissueAndMechanicsSystem=false,
-                      bool initialiseCells=true)
-        : TissueSimulation<2>(rTissue, pMechanicsSystem, deleteTissueAndMechanicsSystem, initialiseCells),
-          mUseJiggledBottomCells(false)
-    {
-        mpStaticCastTissue = static_cast<MeshBasedTissueWithGhostNodes<2>*>(&mrTissue);
-    }
+                      bool initialiseCells=true);
     
-    
-    void UseJiggledBottomCells()
-    {            
-        mUseJiggledBottomCells = true;                
-    }
+    void UseJiggledBottomCells();
     
     /**
      * Saves the whole tissue simulation for restarting later.
@@ -283,10 +99,7 @@ public :
      * so you save the right sort of simulation to the archive.
      * Not really sure why this is needed, but...
      */
-    void Save()
-    {
-        CommonSave(this);
-    }
+    void Save();
 
     /**
      * Loads a saved tissue simulation to run further.
@@ -298,33 +111,252 @@ public :
      * 
      * Note that this method has to be implemented in this class, since it's a static method.
      */
-    static CryptSimulation2d* Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
-    {
-        std::string archive_filename = TissueSimulation<2>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
-
-        // Create an input archive
-        std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-        boost::archive::text_iarchive input_arch(ifs);
-
-	    TissueSimulation<2>::CommonLoad(input_arch);
-        
-        CryptSimulation2d* p_sim; 
-        input_arch >> p_sim;
-                 
-        if (p_sim->rGetTissue().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size()) 
-        { 
-            #define COVERAGE_IGNORE 
-            std::stringstream string_stream; 
-            string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().GetNumNodes() 
-                          << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size()  
-                          << ")"; 
-            EXCEPTION(string_stream.str()); 
-            #undef COVERAGE_IGNORE 
-        } 
-          
-        return p_sim;         
-    }       
+    static CryptSimulation2d* Load(const std::string& rArchiveDirectory, const double& rTimeStamp);
+    
 };
+
+c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(AbstractTissue<2>::Iterator parentCell)
+{     
+    double separation = CancerParameters::Instance()->GetDivisionSeparation();
+    c_vector<double, 2> parent_coords = parentCell.rGetLocation();
+    c_vector<double, 2> daughter_coords;
+        
+    // Pick a random direction and move the parent cell backwards by 0.5*sep in that
+    // direction and return the position of the daughter cell (0.5*sep forwards in the
+    // random vector direction
+
+    // Make a random direction vector of the required length
+    c_vector<double, 2> random_vector;        
+    
+    double random_angle = RandomNumberGenerator::Instance()->ranf();
+    random_angle *= 2.0*M_PI;
+    
+    random_vector(0) = 0.5*separation*cos(random_angle);
+    random_vector(1) = 0.5*separation*sin(random_angle);
+    
+    c_vector<double, 2> proposed_new_parent_coords = parent_coords-random_vector;
+    c_vector<double, 2> proposed_new_daughter_coords = parent_coords+random_vector;
+    
+    if (   (proposed_new_parent_coords(1) >= 0.0)
+        && (proposed_new_daughter_coords(1) >= 0.0))
+    {
+        // We are not too close to the bottom of the tissue
+        // move parent
+        parent_coords = proposed_new_parent_coords;
+        daughter_coords = proposed_new_daughter_coords;
+    }
+    else
+    {   
+        proposed_new_daughter_coords = parent_coords+2.0*random_vector;
+        while (proposed_new_daughter_coords(1) < 0.0)
+        {
+            random_angle = RandomNumberGenerator::Instance()->ranf();
+            random_angle *= 2.0*M_PI;
+            
+            random_vector(0) = separation*cos(random_angle);
+            random_vector(1) = separation*sin(random_angle);
+            proposed_new_daughter_coords = parent_coords+random_vector;
+        }
+        daughter_coords = proposed_new_daughter_coords;
+    }
+    
+    assert(daughter_coords(1)>=0.0); // to make sure dividing cells stay in the tissue
+    assert(parent_coords(1)>=0.0);   // to make sure dividing cells stay in the tissue
+            
+    // set the parent to use this location
+    ChastePoint<2> parent_coords_point(parent_coords);
+    mrTissue.MoveCell(parentCell, parent_coords_point);
+    return daughter_coords;           
+}
+
+
+void CryptSimulation2d::UpdateNodePositions(const std::vector< c_vector<double, 2> >& rDrDt)
+{
+    // Update ghost positions first because they do not affect the real cells
+    mpStaticCastTissue->UpdateGhostPositions(mDt);
+    
+    // Iterate over all cells to update their positions.
+    for (AbstractTissue<2>::Iterator cell_iter = mrTissue.Begin();
+         cell_iter != mrTissue.End();
+         ++cell_iter)
+    {
+        TissueCell& cell = *cell_iter;
+        unsigned index = cell.GetNodeIndex();
+        
+        ChastePoint<2> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
+                    
+        bool is_wnt_included = WntConcentration::Instance()->IsWntSetUp();
+        if (!is_wnt_included) WntConcentration::Destroy();
+        
+        // stem cells are fixed if no wnt, so reset the x-value to the old x-value           
+        if ((cell.GetCellType()==STEM) && (!is_wnt_included))
+        {
+            new_point.rGetLocation()[0] = mrTissue.GetNode(index)->rGetLocation()[0];
+            new_point.rGetLocation()[1] = mrTissue.GetNode(index)->rGetLocation()[1];
+        }
+        
+        // for all cells - move up if below the bottom surface
+        if (new_point.rGetLocation()[1] < 0.0) 
+        {
+            new_point.rGetLocation()[1] = 0.0; 
+            if (mUseJiggledBottomCells)
+            {
+               /*  
+                * Here we give the cell a push upwards so that it doesn't  
+                * get stuck on y=0 for ever (ticket:422). 
+                *  
+                * Note that all stem cells may get moved to same height and  
+                * random numbers try to ensure we aren't left with the same  
+                * problem at a different height! 
+                */ 
+                new_point.rGetLocation()[1] = 0.05*mpRandomGenerator->ranf();
+            } 
+        } 
+        
+        // move the cell
+        assert(new_point[1]>=0.0);
+        mrTissue.MoveCell(cell_iter, new_point); 
+                
+    }
+}
+
+
+void CryptSimulation2d::WriteVisualizerSetupFile()
+{
+    *mpSetupFile << "MeshWidth\t" << mpStaticCastTissue->rGetMesh().GetWidth(0u);// get furthest distance between nodes in the x-direction
+}
+
+
+void CryptSimulation2d::SetupWriteBetaCatenin()
+{
+    OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/",false);
+    mBetaCatResultsFile = output_file_handler.OpenOutputFile("results.vizbCat");
+    *mpSetupFile << "BetaCatenin\n";
+}
+
+
+void CryptSimulation2d::WriteBetaCatenin(double time)
+{
+    *mBetaCatResultsFile <<  time << "\t";
+    
+    double global_index;
+    double x;
+    double y;
+    double b_cat_membrane;
+    double b_cat_cytoplasm;
+    double b_cat_nuclear;
+    
+    for (AbstractTissue<2>::Iterator cell_iter = mrTissue.Begin();
+         cell_iter != mrTissue.End();
+         ++cell_iter)
+    {
+        global_index = (double) cell_iter.GetNode()->GetIndex();
+        x = cell_iter.rGetLocation()[0];
+        y = cell_iter.rGetLocation()[1];
+
+        // if writing beta-catenin, the model has be be IngeWntSwatCellCycleModel
+        IngeWntSwatCellCycleModel* p_model = dynamic_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
+        
+        b_cat_membrane = p_model->GetMembraneBoundBetaCateninLevel();
+        b_cat_cytoplasm = p_model->GetCytoplasmicBetaCateninLevel();
+        b_cat_nuclear = p_model->GetNuclearBetaCateninLevel();
+        
+        *mBetaCatResultsFile << global_index << " " << x << " " << y << " " << b_cat_membrane << " " << b_cat_cytoplasm << " " << b_cat_nuclear << " ";
+    }
+
+    *mBetaCatResultsFile << "\n";
+}    
+
+
+void CryptSimulation2d::SetupSolve()
+{
+    if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
+        && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
+    {
+        SetupWriteBetaCatenin();            
+        double current_time = SimulationTime::Instance()->GetDimensionalisedTime();            
+        WriteBetaCatenin(current_time);
+    }
+}
+
+
+void CryptSimulation2d::PostSolve()
+{
+    SimulationTime *p_time = SimulationTime::Instance();
+            
+    if ((p_time->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple==0)
+    {
+        if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
+            && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
+        {
+            double time_next_step = p_time->GetDimensionalisedTime() + p_time->GetTimeStep();
+            WriteBetaCatenin(time_next_step);
+        }
+    }        
+}
+
+
+void CryptSimulation2d::AfterSolve()
+{
+    if (   ( mrTissue.Begin() != mrTissue.End() )  // there are any cells
+        && ( mrTissue.Begin()->GetCellCycleModel()->UsesBetaCat()) ) // assume all the cells are the same
+    {
+        mBetaCatResultsFile->close();
+    }
+    
+    TissueSimulation<2>::AfterSolve();
+}
+          
+
+CryptSimulation2d::CryptSimulation2d(AbstractTissue<2>& rTissue, 
+                  AbstractDiscreteTissueMechanicsSystem<2>* pMechanicsSystem, 
+                  bool deleteTissueAndMechanicsSystem,
+                  bool initialiseCells)
+    : TissueSimulation<2>(rTissue, pMechanicsSystem, deleteTissueAndMechanicsSystem, initialiseCells),
+      mUseJiggledBottomCells(false)
+{
+    mpStaticCastTissue = static_cast<MeshBasedTissueWithGhostNodes<2>*>(&mrTissue);
+}
+
+
+void CryptSimulation2d::UseJiggledBottomCells()
+{            
+    mUseJiggledBottomCells = true;                
+}
+
+
+void CryptSimulation2d::Save()
+{
+    CommonSave(this);
+}
+
+
+CryptSimulation2d* CryptSimulation2d::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
+{
+    std::string archive_filename = TissueSimulation<2>::GetArchivePathname(rArchiveDirectory, rTimeStamp);
+
+    // Create an input archive
+    std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+    boost::archive::text_iarchive input_arch(ifs);
+
+    TissueSimulation<2>::CommonLoad(input_arch);
+    
+    CryptSimulation2d* p_sim; 
+    input_arch >> p_sim;
+             
+    if (p_sim->rGetTissue().GetNumNodes()!=p_sim->rGetTissue().rGetCells().size()) 
+    { 
+        #define COVERAGE_IGNORE 
+        std::stringstream string_stream; 
+        string_stream << "Error in Load(), number of nodes (" << p_sim->rGetTissue().GetNumNodes() 
+                      << ") is not equal to the number of cells (" << p_sim->rGetTissue().rGetCells().size()  
+                      << ")"; 
+        EXCEPTION(string_stream.str()); 
+        #undef COVERAGE_IGNORE 
+    } 
+      
+    return p_sim;         
+}
 
 // Declare identifier for the serializer
 BOOST_CLASS_EXPORT(CryptSimulation2d)
