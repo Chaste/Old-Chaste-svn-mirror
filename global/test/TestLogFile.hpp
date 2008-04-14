@@ -186,7 +186,7 @@ public:
         catch(Exception& e)
         {
         }
-
+        LogFile::Close();
 #ifndef NDEBUG
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
         // this will fail if optimised (and should fail) since the NDEBUG flag currently forces NO LOGGING

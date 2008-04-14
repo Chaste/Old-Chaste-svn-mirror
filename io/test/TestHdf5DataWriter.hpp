@@ -671,7 +671,9 @@ public:
         //Data not increasing
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers));
         mpTestWriter->DefineFixedDimension(5000);
+        //Can't set fixed dimension more than once
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(5000));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers));
         
         int ina_var_id = 0;
         int ik_var_id = 0;

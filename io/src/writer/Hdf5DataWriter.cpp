@@ -68,6 +68,49 @@ void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
 }
 
 /**
+<<<<<<< .mine
+<<<<<<< .mine
+ * 
+ * Define the fixed dimension, assuming incomplete data ouput (subset of the nodes)
+ * 
+ * @param nodesToOuput Node indexes to be output (precondition: to be monotonic increasing)
+ * 
+ */
+
+void Hdf5DataWriter::DefineFixedDimension(std::vector<unsigned> nodesToOuput)
+{
+    if (!mIsInDefineMode)
+    {
+        EXCEPTION("Cannot define data to be incomplete when not in Define mode");
+    }
+
+    if (mIsFixedDimensionSet)
+    {
+        EXCEPTION("Fixed dimension already set");
+    }
+        
+    unsigned vector_size = nodesToOuput.size();
+    
+    for (unsigned index=0; index < vector_size-1; index++)
+    {
+        if (nodesToOuput[index] >= nodesToOuput[index+1])
+        {
+            EXCEPTION("Input should be monotonic increasing");                
+        }             
+    }        
+    
+    mFixedDimensionSize = vector_size;   
+    mIsFixedDimensionSet = true;   
+
+    mIsDataComplete = false;
+    mIncompleteNodeIndices = nodesToOuput;
+    
+}
+
+/**
+=======
+>>>>>>> .r3632
+=======
  * 
  * Define the fixed dimension, assuming incomplete data ouput (subset of the nodes)
  * 
@@ -105,6 +148,7 @@ void Hdf5DataWriter::DefineFixedDimension(std::vector<unsigned> nodesToOuput)
 }
 
 /**
+>>>>>>> .r3641
 *
 *  Define a variable.
 *

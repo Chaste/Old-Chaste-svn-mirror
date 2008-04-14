@@ -1,3 +1,5 @@
+#ifndef DYNAMICFINITEELASTICITYASSEMBLER_CPP_
+#define DYNAMICFINITEELASTICITYASSEMBLER_CPP_
 /*
 Copyright (C) Oxford University 2008
 
@@ -17,8 +19,6 @@ You should have received a copy of the Lesser GNU General Public License
 along with CHASTE.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DYNAMICFINITEELASTICITYASSEMBLER_CPP_
-#define DYNAMICFINITEELASTICITYASSEMBLER_CPP_
 
 #include "DynamicFiniteElasticityAssembler.hpp"
 
