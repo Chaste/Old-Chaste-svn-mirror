@@ -1,39 +1,39 @@
 #!/usr/bin/env python
 
-"""Copyright (C) Oxford University 2008
-
-This file is part of CHASTE.
-
-CHASTE is free software: you can redistribute it and/or modify
-it under the terms of the Lesser GNU General Public License as published by
-the Free Software Foundation, either version 2.1 of the License, or
-(at your option) any later version.
-
-CHASTE is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-Lesser GNU General Public License for more details.
-
-You should have received a copy of the Lesser GNU General Public License
-along with CHASTE.  If not, see <http://www.gnu.org/licenses/>."""
-
-# Script to convert a tutorial test file into wiki code
+# Copyright (C) Oxford University 2008
+# 
+# This file is part of Chaste.
+# 
+# CHASTE is free software: you can redistribute it and/or modify it
+# under the terms of the Lesser GNU General Public License as
+# published by the Free Software Foundation, either version 2.1 of the
+# License, or (at your option) any later version.
 #
-# Notes: 
-# 1. The script starts converting everything after the first #define line
-# 2. The script stops converting after an #endif. If this isn't the last
-#    line the script needs changing.
-# 3. All C-style block comments '/*' to '*/' are converted to wiki text.
-# 4. All other lines, including C++ style comments '//', are kept as code lines
-# 5. In C-block comments (ie wiki text), all whitespace is removed. Hence 
-#    indentations for bulleted lists, subsections etc won't work
-# 6. To print an empty line in the wiki page, write EMPTYLINE in the block
-#    comment, with nothing else
-# 7. Lines inside a block comment which start with a '*', i.e.
-#      /* my comment is
-#       * two lines long */
-#    are ok, the initial '*' is removed.
+# Chaste is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# Lesser GNU General Public License for more details.
+#
+# You should have received a copy of the Lesser GNU General Public License
+# along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Script to convert a tutorial test file into wiki code
+
+Notes: 
+1. The script starts converting everything after the first #define line
+2. The script stops converting after an #endif. If this isn't the last
+   line the script needs changing.
+3. All C-style block comments '/*' to '*/' are converted to wiki text.
+4. All other lines, including C++ style comments '//', are kept as code lines
+5. In C-block comments (ie wiki text), all whitespace is removed. Hence 
+   indentations for bulleted lists, subsections etc won't work
+6. To print an empty line in the wiki page, write EMPTYLINE in the block
+   comment, with nothing else
+7. Lines inside a block comment which start with a '*', i.e.
+     /* my comment is
+      * two lines long */
+   are ok, the initial '*' is removed.
+"""
 
 
 import sys

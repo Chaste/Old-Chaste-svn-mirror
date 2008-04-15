@@ -1,19 +1,19 @@
-"""Copyright (C) Oxford University 2008
-
-This file is part of CHASTE.
-
-CHASTE is free software: you can redistribute it and/or modify
-it under the terms of the Lesser GNU General Public License as published by
-the Free Software Foundation, either version 2.1 of the License, or
-(at your option) any later version.
-
-CHASTE is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-Lesser GNU General Public License for more details.
-
-You should have received a copy of the Lesser GNU General Public License
-along with CHASTE.  If not, see <http://www.gnu.org/licenses/>."""
+# Copyright (C) Oxford University 2008
+# 
+# This file is part of Chaste.
+# 
+# CHASTE is free software: you can redistribute it and/or modify it
+# under the terms of the Lesser GNU General Public License as
+# published by the Free Software Foundation, either version 2.1 of the
+# License, or (at your option) any later version.
+#
+# Chaste is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# Lesser GNU General Public License for more details.
+#
+# You should have received a copy of the Lesser GNU General Public License
+# along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 
 """Chaste Build System
 
@@ -116,6 +116,8 @@ class BuildType(object):
         # By default, 'OK' is ok and anything else isn't.
         if status == 'OK':
             return 'green'
+        elif status == 'MPI':
+            return 'orange'
         else:
             return 'red'
         
@@ -127,6 +129,8 @@ class BuildType(object):
             return 'All tests passed'
         elif status == 'Unknown':
             return 'Test output unrecognised'
+        elif status == 'MPI':
+            return 'MPI semaphore error'
         else:
             return status.replace('_', '/') + ' tests failed'
 
@@ -148,8 +152,15 @@ class BuildType(object):
         failed_tests = re.compile('Failed (\d+) of (\d+) tests?')
         ok, ok_count = re.compile('OK!'), 0
         infrastructure_ok = re.compile('Infrastructure test passed ok.')
-        
+        mpi_error = 'semget failed for setnum =  0'
+
+        first_line = True
         for line in logFile:
+            if first_line:
+                first_line = False
+                if line.find(mpi_error) != -1:
+                    status = 'MPI'
+                    break
             m = failed_tests.match(line)
             if m:
                 status = '%d_%d' % (int(m.group(1)), int(m.group(2)))
@@ -415,14 +426,11 @@ class GoogleProfile(GccDebug):
         if status[-5:] == '_prof':
             prof = True
             status = status[:-5]
-        # By default, 'OK' is ok and anything else isn't.
-        if status == 'OK':
-            if prof:
-                return 'orange'
-            else:
-                return 'green'
+        base_col = super(GoogleProfile, self).StatusColour(status)
+        if prof and base_col == 'green':
+            return 'orange'
         else:
-            return 'red'
+            return base_col
         
     def DisplayStatus(self, status):
         """
