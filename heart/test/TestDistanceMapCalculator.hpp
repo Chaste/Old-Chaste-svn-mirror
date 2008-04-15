@@ -19,12 +19,12 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
         
-        DistanceMapCalculator<3> distance_calculator(&mesh);
+        DistanceMapCalculator<3> distance_calculator(mesh);
         
         std::vector<unsigned> map_origin;
         map_origin.push_back(0u);
         
-        std::vector<double> distances(mesh.GetNumNodes());       
+        std::vector<double> distances;       
         distance_calculator.ComputeDistanceMap(map_origin, distances);
         
         c_vector<double, 3> origin_node = mesh.GetNode(0)->rGetLocation();
@@ -53,11 +53,12 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
         
-        DistanceMapCalculator<3> distance_calculator(&mesh);
+        DistanceMapCalculator<3> distance_calculator(mesh);
         
         std::vector<unsigned> map_origin;
         for (unsigned index=0; index<mesh.GetNumNodes(); index++)
         {
+            // Get the nodes at the left face of the cube
             if (mesh.GetNode(index)->rGetLocation()[0] + 0.25 < 1e-6)
             {
                 map_origin.push_back(index);
@@ -66,11 +67,12 @@ public:
         
         assert(map_origin.size() == 21*21);       
         
-        std::vector<double> distances(mesh.GetNumNodes());        
+        std::vector<double> distances;        
         distance_calculator.ComputeDistanceMap(map_origin, distances);
         
         for (unsigned index=0; index<distances.size(); index++)
         {
+            // The distance should be equal to the x-coordinate of the point (minus the offset of the left face of the cube)
             c_vector<double, 3> node = mesh.GetNode(index)->rGetLocation();                        
             TS_ASSERT_DELTA(distances[index], node[0]+0.25,1e-11);
         }            

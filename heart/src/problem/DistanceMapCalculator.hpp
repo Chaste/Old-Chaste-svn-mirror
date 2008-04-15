@@ -14,13 +14,16 @@ template<unsigned SPACE_DIM>
 class DistanceMapCalculator
 {
 private:
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
+    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
     unsigned mNumNodes;
     
     /**
-     *  Computes the euclidean distance of two given points 
+     *  Computes the euclidean distance of two given points
+     * 
+     *  @param pointA First point 
+     *  @param pointB Second point
      */    
-    double EuclideanDistance(const c_vector<double, SPACE_DIM>& pointA, const c_vector<double, SPACE_DIM>& pointB)
+    inline double EuclideanDistanceTwoPoints(const c_vector<double, SPACE_DIM>& pointA, const c_vector<double, SPACE_DIM>& pointB) const
     {
         double dist=0.0;
         
@@ -33,9 +36,11 @@ private:
     }
 
     /**
-     *  Computes the distance between a given point and the surface of the mesh
+     *  Given a cartesian distance, computes the associated euclidean distance
+     * 
+     *  @param cartDistance Cartesian distance of a given point
      */
-    double SurfaceDistance(c_vector<double, SPACE_DIM>& cartDistance)
+    inline double CartToEucliDistance(c_vector<double, SPACE_DIM>& cartDistance) const
     {
         double dist=0.0;
         
@@ -49,10 +54,10 @@ private:
 
 
 public:
-    DistanceMapCalculator(ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh):
-        mpMesh(pMesh)
+    DistanceMapCalculator(ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh):
+        mrMesh(rMesh)
     {
-        mNumNodes = mpMesh->GetNumNodes();
+        mNumNodes = mrMesh.GetNumNodes();
     }
     
     /**
@@ -63,7 +68,10 @@ public:
      */
     void ComputeDistanceMap(std::vector<unsigned>& rOriginSurface, std::vector<double>& rNodeDistances)
     {
-        assert(rNodeDistances.size() == mNumNodes);   
+        if (rNodeDistances.size() != mNumNodes)
+        {
+            rNodeDistances.reserve(mNumNodes);
+        }   
         
         /*
          * Matrix of distances along each dimension (initialised to +inf)
@@ -95,8 +103,7 @@ public:
         {
             // Get a pointer to the next node in the queue
             unsigned current_node_index = active_nodes.front();
-            Node<SPACE_DIM>* p_current_node = mpMesh->GetNode(current_node_index);
-            //std::cout << "Processing node :" << current_node_index << ":" <<std::endl;
+            Node<SPACE_DIM>* p_current_node = mrMesh.GetNode(current_node_index);
             
             // Loop over the elements containing the given node
             for(typename Node<SPACE_DIM>::ContainingElementIterator element_iterator = p_current_node->ContainingElementsBegin();
@@ -104,7 +111,7 @@ public:
                 ++element_iterator)
             {
                 // Get a pointer to the container element
-                Element<SPACE_DIM,SPACE_DIM>* p_containing_element = mpMesh->GetElement(*element_iterator);
+                Element<SPACE_DIM,SPACE_DIM>* p_containing_element = mrMesh.GetElement(*element_iterator);
 
                // Loop over the nodes of the element
                for(unsigned node_local_index=0; 
@@ -117,14 +124,14 @@ public:
                     // Avoid revisiting the active node
                     if(neighbour_node_index != current_node_index)
                     {
-                        // Test if we have found a shorter path from the origin surface to the neighbour through current node
-                        if ((SurfaceDistance(cart_distances[current_node_index]) 
-                              + EuclideanDistance(p_current_node->rGetLocation(), p_neighbour_node->rGetLocation()))
-                            < SurfaceDistance(cart_distances[neighbour_node_index]))
+                        // Test if we have found a shorter path from the origin surface to the current neighbour through current node
+                        if ((CartToEucliDistance(cart_distances[current_node_index]) 
+                              + EuclideanDistanceTwoPoints(p_current_node->rGetLocation(), p_neighbour_node->rGetLocation()))
+                            < CartToEucliDistance(cart_distances[neighbour_node_index]))
                         {
-                            cart_distances[neighbour_node_index] = cart_distances[current_node_index] + (p_current_node->rGetLocation() - p_neighbour_node->rGetLocation());
+                            cart_distances[neighbour_node_index] = cart_distances[current_node_index] 
+                                                                   + (p_current_node->rGetLocation() - p_neighbour_node->rGetLocation());
                             active_nodes.push(neighbour_node_index); 
-                            //std::cout << "Adding node: " << neighbour_node_index << std::endl << std::flush;                                                                                  
                         }                                                                                             
                     }                 
                }
@@ -135,7 +142,7 @@ public:
 
         for (unsigned index=0; index<mNumNodes; index++)
         {
-            rNodeDistances[index] = SurfaceDistance(cart_distances[index]);             
+            rNodeDistances[index] = CartToEucliDistance(cart_distances[index]);             
         }
         
     }

@@ -13,7 +13,7 @@
 		Mesh definition 
 	-->
 	<Mesh>
-		<LoadMesh name="foo"/>    
+		<LoadMesh name="foo" media="Orthotropic"/>    
   	</Mesh>
 
     <!--
