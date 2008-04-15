@@ -42,7 +42,7 @@ public:
     void TestAndLabelSingleCellForApoptosis(TissueCell& cell);
 
     /**
-     *  Loops over cells and starts apoptosis randomly, based on the user-set 
+     *  Loop over cells and start apoptosis randomly, based on the user-set 
      *  probability
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath();

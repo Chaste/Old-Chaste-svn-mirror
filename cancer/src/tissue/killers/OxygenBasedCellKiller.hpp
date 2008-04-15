@@ -2,17 +2,15 @@
 #define OXYGENBASEDCELLKILLER_HPP_
 
 #include "AbstractCellKiller.hpp"
-#include "CancerParameters.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
 /** 
- *  Kills cells that have experienced a continuous period of hypoxia.
+ *  Kills cells that have experienced a prolonged continuous period of hypoxia.
  * 
  *  The non-dimensionalised oxygen concentration at which cells become 
  *  hypoxic is optionally passed into the constructor. 
- * 
  */
 
 template <unsigned SPACE_DIM>
@@ -20,6 +18,7 @@ class OxygenBasedCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
 private:
 
+    // The oxygen concentration below which cells become hypoxic
     double mHypoxicConcentration;
      
     friend class boost::serialization::access;
@@ -28,15 +27,28 @@ private:
     {
         archive & boost::serialization::base_object<AbstractCellKiller<SPACE_DIM> >(*this);        
     }
-    
-    
+
 public:
 
+    /**
+     * Constructor.
+     * 
+     * @param pointer to the tissue.
+     * @param oxygen concentration below which cells become hypoxic.
+     */  
     OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue, 
                           double concentration=CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration());
     
+    /**
+     * Set method for mHypoxicConcentration.
+     * 
+     * @param hypoxicConcentration the oxygen concentration below which cells become hypoxic.
+     */
     void SetHypoxicConcentration(double hypoxicConcentration);
-   
+    
+    /**
+     * Get method for mHypoxicConcentration.
+     */
     double GetHypoxicConcentration() const;
     
     /**
@@ -44,12 +56,14 @@ public:
      *  some critical period, and  it is currently hypoxic, and a random number 
      *  is less than some probability of death (which scales linearly with the 
      *  local oxygen concentration).
+     * 
+     *  @param rCell reference to the cell to test for apoptosis.
      */  
     void TestAndLabelSingleCellForApoptosis(TissueCell& rCell);
     
     /**
-     * Loops over cells and starts apoptosis if the cell satisfies certain
-     * conditions 
+     * Loop over cells and start apoptosis if the cell has been undergone
+     * a prolonged period of hypoxia.
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath();
 

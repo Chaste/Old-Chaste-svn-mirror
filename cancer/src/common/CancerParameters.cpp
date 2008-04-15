@@ -53,19 +53,19 @@ void CancerParameters::Reset()
     // Default parameter values
     mStemCellG1Duration = 14.0;
     mTransitCellG1Duration = 2.0;
-    mHepaOneCellG1Duration = 8.0; // Taken from Owen et al (2004)
-    mSDuration = 5.0;      // apparently between 5-6 hours normally.
-    mG2Duration = 4.0;     // apparently 3-4 hours normally.
-    mMDuration = 1.0;   // This is Meineke's approximation for cell division time.    
+    mHepaOneCellG1Duration = 8.0;  // taken from Owen et al (2004)
+    mSDuration = 5.0;  // apparently between 5-6 hours normally
+    mG2Duration = 4.0;  // apparently 3-4 hours normally
+    mMDuration = 1.0;  // this is Meineke's approximation for cell division time
     mMaxTransitGenerations = 3u;
     mCryptWidth = 10.0;
-    mCryptLength = 22.0;        // This is MOUSE (small intestine)
-    mSpringStiffness = 15.0;  //This is mu in Meineke
-    mDampingConstantNormal = 1.0;  //This is nu in Meineke
+    mCryptLength = 22.0;  // this is MOUSE (small intestine)
+    mSpringStiffness = 15.0;  // this is mu in Meineke
+    mDampingConstantNormal = 1.0;  // this is nu in Meineke
     mDampingConstantMutant = 2.0;
-    mBetaCatSpringScaler = 18.14 / 6.0;  //This scales the spring constant with the amount of beta-catenin 
-                                         //(divided by 6 as a cell normally is a hexagon.)
-    mApoptosisTime = 0.25;  // Cell takes 15 min to fully undergo apoptosis
+    mBetaCatSpringScaler = 18.14 / 6.0;  // this scales the spring constant with the amount of beta-catenin 
+                                         //(divided by 6 as a cell normally is a hexagon)
+    mApoptosisTime = 0.25;  // cell takes 15 min to fully undergo apoptosis
     mDivisionRestingSpringLength = 0.5;
     mDivisionSeparation = 0.3;    
     mHepaOneCellHypoxicConcentration = 0.4;

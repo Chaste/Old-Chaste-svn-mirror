@@ -11,28 +11,42 @@ class AbstractCellKiller
 {
 public:
     
+    /**
+     * Constructor.
+     * 
+     * @param pTissue pointer to the tissue.
+     */
     AbstractCellKiller(AbstractTissue<SPACE_DIM>* pTissue);
-        
+    
+    /**
+     * Destructor.
+     */     
     virtual ~AbstractCellKiller() {};
 
     /**
      *  Pure method which should call StartApoptosis() on any cell
      *  which should be about to undergo programmed death, or Kill()
-     *  on any cell which should die immediately
+     *  on any cell which should die immediately.
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath()=0;
-        
+    
+    /**
+     * Get a pointer to the tissue.
+     */ 
     const AbstractTissue<SPACE_DIM>* GetTissue() const;
     
 protected:
+
+    // The tissue
     AbstractTissue<SPACE_DIM>* mpTissue;
     
 private:
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        //archive & mpTissue; // done in load_construct_data of subclasses
+        // Archiving of mpTissue is implemented in load_construct_data of subclasses
     }
     
 };

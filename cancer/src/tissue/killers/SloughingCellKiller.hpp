@@ -2,7 +2,6 @@
 #define SLOUGHINGCELLKILLER_HPP_
 
 #include "AbstractCellKiller.hpp"
-#include "CancerParameters.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

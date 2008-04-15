@@ -1,15 +1,5 @@
-#include <cmath>
-#include <cassert>
-#include <vector>
-
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 
-/**
- * Constructor.
- *
- * @param oxygenConcentration is a non-dimensional oxygen concentration between 0 and 1.
- * @param rIsCancerCell affects the ODE system 
- */
 Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, const CellMutationState& rMutationState)
         : AbstractOdeSystem(6)
 {
@@ -70,18 +60,11 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
     mInitialConditions.push_back(oxygenConcentration);
 }
 
-/**
- * This should be called by the relevant cell cycle model before any solving
- * of the ODE system (as it is used to evaluate the Y derivatives).
- */
 void Alarcon2004OxygenBasedCellCycleOdeSystem::SetMutationState(const CellMutationState& rMutationState)
 {
     mMutationState = rMutationState;
 }
 
-/**
- * Destructor
- */
 Alarcon2004OxygenBasedCellCycleOdeSystem::~Alarcon2004OxygenBasedCellCycleOdeSystem(void)
 {
     // Do nothing
@@ -89,7 +72,7 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::~Alarcon2004OxygenBasedCellCycleOdeSys
 
 void Alarcon2004OxygenBasedCellCycleOdeSystem::Init()
 {
-    // parameters values taken from the Alarcon et al. (2004) paper
+    // Parameter values taken from the Alarcon et al. (2004) paper
     ma2 = 1.0;
     ma3 = 0.25;
     ma4 = 0.04;
@@ -105,12 +88,6 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::Init()
     mB = 0.01;
 }
 
-/**
- * Returns a vector representing the RHS of the odes at each time step, y' = [y1' ... yn'].
- * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
- *
- * @param rDY filled in with the resulting derivatives (using Alarcons et al. (2004) system of equations)
- */
 void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
 {
     double x = rY[0];
@@ -140,7 +117,7 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time,
     
     assert(mMutationState == HEALTHY || mMutationState == LABELLED);
     
-    // parameter values taken from the Alarcon et al. (2004) paper        
+    // Parameter values taken from the Alarcon et al. (2004) paper        
     if (mMutationState == HEALTHY)    // normal cells
     {
         dz = mc1*(1 - mass/mMstar) - mc2*oxygen_concentration*z/(mB + oxygen_concentration);
@@ -153,7 +130,7 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time,
     dmass = mEta*mass*(1 - mass/mMstar);        
     du = md1 - (md2 + md1*y)*u;
 
-    // rescale time to be in hours
+    // Rescale time to be in hours
     rDY[0] = 60.0*dx;
     rDY[1] = 60.0*dy;
     rDY[2] = 60.0*dz;
@@ -168,8 +145,6 @@ CellMutationState& Alarcon2004OxygenBasedCellCycleOdeSystem::rGetMutationState()
 }
 
 bool Alarcon2004OxygenBasedCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
-{        
+{
     return (rY[0] < mxThreshold && rY[1] > myThreshold);
 }
-    
-

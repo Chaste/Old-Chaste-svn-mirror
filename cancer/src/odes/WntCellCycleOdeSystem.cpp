@@ -1,34 +1,23 @@
 #include "WntCellCycleOdeSystem.hpp"
-#include "CellMutationStates.hpp"
 
-#include <cmath>
-#include <cassert>
-#include <vector>
-#include <iostream>
-
-/**
- * Constructor.
- *
- * @param WntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
- * @param mutationState affects the ODE system and is given by CellMutationStates.hpp
- */
 WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutationState& rMutationState)
         : AbstractOdeSystem(9)
 {
-    /*
-     * State variables
-    % 
-    % 0. r = pRb
-    % 1. e = E2F1 (This is the S-phase indicator)
-    % 2. i = CycD (inactive)
-    % 3. j = CycD (active)
-    % 4. p = pRb-p
-    % 5. c = APC (Active)
-    % 6. b1 = Beta-Catenin (1st allele's copy)
-    % 7. b2 = Beta-Catenin (2nd allele's copy)
-    % 8. WntLevel 
-    */
-    Init(); //Set up parameters
+    /**
+     * State variables.
+     * 
+     * 0. r = pRb
+     * 1. e = E2F1 (This is the S-phase indicator)
+     * 2. i = CycD (inactive)
+     * 3. j = CycD (active)
+     * 4. p = pRb-p
+     * 5. c = APC (Active)
+     * 6. b1 = Beta-Catenin (1st allele's copy)
+     * 7. b2 = Beta-Catenin (2nd allele's copy)
+     * 8. WntLevel 
+     */
+    
+    Init(); // set up parameter values
     
     double destruction_level = ma5d/(ma4d*WntLevel+ma5d);
     double beta_cat_level_1 = -1.0;
@@ -101,28 +90,19 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutation
     mInitialConditions.push_back(WntLevel);
 }
 
-/**
- * This should be called by the relevant cell cycle model before any solving
- * of the ODE system (as it is used to evaluate the Y derivatives).
- */
 void WntCellCycleOdeSystem::SetMutationState(const CellMutationState& rMutationState)
 {
     mMutationState = rMutationState;
 }
 
-
-/**
- * Destructor
- */
 WntCellCycleOdeSystem::~WntCellCycleOdeSystem(void)
 {
     // Do nothing
 }
 
-
 void WntCellCycleOdeSystem::Init()
 {
-    // Initialize model parameters
+    // Initialise model parameter values
     // Swat (2004) Parameters
     double k1 = 1.0;
     double k2 = 1.6;
@@ -148,7 +128,8 @@ void WntCellCycleOdeSystem::Init()
     double phi_CycDi = 0.023;
     double phi_CycDa = 0.03;
     double phi_pRbp = 0.06;
-    // Gary Parameters
+    
+    // Mirams et al. parameter values
     double a1 = 0.423;
     double a2 = 2.57e-4;
     double a3 = 1.72;
@@ -156,12 +137,12 @@ void WntCellCycleOdeSystem::Init()
     double a5 = 0.5;
     double WntMax = 10.0;
     
-    //Gary's parameter to break the build... double mitogenic_factorF = 5.0e-4;
+    /// todo change this value of mitogenic_factorF to 5.0e-5 without breaking the build
     double mitogenic_factorF = 6.0e-4;
-    /// todo change this without breaking the build
+    
     double APC_Total = 0.02;
     
-//  Non-dimensionalise...
+    // Non-dimensionalise...
     mk2d = k2/(Km2*phi_E2F1);
     mk3d = k3*a1*mitogenic_factorF/(Km4*phi_E2F1*a2);
     mk34d = k34/phi_E2F1;
@@ -189,12 +170,6 @@ void WntCellCycleOdeSystem::Init()
     mPhiE2F1 = phi_E2F1;
 }
 
-/**
- * Returns a vector representing the RHS of the odes at each time step, y' = [y1' ... yn'].
- * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
- *
- * @param rDY filled in with the resulting derivatives (using Mirams et al. (2007?) system of equations)
- */
 void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
 {
     double r = rY[0];
@@ -217,14 +192,14 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     double dx8 = 0.0;
     
     /*
-    % The variables are
-    % 1. r = pRb
-    % 2. e = E2F1
-    % 3. i = CycD (inactive)
-    % 4. j = CycD (active)
-    % 5. p = pRb-p
-    % 6. c = APC (Active)
-    % 7. b = Beta-Catenin
+     * The variables are
+     * 1. r = pRb
+     * 2. e = E2F1
+     * 3. i = CycD (inactive)
+     * 4. j = CycD (active)
+     * 5. p = pRb-p
+     * 6. c = APC (Active)
+     * 7. b = Beta-Catenin
     */
     
     // Bit back-to-front, but work out the Wnt section first...
@@ -234,7 +209,7 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     {
         // da
         dx6 = ma5d*(1.0-c) - ma4d*WntLevel*c;
-        //db
+        // db
         dx7 = ma2d*(0.5-b1) - ma3d*b1*c;
         dx8 = ma2d*(0.5-b2) - ma3d*b2*c;
     }
@@ -258,7 +233,7 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     }
     else
     {
-        // can't get here until new mutation states are added to CellMutationState
+        // Can't get here until new mutation states are added to CellMutationState
         NEVER_REACHED;
     }
     
@@ -274,9 +249,8 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     dx4 = mk34d*i*j/(1+j) - (mk43d+mphi_j)*j;
     // dp
     dx5 = mk16d*r*j - mk61d*p - mphi_p*p;
-    
-    
-    double factor = mPhiE2F1*60.0;  // Convert non-dimensional d/dt s to d/dt in hours.
+        
+    double factor = mPhiE2F1*60.0;  // convert non-dimensional d/dt s to d/dt in hours
     
     rDY[0] = dx1*factor;
     rDY[1] = dx2*factor;
@@ -286,7 +260,7 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     rDY[5] = dx6*factor;
     rDY[6] = dx7*factor; // beta-cat allele 1
     rDY[7] = dx8*factor; // beta-cat allele 2
-    rDY[8] = 0.0; // Do not change the Wnt level.
+    rDY[8] = 0.0; // do not change the Wnt level
 }
 
 CellMutationState& WntCellCycleOdeSystem::rGetMutationState()
@@ -307,4 +281,3 @@ bool WntCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vecto
     assert(!isnan(dY1));
     return (fabs(rY[1]-1.0) < 1.0e-2 && dY1 > 0.0);
 }
-

@@ -16,7 +16,10 @@ class RadialSloughingCellKiller : public AbstractCellKiller<2>
 {
 private:
 
-    c_vector<double,2> mCentre;    
+    // Centre of death.
+    c_vector<double,2> mCentre;
+    
+    // Radius of death.    
     double mRadius;
     
     friend class boost::serialization::access;
@@ -28,16 +31,29 @@ private:
     
 public:
 
+    /**
+     * Constructor.
+     * 
+     * @param pTissue pointer to the tissue.
+     * @param centre the centre of death.
+     * @param radius the radius of death.
+     */
     RadialSloughingCellKiller(AbstractTissue<2>* pTissue, 
                               c_vector<double,2> centre, 
                               double radius);
     
+    /**
+     * Get method for mCentre.
+     */
     c_vector<double,2> GetCentre() const;
-        
+    
+    /**
+     * Get method for mRadius.
+     */
     double GetRadius() const;
         
     /**
-     *  Loops over cells and kills cells outside boundary.
+     *  Loop over cells and kills cells outside boundary.
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath();
 

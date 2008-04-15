@@ -1,33 +1,24 @@
 #include "Lee2003WntSignallingOdeSystem.hpp"
-#include <cmath>
-#include <cassert>
-#include <vector>
-#include <iostream>
 
-/**
- * Constructor.
- *
- * @param WntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
- * 
- */
 Lee2003WntSignallingOdeSystem::Lee2003WntSignallingOdeSystem(double WntLevel)
         : AbstractOdeSystem(8)
 {
-    //
-    // State variables
-    // 
-    // % The variables are
-    // % 0. X2 Dsh_active
-    // % 1. X3 APC*/axin*/GSK3
-    // % 2. X4 APC/axin/GSK3
-    // % 3. X9 beta-cat*/APC*/axin*/GSK3
-    // % 4. X10 beta-cat*
-    // % 5. X11 beta-cat
-    // % 6. X12 axin
-    // % 7. WntLevel
-    //
-    Init(); //Set up parameters
-    // unstimulated state first of all...
+    /**
+     * The state variables are
+     *   
+     *  0. X2 Dsh_active
+     *  1. X3 APC/axin/GSK3
+     *  2. X4 APC/axin/GSK3
+     *  3. X9 beta-cat/APC/axin/GSK3
+     *  4. X10 beta-cat
+     *  5. X11 beta-cat
+     *  6. X12 axin
+     *  7. WntLevel
+     */
+     
+    Init(); // set up parameters values
+    
+    // Unstimulated state first of all...
     
     mVariableNames.push_back("Dsh_active");
     mVariableUnits.push_back("nM");
@@ -61,18 +52,13 @@ Lee2003WntSignallingOdeSystem::Lee2003WntSignallingOdeSystem(double WntLevel)
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(WntLevel);
     
-    mNumberOfStateVariables=8;
+    mNumberOfStateVariables = 8;
 }
 
-
-/**
- * Destructor
- */
 Lee2003WntSignallingOdeSystem::~Lee2003WntSignallingOdeSystem(void)
 {
     // Do nothing
 }
-
 
 void Lee2003WntSignallingOdeSystem::Init()
 {
@@ -102,12 +88,6 @@ void Lee2003WntSignallingOdeSystem::Init()
     mv14 = 8.22e-5;
 }
 
-/**
- * Returns a vector representing the RHS of the odes at each time step, y' = [y1' ... yn'].
- * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
- *
- * @param rDY filled in with the resulting derivatives (using Lee et al. (2003) system of equations)
- */
 void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
 {
     double X5 = mGSK0;
@@ -125,7 +105,7 @@ void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std:
         assert( rY[i] >= 0.0 ); // all protein concentrations are positive...
     }
 
-    // Easy Ones - A.32, A.37, A.34, A.35
+    // Easy ones - A.32, A.37, A.34, A.35
     double dX2 = mk1*WntLevel*(mDsh0-X2) - mk2*X2;
     double dX4 = -(mk3*X2+mk4+mk_6)*X4 + mk5*X3 + mk6*X5*((mK17*X12*mAPC0)/(mK7*(mK17+X11)));
     double dX9 = (mk9*X3*X11)/mK8 - mk10*X9;
@@ -147,7 +127,7 @@ void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std:
     double temp3 = 1 + (mAPC0*mK17)/(mK7*(mK17+X11));
     double dX12 = (temp1 + temp2)/temp3;
     
-    double factor = 60.0;  // Convert d/dt in minutes to d/dt in hours.
+    double factor = 60.0;  // convert d/dt in minutes to d/dt in hours
         
     rDY[0] = dX2*factor;
     rDY[1] = dX4*factor;
@@ -156,7 +136,5 @@ void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std:
     rDY[4] = dX3*factor;
     rDY[5] = dX11*factor;
     rDY[6] = dX12*factor; 
-    rDY[7] = 0.0; // Do not change the Wnt level.
+    rDY[7] = 0.0; // do not change the Wnt level
 }
-
-

@@ -14,6 +14,9 @@ public:
      */
     static CancerParameters* Instance();
     
+    /**
+     * Get methods
+     */
     double GetStemCellG1Duration();
     double GetTransitCellG1Duration();
     double GetHepaOneCellG1Duration();
@@ -43,6 +46,9 @@ public:
     double GetWntChemotaxisStrength();
     double GetSymmetricDivisionProbability();
     
+    /**
+     * Set methods
+     */ 
     void SetStemCellG1Duration(double);
     void SetTransitCellG1Duration(double);
     void SetHepaOneCellG1Duration(double);    
@@ -83,6 +89,7 @@ protected:
     CancerParameters& operator= (const CancerParameters&);
     
 private:
+
     /** The single instance of the class */
     static CancerParameters *mpInstance;
     
@@ -90,12 +97,14 @@ private:
      * Stem cell cycle time, used to non-dimensionalise the problem
      */
     double mStemCellG1Duration;
+
     /**
      * Transit cell cycle time.
      * May be used as a mean time for stochastic cell cycle models.
      * Should probably be non-dimensionalised with stem cell cycle time (ticket:204)
      */
     double mTransitCellG1Duration;    
+
     /**
      * HEPA-1 cell cycle time. 
      * For use in monolayer/spheroid simulations.
