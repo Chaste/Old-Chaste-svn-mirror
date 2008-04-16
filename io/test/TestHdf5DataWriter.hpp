@@ -438,8 +438,8 @@ public:
             //TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_dumped.txt").c_str()), 0);
         }
 
-//        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format", true,
-//            "io/test/data", "hdf5_test_full_format", false));
+//        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_incomplete", true,
+//            "io/test/data", "hdf5_test_full_format_incomplete", false));
             
         VecDestroy(petsc_data_1);
         VecDestroy(petsc_data_2);

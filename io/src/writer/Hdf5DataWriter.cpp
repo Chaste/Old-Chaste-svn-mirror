@@ -362,7 +362,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     {
         offset=0;
         num_owned=0;
-        //Compute the offset for writing the data
+        //Compute the offset for writing the data -- this work should be done in the contructor!
         for (unsigned i=0;i<mIncompleteNodeIndices.size();i++)
         {
             int index=mIncompleteNodeIndices[i];
@@ -370,57 +370,66 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
             {
                 offset++;
             }
-            else if(index<=hi)
+            else if(index<hi)
             {
                 num_owned++;
             }
         }
      } 
     
-
+//    if (num_owned==0)
+//    {
+//        return;
+//    }
     
     // Define a dataset in memory for this process
-    hsize_t v_size[1] = {num_owned};
-    hid_t memspace = H5Screate_simple(1, v_size, NULL);
+    hid_t memspace;
+    if (num_owned !=0)
+    {
+        hsize_t v_size[1] = {num_owned};
+        memspace = H5Screate_simple(1, v_size, NULL);
+    }
     // Select hyperslab in the file.
     hsize_t count[DATASET_DIMS] = {1, num_owned, 1};
     hsize_t offset_dims[DATASET_DIMS] = {mCurrentTimeStep, offset, variableID};
     hid_t file_dataspace = H5Dget_space(mDatasetId);
    
+    // Create property list for collective dataset
+    hid_t property_list_id = H5Pcreate(H5P_DATASET_XFER);
+    H5Pset_dxpl_mpio(property_list_id, H5FD_MPIO_COLLECTIVE);
 
+    H5Sselect_hyperslab(file_dataspace, H5S_SELECT_SET, offset_dims, NULL, count, NULL);
+
+    double* p_petsc_vector;
+    VecGetArray(petscVector, &p_petsc_vector);
     
     if (mIsDataComplete)
     {
-        H5Sselect_hyperslab(file_dataspace, H5S_SELECT_SET, offset_dims, NULL, count, NULL);
-    
-        // Create property list for collective dataset write, and write!  Finally.
-        hid_t property_list_id = H5Pcreate(H5P_DATASET_XFER);
-        H5Pset_dxpl_mpio(property_list_id, H5FD_MPIO_COLLECTIVE);
-        
-        double* p_petsc_vector;
-        VecGetArray(petscVector, &p_petsc_vector);
         H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, file_dataspace, property_list_id, p_petsc_vector);
-        VecRestoreArray(petscVector, &p_petsc_vector);
-        H5Pclose(property_list_id); 
     }
     else //if (num_owned != 0)
     {
-        //Make a local copy of the data
-        double* p_petsc_vector;
-        VecGetArray(petscVector, &p_petsc_vector);
+        //Make a local copy of the data you own
         double local_data[num_owned];
-        for (unsigned i=offset;i<offset+num_owned;i++)
+        for (unsigned i=0;i<num_owned;i++)
         {
-            local_data[i] = p_petsc_vector[ mIncompleteNodeIndices[i]-lo ];
+            local_data[i] = p_petsc_vector[ mIncompleteNodeIndices[offset+i]-lo ];
             
         }    
-        VecRestoreArray(petscVector, &p_petsc_vector);
-    
+        //if (num_owned != 0)
+        //{
+            H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, file_dataspace, property_list_id, local_data);
+        //}    
     }
-    
 
+    VecRestoreArray(petscVector, &p_petsc_vector);
+    
+    H5Pclose(property_list_id);
     H5Sclose(file_dataspace);
-    H5Sclose(memspace);
+    if (num_owned !=0)
+    {
+        H5Sclose(memspace);
+    }
 }
 
 void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector)
