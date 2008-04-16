@@ -14,7 +14,7 @@
 #include "CellsGenerator.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
-
+//#include "LogFile.hpp"
 
 class TestTissueSimulationWithSimpleTissue : public AbstractCancerTestSuite
 {
@@ -152,6 +152,9 @@ public:
      */
     void failingTestCellDeath() throw (Exception)
     {
+        std::string test_folder = "TestTissueSimulationWithSimpleTissueCellDeath";
+        LogFile::Instance()->Set(2, test_folder, "log.dat");
+        
         // Create a simple mesh
         int num_cells_depth = 5;
         int num_cells_width = 5;        
@@ -172,7 +175,7 @@ public:
 
         // Create a tissue simulation
         TissueSimulation<2> simulator(simple_tissue, &mechanics_system);
-        simulator.SetOutputDirectory("TestTissueSimulationWithSimpleTissueCellDeath");
+        simulator.SetOutputDirectory(test_folder);
         simulator.SetEndTime(0.5);    
       
         // Add cell killer
@@ -182,7 +185,8 @@ public:
         simulator.Solve();
 
         // The first change in cell numbers is a death at t=0.258333
-        // fill in a TS_ASSERT here when this works
+        TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);// this needs changing to suit actual answer when test works!
+        LogFile::Close();
     }
 
     /**

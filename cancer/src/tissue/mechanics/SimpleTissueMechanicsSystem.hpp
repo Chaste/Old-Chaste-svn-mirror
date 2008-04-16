@@ -113,10 +113,13 @@ double SimpleTissueMechanicsSystem<DIM>::CalculateForceMagnitude(unsigned nodeAG
     CancerParameters* p_params = CancerParameters::Instance();
     
     assert(distanceBetweenNodes <= this->mCutoffPoint);
+    assert(!isnan(distanceBetweenNodes));
     
     double rest_length = 1.0;
     double ageA = this->mpTissue->rGetCellAtNodeIndex(nodeAGlobalIndex).GetAge();
     double ageB = this->mpTissue->rGetCellAtNodeIndex(nodeBGlobalIndex).GetAge();
+    assert(!isnan(ageA));
+    assert(!isnan(ageB));
     
     if ( ageA<p_params->GetMDuration() && ageB<p_params->GetMDuration() )
     {
@@ -150,11 +153,15 @@ double SimpleTissueMechanicsSystem<DIM>::CalculateForceMagnitude(unsigned nodeAG
     if (distanceBetweenNodes > rest_length)
     {
         double alpha = 5;
-        return p_params->GetSpringStiffness() * (distanceBetweenNodes - rest_length)*exp(-alpha*(distanceBetweenNodes-rest_length));
+        double temp = p_params->GetSpringStiffness() * (distanceBetweenNodes - rest_length)*exp(-alpha*(distanceBetweenNodes-rest_length));
+        assert(!isnan(temp));
+        return temp; 
     }        
     else
     {            
-        return p_params->GetSpringStiffness() * log (1 + distanceBetweenNodes - rest_length);
+        double temp = p_params->GetSpringStiffness() * log (1 + distanceBetweenNodes - rest_length);
+        assert(!isnan(temp));
+        return temp;
     }
 }
 
@@ -171,7 +178,6 @@ template<unsigned DIM>
 std::vector<c_vector<double, DIM> >& SimpleTissueMechanicsSystem<DIM>::rCalculateVelocitiesOfEachNode()
 {
     std::set<std::set<unsigned> > cell_pairs_checked; 
-    
     unsigned num_nodes = this->mpTissue->GetNumNodes();
     
     // Initialise the vector of node velocities
@@ -183,32 +189,45 @@ std::vector<c_vector<double, DIM> >& SimpleTissueMechanicsSystem<DIM>::rCalculat
     
     // Iterate over nodes
     for (unsigned node_a_index=0; node_a_index<num_nodes; node_a_index++)
-    {
+    {   
         // Iterate over nodes
         for (unsigned node_b_index=node_a_index+1; node_b_index<num_nodes; node_b_index++)
         {
             c_vector<double, DIM> node_a_location = this->mpTissue->GetNode(node_a_index)->rGetLocation();
             c_vector<double, DIM> node_b_location = this->mpTissue->GetNode(node_b_index)->rGetLocation();
             c_vector<double, DIM> difference = node_b_location - node_a_location;   
-    
+
             double distance_between_nodes = norm_2(difference);
+            if (! distance_between_nodes>0 )
+            {
+                std::cout << "Num nodes = " << this->mpTissue->GetNumNodes() << " Num cells = " << this->mpTissue->GetNumRealCells() << "\n" << std::flush;
+                std::cout << "Node A = " << node_a_index << ", node B = " << node_b_index << "\n" << std::flush;
+                std::cout << "A location = (" <<  node_a_location[0] << "," <<    node_a_location[1] << ")\n" << std::flush;
+                std::cout << "B location = (" <<  node_b_location[0] << "," <<    node_b_location[1] << ")\n" << std::flush;
+            }
     
             if (distance_between_nodes < this->mCutoffPoint)
             {
                 // Calculate the force between the two nodes
                 double force_magnitude = CalculateForceMagnitude(node_a_index, node_b_index, distance_between_nodes);
+                assert(!isnan(force_magnitude));
                 c_vector<double, DIM> force = (force_magnitude/distance_between_nodes)*difference; // ie force_magnitude*unit_difference
-
+                for (unsigned j=0 ; j<DIM ; j++)
+                {
+                    assert(!isnan(force[j]));
+                }
+                
                 // Get the damping constant for each cell
                 double damping_constantA = GetDampingConstant(this->mpTissue->rGetCellAtNodeIndex(node_a_index));
                 double damping_constantB = GetDampingConstant(this->mpTissue->rGetCellAtNodeIndex(node_b_index));
-                    
+                
                 // Add the contribution to each node's velocity
                 mDrDt[node_a_index] += force/damping_constantA;
                 mDrDt[node_b_index] -= force/damping_constantB;
             }
         }            
     }
+    
     return mDrDt;
 }
 
