@@ -30,10 +30,14 @@ private :
     // copies a file (relative to Chaste home to CHASTE_TEST_OUTPUT/dir
     void CopyToTestOutputDirectory(std::string file, std::string dir)
     {
-        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command = "cp " + file + " " + test_output_directory + dir;
-        int return_value = system(command.c_str());
-        assert(return_value==0);
+        if (PetscTools::AmMaster())
+        {
+            std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+            std::string command = "cp " + file + " " + test_output_directory + dir+"/";
+            int return_value = system(command.c_str());
+            assert(return_value==0);
+        }
+        MPI_Barrier(PETSC_COMM_WORLD);
     }
 
 public :    

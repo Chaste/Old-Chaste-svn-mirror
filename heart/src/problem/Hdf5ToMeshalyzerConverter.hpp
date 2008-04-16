@@ -81,6 +81,7 @@ private:
             }
         }
         VecDestroy(data);
+        p_file->close();
     }
 
 
@@ -130,6 +131,8 @@ public:
             Write("V");
             Write("Phi_e");
         }
+        
+        MPI_Barrier(PETSC_COMM_WORLD);
     }
     
     ~Hdf5ToMeshalyzerConverter()
