@@ -324,6 +324,7 @@ public:
                     break;
                 
                 case UNKNOWN:
+                    #define COVERAGE_IGNORE
                     std::cerr << "Wrong distances node: " << node_index << "\t" 
                               << "Epi " << mDistMapEpicardium[node_index] << "\t"
                               << "RV " << mDistMapRightVentricle[node_index] << "\t"
@@ -333,7 +334,8 @@ public:
                     // Make wall_thickness=0 as in Martin's code                             
                     dist_epi = 1;
                     dist_endo = 0;
-                    break;                                                                        
+                    break;
+                    #undef COVERAGE_IGNORE                                                                        
             }
                         
             wall_thickness[node_index] = dist_endo / (dist_endo + dist_epi);           
