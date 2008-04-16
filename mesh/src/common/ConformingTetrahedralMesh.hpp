@@ -1713,7 +1713,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         
         if (return_value != 0)
         {
-            EXCEPTION("The triangle/tetgen mesher did not suceed in remeshing.");
+            EXCEPTION("The triangle/tetgen mesher did not succeed in remeshing.");
         }
     }
     // Wait for the new mesh to be available and communicate its name
@@ -1733,6 +1733,9 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     //Read the new mesh back from file
     TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(full_name+"1");    
     ConstructFromMeshReader(mesh_reader);
+    
+    // Make sure the file is not deleted before all the processors have read it
+    MPI_Barrier(PETSC_COMM_WORLD);
     
     if (handler.IsMaster())
     {
@@ -1876,7 +1879,7 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
             {
                 neighbouring_elements.insert(GetElement(*it));
             }
-     }
+    }
     neighbouring_elements.erase(pElement);
     
     //For each neighbouring element find the supporting nodes
@@ -1909,30 +1912,30 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
     
     for (std::set<unsigned>::const_iterator it = neighbouring_nodes_indices.begin();
              it != neighbouring_nodes_indices.end(); ++it)
+    {
+        c_vector <double, ELEMENT_DIM> node_location = GetNode(*it)->rGetLocation();
+        
+        // Calculate vector from circumcenter to node
+        node_location -= circum_centre;
+        // This is to calculate the squared distance betweeen them
+        double squared_distance = inner_prod(node_location, node_location);
+        
+        // If the squared idstance is less than the elements circum-radius(squared),
+        // then the voronoi property is violated.
+        
+        if (squared_distance < this_circum_centre[ELEMENT_DIM])
         {
-            c_vector <double, ELEMENT_DIM> node_location = GetNode(*it)->rGetLocation();
+            // We know the node is inside the circumsphere, but we don't know how far
+            double radius = sqrt(this_circum_centre[ELEMENT_DIM]);
+            double distance = radius - sqrt(squared_distance);
             
-            // Calculate vector from circumcenter to node
-            node_location -= circum_centre;
-            // This is to calculate the squared distance betweeen them
-            double squared_distance = inner_prod(node_location, node_location);
-            
-            // If the squared idstance is less than the elements circum-radius(squared),
-            // then the voronoi property is violated.
-            
-            if (squared_distance < this_circum_centre[ELEMENT_DIM])
+            // If the node penetration is greater than supplied maximum penetration factor
+            if (distance/radius > maxPenetration)
             {
-                // We know the node is inside the circumsphere, but we don't know how far
-                double radius = sqrt(this_circum_centre[ELEMENT_DIM]);
-                double distance = radius - sqrt(squared_distance);
-                
-                // If the node penetration is greater than supplied maximum penetration factor
-                if (distance/radius > maxPenetration)
-                {
-                    return false;
-                }
+                return false;
             }
         }
+    }
     return true;
 }
 
