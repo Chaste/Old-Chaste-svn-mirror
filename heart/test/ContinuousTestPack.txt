@@ -7,6 +7,7 @@ TestConvergenceTester.hpp
 TestDistanceMapCalculator.hpp
 TestFaberRudyAgainstLimpet.hpp
 TestHdf5ToMeshalyzerConverter.hpp
+TestHeartParameters.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestIonicModels.hpp
 TestMonodomainConductionVelocity.hpp

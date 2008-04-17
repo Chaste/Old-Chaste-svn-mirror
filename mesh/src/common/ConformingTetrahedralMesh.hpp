@@ -1735,7 +1735,12 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     ConstructFromMeshReader(mesh_reader);
     
     // Make sure the file is not deleted before all the processors have read it
-    MPI_Barrier(PETSC_COMM_WORLD);
+#ifndef SPECIAL_SERIAL
+    if (!PetscTools::IsSequential())
+    {
+        MPI_Barrier(PETSC_COMM_WORLD);
+    }
+#endif //SPECIAL_SERIAL
     
     if (handler.IsMaster())
     {
