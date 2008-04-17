@@ -20,10 +20,13 @@ cancer/src/tissue/cell/cycle/AbstractWntOdeBasedCellCycleModel.o \
 cancer/src/tissue/cell/cycle/TysonNovakCellCycleModel.o \
 cancer/src/tissue/cell/cycle/SimpleWntCellCycleModel.o \
 cancer/src/tissue/cell/cycle/StochasticCellCycleModel.o \
+cancer/src/tissue/cell/cycle/StochasticWntCellCycleModel.o \
 cancer/src/tissue/cell/cycle/FixedCellCycleModel.o \
 cancer/src/tissue/cell/cycle/WntCellCycleModel.o \
 cancer/src/tissue/cell/cycle/IngeWntSwatCellCycleModel.o \
 cancer/src/tissue/cell/TissueCell.o \
+cancer/src/tissue/killers/RadialSloughingCellKiller.o \
+cancer/src/tissue/killers/SloughingCellKiller.o \
 cancer/src/odes/WntCellCycleOdeSystem.o \
 cancer/src/odes/IngeWntSwatCellCycleOdeSystem.o \
 cancer/src/odes/TysonNovak2001OdeSystem.o \
@@ -177,7 +180,7 @@ TestMeinekeLabellingAlexWRunner: TestMeinekeLabellingAlexWRunner.o ${LIBS}
 	cd ../.. ;\
 	# Finished copying archives across.
 	cp TestMeinekeLabellingAlexWRunner ${FRESH_DIR} ;\
-	cp simulationMeinekeLabellingAlexW.sh .  ;\
+	cp simulationMeinekeLabellingAlexW.sh ${FRESH_DIR}  ;\
 	mv ${FRESH_DIR}/simulationMeinekeLabellingAlexW.sh ${FRESH_DIR}/simulation.sh
 
 # A more useful test to label a cell near the bottom at random and follow mutation's progress.
