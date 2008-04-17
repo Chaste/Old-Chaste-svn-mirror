@@ -15,17 +15,17 @@
 #include <fstream>
 #include <set>
 
-#include "AbstractCellKiller.hpp"
-#include "CancerEventHandler.hpp"
-#include "CellwiseData.hpp"
-#include "LogFile.hpp"
-#include "Meineke2001SpringSystem.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
-#include "RandomNumberGenerator.hpp"
+#include "Meineke2001SpringSystem.hpp"
 #include "SimpleTissueMechanicsSystem.hpp"
+#include "CellwiseData.hpp"
+#include "WntConcentration.hpp"
+#include "AbstractCellKiller.hpp"
+#include "RandomNumberGenerator.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
-#include "WntConcentration.hpp"
+#include "CancerEventHandler.hpp"
+#include "LogFile.hpp"
 
 
 /**

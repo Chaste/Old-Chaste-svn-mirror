@@ -1,7 +1,4 @@
 #include "StochasticCellCycleModel.hpp"
-#include "Exception.hpp"
-#include <cassert>
-#include <iostream>
 
 
 AbstractCellCycleModel *StochasticCellCycleModel::CreateDaughterCellCycleModel()

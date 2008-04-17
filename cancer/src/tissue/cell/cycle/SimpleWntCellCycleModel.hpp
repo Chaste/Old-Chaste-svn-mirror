@@ -3,6 +3,8 @@
 
 #include "AbstractSimpleCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
+#include "WntConcentration.hpp"
+
 
 /**
  *  Simple Wnt-dependent cell cycle model

@@ -1,10 +1,7 @@
 #ifndef _CYLINDRICAL2DMESH_CPP_
 #define _CYLINDRICAL2DMESH_CPP_
 
-#include <math.h>
-
 #include "Cylindrical2dMesh.hpp"
-#include "TrianglesMeshWriter.hpp"
 
 /**
  * @param pElement  

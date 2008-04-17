@@ -4,8 +4,12 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "CancerParameters.hpp"
+#include <iostream>
+#include <cassert>
+
 #include "AbstractTissue.hpp"
+#include "Exception.hpp"
+
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>

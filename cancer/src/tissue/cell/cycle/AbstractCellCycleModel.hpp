@@ -5,12 +5,14 @@
 #include <boost/serialization/is_abstract.hpp>
 #include <boost/serialization/base_object.hpp>
 
+#include <vector>
+
 #include "CellTypes.hpp"
 #include "CellCyclePhases.hpp"
 #include "SimulationTime.hpp"
 #include "CancerParameters.hpp"
 #include "TissueCell.hpp"
-#include <vector>
+
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>

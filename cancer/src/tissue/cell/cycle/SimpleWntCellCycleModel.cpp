@@ -1,8 +1,4 @@
 #include "SimpleWntCellCycleModel.hpp"
-#include "WntConcentration.hpp"
-#include "Exception.hpp"
-#include <iostream>
-#include <cassert>
 
 AbstractCellCycleModel *SimpleWntCellCycleModel::CreateDaughterCellCycleModel()
 {

@@ -2,7 +2,7 @@
 #define ABSTRACTCRYPTSTATISTICS_HPP_
 
 #include "MeshBasedTissue.hpp"
-#include "RandomNumberGenerator.hpp"
+
 
 class AbstractCryptStatistics
 {

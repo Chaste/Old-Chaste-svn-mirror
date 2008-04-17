@@ -1,9 +1,4 @@
 #include "IngeWntSwatCellCycleModel.hpp"
-#include "CellMutationStates.hpp"
-#include "Exception.hpp"
-#include <iostream>
-#include <cassert>
-#include <cfloat>
 
 /**
  * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function

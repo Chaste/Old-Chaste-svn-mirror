@@ -8,7 +8,6 @@
 #include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
-#include "SimulationTime.hpp"
 
 #ifndef SPECIAL_SERIAL
 #include "PetscTools.hpp"

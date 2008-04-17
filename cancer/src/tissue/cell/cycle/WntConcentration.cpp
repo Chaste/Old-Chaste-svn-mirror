@@ -1,8 +1,4 @@
 #include "WntConcentration.hpp"
-#include "Exception.hpp"
-#include <iostream>
-#include <cassert>
-
 
 /** Pointer to the single instance */
 WntConcentration* WntConcentration::mpInstance = NULL;

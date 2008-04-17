@@ -1,6 +1,4 @@
 #include "TysonNovakCellCycleModel.hpp"
-#include "Exception.hpp"
-#include <iostream>
 
 BackwardEulerIvpOdeSolver TysonNovakCellCycleModel::msSolver(6);
 

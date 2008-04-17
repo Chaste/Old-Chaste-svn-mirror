@@ -5,11 +5,15 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 
+#include <cfloat>
+
 #include "AbstractOdeBasedCellCycleModel.hpp"
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "CellwiseData.hpp"
+#include "Exception.hpp"
+
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>

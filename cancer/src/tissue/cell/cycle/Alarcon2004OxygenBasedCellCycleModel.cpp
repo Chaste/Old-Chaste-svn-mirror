@@ -1,8 +1,4 @@
 #include "Alarcon2004OxygenBasedCellCycleModel.hpp"
-#include "Exception.hpp"
-#include <iostream>
-#include <cassert>
-#include <cfloat>
 
 RungeKutta4IvpOdeSolver Alarcon2004OxygenBasedCellCycleModel::msSolver;
 

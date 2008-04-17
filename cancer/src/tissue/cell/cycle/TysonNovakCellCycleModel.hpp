@@ -3,9 +3,12 @@
 
 #include <boost/serialization/vector.hpp>
 
+#include <iostream>
+
 #include "AbstractOdeBasedCellCycleModel.hpp"
 #include "TysonNovak2001OdeSystem.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
+#include "Exception.hpp"
 
 /**
  *  Tyson Novak cell cycle model

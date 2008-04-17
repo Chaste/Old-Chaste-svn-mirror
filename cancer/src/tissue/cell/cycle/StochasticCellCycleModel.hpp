@@ -1,8 +1,12 @@
 #ifndef STOCHASTICCELLCYCLEMODEL_HPP_
 #define STOCHASTICCELLCYCLEMODEL_HPP_
 
+#include <cassert>
+#include <iostream>
+
 #include "AbstractSimpleMeinekeCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
+#include "Exception.hpp"
 
 /**
  *  Stochastic cell model

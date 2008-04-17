@@ -5,9 +5,14 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 
+#include <cfloat>
+
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 #include "IngeWntSwatCellCycleOdeSystem.hpp"
 #include "WntConcentration.hpp"
+#include "CellMutationStates.hpp"
+#include "Exception.hpp"
+
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>

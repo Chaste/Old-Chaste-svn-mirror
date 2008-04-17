@@ -3,16 +3,16 @@
 Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, const CellMutationState& rMutationState)
         : AbstractOdeSystem(6)
 {
-    /*
+    /**
      * State variables
      * 
-     % 0. x = Cdh1-APC complexes
-     % 1. y = cyclin-CDK
-     % 2. z = p27
-     % 3. m = mass
-     % 4. u = RBNP
-     % 5. oxygenConcentration
-    */
+     * 0. x = Cdh1-APC complexes
+     * 1. y = cyclin-CDK
+     * 2. z = p27
+     * 3. m = mass
+     * 4. u = RBNP
+     * 5. oxygenConcentration
+     */
     Init(); // set up parameters
     
     assert(rMutationState == HEALTHY || rMutationState == LABELLED);

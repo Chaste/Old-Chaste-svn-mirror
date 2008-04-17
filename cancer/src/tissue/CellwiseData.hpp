@@ -9,7 +9,6 @@
 #include <cassert>
 
 #include "MeshBasedTissue.hpp"
-#include "Exception.hpp"
 
 
 /**

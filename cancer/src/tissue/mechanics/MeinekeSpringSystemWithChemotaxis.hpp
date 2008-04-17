@@ -5,7 +5,6 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "Meineke2001SpringSystem.hpp"
-#include "CellwiseData.hpp"
 #include "CellwiseDataGradient.hpp"
 
 /**
