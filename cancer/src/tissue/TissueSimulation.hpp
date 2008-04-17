@@ -271,6 +271,8 @@ public:
     c_vector<unsigned, 5> GetCellCyclePhaseCount();
         
     double GetDt();
+    unsigned GetNumBirths();
+    unsigned GetNumDeaths();
     
     void SetDt(double dt);
     void SetEndTime(double endTime);
@@ -528,15 +530,9 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
     {
         TissueCell& cell = *cell_iter;
         unsigned index = cell.GetNodeIndex();
-
+        
         ChastePoint<DIM> new_point(mrTissue.GetNode(index)->rGetLocation() + mDt*rDrDt[index]);
         mrTissue.MoveCell(cell_iter, new_point);
-
-        // a bit of error checking..
-        for(unsigned i=0; i<DIM; i++)
-        {
-            assert(!isnan(new_point[i]));
-        }
     }
 }
 
@@ -557,6 +553,24 @@ template<unsigned DIM>
 double TissueSimulation<DIM>::GetDt()
 {
     return mDt;
+}
+
+/**
+ * Get the number of births that have occurred in the entire simulation (since t=0)
+ */
+template<unsigned DIM> 
+unsigned TissueSimulation<DIM>::GetNumBirths()
+{
+    return mNumBirths;
+}
+
+/**
+ * Get the number of deaths that have occurred in the entire simulation (since t=0).
+ */
+template<unsigned DIM> 
+unsigned TissueSimulation<DIM>::GetNumDeaths()
+{
+    return mNumDeaths;
 }
 
 /**
