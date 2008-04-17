@@ -2,9 +2,16 @@
 #define CRYPTSIMULATION1D_HPP_
 
 #include <vector>
+#include <cmath>
+#include <ctime>
+#include <iostream>
 
 #include "TissueCell.hpp"
 #include "ConformingTetrahedralMesh.hpp"
+#include "StochasticCellCycleModel.hpp"
+#include "Exception.hpp"
+#include "ColumnDataWriter.hpp"
+#include "CellTypes.hpp"
 
 /**
  * Solve a crypt simulation based on the Meineke paper.

@@ -1,17 +1,18 @@
 #ifndef TESTTYSONNOVAK2001ODESYSTEM_HPP_
 #define TESTTYSONNOVAK2001ODESYSTEM_HPP_
 
+#include <cxxtest/TestSuite.h>
+
 #include <stdio.h>
 #include <time.h>
-#include <cxxtest/TestSuite.h>
-#include "TysonNovak2001OdeSystem.hpp"
 #include <vector>
 #include <iostream>
+
+#include "TysonNovak2001OdeSystem.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "ColumnDataWriter.hpp"
-
 #include "PetscSetupAndFinalize.hpp"
 
 

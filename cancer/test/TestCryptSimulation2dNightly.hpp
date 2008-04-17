@@ -2,21 +2,13 @@
 #define TESTCRYPTSIMULATION2DNIGHTLY_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+
 #include "CryptSimulation2d.hpp"
-#include "TrianglesMeshReader.hpp"
-#include <cmath>
-#include <vector>
 #include "OutputFileHandler.hpp"
-#include "TissueCell.hpp"
-#include "FixedCellCycleModel.hpp"
-#include "StochasticCellCycleModel.hpp"
-#include "WntCellCycleModel.hpp"
 #include "WntConcentration.hpp"
-#include "TysonNovakCellCycleModel.hpp"
-#include "CancerParameters.hpp"
-#include "MeshBasedTissue.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "CellsGenerator.hpp"

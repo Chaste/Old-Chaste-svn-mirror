@@ -2,17 +2,13 @@
 #define TESTSIMPLETISSUEMECHANICSSYSTEM_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include <cmath>
-#include <vector>
-
 #include "SimpleTissueMechanicsSystem.hpp"
-#include "SimpleTissue.hpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
-#include "CellsGenerator.hpp"
 
 class TestSimpleTissueMechanicsSystem : public AbstractCancerTestSuite
 {    

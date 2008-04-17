@@ -1,12 +1,14 @@
 #ifndef TESTWNTCELLCYCLEODESYSTEM_HPP_
 #define TESTWNTCELLCYCLEODESYSTEM_HPP_
 
+#include <cxxtest/TestSuite.h>
+
 #include <stdio.h>
 #include <time.h>
-#include <cxxtest/TestSuite.h>
-#include "WntCellCycleOdeSystem.hpp"
 #include <vector>
 #include <iostream>
+
+#include "WntCellCycleOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"

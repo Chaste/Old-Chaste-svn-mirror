@@ -2,14 +2,12 @@
 #define TESTINGEWNTSWATCELLCYCLEODESYSTEM_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
 #include <stdio.h>
 #include <time.h>
-
-#include <vector>
-#include <iostream>
 
 #include "IngeWntSwatCellCycleOdeSystem.hpp"
 #include "CryptSimulation2d.hpp"

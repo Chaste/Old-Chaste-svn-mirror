@@ -2,15 +2,14 @@
 #define TESTWNTCONCENTRATION_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+
 #include <fstream>
 
 #include "OutputFileHandler.hpp"
-#include "CancerParameters.hpp"
-#include "WntConcentration.hpp"
 #include "MeshBasedTissue.hpp"
-#include "TissueCell.hpp"
 #include "WntCellCycleModel.hpp"
 
 /**

@@ -2,25 +2,20 @@
 #define TESTTISSUESIMULATIONWITHNUTRIENTS_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include <stdio.h>
-#include <time.h>
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include <cmath>
-#include <vector>
-#include <iostream>
+#include <stdio.h>
+#include <time.h>
 
 #include "TissueSimulationWithNutrients.hpp"
-#include "FixedCellCycleModel.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
-#include "AbstractCancerTestSuite.hpp"
-#include "CellsGenerator.hpp"
 #include "SimpleNutrientPde.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 class SimplePdeForTesting : public AbstractLinearEllipticPde<2>
 {

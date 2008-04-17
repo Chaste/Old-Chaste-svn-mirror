@@ -2,16 +2,14 @@
 #define TESTSIMPLETISSUE_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include <cmath>
-#include <vector>
 #include "SimpleTissue.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "CellsGenerator.hpp"
-#include "FixedCellCycleModel.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 

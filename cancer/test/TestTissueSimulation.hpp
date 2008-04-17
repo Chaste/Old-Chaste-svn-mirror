@@ -2,31 +2,24 @@
 #define TESTTISSUESIMULATION_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include <stdio.h>
-#include <time.h>
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include <cmath>
-#include <vector>
-#include <iostream>
+#include <stdio.h>
+#include <time.h>
 
 #include "TissueSimulation.hpp"
-#include "FixedCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
-#include "AbstractCancerTestSuite.hpp"
-#include "TysonNovakCellCycleModel.hpp"
-#include "RandomNumberGenerator.hpp"
 #include "CryptProjectionSpringSystem.hpp"
 #include "RandomCellKiller.hpp"
 #include "RadialSloughingCellKiller.hpp"
-#include "SimpleWntCellCycleModel.hpp"
+#include "AbstractCancerTestSuite.hpp"
+
 
 /** 
  *  Note: Most tests of TissueSimulation are in TestCryptSimulation2d
  */
-
 class TestTissueSimulation : public AbstractCancerTestSuite
 {
 private:

@@ -2,10 +2,12 @@
 #define TESTTISSUECELL_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
 #include <fstream>
+#include <iostream>
 
 #include "OutputFileHandler.hpp"
 #include "CellTypes.hpp"
@@ -16,7 +18,6 @@
 #include "StochasticWntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "AbstractCancerTestSuite.hpp"
-#include <iostream>
 
 
 class TestTissueCell: public AbstractCancerTestSuite

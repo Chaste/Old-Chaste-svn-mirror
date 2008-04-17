@@ -1,12 +1,6 @@
-#include <cmath>
-#include <ctime>
-#include <iostream>
 
 #include "CryptSimulation1d.hpp"
-#include "StochasticCellCycleModel.hpp"
-#include "Exception.hpp"
-#include "ColumnDataWriter.hpp"
-#include "CellTypes.hpp"
+
 
 /** Constructor
  *  @param rMesh

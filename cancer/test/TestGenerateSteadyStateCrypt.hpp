@@ -2,23 +2,13 @@
 #define TESTGENERATESTEADYSTATECRYPT_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include <cmath>
-#include <vector>
-
 #include "CryptSimulation2d.hpp"
-#include "WntCellCycleModel.hpp"
-#include "FixedCellCycleModel.hpp"
-#include "StochasticCellCycleModel.hpp"
-#include "WntCellCycleModel.hpp"
-#include "StochasticWntCellCycleModel.hpp"
-#include "TysonNovakCellCycleModel.hpp"
-#include "StochasticCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
 #include "SloughingCellKiller.hpp"
-#include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 
 

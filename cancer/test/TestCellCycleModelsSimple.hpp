@@ -5,13 +5,11 @@
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+
 #include <fstream>
 
 #include "CellsGenerator.hpp"
-#include "FixedCellCycleModel.hpp"
-#include "StochasticCellCycleModel.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
-#include "SimpleWntCellCycleModel.hpp"
 #include "StochasticDivisionRuleCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"

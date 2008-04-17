@@ -1,12 +1,13 @@
 #ifndef TESTWNTCELLCYCLEODESYSTEM_HPP_
 #define TESTWNTCELLCYCLEODESYSTEM_HPP_
 
+#include <cxxtest/TestSuite.h>
+
 #include <stdio.h>
 #include <time.h>
-#include <cxxtest/TestSuite.h>
-#include "Lee2003WntSignallingOdeSystem.hpp"
 #include <vector>
-#include <iostream>
+
+#include "Lee2003WntSignallingOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "PetscSetupAndFinalize.hpp"

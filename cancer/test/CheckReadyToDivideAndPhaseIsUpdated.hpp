@@ -2,6 +2,7 @@
 #define CHECKREADYTODIVIDEANDPHASEISUPDATED_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <cmath>
 
 #include "AbstractCellCycleModel.hpp"

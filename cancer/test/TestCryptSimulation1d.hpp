@@ -3,9 +3,6 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include <cmath>
-#include <vector>
-
 #include "CryptSimulation1d.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"

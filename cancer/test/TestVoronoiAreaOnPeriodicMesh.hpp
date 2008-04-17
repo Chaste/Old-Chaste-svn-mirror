@@ -3,6 +3,7 @@
 
 #include "UblasCustomFunctions.hpp"
 #include <cxxtest/TestSuite.h>
+
 #include "VoronoiCell.hpp"
 #include "VoronoiTessellation.hpp"
 #include "ConformingTetrahedralMesh.hpp"
@@ -10,8 +11,6 @@
 #include "Exception.hpp"
 #include "TrianglesMeshWriter.hpp"
 
-#include <cmath>
-#include <vector>
 
 class TestVoronoiAreaOnPeriodicMesh : public CxxTest::TestSuite
 {

@@ -2,11 +2,9 @@
 #define TESTARCHIVEFORMAT_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-
-#include <cmath>
-#include <vector>
 
 #include "CryptSimulation2d.hpp"
 #include "HoneycombMeshGenerator.hpp"
@@ -17,7 +15,6 @@
 #include "WntCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-#include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 
 

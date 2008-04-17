@@ -2,10 +2,10 @@
 #define _TESTTISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_
 
 #include "UblasCustomFunctions.hpp"
-#include <cxxtest/TestSuite.h>
-#include <petsc.h>
 
-#include <vector>
+#include <cxxtest/TestSuite.h>
+
+#include <petsc.h>
 #include <cmath>
 #include <pde/test/pdes/SimplePoissonEquation.hpp>
 
@@ -13,6 +13,7 @@
 #include "TissueSimulationWithNutrientsAssembler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
+
 
 class TestTissueSimulationWithNutrientsAssembler : public CxxTest::TestSuite
 {

@@ -2,11 +2,9 @@
 #define TESTCRYPTPROJECTIONSPRINGSYSTEM_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-
-#include <cmath>
-#include <vector>
 
 #include "CryptProjectionSpringSystem.hpp"
 #include "Meineke2001SpringSystem.hpp"

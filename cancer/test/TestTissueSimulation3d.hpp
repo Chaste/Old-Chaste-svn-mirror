@@ -3,14 +3,8 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include <cmath>
-#include <ctime>
-#include <vector>
-
 #include "TissueSimulation.hpp"
 #include "FixedCellCycleModel.hpp"
-#include "TrianglesMeshReader.hpp"
-#include "TrianglesMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 

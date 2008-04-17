@@ -2,19 +2,16 @@
 #define TESTTISSUESIMULATIONWITHSIMPLETISSUE_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-
-#include <cmath>
-#include <ctime>
-#include <vector>
 
 #include "TissueSimulation.hpp"
 #include "RandomCellKiller.hpp" 
 #include "CellsGenerator.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
-//#include "LogFile.hpp"
+
 
 class TestTissueSimulationWithSimpleTissue : public AbstractCancerTestSuite
 {

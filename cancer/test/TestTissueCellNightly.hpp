@@ -2,10 +2,12 @@
 #define TESTTISSUECELLNIGHTLY_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
 #include <fstream>
+#include <iostream>
 
 #include "TissueCell.hpp"
 #include "CellTypes.hpp"
@@ -16,7 +18,7 @@
 #include "TysonNovakCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
-#include <iostream>
+
 
 class TestTissueCellNightly: public AbstractCancerTestSuite
 {

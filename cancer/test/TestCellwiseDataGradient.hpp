@@ -2,14 +2,13 @@
 #define TESTCELLWISEDATAGRADIENT_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+
 #include <fstream>
 
-#include <cmath>
-#include <vector>
 #include "MeshBasedTissueWithGhostNodes.hpp"
-#include "CellwiseData.hpp"
 #include "CellwiseDataGradient.hpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"

@@ -1,12 +1,14 @@
 #ifndef TESTALARCON2004OXYGENBASEDCELLCYCLEODESYSTEM_HPP_
 #define TESTALARCON2004OXYGENBASEDCELLCYCLEODESYSTEM_HPP_
 
+#include <cxxtest/TestSuite.h>
+
 #include <stdio.h>
 #include <time.h>
-#include <cxxtest/TestSuite.h>
-#include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 #include <vector>
 #include <iostream>
+
+#include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"

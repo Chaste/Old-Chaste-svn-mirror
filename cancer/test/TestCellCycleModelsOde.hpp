@@ -8,11 +8,7 @@
 
 #include <fstream>
 
-#include "TysonNovakCellCycleModel.hpp"
-#include "IngeWntSwatCellCycleModel.hpp"
 #include "Alarcon2004OxygenBasedCellCycleModel.hpp"
-#include "WntCellCycleModel.hpp"
-#include "StochasticWntCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"

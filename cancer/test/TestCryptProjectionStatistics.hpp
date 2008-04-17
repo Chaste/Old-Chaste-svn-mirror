@@ -2,17 +2,14 @@
 #define TESTCRYPTSTATISTICS_HPP_
 
 #include <cxxtest/TestSuite.h>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-
-#include <cmath>
-#include <vector>
 
 #include "CryptProjectionStatistics.hpp"
 #include "TissueSimulation.hpp"
 #include "CellsGenerator.hpp"
 #include "RadialSloughingCellKiller.hpp"
-#include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
