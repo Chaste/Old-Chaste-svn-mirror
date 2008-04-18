@@ -435,7 +435,7 @@ public:
             std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_incomplete_dumped.txt";
             system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
             
-            //TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_dumped.txt").c_str()), 0);
+            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_incomplete_dumped.txt").c_str()), 0);
         }
 
 //        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_incomplete", true,
@@ -519,6 +519,7 @@ public:
 
     void TestHdf5DataWriterFullFormatStriped() throw(Exception)
     {
+        //\todo striped data doesn't work when the number of processors is odd
         int number_nodes=100;
                
         Hdf5DataWriter writer("hdf5", "hdf5_test_full_format_striped", false);

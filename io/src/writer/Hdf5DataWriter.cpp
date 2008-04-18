@@ -261,10 +261,11 @@ void Hdf5DataWriter::EndDefineMode()
     // Create "boolean" attribute telling the data to be incomplete or not
     columns[0] = 1;
     colspace = H5Screate_simple(1, columns, NULL);
-    attr = H5Acreate(mDatasetId, "IsDataComplete", H5T_NATIVE_HBOOL, colspace, H5P_DEFAULT  );
+    attr = H5Acreate(mDatasetId, "IsDataComplete", H5T_NATIVE_UINT, colspace, H5P_DEFAULT  );
    
-    // Write to the attribute
-    H5Awrite(attr, H5T_NATIVE_HBOOL, &mIsDataComplete); 
+    // Write to the attribute - note that the native boolean is not predictable
+    unsigned is_data_complete= mIsDataComplete ? 1 : 0;
+    H5Awrite(attr, H5T_NATIVE_UINT, &is_data_complete); 
 
     H5Sclose(colspace);
     H5Aclose(attr);
@@ -377,10 +378,6 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
         }
      } 
     
-//    if (num_owned==0)
-//    {
-//        return;
-//    }
     
     // Define a dataset in memory for this process
     hid_t memspace=0;
@@ -407,7 +404,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     {
         H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, file_dataspace, property_list_id, p_petsc_vector);
     }
-    else //if (num_owned != 0)
+    else
     {
         //Make a local copy of the data you own
         double local_data[num_owned];
@@ -416,10 +413,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
             local_data[i] = p_petsc_vector[ mIncompleteNodeIndices[offset+i]-lo ];
             
         }    
-        //if (num_owned != 0)
-        //{
-            H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, file_dataspace, property_list_id, local_data);
-        //}    
+        H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, file_dataspace, property_list_id, local_data);    
     }
 
     VecRestoreArray(petscVector, &p_petsc_vector);
@@ -434,6 +428,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
 
 void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector)
 {   
+    //\todo broken for odd numbers of processors
     if (mIsInDefineMode)
     {
         EXCEPTION("Cannot write data while in define mode.");    
