@@ -800,12 +800,14 @@ void TissueSimulation<DIM>::Solve()
         // of these methods use any element information, they just delete
         // and create nodes
         CancerEventHandler::BeginEvent(DEATH);
-        mNumDeaths += DoCellRemoval();
+        unsigned deaths_this_step = DoCellRemoval();
+        mNumDeaths += deaths_this_step;
         LOG(1, "\tNum deaths = " << mNumDeaths << "\n");
         CancerEventHandler::EndEvent(DEATH);
 
         CancerEventHandler::BeginEvent(BIRTH);
-        mNumBirths += DoCellBirth();
+        unsigned births_this_step = DoCellBirth(); 
+        mNumBirths += births_this_step;
         LOG(1, "\tNum births = " << mNumBirths << "\n");
         CancerEventHandler::EndEvent(BIRTH);
         
@@ -819,7 +821,7 @@ void TissueSimulation<DIM>::Solve()
         else
         {
             mReMesh = false;
-            if ( (mNumBirths>0) || (mNumDeaths>0) )
+            if ( (births_this_step>0) || (deaths_this_step>0) )
             {   
                 mReMesh = true;
             }
