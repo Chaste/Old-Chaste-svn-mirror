@@ -198,6 +198,7 @@ std::vector<c_vector<double, DIM> >& SimpleTissueMechanicsSystem<DIM>::rCalculat
             c_vector<double, DIM> difference = node_b_location - node_a_location;   
 
             double distance_between_nodes = norm_2(difference);
+#define COVERAGE_IGNORE
             if (! distance_between_nodes>0 )
             {
                 std::cout << "Num nodes = " << this->mpTissue->GetNumNodes() << " Num cells = " << this->mpTissue->GetNumRealCells() << "\n" << std::flush;
@@ -205,6 +206,7 @@ std::vector<c_vector<double, DIM> >& SimpleTissueMechanicsSystem<DIM>::rCalculat
                 std::cout << "A location = (" <<  node_a_location[0] << "," <<    node_a_location[1] << ")\n" << std::flush;
                 std::cout << "B location = (" <<  node_b_location[0] << "," <<    node_b_location[1] << ")\n" << std::flush;
             }
+#undef COVERAGE_IGNORE
     
             if (distance_between_nodes < this->mCutoffPoint)
             {

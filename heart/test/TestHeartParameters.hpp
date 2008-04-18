@@ -26,7 +26,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 class TestHeartParameters : public CxxTest::TestSuite
 {
 public :
-    void testHeartParameters()
+    void TestHeartParametersBasic()
     {
         HeartParameters::Instance()->SetParametersFile("heart/test/data/physiological_test_params.xml");
         
@@ -39,6 +39,7 @@ public :
         
         //double capacitance = HeartParameters::Instance()->Parameters()->Capacitance();
         //TS_ASSERT_EQUALS(capacitance, 4.0);
+        HeartParameters::Instance()->Destroy();
     }
 };
 

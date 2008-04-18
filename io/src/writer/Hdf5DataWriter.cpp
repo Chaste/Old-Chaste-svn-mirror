@@ -383,7 +383,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
 //    }
     
     // Define a dataset in memory for this process
-    hid_t memspace;
+    hid_t memspace=0;
     if (num_owned !=0)
     {
         hsize_t v_size[1] = {num_owned};

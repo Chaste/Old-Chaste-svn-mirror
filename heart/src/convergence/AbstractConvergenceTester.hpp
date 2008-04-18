@@ -235,7 +235,7 @@ public:
             }                            
             unsigned num_ele_across = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
             
-            AbstractCardiacCellFactory<DIM>* p_cell_factory;
+            AbstractCardiacCellFactory<DIM>* p_cell_factory=NULL;
             
             switch (this->Stimulus)
             {
