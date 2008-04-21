@@ -1115,6 +1115,10 @@ void TissueSimulation<DIM>::CommonLoad(Archive& rInputArch)
 template<unsigned DIM>
 c_vector<unsigned, NUM_CELL_MUTATION_STATES> TissueSimulation<DIM>::GetCellMutationStateCount()
 {
+    if (!mOutputCellMutationStates)
+    {
+        EXCEPTION("Call simulator.SetOutputCellMutationStates before using this function");   
+    }
     return mrTissue.GetCellMutationStateCount();
 }
 
@@ -1130,6 +1134,10 @@ c_vector<unsigned, NUM_CELL_MUTATION_STATES> TissueSimulation<DIM>::GetCellMutat
 template<unsigned DIM>
 c_vector<unsigned, NUM_CELL_TYPES> TissueSimulation<DIM>::GetCellTypeCount()
 {
+    if (!mOutputCellTypes)
+    {
+        EXCEPTION("Call simulator.SetOutputCellTypes() before using this function");   
+    }
     return mrTissue.GetCellTypeCount();
 }
 
@@ -1146,6 +1154,10 @@ c_vector<unsigned, NUM_CELL_TYPES> TissueSimulation<DIM>::GetCellTypeCount()
 template<unsigned DIM>
 c_vector<unsigned, 5> TissueSimulation<DIM>::GetCellCyclePhaseCount()
 {
+    if (!mOutputCellCyclePhases)
+    {
+        EXCEPTION("Call simulator.SetOutputCellCyclePhases() before using this function");   
+    }
     return mrTissue.GetCellCyclePhaseCount();
 }
 

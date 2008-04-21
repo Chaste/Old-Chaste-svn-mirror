@@ -636,8 +636,16 @@ public:
         // (it is too small for it to figure out what's happening on its own).
         
         simulator.SetEndTime(0.01);
+        
+        // cover exceptions
+        TS_ASSERT_THROWS_ANYTHING(simulator.GetCellMutationStateCount());        
         simulator.SetOutputCellMutationStates(true);
-                
+        
+        TS_ASSERT_THROWS_ANYTHING(simulator.GetCellTypeCount());
+        simulator.SetOutputCellTypes(true);
+        
+        TS_ASSERT_THROWS_ANYTHING(simulator.GetCellCyclePhaseCount());
+        
         simulator.Solve();
         
         // Check that nothing has moved below y=0
@@ -657,7 +665,7 @@ public:
         
         c_vector<unsigned,5> cell_type_count = simulator.GetCellTypeCount();
         TS_ASSERT_EQUALS(cell_type_count[0], 0u);
-        TS_ASSERT_EQUALS(cell_type_count[1], 0u);
+        TS_ASSERT_EQUALS(cell_type_count[1], 4u);
         TS_ASSERT_EQUALS(cell_type_count[2], 0u);
         TS_ASSERT_EQUALS(cell_type_count[3], 0u);
         
@@ -665,9 +673,7 @@ public:
         OutputFileHandler handler("Crypt2DWntMatureCells",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizvoronoi";
         TS_ASSERT(CompareFiles(results_file,"cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat"));
-//        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat").c_str()), 0);
- 
- 
+
         //Cover writing logged cell
         crypt.SetWriteVoronoiData(true, true);
         simulator.SetEndTime(0.01 + 1./120.);
