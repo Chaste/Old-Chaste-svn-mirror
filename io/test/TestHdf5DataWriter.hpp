@@ -70,37 +70,97 @@ private:
                    return false;
             }
         }
-        DistributedVector::SetProblemSize(number_nodes1);
-        Vec data1=DistributedVector::CreateVec();
-        Vec data2=DistributedVector::CreateVec();
         
-        for (unsigned timestep=0; timestep<times1.size(); timestep++)
+        bool is_complete1=reader1.IsDataComplete();
+        bool is_complete2=reader2.IsDataComplete();
+        
+        if (is_complete1 != is_complete2)
         {
-            for (unsigned var=0; var<num_vars; var++)
+            std::cout<<"One of the readers has incomplete data and the other doesn't\n";
+            return false;
+        }
+        
+        
+        if (is_complete1)
+        {
+            
+            
+            DistributedVector::SetProblemSize(number_nodes1);
+            Vec data1=DistributedVector::CreateVec();
+            Vec data2=DistributedVector::CreateVec();
+            
+            for (unsigned timestep=0; timestep<times1.size(); timestep++)
             {
-                
-                PetscTruth is_equal;
-                reader1.GetVariableOverNodes(data1, variable_names1[var], timestep);
-                reader2.GetVariableOverNodes(data2, variable_names2[var], timestep);
-                VecEqual(data1, data2, &is_equal);
-                /*
-                 * 
-                std::cout<<"timestep "<<timestep<< "variable_name "<< variable_names1[var]<<"\n";
-                std::cout<<"First------\n";
-                VecView(data1, 0);             
-                std::cout<<"Second-----\n";
-                VecView(data1, 0);             
-                */
-                
-                if (is_equal != PETSC_TRUE)
+                for (unsigned var=0; var<num_vars; var++)
                 {
-                    return false;
+                    
+                    PetscTruth is_equal;
+                    reader1.GetVariableOverNodes(data1, variable_names1[var], timestep);
+                    reader2.GetVariableOverNodes(data2, variable_names2[var], timestep);
+                    VecEqual(data1, data2, &is_equal);
+                    /*
+                     * 
+                    std::cout<<"timestep "<<timestep<< "variable_name "<< variable_names1[var]<<"\n";
+                    std::cout<<"First------\n";
+                    VecView(data1, 0);             
+                    std::cout<<"Second-----\n";
+                    VecView(data1, 0);             
+                    */
+                    
+                    if (is_equal != PETSC_TRUE)
+                    {
+                        return false;
+                    }
                 }
             }
+           VecDestroy(data1);
+           VecDestroy(data2);
         }
-       VecDestroy(data1);
-       VecDestroy(data2);
-      
+        else
+        {
+            //Incomplete data
+            
+            //Check the index vectors
+            std::vector<unsigned> indices1=reader1.GetIncompleteNodeMap();
+            std::vector<unsigned> indices2=reader2.GetIncompleteNodeMap();
+        
+            if (indices1.size() != indices2.size())
+            {
+                std::cout<<"Index map sizes "<<indices1.size()<<" and "<<indices2.size()<<" don't match\n";
+                return false;
+            }
+        
+            for (unsigned index=0; index<indices1.size(); index++)
+            {
+                if (indices1[index]!=indices2[index])
+                {
+                   std::cout<<"Time steps "<<indices1[index]<<" and "<<indices2[index]<<" don't match\n";
+                   return false;
+                }
+            }
+            
+            //Check all the data
+            for (unsigned index=0; index<indices1.size(); index++)
+            {
+                unsigned node_index=indices1[index];
+                for (unsigned var=0; var<num_vars; var++)
+                {
+                  std::vector<double> var_over_time1 = reader1.GetVariableOverTime(variable_names1[var], node_index);  
+                  std::vector<double> var_over_time2 = reader2.GetVariableOverTime(variable_names1[var], node_index);
+                  for (unsigned time_step=0;time_step< var_over_time1.size(); time_step++)
+                  {
+                     if (var_over_time1[time_step] != var_over_time2[time_step])
+                     {
+                        std::cout<<"Node "<<node_index<<" at time step "<<time_step<<" variable "<<variable_names1[var]<<
+                            " differs ("<<var_over_time1[time_step]<<" != "<<var_over_time2[time_step]<<")\n";
+                     }
+                  }
+                }
+                
+            
+            }
+            
+        }
        return true;
     }
            
@@ -424,22 +484,22 @@ public:
         
         writer.Close();
         
-        if(PetscTools::AmMaster())
-        {
-            // call h5dump to take the binary hdf5 output file and print it
-            // to a text file. Note that the first line of the txt file would
-            // be the directory it has been printed to, but is this line is
-            // removed by piping the output through sed to delete the first line  
-            OutputFileHandler handler("hdf5",false);
-            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_incomplete.h5";
-            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_incomplete_dumped.txt";
-            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
-            
-            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_incomplete_dumped.txt").c_str()), 0);
-        }
+//        if(PetscTools::AmMaster())
+//        {
+//            // call h5dump to take the binary hdf5 output file and print it
+//            // to a text file. Note that the first line of the txt file would
+//            // be the directory it has been printed to, but is this line is
+//            // removed by piping the output through sed to delete the first line  
+//            OutputFileHandler handler("hdf5",false);
+//            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_incomplete.h5";
+//            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_incomplete_dumped.txt";
+//            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
+//            
+//            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_incomplete_dumped.txt").c_str()), 0);
+//        }
 
-        //TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_incomplete", true,
-        //    "io/test/data", "hdf5_test_full_format_incomplete", false)); 
+        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_incomplete", true,
+            "io/test/data", "hdf5_test_full_format_incomplete", false)); 
             
         VecDestroy(petsc_data_1);
         VecDestroy(petsc_data_2);

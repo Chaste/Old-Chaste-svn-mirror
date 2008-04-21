@@ -444,7 +444,45 @@ public:
         VecDestroy(data_too_big);
         reader.Close();        
     }
-
+    
+    
+    void TestIncompleteData() throw (Exception)
+    {
+        Hdf5DataReader reader("io/test/data","hdf5_test_full_format_incomplete", false);
+        
+        std::vector<std::string> variable_names=reader.GetVariableNames();       
+        TS_ASSERT_EQUALS(variable_names.size(), 3U);
+        TS_ASSERT_EQUALS(variable_names[0], "Node");
+        TS_ASSERT_EQUALS(reader.GetUnit("Node"), "dimensionless");
+        TS_ASSERT_EQUALS(variable_names[1], "I_K");
+        TS_ASSERT_EQUALS(reader.GetUnit("I_K"), "milliamperes");
+        TS_ASSERT_EQUALS(variable_names[2], "I_Na");
+        TS_ASSERT_EQUALS(reader.GetUnit("I_Na"), "milliamperes");
+        
+        //Can't read into a PETSc Vec
+        Vec data=DistributedVector::CreateVec();
+        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "Node", 1/*timestep*/));
+        VecDestroy(data);
+        
+        //Can read one of the nodes that was written
+        std::vector<double> twenty_one=reader.GetVariableOverTime("Node", 21);
+        TS_ASSERT_EQUALS(twenty_one.size(), 11U);
+        for (unsigned i=0; i<twenty_one.size(); i++)
+        {
+            if (i==10)
+            {
+                //\todo Fix this.  Why is there a time slice of zeros at the end?
+                TS_ASSERT_EQUALS(twenty_one[i], 0U);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(twenty_one[i], 21U);
+            }
+        }
+        
+        //Data not included
+        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverTime("Node", 22));
+    }
 };
 
 #endif /*TESTHDF5READER_HPP_*/

@@ -130,26 +130,22 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     
     //Incomplete data
     //Read the vector thing
-    hid_t incomplete_data_id = H5Dopen(mFileId, "NodeMap");
-    hid_t incomplete_dataspace = H5Dget_space(incomplete_data_id);
+    attribute_id = H5Aopen_name(mVariablesDatasetId, "NodeMap");
+    attribute_type  = H5Aget_type(attribute_id);
+    attribute_space = H5Aget_space(attribute_id);
+ 
     // Get the dataset/dataspace dimensions
-    hsize_t num_node_indices;
-    H5Sget_simple_extent_dims(incomplete_dataspace, &num_node_indices, NULL);  
+    unsigned num_node_indices = H5Sget_simple_extent_npoints(attribute_space);
     
-    // Define a simple memory dataspace
-    hid_t memspace = H5Screate_simple(1, &num_node_indices ,NULL);   
-
-
     // Read data from hyperslab in the file into the hyperslab in memory 
     mIncompleteNodeIndices.clear();
     mIncompleteNodeIndices.resize(num_node_indices);
-    H5Dread(incomplete_data_id, H5T_NATIVE_UINT, memspace, incomplete_dataspace, H5P_DEFAULT, &mIncompleteNodeIndices[0]);
+    H5Aread(attribute_id, attribute_type, &mIncompleteNodeIndices[0]);
 
-    H5Sclose(incomplete_data_id);
-    H5Sclose(memspace);    
-    
-    
-    assert(0);       
+    H5Tclose(attribute_type);
+    H5Sclose(attribute_space);
+    H5Aclose(attribute_id);
+        
 }
 
 
@@ -157,10 +153,31 @@ std::vector<double> Hdf5DataReader::GetVariableOverTime(std::string variableName
 {
     if (!mIsUnlimitedDimensionSet)
     {
-        EXCEPTION("The file doesn't contain time dependant data");
+        EXCEPTION("The file does not contain time dependant data");
     }
 
-    if (nodeIndex >= mVariablesDatasetSizes[1])
+    unsigned actual_node_index;
+    if (mIsDataComplete)
+    {
+        actual_node_index = nodeIndex;
+    }
+    else
+    {   
+        unsigned node_index=0;
+        for (node_index=0; node_index<mIncompleteNodeIndices.size(); node_index++)
+        {
+            if (mIncompleteNodeIndices[node_index]==nodeIndex)
+            {
+                actual_node_index = node_index;
+                break;
+            }
+        }
+        if ( node_index == mIncompleteNodeIndices.size())
+        {
+            EXCEPTION("The incomplete file does not contain info of node " + nodeIndex);
+        }
+    }
+    if (actual_node_index >= mVariablesDatasetSizes[1])
     {
         EXCEPTION("The file doesn't contain info of node " + nodeIndex);
     }
@@ -173,7 +190,7 @@ std::vector<double> Hdf5DataReader::GetVariableOverTime(std::string variableName
     int column_index = (*col_iter).second;   
         
     // Define hyperslab in the dataset. 
-    hsize_t offset[3] = {0, nodeIndex, column_index};     
+    hsize_t offset[3] = {0, actual_node_index, column_index};     
     hsize_t count[3]  = {mVariablesDatasetSizes[0], 1, 1};
     hid_t variables_dataspace = H5Dget_space(mVariablesDatasetId);
     H5Sselect_hyperslab(variables_dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
@@ -196,22 +213,26 @@ std::vector<double> Hdf5DataReader::GetVariableOverTime(std::string variableName
 
 void Hdf5DataReader::GetVariableOverNodes(Vec data, std::string variableName, unsigned timestep)
 {
+    if (!mIsDataComplete)
+    {
+        EXCEPTION("You can only get a vector for complete data");
+    }
     if (!mIsUnlimitedDimensionSet && timestep!=0)
     {
-        EXCEPTION("The file doesn't contain time dependant data");
+        EXCEPTION("The file does not contain time dependant data");
     }
 
     std::map<std::string, unsigned>::iterator col_iter = mVariableToColumnIndex.find(variableName);
     if (col_iter == mVariableToColumnIndex.end())
     {
-        EXCEPTION("The file doesn't contain data for variable " + variableName);
+        EXCEPTION("The file does not contain data for variable " + variableName);
     }
     int column_index = (*col_iter).second;   
 
     // Check for valid timestep
     if (timestep >= mNumberTimesteps)
     {
-        EXCEPTION("The file doesn't contain data for timestep number" + timestep);
+        EXCEPTION("The file does not contain data for timestep number" + timestep);
     }
 
     //\todo Use DistributedVector?

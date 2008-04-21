@@ -61,6 +61,16 @@ public:
         return mVariableToUnit[variableName];
     }
     
+    bool IsDataComplete()
+    {
+        return mIsDataComplete;
+    }
+    
+    std::vector<unsigned> GetIncompleteNodeMap()
+    {
+        return mIncompleteNodeIndices;
+    }
+    
     void Close();
 
 };
