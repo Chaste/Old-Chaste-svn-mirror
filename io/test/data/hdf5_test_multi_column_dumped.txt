@@ -104,6 +104,13 @@ GROUP "/" {
       (0,98,0): 98, 98, 1098,
       (0,99,0): 99, 99, 1099
       }
+      ATTRIBUTE "IsDataComplete" {
+         DATATYPE  H5T_STD_U32LE
+         DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
+         DATA {
+         (0): 1
+         }
+      }
       ATTRIBUTE "Variable Details" {
          DATATYPE  H5T_STRING {
                STRSIZE 100;

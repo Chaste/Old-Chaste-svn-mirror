@@ -4,7 +4,8 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
         mDirectory(directory),
         mBaseName(baseName),
         mIsUnlimitedDimensionSet(false),
-        mNumberTimesteps(1)
+        mNumberTimesteps(1),
+        mIsDataComplete(true)
 {
     std::string results_dir;
     
@@ -99,7 +100,56 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     H5Aclose(attribute_id);
     
     // Free allocated memory
-    free(string_array);              
+    free(string_array);
+    
+    //Find out if it's incomplete data
+    attribute_id = H5Aopen_name(mVariablesDatasetId, "IsDataComplete");
+    if (attribute_id < 0)
+    {
+       //This is in the old format (before we added the IsDataComplete attribute).
+       //Just quit (leaving a nasty hdf5 error.
+       return;
+    }
+    
+    
+    attribute_type  = H5Aget_type(attribute_id);
+    attribute_space = H5Aget_space(attribute_id);
+    unsigned is_data_complete;
+    H5Aread(attribute_id, attribute_type, &is_data_complete); 
+    // Release all the identifiers
+    H5Tclose(attribute_type);
+    H5Sclose(attribute_space);
+    H5Aclose(attribute_id);
+    mIsDataComplete = (is_data_complete == 1) ? true : false;
+    
+    
+    if (is_data_complete)
+    {
+        return;
+    }
+    
+    //Incomplete data
+    //Read the vector thing
+    hid_t incomplete_data_id = H5Dopen(mFileId, "NodeMap");
+    hid_t incomplete_dataspace = H5Dget_space(incomplete_data_id);
+    // Get the dataset/dataspace dimensions
+    hsize_t num_node_indices;
+    H5Sget_simple_extent_dims(incomplete_dataspace, &num_node_indices, NULL);  
+    
+    // Define a simple memory dataspace
+    hid_t memspace = H5Screate_simple(1, &num_node_indices ,NULL);   
+
+
+    // Read data from hyperslab in the file into the hyperslab in memory 
+    mIncompleteNodeIndices.clear();
+    mIncompleteNodeIndices.resize(num_node_indices);
+    H5Dread(incomplete_data_id, H5T_NATIVE_UINT, memspace, incomplete_dataspace, H5P_DEFAULT, &mIncompleteNodeIndices[0]);
+
+    H5Sclose(incomplete_data_id);
+    H5Sclose(memspace);    
+    
+    
+    assert(0);       
 }
 
 

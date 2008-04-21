@@ -34,6 +34,9 @@ private:
     
     std::map<std::string, std::string> mVariableToUnit;
     
+    bool mIsDataComplete;
+    std::vector<unsigned> mIncompleteNodeIndices; 
+    
 public:
 
     Hdf5DataReader(std::string directory, std::string baseName, bool make_absolute=true);
