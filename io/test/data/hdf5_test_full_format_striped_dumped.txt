@@ -1117,6 +1117,13 @@ GROUP "/" {
          (3): "I_Na(milliamperes)"
          }
       }
+      ATTRIBUTE "IsDataComplete" {
+         DATATYPE  H5T_STD_U32LE
+         DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
+         DATA {
+         (0): 1
+         }
+      }
    }
    DATASET "Time" {
       DATATYPE  H5T_IEEE_F64LE

@@ -24,7 +24,8 @@ private:
     std::string mUnlimitedDimensionName;
     std::string mUnlimitedDimensionUnit;
     long mFixedDimensionSize; /**< The size of the fixed dimension */ 
-    
+    unsigned mLo, mHi; /**< Local ownership of a PETSc vector of size mFixedDimensionSize*/
+    unsigned mNumberOwned, mOffset; /**<  mNumberOwned=mHi-mLo;  mOffset=mLo; except with incomplete data*/
     bool mIsDataComplete;
     std::vector<unsigned> mIncompleteNodeIndices;   
 
@@ -47,7 +48,7 @@ public:
     virtual ~Hdf5DataWriter();
 
     void DefineFixedDimension(long dimensionSize);
-    void DefineFixedDimension(std::vector<unsigned> nodesToOuput);
+    void DefineFixedDimension(std::vector<unsigned> nodesToOuput, long vecSize);
     void DefineUnlimitedDimension(std::string variableName, std::string variableUnits);
     void AdvanceAlongUnlimitedDimension();
     int DefineVariable(std::string variableName, std::string variableUnits);

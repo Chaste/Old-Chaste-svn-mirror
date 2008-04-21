@@ -2,7 +2,7 @@
 * Implementation file for Hdf5DataWriter class.
 *
 */
-#include <iostream>
+#include "PetscTools.hpp"
 #include "Hdf5DataWriter.hpp"
 
 
@@ -21,6 +21,10 @@ Hdf5DataWriter::Hdf5DataWriter(string directory, string baseName, bool cleanDire
         mIsFixedDimensionSet(false),
         mIsUnlimitedDimensionSet(false),
         mFixedDimensionSize(-1),
+        mLo(0U),
+        mHi(0U),
+        mNumberOwned(0U),
+        mOffset(0U),
         mIsDataComplete(true),
         mCurrentTimeStep(0)
 {
@@ -63,6 +67,15 @@ void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
         EXCEPTION("Fixed dimension already set");
     }    
 
+    /* Work out the ownership details */
+    Vec typical_vec=PetscTools::CreateVec(dimensionSize);
+    int lo, hi;
+    VecGetOwnershipRange(typical_vec, &lo, &hi);
+    mLo=lo;
+    mHi=hi;
+    VecDestroy(typical_vec);
+    mNumberOwned=mHi-mLo;
+    mOffset=mLo;
     mFixedDimensionSize = dimensionSize;   
     mIsFixedDimensionSet = true;
 }
@@ -75,18 +88,8 @@ void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
  * 
  */
 
-void Hdf5DataWriter::DefineFixedDimension(std::vector<unsigned> nodesToOuput)
+void Hdf5DataWriter::DefineFixedDimension(std::vector<unsigned> nodesToOuput, long vecSize)
 {
-    if (!mIsInDefineMode)
-    {
-        EXCEPTION("Cannot define data to be incomplete when not in Define mode");
-    }
-
-    if (mIsFixedDimensionSet)
-    {
-        EXCEPTION("Fixed dimension already set");
-    }
-        
     unsigned vector_size = nodesToOuput.size();
     
     for (unsigned index=0; index < vector_size-1; index++)
@@ -97,12 +100,27 @@ void Hdf5DataWriter::DefineFixedDimension(std::vector<unsigned> nodesToOuput)
         }             
     }        
     
+    
+    DefineFixedDimension(vecSize);
     mFixedDimensionSize = vector_size;   
-    mIsFixedDimensionSet = true;   
-
     mIsDataComplete = false;
     mIncompleteNodeIndices = nodesToOuput;
     
+    
+    mOffset=0;
+    mNumberOwned=0;
+    //Compute the offset for writing the data
+    for (unsigned i=0;i<mIncompleteNodeIndices.size();i++)
+    {
+        if (mIncompleteNodeIndices[i] < mLo)
+        {
+            mOffset++;
+        }
+        else if(mIncompleteNodeIndices[i] < mHi)
+        {
+            mNumberOwned++;
+        }
+     }
 }
 
 /**
@@ -349,46 +367,17 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
         }
     }
        
-    int lo, hi;
-    VecGetOwnershipRange(petscVector, &lo, &hi);
-
-    unsigned offset;
-    unsigned num_owned;
-    if (mIsDataComplete)
-    {
-        offset=lo;
-        num_owned=hi-lo;
-    }
-    else
-    {
-        offset=0;
-        num_owned=0;
-        //Compute the offset for writing the data -- this work should be done in the contructor!
-        for (unsigned i=0;i<mIncompleteNodeIndices.size();i++)
-        {
-            int index=mIncompleteNodeIndices[i];
-            if (index < lo)
-            {
-                offset++;
-            }
-            else if(index<hi)
-            {
-                num_owned++;
-            }
-        }
-     } 
-    
     
     // Define a dataset in memory for this process
     hid_t memspace=0;
-    if (num_owned !=0)
+    if (mNumberOwned !=0)
     {
-        hsize_t v_size[1] = {num_owned};
+        hsize_t v_size[1] = {mNumberOwned};
         memspace = H5Screate_simple(1, v_size, NULL);
     }
     // Select hyperslab in the file.
-    hsize_t count[DATASET_DIMS] = {1, num_owned, 1};
-    hsize_t offset_dims[DATASET_DIMS] = {mCurrentTimeStep, offset, variableID};
+    hsize_t count[DATASET_DIMS] = {1, mNumberOwned, 1};
+    hsize_t offset_dims[DATASET_DIMS] = {mCurrentTimeStep, mOffset, variableID};
     hid_t file_dataspace = H5Dget_space(mDatasetId);
    
     // Create property list for collective dataset
@@ -407,10 +396,10 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     else
     {
         //Make a local copy of the data you own
-        double local_data[num_owned];
-        for (unsigned i=0;i<num_owned;i++)
+        double local_data[mNumberOwned];
+        for (unsigned i=0;i<mNumberOwned;i++)
         {
-            local_data[i] = p_petsc_vector[ mIncompleteNodeIndices[offset+i]-lo ];
+            local_data[i] = p_petsc_vector[ mIncompleteNodeIndices[mOffset+i]-mLo ];
             
         }    
         H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, file_dataspace, property_list_id, local_data);    
@@ -420,7 +409,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     
     H5Pclose(property_list_id);
     H5Sclose(file_dataspace);
-    if (num_owned !=0)
+    if (mNumberOwned !=0)
     {
         H5Sclose(memspace);
     }
@@ -428,7 +417,6 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
 
 void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector)
 {   
-    //\todo broken for odd numbers of processors
     if (mIsInDefineMode)
     {
         EXCEPTION("Cannot write data while in define mode.");    
@@ -448,18 +436,15 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
     if (vector_size != NUM_STRIPES*mFixedDimensionSize)
     {
         EXCEPTION("Vector size doesn't match fixed dimension");        
-    }    
-    int lo, hi;
-    VecGetOwnershipRange(petscVector, &lo, &hi);
-    
+    }
     // Define a dataset in memory for this process
-    hsize_t v_size[1] = {hi-lo};
+    hsize_t v_size[1] = {mNumberOwned*NUM_STRIPES};
     hid_t memspace = H5Screate_simple(1, v_size, NULL);
     
     // Select hyperslab in the file.
-    hsize_t start[DATASET_DIMS] = {mCurrentTimeStep, lo/NUM_STRIPES, firstVariableID};
+    hsize_t start[DATASET_DIMS] = {mCurrentTimeStep, mLo, firstVariableID};
     hsize_t stride[DATASET_DIMS] = {1, 1, secondVariableID-firstVariableID};
-    hsize_t block_size[DATASET_DIMS] = {1, (hi-lo)/NUM_STRIPES, 1};
+    hsize_t block_size[DATASET_DIMS] = {1, mNumberOwned, 1};
     hsize_t number_blocks[DATASET_DIMS] = {1, 1, NUM_STRIPES}; 
 
     hid_t hyperslab_space = H5Dget_space(mDatasetId);

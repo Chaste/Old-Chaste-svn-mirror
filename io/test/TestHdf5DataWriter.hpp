@@ -385,7 +385,7 @@ public:
         node_numbers.push_back(21);
         node_numbers.push_back(47);
         node_numbers.push_back(60);
-        writer.DefineFixedDimension(node_numbers);
+        writer.DefineFixedDimension(node_numbers, number_nodes);
 
         writer.EndDefineMode();
       
@@ -496,19 +496,19 @@ public:
         
         writer.Close();
         
-//        if(PetscTools::AmMaster())
-//        {
-//            // call h5dump to take the binary hdf5 output file and print it
-//            // to a text file. Note that the first line of the txt file would
-//            // be the directory it has been printed to, but is this line is
-//            // removed by piping the output through sed to delete the first line  
-//            OutputFileHandler handler("hdf5",false);
-//            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format.h5";
-//            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_dumped.txt";
-//            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
-//            
-//            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_dumped.txt").c_str()), 0);
-//        }
+        if(PetscTools::AmMaster())
+        {
+            // call h5dump to take the binary hdf5 output file and print it
+            // to a text file. Note that the first line of the txt file would
+            // be the directory it has been printed to, but is this line is
+            // removed by piping the output through sed to delete the first line  
+            OutputFileHandler handler("hdf5",false);
+            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format.h5";
+            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_dumped.txt";
+            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
+            
+            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_dumped.txt").c_str()), 0);
+        }
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format", true,
             "io/test/data", "hdf5_test_full_format", false));
             
@@ -519,7 +519,6 @@ public:
 
     void TestHdf5DataWriterFullFormatStriped() throw(Exception)
     {
-        //\todo striped data doesn't work when the number of processors is odd
         int number_nodes=100;
                
         Hdf5DataWriter writer("hdf5", "hdf5_test_full_format_striped", false);
@@ -553,9 +552,11 @@ public:
         distributed_node_number.Restore();
         distributed_vector_short.Restore();
         
-        DistributedVector::SetProblemSize(2*number_nodes);
-        Vec petsc_data_long=DistributedVector::CreateVec();
+        DistributedVector::SetProblemSize(number_nodes);
+        Vec petsc_data_long=DistributedVector::CreateVec(2);
         DistributedVector distributed_vector_long(petsc_data_long);      
+        DistributedVector::Stripe vm_stripe(distributed_vector_long, 0);
+        DistributedVector::Stripe phi_e_stripe(distributed_vector_long,1 );
         
         for (unsigned time_step=0; time_step<10; time_step++)
         {
@@ -563,7 +564,8 @@ public:
                  index!= DistributedVector::End();
                  ++index)
             {
-                distributed_vector_long[index] =  time_step*1000 + index.Global;
+                vm_stripe[index] =  time_step*1000 + index.Global*2;
+                phi_e_stripe[index] =  time_step*1000 + index.Global*2+1;
             }
             distributed_vector_long.Restore();
             
@@ -576,8 +578,7 @@ public:
         
         writer.Close();
         
-        /*
-         * 
+        
         if(PetscTools::AmMaster())
         {
             // call h5dump to take the binary hdf5 output file and print it
@@ -591,10 +592,10 @@ public:
             
             TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_striped_dumped.txt").c_str()), 0);
         }
-        *
-        */
-        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_striped", true,
-            "io/test/data", "hdf5_test_full_format_striped", false));
+        
+        
+        //TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_striped", true,
+        //    "io/test/data", "hdf5_test_full_format_striped", false));
 
         VecDestroy(node_number);
         VecDestroy(petsc_data_long);
@@ -670,11 +671,11 @@ public:
         node_numbers.push_back(47);
         node_numbers.push_back(6);
         //Data not increasing
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers, 100));
         mpTestWriter->DefineFixedDimension(5000);
         //Can't set fixed dimension more than once
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(5000));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers, 100));
         
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -723,14 +724,14 @@ public:
         node_numbers.push_back(21);
         node_numbers.push_back(47);
         node_numbers.push_back(60);
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(node_numbers));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(node_numbers, 100));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
         
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineVariable("I_Ca","milli amperes"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(5000));
         //Can't call define fixed dimension again
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers, 100));
         
         //Test that we can't write incomplete data from a vector that doesn't have
         //the right entries (0 to 59)
