@@ -34,10 +34,9 @@ private :
         {
             std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
             std::string command = "cp " + file + " " + test_output_directory + dir+"/";
-#ifndef NDEBUG
-            int return_value = system(command.c_str());
+            int return_value;
+            return_value = system(command.c_str());
             assert(return_value==0);
-#endif //NDEBUG
         }
         MPI_Barrier(PETSC_COMM_WORLD);
     }

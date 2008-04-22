@@ -12,62 +12,12 @@
 #include "SloughingCellKiller.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
-
+#include "../../global/test/NumericFileComparison.hpp"
 
 class TestCryptSimulation2d : public AbstractCancerTestSuite
 {
 private:
 
-    /**
-     * Compare files of numbers to see if they are to within a given tolerance. 
-     */
-    bool CompareFiles(std::string fileName1, std::string fileName2, double absTolerance=DBL_EPSILON)
-    {
-        std::ifstream file1(fileName1.c_str(), std::ios::in);
-        // If it doesn't exist - throw exception
-        if (!file1.is_open())
-        {
-            EXCEPTION("Couldn't open info file: " + fileName1);
-        }
-        std::ifstream file2(fileName2.c_str(), std::ios::in);
-        // If it doesn't exist - throw exception
-        if (!file2.is_open())
-        {
-            EXCEPTION("Couldn't open info file: " + fileName2);
-        }
-        double data1, data2;
-        unsigned failures=0;
-        double max_error=0.0;
-        unsigned max_failures=10;
-        
-        while (file1>>data1 && file2>>data2)
-        {
-            double error=fabs(data1 - data2);
-            if ( error > absTolerance )
-            {
-                failures++;
-                //Force CxxTest error
-                TS_ASSERT_DELTA(data1, data2, absTolerance);
-                if (error > max_error)
-                {
-                    max_error=error;
-                }
-            }
-            if (failures > max_failures)
-            {
-                break;//Don't clog the screen
-            }
-        }
-        //Can we read any more?
-        if(file1>>data1 || file2>>data2)
-        {
-            EXCEPTION("Files have different lengths");
-        }
-        //Force CxxTest error if there were any major differences
-        TS_ASSERT_LESS_THAN(max_error, absTolerance);
-        
-        return (failures==0);   
-    }                       
                        
     /**
      * Compare 2 meshes to see if they are 'the same'.  Doesn't check everything,
@@ -485,7 +435,9 @@ public:
         // Check writing of voronoi data
         OutputFileHandler handler("Crypt2DPeriodicStandardResult",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellcyclephases.dat";
-        TS_ASSERT(CompareFiles(results_file,"cancer/test/data/CellCyclePhaseOutput/cellcyclephases.dat"));
+        
+        NumericFileComparison comp(results_file,"cancer/test/data/CellCyclePhaseOutput/cellcyclephases.dat");
+        TS_ASSERT(comp.CompareFiles());
 //        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CellCyclePhaseOutput/cellcyclephases.dat").c_str()), 0);
     }
 
@@ -672,8 +624,9 @@ public:
         // Check writing of voronoi data
         OutputFileHandler handler("Crypt2DWntMatureCells",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizvoronoi";
-        TS_ASSERT(CompareFiles(results_file,"cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat"));
-
+        
+        NumericFileComparison comp(results_file,"cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat");
+        TS_ASSERT(comp.CompareFiles());
         //Cover writing logged cell
         crypt.SetWriteVoronoiData(true, true);
         simulator.SetEndTime(0.01 + 1./120.);
@@ -746,9 +699,12 @@ public:
         // Work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DPeriodicTysonNovak",false);
         std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
-        TS_ASSERT(CompareFiles(results_dir + "/results.vizelements","cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizelements"));
-        TS_ASSERT(CompareFiles(results_dir + "/results.viznodes","cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.viznodes"));
-        TS_ASSERT(CompareFiles(results_dir + "/results.vizsetup","cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizsetup"));
+        NumericFileComparison comp_ele(results_dir + "/results.vizelements","cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizelements");
+        TS_ASSERT(comp_ele.CompareFiles());
+        NumericFileComparison comp_nodes(results_dir + "/results.viznodes","cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.viznodes");
+        TS_ASSERT(comp_nodes.CompareFiles());
+        NumericFileComparison comp_setup(results_dir + "/results.vizsetup","cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizsetup");
+        TS_ASSERT(comp_setup.CompareFiles());
 //        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizelements").c_str()), 0);
 //        TS_ASSERT_EQUALS(system(("ndiff -abserr 1e-14 " + results_dir + "/results.viznodes cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.viznodes").c_str()), 0);
 //        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizsetup").c_str()), 0);
@@ -1054,8 +1010,11 @@ public:
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizbCat";
         std::string results_setup_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizsetup";
         
-        TS_ASSERT(CompareFiles(results_file,"cancer/test/data/CryptBetaCatenin/results.vizbCat"));
-        TS_ASSERT(CompareFiles(results_setup_file,"cancer/test/data/CryptBetaCatenin/results.vizsetup"));
+        NumericFileComparison comp_bcat(results_file,"cancer/test/data/CryptBetaCatenin/results.vizbCat");
+        TS_ASSERT(comp_bcat.CompareFiles());
+        NumericFileComparison comp_setup(results_setup_file,"cancer/test/data/CryptBetaCatenin/results.vizsetup");
+        TS_ASSERT(comp_setup.CompareFiles());
+        
 //        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CryptBetaCatenin/results.vizbCat").c_str()), 0);    
 //        TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " cancer/test/data/CryptBetaCatenin/results.vizsetup").c_str()), 0);    
 
@@ -1222,8 +1181,11 @@ public:
         OutputFileHandler handler("AncestorCrypt",false);
         std::string results_file1 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
         std::string results_file2 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizAncestors";
-        TS_ASSERT(CompareFiles(results_file1,"cancer/test/data/AncestorCrypt/results.viznodes"));
-        TS_ASSERT(CompareFiles(results_file2,"cancer/test/data/AncestorCrypt/results.vizAncestors"));
+        NumericFileComparison comp_nodes(results_file1,"cancer/test/data/AncestorCrypt/results.viznodes");
+        TS_ASSERT(comp_nodes.CompareFiles());
+        NumericFileComparison comp_ans(results_file2,"cancer/test/data/AncestorCrypt/results.vizAncestors");
+        TS_ASSERT(comp_ans.CompareFiles());
+        
 //        TS_ASSERT_EQUALS(system(("diff " + results_file1 + " cancer/test/data/AncestorCrypt/results.viznodes").c_str()), 0);
 //        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " cancer/test/data/AncestorCrypt/results.vizAncestors").c_str()), 0);
         
