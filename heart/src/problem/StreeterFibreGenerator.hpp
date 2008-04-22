@@ -453,9 +453,9 @@ public:
             /*
              *  Apply alpha rotation to fibre_direction vector. Solve the system
              * 
-             *   ( v(1) v(2) v(3) ) * ( x )   (     ||v||*cos(alpha)    )
-             *   ( u(1) u(2) u(3) )   ( y ) = (           0           )
-             *   ( w(1) w(2) w(3) )   ( z )   ( ||w||*cos(PI/2 - alpha) )
+             *   ( v(1) v(2) v(3) ) * ( f(1) )   (     ||v||*cos(alpha)    )
+             *   ( u(1) u(2) u(3) )   ( f(2) ) = (           0           )
+             *   ( w(1) w(2) w(3) )   ( f(3) )   ( ||w||*cos(PI/2 - alpha) )
              * 
              */
             c_matrix<double, SPACE_DIM, SPACE_DIM> fibre_space_matrix;           
@@ -465,6 +465,8 @@ public:
                 fibre_space_matrix(1,column_index) = grad_ave_wall_thickness(column_index);
                 fibre_space_matrix(2,column_index) = longitude_direction(column_index);                   
             }
+            
+            c_matrix<double, SPACE_DIM, SPACE_DIM> inv_fibre_space_matrix = Inverse(fibre_space_matrix);
             
             double norm_v = sqrt(   fibre_direction[0] * fibre_direction[0]
                                   + fibre_direction[1] * fibre_direction[1]
@@ -479,12 +481,32 @@ public:
                                                                       norm_w*cos( M_PI/2 - alpha )));
 
             /// \todo Use LU factorisation to solve this system
-            c_vector<double, SPACE_DIM> rotated_fibre_direction = prod( Inverse(fibre_space_matrix), rotation_rhs);
+            c_vector<double, SPACE_DIM> rotated_fibre_direction = prod( inv_fibre_space_matrix, rotation_rhs);
+
+
+            /*
+             *  Apply alpha rotation to longitude_direction vector. Solve the system
+             * 
+             *   ( v(1) v(2) v(3) ) * ( l(1) )   ( ||v||*cos(PI/2 + alpha) )
+             *   ( u(1) u(2) u(3) )   ( l(2) ) = (         0        )
+             *   ( w(1) w(2) w(3) )   ( l(3) )   ( ||w||*cos(alpha) )
+             * 
+             */           
+            rotation_rhs = Create_c_vector( norm_v*cos( M_PI/2 + alpha), 
+                                            0.0, 
+                                            norm_w*cos( alpha ));
+
+            /// \todo Use LU factorisation to solve this system
+            c_vector<double, SPACE_DIM> rotated_longitude_direction = prod( inv_fibre_space_matrix, rotation_rhs);
+
+            assert(rotated_longitude_direction[0] != longitude_direction[0] &&
+                   rotated_longitude_direction[1] != longitude_direction[1] &&
+                   rotated_longitude_direction[2] != longitude_direction[2] );
 
             // Output the direction of the myofibre, the transverse to it in the plane of the myocite laminae and the normal to this laminae (in that order)
-            *p_fibre_file << rotated_fibre_direction[0] << " " << rotated_fibre_direction[1] << " "  << rotated_fibre_direction[2] << " "
-                          << longitude_direction[0]     << " " << longitude_direction[1]     << " "  << longitude_direction[2] << " "
-                          << grad_ave_wall_thickness[0] << " " << grad_ave_wall_thickness[1] << " "  << grad_ave_wall_thickness[2] << " "
+            *p_fibre_file << rotated_fibre_direction[0]     << " " << rotated_fibre_direction[1]     << " "  << rotated_fibre_direction[2]     << " "
+                          << rotated_longitude_direction[0] << " " << rotated_longitude_direction[1] << " "  << rotated_longitude_direction[2] << " "
+                          << grad_ave_wall_thickness[0]     << " " << grad_ave_wall_thickness[1]     << " "  << grad_ave_wall_thickness[2]     << " "
                           << std::endl;
             
         }               
