@@ -27,6 +27,7 @@ private:
     unsigned mLo, mHi; /**< Local ownership of a PETSc vector of size mFixedDimensionSize*/
     unsigned mNumberOwned, mOffset; /**<  mNumberOwned=mHi-mLo;  mOffset=mLo; except with incomplete data*/
     bool mIsDataComplete;
+    bool mNeedExtend; /**< Used so that the data set is only extended when data is written*/
     std::vector<unsigned> mIncompleteNodeIndices;   
 
     std::vector<DataWriterVariable> mVariables; /**< The data variables */
@@ -53,7 +54,7 @@ public:
     void AdvanceAlongUnlimitedDimension();
     int DefineVariable(std::string variableName, std::string variableUnits);
     virtual void EndDefineMode();
-    
+    void PossiblyExtend();
     void PutVector(int variableID, Vec petscVector);
     void PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector);
     void PutUnlimitedVariable(double value);

@@ -1,7 +1,7 @@
 GROUP "/" {
    DATASET "Data" {
       DATATYPE  H5T_IEEE_F64LE
-      DATASPACE  SIMPLE { ( 11, 3, 3 ) / ( H5S_UNLIMITED, 3, 3 ) }
+      DATASPACE  SIMPLE { ( 10, 3, 3 ) / ( H5S_UNLIMITED, 3, 3 ) }
       DATA {
       (0,0,0): 21, 121, 221,
       (0,1,0): 47, 147, 247,
@@ -32,10 +32,7 @@ GROUP "/" {
       (8,2,0): 60, 8160, 8260,
       (9,0,0): 21, 9121, 9221,
       (9,1,0): 47, 9147, 9247,
-      (9,2,0): 60, 9160, 9260,
-      (10,0,0): 0, 0, 0,
-      (10,1,0): 0, 0, 0,
-      (10,2,0): 0, 0, 0
+      (9,2,0): 60, 9160, 9260
       }
       ATTRIBUTE "Variable Details" {
          DATATYPE  H5T_STRING {
@@ -67,9 +64,9 @@ GROUP "/" {
    }
    DATASET "Time" {
       DATATYPE  H5T_IEEE_F64LE
-      DATASPACE  SIMPLE { ( 11 ) / ( H5S_UNLIMITED ) }
+      DATASPACE  SIMPLE { ( 10 ) / ( H5S_UNLIMITED ) }
       DATA {
-      (0): 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
+      (0): 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
       }
       ATTRIBUTE "Unit" {
          DATATYPE  H5T_STRING {

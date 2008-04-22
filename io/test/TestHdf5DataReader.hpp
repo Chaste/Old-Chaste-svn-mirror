@@ -433,9 +433,9 @@ public:
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverTime("Node", 100/*node*/));
                
         Vec data=DistributedVector::CreateVec();
-        TS_ASSERT_THROWS_NOTHING(reader.GetVariableOverNodes(data, "Node", 1/*timestep*/));
+        TS_ASSERT_THROWS_NOTHING(reader.GetVariableOverNodes(data, "Node", 0/*timestep*/));
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "WrongName"));
-        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "I_K", 2/*timestep*/));
+        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "I_K", 1/*timestep*/));
         DistributedVector::SetProblemSize(number_nodes+1);
         Vec data_too_big=DistributedVector::CreateVec();
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data_too_big, "Node", 1/*timestep*/));
@@ -466,18 +466,10 @@ public:
         
         //Can read one of the nodes that was written
         std::vector<double> twenty_one=reader.GetVariableOverTime("Node", 21);
-        TS_ASSERT_EQUALS(twenty_one.size(), 11U);
+        TS_ASSERT_EQUALS(twenty_one.size(), 10U);
         for (unsigned i=0; i<twenty_one.size(); i++)
         {
-            if (i==10)
-            {
-                //\todo Fix this.  Why is there a time slice of zeros at the end?
-                TS_ASSERT_EQUALS(twenty_one[i], 0U);
-            }
-            else
-            {
-                TS_ASSERT_EQUALS(twenty_one[i], 21U);
-            }
+            TS_ASSERT_EQUALS(twenty_one[i], 21U);
         }
         
         //Data not included

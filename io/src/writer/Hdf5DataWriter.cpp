@@ -26,6 +26,7 @@ Hdf5DataWriter::Hdf5DataWriter(string directory, string baseName, bool cleanDire
         mNumberOwned(0U),
         mOffset(0U),
         mIsDataComplete(true),
+        mNeedExtend(false),
         mCurrentTimeStep(0)
 {
     int my_rank;
@@ -367,6 +368,8 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
         }
     }
        
+    //Make sure that everything is actually extended to the correct dimension.
+    PossiblyExtend();
     
     // Define a dataset in memory for this process
     hid_t memspace=0;
@@ -437,6 +440,11 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
     {
         EXCEPTION("Vector size doesn't match fixed dimension");        
     }
+    
+    //Make sure that everything is actually extended to the correct dimension.
+    PossiblyExtend();
+      
+    
     // Define a dataset in memory for this process
     hsize_t v_size[1] = {mNumberOwned*NUM_STRIPES};
     hid_t memspace = H5Screate_simple(1, v_size, NULL);
@@ -482,6 +490,9 @@ void Hdf5DataWriter::PutUnlimitedVariable(double value)
         return;
     }
 
+    //Make sure that everything is actually extended to the correct dimension.
+    PossiblyExtend();
+    
     hsize_t size[1] = {1};
     hid_t memspace = H5Screate_simple(1, size, NULL);
     
@@ -540,10 +551,18 @@ void Hdf5DataWriter::AdvanceAlongUnlimitedDimension()
     }
     
     // Extend the dataset.
-    mDatasetDims[0]++; 
-    H5Dextend (mDatasetId, mDatasetDims);    
-    H5Dextend (mTimeDatasetId, mDatasetDims);    
-    
+    mDatasetDims[0]++;
+    mNeedExtend=true; 
+ 
     mCurrentTimeStep++;    
 }
 
+void Hdf5DataWriter::PossiblyExtend()
+{   
+    if (mNeedExtend)
+    {
+        H5Dextend (mDatasetId, mDatasetDims);    
+        H5Dextend (mTimeDatasetId, mDatasetDims);
+    }
+    mNeedExtend=false;
+}
