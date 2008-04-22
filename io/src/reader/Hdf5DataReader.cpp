@@ -156,12 +156,8 @@ std::vector<double> Hdf5DataReader::GetVariableOverTime(std::string variableName
         EXCEPTION("The file does not contain time dependant data");
     }
 
-    unsigned actual_node_index;
-    if (mIsDataComplete)
-    {
-        actual_node_index = nodeIndex;
-    }
-    else
+    unsigned actual_node_index=nodeIndex;
+    if (!mIsDataComplete)
     {   
         unsigned node_index=0;
         for (node_index=0; node_index<mIncompleteNodeIndices.size(); node_index++)
