@@ -236,6 +236,10 @@ public:
         
         // Check that the number of nodes is equal to the number of cells
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumNodes(), simulator.rGetTissue().GetNumRealCells());
+        
+        // For coverage of these 'Get' functions
+        TS_ASSERT_EQUALS(simulator.GetNumBirths(), 0u);
+        TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 17u);
     }
     
 };
