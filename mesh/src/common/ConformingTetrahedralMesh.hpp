@@ -245,6 +245,13 @@ public:
      * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
      */
     virtual void ReMesh(NodeMap& map);
+
+    /** 
+     * Alternative version of remesh which takes no parameters does not require a NodeMap. Note: inherited
+     * classes should overload ReMesh(NodeMap&)
+     */
+    void ReMesh();
+    
     /**
      * Re-mesh a mesh using triangle in 2D via library calls
      * @param map is a NodeMap which associates the indices of nodes in the old mesh
@@ -1498,7 +1505,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrary(NodeMap &map)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrary(NodeMap& map)
 {
     struct triangulateio triangle_input;
     triangle_input.pointlist = (double *) malloc(GetNumNodes() * 2 * sizeof(double));
@@ -1612,8 +1619,9 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrar
     free(triangle_output.edgemarkerlist);
     
 }
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 {
     //Make sure that we are in the correct dimension -- this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -1747,6 +1755,13 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         std::string remove_command = "rm "+ full_name+"*";
         system(remove_command.c_str());
     }
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh()
+{
+    NodeMap map(GetNumNodes());
+    ReMesh(map);
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

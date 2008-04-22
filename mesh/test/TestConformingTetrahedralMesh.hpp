@@ -1613,7 +1613,7 @@ public:
         
         NodeMap map(mesh.GetNumNodes());
         new_index = mesh.AddNode(p_node2);
-        mesh.ReMesh(map);
+        mesh.ReMesh(); // call the version of ReMesh which doesn't use a map
         TS_ASSERT_EQUALS(new_index, 5u);
         TS_ASSERT_DELTA(mesh.GetNode(5u)->rGetLocation()[0], 2.0 ,1e-7);
         TS_ASSERT_DELTA(mesh.GetNode(5u)->rGetLocation()[1], 1.0 ,1e-7);
