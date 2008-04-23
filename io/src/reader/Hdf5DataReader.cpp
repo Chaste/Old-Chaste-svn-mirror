@@ -107,7 +107,7 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     if (attribute_id < 0)
     {
        //This is in the old format (before we added the IsDataComplete attribute).
-       //Just quit (leaving a nasty hdf5 error.
+       //Just quit (leaving a nasty hdf5 error).
        return;
     }
     

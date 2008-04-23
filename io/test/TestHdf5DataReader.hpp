@@ -407,7 +407,7 @@ public:
         reader.Close();        
     }
 
-    void TestMultiStepExceptions ()
+    void TestMultiStepExceptions () throw (Exception)
     {
         DistributedVector::SetProblemSize(number_nodes);
                
@@ -433,12 +433,12 @@ public:
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverTime("Node", 100/*node*/));
                
         Vec data=DistributedVector::CreateVec();
-        TS_ASSERT_THROWS_NOTHING(reader.GetVariableOverNodes(data, "Node", 0/*timestep*/));
-        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "WrongName"));
-        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "I_K", 1/*timestep*/));
+        reader.GetVariableOverNodes(data, "Node", 0/*timestep*/); 
+        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "WrongName")); //Wrong name
+        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "I_K", 1/*timestep*/)); //Time step doesn't exist
         DistributedVector::SetProblemSize(number_nodes+1);
         Vec data_too_big=DistributedVector::CreateVec();
-        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data_too_big, "Node", 1/*timestep*/));
+        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data_too_big, "Node", 0/*timestep*/)); //Data too big
                 
         VecDestroy(data);
         VecDestroy(data_too_big);

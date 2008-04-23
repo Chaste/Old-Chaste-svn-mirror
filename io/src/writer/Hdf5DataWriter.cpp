@@ -20,7 +20,8 @@ Hdf5DataWriter::Hdf5DataWriter(string directory, string baseName, bool cleanDire
         mIsInDefineMode(true),
         mIsFixedDimensionSet(false),
         mIsUnlimitedDimensionSet(false),
-        mFixedDimensionSize(-1),
+        mFileFixedDimensionSize(0U),
+        mDataFixedDimensionSize(0U),
         mLo(0U),
         mHi(0U),
         mNumberOwned(0U),
@@ -77,7 +78,8 @@ void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
     VecDestroy(typical_vec);
     mNumberOwned=mHi-mLo;
     mOffset=mLo;
-    mFixedDimensionSize = dimensionSize;   
+    mFileFixedDimensionSize = dimensionSize;
+    mDataFixedDimensionSize = dimensionSize;
     mIsFixedDimensionSet = true;
 }
 
@@ -100,13 +102,17 @@ void Hdf5DataWriter::DefineFixedDimension(std::vector<unsigned> nodesToOuput, lo
             EXCEPTION("Input should be monotonic increasing");                
         }             
     }        
-    
+
+    if ((int) nodesToOuput.back() >= vecSize)
+    {
+        EXCEPTION("Vector size doesn't match nodes to ouput");
+    }
     
     DefineFixedDimension(vecSize);
-    mFixedDimensionSize = vector_size;   
+    
+    mFileFixedDimensionSize = vector_size;   
     mIsDataComplete = false;
     mIncompleteNodeIndices = nodesToOuput;
-    
     
     mOffset=0;
     mNumberOwned=0;
@@ -222,7 +228,7 @@ void Hdf5DataWriter::EndDefineMode()
      */    
     // Create the dataspace for the dataset.       
     mDatasetDims[0] = 1; // While developing we got a non-documented "only the first dimension can be extendible" error. 
-    mDatasetDims[1] = mFixedDimensionSize;
+    mDatasetDims[1] = mFileFixedDimensionSize;
     mDatasetDims[2] = mVariables.size();
     
     hsize_t* max_dims=NULL;
@@ -293,7 +299,7 @@ void Hdf5DataWriter::EndDefineMode()
     {
         //We need to write a map
         // Create "unsigned" attribute with the map
-        columns[0] = mFixedDimensionSize;
+        columns[0] = mFileFixedDimensionSize;
         colspace = H5Screate_simple(1, columns, NULL);
         attr = H5Acreate(mDatasetId, "NodeMap", H5T_NATIVE_UINT, colspace, H5P_DEFAULT  );
         
@@ -353,20 +359,10 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     int vector_size;
     VecGetSize(petscVector, &vector_size);
     
-    if (mIsDataComplete)
+    if ((unsigned) vector_size != mDataFixedDimensionSize)
     {
-        if (vector_size != mFixedDimensionSize)
-        {
-            EXCEPTION("Vector size doesn't match fixed dimension");
-        }        
-    }
-    else
-    {
-        if ((int) mIncompleteNodeIndices.back() >= vector_size)
-        {
-            EXCEPTION("Vector size doesn't match nodes to ouput");
-        }
-    }
+        EXCEPTION("Vector size doesn't match fixed dimension");
+    }        
        
     //Make sure that everything is actually extended to the correct dimension.
     PossiblyExtend();
@@ -436,21 +432,24 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
     int vector_size;
     VecGetSize(petscVector, &vector_size);
     
-    if (vector_size != NUM_STRIPES*mFixedDimensionSize)
+    if ((unsigned) vector_size != NUM_STRIPES*mDataFixedDimensionSize)
     {
         EXCEPTION("Vector size doesn't match fixed dimension");        
     }
     
     //Make sure that everything is actually extended to the correct dimension.
     PossiblyExtend();
-      
-    
+          
     // Define a dataset in memory for this process
-    hsize_t v_size[1] = {mNumberOwned*NUM_STRIPES};
-    hid_t memspace = H5Screate_simple(1, v_size, NULL);
+    hid_t memspace=0;
+    if (mNumberOwned !=0)
+    {    
+        hsize_t v_size[1] = {mNumberOwned*NUM_STRIPES};
+        memspace = H5Screate_simple(1, v_size, NULL);
+    }    
     
     // Select hyperslab in the file.
-    hsize_t start[DATASET_DIMS] = {mCurrentTimeStep, mLo, firstVariableID};
+    hsize_t start[DATASET_DIMS] = {mCurrentTimeStep, mOffset, firstVariableID};
     hsize_t stride[DATASET_DIMS] = {1, 1, secondVariableID-firstVariableID};
     hsize_t block_size[DATASET_DIMS] = {1, mNumberOwned, 1};
     hsize_t number_blocks[DATASET_DIMS] = {1, 1, NUM_STRIPES}; 
@@ -464,11 +463,31 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
 
     double* p_petsc_vector;
     VecGetArray(petscVector, &p_petsc_vector);
-    H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, p_petsc_vector);
+    
+    if (mIsDataComplete)
+    {    
+        H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, p_petsc_vector);
+    }
+    else
+    {
+        //Make a local copy of the data you own
+        double local_data[mNumberOwned*NUM_STRIPES];
+        for (unsigned i=0;i<mNumberOwned;i++)
+        {
+            local_data[NUM_STRIPES*i]   = p_petsc_vector[ mIncompleteNodeIndices[mOffset+i]-mLo*NUM_STRIPES ];
+            local_data[NUM_STRIPES*i+1] = p_petsc_vector[ mIncompleteNodeIndices[mOffset+i]-mLo*NUM_STRIPES + 1];            
+        }    
+        H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, local_data);    
+   
+    }
+    
     VecRestoreArray(petscVector, &p_petsc_vector);
 
     H5Sclose(hyperslab_space);
-    H5Sclose(memspace);
+    if (mNumberOwned !=0)
+    {    
+        H5Sclose(memspace);
+    }
     H5Pclose(property_list_id);  
 }
 

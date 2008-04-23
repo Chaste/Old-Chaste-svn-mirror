@@ -23,7 +23,8 @@ private:
     bool mIsUnlimitedDimensionSet; /**< Is the unlimited dimension set */
     std::string mUnlimitedDimensionName;
     std::string mUnlimitedDimensionUnit;
-    long mFixedDimensionSize; /**< The size of the fixed dimension */ 
+    unsigned mFileFixedDimensionSize; /**< The size of the fixed dimension (number of rows)*/ 
+    unsigned mDataFixedDimensionSize; /**< The size of the fixed dimension (size of the vector of nodes)*/    
     unsigned mLo, mHi; /**< Local ownership of a PETSc vector of size mFixedDimensionSize*/
     unsigned mNumberOwned, mOffset; /**<  mNumberOwned=mHi-mLo;  mOffset=mLo; except with incomplete data*/
     bool mIsDataComplete;

@@ -50,6 +50,7 @@ private:
     bool mWriteInfo;
     bool mPrintOutput;
     bool mCallChaste2Meshalyzer;
+    std::vector<unsigned> mNodesToOutput;
  
     AbstractCardiacPde<SPACE_DIM>* mpCardiacPde;    
     
@@ -125,6 +126,7 @@ public:
         mLinearSolverTolerance=1e-6;
         mUseLinearSolverAbsoluteTolerance = false;
         mAllocatedMemoryForMesh = false;
+        assert(mNodesToOutput.empty());
         
         // Reference Clerc 1976 (x,y,z)
         double default_intra_conductivities[] = {1.75, 0.19, 0.19};      // mS/cm (Averaged)
@@ -552,7 +554,16 @@ public:
     
     virtual void DefineWriterColumns()
     {
-        mpWriter->DefineFixedDimension( mpMesh->GetNumNodes() );
+        if ( mNodesToOutput.empty() )
+        {
+            //Set writer to output all nodes
+            mpWriter->DefineFixedDimension( mpMesh->GetNumNodes() );
+        }
+        else
+        {
+            //Output only the nodes indicted
+            mpWriter->DefineFixedDimension( mNodesToOutput, mpMesh->GetNumNodes() );
+        }
         //mNodeColumnId = mpWriter->DefineVariable("Node", "dimensionless");
         mVoltageColumnId = mpWriter->DefineVariable("V","mV");
         
@@ -573,7 +584,11 @@ public:
         mpWriter = new Hdf5DataWriter(mOutputDirectory,mOutputFilenamePrefix);
         DefineWriterColumns();
         mpWriter->EndDefineMode();
-    }        
+    }
+    
+    void SetOutputNodes(std::vector<unsigned> &nodesToOutput)
+    {
+        mNodesToOutput = nodesToOutput;
+    }  
 };
-
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

@@ -286,55 +286,6 @@ public:
             assert(fabs(0.04/this->PdeTimeStep - round(0.04/this->PdeTimeStep)) <1e-15 );
             cardiac_problem.SetPdeAndPrintingTimeSteps(this->PdeTimeStep, 0.04);  //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
             
-            // The results of the tests were originally obtained with the following conductivity
-            // values. After implementing fibre orientation the defaults changed. Here we set
-            // the former ones to be used.
-            SetConductivities(cardiac_problem);
-
-            cardiac_problem.Initialise();
-            
-            BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM> bcc;
-            InitialStimulus stim(4000.0, 0.5);
-            if (Stimulus==NEUMANN)
-            {
-                
-                StimulusBoundaryCondition<DIM> *p_bc_stim = new StimulusBoundaryCondition<DIM>(&stim);
-                        
-                // get mesh
-                ConformingTetrahedralMesh<DIM, DIM> &r_mesh = cardiac_problem.rGetMesh();
-                // loop over boundary elements
-                typename ConformingTetrahedralMesh<DIM, DIM>::BoundaryElementIterator iter;
-                iter = r_mesh.GetBoundaryElementIteratorBegin();
-                while (iter != r_mesh.GetBoundaryElementIteratorEnd())
-                {
-                    double x = ((*iter)->CalculateCentroid())[0];
-                    if (x*x<=1e-10)
-                    {
-                        bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim);
-                    }
-                    iter++;
-                }
-                // pass the bcc to the problem
-                cardiac_problem.SetBoundaryConditionsContainer(&bcc);
-            }
-            
-      	    DisplayRun();
-            double time_before=MPI_Wtime();
-            //// use this to get some info printed out
-            //cardiac_problem.SetWriteInfo();
-            
-            try
-            {
-                cardiac_problem.Solve();
-            }
-            catch (Exception e)
-            {
-                #define COVERAGE_IGNORE
-                //\todo Cover this
-                std::cout<<"Warning - this run threw an exception.  Check convergence results\n";
-                std::cout<<e.GetMessage() << std::endl;                 
-                #undef COVERAGE_IGNORE
-            }
             // Calculate positions of nodes 1/4 and 3/4 through the mesh
             unsigned third_quadrant_node;
             unsigned first_quadrant_node;
@@ -379,7 +330,66 @@ public:
                 assert(tqn->rGetLocation()[coord]==0.5*mesh_width);
             }
             #endif
+            
+            std::vector<unsigned> nodes_to_be_output;
+            nodes_to_be_output.push_back(first_quadrant_node);
+            nodes_to_be_output.push_back(third_quadrant_node);
+            // #606: cardiac_problem.SetOutputNodes(nodes_to_be_output);
+            
+            
+            
+            // The results of the tests were originally obtained with the following conductivity
+            // values. After implementing fibre orientation the defaults changed. Here we set
+            // the former ones to be used.
+            SetConductivities(cardiac_problem);
 
+            cardiac_problem.Initialise();
+            
+            BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM> bcc;
+            InitialStimulus stim(4000.0, 0.5);
+            if (Stimulus==NEUMANN)
+            {
+                
+                StimulusBoundaryCondition<DIM> *p_bc_stim = new StimulusBoundaryCondition<DIM>(&stim);
+                        
+                // get mesh
+                ConformingTetrahedralMesh<DIM, DIM> &r_mesh = cardiac_problem.rGetMesh();
+                // loop over boundary elements
+                typename ConformingTetrahedralMesh<DIM, DIM>::BoundaryElementIterator iter;
+                iter = r_mesh.GetBoundaryElementIteratorBegin();
+                while (iter != r_mesh.GetBoundaryElementIteratorEnd())
+                {
+                    double x = ((*iter)->CalculateCentroid())[0];
+                    if (x*x<=1e-10)
+                    {
+                        bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim);
+                    }
+                    iter++;
+                }
+                // pass the bcc to the problem
+                cardiac_problem.SetBoundaryConditionsContainer(&bcc);
+            }
+            
+      	    DisplayRun();
+            double time_before=MPI_Wtime();
+            //// use this to get some info printed out
+            //cardiac_problem.SetWriteInfo();
+            
+            
+            
+            try
+            {
+                cardiac_problem.Solve();
+            }
+            catch (Exception e)
+            {
+                #define COVERAGE_IGNORE
+                //\todo Cover this
+                std::cout<<"Warning - this run threw an exception.  Check convergence results\n";
+                std::cout<<e.GetMessage() << std::endl;                 
+                #undef COVERAGE_IGNORE
+            }
+            
             OutputFileHandler results_handler("Convergence", false);
             Hdf5DataReader results_reader("Convergence", "Results");          
             

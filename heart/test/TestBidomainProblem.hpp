@@ -343,7 +343,7 @@ public:
     // Solve a simple simulation and check the output was only
     // printed out at the correct times
     ///////////////////////////////////////////////////////////////////
-    void TestBidomainProblemPrintsOnlyAtRequestedTimes()
+    void TestBidomainProblemPrintsOnlyAtRequestedTimesAndOnlyRequestedNodes() throw (Exception)
     {
         // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<1> cell_factory;
@@ -356,6 +356,13 @@ public:
         
         p_bidomain_problem->SetOutputDirectory("Bidomain1d");
         p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
+        
+        //Restrict the number of nodes
+        std::vector<unsigned> nodes_to_be_output;
+        nodes_to_be_output.push_back(0);
+        nodes_to_be_output.push_back(5);
+        nodes_to_be_output.push_back(10);
+        p_bidomain_problem->SetOutputNodes(nodes_to_be_output);
         
         p_bidomain_problem->Initialise();
         p_bidomain_problem->Solve();
@@ -372,6 +379,16 @@ public:
         TS_ASSERT_DELTA( times[2], 0.20, 1e-12);
         TS_ASSERT_DELTA( times[3], 0.30, 1e-12);
         
+        //Get back node over all times
+        std::vector<double> node_0 = data_reader1.GetVariableOverTime("V", 0);
+        TS_ASSERT_EQUALS( node_0.size(), 4U);
+        std::vector<double> node_5 = data_reader1.GetVariableOverTime("V", 5);
+        TS_ASSERT_EQUALS( node_5.size(), 4U);
+        std::vector<double> node_10 = data_reader1.GetVariableOverTime("V", 10);
+        TS_ASSERT_EQUALS( node_10.size(), 4U);
+        
+        //Can't read back this node as it wasn't written
+        TS_ASSERT_THROWS_ANYTHING( data_reader1.GetVariableOverTime("V", 1));
         
         // run testing PrintEveryNthTimeStep
         p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
