@@ -17,56 +17,60 @@ You should have received a copy of the Lesser GNU General Public License
 along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TESTHEARTEVENTHANDLER_HPP_
-#define TESTHEARTEVENTHANDLER_HPP_
+#ifndef TESTGENERICEVENTHANDLER_HPP_
+#define TESTGENERICEVENTHANDLER_HPP_
 
-#include "EventHandler.hpp"
+#include "GenericEventHandler.hpp"
 
-class TestEventHandler : public CxxTest::TestSuite
+typedef enum EventType_
+{
+    TEST1=0,
+    TEST2,
+    TEST3,
+} EventType;
+
+const char* EVENT_NAME[] = { "Test1", "Test2", "Test3"};
+
+typedef GenericEventHandler<3, EVENT_NAME> AnEventHandler;
+
+
+class TestGenericEventHandler : public CxxTest::TestSuite
 {
 public:
     
     void TestEvents() throw(Exception)
     {
-        EventHandler::BeginEvent(EVERYTHING);
-        EventHandler::BeginEvent(SOLVE_ODES);
+        AnEventHandler::BeginEvent(TEST1);
+        AnEventHandler::BeginEvent(TEST2);
         for (unsigned i=0; i<1000000; i++);
-        EventHandler::EndEvent(SOLVE_ODES);
+        AnEventHandler::EndEvent(TEST2);
 
-        EventHandler::BeginEvent(READ_MESH);
+        AnEventHandler::BeginEvent(TEST3);
         for (unsigned i=0; i<10000000; i++);
-        EventHandler::EndEvent(READ_MESH);
+        AnEventHandler::EndEvent(TEST3);
 
-        EventHandler::BeginEvent(COMMUNICATION);
-        for (unsigned i=0; i<20000000; i++);
-
-        EventHandler::BeginEvent(SOLVE_LINEAR_SYSTEM);
-        for (unsigned i=0; i<30000000; i++);
-        EventHandler::EndEvent(SOLVE_LINEAR_SYSTEM);
-
-        EventHandler::EndEvent(COMMUNICATION);
-        EventHandler::EndEvent(EVERYTHING);
+        AnEventHandler::EndEvent(TEST1);
         
-        EventHandler::Headings();
+        AnEventHandler::Headings();
         
-        EventHandler::Report();
+        AnEventHandler::Report();
         
-        EventHandler::Report();
+        AnEventHandler::Report();
 
     }
     
     void TestEventExceptions() throw(Exception)
     {
         // should not be able to end and event that has not yet begun
-        TS_ASSERT_THROWS_ANYTHING(EventHandler::EndEvent(EVERYTHING));
+        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::EndEvent(TEST1));
         
-        EventHandler::BeginEvent(EVERYTHING);
+        AnEventHandler::BeginEvent(TEST1);
         
         // should not be able to begin that has already begun
-        TS_ASSERT_THROWS_ANYTHING(EventHandler::BeginEvent(EVERYTHING));
+        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::BeginEvent(TEST1));
         
     }
 };
 
 
-#endif /*TESTEVENTHANDLER_HPP_*/
+#endif /*TESTGENERICEVENTHANDLER_HPP_*/

@@ -20,12 +20,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef EVENTHANDLER_HPP_
 #define EVENTHANDLER_HPP_
 
-#include <cassert>
-#include <petsc.h>
-#include <time.h>
-#include <iostream>
-
-#include "Exception.hpp"
+#include "GenericEventHandler.hpp"
 
 typedef enum EventType_
 {
@@ -41,65 +36,12 @@ typedef enum EventType_
 } EventType;
 
 
-class EventHandler
+class EventNames
 {
-public:
-    const static unsigned NUM_EVENTS=9;
-    const static char* EVENT_NAME[NUM_EVENTS];
-    static PetscEvent mPetscEvent[NUM_EVENTS];
-    static double mCpuTime[NUM_EVENTS];
-    static bool mHasBegun[NUM_EVENTS];
-    
-    static void BeginEvent(EventType event) throw (Exception)
-    {
-        if (mHasBegun[event])
-        {
-            std::string msg;
-            msg += "The event associated with the counter for '";
-            msg += EVENT_NAME[event];
-            msg += "' had already begun when BeginEvent was called.";
-            EXCEPTION(msg);
-        }
-        mCpuTime[event]-= clock()/(CLOCKS_PER_SEC/1000.0);
-        mHasBegun[event] = true;
-        //std::cout << "Begining " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
-    }
-    
-    static void EndEvent(EventType event)
-    {
-        if (!mHasBegun[event])
-        {
-            std::string msg;
-            msg += "The event associated with the counter for '";
-            msg += EVENT_NAME[event];
-            msg += "' had not begun when EndEvent was called.";
-            EXCEPTION(msg);
-        }
-        mCpuTime[event]+= clock()/(CLOCKS_PER_SEC/1000.0);
-        mHasBegun[event] = false;
-        //std::cout << "Ending " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
-    }
-    
-    
-    static void Report()
-    {
-        // times are in milliseconds
-        for (unsigned event=0; event<NUM_EVENTS; event++)
-        {
-            printf("%2.1e\t", mCpuTime[event]);
-            mCpuTime[event]=0.0;
-        }
-        std::cout << "(milliseconds) \n";
-    }
-    
-    static void Headings()
-    {
-        for (unsigned event=0; event<NUM_EVENTS; event++)
-        {
-            printf("%6s\t", EVENT_NAME[event]);
-        } 
-        std::cout << "\n";
-    }
+    public:
+    const static char* EVENT_NAME[9];
 };
+
+typedef GenericEventHandler<9, EventNames::EVENT_NAME> EventHandler;
 
 #endif /*EVENTHANDLER_HPP_*/

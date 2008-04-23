@@ -3,6 +3,7 @@ TestCwd.hpp
 TestDistributedVector.hpp
 TestEventHandler.hpp
 TestException.hpp
+TestGenericEventHandler.hpp
 TestLogFile.hpp
 TestOutputFileHandler.hpp
 TestPetscEvents.hpp
