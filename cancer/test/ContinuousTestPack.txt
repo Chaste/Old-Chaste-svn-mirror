@@ -22,7 +22,6 @@ TestMeineke2001SpringSystem.hpp
 TestMeinekeSpringSystemWithChemotaxis.hpp
 TestMeshBasedTissue.hpp
 TestNutrientPdes.hpp
-TestPdeOnFlaggedMesh.hpp
 TestSimpleTissue.hpp
 TestSimpleTissueMechanicsSystem.hpp
 TestSimulationTime.hpp

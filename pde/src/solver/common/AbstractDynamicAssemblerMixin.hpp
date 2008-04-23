@@ -69,9 +69,10 @@ public:
     /**
      *  Set the initial condition
      */
-    void SetInitialCondition(Vec initCondition)
+    void SetInitialCondition(Vec initialCondition)
     {
-        mInitialCondition = this->ExtractOnReleventMesh(initCondition);
+        assert(initialCondition!=NULL);
+        mInitialCondition = initialCondition;
     }
     
     /**
@@ -121,11 +122,10 @@ public:
             PdeSimulationTime::SetTime(stepper.GetTime());
             next_solution = this->StaticSolve(current_solution, stepper.GetTime(), !mMatrixIsAssembled);
             
-            //Note that the AbstractFlaggedMeshAssembler::AssembleSystem makes a new linear system for 
-            //every iteration.  Since this is currently the case we have to re-assemble every time.
             mMatrixIsAssembled = true;
             
             stepper.AdvanceOneTimeStep();
+            
             // Avoid memory leaks
             if (current_solution != mInitialCondition)
             {

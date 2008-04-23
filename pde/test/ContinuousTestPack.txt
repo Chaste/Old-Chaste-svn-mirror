@@ -1,8 +1,6 @@
 TestAbstractFunctionalCalculator.hpp
 TestBoundaryConditionsContainer.hpp
 TestConstBoundaryCondition.hpp
-TestFlaggedMeshAssembler.hpp
-TestFlaggedMeshBoundaryConditionsContainer.hpp
 TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp

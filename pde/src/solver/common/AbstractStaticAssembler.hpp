@@ -508,8 +508,11 @@ protected:
     virtual void PrepareForSolve()
     {
         assert(mpMesh != NULL);
-// commented out because FlaggedMeshAssembler has it's own FlaggedMeshBcc.. - design issue
-//        assert(this->mpBoundaryConditions != NULL);
+
+        // NOTE: this line used to be commented out because FlaggedMeshAssembler 
+        // has it's own FlaggedMeshBcc. (design issue). FlaggedMeshAssembler (and
+        // related classes has now been deleted so can bring this back)
+        assert(this->mpBoundaryConditions != NULL);
         
         //Set the elements' ownerships according to the node ownership
         DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
@@ -546,11 +549,14 @@ protected:
         return mCurrentSolutionOrGuessReplicated;
     }
     
-    
+    /** 
+     * Get the value of the current solution (or guess) vector at the given node
+     */
     virtual double GetCurrentSolutionOrGuessValue(unsigned nodeIndex, unsigned indexOfUnknown)
     {
         return mCurrentSolutionOrGuessReplicated[ PROBLEM_DIM*nodeIndex + indexOfUnknown];
     }
+    
 public:
     /**
      * Default constructor. Uses linear basis functions.

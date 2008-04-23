@@ -26,7 +26,7 @@ protected:
     void SetMatrixIsConst(bool matrixIsConstant = true)
     {
          mMatrixIsConstant = matrixIsConstant;
-     }
+    }
     
     /**
      * Apply Dirichlet boundary conditions to the linear system.

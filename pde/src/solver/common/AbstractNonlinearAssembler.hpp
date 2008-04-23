@@ -275,7 +275,7 @@ protected:
                     double currentTime=0.0,
                     bool assembleMatrix=true)
     {
-        assert(this->mpBoundaryConditions!=NULL); // no flagged mesh to worry about here!
+        assert(this->mpBoundaryConditions!=NULL); 
         assert(currentSolutionOrGuess!=NULL);
         assert(assembleMatrix); ///\todo do something sensible if assembleMatrix is false.
         

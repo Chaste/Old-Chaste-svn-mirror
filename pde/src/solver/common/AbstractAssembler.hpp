@@ -248,18 +248,7 @@ protected:
     virtual ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rGetMesh()=0;
     virtual LinearSystem** GetLinearSystem()=0;
     virtual ReplicatableVector& rGetCurrentSolutionOrGuess()=0;
-    
-    /** 
-     *  Returns the current solution for the given node index. (Overloaded by the 
-     *  flagged mesh assembler where the index into the vec isn't the node index)
-     */
-    virtual double GetCurrentSolutionOrGuessValue(unsigned nodeIndex, unsigned indexOfUnknown)=0;
-    
-    virtual Vec ExtractOnReleventMesh(Vec vec)
-    {
-        return vec;
-    }
-
+       
 public:
 
     /**
