@@ -25,6 +25,8 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 #include <time.h>
 #include <iostream>
 
+#include "Exception.hpp"
+
 typedef enum EventType_
 {
     READ_MESH=0,
@@ -46,16 +48,35 @@ public:
     const static char* EVENT_NAME[NUM_EVENTS];
     static PetscEvent mPetscEvent[NUM_EVENTS];
     static double mCpuTime[NUM_EVENTS];
+    static bool mHasBegun[NUM_EVENTS];
     
-    static void BeginEvent(EventType event)
+    static void BeginEvent(EventType event) throw (Exception)
     {
-        mCpuTime[event]-= clock()/(CLOCKS_PER_SEC/1000.0); 
+        if (mHasBegun[event])
+        {
+            std::string msg;
+            msg += "The event associated with the counter for '";
+            msg += EVENT_NAME[event];
+            msg += "' had already begun when BeginEvent was called.";
+            EXCEPTION(msg);
+        }
+        mCpuTime[event]-= clock()/(CLOCKS_PER_SEC/1000.0);
+        mHasBegun[event] = true;
         //std::cout << "Begining " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
     
     static void EndEvent(EventType event)
     {
+        if (!mHasBegun[event])
+        {
+            std::string msg;
+            msg += "The event associated with the counter for '";
+            msg += EVENT_NAME[event];
+            msg += "' had not begun when EndEvent was called.";
+            EXCEPTION(msg);
+        }
         mCpuTime[event]+= clock()/(CLOCKS_PER_SEC/1000.0);
+        mHasBegun[event] = false;
         //std::cout << "Ending " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
     

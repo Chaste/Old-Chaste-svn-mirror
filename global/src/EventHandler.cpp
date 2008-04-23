@@ -21,6 +21,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 
 PetscEvent EventHandler::mPetscEvent[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 double EventHandler::mCpuTime[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+bool EventHandler::mHasBegun[] = { false, false, false, false, false, false, false, false, false};
 const char* EventHandler::EVENT_NAME[] = { "InMesh", "AssSys", "Ode", 
                                            "Comms", "AssRhs", "NeuBCs", "Ksp",
                                            "Output", "Total" };
