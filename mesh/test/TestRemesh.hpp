@@ -69,7 +69,7 @@ public:
         mesh.RefreshMesh();
         old_mesh.RefreshMesh();
 
-        double old_volume=mesh.CalculateMeshVolume();
+        double old_volume=mesh.CalculateVolume();
         TS_ASSERT_DELTA(1, old_volume, 1e-7);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(),375U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(),1626U);
@@ -100,7 +100,7 @@ public:
             }
         }    
         
-        double new_volume=mesh.CalculateMeshVolume();
+        double new_volume=mesh.CalculateVolume();
         TS_ASSERT_DELTA(old_volume, new_volume, 1e-7);    
     }
     
@@ -129,7 +129,7 @@ public:
         mesh.RefreshMesh();
 
         
-        double volume=mesh.CalculateMeshVolume();
+        double volume=mesh.CalculateVolume();
         TS_ASSERT_DELTA(1, volume, 1e-7);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(),375U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(),1626U);
@@ -180,7 +180,7 @@ public:
         
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        double area=mesh.CalculateMeshVolume();
+        double area=mesh.CalculateVolume();
         const int node_index=432;
         const int target_index=206;
         
@@ -188,7 +188,7 @@ public:
         mesh.MoveMergeNode(node_index, target_index);
         
         
-        TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
+        TS_ASSERT_DELTA(area, mesh.CalculateVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes()+1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
@@ -265,7 +265,7 @@ public:
         
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        double area=mesh.CalculateMeshVolume();
+        double area=mesh.CalculateVolume();
         const int node_index=432;
         const int target_index=206;
         
@@ -276,7 +276,7 @@ public:
         mesh.MoveMergeNode(node_index, target_index);
         
         
-        TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
+        TS_ASSERT_DELTA(area, mesh.CalculateVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes()+1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
@@ -293,7 +293,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), num_elements_before-2);
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), num_nodes_before-1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),area,1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(),area,1e-6);
     }
     
  
@@ -423,8 +423,8 @@ public:
         ConformingTetrahedralMesh<2,2> mesh(nodes);
         
         
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 10.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 22.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), 10.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 22.0, 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4u);
@@ -435,8 +435,8 @@ public:
         
         TS_ASSERT_EQUALS(map.Size(),mesh.GetNumNodes());
         
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 10.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 22.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), 10.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 22.0, 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4u);
@@ -452,7 +452,7 @@ public:
         
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        double area=mesh.CalculateMeshVolume();
+        double area=mesh.CalculateVolume();
         const int node_index=432;
         const int target_index=206;
         
@@ -463,7 +463,7 @@ public:
         mesh.MoveMergeNode(node_index, target_index);
         
         
-        TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
+        TS_ASSERT_DELTA(area, mesh.CalculateVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes()+1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
@@ -480,7 +480,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), num_elements_before-2);
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), num_nodes_before-1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),area,1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(),area,1e-6);
     }
     
 

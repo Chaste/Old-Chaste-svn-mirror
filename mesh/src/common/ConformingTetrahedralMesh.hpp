@@ -203,8 +203,8 @@ public:
      * Return the volume of a mesh, calculated by adding the determinant of each element 
      * and dividing by n!, where n is the element dimension.
      */
-    double CalculateMeshVolume();
-    double CalculateMeshSurface();
+    double CalculateVolume();
+    double CalculateSurfaceArea();
     
     void Translate(c_vector<double, SPACE_DIM> displacement);
     void Translate(const double xMovement=0.0, const double yMovement=0.0, const double zMovement=0.0);
@@ -1139,7 +1139,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMeshVolume()
+double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateVolume()
 {
     double mesh_volume = 0.0;
     
@@ -1155,7 +1155,7 @@ double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMeshVolume()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMeshSurface()
+double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateSurfaceArea()
 {
     //ELEMENT_DIM-1 is the dimension of the boundary element
     assert (ELEMENT_DIM>=1);

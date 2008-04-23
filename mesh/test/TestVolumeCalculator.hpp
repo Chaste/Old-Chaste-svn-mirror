@@ -37,7 +37,7 @@ public:
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(meshReader);
         
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume()/expectedVolume, 1.0, errorTolerance);
+        TS_ASSERT_DELTA(mesh.CalculateVolume()/expectedVolume, 1.0, errorTolerance);
     }
     
     void TestCube(void)
@@ -63,7 +63,7 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        double mesh_length = mesh.CalculateMeshVolume();
+        double mesh_length = mesh.CalculateVolume();
         
         TS_ASSERT_DELTA(mesh_length, 1.0, 1.0e-5);
     }
@@ -78,7 +78,7 @@ public:
         
         mesh_square.ConstructFromMeshReader(square_mesh_reader);
         
-        double mesh_square_area = mesh_square.CalculateMeshVolume();
+        double mesh_square_area = mesh_square.CalculateVolume();
         
         TS_ASSERT_DELTA(mesh_square_area, 0.01, 1e-6);
         
@@ -89,7 +89,7 @@ public:
         
         mesh_annulus.ConstructFromMeshReader(annuluar_mesh_reader);
         
-        double mesh_annulus_area = mesh_annulus.CalculateMeshVolume();
+        double mesh_annulus_area = mesh_annulus.CalculateVolume();
         
         TS_ASSERT_DELTA(mesh_annulus_area, 8.0*M_PI, 2e-1);
     }
@@ -172,21 +172,21 @@ public:
         TrianglesMeshReader<3,3> mesh_reader_1("mesh/test/data/cube_136_elements");
         ConformingTetrahedralMesh<3,3> mesh_1;
         mesh_1.ConstructFromMeshReader(mesh_reader_1);
-        TS_ASSERT_DELTA(mesh_1.CalculateMeshSurface(),6.0,1e-6);
+        TS_ASSERT_DELTA(mesh_1.CalculateSurfaceArea(),6.0,1e-6);
         TrianglesMeshReader<3,3> mesh_reader_2("mesh/test/data/cube_1626_elements");
         ConformingTetrahedralMesh<3,3> mesh_2;
         mesh_2.ConstructFromMeshReader(mesh_reader_2);
-        TS_ASSERT_DELTA(mesh_2.CalculateMeshSurface(),6.0,1e-6);
+        TS_ASSERT_DELTA(mesh_2.CalculateSurfaceArea(),6.0,1e-6);
         
         TrianglesMeshReader<2,2> mesh_reader_3("mesh/test/data/disk_984_elements");
         ConformingTetrahedralMesh<2,2> mesh_3;
         mesh_3.ConstructFromMeshReader(mesh_reader_3);
-        TS_ASSERT_DELTA(mesh_3.CalculateMeshSurface(), 2*M_PI, 2e-3);
+        TS_ASSERT_DELTA(mesh_3.CalculateSurfaceArea(), 2*M_PI, 2e-3);
         
         TrianglesMeshReader<1,1> mesh_reader_4("mesh/test/data/1D_0_to_1_200_elements");
         ConformingTetrahedralMesh<1,1> mesh_4;
         mesh_4.ConstructFromMeshReader(mesh_reader_4);
-        TS_ASSERT_DELTA(mesh_4.CalculateMeshSurface(),0.0,1e-6);
+        TS_ASSERT_DELTA(mesh_4.CalculateSurfaceArea(),0.0,1e-6);
     }
     
 };

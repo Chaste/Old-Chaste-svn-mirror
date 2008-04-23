@@ -116,14 +116,25 @@ public:
     
         for (typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
                iter = rMesh.GetElementIteratorBegin();
-             iter != rMesh.GetElementIteratorEnd();
-             ++iter)
+               iter != rMesh.GetElementIteratorEnd();
+               ++iter)
         {
-            result += CalculateOnElement(**iter);
+            //// the following if statement is for parallelisation, but doesn't
+            //// work yet as multiple processes can own the same elements, so 
+            //// the if is commented out
+            //if ((*iter)->GetOwnership() == true)
+            {
+                result += CalculateOnElement(**iter);
+            }
         }
+
+        //// once parallised (see above comment), do this:
+        //double final_result;        
+        //MPI_Allreduce(&result, &final_result, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
+        //return final_result;
         
         return result;
-    }    
+    }
 };
 
 #endif /*ABSTRACTFUNCTIONALCALCULATOR_HPP_*/

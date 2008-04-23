@@ -683,7 +683,7 @@ public:
         TS_ASSERT_DELTA(p_last_element->GetJacobianDeterminant(), 0.09,1e-6);
         
         // test mesh length
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
     }
     
     void Test1DRefineElementWithPointTooFarRightFails() throw (Exception)
@@ -748,8 +748,8 @@ public:
         
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01,1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 0.4,1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), 0.01,1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 0.4,1e-6);
         
         
         // Refine an element in the bottom right corner
@@ -766,8 +766,8 @@ public:
         TS_ASSERT_DELTA(p_corner_element->GetJacobianDeterminant(),3e-05 , 1e-6);
         
         //Testing invariants
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01,1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 0.4,1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), 0.01,1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 0.4,1e-6);
         
         
         // Refine an element in the middle of the mesh
@@ -784,8 +784,8 @@ public:
         TS_ASSERT_DELTA(p_middle_element->GetJacobianDeterminant(),3e-05 , 1e-6);
         
         //Testing invariants
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01,1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 0.4,1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), 0.01,1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 0.4,1e-6);
     }
     
     void Test2DRefineElementFails() throw (Exception)
@@ -815,8 +815,8 @@ public:
         
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 6.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-6);
         
         
         // Refine an element in the top corner (1, 1, 1)
@@ -833,8 +833,8 @@ public:
         TS_ASSERT_DELTA(p_corner_element->GetJacobianDeterminant(), 0.0125 , 1e-6);
         
         //Testing invariants
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 6.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-6);
         
         
         
@@ -852,8 +852,8 @@ public:
         TS_ASSERT_DELTA(p_middle_element->GetJacobianDeterminant(), 0.01125 , 1e-6);
         
         //Testing invariants
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 6.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-6);
     }
     
     void Test3DRefineElementFails() throw (Exception)
@@ -864,8 +864,8 @@ public:
         
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 6.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-6);
         
         
         // Refine an element in the top corner (1, 1, 1)
