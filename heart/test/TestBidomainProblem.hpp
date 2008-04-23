@@ -267,26 +267,37 @@ public:
      */
     void TestCompareBidomainProblemWithMonodomain()
     {
-        ///////////////////////////////////////////////////////////////////
-        // monodomain
-        ///////////////////////////////////////////////////////////////////
+        Vec* p_monodomain_results;
+        
         PlaneStimulusCellFactory<1> cell_factory;
-        MonodomainProblem<1> monodomain_problem( &cell_factory );
         
-        monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
-        monodomain_problem.SetEndTime(1);   // 1 ms
-        monodomain_problem.SetOutputDirectory("Monodomain1d");
-        monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
-        monodomain_problem.SetCallChaste2Meshalyzer(true); // for coverage
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
-        
-        monodomain_problem.Initialise();
-        
-        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+        // To avoid an issue with the Event handler only one simulation should be
+        // in existance at a time: therefore monodomain simulation is defined in a block
+        {
+            ///////////////////////////////////////////////////////////////////
+            // monodomain
+            ///////////////////////////////////////////////////////////////////
 
-        // now solve
-        monodomain_problem.Solve();
+            MonodomainProblem<1> monodomain_problem( &cell_factory );
+            
+            monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
+            monodomain_problem.SetEndTime(1);   // 1 ms
+            monodomain_problem.SetOutputDirectory("Monodomain1d");
+            monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
+            monodomain_problem.SetCallChaste2Meshalyzer(true); // for coverage
+            monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
+            
+            monodomain_problem.Initialise();
+            
+            monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+            monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+    
+            // now solve
+            monodomain_problem.Solve();
+            
+            VecDuplicate(monodomain_problem.GetVoltage(), p_monodomain_results);
+            VecCopy(monodomain_problem.GetVoltage(), *p_monodomain_results);
+        }
         
         
         ///////////////////////////////////////////////////////////////////
@@ -315,7 +326,7 @@ public:
         ///////////////////////////////////////////////////////////////////
         // compare
         ///////////////////////////////////////////////////////////////////
-        DistributedVector monodomain_voltage(monodomain_problem.GetVoltage());
+        DistributedVector monodomain_voltage(*p_monodomain_results);
         DistributedVector dist_bidomain_voltage(bidomain_problem.GetVoltage());
         DistributedVector::Stripe bidomain_voltage(dist_bidomain_voltage, 0);
         DistributedVector::Stripe extracellular_potential(dist_bidomain_voltage, 1);
@@ -335,6 +346,7 @@ public:
             TS_ASSERT_DELTA(extracellular_potential[index], 0, 0.06);
         }       
 
+        VecDestroy(*p_monodomain_results);
     }
     
     
