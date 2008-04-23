@@ -51,9 +51,10 @@ private:
         {
             const ChastePoint<ELEMENT_DIM>& quad_point = quad_rule.rGetQuadPoint(quad_index);
             
-            c_vector<double, ELEMENT_DIM+1> phi = LinearBasisFunction<ELEMENT_DIM>::ComputeBasisFunctions(quad_point);
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi 
-               = LinearBasisFunction<ELEMENT_DIM>::ComputeTransformedBasisFunctionDerivatives(quad_point, *p_inverse_jacobian);
+            c_vector<double, ELEMENT_DIM+1> phi;
+            LinearBasisFunction<ELEMENT_DIM>::ComputeBasisFunctions(quad_point, phi);
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
+            LinearBasisFunction<ELEMENT_DIM>::ComputeTransformedBasisFunctionDerivatives(quad_point, *p_inverse_jacobian, grad_phi);
             
             // Location of the gauss point in the original element will be stored in x
             ChastePoint<SPACE_DIM> x(0,0,0);

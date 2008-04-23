@@ -12,12 +12,13 @@ public:
     static double ComputeBasisFunction(const ChastePoint<ELEM_DIM> &rPoint, unsigned basisIndex);
     static c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const ChastePoint<ELEM_DIM> &rPoint, unsigned basisIndex);
     
-    static c_vector<double, ELEM_DIM+1> ComputeBasisFunctions(const ChastePoint<ELEM_DIM> &rPoint);
-    static c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint);
+    static void ComputeBasisFunctions(const ChastePoint<ELEM_DIM> &rPoint, c_vector<double, ELEM_DIM+1>& rReturnValue);
+    static void ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint, 
+                                                c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rReturnValue);
     
-    static c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeTransformedBasisFunctionDerivatives(
-            const ChastePoint<ELEM_DIM> &rPoint,
-            const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian);
+    static void ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint,
+                                                           const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian,
+                                                           c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rReturnValue);
 };
 
 /**
@@ -28,7 +29,7 @@ class LinearBasisFunction<0>
 {
 public:
     static double ComputeBasisFunction(const ChastePoint<0> &rPoint, unsigned basisIndex);
-    static c_vector<double, 1>       ComputeBasisFunctions(const ChastePoint<0> &rPoint);
+    static void ComputeBasisFunctions(const ChastePoint<0> &rPoint,c_vector<double,1>& rReturnValue);
 };
 
 
@@ -249,13 +250,13 @@ c_vector<double, 2> LinearBasisFunction<2>::ComputeBasisFunctionDerivative(
  *     along each axis.
  */
 template <>
-c_vector<double, 1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
+c_vector<double,1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
     const ChastePoint<1>&,
     unsigned basisIndex)
 {
     assert(basisIndex <= 1);
     
-    c_vector<double, 1> gradN;
+    c_vector<double,1> gradN;
     switch (basisIndex)
     {
         case 0:
@@ -277,18 +278,17 @@ c_vector<double, 1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
  *
  * @param rPoint The point at which to compute the basis functions. The
  *     results are undefined if this is not within the canonical element.
- * @return The values of the basis functions, in local index order.
+ * @param rReturnValue A reference to a vector, to be filled in
  */
 template <unsigned ELEM_DIM>
-c_vector<double, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<ELEM_DIM> &rPoint)
+void LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<ELEM_DIM> &rPoint,
+                                                          c_vector<double, ELEM_DIM+1>& rReturnValue)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
-    c_vector<double, ELEM_DIM+1> basisValues;
     for (unsigned i=0; i<ELEM_DIM+1; i++)
     {
-        basisValues(i) = ComputeBasisFunction(rPoint, i);
+        rReturnValue(i) = ComputeBasisFunction(rPoint, i);
     }
-    return basisValues;
 }
 
 /**
@@ -296,14 +296,13 @@ c_vector<double, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction
  *
  * @param rPoint The point at which to compute the basis functions. The
  *     results are undefined if this is not within the canonical element.
- * @return The values of the basis functions, in local index order.
+ * @param rReturnValue A reference to a vector, to be filled in
  *
  */
-c_vector<double, 1> LinearBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0> &rPoint)
+void LinearBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0> &rPoint,
+                                                   c_vector<double,1>& rReturnValue)
 {
-    c_vector<double, 1> basisValues;
-    basisValues(0) = ComputeBasisFunction(rPoint, 0);
-    return basisValues;
+    rReturnValue(0) = ComputeBasisFunction(rPoint, 0);
 }
 
 /**
@@ -315,19 +314,16 @@ c_vector<double, 1> LinearBasisFunction<0>::ComputeBasisFunctions(const ChastePo
  *     a matrix in local index order.
  */
 template <unsigned ELEM_DIM>
-c_matrix<double, ELEM_DIM, ELEM_DIM+1>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint)
+void LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint, 
+                                                                    c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rReturnValue)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
-    
-    c_matrix<double, ELEM_DIM, ELEM_DIM+1> basisGradValues;
-    
+   
     for (unsigned j=0;j<ELEM_DIM+1;j++)
     {
-        matrix_column<c_matrix<double, ELEM_DIM, ELEM_DIM+1> > column(basisGradValues, j);
+        matrix_column<c_matrix<double, ELEM_DIM, ELEM_DIM+1> > column(rReturnValue, j);
         column = ComputeBasisFunctionDerivative(rPoint, j);
     }
-    
-    return basisGradValues;
 }
 
 
@@ -345,13 +341,14 @@ c_matrix<double, ELEM_DIM, ELEM_DIM+1>  LinearBasisFunction<ELEM_DIM>::ComputeBa
  *     derivative along each axis.
  */
 template <unsigned ELEM_DIM>
-c_matrix<double, ELEM_DIM, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint, const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian)
+void LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint, 
+                                                                               const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian,
+                                                                               c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rReturnValue)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
     
-    c_matrix<double, ELEM_DIM, ELEM_DIM+1> basisGradValues = ComputeBasisFunctionDerivatives(rPoint);
-    
-    return prod(trans(rInverseJacobian), basisGradValues);
+    ComputeBasisFunctionDerivatives(rPoint, rReturnValue);
+    rReturnValue = prod(trans(rInverseJacobian), rReturnValue);
 }
 
 #endif //_LINEARBASISFUNCTION_HPP_

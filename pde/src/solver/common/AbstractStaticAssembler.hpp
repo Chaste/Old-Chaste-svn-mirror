@@ -155,19 +155,21 @@ protected:
         }
         
         const unsigned num_nodes = rElement.GetNumNodes();
-        
+ 
+        // allocate memory for the basis functions values and derivative values
+        c_vector<double, ELEMENT_DIM+1> phi;
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
+ 
         // loop over Gauss points
         for (unsigned quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
         {
             const ChastePoint<ELEMENT_DIM>& quad_point = quad_rule.rGetQuadPoint(quad_index);
             
-            c_vector<double, ELEMENT_DIM+1> phi = BasisFunction::ComputeBasisFunctions(quad_point);
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
+            BasisFunction::ComputeBasisFunctions(quad_point, phi);
             
             if ( assembleMatrix || this->ProblemIsNonlinear() )
             {
-                grad_phi = BasisFunction::ComputeTransformedBasisFunctionDerivatives
-                           (quad_point, *p_inverse_jacobian);
+                BasisFunction::ComputeTransformedBasisFunctionDerivatives(quad_point, *p_inverse_jacobian, grad_phi);
             }
             
             // Location of the gauss point in the original element will be stored in x
@@ -265,13 +267,16 @@ protected:
         double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
         
         rBSurfElem.clear();
-        
+
+        // allocate memory for the basis function values
+        c_vector<double, ELEMENT_DIM>  phi;
+
         // loop over Gauss points
         for (unsigned quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
         {
             const ChastePoint<ELEMENT_DIM-1>& quad_point = quad_rule.rGetQuadPoint(quad_index);
             
-            c_vector<double, ELEMENT_DIM>  phi = SurfaceBasisFunction::ComputeBasisFunctions(quad_point);
+            SurfaceBasisFunction::ComputeBasisFunctions(quad_point, phi);
             
             
             /////////////////////////////////////////////////////////////

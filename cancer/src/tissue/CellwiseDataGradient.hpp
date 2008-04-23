@@ -68,8 +68,8 @@ void CellwiseDataGradient<DIM>::SetupGradients()
         // Calculate the basis functions at any point (eg zero) in the element            
         const c_matrix<double, DIM, DIM> *p_inverse_jacobian = r_elem.GetInverseJacobian();
         const ChastePoint<DIM> zero_point; 
-        c_matrix<double, DIM, DIM+1> grad_phi 
-          = LinearBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(zero_point, *p_inverse_jacobian);
+        c_matrix<double, DIM, DIM+1> grad_phi;
+        LinearBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(zero_point, *p_inverse_jacobian, grad_phi);
     
         bool is_ghost_element = false;
     

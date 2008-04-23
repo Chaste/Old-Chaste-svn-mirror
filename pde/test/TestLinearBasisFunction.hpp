@@ -19,7 +19,7 @@ public:
         TS_ASSERT_DELTA(LinearBasisFunction<0>::ComputeBasisFunction(zero, 0), 1.0, 1e-12);
         
         c_vector<double, 1> basis_function_vector;
-        basis_function_vector = LinearBasisFunction<0>::ComputeBasisFunctions(zero);
+        LinearBasisFunction<0>::ComputeBasisFunctions(zero,basis_function_vector);
         TS_ASSERT_EQUALS(basis_function_vector.size(), 1u);
         TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
         
@@ -28,7 +28,7 @@ public:
         const ChastePoint<0>& quad_point = quad_rule.rGetQuadPoint(0);
         
         c_vector<double, 1> basis_function_vector2;
-        basis_function_vector2 = LinearBasisFunction<0>::ComputeBasisFunctions(quad_point);
+        LinearBasisFunction<0>::ComputeBasisFunctions(quad_point,basis_function_vector2);
         TS_ASSERT_EQUALS(basis_function_vector.size(), 1u);
         TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
     }
@@ -47,7 +47,7 @@ public:
         
         // Derivatives
         c_matrix<double, 1, 2> derivatives;
-        derivatives = LinearBasisFunction<1>::ComputeBasisFunctionDerivatives(one);
+        LinearBasisFunction<1>::ComputeBasisFunctionDerivatives(one,derivatives);
         TS_ASSERT_DELTA(derivatives(0,0), -1, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,1),  1, 1e-12);
     }
@@ -68,7 +68,7 @@ public:
         
         // Derivatives
         c_matrix<double, 2, 3> derivatives;
-        derivatives = LinearBasisFunction<2>::ComputeBasisFunctionDerivatives(onezero);
+        LinearBasisFunction<2>::ComputeBasisFunctionDerivatives(onezero,derivatives);
         TS_ASSERT_DELTA(derivatives(0,0), -1, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,1),  1, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,2),  0, 1e-12);
@@ -93,7 +93,7 @@ public:
         
         // Derivatives
         c_matrix<double, 3, 4> derivatives;
-        derivatives = LinearBasisFunction<3>::ComputeBasisFunctionDerivatives(onezerozero);
+        LinearBasisFunction<3>::ComputeBasisFunctionDerivatives(onezerozero,derivatives);
         TS_ASSERT_DELTA(derivatives(0,0), -1, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,1),  1, 1e-12);
         TS_ASSERT_DELTA(derivatives(0,2),  0, 1e-12);
@@ -109,37 +109,36 @@ public:
         c_matrix<double, 1, 1> inv_J;
         inv_J(0,0)=0.5;
         
-        c_matrix<double, 1, 2> transDeriv =
-            LinearBasisFunction<1>::ComputeTransformedBasisFunctionDerivatives(one, inv_J);
+        c_matrix<double, 1, 2> trans_deriv;
+        LinearBasisFunction<1>::ComputeTransformedBasisFunctionDerivatives(one, inv_J, trans_deriv);
             
-        TS_ASSERT_DELTA(transDeriv(0,0), -0.5, 1e-12);
-        TS_ASSERT_DELTA(transDeriv(0,1),  0.5, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(0,0), -0.5, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(0,1),  0.5, 1e-12);
         
         // 2D
         ChastePoint<2> oneone(1,1);
         
         c_matrix<double, 2, 2> inv_J2 = 0.5 * identity_matrix<double>(2);
         
-        c_matrix<double, 2, 3> trans_deriv =
-            LinearBasisFunction<2>::ComputeTransformedBasisFunctionDerivatives(oneone, inv_J2);
+        c_matrix<double, 2, 3> trans_deriv2;
+        LinearBasisFunction<2>::ComputeTransformedBasisFunctionDerivatives(oneone, inv_J2, trans_deriv2);
             
-        TS_ASSERT_DELTA(trans_deriv(0,0), -0.5, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(0,1),  0.5, 1e-12);
-        TS_ASSERT_DELTA(trans_deriv(0,2),    0, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv2(0,0), -0.5, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv2(0,1),  0.5, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv2(0,2),    0, 1e-12);
         
         //3D
         ChastePoint<3> oneoneone(1,1,1);
         
         c_matrix<double, 3, 3> inv_J3 = 0.5 * identity_matrix<double>(3);
         
-        c_matrix<double, 3, 4> transDeriv3 =
-            LinearBasisFunction<3>::ComputeTransformedBasisFunctionDerivatives(oneoneone,inv_J3);
+        c_matrix<double, 3, 4> trans_deriv3;
+        LinearBasisFunction<3>::ComputeTransformedBasisFunctionDerivatives(oneoneone, inv_J3, trans_deriv3);
             
-        TS_ASSERT_DELTA(transDeriv3(0,0), -0.5, 1e-12);
-        TS_ASSERT_DELTA(transDeriv3(0,1),  0.5, 1e-12);
-        TS_ASSERT_DELTA(transDeriv3(0,2),    0, 1e-12);
-        TS_ASSERT_DELTA(transDeriv3(0,3),    0, 1e-12);
-        //TS_TRACE("here lin basis\n");
+        TS_ASSERT_DELTA(trans_deriv3(0,0), -0.5, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv3(0,1),  0.5, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv3(0,2),    0, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv3(0,3),    0, 1e-12);
     }
     
     void TestComputeTransformedBasisFunction2( void )
@@ -153,9 +152,10 @@ public:
         
         const c_matrix<double, 2, 2> *inverseJacobian = element.GetInverseJacobian();
         ChastePoint<2> evaluation_point(1,1);
-        c_matrix<double, 2, 3> trans_deriv =
-            LinearBasisFunction<2>::ComputeTransformedBasisFunctionDerivatives(evaluation_point,
-                                                                               *inverseJacobian);
+        c_matrix<double, 2, 3> trans_deriv;
+        LinearBasisFunction<2>::ComputeTransformedBasisFunctionDerivatives(evaluation_point,
+                                                                           *inverseJacobian,
+                                                                           trans_deriv);
                                                                       
         TS_ASSERT_DELTA(trans_deriv(0,0),-0.2, 1e-12);
         TS_ASSERT_DELTA(trans_deriv(1,0),-0.6, 1e-12);

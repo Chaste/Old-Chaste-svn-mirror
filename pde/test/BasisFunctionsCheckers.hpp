@@ -17,8 +17,9 @@ public:
         
         for (int point_index=0; point_index<size; point_index++)
         {
-            c_vector<double, SPACE_DIM+1> basis_function_vector
-                = LinearBasisFunction<SPACE_DIM>::ComputeBasisFunctions(*(evaluationPoints[point_index]));
+            c_vector<double, SPACE_DIM+1> basis_function_vector;
+            LinearBasisFunction<SPACE_DIM>::ComputeBasisFunctions(*(evaluationPoints[point_index]), basis_function_vector);
+            
             for (int func_index=0; func_index<size; func_index ++)
             {
                 if (func_index==point_index)
