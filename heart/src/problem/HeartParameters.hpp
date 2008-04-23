@@ -13,7 +13,7 @@ public:
      * @return a single instance of the class
      */
     static HeartParameters* Instance();
-    std::auto_ptr<HeartPhysiologicalParametersType> Parameters();
+    HeartPhysiologicalParametersType* Parameters();
     void SetParametersFile(std::string fileName);
     void Destroy();
     
@@ -21,7 +21,7 @@ private:
     HeartParameters();
     /** The single instance of the class */
     static HeartParameters* mpInstance;
-    std::auto_ptr<HeartPhysiologicalParametersType>* mpParameters;
+    HeartPhysiologicalParametersType* mpParameters;
 };
 
     

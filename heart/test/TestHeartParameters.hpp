@@ -33,12 +33,18 @@ public :
         double chi = HeartParameters::Instance()->Parameters()->SurfaceAreaToVolumeRatio();
         TS_ASSERT_EQUALS(chi, 2.0);
         
-        // The following fails with seg faults because of issues with having to use auto_ptrs inside the
-        // HeartParameters class - we think calling HeartParameters::Instance()->Parameters() calls the
-        // copy constructor on the new auto_ptr which causes the old one to dereference itself.
-        
-        //double capacitance = HeartParameters::Instance()->Parameters()->Capacitance();
-        //TS_ASSERT_EQUALS(capacitance, 4.0);
+        double capacitance = HeartParameters::Instance()->Parameters()->Capacitance();
+        TS_ASSERT_EQUALS(capacitance, 4.0);
+
+        capacitance = HeartParameters::Instance()->Parameters()->Capacitance();
+        TS_ASSERT_EQUALS(capacitance, 4.0);
+
+        double conductivity_1 = HeartParameters::Instance()->Parameters()->Conductivities().Conductivity()[0];
+        double conductivity_2 = HeartParameters::Instance()->Parameters()->Conductivities().Conductivity()[1];
+
+        TS_ASSERT_EQUALS(conductivity_1, 7.0);
+        TS_ASSERT_EQUALS(conductivity_2, 7.5);
+
         HeartParameters::Instance()->Destroy();
     }
 };

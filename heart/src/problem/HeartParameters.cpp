@@ -19,12 +19,18 @@ HeartParameters::HeartParameters()
 
 void HeartParameters::SetParametersFile(std::string fileName)
 {
-    mpParameters = new std::auto_ptr<HeartPhysiologicalParametersType>(HeartPhysiologicalParameters(fileName.c_str()));
+    // get the parameters using the method 'HeartPhysiologicalParameters(filename)',
+    // which returns a std::auto_ptr. We don't want to use a std::auto_ptr because
+    // it will delete memory when out of scope, or no longer point when it is copied,
+    // so we reallocate memory using a normal pointer and copy the data to there
+    std::auto_ptr<HeartPhysiologicalParametersType> x(HeartPhysiologicalParameters(fileName.c_str()));
+    mpParameters = new HeartPhysiologicalParametersType(*x);
+    assert(mpParameters);
 }
 
-std::auto_ptr<HeartPhysiologicalParametersType> HeartParameters::Parameters()
+HeartPhysiologicalParametersType* HeartParameters::Parameters()
 {
-    return *mpParameters;
+    return mpParameters;
 }
 
 void HeartParameters::Destroy()
