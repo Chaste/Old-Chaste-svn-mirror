@@ -54,18 +54,6 @@ public:
         EventHandler::Report();
 
     }
-    
-    void TestEventExceptions() throw(Exception)
-    {
-        // should not be able to end and event that has not yet begun
-        TS_ASSERT_THROWS_ANYTHING(EventHandler::EndEvent(EVERYTHING));
-        
-        EventHandler::BeginEvent(EVERYTHING);
-        
-        // should not be able to begin that has already begun
-        TS_ASSERT_THROWS_ANYTHING(EventHandler::BeginEvent(EVERYTHING));
-        
-    }
 };
 
 

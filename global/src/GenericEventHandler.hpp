@@ -36,35 +36,16 @@ class GenericEventHandler
 {
 public:
     static double mCpuTime[MAX_EVENTS];
-    static bool mHasBegun[MAX_EVENTS];
        
     static void BeginEvent(unsigned event) throw (Exception)
     {
-        if (mHasBegun[event])
-        {
-            std::string msg;
-            msg += "The event associated with the counter for '";
-            msg += EVENT_NAME[event];
-            msg += "' had already begun when BeginEvent was called.";
-            EXCEPTION(msg);
-        }
         mCpuTime[event]-= clock()/(CLOCKS_PER_SEC/1000.0);
-        mHasBegun[event] = true;
         //std::cout << "Begining " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
     
     static void EndEvent(unsigned event)
     {
-        if (!mHasBegun[event])
-        {
-            std::string msg;
-            msg += "The event associated with the counter for '";
-            msg += EVENT_NAME[event];
-            msg += "' had not begun when EndEvent was called.";
-            EXCEPTION(msg);
-        }
         mCpuTime[event]+= clock()/(CLOCKS_PER_SEC/1000.0);
-        mHasBegun[event] = false;
         //std::cout << "Ending " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
     
@@ -92,8 +73,5 @@ public:
 
 template<unsigned NUM_EVENTS, const char** EVENT_NAME>
 double GenericEventHandler<NUM_EVENTS, EVENT_NAME>::mCpuTime[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-
-template<unsigned NUM_EVENTS, const char** EVENT_NAME>
-bool GenericEventHandler<NUM_EVENTS, EVENT_NAME>::mHasBegun[] = { false, false, false, false, false, false, false, false, false};
 
 #endif /*GENERICEVENTHANDLER_HPP_*/
