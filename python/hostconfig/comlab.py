@@ -16,6 +16,6 @@ other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd',
 other_libpaths = ['../../../lib',
                   os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu')]
 blas_lapack = ['f2clapack', 'f2cblas']
-other_libraries = ['boost_serialization-gcc', 'xerces-c']
+other_libraries = ['boost_serialization-gcc', 'xerces-c', 'z', 'hdf5']
 
 tools = {}
