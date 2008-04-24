@@ -330,7 +330,6 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     assert(DIM==2 || DIM==3); // there are no instances of TissueSimulation<1>
     #undef COVERAGE_IGNORE        
     
-    CancerEventHandler::BeginEvent(CANCER_EVERYTHING);
 
     mDeleteTissue = deleteTissueAndMechanicsSystem;
     mInitialiseCells = initialiseCells;
@@ -712,7 +711,8 @@ std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNode
  */
 template<unsigned DIM> 
 void TissueSimulation<DIM>::Solve()
-{        
+{
+    CancerEventHandler::BeginEvent(CANCER_EVERYTHING);
     CancerEventHandler::BeginEvent(SETUP);
 
     // Set up the simulation time
