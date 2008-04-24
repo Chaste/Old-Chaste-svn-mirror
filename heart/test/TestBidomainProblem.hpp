@@ -267,7 +267,7 @@ public:
      */
     void TestCompareBidomainProblemWithMonodomain()
     {
-        Vec* p_monodomain_results;
+        Vec* p_monodomain_results=NULL;
         
         PlaneStimulusCellFactory<1> cell_factory;
         
