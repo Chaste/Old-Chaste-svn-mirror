@@ -267,7 +267,7 @@ public:
      */
     void TestCompareBidomainProblemWithMonodomain()
     {
-        Vec* p_monodomain_results=NULL;
+        Vec monodomain_results;
         
         PlaneStimulusCellFactory<1> cell_factory;
         
@@ -295,8 +295,8 @@ public:
             // now solve
             monodomain_problem.Solve();
             
-            VecDuplicate(monodomain_problem.GetVoltage(), p_monodomain_results);
-            VecCopy(monodomain_problem.GetVoltage(), *p_monodomain_results);
+            VecDuplicate(monodomain_problem.GetVoltage(), &monodomain_results);
+            VecCopy(monodomain_problem.GetVoltage(), monodomain_results);
         }
         
         
@@ -326,7 +326,7 @@ public:
         ///////////////////////////////////////////////////////////////////
         // compare
         ///////////////////////////////////////////////////////////////////
-        DistributedVector monodomain_voltage(*p_monodomain_results);
+        DistributedVector monodomain_voltage(monodomain_results);
         DistributedVector dist_bidomain_voltage(bidomain_problem.GetVoltage());
         DistributedVector::Stripe bidomain_voltage(dist_bidomain_voltage, 0);
         DistributedVector::Stripe extracellular_potential(dist_bidomain_voltage, 1);
@@ -346,7 +346,7 @@ public:
             TS_ASSERT_DELTA(extracellular_potential[index], 0, 0.06);
         }       
 
-        VecDestroy(*p_monodomain_results);
+        VecDestroy(monodomain_results);
     }
     
     
