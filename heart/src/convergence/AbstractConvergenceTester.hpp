@@ -334,7 +334,7 @@ public:
             std::vector<unsigned> nodes_to_be_output;
             nodes_to_be_output.push_back(first_quadrant_node);
             nodes_to_be_output.push_back(third_quadrant_node);
-            // #606: cardiac_problem.SetOutputNodes(nodes_to_be_output);
+            cardiac_problem.SetOutputNodes(nodes_to_be_output);
             
             
             
