@@ -430,8 +430,10 @@ public:
             }                                                
                           
             /*
-             *   Normal to the gradient (v in Streeter paper) which is then the fibre direction (computed
-             *  as the cross product with the x-axis)
+             *   Normal to the gradient (v in Streeter paper) which is then the circumferential direction 
+             * (it will be the fibre direction after rotation)
+             * 
+             *  Computed as the cross product with the x-axis)
              */
              /// \todo Assuming the base-apex axis is x
             c_vector<double, SPACE_DIM> fibre_direction = VectorProduct(grad_ave_wall_thickness, Create_c_vector(1.0, 0.0, 0.0));
@@ -503,10 +505,15 @@ public:
                    rotated_longitude_direction[1] != longitude_direction[1] &&
                    rotated_longitude_direction[2] != longitude_direction[2] );
 
-            // Output the direction of the myofibre, the transverse to it in the plane of the myocite laminae and the normal to this laminae (in that order)
+            /*
+             *  Output the direction of the myofibre, the transverse to it in the plane of the myocite laminae and the normal to this laminae (in that order)
+             * 
+             *  See Fig. 1 "Laminar Structure of the Heart: a mathematical model" LeGrice et al. 97
+             * 
+             */
             *p_fibre_file << rotated_fibre_direction[0]     << " " << rotated_fibre_direction[1]     << " "  << rotated_fibre_direction[2]     << " "
-                          << rotated_longitude_direction[0] << " " << rotated_longitude_direction[1] << " "  << rotated_longitude_direction[2] << " "
                           << grad_ave_wall_thickness[0]     << " " << grad_ave_wall_thickness[1]     << " "  << grad_ave_wall_thickness[2]     << " "
+                          << rotated_longitude_direction[0] << " " << rotated_longitude_direction[1] << " "  << rotated_longitude_direction[2] << " "                          
                           << std::endl;
             
         }               
