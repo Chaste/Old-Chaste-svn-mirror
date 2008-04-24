@@ -663,7 +663,7 @@ public:
     }
 
 
-    void Failing_TestHdf5DataWriterFullFormatStripedIncomplete() throw(Exception)
+    void TestHdf5DataWriterFullFormatStripedIncomplete() throw(Exception)
     {
         int number_nodes=100;
                
@@ -674,7 +674,6 @@ public:
         node_numbers.push_back(47);
         node_numbers.push_back(60);
         writer.DefineFixedDimension(node_numbers, number_nodes);
-        //writer.DefineFixedDimension(number_nodes);
         
         int vm_id = writer.DefineVariable("V_m","millivolts");  
         int phi_e_id = writer.DefineVariable("Phi_e","millivolts");
@@ -689,13 +688,13 @@ public:
         DistributedVector::Stripe vm_stripe(distributed_vector_long, 0);
         DistributedVector::Stripe phi_e_stripe(distributed_vector_long,1 );
         
-        for (unsigned time_step=0; time_step<10; time_step++)
+        for (unsigned time_step=0; time_step<2; time_step++)
         {
             for (DistributedVector::Iterator index = DistributedVector::Begin();
                  index!= DistributedVector::End();
                  ++index)
             {
-                vm_stripe[index] =  time_step*1000 + index.Global*2;
+                vm_stripe[index] =  (time_step+1)*1000 + index.Global;
                 phi_e_stripe[index] =  index.Global;
             }
             distributed_vector_long.Restore();
@@ -708,20 +707,20 @@ public:
         writer.Close();
         
         
-        if(PetscTools::AmMaster())
-        {
-            // call h5dump to take the binary hdf5 output file and print it
-            // to a text file. Note that the first line of the txt file would
-            // be the directory it has been printed to, but is this line is
-            // removed by piping the output through sed to delete the first line  
-            OutputFileHandler handler("hdf5",false);
-            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_striped_incomplete.h5";
-            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_striped_dumped_incomplete.txt";
-            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
-            
-            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_striped_dumped_incomplete.txt").c_str()), 0);
-        }
-        
+//        if(PetscTools::AmMaster())
+//        {
+//            // call h5dump to take the binary hdf5 output file and print it
+//            // to a text file. Note that the first line of the txt file would
+//            // be the directory it has been printed to, but is this line is
+//            // removed by piping the output through sed to delete the first line  
+//            OutputFileHandler handler("hdf5",false);
+//            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_striped_incomplete.h5";
+//            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_striped_incomplete_dumped.txt";
+//            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
+//            
+//            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_striped_incomplete_dumped.txt").c_str()), 0);
+//        }
+//        
         
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_striped_incomplete", true,
             "io/test/data", "hdf5_test_full_format_striped_incomplete", false));
