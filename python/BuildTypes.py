@@ -757,7 +757,7 @@ class IntelProductionParallel4(IntelProduction):
         self._num_processes = 4
     
     def GetTestRunnerCommand(self, exefile, exeflags=''):
-        "Run test with a two processor environment"
+        "Run test with a 4 processor environment"
         return self.tools['mpirun'] + ' -np ' + str(self._num_processes) \
             + ' ' + exefile + ' ' + exeflags
 

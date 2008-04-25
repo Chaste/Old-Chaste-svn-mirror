@@ -448,7 +448,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     }
     
     // Create solution vector
-    //\todo Should it be compulsory for the caller to supply this and manage the memory?
+    ///\todo Should it be compulsory for the caller to supply this and manage the memory?
     Vec lhs_vector;
     VecDuplicate(mRhsVector, &lhs_vector);//Sets the same size (doesn't copy)
     if (lhsGuess)

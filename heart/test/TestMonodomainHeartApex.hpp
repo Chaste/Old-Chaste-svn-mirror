@@ -181,7 +181,7 @@ public:
         TS_ASSERT(stimulated_node_was_excited);
         TS_ASSERT(unstimulated_node_was_excited);
         *
-        */ //\todo
+        */ ///\todo
     }
 };
 

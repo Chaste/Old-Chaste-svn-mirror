@@ -225,7 +225,7 @@ public:
      */
     virtual bool UsesBetaCat();
     
-     /**
+    /**
      * Returns the protein concentrations at the current time. However in most Cell Cycle models this does not exist.
      * We have a "work-around" such that we throw an error if we try and access it for any other cell type. 
      * \todo may be better to use dynamic_cast and/or MI (see #697)   

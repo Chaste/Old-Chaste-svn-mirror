@@ -39,7 +39,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt)
     {
         EXCEPTION("The simulation duration must be positive");
     }
-    /*
+    /**
      * \todo This assertion breaks several tests
      * 
     if (endTime-startTime < dt-smidge)

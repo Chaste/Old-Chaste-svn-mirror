@@ -26,8 +26,8 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 #include "NhsSystemWithImplicitSolver.hpp"
 
 ///\todo: 
-// more doxy
-// test of analytic jacobian
+/// more doxy
+/// test of analytic jacobian
 
 
 /**

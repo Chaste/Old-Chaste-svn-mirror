@@ -125,9 +125,9 @@ public:
 };
 
 /// \todo: Make this constructor take in ghost nodes, and validate the three objects
-// are in sync ie num cells + num ghost nodes = num_nodes ? this would mean all ghosts
-// *cannot* be cells, making it more difficult to construct the cells.
-// also check cell.GetNodeIndices() is in the mesh, and covers the mesh, etc.
+/// are in sync ie num cells + num ghost nodes = num_nodes ? this would mean all ghosts
+/// *cannot* be cells, making it more difficult to construct the cells.
+/// also check cell.GetNodeIndices() is in the mesh, and covers the mesh, etc.
 template<unsigned DIM>
 MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
      ConformingTetrahedralMesh<DIM, DIM>& rMesh,

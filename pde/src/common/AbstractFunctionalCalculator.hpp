@@ -39,8 +39,8 @@ private:
         
         GaussianQuadratureRule<ELEMENT_DIM> quad_rule(2);
         
-        // \todo This assumes that the Jacobian is constant on an element.
-        // This is true for linear basis functions, but not for any other type of basis function.
+        /// \todo This assumes that the Jacobian is constant on an element.
+        /// This is true for linear basis functions, but not for any other type of basis function.
         const c_matrix<double, SPACE_DIM, SPACE_DIM> *p_inverse_jacobian = rElement.GetInverseJacobian();
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         

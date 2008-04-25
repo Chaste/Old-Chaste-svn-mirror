@@ -32,10 +32,10 @@ private:
 public:
     GeneralPlaneStimulusCellFactory(double timeStep, unsigned numEleAcross, double meshWidth, bool useMeshWidthAsMag=false) : AbstractCardiacCellFactory<DIM>(timeStep)
     {
-        //\todo The useMeshWidth is temporary, while we are sorting out 
-        //3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
-        // scale stimulus depending on space_step of elements
-        //\todo It looks like the value of the stimulus is specific to 3D
+        ///\todo The useMeshWidth is temporary, while we are sorting out 
+        ///3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
+        /// scale stimulus depending on space_step of elements
+        ///\todo It looks like the value of the stimulus is specific to 3D
         if (useMeshWidthAsMag)
         {
             #define COVERAGE_IGNORE

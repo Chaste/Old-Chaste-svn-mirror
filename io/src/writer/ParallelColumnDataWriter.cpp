@@ -138,9 +138,9 @@ void ParallelColumnDataWriter::AdvanceAlongUnlimitedDimension()
 
     if (mAmMaster)
     {
-        //\todo
-        //This is where the master is going to take messages from the
-        //slaves and write them
+        ///\todo
+        ///This is where the master is going to take messages from the
+        ///slaves and write them
         ColumnDataWriter::DoAdvanceAlongUnlimitedDimension();
     }
 }
@@ -150,7 +150,7 @@ void ParallelColumnDataWriter::Close()
     //std::cout<<"In Close mMyRank="<< mMyRank<<"\n";
     MPI_Barrier(PETSC_COMM_WORLD);
     
-    //\todo.. we may still have queued messages at this point.
+    ///\todo.. we may still have queued messages at this point.
     if (mAmMaster)
     {
         ColumnDataWriter::Close();

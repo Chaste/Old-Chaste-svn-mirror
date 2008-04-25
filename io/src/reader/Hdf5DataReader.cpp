@@ -231,7 +231,7 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data, std::string variableName, un
         EXCEPTION("The file does not contain data for timestep number" + timestep);
     }
 
-    //\todo Use DistributedVector?
+    ///\todo Use DistributedVector?
     int lo, hi, size;
     VecGetSize(data, &size);
     if ((unsigned)size != mVariablesDatasetSizes[1])

@@ -559,7 +559,7 @@ public:
         }
         system("date");//To keep track of what Nightly things are doing
         ///\todo The UseAbsoluteStimulus is temporary, while we are sorting out 
-        //3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
+        ///3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
         if (this->UseAbsoluteStimulus)
         {
             #define COVERAGE_IGNORE
