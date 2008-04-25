@@ -331,12 +331,11 @@ public:
             }
             #endif
             
+            // We only need the output of these two nodes
             std::vector<unsigned> nodes_to_be_output;
             nodes_to_be_output.push_back(first_quadrant_node);
             nodes_to_be_output.push_back(third_quadrant_node);
-            cardiac_problem.SetOutputNodes(nodes_to_be_output);
-            
-            
+            cardiac_problem.SetOutputNodes(nodes_to_be_output);                        
             
             // The results of the tests were originally obtained with the following conductivity
             // values. After implementing fibre orientation the defaults changed. Here we set
@@ -373,9 +372,7 @@ public:
       	    DisplayRun();
             double time_before=MPI_Wtime();
             //// use this to get some info printed out
-            //cardiac_problem.SetWriteInfo();
-            
-            
+            //cardiac_problem.SetWriteInfo();                        
             
             try
             {
@@ -514,7 +511,7 @@ public:
             
         }
         system("date");//To keep track of what Nightly things are doing
-        //\todo The UseAbsoluteStimulus is temporary, while we are sorting out 
+        ///\todo The UseAbsoluteStimulus is temporary, while we are sorting out 
         //3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
         if (this->UseAbsoluteStimulus)
         {

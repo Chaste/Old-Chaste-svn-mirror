@@ -47,6 +47,11 @@ public:
         monodomain_problem.SetOutputDirectory("MonoConductionVel");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_1d");
         
+        std::vector<unsigned> output_nodes;
+        output_nodes.push_back(5);
+        output_nodes.push_back(95);        
+        monodomain_problem.SetOutputNodes(output_nodes);
+        
         monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
         
         monodomain_problem.Initialise();
