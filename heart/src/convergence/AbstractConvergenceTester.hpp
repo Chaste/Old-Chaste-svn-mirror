@@ -215,14 +215,27 @@ public:
 
         unsigned file_num=0;
         
+        // Create a file for storing conduction velocity and AP data and write the header
+        OutputFileHandler conv_info_handler("ConvergencePlots", false);
+        out_stream p_conv_info_file = conv_info_handler.OpenOutputFile("Convergence_info.csv");
+        (*p_conv_info_file) << "#Abcisa\t"
+                            << "2-norm\t\t"
+                            << "APD90_1st_quad\t"
+                            << "APD90_3rd_quad\t"
+                            << "Conduction velocity (relative errors)" << std::endl;
+        
         SetInitialConvergenceParameters();
         
         unsigned prev_mesh_num=9999;
         std::string mesh_pathname;
         std::string mesh_filename;
-        
+
+        double prev_apd90_first_qn;
+        double prev_apd90_third_qn;
+        double prev_cond_velocity;        
         double prev_voltage[201];
         PopulateStandardResult(prev_voltage);
+                
         do
         {
             CuboidMeshConstructor<DIM> constructor;
@@ -318,10 +331,11 @@ public:
                     assert(0);
             }
             
+            double mesh_width=constructor.GetWidth();
+            
             #ifndef NDEBUG
             Node<DIM>* fqn = cardiac_problem.rGetMesh().GetNode(first_quadrant_node);
-            Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);
-            double mesh_width=constructor.GetWidth();
+            Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);            
             assert(fqn->rGetLocation()[0]==0.25*mesh_width);
             assert(fabs(tqn->rGetLocation()[0] - 0.75*mesh_width) < 1e-10);
             for (unsigned coord=1; coord<DIM; coord++)
@@ -381,11 +395,13 @@ public:
             catch (Exception e)
             {
                 #define COVERAGE_IGNORE
-                //\todo Cover this
+                ///\todo Cover this
                 std::cout<<"Warning - this run threw an exception.  Check convergence results\n";
                 std::cout<<e.GetMessage() << std::endl;                 
                 #undef COVERAGE_IGNORE
             }
+            
+            std::cout << "Time to solve = "<<MPI_Wtime()-time_before<<" seconds\n";
             
             OutputFileHandler results_handler("Convergence", false);
             Hdf5DataReader results_reader("Convergence", "Results");          
@@ -407,13 +423,48 @@ public:
                     }
                     p_plot_file->close();
                 }
+                
+                // Write time series for first quadrant node
+                if (results_handler.IsMaster())
+                {
+                    std::vector<double> transmembrane_potential_1qd=results_reader.GetVariableOverTime("V", first_quadrant_node);
+                    std::vector<double> time_series_1qd = results_reader.GetUnlimitedDimensionValues();
+                    OutputFileHandler plot_file_handler("ConvergencePlots", false);
+                    std::stringstream plot_file_name_stream;
+                    plot_file_name_stream<< "Node2_"<< file_num << "_timestep.csv";
+                    out_stream p_plot_file = plot_file_handler.OpenOutputFile(plot_file_name_stream.str());
+                    for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
+                    {
+                        (*p_plot_file) << time_series_1qd[data_point] << "\t" << transmembrane_potential_1qd[data_point] << "\n";
+                    }
+                    p_plot_file->close();
+                }                    
+                    
+                // calculate conduction velocity and APD90 error
+                PropagationPropertiesCalculator ppc(&results_reader);
+                double cond_velocity = ppc.CalculateConductionVelocity(first_quadrant_node,third_quadrant_node,0.5*mesh_width);
+                double apd90_first_qn = ppc.CalculateActionPotentialDuration(0.9, first_quadrant_node);
+                double apd90_third_qn = ppc.CalculateActionPotentialDuration(0.9, third_quadrant_node);
 
+                double cond_velocity_error = 0.0;
+                double apd90_first_qn_error = 0.0;
+                double apd90_third_qn_error = 0.0;
+
+                if (this->PopulatedResult)
+                {
+                    cond_velocity_error = fabs(cond_velocity - prev_cond_velocity) / prev_cond_velocity; // 574: is this the conduction velocity error?
+                    apd90_first_qn_error = fabs(apd90_first_qn - prev_apd90_first_qn) / prev_apd90_first_qn;
+                    apd90_third_qn_error = fabs(apd90_third_qn - prev_apd90_third_qn) / prev_apd90_third_qn;
+                }                
+
+                prev_cond_velocity = cond_velocity;
+                prev_apd90_first_qn = apd90_first_qn;
+                prev_apd90_third_qn = apd90_third_qn;
+                
                 // calculate l2norm
-                //double *p_prev_voltage = prev_voltage;
                 double max_abs_error = 0;
                 double sum_sq_abs_error =0;
-                double sum_sq_prev_voltage = 0;
-                
+                double sum_sq_prev_voltage = 0;                
                 
                 for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
                 {
@@ -430,7 +481,7 @@ public:
                         prev_voltage[data_point] = transmembrane_potential[data_point];
                     }
                 }
-                std::cout << "Time to solve = "<<MPI_Wtime()-time_before<<" seconds\n";
+                
                 if (this->PopulatedResult)
                 {
                     
@@ -438,34 +489,27 @@ public:
                     std::cout << "l2 error = " << sum_sq_abs_error/sum_sq_prev_voltage << " log10 = " << log10(sum_sq_abs_error/sum_sq_prev_voltage) << "\n";
                     //std::cout << log10(Abscissa()) << "\t" << log10(sum_sq_abs_error/sum_sq_prev_voltage) <<"\t#Logs for Gnuplot\n";
                     //Use "set logscale x; set logscale y" to get loglog plots in Gnuplot
-                    std::cout << Abscissa() << "\t" << sum_sq_abs_error/sum_sq_prev_voltage <<"\t#Gnuplot raw data\n";
+                    //std::cout << Abscissa() << "\t" << sum_sq_abs_error/sum_sq_prev_voltage <<"\t#Gnuplot raw data\n";
+                    
+                    (*p_conv_info_file) << std::setprecision(8)
+                                        << Abscissa() << "\t" 
+                                        << sum_sq_abs_error/sum_sq_prev_voltage << "\t"
+                                        << apd90_first_qn_error << "\t"
+                                        << apd90_third_qn_error << "\t"
+                                        << cond_velocity_error  << std::endl;
+                    
                     // convergence criterion
                     this->Converged = sum_sq_abs_error/sum_sq_prev_voltage<this->RelativeConvergenceCriterion;
                     this->LastDifference=sum_sq_abs_error/sum_sq_prev_voltage;
                 }
+                
                 if (!this->PopulatedResult)
                 {
                     this->PopulatedResult=true;
                     
                 }
             }
-            
-            // Write time series for first quadrant node
-            if (results_handler.IsMaster())
-            {
-                std::vector<double> transmembrane_potential=results_reader.GetVariableOverTime("V", first_quadrant_node);
-                std::vector<double> time_series = results_reader.GetUnlimitedDimensionValues();
-                OutputFileHandler plot_file_handler("ConvergencePlots", false);
-                std::stringstream plot_file_name_stream;
-                plot_file_name_stream<< "Node2_"<< file_num << "_timestep.csv";
-                out_stream p_plot_file = plot_file_handler.OpenOutputFile(plot_file_name_stream.str());
-                for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
-                {
-                    (*p_plot_file) << time_series[data_point] << "\t" << transmembrane_potential[data_point] << "\n";                 
-                }
-                p_plot_file->close();
-            }                    
-            
+                        
             // Get ready for the next test by halving the time step
             if (!this->Converged)
             {
@@ -475,6 +519,9 @@ public:
             delete p_cell_factory;
         }
         while (!GiveUpConvergence() && !this->Converged);
+        
+        p_conv_info_file->close();
+        
     }
     
     void DisplayRun()
