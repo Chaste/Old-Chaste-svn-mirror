@@ -29,11 +29,6 @@ ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::s
     }
 }
 
-bool ParallelColumnDataWriter::AmMaster() const
-{
-    return mAmMaster;
-}
-
 void
 ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 {

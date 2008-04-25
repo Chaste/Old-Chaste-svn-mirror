@@ -245,7 +245,6 @@ protected:
     /**
      * Accessor methods that subclasses can use to get to useful data.
      */
-    virtual ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rGetMesh()=0;
     virtual LinearSystem** GetLinearSystem()=0;
     virtual ReplicatableVector& rGetCurrentSolutionOrGuess()=0;
        

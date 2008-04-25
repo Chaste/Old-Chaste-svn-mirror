@@ -798,6 +798,10 @@ public:
         node_numbers.push_back(6);
         //Data not increasing
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers, 100));
+        node_numbers[2]=100;
+        //Data is increasing but the last number is too large
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers, 100));
+        
         mpTestWriter->DefineFixedDimension(5000);
         //Can't set fixed dimension more than once
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(5000));

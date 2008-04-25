@@ -386,10 +386,10 @@ public:
         //Get back node over all times
         std::vector<double> node_0 = data_reader1.GetVariableOverTime("V", 0);
         TS_ASSERT_EQUALS( node_0.size(), 4U);
-        TS_ASSERT_DELTA( node_0[0], -83.853, 1e-4); 
-        TS_ASSERT_DELTA( node_0[1], -83.8352, 1e-4); 
-        TS_ASSERT_DELTA( node_0[2], -83.8264, 1e-4); 
-        TS_ASSERT_DELTA( node_0[3], -83.8198, 1e-4); 
+        TS_ASSERT_DELTA( node_0[0], -83.853, 1e-10); 
+        TS_ASSERT_DELTA( node_0[1], -83.835224864786, 1e-10); 
+        TS_ASSERT_DELTA( node_0[2], -83.826404431209, 1e-10); 
+        TS_ASSERT_DELTA( node_0[3], -83.8197950069, 1e-10); 
         std::vector<double> node_5 = data_reader1.GetVariableOverTime("V", 5);
         TS_ASSERT_EQUALS( node_5.size(), 4U);
         std::vector<double> node_10 = data_reader1.GetVariableOverTime("V", 10);
@@ -397,6 +397,7 @@ public:
         
         //Can't read back this node as it wasn't written
         TS_ASSERT_THROWS_ANYTHING( data_reader1.GetVariableOverTime("V", 1));
+    
         
         // run testing PrintEveryNthTimeStep
         p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
@@ -413,7 +414,6 @@ public:
         
         p_bidomain_problem->Initialise();
         p_bidomain_problem->Solve();
-        
         
         // read data entries for the time file and check correct
         Hdf5DataReader data_reader2("Bidomain1d", "bidomain_testPrintTimes");

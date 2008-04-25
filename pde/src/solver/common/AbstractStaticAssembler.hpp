@@ -526,16 +526,7 @@ protected:
     }
     
     
-    /**
-     * Accessor method that subclasses of AbstractAssembler (but not us)
-     * can use to get to useful data.
-     */
-    ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rGetMesh()
-    {
-        assert(mpMesh!=NULL);
-        return *mpMesh;
-    }
-
+ 
     /**
      * Accessor method that subclasses of AbstractAssembler (but not us)
      * can use to get to useful data.
