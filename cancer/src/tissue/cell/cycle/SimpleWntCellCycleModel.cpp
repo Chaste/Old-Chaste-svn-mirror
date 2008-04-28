@@ -6,11 +6,6 @@ AbstractCellCycleModel *SimpleWntCellCycleModel::CreateDaughterCellCycleModel()
     return new SimpleWntCellCycleModel(mG1Duration, mGeneration, mUseCellTypeDependentG1Duration);
 }
 
-/**
- * The G1 duration is taken from a normal distribution, whose mean is
- * the G1 duration given in CancerParameters for the cell type, and
- * whose standard deviataion is 1.
- */
 void SimpleWntCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
@@ -47,9 +42,12 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     CancerParameters *p_params = CancerParameters::Instance();
     WntConcentration* p_wnt = WntConcentration::Instance();
 
+    // The cell is of type STEM if the Wnt concentration > wnt_stem_cell_threshold
     double wnt_stem_cell_threshold = DBL_MAX;
+    
+    // The cell can divide if the Wnt concentration >= wnt_division_threshold
     double wnt_division_threshold = DBL_MAX;
-    double healthy_threshold = p_params->GetWntTransitThreshold(); // cell will divide if Wnt level >= to this value
+    double healthy_threshold = p_params->GetWntTransitThreshold(); 
 
     // In the case of a RADIAL Wnt gradient, set up under what level
     // of Wnt stimulus a cell will change type
@@ -67,13 +65,13 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
         case LABELLED:
             wnt_division_threshold = healthy_threshold;
             break;
-        case APC_ONE_HIT:   // should be less than healthy values
+        case APC_ONE_HIT:  // should be less than healthy values
             wnt_division_threshold = 0.77*healthy_threshold;
             break;
         case BETA_CATENIN_ONE_HIT:  // less than above value
             wnt_division_threshold = 0.155*healthy_threshold;
             break;
-        case APC_TWO_HIT:   // should be zero (no Wnt-dependence)
+        case APC_TWO_HIT:  // should be zero (no Wnt-dependence)
             wnt_division_threshold = 0.0;
             break;
         default:

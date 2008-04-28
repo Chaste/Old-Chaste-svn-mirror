@@ -8,7 +8,6 @@
 
 /**
  *  Simple Wnt-dependent cell cycle model
- *
  */
 class SimpleWntCellCycleModel : public AbstractSimpleCellCycleModel
 {
@@ -34,14 +33,22 @@ private:
 protected:
 
     /**
-     * Stochastically set the G1 duration.  Called on cell creation at 
-     * the start of a simulation, and for both parent and daughter 
-     * cells at cell division.
-     */    
+     * Stochastically set the G1 duration. The G1 duration is taken 
+     * from a normal distribution whose mean is the G1 duration given 
+     * in CancerParameters for the cell type and whose standard deviation 
+     * is 1.
+     * 
+     * Called on cell creation at the start of a simulation, and for both 
+     * parent and daughter cells at cell division.
+     */        
     void SetG1Duration();
     
     /**
      * Private constructor for identical cells.
+     * 
+     * @param g1Duration  The duration of the G1 phase
+     * @param generation  The generation of the cell cycle model
+     * @param useCellTypeDependentG1Duration  Whether the duration of the G1 phase is dependent on cell type
      */
     SimpleWntCellCycleModel(double g1Duration, unsigned generation, bool useCellTypeDependentG1Duration=false) 
         : AbstractSimpleCellCycleModel(g1Duration, generation),
@@ -52,25 +59,33 @@ public:
 
     /**
      * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
-     * mG1Duration is set very high, it is set for the individual cells when InitialiseDaughterCell is called
+     * mG1Duration is set very high, it is set for the individual cells when InitialiseDaughterCell is called.
+     * 
+     * @param useCellTypeDependentG1Duration  Whether the duration of the G1 phase is dependent on cell type
      */
     SimpleWntCellCycleModel(bool useCellTypeDependentG1Duration=false)
         : mUseCellTypeDependentG1Duration(useCellTypeDependentG1Duration)
     {}
-    
+
     /** 
      * Overridden UpdateCellCyclePhase() method
      */ 
     void UpdateCellCyclePhase();
-        
-    AbstractCellCycleModel *CreateDaughterCellCycleModel(); 
-        
+
+    /** 
+     * Overridden ResetForDivision() method
+     */  
     void ResetForDivision();
+
+    /** 
+     * Overridden InitialiseDaughterCell() method
+     */ 
+    void InitialiseDaughterCell();
     
-    void InitialiseDaughterCell();        
+    AbstractCellCycleModel *CreateDaughterCellCycleModel();        
 };
 
-// declare identifier for the serializer
+// Declare identifier for the serializer
 BOOST_CLASS_EXPORT(SimpleWntCellCycleModel)
 
 
