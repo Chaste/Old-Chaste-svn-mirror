@@ -442,10 +442,18 @@ public:
                     
                 // calculate conduction velocity and APD90 error
                 PropagationPropertiesCalculator ppc(&results_reader);
-                double cond_velocity = ppc.CalculateConductionVelocity(first_quadrant_node,third_quadrant_node,0.5*mesh_width);
-                double apd90_first_qn = ppc.CalculateActionPotentialDuration(0.9, first_quadrant_node);
-                double apd90_third_qn = ppc.CalculateActionPotentialDuration(0.9, third_quadrant_node);
-
+                
+                double cond_velocity=0, apd90_first_qn=0, apd90_third_qn=0;
+                try
+                {
+                    apd90_first_qn = ppc.CalculateActionPotentialDuration(0.9, first_quadrant_node);
+                    apd90_third_qn = ppc.CalculateActionPotentialDuration(0.9, third_quadrant_node);
+                    cond_velocity  = ppc.CalculateConductionVelocity(first_quadrant_node,third_quadrant_node,0.5*mesh_width);
+                }
+                catch (Exception e)
+                {
+                    //throw e;
+                }
                 double cond_velocity_error = 0.0;
                 double apd90_first_qn_error = 0.0;
                 double apd90_third_qn_error = 0.0;
