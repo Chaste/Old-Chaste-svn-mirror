@@ -1,0 +1,30 @@
+
+"Cancer, Heart and Soft Tissue Environment (Chaste)". 
+This Library is a package of code written primarily in C++ and developed primarily 
+for modelling cardiac function and tumour growth. The Library includes core modules
+for parallel setup and error handling (global), for data input and output (io), for
+interfacing PETSc linear algrebra routines (linalg), for triangular and tetrahedral
+mesh functionality (mesh), for solving ordinary differential equations (ode) and for
+solving partial differential equations using the finite element method (pde). 
+The main application modules for cancer, heart and mechanics are built using the 
+functionality of the core modules and use state-of-the-art numerical techniques and
+cell models. 
+
+University means the Chancellor, Masters and Scholars of the University of Oxford, 
+having an administrative office at Wellington Square, Oxford OX1 2JD, UK. 
+Copyright (C) University April 2008. 
+
+The Library is free software; you can redistribute it and/or modify it under the 
+terms of the GNU Lesser General Public License, version 2.1, February 1999 ("Licence"), 
+as published by the Free Software Foundation. 
+
+The Library is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; 
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+See the GNU Lesser General Public License for more details. The offer of the Library 
+under the terms of the Licence is subject to the Licence being interpreted in accordance
+with English Law and subject to any action against the University being under the 
+jurisdiction of the English Courts. 
+
+You should have received a copy of the GNU Lesser General Public License along with the
+Library; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, 
+Fifth Floor, Boston, MA  02110-1301  USA. 
