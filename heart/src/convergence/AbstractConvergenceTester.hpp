@@ -128,7 +128,7 @@ public:
     {
     }
     
-    virtual void Converge()=0;   
+    virtual void Converge(std::string nameOfTest)=0;   
     
     void SetKspRelativeTolerance(const double& relativeTolerance)
     {
@@ -205,7 +205,7 @@ template<class CELL, class CARDIAC_PROBLEM, unsigned DIM, unsigned PROBLEM_DIM>
 class AbstractConvergenceTester : public AbstractUntemplatedConvergenceTester
 {
 public:    
-    void Converge()
+    void Converge(std::string nameOfTest)
     {
         std::cout << "=========================== Beginning Test...==================================\n";
         // Create the meshes on which the test will be based
@@ -216,14 +216,19 @@ public:
         unsigned file_num=0;
         
         // Create a file for storing conduction velocity and AP data and write the header
-        OutputFileHandler conv_info_handler("ConvergencePlots", false);
-        out_stream p_conv_info_file = conv_info_handler.OpenOutputFile("Convergence_info.csv");
-        (*p_conv_info_file) << "#Abcisa\t"
-                            << "2-norm\t\t"
-                            << "APD90_1st_quad\t"
-                            << "APD90_3rd_quad\t"
-                            << "Conduction velocity (relative errors)" << std::endl;
-        
+       OutputFileHandler conv_info_handler("ConvergencePlots", false);
+       out_stream p_conv_info_file;
+       if (conv_info_handler.IsMaster())
+        {
+            p_conv_info_file = conv_info_handler.OpenOutputFile(nameOfTest+"_info.csv");
+            (*p_conv_info_file) << "#Abcisa\t"
+                                << "(l2-norm)^2\t"
+                                << "l2-norm\t"
+                                << "Max absolute err\t"
+                                << "APD90_1st_quad\t"
+                                << "APD90_3rd_quad\t"
+                                << "Conduction velocity (relative errors)" << std::endl;
+        }
         SetInitialConvergenceParameters();
         
         unsigned prev_mesh_num=9999;
@@ -350,6 +355,8 @@ public:
             nodes_to_be_output.push_back(first_quadrant_node);
             nodes_to_be_output.push_back(third_quadrant_node);
             cardiac_problem.SetOutputNodes(nodes_to_be_output);                        
+            ///\todo We need to back this out at some point to see if it makes much speed difference 
+            
             
             // The results of the tests were originally obtained with the following conductivity
             // values. After implementing fibre orientation the defaults changed. Here we set
@@ -415,7 +422,7 @@ public:
                 {
                     OutputFileHandler plot_file_handler("ConvergencePlots", false);
                     std::stringstream plot_file_name_stream;
-                    plot_file_name_stream<< "Node1_"<< file_num << "_timestep.csv";
+                    plot_file_name_stream<< nameOfTest << "_Third_quadrant_node_run_"<< file_num << ".csv";
                     out_stream p_plot_file = plot_file_handler.OpenOutputFile(plot_file_name_stream.str());
                     for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
                     {
@@ -431,7 +438,7 @@ public:
                     std::vector<double> time_series_1qd = results_reader.GetUnlimitedDimensionValues();
                     OutputFileHandler plot_file_handler("ConvergencePlots", false);
                     std::stringstream plot_file_name_stream;
-                    plot_file_name_stream<< "Node2_"<< file_num << "_timestep.csv";
+                    plot_file_name_stream<< nameOfTest << "_First_quadrant_node_run_"<< file_num << ".csv";
                     out_stream p_plot_file = plot_file_handler.OpenOutputFile(plot_file_name_stream.str());
                     for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
                     {
@@ -448,11 +455,17 @@ public:
                 {
                     apd90_first_qn = ppc.CalculateActionPotentialDuration(0.9, first_quadrant_node);
                     apd90_third_qn = ppc.CalculateActionPotentialDuration(0.9, third_quadrant_node);
+                    
+                    if (apd90_third_qn == 0)
+                    {
+                        ppc.CalculateActionPotentialDuration(0.9, third_quadrant_node);
+                    }
+                    
                     cond_velocity  = ppc.CalculateConductionVelocity(first_quadrant_node,third_quadrant_node,0.5*mesh_width);
                 }
                 catch (Exception e)
                 {
-                    //throw e;
+                    throw e;
                 }
                 double cond_velocity_error = 0.0;
                 double apd90_first_qn_error = 0.0;
@@ -460,7 +473,11 @@ public:
 
                 if (this->PopulatedResult)
                 {
-                    cond_velocity_error = fabs(cond_velocity - prev_cond_velocity) / prev_cond_velocity; // 574: is this the conduction velocity error?
+                    //std::cout << "APD90\n"
+                    //          << "Current: " << apd90_first_qn << "\t" << apd90_third_qn << "\n"
+                    //          << "Previous: " << prev_apd90_first_qn << "\t" << prev_apd90_third_qn << "\n";
+                    
+                    cond_velocity_error = fabs(cond_velocity - prev_cond_velocity) / prev_cond_velocity; 
                     apd90_first_qn_error = fabs(apd90_first_qn - prev_apd90_first_qn) / prev_apd90_first_qn;
                     apd90_third_qn_error = fabs(apd90_third_qn - prev_apd90_third_qn) / prev_apd90_third_qn;
                 }                
@@ -499,13 +516,17 @@ public:
                     //Use "set logscale x; set logscale y" to get loglog plots in Gnuplot
                     //std::cout << Abscissa() << "\t" << sum_sq_abs_error/sum_sq_prev_voltage <<"\t#Gnuplot raw data\n";
                     
-                    (*p_conv_info_file) << std::setprecision(8)
-                                        << Abscissa() << "\t" 
-                                        << sum_sq_abs_error/sum_sq_prev_voltage << "\t"
-                                        << apd90_first_qn_error << "\t"
-                                        << apd90_third_qn_error << "\t"
-                                        << cond_velocity_error  << std::endl;
-                    
+                    if (conv_info_handler.IsMaster())
+                    {
+                        (*p_conv_info_file) << std::setprecision(8)
+                                            << Abscissa() << "\t" 
+                                            << sum_sq_abs_error/sum_sq_prev_voltage << "\t"
+                                            << sqrt(sum_sq_abs_error/sum_sq_prev_voltage) << "\t"
+                                            << max_abs_error << "\t"
+                                            << apd90_first_qn_error << "\t"
+                                            << apd90_third_qn_error << "\t"
+                                            << cond_velocity_error  << std::endl;
+                    }
                     // convergence criterion
                     this->Converged = sum_sq_abs_error/sum_sq_prev_voltage<this->RelativeConvergenceCriterion;
                     this->LastDifference=sum_sq_abs_error/sum_sq_prev_voltage;
@@ -528,7 +549,13 @@ public:
         }
         while (!GiveUpConvergence() && !this->Converged);
         
-        p_conv_info_file->close();
+        if (conv_info_handler.IsMaster())
+        {
+            p_conv_info_file->close();
+         
+            std::cout << "Results: " << std::endl;   
+            system(("cat " + conv_info_handler.GetOutputDirectoryFullPath() + nameOfTest + "_info.csv").c_str());
+        }            
         
     }
     

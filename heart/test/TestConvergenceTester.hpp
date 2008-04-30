@@ -42,7 +42,7 @@ public:
     {
         OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.MeshNum=1;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT(tester.IsConverged());
         TS_ASSERT_EQUALS(tester.OdeTimeStep, 0.0025); 
@@ -53,7 +53,7 @@ public:
         PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.MeshNum=1;
         tester.RelativeConvergenceCriterion=7e-4;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.01); 
     }
@@ -64,7 +64,7 @@ public:
         tester.MeshNum=1;
         tester.Stimulus=REGION;
         tester.RelativeConvergenceCriterion=5e-4;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.01); 
     }
@@ -75,7 +75,7 @@ public:
         tester.MeshNum=1;
         tester.Stimulus=NEUMANN;
         tester.RelativeConvergenceCriterion=5e-4;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.02); 
     }
@@ -84,7 +84,7 @@ public:
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.RelativeConvergenceCriterion=2e-2;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.IsConverged());
         TS_ASSERT_EQUALS(tester.GetMeshNum(), 2); 
         TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0125, 1e-8); 
@@ -95,7 +95,7 @@ public:
         OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<2>, 2, 1> tester;
         tester.MeshNum=0;
         tester.RelativeConvergenceCriterion=8e-5;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.OdeTimeStep, 0.0025); 
     }
@@ -107,7 +107,7 @@ public:
         TS_ASSERT_DELTA(tester.GetKspRelativeTolerance(), 1e-4, 1e-10);
         TS_ASSERT_THROWS_ANYTHING(tester.GetKspAbsoluteTolerance());
         tester.RelativeConvergenceCriterion=2e-2;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.IsConverged());
         TS_ASSERT_EQUALS(tester.GetMeshNum(), 2); 
         TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0125, 1e-8);
@@ -121,7 +121,7 @@ public:
         TS_ASSERT_DELTA(tester.GetKspAbsoluteTolerance(), 1e-4, 1e-10);
         TS_ASSERT_THROWS_ANYTHING(tester.GetKspRelativeTolerance());
         tester.RelativeConvergenceCriterion=2e-2;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.IsConverged());
         TS_ASSERT_EQUALS(tester.GetMeshNum(), 2); 
         TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0125, 1e-8);

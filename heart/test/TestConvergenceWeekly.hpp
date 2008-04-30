@@ -45,7 +45,7 @@ public:
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         tester.SetKspRelativeTolerance(1e-8);
         tester.SetMeshWidth(0.15);//cm
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 4u); ///Just to prove the thing works
     }
@@ -56,7 +56,7 @@ public:
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.SetKspAbsoluteTolerance(1e-5);
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);
         TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05);
@@ -76,7 +76,7 @@ public:
         tester.PdeTimeStep /= 2.0;
         tester.SetMeshWidth(0.10);//cm
         
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 3u);
     }
@@ -87,7 +87,7 @@ public:
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.SetKspAbsoluteTolerance(1e-5);
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);
         TS_ASSERT_LESS_THAN(tester.LastDifference, 6.65582e-05);
@@ -103,7 +103,7 @@ public:
         tester.SetKspAbsoluteTolerance(1e-3);        
         
         tester.SetMeshWidth(0.15);//cm
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 4u);
     }
@@ -114,7 +114,7 @@ public:
         tester.SetKspAbsoluteTolerance(1e-3); 
         tester.Stimulus=NEUMANN;
         tester.SetMeshWidth(0.14);//cm
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 4u);
     }  

@@ -45,7 +45,7 @@ public:
     {
         PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.Stimulus=NEUMANN;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_DELTA(tester.PdeTimeStep, 5.0e-3, 1e-10);
     }
@@ -54,7 +54,7 @@ public:
     {
         PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.Stimulus=NEUMANN;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_DELTA(tester.PdeTimeStep, 5.0e-3, 1e-10);
     }
@@ -63,7 +63,7 @@ public:
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.Stimulus=NEUMANN;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
     }
@@ -72,7 +72,7 @@ public:
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<2>, 2, 1> tester;
         tester.Stimulus=NEUMANN;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
     }
@@ -81,7 +81,7 @@ public:
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.Stimulus=NEUMANN;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
     }

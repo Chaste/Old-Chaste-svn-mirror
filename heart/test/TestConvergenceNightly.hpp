@@ -50,7 +50,7 @@ public:
             pTester->MeshNum = 6u;    
         }
         
-        pTester->Converge();
+        pTester->Converge("Automated_test");
         TS_ASSERT(pTester->Converged);
     }
 
@@ -135,7 +135,7 @@ public:
         PetscOptionsSetValue("-options_table", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.SetKspRelativeTolerance(5e-8);
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
         TS_ASSERT(tester.IsConverged());
@@ -151,7 +151,7 @@ public:
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.SetKspRelativeTolerance(1e-9);
         tester.Stimulus = NEUMANN;
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
         TS_ASSERT(tester.IsConverged()); 
@@ -162,7 +162,7 @@ public:
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.Stimulus = REGION; 
         tester.SetKspRelativeTolerance(1e-8);
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 6u); 
     }
@@ -172,7 +172,7 @@ public:
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.Stimulus = NEUMANN; 
         tester.SetKspRelativeTolerance(1e-8);
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u); 
     }
@@ -183,7 +183,7 @@ public:
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         tester.SetKspRelativeTolerance(1e-8);
         tester.RelativeConvergenceCriterion=4e-2;//Just to prove the thing works
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 1u); ///Just to prove the thing works
     }
@@ -194,7 +194,7 @@ public:
         tester.SetKspRelativeTolerance(1e-8);
         tester.RelativeConvergenceCriterion = 4e-2;//Just to prove the thing works
         tester.Stimulus = NEUMANN; 
-        tester.Converge();
+        tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 2u); ///Just to prove the thing works
     }
