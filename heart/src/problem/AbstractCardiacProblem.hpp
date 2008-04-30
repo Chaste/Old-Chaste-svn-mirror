@@ -155,7 +155,6 @@ public:
             delete mpMesh;
         }
         
-        EventHandler::EndEvent(EVERYTHING);
     };
     
     /*
@@ -548,6 +547,7 @@ public:
 //                system(chaste_2_meshalyzer.c_str());
 //            }
         }
+        EventHandler::EndEvent(EVERYTHING);
     }
     
     virtual void WriteInfo(double time) =0;
