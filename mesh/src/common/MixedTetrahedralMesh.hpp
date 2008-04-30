@@ -17,8 +17,8 @@ You should have received a copy of the Lesser GNU General Public License
 along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _REFINEDTETRAHEDRALMESH_HPP_
-#define _REFINEDTETRAHEDRALMESH_HPP_
+#ifndef _MIXEDTETRAHEDRALMESH_HPP_
+#define _MIXEDTETRAHEDRALMESH_HPP_
 
 #include <boost/numeric/ublas/vector.hpp> // Needs to come before PETSc headers
 #include <petscvec.h>
@@ -105,14 +105,7 @@ public:
         return mpFineMesh;
     }
     
-    /**
-     * Transfer flags from the coarse mesh to the fine mesh.  The flagged region
-     * in the fine mesh will cover the flagged region of the coarse mesh.
-     * 
-     * @return Whether any elements are flagged in the coarse (or equivalently, the fine)
-     * mesh
-     */
-    bool TransferFlags();
+ 
     
     /**
      * Get the smallest set of elements in the fine mesh which completely cover the given element
@@ -157,16 +150,7 @@ public:
         return *mpCoarseFineNodeMap;
     }
     
-    /**
-     * Interpolate a solution vector from the coarse mesh onto the UNflagged region of the fine mesh.
-     */
-    void InterpolateOnUnflaggedRegion(Vec coarseSolution, Vec fineSolution);
-
-
-    /**
-     *  Update a coarse solution vector in the flagged region using the results from a fine solution vector
-     */ 
-    void UpdateCoarseSolutionOnFlaggedRegion(Vec coarseSolution, Vec fineSolution);
+ 
 };
 
 
@@ -278,107 +262,7 @@ void MixedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetFineMesh(ConformingTetrahe
 }
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool MixedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::TransferFlags()
-{
-    if (mpFineMesh == NULL)
-    {
-        EXCEPTION("You need a fine mesh to transfer flags to.");
-    }
-    
-    // Unflag all elements in the fine mesh
-    typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator i_fine_element;
-    for (i_fine_element = mpFineMesh->GetElementIteratorBegin();
-         i_fine_element != mpFineMesh->GetElementIteratorEnd();
-         i_fine_element++)
-    {
-        (*i_fine_element)->Unflag();
-    }
-    
-    bool any_elements_flagged = false;
-    // Iterate over coarse elements, flagging the counterparts of those that are flagged
-    for (unsigned coarse_mesh_index=0;coarse_mesh_index<this->GetNumElements();coarse_mesh_index++)
-    {
-        if (this->GetElement(coarse_mesh_index)->IsFlagged())
-        {
-            any_elements_flagged = true;
-            std::set <Element <ELEMENT_DIM,SPACE_DIM>* >& r_fine_elements = mCoarseFineElementsMap[coarse_mesh_index];
-            for (typename std::set <Element <ELEMENT_DIM,SPACE_DIM>* >::iterator i_fine_element = r_fine_elements.begin();
-                     i_fine_element != r_fine_elements.end();
-                     i_fine_element++)
-            {
-                (*i_fine_element)->Flag();
-            }
-        }
-    }
-    
-    return any_elements_flagged;
-}
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void MixedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion(Vec coarseSolution, Vec fineSolution)
-{
-    // Replicate the coarse solution on all processes
-    ReplicatableVector coarse_soln_replicated(coarseSolution);
-    
-    DistributedVector fine_soln(fineSolution);
-    
-    // Iterate over nodes in the fine mesh
-    for (unsigned fine_node_index = 0;
-         fine_node_index < mpFineMesh->GetNumNodes();
-         fine_node_index++)
-    {
-        // Only interpolate if we own this node
-        if (DistributedVector::IsGlobalIndexLocal(fine_node_index))
-        {
-            Node<SPACE_DIM>* p_fine_node = mpFineMesh->GetNode(fine_node_index);
 
-            if (!p_fine_node->IsFlagged(*mpFineMesh))
-            {
-                // Interpolate entry in fineSolution from the 'best' element in the coarse mesh
-                Element<ELEMENT_DIM, SPACE_DIM>* p_coarse_element =
-                    GetACoarseElementForFineNodeIndex(fine_node_index);
-                c_vector<double, ELEMENT_DIM+1> interpolation_weights = p_coarse_element->CalculateInterpolationWeights(p_fine_node->GetPoint());
-                double interpolated_soln = 0;
-                for (unsigned coarse_node_index=0; coarse_node_index<p_coarse_element->GetNumNodes(); coarse_node_index++)
-                {
-                    unsigned coarse_node_global_index = p_coarse_element->GetNodeGlobalIndex(coarse_node_index);
-                    interpolated_soln += interpolation_weights(coarse_node_index) * coarse_soln_replicated[coarse_node_global_index];
-                }
-                
-                fine_soln[fine_node_index] = interpolated_soln;
-            }
-        }
-    }
-    
-    // Let all processes know about changes, as needed
-    fine_soln.Restore();
-}
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void MixedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::UpdateCoarseSolutionOnFlaggedRegion(Vec coarseSolution, Vec fineSolution)
-{
-    ReplicatableVector fine_solution_repl(fineSolution);
-    DistributedVector::SetProblemSize(this->GetNumNodes());
-    DistributedVector coarse_soln_dist(coarseSolution);
-    
-    // Iterate over nodes in the fine mesh
-    for (unsigned coarse_node_index = 0;
-         coarse_node_index < this->GetNumNodes();
-         coarse_node_index++)
-    {
-        // Only interpolate if we own this node
-        if (DistributedVector::IsGlobalIndexLocal(coarse_node_index))
-        {
-            Node<SPACE_DIM>* p_coarse_node = this->GetNode(coarse_node_index);
-
-            if (p_coarse_node->IsFlagged(*this))
-            {
-                unsigned fine_node_index = mpCoarseFineNodeMap->GetNewIndex(coarse_node_index);
-                coarse_soln_dist[coarse_node_index] = fine_solution_repl[fine_node_index];
-            }
-        }
-    }
-}
-
-#endif // _REFINEDTETRAHEDRALMESH_HPP_
+#endif // _MIXEDTETRAHEDRALMESH_HPP_
