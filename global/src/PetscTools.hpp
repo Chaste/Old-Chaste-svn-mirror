@@ -43,15 +43,22 @@ public :
      */
     static bool IsSequential()
     {
+        return (NumProcs()==1);
+    }
+    /**
+     *  Returns total number of processors
+     */
+    static unsigned NumProcs()
+    {
         PetscTruth is_there;
         PetscInitialized(&is_there);
         if (!is_there)
         {
-        	return true;
+            return 1;
         }
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
-        return (num_procs==1);
+        return num_procs;
     }
     /**
      *  Return our rank.

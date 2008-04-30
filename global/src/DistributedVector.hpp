@@ -40,6 +40,12 @@ private:
     Vec mVec;
     double *mpVec;
 public:
+
+    /**
+     * Set the problem size specifying distribution over local processor
+     */
+    static void SetProblemSizePerProcessor(unsigned size, unsigned local);
+    
     /**
      * Set the problem size.
      */

@@ -28,6 +28,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 #include "PetscException.hpp"
 
 #include "DistributedVector.hpp"
+#include "PetscTools.hpp"
 
 class TestDistributedVector : public CxxTest::TestSuite
 {
@@ -170,6 +171,28 @@ public:
     void TestException()
     {
         TS_ASSERT_THROWS_ANYTHING(throw DistributedVectorException() );
+    }
+    
+    void TestUnevenDistribution()
+    {
+        unsigned my_rank = PetscTools::GetMyRank();
+        unsigned num_procs = PetscTools::NumProcs();
+        
+        //Calculate total number of elements in the vector
+        unsigned total_elements = (num_procs+1)*num_procs/2;
+        
+        DistributedVector::SetProblemSizePerProcessor(total_elements, my_rank+1);
+        
+        Vec petsc_vec = DistributedVector::CreateVec(1);
+        
+        PetscInt petsc_lo, petsc_hi;
+        VecGetOwnershipRange(petsc_vec,&petsc_lo,&petsc_hi);
+        
+        unsigned expected_lo = (my_rank+1)*my_rank/2;
+        unsigned expected_hi = (my_rank+2)*(my_rank+1)/2;
+        
+        TS_ASSERT_EQUALS((unsigned)petsc_lo, expected_lo);
+        TS_ASSERT_EQUALS((unsigned)petsc_hi, expected_hi);
     }
 };
 

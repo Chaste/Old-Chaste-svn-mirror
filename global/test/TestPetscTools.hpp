@@ -39,6 +39,7 @@ public:
         
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+        TS_ASSERT_EQUALS( PetscTools::NumProcs(), (unsigned)num_procs);
         bool is_sequential = (num_procs==1);
         TS_ASSERT_EQUALS( PetscTools::IsSequential(), is_sequential);
 

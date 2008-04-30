@@ -28,14 +28,19 @@ unsigned DistributedVector::mLo=0;
 unsigned DistributedVector::mHi=0;
 unsigned DistributedVector::mGlobalHi=0;
 
-void DistributedVector::SetProblemSize(unsigned size)
+void DistributedVector::SetProblemSizePerProcessor(unsigned size, unsigned local)
 {
     Vec vec;
     VecCreate(PETSC_COMM_WORLD, &vec);
-    VecSetSizes(vec, PETSC_DECIDE, size);
+    VecSetSizes(vec, local, size);
     VecSetFromOptions(vec);
     SetProblemSize(vec);
     VecDestroy(vec);
+}
+
+void DistributedVector::SetProblemSize(unsigned size)
+{
+    SetProblemSizePerProcessor(size, PETSC_DECIDE);
 }
 
 void DistributedVector::SetProblemSize(Vec vec)
