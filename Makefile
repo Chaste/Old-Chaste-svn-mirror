@@ -11,6 +11,7 @@ INCS += -I/opt/boost/include/boost-1_33_1
 
 LIBS=cancer/src/common/CancerParameters.o \
 cancer/src/common/CancerEventHandler.o \
+cancer/src/tissue/statistics/AbstractCryptStatistics.o \
 cancer/src/tissue/statistics/CryptStatistics.o \
 cancer/src/tissue/cell/cycle/AbstractCellCycleModel.o \
 cancer/src/tissue/cell/cycle/AbstractSimpleCellCycleModel.o \
@@ -27,6 +28,7 @@ cancer/src/tissue/cell/cycle/IngeWntSwatCellCycleModel.o \
 cancer/src/tissue/cell/TissueCell.o \
 cancer/src/tissue/killers/RadialSloughingCellKiller.o \
 cancer/src/tissue/killers/SloughingCellKiller.o \
+cancer/src/tissue/mechanics/CryptProjectionSpringSystem.o \
 cancer/src/odes/WntCellCycleOdeSystem.o \
 cancer/src/odes/IngeWntSwatCellCycleOdeSystem.o \
 cancer/src/odes/TysonNovak2001OdeSystem.o \
@@ -139,8 +141,8 @@ TestCryptSimulation2dRunner: TestCryptSimulation2dRunner.o ${LIBS}
 	
 # This runs the test which generates MeinekeLabellingExperiment data.
 
-TestMeinekeLabellingExperimentsRunner.cpp:	projects/GaryM/test/TestMeinekeLabellingExperimentsSunterData.hpp
-	cxxtest/cxxtestgen.py  --error-printer -o TestMeinekeLabellingExperimentsRunner.cpp projects/GaryM/test/TestMeinekeLabellingExperimentsSunterData.hpp
+TestMeinekeLabellingExperimentsRunner.cpp:	projects/GaryM/test/TestMeinekeLabellingExperimentsOwenData.hpp
+	cxxtest/cxxtestgen.py  --error-printer -o TestMeinekeLabellingExperimentsRunner.cpp projects/GaryM/test/TestMeinekeLabellingExperimentsOwenData.hpp
 
 TestMeinekeLabellingExperimentsRunner: TestMeinekeLabellingExperimentsRunner.o ${LIBS}
 	g++ TestMeinekeLabellingExperimentsRunner.o ${LIBS} -o TestMeinekeLabellingExperimentsRunner ${LDFLAGS};\
@@ -152,8 +154,8 @@ TestMeinekeLabellingExperimentsRunner: TestMeinekeLabellingExperimentsRunner.o $
 	# Need to copy across the starting state of the simulation
 	mkdir ${FRESH_DIR}/MeinekeLabellingExperiment; mkdir ${FRESH_DIR}/MeinekeLabellingExperiment/archive ;\
 	cd ${FRESH_DIR}/MeinekeLabellingExperiment/archive ;\
-	cp ../../../projects/GaryM/test/data/SteadyStateIngeSwat/hypothesis2_sunter1_archive/mesh_300.* . ;\
-	cp ../../../projects/GaryM/test/data/SteadyStateIngeSwat/hypothesis2_sunter1_archive/tissue_sim_at_time_300.arch . ;\
+	cp ../../../projects/GaryM/test/data/SteadyStateMeinekeStochastic/sunter1_archive/mesh_300.* . ;\
+	cp ../../../projects/GaryM/test/data/SteadyStateMeinekeStochastic/sunter1_archive/tissue_sim_at_time_300.arch . ;\
 	cd ../.. ;\
 	# Finished copying archives across.
 	cp TestMeinekeLabellingExperimentsRunner ${FRESH_DIR} ;\
@@ -198,7 +200,7 @@ TestMutationSpreadRunner: TestMutationSpreadRunner.o ${LIBS}
 # Need to copy across the starting state of the simulation
 	mkdir ${FRESH_DIR}/MutationSpread; mkdir ${FRESH_DIR}/MutationSpread/archive ;\
 	cd ${FRESH_DIR}/MutationSpread/archive ;\
-	cp ../../../projects/GaryM/test/data/SteadyStateSimpleWnt/sunter3_archive/* . ;\
+	cp ../../../projects/GaryM/test/data/SteadyStateMeinekeStochastic/sunter3_archive/* . ;\
 	cd ../.. ;\
 # Finished copying archives across.
 	cp TestMutationSpreadRunner ${FRESH_DIR} ;\
@@ -206,6 +208,32 @@ TestMutationSpreadRunner: TestMutationSpreadRunner.o ${LIBS}
 	mv ${FRESH_DIR}/simulationMutationSpread.sh ${FRESH_DIR}/simulation.sh 
 # End of different test.
 
+# A test to generate graphs of the time it takes for monoclonality
+TestNicheSuccessionTimeDistributionsRunner.cpp:	projects/AlexF/test/TestNicheSuccessionTimeDistributions.hpp
+	cxxtest/cxxtestgen.py  --error-printer -o TestNicheSuccessionTimeDistributionsRunner.cpp projects/AlexF/test/TestNicheSuccessionTimeDistributions.hpp
+
+TestNicheSuccessionTimeDistributionsRunner: TestNicheSuccessionTimeDistributionsRunner.o ${LIBS}
+	g++ TestNicheSuccessionTimeDistributionsRunner.o ${LIBS} -o TestNicheSuccessionTimeDistributionsRunner ${LDFLAGS};\
+	echo "Making new experiment in ${FRESH_DIR} " ;\
+	echo "Do scp -r -C ${FRESH_DIR} pmxgm@deimos.nottingham.ac.uk:" ;\
+	echo "Then qsub simulation.sh on deimos";\
+	echo "If 'owt funny happens when this is compiling type 'make clean' to do this from fresh" ;\
+	mkdir ${FRESH_DIR} ;\
+# Need to copy across the starting state of the simulation
+	mkdir ${FRESH_DIR}/NicheSuccessionTime; mkdir ${FRESH_DIR}/NicheSuccessionTime/archive ;\
+	cd ${FRESH_DIR}/NicheSuccessionTime/archive ;\
+	cp ../../../projects/AlexF/test/data/SteadyStateCryptFletcherGeometry/archive/* . ;\
+	cd ../.. ;\
+# Need the triangle binary for crypt projection simulations
+	mkdir ${FRESH_DIR}/bin ;\
+    cd ${FRESH_DIR}/bin ;\
+	cp ../../bin/triangle triangle ;\
+	cd .. ;\
+# Finished copying archives across.
+	cp TestNicheSuccessionTimeDistributionsRunner ${FRESH_DIR} ;\
+	cp simulationNicheSuccession.sh ${FRESH_DIR} ;\
+	mv ${FRESH_DIR}/simulationNicheSuccession.sh ${FRESH_DIR}/simulation.sh 
+# End of monoclonality time test.
 
 FULL_INCS = -isystem /home/chaste/petsc-2.3.2-p4/bmake/linux-intel-opt-mkl \
 -isystem /home/chaste/petsc-2.3.2-p4/include \
