@@ -1193,6 +1193,7 @@ inline void load_construct_data(
     ar >> p_tissue;
     AbstractDiscreteTissueMechanicsSystem<DIM>* p_mech_system;
     ar >> p_mech_system;
+    
     // Invoke inplace constructor to initialize instance
     ::new(t)TissueSimulation<DIM>(*p_tissue, p_mech_system, true);
 }

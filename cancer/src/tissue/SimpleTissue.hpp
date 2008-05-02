@@ -347,10 +347,15 @@ template<class Archive, unsigned DIM>
 inline void save_construct_data(
     Archive & ar, const Node<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
+    // Save the global index of the node
     const unsigned index = t->GetIndex();
     ar << index;
+    
+    // Save whether the node is a boundary node
     const bool is_boundary = t->IsBoundaryNode();
     ar << is_boundary;
+    
+    // Save the location of the node
     const c_vector<double, DIM>& r_loc = t->rGetLocation();
     for (unsigned i=0; i<DIM; i++)
     {
@@ -365,11 +370,15 @@ template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, Node<DIM> * t, const unsigned int file_version)
 {
+    // Load the global index of the node
     unsigned index;
     ar >> index;
+    
+    // Load whether the node is a boundary node
     bool is_boundary;
     ar >> is_boundary;
-    // Load the location
+    
+    // Load the location of the node
     c_vector<double, DIM> loc;
     for (unsigned i=0; i<DIM; i++)
     {
@@ -388,7 +397,6 @@ template<class Archive, unsigned DIM>
 inline void save_construct_data(
     Archive & ar, const SimpleTissue<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
-    //const ConformingTetrahedralMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
     ar & t->rGetNodes();
 }
 

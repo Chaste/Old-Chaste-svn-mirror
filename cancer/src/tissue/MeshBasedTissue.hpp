@@ -992,6 +992,7 @@ inline void load_construct_data(
     // Needed for cylindrical meshes at present; should be safe in any case.
     NodeMap map(p_mesh->GetNumNodes());
     p_mesh->ReMesh(map);
+    
     // Invoke inplace constructor to initialize instance
     ::new(t)MeshBasedTissue<DIM>(*p_mesh);
 }

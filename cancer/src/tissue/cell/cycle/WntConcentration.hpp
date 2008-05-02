@@ -5,9 +5,8 @@
 #include <boost/serialization/base_object.hpp>
 
 #include <iostream>
-#include <cassert>
 
-#include "AbstractTissue.hpp"
+#include "MeshBasedTissue.hpp"
 #include "Exception.hpp"
 
 
@@ -83,12 +82,14 @@ private:
     }
     
 protected:
+
     /**
      *  Protected constuctor. Not to be called, use Instance() instead
      */
     WntConcentration();
     
 public:
+
     /**
      *  Get an instance of the Wnt concentration
      */

@@ -369,13 +369,10 @@ public:
         HoneycombMeshGenerator generator(20, 20, 0u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetCircularMesh(10);
         
-        NodeMap map(p_mesh->GetNumAllNodes());
-        
+        NodeMap map(p_mesh->GetNumAllNodes());        
         
         // This line passes
-        p_mesh->ReMeshWithTriangleLibrary(map); 
-        //TrianglesMeshWriter<2,2> mesh_writer("","debug_this_mesh");    
-        //mesh_writer.WriteFilesUsingMesh(*p_mesh);
+        p_mesh->ReMeshWithTriangleLibrary(map);
         
         // This line fails
         p_mesh->ReMesh(map);

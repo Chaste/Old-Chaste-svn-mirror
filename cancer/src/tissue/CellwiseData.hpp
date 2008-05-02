@@ -4,10 +4,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
 
-#include <vector>
-#include <iostream>
-#include <cassert>
-
 #include "MeshBasedTissue.hpp"
 
 

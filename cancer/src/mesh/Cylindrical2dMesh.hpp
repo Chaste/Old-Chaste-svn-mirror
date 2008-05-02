@@ -7,7 +7,6 @@
 #include <math.h>
 
 #include "ConformingTetrahedralMesh.hpp"
-#include "NodeMap.hpp"
 #include "TrianglesMeshWriter.hpp"
 
 #include <boost/serialization/export.hpp>// at end of includes
@@ -19,41 +18,96 @@ private:
     
     /** The circumference of the cylinder */
     double mWidth;
+    
     /** The top of the cylinder (y-coord) */
     double mTop;
+    
     /** The bottom of the cylinder (y-coord) */
     double mBottom;
-    
-    /** Used during ReMesh **/
-    // The left nodes which have been mirrored
+        
+    /** The left nodes which have been mirrored during the remesh */ 
     std::vector<unsigned> mLeftOriginals;
-    // The image nodes relating to these left nodes (on right of mesh)
+    
+    /** The image nodes relating to these left nodes (on right of mesh) */
     std::vector<unsigned> mLeftImages;
-    // The right nodes which have been mirrored
+    
+    /** The right nodes which have been mirrored during the remesh */
     std::vector<unsigned> mRightOriginals;
-    // The image nodes relating to these right nodes (on left of mesh)
+    
+    /** The image nodes relating to these right nodes (on left of mesh) */
     std::vector<unsigned> mRightImages;
-    // The indices of elements which straddle the left periodic boundary
+    
+    /** The indices of elements which straddle the left periodic boundary */
     std::set<unsigned> mLeftPeriodicBoundaryElementIndices;
-    // The indices of elements which straddle the right periodic boundary
+    
+    /** The indices of elements which straddle the right periodic boundary */
     std::set<unsigned> mRightPeriodicBoundaryElementIndices;
     
     /** The indices of nodes on the top boundary */
     std::vector<unsigned > mTopHaloNodes;
+    
     /** The indices of nodes on the bottom boundary */
     std::vector<unsigned > mBottomHaloNodes;
     
-    void ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement, std::vector<unsigned> &rImageNodes, std::vector<unsigned> &rOriginalNodes, unsigned nodeIndex ) ;
+    /**
+     * @param pElement
+     * @param rImageNodes Left or right image nodes
+     * @param rOriginalNodes  Left or right original nodes
+     * @param nodeIndex 
+     */    
+    void ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement, std::vector<unsigned> &rImageNodes, std::vector<unsigned> &rOriginalNodes, unsigned nodeIndex );
     
-    // This bunch of functions should only ever be called by the public ReMesh
+    /**
+     * Calls GetWidthExtremes on the Conforming mesh class to calculate 
+     * mTop and mBottom for the cylindrical mesh.
+     * 
+     * This method should only ever be called by the public ReMesh method.
+     */
     void UpdateTopAndBottom();
+    
     void CreateHaloNodes();
+    
+    /**
+     * Creates a set of mirrored nodes for a cylindrical re-mesh. Updates 
+     * mRightImages and mLeftImages. All mesh points should be 0<x<mWidth.
+     * 
+     * This method should only ever be called by the public ReMesh method.
+     */
     void CreateMirrorNodes();
+    
+    /**
+     * Deletes the mirror image nodes, elements and boundary elements created 
+     * for a cylindrical remesh by cycling through the elements and changing 
+     * elements with partly real and partly imaginary elements to be real with
+     * periodic real nodes instead of mirror image nodes.
+     * 
+     * This method should only ever be called by the public ReMesh method.
+     */
     void ReconstructCylindricalMesh();
+    
+    /**
+     * This method should only ever be called by the public ReMesh method.
+     */
     void DeleteHaloNodes();
+    
+    /**
+     * This method should only ever be called by the public ReMesh method.
+     */
     void CorrectNonPeriodicMesh();
+    
+    /**
+     * This method should only ever be called by the public ReMesh method.
+     */
     void GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
+    
+    /**
+     * This method should only ever be called by the public ReMesh method.
+     */
     unsigned GetCorrespondingNodeIndex(unsigned nodeIndex);
+    
+    /**
+     * This method should only ever be called by the public ReMesh method.
+     */
     void UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements);
     
     friend class boost::serialization::access;
@@ -68,18 +122,84 @@ private:
     
 public:
     
-    Cylindrical2dMesh(double width);
+    /**
+     * Constructor.
+     * 
+     * @param width the width of the crypt (circumference) 
+     */
+    Cylindrical2dMesh(double width);    
     Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes);
-         
+    
+    /**
+     * Destructor.
+     */
     ~Cylindrical2dMesh()
     {
     }
-        
+
+    /**
+     * Conducts a cylindrical remesh (OVERRIDDEN constructor of main ReMesh function)
+     * 
+     * Firstly calls CreateMirrorNodes to create mirror image nodes
+     * Then calls remesher
+     * Maps new node indices
+     * calls ReconstructCylindricalMesh to remove surplus nodes to create a fully periodic mesh.
+     * 
+     * @param &map a reference to a nodemap which should be created with the required number of nodes.
+     */
     void ReMesh(NodeMap &map);
+    
+    /**
+     * This OVERRIDDEN method evaluates the (surface) distance between two points in a 2D Cylindrical geometry.
+     * 
+     * @param rLocation1 the x and y co-ordinates of point 1
+     * @param rLocation2 the x and y co-ordinates of point 2
+     * 
+     * @return the vector from location1 to location2
+     */
     c_vector<double, 2> GetVectorFromAtoB(const c_vector<double, 2>& rLocation1, const c_vector<double, 2>& rLocation2);
+    
+    /**
+     * OVERRIDDEN function to set the location of a node.
+     * 
+     * If the location should be set outside a cylindrical boundary
+     * move it back onto the cylinder.
+     * 
+     * SetNode moves the node with a particular index to a new point in space and
+     * verifies that the signed areas of the supporting Elements are positive
+     * @param index is the index of the node to be moved
+     * @param point is the new target location of the node
+     * @param concreteMove is set to false if we want to skip the signed area tests
+     *
+     */
     void SetNode(unsigned index, ChastePoint<2> point, bool concreteMove);
+    
+    /**
+     * Returns true if an unsigned is contained in a vector of unsigneds
+     * 
+     * @param rNodeIndex an unsigned value
+     * @param rListOfNodes a list of unsigned values
+     * 
+     * @return whether the unsigned is in this std::vector
+     */ 
     bool IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes);
+    
+    /**
+     * OVERRIDDEN FUNCTION
+     * @param rDimension must be 0 (x) or 1 (y)
+     * @return width the CryptWidth or current height 
+     */
     double GetWidth(const unsigned& rDimension) const;
+    
+    /** 
+     * Add a node to the mesh.
+     * 
+     * After calling this method one or more times, you must then call ReMesh.
+     * 
+     * @param pNewNode the node to be added to the mesh
+     * 
+     * @return the global index of the new node
+     */
     unsigned AddNode(Node<2> *pNewNode);
     
 };
@@ -96,7 +216,7 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const Cylindrical2dMesh * t, const BOOST_PFTO unsigned int file_version)
 {
-    // save data required to construct instance
+    // Save data required to construct instance
     const double width = t->GetWidth(0);
     ar << width;
 }
@@ -108,10 +228,11 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, Cylindrical2dMesh * t, const unsigned int file_version)
 {
-    // retrieve data from archive required to construct new instance
+    // Retrieve data from archive required to construct new instance
     double width;
     ar >> width;
-    // invoke inplace constructor to initialize instance
+    
+    // Invoke inplace constructor to initialize instance
     ::new(t)Cylindrical2dMesh(width);
 }
 }

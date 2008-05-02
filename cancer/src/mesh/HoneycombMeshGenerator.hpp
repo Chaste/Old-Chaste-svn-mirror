@@ -340,7 +340,7 @@ public:
         
         // Remesh
         NodeMap map(mpMesh->GetNumNodes());
-        mpMesh->ReMeshWithTriangleLibrary(map); 
+        mpMesh->ReMesh(map); 
         
         return mpMesh;
     }

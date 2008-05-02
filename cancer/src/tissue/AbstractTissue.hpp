@@ -65,7 +65,7 @@ protected:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & mCells;
+		archive & mCells;
         archive & mNodeCellMap;
         archive & mTissueContainsMesh;
         archive & mTissueContainsGhostNodes;
@@ -122,6 +122,7 @@ public:
         
     /**
      * Add a new cell to the tissue.
+     * 
      * @param cell  the cell to add
      * @param newLocation  the position in space at which to put it
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
@@ -132,6 +133,7 @@ public:
     
     /**
      * Move a cell to a new location.
+     * 
      * @param iter  pointer to the cell to move
      * @param rNewLocation  where to move it to
      */
@@ -202,6 +204,7 @@ public:
     /**
      * Loops over cells and makes a list of the ancestors that 
      * are part of the tissue.
+     * 
      * @return remaining_ancestors  The size of this set tells you how many clonal populations remain. 
      */
     std::set<unsigned> GetCellAncestors();
@@ -739,7 +742,8 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                 {
                     colour = p_cell->GetAncestor();
                     if (colour == UNSIGNED_UNSET)
-                    {   // Set the file to -1 to mark this case.
+                    {   
+                        // Set the file to -1 to mark this case.
                         colour = 1;  
                         *mpCellAncestorsFile << "-" ;
                     }
@@ -914,7 +918,7 @@ namespace serialization {
 template<unsigned DIM>
 struct is_abstract<AbstractTissue<DIM> > {
     typedef mpl::bool_<true> type;
-    BOOST_STATIC_CONSTANT(bool, value = true);
+    BOOST_STATIC_CONSTANT(bool, value=true);
 };
 }}
 

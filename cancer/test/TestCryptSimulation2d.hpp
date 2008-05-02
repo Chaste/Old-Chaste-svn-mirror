@@ -17,10 +17,9 @@
 class TestCryptSimulation2d : public AbstractCancerTestSuite
 {
 private:
-
                        
     /**
-     * Compare 2 meshes to see if they are 'the same'.  Doesn't check everything,
+     * Compare two meshes to see if they are 'the same'.  Doesn't check everything,
      * but is fairly thorough.  Used for testing serialization.
      */
     template<unsigned DIM>
@@ -237,9 +236,7 @@ public:
         {
              TS_ASSERT(cell_iter->GetCellType() != DIFFERENTIATED);
         }
-        
 
-        
         // Close the log file opened in this test
         LogFile::Close();
     }
@@ -366,18 +363,19 @@ public:
         simulator.SetEndTime(0.1);     
         
         simulator.Solve();
+
         // Save
         simulator.Save();
-        
+
         // Load
         CryptSimulation2d* p_simulator;
-        p_simulator = CryptSimulation2d::Load("Crypt2DMeshArchive2", 0.1);
+        p_simulator = CryptSimulation2d::Load("Crypt2DMeshArchive2", 0.1);                
         p_simulator->SetEndTime(0.15);
         p_simulator->Solve();
         
+        // Tidy up        
         delete p_simulator;
-        delete p_meineke_spring_system;
-        
+        delete p_meineke_spring_system;        
         WntConcentration::Destroy();
     }
 
