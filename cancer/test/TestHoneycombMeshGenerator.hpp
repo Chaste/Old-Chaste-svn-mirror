@@ -7,6 +7,7 @@
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshWriter.hpp"
 
+
 class TestHoneycombMeshGenerator : public CxxTest::TestSuite
 {
 private:

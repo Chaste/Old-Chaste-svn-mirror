@@ -9,6 +9,7 @@
 #include <boost/serialization/set.hpp>
 #include <boost/serialization/vector.hpp>
 
+
 template<unsigned DIM>
 class SimpleTissue : public AbstractTissue<DIM>
 {

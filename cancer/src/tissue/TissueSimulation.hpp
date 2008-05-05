@@ -5,7 +5,7 @@
 #include <boost/archive/text_iarchive.hpp>
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp> // for archiving std::vector
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
 
 #include <vector>

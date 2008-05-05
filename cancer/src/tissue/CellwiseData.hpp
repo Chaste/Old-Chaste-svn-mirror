@@ -18,6 +18,7 @@ class CellwiseData
     friend class TestCellwiseData;
     
 private:
+
     /* the single instance of the singleton object */
     static CellwiseData* mpInstance;
 

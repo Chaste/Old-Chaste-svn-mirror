@@ -1,8 +1,7 @@
 #include "WntConcentration.hpp"
 
-/** 
- * Pointer to the single instance
- */
+
+/** Pointer to the single instance */
 WntConcentration* WntConcentration::mpInstance = NULL;
 
 /*

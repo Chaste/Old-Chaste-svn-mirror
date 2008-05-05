@@ -11,6 +11,7 @@
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
 
+
 /**
  * An abstract facade class encapsulating a tissue.
  * 
