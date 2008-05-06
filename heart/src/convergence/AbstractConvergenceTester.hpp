@@ -465,7 +465,11 @@ public:
                 }
                 catch (Exception e)
                 {
-                    throw e;
+                    #define COVERAGE_IGNORE
+                    ///\todo Cover this
+                    std::cout<<"Warning - this run threw an exception in calculating propagation.  Check convergence results\n";
+                    std::cout<<e.GetMessage() << std::endl;                 
+                    #undef COVERAGE_IGNORE
                 }
                 double cond_velocity_error = 0.0;
                 double apd90_first_qn_error = 0.0;
