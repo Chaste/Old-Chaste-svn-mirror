@@ -28,7 +28,7 @@ unsigned DistributedVector::mLo=0;
 unsigned DistributedVector::mHi=0;
 unsigned DistributedVector::mGlobalHi=0;
 
-void DistributedVector::SetProblemSizePerProcessor(unsigned size, unsigned local)
+void DistributedVector::SetProblemSizePerProcessor(unsigned size, PetscInt local)
 {
     Vec vec;
     VecCreate(PETSC_COMM_WORLD, &vec);

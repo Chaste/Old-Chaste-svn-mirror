@@ -21,7 +21,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 #define GENERICEVENTHANDLER_HPP_
 
 #include <cassert>
-#include <petsc.h>
+//#include <petsc.h>
 #include <time.h>
 #include <iostream>
 

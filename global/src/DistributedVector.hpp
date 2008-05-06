@@ -44,7 +44,7 @@ public:
     /**
      * Set the problem size specifying distribution over local processor
      */
-    static void SetProblemSizePerProcessor(unsigned size, unsigned local);
+    static void SetProblemSizePerProcessor(unsigned size, PetscInt local);
     
     /**
      * Set the problem size.
