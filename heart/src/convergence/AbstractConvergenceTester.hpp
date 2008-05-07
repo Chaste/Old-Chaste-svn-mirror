@@ -235,9 +235,9 @@ public:
         std::string mesh_pathname;
         std::string mesh_filename;
 
-        double prev_apd90_first_qn;
-        double prev_apd90_third_qn;
-        double prev_cond_velocity;        
+        double prev_apd90_first_qn=0.0;
+        double prev_apd90_third_qn=0.0;
+        double prev_cond_velocity=0.0;        
         double prev_voltage[201];
         PopulateStandardResult(prev_voltage);
                 
@@ -450,7 +450,7 @@ public:
                 // calculate conduction velocity and APD90 error
                 PropagationPropertiesCalculator ppc(&results_reader);
                 
-                double cond_velocity=0, apd90_first_qn=0, apd90_third_qn=0;
+                double cond_velocity=0.0, apd90_first_qn=0.0, apd90_third_qn=0.0;
                 try
                 {
                     apd90_first_qn = ppc.CalculateActionPotentialDuration(0.9, first_quadrant_node);

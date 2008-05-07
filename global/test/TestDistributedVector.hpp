@@ -193,6 +193,8 @@ public:
         
         TS_ASSERT_EQUALS((unsigned)petsc_lo, expected_lo);
         TS_ASSERT_EQUALS((unsigned)petsc_hi, expected_hi);
+        
+        VecDestroy(petsc_vec);
     }
 };
 
