@@ -134,7 +134,7 @@ private:
 
             unsigned elem = 0;
             unsigned edge = 0;
-            for (unsigned i=0; i < num_elem_along_length; i++)
+            for (unsigned i=0; i<num_elem_along_length; i++)
             {
                 for (unsigned j=0; j < num_elem_along_width; j++)
                 {
@@ -177,7 +177,7 @@ private:
                 }
             }
 
-            for (unsigned i=0; i < num_elem_along_length; i++)
+            for (unsigned i=0; i<num_elem_along_length; i++)
             {
                 unsigned node0, node1;
 
@@ -194,7 +194,7 @@ private:
                 (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 << "\t" << 1 << std::endl;
             }
 
-            for (unsigned j=0; j < num_elem_along_width; j++)
+            for (unsigned j=0; j<num_elem_along_width; j++)
             {
                 unsigned node0 = numNodesAlongWidth*(numNodesAlongLength-1) + j;
                 unsigned node1 = numNodesAlongWidth*(numNodesAlongLength-1) + j+1;
