@@ -518,9 +518,25 @@ protected:
         // has it's own FlaggedMeshBcc. (design issue). FlaggedMeshAssembler (and
         // related classes has now been deleted so can bring this back)
         assert(this->mpBoundaryConditions != NULL);
+                
+        std::vector<unsigned>& r_nodes_per_processor = mpMesh->rGetNodesPerProcessor();
+
+        // check number of processor agrees with definition in mesh
+        if((r_nodes_per_processor.size() != 0) && (r_nodes_per_processor.size() != PetscTools::NumProcs()) )
+        {
+            EXCEPTION("Number of processors defined in mesh class not equal to number of processors used");
+        }
         
-        //Set the elements' ownerships according to the node ownership
-        DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
+        if(r_nodes_per_processor.size() != 0)
+        {
+            unsigned num_local_nodes = r_nodes_per_processor[ PetscTools::GetMyRank() ];
+            DistributedVector::SetProblemSizePerProcessor(this->mpMesh->GetNumNodes(), num_local_nodes);
+        }
+        else
+        {
+            DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
+        }
+        
         this->mpMesh->SetElementOwnerships(DistributedVector::Begin().Global,
                                            DistributedVector::End().Global);
     }

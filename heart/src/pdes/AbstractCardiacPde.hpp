@@ -89,17 +89,28 @@ protected:
      */
     const unsigned mStride;
     
-    // number of nodes in the mesh
-    unsigned mNumNodes;
-    
     
 public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1)
             :  mStride(stride)
     {
-        mNumNodes = pCellFactory->GetNumberOfCells();
+        std::vector<unsigned>& r_nodes_per_processor = pCellFactory->GetMesh()->rGetNodesPerProcessor();
+
+        // check number of processor agrees with definition in mesh
+        if((r_nodes_per_processor.size() != 0) && (r_nodes_per_processor.size() != PetscTools::NumProcs()) )
+        {
+            EXCEPTION("Number of processors defined in mesh class not equal to number of processors used");
+        }
         
-        DistributedVector::SetProblemSize(mNumNodes);
+        if(r_nodes_per_processor.size() != 0)
+        {
+            unsigned num_local_nodes = r_nodes_per_processor[ PetscTools::GetMyRank() ];
+            DistributedVector::SetProblemSizePerProcessor(pCellFactory->GetMesh()->GetNumNodes(), num_local_nodes);
+        }
+        else
+        {
+            DistributedVector::SetProblemSize(pCellFactory->GetMesh()->GetNumNodes());
+        }
                 
         // Reference: Trayanova (2002 - "Look inside the heart")
         mSurfaceAreaToVolumeRatio = 1400;            // 1/cm

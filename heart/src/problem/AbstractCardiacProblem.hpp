@@ -38,6 +38,7 @@ class AbstractCardiacProblem
 private:
     std::string mMeshFilename;
     bool mAllocatedMemoryForMesh;
+    std::string mNodesPerProcessorFilename;
     
     /**
      *  Start time defaults to 0, pde timestep defaults to 0.01 (ms), the
@@ -106,6 +107,7 @@ public:
      */
     AbstractCardiacProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
             : mMeshFilename(""),     // i.e. undefined
+              mNodesPerProcessorFilename(""),     // i.e. undefined
               mOutputDirectory(""),  // i.e. undefined
               mOutputFilenamePrefix(""),   // i.e. undefined
               mpBoundaryConditionsContainer(NULL),
@@ -161,15 +163,25 @@ public:
      *  Initialise the system. Must be called before Solve()
      */
     void Initialise()
-    {
+    {        
         if (mpMesh==NULL)
         {
             EXCEPTION("SetMesh() or SetMeshFilename() was not set");
         }
         mpCellFactory->SetMesh( mpMesh );
+     
+        if (mNodesPerProcessorFilename != "")
+        {
+            mpMesh->ReadNodesPerProcessorFile(mNodesPerProcessorFilename);
+        }
         
         delete mpCardiacPde; // In case we're called twice
         mpCardiacPde = CreateCardiacPde();        
+    }
+    
+    void SetNodesPerProcessorFilename(const std::string& filename)
+    {
+        mNodesPerProcessorFilename = filename;   
     }
     
     void SetBoundaryConditionsContainer(BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM> *bcc)
@@ -249,7 +261,10 @@ public:
     
     Vec CreateInitialCondition()
     {
-        DistributedVector::SetProblemSize(mpMesh->GetNumNodes());
+        //if (DistributedVector::GetProblemSize()==0)
+        //{
+        //    DistributedVector::SetProblemSize(mpMesh->GetNumNodes());
+        //}
         Vec initial_condition=DistributedVector::CreateVec(PROBLEM_DIM);
         DistributedVector ic(initial_condition);
         std::vector< DistributedVector::Stripe > stripe;

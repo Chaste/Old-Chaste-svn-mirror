@@ -70,6 +70,8 @@ protected:  // Give access of these variables to subclasses
     std::vector<Node<SPACE_DIM> *> mNodes;
     std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
     
+    std::vector<unsigned> mNodesPerProcessor;
+    
     /// Indices of elements/nodes that have been deleted - these indices can be reused when adding
     /// new elements/nodes
     std::vector<unsigned> mDeletedElementIndices;
@@ -121,6 +123,8 @@ public:
     unsigned GetNumAllBoundaryElements();
     unsigned GetNumBoundaryNodes();
     
+    void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
+    std::vector<unsigned>& rGetNodesPerProcessor();
     
     /** 
      * Add a node to the mesh.
@@ -701,7 +705,51 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_D
     return pNewNode->GetIndex();
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile)
+{
+    mNodesPerProcessor.clear();
 
+    std::ifstream file_stream(nodesPerProcessorFile.c_str());
+    if(file_stream.is_open())
+    {  
+        while(file_stream) 
+        {
+            unsigned nodes_per_processor;
+            file_stream >> nodes_per_processor;
+
+            if(file_stream)
+            {
+                mNodesPerProcessor.push_back(nodes_per_processor);
+            }
+        }
+    }
+    else
+    {
+        EXCEPTION("Unable to read nodes per processor file "+nodesPerProcessorFile);
+    }
+
+    unsigned sum = 0;
+    for(unsigned i=0; i<mNodesPerProcessor.size(); i++)
+    {
+        sum += mNodesPerProcessor[i];
+    }
+    
+    if(sum != GetNumNodes())
+    {
+        std::stringstream string_stream;
+        string_stream << "Sum of nodes per processor, " << sum 
+                     << ", not equal to number of nodes in mesh, " << GetNumNodes();
+        EXCEPTION(string_stream.str());
+    }
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<unsigned>& ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodesPerProcessor()
+{
+    return mNodesPerProcessor;
+}
 
 /**
  * Get a node reference from the mesh.
@@ -709,7 +757,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_D
  * Note that this may become invalid if nodes are subsequently added to the mesh.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
+Node<SPACE_DIM>* ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
 {
     assert(index < mNodes.size());
     return (mNodes[index]);

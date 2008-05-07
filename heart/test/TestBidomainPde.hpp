@@ -76,11 +76,6 @@ public:
         delete mpExtracellularStimulus1;
         delete mpExtracellularStimulus2;
     }
-    
-    unsigned GetNumberOfCells()
-    {
-        return 2;
-    }
 };
 
 
@@ -93,7 +88,11 @@ public:
 
     void TestBidomainPdeGetSet( void )
     {
+        ConformingTetrahedralMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(1);
+
         MyCardiacCellFactory cell_factory; // same as cell factory but with extracell stimuli
+        cell_factory.SetMesh(&mesh);
         
         BidomainPde<1>   bidomain_pde( &cell_factory );
         
@@ -124,18 +123,19 @@ public:
     
     void TestBidomainPdeSolveCellSystems( void )
     {
+        ConformingTetrahedralMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(1);
+
         double big_time_step = 0.5;
         MyCardiacCellFactory cell_factory;
+        cell_factory.SetMesh(&mesh);
         
         MonodomainPde<1> monodomain_pde( &cell_factory );
         BidomainPde<1>     bidomain_pde( &cell_factory );
         
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
-        
-        //unsigned num_nodes = 2;
-        DistributedVector::SetProblemSize(2);
-        
+                
         // initial condition;
         Vec monodomain_vec = DistributedVector::CreateVec();
         DistributedVector monodomain_voltage(monodomain_vec);
@@ -154,7 +154,6 @@ public:
         monodomain_voltage.Restore();
         bidomain_ic.Restore();
 
-        
         monodomain_pde.SolveCellSystems(monodomain_vec, 0, big_time_step);
         bidomain_pde.SolveCellSystems(bidomain_vec, 0, big_time_step);
         

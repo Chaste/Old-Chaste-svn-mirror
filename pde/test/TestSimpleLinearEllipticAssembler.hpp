@@ -650,6 +650,54 @@ public:
 
         VecDestroy(result);
     }
+    
+    // Test that the assembler can read an ordering file and assign the correct number of
+    // nodes to each processor.
+    void TestOrdering() throw(Exception)
+    {
+        // Create mesh from mesh reader
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_1.txt");
+        
+        // Instantiate PDE and BCC object, though not used
+        SimplePoissonEquation<2> pde;
+        BoundaryConditionsContainer<2,2,1> bcc;
+        
+        // Assembler
+        SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        
+        
+        if (PetscTools::NumProcs() == 2)
+        {
+            // Hi and Lo set up in PrepareForSolve
+            assembler.PrepareForSolve();
+            
+            // test set up correctly
+            PetscInt petsc_lo, petsc_hi;
+            Vec vector = DistributedVector::CreateVec();
+            
+            VecGetOwnershipRange(vector,&petsc_lo,&petsc_hi);
+            
+            if(PetscTools::GetMyRank() == 0)
+            {
+                TS_ASSERT_EQUALS(0, petsc_lo);
+                TS_ASSERT_EQUALS(2, petsc_hi);   
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(2, petsc_lo);
+                TS_ASSERT_EQUALS(5, petsc_hi);
+            }
+        }
+        else
+        {
+            // the number of processor as defined in the file above does
+            // not agree with the number being used, so an exception is thrown.
+            TS_ASSERT_THROWS_ANYTHING( assembler.PrepareForSolve() );
+        }
+    }
 };
 
 #endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_

@@ -66,11 +66,7 @@ public:
     {
         delete mpStimulus;
     }
-    
-    unsigned GetNumberOfCells()
-    {
-        return 2;
-    }
+  
     
     InitialStimulus* GetStimulus()
     {
@@ -85,9 +81,9 @@ public:
     void TestMonodomainPdeBasic( void )
     {
         unsigned num_nodes=2;
-        
-        Node<1> node0(0,true,0);
-        Node<1> node1(1,true,0);
+        ConformingTetrahedralMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(1);
+        assert(mesh.GetNumNodes()==num_nodes);
         
         double start_time = 0;
         double big_time_step = 0.5;
@@ -95,6 +91,7 @@ public:
         
         AbstractIvpOdeSolver* solver = new EulerIvpOdeSolver;
         MyCardiacCellFactory cell_factory;
+        cell_factory.SetMesh(&mesh);
         
         // Stimulus function to use at node 0. Node 1 is not stimulated.
         InitialStimulus* stimulus = cell_factory.GetStimulus();
@@ -170,9 +167,13 @@ public:
     
     void TestMonodomainPdeGetCardiacCell( void )
     {
+        ConformingTetrahedralMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(1);
+
         MyCardiacCellFactory cell_factory;
+        cell_factory.SetMesh(&mesh);
+
         MonodomainPde<1> monodomain_pde( &cell_factory );
-        DistributedVector::SetProblemSize(2);
         
         if (DistributedVector::IsGlobalIndexLocal(0))
         {

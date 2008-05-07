@@ -80,6 +80,11 @@ public:
         mpMesh = pMesh;
     }
     
+    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* GetMesh()
+    {
+        assert(mpMesh != NULL);
+        return mpMesh;   
+    }
 };
 
 #endif /*ABSTRACTCARDIACCELLFACTORY_HPP_*/

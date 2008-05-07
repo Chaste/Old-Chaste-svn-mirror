@@ -2079,5 +2079,25 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4U);
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 0.3333, 1e-4);
     }
+    
+    void TestNodesPerProcessorFile() throw (Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // throws because file does not exist        
+        TS_ASSERT_THROWS_ANYTHING(mesh.ReadNodesPerProcessorFile("dsgund"));
+
+        // throws because sum of nodes is not equal to the number of nodes in the mesh        
+        TS_ASSERT_THROWS_ANYTHING(mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_1.txt"));
+
+        mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_2.txt");
+
+        // nodes_per_processor_2.txt = {1,3}
+        TS_ASSERT_EQUALS(mesh.rGetNodesPerProcessor().size(), 2u);
+        TS_ASSERT_EQUALS(mesh.rGetNodesPerProcessor()[0], 1u);
+        TS_ASSERT_EQUALS(mesh.rGetNodesPerProcessor()[1], 3u);
+    }
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

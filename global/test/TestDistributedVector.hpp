@@ -33,6 +33,10 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 class TestDistributedVector : public CxxTest::TestSuite
 {
 public:
+    void TestUninitialised()
+    {
+        TS_ASSERT_EQUALS(DistributedVector::GetProblemSize(), 0u);
+    }
     
     void TestRead()
     {
