@@ -384,7 +384,12 @@ public:
     void TestApplyToLinearSystem2Unknowns( void )
     {
         const int SIZE = 10;
-        LinearSystem some_system(2*SIZE);
+        
+        DistributedVector::SetProblemSize(SIZE);
+        Vec template_vec = DistributedVector::CreateVec(2);
+        LinearSystem some_system(template_vec);
+        
+        //LinearSystem some_system(2*SIZE);
         for (int i = 0; i < 2*SIZE; i++)
         {
             for (int j = 0; j < 2*SIZE; j++)
@@ -460,7 +465,12 @@ public:
     void TestApplyToLinearSystem3Unknowns( void )
     {
         const int SIZE = 10;
-        LinearSystem some_system(3*SIZE);
+        
+        DistributedVector::SetProblemSize(SIZE);
+        Vec template_vec = DistributedVector::CreateVec(3);
+        LinearSystem some_system(template_vec);
+                
+        //LinearSystem some_system(3*SIZE);
         for (int i = 0; i < 3*SIZE; i++)
         {
             for (int j = 0; j < 3*SIZE; j++)
@@ -530,17 +540,11 @@ public:
     
     void TestApplyToNonlinearSystem3Unknowns( void )
     {
-        const int SIZE = 10;
+        const int SIZE = 10;        
+        DistributedVector::SetProblemSize(SIZE);
         
-        Vec solution;
-        VecCreate(PETSC_COMM_WORLD, &solution);
-        VecSetSizes(solution, PETSC_DECIDE, 3*SIZE);
-        VecSetFromOptions(solution);
-        
-        Vec residual;
-        VecCreate(PETSC_COMM_WORLD, &residual);
-        VecSetSizes(residual, PETSC_DECIDE, 3*SIZE);
-        VecSetFromOptions(residual);
+        Vec solution = DistributedVector::CreateVec(3);        
+        Vec residual = DistributedVector::CreateVec(3);
         
         double *p_solution;
         VecGetArray(solution, &p_solution);
