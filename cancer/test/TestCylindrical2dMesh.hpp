@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 
-#include "Cylindrical2dMesh.hpp"
+//#include "Cylindrical2dMesh.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "TrianglesMeshWriter.hpp"
 
