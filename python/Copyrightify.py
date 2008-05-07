@@ -130,12 +130,13 @@ def InspectFile(fileName):
     if (CheckForCopyrightNotice(current_notice, file_in)):
         #print 'Found current notice in '+file_name
         valid_notice=True
-    #if (CheckForCopyrightNotice(pycml_notice, file_in) or CheckForCopyrightNotice(xsd_notice, file_in) or CheckForCopyrightNotice(triangle_notice, file_in)):
-    #    print 'Found 3rd party notice in '+file_name
-    #    if (valid_notice):
-    #        print "Multiple notices on"+file_name
-    #        sys.exit(1)
-    #    return True
+    if (CheckForCopyrightNotice(pycml_notice, file_in) or CheckForCopyrightNotice(xsd_notice, file_in) or CheckForCopyrightNotice(triangle_notice, file_in)):
+        #print 'Found 3rd party notice in '+file_name
+        if (valid_notice):
+            print "Multiple notices on"+file_name
+            return False
+        else:
+            return True
     if (valid_notice):
         return True
     if (CheckForCopyrightNotice(depricated_notice, file_in)):
