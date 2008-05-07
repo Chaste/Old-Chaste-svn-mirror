@@ -58,6 +58,40 @@ public:
         AnEventHandler::Report();
 
     }
+    
+    void TestEventExceptions() throw(Exception)
+    {
+        // should not be able to end and event that has not yet begun
+        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::EndEvent(TEST1));
+        
+        AnEventHandler::BeginEvent(TEST1);
+        
+        // should not be able to begin that has already begun
+        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::BeginEvent(TEST1));
+        
+    }
+    
+    void TestReset()
+    {
+        AnEventHandler::Reset();
+        // clear up from previous test
+        AnEventHandler::BeginEvent(TEST1);
+        AnEventHandler::BeginEvent(TEST2);
+        AnEventHandler::Reset();
+        // one can now being these events again because the state of the event handler was reset.
+        AnEventHandler::BeginEvent(TEST1);
+        AnEventHandler::BeginEvent(TEST2);
+    }
+    
+    void TestDisable()
+    {
+        AnEventHandler::Reset();
+        AnEventHandler::Disable();
+        AnEventHandler::BeginEvent(TEST1);
+        AnEventHandler::BeginEvent(TEST1); // OK because event handling is disabled
+        AnEventHandler::Enable();
+    }      
+        
 };
 
 

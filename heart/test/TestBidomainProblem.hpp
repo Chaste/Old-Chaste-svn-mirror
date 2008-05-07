@@ -29,7 +29,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 #include <petscvec.h>
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
-
+#include "EventHandler.hpp"
 
 class TestBidomainProblem : public CxxTest::TestSuite
 {
@@ -129,6 +129,9 @@ public:
     
     void TestBidomainDg01DMeanPhiEOverDifferentRows()
     {
+        
+        EventHandler::Disable();
+
         PlaneStimulusCellFactory<1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
         
@@ -220,7 +223,9 @@ public:
                 {
                     // test against hardcoded value to check nothing has changed
                     TS_ASSERT_DELTA(phi_e[index], phi_e_test_values[index.Global], 7e-3);
-                }            
+                } 
+                
+                           
                 
             }
            
@@ -256,6 +261,7 @@ public:
     	
     	delete p_container;
     	delete p_bidomain_assembler;
+        EventHandler::Enable();
     }    
 
     /*
@@ -267,29 +273,37 @@ public:
      */
     void TestCompareBidomainProblemWithMonodomain()
     {
+        Vec monodomain_results;
         
         PlaneStimulusCellFactory<1> cell_factory;
-
-        ///////////////////////////////////////////////////////////////////
-        // monodomain
-        ///////////////////////////////////////////////////////////////////
-
-        MonodomainProblem<1> monodomain_problem( &cell_factory );
         
-        monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
-        monodomain_problem.SetEndTime(1);   // 1 ms
-        monodomain_problem.SetOutputDirectory("Monodomain1d");
-        monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
-        monodomain_problem.SetCallChaste2Meshalyzer(true); // for coverage
-        monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
-        
-        monodomain_problem.Initialise();
-        
-        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+        // To avoid an issue with the Event handler only one simulation should be
+        // in existance at a time: therefore monodomain simulation is defined in a block
+        {
+            ///////////////////////////////////////////////////////////////////
+            // monodomain
+            ///////////////////////////////////////////////////////////////////
 
-        // now solve
-        monodomain_problem.Solve();
+            MonodomainProblem<1> monodomain_problem( &cell_factory );
+            
+            monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
+            monodomain_problem.SetEndTime(1);   // 1 ms
+            monodomain_problem.SetOutputDirectory("Monodomain1d");
+            monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
+            monodomain_problem.SetCallChaste2Meshalyzer(true); // for coverage
+            monodomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
+            
+            monodomain_problem.Initialise();
+            
+            monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+            monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
+    
+            // now solve
+            monodomain_problem.Solve();
+            
+            VecDuplicate(monodomain_problem.GetVoltage(), &monodomain_results);
+            VecCopy(monodomain_problem.GetVoltage(), monodomain_results);
+        }
         
         
         ///////////////////////////////////////////////////////////////////
@@ -318,8 +332,7 @@ public:
         ///////////////////////////////////////////////////////////////////
         // compare
         ///////////////////////////////////////////////////////////////////
-        DistributedVector monodomain_voltage(monodomain_problem.GetVoltage());
-
+        DistributedVector monodomain_voltage(monodomain_results);
         DistributedVector dist_bidomain_voltage(bidomain_problem.GetVoltage());
         DistributedVector::Stripe bidomain_voltage(dist_bidomain_voltage, 0);
         DistributedVector::Stripe extracellular_potential(dist_bidomain_voltage, 1);
@@ -339,6 +352,7 @@ public:
             TS_ASSERT_DELTA(extracellular_potential[index], 0, 0.06);
         }       
 
+        VecDestroy(monodomain_results);
     }
     
     
@@ -349,6 +363,7 @@ public:
     ///////////////////////////////////////////////////////////////////
     void TestBidomainProblemPrintsOnlyAtRequestedTimesAndOnlyRequestedNodes() throw (Exception)
     {
+        EventHandler::Disable();
         // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<1> cell_factory;
         BidomainProblem<1>* p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
@@ -445,6 +460,7 @@ public:
         TS_ASSERT_DELTA( times[3], 0.50,  1e-12);
         
         delete p_bidomain_problem;
+        EventHandler::Enable();
     }
     
     void TestBidomainProblemExceptions() throw (Exception)

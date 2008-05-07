@@ -36,16 +36,53 @@ class GenericEventHandler
 {
 public:
     static double mCpuTime[MAX_EVENTS];
+    static bool mHasBegun[MAX_EVENTS];
+    static bool mEnabled;
+    
+    static void Reset()
+    {
+        for (unsigned event=0; event<NUM_EVENTS; event++)
+        {
+            mCpuTime[event]=0.0;
+            mHasBegun[event]=false;
+        }
+    }
        
     static void BeginEvent(unsigned event) throw (Exception)
     {
+        if (!mEnabled)
+        {
+            return;
+        }
+        if (mHasBegun[event])
+        {
+            std::string msg;
+            msg += "The event associated with the counter for '";
+            msg += EVENT_NAME[event];
+            msg += "' had already begun when BeginEvent was called.";
+            EXCEPTION(msg);
+        }
         mCpuTime[event]-= clock()/(CLOCKS_PER_SEC/1000.0);
+        mHasBegun[event] = true;
         //std::cout << "Begining " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
     
     static void EndEvent(unsigned event)
     {
+        if (!mEnabled)
+        {
+            return;
+        }
+        if (!mHasBegun[event])
+        {
+            std::string msg;
+            msg += "The event associated with the counter for '";
+            msg += EVENT_NAME[event];
+            msg += "' had not begun when EndEvent was called.";
+            EXCEPTION(msg);
+        }
         mCpuTime[event]+= clock()/(CLOCKS_PER_SEC/1000.0);
+        mHasBegun[event] = false;
         //std::cout << "Ending " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
     
@@ -69,9 +106,25 @@ public:
         } 
         std::cout << "\n";
     }
+    
+    static void Enable()
+    {
+        mEnabled=true;
+    }
+    
+    static void Disable()
+    {
+        mEnabled=false;
+    }
 };
 
 template<unsigned NUM_EVENTS, const char** EVENT_NAME>
 double GenericEventHandler<NUM_EVENTS, EVENT_NAME>::mCpuTime[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+template<unsigned NUM_EVENTS, const char** EVENT_NAME>
+bool GenericEventHandler<NUM_EVENTS, EVENT_NAME>::mHasBegun[] = { false, false, false, false, false, false, false, false, false};
+
+template<unsigned NUM_EVENTS, const char** EVENT_NAME>
+bool GenericEventHandler<NUM_EVENTS, EVENT_NAME>::mEnabled = true;
 
 #endif /*GENERICEVENTHANDLER_HPP_*/

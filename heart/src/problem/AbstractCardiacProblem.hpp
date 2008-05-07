@@ -505,6 +505,7 @@ public:
                 }
                 PetscTools::ReplicateException(true);
                 // Re-throw
+                //EventHandler::EndEvent(EVERYTHING);
                 throw e;
             }
             PetscTools::ReplicateException(false);

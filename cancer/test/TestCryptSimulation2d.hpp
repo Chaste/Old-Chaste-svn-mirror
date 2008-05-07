@@ -13,6 +13,7 @@
 #include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "../../global/test/NumericFileComparison.hpp"
+#include "CancerEventHandler.hpp"
 
 class TestCryptSimulation2d : public AbstractCancerTestSuite
 {
@@ -178,6 +179,7 @@ public:
         simulator.SetEndTime(10.0);
         simulator.SetOutputDirectory("");
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
+        CancerEventHandler::Reset(); // otherwise event handler left in bad state after throw
     }
     
     
