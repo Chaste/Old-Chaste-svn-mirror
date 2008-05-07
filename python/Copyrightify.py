@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+## todo: improvements; find multiple copyright notices.
+##       write python notice switcher
+
+
 """Copyright (C) Oxford University 2008
 
 This file is part of CHASTE.
@@ -21,6 +25,7 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>."""
 import os, sys
 exts = ['.cpp', '.hpp']
 dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'anim']
+#exclusions = ['triangle/triangle.cpp']
 
 apply_update =  '-update' in sys.argv
 apply_new = '-new' in sys.argv
@@ -80,11 +85,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 """
 
-
+pycml_notice="// Processed by pycml - CellML Tools in Python"
+xsd_notice="// Copyright (C) 2005-2007 Code Synthesis Tools CC"
+triangle_notice="""/*  Copyright 1993, 1995, 1997, 1998, 2002, 2005                             */
+/*  Jonathan Richard Shewchuk                                                */"""
 def CheckForCopyrightNotice(findStr, fileIn):
     fileIn.seek(0)
     file_text=fileIn.read()
-    return (file_text.find(findStr) == 0)
+    return (file_text.find(findStr) >= 0)
     
 def ReplaceStringInFile(findStr,repStr,filePath):
    "replaces all findStr by repStr in file filePath"
@@ -118,8 +126,17 @@ def HeadAppendStringInFile(appendString, filePath):
 
 def InspectFile(fileName):
     file_in = open(fileName)
+    valid_notice=False
     if (CheckForCopyrightNotice(current_notice, file_in)):
         #print 'Found current notice in '+file_name
+        valid_notice=True
+    #if (CheckForCopyrightNotice(pycml_notice, file_in) or CheckForCopyrightNotice(xsd_notice, file_in) or CheckForCopyrightNotice(triangle_notice, file_in)):
+    #    print 'Found 3rd party notice in '+file_name
+    #    if (valid_notice):
+    #        print "Multiple notices on"+file_name
+    #        sys.exit(1)
+    #    return True
+    if (valid_notice):
         return True
     if (CheckForCopyrightNotice(depricated_notice, file_in)):
         print 'Found depricated copyright notice for',fileName
@@ -140,7 +157,7 @@ def InspectFile(fileName):
 
 #os.chdir(chaste_dir)
 num_no_copyrights=0
-num_source_files=0
+num_copyrights=0
 # for root, dirs, files in os.walk(chaste_dir):
 for root, dirs, files in os.walk(chaste_dir):
     # Check for ignored dirs
@@ -154,15 +171,16 @@ for root, dirs, files in os.walk(chaste_dir):
             # Run astyle
             file_name = os.path.join(root, file)
             #ReplaceStringInFile('Chaste','Chaste2',os.path.join(root, file))
-            num_source_files+=1
             if (InspectFile(file_name) == False):
                 num_no_copyrights+=1
+            else:
+                num_copyrights+=1
 
 # Let the test summary script know
 if num_no_copyrights > 0:
     print
     print "The next line is for the benefit of the test summary scripts."
-    print "Failed",num_no_copyrights,"of",num_source_files,"tests"
+    print "Failed",num_no_copyrights,"of",num_no_copyrights+num_copyrights,"tests"
 
     # Return a non-zero exit code if orphans were found
     import sys
