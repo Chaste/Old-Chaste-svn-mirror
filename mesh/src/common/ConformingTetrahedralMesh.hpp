@@ -284,8 +284,9 @@ public:
       * Permute the nodes so that they appear in a different order in mNodes
       * (and their mIndex's are altered accordingly) using Metis binaries.
       * 
+      * @param numProcs Number of processors (e.g. number of partitions)
       */
-    void PermuteNodesWithMetisBinaries();
+    void PermuteNodesWithMetisBinaries(unsigned numProcs);
     
     /**
       * Permute the nodes so that they appear in a different order in mNodes
@@ -1868,7 +1869,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries()
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsigned numProcs)
 {
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 );
     assert( GetNumAllElements() == GetNumElements());
@@ -1902,17 +1903,47 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
             (*metis_file)<<"\n";
         }
         metis_file->close();
-        
-        
-        std::string convert_command   = "./bin/mesh2nodal "+handler.GetOutputDirectoryFullPath("")
-                                        + "metis.mesh"
-                                        + " > /dev/null";
-        system(convert_command.c_str());
-        
-        std::string permute_command   = "./bin/onmetis "+handler.GetOutputDirectoryFullPath("")
-                                        + "metis.mesh.ngraph"
-                                        + " > /dev/null";
-        system(permute_command.c_str());
+                
+//        std::string convert_command   = "./bin/mesh2nodal "+handler.GetOutputDirectoryFullPath("")
+//                                        + "metis.mesh"
+//                                        + " > /dev/null";
+//        system(convert_command.c_str());
+//        
+//        std::string permute_command   = "./bin/onmetis "+handler.GetOutputDirectoryFullPath("")
+//                                        + "metis.mesh.ngraph"
+//                                        + " > /dev/null";
+//        system(permute_command.c_str());
+
+        std::stringstream permute_command;
+        permute_command <<  "./bin/partdmesh "
+                        <<  handler.GetOutputDirectoryFullPath("")
+                        <<  "metis.mesh "
+                        <<  numProcs
+                        <<  " > /dev/null";
+                        
+        system(permute_command.str().c_str());
+
+        std::stringstream clear_command;
+        clear_command << "rm -f "
+                      << handler.GetOutputDirectoryFullPath("")
+                      << "metis.mesh.nodesperproc.txt"
+                      << " > /dev/null";
+        system(clear_command.str().c_str());
+                      
+        for (unsigned proc_index=0; proc_index<numProcs; proc_index++)
+        {
+            std::stringstream count_command;
+            count_command << "grep " 
+                          << proc_index << " "
+                          << handler.GetOutputDirectoryFullPath("")
+                          << "metis.mesh.npart." << numProcs
+                          << " | wc -l >> "
+                          << handler.GetOutputDirectoryFullPath("")
+                          << "metis.mesh.nodesperproc.txt"; 
+                          
+            system(count_command.str().c_str());               
+        }
+
     }
     
     // Wait for the permutation to be available

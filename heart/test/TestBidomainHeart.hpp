@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "TrianglesMeshWriter.hpp"
 
 
 
@@ -148,7 +149,8 @@ public:
 39295   0.95181000000000004491  -0.022879300000000001719        0.03267509999999999859  0
 40639   0.96616000000000001879  -0.00030529999999999999413      0.035901099999999998291 0
 40700   0.95994999999999996998  -0.0055163000000000000228       -0.015155899999999999928    0
-39299   0.95293000000000005478  -0.024498700000000001725        -0.013791599999999999346    0
+39299   0.95293000000000005478  -0.024498700000000001725        -0.013791599999999#include "TrianglesMeshWriter.hpp"
+999346    0
 39360   0.95026999999999994806  -0.035222200000000002118        0.0093922999999999992604    0
 39925   0.97552499999999997549  0.015347599999999999437 -0.0063965499999999999789       0
 39900   0.9860449999999999493   0.036138499999999997014 -0.015129399999999999446        0
@@ -195,28 +197,12 @@ class TestBidomainHeart : public CxxTest::TestSuite
 
 public:
 
-    /*
-     * 
-    void xTestPermuteWithMetisBinaries()
-    {
-        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/halfheart");
-        ConformingTetrahedralMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        mesh.PermuteNodesWithMetisBinaries();
-        
-        TrianglesMeshWriter<3,3> mesh_writer("","halfheart_metis");
-        mesh_writer.WriteFilesUsingMesh(mesh);
-    }
-    *
-    */
-    
     void TestBidomainDg0Heart() throw (Exception)
     {
         double pde_time_step = 0.005;  // ms
         double ode_time_step = 0.0025; // ms
-        double end_time = 100;        // ms
-        double printing_time_step = end_time/1000;
+        double end_time = 1;//100;        // ms
+        double printing_time_step = 0.1;//end_time/1000;
         
         PointStimulusHeartCellFactory cell_factory(ode_time_step);
         BidomainProblem<3> bidomain_problem(&cell_factory);
@@ -246,18 +232,35 @@ public:
         EventHandler::Headings();
         EventHandler::Report();
     }
+
+    // Creates data for the following test
+    void TestPermuteWithMetisBinaries()
+    {
+                
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/halfheart");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        unsigned num_procs = 2;//PetscTools::NumProcs()        
+        mesh.PermuteNodesWithMetisBinaries(num_procs);
+        
+        TrianglesMeshWriter<3,3> mesh_writer("","halfheart_metis");
+        mesh_writer.WriteFilesUsingMesh(mesh);
+    }
     
-       void xTestBidomainDg0HeartMetis() throw (Exception)
+    
+    void xTestBidomainDg0HeartMetis() throw (Exception)
     {
         double pde_time_step = 0.005;  // ms
         double ode_time_step = 0.0025; // ms
-        double end_time = 100;        // ms
-        double printing_time_step = end_time/1000;
+        double end_time = 1;//100;        // ms
+        double printing_time_step = 0.1;//end_time/1000;
         
         PointStimulusHeartCellFactoryMetis cell_factory(ode_time_step);
         BidomainProblem<3> bidomain_problem(&cell_factory);
         
-        bidomain_problem.SetMeshFilename("heart/test/data/halfheart_metis");
+        bidomain_problem.SetMeshFilename("/tmp/chaste/testoutput/halfheart_metis");//"heart/test/data/halfheart_metis");
+        bidomain_problem.SetNodesPerProcessorFilename("/tmp/chaste/testoutput/metis.mesh.nodesperproc.txt");
         bidomain_problem.SetOutputDirectory("BiDg0HeartMetis");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_HeartMetis");
         
@@ -275,6 +278,9 @@ public:
         
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
+                
+        EventHandler::Headings();
+        EventHandler::Report();        
     }
 };
 
