@@ -21,13 +21,14 @@ along with CHASTE.  If not, see <http://www.gnu.org/licenses/>."""
 import os, sys
 exts = ['.cpp', '.hpp']
 dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'anim']
-#chaste_dir = '.'
-chaste_dir = './global'
 
 apply_update =  '-update' in sys.argv
 apply_new = '-new' in sys.argv
 
-
+chaste_dir = '.'
+if '-dir' in sys.argv: 
+    i = sys.argv.index('-dir')
+    chaste_dir = os.path.realpath(sys.argv[i+1])
 
 
 depricated_notice="""/*
@@ -168,3 +169,4 @@ if num_no_copyrights > 0:
     sys.exit(num_no_copyrights)
 else:
     print "Copyright test passed ok."
+print "Copyright test run over "+chaste_dir
