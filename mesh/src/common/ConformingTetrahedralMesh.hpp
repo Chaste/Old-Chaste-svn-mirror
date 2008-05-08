@@ -1604,7 +1604,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrar
     triangle_output.edgemarkerlist = (int *) NULL;  
 
     //Library call 
-    triangulate("Qze", &triangle_input, &triangle_output, NULL);
+    triangulate((char*)"Qze", &triangle_input, &triangle_output, NULL);
     
     assert(triangle_output.numberofcorners == 3);
     

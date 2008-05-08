@@ -396,7 +396,7 @@ public:
      
     
      
-        triangulate("Qze", &in, &out, NULL);
+        triangulate((char*)"Qze", &in, &out, NULL);
     
         TS_ASSERT_EQUALS(out.numberofpoints,            5);
         TS_ASSERT_EQUALS(out.numberofpointattributes,   0);

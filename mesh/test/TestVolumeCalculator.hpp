@@ -41,7 +41,7 @@ class TestVolumeCalculator : public CxxTest::TestSuite
 {
 public:
 
-    void CheckVolume(char* meshFile, double expectedVolume, double errorTolerance)
+    void CheckVolume(std::string meshFile, double expectedVolume, double errorTolerance)
     {
         TrianglesMeshReader<3,3> meshReader(meshFile);
         ConformingTetrahedralMesh<3,3> mesh;
