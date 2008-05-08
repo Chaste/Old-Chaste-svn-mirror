@@ -80,7 +80,7 @@ Vec DistributedVector::CreateVec()
 {
     Vec vec;
     VecCreate(PETSC_COMM_WORLD, &vec);
-    VecSetSizes(vec, PETSC_DECIDE, mGlobalHi);
+    VecSetSizes(vec, mHi-mLo, mGlobalHi);
     VecSetFromOptions(vec);
     return vec;
 }
