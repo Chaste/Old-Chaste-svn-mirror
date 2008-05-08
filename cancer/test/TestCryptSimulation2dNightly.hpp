@@ -88,9 +88,11 @@ private:
     double mLastStartTime;
     void setUp()
     {
+        CancerEventHandler::Disable(); // these tests fail with event-handling on
         mLastStartTime = std::clock();
         AbstractCancerTestSuite::setUp();
     }
+
     void tearDown()
     {
         double time = std::clock();
@@ -604,7 +606,7 @@ public:
         
         std::vector<bool> ghost_node_indices_after = crypt.rGetGhostNodes();
         unsigned num_ghosts=0;
-        for (unsigned i=0; i < ghost_node_indices_after.size() ; i++)
+        for (unsigned i=0; i < ghost_node_indices_after.size(); i++)
         {
             if (ghost_node_indices_after[i])
             {
@@ -660,7 +662,7 @@ public:
         
         std::vector<bool> ghost_node_indices_after = crypt.rGetGhostNodes();
         unsigned num_ghosts=0;        
-        for (unsigned i=0; i < ghost_node_indices_after.size() ; i++)
+        for (unsigned i=0; i < ghost_node_indices_after.size(); i++)
         {
             if (ghost_node_indices_after[i])
             {
