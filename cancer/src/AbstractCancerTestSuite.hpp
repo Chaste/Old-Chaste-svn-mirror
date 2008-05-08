@@ -28,6 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCANCERTESTSUITE_HPP_
 #define ABSTRACTCANCERTESTSUITE_HPP_
 
+#include "SimulationTime.hpp"
+#include "RandomNumberGenerator.hpp"
+#include "CancerParameters.hpp"
+
 /**
  * This class provides setUp and tearDown methods that are common to
  * many cancer test suites.  Such suites may inherit from this class

@@ -169,8 +169,8 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, ghost_node_indices);         
 
         // Set up the Wnt gradient 
-        WntConcentration::Instance()->SetType(RADIAL); 
-        WntConcentration::Instance()->SetTissue(crypt);   
+        WntConcentration::Instance()->SetType(RADIAL);
+        WntConcentration::Instance()->SetTissue(crypt);
         
         // Create the spring system
         CryptProjectionSpringSystem spring_system(crypt);

@@ -33,9 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include <stdio.h>
-#include <time.h>
-
 #include "TissueSimulationWithNutrients.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
@@ -43,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleNutrientPde.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
 #include "AbstractCancerTestSuite.hpp"
+
 
 class SimplePdeForTesting : public AbstractLinearEllipticPde<2>
 {
@@ -63,6 +61,7 @@ public:
     }
     
 };
+
 
 class TestTissueSimulationWithNutrients : public AbstractCancerTestSuite
 {

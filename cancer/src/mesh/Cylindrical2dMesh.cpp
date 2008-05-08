@@ -3,12 +3,7 @@
 
 #include "Cylindrical2dMesh.hpp"
 
-/**
- * @param pElement  
- * @param rImageNodes Left or right image nodes
- * @param rOriginalNodes  Left or right original nodes
- * @param nodeIndex 
- */
+
 void Cylindrical2dMesh::ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement, std::vector<unsigned> &rImageNodes, std::vector<unsigned> &rOriginalNodes, unsigned nodeIndex ) 
 { 
     for (unsigned j=0; j<rImageNodes.size(); j++)
@@ -20,13 +15,9 @@ void Cylindrical2dMesh::ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement
     }
 }
 
-/**
- * Constructor
- * 
- * @param width the width of the crypt (circumference) 
- */
+
 Cylindrical2dMesh::Cylindrical2dMesh(double width)
-  : ConformingTetrahedralMesh<2, 2>(),
+  : ConformingTetrahedralMesh<2,2>(),
     mWidth(width)    
 {
     assert(width > 0.0);
@@ -34,7 +25,7 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width)
 
 
 Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes)
-  : ConformingTetrahedralMesh<2, 2>(),
+  : ConformingTetrahedralMesh<2,2>(),
     mWidth(width)
 {
     assert(width > 0.0);
@@ -51,10 +42,7 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes)
     ReMesh(node_map);
 }
 
-/**
- * Calls GetWidthExtremes on the Conforming mesh class
- * to calculate mTop and mBottom for the cylindrical mesh.
- */
+
 void Cylindrical2dMesh::UpdateTopAndBottom()
 {
     c_vector<double,2> extremes = GetWidthExtremes(1);
@@ -63,18 +51,11 @@ void Cylindrical2dMesh::UpdateTopAndBottom()
 }
 
 
-/**
- * Creates a set of mirror nodes for a cylindrical re-mesh. 
- * All mesh points should be 0<x<mWidth.
- * 
- * Updates mRightImages and mLeftImages
- */
 void Cylindrical2dMesh::CreateMirrorNodes()
 {
     unsigned num_nodes=GetNumAllNodes();
     double half_way = (mWidth)/2.0;
-            
-    //TestTopAndBottomRowAlignment();
+    
     mLeftOriginals.clear();
     mLeftImages.clear();
     mRightOriginals.clear();
@@ -90,7 +71,7 @@ void Cylindrical2dMesh::CreateMirrorNodes()
             unsigned this_node_index = mNodes[i]->GetIndex();
             double this_node_x_location = location[0];
             
-            // Check the mesh currently conforms to the dimensions given.        
+            // Check the mesh currently conforms to the dimensions given      
             assert(0.0<=location[0]);
             assert(location[0]<=mWidth);
             
@@ -107,7 +88,7 @@ void Cylindrical2dMesh::CreateMirrorNodes()
     }
 
     // Go through the left original nodes and create an image node
-    // recording its new index.
+    // recording its new index
     for (unsigned i=0; i<mLeftOriginals.size(); i++)
     {
         c_vector<double, 2> location = mNodes[mLeftOriginals[i]]->rGetLocation();
@@ -118,7 +99,7 @@ void Cylindrical2dMesh::CreateMirrorNodes()
     }
     
     // Go through the right original nodes and create an image node
-    // recording its new index.
+    // recording its new index
     for (unsigned i=0; i<mRightOriginals.size(); i++)
     {
         // Create new image nodes
@@ -129,6 +110,7 @@ void Cylindrical2dMesh::CreateMirrorNodes()
         mRightImages.push_back(new_node_index);
     }
 }
+
 
 void Cylindrical2dMesh::CreateHaloNodes()
 {
@@ -145,7 +127,8 @@ void Cylindrical2dMesh::CreateHaloNodes()
     c_vector<double, 2> location;
     for (unsigned i=0; i< num_halo_nodes; i++)
     {
-       double x_coordinate = 0.5*halo_node_separation + (double)(i)*halo_node_separation; 
+       double x_coordinate = 0.5*halo_node_separation + (double)(i)*halo_node_separation;
+        
        // Inserting top halo node in mesh
        location[0] = x_coordinate;
        location[1] = y_top_coordinate;
@@ -158,16 +141,7 @@ void Cylindrical2dMesh::CreateHaloNodes()
     }
 }
 
-/**
- * Conducts a cylindrical remesh (OVERRIDDEN constructor of main ReMesh function)
- * 
- * Firstly calls CreateMirrorNodes to create mirror image nodes
- * Then calls remesher
- * Maps new node indices
- * calls ReconstructCylindricalMesh to remove surplus nodes to create a fully periodic mesh.
- * 
- * @param &map a reference to a nodemap which should be created with the required number of nodes.
- */
+
 void Cylindrical2dMesh::ReMesh(NodeMap &map)
 {
     unsigned old_num_all_nodes = GetNumAllNodes();
@@ -175,7 +149,7 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
 	map.Resize(old_num_all_nodes);
 	map.ResetToIdentity();
     
-    // flag the deleted nodes as deleted in the map
+    // Flag the deleted nodes as deleted in the map
 	for(unsigned i=0; i<old_num_all_nodes; i++)
 	{
 		if(mNodes[i]->IsDeleted())
@@ -189,22 +163,21 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
     // Create a mirrored load of nodes for the normal remesher to work with.
     CreateMirrorNodes();
 
-    // The mesh now has messed up boundary elements 
-    // but this doesn't matter as the ReMesh below
-    // doesn't read them in and reconstructs the
-    // boundary elements.
+    // The mesh now has messed up boundary elements, but this 
+    // doesn't matter as the ReMesh below doesn't read them in 
+    // and reconstructs the boundary elements.
     
-    // Call the normal re-mesh
-    // note that the mesh now has lots of extra nodes which will be deleted, hence the name 'big_map'
+    // Call the normal re-mesh. Note that the mesh now has lots 
+    // of extra nodes which will be deleted, hence the name 'big_map'
     NodeMap big_map(GetNumAllNodes()); 
     ConformingTetrahedralMesh<2,2>::ReMeshWithTriangleLibrary(big_map);
-    //ConformingTetrahedralMesh<2,2>::ReMesh(big_map);
-    // if the big_map isn't the identity map, the little map ('map') needs to be
+
+    // If the big_map isn't the identity map, the little map ('map') needs to be
     // altered accordingly before being passed to the user. not sure how this all works,
     // so deal with this bridge when we get to it 
     assert(big_map.IsIdentityMap());
 
-    // Re-Index the vectors according to the big nodemap.
+    // Re-index the vectors according to the big nodemap.
 
     for (unsigned i=0; i<mLeftOriginals.size(); i++)
     {
@@ -223,14 +196,12 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
         mTopHaloNodes[i] = big_map.GetNewIndex(mTopHaloNodes[i]);
         mBottomHaloNodes[i] = big_map.GetNewIndex(mBottomHaloNodes[i]);
     }
+    
     // This method takes in the double sized mesh, 
     // with its new boundary elements,
     // and removes the relevant nodes, elements and boundary elements
     // to leave a proper periodic mesh.
-    
-//    TrianglesMeshWriter<2,2> mesh_writer("","halo_problem_mesh");
-//    mesh_writer.WriteFilesUsingMesh(*this);
-    
+        
     GenerateVectorsOfElementsStraddlingPeriodicBoundaries();
     
     CorrectNonPeriodicMesh();
@@ -239,7 +210,7 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
     
     DeleteHaloNodes();
     
-    // Create a random (!) boundary element between two nodes of the first element if it is not deleted.
+    // Create a random boundary element between two nodes of the first element if it is not deleted.
     // This is a temporary measure to get around reindex crashing when there are no boundary elements ( J. Coopers idea )
     bool boundary_element_made = false;
     unsigned elem_index = 0;
@@ -260,12 +231,12 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
         elem_index++;   
     }    
 
-    // now call ReIndex to remove the temporary nodes which are marked as deleted. 
+    // Now call ReIndex to remove the temporary nodes which are marked as deleted. 
 	NodeMap reindex_map(GetNumAllNodes());
     ReIndex(reindex_map);
     assert(!reindex_map.IsIdentityMap());  // maybe don't need this
     
-    // go through the reindex map and use it to populate the original NodeMap
+    // Go through the reindex map and use it to populate the original NodeMap
     // (the one that is returned to the user)
     for(unsigned i=0; i<map.Size(); i++) // only going up to be size of map, not size of reindex_map
     {
@@ -284,19 +255,8 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
 }
 
 
-/**
- * Deletes the mirror image nodes, elements and boundary elements
- * created for a cylindrical remesh by cycling through the 
- * elements and changing elements with
- * partly real and partly imaginary elements to be real with
- * periodic real nodes instead of mirror image nodes.
- * 
- */
 void Cylindrical2dMesh::ReconstructCylindricalMesh()
 {
-//    TrianglesMeshWriter<2,2> mesh_writer("","debug_periodic_mesh");
-//    mesh_writer.WriteFilesUsingMesh(*this);
-
     // Figure out which elements have real nodes and image nodes in them
     // and replace image nodes with corresponding real ones.
     for (unsigned elem_index = 0; elem_index<GetNumAllElements(); elem_index++)
@@ -304,24 +264,22 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
         Element<2,2>* p_element = GetElement(elem_index);
         if (!p_element->IsDeleted())
         {
-            // left images are on the right of the mesh
+            // Left images are on the right of the mesh
             unsigned number_of_left_image_nodes = 0u;
             unsigned number_of_right_image_nodes = 0u;
             for (unsigned i=0; i<3; i++)
             {
                 unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
-                //std::cout << "Node " << this_node_index << "\t";
+
                 bool this_node_a_left_image = false;
                 bool this_node_a_right_image = false;
                 if(IsThisIndexInList(this_node_index,mLeftImages))
                 {
                     this_node_a_left_image = true;
-//                    std::cout << "Node " << this_node_index << " is a left image\n";
                 }
                 if(IsThisIndexInList(this_node_index,mRightImages))
                 {
                     this_node_a_right_image = true;
-//                    std::cout << "Node " << this_node_index << " is a right image\n";
                 }
                 if(this_node_a_left_image)
                 {
@@ -332,11 +290,10 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
                     number_of_right_image_nodes++;
                 }
             }
-            //std::cout << "Element found to be " << p_element->GetIndex() << " num images of left " << number_of_left_image_nodes <<" num images of right " << number_of_right_image_nodes << "\n" << std::flush;
+            
             // Delete all the elements on the left hand side (images of right)...
             if (number_of_right_image_nodes>=1u)
             {
-                //std::cout << "\tright image element (on left) ... deleting\n" << std::flush;
                 p_element->MarkAsDeleted();
                 mDeletedElementIndices.push_back(p_element->GetIndex());
             }
@@ -344,30 +301,24 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
             // Delete only purely imaginary elements on the right (images of left nodes)
             if (number_of_left_image_nodes==3u)
             {
-                //std::cout << "\tpurely image element (on right) ... deleting\n" << std::flush;
                 p_element->MarkAsDeleted();
                 mDeletedElementIndices.push_back(p_element->GetIndex());
             }
             
-            /* 
-             * If some are images then replace them with the real nodes.
-             * 
-             * There can be elements with either two image nodes on the right (and one real)
-             * or one image node on the right (and two real).
-             */
+            // If some are images then replace them with the real nodes.
+            // There can be elements with either two image nodes on the 
+            // right (and one real) or one image node on the right 
+            // (and two real).
             if (number_of_left_image_nodes==1u || number_of_left_image_nodes==2u )
-            {   //
-                //std::cout << "\tPeriodic element with nodes\n" << std::flush;   
+            {
                 for (unsigned i=0; i<3; i++)
                 {
                     unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
-                    //std::cout << "this node index " << this_node_index << " replaced with ";
                     ReplaceImageWithRealNodeOnElement(p_element,mLeftImages,mLeftOriginals,this_node_index);
-                    //std::cout << p_element->GetNodeGlobalIndex(i) << "\n" << std::flush;
                 }
             }
         }
-    }// end of loop over elements
+    } // end of loop over elements
 
     // Figure out which boundary elements have real nodes and image nodes in them
     // and replace image nodes with corresponding real ones.
@@ -380,7 +331,6 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
             for (unsigned i=0; i<2; i++)
             {
                 unsigned this_node_index = p_boundary_element->GetNodeGlobalIndex(i);
-                //std::cout << this_node_index << "\t";
                 bool this_node_an_image = false;
                 
                 if(IsThisIndexInList(this_node_index,mLeftImages))
@@ -399,15 +349,14 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
                         
             if (number_of_image_nodes==2 )
             {
-                //std::cout << "IMAGE\n" << std::flush;
                 p_boundary_element->MarkAsDeleted();
                 mDeletedBoundaryElementIndices.push_back(p_boundary_element->GetIndex());
             }
-            /*
-             * To avoid having two copies of the boundary elements on the periodic
-             * boundaries we only deal with the elements on the left image and 
-             * delete the ones on the right image.
-             */
+
+            // To avoid having two copies of the boundary elements on the periodic
+            // boundaries we only deal with the elements on the left image and 
+            // delete the ones on the right image.
+            
             if (number_of_image_nodes==1 )
             {
                  
@@ -464,14 +413,6 @@ void Cylindrical2dMesh::DeleteHaloNodes()
 }
 
 
-/**
- * This OVERRIDDEN method evaluates the (surface) distance between two points in a 2D Cylindrical geometry.
- * 
- * @param rLocation1 the x and y co-ordinates of point 1
- * @param rLocation2 the x and y co-ordinates of point 2
- * 
- * @return the vector from location1 to location2
- */
 c_vector<double, 2> Cylindrical2dMesh::GetVectorFromAtoB(const c_vector<double, 2>& rLocation1, const c_vector<double, 2>& rLocation2)
 {
     assert(mWidth>0.0);
@@ -484,7 +425,7 @@ c_vector<double, 2> Cylindrical2dMesh::GetVectorFromAtoB(const c_vector<double, 
     
     c_vector<double, 2> vector = location2 - location1;
             
-    // handle the cylindrical condition here
+    // Handle the cylindrical condition here
     // if the points are more than halfway around the cylinder apart
     // measure the other way.
     if ( vector[0] > (mWidth / 2.0) )
@@ -498,45 +439,26 @@ c_vector<double, 2> Cylindrical2dMesh::GetVectorFromAtoB(const c_vector<double, 
     return vector;
 }
 
-/**
- * OVERRIDDEN function to set the location of a node.
- * 
- * If the location should be set outside a cylindrical boundary
- * move it back onto the cylinder.
- * 
- * SetNode moves the node with a particular index to a new point in space and
- * verifies that the signed areas of the supporting Elements are positive
- * @param index is the index of the node to be moved
- * @param point is the new target location of the node
- * @param concreteMove is set to false if we want to skip the signed area tests
- *
- */
+
 void Cylindrical2dMesh::SetNode(unsigned index, ChastePoint<2> point, bool concreteMove)
 {
     // Perform a periodic movement if necessary
     if (point.rGetLocation()[0] >= mWidth)
-    {   // move point to the left
+    {   
+        // Move point to the left
         point.SetCoordinate(0u, point.rGetLocation()[0]-mWidth);
-        //std::cout << "Moving point to the left\n" << std::flush;
     }
     if (point.rGetLocation()[0] < 0.0)
-    {   // move point to the right
+    {   
+        // Move point to the right
         point.SetCoordinate(0u, point.rGetLocation()[0]+mWidth);
-        //std::cout << "Moving point to the right\n" << std::flush;
     }
     
     // Update the node's location
     ConformingTetrahedralMesh<2,2>::SetNode(index, point, concreteMove); 
 }
 
-/**
- * Returns true if an unsigned is contained in a vector of unsigneds
- * 
- * @param rNodeIndex an unsigned value
- * @param rListOfNodes a list of unsigned values
- * 
- * @return whether the unsigned is in this std::vector
- */
+
 bool Cylindrical2dMesh::IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes)
 {
     for (unsigned i=0; i<rListOfNodes.size(); i++)
@@ -549,11 +471,7 @@ bool Cylindrical2dMesh::IsThisIndexInList(const unsigned& rNodeIndex, const std:
     return false;
 }
 
-/**
- * OVERRIDDEN FUNCTION
- * @param rDimension must be 0 (x) or 1 (y)
- * @return width the CryptWidth or current height 
- */
+
 double Cylindrical2dMesh::GetWidth(const unsigned& rDimension) const
 {
     double width=0.0;
@@ -570,12 +488,6 @@ double Cylindrical2dMesh::GetWidth(const unsigned& rDimension) const
 }
 
 
-/** 
- * Add a node to the mesh.
- * 
- * NB. After calling this one or more times, you must then call ReMesh
- *
- */
 unsigned Cylindrical2dMesh::AddNode(Node<2> *pNewNode)
 {
     unsigned node_index = ConformingTetrahedralMesh<2,2>::AddNode(pNewNode);
@@ -587,15 +499,11 @@ unsigned Cylindrical2dMesh::AddNode(Node<2> *pNewNode)
     return node_index;
 }
 
+
 void Cylindrical2dMesh::CorrectNonPeriodicMesh()
-{
-//    TrianglesMeshWriter<2,2> mesh_writer("","debug_periodic_mesh");
-//    mesh_writer.WriteFilesUsingMesh(*this);
-    
-    /* 
-     * Copy the member variables into new vectors which we modify by knocking out 
-     * elements which pair up on each side
-     */
+{    
+    // Copy the member variables into new vectors, which we modify 
+    // by knocking out elements which pair up on each side
     std::set<unsigned> temp_left_hand_side_elements = mLeftPeriodicBoundaryElementIndices;
     std::set<unsigned> temp_right_hand_side_elements = mRightPeriodicBoundaryElementIndices;
     
@@ -614,7 +522,7 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
             corresponding_element_node_indices[i] = GetCorrespondingNodeIndex(original_element_node_indices[i]);
         }
     
-        // search the right hand sides for the coresponding element 
+        // Search the right hand sides for the coresponding element 
         for (std::set<unsigned>::iterator right_iter = mRightPeriodicBoundaryElementIndices.begin(); 
              right_iter != mRightPeriodicBoundaryElementIndices.end(); 
              ++right_iter)
@@ -683,13 +591,11 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
     }
 }
 
+
 void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements)
 {
     assert(mainSideElements.size()==2u);
-    
-//    TrianglesMeshWriter<2,2> mesh_writer("","debug_periodic_mesh");
-//    mesh_writer.WriteFilesUsingMesh(*this);
-    
+        
     // We find the four nodes surrounding the dodgy meshing, on each side.
     std::set<unsigned> main_four_nodes;
     for (std::set<unsigned>::iterator left_iter = mainSideElements.begin(); 
@@ -714,18 +620,18 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
         other_four_nodes.insert(GetCorrespondingNodeIndex(*iter));
     }
     assert(other_four_nodes.size()==4u);
-    
-    
+        
     // Find the elements surrounded by the nodes on the right 
     // and change them to match the elements on the left
     std::vector<unsigned> corresponding_elements;
-    // loop over all elements
+    
+    // Loop over all elements
     for (unsigned elem_index = 0; elem_index<GetNumAllElements(); elem_index++)
     {
         Element<2,2>* p_element = GetElement(elem_index);
         if (!p_element->IsDeleted())
         {
-        // loop over the nodes of the element
+            // Loop over the nodes of the element
             if (!(other_four_nodes.find(p_element->GetNodeGlobalIndex(0))==other_four_nodes.end()) &&
                 !(other_four_nodes.find(p_element->GetNodeGlobalIndex(1))==other_four_nodes.end()) &&
                 !(other_four_nodes.find(p_element->GetNodeGlobalIndex(2))==other_four_nodes.end()) )
@@ -745,7 +651,8 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
     {
         Element<2,2>* p_main_element = GetElement(*iter);
         std::vector<Node<2>*> nodes;
-        // Put corresponding nodes into a std::vector.
+        
+        // Put corresponding nodes into a std::vector
         for (unsigned i=0; i<3 ; i++)
         {
             unsigned main_node = p_main_element->GetNodeGlobalIndex(i);
@@ -757,13 +664,11 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
         this->mElements.push_back(p_new_element);
     }
     
-    // Reindex to get rid of extra elements indices...
+    // Reindex to get rid of extra elements indices
     NodeMap map(GetNumAllNodes());
-    this->ReIndex(map);    
-    
-//    TrianglesMeshWriter<2,2> mesh_writer2("","debug_periodic_mesh.1");
-//    mesh_writer2.WriteFilesUsingMesh(*this);
+    this->ReIndex(map);
 }
+
 
 void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
 {
@@ -775,15 +680,15 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
         Element<2,2>* p_element = GetElement(elem_index);
         if (!p_element->IsDeleted())
         {
-            // left images are on the right of the mesh
+            // Left images are on the right of the mesh
             unsigned number_of_left_image_nodes = 0u;
             unsigned number_of_right_image_nodes = 0u;
             for (unsigned i=0; i<3; i++)
             {
                 unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
-                //std::cout << "Node " << this_node_index << "\t";
                 bool this_node_a_left_image = false;
                 bool this_node_a_right_image = false;
+                
                 if(IsThisIndexInList(this_node_index,mLeftImages))
                 {
                     this_node_a_left_image = true;
@@ -801,13 +706,14 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
                     number_of_right_image_nodes++;
                 }
             }
-            // elements on the left hand side (images of right)...
+            
+            // Elements on the left hand side (images of right)...
             if (number_of_right_image_nodes==1u || number_of_right_image_nodes==2u)
             {
                 mLeftPeriodicBoundaryElementIndices.insert(elem_index);
             }
             
-            // elements on the right (images of left nodes)
+            // Elements on the right (images of left nodes)
             if (number_of_left_image_nodes==1u|| number_of_left_image_nodes==2u)
             {
                 mRightPeriodicBoundaryElementIndices.insert(elem_index);
@@ -815,6 +721,7 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
         }
     }
 }
+
 
 unsigned Cylindrical2dMesh::GetCorrespondingNodeIndex(unsigned nodeIndex)
 {
@@ -842,11 +749,10 @@ unsigned Cylindrical2dMesh::GetCorrespondingNodeIndex(unsigned nodeIndex)
                 found = true;
             }   
         }   
-    }
-    
+    }    
     if (IsThisIndexInList(nodeIndex, mLeftOriginals))
     {
-        for (unsigned i=0 ; i<mLeftOriginals.size() ; i++)
+        for (unsigned i=0; i<mLeftOriginals.size(); i++)
         {
             if (mLeftOriginals[i]==nodeIndex)
             {
@@ -857,7 +763,7 @@ unsigned Cylindrical2dMesh::GetCorrespondingNodeIndex(unsigned nodeIndex)
     }    
     if (IsThisIndexInList(nodeIndex, mLeftImages))
     {
-        for (unsigned i=0 ; i<mLeftImages.size() ; i++)
+        for (unsigned i=0; i<mLeftImages.size(); i++)
         {
             if (mLeftImages[i]==nodeIndex)
             {

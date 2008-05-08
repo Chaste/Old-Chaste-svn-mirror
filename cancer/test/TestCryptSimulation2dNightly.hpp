@@ -41,12 +41,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
-// Simple cell killer which just kills a single cell.
-// The constructor takes in a number, and the killer
-// will kill the number-th cell reached using the iterator
-// (or the last cell, if n>num_cells)
-//
-// For testing purposes
+
+/**
+ * Simple cell killer which just kills a single cell.
+ * The constructor takes in a number n, and the killer
+ * will kill the n-th cell reached using the iterator
+ * (or the last cell, if n>num_cells).
+ * 
+ * For testing purposes.
+ */
 class SingleCellCellKiller : public AbstractCellKiller<2>
 {
 private :
@@ -98,20 +101,24 @@ private:
     
 public:
 
-///////// NON-PERIODIC TESTS - These test the spring system and cell birth etc. ----------
+///////// NON-PERIODIC TESTS - these test the spring system and cell birth etc. ///////// 
 
-    // Test the spring system. The cells in this test are given an intial
-    // age of 2.0 so that their springs are at their natural length
-    // i.e. we set birth time=-2.0. 
-    // The mesh is initially a set of 10 by 10 squares, each square made
-    // up of two triangles. The horizontal and vertical edges (springs) are at rest length, the
-    // diagonals are two long, so this means the mesh skews to a (sloughed) parallelogram, each
-    // triangle trying to become equilateral.
-    //
-    // If you want to view the results visually set the end time
-    // to 24.0 and it will look like a parallelogram.
-    // However we keep the simulation time at 1.0 to make
-    // the test short.
+    /** 
+     * Test the spring system.
+     * 
+     * The cells in this test are given an intial age of 2.0 so that their 
+     * springs are at their natural length (i.e. we set birth time=-2.0).
+     * 
+     * The mesh is initially a set of 10 by 10 squares, each square made up 
+     * of two triangles. The horizontal and vertical edges (springs) are at 
+     * rest length, the diagonals are longer, so this means the mesh skews
+     * to a (sloughed) parallelogram, with each triangle trying to become 
+     * equilateral.
+     * 
+     * If you want to view the results visually, set the end time to 24.0, 
+     * and the spring system will resemble a parallelogram. However we keep 
+     * the simulation time at 1.0 in order to keep the test short.
+     */
     void Test2DSpringSystem() throw (Exception)
     {
         double crypt_length = 10;
@@ -241,11 +248,11 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Monolayer/VoronoiAreaAndPerimeter.dat").c_str()), 0);
     }
     
-    //////////////////////////////////////////////////////////////////
-    // starting with a small mesh with 1 stem cell and the rest
-    // differentiated, check the number of cells at the end of the
-    // simulation is as expected.
-    //////////////////////////////////////////////////////////////////
+    /**
+     * Starting with a small mesh with one stem cell and the rest
+     * differentiated, check that the number of cells at the end 
+     * of the simulation is as expected.
+     */
     void Test2DCorrectCellNumbers() throw (Exception)
     {
         CancerParameters* p_params = CancerParameters::Instance();
@@ -346,15 +353,9 @@ public:
         TS_ASSERT_LESS_THAN(num_differentiated, 25u);
         TS_ASSERT_LESS_THAN(15u, num_differentiated);
     }
+
     
-    
-    
-////////////////////////////////////////////////////////////////////////////
-// PERIODIC TESTS
-// 
-// These test the system as a whole
-// 
-////////////////////////////////////////////////////////////////////////////
+///////// PERIODIC TESTS - These test the system as a whole ///////// 
     
     void Test2DPeriodicNightly() throw (Exception)
     {        
@@ -390,8 +391,7 @@ public:
         TS_ASSERT_EQUALS(number_of_cells, 85u);
         TS_ASSERT_EQUALS(number_of_nodes, 133u);
     }
-    
-    
+
     void TestCrypt2DPeriodicWntNightly() throw (Exception)
     {        
         unsigned cells_across = 6;
@@ -434,11 +434,13 @@ public:
         CancerEventHandler::Headings();
         CancerEventHandler::Report();
     }
-    
 
-    // This test is dontTest-ed out and not run every night as it doesn't really test
-    // anything. It does show how to set up a mutant simulation. Mutant viscosities 
-    // are tested elsewhere directly. 
+    /**
+     * This test is dontTest-ed out and not run every night as it 
+     * doesn't really test anything. It does show how to set up a 
+     * mutant simulation. Mutant viscosities are tested elsewhere 
+     * directly.
+     */ 
     void dontRunTestWithMutantCellsUsingDifferentViscosities() throw (Exception)
     {
         unsigned cells_across = 6;
@@ -510,8 +512,7 @@ public:
  
         WntConcentration::Destroy();
     }
-    
-        
+ 
     void TestRandomDeathWithPeriodicMesh() throw (Exception)
     {
         unsigned cells_across = 7;
@@ -542,10 +543,11 @@ public:
         // There should be no cells left after this amount of time
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
     }
-    
-  
-    // Sloughing with a sloughing cell killer and not turning into ghost nodes
-    // on a non-periodic mesh
+
+    /**
+     * Sloughing with a sloughing cell killer and not turning 
+     * into ghost nodes on a non-periodic mesh
+     */
     void TestSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
     {
         unsigned cells_across = 6;
@@ -572,7 +574,6 @@ public:
         
         simulator.Solve();
     }
-
 
     void TestSloughingDeathWithPeriodicMesh() throw (Exception)
     {
@@ -618,7 +619,6 @@ public:
         // (we have lost two rows of 7 but had a bit of birth too)
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 85u);
     }
-
 
     void TestWithMultipleCellKillers() throw (Exception)
     {
@@ -674,8 +674,7 @@ public:
         // All cells should have been removed in this time
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
     }
-        
-        
+
     void TestMonolayerWithCutoffPointAndNoGhosts() throw (Exception)
     {
         int num_cells_depth = 11;
