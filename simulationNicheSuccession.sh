@@ -31,7 +31,7 @@ cp -r $CHASTE_TEST_OUTPUT .
 rm -rf $CHASTE_TEST_OUTPUT
 
 # Get rid of the $JOB_ID folder and copy things back to the original place.
-rm -rf MutationSpread/
+rm -rf NicheSuccessionTime/
 mv $JOB_ID/* .
 rm -rf $JOB_ID/
 
