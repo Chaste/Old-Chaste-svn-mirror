@@ -1851,13 +1851,21 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector
     //Let's not do this if there are any deleted nodes
     assert( GetNumAllNodes() == GetNumNodes());
     
+    assert(perm.size() == mNodes.size());   
+    
     //Copy the node pointers
     std::vector <Node <SPACE_DIM> *> copy_m_nodes;
     copy_m_nodes.assign(mNodes.begin(), mNodes.end());
-    
-    
+        
     for (unsigned i=0;i<mNodes.size();i++)
     {
+        if( perm[i] >= mNodes.size())
+        {
+            std::cout << "perm[" << i << "] = " << perm[i] << std::endl;
+            std::cout << "mNodes.size() = " << mNodes.size() << std::endl;
+            assert(false);
+        }
+        assert(perm[i] < mNodes.size());
         mNodes[ perm[i] ] = copy_m_nodes[i];
     }
     
@@ -1875,13 +1883,19 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
     assert( GetNumAllElements() == GetNumElements());
     assert( GetNumAllNodes() == GetNumNodes());
     
-    //Open a file for the elements
+    // Open a file for the elements
     OutputFileHandler handler("");
+    
+    // Filenames
+    std::string basename = "metis.mesh";
+    std::stringstream output_file;
+    output_file << basename << ".npart." << numProcs;
+    std::string nodes_per_proc_file = basename + ".nodesperproc";
     
     // Only the master process should do IO and call METIS
     if (handler.IsMaster())
     {
-        out_stream metis_file=handler.OpenOutputFile("metis.mesh");
+        out_stream metis_file=handler.OpenOutputFile(basename);
         
         (*metis_file)<<GetNumElements()<<"\t";
         if (ELEMENT_DIM==2)
@@ -1914,32 +1928,41 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
 //                                        + " > /dev/null";
 //        system(permute_command.c_str());
 
+        /*
+         *  Call METIS binary to perform the partitioning. 
+         *  It will output a file called metis.mesh.npart.numProcs
+         */
         std::stringstream permute_command;
         permute_command <<  "./bin/partdmesh "
                         <<  handler.GetOutputDirectoryFullPath("")
-                        <<  "metis.mesh "
+                        <<  basename << " "
                         <<  numProcs
                         <<  " > /dev/null";
                         
         system(permute_command.str().c_str());
 
+        /*
+         *  Create a file with the number of nodes per partition
+         */
+        // Make sure it doesn't exist, since values will be appended with >> 
         std::stringstream clear_command;
         clear_command << "rm -f "
                       << handler.GetOutputDirectoryFullPath("")
-                      << "metis.mesh.nodesperproc.txt"
+                      << nodes_per_proc_file
                       << " > /dev/null";
         system(clear_command.str().c_str());
-                      
+
+        // Loop over the partition number (i.e. processor number) and count how many nodes                      
         for (unsigned proc_index=0; proc_index<numProcs; proc_index++)
         {
             std::stringstream count_command;
             count_command << "grep " 
                           << proc_index << " "
                           << handler.GetOutputDirectoryFullPath("")
-                          << "metis.mesh.npart." << numProcs
+                          << output_file.str()
                           << " | wc -l >> "
                           << handler.GetOutputDirectoryFullPath("")
-                          << "metis.mesh.nodesperproc.txt"; 
+                          << nodes_per_proc_file; 
                           
             system(count_command.str().c_str());               
         }
@@ -1949,22 +1972,25 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
     // Wait for the permutation to be available
 #ifndef SPECIAL_SERIAL
     PetscTools::Barrier();
-#endif //SPECIAL_SERIAL
+#endif
     
     //Read the permutation back into a std::vector
-    std::string perm_file_name   = handler.GetOutputDirectoryFullPath("")
-                                   + "metis.mesh.ngraph.iperm";
-    std::ifstream perm_file(perm_file_name.c_str());
-    std::vector<unsigned> perm;
-    for (unsigned i=0; i<(unsigned)GetNumNodes(); i++)
-    {
-        unsigned new_index;
-        perm_file>>new_index;
-        perm.push_back(new_index);
-    }
-    perm_file.close();
     
-    PermuteNodes(perm);
+    /// \todo to be rewritten with the new output file format
+//    std::string perm_file_name   = handler.GetOutputDirectoryFullPath("")
+//                                   + "metis.mesh.ngraph.iperm";
+//    std::ifstream perm_file(perm_file_name.c_str());
+//    assert(perm_file.is_open());
+//    std::vector<unsigned> perm;
+//    for (unsigned i=0; i<(unsigned)GetNumNodes(); i++)
+//    {
+//        unsigned new_index;
+//        perm_file>>new_index;
+//        perm.push_back(new_index);
+//    }
+//    perm_file.close();
+//    
+//    PermuteNodes(perm);
     
 }
 
