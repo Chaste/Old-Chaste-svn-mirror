@@ -39,7 +39,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  *  A Mechanics system for discrete tissue models based on linear springs between connected 
  *  cells and remeshing every timestep to determine connectivity. The rest length between
- *  two newly born cells grows linearly as the cells age to maturity
+ *  two newly born cells grows linearly as the cells age to maturity. Works out the force
+ *  on each cell \f$i\f$ accorging to: 
+ *  \f[
+ *  \mathbf{F}_i(t) = 
+ *  \mu \sum_{\forall j(t)} \mathbf{\hat{r}}_{ij}(t)\left(s_{ij}(t) - |\mathbf{r}_{ij}(t)| \right)
+ *  \f]
+ *  where \f$j\f$ are the neigbouring cells, \f$ \mathbf{\hat{r}}_{ij}\f$ is the unit vector 
+ *  from cell \f$i\f$ to cell \f$j\f$ and \f$s_{ij}\f$ is the resting length of the spring 
+ *  connecting \f$i\f$ and \f$j\f$.
  * 
  *  NOTES:
  *  There is nothing here saying remeshing is needed every timestep, at the moment
@@ -109,7 +117,7 @@ public :
     Meineke2001SpringSystem(MeshBasedTissue<DIM>& rTissue);
 
     /**
-     * Calculates the force between two nodes.
+     * Calculates the force between two nodes. 
      * 
      * Note that this assumes they are connected and is called by rCalculateVelocitiesOfEachNode()
      * 
