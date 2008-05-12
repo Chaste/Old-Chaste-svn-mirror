@@ -293,7 +293,7 @@ public:
       * (and their mIndex's are altered accordingly).
      * @param perm is a vector containing the new indices
      */
-    void PermuteNodes(std::vector<unsigned> perm);
+    void PermuteNodes(std::vector<unsigned>& perm);
     
     /**
      * Checks the entire mesh element by element and checks whether any neighbouring node
@@ -1846,7 +1846,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector<unsigned> perm)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector<unsigned>& perm)
 {
     //Let's not do this if there are any deleted nodes
     assert( GetNumAllNodes() == GetNumNodes());
@@ -1912,16 +1912,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
         }
         metis_file->close();
                 
-//        std::string convert_command   = "./bin/mesh2nodal "+handler.GetOutputDirectoryFullPath("")
-//                                        + "metis.mesh"
-//                                        + " > /dev/null";
-//        system(convert_command.c_str());
-//        
-//        std::string permute_command   = "./bin/onmetis "+handler.GetOutputDirectoryFullPath("")
-//                                        + "metis.mesh.ngraph"
-//                                        + " > /dev/null";
-//        system(permute_command.c_str());
-
         /*
          *  Call METIS binary to perform the partitioning. 
          *  It will output a file called metis.mesh.npart.numProcs
@@ -1966,25 +1956,53 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
     // Wait for the permutation to be available
 #ifndef SPECIAL_SERIAL
     PetscTools::Barrier();
-#endif
+#endif    
+
+    /*
+     *  Read partition file back into a vector.
+     */    
+    std::vector<unsigned> partition(GetNumNodes());
+    std::vector<unsigned> offset(numProcs,0u);
+        
+    std::ifstream partition_stream;
+    std::string full_path = handler.GetOutputDirectoryFullPath("")
+                            + output_file.str(); 
     
-    //Read the permutation back into a std::vector
+    partition_stream.open(full_path.c_str());
+    assert(partition_stream.is_open()); 
+
+    for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
+    {
+        unsigned part_read;
+        
+        partition_stream >> part_read;
+        
+        partition[node_index] = part_read;
+        for (unsigned proc=part_read+1; proc<=numProcs; proc++)
+        {            
+            offset[proc]++;
+        }
+    }
+    partition_stream.close();
     
-    /// \todo to be rewritten with the new output file format
-//    std::string perm_file_name   = handler.GetOutputDirectoryFullPath("")
-//                                   + "metis.mesh.ngraph.iperm";
-//    std::ifstream perm_file(perm_file_name.c_str());
-//    assert(perm_file.is_open());
-//    std::vector<unsigned> perm;
-//    for (unsigned i=0; i<(unsigned)GetNumNodes(); i++)
-//    {
-//        unsigned new_index;
-//        perm_file>>new_index;
-//        perm.push_back(new_index);
-//    }
-//    perm_file.close();
-//    
-//    PermuteNodes(perm);
+    std::cout << offset [ partition[0] ] << std::endl;
+    
+    /*
+     *  Create the permutation vector based on Metis output
+     */    
+    std::vector<unsigned> permutation(GetNumNodes(), UINT_MAX);
+    std::vector<unsigned> count(numProcs,0u);
+    
+    for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
+    {
+        unsigned part = partition[node_index];
+        // Permutation defined like: node number "offset[part] + count[part]" will be renumbered as node_index
+        permutation [ node_index ] = offset[part] + count[part];
+           
+        count[part]++;
+    }
+    
+    PermuteNodes(permutation);    
     
 }
 
