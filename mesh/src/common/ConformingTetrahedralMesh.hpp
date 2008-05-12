@@ -1859,12 +1859,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector
         
     for (unsigned i=0;i<mNodes.size();i++)
     {
-        if( perm[i] >= mNodes.size())
-        {
-            std::cout << "perm[" << i << "] = " << perm[i] << std::endl;
-            std::cout << "mNodes.size() = " << mNodes.size() << std::endl;
-            assert(false);
-        }
         assert(perm[i] < mNodes.size());
         mNodes[ perm[i] ] = copy_m_nodes[i];
     }
