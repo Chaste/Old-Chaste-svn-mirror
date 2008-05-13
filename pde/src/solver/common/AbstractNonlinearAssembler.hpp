@@ -421,7 +421,7 @@ public:
         VecSetFromOptions(initial_guess);
         
         
-        for (unsigned i=0; i<size ; i++)
+        for (unsigned i=0; i<size; i++)
         {
             VecSetValue(initial_guess, i, 0.0, INSERT_VALUES);
         }

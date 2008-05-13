@@ -341,7 +341,7 @@ void TissueSimulationWithNutrients<DIM>::SetupWriteNutrient()
     if (output_file_handler.IsMaster())
     {
         mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");
-        *this->mpSetupFile << "Nutrient \n" ;
+        *this->mpSetupFile << "Nutrient \n";
         if (mWriteAverageRadialNutrientResults)
         {
             mpAverageRadialNutrientResultsFile = output_file_handler.OpenOutputFile("radial_dist.dat");                     
@@ -380,7 +380,7 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
-        double radius = norm_2(centre_of_tissue - cell_iter.rGetLocation() ) ;
+        double radius = norm_2(centre_of_tissue - cell_iter.rGetLocation() );
         if (radius > max_tissue_radius)
         {
             max_tissue_radius = radius;
@@ -400,7 +400,7 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
     double max_mesh_radius = 0.0;
     for (unsigned i=0; i<mpCoarseNutrientMesh->GetNumNodes(); i++)
     {
-        double radius = norm_2(centre_of_nutrient_mesh - mpCoarseNutrientMesh->GetNode(i)->rGetLocation()) ;
+        double radius = norm_2(centre_of_nutrient_mesh - mpCoarseNutrientMesh->GetNode(i)->rGetLocation());
         if (radius > max_mesh_radius)
         {
             max_mesh_radius = radius;
@@ -559,7 +559,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
-        double radius = norm_2(centre - cell_iter.rGetLocation() ) ;
+        double radius = norm_2(centre - cell_iter.rGetLocation() );
         if (radius > max_radius)
         {
             max_radius = radius;

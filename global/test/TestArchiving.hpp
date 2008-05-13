@@ -231,7 +231,7 @@ public:
             ClassOfSimpleVariables j(0,"bye",bad_doubles,bad_bools);
             
             // read the archive
-            input_arch >> j ;
+            input_arch >> j;
             
             // Check that the values
             TS_ASSERT_EQUALS(j.GetNumber(),42);

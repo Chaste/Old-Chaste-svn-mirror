@@ -110,7 +110,7 @@ public:
         double second_end = 20.0;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(first_end, num_steps);
         
-        for (unsigned i=0 ; i<num_steps ; i++)
+        for (unsigned i=0; i<num_steps; i++)
         {
             double time_should_be = i*first_end/(double)num_steps;
             TS_ASSERT_DELTA(p_simulation_time->GetDimensionalisedTime(), time_should_be, 1e-9);
@@ -120,7 +120,7 @@ public:
         num_steps = 20;
         p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(second_end , num_steps);
         
-        for (unsigned i=0 ; i<num_steps ; i++)
+        for (unsigned i=0; i<num_steps; i++)
         {
             double time_should_be = first_end + i*(second_end-first_end)/(double)num_steps;
             TS_ASSERT_DELTA(p_simulation_time->GetDimensionalisedTime(), time_should_be, 1e-9);

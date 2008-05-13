@@ -306,235 +306,235 @@ protected:
     FaberRudy2000Version3OptimisedLookupTables()
     {
         assert(mpInstance == NULL);
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][0] = 80.0 * exp((-var_membrane__V) * 0.0909090909091);
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][1] = (var_membrane__V <  -40.0) ? (135.0 * exp((80.0 + var_membrane__V) *  -0.147058823529)) : 0.0;
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][2] = (var_membrane__V <  -40.0) ? ((3560.0 * exp(0.079 * var_membrane__V)) + (310000000.0 * exp(0.35 * var_membrane__V))) : (1000.0 / (0.13 * (1.0 + exp((var_membrane__V + 10.66) *  -0.0900900900901))));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][3] = (var_membrane__V <  -40.0) ? ((1000.0 * (-((127140.0 * exp(0.2444 * var_membrane__V)) + (3.474e-05 * exp( -0.04391 * var_membrane__V)))) * (var_membrane__V + 37.78)) / (1.0 + exp(0.311 * (var_membrane__V + 79.23)))) : 0.0;
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][4] = (var_membrane__V <  -40.0) ? ((121.2 * exp( -0.01052 * var_membrane__V)) / (1.0 + exp( -0.1378 * (var_membrane__V + 40.14)))) : ((300.0 * exp( -2.535e-07 * var_membrane__V)) / (1.0 + exp( -0.1 * (var_membrane__V + 32.0))));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][5] = exp((2.0 * var_membrane__V * 96485.0) * 3.87996927064e-07);
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][6] = exp((2.0 * var_membrane__V * 96485.0) * 3.87996927064e-07) - 1.0;
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][7] = exp((1.0 * var_membrane__V * 96485.0) * 3.87996927064e-07);
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][8] = exp((1.0 * var_membrane__V * 96485.0) * 3.87996927064e-07) - 1.0;
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][9] = exp((1.0 * var_membrane__V * 96485.0) * 3.87996927064e-07);
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][10] = exp((1.0 * var_membrane__V * 96485.0) * 3.87996927064e-07) - 1.0;
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][11] = (1.0 / (1.0 + exp((var_membrane__V + 32.0) * 0.125))) + (0.6 / (1.0 + exp((50.0 - var_membrane__V) * 0.05)));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][12] = 0.001 / ((0.0197 * exp(-pow(0.0337 * (var_membrane__V + 10.0), 2.0))) + 0.02);
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][13] = 1.0 / (1.0 + exp((-(var_membrane__V + 14.0)) * 0.0925925925926));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][14] = 0.0037 + (0.0061 / (1.0 + exp((var_membrane__V + 25.0) * 0.222222222222)));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][15] = 1.0 / (1.0 + exp((var_membrane__V + 60.0) * 0.178571428571));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][16] = 1.0 / (1.0 + exp((var_membrane__V + 9.0) * 0.0446428571429));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][17] = 1.0 / (1.0 + exp((-(var_membrane__V + 21.5)) * 0.133333333333));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][18] = 0.001 / (((0.00138 * (var_membrane__V + 14.2)) / (1.0 - exp( -0.123 * (var_membrane__V + 14.2)))) + ((0.00061 * (var_membrane__V + 38.9)) / (exp(0.145 * (var_membrane__V + 38.9)) - 1.0)));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][19] = 1.0 / (1.0 + exp((-(var_membrane__V - 1.5)) * 0.059880239521));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][20] = 0.001 / (((7.19e-05 * (var_membrane__V + 30.0)) / (1.0 - exp( -0.148 * (var_membrane__V + 30.0)))) + ((0.000131 * (var_membrane__V + 30.0)) / (exp(0.0687 * (var_membrane__V + 30.0)) - 1.0)));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][21] = 1.0 / (1.0 + exp((-(var_membrane__V - 1.5)) * 0.059880239521));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][22] = 0.004 / (((7.19e-05 * (var_membrane__V + 30.0)) / (1.0 - exp( -0.148 * (var_membrane__V + 30.0)))) + ((0.000131 * (var_membrane__V + 30.0)) / (exp(0.0687 * (var_membrane__V + 30.0)) - 1.0)));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][23] = 1.0 / (1.0 + exp((7.488 - var_membrane__V) * 0.167224080268));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][24] = 0.8 - (0.65 / (1.0 + exp((var_membrane__V + 125.0) * 0.0666666666667)));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][25] = exp(var_membrane__V * 0.01);
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][26] = (10000.0 * exp((var_membrane__V - 40.0) * 0.04)) / (1.0 + exp((var_membrane__V - 40.0) * 0.04));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][27] = (10000.0 * exp((-(var_membrane__V + 90.0)) * 0.04)) / (1.0 + exp((-(var_membrane__V + 90.0)) * 0.04));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][28] = 15.0 / (1.0 + exp((var_membrane__V + 60.0) * 0.2));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][29] = (100.0 * exp((var_membrane__V + 25.0) * 0.2)) / (1.0 + exp((var_membrane__V + 25.0) * 0.2));
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][30] = 2.25 * (1.0 / (1.0 + (0.1245 * exp(( -0.1 * var_membrane__V * 96485.0) * 3.87996927064e-07)) + (0.0365 * 0.872719796652 * exp(((-var_membrane__V) * 96485.0) * 3.87996927064e-07)))) * 1.0;
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][31] = exp((1.0 * var_membrane__V * 96485.0) * 3.87996927064e-07);
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][32] = exp((1.0 * var_membrane__V * 96485.0) * 3.87996927064e-07) - 1.0;
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][33] = exp((1.0 * var_membrane__V * 96485.0) * 3.87996927064e-07);
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][34] = exp((1.0 * var_membrane__V * 96485.0) * 3.87996927064e-07) - 1.0;
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][35] = exp(( -0.85 * var_membrane__V * 96485.0) * 3.87996927064e-07);
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][36] = exp((var_membrane__V * 96485.0) * 3.87996927064e-07);
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][37] = exp(( -0.85 * var_membrane__V * 96485.0) * 3.87996927064e-07);
         }
 
-        for (int i=0 ; i<20001; i++)
+        for (int i=0; i<20001; i++)
         {
             double var_membrane__V = -100.0001 + i*0.01;
             _lookup_table_0[i][38] = exp((var_membrane__V * 96485.0) * 3.87996927064e-07);

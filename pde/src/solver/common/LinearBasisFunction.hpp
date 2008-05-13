@@ -93,7 +93,7 @@ double LinearBasisFunction<3>::ComputeBasisFunction(
             return rPoint[2];
             break;
         default:
-            ; //not possible to get here because of assertions above
+           ; //not possible to get here because of assertions above
     }
     return 0.0; // Avoid compiler warning
 }
@@ -126,7 +126,7 @@ double LinearBasisFunction<2>::ComputeBasisFunction(
             return rPoint[1];
             break;
         default:
-            ; //not possible to get here because of assertions above
+           ; //not possible to get here because of assertions above
     }
     return 0.0; // Avoid compiler warning
 }
@@ -156,7 +156,7 @@ double LinearBasisFunction<1>::ComputeBasisFunction(
             return rPoint[0];
             break;
         default:
-            ; //not possible to get here because of assertions above
+           ; //not possible to get here because of assertions above
     }
     return 0.0; // Avoid compiler warning
 }
@@ -219,7 +219,7 @@ c_vector<double, 3> LinearBasisFunction<3>::ComputeBasisFunctionDerivative(
             gradN(2) =  1;
             break;
         default:
-            ; //not possible to get here because of assertions above
+           ; //not possible to get here because of assertions above
     }
     return gradN;
 }
@@ -259,7 +259,7 @@ c_vector<double, 2> LinearBasisFunction<2>::ComputeBasisFunctionDerivative(
             gradN(1) =  1;
             break;
         default:
-            ; //not possible to get here because of assertions above
+           ; //not possible to get here because of assertions above
     }
     return gradN;
 }
@@ -293,7 +293,7 @@ c_vector<double,1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
             gradN(0) =  1;
             break;
         default:
-            ; //not possible to get here because of assertions above
+           ; //not possible to get here because of assertions above
     }
     return gradN;
 }

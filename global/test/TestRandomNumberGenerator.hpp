@@ -97,7 +97,7 @@ public:
 			std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
-            for(unsigned i=0 ; i<5 ; i++)
+            for(unsigned i=0; i<5; i++)
         	{
         		p_gen->ranf();
         	}
@@ -112,7 +112,7 @@ public:
             
             // Generator saved here - record the next 10 numbers
             
-            for(unsigned i=0 ; i<10 ; i++)
+            for(unsigned i=0; i<10; i++)
         	{
         		double random = p_gen->ranf();
         		generated_numbers.push_back(random);
@@ -125,7 +125,7 @@ public:
         {
             RandomNumberGenerator *p_gen=RandomNumberGenerator::Instance();
         	p_gen->Reseed(25);	// any old seed.
-        	for(unsigned i=0 ; i<7 ; i++)	// generate some numbers
+        	for(unsigned i=0; i<7; i++)	// generate some numbers
         	{
         		p_gen->ranf();
         	}
@@ -137,7 +137,7 @@ public:
 			// Random Number generator restored. 
 			// check it generates the same numbers as the one we saved.
             
-			for(unsigned i=0 ; i<generated_numbers.size() ; i++)
+			for(unsigned i=0; i<generated_numbers.size(); i++)
         	{
         		double random = p_gen->ranf();
         		TS_ASSERT_DELTA(random,generated_numbers[i],1e-7);

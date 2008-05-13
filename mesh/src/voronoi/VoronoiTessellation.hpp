@@ -347,7 +347,7 @@ VoronoiTessellation<DIM>::~VoronoiTessellation()
 template<unsigned DIM>
 void VoronoiTessellation<DIM>::GenerateVerticesFromElementCircumcentres()
 {
-    for(unsigned i=0; i<mrMesh.GetNumElements() ; i++)
+    for(unsigned i=0; i<mrMesh.GetNumElements(); i++)
     {
         c_vector<double,DIM+1> circumsphere = mrMesh.GetElement(i)->CalculateCircumsphere();
         

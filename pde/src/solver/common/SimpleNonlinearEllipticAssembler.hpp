@@ -169,7 +169,7 @@ private:
         double Dgradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);
         
         // I'm not sure why we want -phi, but it seems to work:)
-        return  (-Dgradu_dot_n)* rPhi ;
+        return  (-Dgradu_dot_n)* rPhi;
     }
     
     

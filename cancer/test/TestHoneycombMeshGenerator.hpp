@@ -136,7 +136,7 @@ public:
         
         std::set<unsigned> correct_ghost_node_indices;
          
-        for (unsigned i=0; i< num_cells_width*ghosts ; i++)
+        for (unsigned i=0; i< num_cells_width*ghosts; i++)
         {
             correct_ghost_node_indices.insert(i);
         }
@@ -201,7 +201,7 @@ public:
         
         std::set<unsigned> correct_ghost_node_indices;
          
-        for (unsigned i=0; i< num_cells_width*ghosts ; i++)
+        for (unsigned i=0; i< num_cells_width*ghosts; i++)
         {
             correct_ghost_node_indices.insert(i);
         }
@@ -364,7 +364,7 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
         
         unsigned num_non_boundary_nodes=0;
-        for (unsigned node_index=0; node_index<16u ; node_index++)
+        for (unsigned node_index=0; node_index<16u; node_index++)
         {
             if (! p_mesh->GetNode(node_index)->IsBoundaryNode())
             {

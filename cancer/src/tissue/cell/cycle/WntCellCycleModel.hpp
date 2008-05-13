@@ -128,7 +128,7 @@ inline void load_construct_data(
    
     
     std::vector<double> state_vars;
-    for (unsigned i=0 ; i<9 ; i++)
+    for (unsigned i=0; i<9; i++)
     {
         state_vars.push_back(0.0);
     }

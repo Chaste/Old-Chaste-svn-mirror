@@ -97,7 +97,7 @@ public:
         int lo, hi;
         VecGetOwnershipRange(var1,&lo,&hi);
         
-        for (int global_index=lo ; global_index<hi ; global_index++)
+        for (int global_index=lo; global_index<hi; global_index++)
         {
             var1_array[global_index-lo]=global_index;
             var2_array[global_index-lo]=global_index+100;
@@ -114,7 +114,7 @@ public:
         /*VecGetArray(var1, &var1_array);
         VecGetArray(var2, &var2_array); 
         mpWriter->PutVariable(time_var_id, 0); 
-        for (int global_index=lo ; global_index<hi ; global_index++)
+        for (int global_index=lo; global_index<hi; global_index++)
         {        
             mpWriter->PutVariable(var1_id, var1_array[global_index - lo], global_index);
             mpWriter->PutVariable(var2_id, var2_array[global_index - lo], global_index);
@@ -145,7 +145,7 @@ public:
         VecGetArray(var1, &var1_array); 
         VecGetArray(var2, &var2_array); 
         mpWriter->PutVariable(time_var_id, 1); 
-        for (int global_index=lo ; global_index<hi ; global_index++)
+        for (int global_index=lo; global_index<hi; global_index++)
         {        
             mpWriter->PutVariable(var1_id, var1_array[global_index - lo], global_index);
             mpWriter->PutVariable(var2_id, var2_array[global_index - lo], global_index);

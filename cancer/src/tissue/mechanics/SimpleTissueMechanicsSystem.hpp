@@ -241,7 +241,7 @@ std::vector<c_vector<double, DIM> >& SimpleTissueMechanicsSystem<DIM>::rCalculat
                 double force_magnitude = CalculateForceMagnitude(node_a_index, node_b_index, distance_between_nodes);
                 assert(!isnan(force_magnitude));
                 c_vector<double, DIM> force = (force_magnitude/distance_between_nodes)*difference; // ie force_magnitude*unit_difference
-                for (unsigned j=0 ; j<DIM ; j++)
+                for (unsigned j=0; j<DIM; j++)
                 {
                     assert(!isnan(force[j]));
                 }

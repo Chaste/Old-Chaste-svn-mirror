@@ -53,7 +53,7 @@ void AbstractCryptStatistics::LabelAllCellsAsHealthy()
 
 std::vector<bool> AbstractCryptStatistics::GetWhetherCryptSectionCellsAreLabelled(std::vector<TissueCell*> cryptSection)
 {
-    std::vector<bool> crypt_section_labelled(cryptSection.size()) ;
+    std::vector<bool> crypt_section_labelled(cryptSection.size());
     
     for (unsigned vector_index=0; vector_index<cryptSection.size(); vector_index++)
     {

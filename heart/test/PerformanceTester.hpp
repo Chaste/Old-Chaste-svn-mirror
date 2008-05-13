@@ -132,7 +132,7 @@ public:
     static void DisplayHeadings()
     {
         const unsigned NUM_HEADINGS=7;
-        const char* heading[NUM_HEADINGS]={"Dimen", "Elts", "Nodes", "PdeStp", "OdeStp", "PriStp", "SimTim"} ;
+        const char* heading[NUM_HEADINGS]={"Dimen", "Elts", "Nodes", "PdeStp", "OdeStp", "PriStp", "SimTim"};
         for (unsigned i=0; i<NUM_HEADINGS; i++)
         {
             printf("%6s\t", heading[i]);

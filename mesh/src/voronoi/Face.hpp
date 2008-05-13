@@ -214,7 +214,7 @@ double Face<DIM>::GetArea() const
         //  Area = sum ( x_i * y_i+1 - y_i * x_i+1 )/2.0 over all vertices, 
         //      assuming vertices are ordered anti-clockwise
         area_return +=   ( (*mVertices[i])(0) * (*mVertices[(i+1)%mVertices.size()])(1) 
-                          -(*mVertices[i])(1) * (*mVertices[(i+1)%mVertices.size()])(0) ) / 2.0 ;
+                          -(*mVertices[i])(1) * (*mVertices[(i+1)%mVertices.size()])(0) ) / 2.0;
     }
     return area_return;
 };

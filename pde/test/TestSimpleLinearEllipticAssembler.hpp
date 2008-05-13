@@ -389,7 +389,7 @@ public:
         ReplicatableVector result_repl(result);
         for (unsigned i=0; i<result_repl.size(); i++)
         {
-            double x = mesh.GetNode(i)->GetPoint()[0] ;
+            double x = mesh.GetNode(i)->GetPoint()[0];
             double u = -(x*x*x/12.0)-(333/(4*x))+4+1000.0/12.0;
             TS_ASSERT_DELTA(result_repl[i], u, 0.2);
         }

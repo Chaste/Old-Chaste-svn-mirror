@@ -262,7 +262,7 @@ public:
             TS_ASSERT_EQUALS(expected_num_cells[generation], cells.size());
         }
         
-        for (unsigned i=0; i<cells.size() ; i++)
+        for (unsigned i=0; i<cells.size(); i++)
         {
             TS_ASSERT_EQUALS(cells[i].GetCellType(), DIFFERENTIATED);
         }
@@ -308,7 +308,7 @@ public:
         WntConcentration::Instance()->SetConstantWntValueForTesting(1.0);
 
         // Go forward through time        
-        for (unsigned i=0 ; i<20 ; i++)
+        for (unsigned i=0; i<20; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
         }
@@ -732,7 +732,7 @@ public:
         wnt_cell.InitialiseCellCycleModel();
         wnt_cell.GetCellCycleModel()->SetGeneration(1);                             
                          
-        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
@@ -760,7 +760,7 @@ public:
         
         TS_ASSERT_DELTA(time_of_birth, time_of_birth2, 1e-9);
         
-        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
@@ -810,7 +810,7 @@ public:
         wnt_cell.InitialiseCellCycleModel();
         wnt_cell.GetCellCycleModel()->SetGeneration(1);
                                   
-        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
@@ -835,7 +835,7 @@ public:
         
         TS_ASSERT_DELTA(time_of_birth, time_of_birth2, 1e-9);        
         
-        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
@@ -882,7 +882,7 @@ public:
         tn_cell.InitialiseCellCycleModel();
         tn_cell.GetCellCycleModel()->SetGeneration(1);                             
                                  
-        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
@@ -906,7 +906,7 @@ public:
         
         TS_ASSERT_DELTA(time_of_birth, time_of_birth2, 1e-9);
         
-        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();

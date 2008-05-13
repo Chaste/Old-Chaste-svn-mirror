@@ -136,7 +136,7 @@ public:
         TS_ASSERT_EQUALS(test_section2.size(), labelled_cells.size());
         
         // Only two of these cells are actually labelled - at node 376 and node 399.
-        for (unsigned i=0 ; i<test_section2.size() ; i++)
+        for (unsigned i=0; i<test_section2.size(); i++)
         {
             unsigned node_index = test_section2[i]->GetNodeIndex();
             if (node_index == 376u || node_index == 399u)

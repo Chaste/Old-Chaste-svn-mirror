@@ -389,7 +389,11 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
         mJacobianDeterminant = Determinant(mJacobian);
         if (mJacobianDeterminant <= DBL_EPSILON)
         {
-            EXCEPTION("Jacobian determinant is non-positive");
+            std::stringstream string_stream;
+            string_stream << "Jacobian determinant is non-positive: "
+                          << "determinant = " << mJacobianDeterminant
+                          << " for element " << mIndex;
+            EXCEPTION(string_stream.str());
         }
         mInverseJacobian   = Inverse(mJacobian);
         return;
@@ -429,7 +433,7 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
             weighted_direction(2)=-SubDeterminant(mJacobian,2,2);
             break;
         default:
-            ; // Not going to happen
+           ; // Not going to happen
     }
     double jacobian_determinant = norm_2(weighted_direction);
     if (jacobian_determinant < DBL_EPSILON)

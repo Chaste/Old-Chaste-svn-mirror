@@ -360,7 +360,7 @@ void ColumnDataWriter::CreateFixedDimensionFile(std::string filename)
     (*mpCurrentOutputFile) << std::endl;
     mRowStartPosition = mpCurrentOutputFile->tellp();
     std::string blank_line(mRowWidth,' ');
-    for (int i = 0; i < mFixedDimensionSize ; i++)
+    for (int i = 0; i < mFixedDimensionSize; i++)
     {
         (*mpCurrentOutputFile) << blank_line << std::endl;
     }

@@ -155,7 +155,7 @@ public:
      * @param newLocation  the position in space at which to put it
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    virtual TissueCell*  AddCell(TissueCell cell, c_vector<double,DIM> newLocation)=0;
+    virtual TissueCell* AddCell(TissueCell cell, c_vector<double,DIM> newLocation)=0;
     
     class Iterator; // Forward declaration; see below
     
@@ -773,7 +773,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                     {   
                         // Set the file to -1 to mark this case.
                         colour = 1;  
-                        *mpCellAncestorsFile << "-" ;
+                        *mpCellAncestorsFile << "-";
                     }
                     *mpCellAncestorsFile << colour << " ";
                 }
@@ -890,7 +890,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                 // Loop over cell variables
                 for (unsigned i=0; i<proteins.size(); i++)
                 {
-                    *mpCellVariablesFile << proteins[i] << " " ;
+                    *mpCellVariablesFile << proteins[i] << " ";
                 }
             }
         }

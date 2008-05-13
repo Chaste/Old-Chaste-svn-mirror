@@ -78,6 +78,7 @@ private:
     /** The indices of nodes on the bottom boundary */
     std::vector<unsigned > mBottomHaloNodes;
     
+
     /**
      * @param pElement
      * @param rImageNodes Left or right image nodes

@@ -154,9 +154,11 @@ public:
 #ifndef NDEBUG
     // define the log macro
     #define LOG(level, message) assert(level>0); if(level <= LogFile::Level()) { (*LogFile::Instance()) << message << "\n"; }
+    #define LOG_AND_COUT(level, message) {std::cout << message << std::endl << std::flush; LOG(level, message); }
 #else
     // do nothing
     #define LOG(level, message) 
+    #define LOG_AND_COUT(level, message)
 #endif
 
 

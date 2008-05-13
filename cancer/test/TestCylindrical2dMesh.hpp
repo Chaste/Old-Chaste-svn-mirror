@@ -91,7 +91,7 @@ public:
         TS_ASSERT_EQUALS(p_mesh->mRightOriginals.size(), p_mesh->mRightImages.size());
         
         // Check that the image nodes are where they should be.
-        for (unsigned i=0 ; i<p_mesh->mLeftOriginals.size() ; i++)
+        for (unsigned i=0; i<p_mesh->mLeftOriginals.size(); i++)
         {
             c_vector<double, 2> original_location = p_mesh->GetNode(p_mesh->mLeftOriginals[i])->rGetLocation();
             c_vector<double, 2> image_location = p_mesh->GetNode(p_mesh->mLeftImages[i])->rGetLocation();
@@ -100,7 +100,7 @@ public:
             TS_ASSERT_DELTA(original_location[1],image_location[1],1e-7);
         }
         
-        for (unsigned i=0 ; i<p_mesh->mRightOriginals.size() ; i++)
+        for (unsigned i=0; i<p_mesh->mRightOriginals.size(); i++)
         {
             c_vector<double, 2> original_location = p_mesh->GetNode(p_mesh->mRightOriginals[i])->rGetLocation();
             c_vector<double, 2> image_location = p_mesh->GetNode(p_mesh->mRightImages[i])->rGetLocation();
@@ -170,12 +170,12 @@ public:
         //
         // Re-Index the vectors regarding left/right nodes with the node map.
         //
-        for (unsigned i = 0 ; i<p_mesh->mLeftOriginals.size() ; i++)
+        for (unsigned i = 0; i<p_mesh->mLeftOriginals.size(); i++)
         {
              p_mesh->mLeftOriginals[i]=map.GetNewIndex(p_mesh->mLeftOriginals[i]);
              p_mesh->mLeftImages[i]=map.GetNewIndex(p_mesh->mLeftImages[i]);
         }
-        for (unsigned i = 0 ; i<p_mesh->mRightOriginals.size() ; i++)
+        for (unsigned i = 0; i<p_mesh->mRightOriginals.size(); i++)
         {
              p_mesh->mRightOriginals[i]=map.GetNewIndex(p_mesh->mRightOriginals[i]);
              p_mesh->mRightImages[i]=map.GetNewIndex(p_mesh->mRightImages[i]);
@@ -198,14 +198,14 @@ public:
             Element<2,2>* p_element = p_mesh->GetElement(elem_index);
             if (!p_element->IsDeleted())
             {
-                for (unsigned i=0 ; i<3 ; i++)
+                for (unsigned i=0; i<3; i++)
                 {
                     unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
                     
                     if(this_node_index==0)
                     {   
                         elements_for_node_0++;
-                        for (unsigned j=0 ; j<3 ; j++)
+                        for (unsigned j=0; j<3; j++)
                         {
                             checksum_for_node_0 += p_element->GetNodeGlobalIndex(j);
                         }
@@ -213,7 +213,7 @@ public:
                     if(this_node_index==11)
                     {   
                         elements_for_node_11++;
-                        for (unsigned j=0 ; j<3 ; j++)
+                        for (unsigned j=0; j<3; j++)
                         {
                             checksum_for_node_11 += p_element->GetNodeGlobalIndex(j);
                         }
@@ -221,7 +221,7 @@ public:
                     if(this_node_index==12)
                     {   
                         elements_for_node_12++;
-                        for (unsigned j=0 ; j<3 ; j++)
+                        for (unsigned j=0; j<3; j++)
                         {
                             checksum_for_node_12 += p_element->GetNodeGlobalIndex(j);
                         }
@@ -229,7 +229,7 @@ public:
                     if(this_node_index==18)
                     {   
                         elements_for_node_18++;
-                        for (unsigned j=0 ; j<3 ; j++)
+                        for (unsigned j=0; j<3; j++)
                         {
                             checksum_for_node_18 += p_element->GetNodeGlobalIndex(j);
                         }
@@ -442,7 +442,7 @@ public:
 //        // We just move one of the bottom boundary nodes and then...
 //        p_mesh->SetNode(0u, boundary_point,false);
 //        // check that all the nodes on this boundary have moved down
-//        for (unsigned i=0; i<3 ; i++)
+//        for (unsigned i=0; i<3; i++)
 //        {
 //            TS_ASSERT_DELTA(p_mesh->GetNode(i)->rGetLocation()[1],-1.76000,1e-6);   
 //        }
@@ -453,7 +453,7 @@ public:
 //        ChastePoint<2> boundary_point2(new_location);
 //        p_mesh->SetNode(19u, boundary_point2,false);
 //        // check that all the nodes on this boundary have moved up
-//        for (unsigned i=18; i<21 ; i++)
+//        for (unsigned i=18; i<21; i++)
 //        {
 //            TS_ASSERT_DELTA(p_mesh->GetNode(i)->rGetLocation()[1],4.0,1e-6);   
 //        }

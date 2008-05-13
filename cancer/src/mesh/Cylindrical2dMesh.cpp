@@ -543,7 +543,7 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
         
         c_vector<unsigned,3> original_element_node_indices;
         c_vector<unsigned,3> corresponding_element_node_indices;
-        for (unsigned i=0 ; i<3 ; i++)
+        for (unsigned i=0; i<3; i++)
         {
             original_element_node_indices[i] = p_element->GetNodeGlobalIndex(i);
             corresponding_element_node_indices[i] = GetCorrespondingNodeIndex(original_element_node_indices[i]);
@@ -631,7 +631,7 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
     {
         unsigned elem_index = *left_iter;
         Element<2,2>* p_element = GetElement(elem_index);
-        for (unsigned i=0; i<3 ; i++)
+        for (unsigned i=0; i<3; i++)
         {
             unsigned index = p_element->GetNodeGlobalIndex(i);
             main_four_nodes.insert(index);
@@ -680,7 +680,7 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
         std::vector<Node<2>*> nodes;
         
         // Put corresponding nodes into a std::vector
-        for (unsigned i=0; i<3 ; i++)
+        for (unsigned i=0; i<3; i++)
         {
             unsigned main_node = p_main_element->GetNodeGlobalIndex(i);
             nodes.push_back(this->GetNode(GetCorrespondingNodeIndex(main_node)));
@@ -757,7 +757,7 @@ unsigned Cylindrical2dMesh::GetCorrespondingNodeIndex(unsigned nodeIndex)
     
     if (IsThisIndexInList(nodeIndex, mRightOriginals))
     {
-        for (unsigned i=0 ; i<mRightOriginals.size() ; i++)
+        for (unsigned i=0; i<mRightOriginals.size(); i++)
         {
             if (mRightOriginals[i]==nodeIndex)
             {
@@ -768,7 +768,7 @@ unsigned Cylindrical2dMesh::GetCorrespondingNodeIndex(unsigned nodeIndex)
     }
     if (IsThisIndexInList(nodeIndex, mRightImages))
     {
-        for (unsigned i=0 ; i<mRightImages.size() ; i++)
+        for (unsigned i=0; i<mRightImages.size(); i++)
         {
             if (mRightImages[i]==nodeIndex)
             {

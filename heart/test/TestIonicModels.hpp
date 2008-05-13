@@ -107,7 +107,7 @@ public:
 
         // Set stimulus
         double magnitude_stimulus = -80.0;   // dimensionless
-        double duration_stimulus = 0.5 ;  // ms
+        double duration_stimulus = 0.5;  // ms
         double start_stimulus = 0.0;   // ms
         InitialStimulus stimulus(magnitude_stimulus,
                                  duration_stimulus,
@@ -162,7 +162,7 @@ public:
 
         // Set stimulus
         double magnitude = -25.5;
-        double duration  = 2.0  ;  // ms
+        double duration  = 2.0 ;  // ms
         double when = 50.0; // ms
         InitialStimulus stimulus(magnitude, duration, when);
         
@@ -198,7 +198,7 @@ public:
     {
         // Set stimulus
         double magnitude = -25.5;
-        double duration  = 2.0  ;  // ms
+        double duration  = 2.0 ;  // ms
         double start = 50.0; // ms
         double period = 500; // ms
         RegularStimulus stimulus(magnitude, duration, period, start);
@@ -225,7 +225,7 @@ public:
         clock_t ck_start, ck_end;
         // Set stimulus
         double magnitude = -25.5;
-        double duration  = 2.0  ;  // ms
+        double duration  = 2.0 ;  // ms
         double when = 50.0; // ms
         InitialStimulus stimulus(magnitude, duration, when);
         
@@ -394,7 +394,7 @@ public:
 
         // Set stimulus
         double magnitude = -80.0;
-        double duration  = 1.0  ;  // ms
+        double duration  = 1.0 ;  // ms
         double start = 50.0; // ms
         double period = 500; // ms
         RegularStimulus stimulus(magnitude, duration, period, start);

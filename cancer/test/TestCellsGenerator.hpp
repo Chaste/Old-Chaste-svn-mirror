@@ -53,7 +53,7 @@ public:
         
         TS_ASSERT_EQUALS(cells.size(), mesh.GetNumNodes());
         
-        for (unsigned i=0 ; i<cells.size() ; i++)
+        for (unsigned i=0; i<cells.size(); i++)
         {
             TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(i), 1e-9);   
@@ -79,7 +79,7 @@ public:
         
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
         
-        for (unsigned i=0 ; i<cells.size() ; i++)
+        for (unsigned i=0; i<cells.size(); i++)
         {
             TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
             double height = p_mesh->GetNode(i)->rGetLocation()[1];
@@ -125,7 +125,7 @@ public:
         double y2 = 3.0;
         double y3 = 4.0;
         
-        for (unsigned i=0 ; i<cells.size() ; i++)
+        for (unsigned i=0; i<cells.size(); i++)
         {
             TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
             
@@ -169,7 +169,7 @@ public:
         
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
         
-        for (unsigned i=0 ; i<cells.size() ; i++)
+        for (unsigned i=0; i<cells.size(); i++)
         {
             TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
         }
@@ -188,7 +188,7 @@ public:
         
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
         
-        for (unsigned i=0 ; i<cells.size() ; i++)
+        for (unsigned i=0; i<cells.size(); i++)
         {
             TS_ASSERT_EQUALS(cells[i].GetNodeIndex(), i);
             

@@ -150,7 +150,7 @@ public:
         // Find one of the elements that nodes 0 and 1 live on
         ChastePoint<2> new_point2;
         new_point2.rGetLocation()[0] = new_point[0] + 0.01;
-        new_point2.rGetLocation()[1] = new_point[1] + 0.01 ;
+        new_point2.rGetLocation()[1] = new_point[1] + 0.01;
         
         unsigned elem_index = p_mesh->GetContainingElementIndex(new_point2, false);
         Element<2,2>* p_element = p_mesh->GetElement(elem_index);

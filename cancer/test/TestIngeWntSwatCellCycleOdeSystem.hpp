@@ -100,7 +100,7 @@ public:
         TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
         
         // Inge's
-        for (unsigned i=5; i<initial_conditions.size() ; i++)
+        for (unsigned i=5; i<initial_conditions.size(); i++)
         {
             TS_ASSERT_DELTA(derivs[i],0.0, 1e-9);
         }
@@ -153,7 +153,7 @@ public:
         TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
         
         // Inge's
-        for (unsigned i=5 ; i<derivs.size() ; i++)
+        for (unsigned i=5; i<derivs.size(); i++)
         {
             TS_ASSERT_DELTA(derivs[i],0.0, 1e-9);
         }
@@ -204,7 +204,7 @@ public:
         TS_ASSERT_DELTA(derivs[3],-7.449833887043188e-03, 1e-5);
         TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
         
-        for (unsigned i=5; i<initial_conditions.size() ; i++)
+        for (unsigned i=5; i<initial_conditions.size(); i++)
         {
             TS_ASSERT_DELTA(derivs[i],0.0, 1e-9);
         }
@@ -259,7 +259,7 @@ public:
         TS_ASSERT_DELTA(derivs[2], 5.545234672425986e+00, 1e-4);
         TS_ASSERT_DELTA(derivs[3],-7.449833887043188e-03, 1e-5);
         TS_ASSERT_DELTA(derivs[4], 1.549680000000000e-02, 1e-5);
-        for (unsigned i=5; i<initial_conditions.size() ; i++)
+        for (unsigned i=5; i<initial_conditions.size(); i++)
         {
             TS_ASSERT_DELTA(derivs[i],0.0, 1e-9);
         }

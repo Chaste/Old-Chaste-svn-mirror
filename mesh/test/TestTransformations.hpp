@@ -159,7 +159,7 @@ public:
         const double x_movement = 1.0, y_movement = 2.5, z_movement = -3.75;
         mesh.Translate(x_movement,y_movement,z_movement);
         
-        ChastePoint<3>  new_coordinate = node->GetPoint() ;
+        ChastePoint<3>  new_coordinate = node->GetPoint();
         double new_mesh_volume = mesh.CalculateVolume();
         
         TS_ASSERT_DELTA(mesh_volume,new_mesh_volume,1e-6);
@@ -177,10 +177,10 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         // Translations -- Add a constant vector to each node
         
-        c_vector<double,3>  displacement ;
-        displacement(0) = 1 ;
-        displacement(1) = 1 ;
-        displacement(2) = 1 ;
+        c_vector<double,3>  displacement;
+        displacement(0) = 1;
+        displacement(1) = 1;
+        displacement(2) = 1;
         
         // Translate the mesh along the vector displacement
         mesh.Translate(displacement);
@@ -193,12 +193,12 @@ public:
         {
         
             // Find new coordinates of the translated node
-            Node<3> * node = mesh.GetNode(i) ;
-            ChastePoint<3>  new_coordinate = node->GetPoint() ;
+            Node<3> * node = mesh.GetNode(i);
+            ChastePoint<3>  new_coordinate = node->GetPoint();
             
             // Get original node
-            Node<3> * original_node = original_mesh.GetNode(i) ;
-            ChastePoint<3>  original_coordinate = original_node->GetPoint() ;
+            Node<3> * original_node = original_mesh.GetNode(i);
+            ChastePoint<3>  original_coordinate = original_node->GetPoint();
             
             // Run a test to make sure the node has gone to the correct place
             
@@ -462,10 +462,10 @@ public:
         
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        c_vector<double,3>  axis ;
-        axis(0) = 1 ;
-        axis(1) = 0 ;
-        axis(2) = 0 ;
+        c_vector<double,3>  axis;
+        axis(0) = 1;
+        axis(1) = 0;
+        axis(2) = 0;
         
         double angle = M_PI;
         
@@ -478,12 +478,12 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes();i++)
         {
         
-            Node<3> * node = mesh.GetNode(i) ;
-            ChastePoint<3>  new_coordinate = node->GetPoint() ;
+            Node<3> * node = mesh.GetNode(i);
+            ChastePoint<3>  new_coordinate = node->GetPoint();
             
             // Get original node
-            Node<3> * original_node = original_mesh.GetNode(i) ;
-            ChastePoint<3>  original_coordinate = original_node->GetPoint() ;
+            Node<3> * original_node = original_mesh.GetNode(i);
+            ChastePoint<3>  original_coordinate = original_node->GetPoint();
             
             // Run a test to make sure the node has gone to the correct place
             
@@ -519,12 +519,12 @@ public:
         {
         
             // Find new coordinates of the translated node
-            Node<2> * node = mesh.GetNode(i) ;
-            ChastePoint<2>  new_coordinate = node->GetPoint() ;
+            Node<2> * node = mesh.GetNode(i);
+            ChastePoint<2>  new_coordinate = node->GetPoint();
             
             // Get original node
-            Node<2> * original_node = original_mesh.GetNode(i) ;
-            ChastePoint<2>  original_coordinate = original_node->GetPoint() ;
+            Node<2> * original_node = original_mesh.GetNode(i);
+            ChastePoint<2>  original_coordinate = original_node->GetPoint();
             
             // Run a test to make sure the node has gone to the correct place
             

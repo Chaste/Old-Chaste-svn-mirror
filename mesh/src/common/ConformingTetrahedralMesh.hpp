@@ -1472,7 +1472,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(uns
     while (element_indices_iterator != element_indices.end())
     {
         Element<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(*element_indices_iterator);
-        for (unsigned i=0 ; i< p_element->GetNumNodes();i++)
+        for (unsigned i=0; i< p_element->GetNumNodes();i++)
         {
             Node<SPACE_DIM>* p_node = p_element->GetNode(i);
             if (!p_node->IsDeleted())
@@ -1665,8 +1665,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMeshWithTriangleLibrar
     }
      
       
-    
-    
     free(triangle_input.pointlist);
     
     free(triangle_output.pointlist);
@@ -2016,7 +2014,7 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
     std::set<unsigned> neighbouring_nodes_indices;
     
     //Form a set of neighbouring elements via the nodes
-    for (unsigned i = 0 ; i < num_nodes; i++)
+    for (unsigned i = 0; i < num_nodes; i++)
     {
         Node<SPACE_DIM>* node = pElement->GetNode(i);
         neighbouring_elements_indices = node->rGetContainingElementIndices();
@@ -2035,13 +2033,13 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
     for (ElementIterator it = neighbouring_elements.begin();
          it != neighbouring_elements.end(); ++it)
     {
-        for (unsigned i = 0 ; i < num_nodes; i++)
+        for (unsigned i = 0; i < num_nodes; i++)
         {
             neighbouring_nodes_indices.insert((*it)->GetNodeGlobalIndex(i));
         }
     }
     //Remove the nodes that support this element
-    for (unsigned i = 0 ; i < num_nodes; i++)
+    for (unsigned i = 0; i < num_nodes; i++)
     {
         neighbouring_nodes_indices.erase(pElement->GetNodeGlobalIndex(i));
     }
@@ -2709,7 +2707,7 @@ c_vector<double,2> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthEx
     double max = -1e200;
     double min = 1e200;
     assert(GetNumAllNodes() > 0u);
-    for (unsigned i=0 ; i<GetNumAllNodes() ; i++)
+    for (unsigned i=0; i<GetNumAllNodes(); i++)
     {
         if (!mNodes[i]->IsDeleted())
         {

@@ -58,7 +58,7 @@ public:
         clock_t ck_start, ck_end;
         // Set stimulus
         double magnitude = -80.0;
-        double duration  = 1.0  ;  // ms
+        double duration  = 1.0 ;  // ms
         double start = 50.0; // ms
         double period = 500; // ms
         RegularStimulus stimulus(magnitude, duration, period, start);

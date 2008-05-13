@@ -101,7 +101,7 @@ void RungeKuttaFehlbergIvpOdeSolver::InternalSolve(OdeSolution& rSolution,
               
             // Find the maximum error in this vector.
             double max_error = -DBL_MAX;
-            for (unsigned i=0; i<number_of_variables ; i++)
+            for (unsigned i=0; i<number_of_variables; i++)
             {
                 if (mError[i] > max_error)
                 {

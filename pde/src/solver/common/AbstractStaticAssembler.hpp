@@ -229,7 +229,7 @@ protected:
                 unsigned node_global_index = rElement.GetNodeGlobalIndex(i);
                 if (mCurrentSolutionOrGuessReplicated.size()>0)
                 {
-                    for (unsigned index_of_unknown=0; index_of_unknown<(NON_HEART ? PROBLEM_DIM : 1) ; index_of_unknown++)
+                    for (unsigned index_of_unknown=0; index_of_unknown<(NON_HEART ? PROBLEM_DIM : 1); index_of_unknown++)
                     {
                         // If we have a current solution (e.g. this is a dynamic problem)
                         // get the value in a usable form.

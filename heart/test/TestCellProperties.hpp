@@ -56,7 +56,7 @@ public:
          * Set stimulus
          */
         double magnitude_of_stimulus = -80.0;
-        double duration_of_stimulus  = 0.5 ;  // ms
+        double duration_of_stimulus  = 0.5;  // ms
         double period = 1000.0; // 1s
         double when = 100.0;
         RegularStimulus stimulus(magnitude_of_stimulus,

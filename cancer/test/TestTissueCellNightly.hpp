@@ -197,7 +197,7 @@ public:
         wnt_cell.GetCellCycleModel()->SetGeneration(1);                          
         wnt_cell.InitialiseCellCycleModel();
         
-        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
@@ -226,7 +226,7 @@ public:
         
         TS_ASSERT_DELTA(time_of_birth, time_of_birth2, 1e-9);
         
-        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
@@ -273,7 +273,7 @@ public:
                                   
         wnt_cell.InitialiseCellCycleModel();
                                   
-        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
@@ -302,7 +302,7 @@ public:
         
         TS_ASSERT_DELTA(time_of_birth, time_of_birth2, 1e-9);
         
-        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
@@ -364,7 +364,7 @@ public:
         
         wnt_cell.SetMutationState(APC_TWO_HIT);
         
-        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
@@ -393,7 +393,7 @@ public:
         
         TS_ASSERT_DELTA(time_of_birth, time_of_birth2, 1e-9);
         
-        for (unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0; i<num_steps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();

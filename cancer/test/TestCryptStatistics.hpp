@@ -209,7 +209,7 @@ public:
         CryptStatistics crypt_statistics(crypt);
         std::vector< TissueCell* > test_section = crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
         
-        for (unsigned i=0; i<test_section.size() ; i++)
+        for (unsigned i=0; i<test_section.size(); i++)
         {
             test_section[i]->SetMutationState(LABELLED);
         }
@@ -420,7 +420,7 @@ public:
             labelled = p_crypt_statistics->GetWhetherCryptSectionCellsAreLabelled(crypt_section);
             
             // Store information from this simulation in a global vector.
-            for (unsigned cell_index=0 ; cell_index < labelled.size();cell_index++)
+            for (unsigned cell_index=0; cell_index < labelled.size();cell_index++)
             {
                 if (cell_index>=labelled_cells_counter.size())  std::cout << " " << labelled.size() << labelled_cells_counter.size() << std::endl << std::flush;                         
                 assert(cell_index<labelled_cells_counter.size());

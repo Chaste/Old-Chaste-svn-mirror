@@ -297,7 +297,7 @@ public :
         {
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
             vertex_iter.GetVertex()[0] = deformed_position[0](vertex_index);
-            vertex_iter.GetVertex()[1] = deformed_position[1](vertex_index) ;
+            vertex_iter.GetVertex()[1] = deformed_position[1](vertex_index);
             vertex_iter.GetVertex()[2] = deformed_position[2](vertex_index);
             
             vertex_iter.Next();

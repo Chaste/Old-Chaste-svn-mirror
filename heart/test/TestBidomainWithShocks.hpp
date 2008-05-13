@@ -170,7 +170,7 @@ public:
         
         // as we are applying an extracellular stimulus we need to have a dirichlet
         // boundary condition. Fix phi_e to be zero at the end node (node 100)
-        std::vector<unsigned> fixed ;
+        std::vector<unsigned> fixed;
     fixed.push_back(100);
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed );
         
@@ -267,7 +267,7 @@ public:
         
         // as we are applying an extracellular stimulus we need to have a dirichlet
         // boundary condition. Fix phi_e to be zero at a boundary node
-        std::vector<unsigned> fixed ;
+        std::vector<unsigned> fixed;
     fixed.push_back(120);
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed );
 

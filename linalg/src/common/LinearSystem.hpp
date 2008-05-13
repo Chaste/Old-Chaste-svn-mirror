@@ -88,7 +88,7 @@ public:
     void SetRelativeTolerance(double relativeTolerance);
     void SetAbsoluteTolerance(double absoluteTolerance);
     void DisplayMatrix();
-    void DisplayRhs() ;
+    void DisplayRhs();
     void SetMatrixRow(PetscInt row, double value);
     void ZeroMatrixRow(PetscInt row);
     void ZeroLhsMatrix();
@@ -125,12 +125,12 @@ public:
         unsigned num_values_owned=0;
         
         double values[MATRIX_SIZE*MATRIX_SIZE];
-        for (unsigned row = 0 ; row<MATRIX_SIZE; row++)
+        for (unsigned row = 0; row<MATRIX_SIZE; row++)
         {
             PetscInt global_row = matrixRowAndColIndices[row];
             if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
             {
-                matrix_row_indices[num_rows_owned++] = global_row ;
+                matrix_row_indices[num_rows_owned++] = global_row;
                 for (unsigned col=0; col<MATRIX_SIZE; col++)
                 {
                     values[num_values_owned++] = smallMatrix(row,col);
@@ -163,12 +163,12 @@ public:
         PetscInt num_indices_owned=0; 
         
         double values[VECTOR_SIZE];
-        for (unsigned row = 0 ; row<VECTOR_SIZE; row++)
+        for (unsigned row = 0; row<VECTOR_SIZE; row++)
         {
             PetscInt global_row = VectorIndices[row];
             if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
             {
-                indices_owned[num_indices_owned] = global_row ;
+                indices_owned[num_indices_owned] = global_row;
                 values[num_indices_owned] = smallVector(row);
                 num_indices_owned++;
             }

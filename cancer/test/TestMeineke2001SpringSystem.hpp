@@ -133,7 +133,7 @@ public:
         // Find one of the elements that nodes 59 and 60 live on
         ChastePoint<2> new_point2;
         new_point2.rGetLocation()[0] = new_point[0] + 0.01;
-        new_point2.rGetLocation()[1] = new_point[1] + 0.01 ;
+        new_point2.rGetLocation()[1] = new_point[1] + 0.01;
         
         unsigned elem_index = p_mesh->GetContainingElementIndex(new_point2, false);
         Element<2,2>* p_element = p_mesh->GetElement(elem_index);
@@ -554,7 +554,7 @@ public:
         }
         
         //  Test forces on nodes        
-        for (unsigned i=0 ; i<1 ; i++)
+        for (unsigned i=0; i<1; i++)
         {
             std::vector<c_vector<double,3> >& velocities = meineke_spring_system.rCalculateVelocitiesOfEachNode();
             

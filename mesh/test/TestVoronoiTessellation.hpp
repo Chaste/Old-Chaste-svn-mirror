@@ -322,19 +322,19 @@ public:
         Face<2>* p_reordered_face = tessellation.mFaces[0];
         
                 
-        c_vector<double,2>* p_temp = p_reordered_face->mVertices[0] ;
+        c_vector<double,2>* p_temp = p_reordered_face->mVertices[0];
         
         //std::cout<< "\n Before " << *(p_reordered_face->mVertices[0]);
         //std::cout<< "\n"<< *(original_face.mVertices[0]);
         //std::cout<< "\n Before " << *(p_reordered_face->mVertices[1]);
         //std::cout<< "\n"<< *(original_face.mVertices[1]);
         
-        p_reordered_face->mVertices[0] = p_reordered_face->mVertices[1] ; 
-        p_reordered_face->mVertices[1] = p_temp ;
+        p_reordered_face->mVertices[0] = p_reordered_face->mVertices[1]; 
+        p_reordered_face->mVertices[1] = p_temp;
         
-        //std::cout<< "\n After " << *(p_reordered_face->mVertices[0]) ;
+        //std::cout<< "\n After " << *(p_reordered_face->mVertices[0]);
         //std::cout<< "\n"<< *(original_face.mVertices[0]);
-        //std::cout<< "\n After " << *(p_reordered_face->mVertices[1]) ;
+        //std::cout<< "\n After " << *(p_reordered_face->mVertices[1]);
         //std::cout<< "\n"<< *(original_face.mVertices[1]);        
 
         //tessellation.OrderFaceVerticesAntiClockwise(0u); 

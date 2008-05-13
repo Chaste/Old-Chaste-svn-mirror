@@ -81,9 +81,9 @@ private:
                          std::vector<double>& currentYValues,
                          std::vector<double>& currentGuess)
     {
-        for (unsigned i = 0 ; i<mSizeOfOdeSystem ; i++)
+        for (unsigned i = 0; i<mSizeOfOdeSystem; i++)
         {
-            for (unsigned j = 0 ; j <mSizeOfOdeSystem ; j++)
+            for (unsigned j = 0; j <mSizeOfOdeSystem; j++)
             {
                 mJacobian[i][j]=0.0;
             }
@@ -254,7 +254,7 @@ public:
         mUpdate = new double[mSizeOfOdeSystem];
         
         mJacobian = new double*[mSizeOfOdeSystem];
-        for (unsigned i=0 ; i<mSizeOfOdeSystem ; i++)
+        for (unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
             mJacobian[i] = new double[mSizeOfOdeSystem];
         }
@@ -266,7 +266,7 @@ public:
         delete[] mResidual;
         delete[] mUpdate;
         
-        for (unsigned i=0 ; i<mSizeOfOdeSystem ; i++)
+        for (unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
             delete[] mJacobian[i];
         }

@@ -159,7 +159,7 @@ public :
         {
             for (i = 0; i < NY; i++) 
             {
-                for (k = 0; k < NZ ; k++)
+                for (k = 0; k < NZ; k++)
                     data_out[j][i][k] = 0;
             }
         } 
@@ -204,7 +204,7 @@ public :
          */
         dimsm[0] = NX;
         dimsm[1] = NY;
-        dimsm[2] = NZ ;
+        dimsm[2] = NZ;
         memspace = H5Screate_simple(RANK_OUT,dimsm,NULL);   
     
         /* 
