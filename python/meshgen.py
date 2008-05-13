@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """Copyright (C) University of Oxford, 2008
 
 University of Oxford means the Chancellor, Masters and Scholars of the
@@ -24,30 +23,25 @@ being under the jurisdiction of the English Courts.
 You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
+import os,sys
 
-# Beautify source files using astyle
+if len(sys.argv) < 2:
+  sys.exit(1)
 
-exts = ['.cpp', '.hpp']
-dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'anim']
-chaste_dir = '.'
-astyle_options_file = 'astylerc'
+pref = sys.argv[1]
+eles = 20
+nodes = eles+1
 
-import os
+f=file(pref+'.node', 'w')
+f.write("%d\t1\t0\t1\n" % (nodes))
+for i in range(0,nodes):
+  b = 0
+  if i == 0 or i == nodes: b=1
+  f.write("%d %f %d\n" % (i, 1.0*i/eles, b))
+f.close()
 
-os.chdir(chaste_dir)
-
-# AStyle command line template
-cmd = "astyle --options=%s %%s" % astyle_options_file
-
-for root, dirs, files in os.walk(chaste_dir):
-    # Check for ignored dirs
-    for dir in dir_ignores:
-        if dir in dirs:
-            dirs.remove(dir)
-    # Check for source files
-    for file in files:
-        name, ext = os.path.splitext(file)
-        if ext in exts:
-            # Run astyle
-            os.system(cmd % os.path.join(root, file))
-            
+f=file(pref+'.ele', 'w')
+f.write("%d\t2\t0\n" % (eles))
+for i in range(0, eles):
+  f.write("%d %d %d\n" % (i, i, i+1))
+f.close()

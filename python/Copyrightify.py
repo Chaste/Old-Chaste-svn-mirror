@@ -1,64 +1,6 @@
 #!/usr/bin/env python
 
-## todo: improvements; find multiple copyright notices.
-##       write python notice switcher
-
-
-"""Copyright (C) Oxford University 2008
-
-This file is part of CHASTE.
-
-CHASTE is free software: you can redistribute it and/or modify
-it under the terms of the Lesser GNU General Public License as published by
-the Free Software Foundation, either version 2.1 of the License, or
-(at your option) any later version.
-
-CHASTE is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-Lesser GNU General Public License for more details.
-
-You should have received a copy of the Lesser GNU General Public License
-along with CHASTE.  If not, see <http://www.gnu.org/licenses/>."""
-
-# Check, apply or modify the copyright notice
-import os, sys
-exts = ['.cpp', '.hpp']
-dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'anim']
-#exclusions = ['triangle/triangle.cpp']
-
-apply_update =  '-update' in sys.argv
-apply_new = '-new' in sys.argv
-
-chaste_dir = '.'
-if '-dir' in sys.argv: 
-    i = sys.argv.index('-dir')
-    chaste_dir = os.path.realpath(sys.argv[i+1])
-
-
-depricated_notice="""/*
-Copyright (C) University of Oxford, 2008
-
-This file is part of Chaste.
-
-Chaste is free software: you can redistribute it and/or modify
-it under the terms of the Lesser GNU General Public License as published by
-the Free Software Foundation, either version 2.1 of the License, or
-(at your option) any later version.
-
-Chaste is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-Lesser GNU General Public License for more details.
-
-You should have received a copy of the Lesser GNU General Public License
-along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
-*/"""
-
-
-current_notice="""/*
-
-Copyright (C) University of Oxford, 2008
+"""Copyright (C) University of Oxford, 2008
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -81,14 +23,86 @@ being under the jurisdiction of the English Courts.
 
 You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
-
-*/
 """
+
+
+
+# Check, apply or modify the copyright notice
+import os, sys
+exts = ['.cpp', '.hpp', '.py']
+dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'anim', 'projects']
+#exclusions = ['triangle/triangle.cpp']
+
+apply_update =  '-update' in sys.argv
+apply_new = '-new' in sys.argv
+
+chaste_dir = '.'
+if '-dir' in sys.argv: 
+    i = sys.argv.index('-dir')
+    chaste_dir = os.path.realpath(sys.argv[i+1])
+
+
+depricated_notice="""Copyright (C) University of Oxford, 2008
+
+This file is part of Chaste.
+
+Chaste is free software: you can redistribute it and/or modify
+it under the terms of the Lesser GNU General Public License as published by
+the Free Software Foundation, either version 2.1 of the License, or
+(at your option) any later version.
+
+Chaste is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Lesser GNU General Public License for more details.
+
+You should have received a copy of the Lesser GNU General Public License
+along with Chaste.  If not, see <http://www.gnu.org/licenses/>."""
+
+
+current_notice="""Copyright (C) University of Oxford, 2008
+
+University of Oxford means the Chancellor, Masters and Scholars of the
+University of Oxford, having an administrative office at Wellington
+Square, Oxford OX1 2JD, UK.
+
+This file is part of Chaste.
+
+Chaste is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 2.1 of the License, or
+(at your option) any later version.
+
+Chaste is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details. The offer of Chaste under the terms of the
+License is subject to the License being interpreted in accordance with
+English Law and subject to any action against the University of Oxford
+being under the jurisdiction of the English Courts.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Chaste. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+#py_depricated_notice=''
+#for line in depricated_notice.splitlines():#
+#	py_depricated_notice+=''.join(['# ',line,'\n'])
+#py_current_notice=''
+#for line in current_notice.splitlines():
+#	py_current_notice+=''.join(['# ',line,'\n'])
+
+py_current_notice='\"\"\"'+current_notice+'\"\"\"\n'
+cpp_current_notice='/*\n\n'+current_notice+'\n*/'
+cpp_depricated_notice='/*\n'+depricated_notice+'\n*/'
+
 
 pycml_notice="// Processed by pycml - CellML Tools in Python"
 xsd_notice="// Copyright (C) 2005-2007 Code Synthesis Tools CC"
 triangle_notice="""/*  Copyright 1993, 1995, 1997, 1998, 2002, 2005                             */
 /*  Jonathan Richard Shewchuk                                                */"""
+recursive_notice="___This file here___"
+
 def CheckForCopyrightNotice(findStr, fileIn):
     fileIn.seek(0)
     file_text=fileIn.read()
@@ -126,11 +140,14 @@ def HeadAppendStringInFile(appendString, filePath):
 
 def InspectFile(fileName):
     file_in = open(fileName)
+    if (fileName[-15:]=='Copyrightify.py'):
+    	#Can't really check this one, since it knows all the licences
+    	return True
     valid_notice=False
-    if (CheckForCopyrightNotice(current_notice, file_in)):
+    if (CheckForCopyrightNotice(cpp_current_notice, file_in) or CheckForCopyrightNotice(py_current_notice, file_in)):
         #print 'Found current notice in '+file_name
         valid_notice=True
-    if (CheckForCopyrightNotice(pycml_notice, file_in) or CheckForCopyrightNotice(xsd_notice, file_in) or CheckForCopyrightNotice(triangle_notice, file_in)):
+    if (CheckForCopyrightNotice(recursive_notice, file_in) or CheckForCopyrightNotice(pycml_notice, file_in) or CheckForCopyrightNotice(xsd_notice, file_in) or CheckForCopyrightNotice(triangle_notice, file_in)):
         #print 'Found 3rd party notice in '+file_name
         if (valid_notice):
             print "Multiple notices on"+file_name
@@ -139,18 +156,22 @@ def InspectFile(fileName):
             return True
     if (valid_notice):
         return True
-    if (CheckForCopyrightNotice(depricated_notice, file_in)):
+    if (CheckForCopyrightNotice(cpp_depricated_notice, file_in)):
         print 'Found depricated copyright notice for',fileName
         if (apply_update):
-            ReplaceStringInFile(depricated_notice, current_notice, fileName)
-            return True
+           	ReplaceStringInFile(cpp_depricated_notice, cpp_current_notice, fileName)
+        	return True
         else:
             print 'Fix this by running with -update argument'
             return False
     
     print 'Found no copyright notice for',fileName
     if (apply_new):
-        HeadAppendStringInFile(current_notice, fileName)
+        if (fileName[-3:] == '.py'):
+          	print 'Not implemented'
+          	return False
+        else:
+	        HeadAppendStringInFile(cpp_current_notice, fileName)
         return True
     else:
         print 'Fix this by running with -new argument'
