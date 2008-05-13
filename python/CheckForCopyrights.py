@@ -101,7 +101,6 @@ pycml_notice="// Processed by pycml - CellML Tools in Python"
 xsd_notice="// Copyright (C) 2005-2007 Code Synthesis Tools CC"
 triangle_notice="""/*  Copyright 1993, 1995, 1997, 1998, 2002, 2005                             */
 /*  Jonathan Richard Shewchuk                                                */"""
-recursive_notice="___This file here___"
 
 def CheckForCopyrightNotice(findStr, fileIn):
     fileIn.seek(0)
@@ -140,14 +139,14 @@ def HeadAppendStringInFile(appendString, filePath):
 
 def InspectFile(fileName):
     file_in = open(fileName)
-    if (fileName[-15:]=='Copyrightify.py'):
+    if (fileName[-21:]=='CheckForCopyrights.py'):
     	#Can't really check this one, since it knows all the licences
     	return True
     valid_notice=False
     if (CheckForCopyrightNotice(cpp_current_notice, file_in) or CheckForCopyrightNotice(py_current_notice, file_in)):
         #print 'Found current notice in '+file_name
         valid_notice=True
-    if (CheckForCopyrightNotice(recursive_notice, file_in) or CheckForCopyrightNotice(pycml_notice, file_in) or CheckForCopyrightNotice(xsd_notice, file_in) or CheckForCopyrightNotice(triangle_notice, file_in)):
+    if (CheckForCopyrightNotice(pycml_notice, file_in) or CheckForCopyrightNotice(xsd_notice, file_in) or CheckForCopyrightNotice(triangle_notice, file_in)):
         #print 'Found 3rd party notice in '+file_name
         if (valid_notice):
             print "Multiple notices on"+file_name
@@ -189,16 +188,15 @@ for root, dirs, files in os.walk(chaste_dir):
     # Check for source files
     for file in files:
         name, ext = os.path.splitext(file)
-        if ext in exts:
-            # Run astyle
+        if (ext in exts or file=='SConscript' or file=='SConstruct'):
             file_name = os.path.join(root, file)
-            #ReplaceStringInFile('Chaste','Chaste2',os.path.join(root, file))
             if (InspectFile(file_name) == False):
                 num_no_copyrights+=1
             else:
                 num_copyrights+=1
 
 # Let the test summary script know
+print "Copyright test run over ",chaste_dir," (",num_no_copyrights+num_copyrights,") files"
 if num_no_copyrights > 0:
     print
     print "The next line is for the benefit of the test summary scripts."
@@ -208,5 +206,4 @@ if num_no_copyrights > 0:
     import sys
     sys.exit(num_no_copyrights)
 else:
-    print "Copyright test passed ok."
-print "Copyright test run over "+chaste_dir
+    print "Infrastructure test passed ok."
