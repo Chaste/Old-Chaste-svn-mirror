@@ -1978,7 +1978,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
         partition_stream >> part_read;
         
         partition[node_index] = part_read;
-        for (unsigned proc=part_read+1; proc<=numProcs; proc++)
+        for (unsigned proc=part_read+1; proc<numProcs; proc++)
         {            
             offset[proc]++;
         }
