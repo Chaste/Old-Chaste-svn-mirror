@@ -64,6 +64,7 @@ CancerParameters::CancerParameters()
  * mDivisionRestingSpringLength has units of cell size at equilibrium rest length
  * mDivisionSeparation has units of cell size at equilibrium rest length 
  * mHepaOneCellHypoxicConcentration has no units
+ * mHepaOneCellQuiescentConcentration has no units
  * mWntTransitThreshold has no units
  * mWntStemThreshold has no units
  * mTopOfLinearWntConcentration has no units (proportion of mCryptLength)
@@ -91,11 +92,12 @@ void CancerParameters::Reset()
     mDampingConstantNormal = 1.0;  // this is nu in Meineke
     mDampingConstantMutant = 2.0;
     mBetaCatSpringScaler = 18.14 / 6.0;  // this scales the spring constant with the amount of beta-catenin 
-                                         //(divided by 6 as a cell normally is a hexagon)
+                                         // (divided by 6 as a cell normally is a hexagon)
     mApoptosisTime = 0.25;  // cell takes 15 min to fully undergo apoptosis
     mDivisionRestingSpringLength = 0.5;
-    mDivisionSeparation = 0.3;    
+    mDivisionSeparation = 0.3;
     mHepaOneCellHypoxicConcentration = 0.4;
+    mHepaOneCellQuiescentConcentration = 1.0;
     mWntStemThreshold = 0.8;
     mWntTransitThreshold = 0.65;
     mTopOfLinearWntConcentration = 1.0;
@@ -188,6 +190,10 @@ double CancerParameters::GetDivisionSeparation()
 double CancerParameters::GetHepaOneCellHypoxicConcentration()
 {
 	return mHepaOneCellHypoxicConcentration;
+}
+double CancerParameters::GetHepaOneCellQuiescentConcentration()
+{
+    return mHepaOneCellQuiescentConcentration;
 }
 double CancerParameters::GetWntTransitThreshold()
 {
@@ -321,6 +327,12 @@ void CancerParameters::SetHepaOneCellHypoxicConcentration(double hepaOneCellHypo
 	assert(hepaOneCellHypoxicConcentration<=1.0);
 	assert(hepaOneCellHypoxicConcentration>=0.0);
 	mHepaOneCellHypoxicConcentration = hepaOneCellHypoxicConcentration;
+}
+void CancerParameters::SetHepaOneCellQuiescentConcentration(double hepaOneCellQuiescentConcentration)
+{
+    assert(hepaOneCellQuiescentConcentration<=1.0);
+    assert(hepaOneCellQuiescentConcentration>=0.0);
+    mHepaOneCellQuiescentConcentration = hepaOneCellQuiescentConcentration;
 }
 void CancerParameters::SetWntTransitThreshold(double wntThreshold)
 {

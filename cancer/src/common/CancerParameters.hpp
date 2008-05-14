@@ -62,6 +62,7 @@ public:
     double GetDivisionRestingSpringLength();
     double GetDivisionSeparation();
     double GetHepaOneCellHypoxicConcentration();
+    double GetHepaOneCellQuiescentConcentration();
     double GetWntTransitThreshold();
     double GetWntStemThreshold();
     double GetTopOfLinearWntConcentration();
@@ -93,6 +94,7 @@ public:
     void SetDivisionRestingSpringLength(double);
     void SetDivisionSeparation(double);
     void SetHepaOneCellHypoxicConcentration(double);
+    void SetHepaOneCellQuiescentConcentration(double);
     void SetWntTransitThreshold(double); 
     void SetWntStemThreshold(double); 
     void SetTopOfLinearWntConcentration(double);
@@ -210,9 +212,16 @@ private:
     double mDivisionRestingSpringLength;
     
     /**
-     * Non-dimensionalized oxygen concentration below which HEPA-1 are hypoxic 
+     * Non-dimensionalized oxygen concentration below which HEPA-1 cells are hypoxic.
+     * A prolonged period of hypoxia causes the cell to become necrotic. 
      */
     double mHepaOneCellHypoxicConcentration;
+    
+    /**
+     * Non-dimensionalized oxygen concentration below which HEPA-1 cells slow their
+     * progress through the G1 phase of the cell cycle.
+     */
+    double mHepaOneCellQuiescentConcentration;
       
     /**
      * Non-dimensionalized Wnt threshold, above which cells cycle
@@ -291,6 +300,7 @@ private:
         archive & mBetaCatSpringScaler;
         archive & mApoptosisTime;
         archive & mHepaOneCellHypoxicConcentration;
+        archive & mHepaOneCellQuiescentConcentration;
         archive & mWntTransitThreshold;
         archive & mWntStemThreshold;
         archive & mTopOfLinearWntConcentration;

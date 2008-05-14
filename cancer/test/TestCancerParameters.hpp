@@ -61,6 +61,7 @@ private:
         TS_ASSERT_DELTA(inst->GetBetaCatSpringScaler(), 18.14 / 6.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetApoptosisTime(), 0.25, 1e-12);
         TS_ASSERT_DELTA(inst->GetHepaOneCellHypoxicConcentration(), 0.4, 1e-12);
+        TS_ASSERT_DELTA(inst->GetHepaOneCellQuiescentConcentration(), 1.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetWntStemThreshold(), 0.8, 1e-12);
         TS_ASSERT_DELTA(inst->GetWntTransitThreshold(), 0.65, 1e-12);
         TS_ASSERT_DELTA(inst->GetTopOfLinearWntConcentration(), 1.0, 1e-12);
@@ -98,6 +99,7 @@ public:
         inst->SetBetaCatSpringScaler(10.0);
         inst->SetApoptosisTime(0.3);
         inst->SetHepaOneCellHypoxicConcentration(0.3);
+        inst->SetHepaOneCellQuiescentConcentration(0.9);
         inst->SetWntStemThreshold(0.7);
         inst->SetWntTransitThreshold(0.4);
         inst->SetTopOfLinearWntConcentration(0.4);
@@ -130,6 +132,7 @@ public:
         inst1->SetBetaCatSpringScaler(10.0);
         inst1->SetApoptosisTime(0.3);
         inst1->SetHepaOneCellHypoxicConcentration(0.3);
+        inst1->SetHepaOneCellQuiescentConcentration(0.9);
         inst1->SetWntStemThreshold(0.7);
         inst1->SetWntTransitThreshold(0.6);
         inst1->SetTopOfLinearWntConcentration(0.4);
@@ -158,6 +161,7 @@ public:
         TS_ASSERT_DELTA(inst2->GetBetaCatSpringScaler(), 10.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetApoptosisTime(), 0.3, 1e-12);
         TS_ASSERT_DELTA(inst2->GetHepaOneCellHypoxicConcentration(), 0.3, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetHepaOneCellQuiescentConcentration(), 0.9, 1e-12);
         TS_ASSERT_DELTA(inst2->GetWntStemThreshold(), 0.7, 1e-12);
         TS_ASSERT_DELTA(inst2->GetWntTransitThreshold(), 0.6, 1e-12);
         TS_ASSERT_DELTA(inst2->GetTopOfLinearWntConcentration(), 0.4, 1e-12);
@@ -194,6 +198,7 @@ public:
             inst1->SetBetaCatSpringScaler(10.0);
             inst1->SetApoptosisTime(0.3);
             inst1->SetHepaOneCellHypoxicConcentration(0.3);
+            inst1->SetHepaOneCellQuiescentConcentration(0.9);
             inst1->SetWntStemThreshold(0.7);
             inst1->SetWntTransitThreshold(0.6);
             inst1->SetTopOfLinearWntConcentration(0.4);
@@ -207,7 +212,8 @@ public:
             
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            // save messed up parameters
+            
+            // Save messed up parameters
             output_arch << static_cast<const CancerParameters&>(*inst1);
             
         }
@@ -215,7 +221,7 @@ public:
         {
             CancerParameters *inst1 = CancerParameters::Instance();
             
-            // restore to nice parameters
+            // Restore to nice parameters
             inst1->SetSDuration(5.0);
             inst1->SetG2Duration(4.0);
             inst1->SetMDuration(1.0);
@@ -230,6 +236,7 @@ public:
             inst1->SetDampingConstantMutant(2.0);
             inst1->SetBetaCatSpringScaler(10.0);
             inst1->SetHepaOneCellHypoxicConcentration(0.4);
+            inst1->SetHepaOneCellQuiescentConcentration(1.0);
             inst1->SetWntStemThreshold(0.8);
             inst1->SetWntTransitThreshold(0.65);
             inst1->SetTopOfLinearWntConcentration(0.5);
@@ -245,9 +252,10 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            // restore messed up parameters from the archive
+            // Restore messed up parameters from the archive
             input_arch >> *inst1;
-            // check they are messed up.
+            
+            // Check they are messed up
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 9.0 , 1e-12);
             TS_ASSERT_DELTA(inst1->GetSDuration(), 4.0 , 1e-12);
             TS_ASSERT_DELTA(inst1->GetG2Duration(), 3.0 , 1e-12);
@@ -263,6 +271,7 @@ public:
             TS_ASSERT_DELTA(inst1->GetBetaCatSpringScaler(), 10.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetApoptosisTime(), 0.3, 1e-12);
             TS_ASSERT_DELTA(inst1->GetHepaOneCellHypoxicConcentration(), 0.3, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetHepaOneCellQuiescentConcentration(), 0.9, 1e-12);
             TS_ASSERT_DELTA(inst1->GetWntStemThreshold(), 0.7, 1e-12);
             TS_ASSERT_DELTA(inst1->GetWntTransitThreshold(), 0.6, 1e-12);
             TS_ASSERT_DELTA(inst1->GetTopOfLinearWntConcentration(), 0.4, 1e-12);

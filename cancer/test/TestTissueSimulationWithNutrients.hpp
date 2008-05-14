@@ -99,6 +99,7 @@ public:
         
         // Change the hypoxic concentration, just for this test
         CancerParameters::Instance()->SetHepaOneCellHypoxicConcentration(0.9);
+        CancerParameters::Instance()->SetHepaOneCellQuiescentConcentration(0.9);
         CancerParameters::Instance()->SetHepaOneParameters();
 
         // Set up mesh
