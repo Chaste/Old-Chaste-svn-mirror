@@ -415,6 +415,7 @@ public:
         DistributedVector::SetProblemSize(SIZE);
         Vec template_vec = DistributedVector::CreateVec(2);
         LinearSystem some_system(template_vec);
+        VecDestroy(template_vec);
         
         //LinearSystem some_system(2*SIZE);
         for (int i = 0; i < 2*SIZE; i++)
@@ -496,6 +497,7 @@ public:
         DistributedVector::SetProblemSize(SIZE);
         Vec template_vec = DistributedVector::CreateVec(3);
         LinearSystem some_system(template_vec);
+        VecDestroy(template_vec);
                 
         //LinearSystem some_system(3*SIZE);
         for (int i = 0; i < 3*SIZE; i++)
