@@ -74,9 +74,15 @@ protected:
         {
             if (initialSolution == NULL)
             {
-                // Static problem, create linear system using the size
-                unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
-                this->mpLinearSystem = new LinearSystem(size);
+                // Static problem, create linear system 
+                // The following ensures all the unknowns for a particular node
+                // are on the same processor
+                DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
+                Vec template_vec = DistributedVector::CreateVec(PROBLEM_DIM);
+                
+                this->mpLinearSystem = new LinearSystem(template_vec);
+                
+                VecDestroy(template_vec);
             }
             else
             {
@@ -118,6 +124,9 @@ protected:
         {
             VecGetSize(currentSolutionOrGuess, &vec_size);
         }
+
+        //this->mpLinearSystem->DisplayRhs();
+
         if (currentSolutionOrGuess && (unsigned)vec_size == this->mpLinearSystem->GetSize())
         {
             return this->mpLinearSystem->Solve(currentSolutionOrGuess);
@@ -128,6 +137,7 @@ protected:
             // so we can't use the current solution as an initial guess for the linear solver.
             return this->mpLinearSystem->Solve();
         }
+        
     }
     
     

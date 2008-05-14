@@ -113,7 +113,7 @@ public:
     void Restore();
 
     /**
-     * Iterator class allows one to iterator of then elements of the distributed
+     * Iterator class allows one to iterate over the elements of the distributed
      * vector on this process
      */    
     class Iterator
