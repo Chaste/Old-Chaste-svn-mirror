@@ -45,8 +45,10 @@ public:
     {
         Hdf5DataReader simulation_data("heart/test/data/Monodomain1d",
                                        "MonodomainLR91_1d", false);
+
         PropagationPropertiesCalculator ppc(&simulation_data);
-        double velocity=ppc.CalculateConductionVelocity(5,15,0.1);
+
+        double velocity = ppc.CalculateConductionVelocity(5,15,0.1);
         TS_ASSERT_DELTA(velocity, 0.0499, 0.001);
         
         // Should throw because AP does not propagate far enough in simulation time
@@ -57,7 +59,7 @@ public:
         
         TS_ASSERT_DELTA(ppc.CalculateMaximumUpstrokeVelocity(1),343.9429,0.001);
         
-        TS_ASSERT_DELTA(ppc.CalculatePeakMembranePotential(5),23.4467,0.001);
+        TS_ASSERT_DELTA(ppc.CalculatePeakMembranePotential(5),23.6271,0.001);
         
         TS_ASSERT_DELTA(ppc.CalculateActionPotentialDuration(50,5),0,0.001);
     }

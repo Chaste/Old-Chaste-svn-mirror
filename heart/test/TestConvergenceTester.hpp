@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestConvergenceTester : public CxxTest::TestSuite
 {   
 public:
-    void Test1DOdeTime() throw(Exception)
+    void xTest1DOdeTime() throw(Exception)
     {
         OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.MeshNum=1;
@@ -58,7 +58,7 @@ public:
         TS_ASSERT_EQUALS(tester.OdeTimeStep, 0.0025); 
     }
     
-    void Test1DPdeTime() throw(Exception)
+    void xTest1DPdeTime() throw(Exception)
     {
         PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.MeshNum=1;
@@ -68,7 +68,7 @@ public:
         TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.01); 
     }
     
-    void Test1DPdeTimeRegion() throw(Exception)
+    void xTest1DPdeTimeRegion() throw(Exception)
     {
         PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.MeshNum=1;
@@ -79,7 +79,7 @@ public:
         TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.01); 
     }
     
-    void Test1DPdeTimeNeumann() throw(Exception)
+    void xTest1DPdeTimeNeumann() throw(Exception)
     {
         PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.MeshNum=1;
@@ -90,7 +90,7 @@ public:
         TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.02); 
     }
 
-    void Test1DSpace() throw(Exception)
+    void xTest1DSpace() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
         tester.RelativeConvergenceCriterion=2e-2;
@@ -100,7 +100,7 @@ public:
         TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0125, 1e-8); 
     }
     
-    void Test2DOdeTime() throw(Exception)
+    void xTest2DOdeTime() throw(Exception)
     {
         OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<2>, 2, 1> tester;
         tester.MeshNum=0;
@@ -124,7 +124,7 @@ public:
         TS_ASSERT_LESS_THAN(tester.LastDifference, 3.1e-3);
     }
     
-    void TestSpaceConvergencein1DWithAbsoluteTolerance() throw(Exception)
+    void xTestSpaceConvergencein1DWithAbsoluteTolerance() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.SetKspAbsoluteTolerance(1e-4);

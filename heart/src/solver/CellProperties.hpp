@@ -54,8 +54,8 @@ private:
     /**
      * The simulation results to process
      */
-    std::vector<double> mTime;
-    std::vector<double> mVoltage;
+    std::vector<double>& mrVoltage;
+    std::vector<double>& mrTime;
     
     /**
      * Threshold for determining what counts as an action potential.
@@ -98,27 +98,16 @@ private:
                                             
 public:
     /**
-     * Constructor does nothing much
+     * Constructor sets the data and calls CalculateProperties
      */
     CellProperties(std::vector<double> &rVoltage, std::vector<double> &rTime,  double threshold=-30.0)
+        : mrVoltage(rVoltage),
+          mrTime(rTime),
+          mThreshold(threshold)
     {
-        SetData(rVoltage, rTime, threshold);
+        CalculateProperties();        
     }
     
-    /**
-     * Set the simulation results to process.
-     * 
-     * @param rSolutionData  The solutions
-     * @param vIndex  The index of the membrane potential within the state
-     *                variables
-     */
-    void SetData(std::vector<double> &rVoltage, std::vector<double> &rTime,  double threshold=-30.0)
-    {
-        mVoltage = rVoltage;
-        mTime = rTime;
-        mThreshold = threshold;
-        CalculateProperties();
-    }
     
     /**
      * Return the maximum upstroke velocity.

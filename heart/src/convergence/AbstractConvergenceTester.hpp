@@ -466,21 +466,16 @@ public:
                     apd90_first_qn = ppc.CalculateActionPotentialDuration(0.9, first_quadrant_node);
                     apd90_third_qn = ppc.CalculateActionPotentialDuration(0.9, third_quadrant_node);
                     
-                    if (apd90_third_qn == 0)
-                    {
-                        ppc.CalculateActionPotentialDuration(0.9, third_quadrant_node);
-                    }
-                    
                     cond_velocity  = ppc.CalculateConductionVelocity(first_quadrant_node,third_quadrant_node,0.5*mesh_width);
                 }
                 catch (Exception e)
                 {
                     #define COVERAGE_IGNORE
-                    ///\todo Cover this
                     std::cout<<"Warning - this run threw an exception in calculating propagation.  Check convergence results\n";
                     std::cout<<e.GetMessage() << std::endl;                 
                     #undef COVERAGE_IGNORE
                 }
+                
                 double cond_velocity_error = 0.0;
                 double apd90_first_qn_error = 0.0;
                 double apd90_third_qn_error = 0.0;

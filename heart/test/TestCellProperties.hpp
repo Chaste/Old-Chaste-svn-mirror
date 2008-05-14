@@ -77,12 +77,8 @@ public:
         
         OdeSolution solution = lr91_ode_system.Compute(start_time, end_time);
         
-        // Display solution
-//        for (int i=0; i<=solution.GetNumberOfTimeSteps(); i++)
-//        {
-//            std::cout << solution.mTime[i] << "\t" << solution.mSolutions[i][4]
-//                << std::endl;
-//        }
+solution.WriteToFile("", __FUNCTION__, &lr91_ode_system, "ms");
+
 
         // Now calculate the properties
         std::vector<double> voltage=solution.GetVariableAtIndex(4);

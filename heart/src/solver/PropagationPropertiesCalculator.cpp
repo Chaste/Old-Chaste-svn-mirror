@@ -62,9 +62,15 @@ double PropagationPropertiesCalculator::CalculateActionPotentialDuration(const d
 double PropagationPropertiesCalculator::CalculatePeakMembranePotential(unsigned globalNodeIndex)
 {
     std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
-    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
-    CellProperties cell_props(voltages, times);
-    return cell_props.GetMaxPotential();
+    double max = -DBL_MAX;
+    for(unsigned i=0; i<voltages.size(); i++)
+    {
+        if(voltages[i]>max)
+        {
+            max = voltages[i];
+        }
+    }
+    return max;
 }
 
 double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned globalNearNodeIndex,
