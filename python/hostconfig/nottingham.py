@@ -32,6 +32,7 @@ petsc_build_name_optimized = 'linux-gnu-opt'
 dealii_path = None
 metis_path = None
 intel_path = None
+icpc='icpc'
 
 other_includepaths = ['/opt/boost/include/boost-1_33_1','/opt/hdf5/include']
 other_libpaths = ['/opt/boost/lib/','/opt/hdf5/lib']

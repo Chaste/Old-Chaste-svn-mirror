@@ -32,6 +32,7 @@ petsc_build_name_optimized = 'linux-gnu-opt'
 dealii_path = None
 metis_path = None
 intel_path = '/opt/intel_cc_80'
+icpc='icpc'
 
 other_includepaths = []
 other_libpaths = ['/usr/lib/atlas/sse2']

@@ -79,7 +79,6 @@ elif machine_fqdn.endswith(".maths.ox.ac.uk"):
 else:
     print >>sys.stderr, "Unrecognised machine %s; please add a stanza for it to hostconfig.py" % machine_fqdn
     sys.exit(1)
-
 # For debugging
 #for name in dir(conf):
 #    if name[0] != '_':
@@ -205,7 +204,7 @@ def configure(build):
 
     if build.CompilerType() == 'intel':
         # Switch to use Intel toolchain
-        build.tools['mpicxx'] += ' -CC=icpc'
+	build.tools['mpicxx'] += ' -CC="'+conf.icpc+'"'
         build.tools['cxx'] = os.path.join(intel_path, 'bin', 'icpc')
         build.tools['ar'] = os.path.join(intel_path, 'bin', 'xiar')
 

@@ -32,6 +32,7 @@ petsc_build_name_optimized = 'linux-mpich-gnu-mkl'
 dealii_path = None
 metis_path = None
 intel_path = '/opt/intel/cc/9.1.039/lib'
+icpc='icpc'
 
 other_includepaths = ['/home/zuse/system/joe/xerces-c-suse_80_AMD_64-gcc_32/include',
                       '/home/zuse/system/joe/xsd-2.3.1-i686-linux-gnu/libxsd',

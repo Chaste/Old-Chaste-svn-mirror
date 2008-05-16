@@ -29,6 +29,7 @@ import os
 
 petsc_2_3_path = '/usr/apps/chaste-plugins/petsc-2.3.2-p4/'
 petsc_build_name = 'linux-gnu'
+icpc='icpc'
 
 #other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd', '/usr/apps/chaste-plugins/hdf5/include']
 other_includepaths = ['/usr/apps/chaste-plugins/hdf5/include']

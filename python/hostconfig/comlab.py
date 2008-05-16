@@ -35,6 +35,7 @@ petsc_build_name_optimized = 'linux-gnu-opt'
 dealii_path = '../../../deal.II/'
 metis_path = '../../../metis-4.0/'
 intel_path = '/opt/intel/cc/9.1.039/lib'
+icpc='icpc'
 
 other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd',
                       '../../../include/boost-1_33_1']
