@@ -1282,6 +1282,11 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[0], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[1], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[2], 0.0);
+                
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(0)->GetIndex(), 11U);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(1)->GetIndex(), 3U);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(2)->GetIndex(), 8U);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(3)->GetIndex(), 0U);
         
         //Make identity permuation
         std::vector<unsigned> perm;
@@ -1297,25 +1302,36 @@ public:
         perm[1]=2;
         perm[2]=0;
         
+        // Rotate nodes in the first element
+        perm[8]=11;
+        perm[9]=8;
+        perm[11]=9;
+        
         mesh.PermuteNodes(perm);
         
         TS_ASSERT_EQUALS(mesh.GetNode(0)->GetIndex(), 0U);
         TS_ASSERT_EQUALS(mesh.GetNode(7)->GetIndex(), 7U);
         
-        //Was node 0
+        // 1 was node 0
         TS_ASSERT_EQUALS(mesh.GetNode(1)->rGetLocation()[0], 0.0);
         TS_ASSERT_EQUALS(mesh.GetNode(1)->rGetLocation()[1], 0.0);
         TS_ASSERT_EQUALS(mesh.GetNode(1)->rGetLocation()[2], 0.0);
         
-        //Was node 1
+        // 2 was node 1
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[0], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[1], 0.0);
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[2], 0.0);
         
-        //Was node 2
+        // 0 was node 2
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[0], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[1], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[2], 0.0);
+
+        // Element 0 new indexes
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(0)->GetIndex(), 9U);  // 9 was 11
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(1)->GetIndex(), 3U);  // 3 is 3
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(2)->GetIndex(), 11U); // 11 was 8
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(3)->GetIndex(), 1U);  // 1 was 0
     }
     
     

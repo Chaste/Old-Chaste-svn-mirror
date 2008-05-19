@@ -1983,8 +1983,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
     }
     partition_stream.close();
     
-    std::cout << offset [ partition[0] ] << std::endl;
-    
     /*
      *  Create the permutation vector based on Metis output
      */    
@@ -1994,7 +1992,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
     for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
     {
         unsigned part = partition[node_index];
-        // Permutation defined like: node number "offset[part] + count[part]" will be renumbered as node_index
+        // Permutation defined like: new index for node node_index is "offset[part] + count[part]"
         permutation [ node_index ] = offset[part] + count[part];
            
         count[part]++;
