@@ -110,5 +110,21 @@ public:
         }
     }
 
+    void TestUpdate()
+    {
+        try
+        {
+            auto_ptr<chaste_parameters_type> p (ChasteParameters("heart/test/data/ChasteParametersLoadMesh.xml"));
+            
+            p->ExtracellularConductivities().longi() = 9.0;
+            TS_ASSERT_EQUALS(p->ExtracellularConductivities().longi(), 9.0);
+        }
+        catch (const xml_schema::exception& e)
+        {
+            std::cerr << e << std::endl;
+            TS_FAIL("Schema exception");
+        }
+    }
+
 };
 #endif /*TESTSPIRALPARAMETERSREADER_HPP_*/
