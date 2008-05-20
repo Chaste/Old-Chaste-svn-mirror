@@ -181,7 +181,7 @@ public:
         
         // Create a simple mesh
         int num_cells_depth = 5;
-        int num_cells_width = 5;        
+        int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         

@@ -197,9 +197,7 @@ public:
         TS_ASSERT_DELTA(simple_tissue.GetNode(num_nodes)->rGetLocation()[1], 1.72, 1e-12);
         
         simple_tissue.mNodes.pop_back();        
-        
-        /// \todo: testRemoveNode (see #642)
- 
+         
         // Test AddCell
 
         unsigned old_num_nodes = simple_tissue.rGetNodes().size();

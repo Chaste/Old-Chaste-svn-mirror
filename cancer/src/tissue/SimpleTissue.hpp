@@ -228,8 +228,8 @@ template<unsigned DIM>
 void SimpleTissue<DIM>::ReMesh()
 {
     // Create and reserve space for a temporary vector
-    /// \todo: reserve space equal to mNodes.size() for this vector (see #642)
     std::vector<Node<DIM> > old_nodes;
+    old_nodes.reserve(mNodes.size());
     
     // Store all non-deleted nodes in the temporary vector
     for (unsigned i=0; i<mNodes.size(); i++)
