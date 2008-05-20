@@ -2111,6 +2111,9 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         		case INVISIBLE_COLOUR: // sloughed cell
         			g2.setColor(garysSexySilver); 
         			break;
+        		case LABELLED_COLOUR: // labelled cell
+        			g2.setColor(Color.red);
+        			break;	
         		default: // any other cell type
                 	int r = 0;
                 	int g = Math.min( Math.max((int)(255*conc),0) , 255 );            	
@@ -2118,7 +2121,8 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                     Color colour = new Color(r,g,b);
                     g2.setColor(colour);
         		    break;
-        	}    		
+        	}
+    		
     	}
     	else if (vis.drawAverageStress || vis.drawDifferenceStress)
     	{
