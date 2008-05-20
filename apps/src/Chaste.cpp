@@ -56,6 +56,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "OrthotropicConductivityTensors.hpp"
 
+#include "Hdf5ToMeshalyzerConverter.hpp"
+
 // Path to the parameter file
 std::string parameter_file;
 
@@ -372,7 +374,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
                 }
                 else // (load_mesh) 
                 {
-                    mono_problem.SetMeshFilename("");
+                    mono_problem.SetMeshFilename(mesh_file_prefix);
                 }
                 
                 mono_problem.Initialise();
@@ -395,7 +397,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
                 }
                 else // (load_mesh) 
                 {
-                    bi_problem.SetMeshFilename("");
+                    bi_problem.SetMeshFilename(mesh_file_prefix);
                 }
                 
                 bi_problem.Initialise();
@@ -414,6 +416,8 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
         std::cerr << e.GetMessage() << "\n";
         return 1;
     }
+    
+    Hdf5ToMeshalyzerConverter converter(output_directory+"/results", "Chaste");
     
     EventHandler::Headings();
     EventHandler::Report();
