@@ -68,7 +68,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static boolean drawFibres = false;
     public static boolean drawCylinder = false;
     public static boolean drawCylinderOverride = true;
-    public static boolean setupFilePresent = false;
     public static boolean ancestorsFilePresent = false;
     public static boolean fibresFilePresent = false;
     public static boolean nutrientFilePresent = false;
@@ -539,10 +538,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 drawAncestors = true;
                 ancestors.setState(true);
             }
-            else if (args[i].equals("showlaststep"))
-            {
-            	showLastStep = true;
-            }
             else
             {
                 System.out.println("Input option not recognised");
@@ -637,9 +632,50 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         }
         else 
         {
-            setupFilePresent = true;
-        }
-             
+            try
+            {
+                BufferedReader in_setup_file = new BufferedReader(new FileReader(setup_file));
+                String line_setup = in_setup_file.readLine();  
+                
+                // Read setup information
+                while (line_setup != null)
+                {
+                    StringTokenizer st_setup = new StringTokenizer(line_setup);
+                    String parameter = st_setup.nextToken();
+                    if (parameter.equals("MeshWidth"))  
+                    {
+                        crypt_width = Double.valueOf(st_setup.nextToken());
+                        half_width = crypt_width/2.0;
+                        System.out.println("Mesh Width = " + crypt_width);
+                        drawCylinder = true && drawCylinderOverride;    // this is made true only if mesh width exists
+                    }
+                    if (parameter.equals("Nutrient"))  
+                    {
+                        // Overrule the previous bit since for nutrient sims, we don't want cylindrical periodicity
+                        drawCylinder = false; 
+                        drawNutrient = true;
+                        nutrient.setState(true);
+                    }
+                    if (parameter.equals("BetaCatenin")) 
+                    {
+                        drawBetaCatenin = true;
+                        beta_catenin.setState(true);
+                        drawCells = false;
+                        cells.setState(false);
+                        circles.setVisible(false);
+                    }
+                    if (parameter.equals("Complete")) 
+                    {
+                	    showLastStep = true;
+                    }
+                    line_setup = in_setup_file.readLine();
+                }
+            }
+            catch (Exception e) 
+        	{
+            	System.out.println("Error occured. Exception message: "+e.getMessage());
+        	}
+        }             
         
         Visualize2dCells vis = new Visualize2dCells();
 
@@ -655,7 +691,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     	parsed_all_files = false;
         try 
         {
-            BufferedReader skim_node_file = new BufferedReader(new FileReader(node_file));
+                  	
+        	BufferedReader skim_node_file = new BufferedReader(new FileReader(node_file));
 
             int num_lines = 0;
             while (skim_node_file.readLine() != null) 
@@ -712,42 +749,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 fibres = new RealPoint[num_lines][]; 
                 in_fibre_file = new BufferedReader(new FileReader(fibre_file));
                 line_fibre = in_fibre_file.readLine();
-            }
-
-            if (setupFilePresent)
-            {
-                BufferedReader in_setup_file = new BufferedReader(new FileReader(setup_file));
-                String line_setup = in_setup_file.readLine();  
-                
-                // Read setup information
-                while (line_setup != null)
-                {
-                    StringTokenizer st_setup = new StringTokenizer(line_setup);
-                    String parameter = st_setup.nextToken();
-                    if (parameter.equals("MeshWidth"))  
-                    {
-                        crypt_width = Double.valueOf(st_setup.nextToken());
-                        half_width = crypt_width/2.0;
-                        System.out.println("Mesh Width = " + crypt_width);
-                        drawCylinder = true && drawCylinderOverride;    // this is made true only if mesh width exists
-                    }
-                    if (parameter.equals("Nutrient"))  
-                    {
-                    	// Overrule the previous bit since for nutrient sims, we don't want cylindrical periodicity
-                    	drawCylinder = false; 
-                        drawNutrient = true;
-                        nutrient.setState(true);
-                    }
-                    if (parameter.equals("BetaCatenin")) 
-                    {
-                        drawBetaCatenin = true;
-                        beta_catenin.setState(true);
-                        drawCells = false;
-                        cells.setState(false);
-                        circles.setVisible(false);
-                    }
-                    line_setup = in_setup_file.readLine();
-                }
             }
 
             String line_nutrient = "";

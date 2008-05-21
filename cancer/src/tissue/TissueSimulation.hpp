@@ -806,7 +806,7 @@ void TissueSimulation<DIM>::Solve()
     {
         WriteVisualizerSetupFile();
     }
-    mpSetupFile->close();
+    *mpSetupFile << std::flush;
     
     mrTissue.WriteResultsToFiles(mOutputCellMutationStates,
                                  mOutputCellTypes,
@@ -914,6 +914,9 @@ void TissueSimulation<DIM>::Solve()
                               mOutputCellVariables,
                               mOutputCellCyclePhases,
                               mOutputCellAncestors);
+                              
+    *mpSetupFile << "\nComplete\n";
+    mpSetupFile->close();                          
                               
     CancerEventHandler::EndEvent(OUTPUT);
     
