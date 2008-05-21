@@ -154,7 +154,7 @@ public:
                         // Test if we have found a shorter path from the origin surface to the current neighbour through current node
                         if ((CartToEucliDistance(cart_distances[current_node_index]) 
                               + EuclideanDistanceTwoPoints(p_current_node->rGetLocation(), p_neighbour_node->rGetLocation()))
-                            < CartToEucliDistance(cart_distances[neighbour_node_index]))
+                            < CartToEucliDistance(cart_distances[neighbour_node_index])*(1.0 - DBL_EPSILON) )
                         {
                             cart_distances[neighbour_node_index] = cart_distances[current_node_index] 
                                                                    + (p_current_node->rGetLocation() - p_neighbour_node->rGetLocation());

@@ -54,9 +54,8 @@ public:
         OutputFileHandler handler("streeter", false);
         std::string fibre_file = handler.GetOutputDirectoryFullPath() + "ortho.fibres";
         
-        TS_ASSERT_EQUALS(system(("ndiff  -abserr 1e-11 " + fibre_file + " heart/test/data/streeter_point50_heart_mesh.ortho").c_str()), 0);        
+        //TS_ASSERT_EQUALS(system(("ndiff  -abserr 1e-11 " + fibre_file + " heart/test/data/streeter_point50_heart_mesh.ortho").c_str()), 0);        
        
-        /// \todo Check NumericFileComparison works with the fibre orientation file format
         NumericFileComparison comp(fibre_file,"heart/test/data/streeter_point50_heart_mesh.ortho");
         TS_ASSERT(comp.CompareFiles());
     }    
