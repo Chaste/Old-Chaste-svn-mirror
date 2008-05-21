@@ -590,9 +590,9 @@ public:
         CellwiseData<2>::Destroy();
     }
     
-    void TestArchiving() throw (Exception)
+    void TestArchivingWithSimplePde() throw (Exception)
     {
-        EXIT_IF_PARALLEL; //defined in PetscTools
+        EXIT_IF_PARALLEL; // defined in PetscTools
         
         CancerParameters::Instance()->SetHepaOneParameters();
         
@@ -605,7 +605,7 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;        
         
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
@@ -677,6 +677,98 @@ public:
         
         delete p_simulator;       
         CellwiseData<2>::Destroy();        
+    }
+    
+    /**
+     * This test demonstrates how to archive a TissueSimulationWithNutrients 
+     * in the case where the nutrient PDE has the tissue as a member variable
+     */
+    void TestArchivingWithCellwisePde() throw (Exception)
+    {
+        if (!PetscTools::IsSequential())
+        {
+            TS_TRACE("This test does not pass in parallel yet.");
+            return;
+        }
+
+        CancerParameters::Instance()->SetHepaOneParameters();
+
+        std::string output_directory = "TestArchivingWithCellwisePde";
+        double end_time = 0.1;
+
+        // Set up mesh
+        unsigned num_cells_depth = 5;
+        unsigned num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Set up cells
+        std::vector<TissueCell> cells;
+
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
+                                    (CancerParameters::Instance()->GetHepaOneCellG1Duration()
+                                    +CancerParameters::Instance()->GetSG2MDuration());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Set up tissue
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
+
+        // Set up CellwiseData and associate it with the tissue
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
+        p_data->SetTissue(tissue);
+
+        // Set initial conditions for CellwiseData (needed to avoid memory errors)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            p_data->SetValue(1.0, p_mesh->GetNode(i));
+        }
+
+        // Set up PDE
+        CellwiseNutrientSinkPde<2> pde(tissue, 0.03);
+
+        // Set up mechanics system
+        Meineke2001SpringSystem<2> spring_system(tissue);
+        spring_system.UseCutoffPoint(3.0);
+
+        // Set up tissue simulation
+        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, &pde);
+        simulator.SetOutputDirectory(output_directory);
+        simulator.SetEndTime(end_time);
+
+        // Run tissue simulation
+        simulator.Solve();
+
+        // Save tissue simulation
+        simulator.Save();
+
+        // Load simulation
+        TissueSimulationWithNutrients<2>* p_simulator = TissueSimulationWithNutrients<2>::Load(output_directory, end_time);
+        
+        /** 
+         * In this case, the PDE had a reference to the tissue. To avoid a 
+         * segmentation fault, we need to first get the archived tissue, pass 
+         * it in to a new instance of our PDE, taking care to use the same 
+         * consumption rate as before. We then pass this PDE into the tissue
+         * simulation.
+         */        
+        MeshBasedTissue<2>* p_tissue = static_cast<MeshBasedTissue<2>*>(&(p_simulator->rGetTissue()));
+        CellwiseNutrientSinkPde<2> pde2(*p_tissue, 0.03);        
+        p_simulator->SetPde(&pde2);
+        p_simulator->SetEndTime(2.0*end_time);
+        
+        // Run tissue simulation
+        TS_ASSERT_THROWS_NOTHING(p_simulator->Solve());
+                
+        // Tidy up
+        delete p_simulator;
+        CellwiseData<2>::Destroy();
     }
     
 
