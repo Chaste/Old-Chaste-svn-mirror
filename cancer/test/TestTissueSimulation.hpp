@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 #include <time.h>
+#include <math.h>
 
 #include "TissueSimulation.hpp"
 #include "CellsGenerator.hpp"
@@ -195,18 +196,17 @@ public:
         // These cells just divided and have been gradually moving apart.
         // These results are from time 0.25.
         std::vector<double> node_302_location = crypt_projection_simulator.GetNodeLocation(302);
-        TS_ASSERT_DELTA(node_302_location[0], -0.1358, 1e-4);
-        TS_ASSERT_DELTA(node_302_location[1], 0.2173, 1e-4);
-        
         std::vector<double> node_506_location = crypt_projection_simulator.GetNodeLocation(506);
-        TS_ASSERT_DELTA(node_506_location[0], -0.7105, 1e-4);
-        TS_ASSERT_DELTA(node_506_location[1], 0.6220, 1e-4);
+        c_vector<double, 2> distance_between;
+        distance_between(0) = node_506_location[0]-node_302_location[0];
+        distance_between(1) = node_506_location[1]-node_302_location[1];
+        TS_ASSERT_DELTA(norm_2(distance_between), 0.7029, 1e-3);
 
         // Test the Wnt gradient result
         TissueCell* p_cell = &(crypt.rGetCellAtNodeIndex(302));
-        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9992, 1e-4);
+        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.999, 1e-3);
         p_cell = &(crypt.rGetCellAtNodeIndex(506));
-        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
+        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.989, 1e-3);
         
         // Tidy up
         WntConcentration::Destroy();
