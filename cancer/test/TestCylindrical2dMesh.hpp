@@ -285,7 +285,7 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
         NodeMap map(p_mesh->GetNumNodes());
-        p_mesh->ReMesh(map);
+        p_mesh->ReMeshWithTriangleLibrary(map);
         
         TS_ASSERT_EQUALS(map.Size(), p_mesh->GetNumNodes());
         TS_ASSERT_EQUALS(map.IsIdentityMap(), true);
@@ -314,7 +314,7 @@ public:
         p_mesh->DeleteNode(15);
         
         NodeMap map(p_mesh->GetNumNodes());
-        p_mesh->ReMesh(map);
+        p_mesh->ReMeshWithTriangleLibrary(map);
 
         // Check that there are the correct number of everything
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),cells_across*cells_up - 1);
@@ -348,7 +348,7 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
         NodeMap map(p_mesh->GetNumNodes());
-        p_mesh->ReMesh(map);
+        p_mesh->ReMeshWithTriangleLibrary(map);
 
         // Check that there are the correct number of everything
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),cells_across*cells_up);
@@ -513,7 +513,7 @@ public:
         unsigned new_index = p_mesh->AddNode(p_node);
         NodeMap map(p_mesh->GetNumNodes());
         
-        p_mesh->ReMesh(map);
+        p_mesh->ReMeshWithTriangleLibrary(map);
         
         TS_ASSERT_EQUALS(map.Size(), p_mesh->GetNumNodes());
         TS_ASSERT_EQUALS(map.IsIdentityMap(), true);
@@ -630,7 +630,7 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), p_mesh->GetNumElements());
         
         NodeMap map(p_mesh->GetNumNodes());
-        p_mesh->ReMesh(map);
+        p_mesh->ReMeshWithTriangleLibrary(map);
         
 //        TrianglesMeshWriter<2,2> writer2("","HaloNodes.1");
 //        writer2.WriteFilesUsingMesh(*p_mesh);
@@ -704,7 +704,7 @@ public:
             // so some of the tests below fail, unless we also do a ReMesh after loading.
             // Even if a ReMesh isn't actually needed, it should be safe.
             NodeMap map(p_mesh2->GetNumNodes());
-            p_mesh2->ReMesh(map);
+            p_mesh2->ReMeshWithTriangleLibrary(map);
             
             TS_ASSERT_DELTA(p_mesh2->GetWidth(0), crypt_width, 1e-7);
             
@@ -846,7 +846,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         NodeMap map(0);
-        mesh.ReMesh(map);
+        mesh.ReMeshWithTriangleLibrary(map);
         assert(map.IsIdentityMap());
         
         for (unsigned node_index=0; node_index<mesh.GetNumAllNodes(); node_index++)

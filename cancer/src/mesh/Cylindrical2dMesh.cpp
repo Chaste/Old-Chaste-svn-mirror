@@ -66,7 +66,7 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes)
     }
     
     NodeMap node_map(nodes.size());
-    ReMesh(node_map);
+    ReMeshWithTriangleLibrary(node_map);
 }
 
 
@@ -169,7 +169,7 @@ void Cylindrical2dMesh::CreateHaloNodes()
 }
 
 
-void Cylindrical2dMesh::ReMesh(NodeMap &map)
+void Cylindrical2dMesh::ReMeshWithTriangleLibrary(NodeMap &map)
 {
     unsigned old_num_all_nodes = GetNumAllNodes();
 	

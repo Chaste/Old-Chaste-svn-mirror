@@ -195,16 +195,16 @@ public:
         // These cells just divided and have been gradually moving apart.
         // These results are from time 0.25.
         std::vector<double> node_302_location = crypt_projection_simulator.GetNodeLocation(302);
-        TS_ASSERT_DELTA(node_302_location[0], -0.0954, 1e-4);
-        TS_ASSERT_DELTA(node_302_location[1], 0.2475, 1e-4);
+        TS_ASSERT_DELTA(node_302_location[0], -0.1358, 1e-4);
+        TS_ASSERT_DELTA(node_302_location[1], 0.2173, 1e-4);
         
         std::vector<double> node_506_location = crypt_projection_simulator.GetNodeLocation(506);
-        TS_ASSERT_DELTA(node_506_location[0], -0.7046, 1e-4);
-        TS_ASSERT_DELTA(node_506_location[1], 0.6178, 1e-4);
+        TS_ASSERT_DELTA(node_506_location[0], -0.7105, 1e-4);
+        TS_ASSERT_DELTA(node_506_location[1], 0.6220, 1e-4);
 
         // Test the Wnt gradient result
         TissueCell* p_cell = &(crypt.rGetCellAtNodeIndex(302));
-        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9991, 1e-4);
+        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9992, 1e-4);
         p_cell = &(crypt.rGetCellAtNodeIndex(506));
         TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9898, 1e-4);
         
