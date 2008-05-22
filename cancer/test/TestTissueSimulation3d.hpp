@@ -243,32 +243,62 @@ public:
         } 
                     
         TS_ASSERT(ghost_node_indices.size() < num_cells);
-        TS_ASSERT(ghost_node_indices.size() > 0)
+        TS_ASSERT(ghost_node_indices.size() > 0);
+        TS_ASSERT_EQUALS(ghost_node_indices.size(), 56u);
         
+        // Test Save with a MeshBasedTissueWithGhostNodes
         MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, ghost_node_indices);     
-
         TissueSimulation<3> simulator(tissue);
         simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");        
-        simulator.SetEndTime(0.1);
-        
+        simulator.SetEndTime(0.1);        
         simulator.Solve();
         simulator.Save();
         
-        // These lines generate result to test in the following Test. 
-
-        TrianglesMeshWriter<3,3> mesh_writer2("TestGhostNodesSpheroidSimulation3D","EndMesh",false); 
-        mesh_writer2.WriteFilesUsingMesh(mesh);
+        // To generate results for below test
+        // std::cout << mesh.GetNode(23u)->rGetLocation()[2] << std::endl << std::flush;
+            
+        SimulationTime::Destroy();
+        SimulationTime::Instance()->SetStartTime(0.0);
+        
+        // Test Save with a MeshBasedTissue - one cell born during this.
+        MeshBasedTissue<3> tissue2(mesh, cells);    
+        TissueSimulation<3> simulator2(tissue2);
+        simulator2.SetOutputDirectory("TestGhostNodesSpheroidSimulation3DNoGhosts");        
+        simulator2.SetEndTime(0.1);        
+        simulator2.Solve();
+        simulator2.Save();
+        
+        // To generate results for below test
+        // std::cout << mesh.GetNode(23u)->rGetLocation()[2] << std::endl << std::flush;
+    
     }
     
     void TestLoadOf3DSimulation() throw (Exception)
     {
-        TissueSimulation<3>* p_simulator = TissueSimulation<3>::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
-        unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
+        {   // With ghost nodes - 56 ghosts 8 real cells.
+            TissueSimulation<3>* p_simulator = TissueSimulation<3>::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
+            unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
+            
+            TS_ASSERT_EQUALS(num_cells, 8u);
+            TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 0.1, 1e-9);
+            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetLocationOfCell(p_simulator->rGetTissue().rGetCellAtNodeIndex(23u))[2] , 0.911736, 1e-6);
+            
+            delete p_simulator;
+        }
         
-        TS_ASSERT_EQUALS(num_cells, 8u);
-        TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 0.1, 1e-9);
+        SimulationTime::Destroy();
+        SimulationTime::Instance()->SetStartTime(0.0);        
         
-        delete p_simulator;
+        {   // Without ghost nodes - all 65 are real cells.
+            TissueSimulation<3>* p_simulator = TissueSimulation<3>::Load("TestGhostNodesSpheroidSimulation3DNoGhosts", 0.1);
+            unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
+            
+            TS_ASSERT_EQUALS(num_cells, 65u);
+            TS_ASSERT_DELTA(SimulationTime::Instance()->GetDimensionalisedTime(), 0.1, 1e-9);
+            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetLocationOfCell(p_simulator->rGetTissue().rGetCellAtNodeIndex(23u))[2] , 1.13958, 1e-6);
+            
+            delete p_simulator;
+        }
     }
 };
 
