@@ -50,7 +50,7 @@ public:
         HoneycombMeshGenerator generator(3, 3, 0, false);
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<Node<2> > nodes;
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             nodes.push_back(*(p_mesh->GetNode(i)));
         }        
@@ -130,7 +130,7 @@ public:
         
         // Get nodes
         std::vector<Node<2> > nodes;
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             nodes.push_back(*(p_mesh->GetNode(i)));
         }        
@@ -223,14 +223,14 @@ public:
             
             // Get nodes
             std::vector<Node<2> > nodes;
-            for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 nodes.push_back(*(mesh.GetNode(i)));
             }
 
             std::vector<TissueCell> cells;
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
-            for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 cell.SetNodeIndex(i);
                 cell.SetBirthTime(-50.0);

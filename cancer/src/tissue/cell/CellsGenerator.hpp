@@ -104,7 +104,7 @@ void CellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
 {
     rCells.clear();
     rCells.reserve(rMesh.GetNumNodes());
-    for(unsigned i=0; i<rMesh.GetNumNodes(); i++)
+    for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
     {
         TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
         double birth_time = 0.0-i;

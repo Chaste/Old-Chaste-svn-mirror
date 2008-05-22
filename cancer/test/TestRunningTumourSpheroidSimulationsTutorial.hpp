@@ -102,7 +102,7 @@ public:
         /* Next, we need to create some cells. Unlike before, we don't just use
          * the {{{CellsGenerator}}} class, but do it manually, in a loop. First,
          * define the cells vector. */
-        std::vector<TissueCell> cells;  
+        std::vector<TissueCell> cells;
         /* then loop over the nodes... */        
         for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {

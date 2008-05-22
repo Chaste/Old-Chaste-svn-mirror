@@ -110,7 +110,7 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;        
         
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
@@ -131,7 +131,7 @@ public:
         
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors  
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             p_data->SetValue(1.0, mesh.GetNode(i));
         }
@@ -201,7 +201,7 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;        
         
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
@@ -223,7 +223,7 @@ public:
         
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors 
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             p_data->SetValue(1.0, p_mesh->GetNode(i));
         }
@@ -264,7 +264,7 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;        
         
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
@@ -296,7 +296,7 @@ public:
         
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             p_data->SetValue(1.0, p_mesh->GetNode(i));
         }
@@ -363,7 +363,7 @@ public:
         ConformingTetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
                     
         std::vector<TissueCell> cells;  
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
             cell.SetNodeIndex(i);
@@ -385,7 +385,7 @@ public:
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         p_data->SetTissue(tissue);
           
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             p_data->SetValue(1.0, p_mesh->GetNode(i));
         }
@@ -479,7 +479,7 @@ public:
         
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             p_data->SetValue(1.0, p_mesh->GetNode(i));
         }
@@ -626,7 +626,7 @@ public:
         
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             p_data->SetValue(1.0, p_mesh->GetNode(i));
         }
@@ -800,7 +800,7 @@ public:
 //        
 //        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
 //        // we need to pass it some initial conditions to avoid memory errors  
-//        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+//        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
 //        {
 //            p_data->SetValue(1.0, mesh.GetNode(i));
 //        }

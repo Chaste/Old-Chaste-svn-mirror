@@ -323,7 +323,7 @@ public:
         TS_ASSERT_EQUALS(map.Size(), num_old_nodes);
         TS_ASSERT_EQUALS(map.IsDeleted(15), true);
         
-        for(unsigned i=0; i<num_old_nodes; i++)
+        for (unsigned i=0; i<num_old_nodes; i++)
         {
             if(i<15)
             {

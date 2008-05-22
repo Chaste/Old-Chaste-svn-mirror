@@ -204,7 +204,7 @@ public:
         mesh.Translate(-0.5,-0.5); 
         
         std::vector<TissueCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             WntCellCycleModel* p_model = new WntCellCycleModel();
             TissueCell cell(STEM, HEALTHY, p_model);
@@ -335,7 +335,7 @@ public:
         std::vector<WntCellCycleModel*> models;
         
         std::vector<TissueCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             WntCellCycleModel* p_model = new WntCellCycleModel();
             TissueCell cell(STEM, HEALTHY, p_model);

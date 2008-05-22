@@ -108,7 +108,7 @@ public:
         
         TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
         std::vector<TissueCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes()-1; i++)
+        for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
             cell.SetNodeIndex(i);
             cell.SetBirthTime(0.0);

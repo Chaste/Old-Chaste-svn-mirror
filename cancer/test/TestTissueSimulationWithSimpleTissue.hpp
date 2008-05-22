@@ -49,7 +49,7 @@ private:
     {
         std::vector<Node<DIM> > nodes;
         
-        for(unsigned i=0; i<pMesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
             nodes.push_back(*(pMesh->GetNode(i)));
         }        
@@ -60,7 +60,7 @@ private:
     std::vector<TissueCell> SetUpCells(ConformingTetrahedralMesh<DIM,DIM>* pMesh)
     {   
         std::vector<TissueCell> cells;
-        for(unsigned i=0; i<pMesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                 (CancerParameters::Instance()->GetStemCellG1Duration()

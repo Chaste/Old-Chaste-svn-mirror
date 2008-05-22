@@ -75,7 +75,7 @@ public:
         
         std::vector<TissueCell> cells;
         
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(TRANSIT, HEALTHY, new SimpleWntCellCycleModel());
             cell.InitialiseCellCycleModel();
@@ -103,7 +103,7 @@ public:
 
         unsigned expected_indices[10] = {350,377,402,429,454,481,506,533,558,585};
 
-        for(unsigned i=0; i<test_section.size(); i++)
+        for (unsigned i=0; i<test_section.size(); i++)
         {
             TissueCell* cell = test_section[i];
             TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(), 

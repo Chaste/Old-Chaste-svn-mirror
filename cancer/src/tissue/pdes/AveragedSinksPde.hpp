@@ -72,7 +72,7 @@ void AveragedSinksPde<DIM>::SetupSourceTerms(ConformingTetrahedralMesh<DIM,DIM>&
 {
     // Allocate memory
     mCellDensityOnCoarseElements.resize(rCoarseMesh.GetNumElements());
-    for(unsigned elem_index=0; elem_index<mCellDensityOnCoarseElements.size(); elem_index++)
+    for (unsigned elem_index=0; elem_index<mCellDensityOnCoarseElements.size(); elem_index++)
     {
         mCellDensityOnCoarseElements[elem_index] = 0.0;
     }
@@ -92,7 +92,7 @@ void AveragedSinksPde<DIM>::SetupSourceTerms(ConformingTetrahedralMesh<DIM,DIM>&
     }    
     
     // Then divide each entry of mSourceTermOnCoarseElements by the element's area
-    for(unsigned elem_index=0; elem_index<mCellDensityOnCoarseElements.size(); elem_index++)
+    for (unsigned elem_index=0; elem_index<mCellDensityOnCoarseElements.size(); elem_index++)
     {
         mCellDensityOnCoarseElements[elem_index] /= rCoarseMesh.GetElement(elem_index)->GetVolume();
     }

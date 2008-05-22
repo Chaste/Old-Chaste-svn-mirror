@@ -229,7 +229,7 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateForCrypt(cells, *p_mesh, FIXED, true);// true = mature cells
         
-        for(unsigned i=0; i< cells.size();i++)
+        for (unsigned i=0; i<cells.size();i++)
         {
             cells[i].SetBirthTime(-11.5);
         }
@@ -1065,7 +1065,7 @@ public:
         
         // Set up cells
         std::vector<TissueCell> cells;
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             TissueCell cell(TRANSIT, HEALTHY, new FixedCellCycleModel());
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()

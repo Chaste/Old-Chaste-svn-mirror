@@ -38,7 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  MeinekeSpringSystemWithChemotaxis
  * 
  *  A mechanics system for discrete tissue models based on the Meineke 2001 spring system. 
- *  There is an additional chemotactic force term which couples the tissue to CellwiseData.  
+ *  There is an additional chemotactic force term which couples the tissue to CellwiseData. 
+ *  Currently, only LABELLED cells experience this force. 
  * 
  *  Uses Fc = chi(C,|gradC|) gradC/|gradC|, where C is the nutrient concentration
  *  and chi is a specified function. If gradC=0, Fc=0
@@ -107,23 +108,27 @@ std::vector<c_vector<double, DIM> >& MeinekeSpringSystemWithChemotaxis<DIM>::rCa
          cell_iter != this->mpTissue->End();
          ++cell_iter)
     {
-        TissueCell& cell = *cell_iter;
-        unsigned node_global_index = cell.GetNodeIndex();
-
-        c_vector<double,DIM>& r_gradient = gradients.rGetGradient(cell.GetNodeIndex());            
-        double nutrient_concentration = CellwiseData<DIM>::Instance()->GetValue(&cell,0);
-        double magnitude_of_gradient = norm_2(r_gradient);
-
-        double force_magnitude = ChemotacticForceMagnitude(nutrient_concentration, magnitude_of_gradient);
-    
-        double damping_constant = this->GetDampingConstant(cell); 
-        
-        // velocity += viscosity * chi * gradC/|gradC|
-        if(magnitude_of_gradient > 0)
+        // Only LABELLED cells move chemotactically
+        if (cell_iter->GetMutationState()==LABELLED)
         {
-            this->mDrDt[node_global_index] += (force_magnitude/(damping_constant*magnitude_of_gradient))*r_gradient;
+            TissueCell& cell = *cell_iter;            
+            unsigned node_global_index = cell.GetNodeIndex();
+
+			c_vector<double,DIM>& r_gradient = gradients.rGetGradient(cell.GetNodeIndex());
+			double nutrient_concentration = CellwiseData<DIM>::Instance()->GetValue(&cell,0);
+			double magnitude_of_gradient = norm_2(r_gradient);
+			
+			double force_magnitude = ChemotacticForceMagnitude(nutrient_concentration, magnitude_of_gradient);
+			
+            double damping_constant = this->GetDampingConstant(cell);        
+            
+            // velocity += viscosity * chi * gradC/|gradC|
+            if (magnitude_of_gradient > 0)
+            {
+                this->mDrDt[node_global_index] += (force_magnitude/(damping_constant*magnitude_of_gradient))*r_gradient;
+            }
+            // else Fc=0
         }
-        // else Fc=0
     }
 
     return this->mDrDt;

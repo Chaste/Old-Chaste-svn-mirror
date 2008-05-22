@@ -71,7 +71,7 @@ public :
         
         MeshBasedTissue<2>::Iterator cell_iter = mpTissue->Begin();
        
-        for(unsigned i=0; ( (i<mNumber) && (cell_iter!=mpTissue->End()) ); i++)
+        for (unsigned i=0; ( (i<mNumber) && (cell_iter!=mpTissue->End()) ); i++)
         {
             ++cell_iter;
         }

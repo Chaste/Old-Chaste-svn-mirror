@@ -59,7 +59,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
+            TissueCell cell(STEM, LABELLED, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(-10);
             cells.push_back(cell);
@@ -72,7 +72,7 @@ public:
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
         p_data->SetTissue(tissue);
         
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             double x = p_mesh->GetNode(i)->rGetLocation()[0];
             p_data->SetValue(x/50.0, p_mesh->GetNode(i));
@@ -91,7 +91,10 @@ public:
                 double c = x/50;
                 double norm_grad_c = 1.0/50.0;
                 double force_magnitude = meineke_spring_system_with_chemotaxis.ChemotacticForceMagnitude(c,norm_grad_c);
-                double damping = CancerParameters::Instance()->GetDampingConstantNormal();
+                
+                // As only labelled cells experience the chemotactic force, we must use 
+                // the mutant damping constant
+                double damping = CancerParameters::Instance()->GetDampingConstantMutant();
                 
                 // Fc = force_magnitude*(1,0), Fspring=0 => velocity = damping*force_magnitude*(1,0)
                 TS_ASSERT_DELTA(velocities_on_each_node[i][0], force_magnitude/damping, 1e-4);
@@ -118,7 +121,7 @@ public:
 
             std::vector<TissueCell> cells;
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
-            for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 cell.SetNodeIndex(i);
                 cell.SetBirthTime(-50.0);
@@ -137,7 +140,7 @@ public:
             
             p_chemotaxis_spring_system->UseCutoffPoint(1.1);
             p_chemotaxis_spring_system->SetAreaBasedViscosity(true);
-            p_chemotaxis_spring_system->SetMutantSprings(true,0.2,0.3);
+            p_chemotaxis_spring_system->SetMutantSprings(true, 0.2, 0.3);
             p_chemotaxis_spring_system->SetBCatSprings(true);
             p_chemotaxis_spring_system->SetNecroticSprings(true);
             
@@ -157,7 +160,7 @@ public:
             
             // Test the member data
             TS_ASSERT_EQUALS(p_chemotaxis_spring_system->mUseCutoffPoint,true);
-            TS_ASSERT_DELTA(p_chemotaxis_spring_system->mCutoffPoint,1.1,1e-12);            
+            TS_ASSERT_DELTA(p_chemotaxis_spring_system->mCutoffPoint, 1.1, 1e-12);            
             TS_ASSERT_EQUALS(p_chemotaxis_spring_system->mUseEdgeBasedSpringConstant, false);
             TS_ASSERT_EQUALS(p_chemotaxis_spring_system->mUseAreaBasedViscosity, true);
             TS_ASSERT_EQUALS(p_chemotaxis_spring_system->mUseMutantSprings, true);

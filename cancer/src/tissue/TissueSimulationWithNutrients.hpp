@@ -376,7 +376,7 @@ void TissueSimulationWithNutrients<DIM>::CreateCoarseNutrientMesh(double coarseG
     
     // Find max radius of tissue
     double max_tissue_radius = 0.0;
-    for(typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
@@ -545,7 +545,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     
     // Loop over cells and calculate centre of distribution
     c_vector<double, DIM> centre = zero_vector<double>(DIM);
-    for(typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {

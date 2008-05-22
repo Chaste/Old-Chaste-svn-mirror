@@ -194,7 +194,7 @@ public:
         // Normally this would be set up at the start of rCalculateVelocitiesOfEachNode
         flat_crypt_spring_system.UpdateNode3dLocationMap();
                 
-        for(MeshBasedTissue<2>::SpringIterator spring_iterator = tissue.SpringsBegin();
+        for (MeshBasedTissue<2>::SpringIterator spring_iterator = tissue.SpringsBegin();
             spring_iterator != tissue.SpringsEnd();
             ++spring_iterator)
         {        
@@ -298,7 +298,7 @@ public:
 
             std::vector<TissueCell> cells;
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
-            for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 cell.SetNodeIndex(i);
                 cell.SetBirthTime(-50.0);

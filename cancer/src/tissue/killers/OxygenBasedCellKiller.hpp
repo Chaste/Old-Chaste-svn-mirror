@@ -128,7 +128,7 @@ void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(Tissue
 template <unsigned SPACE_DIM>
 void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelCellsForApoptosisOrDeath()
 {      
-    for( typename AbstractTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
+    for (typename AbstractTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
         cell_iter != this->mpTissue->End();
         ++cell_iter)
     {               

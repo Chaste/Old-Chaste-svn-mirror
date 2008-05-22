@@ -89,7 +89,7 @@ public:
 
         unsigned expected_indices[6] = {0,1,3,4,7,8};
 
-        for(unsigned i=0; i<test_section.size(); i++)
+        for (unsigned i=0; i<test_section.size(); i++)
         {
             TissueCell* cell = test_section[i];
             TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(), 
@@ -105,7 +105,7 @@ public:
 
         unsigned expected_indices_vertical[6] = {0,1,3,6,7};
 
-        for(unsigned i=0; i<test_section_vertical.size(); i++)
+        for (unsigned i=0; i<test_section_vertical.size(); i++)
         {
             TissueCell* cell = test_section_vertical[i];
             TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(), 
@@ -119,7 +119,7 @@ public:
         
         unsigned expected_indices_periodic[6] = {0,1,3,5,6,8};
         
-        for(unsigned i=0; i<test_section_periodic.size(); i++)
+        for (unsigned i=0; i<test_section_periodic.size(); i++)
         {
             TissueCell* cell = test_section_periodic[i];
             TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(), 
@@ -133,7 +133,7 @@ public:
         
         unsigned expected_indices_periodic_2[6] = {0,2,3,5,6,7};
         
-        for(unsigned i=0; i<test_section_periodic_2.size(); i++)
+        for (unsigned i=0; i<test_section_periodic_2.size(); i++)
         {
             TissueCell* cell = test_section_periodic_2[i];
             TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(), 
@@ -147,7 +147,7 @@ public:
         TS_ASSERT_EQUALS(test_section_periodic_3.size(), 3u);
         unsigned expected_indices_periodic_3[6] = {2,4,8};
         
-        for(unsigned i=0; i<test_section_periodic_3.size(); i++)
+        for (unsigned i=0; i<test_section_periodic_3.size(); i++)
         {
             TissueCell* cell = test_section_periodic_3[i];
             TS_ASSERT_EQUALS( crypt.GetNodeCorrespondingToCell(*cell)->GetIndex(), 

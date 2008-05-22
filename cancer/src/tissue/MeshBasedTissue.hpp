@@ -689,7 +689,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
     {
         if (!mrMesh.GetElement(elem_index)->IsDeleted())
         {
-            for(unsigned i=0; i<DIM+1; i++)
+            for (unsigned i=0; i<DIM+1; i++)
             {
                 *mpElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i)<< " ";
             }

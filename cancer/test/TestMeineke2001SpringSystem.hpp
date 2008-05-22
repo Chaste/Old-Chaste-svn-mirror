@@ -184,7 +184,7 @@ public:
         // check that the force between nodes is correctly calculated when the spring constant is constant (!)
         meineke_spring_system.SetEdgeBasedSpringConstant(false);
                       
-        for(MeshBasedTissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+        for (MeshBasedTissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
             spring_iterator!=tissue.SpringsEnd();
             ++spring_iterator)
         {        
@@ -200,7 +200,7 @@ public:
         tissue.CreateVoronoiTessellation();  // normally done in a simulation loop
         
         
-        for(MeshBasedTissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+        for (MeshBasedTissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
             spring_iterator!=tissue.SpringsEnd();
             ++spring_iterator)
         {
@@ -258,7 +258,7 @@ public:
         // Check that the force between nodes is correctly calculated when the spring constant is constant (!)
         meineke_spring_system.SetEdgeBasedSpringConstant(false);
                       
-        for(MeshBasedTissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+        for (MeshBasedTissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
             spring_iterator!=tissue.SpringsEnd();
             ++spring_iterator)
         {
@@ -274,7 +274,7 @@ public:
         meineke_spring_system.SetEdgeBasedSpringConstant(true); 
         tissue.CreateVoronoiTessellation();  
         
-        for(MeshBasedTissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
+        for (MeshBasedTissue<2>::SpringIterator spring_iterator=tissue.SpringsBegin();
             spring_iterator!=tissue.SpringsEnd();
             ++spring_iterator)
         {
@@ -317,7 +317,7 @@ public:
         std::vector<c_vector<double,2> >& velocities = meineke_spring_system.rCalculateVelocitiesOfEachNode();
         std::vector<double> norm_vel;
         
-        for(unsigned i=0; i<velocities.size(); i++)
+        for (unsigned i=0; i<velocities.size(); i++)
         {
             // Check if this is a real cell
             if(ghost_node_indices.find(i)==ghost_node_indices.end())
@@ -333,7 +333,7 @@ public:
         
         std::vector<double> norm_vel_area;
         
-        for(unsigned i=0; i<velocities.size(); i++)
+        for (unsigned i=0; i<velocities.size(); i++)
         {
             //check if this is a real cell
             if(ghost_node_indices.find(i)==ghost_node_indices.end())
@@ -345,7 +345,7 @@ public:
         TS_ASSERT(norm_vel.size() > 0);
         
         // Note that d0 and d1 are hardcoded in TissueSimulation::mpMechanicsSystem->rCalculateVelocitiesOfEachNode()  
-        for(unsigned i=0; i<norm_vel.size(); i++)
+        for (unsigned i=0; i<norm_vel.size(); i++)
         {
             TS_ASSERT_DELTA(norm_vel_area[i], norm_vel[i]/(0.1 +  1.2*0.9), 1e-3);
         }        
@@ -378,7 +378,7 @@ public:
         // It seems quite difficult to test this on a periodic mesh, 
         // so just check the areas of all the cells are correct 
         tissue.CreateVoronoiTessellation();
-        for(unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             // Check if this is a real cell
             if(ghost_node_indices.find(i)==ghost_node_indices.end())
@@ -534,7 +534,7 @@ public:
         
         std::vector<TissueCell> cells;
         TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             cell.SetNodeIndex(i);
             cell.SetBirthTime(-50.0);
@@ -548,7 +548,7 @@ public:
         unsigned nodeA = 0, nodeB = 1;
         Element<3,3>* p_element = mesh.GetElement(0);
         c_vector<double, 3> force = meineke_spring_system.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),p_element->GetNodeGlobalIndex(nodeB));
-        for(unsigned i=0; i < 3;i++)
+        for (unsigned i=0; i < 3;i++)
         {
             TS_ASSERT_DELTA(force[i],0.0,1e-6);
         }
@@ -560,7 +560,7 @@ public:
             
             for (unsigned j=0; j<4; j++)
             {
-                for(unsigned k=0;k<3;k++)
+                for (unsigned k=0;k<3;k++)
                 {
                     TS_ASSERT_DELTA(velocities[j](k),0.0,1e-6);
                 }
@@ -587,7 +587,7 @@ public:
         
         for (unsigned j=0; j<4; j++)
         {
-            for(unsigned k=0; k<3; k++)
+            for (unsigned k=0; k<3; k++)
             {
                 TS_ASSERT_DELTA(fabs(new_velocities[j](k)),p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(scale_factor-1)*sqrt(2),1e-6);
             }
@@ -612,14 +612,14 @@ public:
         Element<3,3>* p_element2 = mesh2.GetElement(0);
         c_vector<double,3> force2 = meineke_spring_system2.CalculateForceBetweenNodes(p_element2->GetNodeGlobalIndex(nodeA2),p_element2->GetNodeGlobalIndex(nodeB2));
         
-        for(unsigned i=0; i<3; i++)
+        for (unsigned i=0; i<3; i++)
         {
             TS_ASSERT_DELTA(fabs(force2[i]),p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
         }
         
         new_velocities = meineke_spring_system2.rCalculateVelocitiesOfEachNode();
         
-        for(unsigned i=0; i<3; i++)
+        for (unsigned i=0; i<3; i++)
         {
             TS_ASSERT_DELTA(new_velocities[0](i),p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
         }
@@ -644,7 +644,7 @@ public:
 
             std::vector<TissueCell> cells;
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
-            for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 cell.SetNodeIndex(i);
                 cell.SetBirthTime(-50.0);

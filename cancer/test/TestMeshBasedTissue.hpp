@@ -48,7 +48,7 @@ private:
     std::vector<TissueCell> SetUpCells(ConformingTetrahedralMesh<DIM,DIM>* pMesh)
     {
         std::vector<TissueCell> cells;
-        for(unsigned i=0; i<pMesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             double birth_time = 0.0-i;
@@ -97,7 +97,7 @@ private:
             TS_ASSERT_EQUALS((*cell_iter).GetNodeIndex(), cell_iter.GetNode()->GetIndex());
  
             // Test rGetLocation on the iterator
-            for(unsigned space_index=0; space_index<DIM; space_index++)
+            for (unsigned space_index=0; space_index<DIM; space_index++)
             {
                 TS_ASSERT_EQUALS(cell_iter.rGetLocation()[space_index], 
                                  mesh.GetNode(counter)->rGetLocation()[space_index]);
@@ -197,9 +197,9 @@ public:
         // Set ghost nodes
         tissue.SetGhostNodes(ghost_node_indices);
         std::vector<bool> is_ghost_node(p_mesh->GetNumNodes(), false);
-        for(std::set<unsigned>::iterator it = ghost_node_indices.begin();
-            it != ghost_node_indices.end();
-            it++)
+        for (std::set<unsigned>::iterator it=ghost_node_indices.begin();
+             it!=ghost_node_indices.end();
+             it++)
         {
             is_ghost_node[*it] = true;
         }
@@ -472,7 +472,7 @@ public:
         MeshBasedTissueWithGhostNodes<2> tissue(mesh,cells);
 
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(), false);
-        for(unsigned i=0; i<10; i++)
+        for (unsigned i=0; i<10; i++)
         {
             is_ghost_node[i] = true;
         }
@@ -638,7 +638,7 @@ public:
         
         // Make nodes 0-10 ghost nodes
         std::vector<bool> is_ghost_node(mesh.GetNumNodes(),false);
-        for(unsigned i=0; i<10; i++)
+        for (unsigned i=0; i<10; i++)
         {
             is_ghost_node[i] = true;
         }
@@ -666,12 +666,12 @@ public:
         
         // Set up expected node pairs
         std::set< std::set<unsigned> > expected_node_pairs;
-        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
             Element<3,3>* p_element = mesh.GetElement(i);
-            for(unsigned j=0; j<4; j++)
+            for (unsigned j=0; j<4; j++)
             {
-                for(unsigned k=0; k<4; k++)
+                for (unsigned k=0; k<4; k++)
                 {
                     unsigned node_A = p_element->GetNodeGlobalIndex(j);
                     unsigned node_B = p_element->GetNodeGlobalIndex(k);
@@ -709,8 +709,8 @@ public:
         MeshBasedTissue<2> tissue(mesh, cells);        
                 
         // Loop over nodes
-        for (MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        for (MeshBasedTissue<2>::Iterator cell_iter=tissue.Begin();
+             cell_iter!=tissue.End();
              ++cell_iter)
         {
             // Record node location
@@ -760,9 +760,9 @@ public:
         
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // loop over them to run to time 0.0;
-            for(MeshBasedTissue<2>::Iterator cell_iter = p_tissue->Begin();
-             cell_iter != p_tissue->End();
-             ++cell_iter)
+            for (MeshBasedTissue<2>::Iterator cell_iter=p_tissue->Begin();
+                 cell_iter!=p_tissue->End();
+                 ++cell_iter)
             {                
                 cell_iter->ReadyToDivide();
             }
@@ -806,9 +806,9 @@ public:
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // this checks that individual cells and their models are archived.
             unsigned counter = 0u;
-            for(MeshBasedTissue<2>::Iterator cell_iter = p_tissue->Begin();
-             cell_iter != p_tissue->End();
-             ++cell_iter)
+            for (MeshBasedTissue<2>::Iterator cell_iter=p_tissue->Begin();
+                 cell_iter!=p_tissue->End();
+                 ++cell_iter)
             {
                 TS_ASSERT_DELTA(cell_iter->GetAge(),(double)(counter),1e-7);
                 counter++;
@@ -898,15 +898,15 @@ public:
         
         std::vector<TissueCell> cells;
         CellsGenerator<2>::GenerateBasic(cells, mesh);
-        
+
         MeshBasedTissue<2> tissue(mesh, cells);
         
         // Test that the tissue makes all cells fix the node index as ancestor
         tissue.SetCellAncestorsToNodeIndices();
         
         unsigned counter = 0;
-        for(MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        for (MeshBasedTissue<2>::Iterator cell_iter=tissue.Begin();
+             cell_iter!=tissue.End();
              ++cell_iter)
         {
             TS_ASSERT_EQUALS(cell_iter->GetAncestor(), cell_iter->GetNodeIndex());
@@ -919,8 +919,8 @@ public:
         TS_ASSERT_EQUALS(remaining_ancestors.size(), 5u);
         
         // Test that the set correctly represents a monoclonal population
-        for(MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        for (MeshBasedTissue<2>::Iterator cell_iter=tissue.Begin();
+             cell_iter!=tissue.End();
              ++cell_iter)
         {  
             // Set all cells to have the same ancestor

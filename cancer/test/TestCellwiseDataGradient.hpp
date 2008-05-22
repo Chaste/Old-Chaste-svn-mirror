@@ -62,7 +62,7 @@ public:
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
         p_data->SetTissue(tissue);     
     
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];
             p_data->SetValue(x*x, mesh.GetNode(i));
@@ -73,7 +73,7 @@ public:
         
         // With the algorithm being used, the numerical gradient is (1,0)
         // for each of the nodes 
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TS_ASSERT_DELTA( gradient.rGetGradient(i)(0), 1.0, 1e-9);
             TS_ASSERT_DELTA( gradient.rGetGradient(i)(1), 0.0, 1e-9);
@@ -102,7 +102,7 @@ public:
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
         p_data->SetTissue(tissue);     
     
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             p_data->SetValue(1.0, mesh.GetNode(i));
         }
@@ -111,7 +111,7 @@ public:
         gradient.SetupGradients();
         
         // Check gradient 
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TS_ASSERT_DELTA( gradient.rGetGradient(i)(0), 0.0, 1e-9);
             TS_ASSERT_DELTA( gradient.rGetGradient(i)(1), 0.0, 1e-9);
@@ -120,7 +120,7 @@ public:
         //////////////////////////////////
         // C(x,y) = x-y
         //////////////////////////////////
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];
             double y = mesh.GetNode(i)->rGetLocation()[1];
@@ -129,7 +129,7 @@ public:
 
         // Check gradient 
         gradient.SetupGradients();
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TS_ASSERT_DELTA( gradient.rGetGradient(i)(0),  1.0, 1e-9);
             TS_ASSERT_DELTA( gradient.rGetGradient(i)(1), -1.0, 1e-9);
@@ -138,7 +138,7 @@ public:
         //////////////////////////////////
         // C(x,y) = x^2 - y^2
         //////////////////////////////////
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];
             double y = mesh.GetNode(i)->rGetLocation()[1];
@@ -147,7 +147,7 @@ public:
 
         // Check gradient - here there is some numerical error
         gradient.SetupGradients();
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];
             double y = mesh.GetNode(i)->rGetLocation()[1];
@@ -198,7 +198,7 @@ public:
         //////////////////////////////////
         // C(x,y) = x^2 - y^2
         //////////////////////////////////
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];
             double y = mesh.GetNode(i)->rGetLocation()[1];
@@ -217,7 +217,7 @@ public:
         // The corner nodes are special because they have no adjacent real elements
         CellwiseDataGradient<2> gradient;
         gradient.SetupGradients();
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];
             double y = mesh.GetNode(i)->rGetLocation()[1];

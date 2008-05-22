@@ -158,7 +158,7 @@ public:
         SloughingCellKiller sloughing_cell_killer(&tissue, true);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
-        for(MeshBasedTissue<2>::Iterator iter = tissue.Begin();
+        for (MeshBasedTissue<2>::Iterator iter=tissue.Begin();
             iter!=tissue.End();
             ++iter)
         {
@@ -177,7 +177,7 @@ public:
   
         tissue.RemoveDeadCells();
 
-        for(MeshBasedTissue<2>::Iterator iter = tissue.Begin();
+        for (MeshBasedTissue<2>::Iterator iter=tissue.Begin();
             iter!=tissue.End();
             ++iter)
         {
@@ -201,7 +201,7 @@ public:
         mesh.Translate(-0.25,-0.25);
                 
         std::vector<TissueCell> cells;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new FixedCellCycleModel());
             double birth_time = 0.0;
@@ -235,7 +235,7 @@ public:
         
         tissue.RemoveDeadCells();
 
-        for(MeshBasedTissue<2>::Iterator iter = tissue.Begin();
+        for (MeshBasedTissue<2>::Iterator iter=tissue.Begin();
             iter!=tissue.End();
             ++iter)
         {
@@ -276,7 +276,7 @@ public:
         radial_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
 		// Check that cells are being labelled for death correctly 
-        for(MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter=tissue.Begin();
             cell_iter!=tissue.End();
             ++cell_iter)
         {
@@ -296,7 +296,7 @@ public:
         tissue.RemoveDeadCells();
 
 		// Check that we are correctly left with cells inside the circle of death
-        for(MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter=tissue.Begin();
             cell_iter!=tissue.End();
             ++cell_iter)
         {
@@ -338,7 +338,7 @@ public:
         std::list<TissueCell>& r_cells = tissue.rGetCells();
         
         // Reset cell types to STEM        
-        for(MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
+        for (MeshBasedTissue<2>::Iterator cell_iter=tissue.Begin();
             cell_iter != tissue.End();
             ++cell_iter)
         {

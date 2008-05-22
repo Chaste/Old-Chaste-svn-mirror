@@ -484,7 +484,7 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
         
     // This labels cells as dead or apoptosing. It does not actually remove the cells, 
     // tissue.RemoveDeadCells() needs to be called for this.
-    for(unsigned killer_index = 0; killer_index<mCellKillers.size(); killer_index++)
+    for (unsigned killer_index=0; killer_index<mCellKillers.size(); killer_index++)
     {
         mCellKillers[killer_index]->TestAndLabelCellsForApoptosisOrDeath();
     }
@@ -726,7 +726,7 @@ template<unsigned DIM>
 std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNodeIndex)
 {
     std::vector<double> location;
-    for(unsigned i=0; i<DIM; i++)
+    for (unsigned i=0; i<DIM; i++)
     {
         location.push_back( mrTissue.GetNode(rNodeIndex)->rGetLocation()[i] );
     }

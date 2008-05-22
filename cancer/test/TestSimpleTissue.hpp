@@ -110,7 +110,7 @@ private:
             TS_ASSERT_EQUALS((*cell_iter).GetNodeIndex(), cell_iter.GetNode()->GetIndex());
  
             // Test rGetLocation() on the iterator
-            for(unsigned space_index=0; space_index<DIM; space_index++)
+            for (unsigned space_index=0; space_index<DIM; space_index++)
             {
                 TS_ASSERT_EQUALS(cell_iter.rGetLocation()[space_index], 
                                  mesh.GetNode(counter)->rGetLocation()[space_index]);
@@ -379,8 +379,8 @@ public:
         TS_ASSERT_EQUALS(remaining_ancestors.size(), 5u);
         
         // Test that the set correctly represents a monoclonal population
-        for(SimpleTissue<2>::Iterator cell_iter = simple_tissue.Begin();
-             cell_iter != simple_tissue.End();
+        for (SimpleTissue<2>::Iterator cell_iter=simple_tissue.Begin();
+             cell_iter!=simple_tissue.End();
              ++cell_iter)
         {  
             // Set all cells to have the same ancestor...
