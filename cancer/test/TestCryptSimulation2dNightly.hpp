@@ -247,7 +247,7 @@ public:
         //Check writing of voronoi data
         OutputFileHandler handler("Monolayer",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizvoronoi";
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Monolayer/VoronoiAreaAndPerimeter.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/Monolayer/results.vizvoronoi").c_str()), 0);
     }
     
     /**
