@@ -1206,7 +1206,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     
     public static void MakeNewImageCell(int time_index, int node_index)
     {   
-    	//Only make a new cell if one hasn't already been made
+    	// Only make a new cell if one hasn't already been made
         if (image_cells[time_index][node_index] == node_index)
         {	
         	// Make a new image of Cell A       
@@ -1391,16 +1391,30 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             // Draw cell circle interiors
 	        for (int i=0; i<vis.numCells[vis.timeStep]; i++ ) 
 	        {
-	        	SetCellColour(i); 
-	            PlotPoint p = scale(vis.positions[vis.timeStep][i]);
-	            int rx = (int) (0.5* width /(vis.max_x - vis.min_x));
-	            int ry = (int) (0.5 * height /(vis.max_y - vis.min_y));
-	            
-	            if (vis.cell_type[vis.timeStep][i] != INVISIBLE_COLOUR) // if not a ghost node
-	            {
-	            	g2.fillOval(p.x-rx, p.y-ry, 2*rx, 2*ry);
+	        	// Don't draw ghost nodes on labelled cells
+	        	if ( (vis.cell_type[vis.timeStep][i] != INVISIBLE_COLOUR) 
+		            && (vis.cell_type[vis.timeStep][i] != LABELLED_COLOUR)) 	
+		        {
+	        		SetCellColour(i); 
+	        		PlotPoint p = scale(vis.positions[vis.timeStep][i]);
+	        		int rx = (int) (0.5* width /(vis.max_x - vis.min_x));
+	        		int ry = (int) (0.5 * height /(vis.max_y - vis.min_y));
+	        		g2.fillOval(p.x-rx, p.y-ry, 2*rx, 2*ry);
 	            }
 	        }
+	        
+	        // Draw labelled cells now, so they're on top
+	        for (int i=0; i<vis.numCells[vis.timeStep]; i++ ) 
+	        {
+	        	if (vis.cell_type[vis.timeStep][i] == LABELLED_COLOUR)	
+	        	{
+	        		SetCellColour(i); 
+	        		PlotPoint p = scale(vis.positions[vis.timeStep][i]);
+	        		int rx = (int) (0.5* width /(vis.max_x - vis.min_x));
+	        		int ry = (int) (0.5 * height /(vis.max_y - vis.min_y));
+	        		g2.fillOval(p.x-rx, p.y-ry, 2*rx, 2*ry);
+	        	}
+	        }	        
         }
               
         g2.setColor(Color.black);
