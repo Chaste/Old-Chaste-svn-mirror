@@ -4,11 +4,12 @@ TestBidomainWithShocks.hpp
 TestConvergenceEfficiency.hpp
 TestConvergenceNeumannStimulus.hpp
 TestConvergenceNightly.hpp
+TestElectroMechanicCellularModels.hpp
+TestIonicModelsLong.hpp
 TestMonodomainDg0AssemblerLong.hpp
+TestMonodomainHeartApex.hpp
 TestMonodomainNoStimulus.hpp
 TestMonodomainSlab.hpp
 TestPerformance.hpp
 TestPerformanceOfAssembly.hpp
-TestMonodomainHeartApex.hpp
-TestElectroMechanicCellularModels.hpp
-TestIonicModelsLong.hpp
+TestRunningBidomainSimulationsTutorial.hpp
