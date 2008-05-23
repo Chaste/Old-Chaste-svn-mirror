@@ -135,8 +135,14 @@ public:
     }
 };
 
-
-/* Now we can define the test class, which must inherit from {{{CxxTest::TestSuite}}}
+/* 
+ * EMPTYLINE
+ * 
+ * == Running the simulation ==
+ * 
+ * EMPTYLINE
+ *
+ * Now we can define the test class, which must inherit from {{{CxxTest::TestSuite}}}
  * as usual. */
 class TestRunningBidomainSimulationsTutorial : public CxxTest::TestSuite
 {
