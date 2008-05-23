@@ -47,13 +47,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Note that monodomain simulations are run very similarly.
  *  
  * The first thing that needs to be done, when writing any Chaste test,
- * is to include the following header
+ * is to include the following header.
  */
 
 #include <cxxtest/TestSuite.h>
-/* The main class to be used for running bidomain simulations is {{{BidomainProblem}}} */
+/* The main class to be used for running bidomain simulations is {{{BidomainProblem}}}. */
 #include "BidomainProblem.hpp"
-/* The {{{PlaneStimulusCellFactory}}} is a useful class to include (see later) */
+/* The {{{PlaneStimulusCellFactory}}} is a useful class to include (see later). */
 #include "PlaneStimulusCellFactory.hpp"
 /* All tests which run cardiac simulations (which use Petsc) should include 
  * {{{PetscSetupAndFinalize.hpp}}} '''is this true?''' */
@@ -65,12 +65,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  * EMPTYLINE
  * 
- * All mono/bidomain simulations needs a ''cell factory'' as input. This is a class
+ * All mono/bidomain simulations need a ''cell factory'' as input. This is a class
  * which tells the problem class what type of cardiac cells to create. The cell-factory
  * class has to inherit from {{{AbstractCardiacCellFactory<DIM>}}}, which means it must
  * implement the method {{{CreateCardiacCellForNode(unsigned nodeNum)}}}, which returns
  * a pointer to an {{{AbstractCardiacCell}}}. Note, some concrete cell factories have 
- * been defined such as the {{{PlaneStimulusCellFactory}}}, which could be used in the 
+ * been defined, such as the {{{PlaneStimulusCellFactory}}}, which could be used in the 
  * simulation, but for completeness we create our own cell factory in this test. For
  * complicated problems with, say, heterogeneous cell types or particular stimuli, a
  * new cell factory will have to be defined by the user for their particular problem.
@@ -78,15 +78,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * EMPTYLINE
  * 
  * This cell factory is a simple cell factory where every cell is a Luo-Rudy 91 cell,
- * and the cell at position (0,0) is given a non-zero stimulus
+ * and only the cell at position (0,0) is given a non-zero stimulus.
  */
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
 /* Declare pointer to an {{{InitialStimulus}}} for the cell which is stimulated. 
- * Note that AbstractCardiacCellFactory also has as protected members {{{mpZeroStimulus}}}
+ * Note that {{{AbstractCardiacCellFactory}}} also has as protected members: {{{mpZeroStimulus}}}
  * of type {{{ZeroStimulus}}}; {{{mpMesh}}}, a pointer to the mesh used (the problem
  * class will set this before it calls {{{CreateCardiacCellForNode}}}, so it can be used
- * in that method); and {{{mTimestep}}}, a double (see below); and {{{mpSolver}}} a forward
+ * in that method); {{{mTimestep}}}, a double (see below); and {{{mpSolver}}} a forward
  * euler ode solver (see below). */ 
 private:
     InitialStimulus *mpStimulus;
@@ -122,7 +122,7 @@ public:
         }
         else
         {
-            /* Here the cell has zero stimulus for both the intra and extra-cellular spaces. */
+            /* The other cells have zero stimuli for both the intra and extra-cellular spaces. */
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
         }
     }
@@ -143,22 +143,22 @@ class TestRunningBidomainSimulationsTutorial : public CxxTest::TestSuite
 /* Tests should be public... */
 public:
     /* Define the test. Note the {{{throw(Exception)}}} - without this exception messages
-     * might not get printed out */
+     * might not get printed out. */
     void TestSimpleSimulation() throw(Exception)
     {
-        /* First, we have to create a cell factory of the type we defined above */
+        /* First, we have to create a cell factory of the type we defined above. */
         PointStimulus2dCellFactory cell_factory;
         
         /* Now we create a problem class using (a pointer to) the cell factory. */
         BidomainProblem<2> bidomain_problem( &cell_factory );
         
         /* Next, some things which have to be set: the mesh filename, and the end time
-         * (in ms) */
+         * (in ms). */
         bidomain_problem.SetMeshFilename("mesh/test/data/square_128_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
         
         /* If we want output to be written we need to set the output directory and output
-         * file prefix
+         * file prefix.
          */
         bidomain_problem.SetOutputDirectory("BidomainTutorial");
         bidomain_problem.SetOutputFilenamePrefix("results");
@@ -167,11 +167,11 @@ public:
          * and {{{Solve()}}} to run the simulation... */ 
         // bidomain_problem.Initialise();        
         // bidomain_problem.Solve();
-        /* ..to solve. Instead we show how to set a few parameters. To
-         * set the conductivity ''values'' in the principal fibre,sheet and normal directions. 
-         * {{{Create_c_vector}}} is just a helpful method for creating a {{{c_vector<double,DIM>}}}
+        /* ..Instead we show how to set a few parameters. To
+         * set the conductivity ''values'' in the principal fibre, sheet and normal directions do the following. 
+         * Note that {{{Create_c_vector}}} is just a helper method for creating a {{{c_vector<double,DIM>}}}
          * of the correct size (2, in this case). Note that these methods need to be called before
-         * {{{Initialise()}}} '''is this true?''' */
+         * {{{Initialise()}}} '''is this true?''' '''todo - fix this'''*/
     //    bidomain_problem.SetIntracellularConductivities(Create_c_vector(0.0005));
     //    bidomain_problem.SetExtracellularConductivities(Create_c_vector(1));
      
@@ -180,19 +180,19 @@ public:
         /* .. and set the surface-area-to-volume ratio and capicitance. These
          * are members of {{{BidomainPde}}}, which can be accessed from the problem class.
          * (The PDE, and the mesh, and the cells, are not created until {{{Initialise()}}} is called,
-         * hence the need to call {{{Initialise()}}} before setting these variables.
+         * hence the need to call {{{Initialise()}}} before setting these variables. '''todo - choose sensible params'''
          */
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
         
         /* Now we call Solve() to run the simulation. Output will be written
-         * to /tmp/USER_NAME/testoutput/BidomainTutorial in hdf5 format. '''To visualise...'''*/
+         * to /tmp/USER_NAME/testoutput/BidomainTutorial in hdf5 format. '''todo: To visualise...'''*/
         bidomain_problem.Solve();
         
-        /* Finally, we show how to access the voltage values (at the final timestep), the
-         * data for previous timesteps is not retained, using the {{{DistributedVector}}}
+        /* Finally, we show how to access the voltage values (at the final timestep, the
+         * data for previous timesteps is not retained), using the {{{DistributedVector}}}
          * class. The call {{{bidomain_problem.GetVoltage())}}} returns a Petsc vector
-         * of the form (V_0, phi_0, V_0, phi_e1, ... V_n, phi_e_n), and the {{{DistributedVector}}}
+         * of the form (V_0, phi_0, V_1, phi_e_1, ... V_n, phi_e_n), and the {{{DistributedVector}}}
          * class can be used to get the values. */
         DistributedVector dist_bidomain_voltage(bidomain_problem.GetVoltage());
         DistributedVector::Stripe bidomain_voltage(dist_bidomain_voltage, 0);
@@ -203,7 +203,7 @@ public:
              index != DistributedVector::End();
              ++index)
         {
-            /* a simple test, that the 'last' node was stimulated */
+            /* .. and a simple test, that the 'last' node was stimulated: */
             if (index.Global==bidomain_problem.rGetMesh().GetNumNodes()-1) // ie if the last node
             {
                 TS_ASSERT_LESS_THAN(0, bidomain_voltage[index]);
