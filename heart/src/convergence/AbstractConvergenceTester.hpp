@@ -364,7 +364,7 @@ public:
             std::vector<unsigned> nodes_to_be_output;
             nodes_to_be_output.push_back(first_quadrant_node);
             nodes_to_be_output.push_back(third_quadrant_node);
-            cardiac_problem.SetOutputNodes(nodes_to_be_output);                        
+            //cardiac_problem.SetOutputNodes(nodes_to_be_output);                        
             ///\todo We need to back this out at some point to see if it makes much speed difference 
             
             
