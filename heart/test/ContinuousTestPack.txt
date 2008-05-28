@@ -6,6 +6,7 @@ TestConductivityTensors.hpp
 TestConvergenceTester.hpp
 TestDistanceMapCalculator.hpp
 TestFaberRudyAgainstLimpet.hpp
+TestFastLuoRudyIModel1991OdeSystem.hpp
 TestHdf5ToMeshalyzerConverter.hpp
 TestHeartParameters.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
