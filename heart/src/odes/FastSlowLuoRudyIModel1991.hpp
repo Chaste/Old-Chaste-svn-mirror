@@ -24,17 +24,22 @@ being under the jurisdiction of the English Courts.
 You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
-*/#ifndef _FASTLUORUDYIMODEL1991ODESYSTEM_HPP_
-#define _FASTLUORUDYIMODEL1991ODESYSTEM_HPP_
+*/
+#ifndef _FASTSLOWLUORUDYIMODEL1991_HPP_
+#define _FASTSLOWLUORUDYIMODEL1991_HPP_
 
 #include "AbstractCardiacCell.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include <vector>
 
 /**
- * This class sets up the FastLuoRudyIModel1991OdeSystem system of equations.
+ * This class sets up the FastSlowLuoRudyIModel1991 system of equations.
+ * 
+ * This has two modes:
+ * FAST MODE: where the variables are (h, j, m, [Ca]_i, V, x) (in that order)
+ * SLOW MODE: where the variables are (h, j, m, [Ca]_i, V, d, f, x)
  */
-class FastLuoRudyIModel1991OdeSystem : public AbstractCardiacCell
+class FastSlowLuoRudyIModel1991 : public AbstractCardiacCell
 {
 private:
 
@@ -65,25 +70,33 @@ private:
      *  are positive
      */
     void VerifyStateVariables();
+
+    /*< Which mode the class is in */    
+    bool mIsFast;
     
 public:
     // Constructor
-    FastLuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSolver,
-                                   double dt,
-                                   AbstractStimulusFunction *pIntracellularStimulus,
-                                   AbstractStimulusFunction *pExtracellularStimulus = NULL);
+    FastSlowLuoRudyIModel1991(bool isFast,
+                              AbstractIvpOdeSolver *pSolver,
+                              double dt,
+                              AbstractStimulusFunction *pIntracellularStimulus,
+                              AbstractStimulusFunction *pExtracellularStimulus = NULL);
                                
     // Destructor
-    ~FastLuoRudyIModel1991OdeSystem();
+    ~FastSlowLuoRudyIModel1991();
         
     // This method will compute the RHS of the LuoRudyIModel1991OdeSystem model
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
     
+    /*< Set the slow variables (d,f). Only valid in fast mode) */ 
     void SetSlowValues(const std::vector<double> &rSlowValues);
+    
+    /* Get the slow variables (d,f). Only valid in slow mode. */
+    void GetSlowValues(std::vector<double>& rSlowValues);
     
     double GetIIonic();
     
     double GetIntracellularCalciumConcentration();
 };
 
-#endif // _FASTLUORUDYIMODEL1991ODESYSTEM_HPP_
+#endif // _FASTSLOWLUORUDYIMODEL1991_HPP_

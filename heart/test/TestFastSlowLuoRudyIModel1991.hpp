@@ -25,19 +25,19 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef TESTFASTLUORUDYIMODEL1991ODESYSTEM_HPP_
-#define TESTFASTLUORUDYIMODEL1991ODESYSTEM_HPP_
+#ifndef TESTFASTSLOWLUORUDYIMODEL1991_HPP_
+#define TESTFASTSLOWLUORUDYIMODEL1991_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "FastLuoRudyIModel1991OdeSystem.hpp"
+#include "FastSlowLuoRudyIModel1991.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "ZeroStimulus.hpp"
 
-class TestFastLuoRudyIModel1991OdeSystem : public CxxTest::TestSuite
+class TestFastSlowLuoRudyIModel1991 : public CxxTest::TestSuite
 {
 public:
-    void TestFastLuoRudyCalculateDerivatives(void) throw(Exception)
+    void TestFastLuoRudyCalculateDerivativesFastMode(void) throw(Exception)
     {
         //Set up normal cell model and evaluate Y derivatives
         ZeroStimulus stimulus;
@@ -51,7 +51,7 @@ public:
         luo_rudy.EvaluateYDerivatives(0.0, luo_rudy.rGetStateVariables(), DY_normal);
 
         //Set up fast cell model and evaluate Y derivatives
-        FastLuoRudyIModel1991OdeSystem fast_luo_rudy(&solver, time_step, &stimulus);
+        FastSlowLuoRudyIModel1991 fast_luo_rudy(true, &solver, time_step, &stimulus);
 
         std::vector<double> DY_fast(6);
         std::vector<double> slow_values(2);
@@ -70,6 +70,35 @@ public:
         
         TS_ASSERT_DELTA(DY_normal[7], DY_fast[5], 1e-5);
     }
+
+
+    void TestFastLuoRudyCalculateDerivativesSlowMode(void) throw(Exception)
+    {
+        //Set up normal cell model and evaluate Y derivatives
+        ZeroStimulus stimulus;
+        EulerIvpOdeSolver solver;
+        double time_step = 0.01;
+        
+        LuoRudyIModel1991OdeSystem luo_rudy(&solver, time_step, &stimulus);
+        std::vector<double> DY_normal(8);
+        luo_rudy.EvaluateYDerivatives(0.0, luo_rudy.rGetStateVariables(), DY_normal);
+
+        //Set up fast cell model in slow mode and evaluate Y derivatives
+        FastSlowLuoRudyIModel1991 fast_luo_rudy(false, &solver, time_step, &stimulus);
+        std::vector<double> DY_fast(8);
+        fast_luo_rudy.EvaluateYDerivatives(0.0, fast_luo_rudy.rGetStateVariables(), DY_fast);
+        
+        //Compare the resulting Y derivatives
+        for (unsigned i = 0; i < 7; ++i)
+        {
+            TS_ASSERT_DELTA(DY_normal[i], DY_fast[i], 1e-5);
+        }
+
+        std::vector<double> slow_values;
+        fast_luo_rudy.GetSlowValues(slow_values);
+        TS_ASSERT_DELTA(slow_values[0], luo_rudy.rGetStateVariables()[5], 1e-5);
+        TS_ASSERT_DELTA(slow_values[1], luo_rudy.rGetStateVariables()[6], 1e-5);
+    }
 };
 
-#endif /*TESTFASTLUORUDYIMODEL1991ODESYSTEM_HPP_*/
+#endif /*TESTFASTSLOWLUORUDYIMODEL1991_HPP_*/
