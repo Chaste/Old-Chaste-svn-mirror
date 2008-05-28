@@ -8,7 +8,6 @@ TestDistanceMapCalculator.hpp
 TestFaberRudyAgainstLimpet.hpp
 TestFastSlowLuoRudyIModel1991.hpp
 TestHdf5ToMeshalyzerConverter.hpp
-TestHeartParameters.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestIonicModels.hpp
 TestMonodomainConductionVelocity.hpp

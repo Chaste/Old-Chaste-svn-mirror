@@ -187,35 +187,39 @@ void ReadParametersFromFile()
     try
     {
         std::auto_ptr<chaste_parameters_type> p_params(ChasteParameters(parameter_file));
-        simulation_duration = p_params->SimulationDuration();
         
-        create_slab = p_params->Mesh().Slab() != NULL;
-        load_mesh = p_params->Mesh().LoadMesh() != NULL; 
+        simulation_type simulation_params = p_params->Simulation();
+		physiological_type physiological_params = p_params->Physiological();
+        
+        simulation_duration = simulation_params.SimulationDuration();
+        
+        create_slab = simulation_params.Mesh().Slab() != NULL;
+        load_mesh = simulation_params.Mesh().LoadMesh() != NULL; 
         
         if (create_slab)
         {
-            slab_x = p_params->Mesh().Slab()->SlabX();     // mm
-            slab_y = p_params->Mesh().Slab()->SlabY();   // mm
-            slab_z = p_params->Mesh().Slab()->SlabZ();   // mm
-            inter_node_space = p_params->Mesh().Slab()->InterNodeSpace(); // mm
+            slab_x = simulation_params.Mesh().Slab()->SlabX();     // mm
+            slab_y = simulation_params.Mesh().Slab()->SlabY();   // mm
+            slab_z = simulation_params.Mesh().Slab()->SlabZ();   // mm
+            inter_node_space = simulation_params.Mesh().Slab()->InterNodeSpace(); // mm
         }
         else // (load_mesh)
         {
-            mesh_file_prefix = p_params->Mesh().LoadMesh()->name();
-            media = p_params->Mesh().LoadMesh()->media();
+            mesh_file_prefix = simulation_params.Mesh().LoadMesh()->name();
+            media = simulation_params.Mesh().LoadMesh()->media();
         }
         
-        intra_x_cond = p_params->IntracellularConductivities().longi();
-        intra_y_cond = p_params->IntracellularConductivities().trans();
-        intra_z_cond = p_params->IntracellularConductivities().normal();                
-        output_directory = p_params->OutputDirectory();
-        mesh_output_directory = p_params->MeshOutputDirectory();
-        domain = p_params->Domain();
-        ionic_model = p_params->IonicModel();
+        intra_x_cond = physiological_params.IntracellularConductivities().longi();
+        intra_y_cond = physiological_params.IntracellularConductivities().trans();
+        intra_z_cond = physiological_params.IntracellularConductivities().normal();                
+        output_directory = simulation_params.OutputDirectory();
+        mesh_output_directory = simulation_params.MeshOutputDirectory();
+        domain = simulation_params.Domain();
+        ionic_model = simulation_params.IonicModel();
         
         // Read and store Stimuli
-        chaste_parameters_type::Stimulus::container& stimuli = p_params->Stimulus();
-        for (chaste_parameters_type::Stimulus::iterator i = stimuli.begin();
+        simulation_type::Stimulus::container& stimuli = simulation_params.Stimulus();
+        for (simulation_type::Stimulus::iterator i = stimuli.begin();
              i != stimuli.end();
              ++i)
         {                     
@@ -236,8 +240,8 @@ void ReadParametersFromFile()
         }
 
         // Read and store Cell Heterogeneities
-        chaste_parameters_type::CellHeterogeneity::container& hts = p_params->CellHeterogeneity();
-        for (chaste_parameters_type::CellHeterogeneity::iterator i = hts.begin();
+        simulation_type::CellHeterogeneity::container& hts = simulation_params.CellHeterogeneity();
+        for (simulation_type::CellHeterogeneity::iterator i = hts.begin();
              i != hts.end();
              ++i)
         {                     
@@ -279,12 +283,11 @@ void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem)
     rProblem.SetOutputFilenamePrefix("Chaste");
     rProblem.SetCallChaste2Meshalyzer(false);
     
-    std::string fibre_file = mesh_file_prefix + ".fibres";
-//    if (media == anisotropic_type::Axisymmetric)
-//    {
-//        rProblem        
-//    }
-    rProblem.SetFibreOrientation(fibre_file);
+    if (load_mesh)
+    {
+        std::string fibre_file = mesh_file_prefix + ".fibres";
+        rProblem.SetFibreOrientation(fibre_file);
+    }
     
     rProblem.SetIntracellularConductivities(Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond));
 }

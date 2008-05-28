@@ -3,77 +3,91 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="heart/src/io/ChasteParameters.xsd">
 
-	<!-- 
-		Problem definition 
-	-->    
-    <SimulationDuration>50.0</SimulationDuration>
-    <Domain>Mono</Domain>
-    <IonicModel>FaberRudy2000Version3</IonicModel>
-    
-	<!-- 
-		Mesh definition 
-	-->    
-	<Mesh>
-		<Slab>    
-	    	<SlabX>4.0</SlabX>
-	    	<SlabY>0.1</SlabY>
-	    	<SlabZ>2.0</SlabZ>
-	    	<InterNodeSpace>0.1</InterNodeSpace>
-    	</Slab>
-  	</Mesh>
+	<Simulation>
+		<!-- 
+			Problem definition 
+		-->    
+	    <SimulationDuration>50.0</SimulationDuration>
+	    <Domain>Mono</Domain>
+	    <IonicModel>FaberRudy2000Version3</IonicModel>
+	    
+		<!-- 
+			Mesh definition 
+		-->    
+		<Mesh>
+			<Slab>    
+		    	<SlabX>4.0</SlabX>
+		    	<SlabY>0.1</SlabY>
+		    	<SlabZ>2.0</SlabZ>
+		    	<InterNodeSpace>0.1</InterNodeSpace>
+	    	</Slab>
+	  	</Mesh>
+			    
+	    <!-- 
+	    	Stimuli (as many <Stimulus> definitions as needed) 
+	   	-->
+	  	<Stimulus> <!-- #1 -->
+			<Strength>-35500.0</Strength>
+			<Duration>0.5</Duration>
+			<Delay>0</Delay>
+			<Location>
+				<CornerA X="-2.0" Y="-0.1" Z="-1.0"/>
+				<CornerB X="-1.9" Y="0.1" Z="1.0"/>
+			</Location>
+		</Stimulus>	
 	
-    <!--
-        Conductivities
-    -->
-    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" />
-    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" />
-    
-    <!-- 
-    	Stimuli (as many <Stimulus> definitions as needed) 
-   	-->
-  	<Stimulus> <!-- #1 -->
-		<Strength>-35500.0</Strength>
-		<Duration>0.5</Duration>
-		<Delay>0</Delay>
-		<Location>
-			<CornerA X="-2.0" Y="-0.1" Z="-1.0"/>
-			<CornerB X="-1.9" Y="0.1" Z="1.0"/>
-		</Location>
-	</Stimulus>	
-
-    <!-- 
-    	Ionic cell model heterogeneities (as many <CellHeterogeneity> definitions as needed) 
-   	-->
-  	<CellHeterogeneity> <!-- #1 -->
-		<ScaleFactorGks>0.462</ScaleFactorGks>
-		<ScaleFactorIto>0.0</ScaleFactorIto>
-		<Location>
-			<CornerA X="-2.0" Y="-0.1" Z="-1.0"/>
-			<CornerB X="-0.5" Y="0.1" Z="1.0"/>
-		</Location>
-	</CellHeterogeneity>	
-
-  	<CellHeterogeneity> <!-- #2 -->
-		<ScaleFactorGks>1.154</ScaleFactorGks>
-		<ScaleFactorIto>0.85</ScaleFactorIto>
-		<Location>
-			<CornerA X="-0.5" Y="-0.1" Z="-1.0"/>
-			<CornerB X="0.5" Y="0.1" Z="1.0"/>
-		</Location>
-	</CellHeterogeneity>	
-
-  	<CellHeterogeneity> <!-- #3 -->
-		<ScaleFactorGks>1.154</ScaleFactorGks>
-		<ScaleFactorIto>1.0</ScaleFactorIto>
-		<Location>
-			<CornerA X="0.5" Y="-0.1" Z="-1.0"/>
-			<CornerB X="2.0" Y="0.1" Z="1.0"/>
-		</Location>
-	</CellHeterogeneity>	
+	    <!-- 
+	    	Ionic cell model heterogeneities (as many <CellHeterogeneity> definitions as needed) 
+	   	-->
+	  	<CellHeterogeneity> <!-- #1 -->
+			<ScaleFactorGks>0.462</ScaleFactorGks>
+			<ScaleFactorIto>0.0</ScaleFactorIto>
+			<Location>
+				<CornerA X="-2.0" Y="-0.1" Z="-1.0"/>
+				<CornerB X="-0.5" Y="0.1" Z="1.0"/>
+			</Location>
+		</CellHeterogeneity>	
 	
-	<!-- 
-		Output 
-	-->
-	<OutputDirectory>ChasteResults</OutputDirectory>
-    <MeshOutputDirectory>Slab</MeshOutputDirectory>	
+	  	<CellHeterogeneity> <!-- #2 -->
+			<ScaleFactorGks>1.154</ScaleFactorGks>
+			<ScaleFactorIto>0.85</ScaleFactorIto>
+			<Location>
+				<CornerA X="-0.5" Y="-0.1" Z="-1.0"/>
+				<CornerB X="0.5" Y="0.1" Z="1.0"/>
+			</Location>
+		</CellHeterogeneity>	
+	
+	  	<CellHeterogeneity> <!-- #3 -->
+			<ScaleFactorGks>1.154</ScaleFactorGks>
+			<ScaleFactorIto>1.0</ScaleFactorIto>
+			<Location>
+				<CornerA X="0.5" Y="-0.1" Z="-1.0"/>
+				<CornerB X="2.0" Y="0.1" Z="1.0"/>
+			</Location>
+		</CellHeterogeneity>	
+		
+		<!-- 
+			Output 
+		-->
+		<OutputDirectory>ChasteResults</OutputDirectory>
+	    <MeshOutputDirectory>Slab</MeshOutputDirectory>	
+	</Simulation>
+	
+	<Physiological>
+	    <!--
+	        Conductivities
+	    -->
+	    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" />
+	    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" />
+	    <SurfaceAreaToVolumeRatio> 1400 </SurfaceAreaToVolumeRatio>
+	    <Capacitance> 1.0 </Capacitance>
+	</Physiological>
+
+	<Numerical>
+		<Timesteps ode="0.01" pde="0.01" printing="0.01"/>
+		<KSPTolerances relative="1e-6" absolute="1e-50"/>
+		<KSPSolver>gmres</KSPSolver>
+		<KSPPreconditioner>ilu</KSPPreconditioner>
+	</Numerical>
+			    
 </ChasteParameters>

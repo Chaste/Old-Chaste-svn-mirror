@@ -3,56 +3,70 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="ChasteParameters.xsd">
 
-	<!-- 
-		Problem definition 
-	-->    
-    <SimulationDuration>4.0</SimulationDuration>
-    <Domain>Mono</Domain>
-    <IonicModel>BackwardEulerFoxModel2002Modified</IonicModel>
-    
-	<!-- 
-		Mesh definition 
-	-->
-	<Mesh>
-		<Slab>    
-	    	<SlabX>5.0</SlabX>
-	    	<SlabY>5.0</SlabY>
-	    	<SlabZ>5.0</SlabZ>
-	    	<InterNodeSpace>0.25</InterNodeSpace>
-    	</Slab>
-  	</Mesh>
-
-    <!--
-        Conductivities
-    -->
-    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" />
-    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" />
-    
-    <!-- 
-    	Stimuli (as many <Stimulus> definitions as needed) 
-   	-->
-  	<Stimulus> <!-- #1 -->
-		<Strength>-80000.0</Strength>
-		<Duration>1.0</Duration>
-		<Delay>0.0</Delay>
-		<Location>
-			<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
-			<CornerB X="-4.50" Z="5.0" Y="0.125"/>
-		</Location>
-	</Stimulus>	
-	<Stimulus> <!-- #2 -->
-		<Strength>-80000.0</Strength>
-		<Duration>1.0</Duration>
-		<Delay>2.0</Delay>
-		<Location>
-			<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
-			<CornerB X="0.0" Z="0.0" Y="0.125"/>
-		</Location>
-	</Stimulus>	
+	<Simulation>
+		<!-- 
+			Problem definition 
+		-->    
+	    <SimulationDuration>4.0</SimulationDuration>
+	    <Domain>Mono</Domain>
+	    <IonicModel>BackwardEulerFoxModel2002Modified</IonicModel>
+	    
+		<!-- 
+			Mesh definition 
+		-->
+		<Mesh>
+			<Slab>    
+		    	<SlabX>5.0</SlabX>
+		    	<SlabY>5.0</SlabY>
+		    	<SlabZ>5.0</SlabZ>
+		    	<InterNodeSpace>0.25</InterNodeSpace>
+	    	</Slab>
+	  	</Mesh>
 	
-	<!-- 
-		Output 
-	-->
-	<OutputDirectory>ChasteResults</OutputDirectory>
-    <MeshOutputDirectory>Slab</MeshOutputDirectory>	
+	    <!-- 
+	    	Stimuli (as many <Stimulus> definitions as needed) 
+	   	-->
+	  	<Stimulus> <!-- #1 -->
+			<Strength>-80000.0</Strength>
+			<Duration>1.0</Duration>
+			<Delay>0.0</Delay>
+			<Location>
+				<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
+				<CornerB X="-4.50" Z="5.0" Y="0.125"/>
+			</Location>
+		</Stimulus>	
+		<Stimulus> <!-- #2 -->
+			<Strength>-80000.0</Strength>
+			<Duration>1.0</Duration>
+			<Delay>2.0</Delay>
+			<Location>
+				<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
+				<CornerB X="0.0" Z="0.0" Y="0.125"/>
+			</Location>
+		</Stimulus>	
+		
+		<!-- 
+			Output 
+		-->
+		<OutputDirectory>ChasteResults</OutputDirectory>
+	    <MeshOutputDirectory>Slab</MeshOutputDirectory>	    
+    </Simulation>
+	
+	<Physiological>
+	    <!--
+	        Conductivities
+	    -->
+	    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" />
+	    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" />
+	    <SurfaceAreaToVolumeRatio> 1400 </SurfaceAreaToVolumeRatio>
+	    <Capacitance> 1.0 </Capacitance>
+	</Physiological>
+
+	<Numerical>
+		<Timesteps ode="0.01" pde="0.01" printing="0.01"/>
+		<KSPTolerances relative="1e-6" absolute="1e-50"/>
+		<KSPSolver>gmres</KSPSolver>
+		<KSPPreconditioner>ilu</KSPPreconditioner>
+	</Numerical>		
+    
 </ChasteParameters>

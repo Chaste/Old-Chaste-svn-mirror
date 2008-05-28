@@ -733,247 +733,627 @@ normal (const normal::type& normal)
 }
 
 
-// chaste_parameters_type
+// timesteps_type
 // 
 
-const chaste_parameters_type::SimulationDuration::type& chaste_parameters_type::
+const timesteps_type::ode::type& timesteps_type::
+ode () const
+{
+  return this->_xsd_ode_.get ();
+}
+
+timesteps_type::ode::type& timesteps_type::
+ode ()
+{
+  return this->_xsd_ode_.get ();
+}
+
+void timesteps_type::
+ode (const ode::type& ode)
+{
+  this->_xsd_ode_.set (ode);
+}
+
+const timesteps_type::pde::type& timesteps_type::
+pde () const
+{
+  return this->_xsd_pde_.get ();
+}
+
+timesteps_type::pde::type& timesteps_type::
+pde ()
+{
+  return this->_xsd_pde_.get ();
+}
+
+void timesteps_type::
+pde (const pde::type& pde)
+{
+  this->_xsd_pde_.set (pde);
+}
+
+const timesteps_type::printing::type& timesteps_type::
+printing () const
+{
+  return this->_xsd_printing_.get ();
+}
+
+timesteps_type::printing::type& timesteps_type::
+printing ()
+{
+  return this->_xsd_printing_.get ();
+}
+
+void timesteps_type::
+printing (const printing::type& printing)
+{
+  this->_xsd_printing_.set (printing);
+}
+
+
+// ksp_tolerances_type
+// 
+
+const ksp_tolerances_type::relative::type& ksp_tolerances_type::
+relative () const
+{
+  return this->_xsd_relative_.get ();
+}
+
+ksp_tolerances_type::relative::type& ksp_tolerances_type::
+relative ()
+{
+  return this->_xsd_relative_.get ();
+}
+
+void ksp_tolerances_type::
+relative (const relative::type& relative)
+{
+  this->_xsd_relative_.set (relative);
+}
+
+const ksp_tolerances_type::absolute::type& ksp_tolerances_type::
+absolute () const
+{
+  return this->_xsd_absolute_.get ();
+}
+
+ksp_tolerances_type::absolute::type& ksp_tolerances_type::
+absolute ()
+{
+  return this->_xsd_absolute_.get ();
+}
+
+void ksp_tolerances_type::
+absolute (const absolute::type& absolute)
+{
+  this->_xsd_absolute_.set (absolute);
+}
+
+
+// ksp_solver_type
+// 
+
+ksp_solver_type::
+ksp_solver_type (_xsd_ksp_solver_type v)
+: ::xml_schema::string (_xsd_ksp_solver_type_literals_[v])
+{
+}
+
+ksp_solver_type::
+ksp_solver_type (const ::xml_schema::string& _xsd_ksp_solver_type)
+: ::xml_schema::string (_xsd_ksp_solver_type)
+{
+}
+
+ksp_solver_type::
+ksp_solver_type (const ksp_solver_type& v,
+                 ::xml_schema::flags f,
+                 ::xml_schema::type* c)
+: ::xml_schema::string (v, f, c)
+{
+}
+
+ksp_solver_type& ksp_solver_type::
+operator= (_xsd_ksp_solver_type v)
+{
+  static_cast< ::xml_schema::string& > (*this) = 
+  ::xml_schema::string (_xsd_ksp_solver_type_literals_[v]);
+
+  return *this;
+}
+
+
+// ksp_preconditioner_type
+// 
+
+ksp_preconditioner_type::
+ksp_preconditioner_type (_xsd_ksp_preconditioner_type v)
+: ::xml_schema::string (_xsd_ksp_preconditioner_type_literals_[v])
+{
+}
+
+ksp_preconditioner_type::
+ksp_preconditioner_type (const ::xml_schema::string& _xsd_ksp_preconditioner_type)
+: ::xml_schema::string (_xsd_ksp_preconditioner_type)
+{
+}
+
+ksp_preconditioner_type::
+ksp_preconditioner_type (const ksp_preconditioner_type& v,
+                         ::xml_schema::flags f,
+                         ::xml_schema::type* c)
+: ::xml_schema::string (v, f, c)
+{
+}
+
+ksp_preconditioner_type& ksp_preconditioner_type::
+operator= (_xsd_ksp_preconditioner_type v)
+{
+  static_cast< ::xml_schema::string& > (*this) = 
+  ::xml_schema::string (_xsd_ksp_preconditioner_type_literals_[v]);
+
+  return *this;
+}
+
+
+// simulation_type
+// 
+
+const simulation_type::SimulationDuration::type& simulation_type::
 SimulationDuration () const
 {
   return this->_xsd_SimulationDuration_.get ();
 }
 
-chaste_parameters_type::SimulationDuration::type& chaste_parameters_type::
+simulation_type::SimulationDuration::type& simulation_type::
 SimulationDuration ()
 {
   return this->_xsd_SimulationDuration_.get ();
 }
 
-void chaste_parameters_type::
+void simulation_type::
 SimulationDuration (const SimulationDuration::type& SimulationDuration)
 {
   this->_xsd_SimulationDuration_.set (SimulationDuration);
 }
 
-const chaste_parameters_type::Domain::type& chaste_parameters_type::
+const simulation_type::Domain::type& simulation_type::
 Domain () const
 {
   return this->_xsd_Domain_.get ();
 }
 
-chaste_parameters_type::Domain::type& chaste_parameters_type::
+simulation_type::Domain::type& simulation_type::
 Domain ()
 {
   return this->_xsd_Domain_.get ();
 }
 
-void chaste_parameters_type::
+void simulation_type::
 Domain (const Domain::type& Domain)
 {
   this->_xsd_Domain_.set (Domain);
 }
 
-void chaste_parameters_type::
+void simulation_type::
 Domain (::std::auto_ptr< Domain::type > Domain)
 {
   this->_xsd_Domain_.set (Domain);
 }
 
-const chaste_parameters_type::IonicModel::type& chaste_parameters_type::
+const simulation_type::IonicModel::type& simulation_type::
 IonicModel () const
 {
   return this->_xsd_IonicModel_.get ();
 }
 
-chaste_parameters_type::IonicModel::type& chaste_parameters_type::
+simulation_type::IonicModel::type& simulation_type::
 IonicModel ()
 {
   return this->_xsd_IonicModel_.get ();
 }
 
-void chaste_parameters_type::
+void simulation_type::
 IonicModel (const IonicModel::type& IonicModel)
 {
   this->_xsd_IonicModel_.set (IonicModel);
 }
 
-void chaste_parameters_type::
+void simulation_type::
 IonicModel (::std::auto_ptr< IonicModel::type > IonicModel)
 {
   this->_xsd_IonicModel_.set (IonicModel);
 }
 
-const chaste_parameters_type::Mesh::type& chaste_parameters_type::
+const simulation_type::Mesh::type& simulation_type::
 Mesh () const
 {
   return this->_xsd_Mesh_.get ();
 }
 
-chaste_parameters_type::Mesh::type& chaste_parameters_type::
+simulation_type::Mesh::type& simulation_type::
 Mesh ()
 {
   return this->_xsd_Mesh_.get ();
 }
 
-void chaste_parameters_type::
+void simulation_type::
 Mesh (const Mesh::type& Mesh)
 {
   this->_xsd_Mesh_.set (Mesh);
 }
 
-void chaste_parameters_type::
+void simulation_type::
 Mesh (::std::auto_ptr< Mesh::type > Mesh)
 {
   this->_xsd_Mesh_.set (Mesh);
 }
 
-const chaste_parameters_type::IntracellularConductivities::type& chaste_parameters_type::
-IntracellularConductivities () const
-{
-  return this->_xsd_IntracellularConductivities_.get ();
-}
-
-chaste_parameters_type::IntracellularConductivities::type& chaste_parameters_type::
-IntracellularConductivities ()
-{
-  return this->_xsd_IntracellularConductivities_.get ();
-}
-
-void chaste_parameters_type::
-IntracellularConductivities (const IntracellularConductivities::type& IntracellularConductivities)
-{
-  this->_xsd_IntracellularConductivities_.set (IntracellularConductivities);
-}
-
-void chaste_parameters_type::
-IntracellularConductivities (::std::auto_ptr< IntracellularConductivities::type > IntracellularConductivities)
-{
-  this->_xsd_IntracellularConductivities_.set (IntracellularConductivities);
-}
-
-const chaste_parameters_type::ExtracellularConductivities::type& chaste_parameters_type::
-ExtracellularConductivities () const
-{
-  return this->_xsd_ExtracellularConductivities_.get ();
-}
-
-chaste_parameters_type::ExtracellularConductivities::type& chaste_parameters_type::
-ExtracellularConductivities ()
-{
-  return this->_xsd_ExtracellularConductivities_.get ();
-}
-
-void chaste_parameters_type::
-ExtracellularConductivities (const ExtracellularConductivities::type& ExtracellularConductivities)
-{
-  this->_xsd_ExtracellularConductivities_.set (ExtracellularConductivities);
-}
-
-void chaste_parameters_type::
-ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type > ExtracellularConductivities)
-{
-  this->_xsd_ExtracellularConductivities_.set (ExtracellularConductivities);
-}
-
-const chaste_parameters_type::Stimulus::container& chaste_parameters_type::
+const simulation_type::Stimulus::container& simulation_type::
 Stimulus () const
 {
   return this->_xsd_Stimulus_;
 }
 
-chaste_parameters_type::Stimulus::container& chaste_parameters_type::
+simulation_type::Stimulus::container& simulation_type::
 Stimulus ()
 {
   return this->_xsd_Stimulus_;
 }
 
-void chaste_parameters_type::
+void simulation_type::
 Stimulus (const Stimulus::container& Stimulus)
 {
   this->_xsd_Stimulus_ = Stimulus;
 }
 
-const chaste_parameters_type::CellHeterogeneity::container& chaste_parameters_type::
+const simulation_type::CellHeterogeneity::container& simulation_type::
 CellHeterogeneity () const
 {
   return this->_xsd_CellHeterogeneity_;
 }
 
-chaste_parameters_type::CellHeterogeneity::container& chaste_parameters_type::
+simulation_type::CellHeterogeneity::container& simulation_type::
 CellHeterogeneity ()
 {
   return this->_xsd_CellHeterogeneity_;
 }
 
-void chaste_parameters_type::
+void simulation_type::
 CellHeterogeneity (const CellHeterogeneity::container& CellHeterogeneity)
 {
   this->_xsd_CellHeterogeneity_ = CellHeterogeneity;
 }
 
-const chaste_parameters_type::ConductivityHeterogeneity::container& chaste_parameters_type::
+const simulation_type::ConductivityHeterogeneity::container& simulation_type::
 ConductivityHeterogeneity () const
 {
   return this->_xsd_ConductivityHeterogeneity_;
 }
 
-chaste_parameters_type::ConductivityHeterogeneity::container& chaste_parameters_type::
+simulation_type::ConductivityHeterogeneity::container& simulation_type::
 ConductivityHeterogeneity ()
 {
   return this->_xsd_ConductivityHeterogeneity_;
 }
 
-void chaste_parameters_type::
+void simulation_type::
 ConductivityHeterogeneity (const ConductivityHeterogeneity::container& ConductivityHeterogeneity)
 {
   this->_xsd_ConductivityHeterogeneity_ = ConductivityHeterogeneity;
 }
 
-const chaste_parameters_type::OutputDirectory::type& chaste_parameters_type::
+const simulation_type::OutputDirectory::type& simulation_type::
 OutputDirectory () const
 {
   return this->_xsd_OutputDirectory_.get ();
 }
 
-chaste_parameters_type::OutputDirectory::type& chaste_parameters_type::
+simulation_type::OutputDirectory::type& simulation_type::
 OutputDirectory ()
 {
   return this->_xsd_OutputDirectory_.get ();
 }
 
-void chaste_parameters_type::
+void simulation_type::
 OutputDirectory (const OutputDirectory::type& OutputDirectory)
 {
   this->_xsd_OutputDirectory_.set (OutputDirectory);
 }
 
-void chaste_parameters_type::
+void simulation_type::
 OutputDirectory (::std::auto_ptr< OutputDirectory::type > OutputDirectory)
 {
   this->_xsd_OutputDirectory_.set (OutputDirectory);
 }
 
-const chaste_parameters_type::MeshOutputDirectory::type& chaste_parameters_type::
+const simulation_type::MeshOutputDirectory::type& simulation_type::
 MeshOutputDirectory () const
 {
   return this->_xsd_MeshOutputDirectory_.get ();
 }
 
-chaste_parameters_type::MeshOutputDirectory::type& chaste_parameters_type::
+simulation_type::MeshOutputDirectory::type& simulation_type::
 MeshOutputDirectory ()
 {
   return this->_xsd_MeshOutputDirectory_.get ();
 }
 
-void chaste_parameters_type::
+void simulation_type::
 MeshOutputDirectory (const MeshOutputDirectory::type& MeshOutputDirectory)
 {
   this->_xsd_MeshOutputDirectory_.set (MeshOutputDirectory);
 }
 
-void chaste_parameters_type::
+void simulation_type::
 MeshOutputDirectory (::std::auto_ptr< MeshOutputDirectory::type > MeshOutputDirectory)
 {
   this->_xsd_MeshOutputDirectory_.set (MeshOutputDirectory);
+}
+
+
+// physiological_type
+// 
+
+const physiological_type::IntracellularConductivities::type& physiological_type::
+IntracellularConductivities () const
+{
+  return this->_xsd_IntracellularConductivities_.get ();
+}
+
+physiological_type::IntracellularConductivities::type& physiological_type::
+IntracellularConductivities ()
+{
+  return this->_xsd_IntracellularConductivities_.get ();
+}
+
+void physiological_type::
+IntracellularConductivities (const IntracellularConductivities::type& IntracellularConductivities)
+{
+  this->_xsd_IntracellularConductivities_.set (IntracellularConductivities);
+}
+
+void physiological_type::
+IntracellularConductivities (::std::auto_ptr< IntracellularConductivities::type > IntracellularConductivities)
+{
+  this->_xsd_IntracellularConductivities_.set (IntracellularConductivities);
+}
+
+const physiological_type::ExtracellularConductivities::type& physiological_type::
+ExtracellularConductivities () const
+{
+  return this->_xsd_ExtracellularConductivities_.get ();
+}
+
+physiological_type::ExtracellularConductivities::type& physiological_type::
+ExtracellularConductivities ()
+{
+  return this->_xsd_ExtracellularConductivities_.get ();
+}
+
+void physiological_type::
+ExtracellularConductivities (const ExtracellularConductivities::type& ExtracellularConductivities)
+{
+  this->_xsd_ExtracellularConductivities_.set (ExtracellularConductivities);
+}
+
+void physiological_type::
+ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type > ExtracellularConductivities)
+{
+  this->_xsd_ExtracellularConductivities_.set (ExtracellularConductivities);
+}
+
+const physiological_type::SurfaceAreaToVolumeRatio::type& physiological_type::
+SurfaceAreaToVolumeRatio () const
+{
+  return this->_xsd_SurfaceAreaToVolumeRatio_.get ();
+}
+
+physiological_type::SurfaceAreaToVolumeRatio::type& physiological_type::
+SurfaceAreaToVolumeRatio ()
+{
+  return this->_xsd_SurfaceAreaToVolumeRatio_.get ();
+}
+
+void physiological_type::
+SurfaceAreaToVolumeRatio (const SurfaceAreaToVolumeRatio::type& SurfaceAreaToVolumeRatio)
+{
+  this->_xsd_SurfaceAreaToVolumeRatio_.set (SurfaceAreaToVolumeRatio);
+}
+
+const physiological_type::Capacitance::type& physiological_type::
+Capacitance () const
+{
+  return this->_xsd_Capacitance_.get ();
+}
+
+physiological_type::Capacitance::type& physiological_type::
+Capacitance ()
+{
+  return this->_xsd_Capacitance_.get ();
+}
+
+void physiological_type::
+Capacitance (const Capacitance::type& Capacitance)
+{
+  this->_xsd_Capacitance_.set (Capacitance);
+}
+
+
+// numerical_type
+// 
+
+const numerical_type::Timesteps::type& numerical_type::
+Timesteps () const
+{
+  return this->_xsd_Timesteps_.get ();
+}
+
+numerical_type::Timesteps::type& numerical_type::
+Timesteps ()
+{
+  return this->_xsd_Timesteps_.get ();
+}
+
+void numerical_type::
+Timesteps (const Timesteps::type& Timesteps)
+{
+  this->_xsd_Timesteps_.set (Timesteps);
+}
+
+void numerical_type::
+Timesteps (::std::auto_ptr< Timesteps::type > Timesteps)
+{
+  this->_xsd_Timesteps_.set (Timesteps);
+}
+
+const numerical_type::KSPTolerances::type& numerical_type::
+KSPTolerances () const
+{
+  return this->_xsd_KSPTolerances_.get ();
+}
+
+numerical_type::KSPTolerances::type& numerical_type::
+KSPTolerances ()
+{
+  return this->_xsd_KSPTolerances_.get ();
+}
+
+void numerical_type::
+KSPTolerances (const KSPTolerances::type& KSPTolerances)
+{
+  this->_xsd_KSPTolerances_.set (KSPTolerances);
+}
+
+void numerical_type::
+KSPTolerances (::std::auto_ptr< KSPTolerances::type > KSPTolerances)
+{
+  this->_xsd_KSPTolerances_.set (KSPTolerances);
+}
+
+const numerical_type::KSPSolver::type& numerical_type::
+KSPSolver () const
+{
+  return this->_xsd_KSPSolver_.get ();
+}
+
+numerical_type::KSPSolver::type& numerical_type::
+KSPSolver ()
+{
+  return this->_xsd_KSPSolver_.get ();
+}
+
+void numerical_type::
+KSPSolver (const KSPSolver::type& KSPSolver)
+{
+  this->_xsd_KSPSolver_.set (KSPSolver);
+}
+
+void numerical_type::
+KSPSolver (::std::auto_ptr< KSPSolver::type > KSPSolver)
+{
+  this->_xsd_KSPSolver_.set (KSPSolver);
+}
+
+const numerical_type::KSPPreconditioner::type& numerical_type::
+KSPPreconditioner () const
+{
+  return this->_xsd_KSPPreconditioner_.get ();
+}
+
+numerical_type::KSPPreconditioner::type& numerical_type::
+KSPPreconditioner ()
+{
+  return this->_xsd_KSPPreconditioner_.get ();
+}
+
+void numerical_type::
+KSPPreconditioner (const KSPPreconditioner::type& KSPPreconditioner)
+{
+  this->_xsd_KSPPreconditioner_.set (KSPPreconditioner);
+}
+
+void numerical_type::
+KSPPreconditioner (::std::auto_ptr< KSPPreconditioner::type > KSPPreconditioner)
+{
+  this->_xsd_KSPPreconditioner_.set (KSPPreconditioner);
+}
+
+
+// chaste_parameters_type
+// 
+
+const chaste_parameters_type::Simulation::type& chaste_parameters_type::
+Simulation () const
+{
+  return this->_xsd_Simulation_.get ();
+}
+
+chaste_parameters_type::Simulation::type& chaste_parameters_type::
+Simulation ()
+{
+  return this->_xsd_Simulation_.get ();
+}
+
+void chaste_parameters_type::
+Simulation (const Simulation::type& Simulation)
+{
+  this->_xsd_Simulation_.set (Simulation);
+}
+
+void chaste_parameters_type::
+Simulation (::std::auto_ptr< Simulation::type > Simulation)
+{
+  this->_xsd_Simulation_.set (Simulation);
+}
+
+const chaste_parameters_type::Physiological::type& chaste_parameters_type::
+Physiological () const
+{
+  return this->_xsd_Physiological_.get ();
+}
+
+chaste_parameters_type::Physiological::type& chaste_parameters_type::
+Physiological ()
+{
+  return this->_xsd_Physiological_.get ();
+}
+
+void chaste_parameters_type::
+Physiological (const Physiological::type& Physiological)
+{
+  this->_xsd_Physiological_.set (Physiological);
+}
+
+void chaste_parameters_type::
+Physiological (::std::auto_ptr< Physiological::type > Physiological)
+{
+  this->_xsd_Physiological_.set (Physiological);
+}
+
+const chaste_parameters_type::Numerical::type& chaste_parameters_type::
+Numerical () const
+{
+  return this->_xsd_Numerical_.get ();
+}
+
+chaste_parameters_type::Numerical::type& chaste_parameters_type::
+Numerical ()
+{
+  return this->_xsd_Numerical_.get ();
+}
+
+void chaste_parameters_type::
+Numerical (const Numerical::type& Numerical)
+{
+  this->_xsd_Numerical_.set (Numerical);
+}
+
+void chaste_parameters_type::
+Numerical (::std::auto_ptr< Numerical::type > Numerical)
+{
+  this->_xsd_Numerical_.set (Numerical);
 }
 
 
@@ -2379,18 +2759,367 @@ _clone (::xml_schema::flags f,
   return new conductivities_type (*this, f, c);
 }
 
-// chaste_parameters_type
+// timesteps_type
 //
 
-chaste_parameters_type::
-chaste_parameters_type (const SimulationDuration::type& _xsd_SimulationDuration,
-                        const Domain::type& _xsd_Domain,
-                        const IonicModel::type& _xsd_IonicModel,
-                        const Mesh::type& _xsd_Mesh,
-                        const IntracellularConductivities::type& _xsd_IntracellularConductivities,
-                        const ExtracellularConductivities::type& _xsd_ExtracellularConductivities,
-                        const OutputDirectory::type& _xsd_OutputDirectory,
-                        const MeshOutputDirectory::type& _xsd_MeshOutputDirectory)
+timesteps_type::
+timesteps_type (const ode::type& _xsd_ode,
+                const pde::type& _xsd_pde,
+                const printing::type& _xsd_printing)
+: ::xml_schema::type (),
+_xsd_ode_ (_xsd_ode,
+           ::xml_schema::flags (),
+           this),
+_xsd_pde_ (_xsd_pde,
+           ::xml_schema::flags (),
+           this),
+_xsd_printing_ (_xsd_printing,
+                ::xml_schema::flags (),
+                this)
+{
+}
+
+timesteps_type::
+timesteps_type (const timesteps_type& _xsd_timesteps_type,
+                ::xml_schema::flags f,
+                ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_timesteps_type, f, c),
+_xsd_ode_ (_xsd_timesteps_type._xsd_ode_,
+           f | ::xml_schema::flags::not_root,
+           this),
+_xsd_pde_ (_xsd_timesteps_type._xsd_pde_,
+           f | ::xml_schema::flags::not_root,
+           this),
+_xsd_printing_ (_xsd_timesteps_type._xsd_printing_,
+                f | ::xml_schema::flags::not_root,
+                this)
+{
+}
+
+timesteps_type::
+timesteps_type (const ::xercesc::DOMElement& e,
+                ::xml_schema::flags f,
+                ::xml_schema::type* c)
+: ::xml_schema::type (e, f, c),
+_xsd_ode_ (f | ::xml_schema::flags::not_root, this),
+_xsd_pde_ (f | ::xml_schema::flags::not_root, this),
+_xsd_printing_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void timesteps_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_attributes ())
+  {
+    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
+
+    if (a.name () == "ode" && a.namespace_ ().empty ())
+    {
+      this->ode (
+        ode::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
+    }
+
+    if (a.name () == "pde" && a.namespace_ ().empty ())
+    {
+      this->pde (
+        pde::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
+    }
+
+    if (a.name () == "printing" && a.namespace_ ().empty ())
+    {
+      this->printing (
+        printing::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
+    }
+  }
+
+  if (!_xsd_ode_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "ode",
+      "");
+  }
+
+  if (!_xsd_pde_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "pde",
+      "");
+  }
+
+  if (!_xsd_printing_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "printing",
+      "");
+  }
+}
+
+timesteps_type* timesteps_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new timesteps_type (*this, f, c);
+}
+
+// ksp_tolerances_type
+//
+
+ksp_tolerances_type::
+ksp_tolerances_type (const relative::type& _xsd_relative,
+                     const absolute::type& _xsd_absolute)
+: ::xml_schema::type (),
+_xsd_relative_ (_xsd_relative,
+                ::xml_schema::flags (),
+                this),
+_xsd_absolute_ (_xsd_absolute,
+                ::xml_schema::flags (),
+                this)
+{
+}
+
+ksp_tolerances_type::
+ksp_tolerances_type (const ksp_tolerances_type& _xsd_ksp_tolerances_type,
+                     ::xml_schema::flags f,
+                     ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_ksp_tolerances_type, f, c),
+_xsd_relative_ (_xsd_ksp_tolerances_type._xsd_relative_,
+                f | ::xml_schema::flags::not_root,
+                this),
+_xsd_absolute_ (_xsd_ksp_tolerances_type._xsd_absolute_,
+                f | ::xml_schema::flags::not_root,
+                this)
+{
+}
+
+ksp_tolerances_type::
+ksp_tolerances_type (const ::xercesc::DOMElement& e,
+                     ::xml_schema::flags f,
+                     ::xml_schema::type* c)
+: ::xml_schema::type (e, f, c),
+_xsd_relative_ (f | ::xml_schema::flags::not_root, this),
+_xsd_absolute_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void ksp_tolerances_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_attributes ())
+  {
+    const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
+
+    if (a.name () == "relative" && a.namespace_ ().empty ())
+    {
+      this->relative (
+        relative::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
+    }
+
+    if (a.name () == "absolute" && a.namespace_ ().empty ())
+    {
+      this->absolute (
+        absolute::traits::create (
+          a.dom_attribute (),
+          f | ::xml_schema::flags::not_root,
+          this));
+      continue;
+    }
+  }
+
+  if (!_xsd_relative_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "relative",
+      "");
+  }
+
+  if (!_xsd_absolute_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "absolute",
+      "");
+  }
+}
+
+ksp_tolerances_type* ksp_tolerances_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new ksp_tolerances_type (*this, f, c);
+}
+
+// ksp_solver_type
+//
+
+ksp_solver_type::
+ksp_solver_type (const ::xercesc::DOMElement& e,
+                 ::xml_schema::flags f,
+                 ::xml_schema::type* c)
+: ::xml_schema::string (e, f, c)
+{
+  _xsd_ksp_solver_type_convert ();
+}
+
+ksp_solver_type::
+ksp_solver_type (const ::xercesc::DOMAttr& a,
+                 ::xml_schema::flags f,
+                 ::xml_schema::type* c)
+: ::xml_schema::string (a, f, c)
+{
+  _xsd_ksp_solver_type_convert ();
+}
+
+ksp_solver_type::
+ksp_solver_type (const ::std::basic_string< char >& s,
+                 const ::xercesc::DOMElement* e,
+                 ::xml_schema::flags f,
+                 ::xml_schema::type* c)
+: ::xml_schema::string (s, e, f, c)
+{
+  _xsd_ksp_solver_type_convert ();
+}
+
+ksp_solver_type* ksp_solver_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new ksp_solver_type (*this, f, c);
+}
+
+ksp_solver_type::_xsd_ksp_solver_type ksp_solver_type::
+_xsd_ksp_solver_type_convert () const
+{
+  ::xsd::cxx::tree::enum_comparator< char > c (_xsd_ksp_solver_type_literals_);
+  const _xsd_ksp_solver_type* i (::std::lower_bound (
+                                   _xsd_ksp_solver_type_indexes_,
+                                   _xsd_ksp_solver_type_indexes_ + 3,
+                                   *this,
+                                   c));
+
+  if (i == _xsd_ksp_solver_type_indexes_ + 3 || _xsd_ksp_solver_type_literals_[*i] != *this)
+  {
+    throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
+  }
+
+  return *i;
+}
+
+const char* const ksp_solver_type::
+_xsd_ksp_solver_type_literals_[3] =
+{
+  "cg",
+  "symmlq",
+  "gmres"
+};
+
+const ksp_solver_type::_xsd_ksp_solver_type ksp_solver_type::
+_xsd_ksp_solver_type_indexes_[3] =
+{
+  ::ksp_solver_type::cg,
+  ::ksp_solver_type::gmres,
+  ::ksp_solver_type::symmlq
+};
+
+// ksp_preconditioner_type
+//
+
+ksp_preconditioner_type::
+ksp_preconditioner_type (const ::xercesc::DOMElement& e,
+                         ::xml_schema::flags f,
+                         ::xml_schema::type* c)
+: ::xml_schema::string (e, f, c)
+{
+  _xsd_ksp_preconditioner_type_convert ();
+}
+
+ksp_preconditioner_type::
+ksp_preconditioner_type (const ::xercesc::DOMAttr& a,
+                         ::xml_schema::flags f,
+                         ::xml_schema::type* c)
+: ::xml_schema::string (a, f, c)
+{
+  _xsd_ksp_preconditioner_type_convert ();
+}
+
+ksp_preconditioner_type::
+ksp_preconditioner_type (const ::std::basic_string< char >& s,
+                         const ::xercesc::DOMElement* e,
+                         ::xml_schema::flags f,
+                         ::xml_schema::type* c)
+: ::xml_schema::string (s, e, f, c)
+{
+  _xsd_ksp_preconditioner_type_convert ();
+}
+
+ksp_preconditioner_type* ksp_preconditioner_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new ksp_preconditioner_type (*this, f, c);
+}
+
+ksp_preconditioner_type::_xsd_ksp_preconditioner_type ksp_preconditioner_type::
+_xsd_ksp_preconditioner_type_convert () const
+{
+  ::xsd::cxx::tree::enum_comparator< char > c (_xsd_ksp_preconditioner_type_literals_);
+  const _xsd_ksp_preconditioner_type* i (::std::lower_bound (
+                                           _xsd_ksp_preconditioner_type_indexes_,
+                                           _xsd_ksp_preconditioner_type_indexes_ + 1,
+                                           *this,
+                                           c));
+
+  if (i == _xsd_ksp_preconditioner_type_indexes_ + 1 || _xsd_ksp_preconditioner_type_literals_[*i] != *this)
+  {
+    throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
+  }
+
+  return *i;
+}
+
+const char* const ksp_preconditioner_type::
+_xsd_ksp_preconditioner_type_literals_[1] =
+{
+  "ilu"
+};
+
+const ksp_preconditioner_type::_xsd_ksp_preconditioner_type ksp_preconditioner_type::
+_xsd_ksp_preconditioner_type_indexes_[1] =
+{
+  ::ksp_preconditioner_type::ilu
+};
+
+// simulation_type
+//
+
+simulation_type::
+simulation_type (const SimulationDuration::type& _xsd_SimulationDuration,
+                 const Domain::type& _xsd_Domain,
+                 const IonicModel::type& _xsd_IonicModel,
+                 const Mesh::type& _xsd_Mesh,
+                 const OutputDirectory::type& _xsd_OutputDirectory,
+                 const MeshOutputDirectory::type& _xsd_MeshOutputDirectory)
 : ::xml_schema::type (),
 _xsd_SimulationDuration_ (_xsd_SimulationDuration,
                           ::xml_schema::flags (),
@@ -2404,12 +3133,6 @@ _xsd_IonicModel_ (_xsd_IonicModel,
 _xsd_Mesh_ (_xsd_Mesh,
             ::xml_schema::flags (),
             this),
-_xsd_IntracellularConductivities_ (_xsd_IntracellularConductivities,
-                                   ::xml_schema::flags (),
-                                   this),
-_xsd_ExtracellularConductivities_ (_xsd_ExtracellularConductivities,
-                                   ::xml_schema::flags (),
-                                   this),
 _xsd_Stimulus_ (::xml_schema::flags (), this),
 _xsd_CellHeterogeneity_ (::xml_schema::flags (), this),
 _xsd_ConductivityHeterogeneity_ (::xml_schema::flags (), this),
@@ -2422,58 +3145,50 @@ _xsd_MeshOutputDirectory_ (_xsd_MeshOutputDirectory,
 {
 }
 
-chaste_parameters_type::
-chaste_parameters_type (const chaste_parameters_type& _xsd_chaste_parameters_type,
-                        ::xml_schema::flags f,
-                        ::xml_schema::type* c)
-: ::xml_schema::type (_xsd_chaste_parameters_type, f, c),
-_xsd_SimulationDuration_ (_xsd_chaste_parameters_type._xsd_SimulationDuration_,
+simulation_type::
+simulation_type (const simulation_type& _xsd_simulation_type,
+                 ::xml_schema::flags f,
+                 ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_simulation_type, f, c),
+_xsd_SimulationDuration_ (_xsd_simulation_type._xsd_SimulationDuration_,
                           f | ::xml_schema::flags::not_root,
                           this),
-_xsd_Domain_ (_xsd_chaste_parameters_type._xsd_Domain_,
+_xsd_Domain_ (_xsd_simulation_type._xsd_Domain_,
               f | ::xml_schema::flags::not_root,
               this),
-_xsd_IonicModel_ (_xsd_chaste_parameters_type._xsd_IonicModel_,
+_xsd_IonicModel_ (_xsd_simulation_type._xsd_IonicModel_,
                   f | ::xml_schema::flags::not_root,
                   this),
-_xsd_Mesh_ (_xsd_chaste_parameters_type._xsd_Mesh_,
+_xsd_Mesh_ (_xsd_simulation_type._xsd_Mesh_,
             f | ::xml_schema::flags::not_root,
             this),
-_xsd_IntracellularConductivities_ (_xsd_chaste_parameters_type._xsd_IntracellularConductivities_,
-                                   f | ::xml_schema::flags::not_root,
-                                   this),
-_xsd_ExtracellularConductivities_ (_xsd_chaste_parameters_type._xsd_ExtracellularConductivities_,
-                                   f | ::xml_schema::flags::not_root,
-                                   this),
-_xsd_Stimulus_ (_xsd_chaste_parameters_type._xsd_Stimulus_,
+_xsd_Stimulus_ (_xsd_simulation_type._xsd_Stimulus_,
                 f | ::xml_schema::flags::not_root,
                 this),
-_xsd_CellHeterogeneity_ (_xsd_chaste_parameters_type._xsd_CellHeterogeneity_,
+_xsd_CellHeterogeneity_ (_xsd_simulation_type._xsd_CellHeterogeneity_,
                          f | ::xml_schema::flags::not_root,
                          this),
-_xsd_ConductivityHeterogeneity_ (_xsd_chaste_parameters_type._xsd_ConductivityHeterogeneity_,
+_xsd_ConductivityHeterogeneity_ (_xsd_simulation_type._xsd_ConductivityHeterogeneity_,
                                  f | ::xml_schema::flags::not_root,
                                  this),
-_xsd_OutputDirectory_ (_xsd_chaste_parameters_type._xsd_OutputDirectory_,
+_xsd_OutputDirectory_ (_xsd_simulation_type._xsd_OutputDirectory_,
                        f | ::xml_schema::flags::not_root,
                        this),
-_xsd_MeshOutputDirectory_ (_xsd_chaste_parameters_type._xsd_MeshOutputDirectory_,
+_xsd_MeshOutputDirectory_ (_xsd_simulation_type._xsd_MeshOutputDirectory_,
                            f | ::xml_schema::flags::not_root,
                            this)
 {
 }
 
-chaste_parameters_type::
-chaste_parameters_type (const ::xercesc::DOMElement& e,
-                        ::xml_schema::flags f,
-                        ::xml_schema::type* c)
+simulation_type::
+simulation_type (const ::xercesc::DOMElement& e,
+                 ::xml_schema::flags f,
+                 ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
 _xsd_SimulationDuration_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Domain_ (f | ::xml_schema::flags::not_root, this),
 _xsd_IonicModel_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Mesh_ (f | ::xml_schema::flags::not_root, this),
-_xsd_IntracellularConductivities_ (f | ::xml_schema::flags::not_root, this),
-_xsd_ExtracellularConductivities_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Stimulus_ (f | ::xml_schema::flags::not_root, this),
 _xsd_CellHeterogeneity_ (f | ::xml_schema::flags::not_root, this),
 _xsd_ConductivityHeterogeneity_ (f | ::xml_schema::flags::not_root, this),
@@ -2483,7 +3198,7 @@ _xsd_MeshOutputDirectory_ (f | ::xml_schema::flags::not_root, this)
   parse (e, f);
 }
 
-void chaste_parameters_type::
+void simulation_type::
 parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
 {
   ::xsd::cxx::xml::dom::parser< char > p (e);
@@ -2558,42 +3273,6 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
         if (_xsd_Mesh_.present ())
           continue;
         this->Mesh (r);
-        continue;
-      }
-    }
-
-    // IntracellularConductivities
-    //
-    {
-      if (e.name () == "IntracellularConductivities" && e.namespace_ ().empty ())
-      {
-        ::std::auto_ptr< IntracellularConductivities::type > r (
-          IntracellularConductivities::traits::create (
-            e.dom_element (),
-            f | ::xml_schema::flags::not_root,
-            this));
-
-        if (_xsd_IntracellularConductivities_.present ())
-          continue;
-        this->IntracellularConductivities (r);
-        continue;
-      }
-    }
-
-    // ExtracellularConductivities
-    //
-    {
-      if (e.name () == "ExtracellularConductivities" && e.namespace_ ().empty ())
-      {
-        ::std::auto_ptr< ExtracellularConductivities::type > r (
-          ExtracellularConductivities::traits::create (
-            e.dom_element (),
-            f | ::xml_schema::flags::not_root,
-            this));
-
-        if (_xsd_ExtracellularConductivities_.present ())
-          continue;
-        this->ExtracellularConductivities (r);
         continue;
       }
     }
@@ -2711,6 +3390,163 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       "");
   }
 
+  if (!_xsd_OutputDirectory_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "OutputDirectory",
+      "");
+  }
+
+  if (!_xsd_MeshOutputDirectory_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "MeshOutputDirectory",
+      "");
+  }
+}
+
+simulation_type* simulation_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new simulation_type (*this, f, c);
+}
+
+// physiological_type
+//
+
+physiological_type::
+physiological_type (const IntracellularConductivities::type& _xsd_IntracellularConductivities,
+                    const ExtracellularConductivities::type& _xsd_ExtracellularConductivities,
+                    const SurfaceAreaToVolumeRatio::type& _xsd_SurfaceAreaToVolumeRatio,
+                    const Capacitance::type& _xsd_Capacitance)
+: ::xml_schema::type (),
+_xsd_IntracellularConductivities_ (_xsd_IntracellularConductivities,
+                                   ::xml_schema::flags (),
+                                   this),
+_xsd_ExtracellularConductivities_ (_xsd_ExtracellularConductivities,
+                                   ::xml_schema::flags (),
+                                   this),
+_xsd_SurfaceAreaToVolumeRatio_ (_xsd_SurfaceAreaToVolumeRatio,
+                                ::xml_schema::flags (),
+                                this),
+_xsd_Capacitance_ (_xsd_Capacitance,
+                   ::xml_schema::flags (),
+                   this)
+{
+}
+
+physiological_type::
+physiological_type (const physiological_type& _xsd_physiological_type,
+                    ::xml_schema::flags f,
+                    ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_physiological_type, f, c),
+_xsd_IntracellularConductivities_ (_xsd_physiological_type._xsd_IntracellularConductivities_,
+                                   f | ::xml_schema::flags::not_root,
+                                   this),
+_xsd_ExtracellularConductivities_ (_xsd_physiological_type._xsd_ExtracellularConductivities_,
+                                   f | ::xml_schema::flags::not_root,
+                                   this),
+_xsd_SurfaceAreaToVolumeRatio_ (_xsd_physiological_type._xsd_SurfaceAreaToVolumeRatio_,
+                                f | ::xml_schema::flags::not_root,
+                                this),
+_xsd_Capacitance_ (_xsd_physiological_type._xsd_Capacitance_,
+                   f | ::xml_schema::flags::not_root,
+                   this)
+{
+}
+
+physiological_type::
+physiological_type (const ::xercesc::DOMElement& e,
+                    ::xml_schema::flags f,
+                    ::xml_schema::type* c)
+: ::xml_schema::type (e, f, c),
+_xsd_IntracellularConductivities_ (f | ::xml_schema::flags::not_root, this),
+_xsd_ExtracellularConductivities_ (f | ::xml_schema::flags::not_root, this),
+_xsd_SurfaceAreaToVolumeRatio_ (f | ::xml_schema::flags::not_root, this),
+_xsd_Capacitance_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void physiological_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_elements ())
+  {
+    const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
+
+    // IntracellularConductivities
+    //
+    {
+      if (e.name () == "IntracellularConductivities" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< IntracellularConductivities::type > r (
+          IntracellularConductivities::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_IntracellularConductivities_.present ())
+          continue;
+        this->IntracellularConductivities (r);
+        continue;
+      }
+    }
+
+    // ExtracellularConductivities
+    //
+    {
+      if (e.name () == "ExtracellularConductivities" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< ExtracellularConductivities::type > r (
+          ExtracellularConductivities::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_ExtracellularConductivities_.present ())
+          continue;
+        this->ExtracellularConductivities (r);
+        continue;
+      }
+    }
+
+    // SurfaceAreaToVolumeRatio
+    //
+    {
+      if (e.name () == "SurfaceAreaToVolumeRatio" && e.namespace_ ().empty ())
+      {
+        if (_xsd_SurfaceAreaToVolumeRatio_.present ())
+          continue;
+        this->SurfaceAreaToVolumeRatio (
+          SurfaceAreaToVolumeRatio::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
+
+    // Capacitance
+    //
+    {
+      if (e.name () == "Capacitance" && e.namespace_ ().empty ())
+      {
+        if (_xsd_Capacitance_.present ())
+          continue;
+        this->Capacitance (
+          Capacitance::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
+  }
+
   if (!_xsd_IntracellularConductivities_.present ())
   {
     throw ::xsd::cxx::tree::expected_element< char > (
@@ -2725,17 +3561,334 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       "");
   }
 
-  if (!_xsd_OutputDirectory_.present ())
+  if (!_xsd_SurfaceAreaToVolumeRatio_.present ())
   {
     throw ::xsd::cxx::tree::expected_element< char > (
-      "OutputDirectory",
+      "SurfaceAreaToVolumeRatio",
       "");
   }
 
-  if (!_xsd_MeshOutputDirectory_.present ())
+  if (!_xsd_Capacitance_.present ())
   {
     throw ::xsd::cxx::tree::expected_element< char > (
-      "MeshOutputDirectory",
+      "Capacitance",
+      "");
+  }
+}
+
+physiological_type* physiological_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new physiological_type (*this, f, c);
+}
+
+// numerical_type
+//
+
+numerical_type::
+numerical_type (const Timesteps::type& _xsd_Timesteps,
+                const KSPTolerances::type& _xsd_KSPTolerances,
+                const KSPSolver::type& _xsd_KSPSolver,
+                const KSPPreconditioner::type& _xsd_KSPPreconditioner)
+: ::xml_schema::type (),
+_xsd_Timesteps_ (_xsd_Timesteps,
+                 ::xml_schema::flags (),
+                 this),
+_xsd_KSPTolerances_ (_xsd_KSPTolerances,
+                     ::xml_schema::flags (),
+                     this),
+_xsd_KSPSolver_ (_xsd_KSPSolver,
+                 ::xml_schema::flags (),
+                 this),
+_xsd_KSPPreconditioner_ (_xsd_KSPPreconditioner,
+                         ::xml_schema::flags (),
+                         this)
+{
+}
+
+numerical_type::
+numerical_type (const numerical_type& _xsd_numerical_type,
+                ::xml_schema::flags f,
+                ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_numerical_type, f, c),
+_xsd_Timesteps_ (_xsd_numerical_type._xsd_Timesteps_,
+                 f | ::xml_schema::flags::not_root,
+                 this),
+_xsd_KSPTolerances_ (_xsd_numerical_type._xsd_KSPTolerances_,
+                     f | ::xml_schema::flags::not_root,
+                     this),
+_xsd_KSPSolver_ (_xsd_numerical_type._xsd_KSPSolver_,
+                 f | ::xml_schema::flags::not_root,
+                 this),
+_xsd_KSPPreconditioner_ (_xsd_numerical_type._xsd_KSPPreconditioner_,
+                         f | ::xml_schema::flags::not_root,
+                         this)
+{
+}
+
+numerical_type::
+numerical_type (const ::xercesc::DOMElement& e,
+                ::xml_schema::flags f,
+                ::xml_schema::type* c)
+: ::xml_schema::type (e, f, c),
+_xsd_Timesteps_ (f | ::xml_schema::flags::not_root, this),
+_xsd_KSPTolerances_ (f | ::xml_schema::flags::not_root, this),
+_xsd_KSPSolver_ (f | ::xml_schema::flags::not_root, this),
+_xsd_KSPPreconditioner_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void numerical_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_elements ())
+  {
+    const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
+
+    // Timesteps
+    //
+    {
+      if (e.name () == "Timesteps" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< Timesteps::type > r (
+          Timesteps::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_Timesteps_.present ())
+          continue;
+        this->Timesteps (r);
+        continue;
+      }
+    }
+
+    // KSPTolerances
+    //
+    {
+      if (e.name () == "KSPTolerances" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< KSPTolerances::type > r (
+          KSPTolerances::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_KSPTolerances_.present ())
+          continue;
+        this->KSPTolerances (r);
+        continue;
+      }
+    }
+
+    // KSPSolver
+    //
+    {
+      if (e.name () == "KSPSolver" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< KSPSolver::type > r (
+          KSPSolver::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_KSPSolver_.present ())
+          continue;
+        this->KSPSolver (r);
+        continue;
+      }
+    }
+
+    // KSPPreconditioner
+    //
+    {
+      if (e.name () == "KSPPreconditioner" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< KSPPreconditioner::type > r (
+          KSPPreconditioner::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_KSPPreconditioner_.present ())
+          continue;
+        this->KSPPreconditioner (r);
+        continue;
+      }
+    }
+  }
+
+  if (!_xsd_Timesteps_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "Timesteps",
+      "");
+  }
+
+  if (!_xsd_KSPTolerances_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "KSPTolerances",
+      "");
+  }
+
+  if (!_xsd_KSPSolver_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "KSPSolver",
+      "");
+  }
+
+  if (!_xsd_KSPPreconditioner_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "KSPPreconditioner",
+      "");
+  }
+}
+
+numerical_type* numerical_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new numerical_type (*this, f, c);
+}
+
+// chaste_parameters_type
+//
+
+chaste_parameters_type::
+chaste_parameters_type (const Simulation::type& _xsd_Simulation,
+                        const Physiological::type& _xsd_Physiological,
+                        const Numerical::type& _xsd_Numerical)
+: ::xml_schema::type (),
+_xsd_Simulation_ (_xsd_Simulation,
+                  ::xml_schema::flags (),
+                  this),
+_xsd_Physiological_ (_xsd_Physiological,
+                     ::xml_schema::flags (),
+                     this),
+_xsd_Numerical_ (_xsd_Numerical,
+                 ::xml_schema::flags (),
+                 this)
+{
+}
+
+chaste_parameters_type::
+chaste_parameters_type (const chaste_parameters_type& _xsd_chaste_parameters_type,
+                        ::xml_schema::flags f,
+                        ::xml_schema::type* c)
+: ::xml_schema::type (_xsd_chaste_parameters_type, f, c),
+_xsd_Simulation_ (_xsd_chaste_parameters_type._xsd_Simulation_,
+                  f | ::xml_schema::flags::not_root,
+                  this),
+_xsd_Physiological_ (_xsd_chaste_parameters_type._xsd_Physiological_,
+                     f | ::xml_schema::flags::not_root,
+                     this),
+_xsd_Numerical_ (_xsd_chaste_parameters_type._xsd_Numerical_,
+                 f | ::xml_schema::flags::not_root,
+                 this)
+{
+}
+
+chaste_parameters_type::
+chaste_parameters_type (const ::xercesc::DOMElement& e,
+                        ::xml_schema::flags f,
+                        ::xml_schema::type* c)
+: ::xml_schema::type (e, f, c),
+_xsd_Simulation_ (f | ::xml_schema::flags::not_root, this),
+_xsd_Physiological_ (f | ::xml_schema::flags::not_root, this),
+_xsd_Numerical_ (f | ::xml_schema::flags::not_root, this)
+{
+  parse (e, f);
+}
+
+void chaste_parameters_type::
+parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
+{
+  ::xsd::cxx::xml::dom::parser< char > p (e);
+
+  while (p.more_elements ())
+  {
+    const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
+
+    // Simulation
+    //
+    {
+      if (e.name () == "Simulation" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< Simulation::type > r (
+          Simulation::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_Simulation_.present ())
+          continue;
+        this->Simulation (r);
+        continue;
+      }
+    }
+
+    // Physiological
+    //
+    {
+      if (e.name () == "Physiological" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< Physiological::type > r (
+          Physiological::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_Physiological_.present ())
+          continue;
+        this->Physiological (r);
+        continue;
+      }
+    }
+
+    // Numerical
+    //
+    {
+      if (e.name () == "Numerical" && e.namespace_ ().empty ())
+      {
+        ::std::auto_ptr< Numerical::type > r (
+          Numerical::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+
+        if (_xsd_Numerical_.present ())
+          continue;
+        this->Numerical (r);
+        continue;
+      }
+    }
+  }
+
+  if (!_xsd_Simulation_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "Simulation",
+      "");
+  }
+
+  if (!_xsd_Physiological_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "Physiological",
+      "");
+  }
+
+  if (!_xsd_Numerical_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "Numerical",
       "");
   }
 }

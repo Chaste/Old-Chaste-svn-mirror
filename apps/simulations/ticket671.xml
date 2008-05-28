@@ -2,44 +2,58 @@
 <ChasteParameters
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="../../heart/src/io/ChasteParameters.xsd">
-
-	<!-- 
-		Problem definition 
-	-->    
-    <SimulationDuration>5.0</SimulationDuration>
-    <Domain>Mono</Domain>
-    <IonicModel>FaberRudy2000Version3</IonicModel>
-    
-	<!-- 
-		Mesh definition 
-	-->    
-	<Mesh>
-		<LoadMesh name="../simulations/upf-mesh/Cubic075mm" media="Axisymmetric"/> 
-  	</Mesh>
+       
+	<Simulation>       
+		<!-- 
+			Problem definition 
+		-->    
+	    <SimulationDuration>5.0</SimulationDuration>
+	    <Domain>Mono</Domain>
+	    <IonicModel>FaberRudy2000Version3</IonicModel>
+	    
+		<!-- 
+			Mesh definition 
+		-->    
+		<Mesh>
+			<LoadMesh name="../simulations/upf-mesh/Cubic075mm" media="Axisymmetric"/> 
+	  	</Mesh>
+		
+	    <!-- 
+	    	Stimuli (as many <Stimulus> definitions as needed) 
+	   	-->
+	  	<Stimulus> <!-- #1 -->
+			<Strength>-35500.0</Strength>
+			<Duration>0.5</Duration>
+			<Delay>0</Delay>
+			<Location>
+				<CornerA X="-9" Y="-5" Z="-5"/>
+				<CornerB X="-8" Y="5"  Z="5"/>
+			</Location>
+		</Stimulus>	
 	
-    <!--
-        Conductivities
-    -->
-    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" />
-    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" />
-    
-    <!-- 
-    	Stimuli (as many <Stimulus> definitions as needed) 
-   	-->
-  	<Stimulus> <!-- #1 -->
-		<Strength>-35500.0</Strength>
-		<Duration>0.5</Duration>
-		<Delay>0</Delay>
-		<Location>
-			<CornerA X="-9" Y="-5" Z="-5"/>
-			<CornerB X="-8" Y="5"  Z="5"/>
-		</Location>
-	</Stimulus>	
+		
+		<!-- 
+			Output 
+		-->
+		<OutputDirectory>Ticket671</OutputDirectory>
+	    <MeshOutputDirectory>Slab</MeshOutputDirectory>
+	</Simulation>	    
 
+	<Physiological>
+	    <!--
+	        Conductivities
+	    -->
+	    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" />
+	    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" />
+	    <SurfaceAreaToVolumeRatio> 1400 </SurfaceAreaToVolumeRatio>
+	    <Capacitance> 1.0 </Capacitance>
+	</Physiological>
+
+	<Numerical>
+		<Timesteps ode="0.01" pde="0.01" printing="0.01"/>
+		<KSPTolerances relative="1e-6" absolute="1e-50"/>
+		<KSPSolver>gmres</KSPSolver>
+		<KSPPreconditioner>ilu</KSPPreconditioner>
+	</Numerical>		
 	
-	<!-- 
-		Output 
-	-->
-	<OutputDirectory>Ticket671</OutputDirectory>
-    <MeshOutputDirectory>Slab</MeshOutputDirectory>	
 </ChasteParameters>

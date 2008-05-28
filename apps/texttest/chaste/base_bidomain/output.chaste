@@ -1,2 +1,17 @@
-InMesh	AssSys	   Ode	 Comms	AssRhs	NeuBCs	   Ksp	Output	 Total	
-0.0e+00	9.6e+02	1.5e+04	8.0e+01	1.6e+04	0.0e+00	2.6e+03	4.3e+02	3.6e+04	(milliseconds) 
+Copyright (C) University of Oxford, 2008 
+
+Chaste is free software: you can redistribute it and/or modify 
+it under the terms of the Lesser GNU General Public License as published by 
+the Free Software Foundation, either version 2.1 of the License, or 
+(at your option) any later version. 
+
+Chaste is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+Lesser GNU General Public License for more details. 
+
+You should have received a copy of the Lesser GNU General Public License 
+along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
+
+ InMesh	AssSys	   Ode	 Comms	AssRhs	NeuBCs	   Ksp	Output	 Total	
+0.0e+00	2.6e+02	1.2e+04	5.0e+01	6.3e+03	0.0e+00	1.8e+04	2.0e+01	3.8e+04	(milliseconds) 

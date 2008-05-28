@@ -47,3 +47,11 @@ blas_lapack_production = ['mkl_lapack', 'mkl', 'svml']
 other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
 
 tools = {'texttest': '/home/chaste/texttest-3.10/source/bin/texttest.py'}
+
+import socket                                   
+if (socket.getfqdn() == "userpc58.comlab.ox.ac.uk"):
+  #Overrides for Hardy on 32-bit linux
+  icpc = 'icpc -gcc-version=413 -I /usr/include/c++/4.1.3/i486-linux-gnu/ -I/usr/include/c++/4.1.3/'
+  
+
+

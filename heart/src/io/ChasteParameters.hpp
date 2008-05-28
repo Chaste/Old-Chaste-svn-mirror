@@ -210,6 +210,13 @@ class conductivity_heterogeneity_type;
 class slab_type;
 class mesh_type;
 class conductivities_type;
+class timesteps_type;
+class ksp_tolerances_type;
+class ksp_solver_type;
+class ksp_preconditioner_type;
+class simulation_type;
+class physiological_type;
+class numerical_type;
 class chaste_parameters_type;
 
 #include <memory>    // std::auto_ptr
@@ -1258,11 +1265,281 @@ class conductivities_type: public ::xml_schema::type
   ::xsd::cxx::tree::one< normal::type > _xsd_normal_;
 };
 
-class chaste_parameters_type: public ::xml_schema::type
+class timesteps_type: public ::xml_schema::type
 {
   public:
 
-  struct _xsd_chaste_parameters_type
+  struct _xsd_timesteps_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // ode
+  // 
+  public:
+  struct ode
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const ode::type&
+  ode () const;
+
+  ode::type&
+  ode ();
+
+  void
+  ode (const ode::type&);
+
+  // pde
+  // 
+  public:
+  struct pde
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const pde::type&
+  pde () const;
+
+  pde::type&
+  pde ();
+
+  void
+  pde (const pde::type&);
+
+  // printing
+  // 
+  public:
+  struct printing
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const printing::type&
+  printing () const;
+
+  printing::type&
+  printing ();
+
+  void
+  printing (const printing::type&);
+
+  // Constructors.
+  //
+  public:
+  timesteps_type (const ode::type&,
+                  const pde::type&,
+                  const printing::type&);
+
+  timesteps_type (const ::xercesc::DOMElement&,
+                  ::xml_schema::flags = 0,
+                  ::xml_schema::type* = 0);
+
+  timesteps_type (const timesteps_type&,
+                  ::xml_schema::flags = 0,
+                  ::xml_schema::type* = 0);
+
+  virtual timesteps_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< ode::type > _xsd_ode_;
+  ::xsd::cxx::tree::one< pde::type > _xsd_pde_;
+  ::xsd::cxx::tree::one< printing::type > _xsd_printing_;
+};
+
+class ksp_tolerances_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_ksp_tolerances_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // relative
+  // 
+  public:
+  struct relative
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const relative::type&
+  relative () const;
+
+  relative::type&
+  relative ();
+
+  void
+  relative (const relative::type&);
+
+  // absolute
+  // 
+  public:
+  struct absolute
+  {
+    typedef ::xml_schema::double_ type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const absolute::type&
+  absolute () const;
+
+  absolute::type&
+  absolute ();
+
+  void
+  absolute (const absolute::type&);
+
+  // Constructors.
+  //
+  public:
+  ksp_tolerances_type (const relative::type&,
+                       const absolute::type&);
+
+  ksp_tolerances_type (const ::xercesc::DOMElement&,
+                       ::xml_schema::flags = 0,
+                       ::xml_schema::type* = 0);
+
+  ksp_tolerances_type (const ksp_tolerances_type&,
+                       ::xml_schema::flags = 0,
+                       ::xml_schema::type* = 0);
+
+  virtual ksp_tolerances_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< relative::type > _xsd_relative_;
+  ::xsd::cxx::tree::one< absolute::type > _xsd_absolute_;
+};
+
+class ksp_solver_type: public ::xml_schema::string
+{
+  public:
+  enum _xsd_ksp_solver_type
+  {
+    cg,
+    symmlq,
+    gmres
+  };
+
+  ksp_solver_type (_xsd_ksp_solver_type);
+
+  ksp_solver_type (const ::xml_schema::string&);
+
+  ksp_solver_type (const ::xercesc::DOMElement&,
+                   ::xml_schema::flags = 0,
+                   ::xml_schema::type* = 0);
+
+  ksp_solver_type (const ::xercesc::DOMAttr&,
+                   ::xml_schema::flags = 0,
+                   ::xml_schema::type* = 0);
+
+  ksp_solver_type (const ::std::basic_string< char >&,
+                   const ::xercesc::DOMElement*,
+                   ::xml_schema::flags = 0,
+                   ::xml_schema::type* = 0);
+
+  ksp_solver_type (const ksp_solver_type&,
+                   ::xml_schema::flags = 0,
+                   ::xml_schema::type* = 0);
+
+  virtual ksp_solver_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  ksp_solver_type&
+  operator= (_xsd_ksp_solver_type);
+
+  virtual
+  operator _xsd_ksp_solver_type () const
+  {
+    return _xsd_ksp_solver_type_convert ();
+  }
+
+  protected:
+  _xsd_ksp_solver_type
+  _xsd_ksp_solver_type_convert () const;
+
+  public:
+  static const char* const _xsd_ksp_solver_type_literals_[3];
+  static const _xsd_ksp_solver_type _xsd_ksp_solver_type_indexes_[3];
+};
+
+class ksp_preconditioner_type: public ::xml_schema::string
+{
+  public:
+  enum _xsd_ksp_preconditioner_type
+  {
+    ilu
+  };
+
+  ksp_preconditioner_type (_xsd_ksp_preconditioner_type);
+
+  ksp_preconditioner_type (const ::xml_schema::string&);
+
+  ksp_preconditioner_type (const ::xercesc::DOMElement&,
+                           ::xml_schema::flags = 0,
+                           ::xml_schema::type* = 0);
+
+  ksp_preconditioner_type (const ::xercesc::DOMAttr&,
+                           ::xml_schema::flags = 0,
+                           ::xml_schema::type* = 0);
+
+  ksp_preconditioner_type (const ::std::basic_string< char >&,
+                           const ::xercesc::DOMElement*,
+                           ::xml_schema::flags = 0,
+                           ::xml_schema::type* = 0);
+
+  ksp_preconditioner_type (const ksp_preconditioner_type&,
+                           ::xml_schema::flags = 0,
+                           ::xml_schema::type* = 0);
+
+  virtual ksp_preconditioner_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  ksp_preconditioner_type&
+  operator= (_xsd_ksp_preconditioner_type);
+
+  virtual
+  operator _xsd_ksp_preconditioner_type () const
+  {
+    return _xsd_ksp_preconditioner_type_convert ();
+  }
+
+  protected:
+  _xsd_ksp_preconditioner_type
+  _xsd_ksp_preconditioner_type_convert () const;
+
+  public:
+  static const char* const _xsd_ksp_preconditioner_type_literals_[1];
+  static const _xsd_ksp_preconditioner_type _xsd_ksp_preconditioner_type_indexes_[1];
+};
+
+class simulation_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_simulation_type
   {
     typedef ::xml_schema::type base_;
   };
@@ -1347,48 +1624,6 @@ class chaste_parameters_type: public ::xml_schema::type
 
   void
   Mesh (::std::auto_ptr< Mesh::type >);
-
-  // IntracellularConductivities
-  // 
-  public:
-  struct IntracellularConductivities
-  {
-    typedef ::conductivities_type type;
-    typedef ::xsd::cxx::tree::traits< type, char > traits;
-  };
-
-  const IntracellularConductivities::type&
-  IntracellularConductivities () const;
-
-  IntracellularConductivities::type&
-  IntracellularConductivities ();
-
-  void
-  IntracellularConductivities (const IntracellularConductivities::type&);
-
-  void
-  IntracellularConductivities (::std::auto_ptr< IntracellularConductivities::type >);
-
-  // ExtracellularConductivities
-  // 
-  public:
-  struct ExtracellularConductivities
-  {
-    typedef ::conductivities_type type;
-    typedef ::xsd::cxx::tree::traits< type, char > traits;
-  };
-
-  const ExtracellularConductivities::type&
-  ExtracellularConductivities () const;
-
-  ExtracellularConductivities::type&
-  ExtracellularConductivities ();
-
-  void
-  ExtracellularConductivities (const ExtracellularConductivities::type&);
-
-  void
-  ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type >);
 
   // Stimulus
   // 
@@ -1498,14 +1733,364 @@ class chaste_parameters_type: public ::xml_schema::type
   // Constructors.
   //
   public:
-  chaste_parameters_type (const SimulationDuration::type&,
-                          const Domain::type&,
-                          const IonicModel::type&,
-                          const Mesh::type&,
-                          const IntracellularConductivities::type&,
-                          const ExtracellularConductivities::type&,
-                          const OutputDirectory::type&,
-                          const MeshOutputDirectory::type&);
+  simulation_type (const SimulationDuration::type&,
+                   const Domain::type&,
+                   const IonicModel::type&,
+                   const Mesh::type&,
+                   const OutputDirectory::type&,
+                   const MeshOutputDirectory::type&);
+
+  simulation_type (const ::xercesc::DOMElement&,
+                   ::xml_schema::flags = 0,
+                   ::xml_schema::type* = 0);
+
+  simulation_type (const simulation_type&,
+                   ::xml_schema::flags = 0,
+                   ::xml_schema::type* = 0);
+
+  virtual simulation_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< SimulationDuration::type > _xsd_SimulationDuration_;
+  ::xsd::cxx::tree::one< Domain::type > _xsd_Domain_;
+  ::xsd::cxx::tree::one< IonicModel::type > _xsd_IonicModel_;
+  ::xsd::cxx::tree::one< Mesh::type > _xsd_Mesh_;
+  ::xsd::cxx::tree::sequence< Stimulus::type > _xsd_Stimulus_;
+  ::xsd::cxx::tree::sequence< CellHeterogeneity::type > _xsd_CellHeterogeneity_;
+  ::xsd::cxx::tree::sequence< ConductivityHeterogeneity::type > _xsd_ConductivityHeterogeneity_;
+  ::xsd::cxx::tree::one< OutputDirectory::type > _xsd_OutputDirectory_;
+  ::xsd::cxx::tree::one< MeshOutputDirectory::type > _xsd_MeshOutputDirectory_;
+};
+
+class physiological_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_physiological_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // IntracellularConductivities
+  // 
+  public:
+  struct IntracellularConductivities
+  {
+    typedef ::conductivities_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const IntracellularConductivities::type&
+  IntracellularConductivities () const;
+
+  IntracellularConductivities::type&
+  IntracellularConductivities ();
+
+  void
+  IntracellularConductivities (const IntracellularConductivities::type&);
+
+  void
+  IntracellularConductivities (::std::auto_ptr< IntracellularConductivities::type >);
+
+  // ExtracellularConductivities
+  // 
+  public:
+  struct ExtracellularConductivities
+  {
+    typedef ::conductivities_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const ExtracellularConductivities::type&
+  ExtracellularConductivities () const;
+
+  ExtracellularConductivities::type&
+  ExtracellularConductivities ();
+
+  void
+  ExtracellularConductivities (const ExtracellularConductivities::type&);
+
+  void
+  ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type >);
+
+  // SurfaceAreaToVolumeRatio
+  // 
+  public:
+  struct SurfaceAreaToVolumeRatio
+  {
+    typedef ::xml_schema::decimal type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const SurfaceAreaToVolumeRatio::type&
+  SurfaceAreaToVolumeRatio () const;
+
+  SurfaceAreaToVolumeRatio::type&
+  SurfaceAreaToVolumeRatio ();
+
+  void
+  SurfaceAreaToVolumeRatio (const SurfaceAreaToVolumeRatio::type&);
+
+  // Capacitance
+  // 
+  public:
+  struct Capacitance
+  {
+    typedef ::xml_schema::decimal type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Capacitance::type&
+  Capacitance () const;
+
+  Capacitance::type&
+  Capacitance ();
+
+  void
+  Capacitance (const Capacitance::type&);
+
+  // Constructors.
+  //
+  public:
+  physiological_type (const IntracellularConductivities::type&,
+                      const ExtracellularConductivities::type&,
+                      const SurfaceAreaToVolumeRatio::type&,
+                      const Capacitance::type&);
+
+  physiological_type (const ::xercesc::DOMElement&,
+                      ::xml_schema::flags = 0,
+                      ::xml_schema::type* = 0);
+
+  physiological_type (const physiological_type&,
+                      ::xml_schema::flags = 0,
+                      ::xml_schema::type* = 0);
+
+  virtual physiological_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< IntracellularConductivities::type > _xsd_IntracellularConductivities_;
+  ::xsd::cxx::tree::one< ExtracellularConductivities::type > _xsd_ExtracellularConductivities_;
+  ::xsd::cxx::tree::one< SurfaceAreaToVolumeRatio::type > _xsd_SurfaceAreaToVolumeRatio_;
+  ::xsd::cxx::tree::one< Capacitance::type > _xsd_Capacitance_;
+};
+
+class numerical_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_numerical_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // Timesteps
+  // 
+  public:
+  struct Timesteps
+  {
+    typedef ::timesteps_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Timesteps::type&
+  Timesteps () const;
+
+  Timesteps::type&
+  Timesteps ();
+
+  void
+  Timesteps (const Timesteps::type&);
+
+  void
+  Timesteps (::std::auto_ptr< Timesteps::type >);
+
+  // KSPTolerances
+  // 
+  public:
+  struct KSPTolerances
+  {
+    typedef ::ksp_tolerances_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const KSPTolerances::type&
+  KSPTolerances () const;
+
+  KSPTolerances::type&
+  KSPTolerances ();
+
+  void
+  KSPTolerances (const KSPTolerances::type&);
+
+  void
+  KSPTolerances (::std::auto_ptr< KSPTolerances::type >);
+
+  // KSPSolver
+  // 
+  public:
+  struct KSPSolver
+  {
+    typedef ::ksp_solver_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const KSPSolver::type&
+  KSPSolver () const;
+
+  KSPSolver::type&
+  KSPSolver ();
+
+  void
+  KSPSolver (const KSPSolver::type&);
+
+  void
+  KSPSolver (::std::auto_ptr< KSPSolver::type >);
+
+  // KSPPreconditioner
+  // 
+  public:
+  struct KSPPreconditioner
+  {
+    typedef ::ksp_preconditioner_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const KSPPreconditioner::type&
+  KSPPreconditioner () const;
+
+  KSPPreconditioner::type&
+  KSPPreconditioner ();
+
+  void
+  KSPPreconditioner (const KSPPreconditioner::type&);
+
+  void
+  KSPPreconditioner (::std::auto_ptr< KSPPreconditioner::type >);
+
+  // Constructors.
+  //
+  public:
+  numerical_type (const Timesteps::type&,
+                  const KSPTolerances::type&,
+                  const KSPSolver::type&,
+                  const KSPPreconditioner::type&);
+
+  numerical_type (const ::xercesc::DOMElement&,
+                  ::xml_schema::flags = 0,
+                  ::xml_schema::type* = 0);
+
+  numerical_type (const numerical_type&,
+                  ::xml_schema::flags = 0,
+                  ::xml_schema::type* = 0);
+
+  virtual numerical_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  // Implementation.
+  //
+  private:
+  void
+  parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
+
+  ::xsd::cxx::tree::one< Timesteps::type > _xsd_Timesteps_;
+  ::xsd::cxx::tree::one< KSPTolerances::type > _xsd_KSPTolerances_;
+  ::xsd::cxx::tree::one< KSPSolver::type > _xsd_KSPSolver_;
+  ::xsd::cxx::tree::one< KSPPreconditioner::type > _xsd_KSPPreconditioner_;
+};
+
+class chaste_parameters_type: public ::xml_schema::type
+{
+  public:
+
+  struct _xsd_chaste_parameters_type
+  {
+    typedef ::xml_schema::type base_;
+  };
+
+  // Simulation
+  // 
+  public:
+  struct Simulation
+  {
+    typedef ::simulation_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Simulation::type&
+  Simulation () const;
+
+  Simulation::type&
+  Simulation ();
+
+  void
+  Simulation (const Simulation::type&);
+
+  void
+  Simulation (::std::auto_ptr< Simulation::type >);
+
+  // Physiological
+  // 
+  public:
+  struct Physiological
+  {
+    typedef ::physiological_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Physiological::type&
+  Physiological () const;
+
+  Physiological::type&
+  Physiological ();
+
+  void
+  Physiological (const Physiological::type&);
+
+  void
+  Physiological (::std::auto_ptr< Physiological::type >);
+
+  // Numerical
+  // 
+  public:
+  struct Numerical
+  {
+    typedef ::numerical_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const Numerical::type&
+  Numerical () const;
+
+  Numerical::type&
+  Numerical ();
+
+  void
+  Numerical (const Numerical::type&);
+
+  void
+  Numerical (::std::auto_ptr< Numerical::type >);
+
+  // Constructors.
+  //
+  public:
+  chaste_parameters_type (const Simulation::type&,
+                          const Physiological::type&,
+                          const Numerical::type&);
 
   chaste_parameters_type (const ::xercesc::DOMElement&,
                           ::xml_schema::flags = 0,
@@ -1525,17 +2110,9 @@ class chaste_parameters_type: public ::xml_schema::type
   void
   parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
 
-  ::xsd::cxx::tree::one< SimulationDuration::type > _xsd_SimulationDuration_;
-  ::xsd::cxx::tree::one< Domain::type > _xsd_Domain_;
-  ::xsd::cxx::tree::one< IonicModel::type > _xsd_IonicModel_;
-  ::xsd::cxx::tree::one< Mesh::type > _xsd_Mesh_;
-  ::xsd::cxx::tree::one< IntracellularConductivities::type > _xsd_IntracellularConductivities_;
-  ::xsd::cxx::tree::one< ExtracellularConductivities::type > _xsd_ExtracellularConductivities_;
-  ::xsd::cxx::tree::sequence< Stimulus::type > _xsd_Stimulus_;
-  ::xsd::cxx::tree::sequence< CellHeterogeneity::type > _xsd_CellHeterogeneity_;
-  ::xsd::cxx::tree::sequence< ConductivityHeterogeneity::type > _xsd_ConductivityHeterogeneity_;
-  ::xsd::cxx::tree::one< OutputDirectory::type > _xsd_OutputDirectory_;
-  ::xsd::cxx::tree::one< MeshOutputDirectory::type > _xsd_MeshOutputDirectory_;
+  ::xsd::cxx::tree::one< Simulation::type > _xsd_Simulation_;
+  ::xsd::cxx::tree::one< Physiological::type > _xsd_Physiological_;
+  ::xsd::cxx::tree::one< Numerical::type > _xsd_Numerical_;
 };
 
 #include <iosfwd>
