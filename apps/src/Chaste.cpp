@@ -73,6 +73,7 @@ double intra_y_cond;
 double intra_z_cond;
 
 std::string mesh_file_prefix;
+anisotropic_type media = anisotropic_type::Orthotropic;
 
 std::string  output_directory = "/";      // Location to put simulation results
 std::string  mesh_output_directory = "/"; // Location for generated mesh files
@@ -201,6 +202,7 @@ void ReadParametersFromFile()
         else // (load_mesh)
         {
             mesh_file_prefix = p_params->Mesh().LoadMesh()->name();
+            media = p_params->Mesh().LoadMesh()->media();
         }
         
         intra_x_cond = p_params->IntracellularConductivities().longi();
@@ -277,7 +279,13 @@ void SetupProblem(AbstractCardiacProblem<3, PROBLEM_DIM>& rProblem)
     rProblem.SetOutputFilenamePrefix("Chaste");
     rProblem.SetCallChaste2Meshalyzer(false);
     
-    //rProblem.SetFibreOrientation("constant_11520.fibres");
+    std::string fibre_file = mesh_file_prefix + ".fibres";
+//    if (media == anisotropic_type::Axisymmetric)
+//    {
+//        rProblem        
+//    }
+    rProblem.SetFibreOrientation(fibre_file);
+    
     rProblem.SetIntracellularConductivities(Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond));
 }
 

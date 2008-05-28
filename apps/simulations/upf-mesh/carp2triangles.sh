@@ -53,3 +53,22 @@ awk '{if (NF == 4) printf("%d %d %d %d %d\n", NR-2, $1, $2, $3, $4)}' $original_
 new_file=${mesh_prefix}.face
 
 echo "0" > $new_file
+
+#
+# Create .fibres file
+#
+original_file=${mesh_prefix}.ttlon
+
+if [ ! -f "$original_file" ]; then
+    echo "File $original_file does not exist!"
+    exit
+fi
+
+new_file=${mesh_prefix}.fibres
+
+# Header of the file
+num_elems=`cat $original_file | wc -l`
+echo "$num_elems" > $new_file
+
+# Fibre definition
+cat $original_file >> $new_file

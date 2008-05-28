@@ -92,7 +92,7 @@ public:
         ortho_tensors.SetFibreOrientationFile("non_existing_file.fibres");        
         TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init()); // non existing file 
         
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation2D.fibres");
+        ortho_tensors.SetFibreOrientationFile ("heart/test/data/SimpleFibreOrientation2D.fibres");
         TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init()); // mismatching SPACE_DIM and # vectors in file        
 
         ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation2DWrongFormat.fibres");
@@ -108,7 +108,7 @@ public:
         
         OrthotropicConductivityTensors<3> ortho_tensors;
         ortho_tensors.SetConstantConductivities(constant_conductivities);
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation3D.fibres");
+        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic3D.fibres");
         ortho_tensors.Init();
         
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
@@ -131,12 +131,12 @@ public:
         
         OrthotropicConductivityTensors<3> ortho_tensors;
         ortho_tensors.SetConstantConductivities(constant_conductivities);
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleCARPLikeOrientation.ttlon");
+        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleAxisymmetric.fibre");
         TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init());
         
         AxisymmetricConductivityTensors axi_tensors;
         axi_tensors.SetConstantConductivities(constant_conductivities);
-        axi_tensors.SetFibreOrientationFile("heart/test/data/SimpleCARPLikeOrientation.ttlon");
+        axi_tensors.SetFibreOrientationFile("heart/test/data/SimpleAxisymmetric.fibres");
         axi_tensors.Init();                            
 
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
@@ -208,7 +208,7 @@ public:
         
         OrthotropicConductivityTensors<1> ortho_tensors;
         ortho_tensors.SetNonConstantConductivities(&non_constant_conductivities);
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation1D.fibres");
+        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic1D.fibres");
         ortho_tensors.Init();
         
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
@@ -227,7 +227,7 @@ public:
         
         OrthotropicConductivityTensors<2> ortho_tensors;
         ortho_tensors.SetNonConstantConductivities(&non_constant_conductivities);
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation2D.fibres");
+        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic2D.fibres");
         ortho_tensors.Init();
         
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
@@ -249,7 +249,7 @@ public:
         
         OrthotropicConductivityTensors<3> ortho_tensors;
         ortho_tensors.SetNonConstantConductivities(&non_constant_conductivities);
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation3D.fibres");
+        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic3D.fibres");
         ortho_tensors.Init();
         
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
@@ -268,10 +268,10 @@ public:
         AxisymmetricConductivityTensors axi_tensors;
         axi_tensors.SetNonConstantConductivities(&non_constant_conductivities);
         
-        axi_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation3D.fibres");
+        axi_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic3D.fibres");
         TS_ASSERT_THROWS_ANYTHING(axi_tensors.Init());
         
-        axi_tensors.SetFibreOrientationFile("heart/test/data/SimpleCARPLikeOrientation.ttlon");
+        axi_tensors.SetFibreOrientationFile("heart/test/data/SimpleAxisymmetric.fibres");
         axi_tensors.Init();
         
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)

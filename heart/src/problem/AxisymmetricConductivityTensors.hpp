@@ -45,7 +45,7 @@ private:
         if (num_elems != 3u)
         {
             this->CloseFibreOrientationFile();
-            EXCEPTION("ttlon file should contain 3 values per element");                
+            EXCEPTION("Axisymmetric media defined. Fibre orientation file should contain 3 values per element");                
         }
         
         for (unsigned i=0; i<3u; i++)

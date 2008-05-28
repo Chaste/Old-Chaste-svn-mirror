@@ -93,12 +93,21 @@ protected:
         std::stringstream line_stream(line);
     
         // Read all the numbers from the line
-        while (!line_stream.eof())
+        try
         {
-            TOKENS_TYPE item;
-            line_stream >> item;
-            tokens.push_back(item);
-        }        
+            while (!line_stream.eof())
+            {
+                TOKENS_TYPE item;
+                line_stream >> item;
+                tokens.push_back(item);
+            }        
+        }
+        catch (std::exception e)
+        {
+            // Weird things happen with the ">>" operator if the file contains elements of type different from TOKENS_TYPE.
+            // "eof" is never reached and std::vector tokens overflows. 
+            EXCEPTION("Possible format error in file: " + mFibreOrientationFilename);
+        }
         
         return tokens.size();                
     }

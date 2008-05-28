@@ -14,7 +14,7 @@
 		Mesh definition 
 	-->    
 	<Mesh>
-		<LoadMesh name="../data/upf-mesh/Cubic075mm" media="Axisymmetric"/> 
+		<LoadMesh name="../simulations/upf-mesh/Cubic075mm" media="Axisymmetric"/> 
   	</Mesh>
 	
     <!--

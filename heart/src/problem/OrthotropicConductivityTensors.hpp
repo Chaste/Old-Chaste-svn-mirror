@@ -61,17 +61,11 @@ private:
     {
         std::vector<double> items;        
         unsigned num_elems = this->GetTokensAtNextLine(items);
-                    
-        if (num_elems == 3 && SPACE_DIM == 3)
-        {
-            this->CloseFibreOrientationFile();
-            EXCEPTION("Fibre orientation file looks like a CARP ttlon file. Support not implemented yet");      
-        }
-
+                           
         if (num_elems != SPACE_DIM*SPACE_DIM)
         {
             this->CloseFibreOrientationFile();
-            EXCEPTION("Number of vectors in file and size of them should match SPACE_DIM");                
+            EXCEPTION("Orthotropic media defined. Number of vectors in fibre orientation file and size of them should match SPACE_DIM");                
         }
 
         for (unsigned vector_index=0; vector_index<SPACE_DIM; vector_index++)
