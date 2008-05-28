@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCardiacElectroMechanicsProblemExperimental : public CxxTest::TestSuite
 {
 public:
-    void xTest1dCompareExplicitVsImplicit() throw(Exception)
+    void dontTest1dCompareExplicitVsImplicit() throw(Exception)
     {
         double time_step = 0.01;
         PlaneStimulusCellFactory<1> cell_factory(time_step, -1000*1000);
@@ -93,24 +93,69 @@ public:
         }
     }
     
-    void Test2dCompareExplicitVsImplicit() throw(Exception)
+    
+    void dontTest2dBasicRun() throw(Exception)
     {
         PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 
-        unsigned dt=128;
-        for(unsigned i=0;i<4;i++)
+        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
+                                                           200,  // end time of 200ms
+                                                           10,   // 10 mech elements in 1cm by 1cm square
+                                                           false,// use implicit method 
+                                                           100,  // 100 mech times per elec timestep, ie mech_dt = 1ms
+                                                           1,    // nhs_dt = 1ms
+                                                           "CardiacElectroMechBasic");
+        implicit_problem.SetNoElectricsOutput();
+        implicit_problem.Solve();
+    }
+        
+
+    void TestScaleCalcium() throw(Exception)
+    {
+        EventHandler::Disable();
+        
+        double calcium_scale_factors[8] = {0.9, 0.95, 0.99, 1.0, 1.01, 1.05, 1.1, 2};
+
+        for(unsigned i=0; i<8; i++)
         {
             std::stringstream name;
-            name << "CardiacElectroMech_Time_MORE_" << dt;
-            
-            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, false, dt, 0.01, name.str());
+            name << "CardiacElectroMechScaleCalcium/" << calcium_scale_factors[i];
+
+            PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
+    
+            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
+                                                               200,  // end time of 200ms
+                                                               10,   // 10 mech elements in 1cm by 1cm square
+                                                               false,// use implicit method 
+                                                               100,  // 100 mech times per elec timestep, ie mech_dt = 1ms
+                                                               1,    // nhs_dt = 1ms
+                                                               name.str(),
+                                                               calcium_scale_factors[i]);
             implicit_problem.SetNoElectricsOutput();
             implicit_problem.Solve();
-            
-            dt *= 2;
         }
+    }
 
-
+    
+    
+//    void Test2dCompareExplicitVsImplicit() throw(Exception)
+//    {
+//        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
+//
+//        unsigned dt=128;
+//        for(unsigned i=0;i<4;i++)
+//        {
+//            std::stringstream name;
+//            name << "CardiacElectroMech_Time_MORE_" << dt;
+//            
+//            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 200, 10, false, dt, 0.01, name.str());
+//            implicit_problem.SetNoElectricsOutput();
+//            implicit_problem.Solve();
+//            
+//            dt *= 2;
+//        }
+//
+//
 //        unsigned num_nodes_in_each_dir=8;
 //        for(unsigned i=0;i<1;i++)
 //        {
@@ -139,6 +184,6 @@ public:
 //            
 //            nhs_ode_time_step *= 2;
 //        }
-    }
+//    }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEMEXPERIMENTAL_HPP_*/

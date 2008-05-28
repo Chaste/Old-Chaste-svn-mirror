@@ -40,7 +40,7 @@ FastSlowLuoRudyIModel1991::FastSlowLuoRudyIModel1991(bool isFast,
                                                      double dt,
                                                      AbstractStimulusFunction *pIntracellularStimulus,
                                                      AbstractStimulusFunction *pExtracellularStimulus)
-        : AbstractCardiacCell(pSolver, 8, 4, dt, pIntracellularStimulus, pExtracellularStimulus)
+        : AbstractCardiacCell(pSolver, (isFast ? 6 : 8), 4, dt, pIntracellularStimulus, pExtracellularStimulus)
 {
     mIsFast = isFast;
     
@@ -113,6 +113,11 @@ void FastSlowLuoRudyIModel1991::EvaluateYDerivatives(double time,
                                                      const std::vector<double> &rY,
                                                      std::vector<double> &rDY)
 {
+    if(mIsFast)
+    {
+        assert(mSlowValues.size()==2); // verify that SetSlowValues() has been called.
+    }
+    
     double fast_sodium_current_h_gate_h = rY[0];
     double fast_sodium_current_j_gate_j = rY[1];
     double fast_sodium_current_m_gate_m = rY[2];

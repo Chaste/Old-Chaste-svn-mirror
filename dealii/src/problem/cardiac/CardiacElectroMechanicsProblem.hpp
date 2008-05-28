@@ -66,13 +66,15 @@ public:
                                    bool useExplicitMethod,
                                    unsigned numElecStepsPerMechStep,
                                    double nhsOdeTimeStep,
-                                   std::string outputDirectory = "")
+                                   std::string outputDirectory = "",
+                                   double calciumScaleFactor = 1.0)
         :  AbstractCardiacElectroMechanicsProblem<DIM>(pCellFactory,
                                                        endTime,
                                                        useExplicitMethod,
                                                        numElecStepsPerMechStep,
                                                        nhsOdeTimeStep,
-                                                       outputDirectory)
+                                                       outputDirectory,
+                                                       calciumScaleFactor)
     {
         mNumElementsPerDimInMechanicsMesh = numElementsPerDimInMechanicsMesh;
     }

@@ -153,6 +153,8 @@ protected :
     /*< when to write output */    
     const static int WRITE_EVERY_NTH_TIME = 1; 
     
+    double mCalciumScaleFactor;
+    
     /**
      *  A pure method constructing the mechanics assembler 
      *  @param mechanicsOutputDir The output directory the assembler
@@ -180,7 +182,8 @@ public :
                                            bool useExplicitMethod,
                                            unsigned numElecStepsPerMechStep,
                                            double nhsOdeTimeStep,
-                                           std::string outputDirectory = "")
+                                           std::string outputDirectory = "",
+                                           double calciumScaleFactor = 1.0)
     {
         // create the monodomain problem. Note the we use this to set up the cells,
         // get an initial condition (voltage) vector, and get an assembler. We won't
@@ -242,6 +245,9 @@ public :
         {
             LOG(1, "Solving with implicit method..");
         }        
+        
+        assert(calciumScaleFactor > 0.0);
+        mCalciumScaleFactor = calciumScaleFactor;
     }   
     
     virtual ~AbstractCardiacElectroMechanicsProblem()
@@ -466,7 +472,8 @@ public :
                 }
                 else
                 {
-                    // explicit: forcing quantity on the assembler is the calcium concentration
+                    // implicit: forcing quantity on the assembler is the calcium concentration
+                    interpolated_Ca_I *= mCalciumScaleFactor;
                     forcing_quantity[i] = interpolated_Ca_I;
                 }
             }

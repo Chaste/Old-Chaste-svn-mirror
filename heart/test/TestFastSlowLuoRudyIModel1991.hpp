@@ -52,6 +52,7 @@ public:
 
         //Set up fast cell model and evaluate Y derivatives
         FastSlowLuoRudyIModel1991 fast_luo_rudy(true, &solver, time_step, &stimulus);
+        TS_ASSERT_EQUALS(fast_luo_rudy.GetNumberOfStateVariables(), 6u);
 
         std::vector<double> DY_fast(6);
         std::vector<double> slow_values(2);
@@ -85,6 +86,8 @@ public:
 
         //Set up fast cell model in slow mode and evaluate Y derivatives
         FastSlowLuoRudyIModel1991 fast_luo_rudy(false, &solver, time_step, &stimulus);
+        TS_ASSERT_EQUALS(fast_luo_rudy.GetNumberOfStateVariables(), 8u);
+
         std::vector<double> DY_fast(8);
         fast_luo_rudy.EvaluateYDerivatives(0.0, fast_luo_rudy.rGetStateVariables(), DY_fast);
         
