@@ -52,6 +52,9 @@ import socket
 if (socket.getfqdn() == "userpc58.comlab.ox.ac.uk"):
   #Overrides for Hardy on 32-bit linux
   icpc = 'icpc -gcc-version=413 -I /usr/include/c++/4.1.3/i486-linux-gnu/ -I/usr/include/c++/4.1.3/'
-  
+if (socket.getfqdn() == "userpc44.comlab.ox.ac.uk"):
+  #Overrides for Hardy x86-64
+  icpc = 'icpc -gcc-version=413 -I /usr/include/c++/4.1.3/x86_64-linux-gnu/ -I/usr/include/c++/4.1.3/'
+      
 
 
