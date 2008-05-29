@@ -78,63 +78,6 @@ private:
     }
     
 public:
-
-    /**
-     *  Sets constant conductivities for all the elements of the mesh.
-     * 
-     *  @param constLongConduc Longitudinal conductivity (x axis)
-     *  @param constTransConduc Transverse conductivity (y axis)
-     *  @param constNormalConduc Normal conductivity (z axis)
-     * 
-     *  Explain problem with c_vector and SPACE_DIM
-     */   
-    void SetConstantConductivities(c_vector<double, 1> constantConductivities)
-    {       
-        if (SPACE_DIM != 1)
-        {
-            EXCEPTION("Wrong number of conductivities provided");
-        }
-        
-        this->mUseNonConstantConductivities = false;        
-        this->mConstantConductivities = constantConductivities;        
-    }
-    
-    void SetConstantConductivities(c_vector<double, 2> constantConductivities)
-    {
-        if (SPACE_DIM != 2)
-        {
-            EXCEPTION("Wrong number of conductivities provided");
-        }
-        
-        this->mUseNonConstantConductivities = false;        
-        this->mConstantConductivities = constantConductivities;        
-    }
-
-    void SetConstantConductivities(c_vector<double, 3> constantConductivities)
-    {
-        if (SPACE_DIM != 3)
-        {
-            EXCEPTION("Wrong number of conductivities provided");
-        }
-          
-        this->mUseNonConstantConductivities = false;        
-        this->mConstantConductivities = constantConductivities;        
-    }
-    
-
-    /**
-     *  Sets a different longitudinal and transverse conductivity for every elements of the mesh.
-     * 
-     *  @param rLongitudinalConductivities Vector containing longitudinal conductivities of the elements (x axis)
-     *  @param rTransverseConductivities Vector containing transverse conductivities of the elements (y axis)
-     *  @param rNormalConductivities Vector containing normal conductivities of the elements (z axis)
-     */      
-    void SetNonConstantConductivities(std::vector<c_vector<double, SPACE_DIM> >* pNonConstantConductivities)
-    {
-        this->mUseNonConstantConductivities = true;
-        this->mpNonConstantConductivities = pNonConstantConductivities;
-    }                
-
     
     /**
      *  Computes the tensors based in all the info set

@@ -40,9 +40,6 @@
 	</Simulation>	    
 
 	<Physiological>
-	    <!--
-	        Conductivities
-	    -->
 	    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" />
 	    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" />
 	    <SurfaceAreaToVolumeRatio> 1400 </SurfaceAreaToVolumeRatio>

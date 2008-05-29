@@ -57,7 +57,7 @@ public:
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](2,2), 0.135);
         }    
 
-        AxisymmetricConductivityTensors axi_tensors;               
+        AxisymmetricConductivityTensors<3> axi_tensors;               
         axi_tensors.SetConstantConductivities(Create_c_vector(2.1, 0.8, 0.8));
         axi_tensors.Init();
         
@@ -83,7 +83,10 @@ public:
         TS_ASSERT_THROWS_ANYTHING(ortho_1d_tensors.SetConstantConductivities(constant_conductivities));                     
 
         OrthotropicConductivityTensors<3> ortho_3d_tensors;
-        TS_ASSERT_THROWS_ANYTHING(ortho_3d_tensors.SetConstantConductivities(constant_conductivities));                     
+        TS_ASSERT_THROWS_ANYTHING(ortho_3d_tensors.SetConstantConductivities(constant_conductivities));
+        
+        // AxisymmetricConductivityTensors only makes sense in 3D problems
+        TS_ASSERT_THROWS_ANYTHING(AxisymmetricConductivityTensors<2> axi_tensor);                     
     }
 
     void TestFibreOrientationFileExceptions() throw (Exception)
@@ -134,7 +137,7 @@ public:
         ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleAxisymmetric.fibre");
         TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init());
         
-        AxisymmetricConductivityTensors axi_tensors;
+        AxisymmetricConductivityTensors<3> axi_tensors;
         axi_tensors.SetConstantConductivities(constant_conductivities);
         axi_tensors.SetFibreOrientationFile("heart/test/data/SimpleAxisymmetric.fibres");
         axi_tensors.Init();                            
@@ -178,7 +181,7 @@ public:
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](2,2), tensor_index);
         }    
 
-        AxisymmetricConductivityTensors axi_tensors;
+        AxisymmetricConductivityTensors<3> axi_tensors;
         axi_tensors.SetNonConstantConductivities(&non_constant_conductivities);
         axi_tensors.Init();
         
@@ -265,7 +268,7 @@ public:
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](2,2), tensor_index);
         }    
 
-        AxisymmetricConductivityTensors axi_tensors;
+        AxisymmetricConductivityTensors<3> axi_tensors;
         axi_tensors.SetNonConstantConductivities(&non_constant_conductivities);
         
         axi_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic3D.fibres");

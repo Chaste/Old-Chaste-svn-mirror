@@ -30,13 +30,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractConductivityTensors.hpp"
 
-// Axisymmetric anisotropic conductivity only makes sense in 3D
-class AxisymmetricConductivityTensors : public AbstractConductivityTensors<3>
+/**
+ *  The class is templated over SPACE_DIM to keep compatibility with the abstract class.
+ *  However axisymmetric conductivity only makes sense in 3D, so we check in the constructor
+ *  for SPACE_DIM to be 3.
+ */
+
+template<unsigned SPACE_DIM>
+class AxisymmetricConductivityTensors : public AbstractConductivityTensors<SPACE_DIM>
 {
 
 private:
 
-    void ReadOrientationVectorFromFile (c_vector<double,3u>& orientVector)
+    void ReadOrientationVectorFromFile (c_vector<double,SPACE_DIM>& orientVector)
     {
         std::vector<double> tokens;       
         
@@ -48,19 +54,26 @@ private:
             EXCEPTION("Axisymmetric media defined. Fibre orientation file should contain 3 values per element");                
         }
         
-        for (unsigned i=0; i<3u; i++)
+        for (unsigned i=0; i<SPACE_DIM; i++)
         {
             orientVector[i] = tokens[i];
         }
     }
     
 public:
+    AxisymmetricConductivityTensors()
+    {
+        if (SPACE_DIM != 3)
+        {
+            EXCEPTION("Axisymmetric anisotropic conductivity only makes sense in 3D");            
+        }
+    }
 
     void Init() throw (Exception)
     {
-        c_matrix<double, 3u, 3u> conductivity_matrix(zero_matrix<double>(3u,3u));
+        c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
         
-        for (unsigned dim=0; dim<3u; dim++)
+        for (unsigned dim=0; dim<SPACE_DIM; dim++)
         {
             conductivity_matrix(dim,dim) = this->mConstantConductivities(dim);     
         }
@@ -72,7 +85,7 @@ public:
         }
         else
         {
-            c_vector<double,3u> fibre_vector((zero_vector<double>(3u)));
+            c_vector<double,SPACE_DIM> fibre_vector((zero_vector<double>(SPACE_DIM)));
             fibre_vector[0]=1.0;
                         
             if (this->mUseFibreOrientation)
@@ -112,7 +125,7 @@ public:
                 
                 if (this->mUseNonConstantConductivities)
                 {
-                    for (unsigned dim=0; dim<3u; dim++)
+                    for (unsigned dim=0; dim<SPACE_DIM; dim++)
                     {
                         conductivity_matrix(dim,dim) = (*this->mpNonConstantConductivities)[element_index][dim];     
                     }                    
@@ -123,7 +136,7 @@ public:
                     ReadOrientationVectorFromFile(fibre_vector);                    
                 }                    
                               
-                this->mTensors.push_back( conductivity_matrix(1,1) * identity_matrix<double>(3u) +
+                this->mTensors.push_back( conductivity_matrix(1,1) * identity_matrix<double>(SPACE_DIM) +
                                           (conductivity_matrix(0,0) - conductivity_matrix(1,1)) * outer_prod(fibre_vector,fibre_vector));
             }
             

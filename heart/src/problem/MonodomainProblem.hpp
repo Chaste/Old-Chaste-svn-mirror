@@ -51,8 +51,8 @@ public:
     {
         mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
 
-        this->mIntracellularConductivityTensors.Init();                
-        mpMonodomainPde->SetIntracellularConductivityTensors( & this->mIntracellularConductivityTensors );
+        this->mpIntracellularConductivityTensors->Init();                
+        mpMonodomainPde->SetIntracellularConductivityTensors( this->mpIntracellularConductivityTensors );
 
         return mpMonodomainPde;
     }
@@ -84,8 +84,8 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should 
      * create cells.
      */
-    MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
-            : AbstractCardiacProblem<SPACE_DIM, 1>(pCellFactory),
+    MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool orthotropicMedia=true)
+            : AbstractCardiacProblem<SPACE_DIM, 1>(pCellFactory, orthotropicMedia),
             mpMonodomainPde(NULL)
     {
     }

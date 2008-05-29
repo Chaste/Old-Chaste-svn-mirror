@@ -42,6 +42,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EventHandler.hpp"
 #include "PetscTools.hpp"
 
+#include "OrthotropicConductivityTensors.hpp"
+#include "AxisymmetricConductivityTensors.hpp"
+
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
 {
@@ -77,7 +80,7 @@ protected:
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
-    OrthotropicConductivityTensors<SPACE_DIM> mIntracellularConductivityTensors;
+    AbstractConductivityTensors<SPACE_DIM>* mpIntracellularConductivityTensors;
     
     Vec mVoltage; // Current solution
     double mLinearSolverTolerance;
@@ -115,7 +118,7 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should 
      * create cells.
      */
-    AbstractCardiacProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
+    AbstractCardiacProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool orthotropicMedia=true)
             : mMeshFilename(""),     // i.e. undefined
               mNodesPerProcessorFilename(""),     // i.e. undefined
               mOutputDirectory(""),  // i.e. undefined
@@ -139,6 +142,15 @@ public:
         mUseLinearSolverAbsoluteTolerance = false;
         mAllocatedMemoryForMesh = false;
         assert(mNodesToOutput.empty());
+
+        if (orthotropicMedia)
+        {
+            mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+        }
+        else
+        {
+            mpIntracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
+        }             
         
         // Reference Clerc 1976 (x,y,z)
         double default_intra_conductivities[] = {1.75, 0.19, 0.19};      // mS/cm (Averaged)
@@ -149,7 +161,7 @@ public:
             intra_conductivities[dim] = default_intra_conductivities[dim];
         }
 
-        mIntracellularConductivityTensors.SetConstantConductivities(intra_conductivities);
+        mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
         
         EventHandler::BeginEvent(EVERYTHING);
     }
@@ -167,6 +179,7 @@ public:
             delete mpMesh;
         }
         
+        delete mpIntracellularConductivityTensors;        
     };
     
     /*
@@ -201,18 +214,18 @@ public:
     
     void SetFibreOrientation(const std::string fileName)
     {
-        mIntracellularConductivityTensors.SetFibreOrientationFile(fileName);    
+        mpIntracellularConductivityTensors->SetFibreOrientationFile(fileName);    
     }
     
     void SetIntracellularConductivities(c_vector<double, SPACE_DIM> constantConductivities)
     {
                 
-        mIntracellularConductivityTensors.SetConstantConductivities(constantConductivities);
+        mpIntracellularConductivityTensors->SetConstantConductivities(constantConductivities);
     }
     
     void SetIntracellularConductivities(std::vector< c_vector<double, SPACE_DIM> > nonConstantConductivities)
     {
-        mIntracellularConductivityTensors.SetNonConstantConductivities(nonConstantConductivities);
+        mpIntracellularConductivityTensors->SetNonConstantConductivities(nonConstantConductivities);
     }
     
     void SetLinearSolverRelativeTolerance(const double &rRelTol)

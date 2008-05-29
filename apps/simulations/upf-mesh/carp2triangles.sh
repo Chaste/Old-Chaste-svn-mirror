@@ -23,7 +23,7 @@ new_file=${mesh_prefix}.node
 num_nodes=`head -n 1 $original_file`
 echo "$num_nodes 3 0 0" > $new_file
 
-# Coordinates in um should be converted to cm. Add index starting from
+# Coordinates in um should be converted to cm. Add index starting from 0
 awk '{if (NF == 3) printf("%d %f %f %f\n", NR-2, $1/10000, $2/10000, $3/10000)}' $original_file >> $new_file
 
 
@@ -43,7 +43,7 @@ new_file=${mesh_prefix}.ele
 num_nodes=`head -n 1 $original_file`
 echo "$num_nodes 4 0" > $new_file
 
-# Add index starting from 
+# Add index starting from 0
 awk '{if (NF == 4) printf("%d %d %d %d %d\n", NR-2, $1, $2, $3, $4)}' $original_file >> $new_file
 
 
@@ -67,8 +67,8 @@ fi
 new_file=${mesh_prefix}.fibres
 
 # Header of the file
-num_elems=`cat $original_file | wc -l`
+num_elems=`cat $original_file | grep -v ^$ | wc -l`
 echo "$num_elems" > $new_file
 
-# Fibre definition
-cat $original_file >> $new_file
+# Fibre definition (get rid of any blank line)
+cat $original_file | grep -v ^$ >> $new_file

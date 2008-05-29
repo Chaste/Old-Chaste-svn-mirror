@@ -370,11 +370,13 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
         ChasteSlabCellFactory cell_factory;       
         ConformingTetrahedralMesh<3,3> mesh;
         
+        bool orthotropic = (media == anisotropic_type::Orthotropic);
+        
         switch(domain)
         {
             case domain_type::Mono :
             {            
-                MonodomainProblem<3> mono_problem( &cell_factory );
+                MonodomainProblem<3> mono_problem( &cell_factory, orthotropic );
 
                 SetupProblem(mono_problem);
                                 
@@ -396,7 +398,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
             
             case domain_type::Bi :
             {
-                BidomainProblem<3> bi_problem( &cell_factory );                
+                BidomainProblem<3> bi_problem( &cell_factory, orthotropic );                
 
                 SetupProblem(bi_problem);
                 bi_problem.SetExtracellularConductivities(Create_c_vector(6.2, 2.4, 2.4));

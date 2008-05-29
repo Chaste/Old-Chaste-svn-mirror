@@ -53,7 +53,7 @@ private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */    
     unsigned mExtracelluarColumnId;
     
-    OrthotropicConductivityTensors<SPACE_DIM> mExtracellularConductivityTensors;
+    AbstractConductivityTensors<SPACE_DIM>* mpExtracellularConductivityTensors;
     
     unsigned mRowMeanPhiEZero;
     
@@ -62,11 +62,11 @@ protected:
     {
         mpBidomainPde = new BidomainPde<SPACE_DIM>(this->mpCellFactory);
 
-        this->mIntracellularConductivityTensors.Init();                
-        mpBidomainPde->SetIntracellularConductivityTensors( &this->mIntracellularConductivityTensors );
+        this->mpIntracellularConductivityTensors->Init();                
+        mpBidomainPde->SetIntracellularConductivityTensors( this->mpIntracellularConductivityTensors );
         
-        mExtracellularConductivityTensors.Init();                
-        mpBidomainPde->SetExtracellularConductivityTensors( &mExtracellularConductivityTensors );
+        mpExtracellularConductivityTensors->Init();                
+        mpBidomainPde->SetExtracellularConductivityTensors( mpExtracellularConductivityTensors );
         
         return mpBidomainPde;
     }
@@ -107,12 +107,21 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should 
      * create cells.
      */
-    BidomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
-            : AbstractCardiacProblem<SPACE_DIM, 2>(pCellFactory),
+    BidomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool orthotropicMedia=true)
+            : AbstractCardiacProblem<SPACE_DIM, 2>(pCellFactory, orthotropicMedia),
             mpBidomainPde(NULL)
     {
         mFixedExtracellularPotentialNodes.resize(0);
         mRowMeanPhiEZero = INT_MAX;
+
+        if (orthotropicMedia)
+        {
+            mpExtracellularConductivityTensors = new OrthotropicConductivityTensors<SPACE_DIM>;
+        }
+        else
+        {
+            mpExtracellularConductivityTensors = new AxisymmetricConductivityTensors<SPACE_DIM>;
+        }             
         
         // Reference Clerc 1976 (x,y,z)
         double default_extra_conductivities[] = {6.2, 2.4, 2.4}; // mS/cm (Averaged) 
@@ -123,7 +132,7 @@ public:
             extra_conductivities[dim] = default_extra_conductivities[dim];
         }
 
-        mExtracellularConductivityTensors.SetConstantConductivities(extra_conductivities);        
+        mpExtracellularConductivityTensors->SetConstantConductivities(extra_conductivities);        
     }
     
     /**
@@ -131,16 +140,17 @@ public:
      */
     ~BidomainProblem()
     {
+        delete mpExtracellularConductivityTensors;
     }
     
     void SetExtracellularConductivities(c_vector<double, SPACE_DIM> constantConductivities)
     {
-        mExtracellularConductivityTensors.SetConstantConductivities(constantConductivities);
+        mpExtracellularConductivityTensors->SetConstantConductivities(constantConductivities);
     }
     
     void SetExtracellularConductivities(std::vector< c_vector<double, SPACE_DIM> > nonConstantConductivities)
     {
-        mExtracellularConductivityTensors.SetNonConstantConductivities(nonConstantConductivities);
+        mpExtracellularConductivityTensors->SetNonConstantConductivities(nonConstantConductivities);
     }
     
     

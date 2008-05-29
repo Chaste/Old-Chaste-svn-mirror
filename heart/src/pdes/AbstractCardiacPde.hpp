@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "EventHandler.hpp"
 #include "PetscTools.hpp"
-#include "OrthotropicConductivityTensors.hpp"
+#include "AbstractConductivityTensors.hpp"
 
 /**
  *  Pde containing common functionality to mono and bidomain pdes.
@@ -79,7 +79,7 @@ protected:
     double mSurfaceAreaToVolumeRatio;
     double mCapacitance;
     
-    OrthotropicConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors;
+    AbstractConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors;
     
     /** The vector of cells. Distributed. */
     std::vector< AbstractCardiacCell* > mCellsDistributed;
@@ -174,7 +174,7 @@ public:
         mCapacitance = capacitance;
     }
      
-    void SetIntracellularConductivityTensors(OrthotropicConductivityTensors<SPACE_DIM>* pIntracellularTensors)
+    void SetIntracellularConductivityTensors(AbstractConductivityTensors<SPACE_DIM>* pIntracellularTensors)
     {        
         mpIntracellularConductivityTensors = pIntracellularTensors;
     }
