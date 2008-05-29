@@ -10,6 +10,7 @@ TestFastSlowLuoRudyIModel1991.hpp
 TestHdf5ToMeshalyzerConverter.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestIonicModels.hpp
+TestMixedMeshOdes.hpp
 TestMonodomainConductionVelocity.hpp
 TestMonodomainDg0Assembler.hpp
 TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
