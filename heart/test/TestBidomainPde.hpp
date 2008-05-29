@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "DistributedVector.hpp"
+#include "OrthotropicConductivityTensors.hpp"
 #include <petsc.h>
 #include <cxxtest/TestSuite.h>
 
