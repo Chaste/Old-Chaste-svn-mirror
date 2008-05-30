@@ -435,6 +435,8 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n ";
     EventHandler::Headings();
     EventHandler::Report();
 
+    PetscFinalize();
+
     return 0;    
 }    
 
