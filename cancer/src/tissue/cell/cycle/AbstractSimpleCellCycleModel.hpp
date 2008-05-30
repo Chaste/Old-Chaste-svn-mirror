@@ -104,7 +104,8 @@ public:
      * Set the new cell's G1 duration once it has been created after division. 
      * The duration will be based on cell type. 
      */ 
-    void InitialiseDaughterCell();     
+    void InitialiseDaughterCell();
+    
     virtual void Initialise();
 };
 

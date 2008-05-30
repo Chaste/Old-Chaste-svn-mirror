@@ -34,7 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellCycleModel.hpp"
 
-void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel, double g1Duration)
+void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel, 
+                                         double g1Duration, 
+                                         double g2Duration=CancerParameters::Instance()->GetG2Duration())
 {   
     double age = pModel->GetAge();
     CancerParameters* p_params = CancerParameters::Instance();
@@ -59,7 +61,7 @@ void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel, double 
         TS_ASSERT(!pModel->ReadyToDivide());
         TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),S_PHASE);
     }
-    else if (age < p_params->GetMDuration() + g1Duration + p_params->GetSDuration() + p_params->GetG2Duration() )
+    else if (age < p_params->GetMDuration() + g1Duration + p_params->GetSDuration() + g2Duration )
     {   // if in G2 phase
         TS_ASSERT(!pModel->ReadyToDivide());
         TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(),G_TWO_PHASE);
