@@ -96,7 +96,8 @@ public:
         bidomain_problem.SetEndTime(end_time);
         bidomain_problem.SetPdeAndPrintingTimeSteps(pde_time_step, printing_time_step);
         
-        bidomain_problem.SetLinearSolverRelativeTolerance(5e-7);
+        //bidomain_problem.SetLinearSolverRelativeTolerance(5e-7);
+        bidomain_problem.SetLinearSolverAbsoluteTolerance(5e-3);        
         //PetscOptionsSetValue("-ksp_type", "symmlq");
         //PetscOptionsSetValue("-pc_type", "bjacobi");
         //PetscOptionsSetValue("-log_summary", "");
@@ -145,8 +146,6 @@ public:
         std::string metis_mesh = handler.GetOutputDirectoryFullPath("") + "halfheart_metis";
         std::string nodes_file = handler.GetOutputDirectoryFullPath("") + "metis.mesh.nodesperproc";
         
-        std::cout << metis_mesh << std::endl;
-        
         bidomain_problem.SetMeshFilename(metis_mesh);//"heart/test/data/halfheart_metis");
         bidomain_problem.SetNodesPerProcessorFilename(nodes_file);
         bidomain_problem.SetOutputDirectory("BiDg0HeartMetis");
@@ -155,7 +154,8 @@ public:
         bidomain_problem.SetEndTime(end_time);
         bidomain_problem.SetPdeAndPrintingTimeSteps(pde_time_step, printing_time_step);
         
-        bidomain_problem.SetLinearSolverRelativeTolerance(5e-7);
+        //bidomain_problem.SetLinearSolverRelativeTolerance(5e-7);
+        bidomain_problem.SetLinearSolverAbsoluteTolerance(5e-3);
         //PetscOptionsSetValue("-ksp_type", "symmlq");
         //PetscOptionsSetValue("-pc_type", "bjacobi");
         //PetscOptionsSetValue("-log_summary", "");
