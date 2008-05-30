@@ -63,7 +63,7 @@ def fasterSharedLibrary(env, library, sources, **args):
         catLink=env.Command(
 		'#linklib/${SHLIBPREFIX}%s${SHLIBSUFFIX}' % library[0],
                 '',
-                Copy('$TARGET', catLib[0]))
+                Copy('$TARGET', str(catLib[0])))
 
         #Dir('#lib')
         envContentSig.Depends(catLink, catIF)
