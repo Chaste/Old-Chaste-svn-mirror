@@ -74,6 +74,7 @@ public:
         // free memory and more importantly to force an error if someone accidentally 
         // uses it in this class
         this->mActiveTension.resize(mCellMechSystems.size());
+        this->InitialisePreconditionerMatrix();
     }
 
     ~ImplicitCardiacMechanicsAssembler()
@@ -136,6 +137,8 @@ private:
                            bool                  assembleJacobian
                           )
     {
+        assert(this->mpElementPreconditionMatrix != NULL);
+        
         // check these have been set
         assert(mCurrentTime != DBL_MAX);
         assert(mNextTime != DBL_MAX);
@@ -194,6 +197,7 @@ private:
         }
             
         elementMatrix = 0;
+        *(this->mpElementPreconditionMatrix) = 0;
         elementRhs = 0;
     
         fe_values.reinit(elementIter); // compute fe values for this element
@@ -457,10 +461,13 @@ private:
                                                        * fe_values.JxW(q_point);
                             }
                         }
-                        //else
-                        //{
+                        else
+                        {
+                            (*(this->mpElementPreconditionMatrix))(i,j) +=   fe_values.shape_value(i,q_point)
+                                                                           * fe_values.shape_value(j,q_point)
+                                                                           * fe_values.JxW(q_point);
                             // do nothing, ie elementMatrix(i,j)  +=  0 * fe_values.JxW(q_point);;
-                        //}
+                        }
                     }
                 }
                 
@@ -494,6 +501,14 @@ private:
             }
     
             this->mCurrentQuadPointGlobalIndex++;
+        }
+
+        for(unsigned i=0; i<this->mDofsPerElement; i++)
+        {
+            for(unsigned j=0; j<this->mDofsPerElement; j++)
+            {
+                (*(this->mpElementPreconditionMatrix))(i,j) += elementMatrix(i,j);
+            }
         }
         
         first = false;

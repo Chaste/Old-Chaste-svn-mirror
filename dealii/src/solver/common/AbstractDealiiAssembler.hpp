@@ -67,8 +67,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // for dealing with hanging nodes..
 #include <dofs/dof_constraints.h>
 
-
 #include <numerics/solution_transfer.h>
+
+#include <lac/sparse_ilu.h>
 
 #include <math.h>
 #include <iostream>
@@ -78,6 +79,35 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DofVertexIterator.hpp"
 #include "Timer.hpp"
 //#include "LinearSystem.hpp"
+
+
+template <class MATRIX>
+class MyIdentityPreconditioner
+{
+private:
+    unsigned mSize;
+
+public:
+    MyIdentityPreconditioner (const MATRIX& rMatrix)
+    {
+        mSize = rMatrix.m();
+    }
+    
+    void vmult (Vector<double>& result,
+                const Vector<double>& vector) const
+    {
+        // assert(mSize==vector.m());
+        result = vector;
+    }
+};
+
+
+
+
+
+
+
+
 
 /**
  *  Abstract assembler with common functionality for most assemblers.
@@ -115,6 +145,13 @@ protected:
     SparseMatrix<double> mSystemMatrix;
     
     /**
+     *  The matrix M such that M^{-1} is the preconditioner, i.e. a matrix similar 
+     *  to the system matrix. Only used if InitialisePreconditionerMatrix()
+     *  is called.
+     */
+    SparseMatrix<double> mInversePreconditioner; 
+
+    /**
      *  The main rhs vector. Eg the global load vector in a static linear problem, or
      *  the residual in a nonlinear problem
      */
@@ -133,6 +170,20 @@ protected:
      *  constructor of the concrete class
      */
     unsigned             mDofsPerElement;
+    
+    /** 
+     *  A second element matrix for which can be used to set up a system inverse
+     *  preconditioner matrix. Non-null if InitialisePreconditionerMatrix()
+     *  is called.
+     */
+    FullMatrix<double>*   mpElementPreconditionMatrix;
+    
+    /**
+     *  Whether an inverse preconditioner matrix is being set up, in which case
+     *  the ILU factorisation of it will be used in the GMRES solve(). Set to 
+     *  true if InitialisePreconditionerMatrix() is called.
+     */
+    bool                  mUsingPreconditionerMatrix;
     
     /** 
      *  The method RefineCoarsen in this class refines/coarsens the mesh according to whether 
@@ -162,6 +213,7 @@ protected:
                                    FullMatrix<double>&    elementMatrix,
                                    bool                   assembleVector,
                                    bool                   assembleMatrix)=0;
+
                                    
     /**
      *  A pure method which needs to implemented in the concrete class which 
@@ -179,7 +231,6 @@ protected:
      *  this->mDofHandler.distribute_dofs(mFe);
      */
     virtual void DistributeDofs()=0;
-
 
     /**
      *  Initialise the system matrix, system rhs vector, current solution vector, and 
@@ -219,6 +270,21 @@ protected:
         mRhsVector.reinit(mDofHandler.n_dofs());
     }
     
+    /** 
+     *  Call this if an inverse preconditioner matrix needs to be set up,
+     *  then set up mpElementPreconditionMatrix in AssembleOnElement().
+     *  It will be used to set up mInversePreconditioner, and the ILU
+     *  factorisation of this will be used in the GMRES solve.
+     */
+    void InitialisePreconditionerMatrix()
+    {
+        // make sure InitialiseMatricesVectorsAndConstraints() has been called first
+        assert(mRhsVector.size() > 0); 
+        mInversePreconditioner.reinit(mSparsityPattern);
+        mUsingPreconditionerMatrix = true;
+        mpElementPreconditionMatrix = new FullMatrix<double>(mDofsPerElement, mDofsPerElement);
+    }
+        
     
     /**
      *  AssembleSystem
@@ -245,6 +311,7 @@ protected:
 
         FullMatrix<double>   element_matrix(mDofsPerElement, mDofsPerElement);
         Vector<double>       element_rhs(mDofsPerElement);
+
         // the dofs associated with the nodes of an element
         std::vector<unsigned> local_dof_indices(mDofsPerElement);
         
@@ -277,7 +344,7 @@ protected:
                               element_matrix,
                               assembleVector,
                               assembleMatrix);
-            
+                    
             // add to the full matrix and vector
             for (unsigned i=0; i<mDofsPerElement; i++)
             {
@@ -288,6 +355,13 @@ protected:
                         mSystemMatrix.add(local_dof_indices[i],
                                           local_dof_indices[j],
                                           element_matrix(i,j));
+                        
+                        if(mUsingPreconditionerMatrix)
+                        {
+                            mInversePreconditioner.add(local_dof_indices[i],
+                                                       local_dof_indices[j],
+                                                       (*mpElementPreconditionMatrix)(i,j));
+                        }
                     }
                 }
 
@@ -321,6 +395,21 @@ protected:
                 EXCEPTION("Component of the system rhs vector became NaN - check for division by zero."); 
             }
         }
+        
+        static int num = 0;
+        std::stringstream file_name;
+        file_name << "matrix_" << num << ".txt";
+        OutputFileHandler handler("blah", false);
+        out_stream p_file = handler.OpenOutputFile(file_name.str());
+        for(unsigned i=0; i<mSystemMatrix.m(); i++)
+        {
+            for(unsigned j=0; j<mSystemMatrix.n(); j++)
+            {
+                *p_file << mSystemMatrix.el(i,j) << " ";
+            }
+            *p_file << "\n" << std::flush;
+        }
+        p_file->close();
     }
     
     /**
@@ -352,8 +441,14 @@ protected:
         Timer::Reset();
         AssembleSystem(true, true);
         Timer::PrintAndReset("AssembleSystem");
-        
+
         Precondition();
+        
+        SparseILU<double> ilu_preconditioner;
+        if(mUsingPreconditionerMatrix)
+        {
+            ilu_preconditioner.initialize(mInversePreconditioner,  SparseILU<double>::AdditionalData());
+        }
         Timer::PrintAndReset("Precondition");
 
         // DEAL.II doesn't seem to allow you to set an relative tolerance,
@@ -373,9 +468,18 @@ protected:
         SolverGMRES<>::AdditionalData gmres_additional_data(1000); //1000 is massive!! seems to be needed for cardiac
         SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);
 
-        gmres.solve(mSystemMatrix, update, mRhsVector, PreconditionIdentity());
+        if(mUsingPreconditionerMatrix)
+        {
+            gmres.solve(mSystemMatrix, update, mRhsVector, ilu_preconditioner);
+        }
+        else
+        {
+            gmres.solve(mSystemMatrix, update, mRhsVector, PreconditionIdentity());
+        }
+  
         Timer::PrintAndReset("Dealii solve");
 
+///* extra petsc code from here.. */
 //        assert(mRhsVector.size()>0);
 //        LinearSystem lin_sys(mRhsVector.size());
 //        for(unsigned i=0;i<mSystemMatrix.m();i++)
@@ -386,12 +490,12 @@ protected:
 //                {
 //                    lin_sys.SetMatrixElement(i,j,mSystemMatrix.el(i,j));
 //                }
-//            }           
+//            }
 //            lin_sys.SetRhsVectorElement(i,mRhsVector(i));
 //        }
 //        lin_sys.AssembleFinalLinearSystem();
 //        Timer::PrintAndReset("Copy");
-            
+//            
 //        KSP solver;
 //        PC  prec;
 //        Vec X;
@@ -405,14 +509,16 @@ protected:
 //        KSPGMRESSetRestart(solver,50);
 //    
 //        KSPGetPC(solver,&prec);
-//        PCSetType(prec,PCNONE);
+//        PCSetType(prec,PCILU);
+//        PCSetOperators(prec,lin_sys.rGetLhsMatrix(),lin_sys.rGetLhsMatrix(),DIFFERENT_NONZERO_PATTERN);
 //    
 //        KSPSetFromOptions(solver);
 //        KSPSetUp(solver);
 //    
 //        KSPSolve(solver,lin_sys.rGetRhsVector(),X);
 //        Timer::PrintAndReset("Chaste LinearSystem solve");
-
+//
+///* to here */
 
         // deal with hanging nodes - form a continuous solutions
         mHangingNodeConstraints.distribute(update);
@@ -479,6 +585,9 @@ public :
         // constructor of a concrete class using something like
         // mDofsPerElement = mFeSystem.dofs_per_cell;
         mDofsPerElement = 0;
+        
+        mpElementPreconditionMatrix = NULL;
+        mUsingPreconditionerMatrix = false;
     }
     
     

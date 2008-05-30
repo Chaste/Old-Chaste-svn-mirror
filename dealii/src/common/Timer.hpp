@@ -45,13 +45,14 @@ public:
     {
         StartTime = std::clock();
     }
+    
     static void Print(std::string message)
     {
-        std::cout << message << " time is "  
-                  << (std::clock() - StartTime)/(CLOCKS_PER_SEC) 
-                  << "s\n" << std::flush;
-        LOG(1,"    "<<message << " time is "<<(std::clock()-StartTime)/(CLOCKS_PER_SEC)<<"s");                  
+        double time = (std::clock() - StartTime)/(CLOCKS_PER_SEC+0.0); //0.0 is to ensure double division 
+        std::cout << message << " time is " << time << "s\n" << std::flush;
+        LOG(1,"    " << message << " time is "<< time <<"s");                  
     }
+    
     static void PrintAndReset(std::string message)
     {
         Print(message);

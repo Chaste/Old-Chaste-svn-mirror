@@ -94,7 +94,7 @@ public:
     }
     
     
-    void dontTest2dBasicRun() throw(Exception)
+    void Test2dBasicRun() throw(Exception)
     {
         PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 
@@ -110,7 +110,7 @@ public:
     }
         
 
-    void TestScaleCalcium() throw(Exception)
+    void dontTestScaleCalcium() throw(Exception)
     {
         EventHandler::Disable();
         
