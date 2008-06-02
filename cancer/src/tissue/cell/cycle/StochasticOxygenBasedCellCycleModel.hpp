@@ -95,10 +95,10 @@ private:
      * Private constructor for creating an identical daughter cell
      */
     StochasticOxygenBasedCellCycleModel(double g1Duration,
-									unsigned generation,
-                                    double currentHypoxicDuration,
-                                    double currentHypoxiaOnsetTime,
-                                    double g2Duration)
+                                        unsigned generation,
+                                        double currentHypoxicDuration,
+                                        double currentHypoxiaOnsetTime,
+                                        double g2Duration)
         : AbstractSimpleCellCycleModel(g1Duration,generation),
           mG2Duration(g2Duration),
           mTimeSpentInG1Phase(0.0),

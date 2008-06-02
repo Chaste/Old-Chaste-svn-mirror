@@ -366,11 +366,11 @@ public:
         
         // Check that the cell cycle phase and ready to divide
         // are updated correctly        
-        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),false);        
-        TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),M_PHASE);
+        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(), false);        
+        TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(), M_PHASE);
         
-        TS_ASSERT_EQUALS(p_diff_model->ReadyToDivide(),false);
-        TS_ASSERT_EQUALS(p_diff_model->GetCurrentCellCyclePhase(),G_ZERO_PHASE);
+        TS_ASSERT_EQUALS(p_diff_model->ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(p_diff_model->GetCurrentCellCyclePhase(), G_ZERO_PHASE);
 
         for (unsigned i=0; i<num_steps; i++)
         {
@@ -381,17 +381,19 @@ public:
         }
         
         TS_ASSERT_DELTA(p_hepa_one_model->GetAge(), p_simulation_time->GetDimensionalisedTime(), 1e-9);
-        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),true);  
+        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(), true);
+        
+        // Coverage
+        TS_ASSERT_EQUALS(hepa_one_cell.ReadyToDivide(), true);
+        TissueCell hepa_one_cell_divide = hepa_one_cell.Divide();
 
         // Check that cell division correctly resets the cell cycle phase
         StochasticOxygenBasedCellCycleModel *p_hepa_one_model2 = static_cast <StochasticOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateCellCycleModel());
-        
+                
         TissueCell hepa_one_cell2(STEM, HEALTHY, p_hepa_one_model2);
         TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);        
         TS_ASSERT_EQUALS(p_hepa_one_model2->GetCurrentCellCyclePhase(), M_PHASE);
-        
-        TS_ASSERT_THROWS_NOTHING(p_hepa_one_model->ResetForDivision());     
-        
+
         // Set up SimulationTime         
         SimulationTime::Destroy();
         p_simulation_time = SimulationTime::Instance();                  
