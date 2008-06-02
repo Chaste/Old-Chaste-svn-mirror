@@ -843,7 +843,10 @@ void TissueSimulation<DIM>::Solve()
         // has been any cell birth or cell death.        
         if (mrTissue.HasMesh())
         {
-            assert(mReMesh);
+            //This assertion is not necessarily true
+            //assert(mReMesh);
+            //See TestCryptSimulation2dNightly::Test2DSpringSystem where the 
+            //default value is over-written
         }
         else
         {
@@ -942,7 +945,10 @@ void TissueSimulation<DIM>::AfterSolve()
     // Carry out a final remesh if necessary
     if (mrTissue.HasMesh())
     {
-        assert(mReMesh);
+        //This assertion is not necessarily true
+        //assert(mReMesh);
+        //See TestCryptSimulation2dNightly::Test2DSpringSystem where the 
+        //default value is over-written
     }
     else
     {

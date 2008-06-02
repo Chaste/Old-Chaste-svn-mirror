@@ -33,13 +33,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.StringTokenizer;
 import java.lang.Math;
 import javax.imageio.ImageIO;
 
-import javax.swing.Box;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 
@@ -644,7 +641,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     String parameter = st_setup.nextToken();
                     if (parameter.equals("MeshWidth"))  
                     {
-                        crypt_width = Double.valueOf(st_setup.nextToken());
+                        crypt_width = Double.valueOf(st_setup.nextToken()).doubleValue();
                         half_width = crypt_width/2.0;
                         System.out.println("Mesh Width = " + crypt_width);
                         drawCylinder = true && drawCylinderOverride;    // this is made true only if mesh width exists
@@ -677,7 +674,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         	}
         }             
         
-        Visualize2dCells vis = new Visualize2dCells();
+        final Visualize2dCells vis = new Visualize2dCells();
 
         LoadAllFiles();
         
@@ -826,6 +823,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 {
                     st_fibre = new StringTokenizer(line_fibre);
                     Double fibre_time = Double.valueOf(st_fibre.nextToken());
+                    //fibre_time unused
                 }
                 
                 if (drawNutrient)
@@ -865,7 +863,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 if ((drawAverageStress || drawDifferenceStress) && !has_stress_line_been_read)
                 {
                     st_stress = new StringTokenizer(line_stress);
-                    stress_time = Double.valueOf(st_stress.nextToken());
+                    stress_time = Double.valueOf(st_stress.nextToken()).doubleValue();
                     
                     // Count the number of entries in the bcat file to get num non ghosts and check correct 
 		            int stress_entries = st_stress.countTokens();
@@ -880,9 +878,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 
                 if (elementFilePresent)
                 {
-                    Double element_time = Double.valueOf(st_element.nextToken());
+                    double element_time = Double.valueOf(st_element.nextToken()).doubleValue();
                     
-                    if (Math.abs(time - element_time) > 1e-6) 
+                    if (Math.abs(time.doubleValue() - element_time) > 1e-6) 
                     {
                     	throw new Exception("Error: The time corresponding to each line of the element file must match that of the node file");
                     }               	
@@ -980,8 +978,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     {	// If this is a real cell then read in ancestor from row
                     	if (cell_type[row][i]!=canvas.INVISIBLE_COLOUR)	// if this is not a ghost cell
                     	{
-                    		String skip; // skips past unnecessary information
-                        	int ancestor_value = Integer.parseInt(st_ancestors.nextToken()); // index
+                    		int ancestor_value = Integer.parseInt(st_ancestors.nextToken()); // index
                         	ancestor_values[row][i] = ancestor_value;
                         }
                     }	
@@ -1306,7 +1303,8 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         
         if (vis.writeFiles)
         {
-            String filename = String.format("image%1$05d.png", vis.timeStep);
+        	//String filename = String.format("image%1$05d.png", vis.timeStep); //Pre Java-1.6
+        	String filename = String.format("image%1$05d.png", new Object[] {new Integer(vis.timeStep)});
             System.out.println("Writing file : "+filename+".");
             File f = new File(filename);
             try 
@@ -1336,8 +1334,6 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         }
         imageReady = false;
         
-        int old_x = -1;
-        int old_y = -1;
         int tick_length = 10;
         
         vis.time_slider.setValue(vis.timeStep); 
