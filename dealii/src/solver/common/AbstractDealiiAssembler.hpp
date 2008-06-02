@@ -69,7 +69,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <numerics/solution_transfer.h>
 
-#include <lac/sparse_ilu.h>
+//#include <lac/sparse_ilu.h>
 
 #include <math.h>
 #include <iostream>
@@ -78,33 +78,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
 #include "Timer.hpp"
-//#include "LinearSystem.hpp"
 
-
-template <class MATRIX>
-class MyIdentityPreconditioner
-{
-private:
-    unsigned mSize;
-
-public:
-    MyIdentityPreconditioner (const MATRIX& rMatrix)
-    {
-        mSize = rMatrix.m();
-    }
-    
-    void vmult (Vector<double>& result,
-                const Vector<double>& vector) const
-    {
-        // assert(mSize==vector.m());
-        result = vector;
-    }
-};
-
-
-
-
-
+#include <lac/sparse_direct.h>
 
 
 
@@ -145,13 +120,6 @@ protected:
     SparseMatrix<double> mSystemMatrix;
     
     /**
-     *  The matrix M such that M^{-1} is the preconditioner, i.e. a matrix similar 
-     *  to the system matrix. Only used if InitialisePreconditionerMatrix()
-     *  is called.
-     */
-    SparseMatrix<double> mInversePreconditioner; 
-
-    /**
      *  The main rhs vector. Eg the global load vector in a static linear problem, or
      *  the residual in a nonlinear problem
      */
@@ -171,19 +139,27 @@ protected:
      */
     unsigned             mDofsPerElement;
     
-    /** 
-     *  A second element matrix for which can be used to set up a system inverse
-     *  preconditioner matrix. Non-null if InitialisePreconditionerMatrix()
-     *  is called.
-     */
-    FullMatrix<double>*   mpElementPreconditionMatrix;
-    
-    /**
-     *  Whether an inverse preconditioner matrix is being set up, in which case
-     *  the ILU factorisation of it will be used in the GMRES solve(). Set to 
-     *  true if InitialisePreconditionerMatrix() is called.
-     */
-    bool                  mUsingPreconditionerMatrix;
+
+//    /**
+//     *  The matrix M such that M^{-1} is the preconditioner, i.e. a matrix similar 
+//     *  to the system matrix. Only used if InitialisePreconditionerMatrix()
+//     *  is called.
+//     */
+//    SparseMatrix<double> mInversePreconditioner; 
+//
+//    /** 
+//     *  A second element matrix for which can be used to set up a system inverse
+//     *  preconditioner matrix. Non-null if InitialisePreconditionerMatrix()
+//     *  is called.
+//     */
+//    FullMatrix<double>*   mpElementPreconditionMatrix;
+//    
+//    /**
+//     *  Whether an inverse preconditioner matrix is being set up, in which case
+//     *  the ILU factorisation of it will be used in the GMRES solve(). Set to 
+//     *  true if InitialisePreconditionerMatrix() is called.
+//     */
+//    bool                  mUsingPreconditionerMatrix;
     
     /** 
      *  The method RefineCoarsen in this class refines/coarsens the mesh according to whether 
@@ -195,6 +171,14 @@ protected:
      *  x(i)=value for x at vertex i. It will be linearly interpolated
      */
     std::vector<Vector<double>*> mVectorsToInterpolate;
+ 
+    
+    /** 
+     *  Use the direct SparseDirectUMFPACK solver for cardiac problems. See comments
+     *  for UseDirectSolver().
+     */
+    bool mUseDirectSolver;
+
  
     /**
      *  The main function to be implemented in the concrete class
@@ -258,8 +242,7 @@ protected:
         
         // see dealii tutorial 2
         mHangingNodeConstraints.condense(mSparsityPattern);
-        
-        
+
         mSparsityPattern.compress();
         
         // initialise vectors and matrices
@@ -270,20 +253,22 @@ protected:
         mRhsVector.reinit(mDofHandler.n_dofs());
     }
     
-    /** 
-     *  Call this if an inverse preconditioner matrix needs to be set up,
-     *  then set up mpElementPreconditionMatrix in AssembleOnElement().
-     *  It will be used to set up mInversePreconditioner, and the ILU
-     *  factorisation of this will be used in the GMRES solve.
-     */
-    void InitialisePreconditionerMatrix()
-    {
-        // make sure InitialiseMatricesVectorsAndConstraints() has been called first
-        assert(mRhsVector.size() > 0); 
-        mInversePreconditioner.reinit(mSparsityPattern);
-        mUsingPreconditionerMatrix = true;
-        mpElementPreconditionMatrix = new FullMatrix<double>(mDofsPerElement, mDofsPerElement);
-    }
+//    /** 
+//     *  Call this if an inverse preconditioner matrix needs to be set up,
+//     *  then set up mpElementPreconditionMatrix in AssembleOnElement().
+//     *  It will be used to set up mInversePreconditioner, and the ILU
+//     *  factorisation of this will be used in the GMRES solve.
+//     */
+//    void InitialisePreconditionerMatrix()
+//    {
+//        LOG_AND_COUT(1,"USING PRECONDITIONER\n");
+//        
+//        // make sure InitialiseMatricesVectorsAndConstraints() has been called first
+//        assert(mRhsVector.size() > 0); 
+//        mInversePreconditioner.reinit(mSparsityPattern);
+//        mUsingPreconditionerMatrix = true;
+//        mpElementPreconditionMatrix = new FullMatrix<double>(mDofsPerElement, mDofsPerElement);
+//    }
         
     
     /**
@@ -326,6 +311,7 @@ protected:
         {
             mSystemMatrix = 0;
         }
+        
                 
         //unsigned elem_counter = 0;
         
@@ -355,13 +341,6 @@ protected:
                         mSystemMatrix.add(local_dof_indices[i],
                                           local_dof_indices[j],
                                           element_matrix(i,j));
-                        
-                        if(mUsingPreconditionerMatrix)
-                        {
-                            mInversePreconditioner.add(local_dof_indices[i],
-                                                       local_dof_indices[j],
-                                                       (*mpElementPreconditionMatrix)(i,j));
-                        }
                     }
                 }
 
@@ -395,21 +374,6 @@ protected:
                 EXCEPTION("Component of the system rhs vector became NaN - check for division by zero."); 
             }
         }
-        
-        static int num = 0;
-        std::stringstream file_name;
-        file_name << "matrix_" << num << ".txt";
-        OutputFileHandler handler("blah", false);
-        out_stream p_file = handler.OpenOutputFile(file_name.str());
-        for(unsigned i=0; i<mSystemMatrix.m(); i++)
-        {
-            for(unsigned j=0; j<mSystemMatrix.n(); j++)
-            {
-                *p_file << mSystemMatrix.el(i,j) << " ";
-            }
-            *p_file << "\n" << std::flush;
-        }
-        p_file->close();
     }
     
     /**
@@ -442,83 +406,129 @@ protected:
         AssembleSystem(true, true);
         Timer::PrintAndReset("AssembleSystem");
 
-        Precondition();
-        
-        SparseILU<double> ilu_preconditioner;
-        if(mUsingPreconditionerMatrix)
-        {
-            ilu_preconditioner.initialize(mInversePreconditioner,  SparseILU<double>::AdditionalData());
-        }
-        Timer::PrintAndReset("Precondition");
-
-        // DEAL.II doesn't seem to allow you to set an relative tolerance,
-        // so we do so explicitly by working out what the corresponding 
-        // absolute tolerance for our chosen relative tol should be
-        double rel_tol = 1e-4;
-        double norm_rhs_vec = CalculateResidualNorm()*mDofHandler.n_dofs(); // have verified this is what deal.ii uses too
-        double abs_tol = rel_tol * norm_rhs_vec;
-
-        // solve the linear system
-        SolverControl  solver_control(200000, abs_tol, false, true);
-        PrimitiveVectorMemory<> vector_memory;
-        
         Vector<double> update;
         update.reinit(mDofHandler.n_dofs());
-        
-        SolverGMRES<>::AdditionalData gmres_additional_data(1000); //1000 is massive!! seems to be needed for cardiac
-        SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);
 
-        if(mUsingPreconditionerMatrix)
+        if(!mUseDirectSolver)
         {
-            gmres.solve(mSystemMatrix, update, mRhsVector, ilu_preconditioner);
+            Precondition();
+            Timer::PrintAndReset("Precondition");
+
+            // DEAL.II doesn't seem to allow you to set an relative tolerance,
+            // so we do so explicitly by working out what the corresponding 
+            // absolute tolerance for our chosen relative tol should be
+            double rel_tol = 1e-4;
+            double norm_rhs_vec = CalculateResidualNorm()*mDofHandler.n_dofs(); // have verified this is what deal.ii uses too
+            double abs_tol = rel_tol * norm_rhs_vec;
+
+            // solve the linear system
+            SolverControl  solver_control(200000, abs_tol, false, true);//false, true
+            PrimitiveVectorMemory<> vector_memory;
+        
+            SolverGMRES<>::AdditionalData gmres_additional_data(1000); //1000 is massive!! seems to be needed for cardiac
+            SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);
+
+            gmres.solve(mSystemMatrix, update, mRhsVector, PreconditionIdentity());
+            Timer::PrintAndReset("Dealii GMRES solve");
         }
         else
         {
-            gmres.solve(mSystemMatrix, update, mRhsVector, PreconditionIdentity());
-        }
-  
-        Timer::PrintAndReset("Dealii solve");
+            SparseDirectUMFPACK direct_solver;
+            direct_solver.initialize(mSystemMatrix);
+            direct_solver.vmult (update, mRhsVector);
+            Timer::PrintAndReset("Dealii direct UMFPACK solve");
 
-///* extra petsc code from here.. */
-//        assert(mRhsVector.size()>0);
-//        LinearSystem lin_sys(mRhsVector.size());
-//        for(unsigned i=0;i<mSystemMatrix.m();i++)
+            //// if UMFPACK isn't installed the answer will just be all wrong -
+            //// this can be used to check
+            //std::cout << "|b| = " << mRhsVector.l2_norm() << "\n";
+            //Vector<double> temp;
+            //temp.reinit(mDofHandler.n_dofs());
+            //mSystemMatrix.vmult(temp, update);
+            //temp.add(-1.0, mRhsVector);
+            //std::cout << "residual from direct solve = " << temp.l2_norm() << "\n";
+        }
+        
+
+
+
+/* testing petsc code from here.. */
+//        Mat J,Jp;
+//        PetscTools::SetupMat(J, mRhsVector.size(), mRhsVector.size(), MATSEQAIJ);
+//        PetscTools::SetupMat(Jp, mRhsVector.size(), mRhsVector.size(), MATSEQAIJ);
+//        
+//        Vec rhs;
+//        VecCreateSeq(PETSC_COMM_SELF,mRhsVector.size(),&rhs);
+//
+//        for(int i=0;i<mSystemMatrix.m();i++)
 //        {
-//            for(unsigned j=0;j<mSystemMatrix.n();j++)
+//            if(i%50==0)
+//            {
+//                std::cout << i << "/" << mSystemMatrix.m() << "\r" << std::flush;
+//            }
+//            for(int j=0;j<mSystemMatrix.n();j++)
 //            {
 //                if(fabs(mSystemMatrix.el(i,j)) > 1e-12)
 //                {
-//                    lin_sys.SetMatrixElement(i,j,mSystemMatrix.el(i,j));
+//                    double v1 = mSystemMatrix.el(i,j);
+//                    double v2 = mInversePreconditioner.el(i,j);
+//                    MatSetValue(J, i, j, v1, INSERT_VALUES);
+//                    MatSetValue(Jp,i, j, v2, INSERT_VALUES);
 //                }
 //            }
-//            lin_sys.SetRhsVectorElement(i,mRhsVector(i));
+//            double z = mRhsVector(i);
+//            VecSetValue(rhs, i, z, INSERT_VALUES);
 //        }
-//        lin_sys.AssembleFinalLinearSystem();
+//
+//        MatAssemblyBegin(J,MAT_FINAL_ASSEMBLY);
+//        MatAssemblyEnd(J,MAT_FINAL_ASSEMBLY);
+//
+//        MatAssemblyBegin(Jp,MAT_FINAL_ASSEMBLY);
+//        MatAssemblyEnd(Jp,MAT_FINAL_ASSEMBLY);
+//
+//        VecAssemblyBegin(rhs);
+//        VecAssemblyEnd(rhs);
+//
 //        Timer::PrintAndReset("Copy");
 //            
 //        KSP solver;
 //        PC  prec;
 //        Vec X;
-//        VecDuplicate(lin_sys.rGetRhsVector(),&X);
+//        VecDuplicate(rhs,&X);
 //        
 //        KSPCreate(MPI_COMM_SELF,&solver);
-//        KSPSetOperators(solver,lin_sys.rGetLhsMatrix(),lin_sys.rGetLhsMatrix(),SAME_NONZERO_PATTERN);
+//        if(mUsingPreconditionerMatrix)
+//        {
+//            KSPSetOperators(solver,J,Jp,SAME_NONZERO_PATTERN);
+//        }
+//        else
+//        {
+//            KSPSetOperators(solver,J,J,SAME_NONZERO_PATTERN);
+//        }
+//
 //        KSPSetTolerances(solver, rel_tol, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
 //            
 //        KSPSetType(solver,KSPGMRES);
 //        KSPGMRESSetRestart(solver,50);
 //    
-//        KSPGetPC(solver,&prec);
-//        PCSetType(prec,PCILU);
-//        PCSetOperators(prec,lin_sys.rGetLhsMatrix(),lin_sys.rGetLhsMatrix(),DIFFERENT_NONZERO_PATTERN);
-//    
+//        if(!mUsingPreconditionerMatrix)
+//        {
+//            KSPGetPC(solver,&prec);
+//            PCSetType(prec,PCNONE);
+//        }
+//        else
+//        {
+//            KSPGetPC(solver,&prec);
+//            PCSetType(prec,PCLU);
+//        }
+//            
+//
 //        KSPSetFromOptions(solver);
 //        KSPSetUp(solver);
 //    
-//        KSPSolve(solver,lin_sys.rGetRhsVector(),X);
+//        KSPSolve(solver,rhs,X);
 //        Timer::PrintAndReset("Chaste LinearSystem solve");
 //
-///* to here */
+/* to here */
 
         // deal with hanging nodes - form a continuous solutions
         mHangingNodeConstraints.distribute(update);
@@ -554,7 +564,6 @@ protected:
             }
         }
         
-        
         if (best_damping_value == 0.0)
         {
             #define COVERAGE_IGNORE
@@ -566,6 +575,7 @@ protected:
         {
             std::cout << "\tBest s = " << best_damping_value << "\n"  << std::flush;
         }
+
         // implement best update and recalculate residual
         mCurrentSolution.equ(1.0, old_solution, -best_damping_value, update);
     }    
@@ -586,8 +596,7 @@ public :
         // mDofsPerElement = mFeSystem.dofs_per_cell;
         mDofsPerElement = 0;
         
-        mpElementPreconditionMatrix = NULL;
-        mUsingPreconditionerMatrix = false;
+        mUseDirectSolver = false;
     }
     
     
@@ -766,6 +775,10 @@ public :
     virtual ~AbstractDealiiAssembler()
     {}
     
+    
+    /** 
+     *  Simple scaling of each row by it's max value
+     */ 
     void Precondition()
     {
         for(unsigned i=0;i<mSystemMatrix.m();i++)
@@ -791,6 +804,18 @@ public :
             mRhsVector(i) /= max_val;
         }  
     }
+
+    /** 
+     *  Use the direct SparseDirectUMFPACK solver for cardiac problems, instead
+     *  of GMRES. Not used by default was UMFPACK not installed on all machines yet,
+     *  (note UMFPACK has its own licence). Note that the direct solver is
+     *  MUCH better than than GMRES (eg 30s for a GMRES solve on a 40 by 40 mesh,
+     *  30s for a direct solve on a 100 by 100 mesh).
+     */
+     void UseDirectSolver()
+     {
+        mUseDirectSolver = true;
+     }
 };
 
 #endif /*ABSTRACTDEALIIASSEMBLER_HPP_*/

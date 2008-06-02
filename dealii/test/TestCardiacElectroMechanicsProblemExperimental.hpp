@@ -100,41 +100,42 @@ public:
 
         CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
                                                            200,  // end time of 200ms
-                                                           10,   // 10 mech elements in 1cm by 1cm square
+                                                           40,   // 10 mech elements in 1cm by 1cm square
                                                            false,// use implicit method 
                                                            100,  // 100 mech times per elec timestep, ie mech_dt = 1ms
                                                            1,    // nhs_dt = 1ms
                                                            "CardiacElectroMechBasic");
         implicit_problem.SetNoElectricsOutput();
+        implicit_problem.UseDirectLinearSolver();
         implicit_problem.Solve();
     }
         
 
-    void dontTestScaleCalcium() throw(Exception)
-    {
-        EventHandler::Disable();
-        
-        double calcium_scale_factors[8] = {0.9, 0.95, 0.99, 1.0, 1.01, 1.05, 1.1, 2};
-
-        for(unsigned i=0; i<8; i++)
-        {
-            std::stringstream name;
-            name << "CardiacElectroMechScaleCalcium/" << calcium_scale_factors[i];
-
-            PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
-    
-            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
-                                                               200,  // end time of 200ms
-                                                               10,   // 10 mech elements in 1cm by 1cm square
-                                                               false,// use implicit method 
-                                                               100,  // 100 mech times per elec timestep, ie mech_dt = 1ms
-                                                               1,    // nhs_dt = 1ms
-                                                               name.str(),
-                                                               calcium_scale_factors[i]);
-            implicit_problem.SetNoElectricsOutput();
-            implicit_problem.Solve();
-        }
-    }
+//    void dontTestScaleCalcium() throw(Exception)
+//    {
+//        EventHandler::Disable();
+//        
+//        double calcium_scale_factors[8] = {0.9, 0.95, 0.99, 1.0, 1.01, 1.05, 1.1, 2};
+//
+//        for(unsigned i=0; i<8; i++)
+//        {
+//            std::stringstream name;
+//            name << "CardiacElectroMechScaleCalcium/" << calcium_scale_factors[i];
+//
+//            PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
+//    
+//            CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
+//                                                               200,  // end time of 200ms
+//                                                               10,   // 10 mech elements in 1cm by 1cm square
+//                                                               false,// use implicit method 
+//                                                               100,  // 100 mech times per elec timestep, ie mech_dt = 1ms
+//                                                               1,    // nhs_dt = 1ms
+//                                                               name.str(),
+//                                                               calcium_scale_factors[i]);
+//            implicit_problem.SetNoElectricsOutput();
+//            implicit_problem.Solve();
+//        }
+//    }
 
     
     

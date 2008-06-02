@@ -153,7 +153,8 @@ protected :
     /*< when to write output */    
     const static int WRITE_EVERY_NTH_TIME = 1; 
     
-    double mCalciumScaleFactor;
+    bool mUseDirectLinearSolver;
+    
     
     /**
      *  A pure method constructing the mechanics assembler 
@@ -182,8 +183,7 @@ public :
                                            bool useExplicitMethod,
                                            unsigned numElecStepsPerMechStep,
                                            double nhsOdeTimeStep,
-                                           std::string outputDirectory = "",
-                                           double calciumScaleFactor = 1.0)
+                                           std::string outputDirectory = "")
     {
         // create the monodomain problem. Note the we use this to set up the cells,
         // get an initial condition (voltage) vector, and get an assembler. We won't
@@ -246,8 +246,9 @@ public :
             LOG(1, "Solving with implicit method..");
         }        
         
-        assert(calciumScaleFactor > 0.0);
-        mCalciumScaleFactor = calciumScaleFactor;
+        // by default we don't use the direct solver, as not all machines are
+        // set up to use UMFPACK yet. However, it is MUCH better than GMRES.
+        mUseDirectLinearSolver = false;
     }   
     
     virtual ~AbstractCardiacElectroMechanicsProblem()
@@ -293,6 +294,12 @@ public :
 
         // construct mechanics assembler 
         ConstructMechanicsAssembler(mDeformationOutputDirectory);
+        if(mUseDirectLinearSolver)
+        {
+            // dodgy static case, obviously will break if UseDirectLinearSolver
+            // is called with the 1d stuff
+            dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->UseDirectSolver();
+        }
 
         // find the element nums and weights for each gauss point in the mechanics mesh
         mElementAndWeightsForQuadPoints.resize(mpCardiacMechAssembler->GetTotalNumQuadPoints());
@@ -473,7 +480,6 @@ public :
                 else
                 {
                     // implicit: forcing quantity on the assembler is the calcium concentration
-                    interpolated_Ca_I *= mCalciumScaleFactor;
                     forcing_quantity[i] = interpolated_Ca_I;
                 }
             }
@@ -600,6 +606,14 @@ public :
     {
         mNoElectricsOutput = true;
     }
+    
+    /** Use the direct solver when solving linear systems in the 
+     *  mechanics. DEFINITELY should be used in experimental work.
+     */
+    void UseDirectLinearSolver()
+    {
+        mUseDirectLinearSolver = true;
+    } 
 };
 
 
