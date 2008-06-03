@@ -197,9 +197,8 @@ public:
         
         for(unsigned i=0; i<position1[0].size(); i++)
         {
-           // values changed a bit after adding preconditioner (??)
-           // TS_ASSERT_DELTA(position1[0](i), position2[0](i), 6e-5);
-           // TS_ASSERT_DELTA(position1[1](i), position2[1](i), 6e-5);
+           TS_ASSERT_DELTA(position1[0](i), position2[0](i), 6e-5);
+           TS_ASSERT_DELTA(position1[1](i), position2[1](i), 6e-5);
         }
     }
 };
