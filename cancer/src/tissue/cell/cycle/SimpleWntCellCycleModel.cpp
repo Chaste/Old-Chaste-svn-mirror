@@ -45,23 +45,29 @@ void SimpleWntCellCycleModel::SetG1Duration()
         case STEM:
             if (mUseCellTypeDependentG1Duration)
             {
-                mG1Duration = p_gen->NormalRandomDeviate(p_params->GetStemCellG1Duration(),1.0);
+                mG1Duration = p_gen->NormalRandomDeviate(p_params->GetStemCellG1Duration(), 1.0);
             }
             else
             {
                 // Normally STEM cells should behave just like transit cells in a Wnt simulation
-                mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(),1.0);
+                mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(), 1.0);
             }
             break;
         case TRANSIT:
-            mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(),1.0);
+            mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(), 1.0);
             break;
         case DIFFERENTIATED:
             mG1Duration = DBL_MAX;
             break;
         default:
             NEVER_REACHED;
-    }       
+    }
+    
+    // Check that the normal random deviate has not returned a small or negative G1 duration
+    if (mG1Duration < p_params->GetMinimumGapDuration())
+    {
+        mG1Duration = p_params->GetMinimumGapDuration();
+    }
 }
 
 void SimpleWntCellCycleModel::UpdateCellCyclePhase()

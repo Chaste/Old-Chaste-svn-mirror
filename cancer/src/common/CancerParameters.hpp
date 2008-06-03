@@ -47,6 +47,7 @@ public:
     double GetStemCellG1Duration();
     double GetTransitCellG1Duration();
     double GetHepaOneCellG1Duration();
+    double GetMinimumGapDuration();
     double GetSG2MDuration();    
     double GetSDuration();
     double GetG2Duration();
@@ -79,7 +80,8 @@ public:
      */ 
     void SetStemCellG1Duration(double);
     void SetTransitCellG1Duration(double);
-    void SetHepaOneCellG1Duration(double);    
+    void SetHepaOneCellG1Duration(double);
+    void SetMinimumGapDuration(double);
     void SetSDuration(double);
     void SetG2Duration(double);
     void SetMDuration(double);    
@@ -123,38 +125,43 @@ private:
     static CancerParameters *mpInstance;
     
     /**
-     * Stem cell cycle time, used to non-dimensionalise the problem
+     * Duration of G1 phase for stem cells.
+     * May be used as a mean duration for stochastic cell cycle models.
+     * 
      */
     double mStemCellG1Duration;
 
     /**
-     * Transit cell cycle time.
-     * May be used as a mean time for stochastic cell cycle models.
-     * Should probably be non-dimensionalised with stem cell cycle time (ticket:204)
+     * Duration of G1 phase for transit cells.
+     * May be used as a mean duration for stochastic cell cycle models.
      */
     double mTransitCellG1Duration;    
 
     /**
-     * HEPA-1 cell cycle time. 
-     * For use in monolayer/spheroid simulations.
-     * May be used as a mean time for stochastic cell cycle models.
+     * Duration of G1 phase for HEPA-1 cells, for use in monolayer/spheroid simulations.
+     * May be used as a mean duration for stochastic cell cycle models.
      */
-    double mHepaOneCellG1Duration;  
-      
+    double mHepaOneCellG1Duration;
+
     /**
-     * S Phase Duration, currently for all cell cycle models except T&N.
+     * Minimum possbile duration of either of the gap phases (G1 or G2).
+     * Used to guarantee a strictly positive duration in cell cycle models that 
+     * use normal random deviates for G1 or G2 phases.
+     */
+    double mMinimumGapDuration;
+
+    /**
+     * Duration of S phase for all cell types.
      */
     double mSDuration;
     
     /**
-     * G2 Phase Duration.
-     * Used by the cell cycle models.
+     * Duration of G2 phase for all cell types.
      */
     double mG2Duration;
     
     /**
-     * M Phase Duration.
-     * Used by the cell cycle models, and the mDivisionPairs methods.
+     * Duration of M phase for all cell types.
      */
     double mMDuration;
     
@@ -164,29 +171,31 @@ private:
     unsigned mMaxTransitGenerations;
     
     /**
-     * The non-dimensionalised (with cell length) length of the crypt.
-     * This determines when cells are sloughed from the crypt.
+     * The length of the crypt, non-dimensionalised with cell length.
+     * This parameter determines when cells are sloughed from the crypt.
      */
     double mCryptLength;
     
     /**
-    * The non-dimensionalised (with cell length) width of the crypt.
-    * This determines when cells are sloughed from the crypt. in 2D
+    * The width of the crypt, non-dimensionalised with cell length.
+    * This determines when cells are sloughed from the crypt in 2D.
     */
     double mCryptWidth;
     
     /**
-     * Spring stiffness represented by mu in Meineke
+     * Spring stiffness.
+     * Represented by the parameter mu in the model by Meineke et al (2001).
      */
     double mSpringStiffness;
     
     /**
-     * Damping constant for normal cells, eta in Meineke
+     * Damping constant for normal cells.
+     * Represented by the parameter eta in the model by Meineke et al (2001).
      */
     double mDampingConstantNormal;
     
     /**
-     * Damping constant for mutant cells, eta in Meineke
+     * Damping constant for mutant cells.
      */
     double mDampingConstantMutant;
     
@@ -196,83 +205,86 @@ private:
     double mBetaCatSpringScaler;
     
     /**
-     * The time it takes to fully undergo apoptosis
+     * The time it takes for a cell to fully undergo apoptosis
      */
     double mApoptosisTime;
     
     /**
-     * Initial separation placement of mother/daughter at birth
+     * Initial separation placement of mother/daughter cells at birth
      */
     double mDivisionSeparation;
     
     /**
-     * Initial resting spring length after division (should be longer than 
-     * mDivisionSeparation because of pressure from neighbouring springs)
+     * Initial resting spring length after cell division.
+     * The value of thiis parameter should be larger than mDivisionSeparation, 
+     * because of pressure from neighbouring springs.
      */
     double mDivisionRestingSpringLength;
     
     /**
-     * Non-dimensionalized oxygen concentration below which HEPA-1 cells are hypoxic.
+     * Non-dimensionalized oxygen concentration below which HEPA-1 cells are 
+     * considered to be hypoxic.
      * A prolonged period of hypoxia causes the cell to become necrotic. 
      */
     double mHepaOneCellHypoxicConcentration;
     
     /**
-     * Non-dimensionalized oxygen concentration below which HEPA-1 cells slow their
-     * progress through the G1 phase of the cell cycle.
+     * Non-dimensionalized oxygen concentration below which HEPA-1 cells are
+     * considered to be quiescent and slow their progress through the G1 phase 
+     * of the cell cycle.
      */
     double mHepaOneCellQuiescentConcentration;
       
     /**
-     * Non-dimensionalized Wnt threshold, above which cells cycle
+     * Non-dimensionalized Wnt threshold, above which cells progress through the cell cycle.
      */
     double mWntTransitThreshold;
     
     /**
-     * Non-dimensionalized Wnt threshold, above which cells behave as stem cells
+     * Non-dimensionalized Wnt threshold, above which cells behave as stem cells.
      */
     double mWntStemThreshold;
     
     /**
-     * The proportion of the crypt that has a Wnt gradient
-     * (i.e. the Wnt value goes to zero at this height up the crypt)
+     * The proportion of the crypt that has a Wnt gradient.
+     * The Wnt concentration goes to zero at this height up the crypt.
      */
     double mTopOfLinearWntConcentration;
     
     /**
-     * Non-dimensionalized critical hypoxic duration
+     * Non-dimensionalized critical hypoxic duration.
      */
     double mCriticalHypoxicDuration;
     
     /**
      * Parameter a, for use in crypt projection simulations, in which the crypt 
-     * surface is given in cylindrical polar coordinates by z = a*r^b 
+     * surface is given in cylindrical polar coordinates by z = a*r^b.
      */
     double mCryptProjectionParameterA;
     
     /**
      * Parameter b, for use in crypt projection simulations, in which the crypt 
-     * surface is given in cylindrical polar coordinates by z = a*r^b 
+     * surface is given in cylindrical polar coordinates by z = a*r^b.
      */
     double mCryptProjectionParameterB;
     
     /**
-     * Non-dimensionalized 'stiffness' of a necrotic cell under tension
+     * Non-dimensionalized 'stiffness' of a necrotic cell under tension.
      */
     double mNecroticSpringTensionStiffness;
     
     /**
-     * Non-dimensionalized 'stiffness' of a necrotic cell under compression
+     * Non-dimensionalized 'stiffness' of a necrotic cell under compression.
      */
     double mNecroticSpringCompressionStiffness;
     
     /**
-     * Strength of Wnt chemotactic force
+     * Strength of Wnt-based chemotactic force.
      */
     double mWntChemotaxisStrength;
     
     /**
-     * Probability of symmetric division
+     * Probability of symmetric division.
      */
     double mSymmetricDivisionProbability;
       
@@ -287,7 +299,8 @@ private:
     {
         archive & mStemCellG1Duration;
         archive & mTransitCellG1Duration;
-        archive & mHepaOneCellG1Duration;       
+        archive & mHepaOneCellG1Duration;
+        archive & mMinimumGapDuration;
         archive & mSDuration;
         archive & mG2Duration;
         archive & mMDuration;                       

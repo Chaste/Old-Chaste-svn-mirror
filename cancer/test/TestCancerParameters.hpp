@@ -52,6 +52,7 @@ private:
         TS_ASSERT_DELTA(inst->GetStemCellG1Duration(), 14.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetTransitCellG1Duration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetHepaOneCellG1Duration(), 8.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetMinimumGapDuration(), 0.01, 1e-12);
         TS_ASSERT_EQUALS(inst->GetMaxTransitGenerations(), 3u);
         TS_ASSERT_DELTA(inst->GetCryptLength(), 22.0, 1e-12);
         TS_ASSERT_DELTA(inst->GetCryptWidth(), 10.0, 1e-12);
@@ -91,6 +92,7 @@ public:
         inst->SetStemCellG1Duration(35.0);
         inst->SetTransitCellG1Duration(45.0);
         inst->SetHepaOneCellG1Duration(10.0);
+        inst->SetMinimumGapDuration(2.5);
         inst->SetMaxTransitGenerations(666u);
         inst->SetCryptLength(100.0);
         inst->SetSpringStiffness(20.0);
@@ -124,6 +126,7 @@ public:
         inst1->SetStemCellG1Duration(35.0);
         inst1->SetTransitCellG1Duration(45.0);
         inst1->SetHepaOneCellG1Duration(10.0);
+        inst1->SetMinimumGapDuration(2.5);        
         inst1->SetMaxTransitGenerations(666u);
         inst1->SetCryptLength(100.0);
         inst1->SetSpringStiffness(20.0);
@@ -153,6 +156,7 @@ public:
         TS_ASSERT_DELTA(inst2->GetStemCellG1Duration(), 35.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetTransitCellG1Duration(), 45.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetHepaOneCellG1Duration(), 10.0, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetMinimumGapDuration(), 2.5, 1e-12);
         TS_ASSERT_EQUALS(inst2->GetMaxTransitGenerations(), 666u);
         TS_ASSERT_DELTA(inst2->GetCryptLength(), 100.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetSpringStiffness(), 20.0, 1e-12);
@@ -190,6 +194,7 @@ public:
             inst1->SetStemCellG1Duration(35.0);
             inst1->SetTransitCellG1Duration(45.0);
             inst1->SetHepaOneCellG1Duration(10.0);
+            inst1->SetMinimumGapDuration(2.5);
             inst1->SetMaxTransitGenerations(666u);
             inst1->SetCryptLength(100.0);
             inst1->SetSpringStiffness(20.0);
@@ -228,6 +233,7 @@ public:
             inst1->SetStemCellG1Duration(14.0);
             inst1->SetTransitCellG1Duration(2.0);
             inst1->SetHepaOneCellG1Duration(8.0);
+            inst1->SetMinimumGapDuration(0.01);
             inst1->SetMaxTransitGenerations(3u);
             inst1->SetCryptLength(22.0);
             inst1->SetApoptosisTime(0.25);
@@ -263,6 +269,7 @@ public:
             TS_ASSERT_DELTA(inst1->GetStemCellG1Duration(), 35.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetTransitCellG1Duration(), 45.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetHepaOneCellG1Duration(), 10.0, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetMinimumGapDuration(), 2.5, 1e-12);
             TS_ASSERT_EQUALS(inst1->GetMaxTransitGenerations(), 666u);
             TS_ASSERT_DELTA(inst1->GetCryptLength(), 100.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetSpringStiffness(), 20.0, 1e-12);
