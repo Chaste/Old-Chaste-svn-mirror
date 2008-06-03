@@ -270,8 +270,10 @@ protected :
     }
     
     
-    void WriteWatchedLocationData(Vec voltage)
+    void WriteWatchedLocationData(double time, Vec voltage)
     {
+        assert(mIsWatchedLocation);
+        
         std::vector<Vector<double> >& deformed_position
           = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->rGetDeformedPosition();
         
@@ -281,11 +283,13 @@ protected :
         // HARDCODED state variable index - assumes Lr91. Hierarchy not set up yet.
         double Ca = mpMonodomainProblem->GetMonodomainPde()->GetCardiacCell(mWatchedElectricsNodeIndex)->rGetStateVariables()[3];
         
+        *mpWatchedLocationFile << time << " ";
         for(unsigned i=0; i<DIM; i++)
         {
             *mpWatchedLocationFile << deformed_position[i](mWatchedMechanicsNodeIndex) << " ";
         }
         *mpWatchedLocationFile << V <<  " " << Ca << "\n";
+        mpWatchedLocationFile->flush();
     }
     
 public :
@@ -545,7 +549,7 @@ public :
             
             if(mIsWatchedLocation)
             {
-                WriteWatchedLocationData(initial_voltage);
+                WriteWatchedLocationData(stepper.GetTime(), initial_voltage);
             }
         }
 
@@ -679,7 +683,7 @@ public :
 
                 if(mIsWatchedLocation)
                 {
-                    WriteWatchedLocationData(voltage);
+                    WriteWatchedLocationData(stepper.GetTime(), voltage);
                 }
             }
 
@@ -758,6 +762,9 @@ public :
     /**
      *  Set a location to be watched - for which lots of output 
      *  is given. Should correspond to nodes in both meshes.
+     * 
+     *  The watched file will have rows that look like:
+     *  time x_pos y_pos [z_pos] voltage Ca_i_conc.
      */ 
     void SetWatchedPosition(c_vector<double,DIM> watchedLocation)
     {
