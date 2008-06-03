@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SloughingCellKiller.hpp"
 #include "CellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
-
+#include "../../global/test/NumericFileComparison.hpp"
 
 /**
  * Simple cell killer which just kills a single cell.
@@ -121,6 +121,7 @@ public:
      * and the spring system will resemble a parallelogram. However we keep 
      * the simulation time at 1.0 in order to keep the test short.
      */
+    
     void Test2DSpringSystem() throw (Exception)
     {
         double crypt_length = 10;
@@ -176,6 +177,12 @@ public:
     
     void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
+        
+        ///\todo Note that this test is extrememly fragile.  
+        //The output data was 
+        //produced with IntelProduction.  Intel and Gcc builds may currently produce
+        //similar (but quantitatively different results. 
+        
         int num_cells_depth = 11;
         int num_cells_width = 6;
         double crypt_length = num_cells_depth-1.0;
@@ -207,10 +214,14 @@ public:
         // Work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DHoneycombMesh",false);
         std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
-        TS_ASSERT_EQUALS(system(("diff " + node_results_file + " cancer/test/data/Crypt2DHoneycombMeshResults/results.viznodes").c_str()), 0);
-         
+        
+        NumericFileComparison comp_node(node_results_file,"cancer/test/data/Crypt2DHoneycombMeshResults/results.viznodes");
+        TS_ASSERT(comp_node.CompareFiles());
+        
         std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
-        TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cancer/test/data/Crypt2DHoneycombMeshResults/results.vizelements").c_str()), 0);   
+        NumericFileComparison comp_elem(elem_results_file,"cancer/test/data/Crypt2DHoneycombMeshResults/results.vizelements");
+        TS_ASSERT(comp_elem.CompareFiles());
+        //TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cancer/test/data/Crypt2DHoneycombMeshResults/results.vizelements").c_str()), 0);   
     }
     
     void TestMonolayer() throw (Exception)
