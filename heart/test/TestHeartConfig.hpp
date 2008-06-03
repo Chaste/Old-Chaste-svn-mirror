@@ -40,17 +40,76 @@ public :
     {
         HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
         
-        double chi = HeartConfig::Instance()->Parameters()->Physiological().SurfaceAreaToVolumeRatio();
+        double chi = HeartConfig::Instance()->UserParameters()->Physiological().SurfaceAreaToVolumeRatio().get();
         TS_ASSERT_EQUALS(chi, 1400);
         
-        double capacitance = HeartConfig::Instance()->Parameters()->Physiological().Capacitance();
+        double capacitance = HeartConfig::Instance()->UserParameters()->Physiological().Capacitance().get();
         TS_ASSERT_EQUALS(capacitance, 1.0);
 
-        double conductivity_1 = HeartConfig::Instance()->Parameters()->Physiological().IntracellularConductivities().longi();
-        double conductivity_2 = HeartConfig::Instance()->Parameters()->Physiological().ExtracellularConductivities().longi();
+        double conductivity_1 = HeartConfig::Instance()->UserParameters()->Physiological().IntracellularConductivities().get().longi();
+        double conductivity_2 = HeartConfig::Instance()->UserParameters()->Physiological().ExtracellularConductivities().get().longi();
 
         TS_ASSERT_EQUALS(conductivity_1, 1.75);
         TS_ASSERT_EQUALS(conductivity_2, 7.0);
+
+        HeartConfig::Instance()->Destroy();
+    }
+    
+    void TestUserProvidedDifferentFromDefault()
+    {
+        HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
+        
+        ionic_model_type default_ionic_model = HeartConfig::Instance()->DefaultParameters()->Simulation().IonicModel().get(); 
+        TS_ASSERT_EQUALS(default_ionic_model, ionic_model_type::LuoRudyIModel1991OdeSystem);
+
+        ionic_model_type user_ionic_model = HeartConfig::Instance()->UserParameters()->Simulation().IonicModel().get(); 
+        TS_ASSERT_EQUALS(user_ionic_model, ionic_model_type::FaberRudy2000Version3);
+        
+        ionic_model_type get_ionic_model = HeartConfig::Instance()->GetIonicModel(); 
+        TS_ASSERT_EQUALS(user_ionic_model, get_ionic_model);        
+
+        HeartConfig::Instance()->Destroy();
+    }
+
+    void TestGetFunctionsReadingFromDefaults()
+    {
+        HeartConfig::Instance()->SetDefaultsFile("ChasteParameters.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
+
+        ionic_model_type get_ionic_model = HeartConfig::Instance()->GetIonicModel(); 
+        TS_ASSERT_EQUALS(get_ionic_model, ionic_model_type::FaberRudy2000Version3);        
+
+        c_vector<double, 3> intra_conductivities = HeartConfig::Instance()->GetIntracellularConductivities();   
+        TS_ASSERT_EQUALS(intra_conductivities[0], 1.75);
+        TS_ASSERT_EQUALS(intra_conductivities[1], 1.75);
+        TS_ASSERT_EQUALS(intra_conductivities[2], 1.75);                
+
+        HeartConfig::Instance()->Destroy();
+    }
+    
+    void TestGetFunctionsReadingFromUser()
+    {
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteEmpty.xml");        
+        HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
+
+        ionic_model_type get_ionic_model = HeartConfig::Instance()->GetIonicModel(); 
+        TS_ASSERT_EQUALS(get_ionic_model, ionic_model_type::FaberRudy2000Version3);        
+
+        c_vector<double, 3> intra_conductivities = HeartConfig::Instance()->GetIntracellularConductivities();   
+        TS_ASSERT_EQUALS(intra_conductivities[0], 1.75);
+        TS_ASSERT_EQUALS(intra_conductivities[1], 1.75);
+        TS_ASSERT_EQUALS(intra_conductivities[2], 1.75);                
+
+        HeartConfig::Instance()->Destroy();
+    }
+    
+    void TestExceptions()
+    {
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteEmpty.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
+ 
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetIonicModel());        
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetIntracellularConductivities());
 
         HeartConfig::Instance()->Destroy();
     }

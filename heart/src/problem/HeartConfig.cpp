@@ -41,8 +41,14 @@ HeartConfig* HeartConfig::Instance()
 }
 
 HeartConfig::HeartConfig()
+: mDefaultsFile("ChasteDefaults.xml")
 {
     assert(mpInstance == NULL);
+}
+
+void HeartConfig::SetDefaultsFile(std::string fileName)
+{
+    mDefaultsFile = fileName;
 }
 
 void HeartConfig::SetParametersFile(std::string fileName)
@@ -51,17 +57,94 @@ void HeartConfig::SetParametersFile(std::string fileName)
     // which returns a std::auto_ptr. We don't want to use a std::auto_ptr because
     // it will delete memory when out of scope, or no longer point when it is copied,
     // so we reallocate memory using a normal pointer and copy the data to there
-    std::auto_ptr<chaste_parameters_type> x(ChasteParameters(fileName.c_str()));
-    mpParameters = new chaste_parameters_type(*x);
-    assert(mpParameters);
+    try
+    {   
+        std::auto_ptr<chaste_parameters_type> p_user(ChasteParameters(fileName.c_str()));
+        mpUserParameters = new chaste_parameters_type(*p_user);
+        assert(mpUserParameters);
+    }
+    catch (const xml_schema::exception& e)
+    {
+         std::cerr << e << std::endl;
+         EXCEPTION("XML parsing error in user provided configuration file");
+    }
+    
+
+    // Read default values
+    try
+    {
+        std::auto_ptr<chaste_parameters_type> p_default(ChasteParameters(mDefaultsFile));
+        mpDefaultParameters = new chaste_parameters_type(*p_default);
+        assert(mpDefaultParameters);
+    }
+    catch (const xml_schema::exception& e)
+    {
+         std::cerr << e << std::endl;
+         EXCEPTION("XML parsing error in default configuration file");
+    }
+
 }
 
-chaste_parameters_type* HeartConfig::Parameters()
+chaste_parameters_type* HeartConfig::UserParameters()
 {
-    return mpParameters;
+    return mpUserParameters;
+}
+
+chaste_parameters_type* HeartConfig::DefaultParameters()
+{
+    return mpDefaultParameters;
 }
 
 void HeartConfig::Destroy()
 {
-    delete mpParameters;
+    delete mpUserParameters;
+    delete mpDefaultParameters;    
+}
+
+ionic_model_type HeartConfig::GetIonicModel()
+{
+    if (mpUserParameters->Simulation().IonicModel().present())
+    {
+        return mpUserParameters->Simulation().IonicModel().get();
+    }
+    else
+    {
+        if (mpDefaultParameters->Simulation().IonicModel().present())
+        {
+            return mpDefaultParameters->Simulation().IonicModel().get();            
+        }
+        else
+        {
+            EXCEPTION("No IonicModel provided (neither default of user defined)");
+        }             
+    }
+}
+
+c_vector<double, 3> HeartConfig::GetIntracellularConductivities()
+{
+    double intra_x_cond;
+    double intra_y_cond;
+    double intra_z_cond;                    
+    
+    if (mpUserParameters->Simulation().IonicModel().present())
+    {
+        intra_x_cond = mpUserParameters->Physiological().IntracellularConductivities().get().longi();
+        intra_y_cond = mpUserParameters->Physiological().IntracellularConductivities().get().trans();
+        intra_z_cond = mpUserParameters->Physiological().IntracellularConductivities().get().normal();                
+    }
+    else
+    {
+        if (mpDefaultParameters->Simulation().IonicModel().present())
+        {
+            intra_x_cond = mpDefaultParameters->Physiological().IntracellularConductivities().get().longi();
+            intra_y_cond = mpDefaultParameters->Physiological().IntracellularConductivities().get().trans();
+            intra_z_cond = mpDefaultParameters->Physiological().IntracellularConductivities().get().normal();                
+        }
+        else
+        {
+            EXCEPTION("No IntracellularConductivities provided (neither default of user defined)");
+        }             
+    }        
+
+    return Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond);   
 }

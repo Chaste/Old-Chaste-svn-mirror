@@ -21,24 +21,26 @@
 	    <!-- 
 	    	Stimuli (as many <Stimulus> definitions as needed) 
 	   	-->
-	  	<Stimulus> <!-- #1 -->
-			<Strength>-25500.0</Strength>
-			<Duration>0.5</Duration>
-			<Delay>0</Delay>
-			<Location>
-				<CornerA x="-5.0" z="-5.0" y="-0.125"/>
-				<CornerB x="-4.75" z="5.0" y="0.125"/>
-			</Location>
-		</Stimulus>	
-		<Stimulus> <!-- #2 -->
-			<Strength>-25500.0</Strength>
-			<Duration>0.5</Duration>
-			<Delay>200.0</Delay>
-			<Location>
-				<CornerA x="-5.0" z="-5.0" y="-0.125"/>
-				<CornerB x="0.0" z="0.0" y="0.125"/>
-			</Location>
-		</Stimulus>	
+	   	<Stimuli>
+		  	<Stimulus> <!-- #1 -->
+				<Strength>-25500.0</Strength>
+				<Duration>0.5</Duration>
+				<Delay>0</Delay>
+				<Location>
+					<CornerA x="-5.0" z="-5.0" y="-0.125"/>
+					<CornerB x="-4.75" z="5.0" y="0.125"/>
+				</Location>
+			</Stimulus>	
+			<Stimulus> <!-- #2 -->
+				<Strength>-25500.0</Strength>
+				<Duration>0.5</Duration>
+				<Delay>200.0</Delay>
+				<Location>
+					<CornerA x="-5.0" z="-5.0" y="-0.125"/>
+					<CornerB x="0.0" z="0.0" y="0.125"/>
+				</Location>
+			</Stimulus>
+	   	</Stimuli>		
 		
 		<!-- 
 			Output 

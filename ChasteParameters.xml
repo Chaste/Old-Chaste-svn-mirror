@@ -26,45 +26,49 @@
 	    <!-- 
 	    	Stimuli (as many <Stimulus> definitions as needed) 
 	   	-->
-	  	<Stimulus> <!-- #1 -->
-			<Strength>-35500.0</Strength>
-			<Duration>0.5</Duration>
-			<Delay>0</Delay>
-			<Location>
-				<CornerA x="-2.0" y="-0.1" z="-1.0"/>
-				<CornerB x="-1.9" y="0.1" z="1.0"/>
-			</Location>
-		</Stimulus>	
+	   	<Stimuli>
+		  	<Stimulus> <!-- #1 -->
+				<Strength>-35500.0</Strength>
+				<Duration>0.5</Duration>
+				<Delay>0</Delay>
+				<Location>
+					<CornerA x="-2.0" y="-0.1" z="-1.0"/>
+					<CornerB x="-1.9" y="0.1" z="1.0"/>
+				</Location>
+			</Stimulus>	
+		</Stimuli>
 	
 	    <!-- 
 	    	Ionic cell model heterogeneities (as many <CellHeterogeneity> definitions as needed) 
 	   	-->
-	  	<CellHeterogeneity> <!-- #1 -->
-			<ScaleFactorGks>0.462</ScaleFactorGks>
-			<ScaleFactorIto>0.0</ScaleFactorIto>
-			<Location>
-				<CornerA x="-2.0" y="-0.1" z="-1.0"/>
-				<CornerB x="-0.5" y="0.1" z="1.0"/>
-			</Location>
-		</CellHeterogeneity>	
-	
-	  	<CellHeterogeneity> <!-- #2 -->
-			<ScaleFactorGks>1.154</ScaleFactorGks>
-			<ScaleFactorIto>0.85</ScaleFactorIto>
-			<Location>
-				<CornerA x="-0.5" y="-0.1" z="-1.0"/>
-				<CornerB x="0.5" y="0.1" z="1.0"/>
-			</Location>
-		</CellHeterogeneity>	
-	
-	  	<CellHeterogeneity> <!-- #3 -->
-			<ScaleFactorGks>1.154</ScaleFactorGks>
-			<ScaleFactorIto>1.0</ScaleFactorIto>
-			<Location>
-				<CornerA x="0.5" y="-0.1" z="-1.0"/>
-				<CornerB x="2.0" y="0.1" z="1.0"/>
-			</Location>
-		</CellHeterogeneity>	
+		<CellHeterogeneities>
+		  	<CellHeterogeneity> <!-- #1 -->
+				<ScaleFactorGks>0.462</ScaleFactorGks>
+				<ScaleFactorIto>0.0</ScaleFactorIto>
+				<Location>
+					<CornerA x="-2.0" y="-0.1" z="-1.0"/>
+					<CornerB x="-0.5" y="0.1" z="1.0"/>
+				</Location>
+			</CellHeterogeneity>	
+		
+		  	<CellHeterogeneity> <!-- #2 -->
+				<ScaleFactorGks>1.154</ScaleFactorGks>
+				<ScaleFactorIto>0.85</ScaleFactorIto>
+				<Location>
+					<CornerA x="-0.5" y="-0.1" z="-1.0"/>
+					<CornerB x="0.5" y="0.1" z="1.0"/>
+				</Location>
+			</CellHeterogeneity>	
+		
+		  	<CellHeterogeneity> <!-- #3 -->
+				<ScaleFactorGks>1.154</ScaleFactorGks>
+				<ScaleFactorIto>1.0</ScaleFactorIto>
+				<Location>
+					<CornerA x="0.5" y="-0.1" z="-1.0"/>
+					<CornerB x="2.0" y="0.1" z="1.0"/>
+				</Location>
+			</CellHeterogeneity>
+		</CellHeterogeneities>		
 		
 		<!-- 
 			Output 

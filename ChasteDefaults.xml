@@ -4,79 +4,13 @@
        xsi:noNamespaceSchemaLocation="heart/src/io/ChasteParameters.xsd">
 
 	<Simulation>
-		<!-- 
-			Problem definition 
-		-->    
-	    <SimulationDuration>50.0</SimulationDuration>
 	    <Domain>Mono</Domain>
-	    <IonicModel>FaberRudy2000Version3</IonicModel>
-	    
-		<!-- 
-			Mesh definition 
-		-->    
-		<Mesh>
-			<Slab>    
-		    	<SlabX>4.0</SlabX>
-		    	<SlabY>0.1</SlabY>
-		    	<SlabZ>2.0</SlabZ>
-		    	<InterNodeSpace>0.1</InterNodeSpace>
-	    	</Slab>
-	  	</Mesh>
-			    
-	    <!-- 
-	    	Stimuli (as many <Stimulus> definitions as needed) 
-	   	-->
-	  	<Stimulus> <!-- #1 -->
-			<Strength>-35500.0</Strength>
-			<Duration>0.5</Duration>
-			<Delay>0</Delay>
-			<Location>
-				<CornerA x="-2.0" y="-0.1" z="-1.0"/>
-				<CornerB x="-1.9" y="0.1" z="1.0"/>
-			</Location>
-		</Stimulus>	
-	
-	    <!-- 
-	    	Ionic cell model heterogeneities (as many <CellHeterogeneity> definitions as needed) 
-	   	-->
-	  	<CellHeterogeneity> <!-- #1 -->
-			<ScaleFactorGks>0.462</ScaleFactorGks>
-			<ScaleFactorIto>0.0</ScaleFactorIto>
-			<Location>
-				<CornerA x="-2.0" y="-0.1" z="-1.0"/>
-				<CornerB x="-0.5" y="0.1" z="1.0"/>
-			</Location>
-		</CellHeterogeneity>	
-	
-	  	<CellHeterogeneity> <!-- #2 -->
-			<ScaleFactorGks>1.154</ScaleFactorGks>
-			<ScaleFactorIto>0.85</ScaleFactorIto>
-			<Location>
-				<CornerA x="-0.5" y="-0.1" z="-1.0"/>
-				<CornerB x="0.5" y="0.1" z="1.0"/>
-			</Location>
-		</CellHeterogeneity>	
-	
-	  	<CellHeterogeneity> <!-- #3 -->
-			<ScaleFactorGks>1.154</ScaleFactorGks>
-			<ScaleFactorIto>1.0</ScaleFactorIto>
-			<Location>
-				<CornerA x="0.5" y="-0.1" z="-1.0"/>
-				<CornerB x="2.0" y="0.1" z="1.0"/>
-			</Location>
-		</CellHeterogeneity>	
-		
-		<!-- 
-			Output 
-		-->
+	    <IonicModel>LuoRudyIModel1991OdeSystem</IonicModel>
 		<OutputDirectory>ChasteResults</OutputDirectory>
 	    <MeshOutputDirectory>Slab</MeshOutputDirectory>	
 	</Simulation>
 	
 	<Physiological>
-	    <!--
-	        Conductivities
-	    -->
 	    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" />
 	    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" />
 	    <SurfaceAreaToVolumeRatio> 1400 </SurfaceAreaToVolumeRatio>

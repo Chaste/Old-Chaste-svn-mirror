@@ -191,35 +191,36 @@ void ReadParametersFromFile()
         simulation_type simulation_params = p_params->Simulation();
 		physiological_type physiological_params = p_params->Physiological();
         
-        simulation_duration = simulation_params.SimulationDuration();
+        simulation_duration = simulation_params.SimulationDuration().get();
         
-        create_slab = simulation_params.Mesh().Slab() != NULL;
-        load_mesh = simulation_params.Mesh().LoadMesh() != NULL; 
+        create_slab = simulation_params.Mesh().get().Slab() != NULL;
+        load_mesh = simulation_params.Mesh().get().LoadMesh() != NULL; 
         
         if (create_slab)
         {
-            slab_x = simulation_params.Mesh().Slab()->SlabX();     // mm
-            slab_y = simulation_params.Mesh().Slab()->SlabY();   // mm
-            slab_z = simulation_params.Mesh().Slab()->SlabZ();   // mm
-            inter_node_space = simulation_params.Mesh().Slab()->InterNodeSpace(); // mm
+            slab_x = simulation_params.Mesh().get().Slab()->SlabX();     // mm
+            slab_y = simulation_params.Mesh().get().Slab()->SlabY();   // mm
+            slab_z = simulation_params.Mesh().get().Slab()->SlabZ();   // mm
+            inter_node_space = simulation_params.Mesh().get().Slab()->InterNodeSpace(); // mm
         }
         else // (load_mesh)
         {
-            mesh_file_prefix = simulation_params.Mesh().LoadMesh()->name();
-            media = simulation_params.Mesh().LoadMesh()->media();
+            mesh_file_prefix = simulation_params.Mesh().get().LoadMesh()->name();
+            media = simulation_params.Mesh().get().LoadMesh()->media();
         }
         
-        intra_x_cond = physiological_params.IntracellularConductivities().longi();
-        intra_y_cond = physiological_params.IntracellularConductivities().trans();
-        intra_z_cond = physiological_params.IntracellularConductivities().normal();                
-        output_directory = simulation_params.OutputDirectory();
-        mesh_output_directory = simulation_params.MeshOutputDirectory();
-        domain = simulation_params.Domain();
-        ionic_model = simulation_params.IonicModel();
+        intra_x_cond = physiological_params.IntracellularConductivities().get().longi();
+        intra_y_cond = physiological_params.IntracellularConductivities().get().trans();
+        intra_z_cond = physiological_params.IntracellularConductivities().get().normal();                
+        output_directory = simulation_params.OutputDirectory().get();
+        mesh_output_directory = simulation_params.MeshOutputDirectory().get();
+        domain = simulation_params.Domain().get();
+        ionic_model = simulation_params.IonicModel().get();
         
         // Read and store Stimuli
-        simulation_type::Stimulus::container& stimuli = simulation_params.Stimulus();
-        for (simulation_type::Stimulus::iterator i = stimuli.begin();
+        simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::container&
+             stimuli = simulation_params.Stimuli().get().Stimulus();
+        for (simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::iterator i = stimuli.begin();
              i != stimuli.end();
              ++i)
         {                     
@@ -240,8 +241,9 @@ void ReadParametersFromFile()
         }
 
         // Read and store Cell Heterogeneities
-        simulation_type::CellHeterogeneity::container& hts = simulation_params.CellHeterogeneity();
-        for (simulation_type::CellHeterogeneity::iterator i = hts.begin();
+        simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::container&
+            hts = simulation_params.CellHeterogeneities().get().CellHeterogeneity();
+        for (simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::iterator i = hts.begin();
              i != hts.end();
              ++i)
         {                     
@@ -250,7 +252,7 @@ void ReadParametersFromFile()
             point_type point_b = ht.Location().CornerB();
             
             // method get() should be called for Y and Z since they have been defined optional in the schema
-            // {Y,Z}.set() can be called to know if they have been defined
+            // {Y,Z}.present() can be called to know if they have been defined
             ChastePoint<3> chaste_point_a (scale_factor* point_a.x(), 
                                            scale_factor* point_a.y(),
                                            scale_factor* point_a.z());

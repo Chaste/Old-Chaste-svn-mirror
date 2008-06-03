@@ -44,34 +44,37 @@ public:
     {
         try
         {
-            auto_ptr<chaste_parameters_type> params (ChasteParameters("heart/test/data/ChasteParametersSlab.xml"));
+            auto_ptr<chaste_parameters_type> params (ChasteParameters( "heart/test/data/ChasteParametersSlab.xml"));
             
             simulation_type simulation_params = params->Simulation();
             
-            TS_ASSERT_EQUALS(simulation_params.SimulationDuration(), 10.0);
+            TS_ASSERT_EQUALS(simulation_params.SimulationDuration().get(), 10.0);
 
-            assert(simulation_params.Mesh().LoadMesh() == NULL);
-            assert(simulation_params.Mesh().Slab() != NULL);
+            TS_ASSERT(simulation_params.Mesh().present());
+            TS_ASSERT(simulation_params.Mesh().get().LoadMesh() == NULL);
+            TS_ASSERT(simulation_params.Mesh().get().Slab() != NULL);
 
-            TS_ASSERT_EQUALS(simulation_params.Mesh().Slab()->SlabX(), 4.0);
-            TS_ASSERT_EQUALS(simulation_params.Mesh().Slab()->SlabY(), 0.1);
-            TS_ASSERT_EQUALS(simulation_params.Mesh().Slab()->SlabZ(), 2.0);            
-            TS_ASSERT_EQUALS(simulation_params.Mesh().Slab()->InterNodeSpace(), 0.1);
+            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->SlabX(), 4.0);
+            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->SlabY(), 0.1);
+            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->SlabZ(), 2.0);            
+            TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->InterNodeSpace(), 0.1);
 
 			physiological_type physiological_params = params->Physiological();
 
-            TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().longi(), 1.75);
-            TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().trans(), 1.75);
-            TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().normal(), 1.75);
+            TS_ASSERT(physiological_params.IntracellularConductivities().present());
+            TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().get().longi(), 1.75);
+            TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().get().trans(), 1.75);
+            TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().get().normal(), 1.75);
 
-            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().longi(), 7.0);
-            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().trans(), 7.0);
-            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().normal(), 7.0);
+            TS_ASSERT(physiological_params.ExtracellularConductivities().present());
+            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().longi(), 7.0);
+            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().trans(), 7.0);
+            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().normal(), 7.0);
 
-            TS_ASSERT_EQUALS(simulation_params.OutputDirectory(), "ChasteResults");
-            TS_ASSERT_EQUALS(simulation_params.MeshOutputDirectory(), "Slab");
-            TS_ASSERT_EQUALS(simulation_params.Domain(), domain_type::Mono);
-            TS_ASSERT_EQUALS(simulation_params.IonicModel(), ionic_model_type::FaberRudy2000Version3);
+            TS_ASSERT_EQUALS(simulation_params.OutputDirectory().get(), "ChasteResults");
+            TS_ASSERT_EQUALS(simulation_params.MeshOutputDirectory().get(), "Slab");
+            TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);
+            TS_ASSERT_EQUALS(simulation_params.IonicModel().get(), ionic_model_type::FaberRudy2000Version3);
         }
         catch (const xml_schema::exception& e)
         {
@@ -88,28 +91,31 @@ public:
             
             simulation_type simulation_params = params->Simulation();
             
-            TS_ASSERT_EQUALS(simulation_params.SimulationDuration(), 10.0);
+            TS_ASSERT_EQUALS(simulation_params.SimulationDuration().get(), 10.0);
 
-            assert(simulation_params.Mesh().LoadMesh() != NULL);
-            assert(simulation_params.Mesh().Slab() == NULL);
-
-            TS_ASSERT_EQUALS(simulation_params.Mesh().LoadMesh()->name(), "foo");
-            TS_ASSERT_EQUALS(simulation_params.Mesh().LoadMesh()->media(), "Orthotropic"); // Testing for the default value
+            TS_ASSERT(simulation_params.Mesh().present());
+            TS_ASSERT(simulation_params.Mesh().get().LoadMesh() != NULL);
+            TS_ASSERT(simulation_params.Mesh().get().Slab() == NULL);
+            
+            TS_ASSERT_EQUALS(simulation_params.Mesh().get().LoadMesh()->name(), "foo");
+            TS_ASSERT_EQUALS(simulation_params.Mesh().get().LoadMesh()->media(), "Orthotropic"); // Testing for the default value
             
             physiological_type physiological_params = params->Physiological();
-            
-            TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().longi(), 1.75);
-            TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().trans(), 1.75);
-            TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().normal(), 1.75);
 
-            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().longi(), 7.0);
-            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().trans(), 7.0);
-            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().normal(), 7.0);
+            TS_ASSERT(physiological_params.IntracellularConductivities().present());            
+            TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().get().longi(), 1.75);
+            TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().get().trans(), 1.75);
+            TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().get().normal(), 1.75);
 
-            TS_ASSERT_EQUALS(simulation_params.OutputDirectory(), "ChasteResults");
-            TS_ASSERT_EQUALS(simulation_params.MeshOutputDirectory(), "Slab");
-            TS_ASSERT_EQUALS(simulation_params.Domain(), domain_type::Mono);
-            TS_ASSERT_EQUALS(simulation_params.IonicModel(), ionic_model_type::FaberRudy2000Version3);
+            TS_ASSERT(physiological_params.ExtracellularConductivities().present());
+            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().longi(), 7.0);
+            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().trans(), 7.0);
+            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().normal(), 7.0);
+
+            TS_ASSERT_EQUALS(simulation_params.OutputDirectory().get(), "ChasteResults");
+            TS_ASSERT_EQUALS(simulation_params.MeshOutputDirectory().get(), "Slab");
+            TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);
+            TS_ASSERT_EQUALS(simulation_params.IonicModel().get(), ionic_model_type::FaberRudy2000Version3);
         }
         catch (const xml_schema::exception& e)
         {
@@ -125,8 +131,8 @@ public:
             auto_ptr<chaste_parameters_type> params (ChasteParameters("heart/test/data/ChasteParametersLoadMesh.xml"));
             physiological_type physiological_params = params->Physiological();
 
-            physiological_params.ExtracellularConductivities().longi() = 9.0;
-            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().longi(), 9.0);
+            physiological_params.ExtracellularConductivities().get().longi() = 9.0;
+            TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().longi(), 9.0);
         }
         catch (const xml_schema::exception& e)
         {

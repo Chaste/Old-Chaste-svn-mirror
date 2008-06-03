@@ -31,6 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define HEARTCONFIG_HPP_
 
 #include "ChasteParameters.hpp"
+#include <iostream>
+#include "UblasCustomFunctions.hpp"
+#include "Exception.hpp"
 
 class HeartConfig
 {
@@ -41,15 +44,25 @@ public:
      * @return a single instance of the class
      */
     static HeartConfig* Instance();
-    chaste_parameters_type* Parameters();
+    
+    chaste_parameters_type* UserParameters();
+    chaste_parameters_type* DefaultParameters();
+    
+    void SetDefaultsFile(std::string fileName);
     void SetParametersFile(std::string fileName);
     void Destroy();
+    
+    ionic_model_type GetIonicModel();
+    c_vector<double, 3> GetIntracellularConductivities();
     
 private:
     HeartConfig();
     /** The single instance of the class */
     static HeartConfig* mpInstance;
-    chaste_parameters_type* mpParameters;
+    chaste_parameters_type* mpUserParameters;
+    chaste_parameters_type* mpDefaultParameters;
+    
+    std::string mDefaultsFile;
 };
 
 #endif /*HEARTCONFIG_HPP_*/
