@@ -26,8 +26,8 @@
 			<Duration>0.5</Duration>
 			<Delay>0</Delay>
 			<Location>
-				<CornerA X="-9" Y="-5" Z="-5"/>
-				<CornerB X="-8" Y="5"  Z="5"/>
+				<CornerA X="-9" Y="-2.5" Z="-1.5"/>
+				<CornerB X="-8" Y="-1.5" Z="-0.5"/>
 			</Location>
 		</Stimulus>	
 	

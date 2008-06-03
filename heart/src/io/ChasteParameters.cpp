@@ -142,58 +142,58 @@ operator= (_xsd_anisotropic_type v)
 // point_type
 // 
 
-const point_type::X::type& point_type::
-X () const
+const point_type::x::type& point_type::
+x () const
 {
-  return this->_xsd_X_.get ();
+  return this->_xsd_x_.get ();
 }
 
-point_type::X::type& point_type::
-X ()
+point_type::x::type& point_type::
+x ()
 {
-  return this->_xsd_X_.get ();
-}
-
-void point_type::
-X (const X::type& X)
-{
-  this->_xsd_X_.set (X);
-}
-
-const point_type::Y::type& point_type::
-Y () const
-{
-  return this->_xsd_Y_.get ();
-}
-
-point_type::Y::type& point_type::
-Y ()
-{
-  return this->_xsd_Y_.get ();
+  return this->_xsd_x_.get ();
 }
 
 void point_type::
-Y (const Y::type& Y)
+x (const x::type& x)
 {
-  this->_xsd_Y_.set (Y);
+  this->_xsd_x_.set (x);
 }
 
-const point_type::Z::type& point_type::
-Z () const
+const point_type::y::type& point_type::
+y () const
 {
-  return this->_xsd_Z_.get ();
+  return this->_xsd_y_.get ();
 }
 
-point_type::Z::type& point_type::
-Z ()
+point_type::y::type& point_type::
+y ()
 {
-  return this->_xsd_Z_.get ();
+  return this->_xsd_y_.get ();
 }
 
 void point_type::
-Z (const Z::type& Z)
+y (const y::type& y)
 {
-  this->_xsd_Z_.set (Z);
+  this->_xsd_y_.set (y);
+}
+
+const point_type::z::type& point_type::
+z () const
+{
+  return this->_xsd_z_.get ();
+}
+
+point_type::z::type& point_type::
+z ()
+{
+  return this->_xsd_z_.get ();
+}
+
+void point_type::
+z (const z::type& z)
+{
+  this->_xsd_z_.set (z);
 }
 
 
@@ -791,43 +791,100 @@ printing (const printing::type& printing)
 }
 
 
+// ksp_use_type
+// 
+
+ksp_use_type::
+ksp_use_type (_xsd_ksp_use_type v)
+: ::xml_schema::string (_xsd_ksp_use_type_literals_[v])
+{
+}
+
+ksp_use_type::
+ksp_use_type (const ::xml_schema::string& _xsd_ksp_use_type)
+: ::xml_schema::string (_xsd_ksp_use_type)
+{
+}
+
+ksp_use_type::
+ksp_use_type (const ksp_use_type& v,
+              ::xml_schema::flags f,
+              ::xml_schema::type* c)
+: ::xml_schema::string (v, f, c)
+{
+}
+
+ksp_use_type& ksp_use_type::
+operator= (_xsd_ksp_use_type v)
+{
+  static_cast< ::xml_schema::string& > (*this) = 
+  ::xml_schema::string (_xsd_ksp_use_type_literals_[v]);
+
+  return *this;
+}
+
+
 // ksp_tolerances_type
 // 
 
-const ksp_tolerances_type::relative::type& ksp_tolerances_type::
-relative () const
+const ksp_tolerances_type::KSPRelative::type& ksp_tolerances_type::
+KSPRelative () const
 {
-  return this->_xsd_relative_.get ();
+  return this->_xsd_KSPRelative_.get ();
 }
 
-ksp_tolerances_type::relative::type& ksp_tolerances_type::
-relative ()
+ksp_tolerances_type::KSPRelative::type& ksp_tolerances_type::
+KSPRelative ()
 {
-  return this->_xsd_relative_.get ();
-}
-
-void ksp_tolerances_type::
-relative (const relative::type& relative)
-{
-  this->_xsd_relative_.set (relative);
-}
-
-const ksp_tolerances_type::absolute::type& ksp_tolerances_type::
-absolute () const
-{
-  return this->_xsd_absolute_.get ();
-}
-
-ksp_tolerances_type::absolute::type& ksp_tolerances_type::
-absolute ()
-{
-  return this->_xsd_absolute_.get ();
+  return this->_xsd_KSPRelative_.get ();
 }
 
 void ksp_tolerances_type::
-absolute (const absolute::type& absolute)
+KSPRelative (const KSPRelative::type& KSPRelative)
 {
-  this->_xsd_absolute_.set (absolute);
+  this->_xsd_KSPRelative_.set (KSPRelative);
+}
+
+const ksp_tolerances_type::KSPAbsolute::type& ksp_tolerances_type::
+KSPAbsolute () const
+{
+  return this->_xsd_KSPAbsolute_.get ();
+}
+
+ksp_tolerances_type::KSPAbsolute::type& ksp_tolerances_type::
+KSPAbsolute ()
+{
+  return this->_xsd_KSPAbsolute_.get ();
+}
+
+void ksp_tolerances_type::
+KSPAbsolute (const KSPAbsolute::type& KSPAbsolute)
+{
+  this->_xsd_KSPAbsolute_.set (KSPAbsolute);
+}
+
+const ksp_tolerances_type::use::type& ksp_tolerances_type::
+use () const
+{
+  return this->_xsd_use_.get ();
+}
+
+ksp_tolerances_type::use::type& ksp_tolerances_type::
+use ()
+{
+  return this->_xsd_use_.get ();
+}
+
+void ksp_tolerances_type::
+use (const use::type& use)
+{
+  this->_xsd_use_.set (use);
+}
+
+void ksp_tolerances_type::
+use (::std::auto_ptr< use::type > use)
+{
+  this->_xsd_use_.set (use);
 }
 
 
@@ -1580,17 +1637,17 @@ _xsd_anisotropic_type_indexes_[2] =
 //
 
 point_type::
-point_type (const X::type& _xsd_X,
-            const Y::type& _xsd_Y,
-            const Z::type& _xsd_Z)
+point_type (const x::type& _xsd_x,
+            const y::type& _xsd_y,
+            const z::type& _xsd_z)
 : ::xml_schema::type (),
-_xsd_X_ (_xsd_X,
+_xsd_x_ (_xsd_x,
          ::xml_schema::flags (),
          this),
-_xsd_Y_ (_xsd_Y,
+_xsd_y_ (_xsd_y,
          ::xml_schema::flags (),
          this),
-_xsd_Z_ (_xsd_Z,
+_xsd_z_ (_xsd_z,
          ::xml_schema::flags (),
          this)
 {
@@ -1601,13 +1658,13 @@ point_type (const point_type& _xsd_point_type,
             ::xml_schema::flags f,
             ::xml_schema::type* c)
 : ::xml_schema::type (_xsd_point_type, f, c),
-_xsd_X_ (_xsd_point_type._xsd_X_,
+_xsd_x_ (_xsd_point_type._xsd_x_,
          f | ::xml_schema::flags::not_root,
          this),
-_xsd_Y_ (_xsd_point_type._xsd_Y_,
+_xsd_y_ (_xsd_point_type._xsd_y_,
          f | ::xml_schema::flags::not_root,
          this),
-_xsd_Z_ (_xsd_point_type._xsd_Z_,
+_xsd_z_ (_xsd_point_type._xsd_z_,
          f | ::xml_schema::flags::not_root,
          this)
 {
@@ -1618,9 +1675,9 @@ point_type (const ::xercesc::DOMElement& e,
             ::xml_schema::flags f,
             ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
-_xsd_X_ (f | ::xml_schema::flags::not_root, this),
-_xsd_Y_ (f | ::xml_schema::flags::not_root, this),
-_xsd_Z_ (f | ::xml_schema::flags::not_root, this)
+_xsd_x_ (f | ::xml_schema::flags::not_root, this),
+_xsd_y_ (f | ::xml_schema::flags::not_root, this),
+_xsd_z_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
@@ -1634,30 +1691,30 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
   {
     const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
 
-    if (a.name () == "X" && a.namespace_ ().empty ())
+    if (a.name () == "x" && a.namespace_ ().empty ())
     {
-      this->X (
-        X::traits::create (
+      this->x (
+        x::traits::create (
           a.dom_attribute (),
           f | ::xml_schema::flags::not_root,
           this));
       continue;
     }
 
-    if (a.name () == "Y" && a.namespace_ ().empty ())
+    if (a.name () == "y" && a.namespace_ ().empty ())
     {
-      this->Y (
-        Y::traits::create (
+      this->y (
+        y::traits::create (
           a.dom_attribute (),
           f | ::xml_schema::flags::not_root,
           this));
       continue;
     }
 
-    if (a.name () == "Z" && a.namespace_ ().empty ())
+    if (a.name () == "z" && a.namespace_ ().empty ())
     {
-      this->Z (
-        Z::traits::create (
+      this->z (
+        z::traits::create (
           a.dom_attribute (),
           f | ::xml_schema::flags::not_root,
           this));
@@ -1665,24 +1722,24 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
     }
   }
 
-  if (!_xsd_X_.present ())
+  if (!_xsd_x_.present ())
   {
     throw ::xsd::cxx::tree::expected_attribute< char > (
-      "X",
+      "x",
       "");
   }
 
-  if (!_xsd_Y_.present ())
+  if (!_xsd_y_.present ())
   {
     throw ::xsd::cxx::tree::expected_attribute< char > (
-      "Y",
+      "y",
       "");
   }
 
-  if (!_xsd_Z_.present ())
+  if (!_xsd_z_.present ())
   {
     throw ::xsd::cxx::tree::expected_attribute< char > (
-      "Z",
+      "z",
       "");
   }
 }
@@ -2877,19 +2934,93 @@ _clone (::xml_schema::flags f,
   return new timesteps_type (*this, f, c);
 }
 
+// ksp_use_type
+//
+
+ksp_use_type::
+ksp_use_type (const ::xercesc::DOMElement& e,
+              ::xml_schema::flags f,
+              ::xml_schema::type* c)
+: ::xml_schema::string (e, f, c)
+{
+  _xsd_ksp_use_type_convert ();
+}
+
+ksp_use_type::
+ksp_use_type (const ::xercesc::DOMAttr& a,
+              ::xml_schema::flags f,
+              ::xml_schema::type* c)
+: ::xml_schema::string (a, f, c)
+{
+  _xsd_ksp_use_type_convert ();
+}
+
+ksp_use_type::
+ksp_use_type (const ::std::basic_string< char >& s,
+              const ::xercesc::DOMElement* e,
+              ::xml_schema::flags f,
+              ::xml_schema::type* c)
+: ::xml_schema::string (s, e, f, c)
+{
+  _xsd_ksp_use_type_convert ();
+}
+
+ksp_use_type* ksp_use_type::
+_clone (::xml_schema::flags f,
+        ::xml_schema::type* c) const
+{
+  return new ksp_use_type (*this, f, c);
+}
+
+ksp_use_type::_xsd_ksp_use_type ksp_use_type::
+_xsd_ksp_use_type_convert () const
+{
+  ::xsd::cxx::tree::enum_comparator< char > c (_xsd_ksp_use_type_literals_);
+  const _xsd_ksp_use_type* i (::std::lower_bound (
+                                _xsd_ksp_use_type_indexes_,
+                                _xsd_ksp_use_type_indexes_ + 2,
+                                *this,
+                                c));
+
+  if (i == _xsd_ksp_use_type_indexes_ + 2 || _xsd_ksp_use_type_literals_[*i] != *this)
+  {
+    throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
+  }
+
+  return *i;
+}
+
+const char* const ksp_use_type::
+_xsd_ksp_use_type_literals_[2] =
+{
+  "relative",
+  "absolute"
+};
+
+const ksp_use_type::_xsd_ksp_use_type ksp_use_type::
+_xsd_ksp_use_type_indexes_[2] =
+{
+  ::ksp_use_type::absolute,
+  ::ksp_use_type::relative
+};
+
 // ksp_tolerances_type
 //
 
 ksp_tolerances_type::
-ksp_tolerances_type (const relative::type& _xsd_relative,
-                     const absolute::type& _xsd_absolute)
+ksp_tolerances_type (const KSPRelative::type& _xsd_KSPRelative,
+                     const KSPAbsolute::type& _xsd_KSPAbsolute,
+                     const use::type& _xsd_use)
 : ::xml_schema::type (),
-_xsd_relative_ (_xsd_relative,
-                ::xml_schema::flags (),
-                this),
-_xsd_absolute_ (_xsd_absolute,
-                ::xml_schema::flags (),
-                this)
+_xsd_KSPRelative_ (_xsd_KSPRelative,
+                   ::xml_schema::flags (),
+                   this),
+_xsd_KSPAbsolute_ (_xsd_KSPAbsolute,
+                   ::xml_schema::flags (),
+                   this),
+_xsd_use_ (_xsd_use,
+           ::xml_schema::flags (),
+           this)
 {
 }
 
@@ -2898,12 +3029,15 @@ ksp_tolerances_type (const ksp_tolerances_type& _xsd_ksp_tolerances_type,
                      ::xml_schema::flags f,
                      ::xml_schema::type* c)
 : ::xml_schema::type (_xsd_ksp_tolerances_type, f, c),
-_xsd_relative_ (_xsd_ksp_tolerances_type._xsd_relative_,
-                f | ::xml_schema::flags::not_root,
-                this),
-_xsd_absolute_ (_xsd_ksp_tolerances_type._xsd_absolute_,
-                f | ::xml_schema::flags::not_root,
-                this)
+_xsd_KSPRelative_ (_xsd_ksp_tolerances_type._xsd_KSPRelative_,
+                   f | ::xml_schema::flags::not_root,
+                   this),
+_xsd_KSPAbsolute_ (_xsd_ksp_tolerances_type._xsd_KSPAbsolute_,
+                   f | ::xml_schema::flags::not_root,
+                   this),
+_xsd_use_ (_xsd_ksp_tolerances_type._xsd_use_,
+           f | ::xml_schema::flags::not_root,
+           this)
 {
 }
 
@@ -2912,8 +3046,9 @@ ksp_tolerances_type (const ::xercesc::DOMElement& e,
                      ::xml_schema::flags f,
                      ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
-_xsd_relative_ (f | ::xml_schema::flags::not_root, this),
-_xsd_absolute_ (f | ::xml_schema::flags::not_root, this)
+_xsd_KSPRelative_ (f | ::xml_schema::flags::not_root, this),
+_xsd_KSPAbsolute_ (f | ::xml_schema::flags::not_root, this),
+_xsd_use_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
@@ -2923,42 +3058,78 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
 {
   ::xsd::cxx::xml::dom::parser< char > p (e);
 
+  while (p.more_elements ())
+  {
+    const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
+
+    // KSPRelative
+    //
+    {
+      if (e.name () == "KSPRelative" && e.namespace_ ().empty ())
+      {
+        if (_xsd_KSPRelative_.present ())
+          continue;
+        this->KSPRelative (
+          KSPRelative::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
+
+    // KSPAbsolute
+    //
+    {
+      if (e.name () == "KSPAbsolute" && e.namespace_ ().empty ())
+      {
+        if (_xsd_KSPAbsolute_.present ())
+          continue;
+        this->KSPAbsolute (
+          KSPAbsolute::traits::create (
+            e.dom_element (),
+            f | ::xml_schema::flags::not_root,
+            this));
+        continue;
+      }
+    }
+  }
+
+  if (!_xsd_KSPRelative_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "KSPRelative",
+      "");
+  }
+
+  if (!_xsd_KSPAbsolute_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "KSPAbsolute",
+      "");
+  }
+
   while (p.more_attributes ())
   {
     const ::xsd::cxx::xml::dom::attribute< char > a (p.next_attribute ());
 
-    if (a.name () == "relative" && a.namespace_ ().empty ())
+    if (a.name () == "use" && a.namespace_ ().empty ())
     {
-      this->relative (
-        relative::traits::create (
+      ::std::auto_ptr< use::type > r (
+        use::traits::create (
           a.dom_attribute (),
           f | ::xml_schema::flags::not_root,
           this));
-      continue;
-    }
 
-    if (a.name () == "absolute" && a.namespace_ ().empty ())
-    {
-      this->absolute (
-        absolute::traits::create (
-          a.dom_attribute (),
-          f | ::xml_schema::flags::not_root,
-          this));
+      this->use (r);
       continue;
     }
   }
 
-  if (!_xsd_relative_.present ())
+  if (!_xsd_use_.present ())
   {
     throw ::xsd::cxx::tree::expected_attribute< char > (
-      "relative",
-      "");
-  }
-
-  if (!_xsd_absolute_.present ())
-  {
-    throw ::xsd::cxx::tree::expected_attribute< char > (
-      "absolute",
+      "use",
       "");
   }
 }
@@ -3086,11 +3257,11 @@ _xsd_ksp_preconditioner_type_convert () const
   ::xsd::cxx::tree::enum_comparator< char > c (_xsd_ksp_preconditioner_type_literals_);
   const _xsd_ksp_preconditioner_type* i (::std::lower_bound (
                                            _xsd_ksp_preconditioner_type_indexes_,
-                                           _xsd_ksp_preconditioner_type_indexes_ + 1,
+                                           _xsd_ksp_preconditioner_type_indexes_ + 3,
                                            *this,
                                            c));
 
-  if (i == _xsd_ksp_preconditioner_type_indexes_ + 1 || _xsd_ksp_preconditioner_type_literals_[*i] != *this)
+  if (i == _xsd_ksp_preconditioner_type_indexes_ + 3 || _xsd_ksp_preconditioner_type_literals_[*i] != *this)
   {
     throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
   }
@@ -3099,15 +3270,19 @@ _xsd_ksp_preconditioner_type_convert () const
 }
 
 const char* const ksp_preconditioner_type::
-_xsd_ksp_preconditioner_type_literals_[1] =
+_xsd_ksp_preconditioner_type_literals_[3] =
 {
-  "ilu"
+  "ilu",
+  "jacobi",
+  "bjacobi"
 };
 
 const ksp_preconditioner_type::_xsd_ksp_preconditioner_type ksp_preconditioner_type::
-_xsd_ksp_preconditioner_type_indexes_[1] =
+_xsd_ksp_preconditioner_type_indexes_[3] =
 {
-  ::ksp_preconditioner_type::ilu
+  ::ksp_preconditioner_type::bjacobi,
+  ::ksp_preconditioner_type::ilu,
+  ::ksp_preconditioner_type::jacobi
 };
 
 // simulation_type

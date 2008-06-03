@@ -26,8 +26,8 @@
 			<Duration>0.5</Duration>
 			<Delay>0</Delay>
 			<Location>
-				<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
-				<CornerB X="-4.75" Z="5.0" Y="0.125"/>
+				<CornerA x="-5.0" z="-5.0" y="-0.125"/>
+				<CornerB x="-4.75" z="5.0" y="0.125"/>
 			</Location>
 		</Stimulus>	
 		<Stimulus> <!-- #2 -->
@@ -35,8 +35,8 @@
 			<Duration>0.5</Duration>
 			<Delay>200.0</Delay>
 			<Location>
-				<CornerA X="-5.0" Z="-5.0" Y="-0.125"/>
-				<CornerB X="0.0" Z="0.0" Y="0.125"/>
+				<CornerA x="-5.0" z="-5.0" y="-0.125"/>
+				<CornerB x="0.0" z="0.0" y="0.125"/>
 			</Location>
 		</Stimulus>	
 		
@@ -59,7 +59,10 @@
 
 	<Numerical>
 		<Timesteps ode="0.01" pde="0.01" printing="0.01"/>
-		<KSPTolerances relative="1e-6" absolute="1e-50"/>
+		<KSPTolerances use="relative">
+			<KSPRelative>1e-6</KSPRelative>
+			<KSPAbsolute>1e-50</KSPAbsolute>			
+		</KSPTolerances>
 		<KSPSolver>gmres</KSPSolver>
 		<KSPPreconditioner>ilu</KSPPreconditioner>
 	</Numerical>

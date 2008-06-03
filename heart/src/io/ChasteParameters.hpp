@@ -211,6 +211,7 @@ class slab_type;
 class mesh_type;
 class conductivities_type;
 class timesteps_type;
+class ksp_use_type;
 class ksp_tolerances_type;
 class ksp_solver_type;
 class ksp_preconditioner_type;
@@ -395,66 +396,66 @@ class point_type: public ::xml_schema::type
     typedef ::xml_schema::type base_;
   };
 
-  // X
+  // x
   // 
   public:
-  struct X
+  struct x
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const X::type&
-  X () const;
+  const x::type&
+  x () const;
 
-  X::type&
-  X ();
+  x::type&
+  x ();
 
   void
-  X (const X::type&);
+  x (const x::type&);
 
-  // Y
+  // y
   // 
   public:
-  struct Y
+  struct y
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const Y::type&
-  Y () const;
+  const y::type&
+  y () const;
 
-  Y::type&
-  Y ();
+  y::type&
+  y ();
 
   void
-  Y (const Y::type&);
+  y (const y::type&);
 
-  // Z
+  // z
   // 
   public:
-  struct Z
+  struct z
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const Z::type&
-  Z () const;
+  const z::type&
+  z () const;
 
-  Z::type&
-  Z ();
+  z::type&
+  z ();
 
   void
-  Z (const Z::type&);
+  z (const z::type&);
 
   // Constructors.
   //
   public:
-  point_type (const X::type&,
-              const Y::type&,
-              const Z::type&);
+  point_type (const x::type&,
+              const y::type&,
+              const z::type&);
 
   point_type (const ::xercesc::DOMElement&,
               ::xml_schema::flags = 0,
@@ -474,9 +475,9 @@ class point_type: public ::xml_schema::type
   void
   parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
 
-  ::xsd::cxx::tree::one< X::type > _xsd_X_;
-  ::xsd::cxx::tree::one< Y::type > _xsd_Y_;
-  ::xsd::cxx::tree::one< Z::type > _xsd_Z_;
+  ::xsd::cxx::tree::one< x::type > _xsd_x_;
+  ::xsd::cxx::tree::one< y::type > _xsd_y_;
+  ::xsd::cxx::tree::one< z::type > _xsd_z_;
 };
 
 class box_type: public ::xml_schema::type
@@ -1358,6 +1359,58 @@ class timesteps_type: public ::xml_schema::type
   ::xsd::cxx::tree::one< printing::type > _xsd_printing_;
 };
 
+class ksp_use_type: public ::xml_schema::string
+{
+  public:
+  enum _xsd_ksp_use_type
+  {
+    relative,
+    absolute
+  };
+
+  ksp_use_type (_xsd_ksp_use_type);
+
+  ksp_use_type (const ::xml_schema::string&);
+
+  ksp_use_type (const ::xercesc::DOMElement&,
+                ::xml_schema::flags = 0,
+                ::xml_schema::type* = 0);
+
+  ksp_use_type (const ::xercesc::DOMAttr&,
+                ::xml_schema::flags = 0,
+                ::xml_schema::type* = 0);
+
+  ksp_use_type (const ::std::basic_string< char >&,
+                const ::xercesc::DOMElement*,
+                ::xml_schema::flags = 0,
+                ::xml_schema::type* = 0);
+
+  ksp_use_type (const ksp_use_type&,
+                ::xml_schema::flags = 0,
+                ::xml_schema::type* = 0);
+
+  virtual ksp_use_type*
+  _clone (::xml_schema::flags = 0,
+          ::xml_schema::type* = 0) const;
+
+  ksp_use_type&
+  operator= (_xsd_ksp_use_type);
+
+  virtual
+  operator _xsd_ksp_use_type () const
+  {
+    return _xsd_ksp_use_type_convert ();
+  }
+
+  protected:
+  _xsd_ksp_use_type
+  _xsd_ksp_use_type_convert () const;
+
+  public:
+  static const char* const _xsd_ksp_use_type_literals_[2];
+  static const _xsd_ksp_use_type _xsd_ksp_use_type_indexes_[2];
+};
+
 class ksp_tolerances_type: public ::xml_schema::type
 {
   public:
@@ -1367,47 +1420,69 @@ class ksp_tolerances_type: public ::xml_schema::type
     typedef ::xml_schema::type base_;
   };
 
-  // relative
+  // KSPRelative
   // 
   public:
-  struct relative
+  struct KSPRelative
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const relative::type&
-  relative () const;
+  const KSPRelative::type&
+  KSPRelative () const;
 
-  relative::type&
-  relative ();
+  KSPRelative::type&
+  KSPRelative ();
 
   void
-  relative (const relative::type&);
+  KSPRelative (const KSPRelative::type&);
 
-  // absolute
+  // KSPAbsolute
   // 
   public:
-  struct absolute
+  struct KSPAbsolute
   {
     typedef ::xml_schema::double_ type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
   };
 
-  const absolute::type&
-  absolute () const;
+  const KSPAbsolute::type&
+  KSPAbsolute () const;
 
-  absolute::type&
-  absolute ();
+  KSPAbsolute::type&
+  KSPAbsolute ();
 
   void
-  absolute (const absolute::type&);
+  KSPAbsolute (const KSPAbsolute::type&);
+
+  // use
+  // 
+  public:
+  struct use
+  {
+    typedef ::ksp_use_type type;
+    typedef ::xsd::cxx::tree::traits< type, char > traits;
+  };
+
+  const use::type&
+  use () const;
+
+  use::type&
+  use ();
+
+  void
+  use (const use::type&);
+
+  void
+  use (::std::auto_ptr< use::type >);
 
   // Constructors.
   //
   public:
-  ksp_tolerances_type (const relative::type&,
-                       const absolute::type&);
+  ksp_tolerances_type (const KSPRelative::type&,
+                       const KSPAbsolute::type&,
+                       const use::type&);
 
   ksp_tolerances_type (const ::xercesc::DOMElement&,
                        ::xml_schema::flags = 0,
@@ -1427,8 +1502,9 @@ class ksp_tolerances_type: public ::xml_schema::type
   void
   parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
 
-  ::xsd::cxx::tree::one< relative::type > _xsd_relative_;
-  ::xsd::cxx::tree::one< absolute::type > _xsd_absolute_;
+  ::xsd::cxx::tree::one< KSPRelative::type > _xsd_KSPRelative_;
+  ::xsd::cxx::tree::one< KSPAbsolute::type > _xsd_KSPAbsolute_;
+  ::xsd::cxx::tree::one< use::type > _xsd_use_;
 };
 
 class ksp_solver_type: public ::xml_schema::string
@@ -1489,7 +1565,9 @@ class ksp_preconditioner_type: public ::xml_schema::string
   public:
   enum _xsd_ksp_preconditioner_type
   {
-    ilu
+    ilu,
+    jacobi,
+    bjacobi
   };
 
   ksp_preconditioner_type (_xsd_ksp_preconditioner_type);
@@ -1531,8 +1609,8 @@ class ksp_preconditioner_type: public ::xml_schema::string
   _xsd_ksp_preconditioner_type_convert () const;
 
   public:
-  static const char* const _xsd_ksp_preconditioner_type_literals_[1];
-  static const _xsd_ksp_preconditioner_type _xsd_ksp_preconditioner_type_indexes_[1];
+  static const char* const _xsd_ksp_preconditioner_type_literals_[3];
+  static const _xsd_ksp_preconditioner_type _xsd_ksp_preconditioner_type_indexes_[3];
 };
 
 class simulation_type: public ::xml_schema::type

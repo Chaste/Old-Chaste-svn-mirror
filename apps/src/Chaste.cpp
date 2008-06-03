@@ -227,13 +227,13 @@ void ReadParametersFromFile()
             point_type point_a = stimulus.Location().CornerA();
             point_type point_b = stimulus.Location().CornerB();
             
-            ChastePoint<3> chaste_point_a (scale_factor* point_a.X(), 
-                                           scale_factor* point_a.Y(),
-                                           scale_factor* point_a.Z());
+            ChastePoint<3> chaste_point_a (scale_factor* point_a.x(), 
+                                           scale_factor* point_a.y(),
+                                           scale_factor* point_a.z());
 
-            ChastePoint<3> chaste_point_b (scale_factor* point_b.X(),
-                                           scale_factor* point_b.Y(),
-                                           scale_factor* point_b.Z());
+            ChastePoint<3> chaste_point_b (scale_factor* point_b.x(),
+                                           scale_factor* point_b.y(),
+                                           scale_factor* point_b.z());
                         
             stimuli_applied.push_back( InitialStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
             stimuled_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
@@ -251,13 +251,13 @@ void ReadParametersFromFile()
             
             // method get() should be called for Y and Z since they have been defined optional in the schema
             // {Y,Z}.set() can be called to know if they have been defined
-            ChastePoint<3> chaste_point_a (scale_factor* point_a.X(), 
-                                           scale_factor* point_a.Y(),
-                                           scale_factor* point_a.Z());
+            ChastePoint<3> chaste_point_a (scale_factor* point_a.x(), 
+                                           scale_factor* point_a.y(),
+                                           scale_factor* point_a.z());
 
-            ChastePoint<3> chaste_point_b (scale_factor* point_b.X(),
-                                           scale_factor* point_b.Y(),
-                                           scale_factor* point_b.Z());
+            ChastePoint<3> chaste_point_b (scale_factor* point_b.x(),
+                                           scale_factor* point_b.y(),
+                                           scale_factor* point_b.z());
                         
             scale_factor_gks.push_back (ht.ScaleFactorGks());
             scale_factor_ito.push_back (ht.ScaleFactorIto());                                    

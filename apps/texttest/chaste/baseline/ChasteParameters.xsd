@@ -26,9 +26,9 @@
   </xs:simpleType>
   
   <xs:complexType name="point_type">
-    <xs:attribute name="X" type="xs:double" use="required"/>
-    <xs:attribute name="Y" type="xs:double" use="required"/>
-    <xs:attribute name="Z" type="xs:double" use="required"/>
+    <xs:attribute name="x" type="xs:double" use="required"/>
+    <xs:attribute name="y" type="xs:double" use="required"/>
+    <xs:attribute name="z" type="xs:double" use="required"/>
   </xs:complexType>
   
   <xs:complexType name="box_type">
@@ -97,9 +97,19 @@
     <xs:attribute name="printing" type="xs:double" use="required"/>        
   </xs:complexType>
 
+  <xs:simpleType name="ksp_use_type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="relative"/>
+      <xs:enumeration value="absolute"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:complexType name="ksp_tolerances_type">
-    <xs:attribute name="relative" type="xs:double" use="required"/>
-    <xs:attribute name="absolute" type="xs:double" use="required"/>
+    <xs:sequence>
+      <xs:element name="KSPRelative" type="xs:double"/>
+      <xs:element name="KSPAbsolute" type="xs:double"/>
+    </xs:sequence>
+    <xs:attribute name="use" type="ksp_use_type" use="required"/>
   </xs:complexType>
   
   <xs:simpleType name="ksp_solver_type">
@@ -113,6 +123,8 @@
   <xs:simpleType name="ksp_preconditioner_type">
     <xs:restriction base="xs:string">
       <xs:enumeration value="ilu"/>
+      <xs:enumeration value="jacobi"/>
+      <xs:enumeration value="bjacobi"/>      
     </xs:restriction>
   </xs:simpleType>   
       
