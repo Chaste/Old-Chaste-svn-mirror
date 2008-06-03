@@ -115,7 +115,7 @@ ionic_model_type HeartConfig::GetIonicModel()
         }
         else
         {
-            EXCEPTION("No IonicModel provided (neither default of user defined)");
+            EXCEPTION("No IonicModel provided (neither default nor user defined)");
         }             
     }
 }
@@ -142,7 +142,7 @@ c_vector<double, 3> HeartConfig::GetIntracellularConductivities()
         }
         else
         {
-            EXCEPTION("No IntracellularConductivities provided (neither default of user defined)");
+            EXCEPTION("No IntracellularConductivities provided (neither default nor user defined)");
         }             
     }        
 
