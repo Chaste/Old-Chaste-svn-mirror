@@ -465,7 +465,7 @@ public:
         
         NumericFileComparison comp(results_file,"cancer/test/data/CellCyclePhaseOutput/cellcyclephases.dat");
         TS_ASSERT(comp.CompareFiles());
-//        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CellCyclePhaseOutput/cellcyclephases.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CellCyclePhaseOutput/cellcyclephases.dat").c_str()), 0);
     }
 
     // Testing Save 
@@ -653,7 +653,7 @@ public:
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizvoronoi";
         
         NumericFileComparison comp(results_file,"cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat");
-        TS_ASSERT(comp.CompareFiles());
+        TS_ASSERT(comp.CompareFiles(2e-6));
         //Cover writing logged cell
         crypt.SetWriteVoronoiData(true, true);
         simulator.SetEndTime(0.01 + 1./120.);
@@ -726,15 +726,18 @@ public:
         // Work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DPeriodicTysonNovak",false);
         std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
+        
         NumericFileComparison comp_ele(results_dir + "/results.vizelements","cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizelements");
         TS_ASSERT(comp_ele.CompareFiles());
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizelements").c_str()), 0);
+        
         NumericFileComparison comp_nodes(results_dir + "/results.viznodes","cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.viznodes");
-        TS_ASSERT(comp_nodes.CompareFiles());
-        NumericFileComparison comp_setup(results_dir + "/results.vizsetup","cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizsetup");
-        TS_ASSERT(comp_setup.CompareFiles());
-//        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizelements").c_str()), 0);
-//        TS_ASSERT_EQUALS(system(("ndiff -abserr 1e-14 " + results_dir + "/results.viznodes cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.viznodes").c_str()), 0);
-//        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizsetup").c_str()), 0);
+        TS_ASSERT(comp_nodes.CompareFiles(1e-15));
+        //TS_ASSERT_EQUALS(system(("ndiff -abserr 1e-14 " + results_dir + "/results.viznodes cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.viznodes").c_str()), 0);
+        
+        //NumericFileComparison comp_setup(results_dir + "/results.vizsetup","cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizsetup");
+        //TS_ASSERT(comp_setup.CompareFiles());
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cancer/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizsetup").c_str()), 0);
     }
    
     
@@ -1039,11 +1042,9 @@ public:
         
         NumericFileComparison comp_bcat(results_file,"cancer/test/data/CryptBetaCatenin/results.vizbCat");
         TS_ASSERT(comp_bcat.CompareFiles());
-        NumericFileComparison comp_setup(results_setup_file,"cancer/test/data/CryptBetaCatenin/results.vizsetup");
-        TS_ASSERT(comp_setup.CompareFiles());
-        
-//        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CryptBetaCatenin/results.vizbCat").c_str()), 0);    
-//        TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " cancer/test/data/CryptBetaCatenin/results.vizsetup").c_str()), 0);    
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CryptBetaCatenin/results.vizbCat").c_str()), 0);    
+
+        TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " cancer/test/data/CryptBetaCatenin/results.vizsetup").c_str()), 0);    
 
         WntConcentration::Destroy();
     }        
@@ -1213,8 +1214,8 @@ public:
         NumericFileComparison comp_ans(results_file2,"cancer/test/data/AncestorCrypt/results.vizAncestors");
         TS_ASSERT(comp_ans.CompareFiles());
         
-//        TS_ASSERT_EQUALS(system(("diff " + results_file1 + " cancer/test/data/AncestorCrypt/results.viznodes").c_str()), 0);
-//        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " cancer/test/data/AncestorCrypt/results.vizAncestors").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file1 + " cancer/test/data/AncestorCrypt/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " cancer/test/data/AncestorCrypt/results.vizAncestors").c_str()), 0);
         
         delete p_params;               
     }

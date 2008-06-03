@@ -88,7 +88,7 @@ public:
         //Force CxxTest error if there were any major differences
         TS_ASSERT_LESS_THAN(max_error, absTolerance);
         TS_ASSERT(!empty_files);
-        return (failures==0);   
+        return (failures==0 && !empty_files);   
     }                       
 };
 #endif /*NUMERICFILECOMPARISON_HPP_*/
