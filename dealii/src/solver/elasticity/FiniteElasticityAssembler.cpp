@@ -209,10 +209,11 @@ unsigned FiniteElasticityAssembler<DIM>::GetMaterialLawIndexFromMaterialId(unsig
     return index;
 }
 
-// note - this seems to assume to position-components of mCurrentSolution is already zero?
 template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::FormInitialGuess()
 {
+    this->mCurrentSolution = 0;
+    
     std::vector<unsigned> local_dof_indices(this->mDofsPerElement);
     AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
     

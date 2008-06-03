@@ -56,7 +56,6 @@ CardiacMechanicsAssembler<DIM>::CardiacMechanicsAssembler(Triangulation<DIM>* pM
         for(unsigned j=0; j<DIM; j++)
         {
             mFibreSheetMat[i][j] = i==j ? 1.0 : 0.0;
-            
         }
     }
     mTransFibreSheetMat = transpose(mFibreSheetMat);
