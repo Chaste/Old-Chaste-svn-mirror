@@ -80,7 +80,7 @@ LinearSystem::LinearSystem(Vec templateVector)
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
     PetscInt local_size = mOwnershipRangeHi - mOwnershipRangeLo;
 
-    PetscTools::SetupMat(mLhsMatrix, mSize, mSize, MATMPIAIJ, local_size, local_size);
+    PetscTools::SetupMat(mLhsMatrix, mSize, mSize, (MatType) MATMPIAIJ, local_size, local_size);
 }
 
 /**

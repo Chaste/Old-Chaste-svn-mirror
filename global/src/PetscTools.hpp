@@ -168,7 +168,7 @@ public :
      *  @param maxColsPerRow The maximum number of non zeros per row. This value is problem dependend. An upper bound is (3^ELEMENT_DIM) * PROBLEM_DIM. The default value (3D bidomain problem) should be big enough for any of the problems being solved. 
      */
     static void SetupMat(Mat& rMat, int numRows, int numColumns, 
-                         MatType matType=MATMPIAIJ, 
+                         MatType matType=(MatType) MATMPIAIJ, 
                          int numLocalRows=PETSC_DECIDE, 
                          int numLocalColumns=PETSC_DECIDE,
                          int maxColsPerRow=54)
