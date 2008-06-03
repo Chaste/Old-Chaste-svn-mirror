@@ -214,6 +214,26 @@ public :
             EXCEPTION("Another process threw an exception; bailing out.");
         }
     }
+    
+    /**
+     *  Another helper method to get a single value from a vector
+     *  in 1 line than Petsc's usual 4 or 5. DOES NOT check that
+     *  the requested component is local, DOES do bound-checking.
+     */
+    static double GetVecValue(Vec vec, unsigned index)
+    {
+        assert(vec);
+        PetscInt size;
+        VecGetSize(vec, &size);
+        assert((int)index<size);
+        
+        double* p_data;
+        VecGetArray(vec, &p_data);
+        double ret = p_data[(int)index];
+        VecRestoreArray(vec, &p_data);
+        
+        return ret;
+    }
 };
 
 #endif /*PETSCTOOLS_HPP_*/

@@ -24,7 +24,8 @@ being under the jurisdiction of the English Courts.
 You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
-*/#ifndef _FITZHUGHNAGUMO1961ODESYSTEM_HPP_
+*/
+#ifndef _FITZHUGHNAGUMO1961ODESYSTEM_HPP_
 #define _FITZHUGHNAGUMO1961ODESYSTEM_HPP_
 
 #include "AbstractCardiacCell.hpp"

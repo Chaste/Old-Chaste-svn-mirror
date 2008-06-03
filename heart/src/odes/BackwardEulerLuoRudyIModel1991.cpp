@@ -24,7 +24,8 @@ being under the jurisdiction of the English Courts.
 You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
-*/#include "BackwardEulerLuoRudyIModel1991.hpp"
+*/
+#include "BackwardEulerLuoRudyIModel1991.hpp"
 #include "Exception.hpp"
 #include "CardiacNewtonSolver.hpp"
 

@@ -42,6 +42,44 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
 public:
+
+    void TestDeterminingWatchedNodes() throw(Exception)
+    {
+        EventHandler::Disable();
+        
+        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
+
+        CardiacElectroMechanicsProblem<2> problem(&cell_factory, 
+                                                  1, /* end time */
+                                                  10, /*mech mesh size*/ 
+                                                  false, /* implicit */
+                                                  100, /* 100*0.01ms mech dt */
+                                                  0.01,
+                                                  "nothingtolookathere");
+                                                  
+        c_vector<double,2> pos;
+        pos(0) = 1.0;
+        pos(1) = 0.0;
+        problem.SetWatchedPosition(pos);
+        problem.Initialise();
+        
+        // have checked these hardcoded values correspond to the nodes
+        // at (1,0); 
+        TS_ASSERT_EQUALS(problem.mWatchedElectricsNodeIndex, 9408u);
+        TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 10u);
+        
+        //// would like to do the following....
+        //CardiacElectroMechanicsProblem<2> problem2(&cell_factory, 
+        //                                           1, 10, false, 100, 0.01,
+        //                                           "nothingtolookathere");
+        //pos(1) = 1.1;
+        //problem2.SetWatchedPosition(pos);
+        //TS_ASSERT_THROWS_ANYTHING(problem2.Initialise());
+        //// ... but the exception causes a segmentation fault and had to be replaced
+        //// with an assert(0);
+    }
+        
+
     // test the interface works and does what it should do.
     // We only test the implicit solver as the explicit is not expected to work for very long
     void Test2dImplicit() throw(Exception)
@@ -63,7 +101,6 @@ public:
         std::vector<Vector<double> >& deformed_position = assembler->rGetDeformedPosition();
         TS_ASSERT_DELTA(deformed_position[0](5), 0.998313, 1e-4);
     }
-
 
 //    void TestCinverseDataStructure() throw(Exception)
 //    {

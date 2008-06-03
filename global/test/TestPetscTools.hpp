@@ -66,7 +66,8 @@ public:
         }
 
         ////////////////////////////////////////////////////
-        // test CreateVec which uses a std::vector of data
+        // test CreateVec which uses a std::vector of data,
+        // and test GetVecValue
         ////////////////////////////////////////////////////
         std::vector<double> data(10);
         for(unsigned i=0; i<10; i++)
@@ -75,6 +76,11 @@ public:
         }
         
         Vec vec2 = PetscTools::CreateVec(data);
+        
+        TS_ASSERT_DELTA( PetscTools::GetVecValue(vec2, 0), 0.45, 1e-12);
+        TS_ASSERT_DELTA( PetscTools::GetVecValue(vec2, 3), 3.45, 1e-12);
+        TS_ASSERT_DELTA( PetscTools::GetVecValue(vec2, 5), 5.45, 1e-12);
+        
         ReplicatableVector vec2_repl(vec2);
         
         TS_ASSERT_EQUALS(vec2_repl.size(), 10u);

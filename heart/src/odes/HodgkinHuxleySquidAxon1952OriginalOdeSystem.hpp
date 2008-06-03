@@ -24,7 +24,8 @@ being under the jurisdiction of the English Courts.
 You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
-*/#ifndef _HODGKINHUXLEYSQUIDAXON1952ORIGINALODESYSTEM_HPP_
+*/
+#ifndef _HODGKINHUXLEYSQUIDAXON1952ORIGINALODESYSTEM_HPP_
 #define _HODGKINHUXLEYSQUIDAXON1952ORIGINALODESYSTEM_HPP_
 
 

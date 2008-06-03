@@ -99,14 +99,20 @@ public:
         PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 
         CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
-                                                           200,  // end time of 200ms
-                                                           40,   // 10 mech elements in 1cm by 1cm square
+                                                           1000,  // end time of 200ms
+                                                           10,   // 10 mech elements in 1cm by 1cm square
                                                            false,// use implicit method 
                                                            100,  // 100 mech times per elec timestep, ie mech_dt = 1ms
                                                            1,    // nhs_dt = 1ms
                                                            "CardiacElectroMechBasic");
         implicit_problem.SetNoElectricsOutput();
         implicit_problem.UseDirectLinearSolver();
+
+        c_vector<double,2> pos;
+        pos(0) = 1.0;
+        pos(1) = 0.0;
+        implicit_problem.SetWatchedPosition(pos);
+        
         implicit_problem.Solve();
     }
         

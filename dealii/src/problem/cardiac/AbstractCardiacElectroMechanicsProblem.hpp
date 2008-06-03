@@ -153,8 +153,23 @@ protected :
     /*< when to write output */    
     const static int WRITE_EVERY_NTH_TIME = 1; 
     
+    /** 
+     *  Whether to use a direct solver when solving linear system. Should
+     *  definitely be used if UMFPACK is installed.
+     */
     bool mUseDirectLinearSolver;
     
+    /*< Whether any location has been set to be watched (lots of output for that location */
+    bool mIsWatchedLocation;
+    /*< The watched location if there is one */
+    c_vector<double,DIM> mWatchedLocation;
+    /*< The node in the electrics mesh corresponding to the watched location */
+    unsigned mWatchedElectricsNodeIndex;
+    /*< The node in the mechanics mesh corresponding to the watched location */
+    unsigned mWatchedMechanicsNodeIndex;
+    /*< File where watched location info is written */
+    out_stream mpWatchedLocationFile;
+
     
     /**
      *  A pure method constructing the mechanics assembler 
@@ -167,6 +182,110 @@ protected :
     
     virtual void PostSolve(double currentTime)
     {
+    }
+    
+    void DetermineWatchedNodes()
+    {
+        assert(mIsWatchedLocation);
+    
+        // find the nearest electrics mesh node
+        double min_dist = DBL_MAX;
+        unsigned node_index = UNSIGNED_UNSET;
+        for(unsigned i=0; i<mpElectricsMesh->GetNumNodes(); i++)
+        {
+            double dist = norm_2(mWatchedLocation - mpElectricsMesh->GetNode(i)->rGetLocation());
+            if(dist < min_dist)
+            {
+                min_dist = dist;
+                node_index = i;
+            }
+        }
+
+        // set up watched node, if close enough
+        assert(node_index != UNSIGNED_UNSET); // should def have found something
+        c_vector<double,DIM> pos = mpElectricsMesh->GetNode(node_index)->rGetLocation();
+
+        if(min_dist > 1e-8)
+        {
+            std::cout << "ERROR: Could not find an electrics node very close to requested watched location - "
+                      << "min distance was " << min_dist << " for node " << node_index 
+                      << " at location " << pos << std::flush;;
+
+            //// the following causes a seg fault for some reason (!!???!!!)
+            // EXCEPTION("Could not find an electrics node very close to requested watched location");
+            assert(0);
+        }
+        else
+        {
+            LOG_AND_COUT(1,"Chosen electrics node "<<node_index<<" at location " << pos << " to be watched");
+            mWatchedElectricsNodeIndex = node_index;
+        }
+
+        // find nearest mechanics mesh
+        min_dist = DBL_MAX;
+        node_index = UNSIGNED_UNSET;
+        Point<DIM> pos_at_min;
+        
+        TriangulationVertexIterator<DIM> vertex_iter(mpMechanicsMesh);
+        while (!vertex_iter.ReachedEnd())
+        {
+            Point<DIM> position = vertex_iter.GetVertex();
+            double dist_sqrd = 0;
+            for(unsigned i=0; i<DIM; i++)
+            {
+                dist_sqrd += (position[i]-mWatchedLocation(i))*(position[i]-mWatchedLocation(i));
+            }
+            double dist = sqrt(dist_sqrd);
+
+            if(dist < min_dist)
+            {
+                min_dist = dist;
+                node_index = vertex_iter.GetVertexGlobalIndex();
+                pos_at_min = position; 
+            }
+            vertex_iter.Next();
+        }
+        
+        // set up watched node, if close enough
+        assert(node_index != UNSIGNED_UNSET); // should def have found something 
+
+        if(min_dist > 1e-8)
+        {
+            std::cout << "ERROR: Could not find a mechanics node very close to requested watched location - "
+                      << "min distance was " << min_dist << " for node " << node_index 
+                      << " at location " << pos_at_min;
+
+            //// the following causes a seg fault for some reason (!!???!!!)
+            //EXCEPTION("Could not find a mechanics node very close to requested watched location");
+            assert(0);
+        }
+        else
+        {
+            LOG_AND_COUT(1,"Chosen electrics node "<<node_index<<" at location " << pos << " to be watched");
+            mWatchedMechanicsNodeIndex = node_index;
+        }
+
+        OutputFileHandler handler(mOutputDirectory + "/watched/");
+        mpWatchedLocationFile = handler.OpenOutputFile("data_NBassumesLr91.txt");
+    }
+    
+    
+    void WriteWatchedLocationData(Vec voltage)
+    {
+        std::vector<Vector<double> >& deformed_position
+          = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->rGetDeformedPosition();
+        
+        double V = PetscTools::GetVecValue(voltage, mWatchedElectricsNodeIndex);
+        
+        ///\todo:
+        // HARDCODED state variable index - assumes Lr91. Hierarchy not set up yet.
+        double Ca = mpMonodomainProblem->GetMonodomainPde()->GetCardiacCell(mWatchedElectricsNodeIndex)->rGetStateVariables()[3];
+        
+        for(unsigned i=0; i<DIM; i++)
+        {
+            *mpWatchedLocationFile << deformed_position[i](mWatchedMechanicsNodeIndex) << " ";
+        }
+        *mpWatchedLocationFile << V <<  " " << Ca << "\n";
     }
     
 public :
@@ -195,7 +314,7 @@ public :
         assert(endTime > 0);
         mEndTime = endTime;
         mElectricsTimeStep = 0.01;
-        assert(mNumElecStepsPerMechStep>0);
+        assert(numElecStepsPerMechStep>0);
         mNumElecStepsPerMechStep = numElecStepsPerMechStep;
         mMechanicsTimeStep = mElectricsTimeStep*mNumElecStepsPerMechStep;
         assert(nhsOdeTimeStep <= mMechanicsTimeStep+1e-14);
@@ -220,7 +339,6 @@ public :
         
         // check mMechanicsTimeStep=mElectricsTimeStep is explicit as prob won't be correct otherwise
         assert(!(mUseExplicitMethod && (mNumElecStepsPerMechStep>1)));
-        
         
         // initialise all the pointers
         mpElectricsMesh = NULL;
@@ -249,6 +367,10 @@ public :
         // by default we don't use the direct solver, as not all machines are
         // set up to use UMFPACK yet. However, it is MUCH better than GMRES.
         mUseDirectLinearSolver = false;
+        
+        mIsWatchedLocation = false;
+        mWatchedElectricsNodeIndex = UNSIGNED_UNSET;
+        mWatchedMechanicsNodeIndex = UNSIGNED_UNSET;
     }   
     
     virtual ~AbstractCardiacElectroMechanicsProblem()
@@ -258,9 +380,13 @@ public :
         delete mpElectricsMesh;
         delete mpMechanicsMesh;
         
+        if(mIsWatchedLocation)
+        {
+            mpWatchedLocationFile->close();
+        }
+        
         LogFile::Close();
     }
-    
     
     /**
      *  Initialise the class. Calls ConstructMeshes() and ConstructMechanicsAssembler() on
@@ -276,8 +402,13 @@ public :
         assert(mpCardiacMechAssembler==NULL);
         
         // construct the two meshes
-        ConstructMeshes();     
-
+        ConstructMeshes();
+        
+        if(mIsWatchedLocation)
+        {
+            DetermineWatchedNodes();
+        }
+        
         // initialise monodomain problem                        
         mpMonodomainProblem->SetMesh(mpElectricsMesh);
         if(DIM==2)
@@ -344,7 +475,6 @@ public :
 //            r_c_inverse[i][1] = 0.0;
 //            r_c_inverse[i][2] = 1.0;
 //        }
-
     }
 
     /** 
@@ -411,6 +541,11 @@ public :
             {
                 mpMonodomainProblem->InitialiseWriter();
                 mpMonodomainProblem->WriteOneStep(stepper.GetTime(), initial_voltage);
+            }
+            
+            if(mIsWatchedLocation)
+            {
+                WriteWatchedLocationData(initial_voltage);
             }
         }
 
@@ -541,6 +676,11 @@ public :
                     mpMonodomainProblem->mpWriter->AdvanceAlongUnlimitedDimension();
                     mpMonodomainProblem->WriteOneStep(stepper.GetTime(), voltage);
                 }
+
+                if(mIsWatchedLocation)
+                {
+                    WriteWatchedLocationData(voltage);
+                }
             }
 
 //            // setup the Cinverse data;
@@ -613,7 +753,17 @@ public :
     void UseDirectLinearSolver()
     {
         mUseDirectLinearSolver = true;
-    } 
+    }
+    
+    /**
+     *  Set a location to be watched - for which lots of output 
+     *  is given. Should correspond to nodes in both meshes.
+     */ 
+    void SetWatchedPosition(c_vector<double,DIM> watchedLocation)
+    {
+        mIsWatchedLocation = true;
+        mWatchedLocation = watchedLocation;
+    }
 };
 
 

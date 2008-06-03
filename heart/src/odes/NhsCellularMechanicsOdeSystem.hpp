@@ -24,7 +24,8 @@ being under the jurisdiction of the English Courts.
 You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
-*/#ifndef NHSCELLULARMECHANICSODESYSTEM_HPP_
+*/
+#ifndef NHSCELLULARMECHANICSODESYSTEM_HPP_
 #define NHSCELLULARMECHANICSODESYSTEM_HPP_
 
 #include "AbstractOdeSystem.hpp"

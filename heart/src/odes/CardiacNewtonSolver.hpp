@@ -24,7 +24,8 @@ being under the jurisdiction of the English Courts.
 You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
-*/#ifndef CARDIACNEWTONSOLVER_HPP_
+*/
+#ifndef CARDIACNEWTONSOLVER_HPP_
 #define CARDIACNEWTONSOLVER_HPP_
 
 #include <cmath>
