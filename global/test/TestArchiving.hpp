@@ -303,9 +303,6 @@ public:
     void TestArchivingSetOfSetOfPointers() throw (Exception)
     {
         // This test is an abstraction of archiving a set of sets of pointers and a list of objects. 
-        // The set of pointers represents mDivisionPairs in TissueSimulation, which is a set of 
-        // sets of pointers to TissueCells (phew). The list of objects represents the list of 
-        // TissueCells in Crypt.
         //
         // Note that the list.push_back method uses the copy constructor. This is why we iterate 
         // through the list to generate the pointers to populate the set. 
