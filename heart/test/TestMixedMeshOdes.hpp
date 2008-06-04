@@ -53,6 +53,9 @@ public:
      * Run the ODE's on the coarse-mesh cells
      * Interpolate the slow currents from the coarse-mesh cells to the fine-mesh cells
      * Run the ODE's forward on the fine-mesh cells
+     * 
+     * The mesh is 3 by 3 square, with the coarse mesh just the 4 corner nodes. 
+     * 
      */
     void Test2DSerial(void)
     {
@@ -69,27 +72,41 @@ public:
         coarse_mesh.SetFineMesh(&fine_mesh);
         
         unsigned num_fine_nodes=fine_mesh.GetNumNodes();
+        
         // create a vector of bools telling us which of the fine nodes
         // have a coarse counter part
         std::vector<bool> fine_has_coarse_counterpart;
         fine_has_coarse_counterpart.resize(num_fine_nodes);
         for (unsigned fine_node_index=0; fine_node_index<num_fine_nodes; fine_node_index++)
         {
-            fine_has_coarse_counterpart[fine_node_index]=false;
+            fine_has_coarse_counterpart[fine_node_index] = false;
         }
+
         for (unsigned coarse_node_index=0;
              coarse_node_index<coarse_mesh.GetNumNodes();
              coarse_node_index++)
         {
             unsigned fine_node_index = coarse_mesh.rGetCoarseFineNodeMap().GetNewIndex(coarse_node_index);
-            fine_has_coarse_counterpart[fine_node_index]=false;
+            fine_has_coarse_counterpart[fine_node_index] = true;
         }
+
+        // print the mesh
+        /*
+        std::cout << "Coarse\n";
+        for(unsigned i=0; i<coarse_mesh.GetNumNodes(); i++)
+        {
+            std::cout << i << " -- " << coarse_mesh.GetNode(i)->rGetLocation() << "\n";
+        }
+        std::cout << "Fine\n";
+        for(unsigned i=0; i<fine_mesh.GetNumNodes(); i++)
+        {
+            std::cout << i << " -- " << fine_mesh.GetNode(i)->rGetLocation() << "\n";
+        }
+        */
         
-        
-        // create vector of cells
-        
-        std::vector<FastSlowLuoRudyIModel1991* > fine_cells;
-        fine_cells.resize(num_fine_nodes);
+        // create vector of cells - slow at the coarse nodes and fast at the fine-and-not-coarse nodes    
+        std::vector<FastSlowLuoRudyIModel1991* > cells;
+        cells.resize(num_fine_nodes);
         
         ZeroStimulus zero_stimulus;
         InitialStimulus full_stimulus(-600, 0.5);
@@ -118,7 +135,11 @@ public:
                 p_stimulus = &full_stimulus;
             }
             
-            fine_cells[fine_node_index] = new FastSlowLuoRudyIModel1991(!fine_has_coarse_counterpart[fine_node_index],
+            // fast_model if fine has no coarse counterpart, slow if it does
+            // (ie fast if fine only node, slow if coarse node)
+            bool is_fast_model = !fine_has_coarse_counterpart[fine_node_index];
+            
+            cells[fine_node_index] = new FastSlowLuoRudyIModel1991(is_fast_model,
                                                                         &solver,
                                                                         time_step,
                                                                         p_stimulus);
@@ -129,35 +150,64 @@ public:
         {
             if (fine_has_coarse_counterpart[fine_node_index])
             {
-                fine_cells[fine_node_index]->Compute(start_time, end_time);
+                assert(cells[fine_node_index]->IsFast()==false);
+                cells[fine_node_index]->Compute(start_time, end_time);
             }
             
         }
         
         // interpolate slow currents to fine mesh cells
-//        for (unsigned fine_node_index=0; fine_node_index<num_fine_nodes; fine_node_index++)
-//        {
-//            if (!fine_has_coarse_counterpart[fine_node_index])
-//            {
-//                Element<2,2>* p_coarse_element = mixed_mesh.GetACoarseElementForFineNodeIndex(fine_node_index);
-//                
-//            }
-//            
-//        }        
-        
+        for (unsigned index=0; index<num_fine_nodes; index++)
+        {
+            if (!fine_has_coarse_counterpart[index])
+            {
+                Element<2,2>* p_coarse_element = coarse_mesh.GetACoarseElementForFineNodeIndex(index);
+                
+                const ChastePoint<2>& r_position_of_fine_node = fine_mesh.GetNode(index)->rGetLocation();
 
+                c_vector<double,2+1> weights = p_coarse_element->CalculateInterpolationWeights(r_position_of_fine_node);
+         
+                unsigned num_slow_values = cells[p_coarse_element->GetNodeGlobalIndex(0)]->GetNumSlowValues();
+                std::vector<double> interpolated_slow_values(num_slow_values, 0.0); 
+                for (unsigned i=0; i<2+1/*num_nodes*/; i++)
+                {
+                    unsigned coarse_cell_index = p_coarse_element->GetNodeGlobalIndex(i);
+                    unsigned corresponding_fine_mesh_index = coarse_mesh.rGetCoarseFineNodeMap().GetNewIndex(coarse_cell_index);
+                    FastSlowLuoRudyIModel1991* p_coarse_node_cell = cells [ corresponding_fine_mesh_index ];
+                    
+                    TS_ASSERT_EQUALS(fine_has_coarse_counterpart [corresponding_fine_mesh_index], true); 
+                    TS_ASSERT_EQUALS(p_coarse_node_cell->IsFast(), false);
+                    
+                    std::vector<double> nodal_slow_values;
+                    p_coarse_node_cell->GetSlowValues(nodal_slow_values);
+                    assert(nodal_slow_values.size() == num_slow_values);
+                    for(unsigned j=0; j<nodal_slow_values.size(); j++)
+                    {                    
+                        interpolated_slow_values[j] += nodal_slow_values[j]*weights(i);
+                    }
+                }
+
+                cells[index]->SetSlowValues(interpolated_slow_values);
+            }
+        }        
+        
+        // solve ODEs on fine-only nodes
+        for (unsigned fine_node_index=0; fine_node_index<num_fine_nodes; fine_node_index++)
+        {
+            if (!fine_has_coarse_counterpart[fine_node_index])
+            {
+                assert(cells[fine_node_index]->IsFast());
+                cells[fine_node_index]->Compute(start_time, end_time);
+            }            
+        }
+        
         // destroy vector of cells
         for (unsigned fine_node_index=0; fine_node_index<num_fine_nodes; fine_node_index++)
         {
-            delete fine_cells[fine_node_index];
+            delete cells[fine_node_index];
         }
-
     }
-
 };
-
-
-
 
 
 #endif /*TESTMIXEDMESHODES_HPP_*/

@@ -97,6 +97,20 @@ public:
     double GetIIonic();
     
     double GetIntracellularCalciumConcentration();
+    
+    /*< Get whether this cell is a fast or slow version */
+    bool IsFast()
+    {
+        return mIsFast;
+    }
+    
+    /** 
+     *  Get number of slow variables in this model - NOT the same as whether in fast mode or not.
+     */
+    static unsigned GetNumSlowValues()
+    {
+        return 2;
+    }
 };
 
 #endif // _FASTSLOWLUORUDYIMODEL1991_HPP_

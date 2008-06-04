@@ -39,6 +39,9 @@ class TestFastSlowLuoRudyIModel1991 : public CxxTest::TestSuite
 public:
     void TestFastLuoRudyCalculateDerivativesFastMode(void) throw(Exception)
     {
+        // test static method
+        TS_ASSERT_EQUALS(FastSlowLuoRudyIModel1991::GetNumSlowValues(), 2u);
+        
         //Set up normal cell model and evaluate Y derivatives
         ZeroStimulus stimulus;
         EulerIvpOdeSolver solver;
@@ -52,7 +55,10 @@ public:
 
         //Set up fast cell model and evaluate Y derivatives
         FastSlowLuoRudyIModel1991 fast_luo_rudy(true, &solver, time_step, &stimulus);
+        TS_ASSERT_EQUALS(fast_luo_rudy.IsFast(), true);
         TS_ASSERT_EQUALS(fast_luo_rudy.GetNumberOfStateVariables(), 6u);
+        TS_ASSERT_EQUALS(fast_luo_rudy.GetNumSlowValues(), 2u);
+
 
         std::vector<double> DY_fast(6);
         std::vector<double> slow_values(2);
@@ -86,6 +92,7 @@ public:
 
         //Set up fast cell model in slow mode and evaluate Y derivatives
         FastSlowLuoRudyIModel1991 fast_luo_rudy(false, &solver, time_step, &stimulus);
+        TS_ASSERT_EQUALS(fast_luo_rudy.IsFast(), false);
         TS_ASSERT_EQUALS(fast_luo_rudy.GetNumberOfStateVariables(), 8u);
 
         std::vector<double> DY_fast(8);
