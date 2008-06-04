@@ -2015,65 +2015,6 @@ public:
         EdgeIteratorTest<1>("mesh/test/data/1D_0_to_1_10_elements");
     }
     
-
-    void TestSetupSmasrmMap()
-    {
-        // create a mesh on [0,2]x[0,2]
-        ConformingTetrahedralMesh<2,2> flagged_mesh; 
-        flagged_mesh.ConstructRectangularMesh(50,50);
-        flagged_mesh.Scale(2.0/50, 2.0/50);
-        
-        // flag the [0,1]x[0,1] quadrant
-        for(unsigned i=0; i<flagged_mesh.GetNumElements(); i++)
-        {
-            for(unsigned j=0; j<flagged_mesh.GetElement(i)->GetNumNodes(); j++)
-            {
-                double x = flagged_mesh.GetElement(i)->GetNode(j)->rGetLocation()[0];
-                double y = flagged_mesh.GetElement(i)->GetNode(j)->rGetLocation()[1];
-                
-                if((x<1.0)&&(y<1.0))
-                {
-                    flagged_mesh.GetElement(i)->Flag();
-                }
-            }
-        }
-        
-        // create the smasrm map
-        flagged_mesh.SetupSmasrmMap();
-        std::map<unsigned, unsigned> smasrm_map=flagged_mesh.rGetSmasrmMap();
-        
-        // map should be surjective with range {0..n-1} where n is number of flagged nodes 
-        // domain should be the set of global node indices of the flagged nodes
-        
-        std::set<unsigned> expected_domain;
-        std::set<unsigned> expected_range;
-        for (unsigned node_index = 0; node_index < flagged_mesh.GetNumNodes(); node_index++)
-        {
-            if (flagged_mesh.GetNode(node_index)->IsFlagged(flagged_mesh))
-            {
-                expected_domain.insert(node_index);
-                expected_range.insert(expected_range.size());
-            }
-        }
-        
-        for (std::map<unsigned, unsigned>::iterator map_iterator = smasrm_map.begin();
-             map_iterator != smasrm_map.end();
-             map_iterator++)
-        {
-            std::set<unsigned>::iterator set_iterator;
-            set_iterator = expected_domain.find(map_iterator->first);
-            TS_ASSERT_DIFFERS(set_iterator, expected_domain.end());
-            expected_domain.erase(set_iterator);
-            
-            set_iterator = expected_range.find(map_iterator->second);
-            TS_ASSERT_DIFFERS(set_iterator, expected_range.end());
-            expected_range.erase(set_iterator);
-        }
-        
-        TS_ASSERT_EQUALS(expected_domain.begin(), expected_domain.end());
-        TS_ASSERT_EQUALS(expected_range.begin(), expected_range.end());        
-    }
-    
     void TestGetAngleBetweenNodes()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");

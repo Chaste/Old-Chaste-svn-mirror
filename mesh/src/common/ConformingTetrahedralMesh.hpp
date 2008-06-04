@@ -93,8 +93,6 @@ protected:  // Give access of these variables to subclasses
 private:    
     //unsigned mNumCornerNodes;
    
-    std::map<unsigned, unsigned> mSmasrmIndexMap;
-    
     /**
      * Check whether any neighbouring node is inside the circumsphere of this element.
      * @param pointer to an element
@@ -414,50 +412,6 @@ public:
      *  Flag all elements not containing ANY of the given nodes
      */
     void FlagElementsNotContainingNodes(std::set<unsigned> nodesList);
-    
-    /**
-     *  Set up a map between the nodes in the flagged region of the mesh and 
-     */
-    void SetupSmasrmMap()
-    {
-        // Figure out the SMASRM size, and generate a map from global node number
-        // to SMASRM index.
-        mSmasrmIndexMap.clear();
-
-        ElementIterator iter = GetElementIteratorBegin();
-        unsigned smasrm_size = 0;
-
-        while (iter != GetElementIteratorEnd())
-        {
-            Element<ELEMENT_DIM, SPACE_DIM>& element = **iter;
-            
-            if (element.IsFlagged())
-            {
-                // Add this element's nodes to the map
-                const unsigned num_nodes = element.GetNumNodes();
-                for (unsigned i=0; i<num_nodes; i++)
-                {
-                    unsigned node_index = element.GetNodeGlobalIndex(i);
-                    if (mSmasrmIndexMap.count(node_index) == 0)
-                    {
-                        // This is a new node
-                        mSmasrmIndexMap[node_index] = smasrm_size++;
-                    }
-                }
-            }
-            ++iter;
-        }
-        assert(mSmasrmIndexMap.size() == smasrm_size);
-    }
-     
-     
-    /** 
-     *  Get the map between the flagged node indices and
-     */
-    std::map<unsigned, unsigned>& rGetSmasrmMap()
-    {
-        return mSmasrmIndexMap;
-    }
 
     /**
      * Iterator over edges in the mesh, which correspond to springs between cells.
