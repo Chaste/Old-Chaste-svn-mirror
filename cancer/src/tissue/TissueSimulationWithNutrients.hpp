@@ -542,7 +542,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
 
     // We shouldn't have any ghost nodes in a TissueSimulationWithNutrients
     assert(this->mrTissue.HasGhostNodes()==false);
-    
+
     // Loop over cells and calculate centre of distribution
     c_vector<double, DIM> centre = zero_vector<double>(DIM);
     for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
@@ -552,43 +552,96 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         centre += cell_iter.rGetLocation();
     }
     centre /= this->mrTissue.GetNumRealCells();
-    
+
     // Find max radius
-    double max_radius =0.0;
+    double max_radius = 0.0;
     for(typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
-        double radius = norm_2(centre - cell_iter.rGetLocation() );
+        double radius = norm_2(centre - cell_iter.rGetLocation());
         if (radius > max_radius)
         {
             max_radius = radius;
         }
     }
-      
+
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;
     ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
+
+    /**
+     * The following for loop applies the boundary condition at all nodes in 
+     * the coarse nutrient mesh which lie outside the maximum radius of the tissue.
+     * 
+     * This is not ideal as it will induce artificial growth anisotropies. For
+     * example, consider a cigar shaped tissue - clearly boundary cells at the 
+     * tips will experience a higher oxygen concentration than boundary cells 
+     * on the lengths.
+     * 
+     * A better boundary condition implementation would be to find which element 
+     * indices of the coarse nutrient mesh are not in mCellNutrientElementMap, 
+     * and apply the boundary conditions at the nodes associated with these elements
+     * (see #630 and the commented out code below).
+     */
     for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
     {
         double distance_from_centre = norm_2(r_mesh.GetNode(i)->rGetLocation() - centre);
-        if( distance_from_centre > max_radius )
+        if (distance_from_centre > max_radius)
         {
-            bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(i), p_boundary_condition,0,false);
+            bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(i), p_boundary_condition, 0, false);
         }
-    }    
+    }
+
+//    // Get the set of coarse element indices that contain tissue cells
+//    std::set<unsigned> coarse_element_indices_in_map;
+//    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+//        cell_iter != this->mrTissue.End();
+//        ++cell_iter)
+//    {
+//        coarse_element_indices_in_map.insert(mCellNutrientElementMap[&(*cell_iter)]);
+//    }
+//
+//    // Find the node indices that associated with elements whose
+//    // indices are NOT in the set coarse_element_indices_in_map
+//    std::set<unsigned> coarse_mesh_boundary_node_indices;
+//
+//    for (unsigned i=0; i<r_mesh.GetNumElements(); i++)
+//    {
+//        // If the element index is NOT in the set...
+//        if (coarse_element_indices_in_map.find(i) == coarse_element_indices_in_map.end())
+//        {
+//            // ... then get the element...
+//            Element<DIM,DIM>* p_element = r_mesh.GetElement(i);
+//
+//            // ... and add its associated nodes to coarse_mesh_boundary_node_indices
+//            for (unsigned local_index=0; local_index<DIM+1; local_index++)
+//            {
+//                unsigned node_index = p_element->GetNode(local_index)->GetIndex();
+//                coarse_mesh_boundary_node_indices.insert(node_index);
+//            }
+//        }
+//    }
+//
+//    // Apply boundary condition to the nodes in the set coarse_mesh_boundary_node_indices
+//    for (std::set<unsigned>::iterator iter = coarse_mesh_boundary_node_indices.begin();
+//         iter != coarse_mesh_boundary_node_indices.end();
+//         ++iter)
+//    {
+//        bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(*iter), p_boundary_condition, 0, false);
+//    }
 
     PetscInt size_of_soln_previous_step = 0;
-    
-    if(mNutrientSolution)
+
+    if (mNutrientSolution)
     {
         VecGetSize(mNutrientSolution, &size_of_soln_previous_step);
     }
-    
+
     mpAveragedSinksPde->SetupSourceTerms(*mpCoarseNutrientMesh);
-    
+
     SimpleLinearEllipticAssembler<DIM,DIM> assembler(mpCoarseNutrientMesh, mpAveragedSinksPde, &bcc);
-    
+
     if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
     {
         // We make an initial guess which gets copied by the Solve method of
@@ -596,7 +649,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         Vec initial_guess;
         VecDuplicate(mNutrientSolution, &initial_guess);
         VecCopy(mNutrientSolution, initial_guess);
-        
+
         // Use current solution as the initial guess
         VecDestroy(mNutrientSolution);    // Solve method makes its own mNutrientSolution
         mNutrientSolution = assembler.Solve(initial_guess);
@@ -605,7 +658,10 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     else
     {
         assert(mNutrientSolution == NULL);
-        /* Coarse mesh doesn't yet change size
+        /**
+         * Eventually we will enable the coarse nutrient mesh to change size, for example
+         * in the case of a spheroid that grows a lot (see #630). In this case we should 
+         * uncomment the following code.
          * 
         if (mNutrientSolution)
         {
@@ -615,10 +671,10 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         *
         */
         mNutrientSolution = assembler.Solve();
-    }            
+    }
 
     // Update cellwise data - since the cells are not nodes on the coarse
-    // mesh we have to interpolate from the nodes of the coarse mesh onto
+    // mesh, we have to interpolate from the nodes of the coarse mesh onto
     // the cell locations
     ReplicatableVector nutrient_repl(mNutrientSolution);
 
@@ -634,14 +690,14 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         const ChastePoint<DIM>& r_position_of_cell = cell_iter.rGetLocation();
 
         c_vector<double,DIM+1> weights = p_element->CalculateInterpolationWeights(r_position_of_cell);
-         
+
         double interpolated_nutrient = 0.0;
         for (unsigned i=0; i<DIM+1/*num_nodes*/; i++)
         {         
             double nodal_value = nutrient_repl[ p_element->GetNodeGlobalIndex(i) ];
             interpolated_nutrient += nodal_value*weights(i);
         }
-    
+
         CellwiseData<DIM>::Instance()->SetValue(interpolated_nutrient, cell_iter.GetNode());
     }
 }

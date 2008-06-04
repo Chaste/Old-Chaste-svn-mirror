@@ -41,7 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseNutrientSinkPde.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
-
 class SimplePdeForTesting : public AbstractLinearEllipticPde<2>
 {
 public:
@@ -487,6 +486,7 @@ public:
         // Set up PDE
         AveragedSinksPde<2> pde(tissue, -0.1);
 
+        // Set up mechanics system
         Meineke2001SpringSystem<2> spring_system(tissue);
         spring_system.UseCutoffPoint(1.5);
                   
@@ -525,7 +525,8 @@ public:
         TS_ASSERT_DELTA(centre_of_tissue[1], centre_of_nutrient_mesh[1], 1e-4);
         
         // Test FindElementContainingCell and initialisation of mCellNutrientElementMap
-        simulator.InitialiseCoarseNutrientMesh();
+        
+        simulator.InitialiseCoarseNutrientMesh(); // coverage
         
         for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
             cell_iter != tissue.End();
@@ -588,6 +589,79 @@ public:
         }
         
         CellwiseData<2>::Destroy();
+    }
+    
+    void FailingTestCoarseNutrientMeshBoundaryConditionImplementation() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+        
+        CancerParameters::Instance()->SetHepaOneParameters();
+        
+        // Create a cigar-shaped mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
+        ConformingTetrahedralMesh<2,2>* p_mesh = new ConformingTetrahedralMesh<2,2>;
+        p_mesh->ConstructFromMeshReader(mesh_reader);
+        p_mesh->Scale(5.0,1.0);
+
+        // Set up cells
+        std::vector<TissueCell> cells;
+        
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel());
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
+                                    (CancerParameters::Instance()->GetHepaOneCellG1Duration()
+                                    +CancerParameters::Instance()->GetSG2MDuration());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Set up tissue        
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
+
+        // Set up CellwiseData and associate it with the tissue
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
+        p_data->SetTissue(tissue);
+        
+        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+        // we need to pass it some initial conditions to avoid memory errors
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            p_data->SetValue(1.0, p_mesh->GetNode(i));
+        }
+
+        // Set up PDE
+        AveragedSinksPde<2> pde(tissue, -0.01);
+
+        // Set up mechanics system
+        Meineke2001SpringSystem<2> spring_system(tissue);
+        spring_system.UseCutoffPoint(1.5);
+
+        // Set up tissue simulation to use a coarse nutrient mesh
+        TissueSimulationWithNutrients<2> simulator(tissue, &spring_system, NULL, &pde);
+        simulator.SetOutputDirectory("TestCoarseNutrientMeshBoundaryConditionImplementation");
+        simulator.SetEndTime(0.01);
+        simulator.UseCoarseNutrientMesh(2.0);
+        
+        simulator.Solve();
+        
+        // Test that all boundary cells experience the right boundary condition
+        // (not quite all boundary cells, mind)       
+        
+        for (AbstractTissue<2>::Iterator cell_iter = simulator.rGetTissue().Begin();
+             cell_iter != simulator.rGetTissue().End();
+             ++cell_iter)
+        {
+            if (simulator.rGetTissue().GetNodeCorrespondingToCell(*cell_iter)->IsBoundaryNode())
+            {
+                TS_ASSERT_DELTA(p_data->GetValue(&(*cell_iter)), 1.0, 1e-1);
+            }
+        }
+        
+        CellwiseData<2>::Destroy();
+        delete p_mesh;
     }
     
     void TestArchivingWithSimplePde() throw (Exception)
