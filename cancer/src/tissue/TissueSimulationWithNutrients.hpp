@@ -569,67 +569,44 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;
     ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
-
-    /**
-     * The following for loop applies the boundary condition at all nodes in 
-     * the coarse nutrient mesh which lie outside the maximum radius of the tissue.
-     * 
-     * This is not ideal as it will induce artificial growth anisotropies. For
-     * example, consider a cigar shaped tissue - clearly boundary cells at the 
-     * tips will experience a higher oxygen concentration than boundary cells 
-     * on the lengths.
-     * 
-     * A better boundary condition implementation would be to find which element 
-     * indices of the coarse nutrient mesh are not in mCellNutrientElementMap, 
-     * and apply the boundary conditions at the nodes associated with these elements
-     * (see #630 and the commented out code below).
-     */
-    for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
+    
+    // Get the set of coarse element indices that contain tissue cells
+    std::set<unsigned> coarse_element_indices_in_map;
+    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+        cell_iter != this->mrTissue.End();
+        ++cell_iter)
     {
-        double distance_from_centre = norm_2(r_mesh.GetNode(i)->rGetLocation() - centre);
-        if (distance_from_centre > max_radius)
+        coarse_element_indices_in_map.insert(mCellNutrientElementMap[&(*cell_iter)]);
+    }
+
+    // Find the node indices that associated with elements whose
+    // indices are NOT in the set coarse_element_indices_in_map
+    std::set<unsigned> coarse_mesh_boundary_node_indices;
+
+    for (unsigned i=0; i<r_mesh.GetNumElements(); i++)
+    {
+        // If the element index is NOT in the set...
+        if (coarse_element_indices_in_map.find(i) == coarse_element_indices_in_map.end())
         {
-            bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(i), p_boundary_condition, 0, false);
+            // ... then get the element...
+            Element<DIM,DIM>* p_element = r_mesh.GetElement(i);
+
+            // ... and add its associated nodes to coarse_mesh_boundary_node_indices
+            for (unsigned local_index=0; local_index<DIM+1; local_index++)
+            {
+                unsigned node_index = p_element->GetNode(local_index)->GetIndex();
+                coarse_mesh_boundary_node_indices.insert(node_index);
+            }
         }
     }
 
-//    // Get the set of coarse element indices that contain tissue cells
-//    std::set<unsigned> coarse_element_indices_in_map;
-//    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
-//        cell_iter != this->mrTissue.End();
-//        ++cell_iter)
-//    {
-//        coarse_element_indices_in_map.insert(mCellNutrientElementMap[&(*cell_iter)]);
-//    }
-//
-//    // Find the node indices that associated with elements whose
-//    // indices are NOT in the set coarse_element_indices_in_map
-//    std::set<unsigned> coarse_mesh_boundary_node_indices;
-//
-//    for (unsigned i=0; i<r_mesh.GetNumElements(); i++)
-//    {
-//        // If the element index is NOT in the set...
-//        if (coarse_element_indices_in_map.find(i) == coarse_element_indices_in_map.end())
-//        {
-//            // ... then get the element...
-//            Element<DIM,DIM>* p_element = r_mesh.GetElement(i);
-//
-//            // ... and add its associated nodes to coarse_mesh_boundary_node_indices
-//            for (unsigned local_index=0; local_index<DIM+1; local_index++)
-//            {
-//                unsigned node_index = p_element->GetNode(local_index)->GetIndex();
-//                coarse_mesh_boundary_node_indices.insert(node_index);
-//            }
-//        }
-//    }
-//
-//    // Apply boundary condition to the nodes in the set coarse_mesh_boundary_node_indices
-//    for (std::set<unsigned>::iterator iter = coarse_mesh_boundary_node_indices.begin();
-//         iter != coarse_mesh_boundary_node_indices.end();
-//         ++iter)
-//    {
-//        bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(*iter), p_boundary_condition, 0, false);
-//    }
+    // Apply boundary condition to the nodes in the set coarse_mesh_boundary_node_indices
+    for (std::set<unsigned>::iterator iter = coarse_mesh_boundary_node_indices.begin();
+         iter != coarse_mesh_boundary_node_indices.end();
+         ++iter)
+    {
+        bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(*iter), p_boundary_condition, 0, false);
+    }
 
     PetscInt size_of_soln_previous_step = 0;
 

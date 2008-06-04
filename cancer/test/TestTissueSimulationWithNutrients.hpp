@@ -591,7 +591,7 @@ public:
         CellwiseData<2>::Destroy();
     }
     
-    void FailingTestCoarseNutrientMeshBoundaryConditionImplementation() throw(Exception)
+    void TestCoarseNutrientMeshBoundaryConditionImplementation() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
         
@@ -647,9 +647,7 @@ public:
         
         simulator.Solve();
         
-        // Test that all boundary cells experience the right boundary condition
-        // (not quite all boundary cells, mind)       
-        
+        // Test that boundary cells experience the right boundary condition        
         for (AbstractTissue<2>::Iterator cell_iter = simulator.rGetTissue().Begin();
              cell_iter != simulator.rGetTissue().End();
              ++cell_iter)
