@@ -44,6 +44,7 @@ public:
         // If it doesn't exist - throw exception
         if (!file1->is_open())
         {
+            file1=NULL;
             EXCEPTION("Couldn't open info file: " + fileName1);
         }
         
@@ -51,8 +52,24 @@ public:
         // If it doesn't exist - throw exception
         if (!file2->is_open())
         {
+            file1->close();
+            file1=NULL;
+            file2=NULL;
             EXCEPTION("Couldn't open info file: " + fileName2);
         }
+    }
+    ~NumericFileComparison()
+    {
+        if (file1)
+        {
+            file1->close();
+        }
+        if (file2)
+        {
+            file2->close();
+        }
+        delete file1;
+        delete file2;
     }
     bool CompareFiles( double absTolerance=DBL_EPSILON)
     {
