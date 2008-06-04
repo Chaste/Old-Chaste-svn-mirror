@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RunAndCheckIonicModels.hpp"
 #include "Exception.hpp"
 
-#include "InitialStimulus.hpp"
+#include "SimpleStimulus.hpp"
 #include "RegularStimulus.hpp"
 
 #include "EulerIvpOdeSolver.hpp"
@@ -64,7 +64,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestIonicModels : public CxxTest::TestSuite
 {
 public:
-    void TestOdeSolverForHH52WithInitialStimulus(void)
+    void TestOdeSolverForHH52WithSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
 
@@ -72,7 +72,7 @@ public:
         double magnitude_stimulus = 20.0;  // uA/cm2
         double duration_stimulus = 0.5;  // ms
         double start_stimulus = 10.0;   // ms
-        InitialStimulus stimulus(magnitude_stimulus,
+        SimpleStimulus stimulus(magnitude_stimulus,
                                  duration_stimulus,
                                  start_stimulus);
         EulerIvpOdeSolver solver;
@@ -101,7 +101,7 @@ public:
     }
     
     
-    void TestOdeSolverForFHN61WithInitialStimulus(void) throw (Exception)
+    void TestOdeSolverForFHN61WithSimpleStimulus(void) throw (Exception)
     {
         clock_t ck_start, ck_end;
 
@@ -109,7 +109,7 @@ public:
         double magnitude_stimulus = -80.0;   // dimensionless
         double duration_stimulus = 0.5;  // ms
         double start_stimulus = 0.0;   // ms
-        InitialStimulus stimulus(magnitude_stimulus,
+        SimpleStimulus stimulus(magnitude_stimulus,
                                  duration_stimulus,
                                  start_stimulus);
                                  
@@ -138,9 +138,9 @@ public:
         TS_ASSERT_DELTA( fhn61_ode_system.GetIIonic(), -0.0058, 1e-3);
         
         // some coverage
-        InitialStimulus another_stimulus(-200,1.0, 0.0);
-        InitialStimulus intra_stimulus(-100,1.0, 0.0);
-        InitialStimulus extra_stimulus(-50, 1.0, 0.0);
+        SimpleStimulus another_stimulus(-200,1.0, 0.0);
+        SimpleStimulus intra_stimulus(-100,1.0, 0.0);
+        SimpleStimulus extra_stimulus(-50, 1.0, 0.0);
         FitzHughNagumo1961OdeSystem another_fhn61_ode_system(&solver, time_step, &stimulus);
         
         another_fhn61_ode_system.SetStimulusFunction(&another_stimulus);
@@ -156,7 +156,7 @@ public:
     }
     
     
-    void TestOdeSolverForLR91WithDelayedInitialStimulus(void)
+    void TestOdeSolverForLR91WithDelayedSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
 
@@ -164,7 +164,7 @@ public:
         double magnitude = -25.5;
         double duration  = 2.0 ;  // ms
         double when = 50.0; // ms
-        InitialStimulus stimulus(magnitude, duration, when);
+        SimpleStimulus stimulus(magnitude, duration, when);
         
         double end_time = 1000.0; //One second in milliseconds
         double time_step = 0.01;  //1e-5 seconds in milliseconds
@@ -220,14 +220,14 @@ public:
         CheckCellModelResults("Lr91RegularStim");
     }
     
-    void TestBackwardEulerLr91WithDelayedInitialStimulus(void) throw (Exception)
+    void TestBackwardEulerLr91WithDelayedSimpleStimulus(void) throw (Exception)
     {
         clock_t ck_start, ck_end;
         // Set stimulus
         double magnitude = -25.5;
         double duration  = 2.0 ;  // ms
         double when = 50.0; // ms
-        InitialStimulus stimulus(magnitude, duration, when);
+        SimpleStimulus stimulus(magnitude, duration, when);
         
         double end_time = 1000.0; //One second in milliseconds
         double time_step = 0.01;  //1e-5 seconds in milliseconds
@@ -289,7 +289,7 @@ public:
         BackwardEulerLuoRudyIModel1991 lr91_backward_euler3(&solver2, time_step, &stimulus);
     }
     
-    void TestOdeSolverForFR2000WithDelayedInitialStimulus(void)
+    void TestOdeSolverForFR2000WithDelayedSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
 
@@ -297,7 +297,7 @@ public:
         double magnitude = -25.5;
         double duration  = 2.0;  // ms
         double when = 10.0; // ms
-        InitialStimulus stimulus(magnitude, duration, when);
+        SimpleStimulus stimulus(magnitude, duration, when);
         
         double end_time = 1000.0; //ms
         double time_step = 0.007;
@@ -344,7 +344,7 @@ public:
         double magnitude = -25.5;
         double duration  = 2.0;  // ms
         double when = 0.0; // ms
-        InitialStimulus stimulus(magnitude, duration, when);
+        SimpleStimulus stimulus(magnitude, duration, when);
         
         double end_time = 1000.0; //ms
         double time_step = 0.007;
@@ -457,7 +457,7 @@ private:
         double pde_time_step = 0.01;  // ms (not used, but here to replicate TestMonodomainHeart)
         double ode_time_step = pde_time_step/ratio; // ms
         double end_time = 10;        // ms
-        InitialStimulus zero_stimulus(0,0,0);
+        SimpleStimulus zero_stimulus(0,0,0);
         EulerIvpOdeSolver solver;
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, ode_time_step, &zero_stimulus);
         double time=0.0;

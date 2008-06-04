@@ -37,7 +37,7 @@ class GeneralPlaneStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:
     // define a new stimulus
-    InitialStimulus* mpStimulus;
+    SimpleStimulus* mpStimulus;
     
 public:
     GeneralPlaneStimulusCellFactory(double timeStep, unsigned numEleAcross, double meshWidth, bool useMeshWidthAsMag=false) : AbstractCardiacCellFactory<DIM>(timeStep)
@@ -49,7 +49,7 @@ public:
         if (useMeshWidthAsMag)
         {
             #define COVERAGE_IGNORE
-            mpStimulus = new InitialStimulus(meshWidth, 0.5);
+            mpStimulus = new SimpleStimulus(meshWidth, 0.5);
             #undef COVERAGE_IGNORE
         }
         else
@@ -80,7 +80,7 @@ public:
                 }
             }
             //std::cout<<"Mag is "<<stimulus_magnitude<<"\n";
-            mpStimulus = new InitialStimulus(stimulus_magnitude, 0.5);
+            mpStimulus = new SimpleStimulus(stimulus_magnitude, 0.5);
         }
     }
     

@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <float.h>
 
 #include "AbstractStimulusFunction.hpp"
-#include "InitialStimulus.hpp"
+#include "SimpleStimulus.hpp"
 #include "RegularStimulus.hpp"
 #include "TimeStepper.hpp"
 #include "SumStimulus.hpp"
@@ -44,13 +44,13 @@ class TestStimulus : public CxxTest::TestSuite
 {
 public:
 
-    void TestInitialStimulus()
+    void TestSimpleStimulus()
     {
         double magnitude_of_stimulus = 1.0;
         double duration_of_stimulus  = 0.5;  // ms
         double when = 100.0;
 
-    	InitialStimulus initial_at_zero(magnitude_of_stimulus, duration_of_stimulus);
+    	SimpleStimulus initial_at_zero(magnitude_of_stimulus, duration_of_stimulus);
                 
         TS_ASSERT_EQUALS(initial_at_zero.GetStimulus(0.0), magnitude_of_stimulus);
         TS_ASSERT_EQUALS(initial_at_zero.GetStimulus(duration_of_stimulus*(1-DBL_EPSILON)), 
@@ -61,7 +61,7 @@ public:
         TS_ASSERT_EQUALS(initial_at_zero.GetStimulus(duration_of_stimulus*(1+3*DBL_EPSILON)), 
             0.0);
         
-        InitialStimulus initial_later(magnitude_of_stimulus, duration_of_stimulus, when);
+        SimpleStimulus initial_later(magnitude_of_stimulus, duration_of_stimulus, when);
         
         TS_ASSERT_EQUALS(initial_later.GetStimulus(when*(1-DBL_EPSILON)), 
             0.0);            
@@ -76,13 +76,13 @@ public:
     }
 
 
-    void TestDelayedInitialStimulus()
+    void TestDelayedSimpleStimulus()
     {
         double magnitude_of_stimulus = 1.0;
         double duration_of_stimulus  = 0.002;  // ms
         double when = 0.06;
         
-        InitialStimulus initial(magnitude_of_stimulus, duration_of_stimulus, when);
+        SimpleStimulus initial(magnitude_of_stimulus, duration_of_stimulus, when);
         TS_ASSERT_EQUALS(initial.GetStimulus(0.062),  magnitude_of_stimulus);
     }
 
@@ -139,8 +139,8 @@ public:
     //is too difficult to reproduce
     void TestSumStimulus()
     {
-        InitialStimulus r1(2,1,0);
-        InitialStimulus r2(3,1,3); 
+        SimpleStimulus r1(2,1,0);
+        SimpleStimulus r2(3,1,3); 
         SumStimulus s(&r1,&r2);
         
         TimeStepper t(0,10,1);
@@ -166,8 +166,8 @@ public:
         // No stimulus after creation.
         TS_ASSERT_EQUALS( multi_stim.GetStimulus(1.0), 0.0);
 
-        InitialStimulus init_stim_a(2,1,0);
-        InitialStimulus init_stim_b(3,1,30);
+        SimpleStimulus init_stim_a(2,1,0);
+        SimpleStimulus init_stim_b(3,1,30);
         // RegularStimulus result at a boundary point isn't the same for Default and IntelProduction build
         // (in fact it gives different answers to "fmod" within the IntelProduction test) 
         RegularStimulus regular_stim(2.0, 1.0, 1.0/0.15, 1);

@@ -80,7 +80,7 @@ std::string  mesh_output_directory = "/"; // Location for generated mesh files
 domain_type domain = domain_type::Mono;
 ionic_model_type ionic_model = ionic_model_type::LuoRudyIModel1991OdeSystem;
 
-std::vector<InitialStimulus> stimuli_applied;
+std::vector<SimpleStimulus> stimuli_applied;
 std::vector<ChasteCuboid> stimuled_areas;
 
 std::vector<double> scale_factor_gks;
@@ -236,7 +236,7 @@ void ReadParametersFromFile()
                                            scale_factor* point_b.y(),
                                            scale_factor* point_b.z());
                         
-            stimuli_applied.push_back( InitialStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
+            stimuli_applied.push_back( SimpleStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
             stimuled_areas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
         }
 

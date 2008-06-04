@@ -47,14 +47,14 @@ class PointStimulusWithShockCellFactory : public AbstractCardiacCellFactory<1>
 {
 private:
     // define a new stimulus
-    InitialStimulus* mpIntraStimulus;
-    InitialStimulus* mpExtraStimulus, *mpExtraStimulusNeg;
+    SimpleStimulus* mpIntraStimulus;
+    SimpleStimulus* mpExtraStimulus, *mpExtraStimulusNeg;
     
 public:
     PointStimulusWithShockCellFactory() : AbstractCardiacCellFactory<1>(0.01)
     {
-        mpIntraStimulus = new InitialStimulus(  -600000, 0.5);
-        mpExtraStimulus = new InitialStimulus( -6000000, 0.5, 10.0); // switches on at 10ms
+        mpIntraStimulus = new SimpleStimulus(  -600000, 0.5);
+        mpExtraStimulus = new SimpleStimulus( -6000000, 0.5, 10.0); // switches on at 10ms
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
@@ -86,13 +86,13 @@ public:
 class CornerStim2dBidomainCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
-    InitialStimulus* mpIntraStimulus;
-    InitialStimulus* mpExtraStimulus;
+    SimpleStimulus* mpIntraStimulus;
+    SimpleStimulus* mpExtraStimulus;
 public:
     CornerStim2dBidomainCellFactory() : AbstractCardiacCellFactory<2>(0.01)
     {
-        mpIntraStimulus = new InitialStimulus(-6000000, 0.5);
-        mpExtraStimulus = new InitialStimulus(-6000000, 0.5, 2);
+        mpIntraStimulus = new SimpleStimulus(-6000000, 0.5);
+        mpExtraStimulus = new SimpleStimulus(-6000000, 0.5, 2);
     }
     
     
@@ -120,13 +120,13 @@ public:
 class PointStimulusCellFactory3D : public AbstractCardiacCellFactory<3>
 {
 private:
-    InitialStimulus* mpIntraStimulus;
-    InitialStimulus* mpExtraStimulus;
+    SimpleStimulus* mpIntraStimulus;
+    SimpleStimulus* mpExtraStimulus;
 public:
     PointStimulusCellFactory3D() : AbstractCardiacCellFactory<3>(0.001)
     {
-        mpIntraStimulus = new InitialStimulus(-1000*1000, 0.5);
-        mpExtraStimulus = new InitialStimulus(-1000*1000, 0.5, 5); // switches on at 5ms
+        mpIntraStimulus = new SimpleStimulus(-1000*1000, 0.5);
+        mpExtraStimulus = new SimpleStimulus(-1000*1000, 0.5, 5); // switches on at 5ms
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)

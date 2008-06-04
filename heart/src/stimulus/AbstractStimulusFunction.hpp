@@ -29,7 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef _ABSTRACTSTIMULUSFUNCTION_HPP_
 #define _ABSTRACTSTIMULUSFUNCTION_HPP_
+
 #include <float.h>
+
 /**
  * Represents an abstract stimulus function. Sub-classes will implement the
  * GetStimulus() function to represent the various type of stimuli to the cardiac
@@ -38,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractStimulusFunction
 {
 public:
-    //Returns stimulus at time 'time'
+    /*< Returns stimulus at time 'time' */
     virtual double GetStimulus(double time) = 0;
     virtual ~AbstractStimulusFunction()
     {}

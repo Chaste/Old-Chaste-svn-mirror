@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractStimulusFunction.hpp"
 
 /**
- *  Stimulus which is always zero. More efficient than using an InitialStimulus
+ *  Stimulus which is always zero. More efficient than using an SimpleStimulus
  *  with magnitude zero
  */
 class ZeroStimulus : public AbstractStimulusFunction

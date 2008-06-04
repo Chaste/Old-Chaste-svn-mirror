@@ -45,19 +45,19 @@ class HeterogeneousCellFactory : public AbstractCardiacCellFactory<1>
 {
 private:
     // define a new stimulus
-    InitialStimulus* mpStimulus;
+    SimpleStimulus* mpStimulus;
     
 public:
     HeterogeneousCellFactory() : AbstractCardiacCellFactory<1>(0.005)//Ode timestep
     {
         // set the new stimulus
-        mpStimulus = new InitialStimulus(-600, 0.5);
+        mpStimulus = new SimpleStimulus(-600, 0.5);
     }
     
     HeterogeneousCellFactory(double timeStep, double stimulusMagnitude) : AbstractCardiacCellFactory<1>(timeStep)
     {
         // set the new stimulus
-        mpStimulus = new InitialStimulus(stimulusMagnitude, 0.5);
+        mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)

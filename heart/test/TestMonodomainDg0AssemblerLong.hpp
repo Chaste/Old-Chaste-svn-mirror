@@ -50,14 +50,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
-    InitialStimulus *mpStimulus;
+    SimpleStimulus *mpStimulus;
     unsigned mNodeNum;
 public:
     PointStimulus2dCellFactory(unsigned nodeNum)
             : AbstractCardiacCellFactory<2>(0.01),
             mNodeNum(nodeNum)
     {
-        mpStimulus = new InitialStimulus(-6000.0, 0.5);
+        mpStimulus = new SimpleStimulus(-6000.0, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)

@@ -82,14 +82,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
-/* Declare pointer to an {{{InitialStimulus}}} for the cell which is stimulated. 
+/* Declare pointer to an {{{SimpleStimulus}}} for the cell which is stimulated. 
  * Note that {{{AbstractCardiacCellFactory}}} also has as protected members: {{{mpZeroStimulus}}}
  * of type {{{ZeroStimulus}}}; {{{mpMesh}}}, a pointer to the mesh used (the problem
  * class will set this before it calls {{{CreateCardiacCellForNode}}}, so it can be used
  * in that method); {{{mTimestep}}}, a double (see below); and {{{mpSolver}}} a forward
  * euler ode solver (see below). */ 
 private:
-    InitialStimulus *mpStimulus;
+    SimpleStimulus *mpStimulus;
 
 public:
     /* Our contructor takes in nothing. It calls the constructor of 
@@ -98,7 +98,7 @@ public:
      */ 
     PointStimulus2dCellFactory() : AbstractCardiacCellFactory<2>(0.01)
     {
-        mpStimulus = new InitialStimulus(-6000.0, 0.5);
+        mpStimulus = new SimpleStimulus(-6000.0, 0.5);
     }
     
     /* Now we implement the pure method which needs to be implemented. We return 

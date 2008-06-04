@@ -46,11 +46,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class BidomainPointStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {
 private:
-    InitialStimulus *mpStimulus;
+    SimpleStimulus *mpStimulus;
 public:
     BidomainPointStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.001)
     {
-        mpStimulus = new InitialStimulus(-1000.0*1000, 1);
+        mpStimulus = new SimpleStimulus(-1000.0*1000, 1);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)

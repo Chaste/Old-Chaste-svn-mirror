@@ -32,13 +32,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "InitialStimulus.hpp"
+#include "SimpleStimulus.hpp"
 #include "RegularStimulus.hpp"
 
 class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {
 private:
-    InitialStimulus *mpStimulus;
+    SimpleStimulus *mpStimulus;
     RegularStimulus *mpRegStimulus;
     
 public:

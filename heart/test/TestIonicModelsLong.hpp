@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "RunAndCheckIonicModels.hpp"
 
-#include "InitialStimulus.hpp"
+#include "SimpleStimulus.hpp"
 #include "RegularStimulus.hpp"
 
 #include "EulerIvpOdeSolver.hpp"

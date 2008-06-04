@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include "NhsCellularMechanicsOdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
-#include "InitialStimulus.hpp"
+#include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "SimpleDataWriter.hpp"
@@ -80,7 +80,7 @@ public:
         double magnitude =  -25.5;
         double duration  =   2.0;  // ms
         double when      =   0.0;  // ms
-        InitialStimulus stimulus(magnitude, duration, when);
+        SimpleStimulus stimulus(magnitude, duration, when);
 
         double end_time = 1000.0; 
         double time_step = 0.01; 

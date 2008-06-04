@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCell.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "ZeroStimulus.hpp"
-#include "InitialStimulus.hpp"
+#include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 
 /**

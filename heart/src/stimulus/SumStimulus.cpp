@@ -38,3 +38,4 @@ double SumStimulus::GetStimulus(double time)
 {
     return mpStimulus1->GetStimulus(time)+mpStimulus2->GetStimulus(time);
 }
+

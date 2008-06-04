@@ -47,11 +47,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class FhnEdgeStimulusCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
-    InitialStimulus *mpStimulus;
+    SimpleStimulus *mpStimulus;
 public:
     FhnEdgeStimulusCellFactory() : AbstractCardiacCellFactory<2>(0.01)
     {
-        mpStimulus = new InitialStimulus(-10.0, 0.5);
+        mpStimulus = new SimpleStimulus(-10.0, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)

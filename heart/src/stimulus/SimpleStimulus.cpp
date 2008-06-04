@@ -27,30 +27,43 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _INITIALSTIMULUS_HPP_
-#define _INITIALSTIMULUS_HPP_
-
-#include "AbstractStimulusFunction.hpp"
+#include "SimpleStimulus.hpp"
+#include <cmath>
 
 /**
- * Provides an initial stimulus of magnitude 'magnitudeOfStimulus'
- * from time 'timeOfStimulus' for duration 'duration'.
+ * Constructor
+ *
  */
-class InitialStimulus : public AbstractStimulusFunction
+SimpleStimulus::SimpleStimulus(double magnitudeOfStimulus, double duration, double timeOfStimulus)
 {
-private:
-    /** The stimulus magnitude, typically in microA/cm^2 */
-    double mMagnitudeOfStimulus;
-    /** Duration of initial stimulus, typically in milliseconds */
-    double mDuration;
-    /** The time at which the stimulus starts, typically in milliseconds */
-    double mTimeOfStimulus;
+    mMagnitudeOfStimulus = magnitudeOfStimulus;
+    mDuration = duration;
+    mTimeOfStimulus = timeOfStimulus;
+    
+    mDuration += (mDuration+mTimeOfStimulus)*DBL_EPSILON; 
+}
 
-public:
-    InitialStimulus(double magnitudeOfStimulus, double duration, double timeOfStimulus=0.0);
-    virtual ~InitialStimulus();
-    double GetStimulus(double time);
-};
+/**
+* Destructor
+*/
+SimpleStimulus::~SimpleStimulus()
+{
+    // Do nothing
+}
 
-#endif //_INITIALSTIMULUS_HPP_
-
+/**
+ * Get the magnitude of stimulus at time 'time'
+ *
+ * @return  Magnitude of stimulus at time 'time'
+ */
+double SimpleStimulus::GetStimulus(double time)
+{
+    if (mTimeOfStimulus <= time && time <= mDuration+mTimeOfStimulus)
+    {
+        return mMagnitudeOfStimulus;
+    }
+    else
+    {
+        return 0.0;
+    }
+}

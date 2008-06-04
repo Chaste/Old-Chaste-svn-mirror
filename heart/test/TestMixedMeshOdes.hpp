@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "FastSlowLuoRudyIModel1991.hpp"
 #include "ZeroStimulus.hpp"
-#include "InitialStimulus.hpp"
+#include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 
 #include "TimeStepper.hpp"
@@ -111,8 +111,8 @@ public:
         cells.resize(num_fine_nodes);
         
         ZeroStimulus zero_stimulus;
-        InitialStimulus full_stimulus(-600, 0.5);
-        InitialStimulus half_stimulus(-300, 0.5);
+        SimpleStimulus full_stimulus(-600, 0.5);
+        SimpleStimulus half_stimulus(-300, 0.5);
         EulerIvpOdeSolver solver;
         double time_step = 0.01;
         

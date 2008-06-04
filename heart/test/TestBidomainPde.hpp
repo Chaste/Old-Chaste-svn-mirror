@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <vector>
 
-#include "InitialStimulus.hpp"
+#include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "MonodomainPde.hpp"
@@ -59,9 +59,9 @@ public:
 
     MyCardiacCellFactory() : AbstractCardiacCellFactory<1>(0.01)
     {
-        mpStimulus = new InitialStimulus(-80.0, 0.5);
-        mpExtracellularStimulus1 = new InitialStimulus(-150,0.5);
-        mpExtracellularStimulus2 = new InitialStimulus(-250,0.5);
+        mpStimulus = new SimpleStimulus(-80.0, 0.5);
+        mpExtracellularStimulus1 = new SimpleStimulus(-150,0.5);
+        mpExtracellularStimulus2 = new SimpleStimulus(-250,0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)

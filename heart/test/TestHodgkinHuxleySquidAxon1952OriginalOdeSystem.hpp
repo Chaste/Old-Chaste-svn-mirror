@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include <iostream>
 #include <vector>
 
-#include "InitialStimulus.hpp"
+#include "SimpleStimulus.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 
 class TestHodgkinHuxleySquidAxon1952OriginalOdeSystem: public CxxTest::TestSuite
@@ -49,7 +49,7 @@ public:
         double magnitude_stimulus = 0.0;  // uA/cm2
         double duration_stimulus = 0.;  // ms
         double start_stimulus = 0.0;   // ms
-        InitialStimulus stimulus(magnitude_stimulus,
+        SimpleStimulus stimulus(magnitude_stimulus,
                                  duration_stimulus,
                                  start_stimulus);
                                  

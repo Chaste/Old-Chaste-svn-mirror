@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-#include "InitialStimulus.hpp"
+#include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "MonodomainPde.hpp"
@@ -46,13 +46,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class MyCardiacCellFactory : public AbstractCardiacCellFactory<1>
 {
 private:
-    InitialStimulus* mpStimulus;
+    SimpleStimulus* mpStimulus;
     
 public:
 
     MyCardiacCellFactory() : AbstractCardiacCellFactory<1>(0.01)
     {
-        mpStimulus = new InitialStimulus(-80.0, 0.5);
+        mpStimulus = new SimpleStimulus(-80.0, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
@@ -78,7 +78,7 @@ public:
     }
   
     
-    InitialStimulus* GetStimulus()
+    SimpleStimulus* GetStimulus()
     {
         return mpStimulus;
     }
@@ -104,8 +104,8 @@ public:
         cell_factory.SetMesh(&mesh);
         
         // Stimulus function to use at node 0. Node 1 is not stimulated.
-        InitialStimulus* stimulus = cell_factory.GetStimulus();
-        InitialStimulus* zero_stim = new InitialStimulus(0,0,0);
+        SimpleStimulus* stimulus = cell_factory.GetStimulus();
+        SimpleStimulus* zero_stim = new SimpleStimulus(0,0,0);
         
         MonodomainPde<1> monodomain_pde( &cell_factory );
         

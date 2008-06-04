@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ReplicatableVector.hpp"
-#include "InitialStimulus.hpp"
+#include "SimpleStimulus.hpp"
 #include "StimulusBoundaryCondition.hpp"
 #include "ZeroStimulusCellFactory.hpp"
 
@@ -119,7 +119,7 @@ public:
         
         // create boundary conditions container
         BoundaryConditionsContainer<1,1,1> bcc;
-        InitialStimulus stim(4*1.75/0.0005, 0.5);
+        SimpleStimulus stim(4*1.75/0.0005, 0.5);
         StimulusBoundaryCondition<1> *p_bc_stim = new StimulusBoundaryCondition<1>(&stim);
                 
         // get mesh
@@ -176,7 +176,7 @@ public:
         
         // create boundary conditions container
         BoundaryConditionsContainer<1,1,2> bcc;
-        InitialStimulus stim(4*1.75/0.0005, 0.5);
+        SimpleStimulus stim(4*1.75/0.0005, 0.5);
         StimulusBoundaryCondition<1> *p_bc_stim = new StimulusBoundaryCondition<1>(&stim);
                 
         // get mesh
@@ -235,7 +235,7 @@ public:
         
         // create boundary conditions container
         BoundaryConditionsContainer<2, 2, 2> bcc;
-        InitialStimulus stim(10000.0, 0.5);
+        SimpleStimulus stim(10000.0, 0.5);
         StimulusBoundaryCondition<2> *p_bc_stim = new StimulusBoundaryCondition<2>(&stim);
         //ConstBoundaryCondition<2> *p_bc_no_flux = new ConstBoundaryCondition<2>(0);
                 

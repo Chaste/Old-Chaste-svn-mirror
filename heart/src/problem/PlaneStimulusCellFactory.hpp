@@ -39,21 +39,21 @@ class PlaneStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:
     // define a new stimulus
-    InitialStimulus* mpStimulus;
+    SimpleStimulus* mpStimulus;
     
 public:
     PlaneStimulusCellFactory() : AbstractCardiacCellFactory<DIM>(0.01)//Ode timestep
     {
         // set the new stimulus
-        mpStimulus = new InitialStimulus(-600, 0.5);
-        LOG(1, "Defined a PlaneStimulusCellFactory<"<<DIM<<"> with InitialStimulus(-600, 0.5)\n");
+        mpStimulus = new SimpleStimulus(-600, 0.5);
+        LOG(1, "Defined a PlaneStimulusCellFactory<"<<DIM<<"> with SimpleStimulus(-600, 0.5)\n");
     }
     
     PlaneStimulusCellFactory(double timeStep, double stimulusMagnitude) : AbstractCardiacCellFactory<DIM>(timeStep)
     {
         // set the new stimulus
-        mpStimulus = new InitialStimulus(stimulusMagnitude, 0.5);
-        LOG(1, "Defined a PlaneStimulusCellFactory<"<<DIM<<"> with InitialStimulus("<<stimulusMagnitude<<",0.5)\n");
+        mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
+        LOG(1, "Defined a PlaneStimulusCellFactory<"<<DIM<<"> with SimpleStimulus("<<stimulusMagnitude<<",0.5)\n");
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)

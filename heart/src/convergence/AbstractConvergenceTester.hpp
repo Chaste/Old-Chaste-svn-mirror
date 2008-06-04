@@ -49,7 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CuboidMeshConstructor.hpp"
 #include "OutputFileHandler.hpp"
 #include "ZeroStimulusCellFactory.hpp"
-#include "InitialStimulus.hpp"
+#include "SimpleStimulus.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "StimulusBoundaryCondition.hpp"
 
@@ -67,12 +67,12 @@ class QuarterStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:
     // define a new stimulus
-    InitialStimulus* mpStimulus;
+    SimpleStimulus* mpStimulus;
     double mMeshWidth;
 public:
     QuarterStimulusCellFactory(double timeStep, double meshWidth) : AbstractCardiacCellFactory<DIM>(timeStep)
     {
-        mpStimulus = new InitialStimulus(-1000000, 0.5);
+        mpStimulus = new SimpleStimulus(-1000000, 0.5);
         mMeshWidth=meshWidth;
     }
     
@@ -376,7 +376,7 @@ public:
             cardiac_problem.Initialise();
             
             BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM> bcc;
-            InitialStimulus stim(4000.0, 0.5);
+            SimpleStimulus stim(4000.0, 0.5);
             if (Stimulus==NEUMANN)
             {
                 

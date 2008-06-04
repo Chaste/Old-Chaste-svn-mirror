@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {
 private:
-    InitialStimulus *mpStimulus;
+    SimpleStimulus *mpStimulus;
     RegularStimulus *mpRegStimulus;
     
 public:
@@ -55,7 +55,7 @@ public:
     //Odetime step set below to 0.01 as backward Euler should be stable
     BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.01)
     {
-        mpStimulus = new InitialStimulus(-900.0*1000, 0.5);
+        mpStimulus = new SimpleStimulus(-900.0*1000, 0.5);
         mpRegStimulus = new RegularStimulus(-900.0*1000, 0.5, 100.0, 0.0);//Same as above, but every 100ms
     }
     

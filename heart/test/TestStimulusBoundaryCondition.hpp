@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include "StimulusBoundaryCondition.hpp"
-#include "InitialStimulus.hpp"
+#include "SimpleStimulus.hpp"
 
 class TestStimulusBoundaryCondition : public CxxTest::TestSuite
 {
@@ -40,7 +40,7 @@ public:
     void TestStimulusBoundaryConditionMethod()
     {
         ChastePoint<1> zero(0);
-        InitialStimulus sq_wave(23.0, 2.0, 1.0); // magnitude, duration, start time
+        SimpleStimulus sq_wave(23.0, 2.0, 1.0); // magnitude, duration, start time
         StimulusBoundaryCondition<1> stim_bc(&sq_wave);
         
         PdeSimulationTime::SetTime(0.5);
