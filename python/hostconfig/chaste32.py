@@ -36,7 +36,7 @@ petsc_build_name_production = 'linux-intel-opt-mkl'
 dealii_path = '../../../deal.II/'
 metis_path = '../../../metis-4.0/'
 intel_path = '/opt/intel/cc/9.1.039'
-icpc='icpc'
+icpc = 'icpc -gcc-version=413 -I /usr/include/c++/4.1.3/i486-linux-gnu/ -I/usr/include/c++/4.1.3/'
 
 other_includepaths = ['../../../xsd-2.3.1-i686-linux-gnu/libxsd', '../../../hdf5/include']
 other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/'),
@@ -47,22 +47,6 @@ blas_lapack_production = ['mkl_lapack', 'mkl', 'svml']
 other_libraries = ['boost_serialization', 'xerces-c', 'z', 'hdf5']
 
 tools = {'texttest': '/home/chaste/texttest-3.10/source/bin/texttest.py'}
-
-"""
-Todo
-Put this logic into 32- and 64- variants when all machines are stable
-"""
-import socket                                   
-if (socket.getfqdn() == "userpc58.comlab.ox.ac.uk"):
-  #Overrides for Hardy on 32-bit linux
-  icpc = 'icpc -gcc-version=413 -I /usr/include/c++/4.1.3/i486-linux-gnu/ -I/usr/include/c++/4.1.3/'
-if (socket.getfqdn() == "userpc44.comlab.ox.ac.uk"):
-  #Overrides for Hardy x86-64
-  icpc = 'icpc -gcc-version=413 -I /usr/include/c++/4.1.3/x86_64-linux-gnu/ -I/usr/include/c++/4.1.3/'
-  intel_path = '/opt/intel/cce/9.1.039/'
-  other_libpaths = [os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu/'),  
-                   '/opt/intel/mkl/9.1.023/lib/em64t',
-                   '../../../hdf5/lib']
     
 
 
