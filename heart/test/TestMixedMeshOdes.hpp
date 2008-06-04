@@ -42,6 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "InitialStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 
+#include "TimeStepper.hpp"
+
 
 class TestMixedMeshOdes : public CxxTest::TestSuite
 {
@@ -113,8 +115,6 @@ public:
         InitialStimulus half_stimulus(-300, 0.5);
         EulerIvpOdeSolver solver;
         double time_step = 0.01;
-        double start_time = 0.0;
-        double end_time = 0.1;
         
         for (unsigned fine_node_index=0; fine_node_index<num_fine_nodes; fine_node_index++)
         {
@@ -140,66 +140,104 @@ public:
             bool is_fast_model = !fine_has_coarse_counterpart[fine_node_index];
             
             cells[fine_node_index] = new FastSlowLuoRudyIModel1991(is_fast_model,
-                                                                        &solver,
-                                                                        time_step,
-                                                                        p_stimulus);
+                                                                   &solver,
+                                                                   time_step,
+                                                                   p_stimulus);
         }
-        
-        // run odes on coarse mesh cells
-        for (unsigned fine_node_index=0; fine_node_index<num_fine_nodes; fine_node_index++)
+       
+        double end_time = 1; //100 time steps, 1 ms
+
+        TimeStepper time_stepper(0.0, end_time, time_step);
+
+        while (!time_stepper.IsTimeAtEnd())
         {
-            if (fine_has_coarse_counterpart[fine_node_index])
+            // run odes on COARSE-SLOW mesh cells
+            for (unsigned fine_node_index=0; fine_node_index<num_fine_nodes; fine_node_index++)
             {
-                assert(cells[fine_node_index]->IsFast()==false);
-                cells[fine_node_index]->Compute(start_time, end_time);
+                if (fine_has_coarse_counterpart[fine_node_index])
+                {
+                    assert(cells[fine_node_index]->IsFast()==false);
+                    cells[fine_node_index]->Compute(time_stepper.GetTime(), time_stepper.GetNextTime());
+                }
             }
             
-        }
-        
-        // interpolate slow currents to fine mesh cells
-        for (unsigned index=0; index<num_fine_nodes; index++)
-        {
-            if (!fine_has_coarse_counterpart[index])
+            // interpolate COARSE-SLOW currents to FINE-FAST cells
+            for (unsigned index=0; index<num_fine_nodes; index++)
             {
-                Element<2,2>* p_coarse_element = coarse_mesh.GetACoarseElementForFineNodeIndex(index);
-                
-                const ChastePoint<2>& r_position_of_fine_node = fine_mesh.GetNode(index)->rGetLocation();
-
-                c_vector<double,2+1> weights = p_coarse_element->CalculateInterpolationWeights(r_position_of_fine_node);
-         
-                unsigned num_slow_values = cells[p_coarse_element->GetNodeGlobalIndex(0)]->GetNumSlowValues();
-                std::vector<double> interpolated_slow_values(num_slow_values, 0.0); 
-                for (unsigned i=0; i<2+1/*num_nodes*/; i++)
+                if (!fine_has_coarse_counterpart[index])
                 {
-                    unsigned coarse_cell_index = p_coarse_element->GetNodeGlobalIndex(i);
-                    unsigned corresponding_fine_mesh_index = coarse_mesh.rGetCoarseFineNodeMap().GetNewIndex(coarse_cell_index);
-                    FastSlowLuoRudyIModel1991* p_coarse_node_cell = cells [ corresponding_fine_mesh_index ];
+                    Element<2,2>* p_coarse_element = coarse_mesh.GetACoarseElementForFineNodeIndex(index);
                     
-                    TS_ASSERT_EQUALS(fine_has_coarse_counterpart [corresponding_fine_mesh_index], true); 
-                    TS_ASSERT_EQUALS(p_coarse_node_cell->IsFast(), false);
-                    
-                    std::vector<double> nodal_slow_values;
-                    p_coarse_node_cell->GetSlowValues(nodal_slow_values);
-                    assert(nodal_slow_values.size() == num_slow_values);
-                    for(unsigned j=0; j<nodal_slow_values.size(); j++)
-                    {                    
-                        interpolated_slow_values[j] += nodal_slow_values[j]*weights(i);
+                    const ChastePoint<2>& r_position_of_fine_node = fine_mesh.GetNode(index)->rGetLocation();
+    
+                    c_vector<double,2+1> weights = p_coarse_element->CalculateInterpolationWeights(r_position_of_fine_node);
+             
+                    unsigned num_slow_values = cells[p_coarse_element->GetNodeGlobalIndex(0)]->GetNumSlowValues();
+                    std::vector<double> interpolated_slow_values(num_slow_values, 0.0); 
+                    for (unsigned i=0; i<2+1/*num_nodes*/; i++)
+                    {
+                        unsigned coarse_cell_index = p_coarse_element->GetNodeGlobalIndex(i);
+                        unsigned corresponding_fine_mesh_index = coarse_mesh.rGetCoarseFineNodeMap().GetNewIndex(coarse_cell_index);
+                        FastSlowLuoRudyIModel1991* p_coarse_node_cell = cells [ corresponding_fine_mesh_index ];
+                        
+                        TS_ASSERT_EQUALS(fine_has_coarse_counterpart [corresponding_fine_mesh_index], true); 
+                        TS_ASSERT_EQUALS(p_coarse_node_cell->IsFast(), false);
+                        
+                        std::vector<double> nodal_slow_values;
+                        p_coarse_node_cell->GetSlowValues(nodal_slow_values);
+                        assert(nodal_slow_values.size() == num_slow_values);
+                        for(unsigned j=0; j<nodal_slow_values.size(); j++)
+                        {                    
+                            interpolated_slow_values[j] += nodal_slow_values[j]*weights(i);
+                        }
                     }
+    
+                    cells[index]->SetSlowValues(interpolated_slow_values);
                 }
-
-                cells[index]->SetSlowValues(interpolated_slow_values);
-            }
-        }        
-        
-        // solve ODEs on fine-only nodes
-        for (unsigned fine_node_index=0; fine_node_index<num_fine_nodes; fine_node_index++)
-        {
-            if (!fine_has_coarse_counterpart[fine_node_index])
+            }        
+            
+            // solve ODEs on FINE-FAST cells (by fine, the fine nodes which are not also coarse nodes)
+            for (unsigned fine_node_index=0; fine_node_index<num_fine_nodes; fine_node_index++)
             {
-                assert(cells[fine_node_index]->IsFast());
-                cells[fine_node_index]->Compute(start_time, end_time);
-            }            
+                if (!fine_has_coarse_counterpart[fine_node_index])
+                {
+                    assert(cells[fine_node_index]->IsFast());
+                    cells[fine_node_index]->Compute(time_stepper.GetTime(), time_stepper.GetNextTime());
+                }
+            }
+            
+            time_stepper.AdvanceOneTimeStep();
         }
+
+        std::vector<double> slow_values(2);
+        
+        // test cells for which x=0: correspond to fine nodes 0 (coarse-slow cell), 3 (fine-fast cell), 6 (coarse-slow cell)
+        TS_ASSERT_LESS_THAN( cells[0]->GetVoltage(), -80.0); 
+        TS_ASSERT_LESS_THAN( cells[0]->GetVoltage(), -80.0); 
+        TS_ASSERT_LESS_THAN( cells[6]->GetVoltage(), -80.0); 
+        TS_ASSERT_DELTA( cells[0]->GetVoltage(), cells[3]->GetVoltage(), 1.0); // check coarse and fine agree in voltage
+        TS_ASSERT_DELTA( cells[0]->rGetStateVariables()[0], cells[3]->rGetStateVariables()[0], 0.01); // check coarse and fine agree in a gating var
+        cells[0]->GetSlowValues(slow_values);
+        TS_ASSERT_DELTA(slow_values[0], cells[3]->mSlowValues[0], 0.01); // check slow values match
+        TS_ASSERT_DELTA(slow_values[1], cells[3]->mSlowValues[1], 0.01); // check slow values match
+        
+        // test cells for which x=0.5: correspond to fine nodes 1, 4, 7 (all fine-fast cells)
+        TS_ASSERT_LESS_THAN( 0, cells[1]->GetVoltage()); 
+        TS_ASSERT_LESS_THAN( 0, cells[4]->GetVoltage()); 
+        TS_ASSERT_LESS_THAN( 0, cells[7]->GetVoltage()); 
+        TS_ASSERT_DELTA( cells[1]->GetVoltage(), cells[4]->GetVoltage(), 1.0);
+
+        // test cells for which x=1: correspond to fine nodes 2 (coarse-slow), 5 (fine-fast), 8 (coarse-slow)
+        TS_ASSERT_LESS_THAN( 100, cells[2]->GetVoltage()); 
+        TS_ASSERT_LESS_THAN( 100, cells[5]->GetVoltage()); 
+        TS_ASSERT_LESS_THAN( 100, cells[8]->GetVoltage()); 
+        TS_ASSERT_DELTA( cells[2]->GetVoltage(), cells[5]->GetVoltage(), 1.0); // check coarse and fine agree in voltage
+        TS_ASSERT_DELTA( cells[2]->rGetStateVariables()[0], cells[5]->rGetStateVariables()[0], 0.01); // check coarse and fine agree in a gating var
+        cells[2]->GetSlowValues(slow_values);
+        TS_ASSERT_LESS_THAN(0, slow_values[0]);
+        TS_ASSERT_DELTA(slow_values[0], cells[5]->mSlowValues[0], 0.01); // check slow values match
+        TS_ASSERT_DELTA(slow_values[1], cells[5]->mSlowValues[1], 0.01); // check slow values match
+        
         
         // destroy vector of cells
         for (unsigned fine_node_index=0; fine_node_index<num_fine_nodes; fine_node_index++)

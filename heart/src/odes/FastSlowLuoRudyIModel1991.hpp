@@ -41,6 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class FastSlowLuoRudyIModel1991 : public AbstractCardiacCell
 {
+friend class TestMixedMeshOdes;
+
 private:
 
     /*< Constants for the LuoRudyIModel1991OdeSystem model */
