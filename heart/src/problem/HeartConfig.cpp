@@ -29,10 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "HeartConfig.hpp"
 
+using namespace xsd::cxx::tree;
+
 HeartConfig* HeartConfig::mpInstance = NULL;
 
 HeartConfig* HeartConfig::Instance()
-{
+{	
     if (mpInstance == NULL)
     {
         mpInstance = new HeartConfig;
@@ -41,48 +43,44 @@ HeartConfig* HeartConfig::Instance()
 }
 
 HeartConfig::HeartConfig()
-: mDefaultsFile("ChasteDefaults.xml")
 {
     assert(mpInstance == NULL);
+    
+    mpDefaultParameters = ReadFile("ChasteDefaults.xml");
+}
+
+HeartConfig::~HeartConfig()
+{
+    delete mpUserParameters;
+    delete mpDefaultParameters;  	
 }
 
 void HeartConfig::SetDefaultsFile(std::string fileName)
 {
-    mDefaultsFile = fileName;
+    mpDefaultParameters = ReadFile(fileName);
+}
+
+chaste_parameters_type* HeartConfig::ReadFile(std::string fileName)
+{
+	// get the parameters using the method 'ChasteParameters(filename)',
+    // which returns a std::auto_ptr. We don't want to use a std::auto_ptr because
+    // it will delete memory when out of scope, or no longer point when it is copied,
+    // so we reallocate memory using a normal pointer and copy the data to thereS
+ 	try
+    {
+        std::auto_ptr<chaste_parameters_type> p_default(ChasteParameters(fileName));
+        return new chaste_parameters_type(*p_default);
+    }
+    catch (const xml_schema::exception& e)
+    {
+         std::cerr << e << std::endl;
+         EXCEPTION("XML parsing error in configuration file: " + fileName);
+    }
 }
 
 void HeartConfig::SetParametersFile(std::string fileName)
 {
-    // get the parameters using the method 'ChasteParameters(filename)',
-    // which returns a std::auto_ptr. We don't want to use a std::auto_ptr because
-    // it will delete memory when out of scope, or no longer point when it is copied,
-    // so we reallocate memory using a normal pointer and copy the data to there
-    try
-    {   
-        std::auto_ptr<chaste_parameters_type> p_user(ChasteParameters(fileName.c_str()));
-        mpUserParameters = new chaste_parameters_type(*p_user);
-        assert(mpUserParameters);
-    }
-    catch (const xml_schema::exception& e)
-    {
-         std::cerr << e << std::endl;
-         EXCEPTION("XML parsing error in user provided configuration file");
-    }
-    
-
-    // Read default values
-    try
-    {
-        std::auto_ptr<chaste_parameters_type> p_default(ChasteParameters(mDefaultsFile));
-        mpDefaultParameters = new chaste_parameters_type(*p_default);
-        assert(mpDefaultParameters);
-    }
-    catch (const xml_schema::exception& e)
-    {
-         std::cerr << e << std::endl;
-         EXCEPTION("XML parsing error in default configuration file");
-    }
-
+    mpUserParameters = ReadFile(fileName);
 }
 
 chaste_parameters_type* HeartConfig::UserParameters()
@@ -97,28 +95,167 @@ chaste_parameters_type* HeartConfig::DefaultParameters()
 
 void HeartConfig::Destroy()
 {
-    delete mpUserParameters;
-    delete mpDefaultParameters;    
+	delete mpInstance;
+	mpInstance = NULL;  
+}
+
+template<class TYPE>
+TYPE* HeartConfig::DecideLocation(TYPE* ptr1, TYPE* ptr2, std::string nameParameter)
+{
+    if (ptr1->present())
+    {
+        return ptr1;
+    }
+    else
+    {
+        if (ptr2->present())
+        {
+            return ptr2;            
+        }
+        else
+        {
+            EXCEPTION("No " + nameParameter + " provided (neither default nor user defined)");
+        }             
+    }
+
+}
+
+double HeartConfig::GetSimulationDuration()
+{
+	return DecideLocation( & mpUserParameters->Simulation().SimulationDuration(), 
+						   & mpDefaultParameters->Simulation().SimulationDuration(), 
+						   "SimulationDuration")->get(); 
+}
+
+domain_type HeartConfig::GetDomain()
+{
+	return DecideLocation( & mpUserParameters->Simulation().Domain(), 
+						   & mpDefaultParameters->Simulation().Domain(), 
+						   "Domain")->get();
 }
 
 ionic_model_type HeartConfig::GetIonicModel()
 {
-    if (mpUserParameters->Simulation().IonicModel().present())
-    {
-        return mpUserParameters->Simulation().IonicModel().get();
-    }
-    else
-    {
-        if (mpDefaultParameters->Simulation().IonicModel().present())
+	return DecideLocation( & mpUserParameters->Simulation().IonicModel(), 
+	                       & mpDefaultParameters->Simulation().IonicModel(), 
+	                       "IonicModel")->get(); 
+}
+
+void HeartConfig::GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas)
+{
+
+    simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::container&
+         stimuli = DecideLocation( & mpUserParameters->Simulation().Stimuli(), 
+	                       & mpDefaultParameters->Simulation().Stimuli(), 
+	                       "Stimuli")->get().Stimulus();
+    for (simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::iterator i = stimuli.begin();
+         i != stimuli.end();
+         ++i)
+    {                     
+        stimulus_type stimulus(*i);           
+        point_type point_a = stimulus.Location().CornerA();
+        point_type point_b = stimulus.Location().CornerB();
+        
+        ChastePoint<3> chaste_point_a ( point_a.x(), 
+                                        point_a.y(),
+                                        point_a.z());
+
+        ChastePoint<3> chaste_point_b ( point_b.x(),
+                                        point_b.y(),
+                                        point_b.z());
+                    
+        stimuliApplied.push_back( SimpleStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
+        stimulatedAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
+    }	
+}
+
+void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
+    								     std::vector<double>& scaleFactorGks,
+    							         std::vector<double>& scaleFactorIto)
+{
+	simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::container&
+         cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().CellHeterogeneities(), 
+	                       					  & mpDefaultParameters->Simulation().CellHeterogeneities(), 
+	                       					  "CellHeterogeneities")->get().CellHeterogeneity();
+	
+    for (simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::iterator i = cell_heterogeneity.begin();
+         i != cell_heterogeneity.end();
+         ++i)
+    {                     
+        cell_heterogeneity_type ht(*i);           
+        point_type point_a = ht.Location().CornerA();
+        point_type point_b = ht.Location().CornerB();
+        
+        ChastePoint<3> chaste_point_a (point_a.x(), 
+                                       point_a.y(),
+                                       point_a.z());
+
+        ChastePoint<3> chaste_point_b (point_b.x(),
+                                       point_b.y(),
+                                       point_b.z());
+                    
+        scaleFactorGks.push_back (ht.ScaleFactorGks());
+        scaleFactorIto.push_back (ht.ScaleFactorIto());                                    
+        cellHeterogeneityAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
+    }        
+}
+
+void HeartConfig::GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
+					  			 	std::vector< c_vector<double,3> >& intraConductivities,
+									std::vector< c_vector<double,3> >& extraConductivities)
+{
+	simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::ConductivityHeterogeneity::container&
+         conductivity_heterogeneity = DecideLocation( & mpUserParameters->Simulation().ConductivityHeterogeneities(), 
+	                       							  & mpDefaultParameters->Simulation().ConductivityHeterogeneities(), 
+	                       					  		  "CellHeterogeneities")->get().ConductivityHeterogeneity();
+	
+    for (simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::ConductivityHeterogeneity::iterator i = conductivity_heterogeneity.begin();
+         i != conductivity_heterogeneity.end();
+         ++i)
+    {                     
+        conductivity_heterogeneity_type ht(*i);           
+        point_type point_a = ht.Location().CornerA();
+        point_type point_b = ht.Location().CornerB();
+        
+        ChastePoint<3> chaste_point_a (point_a.x(), 
+                                       point_a.y(),
+                                       point_a.z());
+
+        ChastePoint<3> chaste_point_b (point_b.x(),
+                                       point_b.y(),
+                                       point_b.z());
+                    
+        conductivitiesHeterogeneityAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
+        
+        if (ht.IntracellularConductivities().present())
         {
-            return mpDefaultParameters->Simulation().IonicModel().get();            
+        	double intra_x = ht.IntracellularConductivities().get().longi();
+        	double intra_y = ht.IntracellularConductivities().get().trans();
+        	double intra_z = ht.IntracellularConductivities().get().normal();
+        	
+        	intraConductivities.push_back( Create_c_vector(intra_x, intra_y, intra_z) );
         }
         else
         {
-            EXCEPTION("No IonicModel provided (neither default nor user defined)");
-        }             
-    }
+        	intraConductivities.push_back( GetIntracellularConductivities() );
+        }
+
+        if (ht.ExtracellularConductivities().present())
+        {
+        	double extra_x = ht.ExtracellularConductivities().get().longi();
+        	double extra_y = ht.ExtracellularConductivities().get().trans();
+        	double extra_z = ht.ExtracellularConductivities().get().normal();
+        	
+        	extraConductivities.push_back( Create_c_vector(extra_x, extra_y, extra_z) );
+        }
+        else
+        {
+        	extraConductivities.push_back( GetExtracellularConductivities() );
+        }
+
+    }        
 }
+
 
 c_vector<double, 3> HeartConfig::GetIntracellularConductivities()
 {
@@ -148,3 +285,33 @@ c_vector<double, 3> HeartConfig::GetIntracellularConductivities()
 
     return Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond);   
 }
+
+c_vector<double, 3> HeartConfig::GetExtracellularConductivities()
+{
+    double extra_x_cond;
+    double extra_y_cond;
+    double extra_z_cond;                    
+    
+    if (mpUserParameters->Simulation().IonicModel().present())
+    {
+        extra_x_cond = mpUserParameters->Physiological().ExtracellularConductivities().get().longi();
+        extra_y_cond = mpUserParameters->Physiological().ExtracellularConductivities().get().trans();
+        extra_z_cond = mpUserParameters->Physiological().ExtracellularConductivities().get().normal();                
+    }
+    else
+    {
+        if (mpDefaultParameters->Simulation().IonicModel().present())
+        {
+            extra_x_cond = mpDefaultParameters->Physiological().ExtracellularConductivities().get().longi();
+            extra_y_cond = mpDefaultParameters->Physiological().ExtracellularConductivities().get().trans();
+            extra_z_cond = mpDefaultParameters->Physiological().ExtracellularConductivities().get().normal();                
+        }
+        else
+        {
+            EXCEPTION("No ExtracellularConductivities provided (neither default nor user defined)");
+        }             
+    }        
+
+    return Create_c_vector(extra_x_cond, extra_y_cond, extra_z_cond);   
+}
+

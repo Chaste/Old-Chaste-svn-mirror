@@ -26,37 +26,30 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include "ChasteCuboid.hpp"
 
-#ifndef CHASTECUBOID_HPP_
-#define CHASTECUBOID_HPP_
-
-#include "ChastePoint.hpp"
-
-/**
- * This class defines a 3D cuboid and provides a method to check 
- * if a given point is contained in the volume.
- */
-class ChasteCuboid
+ChasteCuboid::ChasteCuboid(ChastePoint<3>& rPointA, ChastePoint<3>& rPointB) : mrPointA(rPointA), mrPointB(rPointB)
 {
-private:
-    ChastePoint<3> mrPointA;
-    ChastePoint<3> mrPointB;
-    
-public:
-    /**
-     * The cuboid is defined by any of its two space-diagonal opposite corners.
-     * 
-     * @param rPointA Any vertex of the cuboid.
-     * @param rPointB The space-diagonal opposite corner of pointA.
-     */   
-    ChasteCuboid(ChastePoint<3>& rPointA, ChastePoint<3>& rPointB);
-        
-    /**
-     * Checks if a given point is contained in the cuboid.
-     * 
-     * @param rPointToCheck Point to be checked to be contained in the cuboid.
-     */
-    bool DoesContain(const ChastePoint<3>& rPointToCheck);
-};
+    for (unsigned dim=0; dim<3; dim++)
+    {
+        if (mrPointA[dim] > mrPointB[dim])
+        {
+            EXCEPTION("Attempt to create a cuboid with MinCorner greater than MaxCorner in some dimension");
+        }
+    }
+}
 
-#endif /*CHASTECUBOID_HPP_*/
+bool ChasteCuboid::DoesContain(const ChastePoint<3>& rPointToCheck)
+{
+    bool inside=true;
+    for (unsigned dim=0; dim<3; dim++)
+    {
+        if (rPointToCheck[dim] < mrPointA[dim] - 100*DBL_EPSILON 
+            || mrPointB[dim] + 100* DBL_EPSILON < rPointToCheck[dim])
+        {
+            inside=false;
+            break;
+        }
+    }
+    return inside;
+}

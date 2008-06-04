@@ -398,58 +398,64 @@ Location (::std::auto_ptr< Location::type > Location)
 // conductivity_heterogeneity_type
 // 
 
-const conductivity_heterogeneity_type::Longitudinal::type& conductivity_heterogeneity_type::
-Longitudinal () const
+const conductivity_heterogeneity_type::IntracellularConductivities::container& conductivity_heterogeneity_type::
+IntracellularConductivities () const
 {
-  return this->_xsd_Longitudinal_.get ();
+  return this->_xsd_IntracellularConductivities_;
 }
 
-conductivity_heterogeneity_type::Longitudinal::type& conductivity_heterogeneity_type::
-Longitudinal ()
+conductivity_heterogeneity_type::IntracellularConductivities::container& conductivity_heterogeneity_type::
+IntracellularConductivities ()
 {
-  return this->_xsd_Longitudinal_.get ();
-}
-
-void conductivity_heterogeneity_type::
-Longitudinal (const Longitudinal::type& Longitudinal)
-{
-  this->_xsd_Longitudinal_.set (Longitudinal);
-}
-
-const conductivity_heterogeneity_type::Transverse::type& conductivity_heterogeneity_type::
-Transverse () const
-{
-  return this->_xsd_Transverse_.get ();
-}
-
-conductivity_heterogeneity_type::Transverse::type& conductivity_heterogeneity_type::
-Transverse ()
-{
-  return this->_xsd_Transverse_.get ();
+  return this->_xsd_IntracellularConductivities_;
 }
 
 void conductivity_heterogeneity_type::
-Transverse (const Transverse::type& Transverse)
+IntracellularConductivities (const IntracellularConductivities::type& IntracellularConductivities)
 {
-  this->_xsd_Transverse_.set (Transverse);
-}
-
-const conductivity_heterogeneity_type::Normal::type& conductivity_heterogeneity_type::
-Normal () const
-{
-  return this->_xsd_Normal_.get ();
-}
-
-conductivity_heterogeneity_type::Normal::type& conductivity_heterogeneity_type::
-Normal ()
-{
-  return this->_xsd_Normal_.get ();
+  this->_xsd_IntracellularConductivities_.set (IntracellularConductivities);
 }
 
 void conductivity_heterogeneity_type::
-Normal (const Normal::type& Normal)
+IntracellularConductivities (const IntracellularConductivities::container& IntracellularConductivities)
 {
-  this->_xsd_Normal_.set (Normal);
+  this->_xsd_IntracellularConductivities_ = IntracellularConductivities;
+}
+
+void conductivity_heterogeneity_type::
+IntracellularConductivities (::std::auto_ptr< IntracellularConductivities::type > IntracellularConductivities)
+{
+  this->_xsd_IntracellularConductivities_.set (IntracellularConductivities);
+}
+
+const conductivity_heterogeneity_type::ExtracellularConductivities::container& conductivity_heterogeneity_type::
+ExtracellularConductivities () const
+{
+  return this->_xsd_ExtracellularConductivities_;
+}
+
+conductivity_heterogeneity_type::ExtracellularConductivities::container& conductivity_heterogeneity_type::
+ExtracellularConductivities ()
+{
+  return this->_xsd_ExtracellularConductivities_;
+}
+
+void conductivity_heterogeneity_type::
+ExtracellularConductivities (const ExtracellularConductivities::type& ExtracellularConductivities)
+{
+  this->_xsd_ExtracellularConductivities_.set (ExtracellularConductivities);
+}
+
+void conductivity_heterogeneity_type::
+ExtracellularConductivities (const ExtracellularConductivities::container& ExtracellularConductivities)
+{
+  this->_xsd_ExtracellularConductivities_ = ExtracellularConductivities;
+}
+
+void conductivity_heterogeneity_type::
+ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type > ExtracellularConductivities)
+{
+  this->_xsd_ExtracellularConductivities_.set (ExtracellularConductivities);
 }
 
 const conductivity_heterogeneity_type::Location::type& conductivity_heterogeneity_type::
@@ -2357,20 +2363,10 @@ _clone (::xml_schema::flags f,
 //
 
 conductivity_heterogeneity_type::
-conductivity_heterogeneity_type (const Longitudinal::type& _xsd_Longitudinal,
-                                 const Transverse::type& _xsd_Transverse,
-                                 const Normal::type& _xsd_Normal,
-                                 const Location::type& _xsd_Location)
+conductivity_heterogeneity_type (const Location::type& _xsd_Location)
 : ::xml_schema::type (),
-_xsd_Longitudinal_ (_xsd_Longitudinal,
-                    ::xml_schema::flags (),
-                    this),
-_xsd_Transverse_ (_xsd_Transverse,
-                  ::xml_schema::flags (),
-                  this),
-_xsd_Normal_ (_xsd_Normal,
-              ::xml_schema::flags (),
-              this),
+_xsd_IntracellularConductivities_ (::xml_schema::flags (), this),
+_xsd_ExtracellularConductivities_ (::xml_schema::flags (), this),
 _xsd_Location_ (_xsd_Location,
                 ::xml_schema::flags (),
                 this)
@@ -2382,15 +2378,12 @@ conductivity_heterogeneity_type (const conductivity_heterogeneity_type& _xsd_con
                                  ::xml_schema::flags f,
                                  ::xml_schema::type* c)
 : ::xml_schema::type (_xsd_conductivity_heterogeneity_type, f, c),
-_xsd_Longitudinal_ (_xsd_conductivity_heterogeneity_type._xsd_Longitudinal_,
-                    f | ::xml_schema::flags::not_root,
-                    this),
-_xsd_Transverse_ (_xsd_conductivity_heterogeneity_type._xsd_Transverse_,
-                  f | ::xml_schema::flags::not_root,
-                  this),
-_xsd_Normal_ (_xsd_conductivity_heterogeneity_type._xsd_Normal_,
-              f | ::xml_schema::flags::not_root,
-              this),
+_xsd_IntracellularConductivities_ (_xsd_conductivity_heterogeneity_type._xsd_IntracellularConductivities_,
+                                   f | ::xml_schema::flags::not_root,
+                                   this),
+_xsd_ExtracellularConductivities_ (_xsd_conductivity_heterogeneity_type._xsd_ExtracellularConductivities_,
+                                   f | ::xml_schema::flags::not_root,
+                                   this),
 _xsd_Location_ (_xsd_conductivity_heterogeneity_type._xsd_Location_,
                 f | ::xml_schema::flags::not_root,
                 this)
@@ -2402,9 +2395,8 @@ conductivity_heterogeneity_type (const ::xercesc::DOMElement& e,
                                  ::xml_schema::flags f,
                                  ::xml_schema::type* c)
 : ::xml_schema::type (e, f, c),
-_xsd_Longitudinal_ (f | ::xml_schema::flags::not_root, this),
-_xsd_Transverse_ (f | ::xml_schema::flags::not_root, this),
-_xsd_Normal_ (f | ::xml_schema::flags::not_root, this),
+_xsd_IntracellularConductivities_ (f | ::xml_schema::flags::not_root, this),
+_xsd_ExtracellularConductivities_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Location_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
@@ -2419,50 +2411,38 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
   {
     const ::xsd::cxx::xml::dom::element< char > e (p.next_element ());
 
-    // Longitudinal
+    // IntracellularConductivities
     //
     {
-      if (e.name () == "Longitudinal" && e.namespace_ ().empty ())
+      if (e.name () == "IntracellularConductivities" && e.namespace_ ().empty ())
       {
-        if (_xsd_Longitudinal_.present ())
-          continue;
-        this->Longitudinal (
-          Longitudinal::traits::create (
+        ::std::auto_ptr< IntracellularConductivities::type > r (
+          IntracellularConductivities::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
+
+        if (this->IntracellularConductivities ())
+          continue;
+        this->IntracellularConductivities (r);
         continue;
       }
     }
 
-    // Transverse
+    // ExtracellularConductivities
     //
     {
-      if (e.name () == "Transverse" && e.namespace_ ().empty ())
+      if (e.name () == "ExtracellularConductivities" && e.namespace_ ().empty ())
       {
-        if (_xsd_Transverse_.present ())
-          continue;
-        this->Transverse (
-          Transverse::traits::create (
+        ::std::auto_ptr< ExtracellularConductivities::type > r (
+          ExtracellularConductivities::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
-        continue;
-      }
-    }
 
-    // Normal
-    //
-    {
-      if (e.name () == "Normal" && e.namespace_ ().empty ())
-      {
-        if (_xsd_Normal_.present ())
+        if (this->ExtracellularConductivities ())
           continue;
-        this->Normal (
-          Normal::traits::create (
-            e.dom_element (),
-            f | ::xml_schema::flags::not_root,
-            this));
+        this->ExtracellularConductivities (r);
         continue;
       }
     }
@@ -2484,27 +2464,6 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
         continue;
       }
     }
-  }
-
-  if (!_xsd_Longitudinal_.present ())
-  {
-    throw ::xsd::cxx::tree::expected_element< char > (
-      "Longitudinal",
-      "");
-  }
-
-  if (!_xsd_Transverse_.present ())
-  {
-    throw ::xsd::cxx::tree::expected_element< char > (
-      "Transverse",
-      "");
-  }
-
-  if (!_xsd_Normal_.present ())
-  {
-    throw ::xsd::cxx::tree::expected_element< char > (
-      "Normal",
-      "");
   }
 
   if (!_xsd_Location_.present ())

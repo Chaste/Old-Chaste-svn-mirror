@@ -780,59 +780,55 @@ class conductivity_heterogeneity_type: public ::xml_schema::type
     typedef ::xml_schema::type base_;
   };
 
-  // Longitudinal
+  // IntracellularConductivities
   // 
   public:
-  struct Longitudinal
+  struct IntracellularConductivities
   {
-    typedef ::xml_schema::double_ type;
+    typedef ::conductivities_type type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::optional< type > container;
   };
 
-  const Longitudinal::type&
-  Longitudinal () const;
+  const IntracellularConductivities::container&
+  IntracellularConductivities () const;
 
-  Longitudinal::type&
-  Longitudinal ();
+  IntracellularConductivities::container&
+  IntracellularConductivities ();
 
   void
-  Longitudinal (const Longitudinal::type&);
+  IntracellularConductivities (const IntracellularConductivities::type&);
 
-  // Transverse
+  void
+  IntracellularConductivities (const IntracellularConductivities::container&);
+
+  void
+  IntracellularConductivities (::std::auto_ptr< IntracellularConductivities::type >);
+
+  // ExtracellularConductivities
   // 
   public:
-  struct Transverse
+  struct ExtracellularConductivities
   {
-    typedef ::xml_schema::double_ type;
+    typedef ::conductivities_type type;
     typedef ::xsd::cxx::tree::traits< type, char > traits;
+    typedef ::xsd::cxx::tree::optional< type > container;
   };
 
-  const Transverse::type&
-  Transverse () const;
+  const ExtracellularConductivities::container&
+  ExtracellularConductivities () const;
 
-  Transverse::type&
-  Transverse ();
-
-  void
-  Transverse (const Transverse::type&);
-
-  // Normal
-  // 
-  public:
-  struct Normal
-  {
-    typedef ::xml_schema::double_ type;
-    typedef ::xsd::cxx::tree::traits< type, char > traits;
-  };
-
-  const Normal::type&
-  Normal () const;
-
-  Normal::type&
-  Normal ();
+  ExtracellularConductivities::container&
+  ExtracellularConductivities ();
 
   void
-  Normal (const Normal::type&);
+  ExtracellularConductivities (const ExtracellularConductivities::type&);
+
+  void
+  ExtracellularConductivities (const ExtracellularConductivities::container&);
+
+  void
+  ExtracellularConductivities (::std::auto_ptr< ExtracellularConductivities::type >);
 
   // Location
   // 
@@ -858,10 +854,7 @@ class conductivity_heterogeneity_type: public ::xml_schema::type
   // Constructors.
   //
   public:
-  conductivity_heterogeneity_type (const Longitudinal::type&,
-                                   const Transverse::type&,
-                                   const Normal::type&,
-                                   const Location::type&);
+  conductivity_heterogeneity_type (const Location::type&);
 
   conductivity_heterogeneity_type (const ::xercesc::DOMElement&,
                                    ::xml_schema::flags = 0,
@@ -881,9 +874,8 @@ class conductivity_heterogeneity_type: public ::xml_schema::type
   void
   parse (const ::xercesc::DOMElement&, ::xml_schema::flags);
 
-  ::xsd::cxx::tree::one< Longitudinal::type > _xsd_Longitudinal_;
-  ::xsd::cxx::tree::one< Transverse::type > _xsd_Transverse_;
-  ::xsd::cxx::tree::one< Normal::type > _xsd_Normal_;
+  ::xsd::cxx::tree::optional< IntracellularConductivities::type > _xsd_IntracellularConductivities_;
+  ::xsd::cxx::tree::optional< ExtracellularConductivities::type > _xsd_ExtracellularConductivities_;
   ::xsd::cxx::tree::one< Location::type > _xsd_Location_;
 };
 

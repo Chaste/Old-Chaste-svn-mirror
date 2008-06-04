@@ -38,9 +38,12 @@ class TestHeartConfig : public CxxTest::TestSuite
 public :
     void TestHeartConfigBasic()
     {
-        HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
+        double chi = HeartConfig::Instance()->DefaultParameters()->Physiological().SurfaceAreaToVolumeRatio().get();
+        TS_ASSERT_EQUALS(chi, 1400);
+
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersSlab.xml");
         
-        double chi = HeartConfig::Instance()->UserParameters()->Physiological().SurfaceAreaToVolumeRatio().get();
+        chi = HeartConfig::Instance()->UserParameters()->Physiological().SurfaceAreaToVolumeRatio().get();
         TS_ASSERT_EQUALS(chi, 1400);
         
         double capacitance = HeartConfig::Instance()->UserParameters()->Physiological().Capacitance().get();
@@ -52,12 +55,12 @@ public :
         TS_ASSERT_EQUALS(conductivity_1, 1.75);
         TS_ASSERT_EQUALS(conductivity_2, 7.0);
 
-        HeartConfig::Instance()->Destroy();
+        HeartConfig::Destroy();
     }
     
     void TestUserProvidedDifferentFromDefault()
     {
-        HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersSlab.xml");
         
         ionic_model_type default_ionic_model = HeartConfig::Instance()->DefaultParameters()->Simulation().IonicModel().get(); 
         TS_ASSERT_EQUALS(default_ionic_model, ionic_model_type::LuoRudyIModel1991OdeSystem);
@@ -70,37 +73,68 @@ public :
 
         HeartConfig::Instance()->Destroy();
     }
-
-    void TestGetFunctionsReadingFromDefaults()
-    {
-        HeartConfig::Instance()->SetDefaultsFile("ChasteParameters.xml");
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
-
-        ionic_model_type get_ionic_model = HeartConfig::Instance()->GetIonicModel(); 
-        TS_ASSERT_EQUALS(get_ionic_model, ionic_model_type::FaberRudy2000Version3);        
-
-        c_vector<double, 3> intra_conductivities = HeartConfig::Instance()->GetIntracellularConductivities();   
-        TS_ASSERT_EQUALS(intra_conductivities[0], 1.75);
-        TS_ASSERT_EQUALS(intra_conductivities[1], 1.75);
-        TS_ASSERT_EQUALS(intra_conductivities[2], 1.75);                
-
-        HeartConfig::Instance()->Destroy();
-    }
     
-    void TestGetFunctionsReadingFromUser()
+    void TestGetFunctions()
     {
-        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteEmpty.xml");        
-        HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersSlab.xml");
 
-        ionic_model_type get_ionic_model = HeartConfig::Instance()->GetIonicModel(); 
-        TS_ASSERT_EQUALS(get_ionic_model, ionic_model_type::FaberRudy2000Version3);        
+		TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(),
+						 10.0);
+
+		TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDomain(),
+						 domain_type::Mono);
+ 
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(),
+        			 	 ionic_model_type::FaberRudy2000Version3);        
+						 
+		std::vector<SimpleStimulus> stimuli_applied;
+		std::vector<ChasteCuboid> stimulated_areas;
+		HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas);
+		
+		TS_ASSERT_EQUALS(stimuli_applied.size(), 2u);
+		TS_ASSERT_EQUALS(stimulated_areas.size(), 2u);
+		
+		TS_ASSERT_EQUALS(stimuli_applied[0].GetStimulus(0), -25500.0);
+		TS_ASSERT_EQUALS(stimuli_applied[0].GetStimulus(0.6), 0.0);
+		
+		TS_ASSERT(stimulated_areas[1].DoesContain(ChastePoint<3>(-2, 0, -2)));
+		TS_ASSERT( ! stimulated_areas[1].DoesContain(ChastePoint<3>(-6, -6, -6)));
+		
+		std::vector<ChasteCuboid> cell_heterogeneity_areas;
+        std::vector<double> scale_factor_gks;
+    	std::vector<double> scale_factor_ito;
+	 	HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
+    													scale_factor_gks,
+    													scale_factor_ito);
+		
+		TS_ASSERT(cell_heterogeneity_areas[0].DoesContain(ChastePoint<3>(-1.0, 0, 0)));
+		TS_ASSERT_EQUALS(scale_factor_gks[1], 1.154);
+		TS_ASSERT_EQUALS(scale_factor_ito[2], 1);
+
+		std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
+        std::vector< c_vector<double,3> > intra_h_conductivities;
+    	std::vector< c_vector<double,3> > extra_h_conductivities;
+	 	HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
+    															intra_h_conductivities,
+    															extra_h_conductivities);
+		
+		TS_ASSERT(conductivities_heterogeneity_areas[0].DoesContain(ChastePoint<3>(1.95, 0, 0)));
+		TS_ASSERT_EQUALS(intra_h_conductivities[0][0], 2.75);
+		TS_ASSERT_EQUALS(extra_h_conductivities[0][0], 8.0);
+		TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 0.75);
+		TS_ASSERT_EQUALS(extra_h_conductivities[1][0], HeartConfig::Instance()->GetExtracellularConductivities()[0]);			
 
         c_vector<double, 3> intra_conductivities = HeartConfig::Instance()->GetIntracellularConductivities();   
         TS_ASSERT_EQUALS(intra_conductivities[0], 1.75);
         TS_ASSERT_EQUALS(intra_conductivities[1], 1.75);
         TS_ASSERT_EQUALS(intra_conductivities[2], 1.75);                
 
-        HeartConfig::Instance()->Destroy();
+        c_vector<double, 3> extra_conductivities = HeartConfig::Instance()->GetExtracellularConductivities();   
+        TS_ASSERT_EQUALS(extra_conductivities[0], 7.0);
+        TS_ASSERT_EQUALS(extra_conductivities[1], 7.0);
+        TS_ASSERT_EQUALS(extra_conductivities[2], 7.0);                
+
+        HeartConfig::Destroy();
     }
     
     void TestExceptions()
@@ -111,7 +145,7 @@ public :
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetIonicModel());        
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetIntracellularConductivities());
 
-        HeartConfig::Instance()->Destroy();
+        HeartConfig::Destroy();
     }
 };
 

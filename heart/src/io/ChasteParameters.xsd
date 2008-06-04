@@ -56,12 +56,11 @@
   </xs:complexType>
 
   <xs:complexType name="conductivity_heterogeneity_type">
-    <xs:sequence>
-      <xs:element name="Longitudinal" type="xs:double"/>
-      <xs:element name="Transverse" type="xs:double"/>
-      <xs:element name="Normal" type="xs:double"/>
+    <xs:all>      
+      <xs:element name="IntracellularConductivities" type="conductivities_type" minOccurs="0"/>
+      <xs:element name="ExtracellularConductivities" type="conductivities_type" minOccurs="0"/>
       <xs:element name="Location" type="box_type"/>
-    </xs:sequence>
+    </xs:all>
   </xs:complexType>
 
   <xs:complexType name="slab_type">

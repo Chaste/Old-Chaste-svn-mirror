@@ -34,6 +34,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include "UblasCustomFunctions.hpp"
 #include "Exception.hpp"
+#include <vector>
+#include "AbstractStimulusFunction.hpp"
+#include "SimpleStimulus.hpp"
+#include "ChasteCuboid.hpp"
+//#include "ChastePoint.hpp"
 
 class HeartConfig
 {
@@ -50,19 +55,44 @@ public:
     
     void SetDefaultsFile(std::string fileName);
     void SetParametersFile(std::string fileName);
-    void Destroy();
+    static void Destroy();
     
+    // Simulation
+    double GetSimulationDuration();
+    domain_type GetDomain();
     ionic_model_type GetIonicModel();
+    void GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas);
+    void GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
+    							std::vector<double>& scaleFactorGks,
+    							std::vector<double>& scaleFactorIto);
+    void GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
+				  					 	std::vector< c_vector<double,3> >& intraConductivities,
+										std::vector< c_vector<double,3> >& extraConductivities);
+    
+    
+    // Physiological
+    
+    // Numerical
     c_vector<double, 3> GetIntracellularConductivities();
+    c_vector<double, 3> GetExtracellularConductivities();
     
 private:
     HeartConfig();
+    ~HeartConfig();
+    
+    
     /** The single instance of the class */
     static HeartConfig* mpInstance;
+    
     chaste_parameters_type* mpUserParameters;
     chaste_parameters_type* mpDefaultParameters;
     
-    std::string mDefaultsFile;
+    // Misc
+    template<class TYPE> 
+    TYPE* DecideLocation(TYPE* ptr1, TYPE* ptr2, std::string nameParameter);
+    //Utility method to parse an XML parameters file
+    chaste_parameters_type* ReadFile(std::string fileName);
+  
 };
 
 #endif /*HEARTCONFIG_HPP_*/

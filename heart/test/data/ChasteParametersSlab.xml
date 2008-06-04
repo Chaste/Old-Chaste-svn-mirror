@@ -32,8 +32,8 @@
 				<Duration>0.5</Duration>
 				<Delay>0</Delay>
 				<Location>
-					<CornerA x="-5.0" z="-5.0" y="-0.125"/>
-					<CornerB x="-4.75" z="5.0" y="0.125"/>
+					<CornerA x="-5.0"  y="-0.125" z="-5.0"/>
+					<CornerB x="-4.75" y="0.125"  z="5.0"/>
 				</Location>
 			</Stimulus>	
 			<Stimulus> <!-- #2 -->
@@ -41,12 +41,63 @@
 				<Duration>0.5</Duration>
 				<Delay>200.0</Delay>
 				<Location>
-					<CornerA x="-5.0" z="-5.0" y="-0.125"/>
-					<CornerB x="0.0" z="0.0" y="0.125"/>
+					<CornerA x="-5.0" y="-0.125" z="-5.0"/>
+					<CornerB x="0.0"  y="0.125"  z="0.0"/>
 				</Location>
 			</Stimulus>	
 		</Stimuli>
+
+	    <!-- 
+	    	Ionic cell model heterogeneities (as many <CellHeterogeneity> definitions as needed) 
+	   	-->
+		<CellHeterogeneities>
+		  	<CellHeterogeneity> <!-- #1 -->
+				<ScaleFactorGks>0.462</ScaleFactorGks>
+				<ScaleFactorIto>0.0</ScaleFactorIto>
+				<Location>
+					<CornerA x="-2.0" y="-0.1" z="-1.0"/>
+					<CornerB x="-0.5" y="0.1" z="1.0"/>
+				</Location>
+			</CellHeterogeneity>	
 		
+		  	<CellHeterogeneity> <!-- #2 -->
+				<ScaleFactorGks>1.154</ScaleFactorGks>
+				<ScaleFactorIto>0.85</ScaleFactorIto>
+				<Location>
+					<CornerA x="-0.5" y="-0.1" z="-1.0"/>
+					<CornerB x="0.5" y="0.1" z="1.0"/>
+				</Location>
+			</CellHeterogeneity>	
+		
+		  	<CellHeterogeneity> <!-- #3 -->
+				<ScaleFactorGks>1.154</ScaleFactorGks>
+				<ScaleFactorIto>1.0</ScaleFactorIto>
+				<Location>
+					<CornerA x="0.5" y="-0.1" z="-1.0"/>
+					<CornerB x="2.0" y="0.1" z="1.0"/>
+				</Location>
+			</CellHeterogeneity>
+		</CellHeterogeneities>		
+		
+		<ConductivityHeterogeneities>
+			<ConductivityHeterogeneity> <!-- #1 -->
+			    <IntracellularConductivities longi="2.75" trans="2.75" normal="2.75" />
+	    		<ExtracellularConductivities longi="8.0"  trans="8.0"  normal="8.0" />				
+				<Location>
+					<CornerA x="1.9" y="-0.1" z="-1.0"/>
+					<CornerB x="2.0" y="0.1" z="1.0"/>
+				</Location>				
+			</ConductivityHeterogeneity>		
+
+			<ConductivityHeterogeneity> <!-- #2 -->
+			    <IntracellularConductivities longi="0.75" trans="0.75" normal="0.75" />
+				<Location>
+					<CornerA x="-0.1" y="-0.1" z="-1.0"/>
+					<CornerB x="0.1"  y="0.1"  z="1.0"/>
+				</Location>				
+			</ConductivityHeterogeneity>		
+		</ConductivityHeterogeneities>		
+
 		<!-- 
 			Output 
 		-->
