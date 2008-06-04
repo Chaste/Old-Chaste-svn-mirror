@@ -82,6 +82,8 @@ class TestMonodomainFastSlowPde : public CxxTest::TestSuite
 public:
     void testMonodomainFastSlowPde() throw (Exception)
     {
+        EXIT_IF_PARALLEL;
+        
         ConformingTetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(2, 2, false);
         double half=1.0L/2.0L;
