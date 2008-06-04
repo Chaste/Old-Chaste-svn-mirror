@@ -104,6 +104,9 @@ public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1)
             :  mStride(stride)
     {
+        assert(pCellFactory!=NULL);
+        assert(pCellFactory->GetMesh()!=NULL);
+
         std::vector<unsigned>& r_nodes_per_processor = pCellFactory->GetMesh()->rGetNodesPerProcessor();
 
         // check number of processor agrees with definition in mesh
@@ -111,9 +114,9 @@ public:
         {
             EXCEPTION("Number of processors defined in mesh class not equal to number of processors used");
         }
-        
+
         if(r_nodes_per_processor.size() != 0)
-        {
+        {      
             unsigned num_local_nodes = r_nodes_per_processor[ PetscTools::GetMyRank() ];
             DistributedVector::SetProblemSizePerProcessor(pCellFactory->GetMesh()->GetNumNodes(), num_local_nodes);
         }
@@ -121,7 +124,7 @@ public:
         {
             DistributedVector::SetProblemSize(pCellFactory->GetMesh()->GetNumNodes());
         }
-                
+
         // Reference: Trayanova (2002 - "Look inside the heart")
         mSurfaceAreaToVolumeRatio = 1400;            // 1/cm
         mCapacitance = 1.0;                          // uF/cm^2
@@ -216,7 +219,7 @@ public:
      *  NOTE: this used to be PrepareForAssembleSystem, but that method is now
      *  a virtual method in the assemblers not the pdes.
      */
-    void SolveCellSystems(Vec currentSolution, double currentTime, double nextTime)
+    virtual void SolveCellSystems(Vec currentSolution, double currentTime, double nextTime)
     {   
         EventHandler::BeginEvent(SOLVE_ODES);
         

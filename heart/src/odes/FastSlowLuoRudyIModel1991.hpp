@@ -32,6 +32,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractStimulusFunction.hpp"
 #include <vector>
 
+typedef enum _CellModelState
+{
+    STATE_UNSET = 0,
+    FAST,
+    SLOW
+} CellModelState;
+
+
 /**
  * This class sets up the FastSlowLuoRudyIModel1991 system of equations.
  * 
@@ -42,6 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class FastSlowLuoRudyIModel1991 : public AbstractCardiacCell
 {
 friend class TestMixedMeshOdes;
+friend class TestMonodomainFastSlowPde;
 
 private:
 
@@ -74,12 +83,11 @@ private:
     void VerifyStateVariables();
 
     /*< Which mode the class is in */    
-    bool mIsFast;
+    CellModelState mState;
     
 public:
     // Constructor
-    FastSlowLuoRudyIModel1991(bool isFast,
-                              AbstractIvpOdeSolver *pSolver,
+    FastSlowLuoRudyIModel1991(AbstractIvpOdeSolver *pSolver,
                               double dt,
                               AbstractStimulusFunction *pIntracellularStimulus,
                               AbstractStimulusFunction *pExtracellularStimulus = NULL);
@@ -87,6 +95,9 @@ public:
     // Destructor
     ~FastSlowLuoRudyIModel1991();
         
+    /** Set the state of this model - either FAST or SLOW */
+    void SetState(CellModelState state);
+    
     // This method will compute the RHS of the LuoRudyIModel1991OdeSystem model
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
     
@@ -103,7 +114,8 @@ public:
     /*< Get whether this cell is a fast or slow version */
     bool IsFast()
     {
-        return mIsFast;
+        assert(mState!=STATE_UNSET);
+        return (mState==FAST);
     }
     
     /** 

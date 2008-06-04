@@ -35,20 +35,42 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Constructor - sets up state variables and initial condition
  */
-FastSlowLuoRudyIModel1991::FastSlowLuoRudyIModel1991(bool isFast,
-                                                     AbstractIvpOdeSolver *pSolver,
+FastSlowLuoRudyIModel1991::FastSlowLuoRudyIModel1991(AbstractIvpOdeSolver *pSolver,
                                                      double dt,
                                                      AbstractStimulusFunction *pIntracellularStimulus,
                                                      AbstractStimulusFunction *pExtracellularStimulus)
-        : AbstractCardiacCell(pSolver, (isFast ? 6 : 8), 4, dt, pIntracellularStimulus, pExtracellularStimulus)
+        : AbstractCardiacCell(pSolver, 8, 4, dt, pIntracellularStimulus, pExtracellularStimulus)
 {
-    mIsFast = isFast;
+    // NOTE: above we set the number of state variables to be 8 (the second arg to AbstractCardiacCell),
+    // but we don't know what the correct is until SetState is called. So we MUST correctly set 
+    // mNumberOfStateVariables in SetState.
+
+    // sets the state as unset, does nothing else until SetState is called
+    mState = STATE_UNSET;
+}
+
+
+void FastSlowLuoRudyIModel1991::SetState(CellModelState state)
+{
+    assert(state != STATE_UNSET);
+    assert(mState == STATE_UNSET); // SetState() has been called twice if this fails
+
+    mState = state;
+    
+    // set mNumberOfStateVariables correctly (see comment in constructor)
+    if(mState == FAST)
+    {
+        mNumberOfStateVariables = 6;
+    }
+    else
+    {
+        mNumberOfStateVariables = 8;
+    } 
     
     // set the final paramter
     fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) *
                                log(ionic_concentrations_Nao / ionic_concentrations_Nai);
     
-
     // State variables
     mVariableNames.push_back("h");
     mVariableUnits.push_back("");
@@ -70,7 +92,7 @@ FastSlowLuoRudyIModel1991::FastSlowLuoRudyIModel1991(bool isFast,
     mVariableUnits.push_back("mV");
     mInitialConditions.push_back(-83.853);
        
-    if(!mIsFast)
+    if(mState == SLOW)
     {
         mVariableNames.push_back("d");
         mVariableUnits.push_back("");
@@ -113,7 +135,9 @@ void FastSlowLuoRudyIModel1991::EvaluateYDerivatives(double time,
                                                      const std::vector<double> &rY,
                                                      std::vector<double> &rDY)
 {
-    if(mIsFast)
+    assert(mState!=STATE_UNSET); // SetState() hasn't been called if this fails
+    
+    if(mState==FAST)
     {
         assert(mSlowValues.size()==2); // verify that SetSlowValues() has been called.
     }
@@ -128,7 +152,7 @@ void FastSlowLuoRudyIModel1991::EvaluateYDerivatives(double time,
     double time_dependent_potassium_current_X_gate_X;
     
     // set up last three variable depending on which mode we are in
-    if(mIsFast)
+    if(mState==FAST)
     {
         slow_inward_current_d_gate_d = mSlowValues[0];
         slow_inward_current_f_gate_f = mSlowValues[1];
@@ -246,7 +270,7 @@ void FastSlowLuoRudyIModel1991::EvaluateYDerivatives(double time,
     rDY[3] = intracellular_calcium_concentration_Cai_prime;
     rDY[4] = membrane_V_prime;
 
-    if(!mIsFast)
+    if(mState==SLOW)
     {
         double slow_inward_current_d_gate_alpha_d = 0.095*exp(-0.01*(membrane_V-5.0))/(1.0+exp(-0.072*(membrane_V-5.0)));
         double slow_inward_current_d_gate_beta_d = 0.07*exp(-0.017*(membrane_V+44.0))/(1.0+exp(0.05*(membrane_V+44.0)));
@@ -268,7 +292,9 @@ void FastSlowLuoRudyIModel1991::EvaluateYDerivatives(double time,
 
 void FastSlowLuoRudyIModel1991::SetSlowValues(const std::vector<double> &rSlowValues)
 {
-    assert(mIsFast);
+    assert(mState!=STATE_UNSET); // SetState() hasn't been called if this fails
+
+    assert(mState==FAST);
     assert(rSlowValues.size() == 2);
     
     double slow_inward_current_d_gate_d = rSlowValues[0];
@@ -289,7 +315,9 @@ void FastSlowLuoRudyIModel1991::SetSlowValues(const std::vector<double> &rSlowVa
 
 void FastSlowLuoRudyIModel1991::GetSlowValues(std::vector<double> &rSlowValues)
 {
-    assert(!mIsFast);
+    assert(mState!=STATE_UNSET); // SetState() hasn't been called if this fails
+
+    assert(mState==SLOW);
     rSlowValues.resize(2);
     rSlowValues[0] = mStateVariables[5];
     rSlowValues[1] = mStateVariables[6];
@@ -298,6 +326,8 @@ void FastSlowLuoRudyIModel1991::GetSlowValues(std::vector<double> &rSlowValues)
 
 double FastSlowLuoRudyIModel1991::GetIIonic()
 {
+    assert(mState!=STATE_UNSET); // SetState() hasn't been called if this fails
+
     double fast_sodium_current_h_gate_h = mStateVariables[0];
     double fast_sodium_current_j_gate_j = mStateVariables[1];
     double fast_sodium_current_m_gate_m = mStateVariables[2];
@@ -308,7 +338,7 @@ double FastSlowLuoRudyIModel1991::GetIIonic()
     double slow_inward_current_f_gate_f;
     double time_dependent_potassium_current_X_gate_X;
     
-    if(mIsFast)
+    if(mState==FAST)
     {
         slow_inward_current_d_gate_d = mSlowValues[0];
         slow_inward_current_f_gate_f = mSlowValues[1];
@@ -368,6 +398,8 @@ double FastSlowLuoRudyIModel1991::GetIIonic()
 
 void FastSlowLuoRudyIModel1991::VerifyStateVariables()
 {
+    assert(mState!=STATE_UNSET); // SetState() hasn't been called if this fails
+
 //#ifndef NDEBUG
     const std::vector<double>& rY = rGetStateVariables();
  
@@ -380,7 +412,7 @@ void FastSlowLuoRudyIModel1991::VerifyStateVariables()
     double slow_inward_current_f_gate_f;
     double time_dependent_potassium_current_X_gate_X;
     
-    if(mIsFast)
+    if(mState==FAST)
     {
         slow_inward_current_d_gate_d = mSlowValues[0];
         slow_inward_current_f_gate_f = mSlowValues[1];
@@ -420,7 +452,7 @@ void FastSlowLuoRudyIModel1991::VerifyStateVariables()
         EXCEPTION(DumpState("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
     
-    if(!mIsFast)
+    if(mState==SLOW)
     {
         if (!(0.0<=slow_inward_current_d_gate_d && slow_inward_current_d_gate_d<=1.0))
         {

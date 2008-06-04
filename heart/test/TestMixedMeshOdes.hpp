@@ -138,11 +138,18 @@ public:
             // fast_model if fine has no coarse counterpart, slow if it does
             // (ie fast if fine only node, slow if coarse node)
             bool is_fast_model = !fine_has_coarse_counterpart[fine_node_index];
-            
-            cells[fine_node_index] = new FastSlowLuoRudyIModel1991(is_fast_model,
-                                                                   &solver,
+
+            cells[fine_node_index] = new FastSlowLuoRudyIModel1991(&solver,
                                                                    time_step,
                                                                    p_stimulus);
+            if(is_fast_model)
+            {
+                cells[fine_node_index]->SetState(FAST);
+            }
+            else
+            {
+                cells[fine_node_index]->SetState(SLOW);
+            }
         }
        
         double end_time = 1; //100 time steps, 1 ms

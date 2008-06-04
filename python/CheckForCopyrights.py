@@ -161,7 +161,7 @@ def InspectFile(fileName):
            	ReplaceStringInFile(cpp_depricated_notice, cpp_current_notice, fileName)
         	return True
         else:
-            print 'Fix this by running with -update argument'
+            print 'Fix this by doing: python python/CheckForCopyrights.py -update'
             return False
     
     print 'Found no copyright notice for',fileName
@@ -173,7 +173,7 @@ def InspectFile(fileName):
 	        HeadAppendStringInFile(cpp_current_notice, fileName)
         return True
     else:
-        print 'Fix this by running with -new argument'
+        print 'Fix this by doing: python python/CheckForCopyrights.py -new'
         return False
 
 #os.chdir(chaste_dir)
