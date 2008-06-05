@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 import os
 
 petsc_2_2_path = None
-petsc_2_3_path = '/home/jmpf/petsc-2.3.2-p4/'
+petsc_2_3_path = '/home/jmpf/petsc-2.3.1-p16/'
 petsc_build_name = 'linux-gnu'
 petsc_build_name_optimized = 'linux-gnu-opt'
 petsc_build_name_production = 'linux-intel-opt-mkl'
