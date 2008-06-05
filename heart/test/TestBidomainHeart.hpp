@@ -50,7 +50,7 @@ private:
 public:
     PointStimulusHeartCellFactory(double timeStep) : AbstractCardiacCellFactory<3>(timeStep)
     {
-        mpStimulus = new SimpleStimulus(-1000.0*100, 0.5);
+        mpStimulus = new InitialStimulus(-1000.0*1000, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
@@ -96,8 +96,7 @@ public:
         bidomain_problem.SetEndTime(end_time);
         bidomain_problem.SetPdeAndPrintingTimeSteps(pde_time_step, printing_time_step);
         
-        //bidomain_problem.SetLinearSolverRelativeTolerance(5e-7);
-        bidomain_problem.SetLinearSolverAbsoluteTolerance(5e-3);        
+        bidomain_problem.SetLinearSolverRelativeTolerance(5e-5);        
         //PetscOptionsSetValue("-ksp_type", "symmlq");
         //PetscOptionsSetValue("-pc_type", "bjacobi");
         //PetscOptionsSetValue("-log_summary", "");
@@ -154,8 +153,7 @@ public:
         bidomain_problem.SetEndTime(end_time);
         bidomain_problem.SetPdeAndPrintingTimeSteps(pde_time_step, printing_time_step);
         
-        //bidomain_problem.SetLinearSolverRelativeTolerance(5e-7);
-        bidomain_problem.SetLinearSolverAbsoluteTolerance(5e-3);
+        bidomain_problem.SetLinearSolverRelativeTolerance(5e-5);        
         //PetscOptionsSetValue("-ksp_type", "symmlq");
         //PetscOptionsSetValue("-pc_type", "bjacobi");
         //PetscOptionsSetValue("-log_summary", "");
