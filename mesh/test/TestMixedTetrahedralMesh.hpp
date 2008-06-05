@@ -34,17 +34,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MixedTetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "DistributedVector.hpp"
-
 #include "PetscSetupAndFinalize.hpp"
 
 
 class TestMixedTetrahedralMesh : public CxxTest::TestSuite
 {
-public:
+private:
+	double GetMinOrMax(ConformingTetrahedralMesh<2,2>* pMesh, bool min, unsigned component)
+	{
+		assert(component<2);
+		double ret = min ? DBL_MAX : -DBL_MAX;
+		for(unsigned i=0; i<pMesh->GetNumNodes(); i++)
+		{
+			double val = pMesh->GetNode(i)->rGetLocation()[component];
+			if( (min && (val<ret)) || (!min && (val>ret)) )
+			{
+				ret = val;
+			}
+		}
+		return ret;
+	}
 
+public:
 //   void TestMeshConstructionFromMeshReader(void)
 // is not yet implemented
+
     void TestConstructionFromCuboidMeshes3D()
     {
         // create fine mesh as CTM
@@ -167,7 +181,24 @@ public:
         coarse_mesh.SetFineMesh(&fine_mesh);  
     }
 
+	void TestConstructRectangularMeshes()
+	{
+		MixedTetrahedralMesh<2,2> mixed_mesh;
+		mixed_mesh.ConstructRectangularMeshes(2.2, 1.3, 4, 12);
+		
+		TS_ASSERT_EQUALS(mixed_mesh.GetNumNodes(), 25u); 
+		TS_ASSERT_EQUALS(mixed_mesh.GetFineMesh()->GetNumNodes(), 169u);
+		
+		TS_ASSERT_DELTA(GetMinOrMax(&mixed_mesh, true,  0), 0.0, 1e-8);
+		TS_ASSERT_DELTA(GetMinOrMax(&mixed_mesh, false, 0), 2.2, 1e-8);
+		TS_ASSERT_DELTA(GetMinOrMax(&mixed_mesh, true,  1), 0.0, 1e-8);
+		TS_ASSERT_DELTA(GetMinOrMax(&mixed_mesh, false, 1), 1.3, 1e-8);
 
+		TS_ASSERT_DELTA(GetMinOrMax(mixed_mesh.GetFineMesh(), true,  0), 0.0, 1e-8);
+		TS_ASSERT_DELTA(GetMinOrMax(mixed_mesh.GetFineMesh(), false, 0), 2.2, 1e-8);
+		TS_ASSERT_DELTA(GetMinOrMax(mixed_mesh.GetFineMesh(), true,  1), 0.0, 1e-8);
+		TS_ASSERT_DELTA(GetMinOrMax(mixed_mesh.GetFineMesh(), false, 1), 1.3, 1e-8);
+	}
 };
 
 
