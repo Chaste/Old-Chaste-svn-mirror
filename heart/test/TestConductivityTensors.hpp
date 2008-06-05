@@ -95,13 +95,13 @@ public:
         ortho_tensors.SetFibreOrientationFile("non_existing_file.fibres");        
         TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init()); // non existing file 
         
-        ortho_tensors.SetFibreOrientationFile ("heart/test/data/SimpleFibreOrientation2D.fibres");
+        ortho_tensors.SetFibreOrientationFile ("heart/test/data/SimpleOrthotropic2D.fibres");
         TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init()); // mismatching SPACE_DIM and # vectors in file        
 
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation2DWrongFormat.fibres");
+        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic2DWrongFormat.fibres");
         TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init()); // wrong file format
 
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleFibreOrientation3DShortFile.fibres");
+        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic3DShortFile.fibres");
         TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init()); // short file
     }
 

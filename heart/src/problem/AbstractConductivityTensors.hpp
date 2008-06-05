@@ -66,8 +66,7 @@ protected:
         mDataFile.close();        
     }
 
-    template<class TOKENS_TYPE> 
-    unsigned GetTokensAtNextLine(std::vector<TOKENS_TYPE>& tokens)
+    unsigned GetTokensAtNextLine(std::vector<double>& tokens)
     {
         std::string line;
 
@@ -93,36 +92,27 @@ protected:
         std::stringstream line_stream(line);
     
         // Read all the numbers from the line
-        try
+        while (!line_stream.eof())
         {
-            while (!line_stream.eof())
-            {
-                TOKENS_TYPE item;
-                line_stream >> item;
-                tokens.push_back(item);
-            }        
-        }
-        catch (std::exception e)
-        {
-            // Weird things happen with the ">>" operator if the file contains elements of type different from TOKENS_TYPE.
-            // "eof" is never reached and std::vector tokens overflows. 
-            EXCEPTION("Possible format error in file: " + mFibreOrientationFilename);
-        }
+            double item;
+            line_stream >> item;
+            tokens.push_back(item);
+        }        
         
         return tokens.size();                
     }
 
     unsigned GetNumElementsFromFile()
     {
-        std::vector<unsigned> tokens;
+        std::vector<double> tokens;
         
-        if (GetTokensAtNextLine<unsigned>(tokens) != 1)
+        if (GetTokensAtNextLine(tokens) != 1)
         {
             CloseFibreOrientationFile();
             EXCEPTION("First (non comment) line of the fibre orientation file should contain the number of elements of the mesh (and nothing else)");    
         }
 
-        return tokens[0];
+        return (unsigned) tokens[0];
     }
     
 public:
