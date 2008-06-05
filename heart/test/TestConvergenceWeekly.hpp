@@ -44,6 +44,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PdeConvergenceTester.hpp"
 #include "SpaceConvergenceTester.hpp"
 #include "OdeConvergenceTester.hpp"
+#include "PetscSetupAndFinalize.hpp"
+
 
 class TestConvergenceWeekly : public CxxTest::TestSuite
 {   

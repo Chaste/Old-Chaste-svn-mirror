@@ -46,6 +46,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "KspConvergenceTester.hpp"
 #include "OdeConvergenceTester.hpp"
 //#include "StimulusConvergenceTester.hpp"
+#include "PetscSetupAndFinalize.hpp"
+
 
 class TestConvergenceNightly : public CxxTest::TestSuite
 {

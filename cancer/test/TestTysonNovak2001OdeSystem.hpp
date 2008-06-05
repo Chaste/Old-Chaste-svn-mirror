@@ -40,7 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "ColumnDataWriter.hpp"
-#include "PetscSetupAndFinalize.hpp"
 
 
 class TestTysonNovak2001OdeSystem : public CxxTest::TestSuite

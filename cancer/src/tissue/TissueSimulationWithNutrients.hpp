@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TissueSimulation.hpp"
 #include "SimpleDataWriter.hpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"

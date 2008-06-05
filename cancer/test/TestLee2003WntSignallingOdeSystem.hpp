@@ -37,8 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Lee2003WntSignallingOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "PetscSetupAndFinalize.hpp"
-
 
 class TestLee2003WntSignallingOdeSystem : public CxxTest::TestSuite
 {

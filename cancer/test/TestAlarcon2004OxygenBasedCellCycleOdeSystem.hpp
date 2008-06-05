@@ -39,7 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "PetscSetupAndFinalize.hpp"
 
 
 class TestAlarcon2004OxygenBasedCellCycleOdeSystem : public CxxTest::TestSuite

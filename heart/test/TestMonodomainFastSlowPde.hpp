@@ -33,6 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include <iostream>
 
+
+#include "PetscSetupAndFinalize.hpp"
 #include "SimpleStimulus.hpp"
 #include "MonodomainFastSlowPde.hpp"
 #include "FastSlowLuoRudyIModel1991.hpp"

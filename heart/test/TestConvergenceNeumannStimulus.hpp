@@ -47,6 +47,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeConvergenceTester.hpp"
 //#include "StimulusConvergenceTester.hpp"
 
+#include "PetscSetupAndFinalize.hpp"
+
+
 class TestConvergenceNeumannStimulus : public CxxTest::TestSuite
 {   
 public:

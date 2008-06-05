@@ -39,7 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <math.h>
 
 #include "ConformingTetrahedralMesh.hpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshWriter.hpp"

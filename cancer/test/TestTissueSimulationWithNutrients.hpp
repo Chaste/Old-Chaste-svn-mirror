@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellsGenerator.hpp"
 #include "SimpleNutrientPde.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
+#include "PetscSetupAndFinalize.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
 class SimplePdeForTesting : public AbstractLinearEllipticPde<2>
