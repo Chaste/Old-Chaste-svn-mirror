@@ -511,7 +511,68 @@ public:
         too_large.push_back(4358743);
         bidomain_problem.SetFixedExtracellularPotentialNodes(too_large);
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
+        
+        //Explicitly reset the counters so the next test in the test suite doesn't find on
+        EventHandler::Reset();
     }
+    
+    
+    
+    void TestCompareOrthotropicWithAxisymmetricBidomain() throw (Exception)
+    {
+        
+        PlaneStimulusCellFactory<3> cell_factory;
+        
+        ///////////////////////////////////////////////////////////////////
+        // orthotropic
+        ///////////////////////////////////////////////////////////////////
+
+        BidomainProblem<3> orthotropic_bido( &cell_factory );
+        
+        orthotropic_bido.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
+        orthotropic_bido.SetEndTime(1);   // 1 ms
+        orthotropic_bido.SetOutputDirectory("OrthotropicBidomain");
+        orthotropic_bido.SetOutputFilenamePrefix("ortho3d");
+        orthotropic_bido.SetCallChaste2Meshalyzer(true); // for coverage
+        
+        orthotropic_bido.Initialise();
+        orthotropic_bido.Solve();              
+        
+        ///////////////////////////////////////////////////////////////////
+        // axisymmetric        
+        ///////////////////////////////////////////////////////////////////
+        BidomainProblem<3> axisymmetric_bido( &cell_factory, false );
+        
+        axisymmetric_bido.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
+        axisymmetric_bido.SetEndTime(1);   // 1 ms
+        axisymmetric_bido.SetOutputDirectory("AxisymmetricBidomain");
+        axisymmetric_bido.SetOutputFilenamePrefix("axi3d");
+                
+        axisymmetric_bido.Initialise();
+        axisymmetric_bido.Solve();
+        
+        ///////////////////////////////////////////////////////////////////
+        // compare
+        ///////////////////////////////////////////////////////////////////
+        DistributedVector orthotropic_solution(orthotropic_bido.GetVoltage());
+        DistributedVector axisymmetric_solution(axisymmetric_bido.GetVoltage());
+        
+        DistributedVector::Stripe ortho_voltage(orthotropic_solution, 0);
+        DistributedVector::Stripe axi_voltage(axisymmetric_solution, 0);        
+        
+        DistributedVector::Stripe ortho_ex_pot(orthotropic_solution, 1);
+        DistributedVector::Stripe axi_ex_pot(axisymmetric_solution, 1);        
+
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
+        {
+            TS_ASSERT_DELTA(ortho_voltage[index], axi_voltage[index], 1e-11);
+            TS_ASSERT_DELTA(ortho_ex_pot[index], axi_ex_pot[index], 1e-11);            
+        }       
+
+    }
+    
 };
 
 #endif /*TESTBIDOMAINPROBLEM_HPP_*/
