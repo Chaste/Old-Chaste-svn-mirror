@@ -86,21 +86,12 @@ public:
     {
         EXIT_IF_PARALLEL;
         
-        ConformingTetrahedralMesh<2,2> fine_mesh;
-        fine_mesh.ConstructRectangularMesh(2, 2, false);
-        double half=1.0L/2.0L;
-        fine_mesh.Scale(half, half, 0.0);
-        
-        // create coarse mesh as RTM
-        MixedTetrahedralMesh<2,2> coarse_mesh;
-        coarse_mesh.ConstructRectangularMesh(1, 1, false);
-        // give fine mesh to coarse mesh and calculate node map
-        coarse_mesh.SetFineMesh(&fine_mesh);
+        MixedTetrahedralMesh<2,2> mixed_mesh(1.0,1.0,1,2);
 
         MyCellFactory cell_factory;
-        cell_factory.SetMesh(&fine_mesh);
+        cell_factory.SetMesh(coarse_mesh.GetFineMesh());
         
-        MonodomainFastSlowPde<2> monodomain_fast_slow_pde( &cell_factory, coarse_mesh, 0, 1.0 );
+        MonodomainFastSlowPde<2> monodomain_fast_slow_pde( &cell_factory, mixed_mesh, 0, 1.0 );
 
         std::vector<FastSlowLuoRudyIModel1991*> cells(fine_mesh.GetNumNodes());
         for(unsigned i=0; i<fine_mesh.GetNumNodes(); i++)

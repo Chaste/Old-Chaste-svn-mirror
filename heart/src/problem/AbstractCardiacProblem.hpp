@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
 {
-private:
+protected:
     std::string mMeshFilename;
     bool mAllocatedMemoryForMesh;
     std::string mNodesPerProcessorFilename;

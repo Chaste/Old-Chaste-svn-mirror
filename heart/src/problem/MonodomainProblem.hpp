@@ -43,9 +43,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM>
 class MonodomainProblem : public AbstractCardiacProblem<SPACE_DIM, 1>
 {
-private:
-    MonodomainPde<SPACE_DIM>* mpMonodomainPde;    
-
+protected:
+    MonodomainPde<SPACE_DIM>* mpMonodomainPde;
+    
 public:
     AbstractCardiacPde<SPACE_DIM>* CreateCardiacPde()
     {
@@ -59,6 +59,8 @@ public:
     
     AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* CreateAssembler()
     {
+    	assert(mpMonodomainPde);
+    	
         MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_assembler 
           = new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh, 
                                                             mpMonodomainPde, 
@@ -86,7 +88,7 @@ public:
      */
     MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool orthotropicMedia=true)
             : AbstractCardiacProblem<SPACE_DIM, 1>(pCellFactory, orthotropicMedia),
-            mpMonodomainPde(NULL)
+              mpMonodomainPde(NULL)
     {
     }
     

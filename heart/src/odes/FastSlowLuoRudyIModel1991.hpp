@@ -28,16 +28,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _FASTSLOWLUORUDYIMODEL1991_HPP_
 #define _FASTSLOWLUORUDYIMODEL1991_HPP_
 
-#include "AbstractCardiacCell.hpp"
+#include "AbstractFastSlowCardiacCell.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include <vector>
-
-typedef enum _CellModelState
-{
-    STATE_UNSET = 0,
-    FAST,
-    SLOW
-} CellModelState;
 
 
 /**
@@ -47,7 +40,7 @@ typedef enum _CellModelState
  * FAST MODE: where the variables are (h, j, m, [Ca]_i, V, x) (in that order)
  * SLOW MODE: where the variables are (h, j, m, [Ca]_i, V, d, f, x)
  */
-class FastSlowLuoRudyIModel1991 : public AbstractCardiacCell
+class FastSlowLuoRudyIModel1991 : public AbstractFastSlowCardiacCell
 {
 friend class TestMixedMeshOdes;
 friend class TestMonodomainFastSlowPde;
@@ -72,18 +65,12 @@ private:
     /*< Another parameter, which is a function of the above */
     double fast_sodium_current_E_Na;
 
-    /* Values for slow ionic currents interpolated from the coarse mesh. */
-    std::vector<double> mSlowValues;
-
     /** 
      *  Range-checking on the current values of the state variables. Make sure
      *  all gating variables have are within zero and one, and all concentrations
      *  are positive
      */
     void VerifyStateVariables();
-
-    /*< Which mode the class is in */    
-    CellModelState mState;
     
 public:
     // Constructor
@@ -95,11 +82,15 @@ public:
     // Destructor
     ~FastSlowLuoRudyIModel1991();
         
-    /** Set the state of this model - either FAST or SLOW */
-    void SetState(CellModelState state);
-    
     // This method will compute the RHS of the LuoRudyIModel1991OdeSystem model
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
+
+    double GetIIonic();
+    
+    double GetIntracellularCalciumConcentration();
+
+    /** Set the state of this model - either FAST or SLOW */
+    void SetState(CellModelState state);
     
     /*< Set the slow variables (d,f). Only valid in fast mode) */ 
     void SetSlowValues(const std::vector<double> &rSlowValues);
@@ -107,21 +98,10 @@ public:
     /* Get the slow variables (d,f). Only valid in slow mode. */
     void GetSlowValues(std::vector<double>& rSlowValues);
     
-    double GetIIonic();
-    
-    double GetIntracellularCalciumConcentration();
-    
-    /*< Get whether this cell is a fast or slow version */
-    bool IsFast()
-    {
-        assert(mState!=STATE_UNSET);
-        return (mState==FAST);
-    }
-    
     /** 
      *  Get number of slow variables in this model - NOT the same as whether in fast mode or not.
      */
-    static unsigned GetNumSlowValues()
+    unsigned GetNumSlowValues()
     {
         return 2;
     }

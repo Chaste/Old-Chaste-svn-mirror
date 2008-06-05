@@ -39,9 +39,6 @@ class TestFastSlowLuoRudyIModel1991 : public CxxTest::TestSuite
 public:
     void TestFastLuoRudyCalculateDerivativesFastMode(void) throw(Exception)
     {
-        // test static method
-        TS_ASSERT_EQUALS(FastSlowLuoRudyIModel1991::GetNumSlowValues(), 2u);
-        
         //Set up normal cell model and evaluate Y derivatives
         ZeroStimulus stimulus;
         EulerIvpOdeSolver solver;

@@ -39,14 +39,11 @@ FastSlowLuoRudyIModel1991::FastSlowLuoRudyIModel1991(AbstractIvpOdeSolver *pSolv
                                                      double dt,
                                                      AbstractStimulusFunction *pIntracellularStimulus,
                                                      AbstractStimulusFunction *pExtracellularStimulus)
-        : AbstractCardiacCell(pSolver, 8, 4, dt, pIntracellularStimulus, pExtracellularStimulus)
+        : AbstractFastSlowCardiacCell(pSolver, 8, 4, dt, pIntracellularStimulus, pExtracellularStimulus)
 {
     // NOTE: above we set the number of state variables to be 8 (the second arg to AbstractCardiacCell),
     // but we don't know what the correct is until SetState is called. So we MUST correctly set 
     // mNumberOfStateVariables in SetState.
-
-    // sets the state as unset, does nothing else until SetState is called
-    mState = STATE_UNSET;
 }
 
 
