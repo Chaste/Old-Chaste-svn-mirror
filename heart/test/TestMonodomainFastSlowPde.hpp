@@ -86,15 +86,16 @@ public:
     {
         EXIT_IF_PARALLEL;
         
-        MixedTetrahedralMesh<2,2> mixed_mesh(1.0,1.0,1,2);
+        MixedTetrahedralMesh<2,2> mixed_mesh;
+        mixed_mesh.ConstructRectangularMeshes(1.0,1.0,1,2);
 
         MyCellFactory cell_factory;
-        cell_factory.SetMesh(coarse_mesh.GetFineMesh());
+        cell_factory.SetMesh(mixed_mesh.GetFineMesh());
         
         MonodomainFastSlowPde<2> monodomain_fast_slow_pde( &cell_factory, mixed_mesh, 0, 1.0 );
 
-        std::vector<FastSlowLuoRudyIModel1991*> cells(fine_mesh.GetNumNodes());
-        for(unsigned i=0; i<fine_mesh.GetNumNodes(); i++)
+        std::vector<FastSlowLuoRudyIModel1991*> cells(mixed_mesh.GetFineMesh()->GetNumNodes());
+        for(unsigned i=0; i<mixed_mesh.GetFineMesh()->GetNumNodes(); i++)
         {
             cells[i] = static_cast<FastSlowLuoRudyIModel1991*>(monodomain_fast_slow_pde.mCellsDistributed[i]);
         }

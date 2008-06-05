@@ -17,6 +17,7 @@ TestMonodomainDg0Assembler.hpp
 TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 TestMonodomainPde.hpp
 TestMonodomainFastSlowPde.hpp
+TestMonodomainFastSlowProblem.hpp
 TestMonodomainUneven.hpp
 TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 TestNeumannStimulus.hpp

@@ -71,7 +71,7 @@ public:
         }
     }
     
-    ~MyCellFactory(void)
+    ~MyCellFactory()
     {
         delete mpStimulus;
     }
@@ -84,7 +84,8 @@ public:
 
     void Test2dBasicRun() throw(Exception)
     {
-        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
+        //PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
+        MyCellFactory cell_factory;
 
         CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
                                                            2300,  // end time of 200ms
@@ -92,7 +93,7 @@ public:
                                                            false,// use implicit method 
                                                            100,  // 100 mech times per elec timestep, ie mech_dt = 1ms
                                                            1,    // nhs_dt = 1ms
-                                                           "CardiacElectroMechBasic");
+                                                           "CardiacElectroMechBasicLong");
         implicit_problem.SetNoElectricsOutput();
         implicit_problem.UseDirectLinearSolver();
 
