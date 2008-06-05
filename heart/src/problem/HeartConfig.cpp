@@ -259,58 +259,26 @@ void HeartConfig::GetConductivityHeterogeneities(std::vector<ChasteCuboid>& cond
 
 c_vector<double, 3> HeartConfig::GetIntracellularConductivities()
 {
-    double intra_x_cond;
-    double intra_y_cond;
-    double intra_z_cond;                    
-    
-    if (mpUserParameters->Simulation().IonicModel().present())
-    {
-        intra_x_cond = mpUserParameters->Physiological().IntracellularConductivities().get().longi();
-        intra_y_cond = mpUserParameters->Physiological().IntracellularConductivities().get().trans();
-        intra_z_cond = mpUserParameters->Physiological().IntracellularConductivities().get().normal();                
-    }
-    else
-    {
-        if (mpDefaultParameters->Simulation().IonicModel().present())
-        {
-            intra_x_cond = mpDefaultParameters->Physiological().IntracellularConductivities().get().longi();
-            intra_y_cond = mpDefaultParameters->Physiological().IntracellularConductivities().get().trans();
-            intra_z_cond = mpDefaultParameters->Physiological().IntracellularConductivities().get().normal();                
-        }
-        else
-        {
-            EXCEPTION("No IntracellularConductivities provided (neither default nor user defined)");
-        }             
-    }        
+    optional<conductivities_type, false>* intra_conductivities  = DecideLocation( & mpUserParameters->Physiological().IntracellularConductivities(), 
+                                                                                  & mpDefaultParameters->Physiological().IntracellularConductivities(), 
+                                                                                  "IntracellularConductivities");           
 
-    return Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond);   
+    double intra_x_cond = intra_conductivities->get().longi();
+    double intra_y_cond = intra_conductivities->get().trans();
+    double intra_z_cond = intra_conductivities->get().normal();;
+
+    return Create_c_vector(intra_x_cond, intra_y_cond, intra_z_cond);       
 }
 
 c_vector<double, 3> HeartConfig::GetExtracellularConductivities()
 {
-    double extra_x_cond;
-    double extra_y_cond;
-    double extra_z_cond;                    
-    
-    if (mpUserParameters->Simulation().IonicModel().present())
-    {
-        extra_x_cond = mpUserParameters->Physiological().ExtracellularConductivities().get().longi();
-        extra_y_cond = mpUserParameters->Physiological().ExtracellularConductivities().get().trans();
-        extra_z_cond = mpUserParameters->Physiological().ExtracellularConductivities().get().normal();                
-    }
-    else
-    {
-        if (mpDefaultParameters->Simulation().IonicModel().present())
-        {
-            extra_x_cond = mpDefaultParameters->Physiological().ExtracellularConductivities().get().longi();
-            extra_y_cond = mpDefaultParameters->Physiological().ExtracellularConductivities().get().trans();
-            extra_z_cond = mpDefaultParameters->Physiological().ExtracellularConductivities().get().normal();                
-        }
-        else
-        {
-            EXCEPTION("No ExtracellularConductivities provided (neither default nor user defined)");
-        }             
-    }        
+    optional<conductivities_type, false>* extra_conductivities  = DecideLocation( & mpUserParameters->Physiological().ExtracellularConductivities(), 
+                                                                                  & mpDefaultParameters->Physiological().ExtracellularConductivities(), 
+                                                                                  "ExtracellularConductivities");           
+
+    double extra_x_cond = extra_conductivities->get().longi();
+    double extra_y_cond = extra_conductivities->get().trans();
+    double extra_z_cond = extra_conductivities->get().normal();;
 
     return Create_c_vector(extra_x_cond, extra_y_cond, extra_z_cond);   
 }

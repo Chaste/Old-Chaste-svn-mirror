@@ -41,7 +41,7 @@ public :
         double chi = HeartConfig::Instance()->DefaultParameters()->Physiological().SurfaceAreaToVolumeRatio().get();
         TS_ASSERT_EQUALS(chi, 1400);
 
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersSlab.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersFullFormat.xml");
         
         chi = HeartConfig::Instance()->UserParameters()->Physiological().SurfaceAreaToVolumeRatio().get();
         TS_ASSERT_EQUALS(chi, 1400);
@@ -60,7 +60,7 @@ public :
     
     void TestUserProvidedDifferentFromDefault()
     {
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersSlab.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersFullFormat.xml");
         
         ionic_model_type default_ionic_model = HeartConfig::Instance()->DefaultParameters()->Simulation().IonicModel().get(); 
         TS_ASSERT_EQUALS(default_ionic_model, ionic_model_type::LuoRudyIModel1991OdeSystem);
@@ -76,7 +76,7 @@ public :
     
     void TestGetFunctions()
     {
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersSlab.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersFullFormat.xml");
 
 		TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(),
 						 10.0);
@@ -143,9 +143,10 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
  
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetIonicModel());        
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetIntracellularConductivities());
 
         HeartConfig::Destroy();
+        
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteWrong.xml"));
     }
 };
 

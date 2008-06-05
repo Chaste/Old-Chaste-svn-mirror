@@ -96,6 +96,14 @@
 					<CornerB x="0.1"  y="0.1"  z="1.0"/>
 				</Location>				
 			</ConductivityHeterogeneity>		
+
+			<ConductivityHeterogeneity> <!-- #3 -->
+				<ExtracellularConductivities longi="8.0"  trans="8.0"  normal="8.0" />				
+				<Location>
+					<CornerA x="-2.0" y="-0.1" z="-1.0"/>
+					<CornerB x="-1.9"  y="0.1"  z="1.0"/>
+				</Location>				
+			</ConductivityHeterogeneity>		
 		</ConductivityHeterogeneities>		
 
 		<!-- 

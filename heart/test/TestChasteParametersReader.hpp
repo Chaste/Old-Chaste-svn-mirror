@@ -44,7 +44,7 @@ public:
     {
         try
         {
-            auto_ptr<chaste_parameters_type> params (ChasteParameters( "heart/test/data/ChasteParametersSlab.xml"));
+            auto_ptr<chaste_parameters_type> params (ChasteParameters( "heart/test/data/ChasteParametersFullFormat.xml"));
             
             simulation_type simulation_params = params->Simulation();
             
