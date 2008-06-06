@@ -71,7 +71,7 @@ public :
         ionic_model_type get_ionic_model = HeartConfig::Instance()->GetIonicModel(); 
         TS_ASSERT_EQUALS(user_ionic_model, get_ionic_model);        
 
-        HeartConfig::Instance()->Destroy();
+        HeartConfig::Destroy();
     }
     
     void TestGetFunctions()
@@ -143,10 +143,10 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
  
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetIonicModel());        
-
         HeartConfig::Destroy();
         
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteWrong.xml"));
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteWrong.xml"));        
+        HeartConfig::Destroy();
     }
 };
 
