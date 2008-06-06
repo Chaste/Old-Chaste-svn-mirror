@@ -220,20 +220,25 @@ public :
      *  in 1 line than Petsc's usual 4 or 5. DOES NOT check that
      *  the requested component is local, DOES do bound-checking.
      */
-    static double GetVecValue(Vec vec, unsigned index)
-    {
-        assert(vec);
-        PetscInt size;
-        VecGetSize(vec, &size);
-        assert((int)index<size);
-        
-        double* p_data;
-        VecGetArray(vec, &p_data);
-        double ret = p_data[(int)index];
-        VecRestoreArray(vec, &p_data);
-        
-        return ret;
-    }
+///\todo Think if there is an efficient compromise between this method and
+/// the full weight of ReplicatableVector (broadcast single values to all processors).
+/// How do you know who has the value?
+
+ 
+//    static double GetVecValue(Vec vec, unsigned index)
+//    {
+//        assert(vec);
+//        PetscInt size;
+//        VecGetSize(vec, &size);
+//        assert((int)index<size);
+//        
+//        double* p_data;
+//        VecGetArray(vec, &p_data);
+//        double ret = p_data[(int)index];
+//        VecRestoreArray(vec, &p_data);
+//        
+//        return ret;
+//    }
 };
 
 #endif /*PETSCTOOLS_HPP_*/

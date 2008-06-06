@@ -276,8 +276,10 @@ protected :
         
         std::vector<Vector<double> >& deformed_position
           = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->rGetDeformedPosition();
-        
-        double V = PetscTools::GetVecValue(voltage, mWatchedElectricsNodeIndex);
+         
+        ///\todo Rather inefficient
+        ReplicatableVector voltage_replicated(voltage);
+        double V=voltage_replicated[mWatchedElectricsNodeIndex];
         
         ///\todo:
         // HARDCODED state variable index - assumes Lr91. Hierarchy not set up yet.
