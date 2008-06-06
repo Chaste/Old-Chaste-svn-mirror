@@ -139,13 +139,12 @@ public :
     
     void TestExceptions()
     {
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteWrong.xml"));
+        
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteEmpty.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
  
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetIonicModel());        
-        HeartConfig::Destroy();
-        
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteWrong.xml"));        
         HeartConfig::Destroy();
     }
 };
