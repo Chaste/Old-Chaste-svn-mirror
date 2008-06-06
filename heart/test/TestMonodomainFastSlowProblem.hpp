@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTMONODOMAINFASTSLOWPROBLEM_HPP_
 #define TESTMONODOMAINFASTSLOWPROBLEM_HPP_
 
-
+#include "UblasCustomFunctions.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "SimpleStimulus.hpp"
 #include "FastSlowLuoRudyIModel1991.hpp"
