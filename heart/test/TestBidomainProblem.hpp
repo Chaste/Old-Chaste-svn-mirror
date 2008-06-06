@@ -533,8 +533,7 @@ public:
         orthotropic_bido.SetEndTime(1);   // 1 ms
         orthotropic_bido.SetOutputDirectory("OrthotropicBidomain");
         orthotropic_bido.SetOutputFilenamePrefix("ortho3d");
-        orthotropic_bido.SetCallChaste2Meshalyzer(true); // for coverage
-        
+                
         orthotropic_bido.Initialise();
         orthotropic_bido.Solve();              
         
@@ -546,7 +545,7 @@ public:
         axisymmetric_bido.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
         axisymmetric_bido.SetEndTime(1);   // 1 ms
         axisymmetric_bido.SetOutputDirectory("AxisymmetricBidomain");
-        axisymmetric_bido.SetOutputFilenamePrefix("axi3d");
+        axisymmetric_bido.SetOutputFilenamePrefix("axi3d");        
                 
         axisymmetric_bido.Initialise();
         axisymmetric_bido.Solve();

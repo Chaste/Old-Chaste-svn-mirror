@@ -86,7 +86,11 @@ public:
         TS_ASSERT_THROWS_ANYTHING(ortho_3d_tensors.SetConstantConductivities(constant_conductivities));
         
         // AxisymmetricConductivityTensors only makes sense in 3D problems
-        TS_ASSERT_THROWS_ANYTHING(AxisymmetricConductivityTensors<2> axi_tensor);                     
+        TS_ASSERT_THROWS_ANYTHING(AxisymmetricConductivityTensors<2> axi_tensor);
+        
+        // Transversal and longitudinal conductivities should have the same value
+        AxisymmetricConductivityTensors<3> axi_3d_tensor;
+        TS_ASSERT_THROWS_ANYTHING( axi_3d_tensor.SetConstantConductivities(Create_c_vector(0.5,0.25,0.15)) );
     }
 
     void TestFibreOrientationFileExceptions() throw (Exception)
@@ -128,9 +132,9 @@ public:
         }    
     }
     
-    void TestFibreOrientationCARP3D()
+    void TestFibreOrientationAxisymmetric3D()
     {
-        c_vector<double, 3> constant_conductivities(Create_c_vector(2.1,0.8,0.135));
+        c_vector<double, 3> constant_conductivities(Create_c_vector(2.1,0.8,0.8));
         
         OrthotropicConductivityTensors<3> ortho_tensors;
         ortho_tensors.SetConstantConductivities(constant_conductivities);

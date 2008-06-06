@@ -177,7 +177,7 @@ public:
         mConstantConductivities = constantConductivities;        
     }
 
-    void SetConstantConductivities(c_vector<double, 3> constantConductivities)
+    virtual void SetConstantConductivities(c_vector<double, 3> constantConductivities)
     {
         if (SPACE_DIM != 3)
         {

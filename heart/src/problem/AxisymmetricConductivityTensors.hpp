@@ -68,6 +68,22 @@ public:
             EXCEPTION("Axisymmetric anisotropic conductivity only makes sense in 3D");            
         }
     }
+    
+    void SetConstantConductivities(c_vector<double, 3> constantConductivities)
+    {
+        if (SPACE_DIM != 3)
+        {
+            EXCEPTION("Wrong number of conductivities provided");
+        }
+        
+        if (constantConductivities[1] != constantConductivities[2])
+        {
+            EXCEPTION("Axisymmetric media defined: transversal and normal conductivities should have the same value");
+        }
+          
+        this->mUseNonConstantConductivities = false;        
+        this->mConstantConductivities = constantConductivities;        
+    }    
 
     void Init() throw (Exception)
     {
