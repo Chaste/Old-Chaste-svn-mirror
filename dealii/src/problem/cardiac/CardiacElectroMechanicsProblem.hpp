@@ -63,13 +63,11 @@ public:
     CardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
                                    double endTime,
                                    unsigned numElementsPerDimInMechanicsMesh,
-                                   bool useExplicitMethod,
                                    unsigned numElecStepsPerMechStep,
                                    double nhsOdeTimeStep,
                                    std::string outputDirectory = "")
         :  AbstractCardiacElectroMechanicsProblem<DIM>(pCellFactory,
                                                        endTime,
-                                                       useExplicitMethod,
                                                        numElecStepsPerMechStep,
                                                        nhsOdeTimeStep,
                                                        outputDirectory)
@@ -112,15 +110,7 @@ public:
         Point<DIM> zero;
         FiniteElasticityTools<DIM>::SetFixedBoundary(*(this->mpMechanicsMesh), 0, 0.0); 
                
-        if(this->mUseExplicitMethod)
-        {
-            this->mpCardiacMechAssembler = new CardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir);
-        }
-        else
-        {
-            ImplicitCardiacMechanicsAssembler<DIM>* p_assembler = new ImplicitCardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir);
-            this->mpCardiacMechAssembler = p_assembler;
-        }
+        this->mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(this->mpMechanicsMesh,mechanicsOutputDir);
     }
 };
 

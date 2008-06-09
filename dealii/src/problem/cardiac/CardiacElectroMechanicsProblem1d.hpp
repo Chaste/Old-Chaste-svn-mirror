@@ -88,12 +88,10 @@ private:
 public:
     CardiacElectroMechanicsProblem1d(AbstractCardiacCellFactory<1>* pCellFactory,
                                      double endTime,
-                                     bool useExplicitMethod,
                                      unsigned numElecStepsPerMechStep,
                                      std::string outputDirectory = "")
         :  AbstractCardiacElectroMechanicsProblem<1>(pCellFactory,
                                                      endTime,
-                                                     useExplicitMethod,
                                                      numElecStepsPerMechStep,
                                                      0.01,
                                                      outputDirectory)
@@ -127,7 +125,7 @@ public:
         GridGenerator::hyper_cube(*mpMechanicsMesh, 0.0, 1.0);
         mpMechanicsMesh->refine_global(7);
         
-        std::cout << "numnodes = " << mpElectricsMesh->GetNumNodes() << ", " << mpMechanicsMesh->n_vertices() << "\n";
+        std::cout << "Number of nodes = " << mpElectricsMesh->GetNumNodes() << ", " << mpMechanicsMesh->n_vertices() << "\n";
         
         assert(mpMechanicsMesh->n_vertices()==mpElectricsMesh->GetNumNodes());
     }
@@ -135,14 +133,7 @@ public:
     
     void ConstructMechanicsAssembler(std::string mechanicsOutputDir)
     {
-        if(mUseExplicitMethod)
-        {
-            mpCardiacMechAssembler = new Explicit1dCardiacMechanicsAssembler(mpMechanicsMesh, mechanicsOutputDir);
-        }
-        else
-        {
-            mpCardiacMechAssembler = new Implicit1dCardiacMechanicsAssembler(mpMechanicsMesh, mechanicsOutputDir);
-        }
+        mpCardiacMechAssembler = new Implicit1dCardiacMechanicsAssembler(mpMechanicsMesh, mechanicsOutputDir);
     }
 };
 

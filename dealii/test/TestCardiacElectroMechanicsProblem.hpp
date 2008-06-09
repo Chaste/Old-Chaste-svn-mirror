@@ -51,8 +51,7 @@ public:
 
         CardiacElectroMechanicsProblem<2> problem(&cell_factory, 
                                                   1, /* end time */
-                                                  10, /*mech mesh size*/ 
-                                                  false, /* implicit */
+                                                  10, /*mech mesh size*/
                                                   100, /* 100*0.01ms mech dt */
                                                   0.01,
                                                   "nothingtolookathere");
@@ -70,7 +69,7 @@ public:
         
         //// would like to do the following....
         //CardiacElectroMechanicsProblem<2> problem2(&cell_factory, 
-        //                                           1, 10, false, 100, 0.01,
+        //                                           1, 10, 100, 0.01,
         //                                           "nothingtolookathere");
         //pos(1) = 1.1;
         //problem2.SetWatchedPosition(pos);
@@ -88,8 +87,7 @@ public:
 
         CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
                                                            10, /* end time */
-                                                           5, /*mech mesh size*/ 
-                                                           false, /* implicit */
+                                                           5, /*mech mesh size*/
                                                            100, /* 100*0.01ms mech dt */
                                                            0.01,
                                                            "TestCardiacElectroMechImplicit");
@@ -107,8 +105,7 @@ public:
 //        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
 //        CardiacElectroMechanicsProblem<2> implicit_problem(&cell_factory, 
 //                                                           0.05, /* end time */
-//                                                           5, /*mech mesh size*/ 
-//                                                           false, /* implicit */
+//                                                           5, /*mech mesh size*/
 //                                                           1, /* 0.01ms mech dt */
 //                                                           0.01,
 //                                                           "TestCardiacElectroMechImplicitCinverse");

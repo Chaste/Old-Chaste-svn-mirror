@@ -46,7 +46,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /* todos:
  * 
- * add comments
  * think about architecture (of AbstractCardiacProblem) when this is done properly..
  */
 
@@ -139,9 +138,6 @@ protected :
      *  for that particular element.
      */
     std::vector<ElementAndWeights<DIM> > mElementAndWeightsForQuadPoints;
-  
-    /*< Whether to use an explicit or implicit method */
-    bool mUseExplicitMethod;
 
     /*< Output directory, relative to TEST_OUTPUT */
     std::string mOutputDirectory;
@@ -305,7 +301,6 @@ public :
      */
     AbstractCardiacElectroMechanicsProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
                                            double endTime,
-                                           bool useExplicitMethod,
                                            unsigned numElecStepsPerMechStep,
                                            double nhsOdeTimeStep,
                                            std::string outputDirectory = "")
@@ -340,12 +335,7 @@ public :
             mDeformationOutputDirectory = ""; // not really necessary but a bit safer, as passed in ConstructMechanicsAssembler
         }
         mNoElectricsOutput = false;
-                
-        mUseExplicitMethod = useExplicitMethod;
-        
-        // check mMechanicsTimeStep=mElectricsTimeStep is explicit as prob won't be correct otherwise
-        assert(!(mUseExplicitMethod && (mNumElecStepsPerMechStep>1)));
-        
+       
         // initialise all the pointers
         mpElectricsMesh = NULL;
         mpMechanicsMesh = NULL;
@@ -356,20 +346,11 @@ public :
         std::string log_dir = mOutputDirectory; // just the TESTOUTPUT dir if mOutputDir="";
         LogFile::Instance()->Set(1, mOutputDirectory);
         LogFile::Instance()->WriteHeader("Electromechanics");
-        LOG(1, DIM << "d CardiacElectroMechanics Simulation:");
+        LOG(1, DIM << "d Implicit CardiacElectroMechanics Simulation:");
         LOG(1, "End time = " << mEndTime << ", electrics time step = " << mElectricsTimeStep << ", mechanics timestep = " << mMechanicsTimeStep << "\n");
         LOG(1, "Nhs ode timestep " << mNhsOdeTimeStep);
         LOG(1, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
-        
-        if(mUseExplicitMethod)
-        {
-            LOG(1, "Solving with explicit method..");
-        }
-        else
-        {
-            LOG(1, "Solving with implicit method..");
-        }        
-        
+                
         // by default we don't use the direct solver, as not all machines are
         // set up to use UMFPACK yet. However, it is MUCH better than GMRES.
         mUseDirectLinearSolver = false;
@@ -517,17 +498,7 @@ public :
         EulerIvpOdeSolver euler_solver;
 
         // this is the active tension if explicit and the calcium conc if implicit
-        std::vector<double> forcing_quantity(num_quad_points, 0.0);
-        
-        // initial cellmechanics systems, lambda, etc, if required
-        if(mUseExplicitMethod)
-        {
-            lambda.resize(num_quad_points, 1.0);
-            old_lambda.resize(num_quad_points, 1.0);
-            dlambda_dt.resize(num_quad_points, 0.0);
-            cellmech_systems.resize(num_quad_points);
-        }
-            
+        std::vector<double> forcing_quantity(num_quad_points, 0.0);            
 
         // write the initial position
         // NOTE: small architecture issue here. All concrete assembler (at the moment) are
@@ -609,30 +580,11 @@ public :
                     interpolated_Ca_I += Ca_I_at_node*mElementAndWeightsForQuadPoints[i].Weights(node_index);
                 }
 
-                if(mUseExplicitMethod)
-                {
-                    // explicit: forcing quantity on the assembler is the active tension
-                    cellmech_systems[i].SetLambdaAndDerivative(lambda[i], dlambda_dt[i]);
-                    cellmech_systems[i].SetIntracellularCalciumConcentration(interpolated_Ca_I);
-        
-                    euler_solver.SolveAndUpdateStateVariable(&cellmech_systems[i], stepper.GetTime(), stepper.GetNextTime(), mElectricsTimeStep);
-                    forcing_quantity[i] = cellmech_systems[i].GetActiveTension();
-                }
-                else
-                {
-                    // implicit: forcing quantity on the assembler is the calcium concentration
-                    forcing_quantity[i] = interpolated_Ca_I;
-                }
+                // implicit: forcing quantity on the assembler is the calcium concentration
+                forcing_quantity[i] = interpolated_Ca_I;
             }
             
-            if(mUseExplicitMethod)
-            {
-                LOG(1, "  Setting active tension. max value = " << Max(forcing_quantity));
-            }
-            else
-            {
-                LOG(1, "  Setting Ca_I. max value = " << Max(forcing_quantity));
-            }
+            LOG(1, "  Setting Ca_I. max value = " << Max(forcing_quantity));
 
             // NOTE: HERE WE SHOULD REALLY CHECK WHETHER THE CELL MODELS HAVE Ca_Trop
             // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS.. (esp for implicit)
@@ -647,19 +599,6 @@ public :
             
             unsigned num_iters = dynamic_cast<AbstractElasticityAssembler<DIM>*>(mpCardiacMechAssembler)->GetNumNewtonIterations();
             LOG(1, "    Number of newton iterations = " << num_iters);
-
-            // if explicit store the new lambda and update lam
-            if(mUseExplicitMethod)
-            {
-                // update lambda and dlambda_dt;
-                LOG(1, "  Updating lambda");
-                old_lambda = lambda;
-                lambda = mpCardiacMechAssembler->rGetLambda();
-                for(unsigned i=0; i<dlambda_dt.size(); i++)
-                {
-                    dlambda_dt[i] = (lambda[i] - old_lambda[i])/mMechanicsTimeStep;
-                }
-            }
 
             PostSolve(stepper.GetTime());
             
