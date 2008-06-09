@@ -53,21 +53,21 @@ protected:
     std::vector<double> mSlowValues;
 
 public: 
-	AbstractFastSlowCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
-		                        unsigned numberOfStateVariables,
-        		                unsigned voltageIndex,
-                		        double dt,
-                        		AbstractStimulusFunction* intracellularStimulus,
-		                        AbstractStimulusFunction* extracellularStimulus = NULL)
-		: AbstractCardiacCell(pOdeSolver,
-		                      numberOfStateVariables,
-		                      voltageIndex,
-		                      dt,
-		                      intracellularStimulus,
-		                      extracellularStimulus)
-	{
-		mState = STATE_UNSET;
-	}
+    AbstractFastSlowCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
+                                unsigned numberOfStateVariables,
+                                unsigned voltageIndex,
+                                double dt,
+                                AbstractStimulusFunction* intracellularStimulus,
+                                AbstractStimulusFunction* extracellularStimulus = NULL)
+    : AbstractCardiacCell(pOdeSolver,
+                          numberOfStateVariables,
+                          voltageIndex,
+                          dt,
+                          intracellularStimulus,
+                          extracellularStimulus)
+    {
+        mState = STATE_UNSET;
+    }
 
     /** 
      *  Pure method for setting the state of this model. This should
@@ -82,11 +82,11 @@ public:
     /*< Pure method, for getting the slow variables. Should only valid in slow mode. */
     virtual void GetSlowValues(std::vector<double>& rSlowValues)=0;
 
-	/** 
-	 *  Pure method for getting the number of slow variables for the cell model
-	 *  (irrespective of whether in fast or slow mode 
-	 */
-	virtual unsigned GetNumSlowValues()=0;
+    /** 
+     *  Pure method for getting the number of slow variables for the cell model
+     *  (irrespective of whether in fast or slow mode 
+     */
+    virtual unsigned GetNumSlowValues()=0;
 
     /*< Get whether this cell is a fast or slow version */
     bool IsFast()

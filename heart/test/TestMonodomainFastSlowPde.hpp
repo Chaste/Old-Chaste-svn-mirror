@@ -162,6 +162,8 @@ public:
         TS_ASSERT_LESS_THAN(0, slow_values[0]);
         TS_ASSERT_DELTA(slow_values[0], cells[5]->mSlowValues[0], 0.01); // check slow values match
         TS_ASSERT_DELTA(slow_values[1], cells[5]->mSlowValues[1], 0.01); // check slow values match
+
+        VecDestroy(voltage);
     }
 };
 

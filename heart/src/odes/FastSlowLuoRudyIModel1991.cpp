@@ -39,7 +39,7 @@ FastSlowLuoRudyIModel1991::FastSlowLuoRudyIModel1991(AbstractIvpOdeSolver *pSolv
                                                      double dt,
                                                      AbstractStimulusFunction *pIntracellularStimulus,
                                                      AbstractStimulusFunction *pExtracellularStimulus)
-        : AbstractFastSlowCardiacCell(pSolver, 8, 4, dt, pIntracellularStimulus, pExtracellularStimulus)
+    : AbstractFastSlowCardiacCell(pSolver, 8, 4, dt, pIntracellularStimulus, pExtracellularStimulus)
 {
     // NOTE: above we set the number of state variables to be 8 (the second arg to AbstractCardiacCell),
     // but we don't know what the correct is until SetState is called. So we MUST correctly set 
@@ -297,6 +297,7 @@ void FastSlowLuoRudyIModel1991::SetSlowValues(const std::vector<double> &rSlowVa
     double slow_inward_current_d_gate_d = rSlowValues[0];
     double slow_inward_current_f_gate_f = rSlowValues[1];
     
+    #define COVERAGE_IGNORE
     if (!(0.0<=slow_inward_current_d_gate_d && slow_inward_current_d_gate_d<=1.0))
     {
         EXCEPTION(DumpState("d gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
@@ -306,6 +307,7 @@ void FastSlowLuoRudyIModel1991::SetSlowValues(const std::vector<double> &rSlowVa
     {
         EXCEPTION(DumpState("f gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize"));
     }
+    #undef COVERAGE_IGNORE
     
     mSlowValues = rSlowValues;
 }

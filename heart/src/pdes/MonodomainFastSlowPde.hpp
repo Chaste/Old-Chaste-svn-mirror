@@ -41,13 +41,13 @@ class MonodomainFastSlowPde : public MonodomainPde<DIM>
 friend class TestMonodomainFastSlowPde;
 
 private:
-	/*< The mixed mesh - contains a coarse mesh and fine mesh */
+    /*< The mixed mesh - contains a coarse mesh and fine mesh */
     MixedTetrahedralMesh<DIM,DIM>& mrMixedMesh;
-	/*< Timestep with which to solve slow-coarse cells */
+    /*< Timestep with which to solve slow-coarse cells */
     double mSlowCurrentsTimeStep;
-	/*< The last time the slow-coarse cells were updated */
+    /*< The last time the slow-coarse cells were updated */
     double mLastSlowCurrentSolveTime;
-	/*< The next time the slow-coarse cells should be updated */
+    /*< The next time the slow-coarse cells should be updated */
     double mNextSlowCurrentSolveTime;
 
     /** 
@@ -68,12 +68,12 @@ private:
         MixedTetrahedralMesh<DIM,DIM>& r_coarse_mesh = mrMixedMesh;
         ConformingTetrahedralMesh<DIM,DIM>& r_fine_mesh = *(mrMixedMesh.GetFineMesh());
 
-		// loop over cells
+        // loop over cells
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();
              ++index)
         {
-        	// if fine-fast..
+            // if fine-fast..
             if(mFastSlowCellsDistributed[index.Local]->IsFast())
             {
                 Element<DIM,DIM>* p_coarse_element = r_coarse_mesh.GetACoarseElementForFineNodeIndex(index.Local);
@@ -84,7 +84,7 @@ private:
          
                 unsigned num_slow_values = mFastSlowCellsDistributed[p_coarse_element->GetNodeGlobalIndex(0)]->GetNumSlowValues();
 
-				// interpolate
+                // interpolate
                 std::vector<double> interpolated_slow_values(num_slow_values, 0.0); 
                 for (unsigned i=0; i<p_coarse_element->GetNumNodes(); i++)
                 {
@@ -238,8 +238,10 @@ public:
                     }
                     catch (Exception &e)
                     {
+                        #define COVERAGE_IGNORE
                         PetscTools::ReplicateException(true);
                         throw e;
+                        #undef COVERAGE_IGNORE
                     }
                 }
             }
@@ -268,8 +270,10 @@ public:
                 }
                 catch (Exception &e)
                 {
+                    #define COVERAGE_IGNORE
                     PetscTools::ReplicateException(true);
                     throw e;
+                    #undef COVERAGE_IGNORE
                 }
             }
         }

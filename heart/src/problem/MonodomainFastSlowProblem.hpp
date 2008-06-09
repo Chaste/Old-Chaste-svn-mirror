@@ -41,32 +41,32 @@ template<unsigned DIM>
 class MonodomainFastSlowProblem : public MonodomainProblem<DIM>
 {
 private:
-	/** 
-	 *  The mixed mesh which is passed to the PDE. The fine one is
-	 *  used in the base class (i.e. the finite element solve).
-	 */
-	MixedTetrahedralMesh<DIM,DIM>& mrMixedMesh;
-	/**
-	 *  A fast-slow PDE which has an overloaded SolveCellSystems() and
-	 *  only solves the fast cells unless time to solve the slow cells.
-	 */
+    /** 
+     *  The mixed mesh which is passed to the PDE. The fine one is
+     *  used in the base class (i.e. the finite element solve).
+     */
+    MixedTetrahedralMesh<DIM,DIM>& mrMixedMesh;
+    /**
+     *  A fast-slow PDE which has an overloaded SolveCellSystems() and
+     *  only solves the fast cells unless time to solve the slow cells.
+     */
     MonodomainFastSlowPde<DIM>* mpMonodomainFastSlowPde;
-	/**
-	 *  The slow cells ODE timestep, to be passed to the PDE class
-	 */
+    /**
+     *  The slow cells ODE timestep, to be passed to the PDE class
+     */
     double mSlowCellsTimeStep;
 
 public:
 
-	/** 
-	 *  Overloaded method which creates a MonodomainFastSlowPde, using the given
-	 *  mixed mesh, and returns a pointer to it back to the caller.
-	 *  
-	 *  Note: this class has a             MonodomainFastSlowPde<DIM>*
-	 *        MonodomainPde has a          MonodomainPde<DIM>*
-	 *        AbstractCardiacProblem has a AbstractCardiacPde<DIM>*
-	 *  all of which point to the same object.
-	 */
+    /** 
+     *  Overloaded method which creates a MonodomainFastSlowPde, using the given
+     *  mixed mesh, and returns a pointer to it back to the caller.
+     *  
+     *  Note: this class has a             MonodomainFastSlowPde<DIM>*
+     *        MonodomainPde has a          MonodomainPde<DIM>*
+     *        AbstractCardiacProblem has a AbstractCardiacPde<DIM>*
+     *  all of which point to the same object.
+     */
     AbstractCardiacPde<DIM>* CreateCardiacPde()
     {
     	assert(mpMonodomainFastSlowPde==NULL);
@@ -75,9 +75,9 @@ public:
         this->mpIntracellularConductivityTensors->Init();                
         mpMonodomainFastSlowPde->SetIntracellularConductivityTensors( this->mpIntracellularConductivityTensors );
 		
-		// since this method is now not called in MonodomainPde, we have to 
-		// manually set the PDE variable in MonodomainPde here, before returning.
-		this->mpMonodomainPde = mpMonodomainFastSlowPde;
+        // since this method is now not called in MonodomainPde, we have to 
+        // manually set the PDE variable in MonodomainPde here, before returning.
+        this->mpMonodomainPde = mpMonodomainFastSlowPde;
 
         return mpMonodomainFastSlowPde;
     }

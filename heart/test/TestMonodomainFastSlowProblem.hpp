@@ -56,8 +56,8 @@ public:
     {
         double x = mpMesh->GetNode(nodeIndex)->rGetLocation()[0];
 
-		// stimulus is zero unless x=0
-		AbstractStimulusFunction* p_stim;
+        // stimulus is zero unless x=0
+        AbstractStimulusFunction* p_stim;
         if(fabs(x)<1e-6)
         {
             p_stim = mpStimulus;
@@ -69,12 +69,12 @@ public:
 
       	if(mFastSlow)
       	{
-      		// fast-slow cells
+            // fast-slow cells
             return new FastSlowLuoRudyIModel1991(mpSolver, mTimeStep, p_stim); // state unset at the moment
         }
         else 
         {
-        	// normal cells
+            // normal cells
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, p_stim);
         }
     }
@@ -96,11 +96,11 @@ public:
     // a gating variable exception occured..........
     void TestMonodomainFastSlowProblemAgainstNormal() throw (Exception)
     {
-        EXIT_IF_PARALLEL
+        EXIT_IF_PARALLEL;
         
     	EventHandler::Disable();
     	
-		unsigned num_coarse_nodes_each_dir = 3;
+        unsigned num_coarse_nodes_each_dir = 3;
         unsigned num_fine_nodes_each_dir = 30;
 
 		// solve a mixed mesh, fast/slow problem        
@@ -115,11 +115,11 @@ public:
         monodomain_fast_slow_prob.SetOutputDirectory("MonodomainFastSlow");
         monodomain_fast_slow_prob.SetOutputFilenamePrefix("res");        
         
-		monodomain_fast_slow_prob.Initialise();
+        monodomain_fast_slow_prob.Initialise();
         monodomain_fast_slow_prob.Solve();
         
-		ReplicatableVector voltage_fast_slow( monodomain_fast_slow_prob.GetVoltage() );
-		TS_ASSERT_EQUALS(voltage_fast_slow.size(), mixed_mesh.GetFineMesh()->GetNumNodes() );
+        ReplicatableVector voltage_fast_slow( monodomain_fast_slow_prob.GetVoltage() );
+        TS_ASSERT_EQUALS(voltage_fast_slow.size(), mixed_mesh.GetFineMesh()->GetNumNodes() );
 
 		// solve using normal monodomain problem
         MyCellFactory cell_factory_normal(false);
@@ -131,14 +131,14 @@ public:
         monodomain_prob.SetOutputDirectory("MonodomainNormalToCompareWithFastSlow");
         monodomain_prob.SetOutputFilenamePrefix("res");        
         
-		monodomain_prob.Initialise();
+        monodomain_prob.Initialise();
         monodomain_prob.Solve();
 	        
-		ReplicatableVector voltage_normal( monodomain_prob.GetVoltage() );
-		TS_ASSERT_EQUALS(voltage_fast_slow.size(), voltage_normal.size() );
+        ReplicatableVector voltage_normal( monodomain_prob.GetVoltage() );
+        TS_ASSERT_EQUALS(voltage_fast_slow.size(), voltage_normal.size() );
         
         bool some_voltage_greater_than_zero = true;
-		for(unsigned i=0; i<voltage_fast_slow.size(); i++)
+        for(unsigned i=0; i<voltage_fast_slow.size(); i++)
         {
 //            if(fabs(voltage_fast_slow[i] - voltage_normal[i]) > 2.5)
 //            {
