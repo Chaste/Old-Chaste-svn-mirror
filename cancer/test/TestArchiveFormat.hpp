@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-
+#include <iomanip>
 #include "CryptSimulation2d.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
@@ -92,6 +92,39 @@ public:
         p_simulator->SetEndTime(t + 1);
         delete p_simulator;
         
+        /* Check that something hasn't crept into the middle of the cancer parameters archive*/
+        CancerParameters *inst = CancerParameters::Instance();
+        
+        TS_ASSERT_DELTA(inst->GetSG2MDuration(), 10.0 , 1e-12);
+        TS_ASSERT_DELTA(inst->GetSDuration(), 5.0 , 1e-12);
+        TS_ASSERT_DELTA(inst->GetG2Duration(), 4.0 , 1e-12);
+        TS_ASSERT_DELTA(inst->GetMinimumGapDuration(), 0.01, 1e-12);
+        TS_ASSERT_DELTA(inst->GetMDuration(), 1.0 , 1e-12);
+        TS_ASSERT_DELTA(inst->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetHepaOneCellG1Duration(), 8.0, 1e-12);
+        TS_ASSERT_EQUALS(inst->GetMaxTransitGenerations(), 3u);
+        TS_ASSERT_DELTA(inst->GetCryptLength(), 20.151744972676, 1e-12);
+        TS_ASSERT_DELTA(inst->GetCryptWidth(), 12.1, 1e-12);
+        TS_ASSERT_DELTA(inst->GetSpringStiffness(), 30.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetDampingConstantNormal(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetDampingConstantMutant(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetBetaCatSpringScaler(), 18.14 / 6.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetApoptosisTime(), 0.25, 1e-12);
+        TS_ASSERT_DELTA(inst->GetHepaOneCellHypoxicConcentration(), 0.4, 1e-12);
+        TS_ASSERT_DELTA(inst->GetHepaOneCellQuiescentConcentration(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetWntStemThreshold(), 0.8, 1e-12);
+        TS_ASSERT_DELTA(inst->GetWntTransitThreshold(), 0.65, 1e-12);
+        TS_ASSERT_DELTA(inst->GetTopOfLinearWntConcentration(), 1.0/3.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetCriticalHypoxicDuration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetCryptProjectionParameterA(), 0.5, 1e-12);
+        TS_ASSERT_DELTA(inst->GetCryptProjectionParameterB(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetNecroticSpringTensionStiffness(), 0.25*15.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetNecroticSpringCompressionStiffness(), 0.75*15.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetWntChemotaxisStrength(), 100.0, 1e-12);
+        TS_ASSERT_DELTA(inst->GetSymmetricDivisionProbability(), 0.0, 1e-12);
+        
+ 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
