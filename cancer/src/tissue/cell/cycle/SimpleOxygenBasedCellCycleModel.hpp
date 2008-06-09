@@ -75,7 +75,7 @@ private:
      * Private constructor for creating an identical daughter cell
      */
     SimpleOxygenBasedCellCycleModel(double g1Duration,
-									unsigned generation,
+                                    unsigned generation,
                                     double currentHypoxicDuration,
                                     double currentHypoxiaOnsetTime)
         : AbstractSimpleCellCycleModel(g1Duration,generation),

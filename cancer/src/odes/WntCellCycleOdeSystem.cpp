@@ -53,7 +53,7 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutation
     mMutationState = rMutationState;
     
     // These three lines set up a wnt signalling pathway in a steady state
-    if (mMutationState == HEALTHY || mMutationState == LABELLED)	// healthy cells
+    if (mMutationState == HEALTHY || mMutationState == LABELLED)    // healthy cells
     {
         beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
         beta_cat_level_2 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
@@ -232,7 +232,7 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     // Bit back-to-front, but work out the Wnt section first...
     
     // Mutations take effect by altering the level of beta-catenin
-    if (mMutationState==HEALTHY || mMutationState==LABELLED)	// HEALTHY CELL
+    if (mMutationState==HEALTHY || mMutationState==LABELLED)    // HEALTHY CELL
     {
         // da
         dx6 = ma5d*(1.0-c) - ma4d*WntLevel*c;

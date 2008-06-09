@@ -69,12 +69,12 @@ public:
      */
     AbstractCardiacPde<DIM>* CreateCardiacPde()
     {
-    	assert(mpMonodomainFastSlowPde==NULL);
+        assert(mpMonodomainFastSlowPde==NULL);
         mpMonodomainFastSlowPde = new MonodomainFastSlowPde<DIM>(this->mpCellFactory, mrMixedMesh, this->mStartTime, mSlowCellsTimeStep);
 
         this->mpIntracellularConductivityTensors->Init();                
         mpMonodomainFastSlowPde->SetIntracellularConductivityTensors( this->mpIntracellularConductivityTensors );
-		
+        
         // since this method is now not called in MonodomainPde, we have to 
         // manually set the PDE variable in MonodomainPde here, before returning.
         this->mpMonodomainPde = mpMonodomainFastSlowPde;
@@ -90,15 +90,15 @@ public:
      * to be used by the base class when solving for the voltage.
      */
     MonodomainFastSlowProblem(AbstractCardiacCellFactory<DIM>* pCellFactory,
-				      		  MixedTetrahedralMesh<DIM,DIM>& rMixedMesh,
-						      double slowCellsTimeStep,
-        		              bool orthotropicMedia=true)
+                                MixedTetrahedralMesh<DIM,DIM>& rMixedMesh,
+                              double slowCellsTimeStep,
+                              bool orthotropicMedia=true)
             : MonodomainProblem<DIM>(pCellFactory, orthotropicMedia),
               mrMixedMesh(rMixedMesh),
               mpMonodomainFastSlowPde(NULL),
               mSlowCellsTimeStep(slowCellsTimeStep)
     {
-    	SetMesh(mrMixedMesh.GetFineMesh());
+        SetMesh(mrMixedMesh.GetFineMesh());
     }
     
     /**

@@ -194,10 +194,10 @@ public:
         MatAssemblyBegin(analytic_jacobian, MAT_FINAL_ASSEMBLY);
         MatAssemblyEnd(analytic_jacobian, MAT_FINAL_ASSEMBLY);
 
-		//TS_TRACE("Numerical:");
-		//MatView(numerical_jacobian, 0);
-		//TS_TRACE("Analytical:");
-		//MatView(analytic_jacobian, 0);
+        //TS_TRACE("Numerical:");
+        //MatView(numerical_jacobian, 0);
+        //TS_TRACE("Analytical:");
+        //MatView(analytic_jacobian, 0);
 
         PetscScalar numerical_array[n*n], analytic_array[n*n];
         PetscInt row_ids[n], col_ids[n];

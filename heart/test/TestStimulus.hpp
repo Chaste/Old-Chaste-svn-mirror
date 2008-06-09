@@ -50,7 +50,7 @@ public:
         double duration_of_stimulus  = 0.5;  // ms
         double when = 100.0;
 
-    	SimpleStimulus initial_at_zero(magnitude_of_stimulus, duration_of_stimulus);
+        SimpleStimulus initial_at_zero(magnitude_of_stimulus, duration_of_stimulus);
                 
         TS_ASSERT_EQUALS(initial_at_zero.GetStimulus(0.0), magnitude_of_stimulus);
         TS_ASSERT_EQUALS(initial_at_zero.GetStimulus(duration_of_stimulus*(1-DBL_EPSILON)), 

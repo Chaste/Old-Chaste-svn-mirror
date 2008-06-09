@@ -93,7 +93,7 @@ protected:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-		archive & mCells;
+        archive & mCells;
         archive & mNodeCellMap;
         archive & mTissueContainsMesh;
         archive & mTissueContainsGhostNodes;

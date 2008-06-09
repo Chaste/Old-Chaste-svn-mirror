@@ -189,7 +189,7 @@ void ReadParametersFromFile()
         std::auto_ptr<chaste_parameters_type> p_params(ChasteParameters(parameter_file));
         
         simulation_type simulation_params = p_params->Simulation();
-		physiological_type physiological_params = p_params->Physiological();
+        physiological_type physiological_params = p_params->Physiological();
         
         simulation_duration = simulation_params.SimulationDuration().get();
         

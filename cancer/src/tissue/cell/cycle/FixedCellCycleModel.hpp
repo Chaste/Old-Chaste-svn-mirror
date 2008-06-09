@@ -51,7 +51,7 @@ private:
      * Private constructor for identical cells.
      */
     FixedCellCycleModel(double g1Duration, unsigned generation):
-    	AbstractSimpleMeinekeCellCycleModel(g1Duration, generation){};
+        AbstractSimpleMeinekeCellCycleModel(g1Duration, generation){};
     
 protected:    
     
@@ -59,7 +59,7 @@ public:
 
     /**
      * Default constructor - mBirthTime now set in AbstractCellCycleModel()
-     * 						 mG1Duration now set in AbstractSimpleCellCycleModel()
+     *                          mG1Duration now set in AbstractSimpleCellCycleModel()
      */
     FixedCellCycleModel() {};
     

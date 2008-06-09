@@ -195,7 +195,7 @@ double CancerParameters::GetDivisionSeparation()
 }
 double CancerParameters::GetHepaOneCellHypoxicConcentration()
 {
-	return mHepaOneCellHypoxicConcentration;
+    return mHepaOneCellHypoxicConcentration;
 }
 double CancerParameters::GetHepaOneCellQuiescentConcentration()
 {
@@ -335,9 +335,9 @@ void CancerParameters::SetDivisionSeparation(double divisionSeparation)
 }
 void CancerParameters::SetHepaOneCellHypoxicConcentration(double hepaOneCellHypoxicConcentration)
 {
-	assert(hepaOneCellHypoxicConcentration<=1.0);
-	assert(hepaOneCellHypoxicConcentration>=0.0);
-	mHepaOneCellHypoxicConcentration = hepaOneCellHypoxicConcentration;
+    assert(hepaOneCellHypoxicConcentration<=1.0);
+    assert(hepaOneCellHypoxicConcentration>=0.0);
+    mHepaOneCellHypoxicConcentration = hepaOneCellHypoxicConcentration;
 }
 void CancerParameters::SetHepaOneCellQuiescentConcentration(double hepaOneCellQuiescentConcentration)
 {

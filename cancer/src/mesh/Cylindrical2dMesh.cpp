@@ -172,19 +172,19 @@ void Cylindrical2dMesh::CreateHaloNodes()
 void Cylindrical2dMesh::ReMeshWithTriangleLibrary(NodeMap &map)
 {
     unsigned old_num_all_nodes = GetNumAllNodes();
-	
-	map.Resize(old_num_all_nodes);
-	map.ResetToIdentity();
+    
+    map.Resize(old_num_all_nodes);
+    map.ResetToIdentity();
     
     // Flag the deleted nodes as deleted in the map
-	for(unsigned i=0; i<old_num_all_nodes; i++)
-	{
-		if(mNodes[i]->IsDeleted())
-		{
-			map.SetDeleted(i);
-		}
-	}
-	
+    for(unsigned i=0; i<old_num_all_nodes; i++)
+    {
+        if(mNodes[i]->IsDeleted())
+        {
+            map.SetDeleted(i);
+        }
+    }
+    
     CreateHaloNodes();
     
     // Create a mirrored load of nodes for the normal remesher to work with.
@@ -259,7 +259,7 @@ void Cylindrical2dMesh::ReMeshWithTriangleLibrary(NodeMap &map)
     }    
 
     // Now call ReIndex to remove the temporary nodes which are marked as deleted. 
-	NodeMap reindex_map(GetNumAllNodes());
+    NodeMap reindex_map(GetNumAllNodes());
     ReIndex(reindex_map);
     assert(!reindex_map.IsIdentityMap());  // maybe don't need this
     

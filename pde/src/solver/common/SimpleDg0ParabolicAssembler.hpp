@@ -182,8 +182,8 @@ struct AssemblerTraits<SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_H
             CMT_CLS;
     /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined */
     typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
-				     AbstractAssembler<ELEMENT_DIM, SPACE_DIM, 1u>,
-				     typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
+                     AbstractAssembler<ELEMENT_DIM, SPACE_DIM, 1u>,
+                     typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
             INTERPOLATE_CLS;
 };
 

@@ -186,14 +186,14 @@ public:
         InterpolateSlowCurrentsToFastCells();
     }
 
-	/**
-	 *  Overloaded SolveCellSystems()
-	 * 
-	 *  Only solves the ODEs on the fine-fast cells, unless it is time to
-	 *  solve the ODEs on the coarse cells. In the latter, it solves the ODEs
-	 *  on the coarse cells, interpolates slow values onto the fine cells, and
-	 *  solves the fine cells.
-	 */
+    /**
+     *  Overloaded SolveCellSystems()
+     * 
+     *  Only solves the ODEs on the fine-fast cells, unless it is time to
+     *  solve the ODEs on the coarse cells. In the latter, it solves the ODEs
+     *  on the coarse cells, interpolates slow values onto the fine cells, and
+     *  solves the fine cells.
+     */
     void SolveCellSystems(Vec currentSolution, double currentTime, double nextTime)
     {
         assert( mLastSlowCurrentSolveTime <= currentTime);

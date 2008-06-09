@@ -271,11 +271,11 @@ public:
         CellsGenerator<2>::GenerateBasic(cells, mesh);
         MeshBasedTissue<2> tissue(mesh, cells);        
 
-		// Set up cell killer
+        // Set up cell killer
         RadialSloughingCellKiller radial_cell_killer(&tissue, centre, radius);
         radial_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
-		// Check that cells are being labelled for death correctly 
+        // Check that cells are being labelled for death correctly 
         for (MeshBasedTissue<2>::Iterator cell_iter=tissue.Begin();
             cell_iter!=tissue.End();
             ++cell_iter)
@@ -292,10 +292,10 @@ public:
             }
         }
   
-  		// Now get rid of dead cells
+          // Now get rid of dead cells
         tissue.RemoveDeadCells();
 
-		// Check that we are correctly left with cells inside the circle of death
+        // Check that we are correctly left with cells inside the circle of death
         for (MeshBasedTissue<2>::Iterator cell_iter=tissue.Begin();
             cell_iter!=tissue.End();
             ++cell_iter)
@@ -482,7 +482,7 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "radial_killer.arch";
        
-       	c_vector<double,2> centre(2);
+           c_vector<double,2> centre(2);
         centre[0] = 0.1;
         centre[1] = 0.2;         
                 
@@ -504,8 +504,8 @@ public:
             TS_ASSERT_DELTA(p_cell_killer->GetRadius(), 0.4, 1e-9);
         }
 
-		// Change centre and radius prior to restoring the cell killer
-		centre[0] = 0.0;
+        // Change centre and radius prior to restoring the cell killer
+        centre[0] = 0.0;
         centre[1] = 0.0; 
         radius = 0.0;
         

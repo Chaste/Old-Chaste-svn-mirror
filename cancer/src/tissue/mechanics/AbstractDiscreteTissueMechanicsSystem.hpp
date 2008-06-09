@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class AbstractDiscreteTissueMechanicsSystem
 {
-private :	
+private :    
     
     friend class boost::serialization::access;
     template<class Archive>
@@ -50,10 +50,10 @@ private :
         archive & mUseCutoffPoint;
         archive & mCutoffPoint;
     }
-    	
+        
 protected :
-	
-	AbstractTissue<DIM>* mpTissue;
+    
+    AbstractTissue<DIM>* mpTissue;
     
     /** Whether to have zero force if the cells are far enough apart */
     bool mUseCutoffPoint;
@@ -62,7 +62,7 @@ protected :
     double mCutoffPoint;
 
 public : 
-	
+    
     AbstractDiscreteTissueMechanicsSystem();
     
     /**

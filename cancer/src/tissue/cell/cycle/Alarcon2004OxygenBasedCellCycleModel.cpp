@@ -97,7 +97,7 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const
  *
  */
 void Alarcon2004OxygenBasedCellCycleModel::ResetForDivision()
-{	
+{    
     AbstractOdeBasedCellCycleModel::ResetForDivision();
     assert(mpOdeSystem!=NULL);
     

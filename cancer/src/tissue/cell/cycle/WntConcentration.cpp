@@ -89,7 +89,7 @@ double WntConcentration::GetWntLevel(TissueCell* pCell)
     }
     else
     {
-    	height = (mpTissue->GetLocationOfCell(*pCell))(1);// y-coord.
+        height = (mpTissue->GetLocationOfCell(*pCell))(1);// y-coord.
     }
     return GetWntLevel(height);
 }

@@ -125,17 +125,17 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
                 cell_type = STEM;
             }
         }
-    	// Update the cell type to reflect the Wnt concentration
-    	mpCell->SetCellType(cell_type);
+        // Update the cell type to reflect the Wnt concentration
+        mpCell->SetCellType(cell_type);
 
-    	AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
+        AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
     }
     else
     {
-    	// If the Wnt stimulus is below the threshold, the cell is
-    	// of type DIFFERENTIATED and hence in G0 phase
-    	mpCell->SetCellType(DIFFERENTIATED);
-    	mCurrentCellCyclePhase = G_ZERO_PHASE;
+        // If the Wnt stimulus is below the threshold, the cell is
+        // of type DIFFERENTIATED and hence in G0 phase
+        mpCell->SetCellType(DIFFERENTIATED);
+        mCurrentCellCyclePhase = G_ZERO_PHASE;
     }
 }
 

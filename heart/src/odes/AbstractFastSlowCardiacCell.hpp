@@ -59,12 +59,12 @@ public:
                                 double dt,
                                 AbstractStimulusFunction* intracellularStimulus,
                                 AbstractStimulusFunction* extracellularStimulus = NULL)
-    : AbstractCardiacCell(pOdeSolver,
-                          numberOfStateVariables,
-                          voltageIndex,
-                          dt,
-                          intracellularStimulus,
-                          extracellularStimulus)
+        : AbstractCardiacCell(pOdeSolver,
+                              numberOfStateVariables,
+                              voltageIndex,
+                              dt,
+                              intracellularStimulus,
+                              extracellularStimulus)
     {
         mState = STATE_UNSET;
     }

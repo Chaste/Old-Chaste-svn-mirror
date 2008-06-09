@@ -257,20 +257,20 @@ public:
             
         }
     
-    	// Coverage of the exception in the assembler itself
-    	BoundaryConditionsContainer<1, 1, 2> *p_container = new BoundaryConditionsContainer<1, 1, 2>;
-    	
-    	BidomainDg0Assembler<1,1>* p_bidomain_assembler
+        // Coverage of the exception in the assembler itself
+        BoundaryConditionsContainer<1, 1, 2> *p_container = new BoundaryConditionsContainer<1, 1, 2>;
+        
+        BidomainDg0Assembler<1,1>* p_bidomain_assembler
                 = new BidomainDg0Assembler<1,1>(&bidomain_problem.rGetMesh(),
-    					    bidomain_problem.GetBidomainPde(),
+                            bidomain_problem.GetBidomainPde(),
                             p_container,
-    					    2);
+                            2);
         p_bidomain_assembler->SetLinearSolverRelativeTolerance(1e-9);
     
-    	TS_ASSERT_THROWS_ANYTHING(p_bidomain_assembler->SetRowForMeanPhiEToZero(0));
-    	
-    	delete p_container;
-    	delete p_bidomain_assembler;
+        TS_ASSERT_THROWS_ANYTHING(p_bidomain_assembler->SetRowForMeanPhiEToZero(0));
+        
+        delete p_container;
+        delete p_bidomain_assembler;
         EventHandler::Enable();
     }    
 

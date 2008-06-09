@@ -111,7 +111,7 @@ public:
     unsigned GetNumEdges() const
     {
         return mFaceData.size();
-    }	/**< Returns the number of edges in the mesh (synonym of GetNumFaces()) */
+    }    /**< Returns the number of edges in the mesh (synonym of GetNumFaces()) */
     
     unsigned GetMaxNodeIndex(); /**< Returns the maximum node index */
     unsigned GetMinNodeIndex(); /**< Returns the minimum node index */

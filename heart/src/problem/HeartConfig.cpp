@@ -34,7 +34,7 @@ using namespace xsd::cxx::tree;
 HeartConfig* HeartConfig::mpInstance = NULL;
 
 HeartConfig* HeartConfig::Instance()
-{	
+{    
     if (mpInstance == NULL)
     {
         mpInstance = new HeartConfig;
@@ -52,7 +52,7 @@ HeartConfig::HeartConfig()
 HeartConfig::~HeartConfig()
 {
     delete mpUserParameters;
-    delete mpDefaultParameters;  	
+    delete mpDefaultParameters;      
 }
 
 void HeartConfig::SetDefaultsFile(std::string fileName)
@@ -62,11 +62,11 @@ void HeartConfig::SetDefaultsFile(std::string fileName)
 std::string GetOutputDirectory();
 chaste_parameters_type* HeartConfig::ReadFile(std::string fileName)
 {
-	// get the parameters using the method 'ChasteParameters(filename)',
+    // get the parameters using the method 'ChasteParameters(filename)',
     // which returns a std::auto_ptr. We don't want to use a std::auto_ptr because
     // it will delete memory when out of scope, or no longer point when it is copied,
     // so we reallocate memory using a normal pointer and copy the data to thereS
- 	try
+     try
     {
         std::auto_ptr<chaste_parameters_type> p_default(ChasteParameters(fileName));
         return new chaste_parameters_type(*p_default);
@@ -95,8 +95,8 @@ chaste_parameters_type* HeartConfig::DefaultParameters()
 
 void HeartConfig::Destroy()
 {
-	delete mpInstance;
-	mpInstance = NULL;  
+    delete mpInstance;
+    mpInstance = NULL;  
 }
 
 template<class TYPE>
@@ -122,23 +122,23 @@ TYPE* HeartConfig::DecideLocation(TYPE* ptr1, TYPE* ptr2, std::string nameParame
 
 double HeartConfig::GetSimulationDuration()
 {
-	return DecideLocation( & mpUserParameters->Simulation().SimulationDuration(), 
-						   & mpDefaultParameters->Simulation().SimulationDuration(), 
-						   "SimulationDuration")->get(); 
+    return DecideLocation( & mpUserParameters->Simulation().SimulationDuration(), 
+                           & mpDefaultParameters->Simulation().SimulationDuration(), 
+                           "SimulationDuration")->get(); 
 }
 
 domain_type HeartConfig::GetDomain()
 {
-	return DecideLocation( & mpUserParameters->Simulation().Domain(), 
-						   & mpDefaultParameters->Simulation().Domain(), 
-						   "Domain")->get();
+    return DecideLocation( & mpUserParameters->Simulation().Domain(), 
+                           & mpDefaultParameters->Simulation().Domain(), 
+                           "Domain")->get();
 }
 
 ionic_model_type HeartConfig::GetIonicModel()
 {
-	return DecideLocation( & mpUserParameters->Simulation().IonicModel(), 
-	                       & mpDefaultParameters->Simulation().IonicModel(), 
-	                       "IonicModel")->get(); 
+    return DecideLocation( & mpUserParameters->Simulation().IonicModel(), 
+                           & mpDefaultParameters->Simulation().IonicModel(), 
+                           "IonicModel")->get(); 
 }
 
 void HeartConfig::GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas)
@@ -146,8 +146,8 @@ void HeartConfig::GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::v
 
     simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::container&
          stimuli = DecideLocation( & mpUserParameters->Simulation().Stimuli(), 
-	                       & mpDefaultParameters->Simulation().Stimuli(), 
-	                       "Stimuli")->get().Stimulus();
+                           & mpDefaultParameters->Simulation().Stimuli(), 
+                           "Stimuli")->get().Stimulus();
     for (simulation_type::Stimuli::_xsd_Stimuli_::Stimuli::Stimulus::iterator i = stimuli.begin();
          i != stimuli.end();
          ++i)
@@ -166,18 +166,18 @@ void HeartConfig::GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::v
                     
         stimuliApplied.push_back( SimpleStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
         stimulatedAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
-    }	
+    }    
 }
 
 void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
-    								     std::vector<double>& scaleFactorGks,
-    							         std::vector<double>& scaleFactorIto)
+                                         std::vector<double>& scaleFactorGks,
+                                         std::vector<double>& scaleFactorIto)
 {
-	simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::container&
+    simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::container&
          cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().CellHeterogeneities(), 
-	                       					  & mpDefaultParameters->Simulation().CellHeterogeneities(), 
-	                       					  "CellHeterogeneities")->get().CellHeterogeneity();
-	
+                                                 & mpDefaultParameters->Simulation().CellHeterogeneities(), 
+                                                 "CellHeterogeneities")->get().CellHeterogeneity();
+    
     for (simulation_type::CellHeterogeneities::_xsd_CellHeterogeneities_::CellHeterogeneities::CellHeterogeneity::iterator i = cell_heterogeneity.begin();
          i != cell_heterogeneity.end();
          ++i)
@@ -201,14 +201,14 @@ void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeteroge
 }
 
 void HeartConfig::GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
-					  			 	std::vector< c_vector<double,3> >& intraConductivities,
-									std::vector< c_vector<double,3> >& extraConductivities)
+                                       std::vector< c_vector<double,3> >& intraConductivities,
+                                    std::vector< c_vector<double,3> >& extraConductivities)
 {
-	simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::ConductivityHeterogeneity::container&
+    simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::ConductivityHeterogeneity::container&
          conductivity_heterogeneity = DecideLocation( & mpUserParameters->Simulation().ConductivityHeterogeneities(), 
-	                       							  & mpDefaultParameters->Simulation().ConductivityHeterogeneities(), 
-	                       					  		  "CellHeterogeneities")->get().ConductivityHeterogeneity();
-	
+                                                         & mpDefaultParameters->Simulation().ConductivityHeterogeneities(), 
+                                                           "CellHeterogeneities")->get().ConductivityHeterogeneity();
+    
     for (simulation_type::ConductivityHeterogeneities::_xsd_ConductivityHeterogeneities_::ConductivityHeterogeneities::ConductivityHeterogeneity::iterator i = conductivity_heterogeneity.begin();
          i != conductivity_heterogeneity.end();
          ++i)
@@ -229,28 +229,28 @@ void HeartConfig::GetConductivityHeterogeneities(std::vector<ChasteCuboid>& cond
         
         if (ht.IntracellularConductivities().present())
         {
-        	double intra_x = ht.IntracellularConductivities().get().longi();
-        	double intra_y = ht.IntracellularConductivities().get().trans();
-        	double intra_z = ht.IntracellularConductivities().get().normal();
-        	
-        	intraConductivities.push_back( Create_c_vector(intra_x, intra_y, intra_z) );
+            double intra_x = ht.IntracellularConductivities().get().longi();
+            double intra_y = ht.IntracellularConductivities().get().trans();
+            double intra_z = ht.IntracellularConductivities().get().normal();
+            
+            intraConductivities.push_back( Create_c_vector(intra_x, intra_y, intra_z) );
         }
         else
         {
-        	intraConductivities.push_back( GetIntracellularConductivities() );
+            intraConductivities.push_back( GetIntracellularConductivities() );
         }
 
         if (ht.ExtracellularConductivities().present())
         {
-        	double extra_x = ht.ExtracellularConductivities().get().longi();
-        	double extra_y = ht.ExtracellularConductivities().get().trans();
-        	double extra_z = ht.ExtracellularConductivities().get().normal();
-        	
-        	extraConductivities.push_back( Create_c_vector(extra_x, extra_y, extra_z) );
+            double extra_x = ht.ExtracellularConductivities().get().longi();
+            double extra_y = ht.ExtracellularConductivities().get().trans();
+            double extra_z = ht.ExtracellularConductivities().get().normal();
+            
+            extraConductivities.push_back( Create_c_vector(extra_x, extra_y, extra_z) );
         }
         else
         {
-        	extraConductivities.push_back( GetExtracellularConductivities() );
+            extraConductivities.push_back( GetExtracellularConductivities() );
         }
 
     }        

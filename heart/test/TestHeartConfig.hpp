@@ -78,51 +78,51 @@ public :
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersFullFormat.xml");
 
-		TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(),
-						 10.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(),
+                         10.0);
 
-		TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDomain(),
-						 domain_type::Mono);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDomain(),
+                         domain_type::Mono);
  
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(),
-        			 	 ionic_model_type::FaberRudy2000Version3);        
-						 
-		std::vector<SimpleStimulus> stimuli_applied;
-		std::vector<ChasteCuboid> stimulated_areas;
-		HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas);
-		
-		TS_ASSERT_EQUALS(stimuli_applied.size(), 2u);
-		TS_ASSERT_EQUALS(stimulated_areas.size(), 2u);
-		
-		TS_ASSERT_EQUALS(stimuli_applied[0].GetStimulus(0), -25500.0);
-		TS_ASSERT_EQUALS(stimuli_applied[0].GetStimulus(0.6), 0.0);
-		
-		TS_ASSERT(stimulated_areas[1].DoesContain(ChastePoint<3>(-2, 0, -2)));
-		TS_ASSERT( ! stimulated_areas[1].DoesContain(ChastePoint<3>(-6, -6, -6)));
-		
-		std::vector<ChasteCuboid> cell_heterogeneity_areas;
+                          ionic_model_type::FaberRudy2000Version3);        
+                         
+        std::vector<SimpleStimulus> stimuli_applied;
+        std::vector<ChasteCuboid> stimulated_areas;
+        HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas);
+        
+        TS_ASSERT_EQUALS(stimuli_applied.size(), 2u);
+        TS_ASSERT_EQUALS(stimulated_areas.size(), 2u);
+        
+        TS_ASSERT_EQUALS(stimuli_applied[0].GetStimulus(0), -25500.0);
+        TS_ASSERT_EQUALS(stimuli_applied[0].GetStimulus(0.6), 0.0);
+        
+        TS_ASSERT(stimulated_areas[1].DoesContain(ChastePoint<3>(-2, 0, -2)));
+        TS_ASSERT( ! stimulated_areas[1].DoesContain(ChastePoint<3>(-6, -6, -6)));
+        
+        std::vector<ChasteCuboid> cell_heterogeneity_areas;
         std::vector<double> scale_factor_gks;
-    	std::vector<double> scale_factor_ito;
-	 	HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
-    													scale_factor_gks,
-    													scale_factor_ito);
-		
-		TS_ASSERT(cell_heterogeneity_areas[0].DoesContain(ChastePoint<3>(-1.0, 0, 0)));
-		TS_ASSERT_EQUALS(scale_factor_gks[1], 1.154);
-		TS_ASSERT_EQUALS(scale_factor_ito[2], 1);
+        std::vector<double> scale_factor_ito;
+         HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
+                                                        scale_factor_gks,
+                                                        scale_factor_ito);
+        
+        TS_ASSERT(cell_heterogeneity_areas[0].DoesContain(ChastePoint<3>(-1.0, 0, 0)));
+        TS_ASSERT_EQUALS(scale_factor_gks[1], 1.154);
+        TS_ASSERT_EQUALS(scale_factor_ito[2], 1);
 
-		std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
+        std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
-    	std::vector< c_vector<double,3> > extra_h_conductivities;
-	 	HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
-    															intra_h_conductivities,
-    															extra_h_conductivities);
-		
-		TS_ASSERT(conductivities_heterogeneity_areas[0].DoesContain(ChastePoint<3>(1.95, 0, 0)));
-		TS_ASSERT_EQUALS(intra_h_conductivities[0][0], 2.75);
-		TS_ASSERT_EQUALS(extra_h_conductivities[0][0], 8.0);
-		TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 0.75);
-		TS_ASSERT_EQUALS(extra_h_conductivities[1][0], HeartConfig::Instance()->GetExtracellularConductivities()[0]);			
+        std::vector< c_vector<double,3> > extra_h_conductivities;
+         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
+                                                                intra_h_conductivities,
+                                                                extra_h_conductivities);
+        
+        TS_ASSERT(conductivities_heterogeneity_areas[0].DoesContain(ChastePoint<3>(1.95, 0, 0)));
+        TS_ASSERT_EQUALS(intra_h_conductivities[0][0], 2.75);
+        TS_ASSERT_EQUALS(extra_h_conductivities[0][0], 8.0);
+        TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 0.75);
+        TS_ASSERT_EQUALS(extra_h_conductivities[1][0], HeartConfig::Instance()->GetExtracellularConductivities()[0]);            
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "ChasteResults");
 

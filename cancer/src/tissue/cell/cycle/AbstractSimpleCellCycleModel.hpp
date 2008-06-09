@@ -75,8 +75,8 @@ protected:
      * of the different cell types' G1 durations.
      */
     virtual void SetG1Duration();
-	
-	
+    
+    
 public:
     /**
      * Default constructor - creates an AbstractSimpleCellCycleModel

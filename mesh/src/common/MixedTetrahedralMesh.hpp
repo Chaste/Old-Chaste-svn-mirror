@@ -99,7 +99,7 @@ public:
         delete mpCoarseFineNodeMap;
         if(mAllocatedFineMeshMemory)
         {
-        	delete mpFineMesh;
+            delete mpFineMesh;
         }
     }
     
@@ -108,7 +108,7 @@ public:
      *  meshes. numCoarseElemInEachDirection must be less than numFineElemInEachDirection
      */
     void ConstructRectangularMeshes(double width,
-    								double height,
+                                    double height,
                                     unsigned numCoarseElemInEachDirection,
                                     unsigned numFineElemInEachDirection);
     
@@ -289,24 +289,24 @@ void MixedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetFineMesh(ConformingTetrahe
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MixedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMeshes(double width, 
-																			  double height, 
-																			  unsigned numCoarseElemInEachDirection, 
-																			  unsigned numFineElemInEachDirection)
+                                                                              double height, 
+                                                                              unsigned numCoarseElemInEachDirection, 
+                                                                              unsigned numFineElemInEachDirection)
 {
-	assert(ELEMENT_DIM==2);
-	assert(SPACE_DIM==2);
-	assert(numCoarseElemInEachDirection <= numFineElemInEachDirection); // probably entered wrong way round if not
+    assert(ELEMENT_DIM==2);
+    assert(SPACE_DIM==2);
+    assert(numCoarseElemInEachDirection <= numFineElemInEachDirection); // probably entered wrong way round if not
 
-	ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_fine_mesh = new ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>;
+    ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_fine_mesh = new ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>;
     p_fine_mesh->ConstructRectangularMesh(numFineElemInEachDirection, numFineElemInEachDirection, false);
     p_fine_mesh->Scale(width/numFineElemInEachDirection, height/numFineElemInEachDirection, 0.0);
 
-	this->ConstructRectangularMesh(numCoarseElemInEachDirection, numCoarseElemInEachDirection, false);
+    this->ConstructRectangularMesh(numCoarseElemInEachDirection, numCoarseElemInEachDirection, false);
     this->Scale(width/numCoarseElemInEachDirection, height/numCoarseElemInEachDirection, 0.0);
 
-	SetFineMesh(p_fine_mesh);
+    SetFineMesh(p_fine_mesh);
 
-	mAllocatedFineMeshMemory = true;
+    mAllocatedFineMeshMemory = true;
 }
 
 

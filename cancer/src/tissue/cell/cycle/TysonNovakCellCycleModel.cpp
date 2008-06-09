@@ -51,7 +51,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentPro
 }
 
 void TysonNovakCellCycleModel::ResetForDivision()
-{	
+{    
     AbstractOdeBasedCellCycleModel::ResetForDivision();
     
     assert(mpOdeSystem!=NULL);

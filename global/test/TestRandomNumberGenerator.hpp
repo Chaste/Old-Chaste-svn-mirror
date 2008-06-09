@@ -90,22 +90,22 @@ public:
         std::vector<double> generated_numbers;
         
         // Create and archive random number generator
-        {	// Save random number generator
-        	RandomNumberGenerator *p_gen=RandomNumberGenerator::Instance();
-        	p_gen->Reseed(5);
+        {    // Save random number generator
+            RandomNumberGenerator *p_gen=RandomNumberGenerator::Instance();
+            p_gen->Reseed(5);
 
-			std::ofstream ofs(archive_filename.c_str());
+            std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
             for(unsigned i=0; i<5; i++)
-        	{
-        		p_gen->ranf();
-        	}
-        	
-        	//A few extra calls before archiving
-        	p_gen->ranf();
-        	p_gen->randMod(3);        	
-        	p_gen->StandardNormalRandomDeviate();
+            {
+                p_gen->ranf();
+            }
+            
+            //A few extra calls before archiving
+            p_gen->ranf();
+            p_gen->randMod(3);            
+            p_gen->StandardNormalRandomDeviate();
             p_gen->NormalRandomDeviate(0.5, 0.1);
             
             output_arch << static_cast<const RandomNumberGenerator&>(*p_gen);
@@ -113,10 +113,10 @@ public:
             // Generator saved here - record the next 10 numbers
             
             for(unsigned i=0; i<10; i++)
-        	{
-        		double random = p_gen->ranf();
-        		generated_numbers.push_back(random);
-        	}
+            {
+                double random = p_gen->ranf();
+                generated_numbers.push_back(random);
+            }
             
             RandomNumberGenerator::Destroy();
         }
@@ -124,25 +124,25 @@ public:
         // Restore
         {
             RandomNumberGenerator *p_gen=RandomNumberGenerator::Instance();
-        	p_gen->Reseed(25);	// any old seed.
-        	for(unsigned i=0; i<7; i++)	// generate some numbers
-        	{
-        		p_gen->ranf();
-        	}
+            p_gen->Reseed(25);    // any old seed.
+            for(unsigned i=0; i<7; i++)    // generate some numbers
+            {
+                p_gen->ranf();
+            }
             
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             input_arch >> *p_gen;
             
-			// Random Number generator restored. 
-			// check it generates the same numbers as the one we saved.
+            // Random Number generator restored. 
+            // check it generates the same numbers as the one we saved.
             
-			for(unsigned i=0; i<generated_numbers.size(); i++)
-        	{
-        		double random = p_gen->ranf();
-        		TS_ASSERT_DELTA(random,generated_numbers[i],1e-7);
-        	}
-			
+            for(unsigned i=0; i<generated_numbers.size(); i++)
+            {
+                double random = p_gen->ranf();
+                TS_ASSERT_DELTA(random,generated_numbers[i],1e-7);
+            }
+            
             RandomNumberGenerator::Destroy();
         }
     }

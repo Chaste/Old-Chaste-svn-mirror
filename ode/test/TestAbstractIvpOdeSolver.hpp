@@ -231,7 +231,7 @@ public:
         
         int last = solutions.GetNumberOfTimeSteps();
         // Test to see if this worked
-        double testvalue = solutions.rGetSolutions()[last-1][0]	;
+        double testvalue = solutions.rGetSolutions()[last-1][0]    ;
         
         TS_ASSERT_DELTA(testvalue,2.0,0.001);
     }

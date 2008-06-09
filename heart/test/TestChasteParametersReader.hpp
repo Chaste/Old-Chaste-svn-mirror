@@ -59,7 +59,7 @@ public:
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->SlabZ(), 2.0);            
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->InterNodeSpace(), 0.1);
 
-			physiological_type physiological_params = params->Physiological();
+            physiological_type physiological_params = params->Physiological();
 
             TS_ASSERT(physiological_params.IntracellularConductivities().present());
             TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().get().longi(), 1.75);

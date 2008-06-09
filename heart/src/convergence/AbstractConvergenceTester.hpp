@@ -399,7 +399,7 @@ public:
                 cardiac_problem.SetBoundaryConditionsContainer(&bcc);
             }
             
-      	    DisplayRun();
+              DisplayRun();
             double time_before=MPI_Wtime();
             //// use this to get some info printed out
             //cardiac_problem.SetWriteInfo();                        
@@ -632,7 +632,7 @@ public:
     
     void SetMeshWidth(double meshWidth)
     {
-    	mMeshWidth=meshWidth;
+        mMeshWidth=meshWidth;
     }
 };
 #endif /*ABSTRACTCONVERGENCETESTER_HPP_*/

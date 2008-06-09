@@ -58,20 +58,20 @@ void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
         // Get cell's oxygen concentration
         double oxygen_concentration = CellwiseData<2>::Instance()->GetValue(mpCell,0);
 
-	    AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
+        AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
 
         if (mCurrentCellCyclePhase == G_ONE_PHASE)
         {            
-	        // Update G1 duration based on oxygen concentration
-	        double dt = SimulationTime::Instance()->GetTimeStep();
+            // Update G1 duration based on oxygen concentration
+            double dt = SimulationTime::Instance()->GetTimeStep();
             double quiescent_concentration = CancerParameters::Instance()->GetHepaOneCellQuiescentConcentration();
            
             if (oxygen_concentration < quiescent_concentration)
             {
                 mG1Duration += (1 - std::max(oxygen_concentration,0.0)/quiescent_concentration)*dt;
-	            mTimeSpentInG1Phase += dt;
+                mTimeSpentInG1Phase += dt;
             }
-	    }
+        }
     }
 }
 

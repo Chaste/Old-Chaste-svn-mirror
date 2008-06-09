@@ -67,8 +67,8 @@ public:
             p_stim = mpZeroStimulus;
         }
 
-      	if(mFastSlow)
-      	{
+          if(mFastSlow)
+          {
             // fast-slow cells
             return new FastSlowLuoRudyIModel1991(mpSolver, mTimeStep, p_stim); // state unset at the moment
         }
@@ -98,12 +98,12 @@ public:
     {
         EXIT_IF_PARALLEL;
         
-    	EventHandler::Disable();
-    	
+        EventHandler::Disable();
+        
         unsigned num_coarse_nodes_each_dir = 3;
         unsigned num_fine_nodes_each_dir = 30;
 
-		// solve a mixed mesh, fast/slow problem        
+        // solve a mixed mesh, fast/slow problem        
         MixedTetrahedralMesh<2,2> mixed_mesh;
         mixed_mesh.ConstructRectangularMeshes(1.0, 1.0, num_coarse_nodes_each_dir, num_fine_nodes_each_dir); 
 
@@ -121,7 +121,7 @@ public:
         ReplicatableVector voltage_fast_slow( monodomain_fast_slow_prob.GetVoltage() );
         TS_ASSERT_EQUALS(voltage_fast_slow.size(), mixed_mesh.GetFineMesh()->GetNumNodes() );
 
-		// solve using normal monodomain problem
+        // solve using normal monodomain problem
         MyCellFactory cell_factory_normal(false);
         
         MonodomainProblem<2> monodomain_prob( &cell_factory_normal, 1.0 );
@@ -133,7 +133,7 @@ public:
         
         monodomain_prob.Initialise();
         monodomain_prob.Solve();
-	        
+            
         ReplicatableVector voltage_normal( monodomain_prob.GetVoltage() );
         TS_ASSERT_EQUALS(voltage_fast_slow.size(), voltage_normal.size() );
         

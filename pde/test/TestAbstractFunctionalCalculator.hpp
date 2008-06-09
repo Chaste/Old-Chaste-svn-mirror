@@ -107,7 +107,7 @@ public:
         ExampleFunctionalOne calculator;
         
         DistributedVector::SetProblemSize(mesh.GetNumNodes());
-	    Vec petsc_vec = DistributedVector::CreateVec(2);
+        Vec petsc_vec = DistributedVector::CreateVec(2);
         DistributedVector vec1(petsc_vec);
         DistributedVector::Stripe u1(vec1, 0);
         DistributedVector::Stripe v1(vec1, 1);
@@ -117,7 +117,7 @@ public:
         {
             Node<2>* p_node = mesh.GetNode(index.Global);
             u1[index] = p_node->rGetLocation()[0];
-	        v1[index] = 2.0;
+            v1[index] = 2.0;
         }
         vec1.Restore();
         
@@ -129,7 +129,7 @@ public:
         // = 5/3
         ExampleFunctionalTwo other_calculator;
 
-	    DistributedVector vec2(petsc_vec);
+        DistributedVector vec2(petsc_vec);
         DistributedVector::Stripe u2(vec2, 0);
         DistributedVector::Stripe v2(vec2, 1);
         for (DistributedVector::Iterator index = DistributedVector::Begin();

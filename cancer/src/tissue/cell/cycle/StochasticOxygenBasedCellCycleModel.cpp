@@ -119,7 +119,7 @@ void StochasticOxygenBasedCellCycleModel::UpdateCellCyclePhase()
                 mG1Duration += (1 - std::max(oxygen_concentration,0.0)/quiescent_concentration)*dt;
                 mTimeSpentInG1Phase += dt;
             }
-	    }
+        }
     }
 }
 

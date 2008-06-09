@@ -50,7 +50,7 @@ protected:
                              
 public:
     RungeKutta2IvpOdeSolver()
-    {};	//Constructor-does nothing
+    {};    //Constructor-does nothing
     
 };
 

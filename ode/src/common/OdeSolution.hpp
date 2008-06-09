@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class OdeSolution
 {
 private:
-    unsigned mNumberOfTimeSteps;	/**< Variable for the number of timesteps */
+    unsigned mNumberOfTimeSteps;    /**< Variable for the number of timesteps */
     
     std::vector<double> mTimes; /**< A vector of times at each timestep. */
     std::vector<std::vector<double> > mSolutions;  /**< Solutions for each variable at each timestep. */

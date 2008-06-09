@@ -69,7 +69,7 @@ public:
 
     void TestCreateMirrorCellsANDAlignmentTester() throw (Exception)
     {   
-    	// note that elements are not created (and boundary elements are not changed)
+        // note that elements are not created (and boundary elements are not changed)
         // this just creates a set of new nodes.
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -150,7 +150,7 @@ public:
     
     void TestReconstructCylindricalMesh() throw (Exception)
     {   
-    	// this takes in a new mesh created using the mirror function above
+        // this takes in a new mesh created using the mirror function above
         // and a ReMesh call, then removes nodes, elements and boundary elements.
         unsigned cells_across = 6;
         unsigned cells_up = 12;

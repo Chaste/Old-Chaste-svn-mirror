@@ -62,11 +62,11 @@ public:
     ionic_model_type GetIonicModel();
     void GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas);
     void GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
-    							std::vector<double>& scaleFactorGks,
-    							std::vector<double>& scaleFactorIto);
+                                std::vector<double>& scaleFactorGks,
+                                std::vector<double>& scaleFactorIto);
     void GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
-				  					 	std::vector< c_vector<double,3> >& intraConductivities,
-										std::vector< c_vector<double,3> >& extraConductivities);
+                                           std::vector< c_vector<double,3> >& intraConductivities,
+                                        std::vector< c_vector<double,3> >& extraConductivities);
     std::string GetOutputDirectory();
     
     // Physiological

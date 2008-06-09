@@ -69,7 +69,7 @@ public:
             TS_FAIL(e.GetMessage());
         }
         
-	    DistributedVector striped_voltage(bidomain_problem.GetVoltage());
+        DistributedVector striped_voltage(bidomain_problem.GetVoltage());
         DistributedVector::Stripe voltage(striped_voltage, 0);
         
         for (DistributedVector::Iterator index = DistributedVector::Begin();
