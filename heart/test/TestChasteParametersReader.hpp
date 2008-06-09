@@ -72,7 +72,6 @@ public:
             TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().normal(), 7.0);
 
             TS_ASSERT_EQUALS(simulation_params.OutputDirectory().get(), "ChasteResults");
-            TS_ASSERT_EQUALS(simulation_params.MeshOutputDirectory().get(), "Slab");
             TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);
             TS_ASSERT_EQUALS(simulation_params.IonicModel().get(), ionic_model_type::FaberRudy2000Version3);
         }
@@ -113,7 +112,6 @@ public:
             TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().normal(), 7.0);
 
             TS_ASSERT_EQUALS(simulation_params.OutputDirectory().get(), "ChasteResults");
-            TS_ASSERT_EQUALS(simulation_params.MeshOutputDirectory().get(), "Slab");
             TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);
             TS_ASSERT_EQUALS(simulation_params.IonicModel().get(), ionic_model_type::FaberRudy2000Version3);
         }
