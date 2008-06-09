@@ -110,7 +110,6 @@
 			Output 
 		-->
 		<OutputDirectory>ChasteResults</OutputDirectory>
-	    <MeshOutputDirectory>Slab</MeshOutputDirectory>	
 	</Simulation>
 	
 	<Physiological>
@@ -124,7 +123,7 @@
 	</Physiological>
 
 	<Numerical>
-		<Timesteps ode="0.01" pde="0.01" printing="0.01"/>
+		<Timesteps ode="0.025" pde="0.05" printing="1.0"/>
 		<KSPTolerances use="relative">
 			<KSPRelative>1e-6</KSPRelative>
 			<KSPAbsolute>1e-50</KSPAbsolute>			

@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractStimulusFunction.hpp"
 #include "SimpleStimulus.hpp"
 #include "ChasteCuboid.hpp"
-//#include "ChastePoint.hpp"
 
 class HeartConfig
 {
@@ -68,13 +67,27 @@ public:
     void GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
 				  					 	std::vector< c_vector<double,3> >& intraConductivities,
 										std::vector< c_vector<double,3> >& extraConductivities);
-    
+    std::string GetOutputDirectory();
     
     // Physiological
-    
-    // Numerical
     c_vector<double, 3> GetIntracellularConductivities();
     c_vector<double, 3> GetExtracellularConductivities();
+    double GetSurfaceAreaToVolumeRatio();
+    double GetCapacitance();
+    
+    // Numerical
+    double GetOdeTimestep();
+    double GetPdeTimestep();
+    double GetPrintingTimestep();
+    
+    bool GetUseAbsoluteTolerance();
+    double GetAbsoluteTolerance();
+
+    bool GetUseRelativeTolerance();
+    double GetRelativeTolerance();
+
+    ksp_solver_type GetKSPSolver();
+    ksp_preconditioner_type GetKSPPreconditioner();
     
 private:
     HeartConfig();

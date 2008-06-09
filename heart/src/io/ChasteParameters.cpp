@@ -1263,36 +1263,6 @@ OutputDirectory (::std::auto_ptr< OutputDirectory::type > OutputDirectory)
   this->_xsd_OutputDirectory_.set (OutputDirectory);
 }
 
-const simulation_type::MeshOutputDirectory::container& simulation_type::
-MeshOutputDirectory () const
-{
-  return this->_xsd_MeshOutputDirectory_;
-}
-
-simulation_type::MeshOutputDirectory::container& simulation_type::
-MeshOutputDirectory ()
-{
-  return this->_xsd_MeshOutputDirectory_;
-}
-
-void simulation_type::
-MeshOutputDirectory (const MeshOutputDirectory::type& MeshOutputDirectory)
-{
-  this->_xsd_MeshOutputDirectory_.set (MeshOutputDirectory);
-}
-
-void simulation_type::
-MeshOutputDirectory (const MeshOutputDirectory::container& MeshOutputDirectory)
-{
-  this->_xsd_MeshOutputDirectory_ = MeshOutputDirectory;
-}
-
-void simulation_type::
-MeshOutputDirectory (::std::auto_ptr< MeshOutputDirectory::type > MeshOutputDirectory)
-{
-  this->_xsd_MeshOutputDirectory_.set (MeshOutputDirectory);
-}
-
 
 // physiological_type
 // 
@@ -3638,8 +3608,7 @@ _xsd_Mesh_ (::xml_schema::flags (), this),
 _xsd_Stimuli_ (::xml_schema::flags (), this),
 _xsd_CellHeterogeneities_ (::xml_schema::flags (), this),
 _xsd_ConductivityHeterogeneities_ (::xml_schema::flags (), this),
-_xsd_OutputDirectory_ (::xml_schema::flags (), this),
-_xsd_MeshOutputDirectory_ (::xml_schema::flags (), this)
+_xsd_OutputDirectory_ (::xml_schema::flags (), this)
 {
 }
 
@@ -3671,10 +3640,7 @@ _xsd_ConductivityHeterogeneities_ (_xsd_simulation_type._xsd_ConductivityHeterog
                                    this),
 _xsd_OutputDirectory_ (_xsd_simulation_type._xsd_OutputDirectory_,
                        f | ::xml_schema::flags::not_root,
-                       this),
-_xsd_MeshOutputDirectory_ (_xsd_simulation_type._xsd_MeshOutputDirectory_,
-                           f | ::xml_schema::flags::not_root,
-                           this)
+                       this)
 {
 }
 
@@ -3690,8 +3656,7 @@ _xsd_Mesh_ (f | ::xml_schema::flags::not_root, this),
 _xsd_Stimuli_ (f | ::xml_schema::flags::not_root, this),
 _xsd_CellHeterogeneities_ (f | ::xml_schema::flags::not_root, this),
 _xsd_ConductivityHeterogeneities_ (f | ::xml_schema::flags::not_root, this),
-_xsd_OutputDirectory_ (f | ::xml_schema::flags::not_root, this),
-_xsd_MeshOutputDirectory_ (f | ::xml_schema::flags::not_root, this)
+_xsd_OutputDirectory_ (f | ::xml_schema::flags::not_root, this)
 {
   parse (e, f);
 }
@@ -3843,24 +3808,6 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
         if (this->OutputDirectory ())
           continue;
         this->OutputDirectory (r);
-        continue;
-      }
-    }
-
-    // MeshOutputDirectory
-    //
-    {
-      if (e.name () == "MeshOutputDirectory" && e.namespace_ ().empty ())
-      {
-        ::std::auto_ptr< MeshOutputDirectory::type > r (
-          MeshOutputDirectory::traits::create (
-            e.dom_element (),
-            f | ::xml_schema::flags::not_root,
-            this));
-
-        if (this->MeshOutputDirectory ())
-          continue;
-        this->MeshOutputDirectory (r);
         continue;
       }
     }

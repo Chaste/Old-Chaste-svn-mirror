@@ -7,7 +7,6 @@
 	    <Domain>Mono</Domain>
 	    <IonicModel>LuoRudyIModel1991OdeSystem</IonicModel>
 		<OutputDirectory>ChasteResults</OutputDirectory>
-	    <MeshOutputDirectory>Slab</MeshOutputDirectory>	
 	</Simulation>
 	
 	<Physiological>

@@ -46,7 +46,6 @@
 			Output 
 		-->
 		<OutputDirectory>ChasteResults</OutputDirectory>
-	    <MeshOutputDirectory>Slab</MeshOutputDirectory>	
 	</Simulation>
 	
 	<Physiological>

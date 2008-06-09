@@ -124,6 +124,8 @@ public :
 		TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 0.75);
 		TS_ASSERT_EQUALS(extra_h_conductivities[1][0], HeartConfig::Instance()->GetExtracellularConductivities()[0]);			
 
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "ChasteResults");
+
         c_vector<double, 3> intra_conductivities = HeartConfig::Instance()->GetIntracellularConductivities();   
         TS_ASSERT_EQUALS(intra_conductivities[0], 1.75);
         TS_ASSERT_EQUALS(intra_conductivities[1], 1.75);
@@ -132,7 +134,24 @@ public :
         c_vector<double, 3> extra_conductivities = HeartConfig::Instance()->GetExtracellularConductivities();   
         TS_ASSERT_EQUALS(extra_conductivities[0], 7.0);
         TS_ASSERT_EQUALS(extra_conductivities[1], 7.0);
-        TS_ASSERT_EQUALS(extra_conductivities[2], 7.0);                
+        TS_ASSERT_EQUALS(extra_conductivities[2], 7.0);
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 1400.0);
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCapacitance(), 1.0);
+        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimestep(), 0.025);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPdeTimestep(), 0.05);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPrintingTimestep(), 1.0);
+        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseAbsoluteTolerance(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-50);
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseRelativeTolerance(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-6);
+        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPSolver(), ksp_solver_type::gmres);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPPreconditioner(), ksp_preconditioner_type::ilu);       
 
         HeartConfig::Destroy();
     }
