@@ -156,6 +156,79 @@ public :
         HeartConfig::Destroy();
     }
     
+    void TestSetFunctions()
+    {
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteEmpty.xml");
+        
+        HeartConfig::Instance()->SetSimulationDuration(35.0);                                 
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 35.0);
+        
+        HeartConfig::Instance()->SetDomain(domain_type::Bi);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDomain(), domain_type::Bi);
+
+        HeartConfig::Instance()->SetIonicModel(ionic_model_type::BackwardEulerLuoRudyIModel1991);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIonicModel(), ionic_model_type::BackwardEulerLuoRudyIModel1991);
+        
+        HeartConfig::Instance()->SetOutputDirectory("NewOuputDirectory");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "NewOuputDirectory");
+        
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(-6.0, -5.0, -4.0));
+        c_vector<double, 3> intra = HeartConfig::Instance()->GetIntracellularConductivities();
+        TS_ASSERT_EQUALS(intra[0], -6.0);  
+        TS_ASSERT_EQUALS(intra[1], -5.0);  
+        TS_ASSERT_EQUALS(intra[2], -4.0);  
+
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(-3.0, -2.0, -1.0));
+        c_vector<double, 3> extra = HeartConfig::Instance()->GetExtracellularConductivities();
+        TS_ASSERT_EQUALS(extra[0], -3.0);  
+        TS_ASSERT_EQUALS(extra[1], -2.0);  
+        TS_ASSERT_EQUALS(extra[2], -1.0);
+        
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(2000);  
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 2000);
+
+        HeartConfig::Instance()->SetCapacitance(2.3);  
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCapacitance(), 2.3);
+
+        HeartConfig::Instance()->SetTimesteps(1.1,2.2,4.4);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimestep(), 1.1);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPdeTimestep(), 2.2);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPrintingTimestep(), 4.4);
+
+        HeartConfig::Instance()->SetOdeTimestep(0.1);  
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimestep(), 0.1);
+
+        HeartConfig::Instance()->SetPdeTimestep(0.2);  
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPdeTimestep(), 0.2);
+ 
+        HeartConfig::Instance()->SetPrintingTimestep(0.4);  
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPrintingTimestep(), 0.4);
+
+        HeartConfig::Instance()->SetTolerances(1e-3, 1e-8, ksp_use_type::absolute);
+        TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-3);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-8);
+
+        HeartConfig::Instance()->SetUseRelativeTolerance();
+        HeartConfig::Instance()->SetRelativeTolerance(1e-4);
+        HeartConfig::Instance()->SetAbsoluteTolerance(1e-10);
+        TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-4);
+        
+        HeartConfig::Instance()->SetUseAbsoluteTolerance();
+        HeartConfig::Instance()->SetRelativeTolerance(1e-5);
+        HeartConfig::Instance()->SetAbsoluteTolerance(1e-11);
+        TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-11);
+                
+        HeartConfig::Instance()->SetKSPSolver(ksp_solver_type::cg);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPSolver(), ksp_solver_type::cg);
+        
+        HeartConfig::Instance()->SetKSPPreconditioner(ksp_preconditioner_type::jacobi);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPPreconditioner(), ksp_preconditioner_type::jacobi);
+
+    }
+    
     void TestExceptions()
     {
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteWrong.xml"));

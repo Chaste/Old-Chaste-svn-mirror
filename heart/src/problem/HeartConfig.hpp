@@ -49,60 +49,98 @@ public:
      */
     static HeartConfig* Instance();
     
-    chaste_parameters_type* UserParameters();
-    chaste_parameters_type* DefaultParameters();
-    
     void SetDefaultsFile(std::string fileName);
     void SetParametersFile(std::string fileName);
     static void Destroy();
-    
+
+    /*
+     *  Get methods
+     */    
     // Simulation
-    double GetSimulationDuration();
-    domain_type GetDomain();
-    ionic_model_type GetIonicModel();
-    void GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas);
+    double GetSimulationDuration() const;
+    domain_type GetDomain() const;
+    ionic_model_type GetIonicModel() const;
+    void GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas) const;
     void GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
-                                std::vector<double>& scaleFactorGks,
-                                std::vector<double>& scaleFactorIto);
+    							std::vector<double>& scaleFactorGks,
+    							std::vector<double>& scaleFactorIto) const;
     void GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
-                                           std::vector< c_vector<double,3> >& intraConductivities,
-                                        std::vector< c_vector<double,3> >& extraConductivities);
-    std::string GetOutputDirectory();
+				  					 	std::vector< c_vector<double,3> >& intraConductivities,
+										std::vector< c_vector<double,3> >& extraConductivities) const;
+    std::string GetOutputDirectory() const;
     
     // Physiological
-    c_vector<double, 3> GetIntracellularConductivities();
-    c_vector<double, 3> GetExtracellularConductivities();
-    double GetSurfaceAreaToVolumeRatio();
-    double GetCapacitance();
+    c_vector<double, 3> GetIntracellularConductivities() const;
+    c_vector<double, 3> GetExtracellularConductivities() const;
+    double GetSurfaceAreaToVolumeRatio() const;
+    double GetCapacitance() const;
     
     // Numerical
-    double GetOdeTimestep();
-    double GetPdeTimestep();
-    double GetPrintingTimestep();
+    double GetOdeTimestep() const;
+    double GetPdeTimestep() const;
+    double GetPrintingTimestep() const;
     
-    bool GetUseAbsoluteTolerance();
-    double GetAbsoluteTolerance();
+    bool GetUseAbsoluteTolerance() const;
+    double GetAbsoluteTolerance() const;
 
-    bool GetUseRelativeTolerance();
-    double GetRelativeTolerance();
+    bool GetUseRelativeTolerance() const;
+    double GetRelativeTolerance() const;
 
-    ksp_solver_type GetKSPSolver();
-    ksp_preconditioner_type GetKSPPreconditioner();
+    ksp_solver_type GetKSPSolver() const;
+    ksp_preconditioner_type GetKSPPreconditioner() const;
+
+
+    /*
+     *  Set methods
+     */    
+    // Simulation
+    void SetSimulationDuration(double simulationDuration);
+    void SetDomain(domain_type domain);
+    void SetIonicModel(ionic_model_type ionicModel);
+    void SetOutputDirectory(std::string outputDirectory);
+    
+    // Physiological
+    void SetIntracellularConductivities(const c_vector<double, 3>& intraConductivities);
+    void SetExtracellularConductivities(const c_vector<double, 3>& extraConductivities);
+    void SetSurfaceAreaToVolumeRatio(double ratio);
+    void SetCapacitance(double capacitance);
+    
+    // Numerical
+    void SetTimesteps(double odeTimestep, double pdeTimestep, double printingTimestep);
+    void SetOdeTimestep(double odeTimestep);
+    void SetPdeTimestep(double pdeTimestep);
+    void SetPrintingTimestep(double printingTimestep);
+     
+    void SetTolerances(double relativeTolerance, double absoluteTolerance, ksp_use_type use);
+    void SetUseRelativeTolerance(void);
+    void SetUseAbsoluteTolerance(void);
+    void SetRelativeTolerance(double relativeTolerance);    
+    void SetAbsoluteTolerance(double absoluteTolerance);    
+    
+    void SetKSPSolver(ksp_solver_type kspSolver);
+    void SetKSPPreconditioner(ksp_preconditioner_type kspPreconditioner);
+
+protected:
+    // Only to be accesed by the tests
+    friend class TestHeartConfig;
+    
+    chaste_parameters_type* UserParameters();
+    chaste_parameters_type* DefaultParameters();
+    
     
 private:
     HeartConfig();
     ~HeartConfig();
-    
+
+    chaste_parameters_type* mpUserParameters;
+    chaste_parameters_type* mpDefaultParameters;  
     
     /** The single instance of the class */
     static HeartConfig* mpInstance;
-    
-    chaste_parameters_type* mpUserParameters;
-    chaste_parameters_type* mpDefaultParameters;
-    
+        
     // Misc
     template<class TYPE> 
-    TYPE* DecideLocation(TYPE* ptr1, TYPE* ptr2, std::string nameParameter);
+    TYPE* DecideLocation(TYPE* ptr1, TYPE* ptr2, const std::string& nameParameter) const;
     //Utility method to parse an XML parameters file
     chaste_parameters_type* ReadFile(std::string fileName);
   
