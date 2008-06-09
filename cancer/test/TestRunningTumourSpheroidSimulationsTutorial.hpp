@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 /*
  * 
  *  Chaste tutorial - this page gets automatically changed to a wiki page
@@ -69,6 +70,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OxygenBasedCellKiller.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
+/* PetscSetupAndFinalize.hpp must be included in all tests which use Petsc, which
+ * is true of tumour spheroid simulations, as Petsc is used in the finite element
+ * PDE solvers, and tumour spheroid simulations solve PDEs (for the nutrient 
+ * concentration).
+ */
+#include "PetscSetupAndFinalize.hpp"
 
 
 /* Now we can define the test class, and write the test
