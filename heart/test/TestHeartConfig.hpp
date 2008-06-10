@@ -226,7 +226,8 @@ public :
         
         HeartConfig::Instance()->SetKSPPreconditioner(ksp_preconditioner_type::jacobi);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPPreconditioner(), ksp_preconditioner_type::jacobi);
-
+        
+        HeartConfig::Destroy();
     }
     
     void TestExceptions()
